@@ -17,7 +17,8 @@ const StyledButton = styled(Button)`
   flex-wrap: nowrap;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
-  padding-left: 0.5rem;
+  padding-left: ${(p) =>
+    p.theme.sizeMode === 'desktop' ? '0.75rem' : '0.5rem'};
   text-align: left;
 
   /* Increase contrast between checked/unchecked when disabled by

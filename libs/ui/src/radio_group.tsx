@@ -68,8 +68,10 @@ const StyledButton = styled(Button)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
   padding-left: ${(p) =>
-    /* istanbul ignore next */
-    p.theme.sizeMode === 'touchExtraLarge' && '0.25rem'};
+    p.theme.sizeMode === 'desktop'
+      ? '0.75rem'
+      : /* istanbul ignore next */
+        p.theme.sizeMode === 'touchExtraLarge' && '0.25rem'};
   text-align: left;
   width: 100%;
 

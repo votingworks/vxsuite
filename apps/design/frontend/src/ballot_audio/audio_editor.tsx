@@ -9,12 +9,6 @@ import { H3, P, RadioGroup, RadioGroupOption } from '@votingworks/ui';
 import * as api from '../api.js';
 import { TtsTextEditor } from './tts_text_editor.js';
 
-const ModeContainer = styled.div`
-  button {
-    padding: 0.5rem 0.75rem !important;
-  }
-`;
-
 const ModeTitle = styled(H3)`
   font-size: 1rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
@@ -81,17 +75,15 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
 
   return (
     <React.Fragment>
-      <ModeContainer>
-        <RadioGroup
-          disabled={!editable}
-          label="Audio Source"
-          hideLabel
-          numColumns={2}
-          onChange={setMode}
-          options={textOnly ? [TTS_MODE_OPTIONS[0]] : TTS_MODE_OPTIONS}
-          value={currentMode}
-        />
-      </ModeContainer>
+      <RadioGroup
+        disabled={!editable}
+        label="Audio Source"
+        hideLabel
+        numColumns={2}
+        onChange={setMode}
+        options={textOnly ? [TTS_MODE_OPTIONS[0]] : TTS_MODE_OPTIONS}
+        value={currentMode}
+      />
 
       {(() => {
         switch (currentMode) {
