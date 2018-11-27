@@ -2,6 +2,59 @@ import React, { Component, button } from 'react';
 import PrintProvider, { Print, NoPrint } from 'react-easy-print';
 import './App.css';
 
+var ELECTION = {
+  id: "DEMO",
+  title: "Demo Election",
+  contests: [
+    {
+      id: "president",
+      type: "plurality",
+      name: "President",
+      options: [
+        "Minnie Mouse",
+        "Mickey Mouse",
+        "Donald Duck"
+        ]
+    },
+    {
+      id: "senator",
+      type: "plurality",
+      name: "Senator",
+      options: [
+        "Chad Hanging",
+        "Lev Ermachine",
+        "John Smith"
+        ]
+    }
+  ]
+};
+
+class Ballot extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {election: props.election, ballot: props.ballot}
+  }
+  
+  render() {
+    let rows = []
+
+    // Outer loop to create parent
+    for (let contest of this.state.election.contests) {
+      rows.push(<tr key={contest.id}><th align="left" width="30%">{contest.name}</th><td>{this.state.ballot?this.state.ballot[contest.id]:''}</td></tr>);
+    }
+
+    return (
+      <table width="100%" style={{fontSize: "1.5em"}}>
+        <tbody>
+          <tr key="title"><th colSpan="2" style={{fontSize: "2em"}}>Official Ballot</th></tr>
+          <tr key="space"><th>&nbsp;</th></tr>
+          {rows}
+        </tbody>
+      </table>
+    );      
+  }
+}
+
 class App extends Component {
   print() {
     window.print();
@@ -17,14 +70,9 @@ class App extends Component {
               <button onClick={this.print}>print ballot</button>
             </header>
           </div>
-        </NoPrint>      
-	<Print name="ballot">
-          <table width="100%" style={{fontSize: "1.5em"}}>
-            <tr><th colspan="2" style={{fontSize: "2em"}}>Official Ballot</th></tr>
-            <tr><th>&nbsp;</th></tr>
-            <tr><th align="left" width="30%">Senator</th><td>Dianne Feinstein</td></tr>
-            <tr><th align="left" width="30%">Congressperson</th><td>Anna Eshoo</td></tr>
-          </table>
+        </NoPrint>
+	<Print exclusive name="ballot">
+          <Ballot election={ELECTION} ballot={{president: "Mickey Mouse", senator: "John Smith"}} />
 	</Print>
       </PrintProvider>
     );
