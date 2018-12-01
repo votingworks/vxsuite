@@ -63,7 +63,11 @@ class App extends Component {
   render() {
     return (
       <PrintProvider>
-        <NoPrint>
+	<Print single printOnly name="ballot">
+          <Ballot election={ELECTION} ballot={{president: "Mickey Mouse", senator: "John Smith"}} />
+	</Print>
+        
+        <NoPrint force>
           <div className="App">
             <header className="App-header">
               <img src="./vw-checkmark.png" className="App-logo" alt="logo" />
@@ -71,9 +75,6 @@ class App extends Component {
             </header>
           </div>
         </NoPrint>
-	<Print exclusive name="ballot">
-          <Ballot election={ELECTION} ballot={{president: "Mickey Mouse", senator: "John Smith"}} />
-	</Print>
       </PrintProvider>
     );
   }
