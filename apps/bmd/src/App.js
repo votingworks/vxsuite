@@ -1,14 +1,14 @@
-import React, { Component, button } from 'react';
+import React, { Component } from 'react';
 import PrintProvider, { Print, NoPrint } from 'react-easy-print';
 import './App.css';
 
-import { withStyles } from '@material-ui/core/styles';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 
 
 var ELECTION = {
@@ -38,19 +38,6 @@ var ELECTION = {
   ]
 };
 
-const styles = theme => ({
-  root: {
-    display: 'flex',
-  },
-  formControl: {
-    margin: theme.spacing.unit * 3,
-  },
-  group: {
-    margin: `${theme.spacing.unit}px 0`,
-  },
-});
-
-
 class BallotContest extends React.Component {
   handleChange = event => {
     this.setState({ value: event.target.value });
@@ -72,7 +59,7 @@ class BallotContest extends React.Component {
       rows.push(
         <FormControlLabel
           value={option}
-          label={option}
+          label={<Typography style={{fontSize: "2em"}}>{option}</Typography>}
           control={<Radio />}
           labelPlacement="end"
         />
@@ -81,7 +68,7 @@ class BallotContest extends React.Component {
 
     return (
       <FormControl component="fieldset">
-        <FormLabel component="legend">{contest.name}</FormLabel>
+        <FormLabel component="legend"><h2>{contest.name}</h2></FormLabel>
         <RadioGroup
           aria-label={contest.id}
           name={contest.id}
@@ -99,15 +86,31 @@ class BallotContest extends React.Component {
 class Ballot extends Component {
   constructor(props) {
     super(props);
-    this.election = props.election
+    this.election = props.election;
+    this.state = {position: 0, choices: []};
   }
 
   render() {
     let election = this.election;
+
+    let buttons = [];
+    if (this.state.position > 0) {
+      buttons.push(
+        <Button>Previous</Button>
+      );
+    }
+
+    buttons.push(
+        <Button>Next</Button>
+    );
+    
     return (
       <div>
-        <h1>Ballot</h1>
-        <BallotContest contest={election.contests[0]} />
+        <h1>{election.title}</h1>
+        <p>
+          <BallotContest contest={election.contests[this.state.position]} />
+        </p>
+        {buttons}
       </div>
     );
   }
@@ -155,7 +158,6 @@ class App extends Component {
           <div className="App">
             <img src="./vw-checkmark.png" className="App-logo" alt="logo" />
             <Ballot election={ELECTION} />
-            <button onClick={this.print}>print ballot</button>
           </div>
         </NoPrint>
       </PrintProvider>
