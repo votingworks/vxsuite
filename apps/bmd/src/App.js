@@ -40,13 +40,17 @@ var ELECTION = {
 
 class BallotContest extends React.Component {
   handleChange = event => {
-    this.setState({ value: event.target.value });
+    let value = event.target.value;
+    this.setState({ value: value });
+    this.choices[this.contestNum] = value;
   };
 
   constructor(props) {
     super(props);
     this.contest = props.contest;
-    this.state = {value: null};
+    this.contestNum = props.contestNum;
+    this.choices = props.choices;
+    this.state = {value: this.choices[this.contestNum]};
   }
   
   render() {
@@ -90,25 +94,37 @@ class Ballot extends Component {
     this.state = {position: 0, choices: []};
   }
 
+  next() {
+    this.setState({position: this.state.position+1, choices: this.state.choices});
+  }
+
+  previous() {
+    this.setState({position: this.state.position-1, choices: this.state.choices});   }
+  
   render() {
     let election = this.election;
 
     let buttons = [];
     if (this.state.position > 0) {
       buttons.push(
-        <Button>Previous</Button>
+        <Button onClick={()=>{this.previous();}}>Previous</Button>
       );
     }
 
     buttons.push(
-        <Button>Next</Button>
+      <Button onClick={()=>{this.next();}}>Next</Button>
     );
-    
+
     return (
       <div>
         <h1>{election.title}</h1>
         <p>
-          <BallotContest contest={election.contests[this.state.position]} />
+          <BallotContest
+            key={this.state.position}
+            contest={this.election.contests[this.state.position]}
+            contestNum={this.state.position}
+            choices={this.state.choices}
+          />
         </p>
         {buttons}
       </div>
