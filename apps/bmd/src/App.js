@@ -40,7 +40,7 @@ var ELECTION = {
 
 class BallotContest extends React.Component {
   handleChange = event => {
-    let value = event.target.value;
+    let value = parseInt(event.target.value);
     this.setState({ value: value });
     this.choices[this.contestNum] = value;
   };
@@ -59,16 +59,16 @@ class BallotContest extends React.Component {
     let rows = []
 
     // Outer loop to create parent
-    for (let option of contest.options) {
+    contest.options.forEach((option, i) => {
       rows.push(
         <FormControlLabel
-          value={option}
+          value={i}
           label={<Typography style={{fontSize: "2em"}}>{option}</Typography>}
           control={<Radio />}
           labelPlacement="end"
         />
       );
-    }
+    });
 
     return (
       <FormControl component="fieldset">
