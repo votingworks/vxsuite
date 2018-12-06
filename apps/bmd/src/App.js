@@ -98,7 +98,7 @@ class Ballot extends Component {
 
   next() {
     if (this.state.position+1 >= this.election.contests.length) {
-      this.setState({review: true, choices: this.state.choices});
+      this.ballotready(this.state.choices);
     } else {
       this.setState({position: this.state.position+1, choices: this.state.choices});
     }
@@ -113,15 +113,6 @@ class Ballot extends Component {
   
   render() {
     let election = this.election;
-
-    if (this.state.review) {
-      return (
-        <div align="center">
-          <h1>Review</h1>
-          <button onClick={this.print.bind(this)} style={{fontSize: "2.5em"}}>Print</button>
-        </div>
-      );
-    }
     
     let buttons = [];
     if (this.state.position > 0) {
@@ -186,33 +177,46 @@ class App extends Component {
   
   ballotReady(ballot) {
     this.setState({ballot: ballot});
-    window.requestAnimationFrame(function() {
-      window.print();
-    });
+  }
+
+  print() {
+    window.print();
   }
 
   render() {
-    let printableBallot;
+    let mainContent, printableBallot;
     if (this.state.ballot) {
       printableBallot = (
         <PrintableBallot election={ELECTION} ballot={this.state.ballot} />
       );
+      
+      mainContent = (
+        <div>
+          <div style={{paddingLeft: "400px", paddingRight: "400px", paddingBottom: "50px"}}>{printableBallot}</div>
+          <button onClick={this.print.bind(this)} style={{fontSize: "2.5em"}}>Print</button>
+        </div>
+        
+      );
     } else {
       printableBallot = (<div></div>);
+      mainContent = (
+        <Ballot election={ELECTION} onBallotReady={this.ballotReady.bind(this)} />
+      );
     }
+
     
     return (
       <PrintProvider>
-	<Print single printOnly name="ballot">
+        <Print single printOnly name="ballot">
           {printableBallot}
-	</Print>
-        
+        </Print>
+
         <NoPrint force>
           <div className="App">
             <img src="./vw-checkmark.png" className="App-logo" alt="logo" />
-            <Ballot election={ELECTION} onBallotReady={this.ballotReady.bind(this)} />
+            {mainContent}
           </div>
-        </NoPrint>
+      </NoPrint>
       </PrintProvider>
     );
   }
