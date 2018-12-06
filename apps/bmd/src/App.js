@@ -42,15 +42,14 @@ class BallotContest extends React.Component {
   handleChange = event => {
     let value = parseInt(event.target.value);
     this.setState({ value: value });
-    this.choices[this.contestNum] = value;
+    this.choices[this.contest.id] = value;
   };
 
   constructor(props) {
     super(props);
     this.contest = props.contest;
-    this.contestNum = props.contestNum;
     this.choices = props.choices;
-    this.state = {value: this.choices[this.contestNum]};
+    this.state = {value: this.choices[this.contest.id]};
   }
   
   render() {
@@ -91,19 +90,37 @@ class Ballot extends Component {
   constructor(props) {
     super(props);
     this.election = props.election;
-    this.state = {position: 0, choices: []};
+    this.ballotready = props.onBallotReady;
+    this.state = {position: 0, choices: {}};
   }
 
   next() {
-    this.setState({position: this.state.position+1, choices: this.state.choices});
+    if (this.state.position+1 >= this.election.contests.length) {
+      this.setState({review: true, choices: this.state.choices});
+    } else {
+      this.setState({position: this.state.position+1, choices: this.state.choices});
+    }
   }
 
   previous() {
     this.setState({position: this.state.position-1, choices: this.state.choices});   }
+
+  print() {
+    this.ballotready(this.state.choices);
+  }
   
   render() {
     let election = this.election;
 
+    if (this.state.review) {
+      return (
+        <div align="center">
+          <h1>Review</h1>
+          <button onClick={this.print.bind(this)} style={{fontSize: "2.5em"}}>Print</button>
+        </div>
+      );
+    }
+    
     let buttons = [];
     if (this.state.position > 0) {
       buttons.push(
@@ -122,7 +139,6 @@ class Ballot extends Component {
           <BallotContest
             key={this.state.position}
             contest={this.election.contests[this.state.position]}
-            contestNum={this.state.position}
             choices={this.state.choices}
           />
         </p>
@@ -143,7 +159,7 @@ class PrintableBallot extends Component {
 
     // Outer loop to create parent
     for (let contest of this.state.election.contests) {
-      rows.push(<tr key={contest.id}><th align="left" width="30%">{contest.name}</th><td>{this.state.ballot?this.state.ballot[contest.id]:''}</td></tr>);
+      rows.push(<tr key={contest.id}><th align="left" width="30%">{contest.name}</th><td>{contest.options[this.state.ballot[contest.id]]}</td></tr>);
     }
 
     return (
@@ -159,21 +175,38 @@ class PrintableBallot extends Component {
 }
 
 class App extends Component {
-  print() {
-    window.print();
+  constructor(props) {
+    super(props);
+    this.state = {};
   }
   
+  ballotReady(ballot) {
+    this.setState({ballot: ballot});
+    window.requestAnimationFrame(function() {
+      window.print();
+    });
+  }
+
   render() {
+    let printableBallot;
+    if (this.state.ballot) {
+      printableBallot = (
+        <PrintableBallot election={ELECTION} ballot={this.state.ballot} />
+      );
+    } else {
+      printableBallot = (<div></div>);
+    }
+    
     return (
       <PrintProvider>
 	<Print single printOnly name="ballot">
-          <PrintableBallot election={ELECTION} ballot={{president: "Mickey Mouse", senator: "John Smith"}} />
+          {printableBallot}
 	</Print>
         
         <NoPrint force>
           <div className="App">
             <img src="./vw-checkmark.png" className="App-logo" alt="logo" />
-            <Ballot election={ELECTION} />
+            <Ballot election={ELECTION} onBallotReady={this.ballotReady.bind(this)} />
           </div>
         </NoPrint>
       </PrintProvider>
