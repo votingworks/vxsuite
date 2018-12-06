@@ -40,7 +40,7 @@ var ELECTION = {
 
 class BallotContest extends React.Component {
   handleChange = event => {
-    let value = parseInt(event.target.value);
+    let value = event.target.value;
     this.setState({ value: value });
     this.choices[this.contest.id] = value;
   };
@@ -55,23 +55,25 @@ class BallotContest extends React.Component {
   render() {
     let contest = this.contest;
 
-    let rows = []
-
+    let rows = [];
+    
     // Outer loop to create parent
     contest.options.forEach((option, i) => {
       rows.push(
         <FormControlLabel
-          value={i}
+          value={""+i}
           label={<Typography style={{fontSize: "2em"}}>{option}</Typography>}
           control={<Radio />}
           labelPlacement="end"
+          key={i}
+          style={{margin: "10px", padding: "20px", border: "1px solid #ddd"}}
         />
       );
     });
 
     return (
       <FormControl component="fieldset">
-        <FormLabel component="legend"><h2>{contest.name}</h2></FormLabel>
+        <FormLabel component="legend" style={{fontSize: "2.5em", padding: "20px"}}>{contest.name}</FormLabel>
         <RadioGroup
           aria-label={contest.id}
           name={contest.id}
@@ -124,25 +126,27 @@ class Ballot extends Component {
     let buttons = [];
     if (this.state.position > 0) {
       buttons.push(
-        <Button onClick={()=>{this.previous();}}>Previous</Button>
+        <Button key="previous" size="large" variant="contained" onClick={()=>{this.previous();}} style={{margin: "20px", padding: "20px"}}>Previous</Button>
       );
     }
 
     buttons.push(
-      <Button onClick={()=>{this.next();}}>Next</Button>
+      <Button key="next" size="large" variant="contained" onClick={()=>{this.next();}} style={{margin: "20px", padding: "20px"}}>Next</Button>
     );
 
     return (
       <div>
         <h1>{election.title}</h1>
-        <p>
+        <div>
           <BallotContest
             key={this.state.position}
             contest={this.election.contests[this.state.position]}
             choices={this.state.choices}
           />
-        </p>
-        {buttons}
+        </div>
+      <div style={{padding: "20px"}}>
+          {buttons}
+        </div>      
       </div>
     );
   }
