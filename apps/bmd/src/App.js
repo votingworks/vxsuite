@@ -10,6 +10,7 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 
+import QrReader from 'react-qr-scanner';
 
 var ELECTION = {
   id: "DEMO",
@@ -173,6 +174,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+    this.election = ELECTION;
   }
   
   ballotReady(ballot) {
@@ -183,25 +185,55 @@ class App extends Component {
     window.print();
   }
 
+  handleScan(data) {
+    if (data!=null) {
+      console.log(data);
+    }
+  }
+
+  handleError() {
+  }
+
   render() {
     let mainContent, printableBallot;
-    if (this.state.ballot) {
-      printableBallot = (
-        <PrintableBallot election={ELECTION} ballot={this.state.ballot} />
-      );
+
+    if (!this.election) {
+      printableBallot = (<div></div>);
+
+      const previewStyle = {
+        height: 440,
+        width: 620
+      };
       
       mainContent = (
-        <div>
-          <div style={{paddingLeft: "400px", paddingRight: "400px", paddingBottom: "50px"}}>{printableBallot}</div>
-          <button onClick={this.print.bind(this)} style={{fontSize: "2.5em"}}>Print</button>
+        <div align="center">
+          <QrReader
+            style={previewStyle}
+            onError={this.handleError}
+            onScan={this.handleScan}
+          />
         </div>
-        
       );
     } else {
-      printableBallot = (<div></div>);
-      mainContent = (
-        <Ballot election={ELECTION} onBallotReady={this.ballotReady.bind(this)} />
-      );
+    
+      if (this.state.ballot) {
+        printableBallot = (
+          <PrintableBallot election={this.election} ballot={this.state.ballot} />
+        );
+        
+        mainContent = (
+          <div>
+            <div style={{paddingLeft: "400px", paddingRight: "400px", paddingBottom: "50px"}}>{printableBallot}</div>
+            <button onClick={this.print.bind(this)} style={{fontSize: "2.5em"}}>Print</button>
+          </div>
+        
+        );
+      } else {
+        printableBallot = (<div></div>);
+        mainContent = (
+          <Ballot election={this.election} onBallotReady={this.ballotReady.bind(this)} />
+        );
+      }
     }
 
     
