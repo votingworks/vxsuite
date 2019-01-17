@@ -1,4 +1,13 @@
 {
   "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
-  "rules": {}
+  "defaultSeverity": "error",
+  "linterOptions": {
+    "exclude": ["node_modules/**/*.ts"]
+  },
+  "rules": {
+    "interface-name": [true, "never-prefix"],
+    "no-any": true,
+    "no-null-keyword": true,
+    "jsx-boolean-value": [true, "never"]
+  }
 }

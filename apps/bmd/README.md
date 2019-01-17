@@ -57,3 +57,7 @@ You can learn more in the
 [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## TSLint Setup:
+
+- https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
