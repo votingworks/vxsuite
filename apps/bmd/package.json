@@ -1,20 +1,39 @@
 {
-  "name": "bmd",
+  "name": "bmd-typescript",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^3.6.1",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-easy-print": "^0.6.0",
-    "react-qr-scanner": "0.0.8",
-    "react-scripts": "^2.1.3"
+    "@types/jest": "23.3.11",
+    "@types/node": "10.12.18",
+    "@types/react": "16.7.18",
+    "@types/react-dom": "16.0.11",
+    "@types/react-router-dom": "^4.3.1",
+    "@types/react-transition-group": "^2.0.15",
+    "@types/styled-components": "^4.1.6",
+    "normalize.css": "^8.0.1",
+    "react": "^16.8.0-alpha.1",
+    "react-dom": "^16.8.0-alpha.1",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "2.1.2",
+    "react-transition-group": "^2.5.2",
+    "styled-components": "^4.1.3",
+    "typescript": "3.2.2"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "eslint:base": "eslint 'src/**/*.+(js|jsx)'",
+    "prettier:base": "prettier '**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|graphql|mdx)'",
+    "prettier:check": "yarn run prettier:base --list-different",
+    "prettier:write": "yarn run prettier:base --write",
+    "tslint:base": "tslint -c tslint.json 'src/**/*.+(ts,tsx)'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -24,5 +43,22 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.11.1",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^22.1.2",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-react": "^7.12.1",
+    "husky": "^1.3.1",
+    "lint-staged": "^8.1.0",
+    "prettier": "^1.15.3",
+    "tslint": "^5.12.0",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-react": "^3.6.0"
+  }
 }

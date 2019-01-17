@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "files.autoSave": "onFocusChange",
+  "eslint.packageManager": "yarn",
+  "prettier.eslintIntegration": true,
+  "prettier.tslintIntegration": true
+}
