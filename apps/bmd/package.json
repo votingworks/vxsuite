@@ -17,7 +17,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prettier:base": "prettier \"**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|graphql|mdx)\"",
+    "eslint:base": "eslint 'src/**/*.+(js|jsx)'",
+    "prettier:base": "prettier '**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|graphql|mdx)'",
     "prettier:check": "yarn run prettier:base --list-different",
     "prettier:write": "yarn run prettier:base --write"
   },
@@ -31,6 +32,15 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.11.1",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^22.1.2",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-react": "^7.12.1",
     "prettier": "^1.15.3"
   }
 }
