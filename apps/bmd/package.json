@@ -20,7 +20,8 @@
     "eslint:base": "eslint 'src/**/*.+(js|jsx)'",
     "prettier:base": "prettier '**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|graphql|mdx)'",
     "prettier:check": "yarn run prettier:base --list-different",
-    "prettier:write": "yarn run prettier:base --write"
+    "prettier:write": "yarn run prettier:base --write",
+    "tslint:base": "tslint -c tslint.json 'src/**/*.+(ts,tsx)'"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -41,6 +42,9 @@
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.12.1",
-    "prettier": "^1.15.3"
+    "prettier": "^1.15.3",
+    "tslint": "^5.12.0",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-react": "^3.6.0"
   }
 }
