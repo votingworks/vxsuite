@@ -32,7 +32,6 @@ const SummaryPage = (props: RouteComponentProps) => {
       Object.keys(votes).length === 0 ||
       window.confirm('Clear all votes and start over?')
     ) {
-      props.history.go(-(props.history.length - 1))
       resetBallot()
     }
   }
