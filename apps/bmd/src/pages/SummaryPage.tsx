@@ -14,15 +14,15 @@ const Table = styled.table`
   text-align: left;
   border-bottom: 1px solid lightGrey;
 `
-const tableCellStyle = `
+const tableCellBase = `
   padding: 0.5rem 0;
   border-top: 1px solid lightGrey;
 `
-const TableHead = styled.th`
-  ${tableCellStyle}
+const TableCellHeader = styled.th`
+  ${tableCellBase}
 `
-const TableData = styled.td`
-  ${tableCellStyle}
+const TableCell = styled.td`
+  ${tableCellBase}
 `
 
 const SummaryPage = (props: RouteComponentProps) => {
@@ -39,7 +39,20 @@ const SummaryPage = (props: RouteComponentProps) => {
     <React.Fragment>
       <Article>
         <h1>Official Ballot</h1>
+        <p className="no-print">
+          Please review your ballot. Confirm your votes by selecting the “Print
+          Ballot” button.
+        </p>
         <Table>
+          <caption className="no-print visually-hidden">
+            <p>Summary of your votes.</p>
+          </caption>
+          <thead className="no-print">
+            <tr>
+              <TableCellHeader scope="col">Contest</TableCellHeader>
+              <TableCellHeader scope="col">Vote</TableCellHeader>
+            </tr>
+          </thead>
           <tbody>
             {contests.map(contest => {
               const candidate = contest.candidates.find(
