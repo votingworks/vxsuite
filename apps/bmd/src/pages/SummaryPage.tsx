@@ -14,15 +14,9 @@ const Table = styled.table`
   text-align: left;
   border-bottom: 1px solid lightGrey;
 `
-const tableCellBase = `
+const TableCell = styled.td`
   padding: 0.5rem 0;
   border-top: 1px solid lightGrey;
-`
-const TableCellHeader = styled.th`
-  ${tableCellBase}
-`
-const TableCell = styled.td`
-  ${tableCellBase}
 `
 
 const SummaryPage = (props: RouteComponentProps) => {
@@ -38,19 +32,25 @@ const SummaryPage = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
       <Article>
-        <h1>Official Ballot</h1>
-        <p className="no-print">
-          Please review your ballot. Confirm your votes by selecting the “Print
-          Ballot” button.
-        </p>
+        <div className="prose">
+          <h1>Official Ballot</h1>
+          <p className="no-print">
+            Please review your ballot. Confirm your votes by selecting the
+            “Print Ballot” button.
+          </p>
+        </div>
         <Table>
           <caption className="no-print visually-hidden">
             <p>Summary of your votes.</p>
           </caption>
           <thead className="no-print">
             <tr>
-              <TableCellHeader scope="col">Contest</TableCellHeader>
-              <TableCellHeader scope="col">Vote</TableCellHeader>
+              <TableCell as="th" scope="col">
+                Contest
+              </TableCell>
+              <TableCell as="th" scope="col">
+                Vote
+              </TableCell>
             </tr>
           </thead>
           <tbody>
@@ -65,7 +65,7 @@ const SummaryPage = (props: RouteComponentProps) => {
               )
               return (
                 <tr key={contest.id}>
-                  <TableCellHeader>{contest.title} </TableCellHeader>
+                  <TableCell as="th">{contest.title} </TableCell>
                   <TableCell>
                     {vote}{' '}
                     <NoPrint>

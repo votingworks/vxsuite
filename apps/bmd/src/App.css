@@ -10,6 +10,14 @@ body,
   height: 100%;
 }
 
+/* Typographic Prose */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose p {
+  margin: 1rem 0;
+}
+
 /* Accessibility Utilities */
 .visually-hidden {
   position: absolute !important;
