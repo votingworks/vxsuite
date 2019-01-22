@@ -11,6 +11,7 @@ const StyledButton = styled.button`
 `
 
 interface Props {
+  autoFocus?: boolean
   onClick: (event: ButtonEvent) => void
   children: React.ReactNode
 }

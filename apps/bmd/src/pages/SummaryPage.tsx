@@ -68,7 +68,9 @@ const SummaryPage = (props: RouteComponentProps) => {
         </Table>
       </Article>
       <ButtonBar>
-        <Button onClick={window.print}>Print Ballot</Button>
+        <Button autoFocus onClick={window.print}>
+          Print Ballot
+        </Button>
         <Button onClick={props.history.goBack}>Back</Button>
         <Button onClick={startOver}>New Ballot</Button>
       </ButtonBar>

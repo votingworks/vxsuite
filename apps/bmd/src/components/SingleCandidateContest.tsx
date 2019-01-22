@@ -20,6 +20,9 @@ const Choice = styled.label`
   :last-child {
     margin-bottom: 0;
   }
+  :focus-within {
+    background: lightgrey;
+  }
 `
 
 const ChoiceRadioInput = styled.input`
@@ -48,20 +51,25 @@ class SingleCandidateContest extends React.Component<Props, {}> {
       <React.Fragment>
         <p>Vote for one</p>
         <Choices>
-          {contest.candidates.map(c => {
-            const isChecked = c.id === vote
+          {contest.candidates.map((candidate, index) => {
+            const isChecked = candidate.id === vote
             return (
-              <Choice key={c.id} htmlFor={c.id} isSelected={isChecked}>
+              <Choice
+                key={candidate.id}
+                htmlFor={candidate.id}
+                isSelected={isChecked}
+              >
                 <ChoiceRadioInput
-                  id={c.id}
+                  autoFocus={index === 0}
+                  id={candidate.id}
                   type="radio"
                   name={contest.id}
-                  value={c.id}
+                  value={candidate.id}
                   onChange={this.updateSelection}
                   checked={isChecked}
                   className="Choice__Radio"
                 />{' '}
-                {c.name}
+                {candidate.name}
               </Choice>
             )
           })}
