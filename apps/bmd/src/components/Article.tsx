@@ -15,8 +15,10 @@ const Article = styled.article`
   }
 `
 
-const StyledArticle = ({ children }: { children: React.ReactNode }) => (
-  <Article>{children}</Article>
-)
+interface Props {
+  children: React.ReactNode
+}
+
+const StyledArticle = ({ children }: Props) => <Article>{children}</Article>
 
 export default StyledArticle
