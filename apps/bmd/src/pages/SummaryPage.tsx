@@ -9,13 +9,19 @@ import NoPrint from '../components/NoPrint'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
+const Header = styled.div`
+  margin: 1rem 0;
+`
+
 const Table = styled.table`
-  width: 50%;
+  width: 100%;
+  max-width: 66ch;
   text-align: left;
   border-bottom: 1px solid lightGrey;
 `
 const TableCell = styled.td`
-  padding: 0.5rem 0;
+  width: 50%;
+  padding: 0.5rem 0.25rem;
   border-top: 1px solid lightGrey;
 `
 
@@ -32,13 +38,13 @@ const SummaryPage = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
       <Article>
-        <div className="prose">
+        <Header className="prose">
           <h1>Official Ballot</h1>
           <p className="no-print">
             Please review your ballot. Confirm your votes by selecting the
             “Print Ballot” button.
           </p>
-        </div>
+        </Header>
         <Table>
           <caption className="no-print visually-hidden">
             <p>Summary of your votes.</p>
