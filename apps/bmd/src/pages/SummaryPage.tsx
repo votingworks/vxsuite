@@ -37,11 +37,6 @@ const SummaryPage = (props: RouteComponentProps) => {
   }
   return (
     <React.Fragment>
-      <ButtonBar
-        leftContent={<Button onClick={props.history.goBack}>Back</Button>}
-        centerContent={<Button onClick={startOver}>New Ballot</Button>}
-        rightContent={<Button onClick={window.print}>Print</Button>}
-      />
       <Article>
         <h1>Official Ballot</h1>
         <Table>
@@ -57,21 +52,26 @@ const SummaryPage = (props: RouteComponentProps) => {
               )
               return (
                 <tr key={contest.id}>
-                  <TableHead>{contest.title} </TableHead>
-                  <TableData>
+                  <TableCellHeader>{contest.title} </TableCellHeader>
+                  <TableCell>
                     {vote}{' '}
                     <NoPrint>
                       <small>
                         <Link to={`/contests/${contest.id}`}>change</Link>
                       </small>
                     </NoPrint>
-                  </TableData>
+                  </TableCell>
                 </tr>
               )
             })}
           </tbody>
         </Table>
       </Article>
+      <ButtonBar>
+        <Button onClick={window.print}>Print Ballot</Button>
+        <Button onClick={props.history.goBack}>Back</Button>
+        <Button onClick={startOver}>New Ballot</Button>
+      </ButtonBar>
     </React.Fragment>
   )
 }
