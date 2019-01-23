@@ -1,24 +1,27 @@
 import React from 'react'
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
-import styled from 'styled-components'
 
 import './App.css'
 
-import { Election, Vote, VoteDict } from './config/types'
+import Screen from './components/Screen'
+import { OptionalElection, Vote, VoteDict } from './config/types'
 import BallotContext from './contexts/ballotContext'
+import ConfigPage from './pages/ConfigPage'
 import ContestPage from './pages/ContestPage'
 import StartPage from './pages/StartPage'
 import SummaryPage from './pages/SummaryPage'
 
 interface Props {
-  election: Election
+  election: OptionalElection
 }
 
 interface State {
+  election: OptionalElection
   votes: VoteDict
 }
 
 const initialState = {
+  election: undefined,
   votes: {},
 }
 
@@ -44,8 +47,15 @@ class App extends React.Component<Props, State> {
     }))
   }
 
+  public setElection = (election: OptionalElection) => {
+    this.setState({ election })
+  }
+
   public render() {
-    const { contests } = this.props.election
+    if (!this.state.election) {
+      return <ConfigPage setElection={this.setElection} />
+    }
+    const { contests } = this.state.election
     return (
       <BrowserRouter>
         <BallotContext.Provider

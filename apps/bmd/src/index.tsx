@@ -5,10 +5,10 @@ import App from './App'
 import 'normalize.css'
 import './index.css'
 
-import election from './data/election.json'
+// TODO: Load election from localStorage. https://github.com/votingworks/bmd/issues/24
 import * as serviceWorker from './serviceWorker'
 
-ReactDOM.render(<App election={election} />, document.getElementById(
+ReactDOM.render(<App election={undefined} />, document.getElementById(
   'root'
 ) as HTMLElement)
 
