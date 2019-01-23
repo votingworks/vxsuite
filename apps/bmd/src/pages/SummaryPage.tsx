@@ -9,20 +9,24 @@ import NoPrint from '../components/NoPrint'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
+const Header = styled.div`
+  margin: 1rem 0;
+`
+
 const Table = styled.table`
-  width: 50%;
+  width: 100%;
+  max-width: 66ch;
   text-align: left;
   border-bottom: 1px solid lightGrey;
 `
-const tableCellStyle = `
-  padding: 0.5rem 0;
-  border-top: 1px solid lightGrey;
-`
-const TableHead = styled.th`
-  ${tableCellStyle}
-`
-const TableData = styled.td`
-  ${tableCellStyle}
+interface TableCellProps {
+  border?: boolean
+}
+const TableCell = styled.td`
+  width: 50%;
+  padding: 0.5rem 0.25rem;
+  border-top: ${({ border = false }: TableCellProps) =>
+    border ? '1px solid lightGrey' : 'none'};
 `
 
 const SummaryPage = (props: RouteComponentProps) => {
@@ -37,14 +41,28 @@ const SummaryPage = (props: RouteComponentProps) => {
   }
   return (
     <React.Fragment>
-      <ButtonBar
-        leftContent={<Button onClick={props.history.goBack}>Back</Button>}
-        centerContent={<Button onClick={startOver}>New Ballot</Button>}
-        rightContent={<Button onClick={window.print}>Print</Button>}
-      />
       <Article>
-        <h1>Official Ballot</h1>
+        <Header className="prose">
+          <h1>Official Ballot</h1>
+          <p className="no-print">
+            Please review your ballot. Confirm your votes by selecting the
+            “Print Ballot” button.
+          </p>
+        </Header>
         <Table>
+          <caption className="no-print visually-hidden">
+            <p>Summary of your votes.</p>
+          </caption>
+          <thead className="no-print">
+            <tr>
+              <TableCell as="th" scope="col">
+                Contest
+              </TableCell>
+              <TableCell as="th" scope="col">
+                Vote
+              </TableCell>
+            </tr>
+          </thead>
           <tbody>
             {contests.map(contest => {
               const candidate = contest.candidates.find(
@@ -57,21 +75,28 @@ const SummaryPage = (props: RouteComponentProps) => {
               )
               return (
                 <tr key={contest.id}>
-                  <TableHead>{contest.title} </TableHead>
-                  <TableData>
+                  <TableCell as="th" border>
+                    {contest.title}{' '}
+                  </TableCell>
+                  <TableCell border>
                     {vote}{' '}
-                    <NoPrint>
-                      <small>
-                        <Link to={`/contests/${contest.id}`}>change</Link>
-                      </small>
-                    </NoPrint>
-                  </TableData>
+                    <small className="no-print">
+                      <Link to={`/contests/${contest.id}`}>change</Link>
+                    </small>
+                  </TableCell>
                 </tr>
               )
             })}
           </tbody>
         </Table>
       </Article>
+      <ButtonBar>
+        <Button autoFocus onClick={window.print}>
+          Print Ballot
+        </Button>
+        <Button onClick={props.history.goBack}>Back</Button>
+        <Button onClick={startOver}>New Ballot</Button>
+      </ButtonBar>
     </React.Fragment>
   )
 }

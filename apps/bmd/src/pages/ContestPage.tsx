@@ -57,37 +57,31 @@ const ContestPage = (props: Props) => {
   }
   return (
     <React.Fragment>
-      <ButtonBar
-        centerContent={<LinkButton to="/summary">View Summary</LinkButton>}
-      />
       <Article>
         <FieldSet>
           <Legend>{contest.title}</Legend>
           {contestChoices}
         </FieldSet>
       </Article>
-      <ButtonBar
-        leftContent={
+      <ButtonBar>
+        {nextContest ? (
           <LinkButton
-            disabled={!prevContest}
-            to={`/contests/${prevContest && prevContest.id}`}
+            disabled={!nextContest}
+            to={`/contests/${nextContest && nextContest.id}`}
           >
-            Previous
+            Next
           </LinkButton>
-        }
-        rightContent={
-          nextContest ? (
-            <LinkButton
-              disabled={!nextContest}
-              to={`/contests/${nextContest && nextContest.id}`}
-            >
-              Next
-            </LinkButton>
-          ) : (
-            <LinkButton to="/summary">View Ballot</LinkButton>
-          )
-        }
-      />
+        ) : (
+          <LinkButton to="/summary">View Ballot</LinkButton>
+        )}
+        <LinkButton
+          disabled={!prevContest}
+          to={`/contests/${prevContest && prevContest.id}`}
+        >
+          Previous
+        </LinkButton>
+        <LinkButton to="/summary">View Summary</LinkButton>
+      </ButtonBar>
     </React.Fragment>
   )
 }

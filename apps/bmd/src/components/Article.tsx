@@ -8,15 +8,17 @@ const Article = styled.article`
   justify-content: center;
   flex: 1;
   text-align: center;
-  margin: 2rem;
+  margin: 1rem;
   @media print {
     justify-content: flex-start;
     margin: 0;
   }
 `
 
-const StyledArticle = ({ children }: { children: React.ReactNode }) => (
-  <Article>{children}</Article>
-)
+interface Props {
+  children: React.ReactNode
+}
+
+const StyledArticle = ({ children }: Props) => <Article>{children}</Article>
 
 export default StyledArticle

@@ -9,3 +9,51 @@ body,
 .root {
   height: 100%;
 }
+
+/* Typographic Prose */
+.prose {
+  line-height: 1.5;
+  max-width: 66ch;
+}
+.prose h1,
+.prose h2,
+.prose h3 {
+  margin: 2rem 0 1rem;
+}
+.prose p {
+  margin: 1rem 0;
+}
+.prose h1 + p,
+.prose h2 + p {
+  margin-top: 0;
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose > :last-child {
+  margin-bottom: 0;
+}
+
+/* Accessibility Utilities */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+}
+.visually-hidden a:focus,
+.visually-hidden input:focus,
+.visually-hidden button:focus {
+  position: static;
+  width: auto;
+  height: auto;
+}
+
+/* Utilities */
+@media print {
+  .no-print {
+    display: none;
+  }
+}

@@ -7,9 +7,11 @@ const StyledButton = styled.button`
   background: lightgrey;
   border-radius: 0.25rem;
   color: black;
+  white-space: nowrap;
 `
 
 interface Props {
+  autoFocus?: boolean
   onClick: (event: ButtonEvent) => void
   children: React.ReactNode
 }
