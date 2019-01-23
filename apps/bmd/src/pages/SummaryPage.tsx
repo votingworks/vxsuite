@@ -19,10 +19,14 @@ const Table = styled.table`
   text-align: left;
   border-bottom: 1px solid lightGrey;
 `
+interface TableCellProps {
+  border?: boolean
+}
 const TableCell = styled.td`
   width: 50%;
   padding: 0.5rem 0.25rem;
-  border-top: 1px solid lightGrey;
+  border-top: ${({ border = false }: TableCellProps) =>
+    border ? '1px solid lightGrey' : 'none'};
 `
 
 const SummaryPage = (props: RouteComponentProps) => {
@@ -71,14 +75,14 @@ const SummaryPage = (props: RouteComponentProps) => {
               )
               return (
                 <tr key={contest.id}>
-                  <TableCell as="th">{contest.title} </TableCell>
-                  <TableCell>
+                  <TableCell as="th" border>
+                    {contest.title}{' '}
+                  </TableCell>
+                  <TableCell border>
                     {vote}{' '}
-                    <NoPrint>
-                      <small>
-                        <Link to={`/contests/${contest.id}`}>change</Link>
-                      </small>
-                    </NoPrint>
+                    <small className="no-print">
+                      <Link to={`/contests/${contest.id}`}>change</Link>
+                    </small>
                   </TableCell>
                 </tr>
               )
