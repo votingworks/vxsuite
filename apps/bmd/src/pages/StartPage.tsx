@@ -18,7 +18,9 @@ const StartPage = (props: RouteComponentProps) => {
           <p>More text about the election.</p>
           <p>More text about the election.</p>
           <p>
-            <LinkButton to={`/contests`}>Get Started</LinkButton>
+            <LinkButton autoFocus to={`/contests`}>
+              Get Started
+            </LinkButton>
           </p>
         </div>
       </Article>

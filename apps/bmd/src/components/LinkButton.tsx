@@ -4,6 +4,7 @@ import { RouteComponentProps, withRouter } from 'react-router'
 import Button from '../components/Button'
 import { InputEvent } from '../config/types'
 
+interface Props extends React.HTMLProps<HTMLButtonElement> {}
 interface Props extends RouteComponentProps<{}> {}
 interface Props {
   children: React.ReactNode
