@@ -10,12 +10,6 @@ import ContestPage from './pages/ContestPage'
 import StartPage from './pages/StartPage'
 import SummaryPage from './pages/SummaryPage'
 
-const Screen = styled.main`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-`
-
 interface Props {
   election: Election
 }
