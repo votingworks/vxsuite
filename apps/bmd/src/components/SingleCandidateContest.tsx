@@ -21,7 +21,7 @@ const Choice = styled.label`
     margin-bottom: 0;
   }
   :focus-within {
-    background: lightgrey;
+    outline: -webkit-focus-ring-color auto 5px;
   }
 `
 
@@ -60,7 +60,7 @@ class SingleCandidateContest extends React.Component<Props, {}> {
                 isSelected={isChecked}
               >
                 <ChoiceRadioInput
-                  autoFocus={index === 0}
+                  autoFocus={index === 0 && !vote}
                   id={candidate.id}
                   type="radio"
                   name={contest.id}

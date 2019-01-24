@@ -25,6 +25,7 @@ export interface Contest {
 export interface Election {
   readonly contests: Contest[]
 }
+export type OptionalElection = Election | undefined
 export type UpdateVoteFunction = (contestId: string, vote: Vote) => void
 export interface BallotContextInterface {
   readonly contests: Contest[]

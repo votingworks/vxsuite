@@ -71,7 +71,9 @@ const SummaryPage = (props: RouteComponentProps) => {
               const vote = candidate ? (
                 candidate.name
               ) : (
-                <Text muted>no selection</Text>
+                <Text as="span" muted>
+                  no selection
+                </Text>
               )
               return (
                 <tr key={contest.id}>
