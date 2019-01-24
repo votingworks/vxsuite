@@ -21,7 +21,7 @@ const Choice = styled.label`
     margin-bottom: 0;
   }
   :focus-within {
-    background: lightgrey;
+    outline: -webkit-focus-ring-color auto 5px;
   }
 `
 
