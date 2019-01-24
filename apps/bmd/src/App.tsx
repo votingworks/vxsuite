@@ -1,19 +1,11 @@
 import React from 'react'
-import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
 
 import './App.css'
-
-import Screen from './components/Screen'
 import { OptionalElection, Vote, VoteDict } from './config/types'
+
+import Ballot from './components/Ballot'
 import BallotContext from './contexts/ballotContext'
 import ConfigPage from './pages/ConfigPage'
-import ContestPage from './pages/ContestPage'
-import StartPage from './pages/StartPage'
-import SummaryPage from './pages/SummaryPage'
-
-interface Props {
-  election: OptionalElection
-}
 
 interface State {
   election: OptionalElection
@@ -25,14 +17,11 @@ const initialState = {
   votes: {},
 }
 
-class App extends React.Component<Props, State> {
+class App extends React.Component<{}, State> {
   public initialWindowHistoryLength =
     window.location.pathname === '/' ? window.history.length : 0
 
-  constructor(props: Props) {
-    super(props)
-    this.state = initialState
-  }
+  public state: State = initialState
 
   public resetBallot = () => {
     this.setState(initialState)
@@ -54,10 +43,9 @@ class App extends React.Component<Props, State> {
   public render() {
     if (!this.state.election) {
       return <ConfigPage setElection={this.setElection} />
-    }
-    const { contests } = this.state.election
-    return (
-      <BrowserRouter>
+    } else {
+      const { contests } = this.state.election
+      return (
         <BallotContext.Provider
           value={{
             contests,
@@ -66,21 +54,10 @@ class App extends React.Component<Props, State> {
             votes: this.state.votes,
           }}
         >
-          <Screen>
-            <Switch>
-              <Route path="/" exact component={StartPage} />
-              <Redirect
-                exact
-                from="/contests"
-                to={`/contests/${contests[0].id}`}
-              />
-              <Route path="/contests/:id" component={ContestPage} />
-              <Route path="/summary" component={SummaryPage} />
-            </Switch>
-          </Screen>
+          <Ballot />
         </BallotContext.Provider>
-      </BrowserRouter>
-    )
+      )
+    }
   }
 }
 
