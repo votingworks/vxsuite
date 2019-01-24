@@ -1,7 +1,7 @@
 import React from 'react'
 
 import './App.css'
-import { OptionalElection, Vote, VoteDict } from './config/types'
+import { Election, OptionalElection, Vote, VoteDict } from './config/types'
 
 import Ballot from './components/Ballot'
 import BallotContext from './contexts/ballotContext'
@@ -36,7 +36,7 @@ class App extends React.Component<{}, State> {
     }))
   }
 
-  public setElection = (election: OptionalElection) => {
+  public setElection = (election: Election) => {
     this.setState({ election })
   }
 

@@ -4,10 +4,10 @@ import Dropzone from 'react-dropzone'
 import Article from '../components/Article'
 import Screen from '../components/Screen'
 import { Text } from '../components/Typography'
-import { OptionalElection } from '../config/types'
+import { Election } from '../config/types'
 
 interface Props {
-  setElection: (election: OptionalElection) => void
+  setElection: (election: Election) => void
 }
 interface State {
   errorMessage: string
