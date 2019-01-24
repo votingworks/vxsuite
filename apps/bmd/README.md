@@ -1,5 +1,34 @@
+# VotingWorks Ballot Marking Device
+
+The BMD (Ballot Marking Device) app will be used in the following ways:
+
+- An election offical can configured the app with an election file to define all
+  possible ballots.
+- A voter can:
+  - load their ballot using a code provided by a poll worker.
+  - cast a vote for each contest/prop/measure of their ballot.
+  - view a summary of their votes and print their offical paper ballot.
+
+## Demo the BMD App
+
+The master branch of this repo will be auto-deployed to:
+
+- <https://bmd.votingworks.app>
+
+Each PR has a unique demo url which can be found in the comments of the PR.
+
+## Technical Implementation
+
 This project was bootstrapped with
-[Create React App](https://github.com/facebook/create-react-app).
+[Create React App](https://github.com/facebook/create-react-app) for TypeScript.
+
+[ESLint](https://eslint.org/), [TSLint](https://palantir.github.io/tslint/), and
+[Prettier](https://prettier.io/) are used to maintain clean code.
+
+We use [Styled Components](https://www.styled-components.com/docs/) for our
+`CSS`.
+
+# Original Create React App Instructions
 
 ## Available Scripts
 
