@@ -60,7 +60,7 @@ class SingleCandidateContest extends React.Component<Props, {}> {
                 isSelected={isChecked}
               >
                 <ChoiceRadioInput
-                  autoFocus={index === 0}
+                  autoFocus={index === 0 && !vote}
                   id={candidate.id}
                   type="radio"
                   name={contest.id}
