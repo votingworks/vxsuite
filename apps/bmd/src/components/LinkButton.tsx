@@ -2,14 +2,12 @@ import React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router'
 
 import Button from '../components/Button'
-import { InputEvent } from '../config/types'
+import { ButtonEvent } from '../config/types'
 
-interface Props extends React.HTMLProps<HTMLButtonElement> {}
+interface Props
+  extends React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 interface Props extends RouteComponentProps<{}> {}
 interface Props {
-  children: React.ReactNode
-  disabled?: boolean
-  onClick?: (event: InputEvent) => void
   to: string
 }
 
@@ -24,7 +22,7 @@ const LinkButton = (props: Props) => {
     // ⬆ filtering out props that `button` doesn’t know what to do with.
     ...rest
   } = props
-  const handleOnClick = (event: InputEvent) => {
+  const handleOnClick = (event: ButtonEvent) => {
     if (!props.disabled) {
       if (onClick) {
         onClick(event)

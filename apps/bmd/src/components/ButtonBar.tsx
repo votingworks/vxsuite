@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const Bar = styled.div`
+const ButtonBar = styled.div`
   display: flex;
   padding: 1rem 2rem;
   background: grey;
@@ -13,11 +13,5 @@ const Bar = styled.div`
     display: none;
   }
 `
-
-interface Props {
-  children: React.ReactNode
-}
-
-const ButtonBar = (props: Props) => <Bar>{props.children}</Bar>
 
 export default ButtonBar
