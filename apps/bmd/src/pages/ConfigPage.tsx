@@ -1,7 +1,10 @@
 import React from 'react'
 import Dropzone from 'react-dropzone'
 
+import sampleElectionFile from '../data/election.json'
+
 import Article from '../components/Article'
+import Button from '../components/Button'
 import Screen from '../components/Screen'
 import { Text } from '../components/Typography'
 import { Election } from '../config/types'
@@ -30,6 +33,10 @@ class ConfigPage extends React.Component<Props, State> {
       errorMessage,
       loading: false,
     })
+  }
+
+  public loadSampleElection = () => {
+    this.props.setElection(sampleElectionFile)
   }
 
   public onDrop = (acceptedFiles: File[], rejectedFiles: File[]) => {
@@ -103,8 +110,10 @@ class ConfigPage extends React.Component<Props, State> {
         )}
         <Text center>
           <a href="/data/election.json">
-            View sample <code>election.json</code> file.
+            Download sample <code>election.json</code> file
           </a>
+          , or skip upload and{' '}
+          <Button onClick={this.loadSampleElection}>Load sample</Button>
         </Text>
       </Screen>
     )
