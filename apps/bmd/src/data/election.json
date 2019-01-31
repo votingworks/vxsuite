@@ -1,0 +1,42 @@
+{
+  "contests": [
+    {
+      "id": "president",
+      "type": "plurality",
+      "title": "President",
+      "candidates": [
+        {
+          "id": "minnieMouse",
+          "name": "Minnie Mouse"
+        },
+        {
+          "id": "mickeyMouse",
+          "name": "Mickey Mouse"
+        },
+        {
+          "id": "donaldDuck",
+          "name": "Donald Duck"
+        }
+      ]
+    },
+    {
+      "id": "senator",
+      "type": "plurality",
+      "title": "Senator",
+      "candidates": [
+        {
+          "id": "chadHanging",
+          "name": "Chad Hanging"
+        },
+        {
+          "id": "levErmachine",
+          "name": "Lev Ermachine"
+        },
+        {
+          "id": "johnSmith",
+          "name": "John Smith"
+        }
+      ]
+    }
+  ]
+}
