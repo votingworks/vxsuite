@@ -2,6 +2,16 @@ import React from 'react'
 import styled from 'styled-components'
 import { Contest, InputEvent, UpdateVoteFunction, Vote } from '../config/types'
 
+const FieldSet = styled.fieldset`
+  margin: 0;
+  border: none;
+  padding: 0;
+`
+const Legend = styled.legend`
+  font-weight: bold;
+  font-size: 2em;
+  margin: 0.67em 0;
+`
 const Choices = styled.div`
   display: inline-flex;
   flex-direction: column;
@@ -44,7 +54,8 @@ class SingleCandidateContest extends React.Component<Props, {}> {
   public render() {
     const { contest, vote } = this.props
     return (
-      <React.Fragment>
+      <FieldSet>
+        <Legend>{contest.title}</Legend>
         <p>Vote for one</p>
         <Choices>
           {contest.candidates.map((candidate, index) => {
@@ -68,7 +79,7 @@ class SingleCandidateContest extends React.Component<Props, {}> {
             )
           })}
         </Choices>
-      </React.Fragment>
+      </FieldSet>
     )
   }
 }

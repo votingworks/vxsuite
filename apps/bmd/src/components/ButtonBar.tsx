@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const ButtonBar = styled.div`
+const ButtonBar = styled.nav`
   display: flex;
   padding: 1rem 2rem;
   background: grey;

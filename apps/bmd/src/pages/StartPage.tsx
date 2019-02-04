@@ -1,12 +1,12 @@
 import React, { useContext } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
-import Article from '../components/Article'
 import LinkButton from '../components/LinkButton'
+import Main from '../components/Main'
 
 const StartPage = (props: RouteComponentProps) => {
   return (
-    <Article>
+    <Main>
       <div className="prose">
         <h1>Demo Election</h1>
         <p>
@@ -22,7 +22,7 @@ const StartPage = (props: RouteComponentProps) => {
           </LinkButton>
         </p>
       </div>
-    </Article>
+    </Main>
   )
 }
 

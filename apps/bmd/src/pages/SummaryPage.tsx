@@ -2,10 +2,9 @@ import React, { useContext } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
-import Article from '../components/Article'
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
-import NoPrint from '../components/NoPrint'
+import Main from '../components/Main'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
@@ -42,7 +41,7 @@ const SummaryPage = (props: RouteComponentProps) => {
   }
   return (
     <React.Fragment>
-      <Article>
+      <Main>
         <Header className="prose">
           <h1>Official Ballot</h1>
           <p className="no-print">
@@ -92,7 +91,7 @@ const SummaryPage = (props: RouteComponentProps) => {
             })}
           </tbody>
         </Table>
-      </Article>
+      </Main>
       <ButtonBar>
         <Button autoFocus onClick={window.print}>
           Print Ballot

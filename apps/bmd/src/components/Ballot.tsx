@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
+import { Redirect, Route, Switch } from 'react-router-dom'
 
 import BallotContext from '../contexts/ballotContext'
 
@@ -11,16 +11,16 @@ import SummaryPage from '../pages/SummaryPage'
 const Ballot = () => {
   const { contests } = useContext(BallotContext)
   return (
-    <BrowserRouter>
-      <Screen>
-        <Switch>
-          <Route path="/" exact component={StartPage} />
+    <Screen>
+      <Switch>
+        <Route path="/" exact component={StartPage} />
+        {contests.length && (
           <Redirect exact from="/contests" to={`/contests/${contests[0].id}`} />
-          <Route path="/contests/:id" component={ContestPage} />
-          <Route path="/summary" component={SummaryPage} />
-        </Switch>
-      </Screen>
-    </BrowserRouter>
+        )}
+        <Route path="/contests/:id" component={ContestPage} />
+        <Route path="/summary" component={SummaryPage} />
+      </Switch>
+    </Screen>
   )
 }
 
