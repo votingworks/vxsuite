@@ -1,0 +1,954 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`can navigate all ballot pages 1`] = `
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c2 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+  margin: 1rem;
+}
+
+@media print {
+  .c1 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<div
+  class="c0"
+>
+  <main
+    class="c1"
+  >
+    <div
+      class="prose"
+    >
+      <h1>
+        Demo Election
+      </h1>
+      <p>
+        For each contest, measure, or proposition, select your vote and then press the “Next” button.
+      </p>
+      <h2>
+        Heading 2
+      </h2>
+      <p>
+        More text about the election.
+      </p>
+      <p>
+        More text about the election.
+      </p>
+      <p>
+        <button
+          class="c2"
+        >
+          Get Started
+        </button>
+      </p>
+    </div>
+  </main>
+</div>
+`;
+
+exports[`can navigate all ballot pages 2`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+  margin: 1rem;
+}
+
+.c1 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.c2 {
+  font-weight: bold;
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.c3 {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid lightgrey;
+  background: transparent;
+  padding: 0.5rem;
+}
+
+.c4:last-child {
+  margin-bottom: 0;
+}
+
+.c4:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c5 {
+  margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <fieldset
+      class="c1"
+    >
+      <legend
+        class="c2"
+      >
+        President
+      </legend>
+      <p>
+        Vote for one
+      </p>
+      <div
+        class="c3"
+      >
+        <label
+          class="c4"
+          for="minnieMouse"
+        >
+          <input
+            class="c5"
+            id="minnieMouse"
+            name="president"
+            type="radio"
+            value="minnieMouse"
+          />
+           
+          Minnie Mouse
+        </label>
+        <label
+          class="c4"
+          for="mickeyMouse"
+        >
+          <input
+            class="c5"
+            id="mickeyMouse"
+            name="president"
+            type="radio"
+            value="mickeyMouse"
+          />
+           
+          Mickey Mouse
+        </label>
+        <label
+          class="c4"
+          for="donaldDuck"
+        >
+          <input
+            class="c5"
+            id="donaldDuck"
+            name="president"
+            type="radio"
+            value="donaldDuck"
+          />
+           
+          Donald Duck
+        </label>
+      </div>
+    </fieldset>
+  </main>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 1rem 2rem;
+  background: grey;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.c0 > :first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c1 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <button
+      class="c1"
+    >
+      Next
+    </button>
+    <button
+      class="c1"
+      disabled=""
+    >
+      Previous
+    </button>
+    <button
+      class="c1"
+    >
+      View Summary
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`can navigate all ballot pages 3`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  <main
+    class="sc-bxivhb jStObh"
+  >
+    <fieldset
+      class="sc-ifAKCX hxMwKD"
+    >
+      <legend
+        class="sc-EHOje gPKrAp"
+      >
+        Senator
+      </legend>
+      <p>
+        Vote for one
+      </p>
+      <div
+        class="sc-bZQynM dVRpCk"
+      >
+        .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid lightgrey;
+  background: transparent;
+  padding: 0.5rem;
+}
+
+.c0:last-child {
+  margin-bottom: 0;
+}
+
+.c0:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c1 {
+  margin-right: 0.5rem;
+}
+
+<label
+          class="c0"
+          for="chadHanging"
+        >
+          <input
+            class="c1"
+            id="chadHanging"
+            name="senator"
+            type="radio"
+            value="chadHanging"
+          />
+           
+          Chad Hanging
+        </label>
+        .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid lightgrey;
+  background: transparent;
+  padding: 0.5rem;
+}
+
+.c0:last-child {
+  margin-bottom: 0;
+}
+
+.c0:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c1 {
+  margin-right: 0.5rem;
+}
+
+<label
+          class="c0"
+          for="levErmachine"
+        >
+          <input
+            class="c1"
+            id="levErmachine"
+            name="senator"
+            type="radio"
+            value="levErmachine"
+          />
+           
+          Lev Ermachine
+        </label>
+        .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid lightgrey;
+  background: transparent;
+  padding: 0.5rem;
+}
+
+.c0:last-child {
+  margin-bottom: 0;
+}
+
+.c0:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c1 {
+  margin-right: 0.5rem;
+}
+
+<label
+          class="c0"
+          for="johnSmith"
+        >
+          <input
+            class="c1"
+            id="johnSmith"
+            name="senator"
+            type="radio"
+            value="johnSmith"
+          />
+           
+          John Smith
+        </label>
+      </div>
+    </fieldset>
+  </main>
+  <nav
+    class="sc-bwzfXH jXDcoc"
+  >
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      View Ballot
+    </button>
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      Previous
+    </button>
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      View Summary
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`can navigate all ballot pages 4`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+  margin: 1rem;
+}
+
+.c5 {
+  color: gray;
+}
+
+.c1 {
+  margin: 1rem 0;
+}
+
+.c2 {
+  width: 100%;
+  max-width: 66ch;
+  text-align: left;
+  border-bottom: 1px solid lightGrey;
+}
+
+.c3 {
+  width: 50%;
+  padding: 0.5rem 0.25rem;
+  border-top: none;
+}
+
+.c4 {
+  width: 50%;
+  padding: 0.5rem 0.25rem;
+  border-top: 1px solid lightGrey;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="prose c1"
+    >
+      <h1>
+        Official Ballot
+      </h1>
+      <p
+        class="no-print"
+      >
+        Please review your ballot. Confirm your votes by selecting the “Print Ballot” button.
+      </p>
+    </div>
+    <table
+      class="c2"
+    >
+      <caption
+        class="no-print visually-hidden"
+      >
+        <p>
+          Summary of your votes.
+        </p>
+      </caption>
+      <thead
+        class="no-print"
+      >
+        <tr>
+          <th
+            class="c3"
+            scope="col"
+          >
+            Contest
+          </th>
+          <th
+            class="c3"
+            scope="col"
+          >
+            Vote
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th
+            class="c4"
+          >
+            President
+             
+          </th>
+          <td
+            class="c4"
+          >
+            <span
+              class="c5"
+            >
+              no selection
+            </span>
+             
+            <small
+              class="no-print"
+            >
+              <a
+                href="/contests/president"
+              >
+                change
+              </a>
+            </small>
+          </td>
+        </tr>
+        <tr>
+          <th
+            class="c4"
+          >
+            Senator
+             
+          </th>
+          <td
+            class="c4"
+          >
+            <span
+              class="c5"
+            >
+              no selection
+            </span>
+             
+            <small
+              class="no-print"
+            >
+              <a
+                href="/contests/senator"
+              >
+                change
+              </a>
+            </small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 1rem 2rem;
+  background: grey;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.c0 > :first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c1 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <button
+      class="c1"
+    >
+      Print Ballot
+    </button>
+    <button
+      class="c1"
+    >
+      Back
+    </button>
+    <button
+      class="c1"
+    >
+      New Ballot
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`can navigate all ballot pages 5`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  .c1 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+  margin: 1rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="prose"
+    >
+      <h1>
+        Demo Election
+      </h1>
+      <p>
+        For each contest, measure, or proposition, select your vote and then press the “Next” button.
+      </p>
+      <h2>
+        Heading 2
+      </h2>
+      <p>
+        More text about the election.
+      </p>
+      <p>
+        More text about the election.
+      </p>
+      <p>
+        <button
+          class="c1"
+        >
+          Get Started
+        </button>
+      </p>
+    </div>
+  </main>
+</div>
+`;
+
+exports[`redirects contests index to first contest 1`] = `
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c7 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 1rem 2rem;
+  background: grey;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.c7 > :first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c8 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+  margin: 1rem;
+}
+
+.c2 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.c3 {
+  font-weight: bold;
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.c4 {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid lightgrey;
+  background: transparent;
+  padding: 0.5rem;
+}
+
+.c5:last-child {
+  margin-bottom: 0;
+}
+
+.c5:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c6 {
+  margin-right: 0.5rem;
+}
+
+@media print {
+  .c7 {
+    display: none;
+  }
+}
+
+@media print {
+  .c1 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<div
+  class="c0"
+>
+  <main
+    class="c1"
+  >
+    <fieldset
+      class="c2"
+    >
+      <legend
+        class="c3"
+      >
+        President
+      </legend>
+      <p>
+        Vote for one
+      </p>
+      <div
+        class="c4"
+      >
+        <label
+          class="c5"
+          for="minnieMouse"
+        >
+          <input
+            class="c6"
+            id="minnieMouse"
+            name="president"
+            type="radio"
+            value="minnieMouse"
+          />
+           
+          Minnie Mouse
+        </label>
+        <label
+          class="c5"
+          for="mickeyMouse"
+        >
+          <input
+            class="c6"
+            id="mickeyMouse"
+            name="president"
+            type="radio"
+            value="mickeyMouse"
+          />
+           
+          Mickey Mouse
+        </label>
+        <label
+          class="c5"
+          for="donaldDuck"
+        >
+          <input
+            class="c6"
+            id="donaldDuck"
+            name="president"
+            type="radio"
+            value="donaldDuck"
+          />
+           
+          Donald Duck
+        </label>
+      </div>
+    </fieldset>
+  </main>
+  <nav
+    class="c7"
+  >
+    <button
+      class="c8"
+    >
+      Next
+    </button>
+    <button
+      class="c8"
+      disabled=""
+    >
+      Previous
+    </button>
+    <button
+      class="c8"
+    >
+      View Summary
+    </button>
+  </nav>
+</div>
+`;

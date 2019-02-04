@@ -1,0 +1,179 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`allows file to be uploaded via drag and drop 1`] = `
+.c3 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c2 {
+  text-align: center;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+}
+
+@media print {
+  .c1 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<div
+  class="c0"
+>
+  <main
+    class="c1"
+  >
+    <p>
+      File loaded
+       
+    </p>
+  </main>
+  <p
+    class="c2"
+  >
+    <a
+      href="/data/election.json"
+    >
+      Download sample 
+      <code>
+        election.json
+      </code>
+       file
+    </a>
+    , or skip upload and
+     
+    <button
+      class="c3"
+    >
+      Load Sample
+    </button>
+  </p>
+</div>
+`;
+
+exports[`allows file to be uploaded via file input 1`] = `
+.c3 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c2 {
+  text-align: center;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+}
+
+@media print {
+  .c1 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<div
+  class="c0"
+>
+  <main
+    class="c1"
+  >
+    <p>
+      File loaded
+       
+    </p>
+  </main>
+  <p
+    class="c2"
+  >
+    <a
+      href="/data/election.json"
+    >
+      Download sample 
+      <code>
+        election.json
+      </code>
+       file
+    </a>
+    , or skip upload and
+     
+    <button
+      class="c3"
+    >
+      Load Sample
+    </button>
+  </p>
+</div>
+`;

@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders ButtonBar 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 1rem 2rem;
+  background: grey;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.c0 > :first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+  class="c0"
+>
+  foo
+</nav>
+`;

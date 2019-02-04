@@ -1,0 +1,207 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders ContestPage 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+  margin: 1rem;
+}
+
+.c1 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.c2 {
+  font-weight: bold;
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.c3 {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid lightgrey;
+  background: transparent;
+  padding: 0.5rem;
+}
+
+.c4:last-child {
+  margin-bottom: 0;
+}
+
+.c4:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c5 {
+  margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<main
+  class="c0"
+>
+  <fieldset
+    class="c1"
+  >
+    <legend
+      class="c2"
+    >
+      President
+    </legend>
+    <p>
+      Vote for one
+    </p>
+    <div
+      class="c3"
+    >
+      <label
+        class="c4"
+        for="minnieMouse"
+      >
+        <input
+          class="c5"
+          id="minnieMouse"
+          name="president"
+          type="radio"
+          value="minnieMouse"
+        />
+         
+        Minnie Mouse
+      </label>
+      <label
+        class="c4"
+        for="mickeyMouse"
+      >
+        <input
+          class="c5"
+          id="mickeyMouse"
+          name="president"
+          type="radio"
+          value="mickeyMouse"
+        />
+         
+        Mickey Mouse
+      </label>
+      <label
+        class="c4"
+        for="donaldDuck"
+      >
+        <input
+          class="c5"
+          id="donaldDuck"
+          name="president"
+          type="radio"
+          value="donaldDuck"
+        />
+         
+        Donald Duck
+      </label>
+    </div>
+  </fieldset>
+</main>
+`;
+
+exports[`renders error if no id match 1`] = `
+.c1 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+  margin: 1rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<main
+  class="c0"
+>
+  <h1>
+    Error
+  </h1>
+  <p>
+    no contest exists for id 
+    <code>
+      "
+      foobar
+      "
+    </code>
+  </p>
+  <button
+    class="c1"
+  >
+    Start Over
+  </button>
+</main>
+`;

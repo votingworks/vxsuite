@@ -2,8 +2,54 @@
   "name": "bmd",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "is-ci \"test:ci\" \"test:watch\"",
+    "test:watch": "react-scripts test",
+    "test:ci": "CI=true react-scripts test --env=jsdom --coverage",
+    "test:precommit": "react-scripts test --coverage --watchAll=false",
+    "eject": "react-scripts eject",
+    "eslint:base": "eslint 'src/**/*.+(js|jsx)'",
+    "prettier:base": "prettier '**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|graphql|mdx)'",
+    "prettier:check": "yarn run prettier:base --list-different",
+    "prettier:write": "yarn run prettier:base --write",
+    "tslint:base": "tslint -c tslint.json 'src/**/*.+(ts,tsx)'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && yarn test:precommit"
+    }
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/index.tsx",
+      "!src/contexts/ballotContext.ts",
+      "!src/serviceWorker.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 100,
+        "branches": 100,
+        "lines": 100,
+        "functions": 100
+      }
+    }
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
   "dependencies": {
     "@types/jest": "23.3.11",
+    "@types/jest-axe": "^2.2.2",
     "@types/node": "10.12.18",
     "@types/react": "16.7.18",
     "@types/react-dom": "16.0.11",
@@ -20,31 +66,6 @@
     "styled-components": "^4.1.3",
     "typescript": "3.2.2"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "eslint:base": "eslint 'src/**/*.+(js|jsx)'",
-    "prettier:base": "prettier '**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|graphql|mdx)'",
-    "prettier:check": "yarn run prettier:base --list-different",
-    "prettier:write": "yarn run prettier:base --write",
-    "tslint:base": "tslint -c tslint.json 'src/**/*.+(ts,tsx)'"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
   "devDependencies": {
     "babel-eslint": "^10.0.1",
     "eslint": "^5.11.1",
@@ -56,8 +77,12 @@
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.12.1",
     "husky": "^1.3.1",
+    "is-ci-cli": "^1.1.1",
+    "jest-axe": "^3.1.0",
+    "jest-styled-components": "^6.3.1",
     "lint-staged": "^8.1.0",
     "prettier": "^1.15.3",
+    "react-testing-library": "^5.4.4",
     "tslint": "^5.12.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-react": "^3.6.0"
