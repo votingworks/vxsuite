@@ -18,16 +18,12 @@ const initialState = {
 }
 
 class App extends React.Component<{}, State> {
-  public initialWindowHistoryLength =
-    window.location.pathname === '/' ? window.history.length : 0
-
   public state: State = initialState
 
   public resetBallot = () => {
-    this.setState(initialState)
-    window.history.go(
-      -(window.history.length - this.initialWindowHistoryLength)
-    )
+    this.setState({
+      votes: {},
+    })
   }
 
   public updateVote = (contestId: string, vote: Vote) => {

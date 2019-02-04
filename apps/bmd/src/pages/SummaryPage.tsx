@@ -31,12 +31,13 @@ const TableCell = styled.td`
 
 const SummaryPage = (props: RouteComponentProps) => {
   const { contests, resetBallot, votes } = useContext(BallotContext)
-  const startOver = () => {
+  const getNewBallot = () => {
     if (
       Object.keys(votes).length === 0 ||
       window.confirm('Clear all votes and start over?')
     ) {
       resetBallot()
+      props.history.push('/')
     }
   }
   return (
@@ -97,7 +98,7 @@ const SummaryPage = (props: RouteComponentProps) => {
           Print Ballot
         </Button>
         <Button onClick={props.history.goBack}>Back</Button>
-        <Button onClick={startOver}>New Ballot</Button>
+        <Button onClick={getNewBallot}>New Ballot</Button>
       </ButtonBar>
     </React.Fragment>
   )
