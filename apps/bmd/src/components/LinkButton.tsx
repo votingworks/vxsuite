@@ -23,12 +23,10 @@ const LinkButton = (props: Props) => {
     ...rest
   } = props
   const handleOnClick = (event: ButtonEvent) => {
-    if (!props.disabled) {
-      if (onClick) {
-        onClick(event)
-      }
-      history.push(to)
+    if (onClick) {
+      onClick(event)
     }
+    history.push(to)
   }
   return (
     <Button
