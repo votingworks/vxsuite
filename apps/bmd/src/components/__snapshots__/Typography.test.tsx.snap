@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`centers centered style 1`] = `
+.c0 {
+  text-align: center;
+}
+
+<p
+  class="c0"
+>
+  Centered Text?
+</p>
+`;
+
+exports[`displays error style 1`] = `
+.c0 {
+  color: red;
+}
+
+<p
+  class="c0"
+>
+  Error Text?
+</p>
+`;
+
+exports[`displays muted style 1`] = `
+.c0 {
+  color: gray;
+}
+
+<p
+  class="c0"
+>
+  Muted Text?
+</p>
+`;
+
+exports[`outputs "span" tag specified by "as" prop 1`] = `
+<span
+  class=""
+>
+  Text in a span?
+</span>
+`;
+
+exports[`outputs paragraph tag 1`] = `
+<p
+  class=""
+>
+  paragraph
+</p>
+`;

@@ -2,20 +2,25 @@ import React from 'react'
 import styled from 'styled-components'
 import { Contest, InputEvent, UpdateVoteFunction, Vote } from '../config/types'
 
-interface ChoiceProps {
-  isSelected: boolean
-}
-
+const FieldSet = styled.fieldset`
+  margin: 0;
+  border: none;
+  padding: 0;
+`
+const Legend = styled.legend`
+  font-weight: bold;
+  font-size: 2em;
+  margin: 0.67em 0;
+`
 const Choices = styled.div`
   display: inline-flex;
   flex-direction: column;
 `
-const Choice = styled.label`
+const Choice = styled('label')<{ isSelected: boolean }>`
   display: flex;
   margin-bottom: 1rem;
   border: 1px solid lightgrey;
-  background: ${(props: ChoiceProps) =>
-    props.isSelected ? 'lightgrey' : 'transparent'};
+  background: ${({ isSelected }) => (isSelected ? 'lightgrey' : 'transparent')};
   padding: 0.5rem;
   :last-child {
     margin-bottom: 0;
@@ -24,8 +29,9 @@ const Choice = styled.label`
     outline: -webkit-focus-ring-color auto 5px;
   }
 `
-
-const ChoiceRadioInput = styled.input`
+const ChoiceRadioInput = styled.input.attrs({
+  type: 'radio',
+})`
   margin-right: 0.5rem;
 `
 
@@ -48,7 +54,8 @@ class SingleCandidateContest extends React.Component<Props, {}> {
   public render() {
     const { contest, vote } = this.props
     return (
-      <React.Fragment>
+      <FieldSet>
+        <Legend>{contest.title}</Legend>
         <p>Vote for one</p>
         <Choices>
           {contest.candidates.map((candidate, index) => {
@@ -62,19 +69,17 @@ class SingleCandidateContest extends React.Component<Props, {}> {
                 <ChoiceRadioInput
                   autoFocus={index === 0 && !vote}
                   id={candidate.id}
-                  type="radio"
                   name={contest.id}
                   value={candidate.id}
                   onChange={this.updateSelection}
                   checked={isChecked}
-                  className="Choice__Radio"
                 />{' '}
                 {candidate.name}
               </Choice>
             )
           })}
         </Choices>
-      </React.Fragment>
+      </FieldSet>
     )
   }
 }

@@ -2,10 +2,9 @@ import React, { useContext } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
-import Article from '../components/Article'
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
-import NoPrint from '../components/NoPrint'
+import Main from '../components/Main'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
@@ -31,17 +30,18 @@ const TableCell = styled.td`
 
 const SummaryPage = (props: RouteComponentProps) => {
   const { contests, resetBallot, votes } = useContext(BallotContext)
-  const startOver = () => {
+  const getNewBallot = () => {
     if (
       Object.keys(votes).length === 0 ||
       window.confirm('Clear all votes and start over?')
     ) {
       resetBallot()
+      props.history.push('/')
     }
   }
   return (
     <React.Fragment>
-      <Article>
+      <Main>
         <Header className="prose">
           <h1>Official Ballot</h1>
           <p className="no-print">
@@ -91,13 +91,13 @@ const SummaryPage = (props: RouteComponentProps) => {
             })}
           </tbody>
         </Table>
-      </Article>
+      </Main>
       <ButtonBar>
         <Button autoFocus onClick={window.print}>
           Print Ballot
         </Button>
         <Button onClick={props.history.goBack}>Back</Button>
-        <Button onClick={startOver}>New Ballot</Button>
+        <Button onClick={getNewBallot}>New Ballot</Button>
       </ButtonBar>
     </React.Fragment>
   )

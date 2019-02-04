@@ -5,10 +5,10 @@ interface Props {
   error?: boolean
   muted?: boolean
 }
-export const Text = styled.p`
-  color: ${({ error, muted }: Props) =>
+export const Text = styled('p')<Props>`
+  color: ${({ error, muted }) =>
     (error && 'red') || (muted && 'gray') || undefined};
-  text-align: ${({ center }: Props) => (center ? 'center' : undefined)};
+  text-align: ${({ center }) => (center ? 'center' : undefined)};
 `
 
 export default Text

@@ -1,7 +1,6 @@
-import React from 'react'
 import styled from 'styled-components'
 
-const Screen = styled.main`
+const Screen = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;

@@ -4,21 +4,10 @@ import styled from 'styled-components'
 
 import BallotContext from '../contexts/ballotContext'
 
-import Article from '../components/Article'
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
+import Main from '../components/Main'
 import SingleCandidateContest from '../components/SingleCandidateContest'
-
-const FieldSet = styled.fieldset`
-  margin: 0;
-  border: none;
-  padding: 0;
-`
-const Legend = styled.legend`
-  font-weight: bold;
-  font-size: 2em;
-  margin: 0.67em 0;
-`
 
 interface ContestParams {
   id: string
@@ -34,35 +23,27 @@ const ContestPage = (props: Props) => {
   const prevContest = contests[currentContestIndex - 1]
   const nextContest = contests[currentContestIndex + 1]
 
-  if (!contest || !contest.type) {
-    return (
-      <Article>
-        <h1>Error</h1>
-        <p>
-          no contest exists for id <code>{id}</code>
-        </p>
-        <LinkButton to="/">Start Over</LinkButton>
-      </Article>
-    )
-  }
-  let contestChoices
-  if (contest.type === 'plurality') {
-    contestChoices = (
-      <SingleCandidateContest
-        contest={contest}
-        vote={votes[contest.id]}
-        updateVote={updateVote}
-      />
-    )
-  }
   return (
     <React.Fragment>
-      <Article>
-        <FieldSet>
-          <Legend>{contest.title}</Legend>
-          {contestChoices}
-        </FieldSet>
-      </Article>
+      <Main>
+        {contest ? (
+          contest.type === 'plurality' && (
+            <SingleCandidateContest
+              contest={contest}
+              vote={votes[contest.id]}
+              updateVote={updateVote}
+            />
+          )
+        ) : (
+          <React.Fragment>
+            <h1>Error</h1>
+            <p>
+              no contest exists for id <code>"{id}"</code>
+            </p>
+            <LinkButton to="/">Start Over</LinkButton>
+          </React.Fragment>
+        )}
+      </Main>
       <ButtonBar>
         {nextContest ? (
           <LinkButton

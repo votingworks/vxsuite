@@ -1,0 +1,237 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders SingleCandidateContest with Minnie Mouse selected 1`] = `
+.c0 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.c1 {
+  font-weight: bold;
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.c2 {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid lightgrey;
+  background: transparent;
+  padding: 0.5rem;
+}
+
+.c5:last-child {
+  margin-bottom: 0;
+}
+
+.c5:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid lightgrey;
+  background: lightgrey;
+  padding: 0.5rem;
+}
+
+.c3:last-child {
+  margin-bottom: 0;
+}
+
+.c3:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c4 {
+  margin-right: 0.5rem;
+}
+
+<div>
+  <fieldset
+    class="c0"
+  >
+    <legend
+      class="c1"
+    >
+      President
+    </legend>
+    <p>
+      Vote for one
+    </p>
+    <div
+      class="c2"
+    >
+      <label
+        class="c3"
+        for="minnieMouse"
+      >
+        <input
+          checked=""
+          class="c4"
+          id="minnieMouse"
+          name="president"
+          type="radio"
+          value="minnieMouse"
+        />
+         
+        Minnie Mouse
+      </label>
+      <label
+        class="c5"
+        for="mickeyMouse"
+      >
+        <input
+          class="c4"
+          id="mickeyMouse"
+          name="president"
+          type="radio"
+          value="mickeyMouse"
+        />
+         
+        Mickey Mouse
+      </label>
+      <label
+        class="c5"
+        for="donaldDuck"
+      >
+        <input
+          class="c4"
+          id="donaldDuck"
+          name="president"
+          type="radio"
+          value="donaldDuck"
+        />
+         
+        Donald Duck
+      </label>
+    </div>
+  </fieldset>
+</div>
+`;
+
+exports[`renders SingleCandidateContest with no selection 1`] = `
+.c0 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.c1 {
+  font-weight: bold;
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.c2 {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid lightgrey;
+  background: transparent;
+  padding: 0.5rem;
+}
+
+.c3:last-child {
+  margin-bottom: 0;
+}
+
+.c3:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c4 {
+  margin-right: 0.5rem;
+}
+
+<div>
+  <fieldset
+    class="c0"
+  >
+    <legend
+      class="c1"
+    >
+      President
+    </legend>
+    <p>
+      Vote for one
+    </p>
+    <div
+      class="c2"
+    >
+      <label
+        class="c3"
+        for="minnieMouse"
+      >
+        <input
+          class="c4"
+          id="minnieMouse"
+          name="president"
+          type="radio"
+          value="minnieMouse"
+        />
+         
+        Minnie Mouse
+      </label>
+      <label
+        class="c3"
+        for="mickeyMouse"
+      >
+        <input
+          class="c4"
+          id="mickeyMouse"
+          name="president"
+          type="radio"
+          value="mickeyMouse"
+        />
+         
+        Mickey Mouse
+      </label>
+      <label
+        class="c3"
+        for="donaldDuck"
+      >
+        <input
+          class="c4"
+          id="donaldDuck"
+          name="president"
+          type="radio"
+          value="donaldDuck"
+        />
+         
+        Donald Duck
+      </label>
+    </div>
+  </fieldset>
+</div>
+`;

@@ -1,11 +1,12 @@
 import React from 'react'
+import { BrowserRouter } from 'react-router-dom'
 
 import './App.css'
 import { Election, OptionalElection, Vote, VoteDict } from './config/types'
 
 import Ballot from './components/Ballot'
+import UploadConfig from './components/UploadConfig'
 import BallotContext from './contexts/ballotContext'
-import ConfigPage from './pages/ConfigPage'
 
 interface State {
   election: OptionalElection
@@ -18,16 +19,12 @@ const initialState = {
 }
 
 class App extends React.Component<{}, State> {
-  public initialWindowHistoryLength =
-    window.location.pathname === '/' ? window.history.length : 0
-
   public state: State = initialState
 
   public resetBallot = () => {
-    this.setState(initialState)
-    window.history.go(
-      -(window.history.length - this.initialWindowHistoryLength)
-    )
+    this.setState({
+      votes: {},
+    })
   }
 
   public updateVote = (contestId: string, vote: Vote) => {
@@ -42,7 +39,7 @@ class App extends React.Component<{}, State> {
 
   public render() {
     if (!this.state.election) {
-      return <ConfigPage setElection={this.setElection} />
+      return <UploadConfig setElection={this.setElection} />
     } else {
       const { contests } = this.state.election
       return (
@@ -54,7 +51,9 @@ class App extends React.Component<{}, State> {
             votes: this.state.votes,
           }}
         >
-          <Ballot />
+          <BrowserRouter>
+            <Ballot />
+          </BrowserRouter>
         </BallotContext.Provider>
       )
     }
