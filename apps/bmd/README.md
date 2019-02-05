@@ -18,8 +18,9 @@ The `master` branch of this repo is auto-deployed to:
 Each [pull request](https://github.com/votingworks/bmd/pulls) will have a unique
 demo url which can be found in the comments of the pull request.
 
-## App Scripts
+## Local Development
 
+- `yarn install` - Install the dependencies.
 - `yarn start` - Run the app locally.
 - `yarn test`- Run tests in interactive mode.
 - `yarn test:precommit` - Run all tests and display coverage report.
