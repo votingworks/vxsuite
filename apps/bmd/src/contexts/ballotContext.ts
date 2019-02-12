@@ -1,4 +1,4 @@
-import React from 'react'
+import { createContext } from 'react'
 import { BallotContextInterface } from '../config/types'
 
 const ballot: BallotContextInterface = {
@@ -8,6 +8,6 @@ const ballot: BallotContextInterface = {
   votes: {},
 }
 
-const BallotContext = React.createContext(ballot)
+const BallotContext = createContext(ballot)
 
 export default BallotContext
