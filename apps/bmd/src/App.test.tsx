@@ -12,10 +12,10 @@ it('renders without crashing', () => {
   ReactDOM.unmountComponentAtNode(div)
 })
 
-test('election can be loaded and voter can vote', async () => {
+it('election can be loaded and voter can vote', async () => {
   window.confirm = jest.fn(() => true) // approve
   window.print = jest.fn(() => true) // approve
-  const { container, getByTestId, getByText } = render(<App />)
+  const { container, getByTestId, getByText, getByLabelText } = render(<App />)
   expect(container).toMatchSnapshot()
   const fileInput = getByTestId('file-input')
   fireEvent.change(fileInput, {
@@ -34,10 +34,18 @@ test('election can be loaded and voter can vote', async () => {
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.click(getByText('Minnie Mouse'))
+  fireEvent.click(getByText('Mickey Mouse'))
+  expect(
+    (getByLabelText('Minnie Mouse') as HTMLInputElement).checked
+  ).toBeTruthy()
   fireEvent.click(getByText('Next'))
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.click(getByText('John Smith'))
+  fireEvent.click(getByText('Chad Hanging'))
+  expect(
+    (getByLabelText('John Smith') as HTMLInputElement).checked
+  ).toBeTruthy()
   fireEvent.click(getByText('View Summary'))
   expect(container.firstChild).toMatchSnapshot()
 

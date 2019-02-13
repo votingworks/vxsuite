@@ -335,7 +335,7 @@ exports[`election can be loaded and voter can vote 3`] = `
             class="c5"
             id="minnieMouse"
             name="president"
-            type="radio"
+            type="checkbox"
             value="minnieMouse"
           />
            
@@ -349,7 +349,7 @@ exports[`election can be loaded and voter can vote 3`] = `
             class="c5"
             id="mickeyMouse"
             name="president"
-            type="radio"
+            type="checkbox"
             value="mickeyMouse"
           />
            
@@ -363,7 +363,7 @@ exports[`election can be loaded and voter can vote 3`] = `
             class="c5"
             id="donaldDuck"
             name="president"
-            type="radio"
+            type="checkbox"
             value="donaldDuck"
           />
            
@@ -480,7 +480,7 @@ exports[`election can be loaded and voter can vote 4`] = `
             class="c1"
             id="chadHanging"
             name="senator"
-            type="radio"
+            type="checkbox"
             value="chadHanging"
           />
            
@@ -517,7 +517,7 @@ exports[`election can be loaded and voter can vote 4`] = `
             class="c1"
             id="levErmachine"
             name="senator"
-            type="radio"
+            type="checkbox"
             value="levErmachine"
           />
            
@@ -554,7 +554,7 @@ exports[`election can be loaded and voter can vote 4`] = `
             class="c1"
             id="johnSmith"
             name="senator"
-            type="radio"
+            type="checkbox"
             value="johnSmith"
           />
            

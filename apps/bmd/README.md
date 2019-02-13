@@ -27,6 +27,13 @@ demo url which can be found in the comments of the pull request.
 
 See `package.json` for all available scripts.
 
+### Visual Studio Code
+
+Autorun code formatting and linting by installing the following VS Code plugins:
+
+- "ESLint"
+- "Prettier - Code formatter"
+
 ## Technical Implementation
 
 This project was bootstrapped with

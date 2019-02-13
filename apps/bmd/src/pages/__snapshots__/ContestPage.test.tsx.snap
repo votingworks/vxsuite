@@ -104,7 +104,7 @@ exports[`renders ContestPage 1`] = `
           class="c5"
           id="minnieMouse"
           name="president"
-          type="radio"
+          type="checkbox"
           value="minnieMouse"
         />
          
@@ -118,7 +118,7 @@ exports[`renders ContestPage 1`] = `
           class="c5"
           id="mickeyMouse"
           name="president"
-          type="radio"
+          type="checkbox"
           value="mickeyMouse"
         />
          
@@ -132,7 +132,7 @@ exports[`renders ContestPage 1`] = `
           class="c5"
           id="donaldDuck"
           name="president"
-          type="radio"
+          type="checkbox"
           value="donaldDuck"
         />
          
