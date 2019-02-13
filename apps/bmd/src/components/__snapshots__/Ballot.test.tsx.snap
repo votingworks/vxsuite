@@ -195,7 +195,7 @@ exports[`can navigate all ballot pages 2`] = `
             class="c5"
             id="minnieMouse"
             name="president"
-            type="radio"
+            type="checkbox"
             value="minnieMouse"
           />
            
@@ -209,7 +209,7 @@ exports[`can navigate all ballot pages 2`] = `
             class="c5"
             id="mickeyMouse"
             name="president"
-            type="radio"
+            type="checkbox"
             value="mickeyMouse"
           />
            
@@ -223,7 +223,7 @@ exports[`can navigate all ballot pages 2`] = `
             class="c5"
             id="donaldDuck"
             name="president"
-            type="radio"
+            type="checkbox"
             value="donaldDuck"
           />
            
@@ -340,7 +340,7 @@ exports[`can navigate all ballot pages 3`] = `
             class="c1"
             id="chadHanging"
             name="senator"
-            type="radio"
+            type="checkbox"
             value="chadHanging"
           />
            
@@ -377,7 +377,7 @@ exports[`can navigate all ballot pages 3`] = `
             class="c1"
             id="levErmachine"
             name="senator"
-            type="radio"
+            type="checkbox"
             value="levErmachine"
           />
            
@@ -414,7 +414,7 @@ exports[`can navigate all ballot pages 3`] = `
             class="c1"
             id="johnSmith"
             name="senator"
-            type="radio"
+            type="checkbox"
             value="johnSmith"
           />
            
@@ -893,7 +893,7 @@ exports[`redirects contests index to first contest 1`] = `
             class="c6"
             id="minnieMouse"
             name="president"
-            type="radio"
+            type="checkbox"
             value="minnieMouse"
           />
            
@@ -907,7 +907,7 @@ exports[`redirects contests index to first contest 1`] = `
             class="c6"
             id="mickeyMouse"
             name="president"
-            type="radio"
+            type="checkbox"
             value="mickeyMouse"
           />
            
@@ -921,7 +921,7 @@ exports[`redirects contests index to first contest 1`] = `
             class="c6"
             id="donaldDuck"
             name="president"
-            type="radio"
+            type="checkbox"
             value="donaldDuck"
           />
            

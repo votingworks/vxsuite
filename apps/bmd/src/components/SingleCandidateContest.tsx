@@ -29,8 +29,8 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     outline: -webkit-focus-ring-color auto 5px;
   }
 `
-const ChoiceRadioInput = styled.input.attrs({
-  type: 'radio',
+const ChoiceInput = styled.input.attrs({
+  type: 'checkbox',
 })`
   margin-right: 0.5rem;
 `
@@ -44,7 +44,10 @@ export interface Props {
 class SingleCandidateContest extends React.Component<Props, {}> {
   public updateSelection = (event: InputEvent) => {
     const target = event.target as HTMLInputElement
-    this.props.updateVote(this.props.contest.id, target.value)
+    this.props.updateVote(
+      this.props.contest.id,
+      target.value === this.props.vote ? '' : target.value
+    )
   }
 
   // TODO:
@@ -66,13 +69,14 @@ class SingleCandidateContest extends React.Component<Props, {}> {
                 htmlFor={candidate.id}
                 isSelected={isChecked}
               >
-                <ChoiceRadioInput
-                  autoFocus={index === 0 && !vote}
+                <ChoiceInput
+                  autoFocus={isChecked || (index === 0 && !vote)}
                   id={candidate.id}
                   name={contest.id}
                   value={candidate.id}
                   onChange={this.updateSelection}
                   checked={isChecked}
+                  disabled={!!vote && !isChecked}
                 />{' '}
                 {candidate.name}
               </Choice>

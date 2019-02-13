@@ -6,11 +6,8 @@ import election from '../../public/data/election.json'
 
 import SingleCandidateContest from './SingleCandidateContest'
 
-const presidentName = 'Minnie Mouse'
-const presidentId = 'minnieMouse'
-const updateVote = jest.fn(value => value === presidentId)
-
-it(`renders SingleCandidateContest with no selection`, async () => {
+it(`allows any candidate to be selected when no candidate is selected`, () => {
+  const updateVote = jest.fn()
   const { container, getByText } = render(
     <SingleCandidateContest
       contest={election.contests[0]}
@@ -18,22 +15,80 @@ it(`renders SingleCandidateContest with no selection`, async () => {
       updateVote={updateVote}
     />
   )
-  fireEvent.click(getByText(presidentName))
-  expect(updateVote).toHaveBeenCalled()
+
+  fireEvent.click(getByText('Minnie Mouse'))
+  expect(updateVote).toHaveBeenCalledTimes(1)
+
+  fireEvent.click(getByText('Mickey Mouse'))
+  expect(updateVote).toHaveBeenCalledTimes(2)
+
+  fireEvent.click(getByText('Donald Duck'))
+  expect(updateVote).toHaveBeenCalledTimes(3)
+
   expect(container).toMatchSnapshot()
-  expect(await axe(container.innerHTML)).toHaveNoViolations()
+
+  // TODO: Why doesn't axe work when used in two tests in the same file?
+  // expect(await axe(container.innerHTML)).toHaveNoViolations()
+  // See tests below… which are used instead of the above line
 })
 
-it(`renders SingleCandidateContest with ${presidentName} selected`, async () => {
-  const { container, getByText } = render(
+it(`doesn't allow other candidates to be selected when one candidate is selected`, () => {
+  const updateVote = jest.fn()
+  const { container, getByText, getByLabelText } = render(
     <SingleCandidateContest
       contest={election.contests[0]}
-      vote={presidentId}
+      vote={'minnieMouse'}
       updateVote={updateVote}
     />
   )
-  fireEvent.click(getByText(presidentName))
-  expect(updateVote).toHaveBeenCalled()
   expect(container).toMatchSnapshot()
+
+  const minnieMouseInput = getByLabelText('Minnie Mouse') as HTMLInputElement
+  expect(minnieMouseInput.disabled).toBeFalsy()
+  expect(minnieMouseInput.checked).toBeTruthy()
+
+  const mickeyInput = getByLabelText('Mickey Mouse') as HTMLInputElement
+  expect(mickeyInput.disabled).toBeTruthy()
+  expect(mickeyInput.checked).toBeFalsy()
+
+  const donaldDuckInput = getByLabelText('Donald Duck') as HTMLInputElement
+  expect(donaldDuckInput.disabled).toBeTruthy()
+  expect(donaldDuckInput.checked).toBeFalsy()
+
+  fireEvent.click(getByText('Mickey Mouse'))
+  expect(updateVote).not.toHaveBeenCalled()
+
+  fireEvent.click(getByText('Donald Duck'))
+  expect(updateVote).not.toHaveBeenCalled()
+
+  fireEvent.click(getByText('Minnie Mouse'))
+  expect(updateVote).toHaveBeenCalled()
+
+  // TODO: Why doesn't axe work when used in two tests in the same file?
+  // expect(await axe(container.innerHTML)).toHaveNoViolations()
+  // See tests below… which are used instead of the above line
+})
+
+it(`accessible when no candidate is selected`, async () => {
+  const updateVote = jest.fn()
+  const { container } = render(
+    <SingleCandidateContest
+      contest={election.contests[0]}
+      vote=""
+      updateVote={updateVote}
+    />
+  )
+  expect(await axe(container.innerHTML)).toHaveNoViolations()
+})
+
+it(`accessible when one candidate is selected`, async () => {
+  const updateVote = jest.fn()
+  const { container } = render(
+    <SingleCandidateContest
+      contest={election.contests[0]}
+      vote={'minnieMouse'}
+      updateVote={updateVote}
+    />
+  )
   expect(await axe(container.innerHTML)).toHaveNoViolations()
 })
