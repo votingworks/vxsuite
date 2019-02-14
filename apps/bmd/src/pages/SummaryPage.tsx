@@ -1,10 +1,11 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import Main from '../components/Main'
+import Modal from '../components/Modal'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
@@ -30,14 +31,16 @@ const TableCell = styled.td`
 
 const SummaryPage = (props: RouteComponentProps) => {
   const { contests, resetBallot, votes } = useContext(BallotContext)
-  const getNewBallot = () => {
-    if (
-      Object.keys(votes).length === 0 ||
-      window.confirm('Clear all votes and start over?')
-    ) {
-      resetBallot()
-      props.history.push('/')
-    }
+  const [isAlert, setAlert] = useState(false)
+  const closeAlert = () => {
+    setAlert(false)
+  }
+  const requestNewBallot = () => {
+    Object.keys(votes).length === 0 ? startOver() : setAlert(true)
+  }
+  const startOver = () => {
+    resetBallot()
+    props.history.push('/')
   }
   return (
     <React.Fragment>
@@ -97,8 +100,13 @@ const SummaryPage = (props: RouteComponentProps) => {
           Print Ballot
         </Button>
         <Button onClick={props.history.goBack}>Back</Button>
-        <Button onClick={getNewBallot}>New Ballot</Button>
+        <Button onClick={requestNewBallot}>New Ballot</Button>
       </ButtonBar>
+      <Modal isOpen={isAlert}>
+        <Text>Clear all votes and start over?</Text>
+        <button onClick={closeAlert}>Cancel</button>
+        <button onClick={startOver}>Start Over</button>
+      </Modal>
     </React.Fragment>
   )
 }
