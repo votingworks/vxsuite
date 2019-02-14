@@ -1,6 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders ContestPage 1`] = `
+.c6 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 1rem 2rem;
+  background: grey;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.c6 > :first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c7 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -70,108 +97,9 @@ exports[`renders ContestPage 1`] = `
 }
 
 @media print {
-  .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    margin: 0;
+  .c6 {
+    display: none;
   }
-}
-
-<main
-  class="c0"
->
-  <fieldset
-    class="c1"
-  >
-    <legend
-      class="c2"
-    >
-      President
-    </legend>
-    <p>
-      Vote for one
-    </p>
-    <div
-      class="c3"
-    >
-      <label
-        class="c4"
-        for="minnieMouse"
-      >
-        <input
-          class="c5"
-          id="minnieMouse"
-          name="president"
-          type="checkbox"
-          value="minnieMouse"
-        />
-         
-        Minnie Mouse
-      </label>
-      <label
-        class="c4"
-        for="mickeyMouse"
-      >
-        <input
-          class="c5"
-          id="mickeyMouse"
-          name="president"
-          type="checkbox"
-          value="mickeyMouse"
-        />
-         
-        Mickey Mouse
-      </label>
-      <label
-        class="c4"
-        for="donaldDuck"
-      >
-        <input
-          class="c5"
-          id="donaldDuck"
-          name="president"
-          type="checkbox"
-          value="donaldDuck"
-        />
-         
-        Donald Duck
-      </label>
-    </div>
-  </fieldset>
-</main>
-`;
-
-exports[`renders error if no id match 1`] = `
-.c1 {
-  background: lightgrey;
-  border-radius: 0.25rem;
-  color: black;
-  white-space: nowrap;
-}
-
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  text-align: center;
-  margin: 1rem;
 }
 
 @media print {
@@ -184,24 +112,88 @@ exports[`renders error if no id match 1`] = `
   }
 }
 
-<main
-  class="c0"
->
-  <h1>
-    Error
-  </h1>
-  <p>
-    no contest exists for id 
-    <code>
-      "
-      foobar
-      "
-    </code>
-  </p>
-  <button
-    class="c1"
+<div>
+  <main
+    class="c0"
   >
-    Start Over
-  </button>
-</main>
+    <fieldset
+      class="c1"
+    >
+      <legend
+        class="c2"
+      >
+        President
+      </legend>
+      <p>
+        Vote for one
+      </p>
+      <div
+        class="c3"
+      >
+        <label
+          class="c4"
+          for="minnieMouse"
+        >
+          <input
+            class="c5"
+            id="minnieMouse"
+            name="president"
+            type="checkbox"
+            value="minnieMouse"
+          />
+           
+          Minnie Mouse
+        </label>
+        <label
+          class="c4"
+          for="mickeyMouse"
+        >
+          <input
+            class="c5"
+            id="mickeyMouse"
+            name="president"
+            type="checkbox"
+            value="mickeyMouse"
+          />
+           
+          Mickey Mouse
+        </label>
+        <label
+          class="c4"
+          for="donaldDuck"
+        >
+          <input
+            class="c5"
+            id="donaldDuck"
+            name="president"
+            type="checkbox"
+            value="donaldDuck"
+          />
+           
+          Donald Duck
+        </label>
+      </div>
+    </fieldset>
+  </main>
+  <nav
+    class="c6"
+  >
+    <button
+      class="c7"
+    >
+      Next
+    </button>
+    <button
+      class="c7"
+      disabled=""
+    >
+      Previous
+    </button>
+    <button
+      class="c7"
+    >
+      View Summary
+    </button>
+  </nav>
+</div>
 `;

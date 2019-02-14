@@ -35,6 +35,9 @@ it('election can be loaded and voter can vote', async () => {
 
   fireEvent.click(getByText('Minnie Mouse'))
   fireEvent.click(getByText('Mickey Mouse'))
+  expect(container.firstChild).toMatchSnapshot()
+  getByText('To vote for Mickey Mouse, first uncheck the vote for minnieMouse.')
+  fireEvent.click(getByText('Okay'))
   expect(
     (getByLabelText('Minnie Mouse') as HTMLInputElement).checked
   ).toBeTruthy()
@@ -43,6 +46,9 @@ it('election can be loaded and voter can vote', async () => {
 
   fireEvent.click(getByText('John Smith'))
   fireEvent.click(getByText('Chad Hanging'))
+  expect(container.firstChild).toMatchSnapshot()
+  getByText('To vote for Chad Hanging, first uncheck the vote for johnSmith.')
+  fireEvent.click(getByText('Okay'))
   expect(
     (getByLabelText('John Smith') as HTMLInputElement).checked
   ).toBeTruthy()
@@ -53,6 +59,11 @@ it('election can be loaded and voter can vote', async () => {
   expect(window.print).toBeCalled()
 
   fireEvent.click(getByText('New Ballot'))
-  expect(window.confirm).toBeCalled()
+  expect(container.firstChild).toMatchSnapshot()
+  getByText('Clear all votes and start over?')
+  fireEvent.click(getByText('Cancel'))
+
+  fireEvent.click(getByText('New Ballot'))
+  fireEvent.click(getByText('Start Over'))
   expect(container.firstChild).toMatchSnapshot()
 })

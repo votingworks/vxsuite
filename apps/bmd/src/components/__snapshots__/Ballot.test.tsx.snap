@@ -296,10 +296,10 @@ exports[`can navigate all ballot pages 3`] = `
     class="sc-bxivhb jStObh"
   >
     <fieldset
-      class="sc-ifAKCX hxMwKD"
+      class="sc-EHOje iUEThK"
     >
       <legend
-        class="sc-EHOje gPKrAp"
+        class="sc-bZQynM fOsyH"
       >
         Senator
       </legend>
@@ -307,7 +307,7 @@ exports[`can navigate all ballot pages 3`] = `
         Vote for one
       </p>
       <div
-        class="sc-bZQynM dVRpCk"
+        class="sc-gzVnrw kyKqQm"
       >
         .c0 {
   display: -webkit-box;

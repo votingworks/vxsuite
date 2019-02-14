@@ -2,6 +2,9 @@ import React from 'react'
 import styled from 'styled-components'
 import { Contest, InputEvent, UpdateVoteFunction, Vote } from '../config/types'
 
+import Modal from '../components/Modal'
+import { Text } from '../components/Typography'
+
 const FieldSet = styled.fieldset`
   margin: 0;
   border: none;
@@ -35,13 +38,23 @@ const ChoiceInput = styled.input.attrs({
   margin-right: 0.5rem;
 `
 
-export interface Props {
+interface Props {
   contest: Contest
   vote: Vote
   updateVote: UpdateVoteFunction
 }
 
-class SingleCandidateContest extends React.Component<Props, {}> {
+interface State {
+  candidateName: string
+}
+
+const initialState = {
+  candidateName: '',
+}
+
+class SingleCandidateContest extends React.Component<Props, State> {
+  public state: State = initialState
+
   public updateSelection = (event: InputEvent) => {
     const target = event.target as HTMLInputElement
     this.props.updateVote(
@@ -50,40 +63,63 @@ class SingleCandidateContest extends React.Component<Props, {}> {
     )
   }
 
+  public handleChangeVoteAlert = (candidateName: string) => {
+    this.setState({ candidateName })
+  }
+
+  public closeAlert = () => {
+    this.setState({ candidateName: '' })
+  }
+
   // TODO:
   // - confirm intent when navigating away without selecting a candidate
   // - confirm intent when changing candidate
 
   public render() {
     const { contest, vote } = this.props
+    const { candidateName } = this.state
     return (
-      <FieldSet>
-        <Legend>{contest.title}</Legend>
-        <p>Vote for one</p>
-        <Choices>
-          {contest.candidates.map((candidate, index) => {
-            const isChecked = candidate.id === vote
-            return (
-              <Choice
-                key={candidate.id}
-                htmlFor={candidate.id}
-                isSelected={isChecked}
-              >
-                <ChoiceInput
-                  autoFocus={isChecked || (index === 0 && !vote)}
-                  id={candidate.id}
-                  name={contest.id}
-                  value={candidate.id}
-                  onChange={this.updateSelection}
-                  checked={isChecked}
-                  disabled={!!vote && !isChecked}
-                />{' '}
-                {candidate.name}
-              </Choice>
-            )
-          })}
-        </Choices>
-      </FieldSet>
+      <React.Fragment>
+        <FieldSet>
+          <Legend>{contest.title}</Legend>
+          <p>Vote for one</p>
+          <Choices>
+            {contest.candidates.map((candidate, index) => {
+              const isChecked = candidate.id === vote
+              const handleDisabledClick = () => {
+                if (vote && !isChecked) {
+                  this.handleChangeVoteAlert(candidate.name)
+                }
+              }
+              return (
+                <Choice
+                  key={candidate.id}
+                  htmlFor={candidate.id}
+                  isSelected={isChecked}
+                  onClick={handleDisabledClick}
+                >
+                  <ChoiceInput
+                    autoFocus={isChecked || (index === 0 && !vote)}
+                    id={candidate.id}
+                    name={contest.id}
+                    value={candidate.id}
+                    onChange={this.updateSelection}
+                    checked={isChecked}
+                    disabled={!!vote && !isChecked}
+                  />{' '}
+                  {candidate.name}
+                </Choice>
+              )
+            })}
+          </Choices>
+        </FieldSet>
+        <Modal isOpen={!!candidateName}>
+          <Text>
+            To vote for {candidateName}, first uncheck the vote for {vote}.
+          </Text>
+          <button onClick={this.closeAlert}>Okay</button>
+        </Modal>
+      </React.Fragment>
     )
   }
 }

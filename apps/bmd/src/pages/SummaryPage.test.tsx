@@ -23,10 +23,9 @@ it(`renders SummaryPage and request New Ballot`, () => {
   expect(resetBallot).toHaveBeenCalled()
 })
 
-it(`renders SummaryPage with votes and request New Ballot`, () => {
+fit(`renders SummaryPage with votes and request New Ballot`, () => {
   const resetBallot = jest.fn()
-  window.confirm = jest.fn(() => true) // approve
-  const { container, getByText } = render(
+  const { container, getByText, debug } = render(
     <Route path="/summary" component={SummaryPage} />,
     {
       resetBallot,
@@ -38,16 +37,13 @@ it(`renders SummaryPage with votes and request New Ballot`, () => {
     }
   )
   expect(container.firstChild).toMatchSnapshot()
-  const newBallotButton = getByText('New Ballot')
-  expect(resetBallot).not.toHaveBeenCalled()
-  fireEvent.click(newBallotButton)
-  expect(window.confirm).toBeCalled()
+  fireEvent.click(getByText('New Ballot'))
+  fireEvent.click(getByText('Start Over'))
   expect(resetBallot).toHaveBeenCalled()
 })
 
 it(`renders SummaryPage with votes and cancels request New Ballot`, () => {
   const resetBallot = jest.fn()
-  window.confirm = jest.fn(() => false) // cancel
   const { container, getByText } = render(
     <Route path="/summary" component={SummaryPage} />,
     {
@@ -63,7 +59,7 @@ it(`renders SummaryPage with votes and cancels request New Ballot`, () => {
   const newBallotButton = getByText('New Ballot')
   expect(resetBallot).not.toHaveBeenCalled()
   fireEvent.click(newBallotButton)
-  expect(window.confirm).toBeCalled()
+  fireEvent.click(getByText('Cancel'))
   expect(resetBallot).not.toHaveBeenCalled()
 })
 

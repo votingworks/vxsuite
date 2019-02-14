@@ -436,10 +436,101 @@ exports[`election can be loaded and voter can vote 4`] = `
     class="sc-bxivhb jStObh"
   >
     <fieldset
-      class="sc-ifAKCX hxMwKD"
+      class="sc-EHOje iUEThK"
     >
       <legend
-        class="sc-EHOje gPKrAp"
+        class="sc-bZQynM fOsyH"
+      >
+        President
+      </legend>
+      <p>
+        Vote for one
+      </p>
+      <div
+        class="sc-gzVnrw kyKqQm"
+      >
+        <label
+          class="sc-htoDjs jYkaCb"
+          for="minnieMouse"
+        >
+          <input
+            class="sc-dnqmqq biKTHH"
+            id="minnieMouse"
+            name="president"
+            type="checkbox"
+            value="minnieMouse"
+          />
+           
+          Minnie Mouse
+        </label>
+        <label
+          class="sc-htoDjs eivrdb"
+          for="mickeyMouse"
+        >
+          <input
+            class="sc-dnqmqq biKTHH"
+            disabled=""
+            id="mickeyMouse"
+            name="president"
+            type="checkbox"
+            value="mickeyMouse"
+          />
+           
+          Mickey Mouse
+        </label>
+        <label
+          class="sc-htoDjs eivrdb"
+          for="donaldDuck"
+        >
+          <input
+            class="sc-dnqmqq biKTHH"
+            disabled=""
+            id="donaldDuck"
+            name="president"
+            type="checkbox"
+            value="donaldDuck"
+          />
+           
+          Donald Duck
+        </label>
+      </div>
+    </fieldset>
+  </main>
+  <nav
+    class="sc-bwzfXH jXDcoc"
+  >
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      Next
+    </button>
+    <button
+      class="sc-htpNat iFWssD"
+      disabled=""
+    >
+      Previous
+    </button>
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      View Summary
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`election can be loaded and voter can vote 5`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  <main
+    class="sc-bxivhb jStObh"
+  >
+    <fieldset
+      class="sc-EHOje iUEThK"
+    >
+      <legend
+        class="sc-bZQynM fOsyH"
       >
         Senator
       </legend>
@@ -447,7 +538,7 @@ exports[`election can be loaded and voter can vote 4`] = `
         Vote for one
       </p>
       <div
-        class="sc-bZQynM dVRpCk"
+        class="sc-gzVnrw kyKqQm"
       >
         .c0 {
   display: -webkit-box;
@@ -585,7 +676,98 @@ exports[`election can be loaded and voter can vote 4`] = `
 </div>
 `;
 
-exports[`election can be loaded and voter can vote 5`] = `
+exports[`election can be loaded and voter can vote 6`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  <main
+    class="sc-bxivhb jStObh"
+  >
+    <fieldset
+      class="sc-EHOje iUEThK"
+    >
+      <legend
+        class="sc-bZQynM fOsyH"
+      >
+        Senator
+      </legend>
+      <p>
+        Vote for one
+      </p>
+      <div
+        class="sc-gzVnrw kyKqQm"
+      >
+        <label
+          class="sc-htoDjs eivrdb"
+          for="chadHanging"
+        >
+          <input
+            class="sc-dnqmqq biKTHH"
+            disabled=""
+            id="chadHanging"
+            name="senator"
+            type="checkbox"
+            value="chadHanging"
+          />
+           
+          Chad Hanging
+        </label>
+        <label
+          class="sc-htoDjs eivrdb"
+          for="levErmachine"
+        >
+          <input
+            class="sc-dnqmqq biKTHH"
+            disabled=""
+            id="levErmachine"
+            name="senator"
+            type="checkbox"
+            value="levErmachine"
+          />
+           
+          Lev Ermachine
+        </label>
+        <label
+          class="sc-htoDjs jYkaCb"
+          for="johnSmith"
+        >
+          <input
+            autofocus=""
+            class="sc-dnqmqq biKTHH"
+            id="johnSmith"
+            name="senator"
+            type="checkbox"
+            value="johnSmith"
+          />
+           
+          John Smith
+        </label>
+      </div>
+    </fieldset>
+  </main>
+  <nav
+    class="sc-bwzfXH jXDcoc"
+  >
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      View Ballot
+    </button>
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      Previous
+    </button>
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      View Summary
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`election can be loaded and voter can vote 7`] = `
 <div
   class="sc-bdVaJa eVuSVk"
 >
@@ -793,7 +975,126 @@ exports[`election can be loaded and voter can vote 5`] = `
 </div>
 `;
 
-exports[`election can be loaded and voter can vote 6`] = `
+exports[`election can be loaded and voter can vote 8`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  <main
+    class="sc-bxivhb jStObh"
+  >
+    <div
+      class="prose sc-iwsKbI gBwPyG"
+    >
+      <h1>
+        Official Ballot
+      </h1>
+      <p
+        class="no-print"
+      >
+        Please review your ballot. Confirm your votes by selecting the “Print Ballot” button.
+      </p>
+    </div>
+    <table
+      class="sc-gZMcBi jYhrLX"
+    >
+      <caption
+        class="no-print visually-hidden"
+      >
+        <p>
+          Summary of your votes.
+        </p>
+      </caption>
+      <thead
+        class="no-print"
+      >
+        <tr>
+          <th
+            class="sc-gqjmRU kqiAYk"
+            scope="col"
+          >
+            Contest
+          </th>
+          <th
+            class="sc-gqjmRU kqiAYk"
+            scope="col"
+          >
+            Vote
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th
+            class="sc-gqjmRU iODDVs"
+          >
+            President
+             
+          </th>
+          <td
+            class="sc-gqjmRU iODDVs"
+          >
+            Minnie Mouse
+             
+            <small
+              class="no-print"
+            >
+              <a
+                href="/contests/president"
+              >
+                change
+              </a>
+            </small>
+          </td>
+        </tr>
+        <tr>
+          <th
+            class="sc-gqjmRU iODDVs"
+          >
+            Senator
+             
+          </th>
+          <td
+            class="sc-gqjmRU iODDVs"
+          >
+            John Smith
+             
+            <small
+              class="no-print"
+            >
+              <a
+                href="/contests/senator"
+              >
+                change
+              </a>
+            </small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+  <nav
+    class="sc-bwzfXH jXDcoc"
+  >
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      Print Ballot
+    </button>
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      Back
+    </button>
+    <button
+      class="sc-htpNat iFWssD"
+    >
+      New Ballot
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`election can be loaded and voter can vote 9`] = `
 <div
   class="sc-bdVaJa eVuSVk"
 >
