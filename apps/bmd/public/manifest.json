@@ -8,7 +8,7 @@
       "type": "image/x-icon"
     },
     {
-      "src": "checkmark_192.png",
+      "src": "checkmark_512.png",
       "sizes": "192x192 512x512",
       "type": "image/png"
     }
