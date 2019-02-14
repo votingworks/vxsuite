@@ -23,7 +23,7 @@ demo url which can be found in the comments of the pull request.
 - `yarn install` - Install the dependencies.
 - `yarn start` - Run the app locally.
 - `yarn test`- Run tests in interactive mode.
-- `yarn test:precommit` - Run all tests and display coverage report.
+- `yarn test:coverage` - Run all tests and update test coverage report.
 
 See `package.json` for all available scripts.
 

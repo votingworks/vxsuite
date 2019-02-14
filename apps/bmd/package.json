@@ -8,7 +8,7 @@
     "test": "is-ci \"test:ci\" \"test:watch\"",
     "test:watch": "react-scripts test",
     "test:ci": "CI=true react-scripts test --env=jsdom --coverage",
-    "test:precommit": "react-scripts test --coverage --watchAll=false",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
     "eject": "react-scripts eject",
     "eslint:base": "eslint 'src/**/*.+(js|jsx)'",
     "prettier:base": "prettier '**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|graphql|mdx)'",
@@ -18,7 +18,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && yarn test:precommit"
+      "pre-commit": "lint-staged"
     }
   },
   "jest": {
