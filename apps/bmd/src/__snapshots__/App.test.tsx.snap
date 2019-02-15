@@ -1170,3 +1170,91 @@ exports[`election can be loaded and voter can vote 9`] = `
   </main>
 </div>
 `;
+
+exports[`loads sample with url hash 1`] = `
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c2 {
+  background: lightgrey;
+  border-radius: 0.25rem;
+  color: black;
+  white-space: nowrap;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  text-align: center;
+  margin: 1rem;
+}
+
+@media print {
+  .c1 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<div
+  class="c0"
+>
+  <main
+    class="c1"
+  >
+    <div
+      class="prose"
+    >
+      <h1>
+        Demo Election
+      </h1>
+      <p>
+        For each contest, measure, or proposition, select your vote and then press the “Next” button.
+      </p>
+      <h2>
+        Heading 2
+      </h2>
+      <p>
+        More text about the election.
+      </p>
+      <p>
+        More text about the election.
+      </p>
+      <p>
+        <button
+          class="c2"
+        >
+          Get Started
+        </button>
+      </p>
+    </div>
+  </main>
+</div>
+`;

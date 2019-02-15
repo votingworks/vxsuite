@@ -1,6 +1,8 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 
+import sampleElection from './data/election.json'
+
 import './App.css'
 import { Election, OptionalElection, Vote, VoteDict } from './config/types'
 
@@ -20,6 +22,14 @@ const initialState = {
 
 class App extends React.Component<{}, State> {
   public state: State = initialState
+
+  public componentWillMount = () => {
+    if (location.hash === '#sample') {
+      this.setState({
+        election: sampleElection,
+      })
+    }
+  }
 
   public resetBallot = () => {
     this.setState({

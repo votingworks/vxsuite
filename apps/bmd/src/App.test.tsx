@@ -67,3 +67,10 @@ it('election can be loaded and voter can vote', async () => {
   fireEvent.click(getByText('Start Over'))
   expect(container.firstChild).toMatchSnapshot()
 })
+
+it('loads sample with url hash', async () => {
+  window.location.href = '/#sample'
+  const { container, getByText } = render(<App />)
+  expect(getByText('Get Started')).toBeTruthy()
+  expect(container.firstChild).toMatchSnapshot()
+})
