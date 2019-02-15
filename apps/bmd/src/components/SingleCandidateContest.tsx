@@ -16,7 +16,7 @@ const Legend = styled.legend`
   margin: 0.67em 0;
 `
 const Choices = styled.div`
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
 `
 const Choice = styled('label')<{ isSelected: boolean }>`

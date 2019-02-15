@@ -7,15 +7,29 @@ interface Props {
 const Main = styled('main')<Props>`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   flex: 1;
-  text-align: center;
   margin: ${({ noMargin }: Props) => (noMargin ? undefined : '1rem')};
   @media print {
     justify-content: flex-start;
     margin: 0;
   }
+`
+
+interface ChildProps {
+  center?: boolean
+  centerVertical?: boolean
+  centerHorizontal?: boolean
+}
+
+export const MainChild = styled('div')<ChildProps>`
+  width: 100%;
+  max-width: 40rem;
+  margin: ${({
+    center = false,
+    centerVertical = center,
+    centerHorizontal = true,
+  }: ChildProps) =>
+    `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
 `
 
 export default Main

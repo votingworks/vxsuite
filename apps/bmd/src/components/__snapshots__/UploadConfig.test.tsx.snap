@@ -2,9 +2,14 @@
 
 exports[`allows file to be uploaded via drag and drop 1`] = `
 .c3 {
+  box-sizing: border-box;
+  cursor: pointer;
   background: lightgrey;
+  border: none;
   border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
   color: black;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -31,18 +36,9 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  text-align: center;
 }
 
 @media print {
@@ -78,12 +74,14 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
       </code>
        file
     </a>
-    , or skip upload and
+
+    to upload, or
      
     <button
       class="c3"
+      type="button"
     >
-      Load Sample
+      Load Sample Election File
     </button>
   </p>
 </div>
@@ -91,9 +89,14 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
 
 exports[`allows file to be uploaded via file input 1`] = `
 .c3 {
+  box-sizing: border-box;
+  cursor: pointer;
   background: lightgrey;
+  border: none;
   border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
   color: black;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -120,18 +123,9 @@ exports[`allows file to be uploaded via file input 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  text-align: center;
 }
 
 @media print {
@@ -167,12 +161,14 @@ exports[`allows file to be uploaded via file input 1`] = `
       </code>
        file
     </a>
-    , or skip upload and
+
+    to upload, or
      
     <button
       class="c3"
+      type="button"
     >
-      Load Sample
+      Load Sample Election File
     </button>
   </p>
 </div>

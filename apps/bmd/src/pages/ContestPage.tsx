@@ -5,8 +5,9 @@ import BallotContext from '../contexts/ballotContext'
 
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
-import Main from '../components/Main'
+import Main, { MainChild } from '../components/Main'
 import SingleCandidateContest from '../components/SingleCandidateContest'
+import Text from '../components/Typography'
 
 interface ContestParams {
   id: string
@@ -21,46 +22,60 @@ const ContestPage = (props: Props) => {
   const contest = contests[currentContestIndex]
   const prevContest = contests[currentContestIndex - 1]
   const nextContest = contests[currentContestIndex + 1]
+  const vote = contest && votes[contest.id]
 
   return (
     <React.Fragment>
       <Main>
-        {contest ? (
-          contest.type === 'plurality' && (
-            <SingleCandidateContest
-              contest={contest}
-              vote={votes[contest.id]}
-              updateVote={updateVote}
-            />
-          )
-        ) : (
-          <React.Fragment>
-            <h1>Error</h1>
-            <p>
-              no contest exists for id <code>"{id}"</code>
-            </p>
-            <LinkButton to="/">Start Over</LinkButton>
-          </React.Fragment>
-        )}
+        <MainChild>
+          {contest ? (
+            contest.type === 'plurality' && (
+              <SingleCandidateContest
+                contest={contest}
+                vote={vote}
+                updateVote={updateVote}
+              />
+            )
+          ) : (
+            <React.Fragment>
+              <h1>Error</h1>
+              <p>
+                no contest exists for id <code>"{id}"</code>
+              </p>
+              <LinkButton to="/">Start Over</LinkButton>
+            </React.Fragment>
+          )}
+        </MainChild>
       </Main>
       <ButtonBar>
         {nextContest ? (
           <LinkButton
-            disabled={!nextContest}
+            primary={!!vote}
             to={`/contests/${nextContest && nextContest.id}`}
           >
             Next
           </LinkButton>
         ) : (
-          <LinkButton to="/summary">View Ballot</LinkButton>
+          <LinkButton primary={!!vote} to="/review">
+            Review
+          </LinkButton>
         )}
-        <LinkButton
-          disabled={!prevContest}
-          to={`/contests/${prevContest && prevContest.id}`}
-        >
-          Previous
-        </LinkButton>
-        <LinkButton to="/summary">View Summary</LinkButton>
+        {prevContest ? (
+          <LinkButton to={`/contests/${prevContest && prevContest.id}`}>
+            Previous
+          </LinkButton>
+        ) : (
+          <LinkButton to="/">Previous</LinkButton>
+        )}
+        <Text center white>
+          {currentContestIndex + 1} of {contests.length}
+        </Text>
+      </ButtonBar>
+      <ButtonBar secondary>
+        <LinkButton to="/review">Review</LinkButton>
+        <LinkButton to="/help">Help</LinkButton>
+        <LinkButton to="/settings">Settings</LinkButton>
+        <div />
       </ButtonBar>
     </React.Fragment>
   )

@@ -1,9 +1,28 @@
 import styled from 'styled-components'
 
-const Button = styled('button')<JSX.IntrinsicElements['button']>`
-  background: lightgrey;
+interface Attrs extends HTMLButtonElement {
+  readonly type: string
+}
+
+interface Props {
+  readonly danger?: boolean
+  readonly primary?: boolean
+}
+
+const Button = styled('button').attrs((props: Attrs) => ({
+  type: props.type || 'button',
+}))`
+  box-sizing: border-box;
+  cursor: pointer;
+  background: ${({ danger = false, primary = false }: Props) =>
+    (danger && 'red') || (primary && '#4caf50') || 'lightgrey'};
+  border: none;
   border-radius: 0.25rem;
-  color: black;
+  padding: 0.4rem 0.7rem;
+  color: ${({ danger = false, primary = false }: Props) =>
+    (danger && 'white') || (primary && 'white') || 'black'};
+  line-height: 1;
   white-space: nowrap;
 `
+
 export default Button

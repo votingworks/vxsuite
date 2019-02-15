@@ -8,17 +8,20 @@ interface Props
   extends React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 interface Props extends RouteComponentProps<{}> {}
 interface Props {
-  to: string
+  goBack?: boolean
+  primary?: boolean
+  to?: string
 }
 
 const LinkButton = (props: Props) => {
   const {
+    goBack,
     history,
     location,
     match,
+    onClick,
     staticContext,
     to,
-    onClick,
     // ⬆ filtering out props that `button` doesn’t know what to do with.
     ...rest
   } = props
@@ -26,7 +29,12 @@ const LinkButton = (props: Props) => {
     if (onClick) {
       onClick(event)
     }
-    history.push(to)
+    if (goBack && !to) {
+      history.goBack()
+    }
+    if (to && !goBack) {
+      history.push(to)
+    }
   }
   return (
     <Button

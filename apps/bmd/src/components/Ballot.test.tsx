@@ -18,7 +18,7 @@ it(`can navigate all ballot pages`, () => {
   fireEvent.click(getByText('Next'))
   expect(container.firstChild).toMatchSnapshot()
 
-  fireEvent.click(getByText('View Summary'))
+  fireEvent.click(getByText('Review'))
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.click(getByText('New Ballot'))

@@ -1,10 +1,12 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 
-import sampleElection from './data/election.json'
-
+import 'normalize.css'
 import './App.css'
+
 import { Election, OptionalElection, Vote, VoteDict } from './config/types'
+
+import sampleElection from './data/election.json'
 
 import Ballot from './components/Ballot'
 import UploadConfig from './components/UploadConfig'

@@ -27,12 +27,22 @@ it('election can be loaded and voter can vote', async () => {
       ],
     },
   })
-  await waitForElement(() => getByText('Demo Election'))
+  await waitForElement(() => getByText('General Election'))
   expect(container).toMatchSnapshot()
 
   fireEvent.click(getByText('Get Started'))
   expect(container.firstChild).toMatchSnapshot()
 
+  fireEvent.click(getByText('Help'))
+  expect(container.firstChild).toMatchSnapshot()
+  fireEvent.click(getByText('Back'))
+
+  await waitForElement(() => getByText('Settings'))
+  fireEvent.click(getByText('Settings'))
+  expect(container.firstChild).toMatchSnapshot()
+  fireEvent.click(getByText('Back'))
+
+  await waitForElement(() => getByText('President'))
   fireEvent.click(getByText('Minnie Mouse'))
   fireEvent.click(getByText('Mickey Mouse'))
   expect(container.firstChild).toMatchSnapshot()
@@ -52,7 +62,7 @@ it('election can be loaded and voter can vote', async () => {
   expect(
     (getByLabelText('John Smith') as HTMLInputElement).checked
   ).toBeTruthy()
-  fireEvent.click(getByText('View Summary'))
+  fireEvent.click(getByText('Review'))
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.click(getByText('Print Ballot'))

@@ -5,10 +5,19 @@ import { fireEvent, render } from 'react-testing-library'
 
 import LinkButton from './LinkButton'
 
-it(`renders LinkButton`, () => {
+it(`navigates to page`, () => {
   const { container } = render(
     <StaticRouter context={{}}>
-      <LinkButton to="/">Push Me</LinkButton>
+      <LinkButton to="/">Go Home</LinkButton>
+    </StaticRouter>
+  )
+  expect(container.firstChild).toMatchSnapshot()
+})
+
+it(`navigates back`, () => {
+  const { container } = render(
+    <StaticRouter context={{}}>
+      <LinkButton goBack>Go Back</LinkButton>
     </StaticRouter>
   )
   expect(container.firstChild).toMatchSnapshot()

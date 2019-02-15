@@ -3,14 +3,59 @@
 exports[`renders Button 1`] = `
 .c0 {
   background: lightgrey;
+  border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  padding: 0.4rem 0.7rem;
   color: black;
+  cursor: pointer;
   white-space: nowrap;
 }
 
 <button
   class="c0"
+  type="button"
 >
   foo
+</button>
+`;
+
+exports[`renders danger Button 1`] = `
+.c0 {
+  background: red;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  padding: 0.4rem 0.7rem;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+<button
+  class="c0"
+  type="button"
+>
+  Danger!
+</button>
+`;
+
+exports[`renders primary Button 1`] = `
+.c0 {
+  background: #4caf50;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  padding: 0.4rem 0.7rem;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+<button
+  class="c0"
+  type="button"
+>
+  Primary
 </button>
 `;

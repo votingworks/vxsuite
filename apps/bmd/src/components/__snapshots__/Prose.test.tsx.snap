@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders Prose 1`] = `
+.c0 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c0 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c0 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c0 h3,
+.c0 p {
+  margin: 1rem 0;
+}
+
+.c0 h1 + p,
+.c0 h2 + p,
+.c0 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c0 > :first-child {
+  margin-top: 0;
+}
+
+.c0 > :last-child {
+  margin-bottom: 0;
+}
+
+<div
+  class="c0"
+>
+  <h1>
+    Heading 1
+  </h1>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h2>
+    Heading 2
+  </h2>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h3>
+    Heading 3
+  </h3>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+</div>
+`;

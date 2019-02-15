@@ -5,8 +5,10 @@ import BallotContext from '../contexts/ballotContext'
 
 import Screen from '../components/Screen'
 import ContestPage from '../pages/ContestPage'
+import HelpPage from '../pages/HelpPage'
+import ReviewPage from '../pages/ReviewPage'
+import SettingsPage from '../pages/SettingsPage'
 import StartPage from '../pages/StartPage'
-import SummaryPage from '../pages/SummaryPage'
 
 const Ballot = () => {
   const { contests } = useContext(BallotContext)
@@ -18,7 +20,9 @@ const Ballot = () => {
           <Redirect exact from="/contests" to={`/contests/${contests[0].id}`} />
         )}
         <Route path="/contests/:id" component={ContestPage} />
-        <Route path="/summary" component={SummaryPage} />
+        <Route path="/review" component={ReviewPage} />
+        <Route path="/help" component={HelpPage} />
+        <Route path="/settings" component={SettingsPage} />
       </Switch>
     </Screen>
   )

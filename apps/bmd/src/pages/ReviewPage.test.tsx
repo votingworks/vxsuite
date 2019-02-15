@@ -5,15 +5,15 @@ import { Route } from 'react-router-dom'
 import { render } from '../../test/testUtils'
 
 import { fireEvent } from 'react-testing-library'
-import SummaryPage from './SummaryPage'
+import SummaryPage from './ReviewPage'
 
 it(`renders SummaryPage and request New Ballot`, () => {
   const resetBallot = jest.fn()
   const { container, getByText } = render(
-    <Route path="/summary" component={SummaryPage} />,
+    <Route path="/review" component={SummaryPage} />,
     {
       resetBallot,
-      route: '/summary',
+      route: '/review',
     }
   )
   expect(container.firstChild).toMatchSnapshot()
@@ -26,10 +26,10 @@ it(`renders SummaryPage and request New Ballot`, () => {
 fit(`renders SummaryPage with votes and request New Ballot`, () => {
   const resetBallot = jest.fn()
   const { container, getByText, debug } = render(
-    <Route path="/summary" component={SummaryPage} />,
+    <Route path="/review" component={SummaryPage} />,
     {
       resetBallot,
-      route: '/summary',
+      route: '/review',
       votes: {
         president: 'minnieMouse',
         senator: 'johnSmith',
@@ -45,10 +45,10 @@ fit(`renders SummaryPage with votes and request New Ballot`, () => {
 it(`renders SummaryPage with votes and cancels request New Ballot`, () => {
   const resetBallot = jest.fn()
   const { container, getByText } = render(
-    <Route path="/summary" component={SummaryPage} />,
+    <Route path="/review" component={SummaryPage} />,
     {
       resetBallot,
-      route: '/summary',
+      route: '/review',
       votes: {
         president: 'minnieMouse',
         senator: 'johnSmith',
@@ -66,10 +66,10 @@ it(`renders SummaryPage with votes and cancels request New Ballot`, () => {
 it(`empty SummaryPage is accessible`, async () => {
   const resetBallot = jest.fn()
   const { container } = render(
-    <Route path="/summary" component={SummaryPage} />,
+    <Route path="/review" component={SummaryPage} />,
     {
       resetBallot,
-      route: '/summary',
+      route: '/review',
     }
   )
   expect(await axe(container.innerHTML)).toHaveNoViolations()
@@ -78,10 +78,10 @@ it(`empty SummaryPage is accessible`, async () => {
 it(`SummaryPage with votes is accessible`, async () => {
   const resetBallot = jest.fn()
   const { container } = render(
-    <Route path="/summary" component={SummaryPage} />,
+    <Route path="/review" component={SummaryPage} />,
     {
       resetBallot,
-      route: '/summary',
+      route: '/review',
       votes: {
         president: 'minnieMouse',
         senator: 'johnSmith',

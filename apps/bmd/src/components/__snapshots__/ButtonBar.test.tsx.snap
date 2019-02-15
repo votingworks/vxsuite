@@ -6,19 +6,30 @@ exports[`renders ButtonBar 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  padding: 1rem 2rem;
-  background: grey;
+  padding: 0.5rem;
+  background: #455a64;
   border-bottom: 1px solid darkgrey;
   -webkit-box-pack: justify;
   -webkit-justify-content: space-between;
   -ms-flex-pack: justify;
   justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
 .c0 > :first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
 }
 
 @media print {

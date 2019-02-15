@@ -55,7 +55,7 @@ it(`allows one-click config`, async () => {
   const { container, getByText, getByTestId } = render(
     <UploadConfig setElection={setElection} />
   )
-  fireEvent.click(getByText('Load Sample'))
+  fireEvent.click(getByText('Load Sample Election File'))
   expect(setElection).toHaveBeenCalled()
 })
 

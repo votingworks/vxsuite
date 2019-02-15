@@ -6,19 +6,17 @@ import sampleElectionFile from '../data/election.json'
 import isJSON from '../utils/is-json'
 
 import Button from '../components/Button'
+import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import { Text } from '../components/Typography'
 import { Election } from '../config/types'
-import Main from './Main'
+import Main, { MainChild } from './Main'
 
 const Label = styled.label`
+  margin: auto;
   flex: 1;
-  align-self: normal;
-  display: inherit;
-  flex-direction: inherit;
-  align-items: inherit;
-  justify-content: inherit;
-  margin: 1rem;
+  width: 100%;
+  display: flex;
 `
 
 interface Props {
@@ -110,23 +108,27 @@ class UploadConfig extends React.Component<Props, State> {
                   htmlFor="election-file-upload"
                   {...getRootProps({ refKey: 'ref' })}
                 >
-                  <input
-                    id="election-file-upload"
-                    data-testid="file-input"
-                    {...getInputProps()}
-                  />
-                  {isDragActive ? (
-                    <p>Drop files here…</p>
-                  ) : (
-                    <div>
-                      <h1>Configure Ballot Marking Device</h1>
-                      <p>
-                        Drop <code>election.json</code> file here, or click to
-                        browse for file.
-                      </p>
-                      {errorMessage && <Text error>{errorMessage}</Text>}
-                    </div>
-                  )}
+                  <MainChild center>
+                    <input
+                      id="election-file-upload"
+                      data-testid="file-input"
+                      {...getInputProps()}
+                    />
+                    <Prose textCenter>
+                      {isDragActive ? (
+                        <p>Drop files here…</p>
+                      ) : (
+                        <React.Fragment>
+                          <h1>Configure Ballot Marking Device</h1>
+                          <p>
+                            Drag and drop <code>election.json</code> file here,
+                            or click to browse for file.
+                          </p>
+                          {errorMessage && <Text error>{errorMessage}</Text>}
+                        </React.Fragment>
+                      )}
+                    </Prose>
+                  </MainChild>
                 </Label>
               )}
             </Dropzone>
@@ -135,9 +137,11 @@ class UploadConfig extends React.Component<Props, State> {
         <Text center>
           <a href="/data/election.json">
             Download sample <code>election.json</code> file
-          </a>
-          , or skip upload and{' '}
-          <Button onClick={this.loadSampleElection}>Load Sample</Button>
+          </a>{' '}
+          to upload, or{' '}
+          <Button onClick={this.loadSampleElection}>
+            Load Sample Election File
+          </Button>
         </Text>
       </Screen>
     )
