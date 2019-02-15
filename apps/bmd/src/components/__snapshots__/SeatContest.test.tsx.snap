@@ -72,7 +72,7 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           type="checkbox"
           value="minnieMouse"
         />
-         
+
         Minnie Mouse
       </label>
       <label
@@ -86,7 +86,7 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           type="checkbox"
           value="mickeyMouse"
         />
-         
+
         Mickey Mouse
       </label>
       <label
@@ -100,7 +100,7 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           type="checkbox"
           value="donaldDuck"
         />
-         
+
         Donald Duck
       </label>
     </div>
@@ -200,7 +200,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           type="checkbox"
           value="minnieMouse"
         />
-         
+
         Minnie Mouse
       </label>
       <label
@@ -215,7 +215,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           type="checkbox"
           value="mickeyMouse"
         />
-         
+
         Mickey Mouse
       </label>
       <label
@@ -230,7 +230,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           type="checkbox"
           value="donaldDuck"
         />
-         
+
         Donald Duck
       </label>
     </div>

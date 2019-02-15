@@ -6,7 +6,7 @@ import BallotContext from '../contexts/ballotContext'
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
-import SingleCandidateContest from '../components/SingleCandidateContest'
+import SeatContest from '../components/SeatContest'
 import Text from '../components/Typography'
 
 interface ContestParams {
@@ -30,7 +30,7 @@ const ContestPage = (props: Props) => {
         <MainChild>
           {contest ? (
             contest.type === 'plurality' && (
-              <SingleCandidateContest
+              <SeatContest
                 contest={contest}
                 vote={vote}
                 updateVote={updateVote}

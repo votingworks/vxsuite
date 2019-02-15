@@ -4,12 +4,12 @@ import { fireEvent, render } from 'react-testing-library'
 
 import election from '../../public/data/election.json'
 
-import SingleCandidateContest from './SingleCandidateContest'
+import SeatContest from './SeatContest'
 
 it(`allows any candidate to be selected when no candidate is selected`, () => {
   const updateVote = jest.fn()
   const { container, getByText } = render(
-    <SingleCandidateContest
+    <SeatContest
       contest={election.contests[0]}
       vote=""
       updateVote={updateVote}
@@ -35,7 +35,7 @@ it(`allows any candidate to be selected when no candidate is selected`, () => {
 it(`doesn't allow other candidates to be selected when one candidate is selected`, () => {
   const updateVote = jest.fn()
   const { container, getByText, getByLabelText } = render(
-    <SingleCandidateContest
+    <SeatContest
       contest={election.contests[0]}
       vote={'minnieMouse'}
       updateVote={updateVote}
@@ -76,7 +76,7 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
 // it(`accessible when no candidate is selected`, async () => {
 //   const updateVote = jest.fn()
 //   const { container } = render(
-//     <SingleCandidateContest
+//     <SeatContest
 //       contest={election.contests[0]}
 //       vote=""
 //       updateVote={updateVote}
@@ -92,7 +92,7 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
 // it(`accessible when one candidate is selected`, async () => {
 //   const updateVote = jest.fn()
 //   const { container } = render(
-//     <SingleCandidateContest
+//     <SeatContest
 //       contest={election.contests[0]}
 //       vote={'minnieMouse'}
 //       updateVote={updateVote}

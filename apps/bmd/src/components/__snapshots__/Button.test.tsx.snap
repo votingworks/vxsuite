@@ -2,13 +2,14 @@
 
 exports[`renders Button 1`] = `
 .c0 {
+  box-sizing: border-box;
+  cursor: pointer;
   background: lightgrey;
   border: none;
   border-radius: 0.25rem;
-  box-sizing: border-box;
   padding: 0.4rem 0.7rem;
   color: black;
-  cursor: pointer;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -22,13 +23,14 @@ exports[`renders Button 1`] = `
 
 exports[`renders danger Button 1`] = `
 .c0 {
+  box-sizing: border-box;
+  cursor: pointer;
   background: red;
   border: none;
   border-radius: 0.25rem;
-  box-sizing: border-box;
   padding: 0.4rem 0.7rem;
   color: white;
-  cursor: pointer;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -42,13 +44,14 @@ exports[`renders danger Button 1`] = `
 
 exports[`renders primary Button 1`] = `
 .c0 {
+  box-sizing: border-box;
+  cursor: pointer;
   background: #4caf50;
   border: none;
   border-radius: 0.25rem;
-  box-sizing: border-box;
   padding: 0.4rem 0.7rem;
   color: white;
-  cursor: pointer;
+  line-height: 1;
   white-space: nowrap;
 }
 

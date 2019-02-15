@@ -2,8 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import { Contest, InputEvent, UpdateVoteFunction, Vote } from '../config/types'
 
-import Modal from '../components/Modal'
-import { Text } from '../components/Typography'
+import Modal from './Modal'
+import { Text } from './Typography'
 
 const FieldSet = styled.fieldset`
   margin: 0;
@@ -52,7 +52,7 @@ const initialState = {
   candidateName: '',
 }
 
-class SingleCandidateContest extends React.Component<Props, State> {
+class SeatContest extends React.Component<Props, State> {
   public state: State = initialState
 
   public updateSelection = (event: InputEvent) => {
@@ -124,4 +124,4 @@ class SingleCandidateContest extends React.Component<Props, State> {
   }
 }
 
-export default SingleCandidateContest
+export default SeatContest

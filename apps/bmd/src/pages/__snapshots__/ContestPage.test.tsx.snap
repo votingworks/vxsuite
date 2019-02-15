@@ -67,13 +67,14 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c8 {
+  box-sizing: border-box;
+  cursor: pointer;
   background: lightgrey;
   border: none;
   border-radius: 0.25rem;
-  box-sizing: border-box;
   padding: 0.4rem 0.7rem;
   color: black;
-  cursor: pointer;
+  line-height: 1;
   white-space: nowrap;
 }
 
