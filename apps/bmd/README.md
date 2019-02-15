@@ -13,7 +13,7 @@ The BMD (Ballot Marking Device) app will be used in the following ways:
 - A voter can:
   - [ ] load their ballot using a code provided by a poll worker.
   - [x] cast a vote for each contest/prop/measure of their ballot.
-  - [x] view a summary of their votes and print their offical paper ballot.
+  - [x] review votes and print offical paper ballot.
 
 ## Public Demo
 
