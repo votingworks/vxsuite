@@ -1,6 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders SettingsPage 1`] = `
+.c3 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -12,7 +24,7 @@ exports[`renders SettingsPage 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 1rem;
+  margin: 2rem 1rem;
 }
 
 .c1 {
@@ -78,6 +90,18 @@ exports[`renders SettingsPage 1`] = `
       <p>
         Settings will be available here.
       </p>
+      <h2>
+        Clear Ballot Votes
+      </h2>
+      <p>
+        Remove all votes and start over.
+      </p>
+      <button
+        class="c3"
+        type="button"
+      >
+        Start Over
+      </button>
     </div>
   </div>
 </main>

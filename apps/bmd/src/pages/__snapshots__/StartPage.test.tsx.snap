@@ -24,7 +24,7 @@ exports[`renders StartPage 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 1rem;
+  margin: 2rem 1rem;
 }
 
 .c1 {

@@ -2,7 +2,9 @@ import React from 'react'
 import styled from 'styled-components'
 import { Contest, InputEvent, UpdateVoteFunction, Vote } from '../config/types'
 
+import Button from './Button'
 import Modal from './Modal'
+import Prose from './Prose'
 import { Text } from './Typography'
 
 const FieldSet = styled.fieldset`
@@ -11,26 +13,59 @@ const FieldSet = styled.fieldset`
   padding: 0;
 `
 const Legend = styled.legend`
-  font-weight: bold;
-  font-size: 2em;
-  margin: 0.67em 0;
+  margin: 0 0 1rem 4rem;
 `
 const Choices = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-auto-rows: minmax(auto, 1fr);
+  grid-gap: 0.75rem;
 `
 const Choice = styled('label')<{ isSelected: boolean }>`
-  display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: ${({ isSelected }) => (isSelected ? 'lightgrey' : 'transparent')};
-  padding: 0.5rem;
-  :last-child {
-    margin-bottom: 0;
-  }
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: ${({ isSelected }) => (isSelected ? '#028099' : 'white')};
+  color: ${({ isSelected }) => (isSelected ? 'white' : undefined)};
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
+    0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
+    0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
+  transition: background 0.25s, color 0.25s;
   :focus-within {
     outline: -webkit-focus-ring-color auto 5px;
   }
+  & > div {
+    padding: 1rem;
+  }
+  & > input + div:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-right: 1px solid lightgrey;
+    width: 3rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    border-radius: 0.125rem 0 0 0.125rem;
+  }
+  & > input:checked + div:before {
+    content: '✓';
+    background: white;
+    color: #028099;
+    border-color: #028099;
+  }
+  & > div:first-of-type {
+    padding-left: 4rem;
+  }
+  // & .candidate-party {
+  //   text-align: right;
+  // }
 `
 const ChoiceInput = styled.input.attrs({
   type: 'checkbox',
@@ -45,11 +80,11 @@ interface Props {
 }
 
 interface State {
-  candidateName: string
+  attemptedCandidateSelection: string
 }
 
 const initialState = {
-  candidateName: '',
+  attemptedCandidateSelection: '',
 }
 
 class SeatContest extends React.Component<Props, State> {
@@ -63,12 +98,12 @@ class SeatContest extends React.Component<Props, State> {
     )
   }
 
-  public handleChangeVoteAlert = (candidateName: string) => {
-    this.setState({ candidateName })
+  public handleChangeVoteAlert = (attemptedCandidateSelection: string) => {
+    this.setState({ attemptedCandidateSelection })
   }
 
   public closeAlert = () => {
-    this.setState({ candidateName: '' })
+    this.setState({ attemptedCandidateSelection: '' })
   }
 
   // TODO:
@@ -77,12 +112,22 @@ class SeatContest extends React.Component<Props, State> {
 
   public render() {
     const { contest, vote } = this.props
-    const { candidateName } = this.state
+    const { attemptedCandidateSelection } = this.state
+    const selectedCandidate = contest.candidates.find(
+      candidate => candidate.id === vote
+    )
     return (
       <React.Fragment>
         <FieldSet>
-          <Legend>{contest.title}</Legend>
-          <p>Vote for one</p>
+          <Legend>
+            <Prose>
+              <h1>{contest.title}</h1>
+              <p>
+                <strong>Vote for 1.</strong> You have selected{' '}
+                {!!vote ? `1` : `0`}.
+              </p>
+            </Prose>
+          </Legend>
           <Choices>
             {contest.candidates.map((candidate, index) => {
               const isChecked = candidate.id === vote
@@ -106,19 +151,33 @@ class SeatContest extends React.Component<Props, State> {
                     onChange={this.updateSelection}
                     checked={isChecked}
                     disabled={!!vote && !isChecked}
-                  />{' '}
-                  {candidate.name}
+                    className="visually-hidden"
+                  />
+                  <div className="candidate-name">
+                    <strong>{candidate.name}</strong>
+                  </div>
+                  <div className="candidate-party">{candidate.party}</div>
                 </Choice>
               )
             })}
           </Choices>
         </FieldSet>
-        <Modal isOpen={!!candidateName}>
-          <Text>
-            To vote for {candidateName}, first uncheck the vote for {vote}.
-          </Text>
-          <button onClick={this.closeAlert}>Okay</button>
-        </Modal>
+        <Modal
+          isOpen={!!attemptedCandidateSelection}
+          content={
+            <Prose>
+              <Text>
+                To vote for {attemptedCandidateSelection}, first uncheck the
+                vote for {selectedCandidate && selectedCandidate.name}.
+              </Text>
+            </Prose>
+          }
+          actions={
+            <Button primary autoFocus onClick={this.closeAlert}>
+              Okay
+            </Button>
+          }
+        />
       </React.Fragment>
     )
   }

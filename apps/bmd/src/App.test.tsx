@@ -13,9 +13,15 @@ it('renders without crashing', () => {
 })
 
 it('election can be loaded and voter can vote', async () => {
-  window.confirm = jest.fn(() => true) // approve
-  window.print = jest.fn(() => true) // approve
-  const { container, getByTestId, getByText, getByLabelText } = render(<App />)
+  /* tslint:disable-next-line */
+  const eventListenerCallbacksDictionary: any = {}
+  window.addEventListener = jest.fn((event, cb) => {
+    eventListenerCallbacksDictionary[event] = cb
+  })
+  window.print = jest.fn(() => {
+    eventListenerCallbacksDictionary.afterprint()
+  })
+  const { container, getByTestId, getByText } = render(<App />)
   expect(container).toMatchSnapshot()
   const fileInput = getByTestId('file-input')
   fireEvent.change(fileInput, {
@@ -33,54 +39,70 @@ it('election can be loaded and voter can vote', async () => {
   fireEvent.click(getByText('Get Started'))
   expect(container.firstChild).toMatchSnapshot()
 
-  fireEvent.click(getByText('Help'))
-  expect(container.firstChild).toMatchSnapshot()
-  fireEvent.click(getByText('Back'))
-
-  await waitForElement(() => getByText('Settings'))
-  fireEvent.click(getByText('Settings'))
-  expect(container.firstChild).toMatchSnapshot()
-  fireEvent.click(getByText('Back'))
-
   await waitForElement(() => getByText('President'))
-  fireEvent.click(getByText('Minnie Mouse'))
-  fireEvent.click(getByText('Mickey Mouse'))
+  fireEvent.click(getByText('Minnie Mouse').closest('label') as HTMLElement)
+  fireEvent.click(getByText('Mickey Mouse').closest('label') as HTMLElement)
   expect(container.firstChild).toMatchSnapshot()
-  getByText('To vote for Mickey Mouse, first uncheck the vote for minnieMouse.')
+  getByText(
+    'To vote for Mickey Mouse, first uncheck the vote for Minnie Mouse.'
+  )
   fireEvent.click(getByText('Okay'))
   expect(
-    (getByLabelText('Minnie Mouse') as HTMLInputElement).checked
+    ((getByText('Minnie Mouse').closest('label') as HTMLElement).querySelector(
+      'input'
+    ) as HTMLInputElement).checked
   ).toBeTruthy()
   fireEvent.click(getByText('Next'))
   expect(container.firstChild).toMatchSnapshot()
 
-  fireEvent.click(getByText('John Smith'))
-  fireEvent.click(getByText('Chad Hanging'))
+  fireEvent.click(getByText('John Smith').closest('label') as HTMLElement)
+  fireEvent.click(getByText('Chad Hanging').closest('label') as HTMLElement)
   expect(container.firstChild).toMatchSnapshot()
-  getByText('To vote for Chad Hanging, first uncheck the vote for johnSmith.')
+  getByText('To vote for Chad Hanging, first uncheck the vote for John Smith.')
   fireEvent.click(getByText('Okay'))
   expect(
-    (getByLabelText('John Smith') as HTMLInputElement).checked
+    ((getByText('John Smith').closest('label') as HTMLElement).querySelector(
+      'input'
+    ) as HTMLInputElement).checked
   ).toBeTruthy()
   fireEvent.click(getByText('Review'))
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.click(getByText('Print Ballot'))
+  fireEvent.click(getByText('No. Go Back.'))
+  fireEvent.click(getByText('Print Ballot'))
+  fireEvent.click(getByText('Yes, I‘m finished. Print my ballot.'))
   expect(window.print).toBeCalled()
 
-  fireEvent.click(getByText('New Ballot'))
-  expect(container.firstChild).toMatchSnapshot()
-  getByText('Clear all votes and start over?')
-  fireEvent.click(getByText('Cancel'))
-
-  fireEvent.click(getByText('New Ballot'))
-  fireEvent.click(getByText('Start Over'))
-  expect(container.firstChild).toMatchSnapshot()
+  await waitForElement(() => getByText('Get Started'))
 })
 
-it('loads sample with url hash', async () => {
+it('loads sample with url hash', () => {
   window.location.href = '/#sample'
   const { container, getByText } = render(<App />)
   expect(getByText('Get Started')).toBeTruthy()
   expect(container.firstChild).toMatchSnapshot()
+})
+
+describe('can start over', () => {
+  it('when has no votes', async () => {
+    window.location.href = '/#sample'
+    const { container, getByText, debug } = render(<App />)
+    fireEvent.click(getByText('Get Started'))
+    fireEvent.click(getByText('Settings'))
+    fireEvent.click(getByText('Start Over'))
+    expect(getByText('Get Started')).toBeTruthy()
+  })
+  it('when has votes', async () => {
+    window.location.href = '/#sample'
+    const { container, getByText, debug } = render(<App />)
+    fireEvent.click(getByText('Get Started'))
+    fireEvent.click(getByText('Minnie Mouse').closest('label') as HTMLElement)
+    fireEvent.click(getByText('Settings'))
+    fireEvent.click(getByText('Start Over'))
+    fireEvent.click(getByText('Cancel'))
+    fireEvent.click(getByText('Start Over'))
+    fireEvent.click(getByText('Yes, Remove All Votes and Start Over'))
+    expect(getByText('Get Started')).toBeTruthy()
+  })
 })

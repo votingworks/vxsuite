@@ -8,7 +8,7 @@ import SeatContest from './SeatContest'
 
 it(`allows any candidate to be selected when no candidate is selected`, () => {
   const updateVote = jest.fn()
-  const { container, getByText } = render(
+  const { container, getByText, debug } = render(
     <SeatContest
       contest={election.contests[0]}
       vote=""
@@ -16,13 +16,13 @@ it(`allows any candidate to be selected when no candidate is selected`, () => {
     />
   )
 
-  fireEvent.click(getByText('Minnie Mouse'))
+  fireEvent.click(getByText('Minnie Mouse').closest('label') as HTMLElement)
   expect(updateVote).toHaveBeenCalledTimes(1)
 
-  fireEvent.click(getByText('Mickey Mouse'))
+  fireEvent.click(getByText('Mickey Mouse').closest('label') as HTMLElement)
   expect(updateVote).toHaveBeenCalledTimes(2)
 
-  fireEvent.click(getByText('Donald Duck'))
+  fireEvent.click(getByText('Donald Duck').closest('label') as HTMLElement)
   expect(updateVote).toHaveBeenCalledTimes(3)
 
   expect(container).toMatchSnapshot()
@@ -34,7 +34,7 @@ it(`allows any candidate to be selected when no candidate is selected`, () => {
 
 it(`doesn't allow other candidates to be selected when one candidate is selected`, () => {
   const updateVote = jest.fn()
-  const { container, getByText, getByLabelText } = render(
+  const { container, getByText } = render(
     <SeatContest
       contest={election.contests[0]}
       vote={'minnieMouse'}
@@ -43,25 +43,31 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
   )
   expect(container).toMatchSnapshot()
 
-  const minnieMouseInput = getByLabelText('Minnie Mouse') as HTMLInputElement
+  const minnieMouseInput = (getByText('Minnie Mouse').closest(
+    'label'
+  ) as HTMLElement).querySelector('input') as HTMLInputElement
   expect(minnieMouseInput.disabled).toBeFalsy()
   expect(minnieMouseInput.checked).toBeTruthy()
 
-  const mickeyInput = getByLabelText('Mickey Mouse') as HTMLInputElement
+  const mickeyInput = (getByText('Mickey Mouse').closest(
+    'label'
+  ) as HTMLElement).querySelector('input') as HTMLInputElement
   expect(mickeyInput.disabled).toBeTruthy()
   expect(mickeyInput.checked).toBeFalsy()
 
-  const donaldDuckInput = getByLabelText('Donald Duck') as HTMLInputElement
+  const donaldDuckInput = (getByText('Donald Duck').closest(
+    'label'
+  ) as HTMLElement).querySelector('input') as HTMLInputElement
   expect(donaldDuckInput.disabled).toBeTruthy()
   expect(donaldDuckInput.checked).toBeFalsy()
 
-  fireEvent.click(getByText('Mickey Mouse'))
+  fireEvent.click(getByText('Mickey Mouse').closest('label') as HTMLElement)
   expect(updateVote).not.toHaveBeenCalled()
 
-  fireEvent.click(getByText('Donald Duck'))
+  fireEvent.click(getByText('Donald Duck').closest('label') as HTMLElement)
   expect(updateVote).not.toHaveBeenCalled()
 
-  fireEvent.click(getByText('Minnie Mouse'))
+  fireEvent.click(getByText('Minnie Mouse').closest('label') as HTMLElement)
   expect(updateVote).toHaveBeenCalled()
 
   // TODO: Why doesn't axe work when used in two tests in the same file?

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders ContestPage 1`] = `
-.c7 {
+.c8 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -19,20 +19,20 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c7 > :first-child {
+.c8 > :first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c7 > * {
+.c8 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c10 {
+.c11 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -53,20 +53,20 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c10 > :first-child {
+.c11 > :first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c10 > * {
+.c11 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c8 {
+.c9 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -89,7 +89,7 @@ exports[`renders ContestPage 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 1rem;
+  margin: 2rem 1rem;
 }
 
 .c1 {
@@ -98,7 +98,39 @@ exports[`renders ContestPage 1`] = `
   margin: 0 auto;
 }
 
-.c9 {
+.c4 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c4 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c4 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c4 h3,
+.c4 p {
+  margin: 1rem 0;
+}
+
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c4 > :first-child {
+  margin-top: 0;
+}
+
+.c4 > :last-child {
+  margin-bottom: 0;
+}
+
+.c10 {
   color: white;
   text-align: center;
 }
@@ -110,52 +142,87 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c3 {
-  font-weight: bold;
-  font-size: 2em;
-  margin: 0.67em 0;
-}
-
-.c4 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+  margin: 0 0 1rem 4rem;
 }
 
 .c5 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c6 {
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c6:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c6 > div {
+  padding: 1rem;
+}
+
+.c6 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: transparent;
-  padding: 0.5rem;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c5:last-child {
-  margin-bottom: 0;
+.c6 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
 }
 
-.c5:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
+.c6 > div:first-of-type {
+  padding-left: 4rem;
 }
 
-.c6 {
+.c7 {
   margin-right: 0.5rem;
 }
 
 @media print {
-  .c7 {
+  .c8 {
     display: none;
   }
 }
 
 @media print {
-  .c10 {
+  .c11 {
     display: none;
   }
 }
@@ -183,100 +250,142 @@ exports[`renders ContestPage 1`] = `
         <legend
           class="c3"
         >
-          President
+          <div
+            class="c4"
+          >
+            <h1>
+              President
+            </h1>
+            <p>
+              <strong>
+                Vote for 1.
+              </strong>
+               You have selected
+               
+              0
+              .
+            </p>
+          </div>
         </legend>
-        <p>
-          Vote for one
-        </p>
         <div
-          class="c4"
+          class="c5"
         >
           <label
-            class="c5"
+            class="c6"
             for="minnieMouse"
           >
             <input
-              class="c6"
+              class="visually-hidden c7"
               id="minnieMouse"
               name="president"
               type="checkbox"
               value="minnieMouse"
             />
-
-            Minnie Mouse
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Minnie Mouse
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Mouse
+            </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="mickeyMouse"
           >
             <input
-              class="c6"
+              class="visually-hidden c7"
               id="mickeyMouse"
               name="president"
               type="checkbox"
               value="mickeyMouse"
             />
-
-            Mickey Mouse
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Mickey Mouse
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Mouse
+            </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="donaldDuck"
           >
             <input
-              class="c6"
+              class="visually-hidden c7"
               id="donaldDuck"
               name="president"
               type="checkbox"
               value="donaldDuck"
             />
-
-            Donald Duck
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Donald Duck
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Duck
+            </div>
           </label>
         </div>
       </fieldset>
     </div>
   </main>
   <nav
-    class="c7"
+    class="c8"
   >
     <button
-      class="c8"
+      class="c9"
       type="button"
     >
       Next
     </button>
     <button
-      class="c8"
+      class="c9"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c9"
+      class="c10"
     >
       1
-       of
+       of 
       2
     </p>
   </nav>
   <nav
-    class="c10"
+    class="c11"
   >
     <button
-      class="c8"
+      class="c9"
       type="button"
     >
       Review
     </button>
     <button
-      class="c8"
+      class="c9"
       type="button"
     >
       Help
     </button>
     <button
-      class="c8"
+      class="c9"
       type="button"
     >
       Settings

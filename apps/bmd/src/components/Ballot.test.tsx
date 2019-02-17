@@ -18,10 +18,20 @@ it(`can navigate all ballot pages`, () => {
   fireEvent.click(getByText('Next'))
   expect(container.firstChild).toMatchSnapshot()
 
+  fireEvent.click(getByText('Help'))
+  getByText('Help content will be available here.')
+  expect(container.firstChild).toMatchSnapshot()
+  fireEvent.click(getByText('Back'))
+
+  fireEvent.click(getByText('Settings'))
+  getByText('Settings will be available here.')
+  expect(container.firstChild).toMatchSnapshot()
+  fireEvent.click(getByText('Back'))
+
   fireEvent.click(getByText('Review'))
   expect(container.firstChild).toMatchSnapshot()
 
-  fireEvent.click(getByText('New Ballot'))
+  fireEvent.click(getByText('Back'))
   expect(container.firstChild).toMatchSnapshot()
 })
 

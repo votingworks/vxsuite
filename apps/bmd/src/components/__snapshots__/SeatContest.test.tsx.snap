@@ -1,6 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`allows any candidate to be selected when no candidate is selected 1`] = `
+.c2 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
+}
+
 .c0 {
   margin: 0;
   border: none;
@@ -8,41 +40,76 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
 }
 
 .c1 {
-  font-weight: bold;
-  font-size: 2em;
-  margin: 0.67em 0;
-}
-
-.c2 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+  margin: 0 0 1rem 4rem;
 }
 
 .c3 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c4 {
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c4:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c4 > div {
+  padding: 1rem;
+}
+
+.c4 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: transparent;
-  padding: 0.5rem;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c3:last-child {
-  margin-bottom: 0;
+.c4 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
 }
 
-.c3:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
+.c4 > div:first-of-type {
+  padding-left: 4rem;
 }
 
-.c4 {
+.c5 {
   margin-right: 0.5rem;
 }
 
@@ -53,55 +120,97 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
     <legend
       class="c1"
     >
-      President
+      <div
+        class="c2"
+      >
+        <h1>
+          President
+        </h1>
+        <p>
+          <strong>
+            Vote for 1.
+          </strong>
+           You have selected
+           
+          0
+          .
+        </p>
+      </div>
     </legend>
-    <p>
-      Vote for one
-    </p>
     <div
-      class="c2"
+      class="c3"
     >
       <label
-        class="c3"
+        class="c4"
         for="minnieMouse"
       >
         <input
-          class="c4"
+          class="visually-hidden c5"
           id="minnieMouse"
           name="president"
           type="checkbox"
           value="minnieMouse"
         />
-
-        Minnie Mouse
+        <div
+          class="candidate-name"
+        >
+          <strong>
+            Minnie Mouse
+          </strong>
+        </div>
+        <div
+          class="candidate-party"
+        >
+          Mouse
+        </div>
       </label>
       <label
-        class="c3"
+        class="c4"
         for="mickeyMouse"
       >
         <input
-          class="c4"
+          class="visually-hidden c5"
           id="mickeyMouse"
           name="president"
           type="checkbox"
           value="mickeyMouse"
         />
-
-        Mickey Mouse
+        <div
+          class="candidate-name"
+        >
+          <strong>
+            Mickey Mouse
+          </strong>
+        </div>
+        <div
+          class="candidate-party"
+        >
+          Mouse
+        </div>
       </label>
       <label
-        class="c3"
+        class="c4"
         for="donaldDuck"
       >
         <input
-          class="c4"
+          class="visually-hidden c5"
           id="donaldDuck"
           name="president"
           type="checkbox"
           value="donaldDuck"
         />
-
-        Donald Duck
+        <div
+          class="candidate-name"
+        >
+          <strong>
+            Donald Duck
+          </strong>
+        </div>
+        <div
+          class="candidate-party"
+        >
+          Duck
+        </div>
       </label>
     </div>
   </fieldset>
@@ -109,6 +218,38 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
 `;
 
 exports[`doesn't allow other candidates to be selected when one candidate is selected 1`] = `
+.c2 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
+}
+
 .c0 {
   margin: 0;
   border: none;
@@ -116,60 +257,137 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
 }
 
 .c1 {
-  font-weight: bold;
-  font-size: 2em;
-  margin: 0.67em 0;
-}
-
-.c2 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-
-.c5 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: transparent;
-  padding: 0.5rem;
-}
-
-.c5:last-child {
-  margin-bottom: 0;
-}
-
-.c5:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
+  margin: 0 0 1rem 4rem;
 }
 
 .c3 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c6 {
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c6:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c6 > div {
+  padding: 1rem;
+}
+
+.c6 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: lightgrey;
-  padding: 0.5rem;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c3:last-child {
-  margin-bottom: 0;
+.c6 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
 }
 
-.c3:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
+.c6 > div:first-of-type {
+  padding-left: 4rem;
 }
 
 .c4 {
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: #028099;
+  color: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c4:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c4 > div {
+  padding: 1rem;
+}
+
+.c4 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+}
+
+.c4 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
+}
+
+.c4 > div:first-of-type {
+  padding-left: 4rem;
+}
+
+.c5 {
   margin-right: 0.5rem;
 }
 
@@ -180,58 +398,100 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
     <legend
       class="c1"
     >
-      President
+      <div
+        class="c2"
+      >
+        <h1>
+          President
+        </h1>
+        <p>
+          <strong>
+            Vote for 1.
+          </strong>
+           You have selected
+           
+          1
+          .
+        </p>
+      </div>
     </legend>
-    <p>
-      Vote for one
-    </p>
     <div
-      class="c2"
+      class="c3"
     >
       <label
-        class="c3"
+        class="c4"
         for="minnieMouse"
       >
         <input
           checked=""
-          class="c4"
+          class="visually-hidden c5"
           id="minnieMouse"
           name="president"
           type="checkbox"
           value="minnieMouse"
         />
-
-        Minnie Mouse
+        <div
+          class="candidate-name"
+        >
+          <strong>
+            Minnie Mouse
+          </strong>
+        </div>
+        <div
+          class="candidate-party"
+        >
+          Mouse
+        </div>
       </label>
       <label
-        class="c5"
+        class="c6"
         for="mickeyMouse"
       >
         <input
-          class="c4"
+          class="visually-hidden c5"
           disabled=""
           id="mickeyMouse"
           name="president"
           type="checkbox"
           value="mickeyMouse"
         />
-
-        Mickey Mouse
+        <div
+          class="candidate-name"
+        >
+          <strong>
+            Mickey Mouse
+          </strong>
+        </div>
+        <div
+          class="candidate-party"
+        >
+          Mouse
+        </div>
       </label>
       <label
-        class="c5"
+        class="c6"
         for="donaldDuck"
       >
         <input
-          class="c4"
+          class="visually-hidden c5"
           disabled=""
           id="donaldDuck"
           name="president"
           type="checkbox"
           value="donaldDuck"
         />
-
-        Donald Duck
+        <div
+          class="candidate-name"
+        >
+          <strong>
+            Donald Duck
+          </strong>
+        </div>
+        <div
+          class="candidate-party"
+        >
+          Duck
+        </div>
       </label>
     </div>
   </fieldset>

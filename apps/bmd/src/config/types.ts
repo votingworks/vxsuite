@@ -15,6 +15,7 @@ export type VoteDict = Dictionary<Vote>
 export interface Candidate {
   readonly id: string
   readonly name: string
+  readonly party: string
 }
 export interface Contest {
   readonly id: string

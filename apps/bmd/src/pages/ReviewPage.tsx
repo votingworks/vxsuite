@@ -1,9 +1,10 @@
-import React, { useContext, useState } from 'react'
+import React from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
+import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
@@ -30,92 +31,114 @@ const TableCell = styled.td`
     border ? '1px solid lightGrey' : 'none'};
 `
 
-const SummaryPage = (props: RouteComponentProps) => {
-  const { contests, resetBallot, votes } = useContext(BallotContext)
-  const [isAlert, setAlert] = useState(false)
-  const closeAlert = () => {
-    setAlert(false)
+class SummaryPage extends React.Component<RouteComponentProps> {
+  public static contextType = BallotContext
+  public state = { isAlert: false }
+  public componentDidMount = () => {
+    window.addEventListener('afterprint', this.startOver)
   }
-  const requestNewBallot = () => {
-    Object.keys(votes).length === 0 ? startOver() : setAlert(true)
+  public componentWillUnmount = () => {
+    window.removeEventListener('afterprint', this.startOver)
   }
-  const startOver = () => {
-    resetBallot()
-    props.history.push('/')
+  public startOver = () => {
+    this.context.resetBallot()
+    this.props.history.push('/')
   }
-  return (
-    <React.Fragment>
-      <Main>
-        <MainChild>
-          <Header>
+  public hideConfirm = () => {
+    this.setState({ isAlert: false })
+  }
+  public showConfirm = () => {
+    this.setState({ isAlert: true })
+  }
+  public render() {
+    return (
+      <React.Fragment>
+        <Main>
+          <MainChild>
+            <Header>
+              <Prose>
+                <h1>Official Ballot</h1>
+                <p className="no-print">
+                  Please review your ballot. Confirm your votes by selecting the
+                  “Print Ballot” button.
+                </p>
+              </Prose>
+            </Header>
+            <Table>
+              <caption className="no-print visually-hidden">
+                <p>Summary of your votes.</p>
+              </caption>
+              <thead className="no-print">
+                <tr>
+                  <TableCell as="th" scope="col">
+                    Contest
+                  </TableCell>
+                  <TableCell as="th" scope="col">
+                    Vote
+                  </TableCell>
+                </tr>
+              </thead>
+              <tbody>
+                <BallotContext.Consumer>
+                  {({ contests, votes }) =>
+                    contests.map(contest => {
+                      const candidate = contest.candidates.find(
+                        c => c.id === votes[contest.id]
+                      )
+                      const vote = candidate ? (
+                        candidate.name
+                      ) : (
+                        <Text as="span" muted>
+                          no selection
+                        </Text>
+                      )
+                      return (
+                        <tr key={contest.id}>
+                          <TableCell as="th" border>
+                            {contest.title}{' '}
+                          </TableCell>
+                          <TableCell border>
+                            {vote}{' '}
+                            <small className="no-print">
+                              <Link to={`/contests/${contest.id}`}>change</Link>
+                            </small>
+                          </TableCell>
+                        </tr>
+                      )
+                    })
+                  }
+                </BallotContext.Consumer>
+              </tbody>
+            </Table>
+          </MainChild>
+        </Main>
+        <ButtonBar secondary>
+          <Button autoFocus primary onClick={this.showConfirm}>
+            Print Ballot
+          </Button>
+          <LinkButton goBack>Back</LinkButton>
+          <div />
+          <div />
+        </ButtonBar>
+        <Modal
+          isOpen={this.state.isAlert}
+          content={
             <Prose>
-              <h1>Official Ballot</h1>
-              <p className="no-print">
-                Please review your ballot. Confirm your votes by selecting the
-                “Print Ballot” button.
-              </p>
+              <Text>Are you finished voting?</Text>
             </Prose>
-          </Header>
-          <Table>
-            <caption className="no-print visually-hidden">
-              <p>Summary of your votes.</p>
-            </caption>
-            <thead className="no-print">
-              <tr>
-                <TableCell as="th" scope="col">
-                  Contest
-                </TableCell>
-                <TableCell as="th" scope="col">
-                  Vote
-                </TableCell>
-              </tr>
-            </thead>
-            <tbody>
-              {contests.map(contest => {
-                const candidate = contest.candidates.find(
-                  c => c.id === votes[contest.id]
-                )
-                const vote = candidate ? (
-                  candidate.name
-                ) : (
-                  <Text as="span" muted>
-                    no selection
-                  </Text>
-                )
-                return (
-                  <tr key={contest.id}>
-                    <TableCell as="th" border>
-                      {contest.title}{' '}
-                    </TableCell>
-                    <TableCell border>
-                      {vote}{' '}
-                      <small className="no-print">
-                        <Link to={`/contests/${contest.id}`}>change</Link>
-                      </small>
-                    </TableCell>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </Table>
-        </MainChild>
-      </Main>
-      <ButtonBar>
-        <Button autoFocus primary onClick={window.print}>
-          Print Ballot
-        </Button>
-        <Button onClick={props.history.goBack}>Back</Button>
-        <Button onClick={requestNewBallot}>New Ballot</Button>
-        <div />
-        <div />
-      </ButtonBar>
-      <Modal isOpen={isAlert}>
-        <Text>Clear all votes and start over?</Text>
-        <button onClick={closeAlert}>Cancel</button>
-        <button onClick={startOver}>Start Over</button>
-      </Modal>
-    </React.Fragment>
-  )
+          }
+          actions={
+            <>
+              <Button primary onClick={window.print}>
+                Yes, I‘m finished. Print my ballot.
+              </Button>
+              <Button onClick={this.hideConfirm}>No. Go Back.</Button>
+            </>
+          }
+        />
+      </React.Fragment>
+    )
+  }
 }
 
 export default SummaryPage

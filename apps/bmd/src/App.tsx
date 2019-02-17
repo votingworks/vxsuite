@@ -26,7 +26,7 @@ class App extends React.Component<{}, State> {
   public state: State = initialState
 
   public componentWillMount = () => {
-    if (location.hash === '#sample') {
+    if (window.location.hash === '#sample') {
       this.setState({
         election: sampleElection,
       })

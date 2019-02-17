@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders SummaryPage with votes and request New Ballot 1`] = `
+exports[`renders SummaryPage with votes 1`] = `
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -12,7 +12,7 @@ exports[`renders SummaryPage with votes and request New Ballot 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 1rem;
+  margin: 2rem 1rem;
 }
 
 .c1 {
@@ -142,13 +142,13 @@ exports[`renders SummaryPage with votes and request New Ballot 1`] = `
             class="c6"
           >
             President
-
+             
           </th>
           <td
             class="c6"
           >
             Minnie Mouse
-
+             
             <small
               class="no-print"
             >
@@ -165,13 +165,13 @@ exports[`renders SummaryPage with votes and request New Ballot 1`] = `
             class="c6"
           >
             Senator
-
+             
           </th>
           <td
             class="c6"
           >
             John Smith
-
+             
             <small
               class="no-print"
             >

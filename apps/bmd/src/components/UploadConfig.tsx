@@ -19,6 +19,10 @@ const Label = styled.label`
   display: flex;
 `
 
+const Footer = styled.footer`
+  padding: 1rem;
+`
+
 interface Props {
   setElection: (election: Election) => void
 }
@@ -108,7 +112,7 @@ class UploadConfig extends React.Component<Props, State> {
                   htmlFor="election-file-upload"
                   {...getRootProps({ refKey: 'ref' })}
                 >
-                  <MainChild center>
+                  <MainChild center padded>
                     <input
                       id="election-file-upload"
                       data-testid="file-input"
@@ -134,15 +138,19 @@ class UploadConfig extends React.Component<Props, State> {
             </Dropzone>
           )}
         </Main>
-        <Text center>
-          <a href="/data/election.json">
-            Download sample <code>election.json</code> file
-          </a>{' '}
-          to upload, or{' '}
-          <Button onClick={this.loadSampleElection}>
-            Load Sample Election File
-          </Button>
-        </Text>
+        <Footer>
+          <Prose>
+            <Text center small>
+              <a href="/data/election.json">
+                Download sample <code>election.json</code> file
+              </a>{' '}
+              to upload, or{' '}
+              <Button onClick={this.loadSampleElection}>
+                Load Sample Election File
+              </Button>
+            </Text>
+          </Prose>
+        </Footer>
       </Screen>
     )
   }

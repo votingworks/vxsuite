@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`allows file to be uploaded via drag and drop 1`] = `
-.c3 {
+.c5 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -11,6 +11,38 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
   color: black;
   line-height: 1;
   white-space: nowrap;
+}
+
+.c3 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c3 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c3 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c3 h3,
+.c3 p {
+  margin: 1rem 0;
+}
+
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c3 > :first-child {
+  margin-top: 0;
+}
+
+.c3 > :last-child {
+  margin-bottom: 0;
 }
 
 .c0 {
@@ -24,8 +56,9 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
   flex-direction: column;
 }
 
-.c2 {
+.c4 {
   text-align: center;
+  font-size: 0.8rem;
 }
 
 .c1 {
@@ -39,6 +72,10 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+}
+
+.c2 {
+  padding: 1rem;
 }
 
 @media print {
@@ -62,33 +99,41 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
        
     </p>
   </main>
-  <p
+  <footer
     class="c2"
   >
-    <a
-      href="/data/election.json"
-    >
-      Download sample 
-      <code>
-        election.json
-      </code>
-       file
-    </a>
-
-    to upload, or
-     
-    <button
+    <div
       class="c3"
-      type="button"
     >
-      Load Sample Election File
-    </button>
-  </p>
+      <p
+        class="c4"
+      >
+        <a
+          href="/data/election.json"
+        >
+          Download sample 
+          <code>
+            election.json
+          </code>
+           file
+        </a>
+         
+        to upload, or
+         
+        <button
+          class="c5"
+          type="button"
+        >
+          Load Sample Election File
+        </button>
+      </p>
+    </div>
+  </footer>
 </div>
 `;
 
 exports[`allows file to be uploaded via file input 1`] = `
-.c3 {
+.c5 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -98,6 +143,38 @@ exports[`allows file to be uploaded via file input 1`] = `
   color: black;
   line-height: 1;
   white-space: nowrap;
+}
+
+.c3 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c3 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c3 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c3 h3,
+.c3 p {
+  margin: 1rem 0;
+}
+
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c3 > :first-child {
+  margin-top: 0;
+}
+
+.c3 > :last-child {
+  margin-bottom: 0;
 }
 
 .c0 {
@@ -111,8 +188,9 @@ exports[`allows file to be uploaded via file input 1`] = `
   flex-direction: column;
 }
 
-.c2 {
+.c4 {
   text-align: center;
+  font-size: 0.8rem;
 }
 
 .c1 {
@@ -126,6 +204,10 @@ exports[`allows file to be uploaded via file input 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+}
+
+.c2 {
+  padding: 1rem;
 }
 
 @media print {
@@ -149,27 +231,35 @@ exports[`allows file to be uploaded via file input 1`] = `
        
     </p>
   </main>
-  <p
+  <footer
     class="c2"
   >
-    <a
-      href="/data/election.json"
-    >
-      Download sample 
-      <code>
-        election.json
-      </code>
-       file
-    </a>
-
-    to upload, or
-     
-    <button
+    <div
       class="c3"
-      type="button"
     >
-      Load Sample Election File
-    </button>
-  </p>
+      <p
+        class="c4"
+      >
+        <a
+          href="/data/election.json"
+        >
+          Download sample 
+          <code>
+            election.json
+          </code>
+           file
+        </a>
+         
+        to upload, or
+         
+        <button
+          class="c5"
+          type="button"
+        >
+          Load Sample Election File
+        </button>
+      </p>
+    </div>
+  </footer>
 </div>
 `;

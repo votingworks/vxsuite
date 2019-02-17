@@ -4,13 +4,6 @@ html {
   line-height: 1;
 }
 
-/* In Webkit, the bottom margin of a legend and the top margin  */
-/* of the next element don't overlap, which they should. This  */
-/* addresses that by discarding the top margin of the next element */
-legend + * {
-  -webkit-margin-top-collapse: discard;
-}
-
 table {
   border-collapse: collapse;
 }
@@ -24,10 +17,9 @@ body,
 
 /* Typography */
 html {
-  /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif; */
-  font-family: 'Noto Sans', sans-serif;
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #263238;

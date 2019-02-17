@@ -7,15 +7,18 @@
       "candidates": [
         {
           "id": "minnieMouse",
-          "name": "Minnie Mouse"
+          "name": "Minnie Mouse",
+          "party": "Mouse"
         },
         {
           "id": "mickeyMouse",
-          "name": "Mickey Mouse"
+          "name": "Mickey Mouse",
+          "party": "Mouse"
         },
         {
           "id": "donaldDuck",
-          "name": "Donald Duck"
+          "name": "Donald Duck",
+          "party": "Duck"
         }
       ]
     },
@@ -26,15 +29,18 @@
       "candidates": [
         {
           "id": "chadHanging",
-          "name": "Chad Hanging"
+          "name": "Chad Hanging",
+          "party": "Independent"
         },
         {
           "id": "levErmachine",
-          "name": "Lev Ermachine"
+          "name": "Lev Ermachine",
+          "party": "Independent"
         },
         {
           "id": "johnSmith",
-          "name": "John Smith"
+          "name": "John Smith",
+          "party": "Independent"
         }
       ]
     }

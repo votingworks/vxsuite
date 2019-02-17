@@ -35,7 +35,7 @@ exports[`can navigate all ballot pages 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 1rem;
+  margin: 2rem 1rem;
 }
 
 .c2 {
@@ -137,13 +137,45 @@ exports[`can navigate all ballot pages 2`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 1rem;
+  margin: 2rem 1rem;
 }
 
 .c1 {
   width: 100%;
   max-width: 40rem;
   margin: 0 auto;
+}
+
+.c4 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c4 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c4 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c4 h3,
+.c4 p {
+  margin: 1rem 0;
+}
+
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c4 > :first-child {
+  margin-top: 0;
+}
+
+.c4 > :last-child {
+  margin-bottom: 0;
 }
 
 .c2 {
@@ -153,41 +185,76 @@ exports[`can navigate all ballot pages 2`] = `
 }
 
 .c3 {
-  font-weight: bold;
-  font-size: 2em;
-  margin: 0.67em 0;
-}
-
-.c4 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+  margin: 0 0 1rem 4rem;
 }
 
 .c5 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c6 {
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c6:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c6 > div {
+  padding: 1rem;
+}
+
+.c6 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: transparent;
-  padding: 0.5rem;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c5:last-child {
-  margin-bottom: 0;
+.c6 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
 }
 
-.c5:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
+.c6 > div:first-of-type {
+  padding-left: 4rem;
 }
 
-.c6 {
+.c7 {
   margin-right: 0.5rem;
 }
 
@@ -213,55 +280,97 @@ exports[`can navigate all ballot pages 2`] = `
         <legend
           class="c3"
         >
-          President
+          <div
+            class="c4"
+          >
+            <h1>
+              President
+            </h1>
+            <p>
+              <strong>
+                Vote for 1.
+              </strong>
+               You have selected
+               
+              0
+              .
+            </p>
+          </div>
         </legend>
-        <p>
-          Vote for one
-        </p>
         <div
-          class="c4"
+          class="c5"
         >
           <label
-            class="c5"
+            class="c6"
             for="minnieMouse"
           >
             <input
-              class="c6"
+              class="visually-hidden c7"
               id="minnieMouse"
               name="president"
               type="checkbox"
               value="minnieMouse"
             />
-
-            Minnie Mouse
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Minnie Mouse
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Mouse
+            </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="mickeyMouse"
           >
             <input
-              class="c6"
+              class="visually-hidden c7"
               id="mickeyMouse"
               name="president"
               type="checkbox"
               value="mickeyMouse"
             />
-
-            Mickey Mouse
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Mickey Mouse
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Mouse
+            </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="donaldDuck"
           >
             <input
-              class="c6"
+              class="visually-hidden c7"
               id="donaldDuck"
               name="president"
               type="checkbox"
               value="donaldDuck"
             />
-
-            Donald Duck
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Donald Duck
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Duck
+            </div>
           </label>
         </div>
       </fieldset>
@@ -340,7 +449,7 @@ exports[`can navigate all ballot pages 2`] = `
       class="c2"
     >
       1
-       of
+       of 
       2
     </p>
   </nav>
@@ -427,42 +536,95 @@ exports[`can navigate all ballot pages 3`] = `
   class="sc-bdVaJa eVuSVk"
 >
   <main
-    class="sc-bxivhb ciWJjj"
+    class="sc-bxivhb iLYGRu"
   >
     <div
-      class="sc-ifAKCX btqGcd"
+      class="sc-ifAKCX iRMfbY"
     >
       <fieldset
-        class="sc-bZQynM jpyzzF"
+        class="sc-dnqmqq hVhdBe"
       >
         <legend
-          class="sc-gzVnrw eHpwUp"
+          class="sc-iwsKbI hOWdcU"
         >
-          Senator
+          <div
+            class="sc-gzVnrw ivYVjF"
+          >
+            <h1>
+              Senator
+            </h1>
+            <p>
+              <strong>
+                Vote for 1.
+              </strong>
+               You have selected
+               
+              0
+              .
+            </p>
+          </div>
         </legend>
-        <p>
-          Vote for one
-        </p>
         <div
-          class="sc-htoDjs ilsOVI"
+          class="sc-gZMcBi jCDHmN"
         >
           .c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: transparent;
-  padding: 0.5rem;
-}
-
-.c0:last-child {
-  margin-bottom: 0;
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
 }
 
 .c0:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c0 > div {
+  padding: 1rem;
+}
+
+.c0 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+}
+
+.c0 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
+}
+
+.c0 > div:first-of-type {
+  padding-left: 4rem;
 }
 
 .c1 {
@@ -474,32 +636,83 @@ exports[`can navigate all ballot pages 3`] = `
             for="chadHanging"
           >
             <input
-              class="c1"
+              class="visually-hidden c1"
               id="chadHanging"
               name="senator"
               type="checkbox"
               value="chadHanging"
             />
-
-            Chad Hanging
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Chad Hanging
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Independent
+            </div>
           </label>
           .c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: transparent;
-  padding: 0.5rem;
-}
-
-.c0:last-child {
-  margin-bottom: 0;
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
 }
 
 .c0:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c0 > div {
+  padding: 1rem;
+}
+
+.c0 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+}
+
+.c0 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
+}
+
+.c0 > div:first-of-type {
+  padding-left: 4rem;
 }
 
 .c1 {
@@ -511,32 +724,83 @@ exports[`can navigate all ballot pages 3`] = `
             for="levErmachine"
           >
             <input
-              class="c1"
+              class="visually-hidden c1"
               id="levErmachine"
               name="senator"
               type="checkbox"
               value="levErmachine"
             />
-
-            Lev Ermachine
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Lev Ermachine
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Independent
+            </div>
           </label>
           .c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: transparent;
-  padding: 0.5rem;
-}
-
-.c0:last-child {
-  margin-bottom: 0;
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
 }
 
 .c0:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c0 > div {
+  padding: 1rem;
+}
+
+.c0 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+}
+
+.c0 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
+}
+
+.c0 > div:first-of-type {
+  padding-left: 4rem;
 }
 
 .c1 {
@@ -548,14 +812,24 @@ exports[`can navigate all ballot pages 3`] = `
             for="johnSmith"
           >
             <input
-              class="c1"
+              class="visually-hidden c1"
               id="johnSmith"
               name="senator"
               type="checkbox"
               value="johnSmith"
             />
-
-            John Smith
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                John Smith
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Independent
+            </div>
           </label>
         </div>
       </fieldset>
@@ -577,10 +851,10 @@ exports[`can navigate all ballot pages 3`] = `
       Previous
     </button>
     <p
-      class="sc-EHOje kYLbIg"
+      class="sc-htoDjs kZmKMZ"
     >
       2
-       of
+       of 
       2
     </p>
   </nav>
@@ -625,7 +899,7 @@ exports[`can navigate all ballot pages 4`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 1rem;
+  margin: 2rem 1rem;
 }
 
 .c1 {
@@ -634,8 +908,332 @@ exports[`can navigate all ballot pages 4`] = `
   margin: 0 auto;
 }
 
-.c7 {
-  color: gray;
+.c2 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="c1"
+    >
+      <div
+        class="c2"
+      >
+        <h1>
+          Help
+        </h1>
+        <p>
+          Help content will be available here.
+        </p>
+      </div>
+    </div>
+  </main>
+  .c0 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > :first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <div />
+    <button
+      class="c1"
+      type="button"
+    >
+      Back
+    </button>
+    <div />
+    <div />
+  </nav>
+</div>
+`;
+
+exports[`can navigate all ballot pages 5`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  .c3 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 2rem 1rem;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.c2 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="c1"
+    >
+      <div
+        class="c2"
+      >
+        <h1>
+          Settings
+        </h1>
+        <p>
+          Settings will be available here.
+        </p>
+        <h2>
+          Clear Ballot Votes
+        </h2>
+        <p>
+          Remove all votes and start over.
+        </p>
+        <button
+          class="c3"
+          type="button"
+        >
+          Start Over
+        </button>
+      </div>
+    </div>
+  </main>
+  .c0 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > :first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <div />
+    <button
+      class="c1"
+      type="button"
+    >
+      Back
+    </button>
+    <div />
+    <div />
+  </nav>
+</div>
+`;
+
+exports[`can navigate all ballot pages 6`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 2rem 1rem;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
 }
 
 .c3 {
@@ -668,6 +1266,10 @@ exports[`can navigate all ballot pages 4`] = `
 
 .c3 > :last-child {
   margin-bottom: 0;
+}
+
+.c7 {
+  color: gray;
 }
 
 .c2 {
@@ -759,7 +1361,7 @@ exports[`can navigate all ballot pages 4`] = `
               class="c6"
             >
               President
-
+               
             </th>
             <td
               class="c6"
@@ -769,7 +1371,7 @@ exports[`can navigate all ballot pages 4`] = `
               >
                 no selection
               </span>
-
+               
               <small
                 class="no-print"
               >
@@ -786,7 +1388,7 @@ exports[`can navigate all ballot pages 4`] = `
               class="c6"
             >
               Senator
-
+               
             </th>
             <td
               class="c6"
@@ -796,7 +1398,7 @@ exports[`can navigate all ballot pages 4`] = `
               >
                 no selection
               </span>
-
+               
               <small
                 class="no-print"
               >
@@ -813,6 +1415,9 @@ exports[`can navigate all ballot pages 4`] = `
     </div>
   </main>
   .c0 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -888,35 +1493,17 @@ exports[`can navigate all ballot pages 4`] = `
     >
       Back
     </button>
-    <button
-      class="c2"
-      type="button"
-    >
-      New Ballot
-    </button>
     <div />
     <div />
   </nav>
 </div>
 `;
 
-exports[`can navigate all ballot pages 5`] = `
+exports[`can navigate all ballot pages 7`] = `
 <div
   class="sc-bdVaJa eVuSVk"
 >
-  .c3 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: #4caf50;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: white;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -927,47 +1514,125 @@ exports[`can navigate all ballot pages 5`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 1rem;
+  margin: 2rem 1rem;
 }
 
 .c1 {
   width: 100%;
   max-width: 40rem;
-  margin: auto auto;
+  margin: 0 auto;
 }
 
-.c2 {
+.c4 {
   line-height: 1.3;
   max-width: 66ch;
-  text-align: center;
-  margin: auto;
 }
 
-.c2 h1 {
+.c4 h1 {
   margin: 2rem 0 1rem;
 }
 
-.c2 h2 {
+.c4 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c2 h3,
-.c2 p {
+.c4 h3,
+.c4 p {
   margin: 1rem 0;
 }
 
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c4 > :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c4 > :last-child {
   margin-bottom: 0;
+}
+
+.c2 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.c3 {
+  margin: 0 0 1rem 4rem;
+}
+
+.c5 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c6 {
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c6:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c6 > div {
+  padding: 1rem;
+}
+
+.c6 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+}
+
+.c6 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
+}
+
+.c6 > div:first-of-type {
+  padding-left: 4rem;
+}
+
+.c7 {
+  margin-right: 0.5rem;
 }
 
 @media print {
@@ -986,44 +1651,109 @@ exports[`can navigate all ballot pages 5`] = `
     <div
       class="c1"
     >
-      <div
+      <fieldset
         class="c2"
       >
-        <h1>
-          General Election
-        </h1>
-        <p>
-          November 3, 2020
-          <br />
-          Lorem County, State of Ipsumana
-        </p>
-        <p>
-          <button
-            class="c3"
-            type="button"
+        <legend
+          class="c3"
+        >
+          <div
+            class="c4"
           >
-            Get Started
-          </button>
-        </p>
-      </div>
+            <h1>
+              Senator
+            </h1>
+            <p>
+              <strong>
+                Vote for 1.
+              </strong>
+               You have selected
+               
+              0
+              .
+            </p>
+          </div>
+        </legend>
+        <div
+          class="c5"
+        >
+          <label
+            class="c6"
+            for="chadHanging"
+          >
+            <input
+              class="visually-hidden c7"
+              id="chadHanging"
+              name="senator"
+              type="checkbox"
+              value="chadHanging"
+            />
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Chad Hanging
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Independent
+            </div>
+          </label>
+          <label
+            class="c6"
+            for="levErmachine"
+          >
+            <input
+              class="visually-hidden c7"
+              id="levErmachine"
+              name="senator"
+              type="checkbox"
+              value="levErmachine"
+            />
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Lev Ermachine
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Independent
+            </div>
+          </label>
+          <label
+            class="c6"
+            for="johnSmith"
+          >
+            <input
+              class="visually-hidden c7"
+              id="johnSmith"
+              name="senator"
+              type="checkbox"
+              value="johnSmith"
+            />
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                John Smith
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Independent
+            </div>
+          </label>
+        </div>
+      </fieldset>
     </div>
   </main>
-</div>
-`;
-
-exports[`redirects contests index to first contest 1`] = `
-.c0 {
-  height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-
-.c8 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1041,20 +1771,66 @@ exports[`redirects contests index to first contest 1`] = `
   align-items: center;
 }
 
-.c8 > :first-child {
+.c0 > :first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c8 > * {
+.c0 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c11 {
+.c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c2 {
+  color: white;
+  text-align: center;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <button
+      class="c1"
+      type="button"
+    >
+      Review
+    </button>
+    <button
+      class="c1"
+      type="button"
+    >
+      Previous
+    </button>
+    <p
+      class="c2"
+    >
+      2
+       of 
+      2
+    </p>
+  </nav>
+  .c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -1075,20 +1851,141 @@ exports[`redirects contests index to first contest 1`] = `
   align-items: center;
 }
 
-.c11 > :first-child {
+.c0 > :first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c11 > * {
+.c0 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
+.c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <button
+      class="c1"
+      type="button"
+    >
+      Review
+    </button>
+    <button
+      class="c1"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="c1"
+      type="button"
+    >
+      Settings
+    </button>
+    <div />
+  </nav>
+</div>
+`;
+
+exports[`redirects contests index to first contest 1`] = `
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
 .c9 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c9 > :first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c9 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c12 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c12 > :first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c12 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c10 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -1111,7 +2008,7 @@ exports[`redirects contests index to first contest 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 1rem;
+  margin: 2rem 1rem;
 }
 
 .c2 {
@@ -1120,7 +2017,39 @@ exports[`redirects contests index to first contest 1`] = `
   margin: 0 auto;
 }
 
-.c10 {
+.c5 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c5 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c5 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c5 h3,
+.c5 p {
+  margin: 1rem 0;
+}
+
+.c5 h1 + p,
+.c5 h2 + p,
+.c5 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c5 > :first-child {
+  margin-top: 0;
+}
+
+.c5 > :last-child {
+  margin-bottom: 0;
+}
+
+.c11 {
   color: white;
   text-align: center;
 }
@@ -1132,52 +2061,87 @@ exports[`redirects contests index to first contest 1`] = `
 }
 
 .c4 {
-  font-weight: bold;
-  font-size: 2em;
-  margin: 0.67em 0;
-}
-
-.c5 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+  margin: 0 0 1rem 4rem;
 }
 
 .c6 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c7 {
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c7:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c7 > div {
+  padding: 1rem;
+}
+
+.c7 > input + div:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid lightgrey;
+  width: 3rem;
+  text-align: center;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-bottom: 1rem;
-  border: 1px solid lightgrey;
-  background: transparent;
-  padding: 0.5rem;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c6:last-child {
-  margin-bottom: 0;
+.c7 > input:checked + div:before {
+  content: '✓';
+  background: white;
+  color: #028099;
+  border-color: #028099;
 }
 
-.c6:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
+.c7 > div:first-of-type {
+  padding-left: 4rem;
 }
 
-.c7 {
+.c8 {
   margin-right: 0.5rem;
 }
 
 @media print {
-  .c8 {
+  .c9 {
     display: none;
   }
 }
 
 @media print {
-  .c11 {
+  .c12 {
     display: none;
   }
 }
@@ -1207,100 +2171,142 @@ exports[`redirects contests index to first contest 1`] = `
         <legend
           class="c4"
         >
-          President
+          <div
+            class="c5"
+          >
+            <h1>
+              President
+            </h1>
+            <p>
+              <strong>
+                Vote for 1.
+              </strong>
+               You have selected
+               
+              0
+              .
+            </p>
+          </div>
         </legend>
-        <p>
-          Vote for one
-        </p>
         <div
-          class="c5"
+          class="c6"
         >
           <label
-            class="c6"
+            class="c7"
             for="minnieMouse"
           >
             <input
-              class="c7"
+              class="visually-hidden c8"
               id="minnieMouse"
               name="president"
               type="checkbox"
               value="minnieMouse"
             />
-
-            Minnie Mouse
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Minnie Mouse
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Mouse
+            </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="mickeyMouse"
           >
             <input
-              class="c7"
+              class="visually-hidden c8"
               id="mickeyMouse"
               name="president"
               type="checkbox"
               value="mickeyMouse"
             />
-
-            Mickey Mouse
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Mickey Mouse
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Mouse
+            </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="donaldDuck"
           >
             <input
-              class="c7"
+              class="visually-hidden c8"
               id="donaldDuck"
               name="president"
               type="checkbox"
               value="donaldDuck"
             />
-
-            Donald Duck
+            <div
+              class="candidate-name"
+            >
+              <strong>
+                Donald Duck
+              </strong>
+            </div>
+            <div
+              class="candidate-party"
+            >
+              Duck
+            </div>
           </label>
         </div>
       </fieldset>
     </div>
   </main>
   <nav
-    class="c8"
+    class="c9"
   >
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Next
     </button>
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c10"
+      class="c11"
     >
       1
-       of
+       of 
       2
     </p>
   </nav>
   <nav
-    class="c11"
+    class="c12"
   >
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Review
     </button>
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Help
     </button>
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Settings
