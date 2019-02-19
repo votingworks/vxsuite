@@ -3,8 +3,14 @@ import ReactDOM from 'react-dom'
 import { fireEvent, render, waitForElement } from 'react-testing-library'
 
 import electionFile from './data/election.json'
+const electionAsString = JSON.stringify(electionFile)
 
-import App from './App'
+import App, { electionKey } from './App'
+
+beforeEach(() => {
+  window.localStorage.clear()
+  window.location.href = '/'
+})
 
 it('renders without crashing', () => {
   const div = document.createElement('div')
@@ -12,7 +18,23 @@ it('renders without crashing', () => {
   ReactDOM.unmountComponentAtNode(div)
 })
 
-it('election can be loaded and voter can vote', async () => {
+describe('loads election', () => {
+  it(`via url hash and does't store in localStorage`, () => {
+    window.location.href = '/#sample'
+    const { getByText } = render(<App />)
+    getByText('Get Started')
+    expect(window.localStorage.getItem(electionKey)).toBeFalsy()
+  })
+
+  it(`from localStorage`, () => {
+    window.localStorage.setItem(electionKey, electionAsString)
+    const { getByText } = render(<App />)
+    getByText('Get Started')
+    expect(window.localStorage.getItem(electionKey)).toBeTruthy()
+  })
+})
+
+it('end to end: election can be uploaded, voter can vote and print', async () => {
   /* tslint:disable-next-line */
   const eventListenerCallbacksDictionary: any = {}
   window.addEventListener = jest.fn((event, cb) => {
@@ -33,7 +55,7 @@ it('election can be loaded and voter can vote', async () => {
       ],
     },
   })
-  await waitForElement(() => getByText('General Election'))
+  await waitForElement(() => getByText('Get Started'))
   expect(container).toMatchSnapshot()
 
   fireEvent.click(getByText('Get Started'))
@@ -77,25 +99,18 @@ it('election can be loaded and voter can vote', async () => {
   await waitForElement(() => getByText('Get Started'))
 })
 
-it('loads sample with url hash', () => {
-  window.location.href = '/#sample'
-  const { container, getByText } = render(<App />)
-  expect(getByText('Get Started')).toBeTruthy()
-  expect(container.firstChild).toMatchSnapshot()
-})
-
 describe('can start over', () => {
   it('when has no votes', async () => {
-    window.location.href = '/#sample'
-    const { container, getByText, debug } = render(<App />)
+    window.localStorage.setItem(electionKey, electionAsString)
+    const { getByText } = render(<App />)
     fireEvent.click(getByText('Get Started'))
     fireEvent.click(getByText('Settings'))
     fireEvent.click(getByText('Start Over'))
     expect(getByText('Get Started')).toBeTruthy()
   })
   it('when has votes', async () => {
-    window.location.href = '/#sample'
-    const { container, getByText, debug } = render(<App />)
+    window.localStorage.setItem(electionKey, electionAsString)
+    const { getByText } = render(<App />)
     fireEvent.click(getByText('Get Started'))
     fireEvent.click(getByText('Minnie Mouse').closest('label') as HTMLElement)
     fireEvent.click(getByText('Settings'))

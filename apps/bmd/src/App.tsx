@@ -17,6 +17,8 @@ interface State {
   votes: VoteDict
 }
 
+export const electionKey = 'votingWorksElection'
+
 const initialState = {
   election: undefined,
   votes: {},
@@ -30,7 +32,21 @@ class App extends React.Component<{}, State> {
       this.setState({
         election: sampleElection,
       })
+    } else {
+      this.setState({
+        election: this.getElection(),
+      })
     }
+  }
+
+  public getElection = () => {
+    const election = window.localStorage.getItem(electionKey)
+    return election ? JSON.parse(election) : undefined
+  }
+
+  public setElection = (election: Election) => {
+    this.setState({ election })
+    window.localStorage.setItem(electionKey, JSON.stringify(election))
   }
 
   public resetVotes = () => {
@@ -43,10 +59,6 @@ class App extends React.Component<{}, State> {
     this.setState(prevState => ({
       votes: Object.assign({}, prevState.votes, { [contestId]: vote }),
     }))
-  }
-
-  public setElection = (election: Election) => {
-    this.setState({ election })
   }
 
   public render() {
