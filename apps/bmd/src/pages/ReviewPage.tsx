@@ -41,7 +41,7 @@ class SummaryPage extends React.Component<RouteComponentProps> {
     window.removeEventListener('afterprint', this.startOver)
   }
   public startOver = () => {
-    this.context.resetBallot()
+    this.context.resetVotes()
     this.props.history.push('/')
   }
   public hideConfirm = () => {

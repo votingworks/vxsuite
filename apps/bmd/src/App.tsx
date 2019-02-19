@@ -33,7 +33,7 @@ class App extends React.Component<{}, State> {
     }
   }
 
-  public resetBallot = () => {
+  public resetVotes = () => {
     this.setState({
       votes: {},
     })
@@ -58,7 +58,7 @@ class App extends React.Component<{}, State> {
         <BallotContext.Provider
           value={{
             contests,
-            resetBallot: this.resetBallot,
+            resetVotes: this.resetVotes,
             updateVote: this.updateVote,
             votes: this.state.votes,
           }}

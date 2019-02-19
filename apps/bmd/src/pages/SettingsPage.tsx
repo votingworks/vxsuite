@@ -12,7 +12,7 @@ import Prose from '../components/Prose'
 import { Text } from '../components/Typography'
 
 const SettingsPage = (props: RouteComponentProps) => {
-  const { resetBallot, votes } = useContext(BallotContext)
+  const { resetVotes, votes } = useContext(BallotContext)
   const [showResetBallotAlert, setResetBallotAlert] = useState(false)
   const cancelResetBallot = () => {
     setResetBallotAlert(false)
@@ -21,7 +21,7 @@ const SettingsPage = (props: RouteComponentProps) => {
     Object.keys(votes).length === 0 ? startOver() : setResetBallotAlert(true)
   }
   const startOver = () => {
-    resetBallot()
+    resetVotes()
     props.history.push('/')
   }
 
