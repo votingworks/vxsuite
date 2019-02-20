@@ -1576,13 +1576,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
               class="c6"
             >
               President
-
+               
             </th>
             <td
               class="c6"
             >
               Minnie Mouse
-
+               
               <small
                 class="no-print"
               >
@@ -1599,13 +1599,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
               class="c6"
             >
               Senator
-
+               
             </th>
             <td
               class="c6"
             >
               John Smith
-
+               
               <small
                 class="no-print"
               >

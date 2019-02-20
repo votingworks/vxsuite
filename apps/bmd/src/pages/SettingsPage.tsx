@@ -32,8 +32,8 @@ const SettingsPage = (props: RouteComponentProps) => {
           <Prose>
             <h1>Settings</h1>
             <p>Settings will be available here.</p>
-            <h2>Clear Ballot Votes</h2>
-            <p>Remove all votes and start over.</p>
+            <h2>Clear Selections</h2>
+            <p>Clearn all selections and start over.</p>
             <Button onClick={requestNewBallot}>Start Over</Button>
           </Prose>
         </MainChild>
@@ -49,7 +49,7 @@ const SettingsPage = (props: RouteComponentProps) => {
         content={
           <Prose>
             <Text>
-              Are you sure you want to remove all votes and start over?
+              Are you sure you want to clear all selections and start over?
             </Text>
           </Prose>
         }

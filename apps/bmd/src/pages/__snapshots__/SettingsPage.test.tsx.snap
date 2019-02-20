@@ -91,10 +91,10 @@ exports[`renders SettingsPage 1`] = `
         Settings will be available here.
       </p>
       <h2>
-        Clear Ballot Votes
+        Clear Selections
       </h2>
       <p>
-        Remove all votes and start over.
+        Clearn all selections and start over.
       </p>
       <button
         class="c3"
