@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`election can be uploaded and voter can vote 1`] = `
+exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 .c0 {
   height: 100%;
   display: -webkit-box;
@@ -214,1666 +214,6 @@ exports[`election can be uploaded and voter can vote 1`] = `
         </p>
       </div>
     </footer>
-  </div>
-</div>
-`;
-
-exports[`election can be uploaded and voter can vote 2`] = `
-<div>
-  .c0 {
-  height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-
-.c4 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: #4caf50;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: white;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c1 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  margin: 2rem 1rem;
-}
-
-.c2 {
-  width: 100%;
-  max-width: 40rem;
-  margin: auto auto;
-}
-
-.c3 {
-  line-height: 1.3;
-  max-width: 66ch;
-  text-align: center;
-  margin: auto;
-}
-
-.c3 h1 {
-  margin: 2rem 0 1rem;
-}
-
-.c3 h2 {
-  margin: 1.5rem 0 1rem;
-}
-
-.c3 h3,
-.c3 p {
-  margin: 1rem 0;
-}
-
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
-  margin-top: -0.75rem;
-}
-
-.c3 > :first-child {
-  margin-top: 0;
-}
-
-.c3 > :last-child {
-  margin-bottom: 0;
-}
-
-@media print {
-  .c1 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    margin: 0;
-  }
-}
-
-<div
-    class="c0"
-  >
-    <main
-      class="c1"
-    >
-      <div
-        class="c2"
-      >
-        <div
-          class="c3"
-        >
-          <h1>
-            General Election
-          </h1>
-          <p>
-            November 3, 2020
-            <br />
-            Lorem County, State of Ipsumana
-          </p>
-          <p>
-            <button
-              class="c4"
-              type="button"
-            >
-              Get Started
-            </button>
-          </p>
-        </div>
-      </div>
-    </main>
-  </div>
-</div>
-`;
-
-exports[`election can be uploaded and voter can vote 3`] = `
-<div
-  class="sc-bdVaJa eVuSVk"
->
-  .c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  margin: 2rem 1rem;
-}
-
-.c1 {
-  width: 100%;
-  max-width: 40rem;
-  margin: 0 auto;
-}
-
-.c4 {
-  line-height: 1.3;
-  max-width: 66ch;
-}
-
-.c4 h1 {
-  margin: 2rem 0 1rem;
-}
-
-.c4 h2 {
-  margin: 1.5rem 0 1rem;
-}
-
-.c4 h3,
-.c4 p {
-  margin: 1rem 0;
-}
-
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h3 + p {
-  margin-top: -0.75rem;
-}
-
-.c4 > :first-child {
-  margin-top: 0;
-}
-
-.c4 > :last-child {
-  margin-bottom: 0;
-}
-
-.c2 {
-  margin: 0;
-  border: none;
-  padding: 0;
-}
-
-.c3 {
-  margin: 0 0 1rem 4rem;
-}
-
-.c5 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
-}
-
-.c6 {
-  position: relative;
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  border-radius: 0.125rem;
-  background: white;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-.c6:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
-}
-
-.c6 > div {
-  padding: 1rem;
-}
-
-.c6 > input + div:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  border-right: 1px solid lightgrey;
-  width: 3rem;
-  text-align: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  font-size: 2rem;
-  border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c6 > input:checked + div:before {
-  content: '✓';
-  background: white;
-  color: #028099;
-  border-color: #028099;
-}
-
-.c6 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c7 {
-  margin-right: 0.5rem;
-}
-
-@media print {
-  .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    margin: 0;
-  }
-}
-
-<main
-    class="c0"
-  >
-    <div
-      class="c1"
-    >
-      <fieldset
-        class="c2"
-      >
-        <legend
-          class="c3"
-        >
-          <div
-            class="c4"
-          >
-            <h1>
-              President
-            </h1>
-            <p>
-              <strong>
-                Vote for 1.
-              </strong>
-               You have selected
-               
-              0
-              .
-            </p>
-          </div>
-        </legend>
-        <div
-          class="c5"
-        >
-          <label
-            class="c6"
-            for="minnieMouse"
-          >
-            <input
-              class="visually-hidden c7"
-              id="minnieMouse"
-              name="president"
-              type="checkbox"
-              value="minnieMouse"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Minnie Mouse
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Mouse
-            </div>
-          </label>
-          <label
-            class="c6"
-            for="mickeyMouse"
-          >
-            <input
-              class="visually-hidden c7"
-              id="mickeyMouse"
-              name="president"
-              type="checkbox"
-              value="mickeyMouse"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Mickey Mouse
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Mouse
-            </div>
-          </label>
-          <label
-            class="c6"
-            for="donaldDuck"
-          >
-            <input
-              class="visually-hidden c7"
-              id="donaldDuck"
-              name="president"
-              type="checkbox"
-              value="donaldDuck"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Donald Duck
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Duck
-            </div>
-          </label>
-        </div>
-      </fieldset>
-    </div>
-  </main>
-  .c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.c0 > :first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c0 > * {
-  margin: 0.25rem;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c2 {
-  color: white;
-  text-align: center;
-}
-
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-<nav
-    class="c0"
-  >
-    <button
-      class="c1"
-      type="button"
-    >
-      Next
-    </button>
-    <button
-      class="c1"
-      type="button"
-    >
-      Previous
-    </button>
-    <p
-      class="c2"
-    >
-      1
-       of 
-      2
-    </p>
-  </nav>
-  .c0 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.c0 > :first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c0 > * {
-  margin: 0.25rem;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-<nav
-    class="c0"
-  >
-    <button
-      class="c1"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="c1"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="c1"
-      type="button"
-    >
-      Settings
-    </button>
-    <div />
-  </nav>
-</div>
-`;
-
-exports[`election can be uploaded and voter can vote 4`] = `
-<div
-  class="sc-bdVaJa eVuSVk"
->
-  <main
-    class="sc-bxivhb iLYGRu"
-  >
-    <div
-      class="sc-ifAKCX iRMfbY"
-    >
-      <fieldset
-        class="sc-dnqmqq hVhdBe"
-      >
-        <legend
-          class="sc-iwsKbI hOWdcU"
-        >
-          <div
-            class="sc-gzVnrw ivYVjF"
-          >
-            <h1>
-              President
-            </h1>
-            <p>
-              <strong>
-                Vote for 1.
-              </strong>
-               You have selected
-               
-              1
-              .
-            </p>
-          </div>
-        </legend>
-        <div
-          class="sc-gZMcBi jCDHmN"
-        >
-          <label
-            class="sc-gqjmRU gXbzMv"
-            for="minnieMouse"
-          >
-            <input
-              class="visually-hidden sc-VigVT eKOPhG"
-              id="minnieMouse"
-              name="president"
-              type="checkbox"
-              value="minnieMouse"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Minnie Mouse
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Mouse
-            </div>
-          </label>
-          <label
-            class="sc-gqjmRU cMqTTj"
-            for="mickeyMouse"
-          >
-            <input
-              class="visually-hidden sc-VigVT eKOPhG"
-              disabled=""
-              id="mickeyMouse"
-              name="president"
-              type="checkbox"
-              value="mickeyMouse"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Mickey Mouse
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Mouse
-            </div>
-          </label>
-          <label
-            class="sc-gqjmRU cMqTTj"
-            for="donaldDuck"
-          >
-            <input
-              class="visually-hidden sc-VigVT eKOPhG"
-              disabled=""
-              id="donaldDuck"
-              name="president"
-              type="checkbox"
-              value="donaldDuck"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Donald Duck
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Duck
-            </div>
-          </label>
-        </div>
-      </fieldset>
-    </div>
-  </main>
-  <nav
-    class="sc-bwzfXH gXteod"
-  >
-    <button
-      class="sc-htpNat jmWxWi"
-      type="button"
-    >
-      Next
-    </button>
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Previous
-    </button>
-    <p
-      class="sc-htoDjs kZmKMZ"
-    >
-      1
-       of 
-      2
-    </p>
-  </nav>
-  <nav
-    class="sc-bwzfXH bKLUfy"
-  >
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Settings
-    </button>
-    <div />
-  </nav>
-</div>
-`;
-
-exports[`election can be uploaded and voter can vote 5`] = `
-<div
-  class="sc-bdVaJa eVuSVk"
->
-  <main
-    class="sc-bxivhb iLYGRu"
-  >
-    <div
-      class="sc-ifAKCX iRMfbY"
-    >
-      <fieldset
-        class="sc-dnqmqq hVhdBe"
-      >
-        <legend
-          class="sc-iwsKbI hOWdcU"
-        >
-          <div
-            class="sc-gzVnrw ivYVjF"
-          >
-            <h1>
-              Senator
-            </h1>
-            <p>
-              <strong>
-                Vote for 1.
-              </strong>
-               You have selected
-               
-              0
-              .
-            </p>
-          </div>
-        </legend>
-        <div
-          class="sc-gZMcBi jCDHmN"
-        >
-          .c0 {
-  position: relative;
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  border-radius: 0.125rem;
-  background: white;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-.c0:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
-}
-
-.c0 > div {
-  padding: 1rem;
-}
-
-.c0 > input + div:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  border-right: 1px solid lightgrey;
-  width: 3rem;
-  text-align: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  font-size: 2rem;
-  border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c0 > input:checked + div:before {
-  content: '✓';
-  background: white;
-  color: #028099;
-  border-color: #028099;
-}
-
-.c0 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c1 {
-  margin-right: 0.5rem;
-}
-
-<label
-            class="c0"
-            for="chadHanging"
-          >
-            <input
-              class="visually-hidden c1"
-              id="chadHanging"
-              name="senator"
-              type="checkbox"
-              value="chadHanging"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Chad Hanging
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Independent
-            </div>
-          </label>
-          .c0 {
-  position: relative;
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  border-radius: 0.125rem;
-  background: white;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-.c0:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
-}
-
-.c0 > div {
-  padding: 1rem;
-}
-
-.c0 > input + div:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  border-right: 1px solid lightgrey;
-  width: 3rem;
-  text-align: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  font-size: 2rem;
-  border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c0 > input:checked + div:before {
-  content: '✓';
-  background: white;
-  color: #028099;
-  border-color: #028099;
-}
-
-.c0 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c1 {
-  margin-right: 0.5rem;
-}
-
-<label
-            class="c0"
-            for="levErmachine"
-          >
-            <input
-              class="visually-hidden c1"
-              id="levErmachine"
-              name="senator"
-              type="checkbox"
-              value="levErmachine"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Lev Ermachine
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Independent
-            </div>
-          </label>
-          .c0 {
-  position: relative;
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  border-radius: 0.125rem;
-  background: white;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-.c0:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
-}
-
-.c0 > div {
-  padding: 1rem;
-}
-
-.c0 > input + div:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  border-right: 1px solid lightgrey;
-  width: 3rem;
-  text-align: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  font-size: 2rem;
-  border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c0 > input:checked + div:before {
-  content: '✓';
-  background: white;
-  color: #028099;
-  border-color: #028099;
-}
-
-.c0 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c1 {
-  margin-right: 0.5rem;
-}
-
-<label
-            class="c0"
-            for="johnSmith"
-          >
-            <input
-              class="visually-hidden c1"
-              id="johnSmith"
-              name="senator"
-              type="checkbox"
-              value="johnSmith"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                John Smith
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Independent
-            </div>
-          </label>
-        </div>
-      </fieldset>
-    </div>
-  </main>
-  <nav
-    class="sc-bwzfXH gXteod"
-  >
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Previous
-    </button>
-    <p
-      class="sc-htoDjs kZmKMZ"
-    >
-      2
-       of 
-      2
-    </p>
-  </nav>
-  <nav
-    class="sc-bwzfXH bKLUfy"
-  >
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Settings
-    </button>
-    <div />
-  </nav>
-</div>
-`;
-
-exports[`election can be uploaded and voter can vote 6`] = `
-<div
-  class="sc-bdVaJa eVuSVk"
->
-  <main
-    class="sc-bxivhb iLYGRu"
-  >
-    <div
-      class="sc-ifAKCX iRMfbY"
-    >
-      <fieldset
-        class="sc-dnqmqq hVhdBe"
-      >
-        <legend
-          class="sc-iwsKbI hOWdcU"
-        >
-          <div
-            class="sc-gzVnrw ivYVjF"
-          >
-            <h1>
-              Senator
-            </h1>
-            <p>
-              <strong>
-                Vote for 1.
-              </strong>
-               You have selected
-               
-              1
-              .
-            </p>
-          </div>
-        </legend>
-        <div
-          class="sc-gZMcBi jCDHmN"
-        >
-          <label
-            class="sc-gqjmRU cMqTTj"
-            for="chadHanging"
-          >
-            <input
-              class="visually-hidden sc-VigVT eKOPhG"
-              disabled=""
-              id="chadHanging"
-              name="senator"
-              type="checkbox"
-              value="chadHanging"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Chad Hanging
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Independent
-            </div>
-          </label>
-          <label
-            class="sc-gqjmRU cMqTTj"
-            for="levErmachine"
-          >
-            <input
-              class="visually-hidden sc-VigVT eKOPhG"
-              disabled=""
-              id="levErmachine"
-              name="senator"
-              type="checkbox"
-              value="levErmachine"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                Lev Ermachine
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Independent
-            </div>
-          </label>
-          <label
-            class="sc-gqjmRU gXbzMv"
-            for="johnSmith"
-          >
-            <input
-              autofocus=""
-              class="visually-hidden sc-VigVT eKOPhG"
-              id="johnSmith"
-              name="senator"
-              type="checkbox"
-              value="johnSmith"
-            />
-            <div
-              class="candidate-name"
-            >
-              <strong>
-                John Smith
-              </strong>
-            </div>
-            <div
-              class="candidate-party"
-            >
-              Independent
-            </div>
-          </label>
-        </div>
-      </fieldset>
-    </div>
-  </main>
-  <nav
-    class="sc-bwzfXH gXteod"
-  >
-    <button
-      class="sc-htpNat jmWxWi"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Previous
-    </button>
-    <p
-      class="sc-htoDjs kZmKMZ"
-    >
-      2
-       of 
-      2
-    </p>
-  </nav>
-  <nav
-    class="sc-bwzfXH bKLUfy"
-  >
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="sc-htpNat eybfyW"
-      type="button"
-    >
-      Settings
-    </button>
-    <div />
-  </nav>
-</div>
-`;
-
-exports[`election can be uploaded and voter can vote 7`] = `
-<div
-  class="sc-bdVaJa eVuSVk"
->
-  .c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  margin: 2rem 1rem;
-}
-
-.c1 {
-  width: 100%;
-  max-width: 40rem;
-  margin: 0 auto;
-}
-
-.c3 {
-  line-height: 1.3;
-  max-width: 66ch;
-}
-
-.c3 h1 {
-  margin: 2rem 0 1rem;
-}
-
-.c3 h2 {
-  margin: 1.5rem 0 1rem;
-}
-
-.c3 h3,
-.c3 p {
-  margin: 1rem 0;
-}
-
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
-  margin-top: -0.75rem;
-}
-
-.c3 > :first-child {
-  margin-top: 0;
-}
-
-.c3 > :last-child {
-  margin-bottom: 0;
-}
-
-.c2 {
-  margin: 1rem 0;
-}
-
-.c4 {
-  width: 100%;
-  max-width: 66ch;
-  text-align: left;
-  border-bottom: 1px solid lightGrey;
-}
-
-.c5 {
-  width: 50%;
-  padding: 0.5rem 0.25rem;
-  border-top: none;
-}
-
-.c6 {
-  width: 50%;
-  padding: 0.5rem 0.25rem;
-  border-top: 1px solid lightGrey;
-}
-
-@media print {
-  .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    margin: 0;
-  }
-}
-
-<main
-    class="c0"
-  >
-    <div
-      class="c1"
-    >
-      <div
-        class="c2"
-      >
-        <div
-          class="c3"
-        >
-          <h1>
-            Official Ballot
-          </h1>
-          <p
-            class="no-print"
-          >
-            Please review your ballot. Confirm your votes by selecting the “Print Ballot” button.
-          </p>
-        </div>
-      </div>
-      <table
-        class="c4"
-      >
-        <caption
-          class="no-print visually-hidden"
-        >
-          <p>
-            Summary of your votes.
-          </p>
-        </caption>
-        <thead
-          class="no-print"
-        >
-          <tr>
-            <th
-              class="c5"
-              scope="col"
-            >
-              Contest
-            </th>
-            <th
-              class="c5"
-              scope="col"
-            >
-              Vote
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th
-              class="c6"
-            >
-              President
-               
-            </th>
-            <td
-              class="c6"
-            >
-              Minnie Mouse
-               
-              <small
-                class="no-print"
-              >
-                <a
-                  href="/contests/president"
-                >
-                  change
-                </a>
-              </small>
-            </td>
-          </tr>
-          <tr>
-            <th
-              class="c6"
-            >
-              Senator
-               
-            </th>
-            <td
-              class="c6"
-            >
-              John Smith
-               
-              <small
-                class="no-print"
-              >
-                <a
-                  href="/contests/senator"
-                >
-                  change
-                </a>
-              </small>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </main>
-  .c0 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.c0 > :first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c0 > * {
-  margin: 0.25rem;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
-.c2 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: #4caf50;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: white;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-<nav
-    class="c0"
-  >
-    <button
-      class="c1"
-      type="button"
-    >
-      Print Ballot
-    </button>
-    <button
-      class="c2"
-      type="button"
-    >
-      Back
-    </button>
-    <div />
-    <div />
-  </nav>
-</div>
-`;
-
-exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
-.c0 {
-  height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-
-.c6 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c1 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
-.c3 {
-  width: 100%;
-  max-width: 40rem;
-  margin: auto auto;
-}
-
-.c4 {
-  line-height: 1.3;
-  max-width: 66ch;
-  text-align: center;
-  margin: auto;
-}
-
-.c4 h1 {
-  margin: 2rem 0 1rem;
-}
-
-.c4 h2 {
-  margin: 1.5rem 0 1rem;
-}
-
-.c4 h3,
-.c4 p {
-  margin: 1rem 0;
-}
-
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h3 + p {
-  margin-top: -0.75rem;
-}
-
-.c4 > :first-child {
-  margin-top: 0;
-}
-
-.c4 > :last-child {
-  margin-bottom: 0;
-}
-
-.c5 {
-  text-align: center;
-}
-
-.c2 {
-  margin: auto;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  width: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-}
-
-@media print {
-  .c1 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    margin: 0;
-  }
-}
-
-<div>
-  <div
-    class="c0"
-  >
-    <main
-      class="c1"
-    >
-      <label
-        class="c2"
-        data-testid="dropzone"
-        for="election-file-upload"
-        tabindex="0"
-      >
-        <div
-          class="c3"
-        >
-          <input
-            accept="application/json"
-            autocomplete="off"
-            data-testid="file-input"
-            id="election-file-upload"
-            style="display: none;"
-            tabindex="-1"
-            type="file"
-          />
-          <div
-            class="c4"
-          >
-            <h1>
-              Configure Ballot Marking Device
-            </h1>
-            <p>
-              Drag and drop
-              <code>
-                election.json
-              </code>
-               file here, or click to browse for file.
-            </p>
-
-          </div>
-        </div>
-      </label>
-    </main>
-    <p
-      class="c5"
-    >
-      <a
-        href="/data/election.json"
-      >
-        Download sample
-        <code>
-          election.json
-        </code>
-         file
-      </a>
-
-      to upload, or
-
-      <button
-        class="c6"
-        type="button"
-      >
-        Load Sample Election File
-      </button>
-    </p>
   </div>
 </div>
 `;
@@ -2171,7 +511,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
                 Vote for 1.
               </strong>
                You have selected
-
+               
               0
               .
             </p>
@@ -2329,7 +669,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
       class="c2"
     >
       1
-       of
+       of 
       2
     </p>
   </nav>
@@ -2419,16 +759,16 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
     class="sc-bxivhb iLYGRu"
   >
     <div
-      class="sc-ifAKCX btqGcd"
+      class="sc-ifAKCX iRMfbY"
     >
       <fieldset
-        class="sc-gzVnrw bWBSuf"
+        class="sc-dnqmqq hVhdBe"
       >
         <legend
-          class="sc-htoDjs hzplOQ"
+          class="sc-iwsKbI hOWdcU"
         >
           <div
-            class="sc-EHOje ibzhqJ"
+            class="sc-gzVnrw ivYVjF"
           >
             <h1>
               President
@@ -2438,21 +778,21 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
                 Vote for 1.
               </strong>
                You have selected
-
+               
               1
               .
             </p>
           </div>
         </legend>
         <div
-          class="sc-dnqmqq fKsWGs"
+          class="sc-gZMcBi jCDHmN"
         >
           <label
-            class="sc-iwsKbI jjvgpi"
+            class="sc-gqjmRU gXbzMv"
             for="minnieMouse"
           >
             <input
-              class="visually-hidden sc-gZMcBi dTwosU"
+              class="visually-hidden sc-VigVT eKOPhG"
               id="minnieMouse"
               name="president"
               type="checkbox"
@@ -2472,11 +812,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
             </div>
           </label>
           <label
-            class="sc-iwsKbI fclmOP"
+            class="sc-gqjmRU cMqTTj"
             for="mickeyMouse"
           >
             <input
-              class="visually-hidden sc-gZMcBi dTwosU"
+              class="visually-hidden sc-VigVT eKOPhG"
               disabled=""
               id="mickeyMouse"
               name="president"
@@ -2497,11 +837,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
             </div>
           </label>
           <label
-            class="sc-iwsKbI fclmOP"
+            class="sc-gqjmRU cMqTTj"
             for="donaldDuck"
           >
             <input
-              class="visually-hidden sc-gZMcBi dTwosU"
+              class="visually-hidden sc-VigVT eKOPhG"
               disabled=""
               id="donaldDuck"
               name="president"
@@ -2541,10 +881,10 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
       Previous
     </button>
     <p
-      class="sc-bZQynM kcSKIG"
+      class="sc-htoDjs kZmKMZ"
     >
       1
-       of
+       of 
       2
     </p>
   </nav>
@@ -2582,16 +922,16 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     class="sc-bxivhb iLYGRu"
   >
     <div
-      class="sc-ifAKCX btqGcd"
+      class="sc-ifAKCX iRMfbY"
     >
       <fieldset
-        class="sc-gzVnrw bWBSuf"
+        class="sc-dnqmqq hVhdBe"
       >
         <legend
-          class="sc-htoDjs hzplOQ"
+          class="sc-iwsKbI hOWdcU"
         >
           <div
-            class="sc-EHOje ibzhqJ"
+            class="sc-gzVnrw ivYVjF"
           >
             <h1>
               Senator
@@ -2601,14 +941,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 Vote for 1.
               </strong>
                You have selected
-
+               
               0
               .
             </p>
           </div>
         </legend>
         <div
-          class="sc-dnqmqq fKsWGs"
+          class="sc-gZMcBi jCDHmN"
         >
           .c0 {
   position: relative;
@@ -2894,10 +1234,10 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       Previous
     </button>
     <p
-      class="sc-bZQynM kcSKIG"
+      class="sc-htoDjs kZmKMZ"
     >
       2
-       of
+       of 
       2
     </p>
   </nav>
@@ -2935,16 +1275,16 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
     class="sc-bxivhb iLYGRu"
   >
     <div
-      class="sc-ifAKCX btqGcd"
+      class="sc-ifAKCX iRMfbY"
     >
       <fieldset
-        class="sc-gzVnrw bWBSuf"
+        class="sc-dnqmqq hVhdBe"
       >
         <legend
-          class="sc-htoDjs hzplOQ"
+          class="sc-iwsKbI hOWdcU"
         >
           <div
-            class="sc-EHOje ibzhqJ"
+            class="sc-gzVnrw ivYVjF"
           >
             <h1>
               Senator
@@ -2954,21 +1294,21 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
                 Vote for 1.
               </strong>
                You have selected
-
+               
               1
               .
             </p>
           </div>
         </legend>
         <div
-          class="sc-dnqmqq fKsWGs"
+          class="sc-gZMcBi jCDHmN"
         >
           <label
-            class="sc-iwsKbI fclmOP"
+            class="sc-gqjmRU cMqTTj"
             for="chadHanging"
           >
             <input
-              class="visually-hidden sc-gZMcBi dTwosU"
+              class="visually-hidden sc-VigVT eKOPhG"
               disabled=""
               id="chadHanging"
               name="senator"
@@ -2989,11 +1329,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
             </div>
           </label>
           <label
-            class="sc-iwsKbI fclmOP"
+            class="sc-gqjmRU cMqTTj"
             for="levErmachine"
           >
             <input
-              class="visually-hidden sc-gZMcBi dTwosU"
+              class="visually-hidden sc-VigVT eKOPhG"
               disabled=""
               id="levErmachine"
               name="senator"
@@ -3014,12 +1354,12 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
             </div>
           </label>
           <label
-            class="sc-iwsKbI jjvgpi"
+            class="sc-gqjmRU gXbzMv"
             for="johnSmith"
           >
             <input
               autofocus=""
-              class="visually-hidden sc-gZMcBi dTwosU"
+              class="visually-hidden sc-VigVT eKOPhG"
               id="johnSmith"
               name="senator"
               type="checkbox"
@@ -3058,10 +1398,10 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
       Previous
     </button>
     <p
-      class="sc-bZQynM kcSKIG"
+      class="sc-htoDjs kZmKMZ"
     >
       2
-       of
+       of 
       2
     </p>
   </nav>

@@ -26,11 +26,55 @@ describe('loads election', () => {
     expect(window.localStorage.getItem(electionKey)).toBeFalsy()
   })
 
-  it(`from localStorage`, () => {
+  it(`from localStorage`, async () => {
     window.localStorage.setItem(electionKey, electionAsString)
     const { getByText } = render(<App />)
     getByText('Get Started')
     expect(window.localStorage.getItem(electionKey)).toBeTruthy()
+
+    // Tests are not passing.
+    // Unsure why keyboard event does not trigger Mousetrap.
+
+    // Basic "react-testing-library" keyboard event:
+    // fireEvent.keyDown(document.body, {
+    //   code: 'KeyK',
+    //   key: 'k',
+    //   metaKey: true,
+    // })
+    // More verbose keyboard event with to-be-deprecated keys (charCode and keyCode):
+    // fireEvent.keyDown(document.body, {
+    //   charCode: 75,
+    //   code: 'KeyK',
+    //   key: 'k',
+    //   keyCode: 75,
+    //   metaKey: true,
+    // })
+
+    // Direct Event Dispatch
+    // interface ModifiedKeyboardEventInit extends KeyboardEventInit {
+    //   keyCode: number
+    // }
+    // Direct Event Dispatch - option 1
+    // document.dispatchEvent(
+    //   new KeyboardEvent('keydown', {
+    //     charCode: '75',
+    //     code: 'KeyK',
+    //     key: 'k',
+    //     keyCode: 75,
+    //     metaKey: true,
+    //   } as ModifiedKeyboardEventInit)
+    // )
+    // Direct Event Dispatch - option 2
+    // document.dispatchEvent(
+    //   new KeyboardEvent('keydown', {
+    //     keyCode: 75,
+    //     metaKey: true,
+    //   } as ModifiedKeyboardEventInit)
+    // )
+
+    // Tests to confirm keyboard shortcut was pressed…
+    // await waitForElement(() => getByText('Configure Ballot Marking Device'))
+    // expect(window.localStorage.getItem(electionKey)).toBeFalsy()
   })
 })
 

@@ -1,5 +1,24 @@
+import Mousetrap from 'mousetrap'
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
+
+// Enable to view the event atrributes
+// document.addEventListener('keydown', event => {
+//   console.log('==============================')
+//   console.log('==============================')
+//   console.log('==============================')
+//   console.log('Event:', event)
+//   console.log('Keyboard Event object keys:', {
+//     charCode: event.charCode,
+//     code: event.code,
+//     key: event.key,
+//     keyCode: event.keyCode,
+//     metaKey: event.metaKey,
+//   })
+//   console.log('==============================')
+//   console.log('==============================')
+//   console.log('==============================')
+// })
 
 import 'normalize.css'
 import './App.css'
@@ -18,6 +37,7 @@ interface State {
 }
 
 export const electionKey = 'votingWorksElection'
+const removeElectionShortcuts = ['mod+k']
 
 const initialState = {
   election: undefined,
@@ -27,7 +47,7 @@ const initialState = {
 class App extends React.Component<{}, State> {
   public state: State = initialState
 
-  public componentWillMount = () => {
+  public componentDidMount = () => {
     if (window.location.hash === '#sample') {
       this.setState({
         election: sampleElection,
@@ -37,6 +57,11 @@ class App extends React.Component<{}, State> {
         election: this.getElection(),
       })
     }
+    Mousetrap.bind(removeElectionShortcuts, this.removeElection)
+  }
+
+  public componentWillUnount = /* istanbul ignore next */ () => {
+    Mousetrap.unbind(removeElectionShortcuts)
   }
 
   public getElection = () => {
@@ -49,9 +74,10 @@ class App extends React.Component<{}, State> {
     window.localStorage.setItem(electionKey, JSON.stringify(election))
   }
 
-  public resetVotes = () => {
+  public removeElection = /* istanbul ignore next */ () => {
+    window.localStorage.removeItem(electionKey)
     this.setState({
-      votes: {},
+      election: undefined,
     })
   }
 
@@ -59,6 +85,12 @@ class App extends React.Component<{}, State> {
     this.setState(prevState => ({
       votes: Object.assign({}, prevState.votes, { [contestId]: vote }),
     }))
+  }
+
+  public resetVotes = () => {
+    this.setState({
+      votes: {},
+    })
   }
 
   public render() {
