@@ -139,7 +139,7 @@ class UploadConfig extends React.Component<Props, State> {
           )}
         </Main>
         <Footer>
-          <Prose>
+          <Prose textCenter>
             <Text center small>
               <a href="/data/election.json">
                 Download sample <code>election.json</code> file

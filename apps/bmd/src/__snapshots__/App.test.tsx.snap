@@ -12,7 +12,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
   flex-direction: column;
 }
 
-.c8 {
+.c7 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -79,38 +79,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 }
 
 .c6 {
-  line-height: 1.3;
-  max-width: 66ch;
-}
-
-.c6 h1 {
-  margin: 2rem 0 1rem;
-}
-
-.c6 h2 {
-  margin: 1.5rem 0 1rem;
-}
-
-.c6 h3,
-.c6 p {
-  margin: 1rem 0;
-}
-
-.c6 h1 + p,
-.c6 h2 + p,
-.c6 h3 + p {
-  margin-top: -0.75rem;
-}
-
-.c6 > :first-child {
-  margin-top: 0;
-}
-
-.c6 > :last-child {
-  margin-bottom: 0;
-}
-
-.c7 {
   text-align: center;
   font-size: 0.8rem;
 }
@@ -188,10 +156,10 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
       class="c5"
     >
       <div
-        class="c6"
+        class="c4"
       >
         <p
-          class="c7"
+          class="c6"
         >
           <a
             href="/data/election.json"
@@ -206,7 +174,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
           to upload, or
            
           <button
-            class="c8"
+            class="c7"
             type="button"
           >
             Load Sample Election File
