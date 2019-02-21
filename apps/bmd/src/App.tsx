@@ -1,6 +1,7 @@
 import Mousetrap from 'mousetrap'
 import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
+import { BrowserRouter, Route } from 'react-router-dom'
 
 // Enable to view the event atrributes
 // document.addEventListener('keydown', event => {
@@ -44,7 +45,7 @@ const initialState = {
   votes: {},
 }
 
-class App extends React.Component<{}, State> {
+class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
 
   public componentDidMount = () => {
@@ -91,6 +92,7 @@ class App extends React.Component<{}, State> {
     this.setState({
       votes: {},
     })
+    this.props.history.push('/')
   }
 
   public render() {
@@ -107,13 +109,17 @@ class App extends React.Component<{}, State> {
             votes: this.state.votes,
           }}
         >
-          <BrowserRouter>
-            <Ballot />
-          </BrowserRouter>
+          <Ballot />
         </BallotContext.Provider>
       )
     }
   }
 }
 
-export default App
+const Root = () => (
+  <BrowserRouter>
+    <Route path="/" component={App} />
+  </BrowserRouter>
+)
+
+export default Root

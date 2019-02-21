@@ -18,13 +18,8 @@ const SettingsPage = (props: RouteComponentProps) => {
     setResetBallotAlert(false)
   }
   const requestNewBallot = () => {
-    Object.keys(votes).length === 0 ? startOver() : setResetBallotAlert(true)
+    Object.keys(votes).length === 0 ? resetVotes() : setResetBallotAlert(true)
   }
-  const startOver = () => {
-    resetVotes()
-    props.history.push('/')
-  }
-
   return (
     <>
       <Main>
@@ -55,7 +50,7 @@ const SettingsPage = (props: RouteComponentProps) => {
         }
         actions={
           <>
-            <Button danger onClick={startOver}>
+            <Button danger onClick={resetVotes}>
               Yes, Remove All Votes and Start Over
             </Button>
             <Button onClick={cancelResetBallot}>Cancel</Button>
