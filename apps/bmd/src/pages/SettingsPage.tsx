@@ -12,13 +12,13 @@ import Prose from '../components/Prose'
 import { Text } from '../components/Typography'
 
 const SettingsPage = (props: RouteComponentProps) => {
-  const { resetVotes, votes } = useContext(BallotContext)
+  const { resetBallot, votes } = useContext(BallotContext)
   const [showResetBallotAlert, setResetBallotAlert] = useState(false)
   const cancelResetBallot = () => {
     setResetBallotAlert(false)
   }
   const requestNewBallot = () => {
-    Object.keys(votes).length === 0 ? resetVotes() : setResetBallotAlert(true)
+    Object.keys(votes).length === 0 ? resetBallot() : setResetBallotAlert(true)
   }
   return (
     <>
@@ -50,7 +50,7 @@ const SettingsPage = (props: RouteComponentProps) => {
         }
         actions={
           <>
-            <Button danger onClick={resetVotes}>
+            <Button danger onClick={resetBallot}>
               Yes, Remove All Votes and Start Over
             </Button>
             <Button onClick={cancelResetBallot}>Cancel</Button>

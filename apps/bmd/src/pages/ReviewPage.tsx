@@ -35,10 +35,10 @@ class SummaryPage extends React.Component<RouteComponentProps> {
   public static contextType = BallotContext
   public state = { isAlert: false }
   public componentDidMount = () => {
-    window.addEventListener('afterprint', this.context.resetVotes)
+    window.addEventListener('afterprint', this.context.resetBallot)
   }
   public componentWillUnmount = () => {
-    window.removeEventListener('afterprint', this.context.resetVotes)
+    window.removeEventListener('afterprint', this.context.resetBallot)
   }
   public hideConfirm = () => {
     this.setState({ isAlert: false })

@@ -3,7 +3,7 @@ import { BallotContextInterface } from '../config/types'
 
 const ballot: BallotContextInterface = {
   contests: [],
-  resetVotes: () => undefined,
+  resetBallot: () => undefined,
   updateVote: (contestId, vote) => undefined,
   votes: {},
 }

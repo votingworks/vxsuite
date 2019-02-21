@@ -30,7 +30,7 @@ export type OptionalElection = Election | undefined
 export type UpdateVoteFunction = (contestId: string, vote: Vote) => void
 export interface BallotContextInterface {
   readonly contests: Contest[]
-  resetVotes: () => void
+  resetBallot: () => void
   updateVote: UpdateVoteFunction
   votes: VoteDict
 }

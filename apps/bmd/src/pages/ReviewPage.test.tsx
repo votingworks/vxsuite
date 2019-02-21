@@ -31,11 +31,11 @@ fit(`renders SummaryPage with votes`, () => {
 })
 
 it(`SummaryPage without votes is accessible`, async () => {
-  const resetVotes = jest.fn()
+  const resetBallot = jest.fn()
   const { container } = render(
     <Route path="/review" component={SummaryPage} />,
     {
-      resetVotes,
+      resetBallot,
       route: '/review',
     }
   )
@@ -43,11 +43,11 @@ it(`SummaryPage without votes is accessible`, async () => {
 })
 
 it(`SummaryPage with votes is accessible`, async () => {
-  const resetVotes = jest.fn()
+  const resetBallot = jest.fn()
   const { container } = render(
     <Route path="/review" component={SummaryPage} />,
     {
-      resetVotes,
+      resetBallot,
       route: '/review',
       votes: {
         president: 'minnieMouse',

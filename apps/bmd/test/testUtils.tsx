@@ -12,7 +12,7 @@ export function render(
   {
     route = '/',
     history = createMemoryHistory({ initialEntries: [route] }),
-    resetVotes = jest.fn(),
+    resetBallot = jest.fn(),
     updateVote = jest.fn(),
     votes = {},
   } = {}
@@ -22,7 +22,7 @@ export function render(
       <BallotContext.Provider
         value={{
           contests: election.contests,
-          resetVotes,
+          resetBallot,
           updateVote,
           votes,
         }}

@@ -88,7 +88,7 @@ class App extends React.Component<RouteComponentProps, State> {
     }))
   }
 
-  public resetVotes = () => {
+  public resetBallot = () => {
     this.setState({
       votes: {},
     })
@@ -104,7 +104,7 @@ class App extends React.Component<RouteComponentProps, State> {
         <BallotContext.Provider
           value={{
             contests,
-            resetVotes: this.resetVotes,
+            resetBallot: this.resetBallot,
             updateVote: this.updateVote,
             votes: this.state.votes,
           }}
