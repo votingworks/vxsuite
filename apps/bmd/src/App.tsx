@@ -58,7 +58,7 @@ class App extends React.Component<RouteComponentProps, State> {
         election: this.getElection(),
       })
     }
-    Mousetrap.bind(removeElectionShortcuts, this.removeElection)
+    Mousetrap.bind(removeElectionShortcuts, this.reset)
   }
 
   public componentWillUnount = /* istanbul ignore next */ () => {
@@ -75,11 +75,9 @@ class App extends React.Component<RouteComponentProps, State> {
     window.localStorage.setItem(electionKey, JSON.stringify(election))
   }
 
-  public removeElection = /* istanbul ignore next */ () => {
+  public reset = /* istanbul ignore next */ () => {
+    this.setState(initialState)
     window.localStorage.removeItem(electionKey)
-    this.setState({
-      election: undefined,
-    })
   }
 
   public updateVote = (contestId: string, vote: Vote) => {
