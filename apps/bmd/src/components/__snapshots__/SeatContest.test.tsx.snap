@@ -142,14 +142,14 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
     >
       <label
         class="c4"
-        for="minnieMouse"
+        for="Minnie Mouse"
       >
         <input
           class="visually-hidden c5"
-          id="minnieMouse"
+          id="Minnie Mouse"
           name="president"
           type="checkbox"
-          value="minnieMouse"
+          value="Minnie Mouse"
         />
         <div
           class="candidate-name"
@@ -166,14 +166,14 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
       </label>
       <label
         class="c4"
-        for="mickeyMouse"
+        for="Mickey Mouse"
       >
         <input
           class="visually-hidden c5"
-          id="mickeyMouse"
+          id="Mickey Mouse"
           name="president"
           type="checkbox"
-          value="mickeyMouse"
+          value="Mickey Mouse"
         />
         <div
           class="candidate-name"
@@ -190,14 +190,14 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
       </label>
       <label
         class="c4"
-        for="donaldDuck"
+        for="Donald Duck"
       >
         <input
           class="visually-hidden c5"
-          id="donaldDuck"
+          id="Donald Duck"
           name="president"
           type="checkbox"
-          value="donaldDuck"
+          value="Donald Duck"
         />
         <div
           class="candidate-name"
@@ -420,15 +420,15 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
     >
       <label
         class="c4"
-        for="minnieMouse"
+        for="Minnie Mouse"
       >
         <input
           checked=""
           class="visually-hidden c5"
-          id="minnieMouse"
+          id="Minnie Mouse"
           name="president"
           type="checkbox"
-          value="minnieMouse"
+          value="Minnie Mouse"
         />
         <div
           class="candidate-name"
@@ -445,15 +445,15 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
       </label>
       <label
         class="c6"
-        for="mickeyMouse"
+        for="Mickey Mouse"
       >
         <input
           class="visually-hidden c5"
           disabled=""
-          id="mickeyMouse"
+          id="Mickey Mouse"
           name="president"
           type="checkbox"
-          value="mickeyMouse"
+          value="Mickey Mouse"
         />
         <div
           class="candidate-name"
@@ -470,15 +470,15 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
       </label>
       <label
         class="c6"
-        for="donaldDuck"
+        for="Donald Duck"
       >
         <input
           class="visually-hidden c5"
           disabled=""
-          id="donaldDuck"
+          id="Donald Duck"
           name="president"
           type="checkbox"
-          value="donaldDuck"
+          value="Donald Duck"
         />
         <div
           class="candidate-name"

@@ -304,14 +304,14 @@ exports[`can navigate all ballot pages 2`] = `
         >
           <label
             class="c6"
-            for="minnieMouse"
+            for="Minnie Mouse"
           >
             <input
               class="visually-hidden c7"
-              id="minnieMouse"
+              id="Minnie Mouse"
               name="president"
               type="checkbox"
-              value="minnieMouse"
+              value="Minnie Mouse"
             />
             <div
               class="candidate-name"
@@ -328,14 +328,14 @@ exports[`can navigate all ballot pages 2`] = `
           </label>
           <label
             class="c6"
-            for="mickeyMouse"
+            for="Mickey Mouse"
           >
             <input
               class="visually-hidden c7"
-              id="mickeyMouse"
+              id="Mickey Mouse"
               name="president"
               type="checkbox"
-              value="mickeyMouse"
+              value="Mickey Mouse"
             />
             <div
               class="candidate-name"
@@ -352,14 +352,14 @@ exports[`can navigate all ballot pages 2`] = `
           </label>
           <label
             class="c6"
-            for="donaldDuck"
+            for="Donald Duck"
           >
             <input
               class="visually-hidden c7"
-              id="donaldDuck"
+              id="Donald Duck"
               name="president"
               type="checkbox"
-              value="donaldDuck"
+              value="Donald Duck"
             />
             <div
               class="candidate-name"
@@ -635,14 +635,14 @@ exports[`can navigate all ballot pages 3`] = `
 
 <label
             class="c0"
-            for="chadHanging"
+            for="Chad Hanging"
           >
             <input
               class="visually-hidden c1"
-              id="chadHanging"
+              id="Chad Hanging"
               name="senator"
               type="checkbox"
-              value="chadHanging"
+              value="Chad Hanging"
             />
             <div
               class="candidate-name"
@@ -723,14 +723,14 @@ exports[`can navigate all ballot pages 3`] = `
 
 <label
             class="c0"
-            for="levErmachine"
+            for="Lev Ermachine"
           >
             <input
               class="visually-hidden c1"
-              id="levErmachine"
+              id="Lev Ermachine"
               name="senator"
               type="checkbox"
-              value="levErmachine"
+              value="Lev Ermachine"
             />
             <div
               class="candidate-name"
@@ -811,14 +811,14 @@ exports[`can navigate all ballot pages 3`] = `
 
 <label
             class="c0"
-            for="johnSmith"
+            for="John Smith"
           >
             <input
               class="visually-hidden c1"
-              id="johnSmith"
+              id="John Smith"
               name="senator"
               type="checkbox"
-              value="johnSmith"
+              value="John Smith"
             />
             <div
               class="candidate-name"
@@ -1685,14 +1685,14 @@ exports[`can navigate all ballot pages 7`] = `
         >
           <label
             class="c6"
-            for="chadHanging"
+            for="Chad Hanging"
           >
             <input
               class="visually-hidden c7"
-              id="chadHanging"
+              id="Chad Hanging"
               name="senator"
               type="checkbox"
-              value="chadHanging"
+              value="Chad Hanging"
             />
             <div
               class="candidate-name"
@@ -1709,14 +1709,14 @@ exports[`can navigate all ballot pages 7`] = `
           </label>
           <label
             class="c6"
-            for="levErmachine"
+            for="Lev Ermachine"
           >
             <input
               class="visually-hidden c7"
-              id="levErmachine"
+              id="Lev Ermachine"
               name="senator"
               type="checkbox"
-              value="levErmachine"
+              value="Lev Ermachine"
             />
             <div
               class="candidate-name"
@@ -1733,14 +1733,14 @@ exports[`can navigate all ballot pages 7`] = `
           </label>
           <label
             class="c6"
-            for="johnSmith"
+            for="John Smith"
           >
             <input
               class="visually-hidden c7"
-              id="johnSmith"
+              id="John Smith"
               name="senator"
               type="checkbox"
-              value="johnSmith"
+              value="John Smith"
             />
             <div
               class="candidate-name"
@@ -2200,14 +2200,14 @@ exports[`redirects contests index to first contest 1`] = `
         >
           <label
             class="c7"
-            for="minnieMouse"
+            for="Minnie Mouse"
           >
             <input
               class="visually-hidden c8"
-              id="minnieMouse"
+              id="Minnie Mouse"
               name="president"
               type="checkbox"
-              value="minnieMouse"
+              value="Minnie Mouse"
             />
             <div
               class="candidate-name"
@@ -2224,14 +2224,14 @@ exports[`redirects contests index to first contest 1`] = `
           </label>
           <label
             class="c7"
-            for="mickeyMouse"
+            for="Mickey Mouse"
           >
             <input
               class="visually-hidden c8"
-              id="mickeyMouse"
+              id="Mickey Mouse"
               name="president"
               type="checkbox"
-              value="mickeyMouse"
+              value="Mickey Mouse"
             />
             <div
               class="candidate-name"
@@ -2248,14 +2248,14 @@ exports[`redirects contests index to first contest 1`] = `
           </label>
           <label
             class="c7"
-            for="donaldDuck"
+            for="Donald Duck"
           >
             <input
               class="visually-hidden c8"
-              id="donaldDuck"
+              id="Donald Duck"
               name="president"
               type="checkbox"
-              value="donaldDuck"
+              value="Donald Duck"
             />
             <div
               class="candidate-name"

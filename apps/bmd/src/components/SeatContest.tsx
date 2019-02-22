@@ -114,7 +114,7 @@ class SeatContest extends React.Component<Props, State> {
     const { contest, vote } = this.props
     const { attemptedCandidateSelection } = this.state
     const selectedCandidate = contest.candidates.find(
-      candidate => candidate.id === vote
+      candidate => candidate.name === vote
     )
     return (
       <React.Fragment>
@@ -130,7 +130,7 @@ class SeatContest extends React.Component<Props, State> {
           </Legend>
           <Choices>
             {contest.candidates.map((candidate, index) => {
-              const isChecked = candidate.id === vote
+              const isChecked = candidate.name === vote
               const handleDisabledClick = () => {
                 if (vote && !isChecked) {
                   this.handleChangeVoteAlert(candidate.name)
@@ -138,16 +138,16 @@ class SeatContest extends React.Component<Props, State> {
               }
               return (
                 <Choice
-                  key={candidate.id}
-                  htmlFor={candidate.id}
+                  key={candidate.name}
+                  htmlFor={candidate.name}
                   isSelected={isChecked}
                   onClick={handleDisabledClick}
                 >
                   <ChoiceInput
                     autoFocus={isChecked || (index === 0 && !vote)}
-                    id={candidate.id}
+                    id={candidate.name}
                     name={contest.id}
-                    value={candidate.id}
+                    value={candidate.name}
                     onChange={this.updateSelection}
                     checked={isChecked}
                     disabled={!!vote && !isChecked}
@@ -168,7 +168,7 @@ class SeatContest extends React.Component<Props, State> {
             <Prose>
               <Text>
                 To vote for {attemptedCandidateSelection}, first uncheck the
-                vote for {selectedCandidate && selectedCandidate.name}.
+                vote for {vote}.
               </Text>
             </Prose>
           }

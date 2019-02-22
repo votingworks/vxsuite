@@ -493,14 +493,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
         >
           <label
             class="c6"
-            for="minnieMouse"
+            for="Minnie Mouse"
           >
             <input
               class="visually-hidden c7"
-              id="minnieMouse"
+              id="Minnie Mouse"
               name="president"
               type="checkbox"
-              value="minnieMouse"
+              value="Minnie Mouse"
             />
             <div
               class="candidate-name"
@@ -517,14 +517,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
           </label>
           <label
             class="c6"
-            for="mickeyMouse"
+            for="Mickey Mouse"
           >
             <input
               class="visually-hidden c7"
-              id="mickeyMouse"
+              id="Mickey Mouse"
               name="president"
               type="checkbox"
-              value="mickeyMouse"
+              value="Mickey Mouse"
             />
             <div
               class="candidate-name"
@@ -541,14 +541,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
           </label>
           <label
             class="c6"
-            for="donaldDuck"
+            for="Donald Duck"
           >
             <input
               class="visually-hidden c7"
-              id="donaldDuck"
+              id="Donald Duck"
               name="president"
               type="checkbox"
-              value="donaldDuck"
+              value="Donald Duck"
             />
             <div
               class="candidate-name"
@@ -760,14 +760,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
         >
           <label
             class="sc-gqjmRU gXbzMv"
-            for="minnieMouse"
+            for="Minnie Mouse"
           >
             <input
               class="visually-hidden sc-VigVT eKOPhG"
-              id="minnieMouse"
+              id="Minnie Mouse"
               name="president"
               type="checkbox"
-              value="minnieMouse"
+              value="Minnie Mouse"
             />
             <div
               class="candidate-name"
@@ -784,15 +784,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
           </label>
           <label
             class="sc-gqjmRU cMqTTj"
-            for="mickeyMouse"
+            for="Mickey Mouse"
           >
             <input
               class="visually-hidden sc-VigVT eKOPhG"
               disabled=""
-              id="mickeyMouse"
+              id="Mickey Mouse"
               name="president"
               type="checkbox"
-              value="mickeyMouse"
+              value="Mickey Mouse"
             />
             <div
               class="candidate-name"
@@ -809,15 +809,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
           </label>
           <label
             class="sc-gqjmRU cMqTTj"
-            for="donaldDuck"
+            for="Donald Duck"
           >
             <input
               class="visually-hidden sc-VigVT eKOPhG"
               disabled=""
-              id="donaldDuck"
+              id="Donald Duck"
               name="president"
               type="checkbox"
-              value="donaldDuck"
+              value="Donald Duck"
             />
             <div
               class="candidate-name"
@@ -987,14 +987,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 
 <label
             class="c0"
-            for="chadHanging"
+            for="Chad Hanging"
           >
             <input
               class="visually-hidden c1"
-              id="chadHanging"
+              id="Chad Hanging"
               name="senator"
               type="checkbox"
-              value="chadHanging"
+              value="Chad Hanging"
             />
             <div
               class="candidate-name"
@@ -1075,14 +1075,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 
 <label
             class="c0"
-            for="levErmachine"
+            for="Lev Ermachine"
           >
             <input
               class="visually-hidden c1"
-              id="levErmachine"
+              id="Lev Ermachine"
               name="senator"
               type="checkbox"
-              value="levErmachine"
+              value="Lev Ermachine"
             />
             <div
               class="candidate-name"
@@ -1163,14 +1163,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 
 <label
             class="c0"
-            for="johnSmith"
+            for="John Smith"
           >
             <input
               class="visually-hidden c1"
-              id="johnSmith"
+              id="John Smith"
               name="senator"
               type="checkbox"
-              value="johnSmith"
+              value="John Smith"
             />
             <div
               class="candidate-name"
@@ -1276,15 +1276,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
         >
           <label
             class="sc-gqjmRU cMqTTj"
-            for="chadHanging"
+            for="Chad Hanging"
           >
             <input
               class="visually-hidden sc-VigVT eKOPhG"
               disabled=""
-              id="chadHanging"
+              id="Chad Hanging"
               name="senator"
               type="checkbox"
-              value="chadHanging"
+              value="Chad Hanging"
             />
             <div
               class="candidate-name"
@@ -1301,15 +1301,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
           </label>
           <label
             class="sc-gqjmRU cMqTTj"
-            for="levErmachine"
+            for="Lev Ermachine"
           >
             <input
               class="visually-hidden sc-VigVT eKOPhG"
               disabled=""
-              id="levErmachine"
+              id="Lev Ermachine"
               name="senator"
               type="checkbox"
-              value="levErmachine"
+              value="Lev Ermachine"
             />
             <div
               class="candidate-name"
@@ -1326,15 +1326,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
           </label>
           <label
             class="sc-gqjmRU gXbzMv"
-            for="johnSmith"
+            for="John Smith"
           >
             <input
               autofocus=""
               class="visually-hidden sc-VigVT eKOPhG"
-              id="johnSmith"
+              id="John Smith"
               name="senator"
               type="checkbox"
-              value="johnSmith"
+              value="John Smith"
             />
             <div
               class="candidate-name"

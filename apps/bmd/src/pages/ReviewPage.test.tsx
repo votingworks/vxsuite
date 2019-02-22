@@ -22,8 +22,8 @@ fit(`renders SummaryPage with votes`, () => {
     {
       route: '/review',
       votes: {
-        president: 'minnieMouse',
-        senator: 'johnSmith',
+        president: 'Minnie Mouse',
+        senator: 'John Smith',
       },
     }
   )
@@ -50,8 +50,8 @@ it(`SummaryPage with votes is accessible`, async () => {
       resetBallot,
       route: '/review',
       votes: {
-        president: 'minnieMouse',
-        senator: 'johnSmith',
+        president: 'Minnie Mouse',
+        senator: 'John Smith',
       },
     }
   )

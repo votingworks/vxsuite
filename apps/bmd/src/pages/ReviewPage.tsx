@@ -78,12 +78,8 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                 <BallotContext.Consumer>
                   {({ contests, votes }) =>
                     contests.map(contest => {
-                      const candidate = contest.candidates.find(
-                        c => c.id === votes[contest.id]
-                      )
-                      const vote = candidate ? (
-                        candidate.name
-                      ) : (
+                      const candidateName = votes[contest.id]
+                      const vote = candidateName || (
                         <Text as="span" muted>
                           no selection
                         </Text>

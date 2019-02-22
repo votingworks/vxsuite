@@ -10,7 +10,7 @@ export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
 // Election
-export type Vote = string | string[] | undefined
+export type Vote = string | undefined
 export type VoteDict = Dictionary<Vote>
 export interface Candidate {
   readonly id: string

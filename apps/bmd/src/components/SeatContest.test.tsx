@@ -37,7 +37,7 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
   const { container, getByText } = render(
     <SeatContest
       contest={election.contests[0]}
-      vote={'minnieMouse'}
+      vote={'Minnie Mouse'}
       updateVote={updateVote}
     />
   )
@@ -100,7 +100,7 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
 //   const { container } = render(
 //     <SeatContest
 //       contest={election.contests[0]}
-//       vote={'minnieMouse'}
+//       vote={'Minnie Mouse'}
 //       updateVote={updateVote}
 //     />
 //   )
