@@ -2,6 +2,9 @@ import React from 'react'
 import styled from 'styled-components'
 import { Contest, InputEvent, UpdateVoteFunction, Vote } from '../config/types'
 
+import Keyboard from 'react-simple-keyboard'
+import 'react-simple-keyboard/build/css/index.css'
+
 import Button from './Button'
 import Modal from './Modal'
 import Prose from './Prose'
@@ -63,14 +66,36 @@ const Choice = styled('label')<{ isSelected: boolean }>`
   & > div:first-of-type {
     padding-left: 4rem;
   }
-  // & .candidate-party {
-  //   text-align: right;
-  // }
+  & .write-in-candidate-name {
+    grid-column: span 2;
+  }
 `
 const ChoiceInput = styled.input.attrs({
   type: 'checkbox',
 })`
   margin-right: 0.5rem;
+`
+
+const WriteInCandidateForm = styled.div`
+  background-color: lightgrey;
+  margin: 1rem 0 -1rem;
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+`
+
+const WriteInCandidateFieldSet = styled.fieldset`
+  margin: 0.5rem 0.5rem 1rem;
+`
+
+const WriteInCandidateInput = styled.input.attrs({
+  readOnly: true,
+  type: 'text',
+})`
+  width: 100%;
+  outline: none;
+  box-shadow: 0 0 3px -1px rgba(0, 0, 0, 0.3);
+  border: 1px solid darkgrey;
+  padding: 0.25rem 0.35rem;
 `
 
 interface Props {
@@ -80,42 +105,133 @@ interface Props {
 }
 
 interface State {
-  attemptedCandidateSelection: string
+  attemptedVoteCandidateName: string
+  writeInCandateModalIsOpen: boolean
+  writeInCandidateName: string
+  layoutName: string
 }
 
 const initialState = {
-  attemptedCandidateSelection: '',
+  attemptedVoteCandidateName: '',
+  layoutName: 'default',
+  writeInCandateModalIsOpen: false,
+  writeInCandidateName: '',
 }
 
 class SeatContest extends React.Component<Props, State> {
-  public state: State = initialState
+  private keyboard: React.RefObject<Keyboard>
+  constructor(props: Props) {
+    super(props)
+    let writeInCandidateName = ''
+    if (typeof props.vote === 'string') {
+      writeInCandidateName =
+        !!props.vote &&
+        props.contest.candidates
+          .map(candidate => candidate.name)
+          .includes(props.vote)
+          ? ''
+          : props.vote
+    }
+    this.state = {
+      ...initialState,
+      writeInCandidateName,
+    }
+    this.keyboard = React.createRef()
+  }
 
-  public updateSelection = (event: InputEvent) => {
+  public selectCandidate = (selection: string) => {
+    this.props.updateVote(this.props.contest.id, selection || '')
+  }
+
+  public handleUpdateSelection = (event: InputEvent) => {
     const target = event.target as HTMLInputElement
-    this.props.updateVote(
-      this.props.contest.id,
-      target.value === this.props.vote ? '' : target.value
+    const targetIsSelected = target.value === this.props.vote
+    this.selectCandidate(targetIsSelected ? '' : target.value)
+  }
+
+  public handleChangeVoteAlert = (attemptedVoteCandidateName: string) => {
+    this.setState({ attemptedVoteCandidateName })
+  }
+
+  public closeAttemptedVoteAlert = () => {
+    this.setState({ attemptedVoteCandidateName: '' })
+  }
+
+  public handleSelectWriteInCandidate = () => {
+    if (
+      !!this.props.vote &&
+      this.props.vote === this.state.writeInCandidateName
+    ) {
+      this.selectCandidate('')
+    } else {
+      this.toggleWriteInCandidateModal(true)
+    }
+  }
+  public handleWriteInCandidateDisabledClick = () => {
+    if (
+      !!this.props.vote &&
+      this.props.vote !== this.state.writeInCandidateName
+    ) {
+      this.handleChangeVoteAlert(
+        this.state.writeInCandidateName || 'a write-in candidate'
+      )
+    }
+  }
+  public normalizeName = (name: string) =>
+    name
+      .trim()
+      .replace(/\t+/g, ' ')
+      .replace(/\s+/g, ' ')
+  public selectWriteInCandidate = () => {
+    const writeInCandidateName = this.normalizeName(
+      this.state.writeInCandidateName
     )
+    this.setState({ writeInCandidateName })
+    this.selectCandidate(writeInCandidateName)
+    this.toggleWriteInCandidateModal(false)
+  }
+  public closeWriteInCandidateModal = () => {
+    const writeInCandidateName = this.normalizeName(
+      this.state.writeInCandidateName
+    )
+    if (writeInCandidateName.length === 0) {
+      this.setState({ writeInCandidateName })
+    } else {
+      this.selectCandidate(writeInCandidateName)
+    }
+    this.toggleWriteInCandidateModal(false)
+  }
+  public toggleWriteInCandidateModal = (writeInCandateModalIsOpen: boolean) => {
+    this.setState({ writeInCandateModalIsOpen })
   }
 
-  public handleChangeVoteAlert = (attemptedCandidateSelection: string) => {
-    this.setState({ attemptedCandidateSelection })
+  public setKeyboardInput = () => {
+    this.keyboard.current!.setInput!(this.state.writeInCandidateName)
   }
 
-  public closeAlert = () => {
-    this.setState({ attemptedCandidateSelection: '' })
+  public onKeyboardInputChange = (writeInCandidateName: string) => {
+    this.setState({ writeInCandidateName })
   }
 
-  // TODO:
-  // - confirm intent when navigating away without selecting a candidate
-  // - confirm intent when changing candidate
+  public onKeyboardKeyPress = (button: string) => {
+    if (button === '{shift}' || button === '{lock}') {
+      this.handleKeyboardShiftKey()
+    }
+  }
+
+  public handleKeyboardShiftKey = () => {
+    const layoutName = this.state.layoutName
+
+    this.setState({
+      layoutName: layoutName === 'default' ? 'shift' : 'default',
+    })
+  }
 
   public render() {
     const { contest, vote } = this.props
-    const { attemptedCandidateSelection } = this.state
-    const selectedCandidate = contest.candidates.find(
-      candidate => candidate.name === vote
-    )
+    const { attemptedVoteCandidateName } = this.state
+    const writeInCandidateIsChecked =
+      !!vote && vote === this.state.writeInCandidateName
     return (
       <React.Fragment>
         <FieldSet>
@@ -148,34 +264,116 @@ class SeatContest extends React.Component<Props, State> {
                     id={candidate.name}
                     name={contest.id}
                     value={candidate.name}
-                    onChange={this.updateSelection}
+                    onChange={this.handleUpdateSelection}
                     checked={isChecked}
                     disabled={!!vote && !isChecked}
                     className="visually-hidden"
                   />
-                  <div className="candidate-name">
+                  <div>
                     <strong>{candidate.name}</strong>
                   </div>
-                  <div className="candidate-party">{candidate.party}</div>
+                  <div>{candidate.party}</div>
                 </Choice>
               )
             })}
+            <Choice
+              htmlFor="writeInCandidate"
+              isSelected={writeInCandidateIsChecked}
+              onClick={this.handleWriteInCandidateDisabledClick}
+            >
+              <ChoiceInput
+                autoFocus={writeInCandidateIsChecked}
+                id="writeInCandidate"
+                name={contest.id}
+                value="writeInCandidate"
+                onChange={this.handleSelectWriteInCandidate}
+                checked={writeInCandidateIsChecked}
+                disabled={!!vote && !writeInCandidateIsChecked}
+                className="visually-hidden"
+              />
+              <div className="write-in-candidate-name">
+                {!!this.state.writeInCandidateName ? (
+                  <strong>{this.state.writeInCandidateName}</strong>
+                ) : (
+                  <em>add a write-in candidate</em>
+                )}
+              </div>
+            </Choice>
           </Choices>
         </FieldSet>
         <Modal
-          isOpen={!!attemptedCandidateSelection}
+          isOpen={!!attemptedVoteCandidateName}
           content={
             <Prose>
               <Text>
-                To vote for {attemptedCandidateSelection}, first uncheck the
-                vote for {vote}.
+                To vote for {attemptedVoteCandidateName}, first uncheck the vote
+                for {vote}.
               </Text>
             </Prose>
           }
           actions={
-            <Button primary autoFocus onClick={this.closeAlert}>
+            <Button primary autoFocus onClick={this.closeAttemptedVoteAlert}>
               Okay
             </Button>
+          }
+        />
+        <Modal
+          isOpen={this.state.writeInCandateModalIsOpen}
+          onAfterOpen={this.setKeyboardInput}
+          content={
+            <div>
+              <Prose>
+                <h2>Write-In Candidate</h2>
+                <Text>
+                  Use this screen to vote for a person who is{' '}
+                  <strong>not</strong> on the ballot.
+                </Text>
+              </Prose>
+              <WriteInCandidateForm>
+                <WriteInCandidateFieldSet>
+                  <legend>
+                    <label htmlFor="WriteInCandidateName">
+                      <Prose>
+                        <Text bold small>
+                          Write-In Candidate Name for {contest.title}
+                        </Text>
+                      </Prose>
+                    </label>
+                  </legend>
+                  <WriteInCandidateInput
+                    id="WriteInCandidateName"
+                    value={this.state.writeInCandidateName}
+                    placeholder="Use the keyboard to enter a candidate name"
+                  />
+                </WriteInCandidateFieldSet>
+                <Keyboard
+                  ref={this.keyboard}
+                  layoutName={this.state.layoutName}
+                  theme={'hg-theme-default vs-simple-keyboard'}
+                  onChange={this.onKeyboardInputChange}
+                  onKeyPress={this.onKeyboardKeyPress}
+                  useButtonTag
+                />
+              </WriteInCandidateForm>
+            </div>
+          }
+          actions={
+            <>
+              <Button
+                primary={
+                  this.normalizeName(this.state.writeInCandidateName).length > 0
+                }
+                autoFocus
+                onClick={this.selectWriteInCandidate}
+                disabled={
+                  this.normalizeName(this.state.writeInCandidateName).length ===
+                  0
+                }
+              >
+                Accept
+              </Button>
+              <Button onClick={this.closeWriteInCandidateModal}>Close</Button>
+            </>
           }
         />
       </React.Fragment>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { SyntheticEvent } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -27,6 +27,7 @@ interface TableCellProps {
 const TableCell = styled.td`
   width: 50%;
   padding: 0.5rem 0.25rem;
+  font-weight: normal;
   border-top: ${({ border = false }: TableCellProps) =>
     border ? '1px solid lightGrey' : 'none'};
 `
@@ -67,10 +68,10 @@ class SummaryPage extends React.Component<RouteComponentProps> {
               <thead className="no-print">
                 <tr>
                   <TableCell as="th" scope="col">
-                    Contest
+                    <small>Contest</small>
                   </TableCell>
                   <TableCell as="th" scope="col">
-                    Vote
+                    <small>Vote</small>
                   </TableCell>
                 </tr>
               </thead>
@@ -79,20 +80,33 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                   {({ contests, votes }) =>
                     contests.map(contest => {
                       const candidateName = votes[contest.id]
-                      const vote = candidateName || (
+                      const vote = candidateName ? (
+                        <strong>{candidateName}</strong>
+                      ) : (
                         <Text as="span" muted>
                           no selection
                         </Text>
                       )
+                      const onClick = () => {
+                        this.props.history.push(`/contests/${contest.id}`)
+                      }
+                      const onClickLink = (event: SyntheticEvent) => {
+                        event.preventDefault()
+                      }
                       return (
-                        <tr key={contest.id}>
+                        <tr key={contest.id} onClick={onClick}>
                           <TableCell as="th" border>
                             {contest.title}{' '}
                           </TableCell>
                           <TableCell border>
                             {vote}{' '}
                             <small className="no-print">
-                              <Link to={`/contests/${contest.id}`}>change</Link>
+                              <Link
+                                to={`/contests/${contest.id}`}
+                                onClick={onClickLink}
+                              >
+                                change
+                              </Link>
                             </small>
                           </TableCell>
                         </tr>

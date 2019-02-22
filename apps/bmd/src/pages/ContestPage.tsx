@@ -24,6 +24,9 @@ const ContestPage = (props: Props) => {
   const nextContest = contests[currentContestIndex + 1]
   const vote = contest && votes[contest.id]
 
+  // TODO:
+  // - confirm intent when navigating away without selecting a candidate
+
   return (
     <React.Fragment>
       <Main>
@@ -31,6 +34,7 @@ const ContestPage = (props: Props) => {
           {contest ? (
             contest.type === 'plurality' && (
               <SeatContest
+                key={contest.id}
                 contest={contest}
                 vote={vote}
                 updateVote={updateVote}

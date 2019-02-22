@@ -50,7 +50,7 @@ exports[`renders LinkButton with onClick and disabled props 1`] = `
   border: none;
   border-radius: 0.25rem;
   padding: 0.4rem 0.7rem;
-  color: black;
+  color: darkgrey;
   line-height: 1;
   white-space: nowrap;
 }

@@ -6,6 +6,7 @@ interface Attrs extends HTMLButtonElement {
 
 interface Props {
   readonly danger?: boolean
+  readonly disabled?: boolean
   readonly primary?: boolean
 }
 
@@ -19,8 +20,11 @@ const Button = styled('button').attrs((props: Attrs) => ({
   border: none;
   border-radius: 0.25rem;
   padding: 0.4rem 0.7rem;
-  color: ${({ danger = false, primary = false }: Props) =>
-    (danger && 'white') || (primary && 'white') || 'black'};
+  color: ${({ disabled = false, danger = false, primary = false }: Props) =>
+    (disabled && 'darkgrey') ||
+    (danger && 'white') ||
+    (primary && 'white') ||
+    'black'};
   line-height: 1;
   white-space: nowrap;
 `

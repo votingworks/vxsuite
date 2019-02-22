@@ -126,6 +126,13 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   expect(container.firstChild).toMatchSnapshot()
   getByText('To vote for Chad Hanging, first uncheck the vote for John Smith.')
   fireEvent.click(getByText('Okay'))
+  fireEvent.click(getByText('add a write-in candidate').closest(
+    'label'
+  ) as HTMLElement)
+  getByText(
+    'To vote for a write-in candidate, first uncheck the vote for John Smith.'
+  )
+  fireEvent.click(getByText('Okay'))
   expect(
     ((getByText('John Smith').closest('label') as HTMLElement).querySelector(
       'input'
@@ -134,6 +141,38 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getByText('Review'))
   expect(container.firstChild).toMatchSnapshot()
 
+  fireEvent.click(getByText('John Smith'))
+  getByText('Senator')
+
+  fireEvent.click(getByText('Review'))
+  getByText('Official Ballot')
+
+  fireEvent.click(getByText('change'))
+  getByText('President')
+
+  fireEvent.click(getByText('Minnie Mouse').closest('label') as HTMLElement)
+  fireEvent.click(getByText('add a write-in candidate').closest(
+    'label'
+  ) as HTMLElement)
+  fireEvent.click(getByText('Close'))
+  fireEvent.click(getByText('add a write-in candidate').closest(
+    'label'
+  ) as HTMLElement)
+  fireEvent.click(getByText('shift').closest('button') as HTMLElement)
+  fireEvent.click(getByText('B').closest('button') as HTMLElement)
+  fireEvent.click(getByText('shift').closest('button') as HTMLElement)
+  fireEvent.click(getByText('o').closest('button') as HTMLElement)
+  fireEvent.click(getByText('b').closest('button') as HTMLElement)
+  fireEvent.click(getByText('Accept'))
+  fireEvent.click(getByText('Bob').closest('label') as HTMLElement)
+  fireEvent.click(getByText('Bob').closest('label') as HTMLElement)
+  fireEvent.click(getByText('Close'))
+
+  fireEvent.click(getByText('Minnie Mouse').closest('label') as HTMLElement)
+  getByText('To vote for Minnie Mouse, first uncheck the vote for Bob.')
+  fireEvent.click(getByText('Okay'))
+
+  fireEvent.click(getByText('Review'))
   fireEvent.click(getByText('Print Ballot'))
   fireEvent.click(getByText('No. Go Back.'))
   fireEvent.click(getByText('Print Ballot'))

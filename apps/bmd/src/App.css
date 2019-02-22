@@ -1,11 +1,29 @@
 /* Reset */
+
 html {
+  box-sizing: border-box;
   user-select: none;
   line-height: 1;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
 }
 
 table {
   border-collapse: collapse;
+}
+
+fieldset {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+:link,
+:visited {
+  color: rgb(0, 0, 238);
 }
 
 /* Foundational */
@@ -49,4 +67,11 @@ html {
   .no-print {
     display: none;
   }
+}
+
+/* React Simple Keyboard */
+.simple-keyboard.hg-theme-default.vs-simple-keyboard {
+  background-color: lightgrey;
+  padding: 0;
+  border-radius: 0;
 }

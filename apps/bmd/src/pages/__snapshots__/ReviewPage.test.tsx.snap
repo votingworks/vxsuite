@@ -68,12 +68,14 @@ exports[`renders SummaryPage with votes 1`] = `
 .c5 {
   width: 50%;
   padding: 0.5rem 0.25rem;
+  font-weight: normal;
   border-top: none;
 }
 
 .c6 {
   width: 50%;
   padding: 0.5rem 0.25rem;
+  font-weight: normal;
   border-top: 1px solid lightGrey;
 }
 
@@ -127,13 +129,17 @@ exports[`renders SummaryPage with votes 1`] = `
             class="c5"
             scope="col"
           >
-            Contest
+            <small>
+              Contest
+            </small>
           </th>
           <th
             class="c5"
             scope="col"
           >
-            Vote
+            <small>
+              Vote
+            </small>
           </th>
         </tr>
       </thead>
@@ -148,7 +154,9 @@ exports[`renders SummaryPage with votes 1`] = `
           <td
             class="c6"
           >
-            Minnie Mouse
+            <strong>
+              Minnie Mouse
+            </strong>
              
             <small
               class="no-print"
@@ -171,7 +179,9 @@ exports[`renders SummaryPage with votes 1`] = `
           <td
             class="c6"
           >
-            John Smith
+            <strong>
+              John Smith
+            </strong>
              
             <small
               class="no-print"

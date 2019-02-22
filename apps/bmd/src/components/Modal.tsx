@@ -28,14 +28,15 @@ interface Props {
   ariaLabel?: string
   content?: ReactNode
   actions?: ReactNode
+  onAfterOpen?: () => void
 }
 
 const Modal: React.FC<Props> = ({
   actions,
-  children,
   content,
   ariaLabel = 'Alert Modal',
   isOpen,
+  onAfterOpen,
 }) => (
   <ReactModal
     appElement={document.getElementById('root') as HTMLElement}
@@ -45,6 +46,7 @@ const Modal: React.FC<Props> = ({
     portalClassName="modal-portal"
     className="modal-content"
     overlayClassName="modal-overlay"
+    onAfterOpen={onAfterOpen}
   >
     <ModalContent>{content}</ModalContent>
     <ModalActions>{actions}</ModalActions>

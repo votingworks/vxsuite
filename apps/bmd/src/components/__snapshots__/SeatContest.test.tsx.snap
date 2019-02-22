@@ -109,6 +109,10 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
   padding-left: 4rem;
 }
 
+.c4 .write-in-candidate-name {
+  grid-column: span 2;
+}
+
 .c5 {
   margin-right: 0.5rem;
 }
@@ -151,16 +155,12 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           type="checkbox"
           value="Minnie Mouse"
         />
-        <div
-          class="candidate-name"
-        >
+        <div>
           <strong>
             Minnie Mouse
           </strong>
         </div>
-        <div
-          class="candidate-party"
-        >
+        <div>
           Mouse
         </div>
       </label>
@@ -175,16 +175,12 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           type="checkbox"
           value="Mickey Mouse"
         />
-        <div
-          class="candidate-name"
-        >
+        <div>
           <strong>
             Mickey Mouse
           </strong>
         </div>
-        <div
-          class="candidate-party"
-        >
+        <div>
           Mouse
         </div>
       </label>
@@ -199,17 +195,32 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           type="checkbox"
           value="Donald Duck"
         />
-        <div
-          class="candidate-name"
-        >
+        <div>
           <strong>
             Donald Duck
           </strong>
         </div>
-        <div
-          class="candidate-party"
-        >
+        <div>
           Duck
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="writeInCandidate"
+      >
+        <input
+          class="visually-hidden c5"
+          id="writeInCandidate"
+          name="president"
+          type="checkbox"
+          value="writeInCandidate"
+        />
+        <div
+          class="write-in-candidate-name"
+        >
+          <em>
+            add a write-in candidate
+          </em>
         </div>
       </label>
     </div>
@@ -326,6 +337,10 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   padding-left: 4rem;
 }
 
+.c6 .write-in-candidate-name {
+  grid-column: span 2;
+}
+
 .c4 {
   position: relative;
   cursor: pointer;
@@ -387,6 +402,10 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   padding-left: 4rem;
 }
 
+.c4 .write-in-candidate-name {
+  grid-column: span 2;
+}
+
 .c5 {
   margin-right: 0.5rem;
 }
@@ -430,16 +449,12 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           type="checkbox"
           value="Minnie Mouse"
         />
-        <div
-          class="candidate-name"
-        >
+        <div>
           <strong>
             Minnie Mouse
           </strong>
         </div>
-        <div
-          class="candidate-party"
-        >
+        <div>
           Mouse
         </div>
       </label>
@@ -455,16 +470,12 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           type="checkbox"
           value="Mickey Mouse"
         />
-        <div
-          class="candidate-name"
-        >
+        <div>
           <strong>
             Mickey Mouse
           </strong>
         </div>
-        <div
-          class="candidate-party"
-        >
+        <div>
           Mouse
         </div>
       </label>
@@ -480,17 +491,33 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           type="checkbox"
           value="Donald Duck"
         />
-        <div
-          class="candidate-name"
-        >
+        <div>
           <strong>
             Donald Duck
           </strong>
         </div>
-        <div
-          class="candidate-party"
-        >
+        <div>
           Duck
+        </div>
+      </label>
+      <label
+        class="c6"
+        for="writeInCandidate"
+      >
+        <input
+          class="visually-hidden c5"
+          disabled=""
+          id="writeInCandidate"
+          name="president"
+          type="checkbox"
+          value="writeInCandidate"
+        />
+        <div
+          class="write-in-candidate-name"
+        >
+          <em>
+            add a write-in candidate
+          </em>
         </div>
       </label>
     </div>
