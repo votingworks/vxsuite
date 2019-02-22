@@ -12,7 +12,8 @@ exports[`renders HelpPage 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 2rem 1rem;
+  overflow: scroll;
+  padding: 2rem 1rem;
 }
 
 .c1 {
@@ -59,7 +60,7 @@ exports[`renders HelpPage 1`] = `
     -webkit-justify-content: flex-start;
     -ms-flex-pack: start;
     justify-content: flex-start;
-    margin: 0;
+    padding: 0;
   }
 }
 

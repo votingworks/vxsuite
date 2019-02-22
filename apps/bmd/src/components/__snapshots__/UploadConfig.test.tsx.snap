@@ -74,6 +74,7 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  overflow: scroll;
 }
 
 .c2 {
@@ -86,7 +87,7 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
     -webkit-justify-content: flex-start;
     -ms-flex-pack: start;
     justify-content: flex-start;
-    margin: 0;
+    padding: 0;
   }
 }
 
@@ -208,6 +209,7 @@ exports[`allows file to be uploaded via file input 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  overflow: scroll;
 }
 
 .c2 {
@@ -220,7 +222,7 @@ exports[`allows file to be uploaded via file input 1`] = `
     -webkit-justify-content: flex-start;
     -ms-flex-pack: start;
     justify-content: flex-start;
-    margin: 0;
+    padding: 0;
   }
 }
 

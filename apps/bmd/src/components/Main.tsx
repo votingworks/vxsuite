@@ -8,10 +8,11 @@ const Main = styled('main')<Props>`
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin: ${({ noMargin }: Props) => (noMargin ? undefined : '2rem 1rem')};
+  overflow: scroll;
+  padding: ${({ noMargin }: Props) => (noMargin ? undefined : '2rem 1rem')};
   @media print {
     justify-content: flex-start;
-    margin: 0;
+    padding: 0;
   }
 `
 
