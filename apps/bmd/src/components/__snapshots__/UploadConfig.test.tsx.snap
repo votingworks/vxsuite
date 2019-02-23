@@ -33,6 +33,10 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
   margin: 1rem 0;
 }
 
+.c3 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
 .c3 h1 + p,
 .c3 h2 + p,
 .c3 h3 + p {
@@ -166,6 +170,10 @@ exports[`allows file to be uploaded via file input 1`] = `
 .c3 h3,
 .c3 p {
   margin: 1rem 0;
+}
+
+.c3 h1 + h2 {
+  margin-top: -0.75rem;
 }
 
 .c3 h1 + p,

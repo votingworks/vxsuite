@@ -117,6 +117,10 @@ exports[`renders ContestPage 1`] = `
   margin: 1rem 0;
 }
 
+.c3 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
 .c3 h1 + p,
 .c3 h2 + p,
 .c3 h3 + p {

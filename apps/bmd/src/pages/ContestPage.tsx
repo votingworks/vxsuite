@@ -17,7 +17,8 @@ interface Props extends RouteComponentProps<ContestParams> {}
 
 const ContestPage = (props: Props) => {
   const { id } = props.match.params
-  const { contests, updateVote, votes } = useContext(BallotContext)
+  const { election, updateVote, votes } = useContext(BallotContext)
+  const { contests } = election!
   const currentContestIndex = contests.findIndex(x => x.id === id)
   const contest = contests[currentContestIndex]
   const prevContest = contests[currentContestIndex - 1]

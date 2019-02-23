@@ -19,6 +19,10 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
   margin: 1rem 0;
 }
 
+.c1 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
 .c1 h1 + p,
 .c1 h2 + p,
 .c1 h3 + p {
@@ -239,6 +243,10 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
 .c1 h3,
 .c1 p {
   margin: 1rem 0;
+}
+
+.c1 h1 + h2 {
+  margin-top: -0.75rem;
 }
 
 .c1 h1 + p,

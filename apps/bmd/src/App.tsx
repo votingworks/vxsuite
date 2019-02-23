@@ -103,14 +103,14 @@ class App extends React.Component<RouteComponentProps, State> {
   }
 
   public render() {
-    if (!this.state.election) {
+    const { election } = this.state
+    if (!election) {
       return <UploadConfig setElection={this.setElection} />
     } else {
-      const { contests } = this.state.election
       return (
         <BallotContext.Provider
           value={{
-            contests,
+            election,
             resetBallot: this.resetBallot,
             setBallotKey: this.setBallotKey,
             updateVote: this.updateVote,

@@ -40,6 +40,10 @@ exports[`renders HelpPage 1`] = `
   margin: 1rem 0;
 }
 
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
 .c2 h1 + p,
 .c2 h2 + p,
 .c2 h3 + p {

@@ -2,17 +2,27 @@ import React, { SyntheticEvent } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { GenericBarCode } from '../assets/BarCodes'
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
+import Seal from '../components/Seal'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
 const Header = styled.div`
-  margin: 1rem 0;
+  display: flex;
+  margin-bottom: 1rem;
+  & > div:nth-child(1) {
+    width: 200px;
+    margin: 0 1rem 0 0;
+  }
+  & > div:nth-child(2) {
+    flex: 1;
+  }
 `
 
 const Table = styled.table`
@@ -48,18 +58,29 @@ class SummaryPage extends React.Component<RouteComponentProps> {
     this.setState({ isAlert: true })
   }
   public render() {
+    const { seal, title, county, state, date } = this.context.election
     return (
       <React.Fragment>
         <Main>
           <MainChild>
             <Header>
-              <Prose>
-                <h1>Official Ballot</h1>
-                <p className="no-print">
-                  Please review your ballot. Confirm your votes by selecting the
-                  “Print Ballot” button.
-                </p>
-              </Prose>
+              <Seal dangerouslySetInnerHTML={{ __html: seal }} />
+              <div>
+                <GenericBarCode />
+                <Prose>
+                  <h1>Official Ballot</h1>
+                  <h2>{title}</h2>
+                  <p>
+                    {date}
+                    <br />
+                    {county}, {state}
+                  </p>
+                  <p className="no-print">
+                    Please review your ballot. Confirm your votes by selecting
+                    the “Print Ballot” button.
+                  </p>
+                </Prose>
+              </div>
             </Header>
             <Table>
               <caption className="no-print visually-hidden">
@@ -77,8 +98,8 @@ class SummaryPage extends React.Component<RouteComponentProps> {
               </thead>
               <tbody>
                 <BallotContext.Consumer>
-                  {({ contests, votes }) =>
-                    contests.map(contest => {
+                  {({ election, votes }) =>
+                    election!.contests.map(contest => {
                       const candidateName = votes[contest.id]
                       const vote = candidateName ? (
                         <strong>{candidateName}</strong>

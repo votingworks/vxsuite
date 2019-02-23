@@ -53,6 +53,10 @@ exports[`can navigate all ballot pages 1`] = `
   margin: 1rem 0;
 }
 
+.c4 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
 .c4 h1 + p,
 .c4 h2 + p,
 .c4 h3 + p {
@@ -212,41 +216,45 @@ exports[`can navigate all ballot pages 2`] = `
   margin: auto auto;
 }
 
-.c2 {
+.c3 {
   line-height: 1.3;
   max-width: 66ch;
   text-align: center;
   margin: auto;
 }
 
-.c2 h1 {
+.c3 h1 {
   margin: 2rem 0 1rem;
 }
 
-.c2 h2 {
+.c3 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c2 h3,
-.c2 p {
+.c3 h3,
+.c3 p {
   margin: 1rem 0;
 }
 
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c3 {
+.c4 {
   box-sizing: border-box;
   cursor: pointer;
   background: #4caf50;
@@ -256,6 +264,11 @@ exports[`can navigate all ballot pages 2`] = `
   color: white;
   line-height: 1;
   white-space: nowrap;
+}
+
+.c2 {
+  max-width: 320px;
+  margin: auto;
 }
 
 @media print {
@@ -277,17 +290,53 @@ exports[`can navigate all ballot pages 2`] = `
       <div
         class="c2"
       >
+        <svg
+          viewBox="0 0 500 500"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          
+  
+          <circle
+            cx="250"
+            cy="250"
+            fill="#fff"
+            r="240"
+            stroke="#000"
+            stroke-width="10"
+          />
+          
+  
+          <text
+            alignment-baseline="middle"
+            style="font-family: sans-serif; font-size: 180%"
+            text-anchor="middle"
+            x="50%"
+            y="50%"
+          >
+            Official Seal Here
+          </text>
+          
+
+        </svg>
+        
+
+      </div>
+      <div
+        class="c3"
+      >
         <h1>
-          General Election
+          2020 General Election
         </h1>
         <p>
-          November 3, 2020
+          Tuesday, November 6, 2020
           <br />
-          Lorem County, State of Ipsumana
+          Nearby County
+          , 
+          State of Somewhere
         </p>
         <p>
           <button
-            class="c3"
+            class="c4"
             type="button"
           >
             Get Started
@@ -340,6 +389,10 @@ exports[`can navigate all ballot pages 3`] = `
 .c3 h3,
 .c3 p {
   margin: 1rem 0;
+}
+
+.c3 h1 + h2 {
+  margin-top: -0.75rem;
 }
 
 .c3 h1 + p,
@@ -742,6 +795,10 @@ exports[`can navigate all ballot pages 4`] = `
   margin: 1rem 0;
 }
 
+.c1 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
 .c1 h1 + p,
 .c1 h2 + p,
 .c1 h3 + p {
@@ -1035,6 +1092,10 @@ exports[`can navigate all ballot pages 5`] = `
   margin: 1rem 0;
 }
 
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
 .c2 h1 + p,
 .c2 h2 + p,
 .c2 h3 + p {
@@ -1186,6 +1247,10 @@ exports[`can navigate all ballot pages 6`] = `
 .c2 h3,
 .c2 p {
   margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
 }
 
 .c2 h1 + p,
@@ -1347,61 +1412,85 @@ exports[`can navigate all ballot pages 7`] = `
   margin: 0 auto;
 }
 
-.c3 {
+.c4 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c3 h1 {
+.c4 h1 {
   margin: 2rem 0 1rem;
 }
 
-.c3 h2 {
+.c4 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c3 h3,
-.c3 p {
+.c4 h3,
+.c4 p {
   margin: 1rem 0;
 }
 
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
+.c4 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c4 > :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c4 > :last-child {
   margin-bottom: 0;
 }
 
-.c7 {
+.c8 {
   color: gray;
 }
 
-.c2 {
-  margin: 1rem 0;
+.c3 {
+  max-width: 320px;
+  margin: auto;
 }
 
-.c4 {
+.c2 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.c2 > div:nth-child(1) {
+  width: 200px;
+  margin: 0 1rem 0 0;
+}
+
+.c2 > div:nth-child(2) {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c5 {
   width: 100%;
   max-width: 66ch;
   text-align: left;
   border-bottom: 1px solid lightGrey;
 }
 
-.c5 {
+.c6 {
   width: 50%;
   padding: 0.5rem 0.25rem;
   font-weight: normal;
   border-top: none;
 }
 
-.c6 {
+.c7 {
   width: 50%;
   padding: 0.5rem 0.25rem;
   font-weight: normal;
@@ -1430,18 +1519,73 @@ exports[`can navigate all ballot pages 7`] = `
         <div
           class="c3"
         >
-          <h1>
-            Official Ballot
-          </h1>
-          <p
-            class="no-print"
+          <svg
+            viewBox="0 0 500 500"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            Please review your ballot. Confirm your votes by selecting the “Print Ballot” button.
-          </p>
+            
+  
+            <circle
+              cx="250"
+              cy="250"
+              fill="#fff"
+              r="240"
+              stroke="#000"
+              stroke-width="10"
+            />
+            
+  
+            <text
+              alignment-baseline="middle"
+              style="font-family: sans-serif; font-size: 180%"
+              text-anchor="middle"
+              x="50%"
+              y="50%"
+            >
+              Official Seal Here
+            </text>
+            
+
+          </svg>
+          
+
+        </div>
+        <div>
+          <svg
+            height="57"
+            width="404"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M10 10h2v35h-2zM18 10h2v35h-2zM22 10h6v35h-6zM30 10h6v35h-6zM38 10h2v35h-2zM42 10h2v35h-2zM46 10h6v35h-6zM54 10h2v35h-2zM62 10h2v35h-2zM66 10h6v35h-6zM74 10h6v35h-6zM82 10h2v35h-2zM86 10h6v35h-6zM98 10h2v35h-2zM102 10h2v35h-2zM106 10h6v35h-6zM114 10h2v35h-2zM118 10h2v35h-2zM126 10h2v35h-2zM130 10h6v35h-6zM138 10h6v35h-6zM150 10h2v35h-2zM154 10h2v35h-2zM158 10h2v35h-2zM162 10h6v35h-6zM170 10h2v35h-2zM178 10h6v35h-6zM186 10h2v35h-2zM190 10h6v35h-6zM198 10h2v35h-2zM202 10h2v35h-2zM206 10h6v35h-6zM214 10h2v35h-2zM218 10h6v35h-6zM230 10h2v35h-2zM234 10h6v35h-6zM242 10h6v35h-6zM250 10h2v35h-2zM254 10h2v35h-2zM262 10h2v35h-2zM266 10h2v35h-2zM270 10h6v35h-6zM278 10h2v35h-2zM286 10h6v35h-6zM294 10h2v35h-2zM298 10h2v35h-2zM302 10h2v35h-2zM306 10h6v35h-6zM314 10h6v35h-6zM326 10h2v35h-2zM330 10h6v35h-6zM338 10h2v35h-2zM342 10h2v35h-2zM350 10h6v35h-6zM358 10h2v35h-2zM362 10h2v35h-2zM370 10h2v35h-2zM374 10h6v35h-6zM382 10h6v35h-6zM390 10h2v35h-2z"
+            />
+          </svg>
+          <div
+            class="c4"
+          >
+            <h1>
+              Official Ballot
+            </h1>
+            <h2>
+              2020 General Election
+            </h2>
+            <p>
+              Tuesday, November 6, 2020
+              <br />
+              Nearby County
+              , 
+              State of Somewhere
+            </p>
+            <p
+              class="no-print"
+            >
+              Please review your ballot. Confirm your votes by selecting the “Print Ballot” button.
+            </p>
+          </div>
         </div>
       </div>
       <table
-        class="c4"
+        class="c5"
       >
         <caption
           class="no-print visually-hidden"
@@ -1455,7 +1599,7 @@ exports[`can navigate all ballot pages 7`] = `
         >
           <tr>
             <th
-              class="c5"
+              class="c6"
               scope="col"
             >
               <small>
@@ -1463,7 +1607,7 @@ exports[`can navigate all ballot pages 7`] = `
               </small>
             </th>
             <th
-              class="c5"
+              class="c6"
               scope="col"
             >
               <small>
@@ -1475,16 +1619,16 @@ exports[`can navigate all ballot pages 7`] = `
         <tbody>
           <tr>
             <th
-              class="c6"
+              class="c7"
             >
               President
                
             </th>
             <td
-              class="c6"
+              class="c7"
             >
               <span
-                class="c7"
+                class="c8"
               >
                 no selection
               </span>
@@ -1502,16 +1646,16 @@ exports[`can navigate all ballot pages 7`] = `
           </tr>
           <tr>
             <th
-              class="c6"
+              class="c7"
             >
               Senator
                
             </th>
             <td
-              class="c6"
+              class="c7"
             >
               <span
-                class="c7"
+                class="c8"
               >
                 no selection
               </span>
@@ -1657,6 +1801,10 @@ exports[`can navigate all ballot pages 8`] = `
 .c3 h3,
 .c3 p {
   margin: 1rem 0;
+}
+
+.c3 h1 + h2 {
+  margin-top: -0.75rem;
 }
 
 .c3 h1 + p,
@@ -2080,6 +2228,10 @@ exports[`redirects contests index to first contest 1`] = `
 .c4 h3,
 .c4 p {
   margin: 1rem 0;
+}
+
+.c4 h1 + h2 {
+  margin-top: -0.75rem;
 }
 
 .c4 h1 + p,

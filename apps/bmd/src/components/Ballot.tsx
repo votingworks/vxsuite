@@ -12,7 +12,8 @@ import SettingsPage from '../pages/SettingsPage'
 import StartPage from '../pages/StartPage'
 
 const Ballot = () => {
-  const { contests } = useContext(BallotContext)
+  const { election } = useContext(BallotContext)
+  const { contests } = election!
   return (
     <Screen>
       <Switch>

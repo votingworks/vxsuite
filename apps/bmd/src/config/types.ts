@@ -25,11 +25,16 @@ export interface Contest {
 }
 export interface Election {
   readonly contests: Contest[]
+  readonly county: string
+  readonly date: string
+  readonly seal: string
+  readonly state: string
+  readonly title: string
 }
 export type OptionalElection = Election | undefined
 export type UpdateVoteFunction = (contestId: string, vote: Vote) => void
 export interface BallotContextInterface {
-  readonly contests: Contest[]
+  readonly election: Election | undefined
   resetBallot: () => void
   setBallotKey: (activationCode: string) => void
   updateVote: UpdateVoteFunction

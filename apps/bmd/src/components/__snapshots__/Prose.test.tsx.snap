@@ -19,6 +19,10 @@ exports[`renders Prose 1`] = `
   margin: 1rem 0;
 }
 
+.c0 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
 .c0 h1 + p,
 .c0 h2 + p,
 .c0 h3 + p {

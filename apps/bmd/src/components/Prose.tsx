@@ -19,6 +19,9 @@ const Prose = styled('div')<Props>`
   & p {
     margin: 1rem 0;
   }
+  & h1 + h2 {
+    margin-top: -0.75rem;
+  }
   & h1 + p,
   & h2 + p,
   & h3 + p {

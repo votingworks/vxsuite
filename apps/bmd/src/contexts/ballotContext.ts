@@ -1,8 +1,8 @@
 import { createContext } from 'react'
-import { BallotContextInterface } from '../config/types'
+import { BallotContextInterface, Election } from '../config/types'
 
 const ballot: BallotContextInterface = {
-  contests: [],
+  election: undefined,
   resetBallot: () => undefined,
   setBallotKey: activationCode => undefined,
   updateVote: (contestId, vote) => undefined,
