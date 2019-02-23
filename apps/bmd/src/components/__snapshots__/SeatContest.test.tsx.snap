@@ -1,55 +1,49 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`allows any candidate to be selected when no candidate is selected 1`] = `
-.c2 {
+.c1 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c2 h1 {
+.c1 h1 {
   margin: 2rem 0 1rem;
 }
 
-.c2 h2 {
+.c1 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c2 h3,
-.c2 p {
+.c1 h3,
+.c1 p {
   margin: 1rem 0;
 }
 
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c1 h1 + p,
+.c1 h2 + p,
+.c1 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c1 > :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c1 > :last-child {
   margin-bottom: 0;
 }
 
 .c0 {
-  margin: 0;
-  border: none;
-  padding: 0;
-}
-
-.c1 {
   margin: 0 0 1rem 4rem;
 }
 
-.c3 {
+.c2 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.75rem;
 }
 
-.c4 {
+.c3 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -65,15 +59,15 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
   transition: background 0.25s,color 0.25s;
 }
 
-.c4:focus-within {
+.c3:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c4 > div {
+.c3 > div {
   padding: 1rem;
 }
 
-.c4 > input + div:before {
+.c3 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -98,34 +92,34 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c4 > input:checked + div:before {
+.c3 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c4 > div:first-of-type {
+.c3 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c4 .write-in-candidate-name {
+.c3 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c5 {
+.c4 {
   margin-right: 0.5rem;
 }
 
 <div>
   <fieldset
-    class="c0"
+    class=""
   >
     <legend
-      class="c1"
+      class="c0"
     >
       <div
-        class="c2"
+        class="c1"
       >
         <h1>
           President
@@ -142,14 +136,14 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
       </div>
     </legend>
     <div
-      class="c3"
+      class="c2"
     >
       <label
-        class="c4"
+        class="c3"
         for="Minnie Mouse"
       >
         <input
-          class="visually-hidden c5"
+          class="visually-hidden c4"
           id="Minnie Mouse"
           name="president"
           type="checkbox"
@@ -165,11 +159,11 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
         </div>
       </label>
       <label
-        class="c4"
+        class="c3"
         for="Mickey Mouse"
       >
         <input
-          class="visually-hidden c5"
+          class="visually-hidden c4"
           id="Mickey Mouse"
           name="president"
           type="checkbox"
@@ -185,11 +179,11 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
         </div>
       </label>
       <label
-        class="c4"
+        class="c3"
         for="Donald Duck"
       >
         <input
-          class="visually-hidden c5"
+          class="visually-hidden c4"
           id="Donald Duck"
           name="president"
           type="checkbox"
@@ -205,11 +199,11 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
         </div>
       </label>
       <label
-        class="c4"
+        class="c3"
         for="writeInCandidate"
       >
         <input
-          class="visually-hidden c5"
+          class="visually-hidden c4"
           id="writeInCandidate"
           name="president"
           type="checkbox"
@@ -229,55 +223,49 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
 `;
 
 exports[`doesn't allow other candidates to be selected when one candidate is selected 1`] = `
-.c2 {
+.c1 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c2 h1 {
+.c1 h1 {
   margin: 2rem 0 1rem;
 }
 
-.c2 h2 {
+.c1 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c2 h3,
-.c2 p {
+.c1 h3,
+.c1 p {
   margin: 1rem 0;
 }
 
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c1 h1 + p,
+.c1 h2 + p,
+.c1 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c1 > :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c1 > :last-child {
   margin-bottom: 0;
 }
 
 .c0 {
-  margin: 0;
-  border: none;
-  padding: 0;
-}
-
-.c1 {
   margin: 0 0 1rem 4rem;
 }
 
-.c3 {
+.c2 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.75rem;
 }
 
-.c6 {
+.c5 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -293,15 +281,15 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   transition: background 0.25s,color 0.25s;
 }
 
-.c6:focus-within {
+.c5:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6 > div {
+.c5 > div {
   padding: 1rem;
 }
 
-.c6 > input + div:before {
+.c5 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -326,22 +314,22 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c6 > input:checked + div:before {
+.c5 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c6 > div:first-of-type {
+.c5 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c6 .write-in-candidate-name {
+.c5 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c4 {
+.c3 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -358,15 +346,15 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   transition: background 0.25s,color 0.25s;
 }
 
-.c4:focus-within {
+.c3:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c4 > div {
+.c3 > div {
   padding: 1rem;
 }
 
-.c4 > input + div:before {
+.c3 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -391,34 +379,34 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c4 > input:checked + div:before {
+.c3 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c4 > div:first-of-type {
+.c3 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c4 .write-in-candidate-name {
+.c3 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c5 {
+.c4 {
   margin-right: 0.5rem;
 }
 
 <div>
   <fieldset
-    class="c0"
+    class=""
   >
     <legend
-      class="c1"
+      class="c0"
     >
       <div
-        class="c2"
+        class="c1"
       >
         <h1>
           President
@@ -435,15 +423,15 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
       </div>
     </legend>
     <div
-      class="c3"
+      class="c2"
     >
       <label
-        class="c4"
+        class="c3"
         for="Minnie Mouse"
       >
         <input
           checked=""
-          class="visually-hidden c5"
+          class="visually-hidden c4"
           id="Minnie Mouse"
           name="president"
           type="checkbox"
@@ -459,11 +447,11 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         </div>
       </label>
       <label
-        class="c6"
+        class="c5"
         for="Mickey Mouse"
       >
         <input
-          class="visually-hidden c5"
+          class="visually-hidden c4"
           disabled=""
           id="Mickey Mouse"
           name="president"
@@ -480,11 +468,11 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         </div>
       </label>
       <label
-        class="c6"
+        class="c5"
         for="Donald Duck"
       >
         <input
-          class="visually-hidden c5"
+          class="visually-hidden c4"
           disabled=""
           id="Donald Duck"
           name="president"
@@ -501,11 +489,11 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         </div>
       </label>
       <label
-        class="c6"
+        class="c5"
         for="writeInCandidate"
       >
         <input
-          class="visually-hidden c5"
+          class="visually-hidden c4"
           disabled=""
           id="writeInCandidate"
           name="president"

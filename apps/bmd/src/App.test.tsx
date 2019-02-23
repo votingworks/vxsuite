@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { fireEvent, render, waitForElement } from 'react-testing-library'
+import { fireEvent, render, wait, waitForElement } from 'react-testing-library'
 
 import electionFile from './data/election.json'
 const electionAsString = JSON.stringify(electionFile)
@@ -22,14 +22,14 @@ describe('loads election', () => {
   it(`via url hash and does't store in localStorage`, () => {
     window.location.href = '/#sample'
     const { getByText } = render(<App />)
-    getByText('Get Started')
+    getByText('Scan Your Activation Code')
     expect(window.localStorage.getItem(electionKey)).toBeFalsy()
   })
 
   it(`from localStorage`, async () => {
     window.localStorage.setItem(electionKey, electionAsString)
     const { getByText } = render(<App />)
-    getByText('Get Started')
+    getByText('Scan Your Activation Code')
     expect(window.localStorage.getItem(electionKey)).toBeTruthy()
 
     // Tests are not passing.
@@ -99,8 +99,25 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
       ],
     },
   })
-  await waitForElement(() => getByText('Get Started'))
+  await waitForElement(() => getByText('Scan Your Activation Code'))
   expect(container).toMatchSnapshot()
+
+  // TODO: onBlur causes stack overflow error
+  // fireEvent.blur(getByTestId('activation-code'))
+  fireEvent.change(getByTestId('activation-code'), {
+    target: { value: 'Invalid Activation Code' },
+  })
+  expect(
+    (getByTestId('activation-code') as HTMLInputElement).value ===
+      'Invalid Activation Code'
+  ).toBeTruthy()
+  wait(() => (getByTestId('activation-code') as HTMLInputElement).value === '')
+  fireEvent.change(getByTestId('activation-code'), {
+    target: { value: 'MyVoiceIsMyPassword' },
+  })
+  // TODO: replace next line with "Enter" keyDown on activation code input
+  fireEvent.click(getByText('Submit'))
+  expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.click(getByText('Get Started'))
   expect(container.firstChild).toMatchSnapshot()
@@ -179,21 +196,31 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getByText('Yes, I‘m finished. Print my ballot.'))
   expect(window.print).toBeCalled()
 
-  await waitForElement(() => getByText('Get Started'))
+  await waitForElement(() => getByText('Scan Your Activation Code'))
 })
 
 describe('can start over', () => {
   it('when has no votes', async () => {
     window.localStorage.setItem(electionKey, electionAsString)
-    const { getByText } = render(<App />)
+    const { getByText, getByTestId } = render(<App />)
+    fireEvent.change(getByTestId('activation-code'), {
+      target: { value: 'MyVoiceIsMyPassword' },
+    })
+    // TODO: replace next line with "Enter" keyDown on activation code input
+    fireEvent.click(getByText('Submit'))
     fireEvent.click(getByText('Get Started'))
     fireEvent.click(getByText('Settings'))
     fireEvent.click(getByText('Start Over'))
-    expect(getByText('Get Started')).toBeTruthy()
+    expect(getByText('Scan Your Activation Code')).toBeTruthy()
   })
   it('when has votes', async () => {
     window.localStorage.setItem(electionKey, electionAsString)
-    const { getByText } = render(<App />)
+    const { getByText, getByTestId } = render(<App />)
+    fireEvent.change(getByTestId('activation-code'), {
+      target: { value: 'MyVoiceIsMyPassword' },
+    })
+    // TODO: replace next line with "Enter" keyDown on activation code input
+    fireEvent.click(getByText('Submit'))
     fireEvent.click(getByText('Get Started'))
     fireEvent.click(getByText('Minnie Mouse').closest('label') as HTMLElement)
     fireEvent.click(getByText('Settings'))
@@ -201,6 +228,6 @@ describe('can start over', () => {
     fireEvent.click(getByText('Cancel'))
     fireEvent.click(getByText('Start Over'))
     fireEvent.click(getByText('Yes, Remove All Votes and Start Over'))
-    expect(getByText('Get Started')).toBeTruthy()
+    expect(getByText('Scan Your Activation Code')).toBeTruthy()
   })
 })

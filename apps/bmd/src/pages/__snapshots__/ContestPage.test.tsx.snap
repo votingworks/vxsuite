@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders ContestPage 1`] = `
-.c8 {
+.c7 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -19,20 +19,20 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c8 > :first-child {
+.c7 > :first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c8 > * {
+.c7 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c11 {
+.c10 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -53,20 +53,20 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c11 > :first-child {
+.c10 > :first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c11 > * {
+.c10 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c9 {
+.c8 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -99,60 +99,54 @@ exports[`renders ContestPage 1`] = `
   margin: 0 auto;
 }
 
-.c4 {
+.c3 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c4 h1 {
+.c3 h1 {
   margin: 2rem 0 1rem;
 }
 
-.c4 h2 {
+.c3 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c4 h3,
-.c4 p {
+.c3 h3,
+.c3 p {
   margin: 1rem 0;
 }
 
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h3 + p {
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c10 {
+.c9 {
   color: white;
   text-align: center;
 }
 
 .c2 {
-  margin: 0;
-  border: none;
-  padding: 0;
-}
-
-.c3 {
   margin: 0 0 1rem 4rem;
 }
 
-.c5 {
+.c4 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.75rem;
 }
 
-.c6 {
+.c5 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -168,15 +162,15 @@ exports[`renders ContestPage 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c6:focus-within {
+.c5:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6 > div {
+.c5 > div {
   padding: 1rem;
 }
 
-.c6 > input + div:before {
+.c5 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -201,33 +195,33 @@ exports[`renders ContestPage 1`] = `
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c6 > input:checked + div:before {
+.c5 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c6 > div:first-of-type {
+.c5 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c6 .write-in-candidate-name {
+.c5 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c7 {
+.c6 {
   margin-right: 0.5rem;
 }
 
 @media print {
-  .c8 {
+  .c7 {
     display: none;
   }
 }
 
 @media print {
-  .c11 {
+  .c10 {
     display: none;
   }
 }
@@ -250,13 +244,13 @@ exports[`renders ContestPage 1`] = `
       class="c1"
     >
       <fieldset
-        class="c2"
+        class=""
       >
         <legend
-          class="c3"
+          class="c2"
         >
           <div
-            class="c4"
+            class="c3"
           >
             <h1>
               President
@@ -273,14 +267,14 @@ exports[`renders ContestPage 1`] = `
           </div>
         </legend>
         <div
-          class="c5"
+          class="c4"
         >
           <label
-            class="c6"
+            class="c5"
             for="Minnie Mouse"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c6"
               id="Minnie Mouse"
               name="president"
               type="checkbox"
@@ -296,11 +290,11 @@ exports[`renders ContestPage 1`] = `
             </div>
           </label>
           <label
-            class="c6"
+            class="c5"
             for="Mickey Mouse"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c6"
               id="Mickey Mouse"
               name="president"
               type="checkbox"
@@ -316,11 +310,11 @@ exports[`renders ContestPage 1`] = `
             </div>
           </label>
           <label
-            class="c6"
+            class="c5"
             for="Donald Duck"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c6"
               id="Donald Duck"
               name="president"
               type="checkbox"
@@ -336,11 +330,11 @@ exports[`renders ContestPage 1`] = `
             </div>
           </label>
           <label
-            class="c6"
+            class="c5"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c6"
               id="writeInCandidate"
               name="president"
               type="checkbox"
@@ -359,22 +353,22 @@ exports[`renders ContestPage 1`] = `
     </div>
   </main>
   <nav
-    class="c8"
+    class="c7"
   >
     <button
-      class="c9"
+      class="c8"
       type="button"
     >
       Next
     </button>
     <button
-      class="c9"
+      class="c8"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c10"
+      class="c9"
     >
       1
        of 
@@ -382,22 +376,22 @@ exports[`renders ContestPage 1`] = `
     </p>
   </nav>
   <nav
-    class="c11"
+    class="c10"
   >
     <button
-      class="c9"
+      class="c8"
       type="button"
     >
       Review
     </button>
     <button
-      class="c9"
+      class="c8"
       type="button"
     >
       Help
     </button>
     <button
-      class="c9"
+      class="c8"
       type="button"
     >
       Settings

@@ -31,6 +31,7 @@ export type UpdateVoteFunction = (contestId: string, vote: Vote) => void
 export interface BallotContextInterface {
   readonly contests: Contest[]
   resetBallot: () => void
+  setBallotKey: (activationCode: string) => void
   updateVote: UpdateVoteFunction
   votes: VoteDict
 }

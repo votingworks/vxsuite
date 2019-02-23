@@ -4,6 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 import BallotContext from '../contexts/ballotContext'
 
 import Screen from '../components/Screen'
+import ActivationPage from '../pages/ActivationPage'
 import ContestPage from '../pages/ContestPage'
 import HelpPage from '../pages/HelpPage'
 import ReviewPage from '../pages/ReviewPage'
@@ -15,7 +16,8 @@ const Ballot = () => {
   return (
     <Screen>
       <Switch>
-        <Route path="/" exact component={StartPage} />
+        <Route path="/" exact component={ActivationPage} />
+        <Route path="/start" exact component={StartPage} />
         {contests.length && (
           <Redirect exact from="/contests" to={`/contests/${contests[0].id}`} />
         )}

@@ -10,11 +10,7 @@ import Modal from './Modal'
 import Prose from './Prose'
 import { Text } from './Typography'
 
-const FieldSet = styled.fieldset`
-  margin: 0;
-  border: none;
-  padding: 0;
-`
+const FieldSet = styled.fieldset``
 const Legend = styled.legend`
   margin: 0 0 1rem 4rem;
 `

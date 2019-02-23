@@ -33,6 +33,7 @@ import UploadConfig from './components/UploadConfig'
 import BallotContext from './contexts/ballotContext'
 
 interface State {
+  ballotKey: string
   election: OptionalElection
   votes: VoteDict
 }
@@ -41,6 +42,7 @@ export const electionKey = 'votingWorksElection'
 const removeElectionShortcuts = ['mod+k']
 
 const initialState = {
+  ballotKey: '',
   election: undefined,
   votes: {},
 }
@@ -78,6 +80,7 @@ class App extends React.Component<RouteComponentProps, State> {
   public reset = /* istanbul ignore next */ () => {
     this.setState(initialState)
     window.localStorage.removeItem(electionKey)
+    this.props.history.push('/')
   }
 
   public updateVote = (contestId: string, name: Vote) => {
@@ -93,6 +96,12 @@ class App extends React.Component<RouteComponentProps, State> {
     this.props.history.push('/')
   }
 
+  public setBallotKey = (ballotKey: string) => {
+    this.setState({
+      ballotKey,
+    })
+  }
+
   public render() {
     if (!this.state.election) {
       return <UploadConfig setElection={this.setElection} />
@@ -103,6 +112,7 @@ class App extends React.Component<RouteComponentProps, State> {
           value={{
             contests,
             resetBallot: this.resetBallot,
+            setBallotKey: this.setBallotKey,
             updateVote: this.updateVote,
             votes: this.state.votes,
           }}

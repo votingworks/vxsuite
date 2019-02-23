@@ -12,18 +12,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
   flex-direction: column;
 }
 
-.c7 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -77,6 +65,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 
 .c4 > :last-child {
   margin-bottom: 0;
+}
+
+.c7 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .c6 {
@@ -200,18 +200,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
   flex-direction: column;
 }
 
-.c4 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: #4caf50;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: white;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -233,113 +221,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
   margin: auto auto;
 }
 
-.c3 {
+.c4 {
   line-height: 1.3;
   max-width: 66ch;
   text-align: center;
   margin: auto;
-}
-
-.c3 h1 {
-  margin: 2rem 0 1rem;
-}
-
-.c3 h2 {
-  margin: 1.5rem 0 1rem;
-}
-
-.c3 h3,
-.c3 p {
-  margin: 1rem 0;
-}
-
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
-  margin-top: -0.75rem;
-}
-
-.c3 > :first-child {
-  margin-top: 0;
-}
-
-.c3 > :last-child {
-  margin-bottom: 0;
-}
-
-@media print {
-  .c1 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
-  }
-}
-
-<div
-    class="c0"
-  >
-    <main
-      class="c1"
-    >
-      <div
-        class="c2"
-      >
-        <div
-          class="c3"
-        >
-          <h1>
-            General Election
-          </h1>
-          <p>
-            November 3, 2020
-            <br />
-            Lorem County, State of Ipsumana
-          </p>
-          <p>
-            <button
-              class="c4"
-              type="button"
-            >
-              Get Started
-            </button>
-          </p>
-        </div>
-      </div>
-    </main>
-  </div>
-</div>
-`;
-
-exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
-<div
-  class="sc-bdVaJa eVuSVk"
->
-  .c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: scroll;
-  padding: 2rem 1rem;
-}
-
-.c1 {
-  width: 100%;
-  max-width: 40rem;
-  margin: 0 auto;
-}
-
-.c4 {
-  line-height: 1.3;
-  max-width: 66ch;
 }
 
 .c4 h1 {
@@ -369,23 +255,307 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
   margin-bottom: 0;
 }
 
-.c2 {
-  margin: 0;
-  border: none;
-  padding: 0;
-}
-
 .c3 {
-  margin: 0 0 1rem 4rem;
+  margin: auto;
 }
 
 .c5 {
+  max-width: 320px;
+  margin: auto;
+}
+
+@media print {
+  .c1 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+<div
+    class="c0"
+  >
+    <main
+      class="c1"
+    >
+      <div
+        class="c2"
+      >
+        <form>
+          <fieldset>
+            <legend
+              class="c3"
+            >
+              <label
+                for="BallotCode"
+              >
+                <div
+                  class="c4"
+                >
+                  <h1>
+                    Scan Your Activation Code
+                  </h1>
+                  <p>
+                    Your ballot will be displayed after scan is complete.
+                  </p>
+                  <div
+                    class="c5"
+                  >
+                    <svg
+                      viewBox="0 0 1160 1160"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M0 0h1160v1160H0z"
+                        fill="#FFF"
+                      />
+                      <path
+                        d="M400 80h40v40h-40zM480 80h40v40h-40zM520 80h40v40h-40zM600 80h40v40h-40zM680 80h40v40h-40zM720 80h40v40h-40zM520 120h40v40h-40zM640 120h40v40h-40zM720 120h40v40h-40zM480 160h40v40h-40zM400 200h40v40h-40zM440 200h40v40h-40zM480 200h40v40h-40zM600 200h40v40h-40zM640 200h40v40h-40zM720 200h40v40h-40zM400 240h40v40h-40zM440 240h40v40h-40zM560 240h40v40h-40zM600 240h40v40h-40zM640 240h40v40h-40zM680 240h40v40h-40zM720 240h40v40h-40zM400 280h40v40h-40zM600 280h40v40h-40zM720 280h40v40h-40zM400 320h40v40h-40zM480 320h40v40h-40zM560 320h40v40h-40zM640 320h40v40h-40zM720 320h40v40h-40zM400 360h40v40h-40zM520 360h40v40h-40zM80 400h40v40H80zM240 400h40v40h-40zM320 400h40v40h-40zM360 400h40v40h-40zM400 400h40v40h-40zM480 400h40v40h-40zM520 400h40v40h-40zM600 400h40v40h-40zM640 400h40v40h-40zM720 400h40v40h-40zM760 400h40v40h-40zM800 400h40v40h-40zM840 400h40v40h-40zM880 400h40v40h-40zM920 400h40v40h-40zM1040 400h40v40h-40zM120 440h40v40h-40zM200 440h40v40h-40zM240 440h40v40h-40zM280 440h40v40h-40zM360 440h40v40h-40zM400 440h40v40h-40zM520 440h40v40h-40zM640 440h40v40h-40zM680 440h40v40h-40zM720 440h40v40h-40zM800 440h40v40h-40zM880 440h40v40h-40zM920 440h40v40h-40zM1000 440h40v40h-40zM1040 440h40v40h-40zM80 480h40v40H80zM160 480h40v40h-40zM200 480h40v40h-40zM320 480h40v40h-40zM400 480h40v40h-40zM480 480h40v40h-40zM520 480h40v40h-40zM560 480h40v40h-40zM600 480h40v40h-40zM640 480h40v40h-40zM680 480h40v40h-40zM800 480h40v40h-40zM840 480h40v40h-40zM880 480h40v40h-40zM920 480h40v40h-40zM80 520h40v40H80zM200 520h40v40h-40zM360 520h40v40h-40zM400 520h40v40h-40zM480 520h40v40h-40zM560 520h40v40h-40zM600 520h40v40h-40zM720 520h40v40h-40zM960 520h40v40h-40zM80 560h40v40H80zM120 560h40v40h-40zM160 560h40v40h-40zM200 560h40v40h-40zM240 560h40v40h-40zM320 560h40v40h-40zM400 560h40v40h-40zM440 560h40v40h-40zM480 560h40v40h-40zM520 560h40v40h-40zM560 560h40v40h-40zM600 560h40v40h-40zM720 560h40v40h-40zM760 560h40v40h-40zM800 560h40v40h-40zM960 560h40v40h-40zM80 600h40v40H80zM120 600h40v40h-40zM160 600h40v40h-40zM200 600h40v40h-40zM280 600h40v40h-40zM440 600h40v40h-40zM600 600h40v40h-40zM640 600h40v40h-40zM680 600h40v40h-40zM720 600h40v40h-40zM760 600h40v40h-40zM880 600h40v40h-40zM920 600h40v40h-40zM960 600h40v40h-40zM1000 600h40v40h-40zM200 640h40v40h-40zM320 640h40v40h-40zM360 640h40v40h-40zM680 640h40v40h-40zM760 640h40v40h-40zM800 640h40v40h-40zM840 640h40v40h-40zM160 680h40v40h-40zM200 680h40v40h-40zM440 680h40v40h-40zM480 680h40v40h-40zM560 680h40v40h-40zM640 680h40v40h-40zM720 680h40v40h-40zM880 680h40v40h-40zM960 680h40v40h-40zM80 720h40v40H80zM120 720h40v40h-40zM200 720h40v40h-40zM280 720h40v40h-40zM320 720h40v40h-40zM360 720h40v40h-40zM400 720h40v40h-40zM440 720h40v40h-40zM520 720h40v40h-40zM600 720h40v40h-40zM640 720h40v40h-40zM720 720h40v40h-40zM760 720h40v40h-40zM800 720h40v40h-40zM840 720h40v40h-40zM880 720h40v40h-40zM960 720h40v40h-40zM1000 720h40v40h-40zM400 760h40v40h-40zM440 760h40v40h-40zM560 760h40v40h-40zM680 760h40v40h-40zM720 760h40v40h-40zM880 760h40v40h-40zM960 760h40v40h-40zM1040 760h40v40h-40zM400 800h40v40h-40zM440 800h40v40h-40zM480 800h40v40h-40zM520 800h40v40h-40zM560 800h40v40h-40zM600 800h40v40h-40zM640 800h40v40h-40zM720 800h40v40h-40zM800 800h40v40h-40zM880 800h40v40h-40zM960 800h40v40h-40zM480 840h40v40h-40zM520 840h40v40h-40zM600 840h40v40h-40zM720 840h40v40h-40zM880 840h40v40h-40zM960 840h40v40h-40zM1040 840h40v40h-40zM400 880h40v40h-40zM440 880h40v40h-40zM480 880h40v40h-40zM560 880h40v40h-40zM600 880h40v40h-40zM720 880h40v40h-40zM760 880h40v40h-40zM800 880h40v40h-40zM840 880h40v40h-40zM880 880h40v40h-40zM960 880h40v40h-40zM1040 880h40v40h-40zM480 920h40v40h-40zM600 920h40v40h-40zM640 920h40v40h-40zM680 920h40v40h-40zM760 920h40v40h-40zM800 920h40v40h-40zM840 920h40v40h-40zM880 920h40v40h-40zM1000 920h40v40h-40zM1040 920h40v40h-40zM480 960h40v40h-40zM680 960h40v40h-40zM720 960h40v40h-40zM840 960h40v40h-40zM1000 960h40v40h-40zM440 1000h40v40h-40zM480 1000h40v40h-40zM560 1000h40v40h-40zM640 1000h40v40h-40zM680 1000h40v40h-40zM760 1000h40v40h-40zM840 1000h40v40h-40zM960 1000h40v40h-40zM1000 1000h40v40h-40zM400 1040h40v40h-40zM520 1040h40v40h-40zM600 1040h40v40h-40zM640 1040h40v40h-40zM680 1040h40v40h-40zM800 1040h40v40h-40zM880 1040h40v40h-40zM960 1040h40v40h-40zM1000 1040h40v40h-40zM1040 1040h40v40h-40z"
+                      />
+                      <path
+                        d="M122 122h196v196H122z"
+                        fill="none"
+                      />
+                      <path
+                        d="M318 80H80v280h280V80h-42zm0 238H122V122h196v196z"
+                      />
+                      <path
+                        d="M842 122h196v196H842z"
+                        fill="none"
+                      />
+                      <path
+                        d="M1038 80H800v280h280V80h-42zm0 238H842V122h196v196z"
+                      />
+                      <path
+                        d="M122 842h196v196H122z"
+                        fill="none"
+                      />
+                      <path
+                        d="M318 800H80v280h280V800h-42zm0 238H122V842h196v196z"
+                      />
+                      <g>
+                        <path
+                          d="M160 160h120v120H160z"
+                        />
+                      </g>
+                      <g>
+                        <path
+                          d="M880 160h120v120H880z"
+                        />
+                      </g>
+                      <g>
+                        <path
+                          d="M160 880h120v120H160z"
+                        />
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+              </label>
+            </legend>
+            <input
+              class="visually-hidden"
+              data-testid="activation-code"
+              id="BallotCode"
+              type="text"
+              value=""
+            />
+            <button
+              class="visually-hidden"
+              type="submit"
+            >
+              Submit
+            </button>
+          </fieldset>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>
+`;
+
+exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+  padding: 2rem 1rem;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 40rem;
+  margin: auto auto;
+}
+
+.c2 {
+  line-height: 1.3;
+  max-width: 66ch;
+  text-align: center;
+  margin: auto;
+}
+
+.c2 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
+}
+
+.c3 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: #4caf50;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: white;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="c1"
+    >
+      <div
+        class="c2"
+      >
+        <h1>
+          General Election
+        </h1>
+        <p>
+          November 3, 2020
+          <br />
+          Lorem County, State of Ipsumana
+        </p>
+        <p>
+          <button
+            class="c3"
+            type="button"
+          >
+            Get Started
+          </button>
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
+`;
+
+exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
+<div
+  class="sc-bdVaJa eVuSVk"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+  padding: 2rem 1rem;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.c3 {
+  line-height: 1.3;
+  max-width: 66ch;
+}
+
+.c3 h1 {
+  margin: 2rem 0 1rem;
+}
+
+.c3 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c3 h3,
+.c3 p {
+  margin: 1rem 0;
+}
+
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c3 > :first-child {
+  margin-top: 0;
+}
+
+.c3 > :last-child {
+  margin-bottom: 0;
+}
+
+.c2 {
+  margin: 0 0 1rem 4rem;
+}
+
+.c4 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.75rem;
 }
 
-.c6 {
+.c5 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -401,15 +571,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c6:focus-within {
+.c5:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6 > div {
+.c5 > div {
   padding: 1rem;
 }
 
-.c6 > input + div:before {
+.c5 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -434,22 +604,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c6 > input:checked + div:before {
+.c5 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c6 > div:first-of-type {
+.c5 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c6 .write-in-candidate-name {
+.c5 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c7 {
+.c6 {
   margin-right: 0.5rem;
 }
 
@@ -470,13 +640,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
       class="c1"
     >
       <fieldset
-        class="c2"
+        class=""
       >
         <legend
-          class="c3"
+          class="c2"
         >
           <div
-            class="c4"
+            class="c3"
           >
             <h1>
               President
@@ -493,14 +663,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
           </div>
         </legend>
         <div
-          class="c5"
+          class="c4"
         >
           <label
-            class="c6"
+            class="c5"
             for="Minnie Mouse"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c6"
               id="Minnie Mouse"
               name="president"
               type="checkbox"
@@ -516,11 +686,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
             </div>
           </label>
           <label
-            class="c6"
+            class="c5"
             for="Mickey Mouse"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c6"
               id="Mickey Mouse"
               name="president"
               type="checkbox"
@@ -536,11 +706,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
             </div>
           </label>
           <label
-            class="c6"
+            class="c5"
             for="Donald Duck"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c6"
               id="Donald Duck"
               name="president"
               type="checkbox"
@@ -556,11 +726,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
             </div>
           </label>
           <label
-            class="c6"
+            class="c5"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c6"
               id="writeInCandidate"
               name="president"
               type="checkbox"
@@ -733,24 +903,24 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 </div>
 `;
 
-exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
+exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 <div
   class="sc-bdVaJa eVuSVk"
 >
   <main
-    class="sc-bxivhb ScOxM"
+    class="sc-bwzfXH loUfnN"
   >
     <div
-      class="sc-ifAKCX iRMfbY"
+      class="sc-htpNat kvmFPg"
     >
       <fieldset
-        class="sc-dnqmqq hVhdBe"
+        class="sc-gZMcBi giNnHm"
       >
         <legend
-          class="sc-iwsKbI hOWdcU"
+          class="sc-gqjmRU glduZs"
         >
           <div
-            class="sc-gzVnrw ivYVjF"
+            class="sc-bxivhb euiNoR"
           >
             <h1>
               President
@@ -767,14 +937,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
           </div>
         </legend>
         <div
-          class="sc-gZMcBi jCDHmN"
+          class="sc-VigVT hvGAoq"
         >
           <label
-            class="sc-gqjmRU cqHJzc"
+            class="sc-jTzLTM hvgYIY"
             for="Minnie Mouse"
           >
             <input
-              class="visually-hidden sc-VigVT eKOPhG"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               id="Minnie Mouse"
               name="president"
               type="checkbox"
@@ -790,11 +960,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
             </div>
           </label>
           <label
-            class="sc-gqjmRU hYxgSJ"
+            class="sc-jTzLTM bzodHj"
             for="Mickey Mouse"
           >
             <input
-              class="visually-hidden sc-VigVT eKOPhG"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="Mickey Mouse"
               name="president"
@@ -811,11 +981,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
             </div>
           </label>
           <label
-            class="sc-gqjmRU hYxgSJ"
+            class="sc-jTzLTM bzodHj"
             for="Donald Duck"
           >
             <input
-              class="visually-hidden sc-VigVT eKOPhG"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="Donald Duck"
               name="president"
@@ -832,11 +1002,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
             </div>
           </label>
           <label
-            class="sc-gqjmRU hYxgSJ"
+            class="sc-jTzLTM bzodHj"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden sc-VigVT eKOPhG"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="writeInCandidate"
               name="president"
@@ -856,22 +1026,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
     </div>
   </main>
   <nav
-    class="sc-bwzfXH gXteod"
+    class="sc-bZQynM jNPfoL"
   >
     <button
-      class="sc-htpNat jmWxWi"
+      class="sc-gzVnrw cpFmBu"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Previous
     </button>
     <p
-      class="sc-htoDjs MVyrE"
+      class="sc-iwsKbI sZzNf"
     >
       1
        of 
@@ -879,22 +1049,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
     </p>
   </nav>
   <nav
-    class="sc-bwzfXH bKLUfy"
+    class="sc-bZQynM eFUAey"
   >
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Settings
@@ -904,65 +1074,59 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 </div>
 `;
 
-exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
+exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 <div
   class="sc-bdVaJa eVuSVk"
 >
   <main
-    class="sc-bxivhb ScOxM"
+    class="sc-bwzfXH loUfnN"
   >
     <div
-      class="sc-ifAKCX iRMfbY"
+      class="sc-htpNat kvmFPg"
     >
-      .c2 {
+      .c1 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c2 h1 {
+.c1 h1 {
   margin: 2rem 0 1rem;
 }
 
-.c2 h2 {
+.c1 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c2 h3,
-.c2 p {
+.c1 h3,
+.c1 p {
   margin: 1rem 0;
 }
 
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c1 h1 + p,
+.c1 h2 + p,
+.c1 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c1 > :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c1 > :last-child {
   margin-bottom: 0;
 }
 
 .c0 {
-  margin: 0;
-  border: none;
-  padding: 0;
-}
-
-.c1 {
   margin: 0 0 1rem 4rem;
 }
 
-.c3 {
+.c2 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.75rem;
 }
 
-.c4 {
+.c3 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -978,15 +1142,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c4:focus-within {
+.c3:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c4 > div {
+.c3 > div {
   padding: 1rem;
 }
 
-.c4 > input + div:before {
+.c3 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -1011,33 +1175,33 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c4 > input:checked + div:before {
+.c3 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c4 > div:first-of-type {
+.c3 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c4 .write-in-candidate-name {
+.c3 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c5 {
+.c4 {
   margin-right: 0.5rem;
 }
 
 <fieldset
-        class="c0"
+        class=""
       >
         <legend
-          class="c1"
+          class="c0"
         >
           <div
-            class="c2"
+            class="c1"
           >
             <h1>
               Senator
@@ -1054,14 +1218,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
           </div>
         </legend>
         <div
-          class="c3"
+          class="c2"
         >
           <label
-            class="c4"
+            class="c3"
             for="Chad Hanging"
           >
             <input
-              class="visually-hidden c5"
+              class="visually-hidden c4"
               id="Chad Hanging"
               name="senator"
               type="checkbox"
@@ -1077,11 +1241,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="c4"
+            class="c3"
             for="Lev Ermachine"
           >
             <input
-              class="visually-hidden c5"
+              class="visually-hidden c4"
               id="Lev Ermachine"
               name="senator"
               type="checkbox"
@@ -1097,11 +1261,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="c4"
+            class="c3"
             for="John Smith"
           >
             <input
-              class="visually-hidden c5"
+              class="visually-hidden c4"
               id="John Smith"
               name="senator"
               type="checkbox"
@@ -1117,11 +1281,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="c4"
+            class="c3"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden c5"
+              class="visually-hidden c4"
               id="writeInCandidate"
               name="senator"
               type="checkbox"
@@ -1140,22 +1304,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     </div>
   </main>
   <nav
-    class="sc-bwzfXH gXteod"
+    class="sc-bZQynM jNPfoL"
   >
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Previous
     </button>
     <p
-      class="sc-htoDjs MVyrE"
+      class="sc-iwsKbI sZzNf"
     >
       2
        of 
@@ -1163,22 +1327,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     </p>
   </nav>
   <nav
-    class="sc-bwzfXH bKLUfy"
+    class="sc-bZQynM eFUAey"
   >
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Settings
@@ -1188,24 +1352,24 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 </div>
 `;
 
-exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
+exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
 <div
   class="sc-bdVaJa eVuSVk"
 >
   <main
-    class="sc-bxivhb ScOxM"
+    class="sc-bwzfXH loUfnN"
   >
     <div
-      class="sc-ifAKCX iRMfbY"
+      class="sc-htpNat kvmFPg"
     >
       <fieldset
-        class="sc-dnqmqq hVhdBe"
+        class="sc-gZMcBi giNnHm"
       >
         <legend
-          class="sc-iwsKbI hOWdcU"
+          class="sc-gqjmRU glduZs"
         >
           <div
-            class="sc-gzVnrw ivYVjF"
+            class="sc-bxivhb euiNoR"
           >
             <h1>
               Senator
@@ -1222,14 +1386,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
           </div>
         </legend>
         <div
-          class="sc-gZMcBi jCDHmN"
+          class="sc-VigVT hvGAoq"
         >
           <label
-            class="sc-gqjmRU hYxgSJ"
+            class="sc-jTzLTM bzodHj"
             for="Chad Hanging"
           >
             <input
-              class="visually-hidden sc-VigVT eKOPhG"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="Chad Hanging"
               name="senator"
@@ -1246,11 +1410,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
             </div>
           </label>
           <label
-            class="sc-gqjmRU hYxgSJ"
+            class="sc-jTzLTM bzodHj"
             for="Lev Ermachine"
           >
             <input
-              class="visually-hidden sc-VigVT eKOPhG"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="Lev Ermachine"
               name="senator"
@@ -1267,12 +1431,12 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
             </div>
           </label>
           <label
-            class="sc-gqjmRU cqHJzc"
+            class="sc-jTzLTM hvgYIY"
             for="John Smith"
           >
             <input
               autofocus=""
-              class="visually-hidden sc-VigVT eKOPhG"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               id="John Smith"
               name="senator"
               type="checkbox"
@@ -1288,11 +1452,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
             </div>
           </label>
           <label
-            class="sc-gqjmRU hYxgSJ"
+            class="sc-jTzLTM bzodHj"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden sc-VigVT eKOPhG"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="writeInCandidate"
               name="senator"
@@ -1312,22 +1476,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
     </div>
   </main>
   <nav
-    class="sc-bwzfXH gXteod"
+    class="sc-bZQynM jNPfoL"
   >
     <button
-      class="sc-htpNat jmWxWi"
+      class="sc-gzVnrw cpFmBu"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Previous
     </button>
     <p
-      class="sc-htoDjs MVyrE"
+      class="sc-iwsKbI sZzNf"
     >
       2
        of 
@@ -1335,22 +1499,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
     </p>
   </nav>
   <nav
-    class="sc-bwzfXH bKLUfy"
+    class="sc-bZQynM eFUAey"
   >
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-htpNat eybfyW"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Settings
@@ -1360,7 +1524,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 </div>
 `;
 
-exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
+exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
 <div
   class="sc-bdVaJa eVuSVk"
 >

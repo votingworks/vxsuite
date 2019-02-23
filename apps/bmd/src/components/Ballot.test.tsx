@@ -9,7 +9,14 @@ import { render } from '../../test/testUtils'
 import Ballot from './Ballot'
 
 it(`can navigate all ballot pages`, () => {
-  const { container, getByText } = render(<Ballot />)
+  const { container, getByText, getByTestId } = render(<Ballot />)
+  expect(container.firstChild).toMatchSnapshot()
+
+  fireEvent.change(getByTestId('activation-code'), {
+    target: { value: 'MyVoiceIsMyPassword' },
+  })
+  // TODO: replace next line with "Enter" keyDown on activation code input
+  fireEvent.click(getByText('Submit'))
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.click(getByText('Get Started'))
