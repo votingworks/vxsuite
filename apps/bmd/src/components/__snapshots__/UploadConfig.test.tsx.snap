@@ -21,6 +21,7 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
 }
 
 .c3 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
@@ -160,6 +161,7 @@ exports[`allows file to be uploaded via file input 1`] = `
 }
 
 .c3 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 

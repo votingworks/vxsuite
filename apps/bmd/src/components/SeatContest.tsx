@@ -10,6 +10,10 @@ import Modal from './Modal'
 import Prose from './Prose'
 import { Text } from './Typography'
 
+const ContestSection = styled.small`
+  font-weight: 600;
+  text-transform: uppercase;
+`
 const FieldSet = styled.fieldset``
 const Legend = styled.legend`
   margin: 0 0 1rem 4rem;
@@ -232,6 +236,9 @@ class SeatContest extends React.Component<Props, State> {
       <React.Fragment>
         <FieldSet>
           <Legend>
+            {contest.section && (
+              <ContestSection>{contest.section}</ContestSection>
+            )}
             <Prose>
               <h1>{contest.title}</h1>
               <p>

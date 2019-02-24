@@ -33,6 +33,10 @@ export const MainChild = styled('div')<ChildProps>`
   }: ChildProps) =>
     `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
   padding: ${({ padded = false }: ChildProps) => (padded ? '1rem' : undefined)};
+  @media print {
+    max-width: 100%;
+    margin: 0;
+  }
 `
 
 export default Main

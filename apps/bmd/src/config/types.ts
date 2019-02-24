@@ -20,6 +20,7 @@ export interface Candidate {
 export interface Contest {
   readonly id: string
   readonly title: string
+  readonly section?: string
   readonly type: string // TODO: convert to enum: VotingMethod { 'plurality' | 'approval' }
   readonly candidates: Candidate[]
 }

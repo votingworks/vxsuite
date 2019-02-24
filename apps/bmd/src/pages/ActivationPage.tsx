@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import BallotContext from '../contexts/ballotContext'
 
-import { MyVoiceIsMyPassword } from '../assets/QRCodes'
+import { MyVoiceIsMyPassword } from '../assets/BarCodes'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 

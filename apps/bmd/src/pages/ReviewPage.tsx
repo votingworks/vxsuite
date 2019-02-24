@@ -2,7 +2,7 @@ import React, { SyntheticEvent } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { GenericBarCode } from '../assets/BarCodes'
+import { Barcode } from '../assets/BarCodes'
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
@@ -13,16 +13,46 @@ import Seal from '../components/Seal'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
+const Ballot = styled.section`
+  display: flex;
+  flex-direction: column;
+  min-height: 11in;
+  margin-top: 2rem;
+  padding: 2rem;
+  background: white;
+  @media print {
+    margin: 0;
+    padding: 0;
+  }
+`
+
 const Header = styled.div`
   display: flex;
   margin-bottom: 1rem;
+  align-items: center;
+  & h2 {
+    margin-bottom: 0;
+  }
+  & h3 {
+    margin-top: 0;
+  }
   & > div:nth-child(1) {
-    width: 200px;
-    margin: 0 1rem 0 0;
+    width: 175px;
+    align-self: flex-start;
   }
   & > div:nth-child(2) {
     flex: 1;
+    margin: 0 1rem;
   }
+`
+
+const BarCodeContainer = styled.div`
+  width: 50%;
+  margin: 1rem 0 -0.75rem;
+`
+
+const Content = styled.div`
+  flex: 1;
 `
 
 const Table = styled.table`
@@ -30,6 +60,9 @@ const Table = styled.table`
   max-width: 66ch;
   text-align: left;
   border-bottom: 1px solid lightGrey;
+  @media print {
+    max-width: 100%;
+  }
 `
 interface TableCellProps {
   border?: boolean
@@ -37,9 +70,11 @@ interface TableCellProps {
 const TableCell = styled.td`
   width: 50%;
   padding: 0.5rem 0.25rem;
-  font-weight: normal;
   border-top: ${({ border = false }: TableCellProps) =>
     border ? '1px solid lightGrey' : 'none'};
+  font-weight: normal;
+  line-height: 1.2;
+  vertical-align: top;
 `
 
 class SummaryPage extends React.Component<RouteComponentProps> {
@@ -63,80 +98,86 @@ class SummaryPage extends React.Component<RouteComponentProps> {
       <React.Fragment>
         <Main>
           <MainChild>
-            <Header>
-              <Seal dangerouslySetInnerHTML={{ __html: seal }} />
-              <div>
-                <GenericBarCode />
+            <Prose>
+              <h1 className="no-print">Review Your Selections</h1>
+              <p className="no-print">
+                Confirm your votes by printing your ballot.
+              </p>
+            </Prose>
+            <Ballot>
+              <Header>
+                <Seal dangerouslySetInnerHTML={{ __html: seal }} />
                 <Prose>
-                  <h1>Official Ballot</h1>
-                  <h2>{title}</h2>
+                  <h2>Official Ballot</h2>
+                  <h3>{title}</h3>
                   <p>
-                    {date}
-                    <br />
                     {county}, {state}
-                  </p>
-                  <p className="no-print">
-                    Please review your ballot. Confirm your votes by selecting
-                    the “Print Ballot” button.
+                    <br />
+                    {date}
                   </p>
                 </Prose>
-              </div>
-            </Header>
-            <Table>
-              <caption className="no-print visually-hidden">
-                <p>Summary of your votes.</p>
-              </caption>
-              <thead className="no-print">
-                <tr>
-                  <TableCell as="th" scope="col">
-                    <small>Contest</small>
-                  </TableCell>
-                  <TableCell as="th" scope="col">
-                    <small>Vote</small>
-                  </TableCell>
-                </tr>
-              </thead>
-              <tbody>
-                <BallotContext.Consumer>
-                  {({ election, votes }) =>
-                    election!.contests.map(contest => {
-                      const candidateName = votes[contest.id]
-                      const vote = candidateName ? (
-                        <strong>{candidateName}</strong>
-                      ) : (
-                        <Text as="span" muted>
-                          no selection
-                        </Text>
-                      )
-                      const onClick = () => {
-                        this.props.history.push(`/contests/${contest.id}`)
+              </Header>
+              <Content>
+                <Table>
+                  <caption className="no-print visually-hidden">
+                    <p>Summary of your votes.</p>
+                  </caption>
+                  <thead>
+                    <tr>
+                      <TableCell as="th" scope="col">
+                        Contest
+                      </TableCell>
+                      <TableCell as="th" scope="col">
+                        Vote
+                      </TableCell>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <BallotContext.Consumer>
+                      {({ election, votes }) =>
+                        election!.contests.map(contest => {
+                          const candidateName = votes[contest.id]
+                          const vote = candidateName ? (
+                            <strong>{candidateName}</strong>
+                          ) : (
+                            <Text as="strong" muted>
+                              no selection
+                            </Text>
+                          )
+                          const onClick = () => {
+                            this.props.history.push(`/contests/${contest.id}`)
+                          }
+                          const onClickLink = (event: SyntheticEvent) => {
+                            event.preventDefault()
+                          }
+                          return (
+                            <tr key={contest.id} onClick={onClick}>
+                              <TableCell as="th" border>
+                                {contest.title}{' '}
+                              </TableCell>
+                              <TableCell border>
+                                {vote}{' '}
+                                <small className="no-print">
+                                  <Link
+                                    to={`/contests/${contest.id}`}
+                                    onClick={onClickLink}
+                                  >
+                                    change
+                                  </Link>
+                                </small>
+                              </TableCell>
+                            </tr>
+                          )
+                        })
                       }
-                      const onClickLink = (event: SyntheticEvent) => {
-                        event.preventDefault()
-                      }
-                      return (
-                        <tr key={contest.id} onClick={onClick}>
-                          <TableCell as="th" border>
-                            {contest.title}{' '}
-                          </TableCell>
-                          <TableCell border>
-                            {vote}{' '}
-                            <small className="no-print">
-                              <Link
-                                to={`/contests/${contest.id}`}
-                                onClick={onClickLink}
-                              >
-                                change
-                              </Link>
-                            </small>
-                          </TableCell>
-                        </tr>
-                      )
-                    })
-                  }
-                </BallotContext.Consumer>
-              </tbody>
-            </Table>
+                    </BallotContext.Consumer>
+                  </tbody>
+                </Table>
+              </Content>
+              <BarCodeContainer>
+                <Barcode />
+              </BarCodeContainer>
+            </Ballot>
           </MainChild>
         </Main>
         <ButtonBar secondary>

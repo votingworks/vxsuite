@@ -14,6 +14,13 @@ export const Text = styled('p')<Props>`
   text-align: ${({ center }) => (center ? 'center' : undefined)};
   font-size: ${({ small }) => (small ? '0.8rem' : undefined)};
   font-weight: ${({ bold }) => (bold ? '600' : undefined)};
+  @media print {
+    color: ${({ error, muted, white }) =>
+      (error && 'black') ||
+      (white && 'white') ||
+      (muted && 'black') ||
+      undefined};
+  }
 `
 
 export default Text

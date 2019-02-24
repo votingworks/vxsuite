@@ -10,6 +10,7 @@ const Prose = styled('div')<Props>`
   text-align: ${({ textCenter }) => (textCenter ? 'center' : undefined)};
   margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
   & h1 {
+    line-height: 1.1;
     margin: 2rem 0 1rem;
   }
   & h2 {

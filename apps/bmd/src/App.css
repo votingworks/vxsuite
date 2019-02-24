@@ -44,6 +44,11 @@ html {
   background: #edeff0;
   font-size: 24px;
 }
+@media print {
+  html {
+    background: #fff;
+  }
+}
 
 /* Accessibility Utilities */
 .visually-hidden {

@@ -8,6 +8,7 @@
     {
       "id": "president",
       "type": "plurality",
+      "section": "Federal Election",
       "title": "President",
       "candidates": [
         {
@@ -30,6 +31,7 @@
     {
       "id": "senator",
       "type": "plurality",
+      "section": "Federal Election",
       "title": "Senator",
       "candidates": [
         {

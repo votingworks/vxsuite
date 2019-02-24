@@ -17,6 +17,12 @@ exports[`displays error style 1`] = `
   color: red;
 }
 
+@media print {
+  .c0 {
+    color: black;
+  }
+}
+
 <p
   class="c0"
 >
@@ -27,6 +33,12 @@ exports[`displays error style 1`] = `
 exports[`displays muted style 1`] = `
 .c0 {
   color: gray;
+}
+
+@media print {
+  .c0 {
+    color: black;
+  }
 }
 
 <p

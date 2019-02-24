@@ -7,6 +7,7 @@ exports[`renders Prose 1`] = `
 }
 
 .c0 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 

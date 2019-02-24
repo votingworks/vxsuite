@@ -41,6 +41,7 @@ exports[`can navigate all ballot pages 1`] = `
 }
 
 .c4 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
@@ -87,6 +88,13 @@ exports[`can navigate all ballot pages 1`] = `
     -ms-flex-pack: start;
     justify-content: flex-start;
     padding: 0;
+  }
+}
+
+@media print {
+  .c2 {
+    max-width: 100%;
+    margin: 0;
   }
 }
 
@@ -224,6 +232,7 @@ exports[`can navigate all ballot pages 2`] = `
 }
 
 .c3 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
@@ -278,6 +287,13 @@ exports[`can navigate all ballot pages 2`] = `
     -ms-flex-pack: start;
     justify-content: flex-start;
     padding: 0;
+  }
+}
+
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
   }
 }
 
@@ -373,53 +389,59 @@ exports[`can navigate all ballot pages 3`] = `
   margin: 0 auto;
 }
 
-.c3 {
+.c4 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c3 h1 {
+.c4 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c3 h2 {
+.c4 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c3 h3,
-.c3 p {
+.c4 h3,
+.c4 p {
   margin: 1rem 0;
 }
 
-.c3 h1 + h2 {
+.c4 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c4 > :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c4 > :last-child {
   margin-bottom: 0;
+}
+
+.c3 {
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .c2 {
   margin: 0 0 1rem 4rem;
 }
 
-.c4 {
+.c5 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.75rem;
 }
 
-.c5 {
+.c6 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -435,15 +457,15 @@ exports[`can navigate all ballot pages 3`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c5:focus-within {
+.c6:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c5 > div {
+.c6 > div {
   padding: 1rem;
 }
 
-.c5 > input + div:before {
+.c6 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -468,22 +490,22 @@ exports[`can navigate all ballot pages 3`] = `
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c5 > input:checked + div:before {
+.c6 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c5 > div:first-of-type {
+.c6 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c5 .write-in-candidate-name {
+.c6 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c6 {
+.c7 {
   margin-right: 0.5rem;
 }
 
@@ -494,6 +516,13 @@ exports[`can navigate all ballot pages 3`] = `
     -ms-flex-pack: start;
     justify-content: flex-start;
     padding: 0;
+  }
+}
+
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
   }
 }
 
@@ -509,8 +538,13 @@ exports[`can navigate all ballot pages 3`] = `
         <legend
           class="c2"
         >
-          <div
+          <small
             class="c3"
+          >
+            Federal Election
+          </small>
+          <div
+            class="c4"
           >
             <h1>
               President
@@ -527,14 +561,14 @@ exports[`can navigate all ballot pages 3`] = `
           </div>
         </legend>
         <div
-          class="c4"
+          class="c5"
         >
           <label
-            class="c5"
+            class="c6"
             for="Minnie Mouse"
           >
             <input
-              class="visually-hidden c6"
+              class="visually-hidden c7"
               id="Minnie Mouse"
               name="president"
               type="checkbox"
@@ -550,11 +584,11 @@ exports[`can navigate all ballot pages 3`] = `
             </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="Mickey Mouse"
           >
             <input
-              class="visually-hidden c6"
+              class="visually-hidden c7"
               id="Mickey Mouse"
               name="president"
               type="checkbox"
@@ -570,11 +604,11 @@ exports[`can navigate all ballot pages 3`] = `
             </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="Donald Duck"
           >
             <input
-              class="visually-hidden c6"
+              class="visually-hidden c7"
               id="Donald Duck"
               name="president"
               type="checkbox"
@@ -590,11 +624,11 @@ exports[`can navigate all ballot pages 3`] = `
             </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden c6"
+              class="visually-hidden c7"
               id="writeInCandidate"
               name="president"
               type="checkbox"
@@ -663,6 +697,12 @@ exports[`can navigate all ballot pages 3`] = `
 @media print {
   .c0 {
     display: none;
+  }
+}
+
+@media print {
+  .c2 {
+    color: white;
   }
 }
 
@@ -775,55 +815,61 @@ exports[`can navigate all ballot pages 4`] = `
     class="sc-bwzfXH loUfnN"
   >
     <div
-      class="sc-htpNat kvmFPg"
+      class="sc-htpNat jMKRfy"
     >
-      .c1 {
+      .c2 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c1 h1 {
+.c2 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c1 h2 {
+.c2 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c1 h3,
-.c1 p {
+.c2 h3,
+.c2 p {
   margin: 1rem 0;
 }
 
-.c1 h1 + h2 {
+.c2 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c1 h1 + p,
-.c1 h2 + p,
-.c1 h3 + p {
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c1 > :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c1 > :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
+}
+
+.c1 {
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .c0 {
   margin: 0 0 1rem 4rem;
 }
 
-.c2 {
+.c3 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.75rem;
 }
 
-.c3 {
+.c4 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -839,15 +885,15 @@ exports[`can navigate all ballot pages 4`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c3:focus-within {
+.c4:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c3 > div {
+.c4 > div {
   padding: 1rem;
 }
 
-.c3 > input + div:before {
+.c4 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -872,22 +918,22 @@ exports[`can navigate all ballot pages 4`] = `
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c3 > input:checked + div:before {
+.c4 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c3 > div:first-of-type {
+.c4 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c3 .write-in-candidate-name {
+.c4 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c4 {
+.c5 {
   margin-right: 0.5rem;
 }
 
@@ -897,8 +943,13 @@ exports[`can navigate all ballot pages 4`] = `
         <legend
           class="c0"
         >
-          <div
+          <small
             class="c1"
+          >
+            Federal Election
+          </small>
+          <div
+            class="c2"
           >
             <h1>
               Senator
@@ -915,14 +966,14 @@ exports[`can navigate all ballot pages 4`] = `
           </div>
         </legend>
         <div
-          class="c2"
+          class="c3"
         >
           <label
-            class="c3"
+            class="c4"
             for="Chad Hanging"
           >
             <input
-              class="visually-hidden c4"
+              class="visually-hidden c5"
               id="Chad Hanging"
               name="senator"
               type="checkbox"
@@ -938,11 +989,11 @@ exports[`can navigate all ballot pages 4`] = `
             </div>
           </label>
           <label
-            class="c3"
+            class="c4"
             for="Lev Ermachine"
           >
             <input
-              class="visually-hidden c4"
+              class="visually-hidden c5"
               id="Lev Ermachine"
               name="senator"
               type="checkbox"
@@ -958,11 +1009,11 @@ exports[`can navigate all ballot pages 4`] = `
             </div>
           </label>
           <label
-            class="c3"
+            class="c4"
             for="John Smith"
           >
             <input
-              class="visually-hidden c4"
+              class="visually-hidden c5"
               id="John Smith"
               name="senator"
               type="checkbox"
@@ -978,11 +1029,11 @@ exports[`can navigate all ballot pages 4`] = `
             </div>
           </label>
           <label
-            class="c3"
+            class="c4"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden c4"
+              class="visually-hidden c5"
               id="writeInCandidate"
               name="senator"
               type="checkbox"
@@ -1016,7 +1067,7 @@ exports[`can navigate all ballot pages 4`] = `
       Previous
     </button>
     <p
-      class="sc-iwsKbI sZzNf"
+      class="sc-iwsKbI dZould"
     >
       2
        of 
@@ -1080,6 +1131,7 @@ exports[`can navigate all ballot pages 5`] = `
 }
 
 .c2 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
@@ -1117,6 +1169,13 @@ exports[`can navigate all ballot pages 5`] = `
     -ms-flex-pack: start;
     justify-content: flex-start;
     padding: 0;
+  }
+}
+
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
   }
 }
 
@@ -1237,6 +1296,7 @@ exports[`can navigate all ballot pages 6`] = `
 }
 
 .c2 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
@@ -1286,6 +1346,13 @@ exports[`can navigate all ballot pages 6`] = `
     -ms-flex-pack: start;
     justify-content: flex-start;
     padding: 0;
+  }
+}
+
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
   }
 }
 
@@ -1412,89 +1479,134 @@ exports[`can navigate all ballot pages 7`] = `
   margin: 0 auto;
 }
 
-.c4 {
+.c2 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c4 h1 {
+.c2 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c4 h2 {
+.c2 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c4 h3,
-.c4 p {
+.c2 h3,
+.c2 p {
   margin: 1rem 0;
 }
 
-.c4 h1 + h2 {
+.c2 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h3 + p {
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
 }
 
-.c8 {
+.c10 {
   color: gray;
 }
 
-.c3 {
+.c5 {
   max-width: 320px;
   margin: auto;
 }
 
-.c2 {
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-height: 11in;
+  margin-top: 2rem;
+  padding: 2rem;
+  background: white;
+}
+
+.c4 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   margin-bottom: 1rem;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
-.c2 > div:nth-child(1) {
-  width: 200px;
-  margin: 0 1rem 0 0;
+.c4 h2 {
+  margin-bottom: 0;
 }
 
-.c2 > div:nth-child(2) {
+.c4 h3 {
+  margin-top: 0;
+}
+
+.c4 > div:nth-child(1) {
+  width: 175px;
+  -webkit-align-self: flex-start;
+  -ms-flex-item-align: start;
+  align-self: flex-start;
+}
+
+.c4 > div:nth-child(2) {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 0 1rem;
+}
+
+.c11 {
+  width: 50%;
+  margin: 1rem 0 -0.75rem;
+}
+
+.c6 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c5 {
+.c7 {
   width: 100%;
   max-width: 66ch;
   text-align: left;
   border-bottom: 1px solid lightGrey;
 }
 
-.c6 {
+.c8 {
   width: 50%;
   padding: 0.5rem 0.25rem;
-  font-weight: normal;
   border-top: none;
+  font-weight: normal;
+  line-height: 1.2;
+  vertical-align: top;
 }
 
-.c7 {
+.c9 {
   width: 50%;
   padding: 0.5rem 0.25rem;
-  font-weight: normal;
   border-top: 1px solid lightGrey;
+  font-weight: normal;
+  line-height: 1.2;
+  vertical-align: top;
 }
 
 @media print {
@@ -1507,6 +1619,32 @@ exports[`can navigate all ballot pages 7`] = `
   }
 }
 
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
+  }
+}
+
+@media print {
+  .c10 {
+    color: black;
+  }
+}
+
+@media print {
+  .c3 {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@media print {
+  .c7 {
+    max-width: 100%;
+  }
+}
+
 <main
     class="c0"
   >
@@ -1516,163 +1654,188 @@ exports[`can navigate all ballot pages 7`] = `
       <div
         class="c2"
       >
-        <div
-          class="c3"
+        <h1
+          class="no-print"
         >
-          <svg
-            viewBox="0 0 500 500"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            
-  
-            <circle
-              cx="250"
-              cy="250"
-              fill="#fff"
-              r="240"
-              stroke="#000"
-              stroke-width="10"
-            />
-            
-  
-            <text
-              alignment-baseline="middle"
-              style="font-family: sans-serif; font-size: 180%"
-              text-anchor="middle"
-              x="50%"
-              y="50%"
-            >
-              Official Seal Here
-            </text>
-            
-
-          </svg>
-          
-
-        </div>
-        <div>
-          <svg
-            height="57"
-            width="404"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10 10h2v35h-2zM18 10h2v35h-2zM22 10h6v35h-6zM30 10h6v35h-6zM38 10h2v35h-2zM42 10h2v35h-2zM46 10h6v35h-6zM54 10h2v35h-2zM62 10h2v35h-2zM66 10h6v35h-6zM74 10h6v35h-6zM82 10h2v35h-2zM86 10h6v35h-6zM98 10h2v35h-2zM102 10h2v35h-2zM106 10h6v35h-6zM114 10h2v35h-2zM118 10h2v35h-2zM126 10h2v35h-2zM130 10h6v35h-6zM138 10h6v35h-6zM150 10h2v35h-2zM154 10h2v35h-2zM158 10h2v35h-2zM162 10h6v35h-6zM170 10h2v35h-2zM178 10h6v35h-6zM186 10h2v35h-2zM190 10h6v35h-6zM198 10h2v35h-2zM202 10h2v35h-2zM206 10h6v35h-6zM214 10h2v35h-2zM218 10h6v35h-6zM230 10h2v35h-2zM234 10h6v35h-6zM242 10h6v35h-6zM250 10h2v35h-2zM254 10h2v35h-2zM262 10h2v35h-2zM266 10h2v35h-2zM270 10h6v35h-6zM278 10h2v35h-2zM286 10h6v35h-6zM294 10h2v35h-2zM298 10h2v35h-2zM302 10h2v35h-2zM306 10h6v35h-6zM314 10h6v35h-6zM326 10h2v35h-2zM330 10h6v35h-6zM338 10h2v35h-2zM342 10h2v35h-2zM350 10h6v35h-6zM358 10h2v35h-2zM362 10h2v35h-2zM370 10h2v35h-2zM374 10h6v35h-6zM382 10h6v35h-6zM390 10h2v35h-2z"
-            />
-          </svg>
+          Review Your Selections
+        </h1>
+        <p
+          class="no-print"
+        >
+          Confirm your votes by printing your ballot.
+        </p>
+      </div>
+      <section
+        class="c3"
+      >
+        <div
+          class="c4"
+        >
           <div
-            class="c4"
+            class="c5"
           >
-            <h1>
-              Official Ballot
-            </h1>
+            <svg
+              viewBox="0 0 500 500"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              
+  
+              <circle
+                cx="250"
+                cy="250"
+                fill="#fff"
+                r="240"
+                stroke="#000"
+                stroke-width="10"
+              />
+              
+  
+              <text
+                alignment-baseline="middle"
+                style="font-family: sans-serif; font-size: 180%"
+                text-anchor="middle"
+                x="50%"
+                y="50%"
+              >
+                Official Seal Here
+              </text>
+              
+
+            </svg>
+            
+
+          </div>
+          <div
+            class="c2"
+          >
             <h2>
-              2020 General Election
+              Official Ballot
             </h2>
+            <h3>
+              2020 General Election
+            </h3>
             <p>
-              Tuesday, November 6, 2020
-              <br />
               Nearby County
               , 
               State of Somewhere
-            </p>
-            <p
-              class="no-print"
-            >
-              Please review your ballot. Confirm your votes by selecting the “Print Ballot” button.
+              <br />
+              Tuesday, November 6, 2020
             </p>
           </div>
         </div>
-      </div>
-      <table
-        class="c5"
-      >
-        <caption
-          class="no-print visually-hidden"
+        <div
+          class="c6"
         >
-          <p>
-            Summary of your votes.
-          </p>
-        </caption>
-        <thead
-          class="no-print"
+          <table
+            class="c7"
+          >
+            <caption
+              class="no-print visually-hidden"
+            >
+              <p>
+                Summary of your votes.
+              </p>
+            </caption>
+            <thead>
+              <tr>
+                <th
+                  class="c8"
+                  scope="col"
+                >
+                  Contest
+                </th>
+                <th
+                  class="c8"
+                  scope="col"
+                >
+                  Vote
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th
+                  class="c9"
+                >
+                  President
+                   
+                </th>
+                <td
+                  class="c9"
+                >
+                  <strong
+                    class="c10"
+                  >
+                    no selection
+                  </strong>
+                   
+                  <small
+                    class="no-print"
+                  >
+                    <a
+                      href="/contests/president"
+                    >
+                      change
+                    </a>
+                  </small>
+                </td>
+              </tr>
+              <tr>
+                <th
+                  class="c9"
+                >
+                  Senator
+                   
+                </th>
+                <td
+                  class="c9"
+                >
+                  <strong
+                    class="c10"
+                  >
+                    no selection
+                  </strong>
+                   
+                  <small
+                    class="no-print"
+                  >
+                    <a
+                      href="/contests/senator"
+                    >
+                      change
+                    </a>
+                  </small>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div
+          class="c11"
         >
-          <tr>
-            <th
-              class="c6"
-              scope="col"
+          <svg
+            viewBox="0 0 1293 177"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 0h1293v177H0z"
+              fill="#FFF"
+            />
+            <path
+              d="M0 0h6v150H0zM9 0h3v150H9zM18 0h3v150h-3zM33 0h6v150h-6zM45 0h3v150h-3zM54 0h9v150h-9zM66 0h3v150h-3zM75 0h9v150h-9zM87 0h6v150h-6zM99 0h3v150h-3zM108 0h3v150h-3zM123 0h6v150h-6zM132 0h3v150h-3zM141 0h3v150h-3zM156 0h6v150h-6zM165 0h9v150h-9zM177 0h6v150h-6zM186 0h9v150h-9zM198 0h3v150h-3zM213 0h3v150h-3zM222 0h6v150h-6zM231 0h9v150h-9zM246 0h3v150h-3zM252 0h6v150h-6zM264 0h3v150h-3zM279 0h3v150h-3zM285 0h6v150h-6zM297 0h3v150h-3zM306 0h6v150h-6zM315 0h9v150h-9zM330 0h3v150h-3zM336 0h9v150h-9zM348 0h12v150h-12zM363 0h6v150h-6zM372 0h12v150h-12zM387 0h6v150h-6zM396 0h6v150h-6zM405 0h3v150h-3zM417 0h9v150h-9zM429 0h3v150h-3zM435 0h12v150h-12zM450 0h9v150h-9zM462 0h3v150h-3zM471 0h6v150h-6zM480 0h9v150h-9zM495 0h3v150h-3zM501 0h9v150h-9zM513 0h12v150h-12zM528 0h9v150h-9zM540 0h9v150h-9zM552 0h6v150h-6zM561 0h3v150h-3zM576 0h6v150h-6zM585 0h3v150h-3zM594 0h3v150h-3zM600 0h12v150h-12zM615 0h9v150h-9zM627 0h3v150h-3zM636 0h6v150h-6zM645 0h9v150h-9zM660 0h3v150h-3zM669 0h3v150h-3zM675 0h6v150h-6zM693 0h3v150h-3zM699 0h6v150h-6zM717 0h3v150h-3zM726 0h6v150h-6zM735 0h9v150h-9zM750 0h3v150h-3zM759 0h3v150h-3zM765 0h6v150h-6zM777 0h3v150h-3zM792 0h3v150h-3zM801 0h6v150h-6zM810 0h9v150h-9zM825 0h6v150h-6zM834 0h9v150h-9zM849 0h3v150h-3zM858 0h3v150h-3zM864 0h6v150h-6zM876 0h3v150h-3zM891 0h6v150h-6zM903 0h9v150h-9zM915 0h3v150h-3zM924 0h6v150h-6zM936 0h9v150h-9zM948 0h3v150h-3zM957 0h3v150h-3zM963 0h6v150h-6zM981 0h3v150h-3zM990 0h3v150h-3zM999 0h9v150h-9zM1011 0h6v150h-6zM1023 0h3v150h-3zM1032 0h3v150h-3zM1047 0h6v150h-6zM1056 0h3v150h-3zM1065 0h3v150h-3zM1080 0h6v150h-6zM1089 0h3v150h-3zM1104 0h3v150h-3zM1110 0h6v150h-6zM1122 0h9v150h-9zM1134 0h6v150h-6zM1143 0h9v150h-9zM1155 0h6v150h-6zM1167 0h3v150h-3zM1173 0h9v150h-9zM1188 0h3v150h-3zM1194 0h6v150h-6zM1206 0h3v150h-3zM1221 0h3v150h-3zM1227 0h6v150h-6zM1245 0h3v150h-3zM1254 0h6v150h-6zM1269 0h9v150h-9zM1281 0h3v150h-3zM1287 0h6v150h-6z"
+            />
+            <text
+              font-family="Helvetica"
+              font-size="24"
+              text-anchor="middle"
+              x="646.5"
+              y="177"
             >
-              <small>
-                Contest
-              </small>
-            </th>
-            <th
-              class="c6"
-              scope="col"
-            >
-              <small>
-                Vote
-              </small>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th
-              class="c7"
-            >
-              President
-               
-            </th>
-            <td
-              class="c7"
-            >
-              <span
-                class="c8"
-              >
-                no selection
-              </span>
-               
-              <small
-                class="no-print"
-              >
-                <a
-                  href="/contests/president"
-                >
-                  change
-                </a>
-              </small>
-            </td>
-          </tr>
-          <tr>
-            <th
-              class="c7"
-            >
-              Senator
-               
-            </th>
-            <td
-              class="c7"
-            >
-              <span
-                class="c8"
-              >
-                no selection
-              </span>
-               
-              <small
-                class="no-print"
-              >
-                <a
-                  href="/contests/senator"
-                >
-                  change
-                </a>
-              </small>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              40bb7d9c-9049-4873-af5e-5e66f0bbc73e
+            </text>
+          </svg>
+        </div>
+      </section>
     </div>
   </main>
   .c0 {
@@ -1785,53 +1948,59 @@ exports[`can navigate all ballot pages 8`] = `
   margin: 0 auto;
 }
 
-.c3 {
+.c4 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c3 h1 {
+.c4 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c3 h2 {
+.c4 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c3 h3,
-.c3 p {
+.c4 h3,
+.c4 p {
   margin: 1rem 0;
 }
 
-.c3 h1 + h2 {
+.c4 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c4 > :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c4 > :last-child {
   margin-bottom: 0;
+}
+
+.c3 {
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .c2 {
   margin: 0 0 1rem 4rem;
 }
 
-.c4 {
+.c5 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.75rem;
 }
 
-.c5 {
+.c6 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -1847,15 +2016,15 @@ exports[`can navigate all ballot pages 8`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c5:focus-within {
+.c6:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c5 > div {
+.c6 > div {
   padding: 1rem;
 }
 
-.c5 > input + div:before {
+.c6 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -1880,22 +2049,22 @@ exports[`can navigate all ballot pages 8`] = `
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c5 > input:checked + div:before {
+.c6 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c5 > div:first-of-type {
+.c6 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c5 .write-in-candidate-name {
+.c6 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c6 {
+.c7 {
   margin-right: 0.5rem;
 }
 
@@ -1906,6 +2075,13 @@ exports[`can navigate all ballot pages 8`] = `
     -ms-flex-pack: start;
     justify-content: flex-start;
     padding: 0;
+  }
+}
+
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
   }
 }
 
@@ -1921,8 +2097,13 @@ exports[`can navigate all ballot pages 8`] = `
         <legend
           class="c2"
         >
-          <div
+          <small
             class="c3"
+          >
+            Federal Election
+          </small>
+          <div
+            class="c4"
           >
             <h1>
               Senator
@@ -1939,14 +2120,14 @@ exports[`can navigate all ballot pages 8`] = `
           </div>
         </legend>
         <div
-          class="c4"
+          class="c5"
         >
           <label
-            class="c5"
+            class="c6"
             for="Chad Hanging"
           >
             <input
-              class="visually-hidden c6"
+              class="visually-hidden c7"
               id="Chad Hanging"
               name="senator"
               type="checkbox"
@@ -1962,11 +2143,11 @@ exports[`can navigate all ballot pages 8`] = `
             </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="Lev Ermachine"
           >
             <input
-              class="visually-hidden c6"
+              class="visually-hidden c7"
               id="Lev Ermachine"
               name="senator"
               type="checkbox"
@@ -1982,11 +2163,11 @@ exports[`can navigate all ballot pages 8`] = `
             </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="John Smith"
           >
             <input
-              class="visually-hidden c6"
+              class="visually-hidden c7"
               id="John Smith"
               name="senator"
               type="checkbox"
@@ -2002,11 +2183,11 @@ exports[`can navigate all ballot pages 8`] = `
             </div>
           </label>
           <label
-            class="c5"
+            class="c6"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden c6"
+              class="visually-hidden c7"
               id="writeInCandidate"
               name="senator"
               type="checkbox"
@@ -2075,6 +2256,12 @@ exports[`can navigate all ballot pages 8`] = `
 @media print {
   .c0 {
     display: none;
+  }
+}
+
+@media print {
+  .c2 {
+    color: white;
   }
 }
 
@@ -2212,43 +2399,44 @@ exports[`redirects contests index to first contest 1`] = `
   margin: 0 auto;
 }
 
-.c4 {
+.c5 {
   line-height: 1.3;
   max-width: 66ch;
 }
 
-.c4 h1 {
+.c5 h1 {
+  line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c4 h2 {
+.c5 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c4 h3,
-.c4 p {
+.c5 h3,
+.c5 p {
   margin: 1rem 0;
 }
 
-.c4 h1 + h2 {
+.c5 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h3 + p {
+.c5 h1 + p,
+.c5 h2 + p,
+.c5 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c5 > :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c5 > :last-child {
   margin-bottom: 0;
 }
 
-.c8 {
+.c9 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -2266,20 +2454,20 @@ exports[`redirects contests index to first contest 1`] = `
   align-items: center;
 }
 
-.c8 > :first-child {
+.c9 > :first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c8 > * {
+.c9 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c11 {
+.c12 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -2300,20 +2488,20 @@ exports[`redirects contests index to first contest 1`] = `
   align-items: center;
 }
 
-.c11 > :first-child {
+.c12 > :first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c11 > * {
+.c12 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c9 {
+.c10 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -2325,22 +2513,27 @@ exports[`redirects contests index to first contest 1`] = `
   white-space: nowrap;
 }
 
-.c10 {
+.c11 {
   color: white;
   text-align: center;
+}
+
+.c4 {
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .c3 {
   margin: 0 0 1rem 4rem;
 }
 
-.c5 {
+.c6 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.75rem;
 }
 
-.c6 {
+.c7 {
   position: relative;
   cursor: pointer;
   display: grid;
@@ -2356,15 +2549,15 @@ exports[`redirects contests index to first contest 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c6:focus-within {
+.c7:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6 > div {
+.c7 > div {
   padding: 1rem;
 }
 
-.c6 > input + div:before {
+.c7 > input + div:before {
   content: '';
   position: absolute;
   left: 0;
@@ -2389,22 +2582,22 @@ exports[`redirects contests index to first contest 1`] = `
   border-radius: 0.125rem 0 0 0.125rem;
 }
 
-.c6 > input:checked + div:before {
+.c7 > input:checked + div:before {
   content: '✓';
   background: white;
   color: #028099;
   border-color: #028099;
 }
 
-.c6 > div:first-of-type {
+.c7 > div:first-of-type {
   padding-left: 4rem;
 }
 
-.c6 .write-in-candidate-name {
+.c7 .write-in-candidate-name {
   grid-column: span 2;
 }
 
-.c7 {
+.c8 {
   margin-right: 0.5rem;
 }
 
@@ -2419,14 +2612,27 @@ exports[`redirects contests index to first contest 1`] = `
 }
 
 @media print {
-  .c8 {
+  .c2 {
+    max-width: 100%;
+    margin: 0;
+  }
+}
+
+@media print {
+  .c9 {
+    display: none;
+  }
+}
+
+@media print {
+  .c12 {
     display: none;
   }
 }
 
 @media print {
   .c11 {
-    display: none;
+    color: white;
   }
 }
 
@@ -2445,8 +2651,13 @@ exports[`redirects contests index to first contest 1`] = `
         <legend
           class="c3"
         >
-          <div
+          <small
             class="c4"
+          >
+            Federal Election
+          </small>
+          <div
+            class="c5"
           >
             <h1>
               President
@@ -2463,14 +2674,14 @@ exports[`redirects contests index to first contest 1`] = `
           </div>
         </legend>
         <div
-          class="c5"
+          class="c6"
         >
           <label
-            class="c6"
+            class="c7"
             for="Minnie Mouse"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="Minnie Mouse"
               name="president"
               type="checkbox"
@@ -2486,11 +2697,11 @@ exports[`redirects contests index to first contest 1`] = `
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="Mickey Mouse"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="Mickey Mouse"
               name="president"
               type="checkbox"
@@ -2506,11 +2717,11 @@ exports[`redirects contests index to first contest 1`] = `
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="Donald Duck"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="Donald Duck"
               name="president"
               type="checkbox"
@@ -2526,11 +2737,11 @@ exports[`redirects contests index to first contest 1`] = `
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="writeInCandidate"
               name="president"
               type="checkbox"
@@ -2549,22 +2760,22 @@ exports[`redirects contests index to first contest 1`] = `
     </div>
   </main>
   <nav
-    class="c8"
+    class="c9"
   >
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Next
     </button>
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c10"
+      class="c11"
     >
       1
        of 
@@ -2572,22 +2783,22 @@ exports[`redirects contests index to first contest 1`] = `
     </p>
   </nav>
   <nav
-    class="c11"
+    class="c12"
   >
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Review
     </button>
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Help
     </button>
     <button
-      class="c9"
+      class="c10"
       type="button"
     >
       Settings
