@@ -646,7 +646,19 @@ exports[`can navigate all ballot pages 3`] = `
       </fieldset>
     </div>
   </main>
-  .c0 {
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -675,18 +687,6 @@ exports[`can navigate all ballot pages 3`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 .c2 {
@@ -729,7 +729,19 @@ exports[`can navigate all ballot pages 3`] = `
       2
     </p>
   </nav>
-  .c0 {
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -761,18 +773,6 @@ exports[`can navigate all ballot pages 3`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 @media print {
@@ -1052,16 +1052,28 @@ exports[`can navigate all ballot pages 4`] = `
     </div>
   </main>
   <nav
-    class="sc-bZQynM jNPfoL"
+    class="sc-gzVnrw kTMqnS"
   >
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-bZQynM fQKIWd"
       type="button"
     >
       Review
     </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
+    .c0 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+<button
+      class="c0"
       type="button"
     >
       Previous
@@ -1075,22 +1087,22 @@ exports[`can navigate all ballot pages 4`] = `
     </p>
   </nav>
   <nav
-    class="sc-bZQynM eFUAey"
+    class="sc-gzVnrw dmmXmk"
   >
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-bZQynM fQKIWd"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-bZQynM fQKIWd"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-bZQynM fQKIWd"
       type="button"
     >
       Settings
@@ -1197,7 +1209,19 @@ exports[`can navigate all ballot pages 5`] = `
       </div>
     </div>
   </main>
-  .c0 {
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -1229,18 +1253,6 @@ exports[`can navigate all ballot pages 5`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 @media print {
@@ -1386,7 +1398,19 @@ exports[`can navigate all ballot pages 6`] = `
       </div>
     </div>
   </main>
-  .c0 {
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -1418,18 +1442,6 @@ exports[`can navigate all ballot pages 6`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 @media print {
@@ -1838,7 +1850,31 @@ exports[`can navigate all ballot pages 7`] = `
       </section>
     </div>
   </main>
-  .c0 {
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: #4caf50;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: white;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c2 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -1870,30 +1906,6 @@ exports[`can navigate all ballot pages 7`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: #4caf50;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: white;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c2 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 @media print {
@@ -2205,7 +2217,19 @@ exports[`can navigate all ballot pages 8`] = `
       </fieldset>
     </div>
   </main>
-  .c0 {
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -2234,18 +2258,6 @@ exports[`can navigate all ballot pages 8`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 .c2 {
@@ -2288,7 +2300,19 @@ exports[`can navigate all ballot pages 8`] = `
       2
     </p>
   </nav>
-  .c0 {
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -2320,18 +2344,6 @@ exports[`can navigate all ballot pages 8`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 @media print {
@@ -2436,6 +2448,18 @@ exports[`redirects contests index to first contest 1`] = `
   margin-bottom: 0;
 }
 
+.c10 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .c9 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -2499,18 +2523,6 @@ exports[`redirects contests index to first contest 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c10 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 .c11 {
