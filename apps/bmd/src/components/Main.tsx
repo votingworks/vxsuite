@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 interface Props {
-  noMargin?: boolean
+  noPadding?: boolean
 }
 
 const Main = styled('main')<Props>`
@@ -9,7 +9,11 @@ const Main = styled('main')<Props>`
   flex-direction: column;
   flex: 1;
   overflow: scroll;
-  padding: ${({ noMargin }: Props) => (noMargin ? undefined : '2rem 1rem')};
+  padding: ${({ noPadding }: Props) =>
+    noPadding ? undefined : '1rem 0.5rem 2rem'};
+  @media (min-width: 480px) {
+    padding: ${({ noPadding }: Props) => (noPadding ? undefined : '2rem 1rem')};
+  }
   @media print {
     justify-content: flex-start;
     padding: 0;
@@ -25,7 +29,7 @@ interface ChildProps {
 
 export const MainChild = styled('div')<ChildProps>`
   width: 100%;
-  max-width: 40rem;
+  max-width: 35rem;
   margin: ${({
     center = false,
     centerVertical = center,

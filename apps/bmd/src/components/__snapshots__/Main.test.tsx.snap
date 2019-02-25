@@ -13,13 +13,19 @@ exports[`renders Main with child 1`] = `
   -ms-flex: 1;
   flex: 1;
   overflow: scroll;
-  padding: 2rem 1rem;
+  padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
   width: 100%;
-  max-width: 40rem;
+  max-width: 35rem;
   margin: 0 auto;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    padding: 2rem 1rem;
+  }
 }
 
 @media print {
@@ -63,13 +69,19 @@ exports[`renders centered content 1`] = `
   -ms-flex: 1;
   flex: 1;
   overflow: scroll;
-  padding: 2rem 1rem;
+  padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
   width: 100%;
-  max-width: 40rem;
+  max-width: 35rem;
   margin: auto auto;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    padding: 2rem 1rem;
+  }
 }
 
 @media print {
@@ -113,13 +125,19 @@ exports[`renders not centered content 1`] = `
   -ms-flex: 1;
   flex: 1;
   overflow: scroll;
-  padding: 2rem 1rem;
+  padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
   width: 100%;
-  max-width: 40rem;
+  max-width: 35rem;
   margin: 0 0;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    padding: 2rem 1rem;
+  }
 }
 
 @media print {

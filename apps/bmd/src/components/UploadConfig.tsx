@@ -97,7 +97,7 @@ class UploadConfig extends React.Component<Props, State> {
     const { loading, loaded, errorMessage } = this.state
     return (
       <Screen>
-        <Main noMargin>
+        <Main noPadding>
           {loading || loaded ? (
             <p>{loaded ? 'File loaded' : 'Loading file…'} </p>
           ) : (
