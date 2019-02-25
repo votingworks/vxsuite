@@ -77,11 +77,10 @@ const ContestPage = (props: Props) => {
           {currentContestIndex + 1} of {contests.length}
         </Text>
       </ButtonBar>
-      <ButtonBar secondary>
+      <ButtonBar secondary separatePrimaryButton>
         <LinkButton to="/review">Review</LinkButton>
         <LinkButton to="/help">Help</LinkButton>
         <LinkButton to="/settings">Settings</LinkButton>
-        <div />
       </ButtonBar>
     </React.Fragment>
   )

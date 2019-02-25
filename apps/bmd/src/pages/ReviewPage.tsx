@@ -180,13 +180,11 @@ class SummaryPage extends React.Component<RouteComponentProps> {
             </Ballot>
           </MainChild>
         </Main>
-        <ButtonBar secondary>
+        <ButtonBar secondary separatePrimaryButton>
           <Button autoFocus primary onClick={this.showConfirm}>
             Print Ballot
           </Button>
           <LinkButton goBack>Back</LinkButton>
-          <div />
-          <div />
         </ButtonBar>
         <Modal
           isOpen={this.state.isAlert}

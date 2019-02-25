@@ -230,6 +230,20 @@ exports[`renders ContestPage 1`] = `
   }
 }
 
+@media (min-width:480px) {
+  .c11 > :first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c11 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
 @media print {
   .c11 {
     display: none;
@@ -424,7 +438,6 @@ exports[`renders ContestPage 1`] = `
     >
       Settings
     </button>
-    <div />
   </nav>
 </div>
 `;

@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 interface Props {
   secondary?: boolean
+  separatePrimaryButton?: boolean
 }
 
 const ButtonBar = styled('nav')<Props>`
@@ -14,10 +15,18 @@ const ButtonBar = styled('nav')<Props>`
   align-items: center;
   & > :first-child {
     order: 2;
+    @media (min-width: 480px) {
+      margin-left: ${({ separatePrimaryButton }) =>
+        separatePrimaryButton ? 'auto' : undefined};
+    }
   }
   & > * {
-    margin: 0.25rem
+    margin: 0.25rem;
     flex: 1;
+    @media (min-width: 480px) {
+      flex: ${({ separatePrimaryButton }) =>
+        separatePrimaryButton ? '0' : undefined};
+    }
   }
   @media print {
     display: none;

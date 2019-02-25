@@ -775,6 +775,20 @@ exports[`can navigate all ballot pages 3`] = `
   flex: 1;
 }
 
+@media (min-width:480px) {
+  .c0 > :first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
 @media print {
   .c0 {
     display: none;
@@ -802,7 +816,6 @@ exports[`can navigate all ballot pages 3`] = `
     >
       Settings
     </button>
-    <div />
   </nav>
 </div>
 `;
@@ -1052,7 +1065,7 @@ exports[`can navigate all ballot pages 4`] = `
     </div>
   </main>
   <nav
-    class="sc-gzVnrw kTMqnS"
+    class="sc-gzVnrw iAFTeh"
   >
     <button
       class="sc-bZQynM fQKIWd"
@@ -1087,7 +1100,7 @@ exports[`can navigate all ballot pages 4`] = `
     </p>
   </nav>
   <nav
-    class="sc-gzVnrw dmmXmk"
+    class="sc-gzVnrw cZlwmG"
   >
     <button
       class="sc-bZQynM fQKIWd"
@@ -1107,7 +1120,6 @@ exports[`can navigate all ballot pages 4`] = `
     >
       Settings
     </button>
-    <div />
   </nav>
 </div>
 `;
@@ -1908,6 +1920,20 @@ exports[`can navigate all ballot pages 7`] = `
   flex: 1;
 }
 
+@media (min-width:480px) {
+  .c0 > :first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
 @media print {
   .c0 {
     display: none;
@@ -1929,8 +1955,6 @@ exports[`can navigate all ballot pages 7`] = `
     >
       Back
     </button>
-    <div />
-    <div />
   </nav>
 </div>
 `;
@@ -2346,6 +2370,20 @@ exports[`can navigate all ballot pages 8`] = `
   flex: 1;
 }
 
+@media (min-width:480px) {
+  .c0 > :first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
 @media print {
   .c0 {
     display: none;
@@ -2373,7 +2411,6 @@ exports[`can navigate all ballot pages 8`] = `
     >
       Settings
     </button>
-    <div />
   </nav>
 </div>
 `;
@@ -2636,6 +2673,20 @@ exports[`redirects contests index to first contest 1`] = `
   }
 }
 
+@media (min-width:480px) {
+  .c12 > :first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c12 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
 @media print {
   .c12 {
     display: none;
@@ -2815,7 +2866,6 @@ exports[`redirects contests index to first contest 1`] = `
     >
       Settings
     </button>
-    <div />
   </nav>
 </div>
 `;
