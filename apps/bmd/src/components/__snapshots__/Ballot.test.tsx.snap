@@ -432,7 +432,7 @@ exports[`can navigate all ballot pages 3`] = `
 }
 
 .c2 {
-  margin: 0 0 1rem 4rem;
+  margin-bottom: 1rem;
 }
 
 .c5 {
@@ -523,6 +523,12 @@ exports[`can navigate all ballot pages 3`] = `
   .c1 {
     max-width: 100%;
     margin: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c2 {
+    margin-left: 4rem;
   }
 }
 
@@ -873,7 +879,7 @@ exports[`can navigate all ballot pages 4`] = `
 }
 
 .c0 {
-  margin: 0 0 1rem 4rem;
+  margin-bottom: 1rem;
 }
 
 .c3 {
@@ -948,6 +954,12 @@ exports[`can navigate all ballot pages 4`] = `
 
 .c5 {
   margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    margin-left: 4rem;
+  }
 }
 
 <fieldset
@@ -2027,7 +2039,7 @@ exports[`can navigate all ballot pages 8`] = `
 }
 
 .c2 {
-  margin: 0 0 1rem 4rem;
+  margin-bottom: 1rem;
 }
 
 .c5 {
@@ -2118,6 +2130,12 @@ exports[`can navigate all ballot pages 8`] = `
   .c1 {
     max-width: 100%;
     margin: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c2 {
+    margin-left: 4rem;
   }
 }
 
@@ -2573,7 +2591,7 @@ exports[`redirects contests index to first contest 1`] = `
 }
 
 .c3 {
-  margin: 0 0 1rem 4rem;
+  margin-bottom: 1rem;
 }
 
 .c6 {
@@ -2696,6 +2714,12 @@ exports[`redirects contests index to first contest 1`] = `
 @media print {
   .c11 {
     color: white;
+  }
+}
+
+@media (min-width:480px) {
+  .c3 {
+    margin-left: 4rem;
   }
 }
 

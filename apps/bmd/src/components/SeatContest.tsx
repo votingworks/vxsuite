@@ -16,7 +16,10 @@ const ContestSection = styled.small`
 `
 const FieldSet = styled.fieldset``
 const Legend = styled.legend`
-  margin: 0 0 1rem 4rem;
+  margin-bottom: 1rem;
+  @media (min-width: 480px) {
+    margin-left: 4rem;
+  }
 `
 const Choices = styled.div`
   display: grid;

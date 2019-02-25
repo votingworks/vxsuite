@@ -44,7 +44,7 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
 }
 
 .c0 {
-  margin: 0 0 1rem 4rem;
+  margin-bottom: 1rem;
 }
 
 .c3 {
@@ -119,6 +119,12 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
 
 .c5 {
   margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    margin-left: 4rem;
+  }
 }
 
 <div>
@@ -281,7 +287,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
 }
 
 .c0 {
-  margin: 0 0 1rem 4rem;
+  margin-bottom: 1rem;
 }
 
 .c3 {
@@ -421,6 +427,12 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
 
 .c5 {
   margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    margin-left: 4rem;
+  }
 }
 
 <div>

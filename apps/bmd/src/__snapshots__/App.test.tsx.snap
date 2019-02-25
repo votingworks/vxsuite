@@ -633,7 +633,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 }
 
 .c2 {
-  margin: 0 0 1rem 4rem;
+  margin-bottom: 1rem;
 }
 
 .c5 {
@@ -724,6 +724,12 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   .c1 {
     max-width: 100%;
     margin: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c2 {
+    margin-left: 4rem;
   }
 }
 
@@ -1035,7 +1041,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
         class="sc-gqjmRU hnZXkc"
       >
         <legend
-          class="sc-VigVT hWhjqG"
+          class="sc-VigVT iuEjDE"
         >
           <small
             class="sc-gZMcBi euTFpJ"
@@ -1249,7 +1255,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 }
 
 .c0 {
-  margin: 0 0 1rem 4rem;
+  margin-bottom: 1rem;
 }
 
 .c3 {
@@ -1324,6 +1330,12 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 
 .c5 {
   margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    margin-left: 4rem;
+  }
 }
 
 <fieldset
@@ -1514,7 +1526,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
         class="sc-gqjmRU hnZXkc"
       >
         <legend
-          class="sc-VigVT hWhjqG"
+          class="sc-VigVT iuEjDE"
         >
           <small
             class="sc-gZMcBi euTFpJ"

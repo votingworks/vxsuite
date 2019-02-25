@@ -21,6 +21,10 @@ fieldset {
   padding: 0;
 }
 
+legend {
+  display: block;
+}
+
 :link,
 :visited {
   color: rgb(0, 0, 238);
