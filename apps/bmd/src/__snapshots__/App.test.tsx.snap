@@ -2174,9 +2174,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
     </div>
   </main>
   .c0 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;

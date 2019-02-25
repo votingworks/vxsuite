@@ -209,7 +209,7 @@ class SummaryPage extends React.Component<RouteComponentProps> {
             </Ballot>
           </MainChild>
         </Main>
-        <ButtonBar secondary separatePrimaryButton>
+        <ButtonBar separatePrimaryButton>
           <Button autoFocus primary onClick={this.showConfirm}>
             Print Ballot
           </Button>

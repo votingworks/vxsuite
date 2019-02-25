@@ -2022,9 +2022,6 @@ exports[`can navigate all ballot pages 7`] = `
     </div>
   </main>
   .c0 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
