@@ -16,7 +16,7 @@ import BallotContext from '../contexts/ballotContext'
 const Ballot = styled.section`
   display: flex;
   flex-direction: column;
-  min-height: 11in;
+  min-height: 9.5in;
   margin-top: 2rem;
   padding: 2rem;
   background: white;
