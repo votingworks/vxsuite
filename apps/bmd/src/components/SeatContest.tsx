@@ -16,8 +16,9 @@ const ContestSection = styled.small`
 `
 const FieldSet = styled.fieldset``
 const Legend = styled.legend`
-  margin-bottom: 1rem;
+  margin: 0 0.25rem 1rem;
   @media (min-width: 480px) {
+    margin: 0 1rem 1rem;
     margin-left: 4rem;
   }
 `
@@ -27,10 +28,9 @@ const Choices = styled.div`
   grid-gap: 0.75rem;
 `
 const Choice = styled('label')<{ isSelected: boolean }>`
-  position: relative;
   cursor: pointer;
+  position: relative;
   display: grid;
-  grid-template-columns: 3fr 1fr;
   align-items: center;
   border-radius: 0.125rem;
   background: ${({ isSelected }) => (isSelected ? '#028099' : 'white')};
@@ -42,16 +42,15 @@ const Choice = styled('label')<{ isSelected: boolean }>`
   :focus-within {
     outline: -webkit-focus-ring-color auto 5px;
   }
-  & > div {
-    padding: 1rem;
-  }
-  & > input + div:before {
-    content: '';
+  :before {
+    content: '${({ isSelected }) => (isSelected ? '✓' : '')}';
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
-    border-right: 1px solid lightgrey;
+    background: white;
+    border-right: 1px solid;
+    border-color: ${({ isSelected }) => (isSelected ? '#028099' : 'lightgrey')};
     width: 3rem;
     text-align: center;
     display: flex;
@@ -59,18 +58,13 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     align-items: center;
     font-size: 2rem;
     border-radius: 0.125rem 0 0 0.125rem;
-  }
-  & > input:checked + div:before {
-    content: '✓';
-    background: white;
     color: #028099;
-    border-color: #028099;
   }
-  & > div:first-of-type {
-    padding-left: 4rem;
-  }
-  & .write-in-candidate-name {
-    grid-column: span 2;
+  & > div {
+    padding: 0.5rem 0.5rem 0.5rem 4rem;
+    @media (min-width: 480px) {
+      padding: 1rem 1rem 1rem inherit;
+    }
   }
 `
 const ChoiceInput = styled.input.attrs({
@@ -275,10 +269,11 @@ class SeatContest extends React.Component<Props, State> {
                     disabled={!!vote && !isChecked}
                     className="visually-hidden"
                   />
-                  <div>
+                  <Prose>
                     <strong>{candidate.name}</strong>
-                  </div>
-                  <div>{candidate.party}</div>
+                    <br />
+                    {candidate.party}
+                  </Prose>
                 </Choice>
               )
             })}
@@ -297,13 +292,13 @@ class SeatContest extends React.Component<Props, State> {
                 disabled={!!vote && !writeInCandidateIsChecked}
                 className="visually-hidden"
               />
-              <div className="write-in-candidate-name">
+              <Prose>
                 {!!this.state.writeInCandidateName ? (
                   <strong>{this.state.writeInCandidateName}</strong>
                 ) : (
                   <em>add a write-in candidate</em>
                 )}
-              </div>
+              </Prose>
             </Choice>
           </Choices>
         </FieldSet>

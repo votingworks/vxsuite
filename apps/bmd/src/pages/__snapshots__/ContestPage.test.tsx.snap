@@ -147,7 +147,7 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c2 {
-  margin-bottom: 1rem;
+  margin: 0 0.25rem 1rem;
 }
 
 .c5 {
@@ -157,10 +157,9 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c6 {
-  position: relative;
   cursor: pointer;
+  position: relative;
   display: grid;
-  grid-template-columns: 3fr 1fr;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -176,17 +175,15 @@ exports[`renders ContestPage 1`] = `
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6 > div {
-  padding: 1rem;
-}
-
-.c6 > input + div:before {
+.c6:before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  border-right: 1px solid lightgrey;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
   width: 3rem;
   text-align: center;
   display: -webkit-box;
@@ -203,21 +200,11 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
   font-size: 2rem;
   border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c6 > input:checked + div:before {
-  content: '✓';
-  background: white;
   color: #028099;
-  border-color: #028099;
 }
 
-.c6 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c6 .write-in-candidate-name {
-  grid-column: span 2;
+.c6 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c7 {
@@ -287,7 +274,14 @@ exports[`renders ContestPage 1`] = `
 
 @media (min-width:480px) {
   .c2 {
+    margin: 0 1rem 1rem;
     margin-left: 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c6 > div {
+    padding: 1rem 1rem 1rem inherit;
   }
 }
 
@@ -340,12 +334,13 @@ exports[`renders ContestPage 1`] = `
               type="checkbox"
               value="Minnie Mouse"
             />
-            <div>
+            <div
+              class="c4"
+            >
               <strong>
                 Minnie Mouse
               </strong>
-            </div>
-            <div>
+              <br />
               Mouse
             </div>
           </label>
@@ -360,12 +355,13 @@ exports[`renders ContestPage 1`] = `
               type="checkbox"
               value="Mickey Mouse"
             />
-            <div>
+            <div
+              class="c4"
+            >
               <strong>
                 Mickey Mouse
               </strong>
-            </div>
-            <div>
+              <br />
               Mouse
             </div>
           </label>
@@ -380,12 +376,13 @@ exports[`renders ContestPage 1`] = `
               type="checkbox"
               value="Donald Duck"
             />
-            <div>
+            <div
+              class="c4"
+            >
               <strong>
                 Donald Duck
               </strong>
-            </div>
-            <div>
+              <br />
               Duck
             </div>
           </label>
@@ -401,7 +398,7 @@ exports[`renders ContestPage 1`] = `
               value="writeInCandidate"
             />
             <div
-              class="write-in-candidate-name"
+              class="c4"
             >
               <em>
                 add a write-in candidate

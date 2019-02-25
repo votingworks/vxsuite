@@ -663,7 +663,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 }
 
 .c2 {
-  margin-bottom: 1rem;
+  margin: 0 0.25rem 1rem;
 }
 
 .c5 {
@@ -673,10 +673,9 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 }
 
 .c6 {
-  position: relative;
   cursor: pointer;
+  position: relative;
   display: grid;
-  grid-template-columns: 3fr 1fr;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -692,17 +691,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6 > div {
-  padding: 1rem;
-}
-
-.c6 > input + div:before {
+.c6:before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  border-right: 1px solid lightgrey;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
   width: 3rem;
   text-align: center;
   display: -webkit-box;
@@ -719,21 +716,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   align-items: center;
   font-size: 2rem;
   border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c6 > input:checked + div:before {
-  content: '✓';
-  background: white;
   color: #028099;
-  border-color: #028099;
 }
 
-.c6 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c6 .write-in-candidate-name {
-  grid-column: span 2;
+.c6 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c7 {
@@ -771,7 +758,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 
 @media (min-width:480px) {
   .c2 {
+    margin: 0 1rem 1rem;
     margin-left: 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c6 > div {
+    padding: 1rem 1rem 1rem inherit;
   }
 }
 
@@ -823,12 +817,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
               type="checkbox"
               value="Minnie Mouse"
             />
-            <div>
+            <div
+              class="c4"
+            >
               <strong>
                 Minnie Mouse
               </strong>
-            </div>
-            <div>
+              <br />
               Mouse
             </div>
           </label>
@@ -843,12 +838,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
               type="checkbox"
               value="Mickey Mouse"
             />
-            <div>
+            <div
+              class="c4"
+            >
               <strong>
                 Mickey Mouse
               </strong>
-            </div>
-            <div>
+              <br />
               Mouse
             </div>
           </label>
@@ -863,12 +859,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
               type="checkbox"
               value="Donald Duck"
             />
-            <div>
+            <div
+              class="c4"
+            >
               <strong>
                 Donald Duck
               </strong>
-            </div>
-            <div>
+              <br />
               Duck
             </div>
           </label>
@@ -884,7 +881,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
               value="writeInCandidate"
             />
             <div
-              class="write-in-candidate-name"
+              class="c4"
             >
               <em>
                 add a write-in candidate
@@ -1083,7 +1080,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
         class="sc-gqjmRU hnZXkc"
       >
         <legend
-          class="sc-VigVT iuEjDE"
+          class="sc-VigVT iekhfX"
         >
           <small
             class="sc-gZMcBi euTFpJ"
@@ -1111,7 +1108,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
           class="sc-jTzLTM jPWweK"
         >
           <label
-            class="sc-fjdhpX fPScmd"
+            class="sc-fjdhpX gNyhh"
             for="Minnie Mouse"
           >
             <input
@@ -1121,17 +1118,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               type="checkbox"
               value="Minnie Mouse"
             />
-            <div>
+            <div
+              class="sc-bxivhb gobFlP"
+            >
               <strong>
                 Minnie Mouse
               </strong>
-            </div>
-            <div>
+              <br />
               Mouse
             </div>
           </label>
           <label
-            class="sc-fjdhpX cfegAt"
+            class="sc-fjdhpX eMqClR"
             for="Mickey Mouse"
           >
             <input
@@ -1142,17 +1140,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               type="checkbox"
               value="Mickey Mouse"
             />
-            <div>
+            <div
+              class="sc-bxivhb gobFlP"
+            >
               <strong>
                 Mickey Mouse
               </strong>
-            </div>
-            <div>
+              <br />
               Mouse
             </div>
           </label>
           <label
-            class="sc-fjdhpX cfegAt"
+            class="sc-fjdhpX eMqClR"
             for="Donald Duck"
           >
             <input
@@ -1163,17 +1162,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               type="checkbox"
               value="Donald Duck"
             />
-            <div>
+            <div
+              class="sc-bxivhb gobFlP"
+            >
               <strong>
                 Donald Duck
               </strong>
-            </div>
-            <div>
+              <br />
               Duck
             </div>
           </label>
           <label
-            class="sc-fjdhpX cfegAt"
+            class="sc-fjdhpX eMqClR"
             for="writeInCandidate"
           >
             <input
@@ -1185,7 +1185,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               value="writeInCandidate"
             />
             <div
-              class="write-in-candidate-name"
+              class="sc-bxivhb gobFlP"
             >
               <em>
                 add a write-in candidate
@@ -1297,7 +1297,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 }
 
 .c0 {
-  margin-bottom: 1rem;
+  margin: 0 0.25rem 1rem;
 }
 
 .c3 {
@@ -1307,10 +1307,9 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 }
 
 .c4 {
-  position: relative;
   cursor: pointer;
+  position: relative;
   display: grid;
-  grid-template-columns: 3fr 1fr;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -1326,17 +1325,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c4 > div {
-  padding: 1rem;
-}
-
-.c4 > input + div:before {
+.c4:before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  border-right: 1px solid lightgrey;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
   width: 3rem;
   text-align: center;
   display: -webkit-box;
@@ -1353,21 +1350,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
   align-items: center;
   font-size: 2rem;
   border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c4 > input:checked + div:before {
-  content: '✓';
-  background: white;
   color: #028099;
-  border-color: #028099;
 }
 
-.c4 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c4 .write-in-candidate-name {
-  grid-column: span 2;
+.c4 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c5 {
@@ -1382,7 +1369,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 
 @media (min-width:480px) {
   .c0 {
+    margin: 0 1rem 1rem;
     margin-left: 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c4 > div {
+    padding: 1rem 1rem 1rem inherit;
   }
 }
 
@@ -1428,12 +1422,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
               type="checkbox"
               value="Chad Hanging"
             />
-            <div>
+            <div
+              class="c2"
+            >
               <strong>
                 Chad Hanging
               </strong>
-            </div>
-            <div>
+              <br />
               Independent
             </div>
           </label>
@@ -1448,12 +1443,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
               type="checkbox"
               value="Lev Ermachine"
             />
-            <div>
+            <div
+              class="c2"
+            >
               <strong>
                 Lev Ermachine
               </strong>
-            </div>
-            <div>
+              <br />
               Independent
             </div>
           </label>
@@ -1468,12 +1464,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
               type="checkbox"
               value="John Smith"
             />
-            <div>
+            <div
+              class="c2"
+            >
               <strong>
                 John Smith
               </strong>
-            </div>
-            <div>
+              <br />
               Independent
             </div>
           </label>
@@ -1489,7 +1486,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
               value="writeInCandidate"
             />
             <div
-              class="write-in-candidate-name"
+              class="c2"
             >
               <em>
                 add a write-in candidate
@@ -1574,7 +1571,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
         class="sc-gqjmRU hnZXkc"
       >
         <legend
-          class="sc-VigVT iuEjDE"
+          class="sc-VigVT iekhfX"
         >
           <small
             class="sc-gZMcBi euTFpJ"
@@ -1602,7 +1599,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
           class="sc-jTzLTM jPWweK"
         >
           <label
-            class="sc-fjdhpX cfegAt"
+            class="sc-fjdhpX eMqClR"
             for="Chad Hanging"
           >
             <input
@@ -1613,17 +1610,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
               type="checkbox"
               value="Chad Hanging"
             />
-            <div>
+            <div
+              class="sc-bxivhb gobFlP"
+            >
               <strong>
                 Chad Hanging
               </strong>
-            </div>
-            <div>
+              <br />
               Independent
             </div>
           </label>
           <label
-            class="sc-fjdhpX cfegAt"
+            class="sc-fjdhpX eMqClR"
             for="Lev Ermachine"
           >
             <input
@@ -1634,17 +1632,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
               type="checkbox"
               value="Lev Ermachine"
             />
-            <div>
+            <div
+              class="sc-bxivhb gobFlP"
+            >
               <strong>
                 Lev Ermachine
               </strong>
-            </div>
-            <div>
+              <br />
               Independent
             </div>
           </label>
           <label
-            class="sc-fjdhpX fPScmd"
+            class="sc-fjdhpX gNyhh"
             for="John Smith"
           >
             <input
@@ -1655,17 +1654,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
               type="checkbox"
               value="John Smith"
             />
-            <div>
+            <div
+              class="sc-bxivhb gobFlP"
+            >
               <strong>
                 John Smith
               </strong>
-            </div>
-            <div>
+              <br />
               Independent
             </div>
           </label>
           <label
-            class="sc-fjdhpX cfegAt"
+            class="sc-fjdhpX eMqClR"
             for="writeInCandidate"
           >
             <input
@@ -1677,7 +1677,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
               value="writeInCandidate"
             />
             <div
-              class="write-in-candidate-name"
+              class="sc-bxivhb gobFlP"
             >
               <em>
                 add a write-in candidate

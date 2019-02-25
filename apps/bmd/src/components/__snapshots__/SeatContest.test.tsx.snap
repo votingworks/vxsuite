@@ -44,7 +44,7 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
 }
 
 .c0 {
-  margin-bottom: 1rem;
+  margin: 0 0.25rem 1rem;
 }
 
 .c3 {
@@ -54,10 +54,9 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
 }
 
 .c4 {
-  position: relative;
   cursor: pointer;
+  position: relative;
   display: grid;
-  grid-template-columns: 3fr 1fr;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -73,17 +72,15 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c4 > div {
-  padding: 1rem;
-}
-
-.c4 > input + div:before {
+.c4:before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  border-right: 1px solid lightgrey;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
   width: 3rem;
   text-align: center;
   display: -webkit-box;
@@ -100,21 +97,11 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
   align-items: center;
   font-size: 2rem;
   border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c4 > input:checked + div:before {
-  content: '✓';
-  background: white;
   color: #028099;
-  border-color: #028099;
 }
 
-.c4 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c4 .write-in-candidate-name {
-  grid-column: span 2;
+.c4 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c5 {
@@ -129,7 +116,14 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
 
 @media (min-width:480px) {
   .c0 {
+    margin: 0 1rem 1rem;
     margin-left: 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c4 > div {
+    padding: 1rem 1rem 1rem inherit;
   }
 }
 
@@ -176,12 +170,13 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           type="checkbox"
           value="Minnie Mouse"
         />
-        <div>
+        <div
+          class="c2"
+        >
           <strong>
             Minnie Mouse
           </strong>
-        </div>
-        <div>
+          <br />
           Mouse
         </div>
       </label>
@@ -196,12 +191,13 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           type="checkbox"
           value="Mickey Mouse"
         />
-        <div>
+        <div
+          class="c2"
+        >
           <strong>
             Mickey Mouse
           </strong>
-        </div>
-        <div>
+          <br />
           Mouse
         </div>
       </label>
@@ -216,12 +212,13 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           type="checkbox"
           value="Donald Duck"
         />
-        <div>
+        <div
+          class="c2"
+        >
           <strong>
             Donald Duck
           </strong>
-        </div>
-        <div>
+          <br />
           Duck
         </div>
       </label>
@@ -237,7 +234,7 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           value="writeInCandidate"
         />
         <div
-          class="write-in-candidate-name"
+          class="c2"
         >
           <em>
             add a write-in candidate
@@ -293,7 +290,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
 }
 
 .c0 {
-  margin-bottom: 1rem;
+  margin: 0 0.25rem 1rem;
 }
 
 .c3 {
@@ -303,10 +300,9 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
 }
 
 .c6 {
-  position: relative;
   cursor: pointer;
+  position: relative;
   display: grid;
-  grid-template-columns: 3fr 1fr;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -322,17 +318,15 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6 > div {
-  padding: 1rem;
-}
-
-.c6 > input + div:before {
+.c6:before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  border-right: 1px solid lightgrey;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
   width: 3rem;
   text-align: center;
   display: -webkit-box;
@@ -349,28 +343,17 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   align-items: center;
   font-size: 2rem;
   border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c6 > input:checked + div:before {
-  content: '✓';
-  background: white;
   color: #028099;
-  border-color: #028099;
 }
 
-.c6 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c6 .write-in-candidate-name {
-  grid-column: span 2;
+.c6 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c4 {
-  position: relative;
   cursor: pointer;
+  position: relative;
   display: grid;
-  grid-template-columns: 3fr 1fr;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -387,17 +370,15 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c4 > div {
-  padding: 1rem;
-}
-
-.c4 > input + div:before {
-  content: '';
+.c4:before {
+  content: '✓';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  border-right: 1px solid lightgrey;
+  background: white;
+  border-right: 1px solid;
+  border-color: #028099;
   width: 3rem;
   text-align: center;
   display: -webkit-box;
@@ -414,21 +395,11 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   align-items: center;
   font-size: 2rem;
   border-radius: 0.125rem 0 0 0.125rem;
-}
-
-.c4 > input:checked + div:before {
-  content: '✓';
-  background: white;
   color: #028099;
-  border-color: #028099;
 }
 
-.c4 > div:first-of-type {
-  padding-left: 4rem;
-}
-
-.c4 .write-in-candidate-name {
-  grid-column: span 2;
+.c4 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c5 {
@@ -443,7 +414,20 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
 
 @media (min-width:480px) {
   .c0 {
+    margin: 0 1rem 1rem;
     margin-left: 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c6 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+@media (min-width:480px) {
+  .c4 > div {
+    padding: 1rem 1rem 1rem inherit;
   }
 }
 
@@ -491,12 +475,13 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           type="checkbox"
           value="Minnie Mouse"
         />
-        <div>
+        <div
+          class="c2"
+        >
           <strong>
             Minnie Mouse
           </strong>
-        </div>
-        <div>
+          <br />
           Mouse
         </div>
       </label>
@@ -512,12 +497,13 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           type="checkbox"
           value="Mickey Mouse"
         />
-        <div>
+        <div
+          class="c2"
+        >
           <strong>
             Mickey Mouse
           </strong>
-        </div>
-        <div>
+          <br />
           Mouse
         </div>
       </label>
@@ -533,12 +519,13 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           type="checkbox"
           value="Donald Duck"
         />
-        <div>
+        <div
+          class="c2"
+        >
           <strong>
             Donald Duck
           </strong>
-        </div>
-        <div>
+          <br />
           Duck
         </div>
       </label>
@@ -555,7 +542,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           value="writeInCandidate"
         />
         <div
-          class="write-in-candidate-name"
+          class="c2"
         >
           <em>
             add a write-in candidate
