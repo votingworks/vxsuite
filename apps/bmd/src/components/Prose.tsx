@@ -5,10 +5,13 @@ interface Props {
 }
 
 const Prose = styled('div')<Props>`
-  line-height: 1.3;
+  line-height: 1.2;
   max-width: 66ch;
   text-align: ${({ textCenter }) => (textCenter ? 'center' : undefined)};
   margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
+  @media (min-width: 480px) {
+    line-height: 1.3;
+  }
   & h1 {
     line-height: 1.1;
     margin: 2rem 0 1rem;
