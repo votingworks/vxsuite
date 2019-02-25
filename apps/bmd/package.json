@@ -9,6 +9,7 @@
     "test:watch": "react-scripts test",
     "test:ci": "CI=true react-scripts test --env=jsdom --coverage",
     "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:update": "react-scripts test -u  --watchAll=false",
     "eject": "react-scripts eject",
     "eslint:base": "eslint 'src/**/*.+(js|jsx)'",
     "prettier:base": "prettier '**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|graphql|mdx)'",
