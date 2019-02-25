@@ -1136,13 +1136,13 @@ exports[`can navigate all ballot pages 4`] = `
     class="sc-bZQynM uuSXr"
   >
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Previous
@@ -1159,19 +1159,19 @@ exports[`can navigate all ballot pages 4`] = `
     class="sc-bZQynM efZRTa"
   >
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Settings
@@ -1640,6 +1640,19 @@ exports[`can navigate all ballot pages 7`] = `
   margin-bottom: 0;
 }
 
+.c10 {
+  box-sizing: border-box;
+  cursor: pointer;
+  margin: -0.5rem 0;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .c9 {
   color: gray;
 }
@@ -1695,7 +1708,7 @@ exports[`can navigate all ballot pages 7`] = `
   flex: 1;
 }
 
-.c10 {
+.c11 {
   margin: 1rem 0 -0.75rem;
 }
 
@@ -1817,7 +1830,7 @@ exports[`can navigate all ballot pages 7`] = `
 }
 
 @media (min-width:480px),print {
-  .c10 {
+  .c11 {
     width: 50%;
   }
 }
@@ -1952,15 +1965,12 @@ exports[`can navigate all ballot pages 7`] = `
                     no selection
                   </strong>
                    
-                  <small
-                    class="no-print"
+                  <button
+                    class="no-print c10"
+                    type="button"
                   >
-                    <a
-                      href="/contests/president"
-                    >
-                      change
-                    </a>
-                  </small>
+                    Change
+                  </button>
                 </td>
               </tr>
               <tr>
@@ -1979,22 +1989,19 @@ exports[`can navigate all ballot pages 7`] = `
                     no selection
                   </strong>
                    
-                  <small
-                    class="no-print"
+                  <button
+                    class="no-print c10"
+                    type="button"
                   >
-                    <a
-                      href="/contests/senator"
-                    >
-                      change
-                    </a>
-                  </small>
+                    Change
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         <div
-          class="c10"
+          class="c11"
         >
           <svg
             viewBox="0 0 1293 177"

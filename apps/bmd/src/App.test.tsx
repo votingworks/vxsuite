@@ -87,7 +87,7 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   window.print = jest.fn(() => {
     eventListenerCallbacksDictionary.afterprint()
   })
-  const { container, getByTestId, getByText } = render(<App />)
+  const { container, getByTestId, getByText, getAllByText } = render(<App />)
   expect(container).toMatchSnapshot()
   const fileInput = getByTestId('file-input')
   fireEvent.change(fileInput, {
@@ -158,13 +158,13 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getByText('Review'))
   expect(container.firstChild).toMatchSnapshot()
 
-  fireEvent.click(getByText('John Smith'))
+  fireEvent.click(getAllByText('Change')[1])
   getByText('Senator')
 
   fireEvent.click(getByText('Review'))
   getByText('Official Ballot')
 
-  fireEvent.click(getByText('change'))
+  fireEvent.click(getAllByText('Change')[0])
   getByText('President')
 
   fireEvent.click(getByText('Minnie Mouse').closest('label') as HTMLElement)

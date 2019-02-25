@@ -1,12 +1,14 @@
 import React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router'
 
-import Button from '../components/Button'
+import Button, { ButtonInterface } from '../components/Button'
 import { ButtonEvent } from '../config/types'
 
 interface Props
   extends React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 interface Props extends RouteComponentProps<{}> {}
+interface Props extends ButtonInterface<{}> {}
+
 interface Props {
   goBack?: boolean
   primary?: boolean

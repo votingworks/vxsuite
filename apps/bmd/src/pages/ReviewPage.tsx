@@ -173,27 +173,20 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                               no selection
                             </Text>
                           )
-                          const onClick = () => {
-                            this.props.history.push(`/contests/${contest.id}`)
-                          }
-                          const onClickLink = (event: SyntheticEvent) => {
-                            event.preventDefault()
-                          }
                           return (
-                            <tr key={contest.id} onClick={onClick}>
+                            <tr key={contest.id}>
                               <TableCell as="th" border>
                                 {contest.title}{' '}
                               </TableCell>
                               <TableCell border>
                                 {vote}{' '}
-                                <small className="no-print">
-                                  <Link
-                                    to={`/contests/${contest.id}`}
-                                    onClick={onClickLink}
-                                  >
-                                    change
-                                  </Link>
-                                </small>
+                                <LinkButton
+                                  to={`/contests/${contest.id}`}
+                                  className="no-print"
+                                  inTableMargins
+                                >
+                                  Change
+                                </LinkButton>
                               </TableCell>
                             </tr>
                           )

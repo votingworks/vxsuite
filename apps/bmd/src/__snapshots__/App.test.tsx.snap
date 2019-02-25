@@ -1220,13 +1220,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     class="sc-bZQynM uuSXr"
   >
     <button
-      class="sc-gzVnrw cpFmBu"
+      class="sc-gzVnrw dwJMTd"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Previous
@@ -1243,19 +1243,19 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     class="sc-bZQynM efZRTa"
   >
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Settings
@@ -1521,13 +1521,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
     class="sc-bZQynM uuSXr"
   >
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Previous
@@ -1544,19 +1544,19 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
     class="sc-bZQynM efZRTa"
   >
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Settings
@@ -1700,13 +1700,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
     class="sc-bZQynM uuSXr"
   >
     <button
-      class="sc-gzVnrw cpFmBu"
+      class="sc-gzVnrw dwJMTd"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Previous
@@ -1723,19 +1723,19 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
     class="sc-bZQynM efZRTa"
   >
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw gWpXIP"
+      class="sc-gzVnrw Gbhle"
       type="button"
     >
       Settings
@@ -1806,6 +1806,19 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
   margin-bottom: 0;
 }
 
+.c9 {
+  box-sizing: border-box;
+  cursor: pointer;
+  margin: -0.5rem 0;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .c3 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -1857,7 +1870,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
   flex: 1;
 }
 
-.c9 {
+.c10 {
   margin: 1rem 0 -0.75rem;
 }
 
@@ -1973,7 +1986,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
 }
 
 @media (min-width:480px),print {
-  .c9 {
+  .c10 {
     width: 50%;
   }
 }
@@ -2106,15 +2119,12 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
                     Minnie Mouse
                   </strong>
                    
-                  <small
-                    class="no-print"
+                  <button
+                    class="no-print c9"
+                    type="button"
                   >
-                    <a
-                      href="/contests/president"
-                    >
-                      change
-                    </a>
-                  </small>
+                    Change
+                  </button>
                 </td>
               </tr>
               <tr>
@@ -2131,22 +2141,19 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
                     John Smith
                   </strong>
                    
-                  <small
-                    class="no-print"
+                  <button
+                    class="no-print c9"
+                    type="button"
                   >
-                    <a
-                      href="/contests/senator"
-                    >
-                      change
-                    </a>
-                  </small>
+                    Change
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         <div
-          class="c9"
+          class="c10"
         >
           <svg
             viewBox="0 0 1293 177"

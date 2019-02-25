@@ -1,6 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders SummaryPage with votes 1`] = `
+.c9 {
+  box-sizing: border-box;
+  cursor: pointer;
+  margin: -0.5rem 0;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -110,7 +123,7 @@ exports[`renders SummaryPage with votes 1`] = `
   flex: 1;
 }
 
-.c9 {
+.c10 {
   margin: 1rem 0 -0.75rem;
 }
 
@@ -226,7 +239,7 @@ exports[`renders SummaryPage with votes 1`] = `
 }
 
 @media (min-width:480px),print {
-  .c9 {
+  .c10 {
     width: 50%;
   }
 }
@@ -359,15 +372,12 @@ exports[`renders SummaryPage with votes 1`] = `
                   Minnie Mouse
                 </strong>
                  
-                <small
-                  class="no-print"
+                <button
+                  class="no-print c9"
+                  type="button"
                 >
-                  <a
-                    href="/contests/president"
-                  >
-                    change
-                  </a>
-                </small>
+                  Change
+                </button>
               </td>
             </tr>
             <tr>
@@ -384,22 +394,19 @@ exports[`renders SummaryPage with votes 1`] = `
                   John Smith
                 </strong>
                  
-                <small
-                  class="no-print"
+                <button
+                  class="no-print c9"
+                  type="button"
                 >
-                  <a
-                    href="/contests/senator"
-                  >
-                    change
-                  </a>
-                </small>
+                  Change
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
       <div
-        class="c9"
+        class="c10"
       >
         <svg
           viewBox="0 0 1293 177"
