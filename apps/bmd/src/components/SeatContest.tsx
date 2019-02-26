@@ -1,6 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Contest, InputEvent, UpdateVoteFunction, Vote } from '../config/types'
+import {
+  Candidate,
+  Contest,
+  InputEvent,
+  OptionalCandidate,
+  UpdateVoteFunction,
+} from '../config/types'
 
 import Keyboard from 'react-simple-keyboard'
 import 'react-simple-keyboard/build/css/index.css'
@@ -97,7 +103,7 @@ const WriteInCandidateInput = styled.input.attrs({
 
 interface Props {
   contest: Contest
-  vote: Vote
+  vote: OptionalCandidate
   updateVote: UpdateVoteFunction
 }
 
@@ -119,31 +125,32 @@ class SeatContest extends React.Component<Props, State> {
   private keyboard: React.RefObject<Keyboard>
   constructor(props: Props) {
     super(props)
-    let writeInCandidateName = ''
-    if (typeof props.vote === 'string') {
-      writeInCandidateName =
-        !!props.vote &&
-        props.contest.candidates
-          .map(candidate => candidate.name)
-          .includes(props.vote)
-          ? ''
-          : props.vote
-    }
     this.state = {
       ...initialState,
-      writeInCandidateName,
+      writeInCandidateName:
+        (props.vote &&
+          props.vote.id === 'writeInCandidate' &&
+          props.vote.name) ||
+        '',
     }
     this.keyboard = React.createRef()
   }
 
-  public selectCandidate = (selection: string) => {
-    this.props.updateVote(this.props.contest.id, selection || '')
+  public selectCandidate = (candidate: OptionalCandidate) => {
+    this.props.updateVote(this.props.contest.id, candidate)
   }
 
   public handleUpdateSelection = (event: InputEvent) => {
     const target = event.target as HTMLInputElement
-    const targetIsSelected = target.value === this.props.vote
-    this.selectCandidate(targetIsSelected ? '' : target.value)
+    const targetIsSelected =
+      this.props.vote && target.value === this.props.vote.id
+    this.selectCandidate(
+      targetIsSelected
+        ? undefined
+        : this.props.contest.candidates.find(
+            candidate => candidate.id === target.value
+          )
+    )
   }
 
   public handleChangeVoteAlert = (attemptedVoteCandidateName: string) => {
@@ -157,9 +164,9 @@ class SeatContest extends React.Component<Props, State> {
   public handleSelectWriteInCandidate = () => {
     if (
       !!this.props.vote &&
-      this.props.vote === this.state.writeInCandidateName
+      this.props.vote.name === this.state.writeInCandidateName
     ) {
-      this.selectCandidate('')
+      this.selectCandidate(undefined)
     } else {
       this.toggleWriteInCandidateModal(true)
     }
@@ -167,13 +174,14 @@ class SeatContest extends React.Component<Props, State> {
   public handleWriteInCandidateDisabledClick = () => {
     if (
       !!this.props.vote &&
-      this.props.vote !== this.state.writeInCandidateName
+      this.props.vote.name !== this.state.writeInCandidateName
     ) {
       this.handleChangeVoteAlert(
         this.state.writeInCandidateName || 'a write-in candidate'
       )
     }
   }
+
   public normalizeName = (name: string) =>
     name
       .trim()
@@ -184,7 +192,10 @@ class SeatContest extends React.Component<Props, State> {
       this.state.writeInCandidateName
     )
     this.setState({ writeInCandidateName })
-    this.selectCandidate(writeInCandidateName)
+    this.selectCandidate({
+      id: 'writeInCandidate',
+      name: writeInCandidateName,
+    })
     this.toggleWriteInCandidateModal(false)
   }
   public closeWriteInCandidateModal = () => {
@@ -194,7 +205,10 @@ class SeatContest extends React.Component<Props, State> {
     if (writeInCandidateName.length === 0) {
       this.setState({ writeInCandidateName })
     } else {
-      this.selectCandidate(writeInCandidateName)
+      this.selectCandidate({
+        id: 'writeInCandidate',
+        name: writeInCandidateName,
+      })
     }
     this.toggleWriteInCandidateModal(false)
   }
@@ -228,7 +242,7 @@ class SeatContest extends React.Component<Props, State> {
     const { contest, vote } = this.props
     const { attemptedVoteCandidateName } = this.state
     const writeInCandidateIsChecked =
-      !!vote && vote === this.state.writeInCandidateName
+      !!vote && vote.name === this.state.writeInCandidateName
     return (
       <React.Fragment>
         <FieldSet>
@@ -246,7 +260,7 @@ class SeatContest extends React.Component<Props, State> {
           </Legend>
           <Choices>
             {contest.candidates.map((candidate, index) => {
-              const isChecked = candidate.name === vote
+              const isChecked = !!vote && candidate.name === vote.name
               const handleDisabledClick = () => {
                 if (vote && !isChecked) {
                   this.handleChangeVoteAlert(candidate.name)
@@ -254,16 +268,16 @@ class SeatContest extends React.Component<Props, State> {
               }
               return (
                 <Choice
-                  key={candidate.name}
-                  htmlFor={candidate.name}
+                  key={candidate.id}
+                  htmlFor={candidate.id}
                   isSelected={isChecked}
                   onClick={handleDisabledClick}
                 >
                   <ChoiceInput
                     autoFocus={isChecked || (index === 0 && !vote)}
-                    id={candidate.name}
+                    id={candidate.id}
                     name={contest.id}
-                    value={candidate.name}
+                    value={candidate.id}
                     onChange={this.handleUpdateSelection}
                     checked={isChecked}
                     disabled={!!vote && !isChecked}
@@ -308,7 +322,7 @@ class SeatContest extends React.Component<Props, State> {
             <Prose>
               <Text>
                 To vote for {attemptedVoteCandidateName}, first uncheck the vote
-                for {vote}.
+                for {!!vote && vote.name}.
               </Text>
             </Prose>
           }

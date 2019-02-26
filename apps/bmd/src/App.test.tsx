@@ -190,6 +190,10 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getByText('Okay'))
 
   fireEvent.click(getByText('Review'))
+  fireEvent.click(getAllByText('Change')[0])
+  expect(getByText('Bob')).toBeTruthy()
+
+  fireEvent.click(getByText('Review'))
   fireEvent.click(getByText('Print Ballot'))
   fireEvent.click(getByText('No. Go Back.'))
   fireEvent.click(getByText('Print Ballot'))

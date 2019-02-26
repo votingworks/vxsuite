@@ -24,7 +24,12 @@ import { BrowserRouter, Route } from 'react-router-dom'
 import 'normalize.css'
 import './App.css'
 
-import { Election, OptionalElection, Vote, VoteDict } from './config/types'
+import {
+  Election,
+  OptionalCandidate,
+  OptionalElection,
+  VoteDict,
+} from './config/types'
 
 import sampleElection from './data/election.json'
 
@@ -83,9 +88,9 @@ class App extends React.Component<RouteComponentProps, State> {
     this.props.history.push('/')
   }
 
-  public updateVote = (contestId: string, name: Vote) => {
+  public updateVote = (contestId: string, candidate: OptionalCandidate) => {
     this.setState(prevState => ({
-      votes: Object.assign({}, prevState.votes, { [contestId]: name }),
+      votes: Object.assign({}, prevState.votes, { [contestId]: candidate }),
     }))
   }
 

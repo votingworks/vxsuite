@@ -10,13 +10,13 @@ export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
 // Election
-export type Vote = string | undefined
-export type VoteDict = Dictionary<Vote>
 export interface Candidate {
   readonly id: string
   readonly name: string
-  readonly party: string
+  readonly party?: string
 }
+export type OptionalCandidate = Candidate | undefined
+export type VoteDict = Dictionary<OptionalCandidate>
 export interface Contest {
   readonly id: string
   readonly title: string
@@ -33,7 +33,10 @@ export interface Election {
   readonly title: string
 }
 export type OptionalElection = Election | undefined
-export type UpdateVoteFunction = (contestId: string, vote: Vote) => void
+export type UpdateVoteFunction = (
+  contestId: string,
+  candidate: OptionalCandidate
+) => void
 export interface BallotContextInterface {
   readonly election: Election | undefined
   resetBallot: () => void

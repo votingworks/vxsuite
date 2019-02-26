@@ -11,7 +11,7 @@ it(`allows any candidate to be selected when no candidate is selected`, () => {
   const { container, getByText, debug } = render(
     <SeatContest
       contest={election.contests[0]}
-      vote=""
+      vote={undefined}
       updateVote={updateVote}
     />
   )
@@ -37,7 +37,11 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
   const { container, getByText } = render(
     <SeatContest
       contest={election.contests[0]}
-      vote={'Minnie Mouse'}
+      vote={{
+        id: 'minnieMouse',
+        name: 'Minnie Mouse',
+        party: 'Mouse',
+      }}
       updateVote={updateVote}
     />
   )

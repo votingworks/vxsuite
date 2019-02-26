@@ -345,14 +345,14 @@ exports[`renders ContestPage 1`] = `
         >
           <label
             class="c6"
-            for="Minnie Mouse"
+            for="minnieMouse"
           >
             <input
               class="visually-hidden c7"
-              id="Minnie Mouse"
+              id="minnieMouse"
               name="president"
               type="checkbox"
-              value="Minnie Mouse"
+              value="minnieMouse"
             />
             <div
               class="c4"
@@ -366,14 +366,14 @@ exports[`renders ContestPage 1`] = `
           </label>
           <label
             class="c6"
-            for="Mickey Mouse"
+            for="mickeyMouse"
           >
             <input
               class="visually-hidden c7"
-              id="Mickey Mouse"
+              id="mickeyMouse"
               name="president"
               type="checkbox"
-              value="Mickey Mouse"
+              value="mickeyMouse"
             />
             <div
               class="c4"
@@ -387,14 +387,14 @@ exports[`renders ContestPage 1`] = `
           </label>
           <label
             class="c6"
-            for="Donald Duck"
+            for="donaldDuck"
           >
             <input
               class="visually-hidden c7"
-              id="Donald Duck"
+              id="donaldDuck"
               name="president"
               type="checkbox"
-              value="Donald Duck"
+              value="donaldDuck"
             />
             <div
               class="c4"

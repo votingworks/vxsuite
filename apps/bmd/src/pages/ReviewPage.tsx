@@ -81,26 +81,26 @@ const Content = styled.div`
   flex: 1;
 `
 
-const Table = styled.table`
-  width: 100%;
-  max-width: 66ch;
-  text-align: left;
-  border-bottom: 1px solid lightGrey;
-  @media print {
-    max-width: 100%;
+const BallotSelections = styled.dl`
+  border-bottom: 1px solid lightgrey;
+  padding-bottom: 0.5rem;
+`
+
+const ContestHeader = styled.dt`
+  margin-top: 0.5rem;
+  border-top: 1px solid lightgrey;
+  padding-top: 0.5rem;
+  & > .change-button {
+    float: right;
   }
 `
-interface TableCellProps {
-  border?: boolean
-}
-const TableCell = styled.td`
-  width: 50%;
-  padding: 0.5rem 0.25rem;
-  border-top: ${({ border = false }: TableCellProps) =>
-    border ? '1px solid lightGrey' : 'none'};
-  font-weight: normal;
-  line-height: 1.2;
-  vertical-align: top;
+
+const ContestHeading = styled.span`
+  font-size: 0.8rem;
+`
+
+const ContestSelection = styled.dd`
+  margin: 0;
 `
 
 class SummaryPage extends React.Component<RouteComponentProps> {
@@ -147,54 +147,48 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                 </Prose>
               </Header>
               <Content>
-                <Table>
-                  <caption className="no-print visually-hidden">
-                    <p>Summary of your votes.</p>
-                  </caption>
-                  <thead>
-                    <tr>
-                      <TableCell as="th" scope="col">
-                        Contest
-                      </TableCell>
-                      <TableCell as="th" scope="col">
-                        Vote
-                      </TableCell>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <BallotContext.Consumer>
-                      {({ election, votes }) =>
-                        election!.contests.map(contest => {
-                          const candidateName = votes[contest.id]
-                          const vote = candidateName ? (
-                            <strong>{candidateName}</strong>
-                          ) : (
-                            <Text as="strong" muted>
-                              no selection
-                            </Text>
-                          )
-                          return (
-                            <tr key={contest.id}>
-                              <TableCell as="th" border>
-                                {contest.title}{' '}
-                              </TableCell>
-                              <TableCell border>
-                                {vote}{' '}
-                                <LinkButton
-                                  to={`/contests/${contest.id}`}
-                                  className="no-print"
-                                  inTableMargins
-                                >
-                                  Change
-                                </LinkButton>
-                              </TableCell>
-                            </tr>
-                          )
-                        })
-                      }
-                    </BallotContext.Consumer>
-                  </tbody>
-                </Table>
+                <BallotSelections>
+                  <BallotContext.Consumer>
+                    {({ election, votes }) =>
+                      election!.contests.map(contest => {
+                        const candidate = votes[contest.id]
+                        const isWriteInCandidate =
+                          !!candidate && candidate.id === 'writeInCandidate'
+                        const candidateName = !!candidate ? (
+                          <strong>
+                            {isWriteInCandidate
+                              ? `(${candidate.name})`
+                              : candidate.name}
+                          </strong>
+                        ) : (
+                          <Text as="strong" muted>
+                            [no selection]
+                          </Text>
+                        )
+                        const candidateParty =
+                          !!candidate &&
+                          candidate.party &&
+                          `/ ${candidate.party}`
+                        return (
+                          <React.Fragment key={contest.id}>
+                            <ContestHeader>
+                              <ContestHeading>{contest.title}</ContestHeading>
+                              <LinkButton
+                                to={`/contests/${contest.id}`}
+                                className="no-print change-button"
+                              >
+                                Change
+                              </LinkButton>
+                            </ContestHeader>
+                            <ContestSelection>
+                              {candidateName} {candidateParty}
+                            </ContestSelection>
+                          </React.Fragment>
+                        )
+                      })
+                    }
+                  </BallotContext.Consumer>
+                </BallotSelections>
               </Content>
               <BarCodeContainer>
                 <Barcode />

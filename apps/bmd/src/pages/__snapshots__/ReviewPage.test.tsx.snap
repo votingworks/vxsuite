@@ -4,7 +4,6 @@ exports[`renders SummaryPage with votes 1`] = `
 .c9 {
   box-sizing: border-box;
   cursor: pointer;
-  margin: -0.5rem 0;
   background: lightgrey;
   border: none;
   border-radius: 0.25rem;
@@ -123,7 +122,7 @@ exports[`renders SummaryPage with votes 1`] = `
   flex: 1;
 }
 
-.c10 {
+.c11 {
   margin: 1rem 0 -0.75rem;
 }
 
@@ -134,28 +133,26 @@ exports[`renders SummaryPage with votes 1`] = `
 }
 
 .c6 {
-  width: 100%;
-  max-width: 66ch;
-  text-align: left;
-  border-bottom: 1px solid lightGrey;
+  border-bottom: 1px solid lightgrey;
+  padding-bottom: 0.5rem;
 }
 
 .c7 {
-  width: 50%;
-  padding: 0.5rem 0.25rem;
-  border-top: none;
-  font-weight: normal;
-  line-height: 1.2;
-  vertical-align: top;
+  margin-top: 0.5rem;
+  border-top: 1px solid lightgrey;
+  padding-top: 0.5rem;
+}
+
+.c7 > .change-button {
+  float: right;
 }
 
 .c8 {
-  width: 50%;
-  padding: 0.5rem 0.25rem;
-  border-top: 1px solid lightGrey;
-  font-weight: normal;
-  line-height: 1.2;
-  vertical-align: top;
+  font-size: 0.8rem;
+}
+
+.c10 {
+  margin: 0;
 }
 
 @media (min-width:480px) {
@@ -239,14 +236,8 @@ exports[`renders SummaryPage with votes 1`] = `
 }
 
 @media (min-width:480px),print {
-  .c10 {
+  .c11 {
     width: 50%;
-  }
-}
-
-@media print {
-  .c6 {
-    max-width: 100%;
   }
 }
 
@@ -331,82 +322,55 @@ exports[`renders SummaryPage with votes 1`] = `
       <div
         class="c5"
       >
-        <table
+        <dl
           class="c6"
         >
-          <caption
-            class="no-print visually-hidden"
+          <dt
+            class="c7"
           >
-            <p>
-              Summary of your votes.
-            </p>
-          </caption>
-          <thead>
-            <tr>
-              <th
-                class="c7"
-                scope="col"
-              >
-                Contest
-              </th>
-              <th
-                class="c7"
-                scope="col"
-              >
-                Vote
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th
-                class="c8"
-              >
-                President
-                 
-              </th>
-              <td
-                class="c8"
-              >
-                <strong>
-                  Minnie Mouse
-                </strong>
-                 
-                <button
-                  class="no-print c9"
-                  type="button"
-                >
-                  Change
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <th
-                class="c8"
-              >
-                Senator
-                 
-              </th>
-              <td
-                class="c8"
-              >
-                <strong>
-                  John Smith
-                </strong>
-                 
-                <button
-                  class="no-print c9"
-                  type="button"
-                >
-                  Change
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            <span
+              class="c8"
+            >
+              President
+            </span>
+            <button
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong />
+             
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Senator
+            </span>
+            <button
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong />
+             
+          </dd>
+        </dl>
       </div>
       <div
-        class="c10"
+        class="c11"
       >
         <svg
           viewBox="0 0 1293 177"

@@ -601,14 +601,14 @@ exports[`can navigate all ballot pages 3`] = `
         >
           <label
             class="c6"
-            for="Minnie Mouse"
+            for="minnieMouse"
           >
             <input
               class="visually-hidden c7"
-              id="Minnie Mouse"
+              id="minnieMouse"
               name="president"
               type="checkbox"
-              value="Minnie Mouse"
+              value="minnieMouse"
             />
             <div
               class="c4"
@@ -622,14 +622,14 @@ exports[`can navigate all ballot pages 3`] = `
           </label>
           <label
             class="c6"
-            for="Mickey Mouse"
+            for="mickeyMouse"
           >
             <input
               class="visually-hidden c7"
-              id="Mickey Mouse"
+              id="mickeyMouse"
               name="president"
               type="checkbox"
-              value="Mickey Mouse"
+              value="mickeyMouse"
             />
             <div
               class="c4"
@@ -643,14 +643,14 @@ exports[`can navigate all ballot pages 3`] = `
           </label>
           <label
             class="c6"
-            for="Donald Duck"
+            for="donaldDuck"
           >
             <input
               class="visually-hidden c7"
-              id="Donald Duck"
+              id="donaldDuck"
               name="president"
               type="checkbox"
-              value="Donald Duck"
+              value="donaldDuck"
             />
             <div
               class="c4"
@@ -1048,14 +1048,14 @@ exports[`can navigate all ballot pages 4`] = `
         >
           <label
             class="c4"
-            for="Chad Hanging"
+            for="chadHanging"
           >
             <input
               class="visually-hidden c5"
-              id="Chad Hanging"
+              id="chadHanging"
               name="senator"
               type="checkbox"
-              value="Chad Hanging"
+              value="chadHanging"
             />
             <div
               class="c2"
@@ -1069,14 +1069,14 @@ exports[`can navigate all ballot pages 4`] = `
           </label>
           <label
             class="c4"
-            for="Lev Ermachine"
+            for="levErmachine"
           >
             <input
               class="visually-hidden c5"
-              id="Lev Ermachine"
+              id="levErmachine"
               name="senator"
               type="checkbox"
-              value="Lev Ermachine"
+              value="levErmachine"
             />
             <div
               class="c2"
@@ -1090,14 +1090,14 @@ exports[`can navigate all ballot pages 4`] = `
           </label>
           <label
             class="c4"
-            for="John Smith"
+            for="johnSmith"
           >
             <input
               class="visually-hidden c5"
-              id="John Smith"
+              id="johnSmith"
               name="senator"
               type="checkbox"
-              value="John Smith"
+              value="johnSmith"
             />
             <div
               class="c2"
@@ -1136,13 +1136,13 @@ exports[`can navigate all ballot pages 4`] = `
     class="sc-bZQynM uuSXr"
   >
     <button
-      class="sc-gzVnrw Gbhle"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw Gbhle"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Previous
@@ -1159,19 +1159,19 @@ exports[`can navigate all ballot pages 4`] = `
     class="sc-bZQynM efZRTa"
   >
     <button
-      class="sc-gzVnrw Gbhle"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-gzVnrw Gbhle"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw Gbhle"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Settings
@@ -1640,10 +1640,9 @@ exports[`can navigate all ballot pages 7`] = `
   margin-bottom: 0;
 }
 
-.c10 {
+.c9 {
   box-sizing: border-box;
   cursor: pointer;
-  margin: -0.5rem 0;
   background: lightgrey;
   border: none;
   border-radius: 0.25rem;
@@ -1653,7 +1652,7 @@ exports[`can navigate all ballot pages 7`] = `
   white-space: nowrap;
 }
 
-.c9 {
+.c11 {
   color: gray;
 }
 
@@ -1708,7 +1707,7 @@ exports[`can navigate all ballot pages 7`] = `
   flex: 1;
 }
 
-.c11 {
+.c12 {
   margin: 1rem 0 -0.75rem;
 }
 
@@ -1719,28 +1718,26 @@ exports[`can navigate all ballot pages 7`] = `
 }
 
 .c6 {
-  width: 100%;
-  max-width: 66ch;
-  text-align: left;
-  border-bottom: 1px solid lightGrey;
+  border-bottom: 1px solid lightgrey;
+  padding-bottom: 0.5rem;
 }
 
 .c7 {
-  width: 50%;
-  padding: 0.5rem 0.25rem;
-  border-top: none;
-  font-weight: normal;
-  line-height: 1.2;
-  vertical-align: top;
+  margin-top: 0.5rem;
+  border-top: 1px solid lightgrey;
+  padding-top: 0.5rem;
+}
+
+.c7 > .change-button {
+  float: right;
 }
 
 .c8 {
-  width: 50%;
-  padding: 0.5rem 0.25rem;
-  border-top: 1px solid lightGrey;
-  font-weight: normal;
-  line-height: 1.2;
-  vertical-align: top;
+  font-size: 0.8rem;
+}
+
+.c10 {
+  margin: 0;
 }
 
 @media (min-width:480px) {
@@ -1773,7 +1770,7 @@ exports[`can navigate all ballot pages 7`] = `
 }
 
 @media print {
-  .c9 {
+  .c11 {
     color: black;
   }
 }
@@ -1830,14 +1827,8 @@ exports[`can navigate all ballot pages 7`] = `
 }
 
 @media (min-width:480px),print {
-  .c11 {
+  .c12 {
     width: 50%;
-  }
-}
-
-@media print {
-  .c6 {
-    max-width: 100%;
   }
 }
 
@@ -1922,86 +1913,63 @@ exports[`can navigate all ballot pages 7`] = `
         <div
           class="c5"
         >
-          <table
+          <dl
             class="c6"
           >
-            <caption
-              class="no-print visually-hidden"
+            <dt
+              class="c7"
             >
-              <p>
-                Summary of your votes.
-              </p>
-            </caption>
-            <thead>
-              <tr>
-                <th
-                  class="c7"
-                  scope="col"
-                >
-                  Contest
-                </th>
-                <th
-                  class="c7"
-                  scope="col"
-                >
-                  Vote
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th
-                  class="c8"
-                >
-                  President
-                   
-                </th>
-                <td
-                  class="c8"
-                >
-                  <strong
-                    class="c9"
-                  >
-                    no selection
-                  </strong>
-                   
-                  <button
-                    class="no-print c10"
-                    type="button"
-                  >
-                    Change
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <th
-                  class="c8"
-                >
-                  Senator
-                   
-                </th>
-                <td
-                  class="c8"
-                >
-                  <strong
-                    class="c9"
-                  >
-                    no selection
-                  </strong>
-                   
-                  <button
-                    class="no-print c10"
-                    type="button"
-                  >
-                    Change
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              <span
+                class="c8"
+              >
+                President
+              </span>
+              <button
+                class="no-print change-button c9"
+                type="button"
+              >
+                Change
+              </button>
+            </dt>
+            <dd
+              class="c10"
+            >
+              <strong
+                class="c11"
+              >
+                [no selection]
+              </strong>
+               
+            </dd>
+            <dt
+              class="c7"
+            >
+              <span
+                class="c8"
+              >
+                Senator
+              </span>
+              <button
+                class="no-print change-button c9"
+                type="button"
+              >
+                Change
+              </button>
+            </dt>
+            <dd
+              class="c10"
+            >
+              <strong
+                class="c11"
+              >
+                [no selection]
+              </strong>
+               
+            </dd>
+          </dl>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
           <svg
             viewBox="0 0 1293 177"
@@ -2345,14 +2313,14 @@ exports[`can navigate all ballot pages 8`] = `
         >
           <label
             class="c6"
-            for="Chad Hanging"
+            for="chadHanging"
           >
             <input
               class="visually-hidden c7"
-              id="Chad Hanging"
+              id="chadHanging"
               name="senator"
               type="checkbox"
-              value="Chad Hanging"
+              value="chadHanging"
             />
             <div
               class="c4"
@@ -2366,14 +2334,14 @@ exports[`can navigate all ballot pages 8`] = `
           </label>
           <label
             class="c6"
-            for="Lev Ermachine"
+            for="levErmachine"
           >
             <input
               class="visually-hidden c7"
-              id="Lev Ermachine"
+              id="levErmachine"
               name="senator"
               type="checkbox"
-              value="Lev Ermachine"
+              value="levErmachine"
             />
             <div
               class="c4"
@@ -2387,14 +2355,14 @@ exports[`can navigate all ballot pages 8`] = `
           </label>
           <label
             class="c6"
-            for="John Smith"
+            for="johnSmith"
           >
             <input
               class="visually-hidden c7"
-              id="John Smith"
+              id="johnSmith"
               name="senator"
               type="checkbox"
-              value="John Smith"
+              value="johnSmith"
             />
             <div
               class="c4"
@@ -2981,14 +2949,14 @@ exports[`redirects contests index to first contest 1`] = `
         >
           <label
             class="c7"
-            for="Minnie Mouse"
+            for="minnieMouse"
           >
             <input
               class="visually-hidden c8"
-              id="Minnie Mouse"
+              id="minnieMouse"
               name="president"
               type="checkbox"
-              value="Minnie Mouse"
+              value="minnieMouse"
             />
             <div
               class="c5"
@@ -3002,14 +2970,14 @@ exports[`redirects contests index to first contest 1`] = `
           </label>
           <label
             class="c7"
-            for="Mickey Mouse"
+            for="mickeyMouse"
           >
             <input
               class="visually-hidden c8"
-              id="Mickey Mouse"
+              id="mickeyMouse"
               name="president"
               type="checkbox"
-              value="Mickey Mouse"
+              value="mickeyMouse"
             />
             <div
               class="c5"
@@ -3023,14 +2991,14 @@ exports[`redirects contests index to first contest 1`] = `
           </label>
           <label
             class="c7"
-            for="Donald Duck"
+            for="donaldDuck"
           >
             <input
               class="visually-hidden c8"
-              id="Donald Duck"
+              id="donaldDuck"
               name="president"
               type="checkbox"
-              value="Donald Duck"
+              value="donaldDuck"
             />
             <div
               class="c5"
