@@ -1,18 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders ContestPage 1`] = `
-.c9 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .c8 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -76,6 +64,18 @@ exports[`renders ContestPage 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+}
+
+.c9 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .c0 {

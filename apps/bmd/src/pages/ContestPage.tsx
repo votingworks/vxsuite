@@ -71,7 +71,7 @@ const ContestPage = (props: Props) => {
             Previous
           </LinkButton>
         ) : (
-          <Button onClick={props.history.goBack}>Previous</Button>
+          <LinkButton to="/start">Previous</LinkButton>
         )}
         <Text center white>
           {currentContestIndex + 1} of {contests.length}

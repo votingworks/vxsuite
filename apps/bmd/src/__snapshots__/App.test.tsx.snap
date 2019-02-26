@@ -892,19 +892,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
       </fieldset>
     </div>
   </main>
-  .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -933,6 +921,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+}
+
+.c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .c2 {
@@ -975,19 +975,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
       2
     </p>
   </nav>
-  .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c0 {
+  .c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -1019,6 +1007,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+}
+
+.c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 @media (min-width:480px) {
@@ -1197,16 +1197,16 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     </div>
   </main>
   <nav
-    class="sc-gzVnrw iAFTeh"
+    class="sc-bZQynM cRAMIS"
   >
     <button
-      class="sc-bZQynM ezoVMU"
+      class="sc-gzVnrw cpFmBu"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Previous
@@ -1220,22 +1220,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     </p>
   </nav>
   <nav
-    class="sc-gzVnrw cZlwmG"
+    class="sc-bZQynM KUmov"
   >
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Settings
@@ -1498,28 +1498,16 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
     </div>
   </main>
   <nav
-    class="sc-gzVnrw iAFTeh"
+    class="sc-bZQynM cRAMIS"
   >
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
-    .c0 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-<button
-      class="c0"
+    <button
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Previous
@@ -1533,22 +1521,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
     </p>
   </nav>
   <nav
-    class="sc-gzVnrw cZlwmG"
+    class="sc-bZQynM KUmov"
   >
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Settings
@@ -1689,16 +1677,16 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
     </div>
   </main>
   <nav
-    class="sc-gzVnrw iAFTeh"
+    class="sc-bZQynM cRAMIS"
   >
     <button
-      class="sc-bZQynM ezoVMU"
+      class="sc-gzVnrw cpFmBu"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Previous
@@ -1712,22 +1700,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
     </p>
   </nav>
   <nav
-    class="sc-gzVnrw cZlwmG"
+    class="sc-bZQynM KUmov"
   >
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Review
     </button>
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-bZQynM fQKIWd"
+      class="sc-gzVnrw gWpXIP"
       type="button"
     >
       Settings
@@ -2118,31 +2106,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
       </section>
     </div>
   </main>
-  .c2 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: #4caf50;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: white;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c0 {
+  .c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -2174,6 +2138,30 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+}
+
+.c2 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: #4caf50;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: white;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 @media (min-width:480px) {
