@@ -190,7 +190,7 @@ exports[`displays accessible error if no id match 1`] = `
         Error
       </h1>
       <p>
-        no contest exists for id
+        no contest exists for id 
         <code>
           "
           foobar
@@ -224,7 +224,7 @@ exports[`displays accessible error if no id match 1`] = `
       class="c4"
     >
       0
-       of
+       of 
       2
     </p>
   </nav>
@@ -921,7 +921,7 @@ exports[`renders error if no id match 1`] = `
         Error
       </h1>
       <p>
-        no contest exists for id
+        no contest exists for id 
         <code>
           "
           foobar
@@ -955,7 +955,7 @@ exports[`renders error if no id match 1`] = `
       class="c4"
     >
       0
-       of
+       of 
       2
     </p>
   </nav>

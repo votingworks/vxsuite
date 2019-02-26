@@ -19,13 +19,16 @@ export function isJSON(str: any, passObject?: boolean): boolean {
   }
 
   if (/^\[(.*?)\]$/.test(str)) {
-    return str
-      .replace(/^\[/, '')
-      .replace(/\]$/, '')
-      .replace(/},{/g, '}\n{')
-      .split(/\n/)
-      .map((s: any) => isJSON(s))
-      .reduce((prev: any, curr: any) => !!curr)
+    return (
+      str
+        .replace(/^\[/, '')
+        .replace(/\]$/, '')
+        .replace(/},{/g, '}\n{')
+        .split(/\n/)
+        .map((s: any) => isJSON(s))
+        // @ts-ignore: 'prev' must be defined but is unused.
+        .reduce((prev: any, curr: any) => !!curr)
+    )
   }
 
   return false

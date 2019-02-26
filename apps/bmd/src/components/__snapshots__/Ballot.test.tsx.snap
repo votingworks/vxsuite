@@ -1363,8 +1363,6 @@ exports[`can navigate all ballot pages 5`] = `
     >
       Back
     </button>
-    <div />
-    <div />
   </nav>
 </div>
 `;
@@ -1574,8 +1572,6 @@ exports[`can navigate all ballot pages 6`] = `
     >
       Back
     </button>
-    <div />
-    <div />
   </nav>
 </div>
 `;

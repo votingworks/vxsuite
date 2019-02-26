@@ -57,7 +57,7 @@ class UploadConfig extends React.Component<Props, State> {
     this.props.setElection(sampleElectionFile)
   }
 
-  public onDrop = (acceptedFiles: File[], rejectedFiles: File[]) => {
+  public onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 1) {
       acceptedFiles.forEach((file: File) => {
         if (file.name === 'election.json') {

@@ -4,6 +4,7 @@ interface Attrs extends HTMLButtonElement {
   readonly type: string
 }
 
+// @ts-ignore: 'T' triggers noUnusedParameters, but must exist for this interface to be 'generic'.
 export interface ButtonInterface<T> {
   readonly danger?: boolean
   readonly primary?: boolean

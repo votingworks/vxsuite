@@ -4,8 +4,8 @@ import { BallotContextInterface } from '../config/types'
 const ballot: BallotContextInterface = {
   election: undefined,
   resetBallot: () => undefined,
-  setBallotKey: activationCode => undefined,
-  updateVote: (contestId, candidate) => undefined,
+  setBallotKey: () => undefined,
+  updateVote: () => undefined,
   votes: {},
 }
 
