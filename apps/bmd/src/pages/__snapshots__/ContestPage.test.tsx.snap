@@ -210,6 +210,7 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c6 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 

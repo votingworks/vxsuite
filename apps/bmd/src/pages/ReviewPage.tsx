@@ -101,6 +101,7 @@ const ContestHeading = styled.span`
 
 const ContestSelection = styled.dd`
   margin: 0;
+  word-break: break-word;
 `
 
 class SummaryPage extends React.Component<RouteComponentProps> {

@@ -513,6 +513,7 @@ exports[`can navigate all ballot pages 3`] = `
 }
 
 .c6 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -989,6 +990,7 @@ exports[`can navigate all ballot pages 4`] = `
 }
 
 .c4 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -1738,6 +1740,7 @@ exports[`can navigate all ballot pages 7`] = `
 
 .c10 {
   margin: 0;
+  word-break: break-word;
 }
 
 @media (min-width:480px) {
@@ -2225,6 +2228,7 @@ exports[`can navigate all ballot pages 8`] = `
 }
 
 .c6 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -2812,6 +2816,7 @@ exports[`redirects contests index to first contest 1`] = `
 }
 
 .c7 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 

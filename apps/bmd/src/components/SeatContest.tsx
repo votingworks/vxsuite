@@ -67,6 +67,7 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     color: #028099;
   }
   & > div {
+    word-break: break-word;
     padding: 0.5rem 0.5rem 0.5rem 4rem;
     @media (min-width: 480px) {
       padding: 1rem 1rem 1rem inherit;
@@ -224,20 +225,6 @@ class SeatContest extends React.Component<Props, State> {
     this.setState({ writeInCandidateName })
   }
 
-  public onKeyboardKeyPress = (button: string) => {
-    if (button === '{shift}' || button === '{lock}') {
-      this.handleKeyboardShiftKey()
-    }
-  }
-
-  public handleKeyboardShiftKey = () => {
-    const layoutName = this.state.layoutName
-
-    this.setState({
-      layoutName: layoutName === 'default' ? 'shift' : 'default',
-    })
-  }
-
   public render() {
     const { contest, vote } = this.props
     const { attemptedVoteCandidateName } = this.state
@@ -340,8 +327,8 @@ class SeatContest extends React.Component<Props, State> {
               <Prose>
                 <h2>Write-In Candidate</h2>
                 <Text>
-                  Use this screen to vote for a person who is{' '}
-                  <strong>not</strong> on the ballot.
+                  Enter the name of a person who is <strong>not</strong> on the
+                  ballot using the on-screen keyboard.
                 </Text>
               </Prose>
               <WriteInCandidateForm>
@@ -350,7 +337,7 @@ class SeatContest extends React.Component<Props, State> {
                     <label htmlFor="WriteInCandidateName">
                       <Prose>
                         <Text bold small>
-                          Write-In Candidate Name for {contest.title}
+                          {contest.title} (write-in)
                         </Text>
                       </Prose>
                     </label>
@@ -358,15 +345,29 @@ class SeatContest extends React.Component<Props, State> {
                   <WriteInCandidateInput
                     id="WriteInCandidateName"
                     value={this.state.writeInCandidateName}
-                    placeholder="Use the keyboard to enter a candidate name"
+                    placeholder="candidate name"
                   />
                 </WriteInCandidateFieldSet>
                 <Keyboard
                   ref={this.keyboard}
-                  layoutName={this.state.layoutName}
+                  layout={{
+                    default: [
+                      'Q W E R T Y U I O P',
+                      'A S D F G H J K L -',
+                      'Z X C V B N M , .',
+                      '{space} {bksp}',
+                    ],
+                  }}
+                  display={{
+                    '{bksp}': '⌫ delete',
+                    '{space}': 'space',
+                  }}
+                  mergeDisplay
+                  disableCaretPositioning
+                  maxLength={64}
+                  layoutName="default"
                   theme={'hg-theme-default vs-simple-keyboard'}
                   onChange={this.onKeyboardInputChange}
-                  onKeyPress={this.onKeyboardKeyPress}
                   useButtonTag
                 />
               </WriteInCandidateForm>

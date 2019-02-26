@@ -101,6 +101,7 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
 }
 
 .c4 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -347,6 +348,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
 }
 
 .c6 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -399,6 +401,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
 }
 
 .c4 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
