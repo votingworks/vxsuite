@@ -4,22 +4,16 @@ import styled from 'styled-components'
 
 import './Modal.css'
 
+import ButtonBar from './ButtonBar'
+
 const ModalContent = styled.div`
-  padding: 2rem 1rem;
-`
-const ModalActions = styled.div`
+  flex: 1;
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  border-top: 1px solid rgba(0, 0, 0, 0.25);
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.05);
-  & > button {
-    min-width: 8rem;
-  }
-  & > button:only-child {
-    margin: auto;
+  align-items: center;
+  overflow: auto;
+  padding: 1rem 0.5rem;
+  @media (min-width: 480px) {
+    padding: 2rem 1rem;
   }
 `
 
@@ -49,7 +43,9 @@ const Modal: React.FC<Props> = ({
     onAfterOpen={onAfterOpen}
   >
     <ModalContent>{content}</ModalContent>
-    <ModalActions>{actions}</ModalActions>
+    <ButtonBar as="div" dark={false}>
+      {actions}
+    </ButtonBar>
   </ReactModal>
 )
 

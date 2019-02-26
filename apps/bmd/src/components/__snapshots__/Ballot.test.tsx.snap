@@ -690,6 +690,9 @@ exports[`can navigate all ballot pages 3`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -703,7 +706,7 @@ exports[`can navigate all ballot pages 3`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -731,6 +734,13 @@ exports[`can navigate all ballot pages 3`] = `
 .c2 {
   color: white;
   text-align: center;
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
 }
 
 @media print {
@@ -776,6 +786,9 @@ exports[`can navigate all ballot pages 3`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -789,7 +802,7 @@ exports[`can navigate all ballot pages 3`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -815,7 +828,7 @@ exports[`can navigate all ballot pages 3`] = `
 }
 
 @media (min-width:480px) {
-  .c0 > :first-child {
+  .c0 > *:first-child {
     margin-left: auto;
   }
 }
@@ -825,6 +838,13 @@ exports[`can navigate all ballot pages 3`] = `
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
   }
 }
 
@@ -1113,7 +1133,7 @@ exports[`can navigate all ballot pages 4`] = `
     </div>
   </main>
   <nav
-    class="sc-bZQynM cRAMIS"
+    class="sc-bZQynM uuSXr"
   >
     <button
       class="sc-gzVnrw gWpXIP"
@@ -1128,7 +1148,7 @@ exports[`can navigate all ballot pages 4`] = `
       Previous
     </button>
     <p
-      class="sc-iwsKbI dZould"
+      class="sc-dnqmqq dhBiUn"
     >
       2
        of 
@@ -1136,7 +1156,7 @@ exports[`can navigate all ballot pages 4`] = `
     </p>
   </nav>
   <nav
-    class="sc-bZQynM KUmov"
+    class="sc-bZQynM efZRTa"
   >
     <button
       class="sc-gzVnrw gWpXIP"
@@ -1277,6 +1297,9 @@ exports[`can navigate all ballot pages 5`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -1290,7 +1313,7 @@ exports[`can navigate all ballot pages 5`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -1313,6 +1336,13 @@ exports[`can navigate all ballot pages 5`] = `
   color: black;
   line-height: 1;
   white-space: nowrap;
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
 }
 
 @media print {
@@ -1478,6 +1508,9 @@ exports[`can navigate all ballot pages 6`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -1491,7 +1524,7 @@ exports[`can navigate all ballot pages 6`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -1514,6 +1547,13 @@ exports[`can navigate all ballot pages 6`] = `
   color: black;
   line-height: 1;
   white-space: nowrap;
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
 }
 
 @media print {
@@ -1942,6 +1982,9 @@ exports[`can navigate all ballot pages 7`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -1955,7 +1998,7 @@ exports[`can navigate all ballot pages 7`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -1993,7 +2036,7 @@ exports[`can navigate all ballot pages 7`] = `
 }
 
 @media (min-width:480px) {
-  .c0 > :first-child {
+  .c0 > *:first-child {
     margin-left: auto;
   }
 }
@@ -2003,6 +2046,13 @@ exports[`can navigate all ballot pages 7`] = `
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
   }
 }
 
@@ -2333,6 +2383,9 @@ exports[`can navigate all ballot pages 8`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -2346,7 +2399,7 @@ exports[`can navigate all ballot pages 8`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -2374,6 +2427,13 @@ exports[`can navigate all ballot pages 8`] = `
 .c2 {
   color: white;
   text-align: center;
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
 }
 
 @media print {
@@ -2419,6 +2479,9 @@ exports[`can navigate all ballot pages 8`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -2432,7 +2495,7 @@ exports[`can navigate all ballot pages 8`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -2458,7 +2521,7 @@ exports[`can navigate all ballot pages 8`] = `
 }
 
 @media (min-width:480px) {
-  .c0 > :first-child {
+  .c0 > *:first-child {
     margin-left: auto;
   }
 }
@@ -2468,6 +2531,13 @@ exports[`can navigate all ballot pages 8`] = `
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
   }
 }
 
@@ -2577,6 +2647,9 @@ exports[`redirects contests index to first contest 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -2590,7 +2663,7 @@ exports[`redirects contests index to first contest 1`] = `
   align-items: center;
 }
 
-.c9 > :first-child {
+.c9 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -2611,6 +2684,9 @@ exports[`redirects contests index to first contest 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -2624,7 +2700,7 @@ exports[`redirects contests index to first contest 1`] = `
   align-items: center;
 }
 
-.c12 > :first-child {
+.c12 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -2753,6 +2829,13 @@ exports[`redirects contests index to first contest 1`] = `
   }
 }
 
+@media (min-width:480px) {
+  .c9 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
+}
+
 @media print {
   .c9 {
     display: none;
@@ -2760,7 +2843,7 @@ exports[`redirects contests index to first contest 1`] = `
 }
 
 @media (min-width:480px) {
-  .c12 > :first-child {
+  .c12 > *:first-child {
     margin-left: auto;
   }
 }
@@ -2770,6 +2853,13 @@ exports[`redirects contests index to first contest 1`] = `
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c12 > *:only-child {
+    margin: auto;
+    max-width: 30%;
   }
 }
 

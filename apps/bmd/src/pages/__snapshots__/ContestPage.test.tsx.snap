@@ -6,6 +6,9 @@ exports[`renders ContestPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -19,7 +22,7 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c8 > :first-child {
+.c8 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -40,6 +43,9 @@ exports[`renders ContestPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -53,7 +59,7 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c11 > :first-child {
+.c11 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -211,6 +217,13 @@ exports[`renders ContestPage 1`] = `
   margin-right: 0.5rem;
 }
 
+@media (min-width:480px) {
+  .c8 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
+}
+
 @media print {
   .c8 {
     display: none;
@@ -218,7 +231,7 @@ exports[`renders ContestPage 1`] = `
 }
 
 @media (min-width:480px) {
-  .c11 > :first-child {
+  .c11 > *:first-child {
     margin-left: auto;
   }
 }
@@ -228,6 +241,13 @@ exports[`renders ContestPage 1`] = `
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c11 > *:only-child {
+    margin: auto;
+    max-width: 30%;
   }
 }
 

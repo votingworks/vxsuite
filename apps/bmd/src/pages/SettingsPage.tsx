@@ -51,7 +51,7 @@ const SettingsPage = (props: RouteComponentProps) => {
         actions={
           <>
             <Button danger onClick={resetBallot}>
-              Yes, Remove All Votes and Start Over
+              Yes, Remove All Votes
             </Button>
             <Button onClick={cancelResetBallot}>Cancel</Button>
           </>

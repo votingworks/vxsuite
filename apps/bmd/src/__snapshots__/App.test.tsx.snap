@@ -897,6 +897,9 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -910,7 +913,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -938,6 +941,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 .c2 {
   color: white;
   text-align: center;
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
 }
 
 @media print {
@@ -983,6 +993,9 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -996,7 +1009,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -1022,7 +1035,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 }
 
 @media (min-width:480px) {
-  .c0 > :first-child {
+  .c0 > *:first-child {
     margin-left: auto;
   }
 }
@@ -1032,6 +1045,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
   }
 }
 
@@ -1077,13 +1097,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       class="sc-htpNat dyLKlQ"
     >
       <fieldset
-        class="sc-gqjmRU hnZXkc"
+        class="sc-gZMcBi giNnHm"
       >
         <legend
-          class="sc-VigVT iekhfX"
+          class="sc-gqjmRU bvPTSf"
         >
           <small
-            class="sc-gZMcBi euTFpJ"
+            class="sc-iwsKbI jHnxZM"
           >
             Federal Election
           </small>
@@ -1105,14 +1125,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
           </div>
         </legend>
         <div
-          class="sc-jTzLTM jPWweK"
+          class="sc-VigVT hvGAoq"
         >
           <label
-            class="sc-fjdhpX gNyhh"
+            class="sc-jTzLTM biYKsK"
             for="Minnie Mouse"
           >
             <input
-              class="visually-hidden sc-jzJRlG iotbjw"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               id="Minnie Mouse"
               name="president"
               type="checkbox"
@@ -1129,11 +1149,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-fjdhpX eMqClR"
+            class="sc-jTzLTM jKLUAm"
             for="Mickey Mouse"
           >
             <input
-              class="visually-hidden sc-jzJRlG iotbjw"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="Mickey Mouse"
               name="president"
@@ -1151,11 +1171,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-fjdhpX eMqClR"
+            class="sc-jTzLTM jKLUAm"
             for="Donald Duck"
           >
             <input
-              class="visually-hidden sc-jzJRlG iotbjw"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="Donald Duck"
               name="president"
@@ -1173,11 +1193,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-fjdhpX eMqClR"
+            class="sc-jTzLTM jKLUAm"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden sc-jzJRlG iotbjw"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="writeInCandidate"
               name="president"
@@ -1197,7 +1217,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     </div>
   </main>
   <nav
-    class="sc-bZQynM cRAMIS"
+    class="sc-bZQynM uuSXr"
   >
     <button
       class="sc-gzVnrw cpFmBu"
@@ -1212,7 +1232,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       Previous
     </button>
     <p
-      class="sc-iwsKbI dZould"
+      class="sc-dnqmqq dhBiUn"
     >
       1
        of 
@@ -1220,7 +1240,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     </p>
   </nav>
   <nav
-    class="sc-bZQynM KUmov"
+    class="sc-bZQynM efZRTa"
   >
     <button
       class="sc-gzVnrw gWpXIP"
@@ -1498,7 +1518,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
     </div>
   </main>
   <nav
-    class="sc-bZQynM cRAMIS"
+    class="sc-bZQynM uuSXr"
   >
     <button
       class="sc-gzVnrw gWpXIP"
@@ -1513,7 +1533,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
       Previous
     </button>
     <p
-      class="sc-iwsKbI dZould"
+      class="sc-dnqmqq dhBiUn"
     >
       2
        of 
@@ -1521,7 +1541,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
     </p>
   </nav>
   <nav
-    class="sc-bZQynM KUmov"
+    class="sc-bZQynM efZRTa"
   >
     <button
       class="sc-gzVnrw gWpXIP"
@@ -1556,13 +1576,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
       class="sc-htpNat dyLKlQ"
     >
       <fieldset
-        class="sc-gqjmRU hnZXkc"
+        class="sc-gZMcBi giNnHm"
       >
         <legend
-          class="sc-VigVT iekhfX"
+          class="sc-gqjmRU bvPTSf"
         >
           <small
-            class="sc-gZMcBi euTFpJ"
+            class="sc-iwsKbI jHnxZM"
           >
             Federal Election
           </small>
@@ -1584,14 +1604,14 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
           </div>
         </legend>
         <div
-          class="sc-jTzLTM jPWweK"
+          class="sc-VigVT hvGAoq"
         >
           <label
-            class="sc-fjdhpX eMqClR"
+            class="sc-jTzLTM jKLUAm"
             for="Chad Hanging"
           >
             <input
-              class="visually-hidden sc-jzJRlG iotbjw"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="Chad Hanging"
               name="senator"
@@ -1609,11 +1629,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
             </div>
           </label>
           <label
-            class="sc-fjdhpX eMqClR"
+            class="sc-jTzLTM jKLUAm"
             for="Lev Ermachine"
           >
             <input
-              class="visually-hidden sc-jzJRlG iotbjw"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="Lev Ermachine"
               name="senator"
@@ -1631,12 +1651,12 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
             </div>
           </label>
           <label
-            class="sc-fjdhpX gNyhh"
+            class="sc-jTzLTM biYKsK"
             for="John Smith"
           >
             <input
               autofocus=""
-              class="visually-hidden sc-jzJRlG iotbjw"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               id="John Smith"
               name="senator"
               type="checkbox"
@@ -1653,11 +1673,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
             </div>
           </label>
           <label
-            class="sc-fjdhpX eMqClR"
+            class="sc-jTzLTM jKLUAm"
             for="writeInCandidate"
           >
             <input
-              class="visually-hidden sc-jzJRlG iotbjw"
+              class="visually-hidden sc-fjdhpX fvYzBM"
               disabled=""
               id="writeInCandidate"
               name="senator"
@@ -1677,7 +1697,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
     </div>
   </main>
   <nav
-    class="sc-bZQynM cRAMIS"
+    class="sc-bZQynM uuSXr"
   >
     <button
       class="sc-gzVnrw cpFmBu"
@@ -1692,7 +1712,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
       Previous
     </button>
     <p
-      class="sc-iwsKbI dZould"
+      class="sc-dnqmqq dhBiUn"
     >
       2
        of 
@@ -1700,7 +1720,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
     </p>
   </nav>
   <nav
-    class="sc-bZQynM KUmov"
+    class="sc-bZQynM efZRTa"
   >
     <button
       class="sc-gzVnrw gWpXIP"
@@ -2114,6 +2134,9 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
   padding: 0.5rem;
   background: #455a64;
   border-bottom: 1px solid darkgrey;
@@ -2127,7 +2150,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
   align-items: center;
 }
 
-.c0 > :first-child {
+.c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
@@ -2165,7 +2188,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
 }
 
 @media (min-width:480px) {
-  .c0 > :first-child {
+  .c0 > *:first-child {
     margin-left: auto;
   }
 }
@@ -2175,6 +2198,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    max-width: 30%;
   }
 }
 
