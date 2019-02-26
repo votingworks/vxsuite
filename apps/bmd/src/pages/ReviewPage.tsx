@@ -9,46 +9,72 @@ import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
-import Seal from '../components/Seal'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
 const Ballot = styled.section`
   display: flex;
   flex-direction: column;
-  min-height: 9.5in;
-  margin-top: 2rem;
-  padding: 2rem;
+  margin-top: 1rem;
+  padding: 1rem 0.5rem;
   background: white;
+  @media (min-width: 640px), print {
+    margin-top: 2rem;
+    padding: 2rem;
+  }
   @media print {
+    min-height: 11in;
     margin: 0;
-    padding: 0;
+    padding: 0.5in;
+    font-size: 16px;
   }
 `
 
 const Header = styled.div`
   display: flex;
+  flex-direction: column;
   margin-bottom: 1rem;
   align-items: center;
+  text-align: center;
+  @media (min-width: 640px), print {
+    text-align: left;
+    flex-direction: row;
+  }
+  & > .seal {
+    width: 150px;
+    align-self: flex-start;
+    margin: 0 auto 0.5rem;
+    @media (min-width: 640px), print {
+      width: 175px;
+      margin: 0;
+    }
+    @media print {
+      width: 1.5in;
+      margin: 0;
+    }
+  }
   & h2 {
     margin-bottom: 0;
   }
   & h3 {
     margin-top: 0;
   }
-  & > div:nth-child(1) {
-    width: 175px;
-    align-self: flex-start;
-  }
-  & > div:nth-child(2) {
+  & > .ballot-header-content {
     flex: 1;
-    margin: 0 1rem;
+    @media (min-width: 640px), print {
+      margin-left: 1rem;
+    }
+    @media (min-width: 640px), print {
+      max-width: 100%;
+    }
   }
 `
 
 const BarCodeContainer = styled.div`
-  width: 50%;
   margin: 1rem 0 -0.75rem;
+  @media (min-width: 480px), print {
+    width: 50%;
+  }
 `
 
 const Content = styled.div`
@@ -106,8 +132,11 @@ class SummaryPage extends React.Component<RouteComponentProps> {
             </Prose>
             <Ballot>
               <Header>
-                <Seal dangerouslySetInnerHTML={{ __html: seal }} />
-                <Prose>
+                <div
+                  className="seal"
+                  dangerouslySetInnerHTML={{ __html: seal }}
+                />
+                <Prose className="ballot-header-content">
                   <h2>Official Ballot</h2>
                   <h3>{title}</h3>
                   <p>
@@ -188,15 +217,16 @@ class SummaryPage extends React.Component<RouteComponentProps> {
         </ButtonBar>
         <Modal
           isOpen={this.state.isAlert}
+          centerContent
           content={
             <Prose>
-              <Text>Are you finished voting?</Text>
+              <Text center>Are you finished voting?</Text>
             </Prose>
           }
           actions={
             <>
               <Button primary onClick={window.print}>
-                Yes, I‘m finished. Print my ballot.
+                Yes, I‘m finished. Print ballot.
               </Button>
               <Button onClick={this.hideConfirm}>No. Go Back.</Button>
             </>

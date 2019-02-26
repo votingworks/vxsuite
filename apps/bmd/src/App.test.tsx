@@ -193,7 +193,7 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getByText('Print Ballot'))
   fireEvent.click(getByText('No. Go Back.'))
   fireEvent.click(getByText('Print Ballot'))
-  fireEvent.click(getByText('Yes, I‘m finished. Print my ballot.'))
+  fireEvent.click(getByText('Yes, I‘m finished. Print ballot.'))
   expect(window.print).toBeCalled()
 
   await waitForElement(() => getByText('Scan Your Activation Code'))
@@ -227,7 +227,7 @@ describe('can start over', () => {
     fireEvent.click(getByText('Start Over'))
     fireEvent.click(getByText('Cancel'))
     fireEvent.click(getByText('Start Over'))
-    fireEvent.click(getByText('Yes, Remove All Votes and Start Over'))
+    fireEvent.click(getByText('Yes, Remove All Votes'))
     expect(getByText('Scan Your Activation Code')).toBeTruthy()
   })
 })

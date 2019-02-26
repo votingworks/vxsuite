@@ -6,12 +6,18 @@ import './Modal.css'
 
 import ButtonBar from './ButtonBar'
 
-const ModalContent = styled.div`
+interface ModalContentInterface {
+  centerContent?: boolean
+}
+
+const ModalContent = styled('div')<ModalContentInterface>`
   flex: 1;
   display: flex;
   align-items: center;
   overflow: auto;
   padding: 1rem 0.5rem;
+  justify-content: ${({ centerContent = false }) =>
+    centerContent ? 'center' : undefined};
   @media (min-width: 480px) {
     padding: 2rem 1rem;
   }
@@ -21,6 +27,7 @@ interface Props {
   isOpen: boolean
   ariaLabel?: string
   content?: ReactNode
+  centerContent?: boolean
   actions?: ReactNode
   onAfterOpen?: () => void
 }
@@ -28,6 +35,7 @@ interface Props {
 const Modal: React.FC<Props> = ({
   actions,
   content,
+  centerContent,
   ariaLabel = 'Alert Modal',
   isOpen,
   onAfterOpen,
@@ -42,7 +50,7 @@ const Modal: React.FC<Props> = ({
     overlayClassName="modal-overlay"
     onAfterOpen={onAfterOpen}
   >
-    <ModalContent>{content}</ModalContent>
+    <ModalContent centerContent={centerContent}>{content}</ModalContent>
     <ButtonBar as="div" dark={false}>
       {actions}
     </ButtonBar>

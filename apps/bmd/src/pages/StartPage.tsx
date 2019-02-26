@@ -1,12 +1,17 @@
 import React, { useContext } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
+import styled from 'styled-components'
 
 import BallotContext from '../contexts/ballotContext'
 
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
-import Seal from '../components/Seal'
+
+const Seal = styled.div`
+  max-width: 320px;
+  margin: auto;
+`
 
 const StartPage = (props: RouteComponentProps) => {
   const { election } = useContext(BallotContext)

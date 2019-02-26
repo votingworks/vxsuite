@@ -59,11 +59,6 @@ exports[`renders SummaryPage with votes 1`] = `
   margin-bottom: 0;
 }
 
-.c5 {
-  max-width: 320px;
-  margin: auto;
-}
-
 .c3 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -72,9 +67,8 @@ exports[`renders SummaryPage with votes 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  min-height: 9.5in;
-  margin-top: 2rem;
-  padding: 2rem;
+  margin-top: 1rem;
+  padding: 1rem 0.5rem;
   background: white;
 }
 
@@ -83,11 +77,23 @@ exports[`renders SummaryPage with votes 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   margin-bottom: 1rem;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  text-align: center;
+}
+
+.c4 > .seal {
+  width: 150px;
+  -webkit-align-self: flex-start;
+  -ms-flex-item-align: start;
+  align-self: flex-start;
+  margin: 0 auto 0.5rem;
 }
 
 .c4 h2 {
@@ -98,39 +104,30 @@ exports[`renders SummaryPage with votes 1`] = `
   margin-top: 0;
 }
 
-.c4 > div:nth-child(1) {
-  width: 175px;
-  -webkit-align-self: flex-start;
-  -ms-flex-item-align: start;
-  align-self: flex-start;
-}
-
-.c4 > div:nth-child(2) {
+.c4 > .ballot-header-content {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin: 0 1rem;
 }
 
-.c10 {
-  width: 50%;
+.c9 {
   margin: 1rem 0 -0.75rem;
 }
 
-.c6 {
+.c5 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c7 {
+.c6 {
   width: 100%;
   max-width: 66ch;
   text-align: left;
   border-bottom: 1px solid lightGrey;
 }
 
-.c8 {
+.c7 {
   width: 50%;
   padding: 0.5rem 0.25rem;
   border-top: none;
@@ -139,7 +136,7 @@ exports[`renders SummaryPage with votes 1`] = `
   vertical-align: top;
 }
 
-.c9 {
+.c8 {
   width: 50%;
   padding: 0.5rem 0.25rem;
   border-top: 1px solid lightGrey;
@@ -177,15 +174,65 @@ exports[`renders SummaryPage with votes 1`] = `
   }
 }
 
-@media print {
+@media (min-width:640px),print {
   .c3 {
-    margin: 0;
-    padding: 0;
+    margin-top: 2rem;
+    padding: 2rem;
   }
 }
 
 @media print {
-  .c7 {
+  .c3 {
+    min-height: 11in;
+    margin: 0;
+    padding: 0.5in;
+    font-size: 16px;
+  }
+}
+
+@media (min-width:640px),print {
+  .c4 {
+    text-align: left;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+  }
+}
+
+@media (min-width:640px),print {
+  .c4 > .seal {
+    width: 175px;
+    margin: 0;
+  }
+}
+
+@media print {
+  .c4 > .seal {
+    width: 1.5in;
+    margin: 0;
+  }
+}
+
+@media (min-width:640px),print {
+  .c4 > .ballot-header-content {
+    margin-left: 1rem;
+  }
+}
+
+@media (min-width:640px),print {
+  .c4 > .ballot-header-content {
+    max-width: 100%;
+  }
+}
+
+@media (min-width:480px),print {
+  .c9 {
+    width: 50%;
+  }
+}
+
+@media print {
+  .c6 {
     max-width: 100%;
   }
 }
@@ -217,7 +264,7 @@ exports[`renders SummaryPage with votes 1`] = `
         class="c4"
       >
         <div
-          class="c5"
+          class="seal"
         >
           <svg
             viewBox="0 0 500 500"
@@ -251,7 +298,7 @@ exports[`renders SummaryPage with votes 1`] = `
 
         </div>
         <div
-          class="c2"
+          class="ballot-header-content c2"
         >
           <h2>
             Official Ballot
@@ -269,10 +316,10 @@ exports[`renders SummaryPage with votes 1`] = `
         </div>
       </div>
       <div
-        class="c6"
+        class="c5"
       >
         <table
-          class="c7"
+          class="c6"
         >
           <caption
             class="no-print visually-hidden"
@@ -284,13 +331,13 @@ exports[`renders SummaryPage with votes 1`] = `
           <thead>
             <tr>
               <th
-                class="c8"
+                class="c7"
                 scope="col"
               >
                 Contest
               </th>
               <th
-                class="c8"
+                class="c7"
                 scope="col"
               >
                 Vote
@@ -300,13 +347,13 @@ exports[`renders SummaryPage with votes 1`] = `
           <tbody>
             <tr>
               <th
-                class="c9"
+                class="c8"
               >
                 President
                  
               </th>
               <td
-                class="c9"
+                class="c8"
               >
                 <strong>
                   Minnie Mouse
@@ -325,13 +372,13 @@ exports[`renders SummaryPage with votes 1`] = `
             </tr>
             <tr>
               <th
-                class="c9"
+                class="c8"
               >
                 Senator
                  
               </th>
               <td
-                class="c9"
+                class="c8"
               >
                 <strong>
                   John Smith
@@ -352,7 +399,7 @@ exports[`renders SummaryPage with votes 1`] = `
         </table>
       </div>
       <div
-        class="c10"
+        class="c9"
       >
         <svg
           viewBox="0 0 1293 177"
