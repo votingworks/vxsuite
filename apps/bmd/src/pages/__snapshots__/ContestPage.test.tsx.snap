@@ -1,5 +1,258 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`displays accessible error if no id match 1`] = `
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c3 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c3 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c5 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c5 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c5 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c2 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+  padding: 1rem 0.5rem 2rem;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+}
+
+.c4 {
+  color: white;
+  text-align: center;
+}
+
+@media (min-width:480px) {
+  .c3 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
+}
+
+@media print {
+  .c3 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c5 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c5 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c5 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
+}
+
+@media print {
+  .c5 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 {
+    padding: 2rem 1rem;
+  }
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
+  }
+}
+
+@media print {
+  .c4 {
+    color: white;
+  }
+}
+
+<div>
+  <main
+    class="c0"
+  >
+    <div
+      class="c1"
+    >
+      <h1>
+        Error
+      </h1>
+      <p>
+        no contest exists for id
+        <code>
+          "
+          foobar
+          "
+        </code>
+      </p>
+      <button
+        class="c2"
+        type="button"
+      >
+        Start Over
+      </button>
+    </div>
+  </main>
+  <nav
+    class="c3"
+  >
+    <button
+      class="c2"
+      type="button"
+    >
+      Next
+    </button>
+    <button
+      class="c2"
+      type="button"
+    >
+      Previous
+    </button>
+    <p
+      class="c4"
+    >
+      0
+       of
+      2
+    </p>
+  </nav>
+  <nav
+    class="c5"
+  >
+    <button
+      class="c2"
+      type="button"
+    >
+      Review
+    </button>
+    <button
+      class="c2"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="c2"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;
+
 exports[`renders ContestPage 1`] = `
 .c8 {
   display: -webkit-box;
@@ -470,6 +723,259 @@ exports[`renders ContestPage 1`] = `
     </button>
     <button
       class="c9"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`renders error if no id match 1`] = `
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c3 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c3 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c5 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c5 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c5 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c2 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+  padding: 1rem 0.5rem 2rem;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+}
+
+.c4 {
+  color: white;
+  text-align: center;
+}
+
+@media (min-width:480px) {
+  .c3 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
+}
+
+@media print {
+  .c3 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c5 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c5 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c5 > *:only-child {
+    margin: auto;
+    max-width: 30%;
+  }
+}
+
+@media print {
+  .c5 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 {
+    padding: 2rem 1rem;
+  }
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
+  }
+}
+
+@media print {
+  .c4 {
+    color: white;
+  }
+}
+
+<div>
+  <main
+    class="c0"
+  >
+    <div
+      class="c1"
+    >
+      <h1>
+        Error
+      </h1>
+      <p>
+        no contest exists for id
+        <code>
+          "
+          foobar
+          "
+        </code>
+      </p>
+      <button
+        class="c2"
+        type="button"
+      >
+        Start Over
+      </button>
+    </div>
+  </main>
+  <nav
+    class="c3"
+  >
+    <button
+      class="c2"
+      type="button"
+    >
+      Next
+    </button>
+    <button
+      class="c2"
+      type="button"
+    >
+      Previous
+    </button>
+    <p
+      class="c4"
+    >
+      0
+       of
+      2
+    </p>
+  </nav>
+  <nav
+    class="c5"
+  >
+    <button
+      class="c2"
+      type="button"
+    >
+      Review
+    </button>
+    <button
+      class="c2"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="c2"
       type="button"
     >
       Settings
