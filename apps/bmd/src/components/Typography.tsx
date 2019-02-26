@@ -24,14 +24,3 @@ export const Text = styled('p')<Props>`
 `
 
 export default Text
-
-// {
-//   `First line\nSecond line\nThird line`
-//     .split('\n')
-//   .map((item, key) => (
-//     <React.Fragment key={key}>
-//       {item}
-//       <br />
-//     </React.Fragment>
-//   ))
-// }

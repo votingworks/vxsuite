@@ -142,15 +142,13 @@ class SeatContest extends React.Component<Props, State> {
   }
 
   public handleUpdateSelection = (event: InputEvent) => {
-    const target = event.target as HTMLInputElement
-    const targetIsSelected =
-      this.props.vote && target.value === this.props.vote.id
+    const { contest, vote } = this.props
+    const { value } = event.target as HTMLInputElement
+    const targetIsSelected = vote && value === vote.id
     this.selectCandidate(
       targetIsSelected
         ? undefined
-        : this.props.contest.candidates.find(
-            candidate => candidate.id === target.value
-          )
+        : contest.candidates.find(candidate => candidate.id === value)
     )
   }
 
@@ -163,23 +161,18 @@ class SeatContest extends React.Component<Props, State> {
   }
 
   public handleSelectWriteInCandidate = () => {
-    if (
-      !!this.props.vote &&
-      this.props.vote.name === this.state.writeInCandidateName
-    ) {
+    const { vote } = this.props
+    if (!!vote && vote.name === this.state.writeInCandidateName) {
       this.selectCandidate(undefined)
     } else {
       this.toggleWriteInCandidateModal(true)
     }
   }
   public handleWriteInCandidateDisabledClick = () => {
-    if (
-      !!this.props.vote &&
-      this.props.vote.name !== this.state.writeInCandidateName
-    ) {
-      this.handleChangeVoteAlert(
-        this.state.writeInCandidateName || 'a write-in candidate'
-      )
+    const { vote } = this.props
+    const { writeInCandidateName } = this.state
+    if (!!vote && vote.name !== writeInCandidateName) {
+      this.handleChangeVoteAlert(writeInCandidateName || 'a write-in candidate')
     }
   }
 
@@ -227,9 +220,14 @@ class SeatContest extends React.Component<Props, State> {
 
   public render() {
     const { contest, vote } = this.props
-    const { attemptedVoteCandidateName } = this.state
+    const {
+      attemptedVoteCandidateName,
+      writeInCandidateName,
+      writeInCandateModalIsOpen,
+    } = this.state
+    const maxWriteInCandidateLength = 40
     const writeInCandidateIsChecked =
-      !!vote && vote.name === this.state.writeInCandidateName
+      !!vote && vote.name === writeInCandidateName
     return (
       <React.Fragment>
         <FieldSet>
@@ -294,8 +292,8 @@ class SeatContest extends React.Component<Props, State> {
                 className="visually-hidden"
               />
               <Prose>
-                {!!this.state.writeInCandidateName ? (
-                  <strong>{this.state.writeInCandidateName}</strong>
+                {!!writeInCandidateName ? (
+                  <strong>{writeInCandidateName}</strong>
                 ) : (
                   <em>add a write-in candidate</em>
                 )}
@@ -320,7 +318,7 @@ class SeatContest extends React.Component<Props, State> {
           }
         />
         <Modal
-          isOpen={this.state.writeInCandateModalIsOpen}
+          isOpen={writeInCandateModalIsOpen}
           onAfterOpen={this.setKeyboardInput}
           content={
             <div>
@@ -330,6 +328,13 @@ class SeatContest extends React.Component<Props, State> {
                   Enter the name of a person who is <strong>not</strong> on the
                   ballot using the on-screen keyboard.
                 </Text>
+                {writeInCandidateName.length > 35 && (
+                  <Text error>
+                    <strong>Note:</strong> You have entered{' '}
+                    {writeInCandidateName.length} of maximum{' '}
+                    {maxWriteInCandidateLength} characters.
+                  </Text>
+                )}
               </Prose>
               <WriteInCandidateForm>
                 <WriteInCandidateFieldSet>
@@ -344,7 +349,7 @@ class SeatContest extends React.Component<Props, State> {
                   </legend>
                   <WriteInCandidateInput
                     id="WriteInCandidateName"
-                    value={this.state.writeInCandidateName}
+                    value={writeInCandidateName}
                     placeholder="candidate name"
                   />
                 </WriteInCandidateFieldSet>
@@ -364,7 +369,7 @@ class SeatContest extends React.Component<Props, State> {
                   }}
                   mergeDisplay
                   disableCaretPositioning
-                  maxLength={64}
+                  maxLength={maxWriteInCandidateLength}
                   layoutName="default"
                   theme={'hg-theme-default vs-simple-keyboard'}
                   onChange={this.onKeyboardInputChange}
@@ -376,15 +381,10 @@ class SeatContest extends React.Component<Props, State> {
           actions={
             <>
               <Button
-                primary={
-                  this.normalizeName(this.state.writeInCandidateName).length > 0
-                }
+                primary={this.normalizeName(writeInCandidateName).length > 0}
                 autoFocus
                 onClick={this.selectWriteInCandidate}
-                disabled={
-                  this.normalizeName(this.state.writeInCandidateName).length ===
-                  0
-                }
+                disabled={this.normalizeName(writeInCandidateName).length === 0}
               >
                 Accept
               </Button>
