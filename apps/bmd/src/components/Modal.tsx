@@ -41,7 +41,7 @@ const Modal: React.FC<Props> = ({
   onAfterOpen,
 }) => (
   <ReactModal
-    appElement={document.getElementById('root') as HTMLElement}
+    appElement={document.getElementById('root')!}
     ariaHideApp={process.env.NODE_ENV !== 'test'}
     isOpen={isOpen}
     contentLabel={ariaLabel}
