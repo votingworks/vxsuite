@@ -232,10 +232,16 @@ class SeatContest extends React.Component<Props, State> {
         <FieldSet>
           <Legend>
             {contest.section && (
-              <ContestSection>{contest.section}</ContestSection>
+              <ContestSection>
+                {contest.section}
+                <span className="visually-hidden">.</span>
+              </ContestSection>
             )}
             <Prose>
-              <h1>{contest.title}</h1>
+              <h1>
+                {contest.title}
+                <span className="visually-hidden">.</span>
+              </h1>
               <p>
                 <strong>Vote for 1.</strong> You have selected{' '}
                 {!!vote ? `1` : `0`}.
@@ -269,6 +275,7 @@ class SeatContest extends React.Component<Props, State> {
                   />
                   <Prose>
                     <strong>{candidate.name}</strong>
+                    <span className="visually-hidden">,</span>
                     <br />
                     {candidate.party}
                   </Prose>

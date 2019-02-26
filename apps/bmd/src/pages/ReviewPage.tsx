@@ -126,7 +126,9 @@ class SummaryPage extends React.Component<RouteComponentProps> {
         <Main>
           <MainChild>
             <Prose>
-              <h1 className="no-print">Review Your Selections</h1>
+              <h1 className="no-print">
+                Review Your Selections<span className="visually-hidden">.</span>
+              </h1>
               <p className="no-print">
                 Confirm your votes by printing your ballot.
               </p>
@@ -136,14 +138,22 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                 <div
                   className="seal"
                   dangerouslySetInnerHTML={{ __html: seal }}
+                  aria-label="Election Seal."
                 />
                 <Prose className="ballot-header-content">
-                  <h2>Official Ballot</h2>
-                  <h3>{title}</h3>
+                  <h2>
+                    Official Ballot<span className="visually-hidden">.</span>
+                  </h2>
+                  <h3>
+                    {title}
+                    <span className="visually-hidden">.</span>
+                  </h3>
                   <p>
                     {county}, {state}
+                    <span className="visually-hidden">.</span>
                     <br />
                     {date}
+                    <span className="visually-hidden">.</span>
                   </p>
                 </Prose>
               </Header>
@@ -173,16 +183,22 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                         return (
                           <React.Fragment key={contest.id}>
                             <ContestHeader>
-                              <ContestHeading>{contest.title}</ContestHeading>
+                              <ContestHeading>
+                                {contest.title}
+                                <span className="visually-hidden">,</span>
+                              </ContestHeading>
                               <LinkButton
                                 to={`/contests/${contest.id}`}
                                 className="no-print change-button"
+                                aria-label={`Change ${contest.title}`}
                               >
                                 Change
                               </LinkButton>
+                              <span className="visually-hidden">,</span>
                             </ContestHeader>
                             <ContestSelection>
                               {candidateName} {candidateParty}
+                              <span className="visually-hidden">.</span>
                             </ContestSelection>
                           </React.Fragment>
                         )
@@ -191,14 +207,14 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                   </BallotContext.Consumer>
                 </BallotSelections>
               </Content>
-              <BarCodeContainer>
+              <BarCodeContainer aria-hidden="true">
                 <Barcode />
               </BarCodeContainer>
             </Ballot>
           </MainChild>
         </Main>
         <ButtonBar separatePrimaryButton>
-          <Button autoFocus primary onClick={this.showConfirm}>
+          <Button primary onClick={this.showConfirm}>
             Print Ballot
           </Button>
           <LinkButton goBack>Back</LinkButton>

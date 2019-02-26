@@ -255,6 +255,11 @@ exports[`renders SummaryPage with votes 1`] = `
         class="no-print"
       >
         Review Your Selections
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
       </h1>
       <p
         class="no-print"
@@ -269,6 +274,7 @@ exports[`renders SummaryPage with votes 1`] = `
         class="c4"
       >
         <div
+          aria-label="Election Seal."
           class="seal"
         >
           <svg
@@ -307,16 +313,36 @@ exports[`renders SummaryPage with votes 1`] = `
         >
           <h2>
             Official Ballot
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </h2>
           <h3>
             2020 General Election
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </h3>
           <p>
             Nearby County
             , 
             State of Somewhere
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
             <br />
             Tuesday, November 6, 2020
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </p>
         </div>
       </div>
@@ -333,19 +359,35 @@ exports[`renders SummaryPage with votes 1`] = `
               class="c8"
             >
               President
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
             </span>
             <button
+              aria-label="Change President"
               class="no-print change-button c9"
               type="button"
             >
               Change
             </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
           </dt>
           <dd
             class="c10"
           >
             <strong />
              
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </dd>
           <dt
             class="c7"
@@ -354,23 +396,40 @@ exports[`renders SummaryPage with votes 1`] = `
               class="c8"
             >
               Senator
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
             </span>
             <button
+              aria-label="Change Senator"
               class="no-print change-button c9"
               type="button"
             >
               Change
             </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
           </dt>
           <dd
             class="c10"
           >
             <strong />
              
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </dd>
         </dl>
       </div>
       <div
+        aria-hidden="true"
         class="c11"
       >
         <svg

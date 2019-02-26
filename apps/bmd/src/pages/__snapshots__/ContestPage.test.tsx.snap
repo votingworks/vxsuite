@@ -576,12 +576,22 @@ exports[`renders ContestPage 1`] = `
             class="c3"
           >
             Federal Election
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </small>
           <div
             class="c4"
           >
             <h1>
               President
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </h1>
             <p>
               <strong>
@@ -614,6 +624,11 @@ exports[`renders ContestPage 1`] = `
               <strong>
                 Minnie Mouse
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Mouse
             </div>
@@ -635,6 +650,11 @@ exports[`renders ContestPage 1`] = `
               <strong>
                 Mickey Mouse
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Mouse
             </div>
@@ -656,6 +676,11 @@ exports[`renders ContestPage 1`] = `
               <strong>
                 Donald Duck
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Duck
             </div>

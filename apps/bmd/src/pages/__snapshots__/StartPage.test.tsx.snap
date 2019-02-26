@@ -152,13 +152,28 @@ exports[`renders StartPage 1`] = `
     >
       <h1>
         2020 General Election
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
       </h1>
       <p>
         Tuesday, November 6, 2020
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
         <br />
         Nearby County
         , 
         State of Somewhere
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
       </p>
       <p>
         <button

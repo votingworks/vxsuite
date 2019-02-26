@@ -33,7 +33,8 @@ legend {
 /* Foundational */
 html,
 body,
-#root {
+#root,
+.clickContainer {
   height: 100%;
 }
 

@@ -115,9 +115,19 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.change(getByTestId('activation-code'), {
     target: { value: 'MyVoiceIsMyPassword' },
   })
+
+  // before we go to the next page, let's set up test of navigation
+  jest.useFakeTimers()
+
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))
   expect(container.firstChild).toMatchSnapshot()
+
+  jest.runAllTimers()
+
+  expect(setTimeout).toHaveBeenCalledTimes(1)
+
+  jest.useRealTimers()
 
   fireEvent.click(getByText('Get Started'))
   expect(container.firstChild).toMatchSnapshot()

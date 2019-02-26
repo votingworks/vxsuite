@@ -87,8 +87,13 @@ const StartPage = (props: RouteComponentProps) => {
               onBlur={onBlur}
               onChange={onChange}
               value={ballotCode}
+              aria-hidden="true"
             />
-            <button type="submit" className="visually-hidden">
+            <button
+              type="submit"
+              className="visually-hidden"
+              aria-hidden="true"
+            >
               Submit
             </button>
           </fieldset>

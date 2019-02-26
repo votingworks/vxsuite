@@ -20,14 +20,19 @@ const StartPage = () => {
       <MainChild center>
         <Seal dangerouslySetInnerHTML={{ __html: seal }} />
         <Prose textCenter>
-          <h1>{title}</h1>
+          <h1>
+            {title}
+            <span className="visually-hidden">.</span>
+          </h1>
           <p>
             {date}
+            <span className="visually-hidden">.</span>
             <br />
             {county}, {state}
+            <span className="visually-hidden">.</span>
           </p>
           <p>
-            <LinkButton autoFocus primary to={`/contests`}>
+            <LinkButton primary to={`/contests`}>
               Get Started
             </LinkButton>
           </p>

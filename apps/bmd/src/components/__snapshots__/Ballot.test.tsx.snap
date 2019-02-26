@@ -192,6 +192,7 @@ exports[`can navigate all ballot pages 1`] = `
             </label>
           </legend>
           <input
+            aria-hidden="true"
             class="visually-hidden"
             data-testid="activation-code"
             id="BallotCode"
@@ -199,6 +200,7 @@ exports[`can navigate all ballot pages 1`] = `
             value=""
           />
           <button
+            aria-hidden="true"
             class="visually-hidden"
             type="submit"
           >
@@ -366,13 +368,28 @@ exports[`can navigate all ballot pages 2`] = `
       >
         <h1>
           2020 General Election
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
         </h1>
         <p>
           Tuesday, November 6, 2020
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
           <br />
           Nearby County
           , 
           State of Somewhere
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
         </p>
         <p>
           <button
@@ -579,12 +596,22 @@ exports[`can navigate all ballot pages 3`] = `
             class="c3"
           >
             Federal Election
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </small>
           <div
             class="c4"
           >
             <h1>
               President
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </h1>
             <p>
               <strong>
@@ -617,6 +644,11 @@ exports[`can navigate all ballot pages 3`] = `
               <strong>
                 Minnie Mouse
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Mouse
             </div>
@@ -638,6 +670,11 @@ exports[`can navigate all ballot pages 3`] = `
               <strong>
                 Mickey Mouse
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Mouse
             </div>
@@ -659,6 +696,11 @@ exports[`can navigate all ballot pages 3`] = `
               <strong>
                 Donald Duck
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Duck
             </div>
@@ -1027,12 +1069,22 @@ exports[`can navigate all ballot pages 4`] = `
             class="c1"
           >
             Federal Election
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </small>
           <div
             class="c2"
           >
             <h1>
               Senator
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </h1>
             <p>
               <strong>
@@ -1065,6 +1117,11 @@ exports[`can navigate all ballot pages 4`] = `
               <strong>
                 Chad Hanging
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Independent
             </div>
@@ -1086,6 +1143,11 @@ exports[`can navigate all ballot pages 4`] = `
               <strong>
                 Lev Ermachine
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Independent
             </div>
@@ -1107,6 +1169,11 @@ exports[`can navigate all ballot pages 4`] = `
               <strong>
                 John Smith
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Independent
             </div>
@@ -1137,14 +1204,38 @@ exports[`can navigate all ballot pages 4`] = `
   <nav
     class="sc-bZQynM uuSXr"
   >
-    <button
-      class="sc-gzVnrw gWpXIP"
+    .c0 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+<button
+      class="c0"
       type="button"
     >
       Review
     </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
+    .c0 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+<button
+      class="c0"
       type="button"
     >
       Previous
@@ -1844,6 +1935,11 @@ exports[`can navigate all ballot pages 7`] = `
           class="no-print"
         >
           Review Your Selections
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
         </h1>
         <p
           class="no-print"
@@ -1858,6 +1954,7 @@ exports[`can navigate all ballot pages 7`] = `
           class="c4"
         >
           <div
+            aria-label="Election Seal."
             class="seal"
           >
             <svg
@@ -1896,16 +1993,36 @@ exports[`can navigate all ballot pages 7`] = `
           >
             <h2>
               Official Ballot
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </h2>
             <h3>
               2020 General Election
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </h3>
             <p>
               Nearby County
               , 
               State of Somewhere
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
               <br />
               Tuesday, November 6, 2020
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </p>
           </div>
         </div>
@@ -1922,13 +2039,24 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c8"
               >
                 President
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
               </span>
               <button
+                aria-label="Change President"
                 class="no-print change-button c9"
                 type="button"
               >
                 Change
               </button>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
             </dt>
             <dd
               class="c10"
@@ -1939,6 +2067,11 @@ exports[`can navigate all ballot pages 7`] = `
                 [no selection]
               </strong>
                
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </dd>
             <dt
               class="c7"
@@ -1947,13 +2080,24 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c8"
               >
                 Senator
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
               </span>
               <button
+                aria-label="Change Senator"
                 class="no-print change-button c9"
                 type="button"
               >
                 Change
               </button>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
             </dt>
             <dd
               class="c10"
@@ -1964,10 +2108,16 @@ exports[`can navigate all ballot pages 7`] = `
                 [no selection]
               </strong>
                
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </dd>
           </dl>
         </div>
         <div
+          aria-hidden="true"
           class="c12"
         >
           <svg
@@ -2290,12 +2440,22 @@ exports[`can navigate all ballot pages 8`] = `
             class="c3"
           >
             Federal Election
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </small>
           <div
             class="c4"
           >
             <h1>
               Senator
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </h1>
             <p>
               <strong>
@@ -2328,6 +2488,11 @@ exports[`can navigate all ballot pages 8`] = `
               <strong>
                 Chad Hanging
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Independent
             </div>
@@ -2349,6 +2514,11 @@ exports[`can navigate all ballot pages 8`] = `
               <strong>
                 Lev Ermachine
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Independent
             </div>
@@ -2370,6 +2540,11 @@ exports[`can navigate all ballot pages 8`] = `
               <strong>
                 John Smith
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Independent
             </div>
@@ -2927,12 +3102,22 @@ exports[`redirects contests index to first contest 1`] = `
             class="c4"
           >
             Federal Election
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </small>
           <div
             class="c5"
           >
             <h1>
               President
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
             </h1>
             <p>
               <strong>
@@ -2965,6 +3150,11 @@ exports[`redirects contests index to first contest 1`] = `
               <strong>
                 Minnie Mouse
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Mouse
             </div>
@@ -2986,6 +3176,11 @@ exports[`redirects contests index to first contest 1`] = `
               <strong>
                 Mickey Mouse
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Mouse
             </div>
@@ -3007,6 +3202,11 @@ exports[`redirects contests index to first contest 1`] = `
               <strong>
                 Donald Duck
               </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
               <br />
               Duck
             </div>

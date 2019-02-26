@@ -55,22 +55,28 @@ const ContestPage = (props: Props) => {
       <ButtonBar>
         {nextContest ? (
           <LinkButton
+            key="next"
             primary={!!vote}
             to={`/contests/${nextContest && nextContest.id}`}
           >
             Next
           </LinkButton>
         ) : (
-          <LinkButton primary={!!vote} to="/review">
+          <LinkButton primary={!!vote} to="/review" key="review">
             Review
           </LinkButton>
         )}
         {prevContest ? (
-          <LinkButton to={`/contests/${prevContest && prevContest.id}`}>
+          <LinkButton
+            to={`/contests/${prevContest && prevContest.id}`}
+            key="previous"
+          >
             Previous
           </LinkButton>
         ) : (
-          <LinkButton to="/start">Previous</LinkButton>
+          <LinkButton key="backtostart" to="/start">
+            Previous
+          </LinkButton>
         )}
         <Text center white>
           {currentContestIndex + 1} of {contests.length}

@@ -139,12 +139,22 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
         class="c1"
       >
         Federal Election
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
       </small>
       <div
         class="c2"
       >
         <h1>
           President
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
         </h1>
         <p>
           <strong>
@@ -177,6 +187,11 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           <strong>
             Minnie Mouse
           </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
           <br />
           Mouse
         </div>
@@ -198,6 +213,11 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           <strong>
             Mickey Mouse
           </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
           <br />
           Mouse
         </div>
@@ -219,6 +239,11 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
           <strong>
             Donald Duck
           </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
           <br />
           Duck
         </div>
@@ -445,12 +470,22 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         class="c1"
       >
         Federal Election
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
       </small>
       <div
         class="c2"
       >
         <h1>
           President
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
         </h1>
         <p>
           <strong>
@@ -484,6 +519,11 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           <strong>
             Minnie Mouse
           </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
           <br />
           Mouse
         </div>
@@ -506,6 +546,11 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           <strong>
             Mickey Mouse
           </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
           <br />
           Mouse
         </div>
@@ -528,6 +573,11 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
           <strong>
             Donald Duck
           </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
           <br />
           Duck
         </div>

@@ -130,84 +130,91 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 
 <div>
   <div
-    class="c0"
+    class="clickContainer"
   >
-    <main
-      class="c1"
+    <div
+      class="c0"
     >
-      <label
-        class="c2"
-        data-testid="dropzone"
-        for="election-file-upload"
-        tabindex="0"
+      <main
+        class="c1"
+      >
+        <label
+          class="c2"
+          data-testid="dropzone"
+          for="election-file-upload"
+          tabindex="0"
+        >
+          <div
+            class="c3"
+          >
+            <input
+              accept="application/json"
+              autocomplete="off"
+              data-testid="file-input"
+              id="election-file-upload"
+              style="display: none;"
+              tabindex="-1"
+              type="file"
+            />
+            <div
+              class="c4"
+            >
+              <h1>
+                Configure Ballot Marking Device
+              </h1>
+              <p>
+                Drag and drop 
+                <code>
+                  election.json
+                </code>
+                 file here, or click to browse for file.
+              </p>
+              
+            </div>
+          </div>
+        </label>
+      </main>
+      <footer
+        class="c5"
       >
         <div
-          class="c3"
+          class="c4"
         >
-          <input
-            accept="application/json"
-            autocomplete="off"
-            data-testid="file-input"
-            id="election-file-upload"
-            style="display: none;"
-            tabindex="-1"
-            type="file"
-          />
-          <div
-            class="c4"
+          <p
+            class="c6"
           >
-            <h1>
-              Configure Ballot Marking Device
-            </h1>
-            <p>
-              Drag and drop 
+            <a
+              href="/data/election.json"
+            >
+              Download sample 
               <code>
                 election.json
               </code>
-               file here, or click to browse for file.
-            </p>
-            
-          </div>
+               file
+            </a>
+             
+            to upload, or
+             
+            <button
+              class="c7"
+              type="button"
+            >
+              Load Sample Election File
+            </button>
+          </p>
         </div>
-      </label>
-    </main>
-    <footer
-      class="c5"
-    >
-      <div
-        class="c4"
-      >
-        <p
-          class="c6"
-        >
-          <a
-            href="/data/election.json"
-          >
-            Download sample 
-            <code>
-              election.json
-            </code>
-             file
-          </a>
-           
-          to upload, or
-           
-          <button
-            class="c7"
-            type="button"
-          >
-            Load Sample Election File
-          </button>
-        </p>
-      </div>
-    </footer>
+      </footer>
+    </div>
   </div>
 </div>
 `;
 
 exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 <div>
-  .c0 {
+  <div
+    class="clickContainer"
+  >
+    .c0 {
   height: 100%;
   display: -webkit-box;
   display: -webkit-flex;
@@ -317,112 +324,118 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 }
 
 <div
-    class="c0"
-  >
-    <main
-      class="c1"
+      class="c0"
     >
-      <div
-        class="c2"
+      <main
+        class="c1"
       >
-        <form>
-          <fieldset>
-            <legend
-              class="c3"
-            >
-              <label
-                for="BallotCode"
+        <div
+          class="c2"
+        >
+          <form>
+            <fieldset>
+              <legend
+                class="c3"
               >
-                <div
-                  class="c4"
+                <label
+                  for="BallotCode"
                 >
-                  <h1>
-                    Scan Your Activation Code
-                  </h1>
-                  <p>
-                    Your ballot will be displayed after scan is complete.
-                  </p>
                   <div
-                    class="c5"
+                    class="c4"
                   >
-                    <svg
-                      viewBox="0 0 1160 1160"
-                      xmlns="http://www.w3.org/2000/svg"
+                    <h1>
+                      Scan Your Activation Code
+                    </h1>
+                    <p>
+                      Your ballot will be displayed after scan is complete.
+                    </p>
+                    <div
+                      class="c5"
                     >
-                      <path
-                        d="M0 0h1160v1160H0z"
-                        fill="#FFF"
-                      />
-                      <path
-                        d="M400 80h40v40h-40zM480 80h40v40h-40zM520 80h40v40h-40zM600 80h40v40h-40zM680 80h40v40h-40zM720 80h40v40h-40zM520 120h40v40h-40zM640 120h40v40h-40zM720 120h40v40h-40zM480 160h40v40h-40zM400 200h40v40h-40zM440 200h40v40h-40zM480 200h40v40h-40zM600 200h40v40h-40zM640 200h40v40h-40zM720 200h40v40h-40zM400 240h40v40h-40zM440 240h40v40h-40zM560 240h40v40h-40zM600 240h40v40h-40zM640 240h40v40h-40zM680 240h40v40h-40zM720 240h40v40h-40zM400 280h40v40h-40zM600 280h40v40h-40zM720 280h40v40h-40zM400 320h40v40h-40zM480 320h40v40h-40zM560 320h40v40h-40zM640 320h40v40h-40zM720 320h40v40h-40zM400 360h40v40h-40zM520 360h40v40h-40zM80 400h40v40H80zM240 400h40v40h-40zM320 400h40v40h-40zM360 400h40v40h-40zM400 400h40v40h-40zM480 400h40v40h-40zM520 400h40v40h-40zM600 400h40v40h-40zM640 400h40v40h-40zM720 400h40v40h-40zM760 400h40v40h-40zM800 400h40v40h-40zM840 400h40v40h-40zM880 400h40v40h-40zM920 400h40v40h-40zM1040 400h40v40h-40zM120 440h40v40h-40zM200 440h40v40h-40zM240 440h40v40h-40zM280 440h40v40h-40zM360 440h40v40h-40zM400 440h40v40h-40zM520 440h40v40h-40zM640 440h40v40h-40zM680 440h40v40h-40zM720 440h40v40h-40zM800 440h40v40h-40zM880 440h40v40h-40zM920 440h40v40h-40zM1000 440h40v40h-40zM1040 440h40v40h-40zM80 480h40v40H80zM160 480h40v40h-40zM200 480h40v40h-40zM320 480h40v40h-40zM400 480h40v40h-40zM480 480h40v40h-40zM520 480h40v40h-40zM560 480h40v40h-40zM600 480h40v40h-40zM640 480h40v40h-40zM680 480h40v40h-40zM800 480h40v40h-40zM840 480h40v40h-40zM880 480h40v40h-40zM920 480h40v40h-40zM80 520h40v40H80zM200 520h40v40h-40zM360 520h40v40h-40zM400 520h40v40h-40zM480 520h40v40h-40zM560 520h40v40h-40zM600 520h40v40h-40zM720 520h40v40h-40zM960 520h40v40h-40zM80 560h40v40H80zM120 560h40v40h-40zM160 560h40v40h-40zM200 560h40v40h-40zM240 560h40v40h-40zM320 560h40v40h-40zM400 560h40v40h-40zM440 560h40v40h-40zM480 560h40v40h-40zM520 560h40v40h-40zM560 560h40v40h-40zM600 560h40v40h-40zM720 560h40v40h-40zM760 560h40v40h-40zM800 560h40v40h-40zM960 560h40v40h-40zM80 600h40v40H80zM120 600h40v40h-40zM160 600h40v40h-40zM200 600h40v40h-40zM280 600h40v40h-40zM440 600h40v40h-40zM600 600h40v40h-40zM640 600h40v40h-40zM680 600h40v40h-40zM720 600h40v40h-40zM760 600h40v40h-40zM880 600h40v40h-40zM920 600h40v40h-40zM960 600h40v40h-40zM1000 600h40v40h-40zM200 640h40v40h-40zM320 640h40v40h-40zM360 640h40v40h-40zM680 640h40v40h-40zM760 640h40v40h-40zM800 640h40v40h-40zM840 640h40v40h-40zM160 680h40v40h-40zM200 680h40v40h-40zM440 680h40v40h-40zM480 680h40v40h-40zM560 680h40v40h-40zM640 680h40v40h-40zM720 680h40v40h-40zM880 680h40v40h-40zM960 680h40v40h-40zM80 720h40v40H80zM120 720h40v40h-40zM200 720h40v40h-40zM280 720h40v40h-40zM320 720h40v40h-40zM360 720h40v40h-40zM400 720h40v40h-40zM440 720h40v40h-40zM520 720h40v40h-40zM600 720h40v40h-40zM640 720h40v40h-40zM720 720h40v40h-40zM760 720h40v40h-40zM800 720h40v40h-40zM840 720h40v40h-40zM880 720h40v40h-40zM960 720h40v40h-40zM1000 720h40v40h-40zM400 760h40v40h-40zM440 760h40v40h-40zM560 760h40v40h-40zM680 760h40v40h-40zM720 760h40v40h-40zM880 760h40v40h-40zM960 760h40v40h-40zM1040 760h40v40h-40zM400 800h40v40h-40zM440 800h40v40h-40zM480 800h40v40h-40zM520 800h40v40h-40zM560 800h40v40h-40zM600 800h40v40h-40zM640 800h40v40h-40zM720 800h40v40h-40zM800 800h40v40h-40zM880 800h40v40h-40zM960 800h40v40h-40zM480 840h40v40h-40zM520 840h40v40h-40zM600 840h40v40h-40zM720 840h40v40h-40zM880 840h40v40h-40zM960 840h40v40h-40zM1040 840h40v40h-40zM400 880h40v40h-40zM440 880h40v40h-40zM480 880h40v40h-40zM560 880h40v40h-40zM600 880h40v40h-40zM720 880h40v40h-40zM760 880h40v40h-40zM800 880h40v40h-40zM840 880h40v40h-40zM880 880h40v40h-40zM960 880h40v40h-40zM1040 880h40v40h-40zM480 920h40v40h-40zM600 920h40v40h-40zM640 920h40v40h-40zM680 920h40v40h-40zM760 920h40v40h-40zM800 920h40v40h-40zM840 920h40v40h-40zM880 920h40v40h-40zM1000 920h40v40h-40zM1040 920h40v40h-40zM480 960h40v40h-40zM680 960h40v40h-40zM720 960h40v40h-40zM840 960h40v40h-40zM1000 960h40v40h-40zM440 1000h40v40h-40zM480 1000h40v40h-40zM560 1000h40v40h-40zM640 1000h40v40h-40zM680 1000h40v40h-40zM760 1000h40v40h-40zM840 1000h40v40h-40zM960 1000h40v40h-40zM1000 1000h40v40h-40zM400 1040h40v40h-40zM520 1040h40v40h-40zM600 1040h40v40h-40zM640 1040h40v40h-40zM680 1040h40v40h-40zM800 1040h40v40h-40zM880 1040h40v40h-40zM960 1040h40v40h-40zM1000 1040h40v40h-40zM1040 1040h40v40h-40z"
-                      />
-                      <path
-                        d="M122 122h196v196H122z"
-                        fill="none"
-                      />
-                      <path
-                        d="M318 80H80v280h280V80h-42zm0 238H122V122h196v196z"
-                      />
-                      <path
-                        d="M842 122h196v196H842z"
-                        fill="none"
-                      />
-                      <path
-                        d="M1038 80H800v280h280V80h-42zm0 238H842V122h196v196z"
-                      />
-                      <path
-                        d="M122 842h196v196H122z"
-                        fill="none"
-                      />
-                      <path
-                        d="M318 800H80v280h280V800h-42zm0 238H122V842h196v196z"
-                      />
-                      <g>
+                      <svg
+                        viewBox="0 0 1160 1160"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
                         <path
-                          d="M160 160h120v120H160z"
+                          d="M0 0h1160v1160H0z"
+                          fill="#FFF"
                         />
-                      </g>
-                      <g>
                         <path
-                          d="M880 160h120v120H880z"
+                          d="M400 80h40v40h-40zM480 80h40v40h-40zM520 80h40v40h-40zM600 80h40v40h-40zM680 80h40v40h-40zM720 80h40v40h-40zM520 120h40v40h-40zM640 120h40v40h-40zM720 120h40v40h-40zM480 160h40v40h-40zM400 200h40v40h-40zM440 200h40v40h-40zM480 200h40v40h-40zM600 200h40v40h-40zM640 200h40v40h-40zM720 200h40v40h-40zM400 240h40v40h-40zM440 240h40v40h-40zM560 240h40v40h-40zM600 240h40v40h-40zM640 240h40v40h-40zM680 240h40v40h-40zM720 240h40v40h-40zM400 280h40v40h-40zM600 280h40v40h-40zM720 280h40v40h-40zM400 320h40v40h-40zM480 320h40v40h-40zM560 320h40v40h-40zM640 320h40v40h-40zM720 320h40v40h-40zM400 360h40v40h-40zM520 360h40v40h-40zM80 400h40v40H80zM240 400h40v40h-40zM320 400h40v40h-40zM360 400h40v40h-40zM400 400h40v40h-40zM480 400h40v40h-40zM520 400h40v40h-40zM600 400h40v40h-40zM640 400h40v40h-40zM720 400h40v40h-40zM760 400h40v40h-40zM800 400h40v40h-40zM840 400h40v40h-40zM880 400h40v40h-40zM920 400h40v40h-40zM1040 400h40v40h-40zM120 440h40v40h-40zM200 440h40v40h-40zM240 440h40v40h-40zM280 440h40v40h-40zM360 440h40v40h-40zM400 440h40v40h-40zM520 440h40v40h-40zM640 440h40v40h-40zM680 440h40v40h-40zM720 440h40v40h-40zM800 440h40v40h-40zM880 440h40v40h-40zM920 440h40v40h-40zM1000 440h40v40h-40zM1040 440h40v40h-40zM80 480h40v40H80zM160 480h40v40h-40zM200 480h40v40h-40zM320 480h40v40h-40zM400 480h40v40h-40zM480 480h40v40h-40zM520 480h40v40h-40zM560 480h40v40h-40zM600 480h40v40h-40zM640 480h40v40h-40zM680 480h40v40h-40zM800 480h40v40h-40zM840 480h40v40h-40zM880 480h40v40h-40zM920 480h40v40h-40zM80 520h40v40H80zM200 520h40v40h-40zM360 520h40v40h-40zM400 520h40v40h-40zM480 520h40v40h-40zM560 520h40v40h-40zM600 520h40v40h-40zM720 520h40v40h-40zM960 520h40v40h-40zM80 560h40v40H80zM120 560h40v40h-40zM160 560h40v40h-40zM200 560h40v40h-40zM240 560h40v40h-40zM320 560h40v40h-40zM400 560h40v40h-40zM440 560h40v40h-40zM480 560h40v40h-40zM520 560h40v40h-40zM560 560h40v40h-40zM600 560h40v40h-40zM720 560h40v40h-40zM760 560h40v40h-40zM800 560h40v40h-40zM960 560h40v40h-40zM80 600h40v40H80zM120 600h40v40h-40zM160 600h40v40h-40zM200 600h40v40h-40zM280 600h40v40h-40zM440 600h40v40h-40zM600 600h40v40h-40zM640 600h40v40h-40zM680 600h40v40h-40zM720 600h40v40h-40zM760 600h40v40h-40zM880 600h40v40h-40zM920 600h40v40h-40zM960 600h40v40h-40zM1000 600h40v40h-40zM200 640h40v40h-40zM320 640h40v40h-40zM360 640h40v40h-40zM680 640h40v40h-40zM760 640h40v40h-40zM800 640h40v40h-40zM840 640h40v40h-40zM160 680h40v40h-40zM200 680h40v40h-40zM440 680h40v40h-40zM480 680h40v40h-40zM560 680h40v40h-40zM640 680h40v40h-40zM720 680h40v40h-40zM880 680h40v40h-40zM960 680h40v40h-40zM80 720h40v40H80zM120 720h40v40h-40zM200 720h40v40h-40zM280 720h40v40h-40zM320 720h40v40h-40zM360 720h40v40h-40zM400 720h40v40h-40zM440 720h40v40h-40zM520 720h40v40h-40zM600 720h40v40h-40zM640 720h40v40h-40zM720 720h40v40h-40zM760 720h40v40h-40zM800 720h40v40h-40zM840 720h40v40h-40zM880 720h40v40h-40zM960 720h40v40h-40zM1000 720h40v40h-40zM400 760h40v40h-40zM440 760h40v40h-40zM560 760h40v40h-40zM680 760h40v40h-40zM720 760h40v40h-40zM880 760h40v40h-40zM960 760h40v40h-40zM1040 760h40v40h-40zM400 800h40v40h-40zM440 800h40v40h-40zM480 800h40v40h-40zM520 800h40v40h-40zM560 800h40v40h-40zM600 800h40v40h-40zM640 800h40v40h-40zM720 800h40v40h-40zM800 800h40v40h-40zM880 800h40v40h-40zM960 800h40v40h-40zM480 840h40v40h-40zM520 840h40v40h-40zM600 840h40v40h-40zM720 840h40v40h-40zM880 840h40v40h-40zM960 840h40v40h-40zM1040 840h40v40h-40zM400 880h40v40h-40zM440 880h40v40h-40zM480 880h40v40h-40zM560 880h40v40h-40zM600 880h40v40h-40zM720 880h40v40h-40zM760 880h40v40h-40zM800 880h40v40h-40zM840 880h40v40h-40zM880 880h40v40h-40zM960 880h40v40h-40zM1040 880h40v40h-40zM480 920h40v40h-40zM600 920h40v40h-40zM640 920h40v40h-40zM680 920h40v40h-40zM760 920h40v40h-40zM800 920h40v40h-40zM840 920h40v40h-40zM880 920h40v40h-40zM1000 920h40v40h-40zM1040 920h40v40h-40zM480 960h40v40h-40zM680 960h40v40h-40zM720 960h40v40h-40zM840 960h40v40h-40zM1000 960h40v40h-40zM440 1000h40v40h-40zM480 1000h40v40h-40zM560 1000h40v40h-40zM640 1000h40v40h-40zM680 1000h40v40h-40zM760 1000h40v40h-40zM840 1000h40v40h-40zM960 1000h40v40h-40zM1000 1000h40v40h-40zM400 1040h40v40h-40zM520 1040h40v40h-40zM600 1040h40v40h-40zM640 1040h40v40h-40zM680 1040h40v40h-40zM800 1040h40v40h-40zM880 1040h40v40h-40zM960 1040h40v40h-40zM1000 1040h40v40h-40zM1040 1040h40v40h-40z"
                         />
-                      </g>
-                      <g>
                         <path
-                          d="M160 880h120v120H160z"
+                          d="M122 122h196v196H122z"
+                          fill="none"
                         />
-                      </g>
-                    </svg>
+                        <path
+                          d="M318 80H80v280h280V80h-42zm0 238H122V122h196v196z"
+                        />
+                        <path
+                          d="M842 122h196v196H842z"
+                          fill="none"
+                        />
+                        <path
+                          d="M1038 80H800v280h280V80h-42zm0 238H842V122h196v196z"
+                        />
+                        <path
+                          d="M122 842h196v196H122z"
+                          fill="none"
+                        />
+                        <path
+                          d="M318 800H80v280h280V800h-42zm0 238H122V842h196v196z"
+                        />
+                        <g>
+                          <path
+                            d="M160 160h120v120H160z"
+                          />
+                        </g>
+                        <g>
+                          <path
+                            d="M880 160h120v120H880z"
+                          />
+                        </g>
+                        <g>
+                          <path
+                            d="M160 880h120v120H160z"
+                          />
+                        </g>
+                      </svg>
+                    </div>
                   </div>
-                </div>
-              </label>
-            </legend>
-            <input
-              class="visually-hidden"
-              data-testid="activation-code"
-              id="BallotCode"
-              type="text"
-              value=""
-            />
-            <button
-              class="visually-hidden"
-              type="submit"
-            >
-              Submit
-            </button>
-          </fieldset>
-        </form>
-      </div>
-    </main>
+                </label>
+              </legend>
+              <input
+                aria-hidden="true"
+                class="visually-hidden"
+                data-testid="activation-code"
+                id="BallotCode"
+                type="text"
+                value=""
+              />
+              <button
+                aria-hidden="true"
+                class="visually-hidden"
+                type="submit"
+              >
+                Submit
+              </button>
+            </fieldset>
+          </form>
+        </div>
+      </main>
+    </div>
   </div>
 </div>
 `;
 
 exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 <div
-  class="sc-bdVaJa eVuSVk"
+  class="clickContainer"
 >
-  .c0 {
+  <div
+    class="sc-bdVaJa eVuSVk"
+  >
+    .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -529,77 +542,96 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 }
 
 <main
-    class="c0"
-  >
-    <div
-      class="c1"
+      class="c0"
     >
       <div
-        class="c2"
+        class="c1"
       >
-        <svg
-          viewBox="0 0 500 500"
-          xmlns="http://www.w3.org/2000/svg"
+        <div
+          class="c2"
         >
-          
-  
-          <circle
-            cx="250"
-            cy="250"
-            fill="#fff"
-            r="240"
-            stroke="#000"
-            stroke-width="10"
-          />
-          
-  
-          <text
-            alignment-baseline="middle"
-            style="font-family: sans-serif; font-size: 180%"
-            text-anchor="middle"
-            x="50%"
-            y="50%"
+          <svg
+            viewBox="0 0 500 500"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            Official Seal Here
-          </text>
+            
+  
+            <circle
+              cx="250"
+              cy="250"
+              fill="#fff"
+              r="240"
+              stroke="#000"
+              stroke-width="10"
+            />
+            
+  
+            <text
+              alignment-baseline="middle"
+              style="font-family: sans-serif; font-size: 180%"
+              text-anchor="middle"
+              x="50%"
+              y="50%"
+            >
+              Official Seal Here
+            </text>
+            
+
+          </svg>
           
 
-        </svg>
-        
-
+        </div>
+        <div
+          class="c3"
+        >
+          <h1>
+            2020 General Election
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </h1>
+          <p>
+            Tuesday, November 6, 2020
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+            <br />
+            Nearby County
+            , 
+            State of Somewhere
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </p>
+          <p>
+            <button
+              class="c4"
+              type="button"
+            >
+              Get Started
+            </button>
+          </p>
+        </div>
       </div>
-      <div
-        class="c3"
-      >
-        <h1>
-          2020 General Election
-        </h1>
-        <p>
-          Tuesday, November 6, 2020
-          <br />
-          Nearby County
-          , 
-          State of Somewhere
-        </p>
-        <p>
-          <button
-            class="c4"
-            type="button"
-          >
-            Get Started
-          </button>
-        </p>
-      </div>
-    </div>
-  </main>
+    </main>
+  </div>
 </div>
 `;
 
 exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 <div
-  class="sc-bdVaJa eVuSVk"
+  class="clickContainer"
 >
-  .c0 {
+  <div
+    class="sc-bdVaJa eVuSVk"
+  >
+    .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -771,129 +803,154 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 }
 
 <main
-    class="c0"
-  >
-    <div
-      class="c1"
+      class="c0"
     >
-      <fieldset
-        class=""
+      <div
+        class="c1"
       >
-        <legend
-          class="c2"
+        <fieldset
+          class=""
         >
-          <small
-            class="c3"
+          <legend
+            class="c2"
           >
-            Federal Election
-          </small>
+            <small
+              class="c3"
+            >
+              Federal Election
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
+            </small>
+            <div
+              class="c4"
+            >
+              <h1>
+                President
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+              </h1>
+              <p>
+                <strong>
+                  Vote for 1.
+                </strong>
+                 You have selected
+                 
+                0
+                .
+              </p>
+            </div>
+          </legend>
           <div
-            class="c4"
+            class="c5"
           >
-            <h1>
-              President
-            </h1>
-            <p>
-              <strong>
-                Vote for 1.
-              </strong>
-               You have selected
-               
-              0
-              .
-            </p>
+            <label
+              class="c6"
+              for="minnieMouse"
+            >
+              <input
+                class="visually-hidden c7"
+                id="minnieMouse"
+                name="president"
+                type="checkbox"
+                value="minnieMouse"
+              />
+              <div
+                class="c4"
+              >
+                <strong>
+                  Minnie Mouse
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Mouse
+              </div>
+            </label>
+            <label
+              class="c6"
+              for="mickeyMouse"
+            >
+              <input
+                class="visually-hidden c7"
+                id="mickeyMouse"
+                name="president"
+                type="checkbox"
+                value="mickeyMouse"
+              />
+              <div
+                class="c4"
+              >
+                <strong>
+                  Mickey Mouse
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Mouse
+              </div>
+            </label>
+            <label
+              class="c6"
+              for="donaldDuck"
+            >
+              <input
+                class="visually-hidden c7"
+                id="donaldDuck"
+                name="president"
+                type="checkbox"
+                value="donaldDuck"
+              />
+              <div
+                class="c4"
+              >
+                <strong>
+                  Donald Duck
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Duck
+              </div>
+            </label>
+            <label
+              class="c6"
+              for="writeInCandidate"
+            >
+              <input
+                class="visually-hidden c7"
+                id="writeInCandidate"
+                name="president"
+                type="checkbox"
+                value="writeInCandidate"
+              />
+              <div
+                class="c4"
+              >
+                <em>
+                  add a write-in candidate
+                </em>
+              </div>
+            </label>
           </div>
-        </legend>
-        <div
-          class="c5"
-        >
-          <label
-            class="c6"
-            for="minnieMouse"
-          >
-            <input
-              class="visually-hidden c7"
-              id="minnieMouse"
-              name="president"
-              type="checkbox"
-              value="minnieMouse"
-            />
-            <div
-              class="c4"
-            >
-              <strong>
-                Minnie Mouse
-              </strong>
-              <br />
-              Mouse
-            </div>
-          </label>
-          <label
-            class="c6"
-            for="mickeyMouse"
-          >
-            <input
-              class="visually-hidden c7"
-              id="mickeyMouse"
-              name="president"
-              type="checkbox"
-              value="mickeyMouse"
-            />
-            <div
-              class="c4"
-            >
-              <strong>
-                Mickey Mouse
-              </strong>
-              <br />
-              Mouse
-            </div>
-          </label>
-          <label
-            class="c6"
-            for="donaldDuck"
-          >
-            <input
-              class="visually-hidden c7"
-              id="donaldDuck"
-              name="president"
-              type="checkbox"
-              value="donaldDuck"
-            />
-            <div
-              class="c4"
-            >
-              <strong>
-                Donald Duck
-              </strong>
-              <br />
-              Duck
-            </div>
-          </label>
-          <label
-            class="c6"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden c7"
-              id="writeInCandidate"
-              name="president"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="c4"
-            >
-              <em>
-                add a write-in candidate
-              </em>
-            </div>
-          </label>
-        </div>
-      </fieldset>
-    </div>
-  </main>
-  .c0 {
+        </fieldset>
+      </div>
+    </main>
+    .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -964,29 +1021,29 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 }
 
 <nav
-    class="c0"
-  >
-    <button
-      class="c1"
-      type="button"
+      class="c0"
     >
-      Next
-    </button>
-    <button
-      class="c1"
-      type="button"
-    >
-      Previous
-    </button>
-    <p
-      class="c2"
-    >
-      1
-       of 
-      2
-    </p>
-  </nav>
-  .c0 {
+      <button
+        class="c1"
+        type="button"
+      >
+        Next
+      </button>
+      <button
+        class="c1"
+        type="button"
+      >
+        Previous
+      </button>
+      <p
+        class="c2"
+      >
+        1
+         of 
+        2
+      </p>
+    </nav>
+    .c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -1063,219 +1120,252 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 }
 
 <nav
-    class="c0"
-  >
-    <button
-      class="c1"
-      type="button"
+      class="c0"
     >
-      Review
-    </button>
-    <button
-      class="c1"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="c1"
-      type="button"
-    >
-      Settings
-    </button>
-  </nav>
+      <button
+        class="c1"
+        type="button"
+      >
+        Review
+      </button>
+      <button
+        class="c1"
+        type="button"
+      >
+        Help
+      </button>
+      <button
+        class="c1"
+        type="button"
+      >
+        Settings
+      </button>
+    </nav>
+  </div>
 </div>
 `;
 
 exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 <div
-  class="sc-bdVaJa eVuSVk"
+  class="clickContainer"
 >
-  <main
-    class="sc-bwzfXH fWvEbs"
+  <div
+    class="sc-bdVaJa eVuSVk"
   >
-    <div
-      class="sc-htpNat dyLKlQ"
+    <main
+      class="sc-bwzfXH fWvEbs"
     >
-      <fieldset
-        class="sc-gZMcBi giNnHm"
+      <div
+        class="sc-htpNat dyLKlQ"
       >
-        <legend
-          class="sc-gqjmRU bvPTSf"
+        <fieldset
+          class="sc-gZMcBi giNnHm"
         >
-          <small
-            class="sc-iwsKbI jHnxZM"
+          <legend
+            class="sc-gqjmRU bvPTSf"
           >
-            Federal Election
-          </small>
+            <small
+              class="sc-iwsKbI jHnxZM"
+            >
+              Federal Election
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
+            </small>
+            <div
+              class="sc-bxivhb gobFlP"
+            >
+              <h1>
+                President
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+              </h1>
+              <p>
+                <strong>
+                  Vote for 1.
+                </strong>
+                 You have selected
+                 
+                1
+                .
+              </p>
+            </div>
+          </legend>
           <div
-            class="sc-bxivhb gobFlP"
+            class="sc-VigVT hvGAoq"
           >
-            <h1>
-              President
-            </h1>
-            <p>
-              <strong>
-                Vote for 1.
-              </strong>
-               You have selected
-               
-              1
-              .
-            </p>
+            <label
+              class="sc-jTzLTM zepeW"
+              for="minnieMouse"
+            >
+              <input
+                class="visually-hidden sc-fjdhpX fvYzBM"
+                id="minnieMouse"
+                name="president"
+                type="checkbox"
+                value="minnieMouse"
+              />
+              <div
+                class="sc-bxivhb gobFlP"
+              >
+                <strong>
+                  Minnie Mouse
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Mouse
+              </div>
+            </label>
+            <label
+              class="sc-jTzLTM bmBPSW"
+              for="mickeyMouse"
+            >
+              <input
+                class="visually-hidden sc-fjdhpX fvYzBM"
+                disabled=""
+                id="mickeyMouse"
+                name="president"
+                type="checkbox"
+                value="mickeyMouse"
+              />
+              <div
+                class="sc-bxivhb gobFlP"
+              >
+                <strong>
+                  Mickey Mouse
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Mouse
+              </div>
+            </label>
+            <label
+              class="sc-jTzLTM bmBPSW"
+              for="donaldDuck"
+            >
+              <input
+                class="visually-hidden sc-fjdhpX fvYzBM"
+                disabled=""
+                id="donaldDuck"
+                name="president"
+                type="checkbox"
+                value="donaldDuck"
+              />
+              <div
+                class="sc-bxivhb gobFlP"
+              >
+                <strong>
+                  Donald Duck
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Duck
+              </div>
+            </label>
+            <label
+              class="sc-jTzLTM bmBPSW"
+              for="writeInCandidate"
+            >
+              <input
+                class="visually-hidden sc-fjdhpX fvYzBM"
+                disabled=""
+                id="writeInCandidate"
+                name="president"
+                type="checkbox"
+                value="writeInCandidate"
+              />
+              <div
+                class="sc-bxivhb gobFlP"
+              >
+                <em>
+                  add a write-in candidate
+                </em>
+              </div>
+            </label>
           </div>
-        </legend>
-        <div
-          class="sc-VigVT hvGAoq"
-        >
-          <label
-            class="sc-jTzLTM zepeW"
-            for="minnieMouse"
-          >
-            <input
-              class="visually-hidden sc-fjdhpX fvYzBM"
-              id="minnieMouse"
-              name="president"
-              type="checkbox"
-              value="minnieMouse"
-            />
-            <div
-              class="sc-bxivhb gobFlP"
-            >
-              <strong>
-                Minnie Mouse
-              </strong>
-              <br />
-              Mouse
-            </div>
-          </label>
-          <label
-            class="sc-jTzLTM bmBPSW"
-            for="mickeyMouse"
-          >
-            <input
-              class="visually-hidden sc-fjdhpX fvYzBM"
-              disabled=""
-              id="mickeyMouse"
-              name="president"
-              type="checkbox"
-              value="mickeyMouse"
-            />
-            <div
-              class="sc-bxivhb gobFlP"
-            >
-              <strong>
-                Mickey Mouse
-              </strong>
-              <br />
-              Mouse
-            </div>
-          </label>
-          <label
-            class="sc-jTzLTM bmBPSW"
-            for="donaldDuck"
-          >
-            <input
-              class="visually-hidden sc-fjdhpX fvYzBM"
-              disabled=""
-              id="donaldDuck"
-              name="president"
-              type="checkbox"
-              value="donaldDuck"
-            />
-            <div
-              class="sc-bxivhb gobFlP"
-            >
-              <strong>
-                Donald Duck
-              </strong>
-              <br />
-              Duck
-            </div>
-          </label>
-          <label
-            class="sc-jTzLTM bmBPSW"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden sc-fjdhpX fvYzBM"
-              disabled=""
-              id="writeInCandidate"
-              name="president"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="sc-bxivhb gobFlP"
-            >
-              <em>
-                add a write-in candidate
-              </em>
-            </div>
-          </label>
-        </div>
-      </fieldset>
-    </div>
-  </main>
-  <nav
-    class="sc-bZQynM uuSXr"
-  >
-    <button
-      class="sc-gzVnrw cpFmBu"
-      type="button"
+        </fieldset>
+      </div>
+    </main>
+    <nav
+      class="sc-bZQynM uuSXr"
     >
-      Next
-    </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
+      <button
+        class="sc-gzVnrw cpFmBu"
+        type="button"
+      >
+        Next
+      </button>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Previous
+      </button>
+      <p
+        class="sc-dnqmqq dhBiUn"
+      >
+        1
+         of 
+        2
+      </p>
+    </nav>
+    <nav
+      class="sc-bZQynM efZRTa"
     >
-      Previous
-    </button>
-    <p
-      class="sc-dnqmqq dhBiUn"
-    >
-      1
-       of 
-      2
-    </p>
-  </nav>
-  <nav
-    class="sc-bZQynM efZRTa"
-  >
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
-    >
-      Settings
-    </button>
-  </nav>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Review
+      </button>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Help
+      </button>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Settings
+      </button>
+    </nav>
+  </div>
 </div>
 `;
 
 exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 <div
-  class="sc-bdVaJa eVuSVk"
+  class="clickContainer"
 >
-  <main
-    class="sc-bwzfXH fWvEbs"
+  <div
+    class="sc-bdVaJa eVuSVk"
   >
-    <div
-      class="sc-htpNat dyLKlQ"
+    <main
+      class="sc-bwzfXH fWvEbs"
     >
-      .c2 {
+      <div
+        class="sc-htpNat dyLKlQ"
+      >
+        .c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
@@ -1403,354 +1493,436 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 }
 
 <fieldset
-        class=""
-      >
-        <legend
-          class="c0"
+          class=""
         >
-          <small
-            class="c1"
+          <legend
+            class="c0"
           >
-            Federal Election
-          </small>
+            <small
+              class="c1"
+            >
+              Federal Election
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
+            </small>
+            <div
+              class="c2"
+            >
+              <h1>
+                Senator
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+              </h1>
+              <p>
+                <strong>
+                  Vote for 1.
+                </strong>
+                 You have selected
+                 
+                0
+                .
+              </p>
+            </div>
+          </legend>
           <div
-            class="c2"
+            class="c3"
           >
-            <h1>
-              Senator
-            </h1>
-            <p>
-              <strong>
-                Vote for 1.
-              </strong>
-               You have selected
-               
-              0
-              .
-            </p>
+            <label
+              class="c4"
+              for="chadHanging"
+            >
+              <input
+                class="visually-hidden c5"
+                id="chadHanging"
+                name="senator"
+                type="checkbox"
+                value="chadHanging"
+              />
+              <div
+                class="c2"
+              >
+                <strong>
+                  Chad Hanging
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Independent
+              </div>
+            </label>
+            <label
+              class="c4"
+              for="levErmachine"
+            >
+              <input
+                class="visually-hidden c5"
+                id="levErmachine"
+                name="senator"
+                type="checkbox"
+                value="levErmachine"
+              />
+              <div
+                class="c2"
+              >
+                <strong>
+                  Lev Ermachine
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Independent
+              </div>
+            </label>
+            <label
+              class="c4"
+              for="johnSmith"
+            >
+              <input
+                class="visually-hidden c5"
+                id="johnSmith"
+                name="senator"
+                type="checkbox"
+                value="johnSmith"
+              />
+              <div
+                class="c2"
+              >
+                <strong>
+                  John Smith
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Independent
+              </div>
+            </label>
+            <label
+              class="c4"
+              for="writeInCandidate"
+            >
+              <input
+                class="visually-hidden c5"
+                id="writeInCandidate"
+                name="senator"
+                type="checkbox"
+                value="writeInCandidate"
+              />
+              <div
+                class="c2"
+              >
+                <em>
+                  add a write-in candidate
+                </em>
+              </div>
+            </label>
           </div>
-        </legend>
-        <div
-          class="c3"
-        >
-          <label
-            class="c4"
-            for="chadHanging"
-          >
-            <input
-              class="visually-hidden c5"
-              id="chadHanging"
-              name="senator"
-              type="checkbox"
-              value="chadHanging"
-            />
-            <div
-              class="c2"
-            >
-              <strong>
-                Chad Hanging
-              </strong>
-              <br />
-              Independent
-            </div>
-          </label>
-          <label
-            class="c4"
-            for="levErmachine"
-          >
-            <input
-              class="visually-hidden c5"
-              id="levErmachine"
-              name="senator"
-              type="checkbox"
-              value="levErmachine"
-            />
-            <div
-              class="c2"
-            >
-              <strong>
-                Lev Ermachine
-              </strong>
-              <br />
-              Independent
-            </div>
-          </label>
-          <label
-            class="c4"
-            for="johnSmith"
-          >
-            <input
-              class="visually-hidden c5"
-              id="johnSmith"
-              name="senator"
-              type="checkbox"
-              value="johnSmith"
-            />
-            <div
-              class="c2"
-            >
-              <strong>
-                John Smith
-              </strong>
-              <br />
-              Independent
-            </div>
-          </label>
-          <label
-            class="c4"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden c5"
-              id="writeInCandidate"
-              name="senator"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="c2"
-            >
-              <em>
-                add a write-in candidate
-              </em>
-            </div>
-          </label>
-        </div>
-      </fieldset>
-    </div>
-  </main>
-  <nav
-    class="sc-bZQynM uuSXr"
-  >
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
+        </fieldset>
+      </div>
+    </main>
+    <nav
+      class="sc-bZQynM uuSXr"
     >
-      Review
-    </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
+      .c0 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+<button
+        class="c0"
+        type="button"
+      >
+        Review
+      </button>
+      .c0 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+<button
+        class="c0"
+        type="button"
+      >
+        Previous
+      </button>
+      <p
+        class="sc-dnqmqq dhBiUn"
+      >
+        2
+         of 
+        2
+      </p>
+    </nav>
+    <nav
+      class="sc-bZQynM efZRTa"
     >
-      Previous
-    </button>
-    <p
-      class="sc-dnqmqq dhBiUn"
-    >
-      2
-       of 
-      2
-    </p>
-  </nav>
-  <nav
-    class="sc-bZQynM efZRTa"
-  >
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
-    >
-      Settings
-    </button>
-  </nav>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Review
+      </button>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Help
+      </button>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Settings
+      </button>
+    </nav>
+  </div>
 </div>
 `;
 
 exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
 <div
-  class="sc-bdVaJa eVuSVk"
+  class="clickContainer"
 >
-  <main
-    class="sc-bwzfXH fWvEbs"
+  <div
+    class="sc-bdVaJa eVuSVk"
   >
-    <div
-      class="sc-htpNat dyLKlQ"
+    <main
+      class="sc-bwzfXH fWvEbs"
     >
-      <fieldset
-        class="sc-gZMcBi giNnHm"
+      <div
+        class="sc-htpNat dyLKlQ"
       >
-        <legend
-          class="sc-gqjmRU bvPTSf"
+        <fieldset
+          class="sc-gZMcBi giNnHm"
         >
-          <small
-            class="sc-iwsKbI jHnxZM"
+          <legend
+            class="sc-gqjmRU bvPTSf"
           >
-            Federal Election
-          </small>
+            <small
+              class="sc-iwsKbI jHnxZM"
+            >
+              Federal Election
+              <span
+                class="visually-hidden"
+              >
+                .
+              </span>
+            </small>
+            <div
+              class="sc-bxivhb gobFlP"
+            >
+              <h1>
+                Senator
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+              </h1>
+              <p>
+                <strong>
+                  Vote for 1.
+                </strong>
+                 You have selected
+                 
+                1
+                .
+              </p>
+            </div>
+          </legend>
           <div
-            class="sc-bxivhb gobFlP"
+            class="sc-VigVT hvGAoq"
           >
-            <h1>
-              Senator
-            </h1>
-            <p>
-              <strong>
-                Vote for 1.
-              </strong>
-               You have selected
-               
-              1
-              .
-            </p>
+            <label
+              class="sc-jTzLTM bmBPSW"
+              for="chadHanging"
+            >
+              <input
+                class="visually-hidden sc-fjdhpX fvYzBM"
+                disabled=""
+                id="chadHanging"
+                name="senator"
+                type="checkbox"
+                value="chadHanging"
+              />
+              <div
+                class="sc-bxivhb gobFlP"
+              >
+                <strong>
+                  Chad Hanging
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Independent
+              </div>
+            </label>
+            <label
+              class="sc-jTzLTM bmBPSW"
+              for="levErmachine"
+            >
+              <input
+                class="visually-hidden sc-fjdhpX fvYzBM"
+                disabled=""
+                id="levErmachine"
+                name="senator"
+                type="checkbox"
+                value="levErmachine"
+              />
+              <div
+                class="sc-bxivhb gobFlP"
+              >
+                <strong>
+                  Lev Ermachine
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Independent
+              </div>
+            </label>
+            <label
+              class="sc-jTzLTM zepeW"
+              for="johnSmith"
+            >
+              <input
+                autofocus=""
+                class="visually-hidden sc-fjdhpX fvYzBM"
+                id="johnSmith"
+                name="senator"
+                type="checkbox"
+                value="johnSmith"
+              />
+              <div
+                class="sc-bxivhb gobFlP"
+              >
+                <strong>
+                  John Smith
+                </strong>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+                <br />
+                Independent
+              </div>
+            </label>
+            <label
+              class="sc-jTzLTM bmBPSW"
+              for="writeInCandidate"
+            >
+              <input
+                class="visually-hidden sc-fjdhpX fvYzBM"
+                disabled=""
+                id="writeInCandidate"
+                name="senator"
+                type="checkbox"
+                value="writeInCandidate"
+              />
+              <div
+                class="sc-bxivhb gobFlP"
+              >
+                <em>
+                  add a write-in candidate
+                </em>
+              </div>
+            </label>
           </div>
-        </legend>
-        <div
-          class="sc-VigVT hvGAoq"
-        >
-          <label
-            class="sc-jTzLTM bmBPSW"
-            for="chadHanging"
-          >
-            <input
-              class="visually-hidden sc-fjdhpX fvYzBM"
-              disabled=""
-              id="chadHanging"
-              name="senator"
-              type="checkbox"
-              value="chadHanging"
-            />
-            <div
-              class="sc-bxivhb gobFlP"
-            >
-              <strong>
-                Chad Hanging
-              </strong>
-              <br />
-              Independent
-            </div>
-          </label>
-          <label
-            class="sc-jTzLTM bmBPSW"
-            for="levErmachine"
-          >
-            <input
-              class="visually-hidden sc-fjdhpX fvYzBM"
-              disabled=""
-              id="levErmachine"
-              name="senator"
-              type="checkbox"
-              value="levErmachine"
-            />
-            <div
-              class="sc-bxivhb gobFlP"
-            >
-              <strong>
-                Lev Ermachine
-              </strong>
-              <br />
-              Independent
-            </div>
-          </label>
-          <label
-            class="sc-jTzLTM zepeW"
-            for="johnSmith"
-          >
-            <input
-              autofocus=""
-              class="visually-hidden sc-fjdhpX fvYzBM"
-              id="johnSmith"
-              name="senator"
-              type="checkbox"
-              value="johnSmith"
-            />
-            <div
-              class="sc-bxivhb gobFlP"
-            >
-              <strong>
-                John Smith
-              </strong>
-              <br />
-              Independent
-            </div>
-          </label>
-          <label
-            class="sc-jTzLTM bmBPSW"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden sc-fjdhpX fvYzBM"
-              disabled=""
-              id="writeInCandidate"
-              name="senator"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="sc-bxivhb gobFlP"
-            >
-              <em>
-                add a write-in candidate
-              </em>
-            </div>
-          </label>
-        </div>
-      </fieldset>
-    </div>
-  </main>
-  <nav
-    class="sc-bZQynM uuSXr"
-  >
-    <button
-      class="sc-gzVnrw cpFmBu"
-      type="button"
+        </fieldset>
+      </div>
+    </main>
+    <nav
+      class="sc-bZQynM uuSXr"
     >
-      Review
-    </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
+      <button
+        class="sc-gzVnrw cpFmBu"
+        type="button"
+      >
+        Review
+      </button>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Previous
+      </button>
+      <p
+        class="sc-dnqmqq dhBiUn"
+      >
+        2
+         of 
+        2
+      </p>
+    </nav>
+    <nav
+      class="sc-bZQynM efZRTa"
     >
-      Previous
-    </button>
-    <p
-      class="sc-dnqmqq dhBiUn"
-    >
-      2
-       of 
-      2
-    </p>
-  </nav>
-  <nav
-    class="sc-bZQynM efZRTa"
-  >
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="sc-gzVnrw gWpXIP"
-      type="button"
-    >
-      Settings
-    </button>
-  </nav>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Review
+      </button>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Help
+      </button>
+      <button
+        class="sc-gzVnrw gWpXIP"
+        type="button"
+      >
+        Settings
+      </button>
+    </nav>
+  </div>
 </div>
 `;
 
 exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
 <div
-  class="sc-bdVaJa eVuSVk"
+  class="clickContainer"
 >
-  .c0 {
+  <div
+    class="sc-bdVaJa eVuSVk"
+  >
+    .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1992,168 +2164,227 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
 }
 
 <main
-    class="c0"
-  >
-    <div
-      class="c1"
+      class="c0"
     >
       <div
-        class="c2"
-      >
-        <h1
-          class="no-print"
-        >
-          Review Your Selections
-        </h1>
-        <p
-          class="no-print"
-        >
-          Confirm your votes by printing your ballot.
-        </p>
-      </div>
-      <section
-        class="c3"
+        class="c1"
       >
         <div
-          class="c4"
+          class="c2"
+        >
+          <h1
+            class="no-print"
+          >
+            Review Your Selections
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </h1>
+          <p
+            class="no-print"
+          >
+            Confirm your votes by printing your ballot.
+          </p>
+        </div>
+        <section
+          class="c3"
         >
           <div
-            class="seal"
+            class="c4"
+          >
+            <div
+              aria-label="Election Seal."
+              class="seal"
+            >
+              <svg
+                viewBox="0 0 500 500"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                
+  
+                <circle
+                  cx="250"
+                  cy="250"
+                  fill="#fff"
+                  r="240"
+                  stroke="#000"
+                  stroke-width="10"
+                />
+                
+  
+                <text
+                  alignment-baseline="middle"
+                  style="font-family: sans-serif; font-size: 180%"
+                  text-anchor="middle"
+                  x="50%"
+                  y="50%"
+                >
+                  Official Seal Here
+                </text>
+                
+
+              </svg>
+              
+
+            </div>
+            <div
+              class="ballot-header-content c2"
+            >
+              <h2>
+                Official Ballot
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+              </h2>
+              <h3>
+                2020 General Election
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+              </h3>
+              <p>
+                Nearby County
+                , 
+                State of Somewhere
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+                <br />
+                Tuesday, November 6, 2020
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+              </p>
+            </div>
+          </div>
+          <div
+            class="c5"
+          >
+            <dl
+              class="c6"
+            >
+              <dt
+                class="c7"
+              >
+                <span
+                  class="c8"
+                >
+                  President
+                  <span
+                    class="visually-hidden"
+                  >
+                    ,
+                  </span>
+                </span>
+                <button
+                  aria-label="Change President"
+                  class="no-print change-button c9"
+                  type="button"
+                >
+                  Change
+                </button>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+              </dt>
+              <dd
+                class="c10"
+              >
+                <strong>
+                  Minnie Mouse
+                </strong>
+                 
+                / Mouse
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+              </dd>
+              <dt
+                class="c7"
+              >
+                <span
+                  class="c8"
+                >
+                  Senator
+                  <span
+                    class="visually-hidden"
+                  >
+                    ,
+                  </span>
+                </span>
+                <button
+                  aria-label="Change Senator"
+                  class="no-print change-button c9"
+                  type="button"
+                >
+                  Change
+                </button>
+                <span
+                  class="visually-hidden"
+                >
+                  ,
+                </span>
+              </dt>
+              <dd
+                class="c10"
+              >
+                <strong>
+                  John Smith
+                </strong>
+                 
+                / Independent
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
+              </dd>
+            </dl>
+          </div>
+          <div
+            aria-hidden="true"
+            class="c11"
           >
             <svg
-              viewBox="0 0 500 500"
+              viewBox="0 0 1293 177"
               xmlns="http://www.w3.org/2000/svg"
             >
-              
-  
-              <circle
-                cx="250"
-                cy="250"
-                fill="#fff"
-                r="240"
-                stroke="#000"
-                stroke-width="10"
+              <path
+                d="M0 0h1293v177H0z"
+                fill="#FFF"
               />
-              
-  
+              <path
+                d="M0 0h6v150H0zM9 0h3v150H9zM18 0h3v150h-3zM33 0h6v150h-6zM45 0h3v150h-3zM54 0h9v150h-9zM66 0h3v150h-3zM75 0h9v150h-9zM87 0h6v150h-6zM99 0h3v150h-3zM108 0h3v150h-3zM123 0h6v150h-6zM132 0h3v150h-3zM141 0h3v150h-3zM156 0h6v150h-6zM165 0h9v150h-9zM177 0h6v150h-6zM186 0h9v150h-9zM198 0h3v150h-3zM213 0h3v150h-3zM222 0h6v150h-6zM231 0h9v150h-9zM246 0h3v150h-3zM252 0h6v150h-6zM264 0h3v150h-3zM279 0h3v150h-3zM285 0h6v150h-6zM297 0h3v150h-3zM306 0h6v150h-6zM315 0h9v150h-9zM330 0h3v150h-3zM336 0h9v150h-9zM348 0h12v150h-12zM363 0h6v150h-6zM372 0h12v150h-12zM387 0h6v150h-6zM396 0h6v150h-6zM405 0h3v150h-3zM417 0h9v150h-9zM429 0h3v150h-3zM435 0h12v150h-12zM450 0h9v150h-9zM462 0h3v150h-3zM471 0h6v150h-6zM480 0h9v150h-9zM495 0h3v150h-3zM501 0h9v150h-9zM513 0h12v150h-12zM528 0h9v150h-9zM540 0h9v150h-9zM552 0h6v150h-6zM561 0h3v150h-3zM576 0h6v150h-6zM585 0h3v150h-3zM594 0h3v150h-3zM600 0h12v150h-12zM615 0h9v150h-9zM627 0h3v150h-3zM636 0h6v150h-6zM645 0h9v150h-9zM660 0h3v150h-3zM669 0h3v150h-3zM675 0h6v150h-6zM693 0h3v150h-3zM699 0h6v150h-6zM717 0h3v150h-3zM726 0h6v150h-6zM735 0h9v150h-9zM750 0h3v150h-3zM759 0h3v150h-3zM765 0h6v150h-6zM777 0h3v150h-3zM792 0h3v150h-3zM801 0h6v150h-6zM810 0h9v150h-9zM825 0h6v150h-6zM834 0h9v150h-9zM849 0h3v150h-3zM858 0h3v150h-3zM864 0h6v150h-6zM876 0h3v150h-3zM891 0h6v150h-6zM903 0h9v150h-9zM915 0h3v150h-3zM924 0h6v150h-6zM936 0h9v150h-9zM948 0h3v150h-3zM957 0h3v150h-3zM963 0h6v150h-6zM981 0h3v150h-3zM990 0h3v150h-3zM999 0h9v150h-9zM1011 0h6v150h-6zM1023 0h3v150h-3zM1032 0h3v150h-3zM1047 0h6v150h-6zM1056 0h3v150h-3zM1065 0h3v150h-3zM1080 0h6v150h-6zM1089 0h3v150h-3zM1104 0h3v150h-3zM1110 0h6v150h-6zM1122 0h9v150h-9zM1134 0h6v150h-6zM1143 0h9v150h-9zM1155 0h6v150h-6zM1167 0h3v150h-3zM1173 0h9v150h-9zM1188 0h3v150h-3zM1194 0h6v150h-6zM1206 0h3v150h-3zM1221 0h3v150h-3zM1227 0h6v150h-6zM1245 0h3v150h-3zM1254 0h6v150h-6zM1269 0h9v150h-9zM1281 0h3v150h-3zM1287 0h6v150h-6z"
+              />
               <text
-                alignment-baseline="middle"
-                style="font-family: sans-serif; font-size: 180%"
+                font-family="Helvetica"
+                font-size="24"
                 text-anchor="middle"
-                x="50%"
-                y="50%"
+                x="646.5"
+                y="177"
               >
-                Official Seal Here
+                40bb7d9c-9049-4873-af5e-5e66f0bbc73e
               </text>
-              
-
             </svg>
-            
-
           </div>
-          <div
-            class="ballot-header-content c2"
-          >
-            <h2>
-              Official Ballot
-            </h2>
-            <h3>
-              2020 General Election
-            </h3>
-            <p>
-              Nearby County
-              , 
-              State of Somewhere
-              <br />
-              Tuesday, November 6, 2020
-            </p>
-          </div>
-        </div>
-        <div
-          class="c5"
-        >
-          <dl
-            class="c6"
-          >
-            <dt
-              class="c7"
-            >
-              <span
-                class="c8"
-              >
-                President
-              </span>
-              <button
-                class="no-print change-button c9"
-                type="button"
-              >
-                Change
-              </button>
-            </dt>
-            <dd
-              class="c10"
-            >
-              <strong>
-                Minnie Mouse
-              </strong>
-               
-              / Mouse
-            </dd>
-            <dt
-              class="c7"
-            >
-              <span
-                class="c8"
-              >
-                Senator
-              </span>
-              <button
-                class="no-print change-button c9"
-                type="button"
-              >
-                Change
-              </button>
-            </dt>
-            <dd
-              class="c10"
-            >
-              <strong>
-                John Smith
-              </strong>
-               
-              / Independent
-            </dd>
-          </dl>
-        </div>
-        <div
-          class="c11"
-        >
-          <svg
-            viewBox="0 0 1293 177"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M0 0h1293v177H0z"
-              fill="#FFF"
-            />
-            <path
-              d="M0 0h6v150H0zM9 0h3v150H9zM18 0h3v150h-3zM33 0h6v150h-6zM45 0h3v150h-3zM54 0h9v150h-9zM66 0h3v150h-3zM75 0h9v150h-9zM87 0h6v150h-6zM99 0h3v150h-3zM108 0h3v150h-3zM123 0h6v150h-6zM132 0h3v150h-3zM141 0h3v150h-3zM156 0h6v150h-6zM165 0h9v150h-9zM177 0h6v150h-6zM186 0h9v150h-9zM198 0h3v150h-3zM213 0h3v150h-3zM222 0h6v150h-6zM231 0h9v150h-9zM246 0h3v150h-3zM252 0h6v150h-6zM264 0h3v150h-3zM279 0h3v150h-3zM285 0h6v150h-6zM297 0h3v150h-3zM306 0h6v150h-6zM315 0h9v150h-9zM330 0h3v150h-3zM336 0h9v150h-9zM348 0h12v150h-12zM363 0h6v150h-6zM372 0h12v150h-12zM387 0h6v150h-6zM396 0h6v150h-6zM405 0h3v150h-3zM417 0h9v150h-9zM429 0h3v150h-3zM435 0h12v150h-12zM450 0h9v150h-9zM462 0h3v150h-3zM471 0h6v150h-6zM480 0h9v150h-9zM495 0h3v150h-3zM501 0h9v150h-9zM513 0h12v150h-12zM528 0h9v150h-9zM540 0h9v150h-9zM552 0h6v150h-6zM561 0h3v150h-3zM576 0h6v150h-6zM585 0h3v150h-3zM594 0h3v150h-3zM600 0h12v150h-12zM615 0h9v150h-9zM627 0h3v150h-3zM636 0h6v150h-6zM645 0h9v150h-9zM660 0h3v150h-3zM669 0h3v150h-3zM675 0h6v150h-6zM693 0h3v150h-3zM699 0h6v150h-6zM717 0h3v150h-3zM726 0h6v150h-6zM735 0h9v150h-9zM750 0h3v150h-3zM759 0h3v150h-3zM765 0h6v150h-6zM777 0h3v150h-3zM792 0h3v150h-3zM801 0h6v150h-6zM810 0h9v150h-9zM825 0h6v150h-6zM834 0h9v150h-9zM849 0h3v150h-3zM858 0h3v150h-3zM864 0h6v150h-6zM876 0h3v150h-3zM891 0h6v150h-6zM903 0h9v150h-9zM915 0h3v150h-3zM924 0h6v150h-6zM936 0h9v150h-9zM948 0h3v150h-3zM957 0h3v150h-3zM963 0h6v150h-6zM981 0h3v150h-3zM990 0h3v150h-3zM999 0h9v150h-9zM1011 0h6v150h-6zM1023 0h3v150h-3zM1032 0h3v150h-3zM1047 0h6v150h-6zM1056 0h3v150h-3zM1065 0h3v150h-3zM1080 0h6v150h-6zM1089 0h3v150h-3zM1104 0h3v150h-3zM1110 0h6v150h-6zM1122 0h9v150h-9zM1134 0h6v150h-6zM1143 0h9v150h-9zM1155 0h6v150h-6zM1167 0h3v150h-3zM1173 0h9v150h-9zM1188 0h3v150h-3zM1194 0h6v150h-6zM1206 0h3v150h-3zM1221 0h3v150h-3zM1227 0h6v150h-6zM1245 0h3v150h-3zM1254 0h6v150h-6zM1269 0h9v150h-9zM1281 0h3v150h-3zM1287 0h6v150h-6z"
-            />
-            <text
-              font-family="Helvetica"
-              font-size="24"
-              text-anchor="middle"
-              x="646.5"
-              y="177"
-            >
-              40bb7d9c-9049-4873-af5e-5e66f0bbc73e
-            </text>
-          </svg>
-        </div>
-      </section>
-    </div>
-  </main>
-  .c0 {
+        </section>
+      </div>
+    </main>
+    .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -2239,20 +2470,21 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
 }
 
 <nav
-    class="c0"
-  >
-    <button
-      class="c1"
-      type="button"
+      class="c0"
     >
-      Print Ballot
-    </button>
-    <button
-      class="c2"
-      type="button"
-    >
-      Back
-    </button>
-  </nav>
+      <button
+        class="c1"
+        type="button"
+      >
+        Print Ballot
+      </button>
+      <button
+        class="c2"
+        type="button"
+      >
+        Back
+      </button>
+    </nav>
+  </div>
 </div>
 `;
