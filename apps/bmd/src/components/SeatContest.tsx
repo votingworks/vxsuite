@@ -195,14 +195,7 @@ class SeatContest extends React.Component<Props, State> {
     const writeInCandidateName = this.normalizeName(
       this.state.writeInCandidateName
     )
-    if (writeInCandidateName.length === 0) {
-      this.setState({ writeInCandidateName })
-    } else {
-      this.selectCandidate({
-        id: 'writeInCandidate',
-        name: writeInCandidateName,
-      })
-    }
+    this.setState({ writeInCandidateName })
     this.toggleWriteInCandidateModal(false)
   }
   public toggleWriteInCandidateModal = (writeInCandateModalIsOpen: boolean) => {

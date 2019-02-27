@@ -188,13 +188,26 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getByText('BOB').closest('label')!)
   fireEvent.click(getByText('Close'))
 
+  fireEvent.click(getByText('BOB').closest('label')!)
+  fireEvent.click(getByText('B').closest('button')!)
+  fireEvent.click(getByText('Y').closest('button')!)
+  fireEvent.click(getByText('Close'))
+  getByText('BOBBY')
+  expect(
+    (getByText('BOBBY')
+      .closest('label')!
+      .querySelector('input') as HTMLInputElement).checked
+  ).toBeFalsy()
+
+  fireEvent.click(getByText('BOBBY').closest('label')!)
+  fireEvent.click(getByText('Accept'))
   fireEvent.click(getByText('Minnie Mouse').closest('label')!)
-  getByText('To vote for Minnie Mouse, first uncheck the vote for BOB.')
+  getByText('To vote for Minnie Mouse, first uncheck the vote for BOBBY.')
   fireEvent.click(getByText('Okay'))
 
   fireEvent.click(getByText('Review'))
   fireEvent.click(getAllByText('Change')[0])
-  expect(getByText('BOB')).toBeTruthy()
+  expect(getByText('BOBBY')).toBeTruthy()
 
   fireEvent.click(getByText('Review'))
   fireEvent.click(getByText('Print Ballot'))
