@@ -548,6 +548,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
         class="c1"
       >
         <div
+          aria-label="State Seal."
           class="c2"
         >
           <svg

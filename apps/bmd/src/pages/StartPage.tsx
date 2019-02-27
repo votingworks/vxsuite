@@ -18,7 +18,10 @@ const StartPage = () => {
   return (
     <Main>
       <MainChild center>
-        <Seal dangerouslySetInnerHTML={{ __html: seal }} />
+        <Seal
+          aria-label="State Seal."
+          dangerouslySetInnerHTML={{ __html: seal }}
+        />
         <Prose textCenter>
           <h1>
             {title}

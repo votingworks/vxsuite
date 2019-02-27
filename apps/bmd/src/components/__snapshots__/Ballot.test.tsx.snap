@@ -330,6 +330,7 @@ exports[`can navigate all ballot pages 2`] = `
       class="c1"
     >
       <div
+        aria-label="State Seal."
         class="c2"
       >
         <svg

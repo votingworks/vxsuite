@@ -114,6 +114,7 @@ exports[`renders StartPage 1`] = `
     class="c1"
   >
     <div
+      aria-label="State Seal."
       class="c2"
     >
       <svg
