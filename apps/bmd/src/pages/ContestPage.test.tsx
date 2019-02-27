@@ -23,6 +23,7 @@ it(`renders error if no id match`, () => {
       route: '/contests/foobar',
     }
   )
+  expect(container).toMatchSnapshot()
 })
 
 it(`displays accessible error if no id match`, async () => {
@@ -32,6 +33,7 @@ it(`displays accessible error if no id match`, async () => {
       route: '/contests/foobar',
     }
   )
+  expect(container).toMatchSnapshot()
   expect(await axe(document.body.innerHTML)).toHaveNoViolations()
 })
 

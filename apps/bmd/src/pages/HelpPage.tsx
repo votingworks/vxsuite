@@ -1,12 +1,11 @@
-import React, { useContext } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import React from 'react'
 
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 
-const HelpPage = (props: RouteComponentProps) => {
+const HelpPage = () => {
   return (
     <>
       <Main>
@@ -20,8 +19,6 @@ const HelpPage = (props: RouteComponentProps) => {
       <ButtonBar secondary>
         <div />
         <LinkButton goBack>Back</LinkButton>
-        <div />
-        <div />
       </ButtonBar>
     </>
   )

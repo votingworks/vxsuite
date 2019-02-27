@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
 
 import BallotContext from '../contexts/ballotContext'
 
@@ -11,7 +10,7 @@ import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import { Text } from '../components/Typography'
 
-const SettingsPage = (props: RouteComponentProps) => {
+const SettingsPage = () => {
   const { resetBallot, votes } = useContext(BallotContext)
   const [showResetBallotAlert, setResetBallotAlert] = useState(false)
   const cancelResetBallot = () => {
@@ -36,8 +35,6 @@ const SettingsPage = (props: RouteComponentProps) => {
       <ButtonBar secondary>
         <div />
         <LinkButton goBack>Back</LinkButton>
-        <div />
-        <div />
       </ButtonBar>
       <Modal
         isOpen={showResetBallotAlert}

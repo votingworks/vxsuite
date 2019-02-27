@@ -3,7 +3,6 @@ import { RouteComponentProps } from 'react-router-dom'
 
 import BallotContext from '../contexts/ballotContext'
 
-import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'

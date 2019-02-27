@@ -153,6 +153,7 @@ exports[`renders SummaryPage with votes 1`] = `
 
 .c10 {
   margin: 0;
+  word-break: break-word;
 }
 
 @media (min-width:480px) {

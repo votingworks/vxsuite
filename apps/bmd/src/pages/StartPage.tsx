@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
 import BallotContext from '../contexts/ballotContext'
@@ -13,7 +12,7 @@ const Seal = styled.div`
   margin: auto;
 `
 
-const StartPage = (props: RouteComponentProps) => {
+const StartPage = () => {
   const { election } = useContext(BallotContext)
   const { title, state, county, date, seal } = election!
   return (

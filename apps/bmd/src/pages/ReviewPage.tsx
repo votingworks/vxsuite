@@ -1,5 +1,5 @@
-import React, { SyntheticEvent } from 'react'
-import { Link, RouteComponentProps } from 'react-router-dom'
+import React from 'react'
+import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Barcode } from '../assets/BarCodes'
@@ -101,6 +101,7 @@ const ContestHeading = styled.span`
 
 const ContestSelection = styled.dd`
   margin: 0;
+  word-break: break-word;
 `
 
 class SummaryPage extends React.Component<RouteComponentProps> {

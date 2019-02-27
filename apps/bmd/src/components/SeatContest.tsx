@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import {
-  Candidate,
   Contest,
   InputEvent,
   OptionalCandidate,
@@ -67,6 +66,7 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     color: #028099;
   }
   & > div {
+    word-break: break-word;
     padding: 0.5rem 0.5rem 0.5rem 4rem;
     @media (min-width: 480px) {
       padding: 1rem 1rem 1rem inherit;
@@ -141,15 +141,13 @@ class SeatContest extends React.Component<Props, State> {
   }
 
   public handleUpdateSelection = (event: InputEvent) => {
-    const target = event.target as HTMLInputElement
-    const targetIsSelected =
-      this.props.vote && target.value === this.props.vote.id
+    const { contest, vote } = this.props
+    const { value } = event.target as HTMLInputElement
+    const targetIsSelected = vote && value === vote.id
     this.selectCandidate(
       targetIsSelected
         ? undefined
-        : this.props.contest.candidates.find(
-            candidate => candidate.id === target.value
-          )
+        : contest.candidates.find(candidate => candidate.id === value)
     )
   }
 
@@ -162,23 +160,18 @@ class SeatContest extends React.Component<Props, State> {
   }
 
   public handleSelectWriteInCandidate = () => {
-    if (
-      !!this.props.vote &&
-      this.props.vote.name === this.state.writeInCandidateName
-    ) {
+    const { vote } = this.props
+    if (!!vote && vote.name === this.state.writeInCandidateName) {
       this.selectCandidate(undefined)
     } else {
       this.toggleWriteInCandidateModal(true)
     }
   }
   public handleWriteInCandidateDisabledClick = () => {
-    if (
-      !!this.props.vote &&
-      this.props.vote.name !== this.state.writeInCandidateName
-    ) {
-      this.handleChangeVoteAlert(
-        this.state.writeInCandidateName || 'a write-in candidate'
-      )
+    const { vote } = this.props
+    const { writeInCandidateName } = this.state
+    if (!!vote && vote.name !== writeInCandidateName) {
+      this.handleChangeVoteAlert(writeInCandidateName || 'a write-in candidate')
     }
   }
 
@@ -224,25 +217,16 @@ class SeatContest extends React.Component<Props, State> {
     this.setState({ writeInCandidateName })
   }
 
-  public onKeyboardKeyPress = (button: string) => {
-    if (button === '{shift}' || button === '{lock}') {
-      this.handleKeyboardShiftKey()
-    }
-  }
-
-  public handleKeyboardShiftKey = () => {
-    const layoutName = this.state.layoutName
-
-    this.setState({
-      layoutName: layoutName === 'default' ? 'shift' : 'default',
-    })
-  }
-
   public render() {
     const { contest, vote } = this.props
-    const { attemptedVoteCandidateName } = this.state
+    const {
+      attemptedVoteCandidateName,
+      writeInCandidateName,
+      writeInCandateModalIsOpen,
+    } = this.state
+    const maxWriteInCandidateLength = 40
     const writeInCandidateIsChecked =
-      !!vote && vote.name === this.state.writeInCandidateName
+      !!vote && vote.name === writeInCandidateName
     return (
       <React.Fragment>
         <FieldSet>
@@ -307,8 +291,8 @@ class SeatContest extends React.Component<Props, State> {
                 className="visually-hidden"
               />
               <Prose>
-                {!!this.state.writeInCandidateName ? (
-                  <strong>{this.state.writeInCandidateName}</strong>
+                {!!writeInCandidateName ? (
+                  <strong>{writeInCandidateName}</strong>
                 ) : (
                   <em>add a write-in candidate</em>
                 )}
@@ -333,16 +317,23 @@ class SeatContest extends React.Component<Props, State> {
           }
         />
         <Modal
-          isOpen={this.state.writeInCandateModalIsOpen}
+          isOpen={writeInCandateModalIsOpen}
           onAfterOpen={this.setKeyboardInput}
           content={
             <div>
               <Prose>
                 <h2>Write-In Candidate</h2>
                 <Text>
-                  Use this screen to vote for a person who is{' '}
-                  <strong>not</strong> on the ballot.
+                  Enter the name of a person who is <strong>not</strong> on the
+                  ballot using the on-screen keyboard.
                 </Text>
+                {writeInCandidateName.length > 35 && (
+                  <Text error>
+                    <strong>Note:</strong> You have entered{' '}
+                    {writeInCandidateName.length} of maximum{' '}
+                    {maxWriteInCandidateLength} characters.
+                  </Text>
+                )}
               </Prose>
               <WriteInCandidateForm>
                 <WriteInCandidateFieldSet>
@@ -350,23 +341,37 @@ class SeatContest extends React.Component<Props, State> {
                     <label htmlFor="WriteInCandidateName">
                       <Prose>
                         <Text bold small>
-                          Write-In Candidate Name for {contest.title}
+                          {contest.title} (write-in)
                         </Text>
                       </Prose>
                     </label>
                   </legend>
                   <WriteInCandidateInput
                     id="WriteInCandidateName"
-                    value={this.state.writeInCandidateName}
-                    placeholder="Use the keyboard to enter a candidate name"
+                    value={writeInCandidateName}
+                    placeholder="candidate name"
                   />
                 </WriteInCandidateFieldSet>
                 <Keyboard
                   ref={this.keyboard}
-                  layoutName={this.state.layoutName}
+                  layout={{
+                    default: [
+                      'Q W E R T Y U I O P',
+                      'A S D F G H J K L -',
+                      'Z X C V B N M , .',
+                      '{space} {bksp}',
+                    ],
+                  }}
+                  display={{
+                    '{bksp}': '⌫ delete',
+                    '{space}': 'space',
+                  }}
+                  mergeDisplay
+                  disableCaretPositioning
+                  maxLength={maxWriteInCandidateLength}
+                  layoutName="default"
                   theme={'hg-theme-default vs-simple-keyboard'}
                   onChange={this.onKeyboardInputChange}
-                  onKeyPress={this.onKeyboardKeyPress}
                   useButtonTag
                 />
               </WriteInCandidateForm>
@@ -375,15 +380,10 @@ class SeatContest extends React.Component<Props, State> {
           actions={
             <>
               <Button
-                primary={
-                  this.normalizeName(this.state.writeInCandidateName).length > 0
-                }
+                primary={this.normalizeName(writeInCandidateName).length > 0}
                 autoFocus
                 onClick={this.selectWriteInCandidate}
-                disabled={
-                  this.normalizeName(this.state.writeInCandidateName).length ===
-                  0
-                }
+                disabled={this.normalizeName(writeInCandidateName).length === 0}
               >
                 Accept
               </Button>

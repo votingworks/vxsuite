@@ -15,7 +15,7 @@
 }
 @media (min-width: 480px) {
   .modal-overlay {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 }
 

@@ -720,6 +720,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 }
 
 .c6 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -1128,7 +1129,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
           class="sc-VigVT hvGAoq"
         >
           <label
-            class="sc-jTzLTM biYKsK"
+            class="sc-jTzLTM zepeW"
             for="minnieMouse"
           >
             <input
@@ -1149,7 +1150,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-jTzLTM jKLUAm"
+            class="sc-jTzLTM bmBPSW"
             for="mickeyMouse"
           >
             <input
@@ -1171,7 +1172,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-jTzLTM jKLUAm"
+            class="sc-jTzLTM bmBPSW"
             for="donaldDuck"
           >
             <input
@@ -1193,7 +1194,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-jTzLTM jKLUAm"
+            class="sc-jTzLTM bmBPSW"
             for="writeInCandidate"
           >
             <input
@@ -1374,6 +1375,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
 }
 
 .c4 > div {
+  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -1607,7 +1609,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
           class="sc-VigVT hvGAoq"
         >
           <label
-            class="sc-jTzLTM jKLUAm"
+            class="sc-jTzLTM bmBPSW"
             for="chadHanging"
           >
             <input
@@ -1629,7 +1631,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
             </div>
           </label>
           <label
-            class="sc-jTzLTM jKLUAm"
+            class="sc-jTzLTM bmBPSW"
             for="levErmachine"
           >
             <input
@@ -1651,7 +1653,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
             </div>
           </label>
           <label
-            class="sc-jTzLTM biYKsK"
+            class="sc-jTzLTM zepeW"
             for="johnSmith"
           >
             <input
@@ -1673,7 +1675,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
             </div>
           </label>
           <label
-            class="sc-jTzLTM jKLUAm"
+            class="sc-jTzLTM bmBPSW"
             for="writeInCandidate"
           >
             <input
@@ -1900,6 +1902,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 8`] = `
 
 .c10 {
   margin: 0;
+  word-break: break-word;
 }
 
 @media (min-width:480px) {
