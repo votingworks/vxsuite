@@ -45,7 +45,7 @@ class UploadConfig extends React.Component<Props, State> {
   }
 
   public setErrorMessage = (
-    errorMessage: string = 'Only election.json file is accepted. Try again.'
+    errorMessage: string = 'Only files that end in ".json" are accepted. Try again.'
   ) => {
     this.setState({
       ...initialState,
@@ -60,7 +60,7 @@ class UploadConfig extends React.Component<Props, State> {
   public onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 1) {
       acceptedFiles.forEach((file: File) => {
-        if (file.name === 'election.json') {
+        if (file.name.endsWith('.json')) {
           const reader = new FileReader()
           reader.onload = () => {
             this.setState({

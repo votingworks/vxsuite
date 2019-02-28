@@ -15,9 +15,13 @@ it(`allows file to be uploaded via file input`, async () => {
   fireEvent.change(fileInput, {
     target: {
       files: [
-        new File([JSON.stringify(goodElectionFile)], 'election.json', {
-          type: 'application/json',
-        }),
+        new File(
+          [JSON.stringify(goodElectionFile)],
+          'beausfavoriteelection.json',
+          {
+            type: 'application/json',
+          }
+        ),
       ],
     },
   })
@@ -59,7 +63,7 @@ it(`allows one-click config`, async () => {
   expect(setElection).toHaveBeenCalled()
 })
 
-it(`doesn't allow files other than 'election.json'`, async () => {
+it(`doesn't allow files with names that don't end in '.json'`, async () => {
   const setElection = jest.fn()
   const { getByText, getByTestId } = render(
     <UploadConfig setElection={setElection} />
@@ -68,14 +72,14 @@ it(`doesn't allow files other than 'election.json'`, async () => {
   fireEvent.change(fileInput, {
     target: {
       files: [
-        new File([''], 'foo.json', {
+        new File([''], 'foo.js', {
           type: 'application/json',
         }),
       ],
     },
   })
   await waitForElement(() =>
-    getByText('Only election.json file is accepted. Try again.')
+    getByText('Only files that end in ".json" are accepted. Try again.')
   )
 })
 
@@ -98,7 +102,7 @@ it(`doesn't allow upload of multiple files`, async () => {
     },
   })
   await waitForElement(() =>
-    getByText('Only election.json file is accepted. Try again.')
+    getByText('Only files that end in ".json" are accepted. Try again.')
   )
 })
 
