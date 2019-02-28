@@ -887,7 +887,6 @@ exports[`can navigate all ballot pages 3`] = `
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
     max-width: 30%;
   }
 }
@@ -1250,7 +1249,7 @@ exports[`can navigate all ballot pages 4`] = `
     </p>
   </nav>
   <nav
-    class="sc-bZQynM efZRTa"
+    class="sc-bZQynM ckZihI"
   >
     <button
       class="sc-gzVnrw gWpXIP"
@@ -2731,7 +2730,6 @@ exports[`can navigate all ballot pages 8`] = `
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
     max-width: 30%;
   }
 }
@@ -3054,7 +3052,6 @@ exports[`redirects contests index to first contest 1`] = `
 
 @media (min-width:480px) {
   .c12 > *:only-child {
-    margin: auto;
     max-width: 30%;
   }
 }
@@ -3283,7 +3280,7 @@ exports[`redirects contests index to first contest 1`] = `
 </div>
 `;
 
-exports[`skips activation if when disabled 1`] = `
+exports[`skips activation page if disabled 1`] = `
 .c0 {
   height: 100%;
   display: -webkit-box;

@@ -14,7 +14,7 @@ import StartPage from '../pages/StartPage'
 const Ballot = () => {
   const { election } = useContext(BallotContext)
   const { bmdConfig, contests } = election!
-  const { requireActivation } = bmdConfig!
+  const { requireActivation, showHelpPage, showSettingsPage } = bmdConfig!
   return (
     <Screen>
       <Switch>
@@ -29,8 +29,10 @@ const Ballot = () => {
         )}
         <Route path="/contests/:id" component={ContestPage} />
         <Route path="/review" component={ReviewPage} />
-        <Route path="/help" component={HelpPage} />
-        <Route path="/settings" component={SettingsPage} />
+        {showHelpPage && <Route path="/help" component={HelpPage} />}
+        {showSettingsPage && (
+          <Route path="/settings" component={SettingsPage} />
+        )}
       </Switch>
     </Screen>
   )

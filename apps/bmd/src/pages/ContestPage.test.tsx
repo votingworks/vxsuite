@@ -1,8 +1,11 @@
-import { axe } from 'jest-axe'
+import lodashMerge from 'lodash.merge'
 import React from 'react'
 import { Route } from 'react-router-dom'
 
 import { render } from '../../test/testUtils'
+
+import electionDefaults from '../data/electionDefaults.json'
+import electionSample from '../data/electionSample.json'
 
 import ContestPage from './ContestPage'
 
@@ -26,7 +29,7 @@ it(`renders error if no id match`, () => {
   expect(container).toMatchSnapshot()
 })
 
-it(`displays accessible error if no id match`, async () => {
+it(`displays accessible error if no id match`, () => {
   const { container } = render(
     <Route path="/contests/:id" component={ContestPage} />,
     {
@@ -34,7 +37,24 @@ it(`displays accessible error if no id match`, async () => {
     }
   )
   expect(container).toMatchSnapshot()
-  expect(await axe(document.body.innerHTML)).toHaveNoViolations()
+})
+
+it(`doesn't display help and settings pages if disabled`, () => {
+  const { container, queryByText } = render(
+    <Route path="/contests/:id" component={ContestPage} />,
+    {
+      election: lodashMerge(electionDefaults, electionSample, {
+        bmdConfig: {
+          showHelpPage: false,
+          showSettingsPage: false,
+        },
+      }),
+      route: '/contests/president',
+    }
+  )
+  expect(queryByText('Help')).toBeFalsy()
+  expect(queryByText('Settings')).toBeFalsy()
+  expect(container).toMatchSnapshot()
 })
 
 // TODO: Update this test to pass.

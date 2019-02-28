@@ -30,7 +30,7 @@ export interface BMDConfig {
   readonly showSettingsPage?: boolean
 }
 export interface ElectionDefaults {
-  bmdConfig: BMDConfig
+  readonly bmdConfig: BMDConfig
 }
 export interface Election {
   readonly contests: Contest[]
