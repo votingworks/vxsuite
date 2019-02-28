@@ -4,6 +4,7 @@ interface Props {
   dark?: boolean
   secondary?: boolean
   separatePrimaryButton?: boolean
+  centerOnlyChild?: boolean
 }
 
 const ButtonBar = styled('nav')<Props>`
@@ -35,7 +36,8 @@ const ButtonBar = styled('nav')<Props>`
   }
   & > *:only-child {
     @media (min-width: 480px) {
-      margin: auto;
+      margin: ${({ centerOnlyChild = true }) =>
+        centerOnlyChild ? 'auto' : undefined};
       max-width: 30%;
     }
   }

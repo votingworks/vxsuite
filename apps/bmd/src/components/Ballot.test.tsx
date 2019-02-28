@@ -53,7 +53,7 @@ it('redirects contests index to first contest', () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it('skips activation if when disabled', () => {
+it('skips activation page if disabled', () => {
   const { container, getByText } = render(<Ballot />, {
     election: lodashMerge(electionSample, {
       bmdConfig: {

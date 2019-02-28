@@ -18,7 +18,8 @@ interface Props extends RouteComponentProps<ContestParams> {}
 const ContestPage = (props: Props) => {
   const { id } = props.match.params
   const { election, updateVote, votes } = useContext(BallotContext)
-  const { contests } = election!
+  const { contests, bmdConfig } = election!
+  const { showHelpPage, showSettingsPage } = bmdConfig!
   const currentContestIndex = contests.findIndex(x => x.id === id)
   const contest = contests[currentContestIndex]
   const prevContest = contests[currentContestIndex - 1]
@@ -82,10 +83,14 @@ const ContestPage = (props: Props) => {
           {currentContestIndex + 1} of {contests.length}
         </Text>
       </ButtonBar>
-      <ButtonBar secondary separatePrimaryButton>
+      <ButtonBar
+        secondary
+        separatePrimaryButton
+        centerOnlyChild={!showHelpPage && !showSettingsPage && false}
+      >
         <LinkButton to="/review">Review</LinkButton>
-        <LinkButton to="/help">Help</LinkButton>
-        <LinkButton to="/settings">Settings</LinkButton>
+        {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
+        {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
       </ButtonBar>
     </React.Fragment>
   )
