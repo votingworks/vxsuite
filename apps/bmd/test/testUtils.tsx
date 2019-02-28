@@ -3,8 +3,9 @@ import React from 'react'
 import { Router } from 'react-router-dom'
 import { render as testRender } from 'react-testing-library'
 
-import election from '../src/data/election.json'
+import electionSample from '../src/data/electionSample.json'
 
+import { mergeWithDefaults } from '../src/App'
 import BallotContext from '../src/contexts/ballotContext'
 
 export function render(
@@ -16,13 +17,14 @@ export function render(
     setBallotKey = jest.fn(),
     updateVote = jest.fn(),
     votes = {},
+    election = electionSample,
   } = {}
 ) {
   return {
     ...testRender(
       <BallotContext.Provider
         value={{
-          election,
+          election: mergeWithDefaults(election),
           resetBallot,
           setBallotKey,
           updateVote,

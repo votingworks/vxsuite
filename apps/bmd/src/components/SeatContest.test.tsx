@@ -2,7 +2,7 @@
 import React from 'react'
 import { fireEvent, render } from 'react-testing-library'
 
-import election from '../../public/data/election.json'
+import electionSample from '../data/electionSample.json'
 
 import SeatContest from './SeatContest'
 
@@ -10,7 +10,7 @@ it(`allows any candidate to be selected when no candidate is selected`, () => {
   const updateVote = jest.fn()
   const { container, getByText } = render(
     <SeatContest
-      contest={election.contests[0]}
+      contest={electionSample.contests[0]}
       vote={undefined}
       updateVote={updateVote}
     />
@@ -36,7 +36,7 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
   const updateVote = jest.fn()
   const { container, getByText } = render(
     <SeatContest
-      contest={election.contests[0]}
+      contest={electionSample.contests[0]}
       vote={{
         id: 'minnieMouse',
         name: 'Minnie Mouse',
@@ -83,7 +83,7 @@ it(`displays warning if write-in candidate name is too long`, () => {
   const updateVote = jest.fn()
   const { getByText } = render(
     <SeatContest
-      contest={election.contests[0]}
+      contest={electionSample.contests[0]}
       vote={undefined}
       updateVote={updateVote}
     />
@@ -107,7 +107,7 @@ it(`displays warning if write-in candidate name is too long`, () => {
 //   const updateVote = jest.fn()
 //   const { container } = render(
 //     <SeatContest
-//       contest={election.contests[0]}
+//       contest={electionSample.contests[0]}
 //       vote=""
 //       updateVote={updateVote}
 //     />
@@ -123,7 +123,7 @@ it(`displays warning if write-in candidate name is too long`, () => {
 //   const updateVote = jest.fn()
 //   const { container } = render(
 //     <SeatContest
-//       contest={election.contests[0]}
+//       contest={electionSample.contests[0]}
 //       vote={'Minnie Mouse'}
 //       updateVote={updateVote}
 //     />

@@ -52,9 +52,7 @@ it(`allows file to be uploaded via drag and drop`, async () => {
 
 it(`allows one-click config`, async () => {
   const setElection = jest.fn()
-  const { container, getByText, getByTestId } = render(
-    <UploadConfig setElection={setElection} />
-  )
+  const { getByText } = render(<UploadConfig setElection={setElection} />)
   fireEvent.click(getByText('Load Sample Election File'))
   expect(setElection).toHaveBeenCalled()
 })

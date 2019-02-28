@@ -3282,3 +3282,207 @@ exports[`redirects contests index to first contest 1`] = `
   </nav>
 </div>
 `;
+
+exports[`skips activation if when disabled 1`] = `
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+  padding: 1rem 0.5rem 2rem;
+}
+
+.c2 {
+  width: 100%;
+  max-width: 35rem;
+  margin: auto auto;
+}
+
+.c4 {
+  line-height: 1.2;
+  max-width: 66ch;
+  text-align: center;
+  margin: auto;
+}
+
+.c4 h1 {
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c4 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c4 h3,
+.c4 p {
+  margin: 1rem 0;
+}
+
+.c4 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c4 > :first-child {
+  margin-top: 0;
+}
+
+.c4 > :last-child {
+  margin-bottom: 0;
+}
+
+.c5 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: #4caf50;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: white;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c3 {
+  max-width: 320px;
+  margin: auto;
+}
+
+@media (min-width:480px) {
+  .c1 {
+    padding: 2rem 1rem;
+  }
+}
+
+@media print {
+  .c1 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media print {
+  .c2 {
+    max-width: 100%;
+    margin: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c4 {
+    line-height: 1.3;
+  }
+}
+
+<div
+  class="c0"
+>
+  <main
+    class="c1"
+  >
+    <div
+      class="c2"
+    >
+      <div
+        aria-label="State Seal."
+        class="c3"
+      >
+        <svg
+          viewBox="0 0 500 500"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          
+  
+          <circle
+            cx="250"
+            cy="250"
+            fill="#fff"
+            r="240"
+            stroke="#000"
+            stroke-width="10"
+          />
+          
+  
+          <text
+            alignment-baseline="middle"
+            style="font-family: sans-serif; font-size: 180%"
+            text-anchor="middle"
+            x="50%"
+            y="50%"
+          >
+            Official Seal Here
+          </text>
+          
+
+        </svg>
+        
+
+      </div>
+      <div
+        class="c4"
+      >
+        <h1>
+          2020 General Election
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
+        </h1>
+        <p>
+          Tuesday, November 6, 2020
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
+          <br />
+          Nearby County
+          , 
+          State of Somewhere
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
+        </p>
+        <p>
+          <button
+            class="c5"
+            type="button"
+          >
+            Get Started
+          </button>
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
+`;

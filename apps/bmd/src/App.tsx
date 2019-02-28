@@ -1,3 +1,4 @@
+import lodashMerge from 'lodash.merge'
 import Mousetrap from 'mousetrap'
 import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
@@ -26,12 +27,19 @@ import './App.css'
 
 import {
   Election,
+  ElectionDefaults,
   OptionalCandidate,
   OptionalElection,
   VoteDict,
 } from './config/types'
 
-import sampleElection from './data/election.json'
+import electionDefaults from './data/electionDefaults.json'
+import electionSample from './data/electionSample.json'
+
+export const mergeWithDefaults = (
+  election: Election,
+  defaults: ElectionDefaults = electionDefaults
+) => lodashMerge(defaults, election)
 
 import Ballot from './components/Ballot'
 import UploadConfig from './components/UploadConfig'
@@ -62,7 +70,7 @@ class App extends React.Component<RouteComponentProps, State> {
   public componentDidMount = () => {
     if (window.location.hash === '#sample') {
       this.setState({
-        election: sampleElection,
+        election: mergeWithDefaults(electionSample),
       })
     } else {
       this.setState({
@@ -93,7 +101,8 @@ class App extends React.Component<RouteComponentProps, State> {
     return election ? JSON.parse(election) : undefined
   }
 
-  public setElection = (election: Election) => {
+  public setElection = (electionConfigFile: Election) => {
+    const election = mergeWithDefaults(electionConfigFile)
     this.setState({ election })
     window.localStorage.setItem(electionKey, JSON.stringify(election))
   }

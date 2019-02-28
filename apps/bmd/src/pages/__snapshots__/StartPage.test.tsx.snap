@@ -1,18 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders StartPage 1`] = `
-.c4 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: #4caf50;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: white;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -71,6 +59,18 @@ exports[`renders StartPage 1`] = `
 
 .c3 > :last-child {
   margin-bottom: 0;
+}
+
+.c4 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: #4caf50;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: white;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .c2 {

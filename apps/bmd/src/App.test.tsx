@@ -2,10 +2,11 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { fireEvent, render, wait, waitForElement } from 'react-testing-library'
 
-import electionFile from './data/election.json'
-const electionAsString = JSON.stringify(electionFile)
+import electionSample from './data/electionSample.json'
 
-import App, { electionKey } from './App'
+import App, { electionKey, mergeWithDefaults } from './App'
+
+const electionSampleAsString = JSON.stringify(mergeWithDefaults(electionSample))
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -27,7 +28,7 @@ describe('loads election', () => {
   })
 
   it(`from localStorage`, async () => {
-    window.localStorage.setItem(electionKey, electionAsString)
+    window.localStorage.setItem(electionKey, electionSampleAsString)
     const { getByText } = render(<App />)
     getByText('Scan Your Activation Code')
     expect(window.localStorage.getItem(electionKey)).toBeTruthy()
@@ -93,7 +94,7 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.change(fileInput, {
     target: {
       files: [
-        new File([JSON.stringify(electionFile)], 'election.json', {
+        new File([JSON.stringify(electionSample)], 'election.json', {
           type: 'application/json',
         }),
       ],
@@ -221,7 +222,7 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
 
 describe('can start over', () => {
   it('when has no votes', async () => {
-    window.localStorage.setItem(electionKey, electionAsString)
+    window.localStorage.setItem(electionKey, electionSampleAsString)
     const { getByText, getByTestId } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {
       target: { value: 'MyVoiceIsMyPassword' },
@@ -234,7 +235,7 @@ describe('can start over', () => {
     expect(getByText('Scan Your Activation Code')).toBeTruthy()
   })
   it('when has votes', async () => {
-    window.localStorage.setItem(electionKey, electionAsString)
+    window.localStorage.setItem(electionKey, electionSampleAsString)
     const { getByText, getByTestId } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {
       target: { value: 'MyVoiceIsMyPassword' },
