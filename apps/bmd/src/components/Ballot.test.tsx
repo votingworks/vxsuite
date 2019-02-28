@@ -1,10 +1,13 @@
 // Accessibility is not tested because ballot alone does not render html.
 // Each route component is tested elsewhere.
 
+import lodashMerge from 'lodash.merge'
 import React from 'react'
 import { fireEvent } from 'react-testing-library'
 
 import { render } from '../../test/testUtils'
+
+import electionSample from '../data/electionSample.json'
 
 import Ballot from './Ballot'
 
@@ -43,8 +46,22 @@ it(`can navigate all ballot pages`, () => {
 })
 
 it('redirects contests index to first contest', () => {
-  const { container } = render(<Ballot />, {
+  const { container, getByText } = render(<Ballot />, {
     route: '/contests',
   })
+  getByText('President')
+  expect(container.firstChild).toMatchSnapshot()
+})
+
+it('skips activation page if disabled', () => {
+  const { container, getByText } = render(<Ballot />, {
+    election: lodashMerge(electionSample, {
+      bmdConfig: {
+        requireActivation: false,
+      },
+    }),
+    route: '/',
+  })
+  getByText('Get Started')
   expect(container.firstChild).toMatchSnapshot()
 })

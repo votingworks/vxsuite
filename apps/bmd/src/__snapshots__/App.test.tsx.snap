@@ -1109,7 +1109,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
     max-width: 30%;
   }
 }
@@ -1328,7 +1327,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       </p>
     </nav>
     <nav
-      class="sc-bZQynM efZRTa"
+      class="sc-bZQynM ckZihI"
     >
       <button
         class="sc-gzVnrw gWpXIP"
@@ -1683,7 +1682,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 6`] = `
       </p>
     </nav>
     <nav
-      class="sc-bZQynM efZRTa"
+      class="sc-bZQynM ckZihI"
     >
       <button
         class="sc-gzVnrw gWpXIP"
@@ -1891,7 +1890,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 7`] = `
       </p>
     </nav>
     <nav
-      class="sc-bZQynM efZRTa"
+      class="sc-bZQynM ckZihI"
     >
       <button
         class="sc-gzVnrw gWpXIP"

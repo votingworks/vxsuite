@@ -24,6 +24,14 @@ export interface Contest {
   readonly type: string // TODO: convert to enum: VotingMethod { 'plurality' | 'approval' }
   readonly candidates: Candidate[]
 }
+export interface BMDConfig {
+  readonly requireActivation?: boolean
+  readonly showHelpPage?: boolean
+  readonly showSettingsPage?: boolean
+}
+export interface ElectionDefaults {
+  readonly bmdConfig: BMDConfig
+}
 export interface Election {
   readonly contests: Contest[]
   readonly county: string
@@ -31,6 +39,7 @@ export interface Election {
   readonly seal: string
   readonly state: string
   readonly title: string
+  readonly bmdConfig?: BMDConfig
 }
 export type OptionalElection = Election | undefined
 export type UpdateVoteFunction = (

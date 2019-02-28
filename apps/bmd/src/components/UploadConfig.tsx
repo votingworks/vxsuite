@@ -2,7 +2,7 @@ import React from 'react'
 import Dropzone from 'react-dropzone'
 import styled from 'styled-components'
 
-import sampleElectionFile from '../data/election.json'
+import electionSample from '../data/electionSample.json'
 import isJSON from '../utils/is-json'
 
 import Button from '../components/Button'
@@ -54,7 +54,7 @@ class UploadConfig extends React.Component<Props, State> {
   }
 
   public loadSampleElection = () => {
-    this.props.setElection(sampleElectionFile)
+    this.props.setElection(electionSample)
   }
 
   public onDrop = (acceptedFiles: File[]) => {
