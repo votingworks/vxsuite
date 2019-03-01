@@ -71,6 +71,10 @@ exports[`renders SummaryPage with votes 1`] = `
   white-space: nowrap;
 }
 
+.c11 {
+  color: gray;
+}
+
 .c3 {
   display: -webkit-box;
   display: -webkit-flex;

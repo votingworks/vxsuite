@@ -49,7 +49,7 @@ it('redirects contests index to first contest', () => {
   const { container, getByText } = render(<Ballot />, {
     route: '/contests',
   })
-  getByText('President')
+  getByText('President and Vice-President of the United States')
   expect(container.firstChild).toMatchSnapshot()
 })
 
