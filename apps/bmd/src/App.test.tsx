@@ -5,22 +5,15 @@ import { fireEvent, render, wait, waitForElement } from 'react-testing-library'
 import electionSample from './data/electionSample.json'
 
 import App, { electionKey, mergeWithDefaults } from './App'
-import {
-  CandidateContest as CandidateContestInterface,
-  Election,
-} from './config/types'
+import { CandidateContest, Election } from './config/types'
+
+const contest0 = electionSample.contests[0] as CandidateContest
+const contest0candidate0 = contest0.candidates[0]
+const contest0candidate1 = contest0.candidates[1]
 
 const electionSampleAsString = JSON.stringify(
   mergeWithDefaults(electionSample as Election)
 )
-
-const contest0 = electionSample.contests[0]! as CandidateContestInterface
-const contest0Candidate0 = contest0.candidates[0]!.name
-const contest0Candidate1 = contest0.candidates[1]!.name
-
-const contest1 = electionSample.contests[1]! as CandidateContestInterface
-const contest1Candidate0 = contest1.candidates[0]!.name
-const contest1Candidate2 = contest1.candidates[2]!.name
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -102,8 +95,10 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   window.print = jest.fn(() => {
     eventListenerCallbacksDictionary.afterprint()
   })
-  const { container, getByTestId, getByText, getAllByText } = render(<App />)
+  const { container, getByTestId, getByText } = render(<App />)
   expect(container).toMatchSnapshot()
+
+  // Upload Config
   const fileInput = getByTestId('file-input')
   fireEvent.change(fileInput, {
     target: {
@@ -117,6 +112,7 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   await waitForElement(() => getByText('Scan Your Activation Code'))
   expect(container).toMatchSnapshot()
 
+  // Activation Page
   // TODO: onBlur causes stack overflow error
   // fireEvent.blur(getByTestId('activation-code'))
   fireEvent.change(getByTestId('activation-code'), {
@@ -133,107 +129,147 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
 
   // before we go to the next page, let's set up test of navigation
   jest.useFakeTimers()
-
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))
   expect(container.firstChild).toMatchSnapshot()
-
   jest.runAllTimers()
-
-  expect(setTimeout).toHaveBeenCalledTimes(1)
-
+  expect(window.setTimeout).toHaveBeenCalledTimes(1)
   jest.useRealTimers()
 
+  // Get Started Page
   fireEvent.click(getByText('Get Started'))
   expect(container.firstChild).toMatchSnapshot()
 
-  await waitForElement(() => getByText(contest0.title))
-  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
-  fireEvent.click(getByText(contest0Candidate1).closest('label')!)
-  expect(container.firstChild).toMatchSnapshot()
-  getByText(
-    `To vote for ${contest0Candidate1}, first uncheck the vote for ${contest0Candidate0}.`
-  )
-  fireEvent.click(getByText('Okay'))
-  expect(
-    (getByText(contest0Candidate0)
-      .closest('label')!
-      .querySelector('input') as HTMLInputElement).checked
-  ).toBeTruthy()
-  fireEvent.click(getByText('Next'))
-  expect(container.firstChild).toMatchSnapshot()
+  // First Contest Page
+  getByText(contest0.title)
+  expect(contest0.seats).toEqual(1)
 
-  fireEvent.click(getByText(contest1Candidate2).closest('label')!)
-  fireEvent.click(getByText(contest1Candidate0).closest('label')!)
+  // Test overvote modal
+  fireEvent.click(getByText(contest0candidate0.name).closest('label')!)
+  fireEvent.click(getByText(contest0candidate1.name).closest('label')!)
   expect(container.firstChild).toMatchSnapshot()
   getByText(
-    `To vote for ${contest1Candidate0}, first uncheck the vote for ${contest1Candidate2}.`
-  )
-  fireEvent.click(getByText('Okay'))
-  fireEvent.click(getByText('add a write-in candidate').closest('label')!)
-  getByText(
-    `To vote for a write-in candidate, first uncheck the vote for ${contest1Candidate2}.`
+    `You may only select ${
+      contest0.seats
+    } candidate in this contest. To vote for ${
+      contest0candidate1.name
+    }, you must first unselect selected candidate.`
   )
   fireEvent.click(getByText('Okay'))
   expect(
-    (getByText(contest1Candidate2)
+    (getByText(contest0candidate0.name)
       .closest('label')!
       .querySelector('input') as HTMLInputElement).checked
   ).toBeTruthy()
+
+  // Go to Multi-Seat Contest
   fireEvent.click(getByText('Review'))
-  expect(container.firstChild).toMatchSnapshot()
+  const multiSeatContest = electionSample.contests.find(
+    c => c.seats === 4
+  ) as CandidateContest
+  expect(multiSeatContest.seats).toEqual(4)
 
-  fireEvent.click(getAllByText('Change')[1])
-  getByText(contest1.title)
+  fireEvent.click(getByText(multiSeatContest.title)
+    .closest('dt')!
+    .querySelector('button') as HTMLButtonElement)
+  getByText(multiSeatContest.title)
 
-  // advance through remaining questions to ensure we get full code coverage
-  for (let i = 0; i < electionSample.contests.length - 2; i++) {
-    fireEvent.click(getByText('Next'))
-  }
-
+  const multiSeatCandidate0 = multiSeatContest.candidates[0]
+  const multiSeatCandidate1 = multiSeatContest.candidates[1]
+  const multiSeatCandidate2 = multiSeatContest.candidates[2]
+  const multiSeatCandidate3 = multiSeatContest.candidates[3]
+  const multiSeatCandidate4 = multiSeatContest.candidates[4]
+  fireEvent.click(getByText(multiSeatCandidate0.name).closest('label')!)
+  fireEvent.click(getByText(multiSeatCandidate1.name).closest('label')!)
+  fireEvent.click(getByText(multiSeatCandidate2.name).closest('label')!)
+  fireEvent.click(getByText(multiSeatCandidate3.name).closest('label')!)
+  fireEvent.click(getByText(multiSeatCandidate4.name).closest('label')!)
+  getByText(
+    `You may only select ${
+      multiSeatContest.seats
+    } candidates in this contest. To vote for ${
+      multiSeatCandidate4.name
+    }, you must first unselect selected candidates.`
+  )
   fireEvent.click(getByText('Review'))
   getByText('Official Ballot')
+  expect(getByText(multiSeatCandidate0.name)).toBeTruthy()
+  expect(getByText(multiSeatCandidate1.name)).toBeTruthy()
+  expect(getByText(multiSeatCandidate2.name)).toBeTruthy()
+  expect(getByText(multiSeatCandidate3.name)).toBeTruthy()
 
-  fireEvent.click(getAllByText('Change')[0])
-  getByText(contest0.title)
+  // Test Write-In Candidate flow
+  const contestWithWriteIns = electionSample.contests.find(
+    c => !!c.allowWriteIns && c.seats === 1
+  ) as CandidateContest
+  expect(contestWithWriteIns).toBeTruthy()
+  const contestWithWriteInsFirstCandidate = contestWithWriteIns.candidates[0]
 
-  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
-  fireEvent.click(getByText('add a write-in candidate').closest('label')!)
-  fireEvent.click(getByText('Close'))
-  fireEvent.click(getByText('add a write-in candidate').closest('label')!)
+  // Select change button for contest
+  fireEvent.click(getByText(contestWithWriteIns.title)
+    .closest('dt')!
+    .querySelector('button') as HTMLButtonElement)
+  getByText(contestWithWriteIns.title)
+
+  // Test Write-In Candidate Modal Cancel
+  fireEvent.click(getByText('add write-in candidate').closest('button')!)
+  fireEvent.click(getByText('Cancel'))
+
+  // Add Write-In Candidate
+  fireEvent.click(getByText('add write-in candidate').closest('button')!)
   expect(getByText('Write-In Candidate')).toBeTruthy()
   fireEvent.click(getByText('B').closest('button')!)
   fireEvent.click(getByText('O').closest('button')!)
   fireEvent.click(getByText('B').closest('button')!)
   fireEvent.click(getByText('Accept'))
-  fireEvent.click(getByText('BOB').closest('label')!)
-  fireEvent.click(getByText('BOB').closest('label')!)
-  fireEvent.click(getByText('Close'))
 
+  // Remove Write-In Candidate
   fireEvent.click(getByText('BOB').closest('label')!)
-  fireEvent.click(getByText('B').closest('button')!)
-  fireEvent.click(getByText('Y').closest('button')!)
-  fireEvent.click(getByText('Close'))
-  getByText('BOBBY')
+  fireEvent.click(getByText('Yes, Remove.'))
+
+  // Add Different Write-In Candidate
+  fireEvent.click(getByText('add write-in candidate').closest('button')!)
+  fireEvent.click(getByText('S').closest('button')!)
+  fireEvent.click(getByText('A').closest('button')!)
+  fireEvent.click(getByText('L').closest('button')!)
+  fireEvent.click(getByText('Accept'))
   expect(
-    (getByText('BOBBY')
+    (getByText('SAL')
       .closest('label')!
       .querySelector('input') as HTMLInputElement).checked
-  ).toBeFalsy()
+  ).toBeTruthy()
 
-  fireEvent.click(getByText('BOBBY').closest('label')!)
-  fireEvent.click(getByText('Accept'))
-  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
+  // Try to Select Other Candidate when Max Candidates Selected.
+  fireEvent.click(
+    getByText(contestWithWriteInsFirstCandidate.name).closest('label')!
+  )
   getByText(
-    `To vote for ${contest0Candidate0}, first uncheck the vote for BOBBY.`
+    `You may only select ${
+      contest0.seats
+    } candidate in this contest. To vote for ${
+      contestWithWriteInsFirstCandidate.name
+    }, you must first unselect selected candidate.`
   )
   fireEvent.click(getByText('Okay'))
 
+  // Go to review page and confirm write in exists
   fireEvent.click(getByText('Review'))
-  fireEvent.click(getAllByText('Change')[0])
-  expect(getByText('BOBBY')).toBeTruthy()
+  expect(getByText('SAL')).toBeTruthy()
 
-  fireEvent.click(getByText('Review'))
+  fireEvent.click(getByText(contest0.title)
+    .closest('dt')!
+    .querySelector('button') as HTMLButtonElement)
+
+  // Click through all questions for test coverage
+  electionSample.contests.forEach((_, i) => {
+    if (i === electionSample.contests.length - 1) {
+      fireEvent.click(getByText('Review'))
+    } else {
+      fireEvent.click(getByText('Next'))
+    }
+  })
+
+  // Test Print Ballot Modal
   fireEvent.click(getByText('Print Ballot'))
   fireEvent.click(getByText('No. Go Back.'))
   fireEvent.click(getByText('Print Ballot'))
@@ -266,7 +302,7 @@ describe('can start over', () => {
     // TODO: replace next line with "Enter" keyDown on activation code input
     fireEvent.click(getByText('Submit'))
     fireEvent.click(getByText('Get Started'))
-    fireEvent.click(getByText(contest0Candidate0).closest('label')!)
+    fireEvent.click(getByText(contest0candidate0.name).closest('label')!)
     fireEvent.click(getByText('Settings'))
     fireEvent.click(getByText('Start Over'))
     fireEvent.click(getByText('Cancel'))

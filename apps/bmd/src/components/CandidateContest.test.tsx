@@ -2,95 +2,153 @@
 import React from 'react'
 import { fireEvent, render } from 'react-testing-library'
 
-import electionSample from '../data/electionSample.json'
-const contest0 = electionSample.contests[0]! as CandidateContestInterface
-const contest0Candidates = contest0.candidates
-const contest0Candidate0 = contest0Candidates[0]!.name
-const contest0Candidate1 = contest0Candidates[1]!.name
-const contest0Candidate2 = contest0Candidates[2]!.name
-
 import { CandidateContest as CandidateContestInterface } from '../config/types'
+
+import electionSample from '../data/electionSample.json'
+
 import CandidateContest from './CandidateContest'
+
+const contest = {
+  allowWriteIns: true,
+  candidates: [
+    {
+      id: 'solis',
+      name: 'Andrea Solis',
+      party: 'Federalist',
+    },
+    {
+      id: 'keller',
+      name: 'Amos Keller',
+      party: "People's",
+    },
+    {
+      id: 'rangel',
+      name: 'Davitra Rangel',
+      party: 'Liberty',
+    },
+  ],
+  id: 'state-assembly',
+  seats: 1,
+  section: '54th District',
+  title: 'State Assembly',
+  type: 'candidate',
+} as CandidateContestInterface
+const candidate0 = contest.candidates[0]
+const candidate1 = contest.candidates[1]
+const candidate2 = contest.candidates[2]
 
 it(`allows any candidate to be selected when no candidate is selected`, () => {
   const updateVote = jest.fn()
   const { container, getByText } = render(
+    <CandidateContest contest={contest} vote={[]} updateVote={updateVote} />
+  )
+  expect(container).toMatchSnapshot()
+
+  fireEvent.click(getByText(candidate0.name).closest('label')!)
+  expect(updateVote).toHaveBeenCalledTimes(1)
+
+  fireEvent.click(getByText(candidate1.name).closest('label')!)
+  expect(updateVote).toHaveBeenCalledTimes(2)
+
+  fireEvent.click(getByText(candidate2.name).closest('label')!)
+  expect(updateVote).toHaveBeenCalledTimes(3)
+})
+
+it(`doesn't allow other candidates to be selected when 1 of 1 candidates have been selected`, () => {
+  const updateVote = jest.fn()
+  const { container, getByText, queryByText } = render(
     <CandidateContest
-      contest={electionSample.contests[0] as CandidateContestInterface}
-      vote={undefined}
+      contest={contest}
+      vote={[candidate0]}
       updateVote={updateVote}
     />
   )
-
-  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
-  expect(updateVote).toHaveBeenCalledTimes(1)
-
-  fireEvent.click(getByText(contest0Candidate1).closest('label')!)
-  expect(updateVote).toHaveBeenCalledTimes(2)
-
-  fireEvent.click(getByText(contest0Candidate2).closest('label')!)
-  expect(updateVote).toHaveBeenCalledTimes(3)
-
   expect(container).toMatchSnapshot()
 
-  // TODO: Why doesn't axe work when used in two tests in the same file?
-  // expect(await axe(container.innerHTML)).toHaveNoViolations()
-  // See tests below… which are used instead of the above line
+  const candidate0Input = getByText(candidate0.name)
+    .closest('label')!
+    .querySelector('input')!
+  expect(candidate0Input.disabled).toBeFalsy()
+  expect(candidate0Input.checked).toBeTruthy()
+
+  const candidate1Input = getByText(candidate1.name)
+    .closest('label')!
+    .querySelector('input')!
+  expect(candidate1Input.disabled).toBeTruthy()
+  expect(candidate1Input.checked).toBeFalsy()
+
+  const candidate2Input = getByText(candidate2.name)
+    .closest('label')!
+    .querySelector('input')!
+  expect(candidate2Input.disabled).toBeTruthy()
+  expect(candidate2Input.checked).toBeFalsy()
+
+  expect(queryByText('add write-in candidate')).toBeFalsy()
+
+  fireEvent.click(getByText(candidate1.name).closest('label')!)
+  expect(updateVote).not.toHaveBeenCalled()
+
+  fireEvent.click(getByText(candidate2.name).closest('label')!)
+  expect(updateVote).not.toHaveBeenCalled()
+
+  fireEvent.click(getByText(candidate0.name).closest('label')!)
+  expect(updateVote).toHaveBeenCalled()
 })
 
-it(`doesn't allow other candidates to be selected when one candidate is selected`, () => {
+it(`allows another candidate to be selected when 1 of 2 have been selected`, () => {
+  const updateVote = jest.fn()
+  const { container, getByText, queryByText } = render(
+    <CandidateContest
+      contest={{ ...contest, seats: 2 }}
+      vote={[candidate0]}
+      updateVote={updateVote}
+    />
+  )
+  expect(container).toMatchSnapshot()
+
+  const candidate0Input = getByText(candidate0.name)
+    .closest('label')!
+    .querySelector('input')!
+  expect(candidate0Input.disabled).toBeFalsy()
+  expect(candidate0Input.checked).toBeTruthy()
+
+  const candidate1Input = getByText(candidate1.name)
+    .closest('label')!
+    .querySelector('input')!
+  expect(candidate1Input.disabled).toBeFalsy()
+  expect(candidate1Input.checked).toBeFalsy()
+
+  const candidate2Input = getByText(candidate2.name)
+    .closest('label')!
+    .querySelector('input')!
+  expect(candidate2Input.disabled).toBeFalsy()
+  expect(candidate2Input.checked).toBeFalsy()
+
+  expect(queryByText('add write-in candidate')).toBeTruthy()
+
+  fireEvent.click(getByText(candidate1.name).closest('label')!)
+  expect(updateVote).toHaveBeenCalled()
+
+  fireEvent.click(getByText(candidate2.name).closest('label')!)
+  expect(updateVote).toHaveBeenCalled()
+
+  fireEvent.click(getByText(candidate0.name).closest('label')!)
+  expect(updateVote).toHaveBeenCalled()
+})
+
+const contestWithWriteIns = electionSample.contests.find(
+  c => !!c.allowWriteIns && c.type === 'candidate'
+) as CandidateContestInterface
+it(`displays warning if write-in candidate name is too long`, () => {
   const updateVote = jest.fn()
   const { container, getByText } = render(
     <CandidateContest
-      contest={contest0}
-      vote={contest0.candidates[0]}
+      contest={contestWithWriteIns}
+      vote={[]}
       updateVote={updateVote}
     />
   )
-  expect(container).toMatchSnapshot()
-
-  const Candidate0Input = getByText(contest0Candidate0)
-    .closest('label')!
-    .querySelector('input')!
-  expect(Candidate0Input.disabled).toBeFalsy()
-  expect(Candidate0Input.checked).toBeTruthy()
-
-  const Candidate1Input = getByText(contest0Candidate1)
-    .closest('label')!
-    .querySelector('input')!
-  expect(Candidate1Input.disabled).toBeTruthy()
-  expect(Candidate1Input.checked).toBeFalsy()
-
-  const Candidate2Input = getByText(contest0Candidate2)
-    .closest('label')!
-    .querySelector('input')!
-  expect(Candidate2Input.disabled).toBeTruthy()
-  expect(Candidate2Input.checked).toBeFalsy()
-
-  fireEvent.click(getByText(contest0Candidate1).closest('label')!)
-  expect(updateVote).not.toHaveBeenCalled()
-
-  fireEvent.click(getByText(contest0Candidate2).closest('label')!)
-  expect(updateVote).not.toHaveBeenCalled()
-
-  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
-  expect(updateVote).toHaveBeenCalled()
-
-  // TODO: Why doesn't axe work when used in two tests in the same file?
-  // expect(await axe(container.innerHTML)).toHaveNoViolations()
-  // See tests below… which are used instead of the above line
-})
-
-it(`displays warning if write-in candidate name is too long`, () => {
-  const updateVote = jest.fn()
-  const { getByText } = render(
-    <CandidateContest
-      contest={electionSample.contests[0] as CandidateContestInterface}
-      vote={undefined}
-      updateVote={updateVote}
-    />
-  )
-  fireEvent.click(getByText('add a write-in candidate').closest('label')!)
+  fireEvent.click(getByText('add write-in candidate').closest('button')!)
   expect(getByText('Write-In Candidate')).toBeTruthy()
   Array.from('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT').forEach(i => {
     const key = i === ' ' ? 'space' : i
@@ -99,36 +157,5 @@ it(`displays warning if write-in candidate name is too long`, () => {
   expect(
     getByText('You have entered 37 of maximum 40 characters.')
   ).toBeTruthy()
+  expect(container).toMatchSnapshot()
 })
-
-// TODO: Update this test to pass.
-// - Failed when ReactModal was added with Modal component.
-// - Error: "NotFoundError: The object can not be found here."
-// - It is unclear what is causing this error.
-// it(`accessible when no candidate is selected`, async () => {
-//   const updateVote = jest.fn()
-//   const { container } = render(
-//     <CandidateContest
-//       contest={electionSample.contests[0]}
-//       vote=""
-//       updateVote={updateVote}
-//     />
-//   )
-//   expect(await axe(container.innerHTML)).toHaveNoViolations()
-// })
-
-// TODO: Update this test to pass.
-// - Failed when ReactModal was added with Modal component.
-// - Error: "NotFoundError: The object can not be found here."
-// - It is unclear what is causing this error.
-// it(`accessible when one candidate is selected`, async () => {
-//   const updateVote = jest.fn()
-//   const { container } = render(
-//     <CandidateContest
-//       contest={electionSample.contests[0]}
-//       vote={'Minnie Mouse'}
-//       updateVote={updateVote}
-//     />
-//   )
-//   expect(await axe(container.innerHTML)).toHaveNoViolations()
-// })

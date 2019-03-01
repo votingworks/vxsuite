@@ -51,6 +51,7 @@
   "dependencies": {
     "@types/jest": "23.3.11",
     "@types/jest-axe": "^2.2.2",
+    "@types/lodash.camelcase": "^4.3.5",
     "@types/lodash.merge": "^4.6.5",
     "@types/mousetrap": "^1.6.1",
     "@types/node": "10.12.18",
@@ -61,6 +62,7 @@
     "@types/react-router-dom": "^4.3.1",
     "@types/react-transition-group": "^2.0.15",
     "@types/styled-components": "^4.1.6",
+    "lodash.camelcase": "^4.3.0",
     "lodash.merge": "^4.6.1",
     "mousetrap": "^1.6.2",
     "normalize.css": "^8.0.1",

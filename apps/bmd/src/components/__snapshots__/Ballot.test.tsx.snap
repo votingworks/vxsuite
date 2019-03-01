@@ -628,6 +628,10 @@ exports[`can navigate all ballot pages 3`] = `
   transition: background 0.25s,color 0.25s;
 }
 
+button.c6 {
+  text-align: left;
+}
+
 .c6:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
@@ -746,7 +750,9 @@ exports[`can navigate all ballot pages 3`] = `
             </h1>
             <p>
               <strong>
-                Vote for 1.
+                Vote for 
+                1
+                .
               </strong>
                You have selected
                
@@ -912,25 +918,6 @@ exports[`can navigate all ballot pages 3`] = `
               </span>
               <br />
               Labor
-            </div>
-          </label>
-          <label
-            class="c6"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden c7"
-              id="writeInCandidate"
-              name="president"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="c4"
-            >
-              <em>
-                add a write-in candidate
-              </em>
             </div>
           </label>
         </div>
@@ -1207,6 +1194,10 @@ exports[`can navigate all ballot pages 4`] = `
   transition: background 0.25s,color 0.25s;
 }
 
+button.c4 {
+  text-align: left;
+}
+
 .c4:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
@@ -1296,7 +1287,9 @@ exports[`can navigate all ballot pages 4`] = `
             </h1>
             <p>
               <strong>
-                Vote for 1.
+                Vote for 
+                1
+                .
               </strong>
                You have selected
                
@@ -1488,25 +1481,6 @@ exports[`can navigate all ballot pages 4`] = `
               </span>
               <br />
               Independent
-            </div>
-          </label>
-          <label
-            class="c4"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden c5"
-              id="writeInCandidate"
-              name="senate"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="c2"
-            >
-              <em>
-                add a write-in candidate
-              </em>
             </div>
           </label>
         </div>
@@ -2495,13 +2469,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2536,13 +2509,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2577,13 +2549,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2618,13 +2589,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2659,13 +2629,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2700,13 +2669,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2741,13 +2709,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2782,13 +2749,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2823,13 +2789,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2837,7 +2802,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                State Assembly
+                Registrar of Wills
                 <span
                   class="visually-hidden"
                 >
@@ -2845,7 +2810,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change State Assembly"
+                aria-label="Change Registrar of Wills"
                 class="no-print change-button c9"
                 type="button"
               >
@@ -2864,13 +2829,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2905,13 +2869,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2946,13 +2909,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -2987,13 +2949,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -3028,13 +2989,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -3069,13 +3029,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -3110,13 +3069,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -3151,13 +3109,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -3192,13 +3149,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -3233,13 +3189,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
             <dt
               class="c7"
@@ -3274,13 +3229,12 @@ exports[`can navigate all ballot pages 7`] = `
                 class="c11"
               >
                 [no selection]
+                <span
+                  class="visually-hidden"
+                >
+                  .
+                </span>
               </strong>
-               
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
             </dd>
           </dl>
         </div>
@@ -3509,6 +3463,10 @@ exports[`can navigate all ballot pages 8`] = `
   transition: background 0.25s,color 0.25s;
 }
 
+button.c6 {
+  text-align: left;
+}
+
 .c6:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
@@ -3627,7 +3585,9 @@ exports[`can navigate all ballot pages 8`] = `
             </h1>
             <p>
               <strong>
-                Vote for 1.
+                Vote for 
+                1
+                .
               </strong>
                You have selected
                
@@ -3819,25 +3779,6 @@ exports[`can navigate all ballot pages 8`] = `
               </span>
               <br />
               Independent
-            </div>
-          </label>
-          <label
-            class="c6"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden c7"
-              id="writeInCandidate"
-              name="senate"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="c4"
-            >
-              <em>
-                add a write-in candidate
-              </em>
             </div>
           </label>
         </div>
@@ -4225,6 +4166,10 @@ exports[`redirects contests index to first contest 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
+button.c7 {
+  text-align: left;
+}
+
 .c7:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
@@ -4391,7 +4336,9 @@ exports[`redirects contests index to first contest 1`] = `
             </h1>
             <p>
               <strong>
-                Vote for 1.
+                Vote for 
+                1
+                .
               </strong>
                You have selected
                
@@ -4557,25 +4504,6 @@ exports[`redirects contests index to first contest 1`] = `
               </span>
               <br />
               Labor
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden c8"
-              id="writeInCandidate"
-              name="president"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="c5"
-            >
-              <em>
-                add a write-in candidate
-              </em>
             </div>
           </label>
         </div>

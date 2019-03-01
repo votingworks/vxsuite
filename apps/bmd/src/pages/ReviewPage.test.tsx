@@ -1,14 +1,22 @@
-import { axe } from 'jest-axe'
 import React from 'react'
 import { Route } from 'react-router-dom'
 
+import { CandidateContest } from '../config/types'
+
 import { render } from '../../test/testUtils'
 
-import SummaryPage from './ReviewPage'
+import electionSample from '../data/electionSample.json'
 
-it(`renders SummaryPage without votes`, () => {
+const contest0 = electionSample.contests[0] as CandidateContest
+const contest1 = electionSample.contests[1] as CandidateContest
+const contest0candidate0 = contest0.candidates[0]
+const contest1candidate0 = contest1.candidates[0]
+
+import ReviewPage from './ReviewPage'
+
+it(`renders ReviewPage without votes`, () => {
   const { container } = render(
-    <Route path="/review" component={SummaryPage} />,
+    <Route path="/review" component={ReviewPage} />,
     {
       route: '/review',
     }
@@ -16,44 +24,16 @@ it(`renders SummaryPage without votes`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-fit(`renders SummaryPage with votes`, () => {
+it(`renders ReviewPage with votes`, () => {
   const { container } = render(
-    <Route path="/review" component={SummaryPage} />,
+    <Route path="/review" component={ReviewPage} />,
     {
       route: '/review',
       votes: {
-        president: 'Minnie Mouse',
-        senator: 'John Smith',
+        president: [contest0candidate0],
+        senator: [contest1candidate0],
       },
     }
   )
   expect(container.firstChild).toMatchSnapshot()
-})
-
-it(`SummaryPage without votes is accessible`, async () => {
-  const resetBallot = jest.fn()
-  const { container } = render(
-    <Route path="/review" component={SummaryPage} />,
-    {
-      resetBallot,
-      route: '/review',
-    }
-  )
-  expect(await axe(container.innerHTML)).toHaveNoViolations()
-})
-
-it(`SummaryPage with votes is accessible`, async () => {
-  const resetBallot = jest.fn()
-  const { container } = render(
-    <Route path="/review" component={SummaryPage} />,
-    {
-      resetBallot,
-      route: '/review',
-      votes: {
-        president: 'Minnie Mouse',
-        senator: 'John Smith',
-      },
-    }
-  )
-  expect(await axe(container.innerHTML)).toHaveNoViolations()
 })

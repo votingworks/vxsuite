@@ -14,13 +14,16 @@ export interface Candidate {
   readonly id: string
   readonly name: string
   readonly party?: string
+  isWriteIn?: boolean
 }
 export type OptionalCandidate = Candidate | undefined
-export type VoteDict = Dictionary<OptionalCandidate>
+export type Vote = Candidate[] // will eventually add "| Approval" to this type
+export type OptionalVote = Candidate[] | undefined
+export type VotesDict = Dictionary<Vote>
 export interface Contest {
   readonly id: string
-  readonly title: string
   readonly section?: string
+  readonly title: string
   readonly type: string
 }
 export interface CandidateContest extends Contest {
@@ -51,16 +54,13 @@ export interface Election {
   readonly bmdConfig?: BMDConfig
 }
 export type OptionalElection = Election | undefined
-export type UpdateVoteFunction = (
-  contestId: string,
-  candidate: OptionalCandidate
-) => void
+export type UpdateVoteFunction = (contestId: string, vote: Vote) => void
 export interface BallotContextInterface {
   readonly election: Election | undefined
   resetBallot: () => void
   setBallotKey: (activationCode: string) => void
   updateVote: UpdateVoteFunction
-  votes: VoteDict
+  votes: VotesDict
 }
 
 export default {}
