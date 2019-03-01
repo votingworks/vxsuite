@@ -182,6 +182,11 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getAllByText('Change')[1])
   getByText(Q2.title)
 
+  // advance through remaining questions to ensure we get full code coverage
+  for (let i = 0; i < electionSample.contests.length - 2; i++) {
+    fireEvent.click(getByText('Next'))
+  }
+
   fireEvent.click(getByText('Review'))
   getByText('Official Ballot')
 
