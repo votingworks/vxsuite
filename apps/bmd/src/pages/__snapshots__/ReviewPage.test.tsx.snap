@@ -649,6 +649,662 @@ exports[`renders SummaryPage with votes 1`] = `
               .
             </span>
           </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Lieutenant Governor
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Lieutenant Governor"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Secretary of State
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Secretary of State"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              State Senator
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change State Senator"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              State Assembly
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change State Assembly"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              County Commissioners
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change County Commissioners"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              State Assembly
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change State Assembly"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Mayor
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Mayor"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              City Council
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change City Council"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Retain Robert Demergue as Chief Justice of the Supreme Court?
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Retain Robert Demergue as Chief Justice of the Supreme Court?"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Retain Elmer Hull as Associate Justice of the Supreme Court?
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Retain Elmer Hull as Associate Justice of the Supreme Court?"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Question A: Recovery of Damages
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Question A: Recovery of Damages"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Question B: Separation of Powers
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Question B: Separation of Powers"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Question C: Limits to Damages for Noneconomic Loss
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Question C: Limits to Damages for Noneconomic Loss"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Proposition 1: Gambling
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Proposition 1: Gambling"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Measure 101: College District
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Measure 101: College District"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              class="c8"
+            >
+              Measure 102: Vehicle Abatement Program
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+            </span>
+            <button
+              aria-label="Change Measure 102: Vehicle Abatement Program"
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+            <span
+              class="visually-hidden"
+            >
+              ,
+            </span>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              class="c11"
+            >
+              [no selection]
+            </strong>
+             
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
+          </dd>
         </dl>
       </div>
       <div

@@ -147,7 +147,7 @@ class SeatContest extends React.Component<Props, State> {
     this.selectCandidate(
       targetIsSelected
         ? undefined
-        : contest.candidates.find(candidate => candidate.id === value)
+        : contest.candidates!.find(candidate => candidate.id === value)
     )
   }
 
@@ -242,7 +242,7 @@ class SeatContest extends React.Component<Props, State> {
             </Prose>
           </Legend>
           <Choices>
-            {contest.candidates.map((candidate, index) => {
+            {contest.candidates!.map((candidate, index) => {
               const isChecked = !!vote && candidate.name === vote.name
               const handleDisabledClick = () => {
                 if (vote && !isChecked) {

@@ -20,9 +20,11 @@ export type VoteDict = Dictionary<OptionalCandidate>
 export interface Contest {
   readonly id: string
   readonly title: string
+  readonly description?: string
   readonly section?: string
+  readonly seats?: number
   readonly type: string // TODO: convert to enum: VotingMethod { 'plurality' | 'approval' }
-  readonly candidates: Candidate[]
+  readonly candidates?: Candidate[]
 }
 export interface BMDConfig {
   readonly requireActivation?: boolean

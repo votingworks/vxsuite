@@ -224,7 +224,7 @@ exports[`displays accessible error if no id match 1`] = `
     >
       0
        of 
-      4
+      20
     </p>
   </nav>
   <nav
@@ -1294,7 +1294,7 @@ exports[`renders ContestPage 1`] = `
     >
       1
        of 
-      4
+      20
     </p>
   </nav>
   <nav
@@ -1546,7 +1546,7 @@ exports[`renders error if no id match 1`] = `
     >
       0
        of 
-      4
+      20
     </p>
   </nav>
   <nav
