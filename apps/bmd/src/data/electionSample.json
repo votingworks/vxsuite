@@ -376,6 +376,7 @@
       "type": "plurality",
       "section": "County",
       "title": "County Commissioners",
+      "seats": 4,
       "candidates": [
         {
           "id": "argent",
@@ -493,6 +494,7 @@
       "type": "plurality",
       "section": "City of Springfield",
       "title": "City Council",
+      "seats": 3,
       "candidates": [
         {
           "id": "eagle",

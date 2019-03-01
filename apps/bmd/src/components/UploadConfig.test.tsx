@@ -2,7 +2,7 @@ import { axe } from 'jest-axe'
 import React from 'react'
 import { fireEvent, render, waitForElement } from 'react-testing-library'
 
-import goodElectionFile from '../../public/data/election.json'
+import goodElectionFile from '../data/election.json'
 
 import UploadConfig from './UploadConfig'
 

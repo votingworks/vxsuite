@@ -149,7 +149,7 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
         class="c2"
       >
         <h1>
-          President
+          President and Vice-President of the United States
           <span
             class="visually-hidden"
           >
@@ -172,20 +172,20 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
     >
       <label
         class="c4"
-        for="minnieMouse"
+        for="barchi-hallaren"
       >
         <input
           class="visually-hidden c5"
-          id="minnieMouse"
+          id="barchi-hallaren"
           name="president"
           type="checkbox"
-          value="minnieMouse"
+          value="barchi-hallaren"
         />
         <div
           class="c2"
         >
           <strong>
-            Minnie Mouse
+            Joseph Barchi and Joseph Hallaren
           </strong>
           <span
             class="visually-hidden"
@@ -193,25 +193,25 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
             ,
           </span>
           <br />
-          Mouse
+          Federalist
         </div>
       </label>
       <label
         class="c4"
-        for="mickeyMouse"
+        for="cramer-vuocolo"
       >
         <input
           class="visually-hidden c5"
-          id="mickeyMouse"
+          id="cramer-vuocolo"
           name="president"
           type="checkbox"
-          value="mickeyMouse"
+          value="cramer-vuocolo"
         />
         <div
           class="c2"
         >
           <strong>
-            Mickey Mouse
+            Adam Cramer and Greg Vuocolo
           </strong>
           <span
             class="visually-hidden"
@@ -219,25 +219,25 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
             ,
           </span>
           <br />
-          Mouse
+          People's
         </div>
       </label>
       <label
         class="c4"
-        for="donaldDuck"
+        for="court-blumhardt"
       >
         <input
           class="visually-hidden c5"
-          id="donaldDuck"
+          id="court-blumhardt"
           name="president"
           type="checkbox"
-          value="donaldDuck"
+          value="court-blumhardt"
         />
         <div
           class="c2"
         >
           <strong>
-            Donald Duck
+            Daniel Court and Amy Blumhardt
           </strong>
           <span
             class="visually-hidden"
@@ -245,7 +245,85 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
             ,
           </span>
           <br />
-          Duck
+          Liberty
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="boone-lian"
+      >
+        <input
+          class="visually-hidden c5"
+          id="boone-lian"
+          name="president"
+          type="checkbox"
+          value="boone-lian"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Alvin Boone and James Lian
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Constitution
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="hildebrand-garritty"
+      >
+        <input
+          class="visually-hidden c5"
+          id="hildebrand-garritty"
+          name="president"
+          type="checkbox"
+          value="hildebrand-garritty"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Ashley Hildebrand-MacDougall and James Garritty
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Whig
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="patterson-lariviere"
+      >
+        <input
+          class="visually-hidden c5"
+          id="patterson-lariviere"
+          name="president"
+          type="checkbox"
+          value="patterson-lariviere"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Martin Patterson and Clay Lariviere
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Labor
         </div>
       </label>
       <label
@@ -480,7 +558,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         class="c2"
       >
         <h1>
-          President
+          President and Vice-President of the United States
           <span
             class="visually-hidden"
           >
@@ -503,21 +581,21 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
     >
       <label
         class="c4"
-        for="minnieMouse"
+        for="barchi-hallaren"
       >
         <input
           checked=""
           class="visually-hidden c5"
-          id="minnieMouse"
+          id="barchi-hallaren"
           name="president"
           type="checkbox"
-          value="minnieMouse"
+          value="barchi-hallaren"
         />
         <div
           class="c2"
         >
           <strong>
-            Minnie Mouse
+            Joseph Barchi and Joseph Hallaren
           </strong>
           <span
             class="visually-hidden"
@@ -525,26 +603,26 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
             ,
           </span>
           <br />
-          Mouse
+          Federalist
         </div>
       </label>
       <label
         class="c6"
-        for="mickeyMouse"
+        for="cramer-vuocolo"
       >
         <input
           class="visually-hidden c5"
           disabled=""
-          id="mickeyMouse"
+          id="cramer-vuocolo"
           name="president"
           type="checkbox"
-          value="mickeyMouse"
+          value="cramer-vuocolo"
         />
         <div
           class="c2"
         >
           <strong>
-            Mickey Mouse
+            Adam Cramer and Greg Vuocolo
           </strong>
           <span
             class="visually-hidden"
@@ -552,26 +630,26 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
             ,
           </span>
           <br />
-          Mouse
+          People's
         </div>
       </label>
       <label
         class="c6"
-        for="donaldDuck"
+        for="court-blumhardt"
       >
         <input
           class="visually-hidden c5"
           disabled=""
-          id="donaldDuck"
+          id="court-blumhardt"
           name="president"
           type="checkbox"
-          value="donaldDuck"
+          value="court-blumhardt"
         />
         <div
           class="c2"
         >
           <strong>
-            Donald Duck
+            Daniel Court and Amy Blumhardt
           </strong>
           <span
             class="visually-hidden"
@@ -579,7 +657,88 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
             ,
           </span>
           <br />
-          Duck
+          Liberty
+        </div>
+      </label>
+      <label
+        class="c6"
+        for="boone-lian"
+      >
+        <input
+          class="visually-hidden c5"
+          disabled=""
+          id="boone-lian"
+          name="president"
+          type="checkbox"
+          value="boone-lian"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Alvin Boone and James Lian
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Constitution
+        </div>
+      </label>
+      <label
+        class="c6"
+        for="hildebrand-garritty"
+      >
+        <input
+          class="visually-hidden c5"
+          disabled=""
+          id="hildebrand-garritty"
+          name="president"
+          type="checkbox"
+          value="hildebrand-garritty"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Ashley Hildebrand-MacDougall and James Garritty
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Whig
+        </div>
+      </label>
+      <label
+        class="c6"
+        for="patterson-lariviere"
+      >
+        <input
+          class="visually-hidden c5"
+          disabled=""
+          id="patterson-lariviere"
+          name="president"
+          type="checkbox"
+          value="patterson-lariviere"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Martin Patterson and Clay Lariviere
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Labor
         </div>
       </label>
       <label
