@@ -8,6 +8,16 @@ import App, { electionKey, mergeWithDefaults } from './App'
 
 const electionSampleAsString = JSON.stringify(mergeWithDefaults(electionSample))
 
+const Q1 = electionSample.contests[0]!
+const Q1Candidate1 = Q1.candidates[0]!.name
+const Q1Candidate2 = Q1.candidates[1]!.name
+const Q1Candidate3 = Q1.candidates[2]!.name
+
+const Q2 = electionSample.contests[1]!
+const Q2Candidate1 = Q2.candidates[0]!.name
+const Q2Candidate2 = Q2.candidates[1]!.name
+const Q2Candidate3 = Q2.candidates[2]!.name
+
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
@@ -133,34 +143,36 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getByText('Get Started'))
   expect(container.firstChild).toMatchSnapshot()
 
-  await waitForElement(() => getByText('President'))
-  fireEvent.click(getByText('Minnie Mouse').closest('label')!)
-  fireEvent.click(getByText('Mickey Mouse').closest('label')!)
+  await waitForElement(() => getByText(Q1.title))
+  fireEvent.click(getByText(Q1Candidate1).closest('label')!)
+  fireEvent.click(getByText(Q1Candidate2).closest('label')!)
   expect(container.firstChild).toMatchSnapshot()
   getByText(
-    'To vote for Mickey Mouse, first uncheck the vote for Minnie Mouse.'
+    `To vote for ${Q1Candidate2}, first uncheck the vote for ${Q1Candidate1}.`
   )
   fireEvent.click(getByText('Okay'))
   expect(
-    (getByText('Minnie Mouse')
+    (getByText(Q1Candidate1)
       .closest('label')!
       .querySelector('input') as HTMLInputElement).checked
   ).toBeTruthy()
   fireEvent.click(getByText('Next'))
   expect(container.firstChild).toMatchSnapshot()
 
-  fireEvent.click(getByText('John Smith').closest('label')!)
-  fireEvent.click(getByText('Chad Hanging').closest('label')!)
+  fireEvent.click(getByText(Q2Candidate3).closest('label')!)
+  fireEvent.click(getByText(Q2Candidate1).closest('label')!)
   expect(container.firstChild).toMatchSnapshot()
-  getByText('To vote for Chad Hanging, first uncheck the vote for John Smith.')
+  getByText(
+    `To vote for ${Q2Candidate1}, first uncheck the vote for ${Q2Candidate3}.`
+  )
   fireEvent.click(getByText('Okay'))
   fireEvent.click(getByText('add a write-in candidate').closest('label')!)
   getByText(
-    'To vote for a write-in candidate, first uncheck the vote for John Smith.'
+    `To vote for a write-in candidate, first uncheck the vote for ${Q2Candidate3}.`
   )
   fireEvent.click(getByText('Okay'))
   expect(
-    (getByText('John Smith')
+    (getByText(Q2Candidate3)
       .closest('label')!
       .querySelector('input') as HTMLInputElement).checked
   ).toBeTruthy()
@@ -168,15 +180,15 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.click(getAllByText('Change')[1])
-  getByText('Senator')
+  getByText(Q2.title)
 
   fireEvent.click(getByText('Review'))
   getByText('Official Ballot')
 
   fireEvent.click(getAllByText('Change')[0])
-  getByText('President')
+  getByText(Q1.title)
 
-  fireEvent.click(getByText('Minnie Mouse').closest('label')!)
+  fireEvent.click(getByText(Q1Candidate1).closest('label')!)
   fireEvent.click(getByText('add a write-in candidate').closest('label')!)
   fireEvent.click(getByText('Close'))
   fireEvent.click(getByText('add a write-in candidate').closest('label')!)
@@ -202,8 +214,8 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
 
   fireEvent.click(getByText('BOBBY').closest('label')!)
   fireEvent.click(getByText('Accept'))
-  fireEvent.click(getByText('Minnie Mouse').closest('label')!)
-  getByText('To vote for Minnie Mouse, first uncheck the vote for BOBBY.')
+  fireEvent.click(getByText(Q1Candidate1).closest('label')!)
+  getByText(`To vote for ${Q1Candidate1}, first uncheck the vote for BOBBY.`)
   fireEvent.click(getByText('Okay'))
 
   fireEvent.click(getByText('Review'))
@@ -243,7 +255,7 @@ describe('can start over', () => {
     // TODO: replace next line with "Enter" keyDown on activation code input
     fireEvent.click(getByText('Submit'))
     fireEvent.click(getByText('Get Started'))
-    fireEvent.click(getByText('Minnie Mouse').closest('label')!)
+    fireEvent.click(getByText(Q1Candidate1).closest('label')!)
     fireEvent.click(getByText('Settings'))
     fireEvent.click(getByText('Start Over'))
     fireEvent.click(getByText('Cancel'))
