@@ -1,16 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`allows file to be uploaded via drag and drop 1`] = `
-.c5 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
 }
 
 .c3 {
@@ -52,15 +65,16 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
   margin-bottom: 0;
 }
 
-.c0 {
-  height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+.c5 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .c4 {
@@ -68,28 +82,8 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
   font-size: 0.8rem;
 }
 
-.c1 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: scroll;
-}
-
 .c2 {
   padding: 1rem;
-}
-
-@media (min-width:480px) {
-  .c3 {
-    line-height: 1.3;
-  }
 }
 
 @media print {
@@ -99,6 +93,12 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
     -ms-flex-pack: start;
     justify-content: flex-start;
     padding: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c3 {
+    line-height: 1.3;
   }
 }
 
@@ -147,16 +147,29 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
 `;
 
 exports[`allows file to be uploaded via file input 1`] = `
-.c5 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
 }
 
 .c3 {
@@ -198,15 +211,16 @@ exports[`allows file to be uploaded via file input 1`] = `
   margin-bottom: 0;
 }
 
-.c0 {
-  height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+.c5 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .c4 {
@@ -214,28 +228,8 @@ exports[`allows file to be uploaded via file input 1`] = `
   font-size: 0.8rem;
 }
 
-.c1 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: scroll;
-}
-
 .c2 {
   padding: 1rem;
-}
-
-@media (min-width:480px) {
-  .c3 {
-    line-height: 1.3;
-  }
 }
 
 @media print {
@@ -245,6 +239,12 @@ exports[`allows file to be uploaded via file input 1`] = `
     -ms-flex-pack: start;
     justify-content: flex-start;
     padding: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c3 {
+    line-height: 1.3;
   }
 }
 
