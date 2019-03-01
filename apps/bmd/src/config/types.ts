@@ -25,6 +25,7 @@ export interface Contest {
   readonly seats?: number
   readonly type: string // TODO: convert to enum: VotingMethod { 'plurality' | 'approval' }
   readonly candidates?: Candidate[]
+  readonly writeIns?: boolean
 }
 export interface BMDConfig {
   readonly requireActivation?: boolean

@@ -40,7 +40,8 @@
           "name": "Martin Patterson and Clay Lariviere",
           "party": "Labor"
         }
-      ]
+      ],
+      "writeIns": false
     },
     {
       "id": "senate",
@@ -83,7 +84,8 @@
           "name": "David Pound",
           "party": "Independent"
         }
-      ]
+      ],
+      "writeIns": false
     },
     {
       "id": "congress",
@@ -116,7 +118,8 @@
           "name": "Carroll Forrest",
           "party": "Whig"
         }
-      ]
+      ],
+      "writeIns": false
     },
     {
       "id": "governor",
@@ -254,7 +257,8 @@
           "name": "Glenn Chandler",
           "party": "Independent"
         }
-      ]
+      ],
+      "writeIns": false
     },
     {
       "id": "lieutenant-governor",
@@ -307,7 +311,8 @@
           "name": "Paul Swan",
           "party": "Independent"
         }
-      ]
+      ],
+      "writeIns": false
     },
     {
       "id": "sos",
@@ -325,7 +330,8 @@
           "name": "Marty Talarico",
           "party": "People's"
         }
-      ]
+      ],
+      "writeIns": false
     },
     {
       "id": "state-senator",
@@ -338,7 +344,8 @@
           "name": "Edward Shiplett",
           "party": "Constitution"
         }
-      ]
+      ],
+      "writeIns": false
     },
     {
       "id": "state-assembly",
@@ -361,7 +368,8 @@
           "name": "Davitra Rangel",
           "party": "Liberty"
         }
-      ]
+      ],
+      "writeIns": false
     },
     {
       "id": "county-commissioners",
@@ -444,7 +452,8 @@
           "name": "Martin Schreiner",
           "party": "Independent"
         }
-      ]
+      ],
+      "writeIns": true
     },
     {
       "id": "registrar-of-wills",
@@ -457,7 +466,8 @@
           "name": "Rhadka Ramachandrani",
           "party": "Independent"
         }
-      ]
+      ],
+      "writeIns": true
     },
     {
       "id": "mayor",
@@ -475,7 +485,8 @@
           "name": "Gregory Seldon",
           "party": "Liberty"
         }
-      ]
+      ],
+      "writeIns": true
     },
     {
       "id": "city-council",
@@ -513,7 +524,8 @@
           "name": "Hugo Smith",
           "party": "People's"
         }
-      ]
+      ],
+      "writeIns": true
     },
     {
       "id": "judicial-retention",
