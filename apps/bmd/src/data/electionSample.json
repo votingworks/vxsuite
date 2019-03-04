@@ -41,7 +41,7 @@
           "party": "Labor"
         }
       ],
-      "writeIns": false
+      "allowWriteIns": false
     },
     {
       "id": "senate",
@@ -85,7 +85,7 @@
           "party": "Independent"
         }
       ],
-      "writeIns": false
+      "allowWriteIns": false
     },
     {
       "id": "congress",
@@ -119,7 +119,7 @@
           "party": "Whig"
         }
       ],
-      "writeIns": false
+      "allowWriteIns": false
     },
     {
       "id": "governor",
@@ -258,7 +258,7 @@
           "party": "Independent"
         }
       ],
-      "writeIns": false
+      "allowWriteIns": false
     },
     {
       "id": "lieutenant-governor",
@@ -312,7 +312,7 @@
           "party": "Independent"
         }
       ],
-      "writeIns": false
+      "allowWriteIns": false
     },
     {
       "id": "sos",
@@ -331,7 +331,7 @@
           "party": "People's"
         }
       ],
-      "writeIns": false
+      "allowWriteIns": false
     },
     {
       "id": "state-senator",
@@ -345,7 +345,7 @@
           "party": "Constitution"
         }
       ],
-      "writeIns": false
+      "allowWriteIns": false
     },
     {
       "id": "state-assembly",
@@ -369,7 +369,7 @@
           "party": "Liberty"
         }
       ],
-      "writeIns": false
+      "allowWriteIns": false
     },
     {
       "id": "county-commissioners",
@@ -454,7 +454,7 @@
           "party": "Independent"
         }
       ],
-      "writeIns": true
+      "allowWriteIns": true
     },
     {
       "id": "registrar-of-wills",
@@ -468,7 +468,7 @@
           "party": "Independent"
         }
       ],
-      "writeIns": true
+      "allowWriteIns": true
     },
     {
       "id": "mayor",
@@ -487,7 +487,7 @@
           "party": "Liberty"
         }
       ],
-      "writeIns": true
+      "allowWriteIns": true
     },
     {
       "id": "city-council",
@@ -527,7 +527,7 @@
           "party": "People's"
         }
       ],
-      "writeIns": true
+      "allowWriteIns": true
     },
     {
       "id": "judicial-retention",
