@@ -13,10 +13,10 @@ const contest0Candidate0 = contest0.candidates[0]!.name
 const contest0Candidate1 = contest0.candidates[1]!.name
 const contest0Candidate2 = contest0.candidates[2]!.name
 
-const Q2 = electionSample.contests[1]!
-const Q2Candidate0 = Q2.candidates[0]!.name
-const Q2Candidate1 = Q2.candidates[1]!.name
-const Q2Candidate2 = Q2.candidates[2]!.name
+const contest1 = electionSample.contests[1]!
+const contest1Candidate0 = contest1.candidates[0]!.name
+const contest1Candidate1 = contest1.candidates[1]!.name
+const contest1Candidate2 = contest1.candidates[2]!.name
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -159,20 +159,20 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getByText('Next'))
   expect(container.firstChild).toMatchSnapshot()
 
-  fireEvent.click(getByText(Q2Candidate2).closest('label')!)
-  fireEvent.click(getByText(Q2Candidate0).closest('label')!)
+  fireEvent.click(getByText(contest1Candidate2).closest('label')!)
+  fireEvent.click(getByText(contest1Candidate0).closest('label')!)
   expect(container.firstChild).toMatchSnapshot()
   getByText(
-    `To vote for ${Q2Candidate0}, first uncheck the vote for ${Q2Candidate2}.`
+    `To vote for ${contest1Candidate0}, first uncheck the vote for ${contest1Candidate2}.`
   )
   fireEvent.click(getByText('Okay'))
   fireEvent.click(getByText('add a write-in candidate').closest('label')!)
   getByText(
-    `To vote for a write-in candidate, first uncheck the vote for ${Q2Candidate2}.`
+    `To vote for a write-in candidate, first uncheck the vote for ${contest1Candidate2}.`
   )
   fireEvent.click(getByText('Okay'))
   expect(
-    (getByText(Q2Candidate2)
+    (getByText(contest1Candidate2)
       .closest('label')!
       .querySelector('input') as HTMLInputElement).checked
   ).toBeTruthy()
@@ -180,7 +180,7 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.click(getAllByText('Change')[1])
-  getByText(Q2.title)
+  getByText(contest1.title)
 
   // advance through remaining questions to ensure we get full code coverage
   for (let i = 0; i < electionSample.contests.length - 2; i++) {
