@@ -19,12 +19,12 @@ export type OptionalCandidate = Candidate | undefined
 export type VoteDict = Dictionary<OptionalCandidate>
 export interface Contest {
   readonly id: string
+  readonly title: string
   readonly section?: string
   readonly type: string
 }
 export interface CandidateContest extends Contest {
   readonly type: 'candidate'
-  readonly title: string
   readonly seats: number
   readonly candidates: Candidate[]
   readonly allowWriteIns: boolean

@@ -542,12 +542,14 @@
     {
       "id": "judicial-retention",
       "type": "yesno",
-      "title": "Retain Robert Demergue as Chief Justice of the Supreme Court?"
+      "title": "Retention of Robert Demergue",
+      "description": "Retain Robert Demergue as Chief Justice of the Supreme Court?"
     },
     {
       "id": "judicial-retention-2",
       "type": "yesno",
-      "title": "Retain Elmer Hull as Associate Justice of the Supreme Court?"
+      "title": "Retention of Elmer Hull",
+      "description": "Retain Elmer Hull as Associate Justice of the Supreme Court?"
     },
     {
       "id": "question-a",
