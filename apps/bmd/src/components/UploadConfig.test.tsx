@@ -4,9 +4,10 @@ import { fireEvent, render, waitForElement } from 'react-testing-library'
 
 import electionSample from '../data/electionSample.json'
 
-import App, { electionKey, mergeWithDefaults } from '../App'
+import { mergeWithDefaults } from '../App'
+import { Election } from '../config/types'
 
-const goodElectionFile = mergeWithDefaults(electionSample)
+const goodElectionFile = mergeWithDefaults(electionSample as Election)
 
 import UploadConfig from './UploadConfig'
 

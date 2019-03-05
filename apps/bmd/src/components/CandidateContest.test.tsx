@@ -3,18 +3,20 @@ import React from 'react'
 import { fireEvent, render } from 'react-testing-library'
 
 import electionSample from '../data/electionSample.json'
-const contest0Candidates = electionSample.contests[0]!.candidates
+const contest0 = electionSample.contests[0]! as CandidateContestInterface
+const contest0Candidates = contest0.candidates
 const contest0Candidate0 = contest0Candidates[0]!.name
 const contest0Candidate1 = contest0Candidates[1]!.name
 const contest0Candidate2 = contest0Candidates[2]!.name
 
+import { CandidateContest as CandidateContestInterface } from '../config/types'
 import CandidateContest from './CandidateContest'
 
 it(`allows any candidate to be selected when no candidate is selected`, () => {
   const updateVote = jest.fn()
   const { container, getByText } = render(
     <CandidateContest
-      contest={electionSample.contests[0]}
+      contest={electionSample.contests[0] as CandidateContestInterface}
       vote={undefined}
       updateVote={updateVote}
     />
@@ -40,8 +42,8 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
   const updateVote = jest.fn()
   const { container, getByText } = render(
     <CandidateContest
-      contest={electionSample.contests[0]}
-      vote={electionSample.contests[0].candidates[0]}
+      contest={contest0}
+      vote={contest0.candidates[0]}
       updateVote={updateVote}
     />
   )
@@ -83,7 +85,7 @@ it(`displays warning if write-in candidate name is too long`, () => {
   const updateVote = jest.fn()
   const { getByText } = render(
     <CandidateContest
-      contest={electionSample.contests[0]}
+      contest={electionSample.contests[0] as CandidateContestInterface}
       vote={undefined}
       updateVote={updateVote}
     />

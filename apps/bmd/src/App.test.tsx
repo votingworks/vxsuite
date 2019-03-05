@@ -5,17 +5,21 @@ import { fireEvent, render, wait, waitForElement } from 'react-testing-library'
 import electionSample from './data/electionSample.json'
 
 import App, { electionKey, mergeWithDefaults } from './App'
+import {
+  CandidateContest as CandidateContestInterface,
+  Election,
+} from './config/types'
 
-const electionSampleAsString = JSON.stringify(mergeWithDefaults(electionSample))
+const electionSampleAsString = JSON.stringify(
+  mergeWithDefaults(electionSample as Election)
+)
 
-const contest0 = electionSample.contests[0]!
+const contest0 = electionSample.contests[0]! as CandidateContestInterface
 const contest0Candidate0 = contest0.candidates[0]!.name
 const contest0Candidate1 = contest0.candidates[1]!.name
-const contest0Candidate2 = contest0.candidates[2]!.name
 
-const contest1 = electionSample.contests[1]!
+const contest1 = electionSample.contests[1]! as CandidateContestInterface
 const contest1Candidate0 = contest1.candidates[0]!.name
-const contest1Candidate1 = contest1.candidates[1]!.name
 const contest1Candidate2 = contest1.candidates[2]!.name
 
 beforeEach(() => {
