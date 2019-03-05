@@ -3,10 +3,10 @@ import React from 'react'
 import { fireEvent, render } from 'react-testing-library'
 
 import electionSample from '../data/electionSample.json'
-const Q1Candidates = electionSample.contests[0]!.candidates
-const Q1Candidate1 = Q1Candidates[0]!.name
-const Q1Candidate2 = Q1Candidates[1]!.name
-const Q1Candidate3 = Q1Candidates[2]!.name
+const contest0Candidates = electionSample.contests[0]!.candidates
+const contest0Candidate0 = contest0Candidates[0]!.name
+const contest0Candidate1 = contest0Candidates[1]!.name
+const contest0Candidate2 = contest0Candidates[2]!.name
 
 import SeatContest from './SeatContest'
 
@@ -20,13 +20,13 @@ it(`allows any candidate to be selected when no candidate is selected`, () => {
     />
   )
 
-  fireEvent.click(getByText(Q1Candidate1).closest('label')!)
+  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
   expect(updateVote).toHaveBeenCalledTimes(1)
 
-  fireEvent.click(getByText(Q1Candidate2).closest('label')!)
+  fireEvent.click(getByText(contest0Candidate1).closest('label')!)
   expect(updateVote).toHaveBeenCalledTimes(2)
 
-  fireEvent.click(getByText(Q1Candidate3).closest('label')!)
+  fireEvent.click(getByText(contest0Candidate2).closest('label')!)
   expect(updateVote).toHaveBeenCalledTimes(3)
 
   expect(container).toMatchSnapshot()
@@ -47,31 +47,31 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
   )
   expect(container).toMatchSnapshot()
 
-  const Candidate1Input = getByText(Q1Candidate1)
+  const Candidate0Input = getByText(contest0Candidate0)
     .closest('label')!
     .querySelector('input')!
-  expect(Candidate1Input.disabled).toBeFalsy()
-  expect(Candidate1Input.checked).toBeTruthy()
+  expect(Candidate0Input.disabled).toBeFalsy()
+  expect(Candidate0Input.checked).toBeTruthy()
 
-  const Candidate2Input = getByText(Q1Candidate2)
+  const Candidate1Input = getByText(contest0Candidate1)
+    .closest('label')!
+    .querySelector('input')!
+  expect(Candidate1Input.disabled).toBeTruthy()
+  expect(Candidate1Input.checked).toBeFalsy()
+
+  const Candidate2Input = getByText(contest0Candidate2)
     .closest('label')!
     .querySelector('input')!
   expect(Candidate2Input.disabled).toBeTruthy()
   expect(Candidate2Input.checked).toBeFalsy()
 
-  const Candidate3Input = getByText(Q1Candidate3)
-    .closest('label')!
-    .querySelector('input')!
-  expect(Candidate3Input.disabled).toBeTruthy()
-  expect(Candidate3Input.checked).toBeFalsy()
-
-  fireEvent.click(getByText(Q1Candidate2).closest('label')!)
+  fireEvent.click(getByText(contest0Candidate1).closest('label')!)
   expect(updateVote).not.toHaveBeenCalled()
 
-  fireEvent.click(getByText(Q1Candidate3).closest('label')!)
+  fireEvent.click(getByText(contest0Candidate2).closest('label')!)
   expect(updateVote).not.toHaveBeenCalled()
 
-  fireEvent.click(getByText(Q1Candidate1).closest('label')!)
+  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
   expect(updateVote).toHaveBeenCalled()
 
   // TODO: Why doesn't axe work when used in two tests in the same file?
