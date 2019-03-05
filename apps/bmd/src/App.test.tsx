@@ -8,15 +8,15 @@ import App, { electionKey, mergeWithDefaults } from './App'
 
 const electionSampleAsString = JSON.stringify(mergeWithDefaults(electionSample))
 
-const Q1 = electionSample.contests[0]!
-const Q1Candidate1 = Q1.candidates[0]!.name
-const Q1Candidate2 = Q1.candidates[1]!.name
-const Q1Candidate3 = Q1.candidates[2]!.name
+const contest0 = electionSample.contests[0]!
+const contest0Candidate0 = contest0.candidates[0]!.name
+const contest0Candidate1 = contest0.candidates[1]!.name
+const contest0Candidate2 = contest0.candidates[2]!.name
 
 const Q2 = electionSample.contests[1]!
-const Q2Candidate1 = Q2.candidates[0]!.name
-const Q2Candidate2 = Q2.candidates[1]!.name
-const Q2Candidate3 = Q2.candidates[2]!.name
+const Q2Candidate0 = Q2.candidates[0]!.name
+const Q2Candidate1 = Q2.candidates[1]!.name
+const Q2Candidate2 = Q2.candidates[2]!.name
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -143,36 +143,36 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   fireEvent.click(getByText('Get Started'))
   expect(container.firstChild).toMatchSnapshot()
 
-  await waitForElement(() => getByText(Q1.title))
-  fireEvent.click(getByText(Q1Candidate1).closest('label')!)
-  fireEvent.click(getByText(Q1Candidate2).closest('label')!)
+  await waitForElement(() => getByText(contest0.title))
+  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
+  fireEvent.click(getByText(contest0Candidate1).closest('label')!)
   expect(container.firstChild).toMatchSnapshot()
   getByText(
-    `To vote for ${Q1Candidate2}, first uncheck the vote for ${Q1Candidate1}.`
+    `To vote for ${contest0Candidate1}, first uncheck the vote for ${contest0Candidate0}.`
   )
   fireEvent.click(getByText('Okay'))
   expect(
-    (getByText(Q1Candidate1)
+    (getByText(contest0Candidate0)
       .closest('label')!
       .querySelector('input') as HTMLInputElement).checked
   ).toBeTruthy()
   fireEvent.click(getByText('Next'))
   expect(container.firstChild).toMatchSnapshot()
 
-  fireEvent.click(getByText(Q2Candidate3).closest('label')!)
-  fireEvent.click(getByText(Q2Candidate1).closest('label')!)
+  fireEvent.click(getByText(Q2Candidate2).closest('label')!)
+  fireEvent.click(getByText(Q2Candidate0).closest('label')!)
   expect(container.firstChild).toMatchSnapshot()
   getByText(
-    `To vote for ${Q2Candidate1}, first uncheck the vote for ${Q2Candidate3}.`
+    `To vote for ${Q2Candidate0}, first uncheck the vote for ${Q2Candidate2}.`
   )
   fireEvent.click(getByText('Okay'))
   fireEvent.click(getByText('add a write-in candidate').closest('label')!)
   getByText(
-    `To vote for a write-in candidate, first uncheck the vote for ${Q2Candidate3}.`
+    `To vote for a write-in candidate, first uncheck the vote for ${Q2Candidate2}.`
   )
   fireEvent.click(getByText('Okay'))
   expect(
-    (getByText(Q2Candidate3)
+    (getByText(Q2Candidate2)
       .closest('label')!
       .querySelector('input') as HTMLInputElement).checked
   ).toBeTruthy()
@@ -191,9 +191,9 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
   getByText('Official Ballot')
 
   fireEvent.click(getAllByText('Change')[0])
-  getByText(Q1.title)
+  getByText(contest0.title)
 
-  fireEvent.click(getByText(Q1Candidate1).closest('label')!)
+  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
   fireEvent.click(getByText('add a write-in candidate').closest('label')!)
   fireEvent.click(getByText('Close'))
   fireEvent.click(getByText('add a write-in candidate').closest('label')!)
@@ -219,8 +219,10 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
 
   fireEvent.click(getByText('BOBBY').closest('label')!)
   fireEvent.click(getByText('Accept'))
-  fireEvent.click(getByText(Q1Candidate1).closest('label')!)
-  getByText(`To vote for ${Q1Candidate1}, first uncheck the vote for BOBBY.`)
+  fireEvent.click(getByText(contest0Candidate0).closest('label')!)
+  getByText(
+    `To vote for ${contest0Candidate0}, first uncheck the vote for BOBBY.`
+  )
   fireEvent.click(getByText('Okay'))
 
   fireEvent.click(getByText('Review'))
@@ -260,7 +262,7 @@ describe('can start over', () => {
     // TODO: replace next line with "Enter" keyDown on activation code input
     fireEvent.click(getByText('Submit'))
     fireEvent.click(getByText('Get Started'))
-    fireEvent.click(getByText(Q1Candidate1).closest('label')!)
+    fireEvent.click(getByText(contest0Candidate0).closest('label')!)
     fireEvent.click(getByText('Settings'))
     fireEvent.click(getByText('Start Over'))
     fireEvent.click(getByText('Cancel'))
