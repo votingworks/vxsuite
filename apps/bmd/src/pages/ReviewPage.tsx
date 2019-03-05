@@ -183,13 +183,11 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                         return (
                           <React.Fragment key={contest.id}>
                             <ContestHeader>
-                              {contest ? (
-                                contest.type === 'candidate' && (
-                                  <ContestHeading>
-                                    {contest.title}
-                                    <span className="visually-hidden">,</span>
-                                  </ContestHeading>
-                                )
+                              {contest.type === 'candidate' ? (
+                                <ContestHeading>
+                                  {contest.title}
+                                  <span className="visually-hidden">,</span>
+                                </ContestHeading>
                               ) : (
                                 <React.Fragment />
                               )}
