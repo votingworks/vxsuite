@@ -9,6 +9,7 @@
       "type": "plurality",
       "section": "Federal Election",
       "title": "President and Vice-President of the United States",
+      "seats": 1,
       "candidates": [
         {
           "id": "barchi-hallaren",
@@ -48,6 +49,7 @@
       "type": "plurality",
       "section": "Federal: Statewide",
       "title": "US Senate",
+      "seats": 1,
       "candidates": [
         {
           "id": "weiford",
@@ -92,6 +94,7 @@
       "type": "plurality",
       "section": "Federal: 6th Congressional District",
       "title": "US Representative",
+      "seats": 1,
       "candidates": [
         {
           "id": "plunkard",
@@ -126,6 +129,7 @@
       "type": "plurality",
       "section": "State",
       "title": "Governor",
+      "seats": 1,
       "candidates": [
         {
           "id": "franz",
@@ -265,6 +269,7 @@
       "type": "plurality",
       "section": "State",
       "title": "Lieutenant Governor",
+      "seats": 1,
       "candidates": [
         {
           "id": "norberg",
@@ -319,6 +324,7 @@
       "type": "plurality",
       "section": "State",
       "title": "Secretary of State",
+      "seats": 1,
       "candidates": [
         {
           "id": "shamsi",
@@ -338,6 +344,7 @@
       "type": "plurality",
       "section": "State: 31st District",
       "title": "State Senator",
+      "seats": 1,
       "candidates": [
         {
           "id": "shiplett",
@@ -352,6 +359,7 @@
       "type": "plurality",
       "section": "54th District",
       "title": "State Assembly",
+      "seats": 1,
       "candidates": [
         {
           "id": "solis",
@@ -461,6 +469,7 @@
       "type": "plurality",
       "section": "County: 4th seat",
       "title": "State Assembly",
+      "seats": 1,
       "candidates": [
         {
           "id": "ramachandrani",
@@ -475,6 +484,7 @@
       "type": "plurality",
       "section": "City of Springfield",
       "title": "Mayor",
+      "seats": 1,
       "candidates": [
         {
           "id": "white",
