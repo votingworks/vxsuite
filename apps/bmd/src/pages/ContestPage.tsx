@@ -4,9 +4,9 @@ import { RouteComponentProps } from 'react-router-dom'
 import BallotContext from '../contexts/ballotContext'
 
 import ButtonBar from '../components/ButtonBar'
+import CandidateContest from '../components/CandidateContest'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
-import SeatContest from '../components/SeatContest'
 import Text from '../components/Typography'
 
 interface ContestParams {
@@ -35,7 +35,7 @@ const ContestPage = (props: Props) => {
         <MainChild>
           {contest ? (
             contest.type === 'candidate' && (
-              <SeatContest
+              <CandidateContest
                 key={contest.id}
                 contest={contest}
                 vote={vote}

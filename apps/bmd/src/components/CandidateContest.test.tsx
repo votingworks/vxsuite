@@ -8,12 +8,12 @@ const contest0Candidate0 = contest0Candidates[0]!.name
 const contest0Candidate1 = contest0Candidates[1]!.name
 const contest0Candidate2 = contest0Candidates[2]!.name
 
-import SeatContest from './SeatContest'
+import CandidateContest from './CandidateContest'
 
 it(`allows any candidate to be selected when no candidate is selected`, () => {
   const updateVote = jest.fn()
   const { container, getByText } = render(
-    <SeatContest
+    <CandidateContest
       contest={electionSample.contests[0]}
       vote={undefined}
       updateVote={updateVote}
@@ -39,7 +39,7 @@ it(`allows any candidate to be selected when no candidate is selected`, () => {
 it(`doesn't allow other candidates to be selected when one candidate is selected`, () => {
   const updateVote = jest.fn()
   const { container, getByText } = render(
-    <SeatContest
+    <CandidateContest
       contest={electionSample.contests[0]}
       vote={electionSample.contests[0].candidates[0]}
       updateVote={updateVote}
@@ -82,7 +82,7 @@ it(`doesn't allow other candidates to be selected when one candidate is selected
 it(`displays warning if write-in candidate name is too long`, () => {
   const updateVote = jest.fn()
   const { getByText } = render(
-    <SeatContest
+    <CandidateContest
       contest={electionSample.contests[0]}
       vote={undefined}
       updateVote={updateVote}
@@ -106,7 +106,7 @@ it(`displays warning if write-in candidate name is too long`, () => {
 // it(`accessible when no candidate is selected`, async () => {
 //   const updateVote = jest.fn()
 //   const { container } = render(
-//     <SeatContest
+//     <CandidateContest
 //       contest={electionSample.contests[0]}
 //       vote=""
 //       updateVote={updateVote}
@@ -122,7 +122,7 @@ it(`displays warning if write-in candidate name is too long`, () => {
 // it(`accessible when one candidate is selected`, async () => {
 //   const updateVote = jest.fn()
 //   const { container } = render(
-//     <SeatContest
+//     <CandidateContest
 //       contest={electionSample.contests[0]}
 //       vote={'Minnie Mouse'}
 //       updateVote={updateVote}

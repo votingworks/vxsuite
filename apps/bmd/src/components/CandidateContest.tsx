@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import {
-  CandidateContest,
+  CandidateContest as CandidateContestInterface,
   InputEvent,
   OptionalCandidate,
   UpdateVoteFunction,
@@ -102,7 +102,7 @@ const WriteInCandidateInput = styled.input.attrs({
 `
 
 interface Props {
-  contest: CandidateContest
+  contest: CandidateContestInterface
   vote: OptionalCandidate
   updateVote: UpdateVoteFunction
 }
@@ -121,7 +121,7 @@ const initialState = {
   writeInCandidateName: '',
 }
 
-class SeatContest extends React.Component<Props, State> {
+class CandidateContest extends React.Component<Props, State> {
   private keyboard: React.RefObject<Keyboard>
   constructor(props: Props) {
     super(props)
@@ -147,7 +147,7 @@ class SeatContest extends React.Component<Props, State> {
     this.selectCandidate(
       targetIsSelected
         ? undefined
-        : contest.candidates!.find(candidate => candidate.id === value)
+        : contest.candidates.find(candidate => candidate.id === value)
     )
   }
 
@@ -242,7 +242,7 @@ class SeatContest extends React.Component<Props, State> {
             </Prose>
           </Legend>
           <Choices>
-            {contest.candidates!.map((candidate, index) => {
+            {contest.candidates.map((candidate, index) => {
               const isChecked = !!vote && candidate.name === vote.name
               const handleDisabledClick = () => {
                 if (vote && !isChecked) {
@@ -396,4 +396,4 @@ class SeatContest extends React.Component<Props, State> {
   }
 }
 
-export default SeatContest
+export default CandidateContest
