@@ -120,7 +120,6 @@ exports[`renders StartPage 1`] = `
       <svg
         version="1.1"
         viewBox="0 0 983.34723 983.32742"
-        width="320"
         x="0"
         xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink"

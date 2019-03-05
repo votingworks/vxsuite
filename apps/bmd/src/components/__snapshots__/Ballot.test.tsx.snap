@@ -336,7 +336,6 @@ exports[`can navigate all ballot pages 2`] = `
         <svg
           version="1.1"
           viewBox="0 0 983.34723 983.32742"
-          width="320"
           x="0"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -2261,7 +2260,6 @@ exports[`can navigate all ballot pages 7`] = `
             <svg
               version="1.1"
               viewBox="0 0 983.34723 983.32742"
-              width="320"
               x="0"
               xmlns="http://www.w3.org/2000/svg"
               xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -2959,18 +2957,8 @@ exports[`can navigate all ballot pages 7`] = `
             <dt
               class="c7"
             >
-              <span
-                class="c8"
-              >
-                Retain Robert Demergue as Chief Justice of the Supreme Court?
-                <span
-                  class="visually-hidden"
-                >
-                  ,
-                </span>
-              </span>
               <button
-                aria-label="Change Retain Robert Demergue as Chief Justice of the Supreme Court?"
+                aria-label="Change "
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3000,18 +2988,8 @@ exports[`can navigate all ballot pages 7`] = `
             <dt
               class="c7"
             >
-              <span
-                class="c8"
-              >
-                Retain Elmer Hull as Associate Justice of the Supreme Court?
-                <span
-                  class="visually-hidden"
-                >
-                  ,
-                </span>
-              </span>
               <button
-                aria-label="Change Retain Elmer Hull as Associate Justice of the Supreme Court?"
+                aria-label="Change "
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3041,18 +3019,8 @@ exports[`can navigate all ballot pages 7`] = `
             <dt
               class="c7"
             >
-              <span
-                class="c8"
-              >
-                Question A: Recovery of Damages
-                <span
-                  class="visually-hidden"
-                >
-                  ,
-                </span>
-              </span>
               <button
-                aria-label="Change Question A: Recovery of Damages"
+                aria-label="Change "
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3082,18 +3050,8 @@ exports[`can navigate all ballot pages 7`] = `
             <dt
               class="c7"
             >
-              <span
-                class="c8"
-              >
-                Question B: Separation of Powers
-                <span
-                  class="visually-hidden"
-                >
-                  ,
-                </span>
-              </span>
               <button
-                aria-label="Change Question B: Separation of Powers"
+                aria-label="Change "
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3123,18 +3081,8 @@ exports[`can navigate all ballot pages 7`] = `
             <dt
               class="c7"
             >
-              <span
-                class="c8"
-              >
-                Question C: Limits to Damages for Noneconomic Loss
-                <span
-                  class="visually-hidden"
-                >
-                  ,
-                </span>
-              </span>
               <button
-                aria-label="Change Question C: Limits to Damages for Noneconomic Loss"
+                aria-label="Change "
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3164,18 +3112,8 @@ exports[`can navigate all ballot pages 7`] = `
             <dt
               class="c7"
             >
-              <span
-                class="c8"
-              >
-                Proposition 1: Gambling
-                <span
-                  class="visually-hidden"
-                >
-                  ,
-                </span>
-              </span>
               <button
-                aria-label="Change Proposition 1: Gambling"
+                aria-label="Change "
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3205,18 +3143,8 @@ exports[`can navigate all ballot pages 7`] = `
             <dt
               class="c7"
             >
-              <span
-                class="c8"
-              >
-                Measure 101: College District
-                <span
-                  class="visually-hidden"
-                >
-                  ,
-                </span>
-              </span>
               <button
-                aria-label="Change Measure 101: College District"
+                aria-label="Change "
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3246,18 +3174,8 @@ exports[`can navigate all ballot pages 7`] = `
             <dt
               class="c7"
             >
-              <span
-                class="c8"
-              >
-                Measure 102: Vehicle Abatement Program
-                <span
-                  class="visually-hidden"
-                >
-                  ,
-                </span>
-              </span>
               <button
-                aria-label="Change Measure 102: Vehicle Abatement Program"
+                aria-label="Change "
                 class="no-print change-button c9"
                 type="button"
               >
@@ -4766,7 +4684,6 @@ exports[`skips activation page if disabled 1`] = `
         <svg
           version="1.1"
           viewBox="0 0 983.34723 983.32742"
-          width="320"
           x="0"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
