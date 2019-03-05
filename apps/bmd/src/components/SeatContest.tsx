@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import {
-  Contest,
+  CandidateContest,
   InputEvent,
   OptionalCandidate,
   UpdateVoteFunction,
@@ -102,7 +102,7 @@ const WriteInCandidateInput = styled.input.attrs({
 `
 
 interface Props {
-  contest: Contest
+  contest: CandidateContest
   vote: OptionalCandidate
   updateVote: UpdateVoteFunction
 }

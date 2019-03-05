@@ -34,7 +34,7 @@ const ContestPage = (props: Props) => {
       <Main>
         <MainChild>
           {contest ? (
-            contest.type === 'plurality' && (
+            contest.type === 'candidate' && (
               <SeatContest
                 key={contest.id}
                 contest={contest}

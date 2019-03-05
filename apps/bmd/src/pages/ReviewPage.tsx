@@ -183,14 +183,24 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                         return (
                           <React.Fragment key={contest.id}>
                             <ContestHeader>
-                              <ContestHeading>
-                                {contest.title}
-                                <span className="visually-hidden">,</span>
-                              </ContestHeading>
+                              {contest ? (
+                                contest.type === 'candidate' && (
+                                  <ContestHeading>
+                                    {contest.title}
+                                    <span className="visually-hidden">,</span>
+                                  </ContestHeading>
+                                )
+                              ) : (
+                                <React.Fragment />
+                              )}
                               <LinkButton
                                 to={`/contests/${contest.id}`}
                                 className="no-print change-button"
-                                aria-label={`Change ${contest.title}`}
+                                aria-label={`Change ${
+                                  contest.type === 'candidate'
+                                    ? contest.title
+                                    : ''
+                                }`}
                               >
                                 Change
                               </LinkButton>

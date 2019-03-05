@@ -5,6 +5,8 @@ import { render as testRender } from 'react-testing-library'
 
 import electionSample from '../src/data/electionSample.json'
 
+import { Election } from '../src/config/types'
+
 import { mergeWithDefaults } from '../src/App'
 import BallotContext from '../src/contexts/ballotContext'
 
@@ -24,7 +26,7 @@ export function render(
     ...testRender(
       <BallotContext.Provider
         value={{
-          election: mergeWithDefaults(election),
+          election: mergeWithDefaults(election as Election),
           resetBallot,
           setBallotKey,
           updateVote,

@@ -70,7 +70,7 @@ class App extends React.Component<RouteComponentProps, State> {
   public componentDidMount = () => {
     if (window.location.hash === '#sample') {
       this.setState({
-        election: mergeWithDefaults(electionSample),
+        election: mergeWithDefaults(electionSample as Election),
       })
     } else {
       this.setState({

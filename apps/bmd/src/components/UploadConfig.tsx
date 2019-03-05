@@ -54,7 +54,7 @@ class UploadConfig extends React.Component<Props, State> {
   }
 
   public loadSampleElection = () => {
-    this.props.setElection(electionSample)
+    this.props.setElection(electionSample as Election)
   }
 
   public onDrop = (acceptedFiles: File[]) => {
