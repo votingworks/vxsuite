@@ -3002,7 +3002,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                Question A: Recovery of Damages
+                Question A: Recovery of Property Damages
                 <span
                   class="visually-hidden"
                 >
@@ -3010,7 +3010,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change Question A: Recovery of Damages"
+                aria-label="Change Question A: Recovery of Property Damages"
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3082,7 +3082,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                Question C: Limits to Damages for Noneconomic Loss
+                Question C: Limits to Damages for Non-Economic Loss
                 <span
                   class="visually-hidden"
                 >
@@ -3090,7 +3090,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change Question C: Limits to Damages for Noneconomic Loss"
+                aria-label="Change Question C: Limits to Damages for Non-Economic Loss"
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3122,7 +3122,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                Proposition 1: Gambling
+                Proposition 1: Gambling in Madison and Fromwit Counties
                 <span
                   class="visually-hidden"
                 >
@@ -3130,7 +3130,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change Proposition 1: Gambling"
+                aria-label="Change Proposition 1: Gambling in Madison and Fromwit Counties"
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3162,7 +3162,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                Measure 101: College District
+                Measure 101: Madison County College District
                 <span
                   class="visually-hidden"
                 >
@@ -3170,7 +3170,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change Measure 101: College District"
+                aria-label="Change Measure 101: Madison County College District"
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3202,7 +3202,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                Measure 102: Vehicle Abatement Program
+                Measure 102: Madison County Vehicle Abatement Program
                 <span
                   class="visually-hidden"
                 >
@@ -3210,7 +3210,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change Measure 102: Vehicle Abatement Program"
+                aria-label="Change Measure 102: Madison County Vehicle Abatement Program"
                 class="no-print change-button c9"
                 type="button"
               >
