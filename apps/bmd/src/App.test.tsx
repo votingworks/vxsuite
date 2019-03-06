@@ -84,6 +84,15 @@ describe('loads election', () => {
     // await waitForElement(() => getByText('Configure Ballot Marking Device'))
     // expect(window.localStorage.getItem(electionKey)).toBeFalsy()
   })
+  it(`Error in App triggers reset and reloads window location`, () => {
+    const mockConsoleError = jest.spyOn(console, 'error')
+    mockConsoleError.mockImplementation(() => {
+      // do nothing instead of triggering console.error()
+    })
+    window.localStorage.setItem(electionKey, JSON.stringify(electionSample))
+    const { getByText } = render(<App />)
+    getByText('Configure Ballot Marking Device')
+  })
 })
 
 it('end to end: election can be uploaded, voter can vote and print', async () => {
