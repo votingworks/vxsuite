@@ -28,9 +28,9 @@ import './App.css'
 import {
   Election,
   ElectionDefaults,
-  OptionalCandidate,
   OptionalElection,
-  VoteDict,
+  Vote,
+  VotesDict,
 } from './config/types'
 
 import electionDefaults from './data/electionDefaults.json'
@@ -48,7 +48,7 @@ import BallotContext from './contexts/ballotContext'
 interface State {
   ballotKey: string
   election: OptionalElection
-  votes: VoteDict
+  votes: VotesDict
 }
 
 export const electionKey = 'votingWorksElection'
@@ -113,9 +113,9 @@ class App extends React.Component<RouteComponentProps, State> {
     this.props.history.push('/')
   }
 
-  public updateVote = (contestId: string, candidate: OptionalCandidate) => {
+  public updateVote = (contestId: string, vote: Vote) => {
     this.setState(prevState => ({
-      votes: Object.assign({}, prevState.votes, { [contestId]: candidate }),
+      votes: { ...prevState.votes, [contestId]: vote },
     }))
   }
 

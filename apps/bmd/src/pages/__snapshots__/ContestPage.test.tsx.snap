@@ -429,6 +429,10 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
+button.c6 {
+  text-align: left;
+}
+
 .c6:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
@@ -593,7 +597,9 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
             </h1>
             <p>
               <strong>
-                Vote for 1.
+                Vote for 
+                1
+                .
               </strong>
                You have selected
                
@@ -759,25 +765,6 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
               </span>
               <br />
               Labor
-            </div>
-          </label>
-          <label
-            class="c6"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden c7"
-              id="writeInCandidate"
-              name="president"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="c4"
-            >
-              <em>
-                add a write-in candidate
-              </em>
             </div>
           </label>
         </div>
@@ -997,6 +984,10 @@ exports[`renders ContestPage 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
+button.c6 {
+  text-align: left;
+}
+
 .c6:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
@@ -1161,7 +1152,9 @@ exports[`renders ContestPage 1`] = `
             </h1>
             <p>
               <strong>
-                Vote for 1.
+                Vote for 
+                1
+                .
               </strong>
                You have selected
                
@@ -1327,25 +1320,6 @@ exports[`renders ContestPage 1`] = `
               </span>
               <br />
               Labor
-            </div>
-          </label>
-          <label
-            class="c6"
-            for="writeInCandidate"
-          >
-            <input
-              class="visually-hidden c7"
-              id="writeInCandidate"
-              name="president"
-              type="checkbox"
-              value="writeInCandidate"
-            />
-            <div
-              class="c4"
-            >
-              <em>
-                add a write-in candidate
-              </em>
             </div>
           </label>
         </div>

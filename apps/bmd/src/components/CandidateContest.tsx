@@ -1,10 +1,13 @@
+import camelCase from 'lodash.camelcase'
 import React from 'react'
 import styled from 'styled-components'
 import {
+  Candidate,
   CandidateContest as CandidateContestInterface,
   InputEvent,
   OptionalCandidate,
   UpdateVoteFunction,
+  Vote,
 } from '../config/types'
 
 import Keyboard from 'react-simple-keyboard'
@@ -44,6 +47,9 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
     0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
   transition: background 0.25s, color 0.25s;
+  button& {
+    text-align: left;
+  }
   :focus-within {
     outline: -webkit-focus-ring-color auto 5px;
   }
@@ -103,19 +109,20 @@ const WriteInCandidateInput = styled.input.attrs({
 
 interface Props {
   contest: CandidateContestInterface
-  vote: OptionalCandidate
+  vote: Vote
   updateVote: UpdateVoteFunction
 }
 
 interface State {
-  attemptedVoteCandidateName: string
+  attemptedOverVoteCandidate: OptionalCandidate
+  candidatePendingRemoval: OptionalCandidate
   writeInCandateModalIsOpen: boolean
   writeInCandidateName: string
-  layoutName: string
 }
 
 const initialState = {
-  attemptedVoteCandidateName: '',
+  attemptedOverVoteCandidate: undefined,
+  candidatePendingRemoval: undefined,
   layoutName: 'default',
   writeInCandateModalIsOpen: false,
   writeInCandidateName: '',
@@ -125,54 +132,62 @@ class CandidateContest extends React.Component<Props, State> {
   private keyboard: React.RefObject<Keyboard>
   constructor(props: Props) {
     super(props)
-    this.state = {
-      ...initialState,
-      writeInCandidateName:
-        (props.vote &&
-          props.vote.id === 'writeInCandidate' &&
-          props.vote.name) ||
-        '',
-    }
+    this.state = initialState
     this.keyboard = React.createRef()
   }
 
-  public selectCandidate = (candidate: OptionalCandidate) => {
-    this.props.updateVote(this.props.contest.id, candidate)
+  public findCandidateById = (candidates: Candidate[], id: string) =>
+    candidates.find(c => c.id === id)
+
+  public addCandidateToVote = (id: string) => {
+    const { contest, vote } = this.props
+    const { candidates } = contest
+    const candidate = this.findCandidateById(candidates, id)!
+    this.props.updateVote(contest.id, [...vote, candidate])
+  }
+
+  public removeCandidateFromVote = (id: string) => {
+    const { contest, vote } = this.props
+    const newVote = vote.filter(c => c.id !== id)
+    this.props.updateVote(contest.id, newVote)
   }
 
   public handleUpdateSelection = (event: InputEvent) => {
-    const { contest, vote } = this.props
-    const { value } = event.target as HTMLInputElement
-    const targetIsSelected = vote && value === vote.id
-    this.selectCandidate(
-      targetIsSelected
-        ? undefined
-        : contest.candidates.find(candidate => candidate.id === value)
-    )
+    const { vote } = this.props
+    const id = (event.target as HTMLInputElement).value
+    const candidate = this.findCandidateById(vote, id)
+    if (!!candidate) {
+      if (candidate.isWriteIn) {
+        this.setState({ candidatePendingRemoval: candidate })
+      } else {
+        this.removeCandidateFromVote(id)
+      }
+    } else {
+      this.addCandidateToVote(id)
+    }
   }
 
-  public handleChangeVoteAlert = (attemptedVoteCandidateName: string) => {
-    this.setState({ attemptedVoteCandidateName })
+  public handleChangeVoteAlert = (
+    attemptedOverVoteCandidate: OptionalCandidate
+  ) => {
+    this.setState({ attemptedOverVoteCandidate })
   }
 
   public closeAttemptedVoteAlert = () => {
-    this.setState({ attemptedVoteCandidateName: '' })
+    this.setState({ attemptedOverVoteCandidate: undefined })
   }
 
-  public handleSelectWriteInCandidate = () => {
-    const { vote } = this.props
-    if (!!vote && vote.name === this.state.writeInCandidateName) {
-      this.selectCandidate(undefined)
-    } else {
-      this.toggleWriteInCandidateModal(true)
-    }
+  public confirmRemovePendingWriteInCandidate = () => {
+    this.removeCandidateFromVote(this.state.candidatePendingRemoval!.id)
+    this.clearCandidateIdPendingRemoval()
   }
-  public handleWriteInCandidateDisabledClick = () => {
-    const { vote } = this.props
-    const { writeInCandidateName } = this.state
-    if (!!vote && vote.name !== writeInCandidateName) {
-      this.handleChangeVoteAlert(writeInCandidateName || 'a write-in candidate')
-    }
+
+  public clearCandidateIdPendingRemoval = () => {
+    this.setState({ candidatePendingRemoval: undefined })
+  }
+
+  public initWriteInCandidate = () => {
+    this.toggleWriteInCandidateModal(true)
   }
 
   public normalizeName = (name: string) =>
@@ -180,30 +195,31 @@ class CandidateContest extends React.Component<Props, State> {
       .trim()
       .replace(/\t+/g, ' ')
       .replace(/\s+/g, ' ')
-  public selectWriteInCandidate = () => {
-    const writeInCandidateName = this.normalizeName(
+
+  public addWriteInCandidate = () => {
+    const { contest, vote } = this.props
+    const normalizedCandidateName = this.normalizeName(
       this.state.writeInCandidateName
     )
-    this.setState({ writeInCandidateName })
-    this.selectCandidate({
-      id: 'writeInCandidate',
-      name: writeInCandidateName,
-    })
+    this.props.updateVote(contest.id, [
+      ...vote,
+      {
+        id: `write-in__${camelCase(normalizedCandidateName)}`,
+        isWriteIn: true,
+        name: normalizedCandidateName,
+      },
+    ])
+    this.setState({ writeInCandidateName: '' })
     this.toggleWriteInCandidateModal(false)
-  }
-  public closeWriteInCandidateModal = () => {
-    const writeInCandidateName = this.normalizeName(
-      this.state.writeInCandidateName
-    )
-    this.setState({ writeInCandidateName })
-    this.toggleWriteInCandidateModal(false)
-  }
-  public toggleWriteInCandidateModal = (writeInCandateModalIsOpen: boolean) => {
-    this.setState({ writeInCandateModalIsOpen })
   }
 
-  public setKeyboardInput = () => {
-    this.keyboard.current!.setInput!(this.state.writeInCandidateName)
+  public cancelWriteInCandidateModal = () => {
+    this.setState({ writeInCandidateName: '' })
+    this.toggleWriteInCandidateModal(false)
+  }
+
+  public toggleWriteInCandidateModal = (writeInCandateModalIsOpen: boolean) => {
+    this.setState({ writeInCandateModalIsOpen })
   }
 
   public onKeyboardInputChange = (writeInCandidateName: string) => {
@@ -212,14 +228,14 @@ class CandidateContest extends React.Component<Props, State> {
 
   public render() {
     const { contest, vote } = this.props
+    const hasReachedMaxSelections = contest.seats === vote.length
     const {
-      attemptedVoteCandidateName,
+      attemptedOverVoteCandidate,
+      candidatePendingRemoval,
       writeInCandidateName,
       writeInCandateModalIsOpen,
     } = this.state
     const maxWriteInCandidateLength = 40
-    const writeInCandidateIsChecked =
-      !!vote && vote.name === writeInCandidateName
     return (
       <React.Fragment>
         <FieldSet>
@@ -236,17 +252,18 @@ class CandidateContest extends React.Component<Props, State> {
                 <span className="visually-hidden">.</span>
               </h1>
               <p>
-                <strong>Vote for 1.</strong> You have selected{' '}
-                {!!vote ? `1` : `0`}.
+                <strong>Vote for {contest.seats}.</strong> You have selected{' '}
+                {vote.length}.
               </p>
             </Prose>
           </Legend>
           <Choices>
             {contest.candidates.map((candidate, index) => {
-              const isChecked = !!vote && candidate.name === vote.name
+              const isChecked = !!this.findCandidateById(vote, candidate.id)
+              const isDisabled = hasReachedMaxSelections && !isChecked
               const handleDisabledClick = () => {
-                if (vote && !isChecked) {
-                  this.handleChangeVoteAlert(candidate.name)
+                if (isDisabled) {
+                  this.handleChangeVoteAlert(candidate)
                 }
               }
               return (
@@ -263,7 +280,7 @@ class CandidateContest extends React.Component<Props, State> {
                     value={candidate.id}
                     onChange={this.handleUpdateSelection}
                     checked={isChecked}
-                    disabled={!!vote && !isChecked}
+                    disabled={isDisabled}
                     className="visually-hidden"
                   />
                   <Prose>
@@ -275,38 +292,54 @@ class CandidateContest extends React.Component<Props, State> {
                 </Choice>
               )
             })}
-            <Choice
-              htmlFor="writeInCandidate"
-              isSelected={writeInCandidateIsChecked}
-              onClick={this.handleWriteInCandidateDisabledClick}
-            >
-              <ChoiceInput
-                autoFocus={writeInCandidateIsChecked}
-                id="writeInCandidate"
-                name={contest.id}
-                value="writeInCandidate"
-                onChange={this.handleSelectWriteInCandidate}
-                checked={writeInCandidateIsChecked}
-                disabled={!!vote && !writeInCandidateIsChecked}
-                className="visually-hidden"
-              />
-              <Prose>
-                {!!writeInCandidateName ? (
-                  <strong>{writeInCandidateName}</strong>
-                ) : (
-                  <em>add a write-in candidate</em>
-                )}
-              </Prose>
-            </Choice>
+            {contest.allowWriteIns &&
+              vote
+                .filter(c => c.isWriteIn)
+                .map(candidate => {
+                  return (
+                    <Choice
+                      key={candidate.id}
+                      htmlFor={candidate.id}
+                      isSelected
+                    >
+                      <ChoiceInput
+                        id={candidate.id}
+                        name={contest.id}
+                        value={candidate.id}
+                        onChange={this.handleUpdateSelection}
+                        checked
+                        className="visually-hidden"
+                      />
+                      <Prose>
+                        <strong>{candidate.name}</strong>
+                      </Prose>
+                    </Choice>
+                  )
+                })}
+            {contest.allowWriteIns && !hasReachedMaxSelections && (
+              <Choice
+                as="button"
+                isSelected={false}
+                onClick={this.initWriteInCandidate}
+              >
+                <Prose>
+                  <em>add write-in candidate</em>
+                </Prose>
+              </Choice>
+            )}
           </Choices>
         </FieldSet>
         <Modal
-          isOpen={!!attemptedVoteCandidateName}
+          isOpen={!!attemptedOverVoteCandidate}
           content={
             <Prose>
               <Text>
-                To vote for {attemptedVoteCandidateName}, first uncheck the vote
-                for {!!vote && vote.name}.
+                You may only select {contest.seats}{' '}
+                {contest.seats === 1 ? 'candidate' : 'candidates'} in this
+                contest. To vote for{' '}
+                {attemptedOverVoteCandidate && attemptedOverVoteCandidate.name},
+                you must first unselect selected{' '}
+                {contest.seats === 1 ? 'candidate' : 'candidates'}.
               </Text>
             </Prose>
           }
@@ -317,8 +350,32 @@ class CandidateContest extends React.Component<Props, State> {
           }
         />
         <Modal
+          isOpen={!!candidatePendingRemoval}
+          content={
+            <Prose>
+              <Text>
+                Are you sure you want to unselect and remove{' '}
+                {candidatePendingRemoval && candidatePendingRemoval.name}?
+              </Text>
+            </Prose>
+          }
+          actions={
+            <>
+              <Button
+                danger
+                autoFocus
+                onClick={this.confirmRemovePendingWriteInCandidate}
+              >
+                Yes, Remove.
+              </Button>
+              <Button onClick={this.clearCandidateIdPendingRemoval}>
+                Cancel
+              </Button>
+            </>
+          }
+        />
+        <Modal
           isOpen={writeInCandateModalIsOpen}
-          onAfterOpen={this.setKeyboardInput}
           content={
             <div>
               <Prose>
@@ -382,12 +439,12 @@ class CandidateContest extends React.Component<Props, State> {
               <Button
                 primary={this.normalizeName(writeInCandidateName).length > 0}
                 autoFocus
-                onClick={this.selectWriteInCandidate}
+                onClick={this.addWriteInCandidate}
                 disabled={this.normalizeName(writeInCandidateName).length === 0}
               >
                 Accept
               </Button>
-              <Button onClick={this.closeWriteInCandidateModal}>Close</Button>
+              <Button onClick={this.cancelWriteInCandidateModal}>Cancel</Button>
             </>
           }
         />

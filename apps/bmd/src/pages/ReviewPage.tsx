@@ -162,24 +162,7 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                   <BallotContext.Consumer>
                     {({ election, votes }) =>
                       election!.contests.map(contest => {
-                        const candidate = votes[contest.id]
-                        const isWriteInCandidate =
-                          !!candidate && candidate.id === 'writeInCandidate'
-                        const candidateName = !!candidate ? (
-                          <strong>
-                            {isWriteInCandidate
-                              ? `(${candidate.name})`
-                              : candidate.name}
-                          </strong>
-                        ) : (
-                          <Text as="strong" muted>
-                            [no selection]
-                          </Text>
-                        )
-                        const candidateParty =
-                          !!candidate &&
-                          candidate.party &&
-                          `/ ${candidate.party}`
+                        const candidates = votes[contest.id]
                         return (
                           <React.Fragment key={contest.id}>
                             <ContestHeader>
@@ -196,10 +179,27 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                               </LinkButton>
                               <span className="visually-hidden">,</span>
                             </ContestHeader>
-                            <ContestSelection>
-                              {candidateName} {candidateParty}
-                              <span className="visually-hidden">.</span>
-                            </ContestSelection>
+                            {candidates ? (
+                              candidates.map((candidate, index) => (
+                                <ContestSelection key={candidate.id}>
+                                  <strong>{candidate.name}</strong>{' '}
+                                  {candidate.party && `/ ${candidate.party}`}
+                                  {candidate.isWriteIn && `(write-in)`}
+                                  <span className="visually-hidden">
+                                    {candidates.length === index + 1
+                                      ? '.'
+                                      : ','}
+                                  </span>
+                                </ContestSelection>
+                              ))
+                            ) : (
+                              <ContestSelection>
+                                <Text as="strong" muted>
+                                  [no selection]
+                                  <span className="visually-hidden">.</span>
+                                </Text>
+                              </ContestSelection>
+                            )}
                           </React.Fragment>
                         )
                       })

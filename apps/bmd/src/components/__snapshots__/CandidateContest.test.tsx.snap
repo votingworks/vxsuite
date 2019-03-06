@@ -1,356 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`allows any candidate to be selected when no candidate is selected 1`] = `
-.c2 {
-  line-height: 1.2;
-  max-width: 66ch;
-}
-
-.c2 h1 {
-  line-height: 1.1;
-  margin: 2rem 0 1rem;
-}
-
-.c2 h2 {
-  margin: 1.5rem 0 1rem;
-}
-
-.c2 h3,
-.c2 p {
-  margin: 1rem 0;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
-  margin-top: -0.75rem;
-}
-
-.c2 > :first-child {
-  margin-top: 0;
-}
-
-.c2 > :last-child {
-  margin-bottom: 0;
-}
-
-.c1 {
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.c0 {
-  margin: 0 0.25rem 1rem;
-}
-
-.c3 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
-}
-
-.c4 {
-  cursor: pointer;
-  position: relative;
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  border-radius: 0.125rem;
-  background: white;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-.c4:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
-}
-
-.c4:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  font-size: 2rem;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
-}
-
-.c4 > div {
-  word-break: break-word;
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c5 {
-  margin-right: 0.5rem;
-}
-
-@media (min-width:480px) {
-  .c2 {
-    line-height: 1.3;
-  }
-}
-
-@media (min-width:480px) {
-  .c0 {
-    margin: 0 1rem 1rem;
-    margin-left: 4rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c4 > div {
-    padding: 1rem 1rem 1rem inherit;
-  }
-}
-
-<div>
-  <fieldset
-    class=""
-  >
-    <legend
-      class="c0"
-    >
-      <small
-        class="c1"
-      >
-        Federal Election
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
-      </small>
-      <div
-        class="c2"
-      >
-        <h1>
-          President and Vice-President of the United States
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
-        </h1>
-        <p>
-          <strong>
-            Vote for 1.
-          </strong>
-           You have selected
-           
-          0
-          .
-        </p>
-      </div>
-    </legend>
-    <div
-      class="c3"
-    >
-      <label
-        class="c4"
-        for="barchi-hallaren"
-      >
-        <input
-          class="visually-hidden c5"
-          id="barchi-hallaren"
-          name="president"
-          type="checkbox"
-          value="barchi-hallaren"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Joseph Barchi and Joseph Hallaren
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Federalist
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="cramer-vuocolo"
-      >
-        <input
-          class="visually-hidden c5"
-          id="cramer-vuocolo"
-          name="president"
-          type="checkbox"
-          value="cramer-vuocolo"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Adam Cramer and Greg Vuocolo
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          People's
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="court-blumhardt"
-      >
-        <input
-          class="visually-hidden c5"
-          id="court-blumhardt"
-          name="president"
-          type="checkbox"
-          value="court-blumhardt"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Daniel Court and Amy Blumhardt
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Liberty
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="boone-lian"
-      >
-        <input
-          class="visually-hidden c5"
-          id="boone-lian"
-          name="president"
-          type="checkbox"
-          value="boone-lian"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Alvin Boone and James Lian
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Constitution
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="hildebrand-garritty"
-      >
-        <input
-          class="visually-hidden c5"
-          id="hildebrand-garritty"
-          name="president"
-          type="checkbox"
-          value="hildebrand-garritty"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Ashley Hildebrand-MacDougall and James Garritty
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Whig
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="patterson-lariviere"
-      >
-        <input
-          class="visually-hidden c5"
-          id="patterson-lariviere"
-          name="president"
-          type="checkbox"
-          value="patterson-lariviere"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Martin Patterson and Clay Lariviere
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Labor
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="writeInCandidate"
-      >
-        <input
-          class="visually-hidden c5"
-          id="writeInCandidate"
-          name="president"
-          type="checkbox"
-          value="writeInCandidate"
-        />
-        <div
-          class="c2"
-        >
-          <em>
-            add a write-in candidate
-          </em>
-        </div>
-      </label>
-    </div>
-  </fieldset>
-</div>
-`;
-
-exports[`doesn't allow other candidates to be selected when one candidate is selected 1`] = `
+exports[`allows another candidate to be selected when 1 of 2 have been selected 1`] = `
 .c2 {
   line-height: 1.2;
   max-width: 66ch;
@@ -418,6 +68,10 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   transition: background 0.25s,color 0.25s;
 }
 
+button.c6 {
+  text-align: left;
+}
+
 .c6:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
@@ -469,6 +123,10 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
+}
+
+button.c4 {
+  text-align: left;
 }
 
 .c4:focus-within {
@@ -547,7 +205,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
       <small
         class="c1"
       >
-        Federal Election
+        54th District
         <span
           class="visually-hidden"
         >
@@ -558,7 +216,7 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         class="c2"
       >
         <h1>
-          President and Vice-President of the United States
+          State Assembly
           <span
             class="visually-hidden"
           >
@@ -567,7 +225,9 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         </h1>
         <p>
           <strong>
-            Vote for 1.
+            Vote for 
+            2
+            .
           </strong>
            You have selected
            
@@ -581,21 +241,21 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
     >
       <label
         class="c4"
-        for="barchi-hallaren"
+        for="solis"
       >
         <input
           checked=""
           class="visually-hidden c5"
-          id="barchi-hallaren"
-          name="president"
+          id="solis"
+          name="state-assembly"
           type="checkbox"
-          value="barchi-hallaren"
+          value="solis"
         />
         <div
           class="c2"
         >
           <strong>
-            Joseph Barchi and Joseph Hallaren
+            Andrea Solis
           </strong>
           <span
             class="visually-hidden"
@@ -608,21 +268,20 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
       </label>
       <label
         class="c6"
-        for="cramer-vuocolo"
+        for="keller"
       >
         <input
           class="visually-hidden c5"
-          disabled=""
-          id="cramer-vuocolo"
-          name="president"
+          id="keller"
+          name="state-assembly"
           type="checkbox"
-          value="cramer-vuocolo"
+          value="keller"
         />
         <div
           class="c2"
         >
           <strong>
-            Adam Cramer and Greg Vuocolo
+            Amos Keller
           </strong>
           <span
             class="visually-hidden"
@@ -635,21 +294,690 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
       </label>
       <label
         class="c6"
-        for="court-blumhardt"
+        for="rangel"
       >
         <input
           class="visually-hidden c5"
-          disabled=""
-          id="court-blumhardt"
-          name="president"
+          id="rangel"
+          name="state-assembly"
           type="checkbox"
-          value="court-blumhardt"
+          value="rangel"
         />
         <div
           class="c2"
         >
           <strong>
-            Daniel Court and Amy Blumhardt
+            Davitra Rangel
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Liberty
+        </div>
+      </label>
+      <button
+        class="c6"
+      >
+        <div
+          class="c2"
+        >
+          <em>
+            add write-in candidate
+          </em>
+        </div>
+      </button>
+    </div>
+  </fieldset>
+</div>
+`;
+
+exports[`allows any candidate to be selected when no candidate is selected 1`] = `
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
+}
+
+.c1 {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c0 {
+  margin: 0 0.25rem 1rem;
+}
+
+.c3 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c4 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c4 {
+  text-align: left;
+}
+
+.c4:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c4:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c4 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c5 {
+  margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 {
+    margin: 0 1rem 1rem;
+    margin-left: 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c4 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+<div>
+  <fieldset
+    class=""
+  >
+    <legend
+      class="c0"
+    >
+      <small
+        class="c1"
+      >
+        54th District
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
+      </small>
+      <div
+        class="c2"
+      >
+        <h1>
+          State Assembly
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            1
+            .
+          </strong>
+           You have selected
+           
+          0
+          .
+        </p>
+      </div>
+    </legend>
+    <div
+      class="c3"
+    >
+      <label
+        class="c4"
+        for="solis"
+      >
+        <input
+          class="visually-hidden c5"
+          id="solis"
+          name="state-assembly"
+          type="checkbox"
+          value="solis"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Andrea Solis
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Federalist
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="keller"
+      >
+        <input
+          class="visually-hidden c5"
+          id="keller"
+          name="state-assembly"
+          type="checkbox"
+          value="keller"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Amos Keller
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          People's
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="rangel"
+      >
+        <input
+          class="visually-hidden c5"
+          id="rangel"
+          name="state-assembly"
+          type="checkbox"
+          value="rangel"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Davitra Rangel
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Liberty
+        </div>
+      </label>
+      <button
+        class="c4"
+      >
+        <div
+          class="c2"
+        >
+          <em>
+            add write-in candidate
+          </em>
+        </div>
+      </button>
+    </div>
+  </fieldset>
+</div>
+`;
+
+exports[`displays warning if write-in candidate name is too long 1`] = `
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
+}
+
+.c1 {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c0 {
+  margin: 0 0.25rem 1rem;
+}
+
+.c3 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c4 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c4 {
+  text-align: left;
+}
+
+.c4:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c4:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c4 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c5 {
+  margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 {
+    margin: 0 1rem 1rem;
+    margin-left: 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c4 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+<div>
+  <fieldset
+    class=""
+  >
+    <legend
+      class="c0"
+    >
+      <small
+        class="c1"
+      >
+        County
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
+      </small>
+      <div
+        class="c2"
+      >
+        <h1>
+          County Commissioners
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            4
+            .
+          </strong>
+           You have selected
+           
+          0
+          .
+        </p>
+      </div>
+    </legend>
+    <div
+      class="c3"
+    >
+      <label
+        class="c4"
+        for="argent"
+      >
+        <input
+          class="visually-hidden c5"
+          id="argent"
+          name="county-commissioners"
+          type="checkbox"
+          value="argent"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Camille Argent
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Federalist
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="witherspoonsmithson"
+      >
+        <input
+          class="visually-hidden c5"
+          id="witherspoonsmithson"
+          name="county-commissioners"
+          type="checkbox"
+          value="witherspoonsmithson"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Chloe Witherspoon-Smithson
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Federalist
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="bainbridge"
+      >
+        <input
+          class="visually-hidden c5"
+          id="bainbridge"
+          name="county-commissioners"
+          type="checkbox"
+          value="bainbridge"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Clayton Bainbridge
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Federalist
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="hennessey"
+      >
+        <input
+          class="visually-hidden c5"
+          id="hennessey"
+          name="county-commissioners"
+          type="checkbox"
+          value="hennessey"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Charlene Hennessey
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          People's
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="savoy"
+      >
+        <input
+          class="visually-hidden c5"
+          id="savoy"
+          name="county-commissioners"
+          type="checkbox"
+          value="savoy"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Eric Savoy
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          People's
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="tawa"
+      >
+        <input
+          class="visually-hidden c5"
+          id="tawa"
+          name="county-commissioners"
+          type="checkbox"
+          value="tawa"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Susan Tawa
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          People's
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="tawa-mary"
+      >
+        <input
+          class="visually-hidden c5"
+          id="tawa-mary"
+          name="county-commissioners"
+          type="checkbox"
+          value="tawa-mary"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Mary Tawa
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          People's
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="rangel"
+      >
+        <input
+          class="visually-hidden c5"
+          id="rangel"
+          name="county-commissioners"
+          type="checkbox"
+          value="rangel"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Damian Rangel
           </strong>
           <span
             class="visually-hidden"
@@ -661,22 +989,21 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         </div>
       </label>
       <label
-        class="c6"
-        for="boone-lian"
+        class="c4"
+        for="altman"
       >
         <input
           class="visually-hidden c5"
-          disabled=""
-          id="boone-lian"
-          name="president"
+          id="altman"
+          name="county-commissioners"
           type="checkbox"
-          value="boone-lian"
+          value="altman"
         />
         <div
           class="c2"
         >
           <strong>
-            Alvin Boone and James Lian
+            Valarie Altman
           </strong>
           <span
             class="visually-hidden"
@@ -688,22 +1015,47 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         </div>
       </label>
       <label
-        class="c6"
-        for="hildebrand-garritty"
+        class="c4"
+        for="moore"
       >
         <input
           class="visually-hidden c5"
-          disabled=""
-          id="hildebrand-garritty"
-          name="president"
+          id="moore"
+          name="county-commissioners"
           type="checkbox"
-          value="hildebrand-garritty"
+          value="moore"
         />
         <div
           class="c2"
         >
           <strong>
-            Ashley Hildebrand-MacDougall and James Garritty
+            Helen Moore
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Constitution
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="white"
+      >
+        <input
+          class="visually-hidden c5"
+          id="white"
+          name="county-commissioners"
+          type="checkbox"
+          value="white"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            John White
           </strong>
           <span
             class="visually-hidden"
@@ -715,22 +1067,73 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         </div>
       </label>
       <label
-        class="c6"
-        for="patterson-lariviere"
+        class="c4"
+        for="schmidt"
       >
         <input
           class="visually-hidden c5"
-          disabled=""
-          id="patterson-lariviere"
-          name="president"
+          id="schmidt"
+          name="county-commissioners"
           type="checkbox"
-          value="patterson-lariviere"
+          value="schmidt"
         />
         <div
           class="c2"
         >
           <strong>
-            Martin Patterson and Clay Lariviere
+            Joe Schmidt
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Whig
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="smith"
+      >
+        <input
+          class="visually-hidden c5"
+          id="smith"
+          name="county-commissioners"
+          type="checkbox"
+          value="smith"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Joe Smith
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Whig
+        </div>
+      </label>
+      <label
+        class="c4"
+        for="marracini"
+      >
+        <input
+          class="visually-hidden c5"
+          id="marracini"
+          name="county-commissioners"
+          type="checkbox"
+          value="marracini"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Amanda Marracini
           </strong>
           <span
             class="visually-hidden"
@@ -742,23 +1145,365 @@ exports[`doesn't allow other candidates to be selected when one candidate is sel
         </div>
       </label>
       <label
-        class="c6"
-        for="writeInCandidate"
+        class="c4"
+        for="schreiner"
       >
         <input
           class="visually-hidden c5"
-          disabled=""
-          id="writeInCandidate"
-          name="president"
+          id="schreiner"
+          name="county-commissioners"
           type="checkbox"
-          value="writeInCandidate"
+          value="schreiner"
         />
         <div
           class="c2"
         >
+          <strong>
+            Martin Schreiner
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Independent
+        </div>
+      </label>
+      <button
+        class="c4"
+      >
+        <div
+          class="c2"
+        >
           <em>
-            add a write-in candidate
+            add write-in candidate
           </em>
+        </div>
+      </button>
+    </div>
+  </fieldset>
+</div>
+`;
+
+exports[`doesn't allow other candidates to be selected when 1 of 1 candidates have been selected 1`] = `
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
+}
+
+.c1 {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c0 {
+  margin: 0 0.25rem 1rem;
+}
+
+.c3 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c6 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c6 {
+  text-align: left;
+}
+
+.c6:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c6:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c6 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c4 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: #028099;
+  color: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c4 {
+  text-align: left;
+}
+
+.c4:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c4:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: #028099;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c4 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c5 {
+  margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 {
+    margin: 0 1rem 1rem;
+    margin-left: 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c6 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+@media (min-width:480px) {
+  .c4 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+<div>
+  <fieldset
+    class=""
+  >
+    <legend
+      class="c0"
+    >
+      <small
+        class="c1"
+      >
+        54th District
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
+      </small>
+      <div
+        class="c2"
+      >
+        <h1>
+          State Assembly
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            1
+            .
+          </strong>
+           You have selected
+           
+          1
+          .
+        </p>
+      </div>
+    </legend>
+    <div
+      class="c3"
+    >
+      <label
+        class="c4"
+        for="solis"
+      >
+        <input
+          checked=""
+          class="visually-hidden c5"
+          id="solis"
+          name="state-assembly"
+          type="checkbox"
+          value="solis"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Andrea Solis
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Federalist
+        </div>
+      </label>
+      <label
+        class="c6"
+        for="keller"
+      >
+        <input
+          class="visually-hidden c5"
+          disabled=""
+          id="keller"
+          name="state-assembly"
+          type="checkbox"
+          value="keller"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Amos Keller
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          People's
+        </div>
+      </label>
+      <label
+        class="c6"
+        for="rangel"
+      >
+        <input
+          class="visually-hidden c5"
+          disabled=""
+          id="rangel"
+          name="state-assembly"
+          type="checkbox"
+          value="rangel"
+        />
+        <div
+          class="c2"
+        >
+          <strong>
+            Davitra Rangel
+          </strong>
+          <span
+            class="visually-hidden"
+          >
+            ,
+          </span>
+          <br />
+          Liberty
         </div>
       </label>
     </div>

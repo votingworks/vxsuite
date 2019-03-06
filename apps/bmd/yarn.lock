@@ -987,6 +987,13 @@
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.11.tgz#d3a936ae753d9e484965f5cbd19027c2b8af2551"
   integrity sha512-eroF85PoG87XjCwzxey7yBsQNkIY/TV5myKKSG/022A0FW25afdu/uub6JDMS5eT68zBBt82S+w/MFOTjeLM3Q==
 
+"@types/lodash.camelcase@^4.3.5":
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/@types/lodash.camelcase/-/lodash.camelcase-4.3.5.tgz#ec6780b5ec7a730bb719ff91aa728758fdf76893"
+  integrity sha512-boJVyUm5/WnLsYuhGL6nmSiaMASB15wXeagYvPYeovPGl4+A1GME7jLwsMKClL2nTv/cSPUBWxZ83Dk9ysku4A==
+  dependencies:
+    "@types/lodash" "*"
+
 "@types/lodash.merge@^4.6.5":
   version "4.6.5"
   resolved "https://registry.yarnpkg.com/@types/lodash.merge/-/lodash.merge-4.6.5.tgz#5f782604cc754ff57661c541678a03cfe62cca19"
