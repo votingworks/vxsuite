@@ -67,6 +67,11 @@ const clickContainerRef = React.createRef<HTMLDivElement>()
 class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
 
+  public componentDidCatch() {
+    this.reset()
+    window.location.reload()
+  }
+
   public componentDidMount = () => {
     if (window.location.hash === '#sample') {
       this.setState({
