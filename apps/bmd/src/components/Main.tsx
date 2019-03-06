@@ -9,10 +9,9 @@ const Main = styled('main')<Props>`
   flex-direction: column;
   flex: 1;
   overflow: scroll;
-  padding: ${({ noPadding }: Props) =>
-    noPadding ? undefined : '1rem 0.5rem 2rem'};
+  padding: ${({ noPadding }) => (noPadding ? undefined : '1rem 0.5rem 2rem')};
   @media (min-width: 480px) {
-    padding: ${({ noPadding }: Props) => (noPadding ? undefined : '2rem 1rem')};
+    padding: ${({ noPadding }) => (noPadding ? undefined : '2rem 1rem')};
   }
   @media print {
     justify-content: flex-start;
@@ -34,9 +33,8 @@ export const MainChild = styled('div')<ChildProps>`
     center = false,
     centerVertical = center,
     centerHorizontal = true,
-  }: ChildProps) =>
-    `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
-  padding: ${({ padded = false }: ChildProps) => (padded ? '1rem' : undefined)};
+  }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
+  padding: ${({ padded = false }) => (padded ? '1rem' : undefined)};
   @media print {
     max-width: 100%;
     margin: 0;

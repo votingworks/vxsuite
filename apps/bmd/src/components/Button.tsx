@@ -16,15 +16,15 @@ interface Props extends ButtonInterface<{}> {}
 
 const Button = styled('button').attrs((props: Attrs) => ({
   type: props.type || 'button',
-}))`
+}))<Props>`
   box-sizing: border-box;
   cursor: pointer;
-  background: ${({ danger = false, primary = false }: Props) =>
+  background: ${({ danger = false, primary = false }) =>
     (danger && 'red') || (primary && '#4caf50') || 'lightgrey'};
   border: none;
   border-radius: 0.25rem;
   padding: 0.4rem 0.7rem;
-  color: ${({ disabled = false, danger = false, primary = false }: Props) =>
+  color: ${({ disabled = false, danger = false, primary = false }) =>
     (disabled && 'darkgrey') ||
     (danger && 'white') ||
     (primary && 'white') ||
