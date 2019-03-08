@@ -29,7 +29,7 @@ export type VotesDict = Dictionary<Vote>
 export type ContestTypes = 'candidate' | 'yesno'
 export interface Contest {
   readonly id: string
-  readonly section?: string
+  readonly section: string
   readonly title: string
   readonly type: ContestTypes
 }

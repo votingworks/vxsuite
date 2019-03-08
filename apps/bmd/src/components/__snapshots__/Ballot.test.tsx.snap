@@ -730,7 +730,7 @@ button.c6 {
           <small
             class="c3"
           >
-            Federal Election
+            Federal
             <span
               class="visually-hidden"
             >
@@ -1267,7 +1267,7 @@ button.c4 {
           <small
             class="c1"
           >
-            Federal: Statewide
+            Federal
             <span
               class="visually-hidden"
             >
@@ -1308,7 +1308,7 @@ button.c4 {
             <input
               class="visually-hidden c5"
               id="weiford"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="weiford"
             />
@@ -1334,7 +1334,7 @@ button.c4 {
             <input
               class="visually-hidden c5"
               id="garriss"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="garriss"
             />
@@ -1360,7 +1360,7 @@ button.c4 {
             <input
               class="visually-hidden c5"
               id="wentworthfarthington"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="wentworthfarthington"
             />
@@ -1386,7 +1386,7 @@ button.c4 {
             <input
               class="visually-hidden c5"
               id="hewetson"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="hewetson"
             />
@@ -1412,7 +1412,7 @@ button.c4 {
             <input
               class="visually-hidden c5"
               id="martinez"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="martinez"
             />
@@ -1438,7 +1438,7 @@ button.c4 {
             <input
               class="visually-hidden c5"
               id="brown"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="brown"
             />
@@ -1464,7 +1464,7 @@ button.c4 {
             <input
               class="visually-hidden c5"
               id="pound"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="pound"
             />
@@ -2522,7 +2522,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                US Representative
+                US Representative, 6th Congressional District
                 <span
                   class="visually-hidden"
                 >
@@ -2530,7 +2530,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change US Representative"
+                aria-label="Change US Representative, 6th Congressional District"
                 class="no-print change-button c9"
                 type="button"
               >
@@ -2682,7 +2682,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                State Senator
+                State Senator, 31st District
                 <span
                   class="visually-hidden"
                 >
@@ -2690,7 +2690,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change State Senator"
+                aria-label="Change State Senator, 31st District"
                 class="no-print change-button c9"
                 type="button"
               >
@@ -2722,7 +2722,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                State Assembly
+                State Assembly, 54th District
                 <span
                   class="visually-hidden"
                 >
@@ -2730,7 +2730,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change State Assembly"
+                aria-label="Change State Assembly, 54th District"
                 class="no-print change-button c9"
                 type="button"
               >
@@ -2802,7 +2802,7 @@ exports[`can navigate all ballot pages 7`] = `
               <span
                 class="c8"
               >
-                Registrar of Wills
+                Registrar of Wills, 4th Seat
                 <span
                   class="visually-hidden"
                 >
@@ -2810,7 +2810,7 @@ exports[`can navigate all ballot pages 7`] = `
                 </span>
               </span>
               <button
-                aria-label="Change Registrar of Wills"
+                aria-label="Change Registrar of Wills, 4th Seat"
                 class="no-print change-button c9"
                 type="button"
               >
@@ -3565,7 +3565,7 @@ button.c6 {
           <small
             class="c3"
           >
-            Federal: Statewide
+            Federal
             <span
               class="visually-hidden"
             >
@@ -3606,7 +3606,7 @@ button.c6 {
             <input
               class="visually-hidden c7"
               id="weiford"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="weiford"
             />
@@ -3632,7 +3632,7 @@ button.c6 {
             <input
               class="visually-hidden c7"
               id="garriss"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="garriss"
             />
@@ -3658,7 +3658,7 @@ button.c6 {
             <input
               class="visually-hidden c7"
               id="wentworthfarthington"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="wentworthfarthington"
             />
@@ -3684,7 +3684,7 @@ button.c6 {
             <input
               class="visually-hidden c7"
               id="hewetson"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="hewetson"
             />
@@ -3710,7 +3710,7 @@ button.c6 {
             <input
               class="visually-hidden c7"
               id="martinez"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="martinez"
             />
@@ -3736,7 +3736,7 @@ button.c6 {
             <input
               class="visually-hidden c7"
               id="brown"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="brown"
             />
@@ -3762,7 +3762,7 @@ button.c6 {
             <input
               class="visually-hidden c7"
               id="pound"
-              name="senate"
+              name="senator"
               type="checkbox"
               value="pound"
             />
@@ -4316,7 +4316,7 @@ button.c7 {
           <small
             class="c4"
           >
-            Federal Election
+            Federal
             <span
               class="visually-hidden"
             >

@@ -952,7 +952,7 @@ button.c6 {
             <small
               class="c3"
             >
-              Federal Election
+              Federal
               <span
                 class="visually-hidden"
               >
@@ -1362,7 +1362,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             <small
               class="sc-iwsKbI jHnxZM"
             >
-              Federal Election
+              Federal
               <span
                 class="visually-hidden"
               >
