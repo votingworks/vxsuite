@@ -2,6 +2,8 @@ import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { CandidateVote } from '../config/types'
+
 import { Barcode } from '../assets/BarCodes'
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
@@ -162,7 +164,10 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                   <BallotContext.Consumer>
                     {({ election, votes }) =>
                       election!.contests.map(contest => {
-                        const candidates = votes[contest.id]
+                        const contestCandidates =
+                          (contest.type === 'candidate' &&
+                            (votes[contest.id] as CandidateVote)) ||
+                          []
                         return (
                           <React.Fragment key={contest.id}>
                             <ContestHeader>
@@ -179,14 +184,14 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                               </LinkButton>
                               <span className="visually-hidden">,</span>
                             </ContestHeader>
-                            {candidates ? (
-                              candidates.map((candidate, index) => (
+                            {contestCandidates.length ? (
+                              contestCandidates.map((candidate, index) => (
                                 <ContestSelection key={candidate.id}>
                                   <strong>{candidate.name}</strong>{' '}
                                   {candidate.party && `/ ${candidate.party}`}
                                   {candidate.isWriteIn && `(write-in)`}
                                   <span className="visually-hidden">
-                                    {candidates.length === index + 1
+                                    {contestCandidates.length === index + 1
                                       ? '.'
                                       : ','}
                                   </span>

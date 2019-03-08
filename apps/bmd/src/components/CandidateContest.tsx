@@ -4,10 +4,10 @@ import styled from 'styled-components'
 import {
   Candidate,
   CandidateContest as CandidateContestInterface,
+  CandidateVote,
   InputEvent,
   OptionalCandidate,
   UpdateVoteFunction,
-  Vote,
 } from '../config/types'
 
 import Keyboard from 'react-simple-keyboard'
@@ -109,7 +109,7 @@ const WriteInCandidateInput = styled.input.attrs({
 
 interface Props {
   contest: CandidateContestInterface
-  vote: Vote
+  vote: CandidateVote
   updateVote: UpdateVoteFunction
 }
 

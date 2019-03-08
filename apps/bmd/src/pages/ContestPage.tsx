@@ -1,6 +1,8 @@
 import React, { useContext } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
+import { CandidateVote } from '../config/types'
+
 import BallotContext from '../contexts/ballotContext'
 
 import ButtonBar from '../components/ButtonBar'
@@ -38,7 +40,7 @@ const ContestPage = (props: Props) => {
               <CandidateContest
                 key={contest.id}
                 contest={contest}
-                vote={vote || []}
+                vote={(vote || []) as CandidateVote}
                 updateVote={updateVote}
               />
             )
