@@ -119,7 +119,7 @@ exports[`renders SettingsPage 1`] = `
         Clear Selections
       </h2>
       <p>
-        Clearn all selections and start over.
+        Clear all selections and start over.
       </p>
       <button
         class="c3"

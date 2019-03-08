@@ -27,7 +27,7 @@ const SettingsPage = () => {
             <h1>Settings</h1>
             <p>Settings will be available here.</p>
             <h2>Clear Selections</h2>
-            <p>Clearn all selections and start over.</p>
+            <p>Clear all selections and start over.</p>
             <Button onClick={requestNewBallot}>Start Over</Button>
           </Prose>
         </MainChild>
