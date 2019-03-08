@@ -14,13 +14,15 @@ import Prose from '../components/Prose'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
+const tabletMinWidth = 768
+
 const Ballot = styled.section`
   display: flex;
   flex-direction: column;
   margin-top: 1rem;
   padding: 1rem 0.5rem;
   background: white;
-  @media (min-width: 640px), print {
+  @media (min-width: ${tabletMinWidth}px), print {
     margin-top: 2rem;
     padding: 2rem;
   }
@@ -38,7 +40,7 @@ const Header = styled.div`
   margin-bottom: 1rem;
   align-items: center;
   text-align: center;
-  @media (min-width: 640px), print {
+  @media (min-width: ${tabletMinWidth}px), print {
     text-align: left;
     flex-direction: row;
   }
@@ -46,7 +48,7 @@ const Header = styled.div`
     width: 150px;
     align-self: flex-start;
     margin: 0 auto 0.5rem;
-    @media (min-width: 640px), print {
+    @media (min-width: ${tabletMinWidth}px), print {
       width: 175px;
       margin: 0;
     }
@@ -63,10 +65,10 @@ const Header = styled.div`
   }
   & > .ballot-header-content {
     flex: 1;
-    @media (min-width: 640px), print {
+    @media (min-width: ${tabletMinWidth}px), print {
       margin-left: 1rem;
     }
-    @media (min-width: 640px), print {
+    @media (min-width: ${tabletMinWidth}px), print {
       max-width: 100%;
     }
   }

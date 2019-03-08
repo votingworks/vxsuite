@@ -12,6 +12,7 @@
   bottom: 0;
   display: flex;
   background: rgba(0, 0, 0, 0.75);
+  z-index: 1;
 }
 @media (min-width: 480px) {
   .modal-overlay {

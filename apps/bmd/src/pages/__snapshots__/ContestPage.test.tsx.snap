@@ -253,102 +253,44 @@ exports[`displays accessible error if no id match 1`] = `
 `;
 
 exports[`doesn't display help and settings pages if disabled 1`] = `
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: scroll;
-  padding: 1rem 0.5rem 2rem;
-}
-
-.c1 {
-  width: 100%;
-  max-width: 35rem;
-  margin: 0 auto;
-}
-
-.c4 {
+.c3 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c4 h1 {
+.c3 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c4 h2 {
+.c3 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c4 h3,
-.c4 p {
+.c3 h3,
+.c3 p {
   margin: 1rem 0;
 }
 
-.c4 h1 + h2 {
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h3 + p {
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c8 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.c8 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c8 > * {
-  margin: 0.25rem;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
 .c11 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -382,7 +324,56 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   flex: 1;
 }
 
-.c9 {
+.c14 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c14 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c14 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c10 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: darkgrey;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c12 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -394,27 +385,102 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   white-space: nowrap;
 }
 
-.c10 {
+.c13 {
   color: white;
   text-align: center;
 }
 
-.c3 {
+.c2 {
   font-weight: 600;
   text-transform: uppercase;
 }
 
-.c2 {
-  margin: 0 0.25rem 1rem;
+.c0 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+}
+
+.c9 {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 35rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding-left: calc(100% - 7rem);
+  pointer-events: none;
+}
+
+.c9 > * {
+  pointer-events: auto;
 }
 
 .c5 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+}
+
+.c5:before {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  height: 5px;
+  width: 100%;
+  position: fixed;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
 .c6 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 2rem;
+}
+
+.c7 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -429,15 +495,15 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-button.c6 {
+button.c7 {
   text-align: left;
 }
 
-.c6:focus-within {
+.c7:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6:before {
+.c7:before {
   content: '';
   position: absolute;
   left: 0;
@@ -465,73 +531,24 @@ button.c6 {
   color: #028099;
 }
 
-.c6 > div {
+.c7 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c7 {
+.c8 {
   margin-right: 0.5rem;
 }
 
 @media (min-width:480px) {
-  .c0 {
-    padding: 2rem 1rem;
-  }
-}
-
-@media print {
-  .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
-  }
-}
-
-@media print {
-  .c1 {
-    max-width: 100%;
-    margin: 0;
-  }
-}
-
-@media (min-width:480px) {
-  .c4 {
+  .c3 {
     line-height: 1.3;
   }
 }
 
 @media (min-width:480px) {
-  .c8 > *:only-child {
-    margin: auto;
-    max-width: 30%;
-  }
-}
-
-@media print {
-  .c8 {
-    display: none;
-  }
-}
-
-@media (min-width:480px) {
-  .c11 > *:first-child {
-    margin-left: auto;
-  }
-}
-
-@media (min-width:480px) {
-  .c11 > * {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-  }
-}
-
-@media (min-width:480px) {
   .c11 > *:only-child {
+    margin: auto;
     max-width: 30%;
   }
 }
@@ -542,21 +559,71 @@ button.c6 {
   }
 }
 
+@media (min-width:480px) {
+  .c14 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c14 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c14 > *:only-child {
+    max-width: 30%;
+  }
+}
+
 @media print {
-  .c10 {
+  .c14 {
+    display: none;
+  }
+}
+
+@media print {
+  .c13 {
     color: white;
   }
 }
 
-@media (min-width:480px) {
-  .c2 {
-    margin: 0 1rem 1rem;
-    margin-left: 4rem;
+@media (min-width:640px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c9 {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+}
+
+@media (min-width:840px) {
+  .c9 {
+    left: 50%;
+    margin-left: -420px;
+    padding-left: calc(840px - 7rem);
+  }
+}
+
+@media (min-width:768px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
   }
 }
 
 @media (min-width:480px) {
-  .c6 > div {
+  .c7 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
@@ -568,62 +635,62 @@ button.c6 {
     <div
       class="c1"
     >
-      <fieldset
-        class=""
+      <small
+        class="c2"
       >
-        <legend
-          class="c2"
+        Federal
+        <span
+          class="visually-hidden"
         >
-          <small
-            class="c3"
+          .
+        </span>
+      </small>
+      <div
+        class="c3"
+      >
+        <h1>
+          President and Vice-President of the United States
+          <span
+            class="visually-hidden"
           >
-            Federal
-            <span
-              class="visually-hidden"
-            >
-              .
-            </span>
-          </small>
-          <div
-            class="c4"
-          >
-            <h1>
-              President and Vice-President of the United States
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
-            </h1>
-            <p>
-              <strong>
-                Vote for 
-                1
-                .
-              </strong>
-               You have selected
-               
-              0
-              .
-            </p>
-          </div>
-        </legend>
+            .
+          </span>
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            1
+            .
+          </strong>
+           You have selected
+           
+          0
+          .
+        </p>
+      </div>
+    </div>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
         <div
-          class="c5"
+          class="c6"
         >
           <label
-            class="c6"
+            class="c7"
             for="barchi-hallaren"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="barchi-hallaren"
               name="president"
               type="checkbox"
               value="barchi-hallaren"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Joseph Barchi and Joseph Hallaren
@@ -638,18 +705,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="cramer-vuocolo"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="cramer-vuocolo"
               name="president"
               type="checkbox"
               value="cramer-vuocolo"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Adam Cramer and Greg Vuocolo
@@ -664,18 +731,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="court-blumhardt"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="court-blumhardt"
               name="president"
               type="checkbox"
               value="court-blumhardt"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Daniel Court and Amy Blumhardt
@@ -690,18 +757,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="boone-lian"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="boone-lian"
               name="president"
               type="checkbox"
               value="boone-lian"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Alvin Boone and James Lian
@@ -716,18 +783,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="hildebrand-garritty"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="hildebrand-garritty"
               name="president"
               type="checkbox"
               value="hildebrand-garritty"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Ashley Hildebrand-MacDougall and James Garritty
@@ -742,18 +809,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="patterson-lariviere"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="patterson-lariviere"
               name="president"
               type="checkbox"
               value="patterson-lariviere"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Martin Patterson and Clay Lariviere
@@ -768,26 +835,47 @@ button.c6 {
             </div>
           </label>
         </div>
-      </fieldset>
+      </div>
+      <div
+        aria-hidden="true"
+        class="c9"
+      >
+        <button
+          class="c10"
+          data-direction="up"
+          disabled=""
+          type="button"
+        >
+          ↑ See More
+        </button>
+        <button
+          class="c10"
+          data-direction="down"
+          disabled=""
+          type="button"
+        >
+          ↓ See More
+        </button>
+      </div>
     </div>
   </main>
   <nav
-    class="c8"
+    class="c11"
   >
     <button
-      class="c9"
+      class="c12"
       type="button"
     >
       Next
     </button>
     <button
-      class="c9"
+      class="c12"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c10"
+      class="c13"
     >
       1
        of 
@@ -795,10 +883,10 @@ button.c6 {
     </p>
   </nav>
   <nav
-    class="c11"
+    class="c14"
   >
     <button
-      class="c9"
+      class="c12"
       type="button"
     >
       Review
@@ -808,102 +896,44 @@ button.c6 {
 `;
 
 exports[`renders ContestPage 1`] = `
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: scroll;
-  padding: 1rem 0.5rem 2rem;
-}
-
-.c1 {
-  width: 100%;
-  max-width: 35rem;
-  margin: 0 auto;
-}
-
-.c4 {
+.c3 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c4 h1 {
+.c3 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c4 h2 {
+.c3 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c4 h3,
-.c4 p {
+.c3 h3,
+.c3 p {
   margin: 1rem 0;
 }
 
-.c4 h1 + h2 {
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h3 + p {
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c8 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.c8 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c8 > * {
-  margin: 0.25rem;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
 .c11 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -937,7 +967,56 @@ exports[`renders ContestPage 1`] = `
   flex: 1;
 }
 
-.c9 {
+.c14 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c14 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c14 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c10 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: darkgrey;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c12 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -949,27 +1028,102 @@ exports[`renders ContestPage 1`] = `
   white-space: nowrap;
 }
 
-.c10 {
+.c13 {
   color: white;
   text-align: center;
 }
 
-.c3 {
+.c2 {
   font-weight: 600;
   text-transform: uppercase;
 }
 
-.c2 {
-  margin: 0 0.25rem 1rem;
+.c0 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+}
+
+.c9 {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 35rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding-left: calc(100% - 7rem);
+  pointer-events: none;
+}
+
+.c9 > * {
+  pointer-events: auto;
 }
 
 .c5 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+}
+
+.c5:before {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  height: 5px;
+  width: 100%;
+  position: fixed;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
 .c6 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 2rem;
+}
+
+.c7 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -984,15 +1138,15 @@ exports[`renders ContestPage 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-button.c6 {
+button.c7 {
   text-align: left;
 }
 
-.c6:focus-within {
+.c7:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6:before {
+.c7:before {
   content: '';
   position: absolute;
   left: 0;
@@ -1020,73 +1174,24 @@ button.c6 {
   color: #028099;
 }
 
-.c6 > div {
+.c7 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c7 {
+.c8 {
   margin-right: 0.5rem;
 }
 
 @media (min-width:480px) {
-  .c0 {
-    padding: 2rem 1rem;
-  }
-}
-
-@media print {
-  .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
-  }
-}
-
-@media print {
-  .c1 {
-    max-width: 100%;
-    margin: 0;
-  }
-}
-
-@media (min-width:480px) {
-  .c4 {
+  .c3 {
     line-height: 1.3;
   }
 }
 
 @media (min-width:480px) {
-  .c8 > *:only-child {
-    margin: auto;
-    max-width: 30%;
-  }
-}
-
-@media print {
-  .c8 {
-    display: none;
-  }
-}
-
-@media (min-width:480px) {
-  .c11 > *:first-child {
-    margin-left: auto;
-  }
-}
-
-@media (min-width:480px) {
-  .c11 > * {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-  }
-}
-
-@media (min-width:480px) {
   .c11 > *:only-child {
+    margin: auto;
     max-width: 30%;
   }
 }
@@ -1097,21 +1202,71 @@ button.c6 {
   }
 }
 
+@media (min-width:480px) {
+  .c14 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c14 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c14 > *:only-child {
+    max-width: 30%;
+  }
+}
+
 @media print {
-  .c10 {
+  .c14 {
+    display: none;
+  }
+}
+
+@media print {
+  .c13 {
     color: white;
   }
 }
 
-@media (min-width:480px) {
-  .c2 {
-    margin: 0 1rem 1rem;
-    margin-left: 4rem;
+@media (min-width:640px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c9 {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+}
+
+@media (min-width:840px) {
+  .c9 {
+    left: 50%;
+    margin-left: -420px;
+    padding-left: calc(840px - 7rem);
+  }
+}
+
+@media (min-width:768px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
   }
 }
 
 @media (min-width:480px) {
-  .c6 > div {
+  .c7 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
@@ -1123,62 +1278,62 @@ button.c6 {
     <div
       class="c1"
     >
-      <fieldset
-        class=""
+      <small
+        class="c2"
       >
-        <legend
-          class="c2"
+        Federal
+        <span
+          class="visually-hidden"
         >
-          <small
-            class="c3"
+          .
+        </span>
+      </small>
+      <div
+        class="c3"
+      >
+        <h1>
+          President and Vice-President of the United States
+          <span
+            class="visually-hidden"
           >
-            Federal
-            <span
-              class="visually-hidden"
-            >
-              .
-            </span>
-          </small>
-          <div
-            class="c4"
-          >
-            <h1>
-              President and Vice-President of the United States
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
-            </h1>
-            <p>
-              <strong>
-                Vote for 
-                1
-                .
-              </strong>
-               You have selected
-               
-              0
-              .
-            </p>
-          </div>
-        </legend>
+            .
+          </span>
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            1
+            .
+          </strong>
+           You have selected
+           
+          0
+          .
+        </p>
+      </div>
+    </div>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
         <div
-          class="c5"
+          class="c6"
         >
           <label
-            class="c6"
+            class="c7"
             for="barchi-hallaren"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="barchi-hallaren"
               name="president"
               type="checkbox"
               value="barchi-hallaren"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Joseph Barchi and Joseph Hallaren
@@ -1193,18 +1348,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="cramer-vuocolo"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="cramer-vuocolo"
               name="president"
               type="checkbox"
               value="cramer-vuocolo"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Adam Cramer and Greg Vuocolo
@@ -1219,18 +1374,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="court-blumhardt"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="court-blumhardt"
               name="president"
               type="checkbox"
               value="court-blumhardt"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Daniel Court and Amy Blumhardt
@@ -1245,18 +1400,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="boone-lian"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="boone-lian"
               name="president"
               type="checkbox"
               value="boone-lian"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Alvin Boone and James Lian
@@ -1271,18 +1426,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="hildebrand-garritty"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="hildebrand-garritty"
               name="president"
               type="checkbox"
               value="hildebrand-garritty"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Ashley Hildebrand-MacDougall and James Garritty
@@ -1297,18 +1452,18 @@ button.c6 {
             </div>
           </label>
           <label
-            class="c6"
+            class="c7"
             for="patterson-lariviere"
           >
             <input
-              class="visually-hidden c7"
+              class="visually-hidden c8"
               id="patterson-lariviere"
               name="president"
               type="checkbox"
               value="patterson-lariviere"
             />
             <div
-              class="c4"
+              class="c3"
             >
               <strong>
                 Martin Patterson and Clay Lariviere
@@ -1323,26 +1478,47 @@ button.c6 {
             </div>
           </label>
         </div>
-      </fieldset>
+      </div>
+      <div
+        aria-hidden="true"
+        class="c9"
+      >
+        <button
+          class="c10"
+          data-direction="up"
+          disabled=""
+          type="button"
+        >
+          ↑ See More
+        </button>
+        <button
+          class="c10"
+          data-direction="down"
+          disabled=""
+          type="button"
+        >
+          ↓ See More
+        </button>
+      </div>
     </div>
   </main>
   <nav
-    class="c8"
+    class="c11"
   >
     <button
-      class="c9"
+      class="c12"
       type="button"
     >
       Next
     </button>
     <button
-      class="c9"
+      class="c12"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c10"
+      class="c13"
     >
       1
        of 
@@ -1350,22 +1526,22 @@ button.c6 {
     </p>
   </nav>
   <nav
-    class="c11"
+    class="c14"
   >
     <button
-      class="c9"
+      class="c12"
       type="button"
     >
       Review
     </button>
     <button
-      class="c9"
+      class="c12"
       type="button"
     >
       Help
     </button>
     <button
-      class="c9"
+      class="c12"
       type="button"
     >
       Settings

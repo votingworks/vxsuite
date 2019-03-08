@@ -195,7 +195,7 @@ exports[`renders ReviewPage with votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c3 {
     margin-top: 2rem;
     padding: 2rem;
@@ -211,7 +211,7 @@ exports[`renders ReviewPage with votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 {
     text-align: left;
     -webkit-flex-direction: row;
@@ -220,7 +220,7 @@ exports[`renders ReviewPage with votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .seal {
     width: 175px;
     margin: 0;
@@ -234,13 +234,13 @@ exports[`renders ReviewPage with votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .ballot-header-content {
     margin-left: 1rem;
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .ballot-header-content {
     max-width: 100%;
   }
@@ -1520,7 +1520,7 @@ exports[`renders ReviewPage without votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c3 {
     margin-top: 2rem;
     padding: 2rem;
@@ -1536,7 +1536,7 @@ exports[`renders ReviewPage without votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 {
     text-align: left;
     -webkit-flex-direction: row;
@@ -1545,7 +1545,7 @@ exports[`renders ReviewPage without votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .seal {
     width: 175px;
     margin: 0;
@@ -1559,13 +1559,13 @@ exports[`renders ReviewPage without votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .ballot-header-content {
     margin-left: 1rem;
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .ballot-header-content {
     max-width: 100%;
   }

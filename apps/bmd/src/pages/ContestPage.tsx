@@ -33,28 +33,26 @@ const ContestPage = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Main>
-        <MainChild>
-          {contest ? (
-            contest.type === 'candidate' && (
-              <CandidateContest
-                key={contest.id}
-                contest={contest}
-                vote={(vote || []) as CandidateVote}
-                updateVote={updateVote}
-              />
-            )
-          ) : (
-            <React.Fragment>
-              <h1>Error</h1>
-              <p>
-                no contest exists for id <code>"{id}"</code>
-              </p>
-              <LinkButton to="/">Start Over</LinkButton>
-            </React.Fragment>
-          )}
-        </MainChild>
-      </Main>
+      {contest ? (
+        contest.type === 'candidate' && (
+          <CandidateContest
+            key={contest.id}
+            contest={contest}
+            vote={(vote || []) as CandidateVote}
+            updateVote={updateVote}
+          />
+        )
+      ) : (
+        <Main>
+          <MainChild>
+            <h1>Error</h1>
+            <p>
+              no contest exists for id <code>"{id}"</code>
+            </p>
+            <LinkButton to="/">Start Over</LinkButton>
+          </MainChild>
+        </Main>
+      )}
       <ButtonBar>
         {nextContest ? (
           <LinkButton

@@ -9,6 +9,9 @@ export interface Dictionary<T> {
 export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
+// UI
+export type ScrollDirections = 'up' | 'down'
+
 // Election
 export interface Candidate {
   readonly id: string
