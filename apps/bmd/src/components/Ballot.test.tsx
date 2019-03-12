@@ -20,41 +20,27 @@ it(`can navigate all ballot pages`, () => {
   })
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))
-  expect(container.firstChild).toMatchSnapshot()
-
   fireEvent.click(getByText('Get Started'))
-  expect(container.firstChild).toMatchSnapshot()
-
   fireEvent.click(getByText('Next'))
-  expect(container.firstChild).toMatchSnapshot()
-
   fireEvent.click(getByText('Help'))
   getByText('Help content will be available here.')
-  expect(container.firstChild).toMatchSnapshot()
   fireEvent.click(getByText('Back'))
-
   fireEvent.click(getByText('Settings'))
   getByText('Settings will be available here.')
-  expect(container.firstChild).toMatchSnapshot()
   fireEvent.click(getByText('Back'))
-
   fireEvent.click(getByText('Review'))
-  expect(container.firstChild).toMatchSnapshot()
-
   fireEvent.click(getByText('Back'))
-  expect(container.firstChild).toMatchSnapshot()
 })
 
-it('redirects contests index to first contest', () => {
-  const { container, getByText } = render(<Ballot />, {
+it(`redirects contests index to first contest`, () => {
+  const { getByText } = render(<Ballot />, {
     route: '/contests',
   })
   getByText(electionSample.contests[0].title)
-  expect(container.firstChild).toMatchSnapshot()
 })
 
-it('skips activation page if disabled', () => {
-  const { container, getByText } = render(<Ballot />, {
+it(`skips activation page if disabled`, () => {
+  const { getByText } = render(<Ballot />, {
     election: lodashMerge(electionSample, {
       bmdConfig: {
         requireActivation: false,
@@ -63,5 +49,4 @@ it('skips activation page if disabled', () => {
     route: '/',
   })
   getByText('Get Started')
-  expect(container.firstChild).toMatchSnapshot()
 })

@@ -2,12 +2,14 @@ import camelCase from 'lodash.camelcase'
 import React from 'react'
 import styled from 'styled-components'
 import {
+  ButtonEvent,
   Candidate,
   CandidateContest as CandidateContestInterface,
+  CandidateVote,
   InputEvent,
   OptionalCandidate,
+  ScrollDirections,
   UpdateVoteFunction,
-  Vote,
 } from '../config/types'
 
 import Keyboard from 'react-simple-keyboard'
@@ -18,22 +20,96 @@ import Modal from './Modal'
 import Prose from './Prose'
 import { Text } from './Typography'
 
+const tabletMinWidth = 768
+
 const ContestSection = styled.small`
   font-weight: 600;
   text-transform: uppercase;
 `
-const FieldSet = styled.fieldset``
-const Legend = styled.legend`
-  margin: 0 0.25rem 1rem;
-  @media (min-width: 480px) {
-    margin: 0 1rem 1rem;
-    margin-left: 4rem;
+// TODO: A11y likes <fieldset>, but <fieldset> doesn't do flex.
+const FieldSet = styled.main`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+`
+// TODO: A11y: no <fieldset>, no <legend>.
+const Legend = styled.div<{ isScrollable: boolean }>`
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+  @media (min-width: 640px) {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
   }
 `
-const Choices = styled.div`
+const ChoicesWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  position: relative;
+`
+const ScrollControls = styled.div`
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 35rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding-left: calc(100% - 7rem);
+  pointer-events: none;
+  & > * {
+    pointer-events: auto;
+  }
+  @media (min-width: ${tabletMinWidth}px) {
+    display: flex;
+  }
+  @media (min-width: 840px) {
+    left: 50%;
+    margin-left: -420px;
+    padding-left: calc(840px - 7rem);
+  }
+`
+const Choices = styled.div<{
+  showTopShadow?: boolean
+}>`
+  flex: 1;
+  overflow: scroll;
+  &:before {
+    content: '';
+    z-index: 1;
+    transition: opacity 0.25s ease;
+    height: 5px;
+    width: 100%;
+    position: fixed;
+    opacity: ${({ showTopShadow }) =>
+      showTopShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
+    background: linear-gradient(
+      to bottom,
+      rgb(177, 186, 190) 0%,
+      transparent 100%
+    );
+  }
+`
+const ChoicesGrid = styled.div<{ isScrollable: boolean }>`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
   grid-gap: 0.75rem;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 2rem;
+  @media (min-width: ${tabletMinWidth}px) {
+    padding-right: ${({ isScrollable }) =>
+      isScrollable
+        ? /* istanbul ignore next: Tested by Cypress */ '8rem'
+        : '1rem'};
+    padding-left: 1rem;
+  }
 `
 const Choice = styled('label')<{ isSelected: boolean }>`
   cursor: pointer;
@@ -109,13 +185,16 @@ const WriteInCandidateInput = styled.input.attrs({
 
 interface Props {
   contest: CandidateContestInterface
-  vote: Vote
+  vote: CandidateVote
   updateVote: UpdateVoteFunction
 }
 
 interface State {
   attemptedOverVoteCandidate: OptionalCandidate
   candidatePendingRemoval: OptionalCandidate
+  isScrollAtBottom: boolean
+  isScrollAtTop: boolean
+  isScrollable: boolean
   writeInCandateModalIsOpen: boolean
   writeInCandidateName: string
 }
@@ -123,17 +202,36 @@ interface State {
 const initialState = {
   attemptedOverVoteCandidate: undefined,
   candidatePendingRemoval: undefined,
-  layoutName: 'default',
+  isScrollAtBottom: false,
+  isScrollAtTop: true,
+  isScrollable: false,
   writeInCandateModalIsOpen: false,
   writeInCandidateName: '',
 }
 
 class CandidateContest extends React.Component<Props, State> {
   private keyboard: React.RefObject<Keyboard>
+  private contestChoices: React.RefObject<HTMLDivElement>
   constructor(props: Props) {
     super(props)
     this.state = initialState
     this.keyboard = React.createRef()
+    this.contestChoices = React.createRef()
+  }
+
+  public componentDidMount() {
+    this.updateContestChoicesScrollStates()
+    window.addEventListener('resize', this.updateContestChoicesScrollStates)
+  }
+
+  public componentDidUpdate(prevProps: Props) {
+    if (this.props.vote.length !== prevProps.vote.length) {
+      this.updateContestChoicesScrollStates()
+    }
+  }
+
+  public componentWillUnmount = () => {
+    window.removeEventListener('resize', this.updateContestChoicesScrollStates)
   }
 
   public findCandidateById = (candidates: Candidate[], id: string) =>
@@ -226,12 +324,53 @@ class CandidateContest extends React.Component<Props, State> {
     this.setState({ writeInCandidateName })
   }
 
+  public updateContestChoicesScrollStates = () => {
+    const target = this.contestChoices.current!
+    const isTabletMinWidth = target.clientWidth >= tabletMinWidth
+    this.setState({
+      isScrollAtBottom:
+        target.scrollTop + target.clientHeight === target.scrollHeight,
+      isScrollAtTop: target.scrollTop === 0,
+      isScrollable:
+        isTabletMinWidth &&
+        /* istanbul ignore next: Tested by Cypress */ target.scrollHeight >
+          target.clientHeight,
+    })
+  }
+
+  public scrollContestChoices = /* istanbul ignore next: Tested by Cypress */ (
+    event: ButtonEvent
+  ) => {
+    const direction = (event.target as HTMLElement).dataset
+      .direction as ScrollDirections
+    const contestChoices = this.contestChoices.current!
+    const currentScrollTop = contestChoices.scrollTop
+    const clientHeight = contestChoices.clientHeight
+    const scrollHeight = contestChoices.scrollHeight
+    const idealScrollDistance = Math.round(clientHeight * 0.75)
+    const maxScrollableDownDistance =
+      scrollHeight - clientHeight - currentScrollTop
+    const maxScrollTop =
+      direction === 'down'
+        ? currentScrollTop + maxScrollableDownDistance
+        : currentScrollTop
+    const idealScrollTop =
+      direction === 'down'
+        ? currentScrollTop + idealScrollDistance
+        : currentScrollTop - idealScrollDistance
+    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
+    contestChoices.scrollTo({ behavior: 'smooth', left: 0, top })
+  }
+
   public render() {
     const { contest, vote } = this.props
     const hasReachedMaxSelections = contest.seats === vote.length
     const {
       attemptedOverVoteCandidate,
       candidatePendingRemoval,
+      isScrollable,
+      isScrollAtBottom,
+      isScrollAtTop,
       writeInCandidateName,
       writeInCandateModalIsOpen,
     } = this.state
@@ -239,7 +378,7 @@ class CandidateContest extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <FieldSet>
-          <Legend>
+          <Legend isScrollable={isScrollable}>
             {contest.section && (
               <ContestSection>
                 {contest.section}
@@ -257,77 +396,101 @@ class CandidateContest extends React.Component<Props, State> {
               </p>
             </Prose>
           </Legend>
-          <Choices>
-            {contest.candidates.map((candidate, index) => {
-              const isChecked = !!this.findCandidateById(vote, candidate.id)
-              const isDisabled = hasReachedMaxSelections && !isChecked
-              const handleDisabledClick = () => {
-                if (isDisabled) {
-                  this.handleChangeVoteAlert(candidate)
-                }
-              }
-              return (
-                <Choice
-                  key={candidate.id}
-                  htmlFor={candidate.id}
-                  isSelected={isChecked}
-                  onClick={handleDisabledClick}
-                >
-                  <ChoiceInput
-                    autoFocus={isChecked || (index === 0 && !vote)}
-                    id={candidate.id}
-                    name={contest.id}
-                    value={candidate.id}
-                    onChange={this.handleUpdateSelection}
-                    checked={isChecked}
-                    disabled={isDisabled}
-                    className="visually-hidden"
-                  />
-                  <Prose>
-                    <strong>{candidate.name}</strong>
-                    <span className="visually-hidden">,</span>
-                    <br />
-                    {candidate.party}
-                  </Prose>
-                </Choice>
-              )
-            })}
-            {contest.allowWriteIns &&
-              vote
-                .filter(c => c.isWriteIn)
-                .map(candidate => {
+          <ChoicesWrapper>
+            <Choices
+              ref={this.contestChoices}
+              onScroll={this.updateContestChoicesScrollStates}
+              showTopShadow={!isScrollAtTop}
+            >
+              <ChoicesGrid isScrollable={isScrollable}>
+                {contest.candidates.map((candidate, index) => {
+                  const isChecked = !!this.findCandidateById(vote, candidate.id)
+                  const isDisabled = hasReachedMaxSelections && !isChecked
+                  const handleDisabledClick = () => {
+                    if (isDisabled) {
+                      this.handleChangeVoteAlert(candidate)
+                    }
+                  }
                   return (
                     <Choice
                       key={candidate.id}
                       htmlFor={candidate.id}
-                      isSelected
+                      isSelected={isChecked}
+                      onClick={handleDisabledClick}
                     >
                       <ChoiceInput
+                        autoFocus={isChecked || (index === 0 && !vote)}
                         id={candidate.id}
                         name={contest.id}
                         value={candidate.id}
                         onChange={this.handleUpdateSelection}
-                        checked
+                        checked={isChecked}
+                        disabled={isDisabled}
                         className="visually-hidden"
                       />
                       <Prose>
                         <strong>{candidate.name}</strong>
+                        <span className="visually-hidden">,</span>
+                        <br />
+                        {candidate.party}
                       </Prose>
                     </Choice>
                   )
                 })}
-            {contest.allowWriteIns && !hasReachedMaxSelections && (
-              <Choice
-                as="button"
-                isSelected={false}
-                onClick={this.initWriteInCandidate}
+                {contest.allowWriteIns &&
+                  vote
+                    .filter(c => c.isWriteIn)
+                    .map(candidate => {
+                      return (
+                        <Choice
+                          key={candidate.id}
+                          htmlFor={candidate.id}
+                          isSelected
+                        >
+                          <ChoiceInput
+                            id={candidate.id}
+                            name={contest.id}
+                            value={candidate.id}
+                            onChange={this.handleUpdateSelection}
+                            checked
+                            className="visually-hidden"
+                          />
+                          <Prose>
+                            <strong>{candidate.name}</strong>
+                          </Prose>
+                        </Choice>
+                      )
+                    })}
+                {contest.allowWriteIns && !hasReachedMaxSelections && (
+                  <Choice
+                    as="button"
+                    isSelected={false}
+                    onClick={this.initWriteInCandidate}
+                  >
+                    <Prose>
+                      <em>add write-in candidate</em>
+                    </Prose>
+                  </Choice>
+                )}
+              </ChoicesGrid>
+            </Choices>
+            <ScrollControls aria-hidden="true">
+              <Button
+                data-direction="up"
+                disabled={isScrollAtTop}
+                onClick={this.scrollContestChoices}
               >
-                <Prose>
-                  <em>add write-in candidate</em>
-                </Prose>
-              </Choice>
-            )}
-          </Choices>
+                ↑ See More
+              </Button>
+              <Button
+                data-direction="down"
+                disabled={isScrollAtBottom}
+                onClick={this.scrollContestChoices}
+              >
+                ↓ See More
+              </Button>
+            </ScrollControls>
+          </ChoicesWrapper>
         </FieldSet>
         <Modal
           isOpen={!!attemptedOverVoteCandidate}

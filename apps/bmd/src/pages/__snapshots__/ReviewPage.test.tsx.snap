@@ -195,7 +195,7 @@ exports[`renders ReviewPage with votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c3 {
     margin-top: 2rem;
     padding: 2rem;
@@ -211,7 +211,7 @@ exports[`renders ReviewPage with votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 {
     text-align: left;
     -webkit-flex-direction: row;
@@ -220,7 +220,7 @@ exports[`renders ReviewPage with votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .seal {
     width: 175px;
     margin: 0;
@@ -234,13 +234,13 @@ exports[`renders ReviewPage with votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .ballot-header-content {
     margin-left: 1rem;
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .ballot-header-content {
     max-width: 100%;
   }
@@ -561,16 +561,16 @@ exports[`renders ReviewPage with votes 1`] = `
           <dd
             class="c10"
           >
-            <strong
-              class="c11"
-            >
-              [no selection]
-              <span
-                class="visually-hidden"
-              >
-                .
-              </span>
+            <strong>
+              Dennis Weiford
             </strong>
+             
+            / Federalist
+            <span
+              class="visually-hidden"
+            >
+              .
+            </span>
           </dd>
           <dt
             class="c7"
@@ -578,7 +578,7 @@ exports[`renders ReviewPage with votes 1`] = `
             <span
               class="c8"
             >
-              US Representative
+              US Representative, 6th Congressional District
               <span
                 class="visually-hidden"
               >
@@ -586,7 +586,7 @@ exports[`renders ReviewPage with votes 1`] = `
               </span>
             </span>
             <button
-              aria-label="Change US Representative"
+              aria-label="Change US Representative, 6th Congressional District"
               class="no-print change-button c9"
               type="button"
             >
@@ -738,7 +738,7 @@ exports[`renders ReviewPage with votes 1`] = `
             <span
               class="c8"
             >
-              State Senator
+              State Senator, 31st District
               <span
                 class="visually-hidden"
               >
@@ -746,7 +746,7 @@ exports[`renders ReviewPage with votes 1`] = `
               </span>
             </span>
             <button
-              aria-label="Change State Senator"
+              aria-label="Change State Senator, 31st District"
               class="no-print change-button c9"
               type="button"
             >
@@ -778,7 +778,7 @@ exports[`renders ReviewPage with votes 1`] = `
             <span
               class="c8"
             >
-              State Assembly
+              State Assembly, 54th District
               <span
                 class="visually-hidden"
               >
@@ -786,7 +786,7 @@ exports[`renders ReviewPage with votes 1`] = `
               </span>
             </span>
             <button
-              aria-label="Change State Assembly"
+              aria-label="Change State Assembly, 54th District"
               class="no-print change-button c9"
               type="button"
             >
@@ -858,7 +858,7 @@ exports[`renders ReviewPage with votes 1`] = `
             <span
               class="c8"
             >
-              Registrar of Wills
+              Registrar of Wills, 4th Seat
               <span
                 class="visually-hidden"
               >
@@ -866,7 +866,7 @@ exports[`renders ReviewPage with votes 1`] = `
               </span>
             </span>
             <button
-              aria-label="Change Registrar of Wills"
+              aria-label="Change Registrar of Wills, 4th Seat"
               class="no-print change-button c9"
               type="button"
             >
@@ -1520,7 +1520,7 @@ exports[`renders ReviewPage without votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c3 {
     margin-top: 2rem;
     padding: 2rem;
@@ -1536,7 +1536,7 @@ exports[`renders ReviewPage without votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 {
     text-align: left;
     -webkit-flex-direction: row;
@@ -1545,7 +1545,7 @@ exports[`renders ReviewPage without votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .seal {
     width: 175px;
     margin: 0;
@@ -1559,13 +1559,13 @@ exports[`renders ReviewPage without votes 1`] = `
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .ballot-header-content {
     margin-left: 1rem;
   }
 }
 
-@media (min-width:640px),print {
+@media (min-width:768px),print {
   .c4 > .ballot-header-content {
     max-width: 100%;
   }
@@ -1903,7 +1903,7 @@ exports[`renders ReviewPage without votes 1`] = `
             <span
               class="c8"
             >
-              US Representative
+              US Representative, 6th Congressional District
               <span
                 class="visually-hidden"
               >
@@ -1911,7 +1911,7 @@ exports[`renders ReviewPage without votes 1`] = `
               </span>
             </span>
             <button
-              aria-label="Change US Representative"
+              aria-label="Change US Representative, 6th Congressional District"
               class="no-print change-button c9"
               type="button"
             >
@@ -2063,7 +2063,7 @@ exports[`renders ReviewPage without votes 1`] = `
             <span
               class="c8"
             >
-              State Senator
+              State Senator, 31st District
               <span
                 class="visually-hidden"
               >
@@ -2071,7 +2071,7 @@ exports[`renders ReviewPage without votes 1`] = `
               </span>
             </span>
             <button
-              aria-label="Change State Senator"
+              aria-label="Change State Senator, 31st District"
               class="no-print change-button c9"
               type="button"
             >
@@ -2103,7 +2103,7 @@ exports[`renders ReviewPage without votes 1`] = `
             <span
               class="c8"
             >
-              State Assembly
+              State Assembly, 54th District
               <span
                 class="visually-hidden"
               >
@@ -2111,7 +2111,7 @@ exports[`renders ReviewPage without votes 1`] = `
               </span>
             </span>
             <button
-              aria-label="Change State Assembly"
+              aria-label="Change State Assembly, 54th District"
               class="no-print change-button c9"
               type="button"
             >
@@ -2183,7 +2183,7 @@ exports[`renders ReviewPage without votes 1`] = `
             <span
               class="c8"
             >
-              Registrar of Wills
+              Registrar of Wills, 4th Seat
               <span
                 class="visually-hidden"
               >
@@ -2191,7 +2191,7 @@ exports[`renders ReviewPage without votes 1`] = `
               </span>
             </span>
             <button
-              aria-label="Change Registrar of Wills"
+              aria-label="Change Registrar of Wills, 4th Seat"
               class="no-print change-button c9"
               type="button"
             >

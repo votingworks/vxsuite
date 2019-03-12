@@ -9,6 +9,9 @@ export interface Dictionary<T> {
 export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
+// UI
+export type ScrollDirections = 'up' | 'down'
+
 // Election
 export interface Candidate {
   readonly id: string
@@ -17,14 +20,21 @@ export interface Candidate {
   isWriteIn?: boolean
 }
 export type OptionalCandidate = Candidate | undefined
-export type Vote = Candidate[] // will eventually add "| Approval" to this type
+
+// Votes
+export type CandidateVote = Candidate[]
+export type YesNoVote = 'yes' | 'no'
+export type Vote = CandidateVote | YesNoVote
 export type OptionalVote = Candidate[] | undefined
 export type VotesDict = Dictionary<Vote>
+
+// Contests
+export type ContestTypes = 'candidate' | 'yesno'
 export interface Contest {
   readonly id: string
-  readonly section?: string
+  readonly section: string
   readonly title: string
-  readonly type: string
+  readonly type: ContestTypes
 }
 export interface CandidateContest extends Contest {
   readonly type: 'candidate'
@@ -36,6 +46,8 @@ export interface YesNoContest extends Contest {
   readonly type: 'yesno'
   readonly description: string
 }
+
+// Election
 export interface BMDConfig {
   readonly requireActivation?: boolean
   readonly showHelpPage?: boolean
@@ -54,6 +66,8 @@ export interface Election {
   readonly bmdConfig?: BMDConfig
 }
 export type OptionalElection = Election | undefined
+
+// Ballot
 export type UpdateVoteFunction = (contestId: string, vote: Vote) => void
 export interface BallotContextInterface {
   readonly election: Election | undefined

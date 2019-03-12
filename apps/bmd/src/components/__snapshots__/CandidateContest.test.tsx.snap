@@ -1,59 +1,146 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`allows another candidate to be selected when 1 of 2 have been selected 1`] = `
-.c2 {
+exports[`supports multi-seat contests allows a second candidate to be selected when one is selected 1`] = `
+.c11 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: darkgrey;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c3 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c2 h1 {
+.c3 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c2 h2 {
+.c3 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c2 h3,
-.c2 p {
+.c3 h3,
+.c3 p {
   margin: 1rem 0;
 }
 
-.c2 h1 + h2 {
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c1 {
+.c2 {
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .c0 {
-  margin: 0 0.25rem 1rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: scroll;
 }
 
-.c3 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+}
+
+.c10 {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 35rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding-left: calc(100% - 7rem);
+  pointer-events: none;
+}
+
+.c10 > * {
+  pointer-events: auto;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+}
+
+.c5:before {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  height: 5px;
+  width: 100%;
+  position: fixed;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
 .c6 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 2rem;
+}
+
+.c9 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -68,15 +155,15 @@ exports[`allows another candidate to be selected when 1 of 2 have been selected 
   transition: background 0.25s,color 0.25s;
 }
 
-button.c6 {
+button.c9 {
   text-align: left;
 }
 
-.c6:focus-within {
+.c9:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6:before {
+.c9:before {
   content: '';
   position: absolute;
   left: 0;
@@ -104,12 +191,12 @@ button.c6 {
   color: #028099;
 }
 
-.c6 > div {
+.c9 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c4 {
+.c7 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -125,15 +212,15 @@ button.c6 {
   transition: background 0.25s,color 0.25s;
 }
 
-button.c4 {
+button.c7 {
   text-align: left;
 }
 
-.c4:focus-within {
+.c7:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c4:before {
+.c7:before {
   content: '✓';
   position: absolute;
   left: 0;
@@ -161,51 +248,75 @@ button.c4 {
   color: #028099;
 }
 
-.c4 > div {
+.c7 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c5 {
+.c8 {
   margin-right: 0.5rem;
 }
 
 @media (min-width:480px) {
-  .c2 {
+  .c3 {
     line-height: 1.3;
   }
 }
 
-@media (min-width:480px) {
-  .c0 {
-    margin: 0 1rem 1rem;
-    margin-left: 4rem;
+@media (min-width:640px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c10 {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+}
+
+@media (min-width:840px) {
+  .c10 {
+    left: 50%;
+    margin-left: -420px;
+    padding-left: calc(840px - 7rem);
+  }
+}
+
+@media (min-width:768px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
   }
 }
 
 @media (min-width:480px) {
-  .c6 > div {
+  .c9 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
 
 @media (min-width:480px) {
-  .c4 > div {
+  .c7 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
 
 <div>
-  <fieldset
-    class=""
+  <main
+    class="c0"
   >
-    <legend
-      class="c0"
+    <div
+      class="c1"
     >
       <small
-        class="c1"
+        class="c2"
       >
-        54th District
+        City
         <span
           class="visually-hidden"
         >
@@ -213,10 +324,10 @@ button.c4 {
         </span>
       </small>
       <div
-        class="c2"
+        class="c3"
       >
         <h1>
-          State Assembly
+          Mayor
           <span
             class="visually-hidden"
           >
@@ -235,159 +346,264 @@ button.c4 {
           .
         </p>
       </div>
-    </legend>
-    <div
-      class="c3"
-    >
-      <label
-        class="c4"
-        for="solis"
-      >
-        <input
-          checked=""
-          class="visually-hidden c5"
-          id="solis"
-          name="state-assembly"
-          type="checkbox"
-          value="solis"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Andrea Solis
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Federalist
-        </div>
-      </label>
-      <label
-        class="c6"
-        for="keller"
-      >
-        <input
-          class="visually-hidden c5"
-          id="keller"
-          name="state-assembly"
-          type="checkbox"
-          value="keller"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Amos Keller
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          People's
-        </div>
-      </label>
-      <label
-        class="c6"
-        for="rangel"
-      >
-        <input
-          class="visually-hidden c5"
-          id="rangel"
-          name="state-assembly"
-          type="checkbox"
-          value="rangel"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Davitra Rangel
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Liberty
-        </div>
-      </label>
-      <button
-        class="c6"
-      >
-        <div
-          class="c2"
-        >
-          <em>
-            add write-in candidate
-          </em>
-        </div>
-      </button>
     </div>
-  </fieldset>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <label
+            class="c7"
+            for="name-0"
+          >
+            <input
+              checked=""
+              class="visually-hidden c8"
+              id="name-0"
+              name="contest-id"
+              type="checkbox"
+              value="name-0"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 0
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 0
+            </div>
+          </label>
+          <label
+            class="c9"
+            for="name-1"
+          >
+            <input
+              class="visually-hidden c8"
+              id="name-1"
+              name="contest-id"
+              type="checkbox"
+              value="name-1"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 1
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 1
+            </div>
+          </label>
+          <label
+            class="c9"
+            for="name-2"
+          >
+            <input
+              class="visually-hidden c8"
+              id="name-2"
+              name="contest-id"
+              type="checkbox"
+              value="name-2"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 2
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 0
+            </div>
+          </label>
+        </div>
+      </div>
+      <div
+        aria-hidden="true"
+        class="c10"
+      >
+        <button
+          class="c11"
+          data-direction="up"
+          disabled=""
+          type="button"
+        >
+          ↑ See More
+        </button>
+        <button
+          class="c11"
+          data-direction="down"
+          disabled=""
+          type="button"
+        >
+          ↓ See More
+        </button>
+      </div>
+    </div>
+  </main>
 </div>
 `;
 
-exports[`allows any candidate to be selected when no candidate is selected 1`] = `
-.c2 {
+exports[`supports single-seat contest allows any candidate to be selected when no candidate is selected 1`] = `
+.c10 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: darkgrey;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c3 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c2 h1 {
+.c3 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c2 h2 {
+.c3 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c2 h3,
-.c2 p {
+.c3 h3,
+.c3 p {
   margin: 1rem 0;
 }
 
-.c2 h1 + h2 {
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c1 {
+.c2 {
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .c0 {
-  margin: 0 0.25rem 1rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: scroll;
 }
 
-.c3 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
 }
 
 .c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+}
+
+.c9 {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 35rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding-left: calc(100% - 7rem);
+  pointer-events: none;
+}
+
+.c9 > * {
+  pointer-events: auto;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+}
+
+.c5:before {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  height: 5px;
+  width: 100%;
+  position: fixed;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c6 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 2rem;
+}
+
+.c7 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -402,15 +618,15 @@ exports[`allows any candidate to be selected when no candidate is selected 1`] =
   transition: background 0.25s,color 0.25s;
 }
 
-button.c4 {
+button.c7 {
   text-align: left;
 }
 
-.c4:focus-within {
+.c7:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c4:before {
+.c7:before {
   content: '';
   position: absolute;
   left: 0;
@@ -438,45 +654,69 @@ button.c4 {
   color: #028099;
 }
 
-.c4 > div {
+.c7 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c5 {
+.c8 {
   margin-right: 0.5rem;
 }
 
 @media (min-width:480px) {
-  .c2 {
+  .c3 {
     line-height: 1.3;
   }
 }
 
-@media (min-width:480px) {
-  .c0 {
-    margin: 0 1rem 1rem;
-    margin-left: 4rem;
+@media (min-width:640px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c9 {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+}
+
+@media (min-width:840px) {
+  .c9 {
+    left: 50%;
+    margin-left: -420px;
+    padding-left: calc(840px - 7rem);
+  }
+}
+
+@media (min-width:768px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
   }
 }
 
 @media (min-width:480px) {
-  .c4 > div {
+  .c7 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
 
 <div>
-  <fieldset
-    class=""
+  <main
+    class="c0"
   >
-    <legend
-      class="c0"
+    <div
+      class="c1"
     >
       <small
-        class="c1"
+        class="c2"
       >
-        54th District
+        City
         <span
           class="visually-hidden"
         >
@@ -484,10 +724,10 @@ button.c4 {
         </span>
       </small>
       <div
-        class="c2"
+        class="c3"
       >
         <h1>
-          State Assembly
+          Mayor
           <span
             class="visually-hidden"
           >
@@ -506,740 +746,263 @@ button.c4 {
           .
         </p>
       </div>
-    </legend>
-    <div
-      class="c3"
-    >
-      <label
-        class="c4"
-        for="solis"
-      >
-        <input
-          class="visually-hidden c5"
-          id="solis"
-          name="state-assembly"
-          type="checkbox"
-          value="solis"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Andrea Solis
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Federalist
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="keller"
-      >
-        <input
-          class="visually-hidden c5"
-          id="keller"
-          name="state-assembly"
-          type="checkbox"
-          value="keller"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Amos Keller
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          People's
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="rangel"
-      >
-        <input
-          class="visually-hidden c5"
-          id="rangel"
-          name="state-assembly"
-          type="checkbox"
-          value="rangel"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Davitra Rangel
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Liberty
-        </div>
-      </label>
-      <button
-        class="c4"
-      >
-        <div
-          class="c2"
-        >
-          <em>
-            add write-in candidate
-          </em>
-        </div>
-      </button>
     </div>
-  </fieldset>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <label
+            class="c7"
+            for="name-0"
+          >
+            <input
+              class="visually-hidden c8"
+              id="name-0"
+              name="contest-id"
+              type="checkbox"
+              value="name-0"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 0
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 0
+            </div>
+          </label>
+          <label
+            class="c7"
+            for="name-1"
+          >
+            <input
+              class="visually-hidden c8"
+              id="name-1"
+              name="contest-id"
+              type="checkbox"
+              value="name-1"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 1
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 1
+            </div>
+          </label>
+          <label
+            class="c7"
+            for="name-2"
+          >
+            <input
+              class="visually-hidden c8"
+              id="name-2"
+              name="contest-id"
+              type="checkbox"
+              value="name-2"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 2
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 0
+            </div>
+          </label>
+        </div>
+      </div>
+      <div
+        aria-hidden="true"
+        class="c9"
+      >
+        <button
+          class="c10"
+          data-direction="up"
+          disabled=""
+          type="button"
+        >
+          ↑ See More
+        </button>
+        <button
+          class="c10"
+          data-direction="down"
+          disabled=""
+          type="button"
+        >
+          ↓ See More
+        </button>
+      </div>
+    </div>
+  </main>
 </div>
 `;
 
-exports[`displays warning if write-in candidate name is too long 1`] = `
-.c2 {
+exports[`supports single-seat contest doesn't allow other candidates to be selected when a candidate is selected 1`] = `
+.c11 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: darkgrey;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c3 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c2 h1 {
+.c3 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c2 h2 {
+.c3 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c2 h3,
-.c2 p {
+.c3 h3,
+.c3 p {
   margin: 1rem 0;
 }
 
-.c2 h1 + h2 {
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c1 {
+.c2 {
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .c0 {
-  margin: 0 0.25rem 1rem;
-}
-
-.c3 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
-}
-
-.c4 {
-  cursor: pointer;
-  position: relative;
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  border-radius: 0.125rem;
-  background: white;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-button.c4 {
-  text-align: left;
-}
-
-.c4:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
-}
-
-.c4:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  font-size: 2rem;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: scroll;
 }
 
-.c4 > div {
-  word-break: break-word;
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+}
+
+.c10 {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 35rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding-left: calc(100% - 7rem);
+  pointer-events: none;
+}
+
+.c10 > * {
+  pointer-events: auto;
 }
 
 .c5 {
-  margin-right: 0.5rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
 }
 
-@media (min-width:480px) {
-  .c2 {
-    line-height: 1.3;
-  }
-}
-
-@media (min-width:480px) {
-  .c0 {
-    margin: 0 1rem 1rem;
-    margin-left: 4rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c4 > div {
-    padding: 1rem 1rem 1rem inherit;
-  }
-}
-
-<div>
-  <fieldset
-    class=""
-  >
-    <legend
-      class="c0"
-    >
-      <small
-        class="c1"
-      >
-        County
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
-      </small>
-      <div
-        class="c2"
-      >
-        <h1>
-          County Commissioners
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
-        </h1>
-        <p>
-          <strong>
-            Vote for 
-            4
-            .
-          </strong>
-           You have selected
-           
-          0
-          .
-        </p>
-      </div>
-    </legend>
-    <div
-      class="c3"
-    >
-      <label
-        class="c4"
-        for="argent"
-      >
-        <input
-          class="visually-hidden c5"
-          id="argent"
-          name="county-commissioners"
-          type="checkbox"
-          value="argent"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Camille Argent
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Federalist
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="witherspoonsmithson"
-      >
-        <input
-          class="visually-hidden c5"
-          id="witherspoonsmithson"
-          name="county-commissioners"
-          type="checkbox"
-          value="witherspoonsmithson"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Chloe Witherspoon-Smithson
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Federalist
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="bainbridge"
-      >
-        <input
-          class="visually-hidden c5"
-          id="bainbridge"
-          name="county-commissioners"
-          type="checkbox"
-          value="bainbridge"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Clayton Bainbridge
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Federalist
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="hennessey"
-      >
-        <input
-          class="visually-hidden c5"
-          id="hennessey"
-          name="county-commissioners"
-          type="checkbox"
-          value="hennessey"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Charlene Hennessey
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          People's
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="savoy"
-      >
-        <input
-          class="visually-hidden c5"
-          id="savoy"
-          name="county-commissioners"
-          type="checkbox"
-          value="savoy"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Eric Savoy
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          People's
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="tawa"
-      >
-        <input
-          class="visually-hidden c5"
-          id="tawa"
-          name="county-commissioners"
-          type="checkbox"
-          value="tawa"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Susan Tawa
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          People's
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="tawa-mary"
-      >
-        <input
-          class="visually-hidden c5"
-          id="tawa-mary"
-          name="county-commissioners"
-          type="checkbox"
-          value="tawa-mary"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Mary Tawa
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          People's
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="rangel"
-      >
-        <input
-          class="visually-hidden c5"
-          id="rangel"
-          name="county-commissioners"
-          type="checkbox"
-          value="rangel"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Damian Rangel
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Liberty
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="altman"
-      >
-        <input
-          class="visually-hidden c5"
-          id="altman"
-          name="county-commissioners"
-          type="checkbox"
-          value="altman"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Valarie Altman
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Constitution
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="moore"
-      >
-        <input
-          class="visually-hidden c5"
-          id="moore"
-          name="county-commissioners"
-          type="checkbox"
-          value="moore"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Helen Moore
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Constitution
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="white"
-      >
-        <input
-          class="visually-hidden c5"
-          id="white"
-          name="county-commissioners"
-          type="checkbox"
-          value="white"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            John White
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Whig
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="schmidt"
-      >
-        <input
-          class="visually-hidden c5"
-          id="schmidt"
-          name="county-commissioners"
-          type="checkbox"
-          value="schmidt"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Joe Schmidt
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Whig
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="smith"
-      >
-        <input
-          class="visually-hidden c5"
-          id="smith"
-          name="county-commissioners"
-          type="checkbox"
-          value="smith"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Joe Smith
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Whig
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="marracini"
-      >
-        <input
-          class="visually-hidden c5"
-          id="marracini"
-          name="county-commissioners"
-          type="checkbox"
-          value="marracini"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Amanda Marracini
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Labor
-        </div>
-      </label>
-      <label
-        class="c4"
-        for="schreiner"
-      >
-        <input
-          class="visually-hidden c5"
-          id="schreiner"
-          name="county-commissioners"
-          type="checkbox"
-          value="schreiner"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Martin Schreiner
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Independent
-        </div>
-      </label>
-      <button
-        class="c4"
-      >
-        <div
-          class="c2"
-        >
-          <em>
-            add write-in candidate
-          </em>
-        </div>
-      </button>
-    </div>
-  </fieldset>
-</div>
-`;
-
-exports[`doesn't allow other candidates to be selected when 1 of 1 candidates have been selected 1`] = `
-.c2 {
-  line-height: 1.2;
-  max-width: 66ch;
-}
-
-.c2 h1 {
-  line-height: 1.1;
-  margin: 2rem 0 1rem;
-}
-
-.c2 h2 {
-  margin: 1.5rem 0 1rem;
-}
-
-.c2 h3,
-.c2 p {
-  margin: 1rem 0;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
-  margin-top: -0.75rem;
-}
-
-.c2 > :first-child {
-  margin-top: 0;
-}
-
-.c2 > :last-child {
-  margin-bottom: 0;
-}
-
-.c1 {
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.c0 {
-  margin: 0 0.25rem 1rem;
-}
-
-.c3 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+.c5:before {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  height: 5px;
+  width: 100%;
+  position: fixed;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
 .c6 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 2rem;
+}
+
+.c9 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -1254,15 +1017,15 @@ exports[`doesn't allow other candidates to be selected when 1 of 1 candidates ha
   transition: background 0.25s,color 0.25s;
 }
 
-button.c6 {
+button.c9 {
   text-align: left;
 }
 
-.c6:focus-within {
+.c9:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c6:before {
+.c9:before {
   content: '';
   position: absolute;
   left: 0;
@@ -1290,12 +1053,12 @@ button.c6 {
   color: #028099;
 }
 
-.c6 > div {
+.c9 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c4 {
+.c7 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -1311,15 +1074,15 @@ button.c6 {
   transition: background 0.25s,color 0.25s;
 }
 
-button.c4 {
+button.c7 {
   text-align: left;
 }
 
-.c4:focus-within {
+.c7:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c4:before {
+.c7:before {
   content: '✓';
   position: absolute;
   left: 0;
@@ -1347,51 +1110,75 @@ button.c4 {
   color: #028099;
 }
 
-.c4 > div {
+.c7 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c5 {
+.c8 {
   margin-right: 0.5rem;
 }
 
 @media (min-width:480px) {
-  .c2 {
+  .c3 {
     line-height: 1.3;
   }
 }
 
-@media (min-width:480px) {
-  .c0 {
-    margin: 0 1rem 1rem;
-    margin-left: 4rem;
+@media (min-width:640px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c10 {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+}
+
+@media (min-width:840px) {
+  .c10 {
+    left: 50%;
+    margin-left: -420px;
+    padding-left: calc(840px - 7rem);
+  }
+}
+
+@media (min-width:768px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
   }
 }
 
 @media (min-width:480px) {
-  .c6 > div {
+  .c9 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
 
 @media (min-width:480px) {
-  .c4 > div {
+  .c7 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
 
 <div>
-  <fieldset
-    class=""
+  <main
+    class="c0"
   >
-    <legend
-      class="c0"
+    <div
+      class="c1"
     >
       <small
-        class="c1"
+        class="c2"
       >
-        54th District
+        City
         <span
           class="visually-hidden"
         >
@@ -1399,10 +1186,10 @@ button.c4 {
         </span>
       </small>
       <div
-        class="c2"
+        class="c3"
       >
         <h1>
-          State Assembly
+          Mayor
           <span
             class="visually-hidden"
           >
@@ -1421,92 +1208,531 @@ button.c4 {
           .
         </p>
       </div>
-    </legend>
-    <div
-      class="c3"
-    >
-      <label
-        class="c4"
-        for="solis"
-      >
-        <input
-          checked=""
-          class="visually-hidden c5"
-          id="solis"
-          name="state-assembly"
-          type="checkbox"
-          value="solis"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Andrea Solis
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Federalist
-        </div>
-      </label>
-      <label
-        class="c6"
-        for="keller"
-      >
-        <input
-          class="visually-hidden c5"
-          disabled=""
-          id="keller"
-          name="state-assembly"
-          type="checkbox"
-          value="keller"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Amos Keller
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          People's
-        </div>
-      </label>
-      <label
-        class="c6"
-        for="rangel"
-      >
-        <input
-          class="visually-hidden c5"
-          disabled=""
-          id="rangel"
-          name="state-assembly"
-          type="checkbox"
-          value="rangel"
-        />
-        <div
-          class="c2"
-        >
-          <strong>
-            Davitra Rangel
-          </strong>
-          <span
-            class="visually-hidden"
-          >
-            ,
-          </span>
-          <br />
-          Liberty
-        </div>
-      </label>
     </div>
-  </fieldset>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <label
+            class="c7"
+            for="name-0"
+          >
+            <input
+              checked=""
+              class="visually-hidden c8"
+              id="name-0"
+              name="contest-id"
+              type="checkbox"
+              value="name-0"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 0
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 0
+            </div>
+          </label>
+          <label
+            class="c9"
+            for="name-1"
+          >
+            <input
+              class="visually-hidden c8"
+              disabled=""
+              id="name-1"
+              name="contest-id"
+              type="checkbox"
+              value="name-1"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 1
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 1
+            </div>
+          </label>
+          <label
+            class="c9"
+            for="name-2"
+          >
+            <input
+              class="visually-hidden c8"
+              disabled=""
+              id="name-2"
+              name="contest-id"
+              type="checkbox"
+              value="name-2"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 2
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 0
+            </div>
+          </label>
+        </div>
+      </div>
+      <div
+        aria-hidden="true"
+        class="c10"
+      >
+        <button
+          class="c11"
+          data-direction="up"
+          disabled=""
+          type="button"
+        >
+          ↑ See More
+        </button>
+        <button
+          class="c11"
+          data-direction="down"
+          disabled=""
+          type="button"
+        >
+          ↓ See More
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+`;
+
+exports[`supports write-in candidates displays warning if write-in candidate name is too long 1`] = `
+.c10 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: darkgrey;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c3 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c3 h1 {
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c3 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c3 h3,
+.c3 p {
+  margin: 1rem 0;
+}
+
+.c3 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c3 > :first-child {
+  margin-top: 0;
+}
+
+.c3 > :last-child {
+  margin-bottom: 0;
+}
+
+.c2 {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c0 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+}
+
+.c9 {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 35rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding-left: calc(100% - 7rem);
+  pointer-events: none;
+}
+
+.c9 > * {
+  pointer-events: auto;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: scroll;
+}
+
+.c5:before {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  height: 5px;
+  width: 100%;
+  position: fixed;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c6 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 2rem;
+}
+
+.c7 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c7 {
+  text-align: left;
+}
+
+.c7:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c7:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c7 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c8 {
+  margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c3 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:640px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c9 {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+}
+
+@media (min-width:840px) {
+  .c9 {
+    left: 50%;
+    margin-left: -420px;
+    padding-left: calc(840px - 7rem);
+  }
+}
+
+@media (min-width:768px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c7 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+<div>
+  <main
+    class="c0"
+  >
+    <div
+      class="c1"
+    >
+      <small
+        class="c2"
+      >
+        City
+        <span
+          class="visually-hidden"
+        >
+          .
+        </span>
+      </small>
+      <div
+        class="c3"
+      >
+        <h1>
+          Mayor
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            1
+            .
+          </strong>
+           You have selected
+           
+          0
+          .
+        </p>
+      </div>
+    </div>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <label
+            class="c7"
+            for="name-0"
+          >
+            <input
+              class="visually-hidden c8"
+              id="name-0"
+              name="contest-id"
+              type="checkbox"
+              value="name-0"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 0
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 0
+            </div>
+          </label>
+          <label
+            class="c7"
+            for="name-1"
+          >
+            <input
+              class="visually-hidden c8"
+              id="name-1"
+              name="contest-id"
+              type="checkbox"
+              value="name-1"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 1
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 1
+            </div>
+          </label>
+          <label
+            class="c7"
+            for="name-2"
+          >
+            <input
+              class="visually-hidden c8"
+              id="name-2"
+              name="contest-id"
+              type="checkbox"
+              value="name-2"
+            />
+            <div
+              class="c3"
+            >
+              <strong>
+                Name 2
+              </strong>
+              <span
+                class="visually-hidden"
+              >
+                ,
+              </span>
+              <br />
+              Party 0
+            </div>
+          </label>
+          <button
+            class="c7"
+          >
+            <div
+              class="c3"
+            >
+              <em>
+                add write-in candidate
+              </em>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div
+        aria-hidden="true"
+        class="c9"
+      >
+        <button
+          class="c10"
+          data-direction="up"
+          disabled=""
+          type="button"
+        >
+          ↑ See More
+        </button>
+        <button
+          class="c10"
+          data-direction="down"
+          disabled=""
+          type="button"
+        >
+          ↓ See More
+        </button>
+      </div>
+    </div>
+  </main>
 </div>
 `;

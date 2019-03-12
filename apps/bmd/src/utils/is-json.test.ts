@@ -5,7 +5,7 @@
 
 import { isJSON, isJSONStrict } from './is-json'
 
-it('performe isJSON verifications', () => {
+it(`perform isJSON verifications`, () => {
   expect(isJSON('asdada[]asdadada sd asdasda das das')).toBeFalsy()
   expect(isJSON(null)).toBeFalsy()
   expect(isJSON(false)).toBeFalsy()

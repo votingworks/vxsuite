@@ -20,7 +20,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it('renders without crashing', () => {
+it(`renders without crashing`, () => {
   const div = document.createElement('div')
   ReactDOM.render(<App />, div)
   ReactDOM.unmountComponentAtNode(div)
@@ -95,7 +95,7 @@ describe('loads election', () => {
   })
 })
 
-it('end to end: election can be uploaded, voter can vote and print', async () => {
+it(`end to end: election can be uploaded, voter can vote and print`, async () => {
   /* tslint:disable-next-line */
   const eventListenerCallbacksDictionary: any = {}
   window.addEventListener = jest.fn((event, cb) => {
@@ -289,7 +289,7 @@ it('end to end: election can be uploaded, voter can vote and print', async () =>
 })
 
 describe('can start over', () => {
-  it('when has no votes', async () => {
+  it(`when has no votes`, async () => {
     window.localStorage.setItem(electionKey, electionSampleAsString)
     const { getByText, getByTestId } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {
@@ -302,7 +302,7 @@ describe('can start over', () => {
     fireEvent.click(getByText('Start Over'))
     expect(getByText('Scan Your Activation Code')).toBeTruthy()
   })
-  it('when has votes', async () => {
+  it(`when has votes`, async () => {
     window.localStorage.setItem(electionKey, electionSampleAsString)
     const { getByText, getByTestId } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {

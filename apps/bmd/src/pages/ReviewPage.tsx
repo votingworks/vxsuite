@@ -2,6 +2,8 @@ import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { CandidateVote } from '../config/types'
+
 import { Barcode } from '../assets/BarCodes'
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
@@ -12,13 +14,15 @@ import Prose from '../components/Prose'
 import { Text } from '../components/Typography'
 import BallotContext from '../contexts/ballotContext'
 
+const tabletMinWidth = 768
+
 const Ballot = styled.section`
   display: flex;
   flex-direction: column;
   margin-top: 1rem;
   padding: 1rem 0.5rem;
   background: white;
-  @media (min-width: 640px), print {
+  @media (min-width: ${tabletMinWidth}px), print {
     margin-top: 2rem;
     padding: 2rem;
   }
@@ -36,7 +40,7 @@ const Header = styled.div`
   margin-bottom: 1rem;
   align-items: center;
   text-align: center;
-  @media (min-width: 640px), print {
+  @media (min-width: ${tabletMinWidth}px), print {
     text-align: left;
     flex-direction: row;
   }
@@ -44,7 +48,7 @@ const Header = styled.div`
     width: 150px;
     align-self: flex-start;
     margin: 0 auto 0.5rem;
-    @media (min-width: 640px), print {
+    @media (min-width: ${tabletMinWidth}px), print {
       width: 175px;
       margin: 0;
     }
@@ -61,10 +65,10 @@ const Header = styled.div`
   }
   & > .ballot-header-content {
     flex: 1;
-    @media (min-width: 640px), print {
+    @media (min-width: ${tabletMinWidth}px), print {
       margin-left: 1rem;
     }
-    @media (min-width: 640px), print {
+    @media (min-width: ${tabletMinWidth}px), print {
       max-width: 100%;
     }
   }
@@ -162,7 +166,10 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                   <BallotContext.Consumer>
                     {({ election, votes }) =>
                       election!.contests.map(contest => {
-                        const candidates = votes[contest.id]
+                        const contestCandidates =
+                          (contest.type === 'candidate' &&
+                            (votes[contest.id] as CandidateVote)) ||
+                          []
                         return (
                           <React.Fragment key={contest.id}>
                             <ContestHeader>
@@ -179,14 +186,14 @@ class SummaryPage extends React.Component<RouteComponentProps> {
                               </LinkButton>
                               <span className="visually-hidden">,</span>
                             </ContestHeader>
-                            {candidates ? (
-                              candidates.map((candidate, index) => (
+                            {contestCandidates.length ? (
+                              contestCandidates.map((candidate, index) => (
                                 <ContestSelection key={candidate.id}>
                                   <strong>{candidate.name}</strong>{' '}
                                   {candidate.party && `/ ${candidate.party}`}
                                   {candidate.isWriteIn && `(write-in)`}
                                   <span className="visually-hidden">
-                                    {candidates.length === index + 1
+                                    {contestCandidates.length === index + 1
                                       ? '.'
                                       : ','}
                                   </span>
