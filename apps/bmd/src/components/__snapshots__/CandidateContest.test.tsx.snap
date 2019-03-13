@@ -234,7 +234,7 @@ button.c7 {
   }
 }
 
-@media (min-width:768px) {
+@media (min-width:720px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -566,7 +566,7 @@ button.c7 {
   }
 }
 
-@media (min-width:768px) {
+@media (min-width:720px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -948,7 +948,7 @@ button.c7 {
   }
 }
 
-@media (min-width:768px) {
+@media (min-width:720px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -1282,7 +1282,7 @@ button.c7 {
   }
 }
 
-@media (min-width:768px) {
+@media (min-width:720px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;

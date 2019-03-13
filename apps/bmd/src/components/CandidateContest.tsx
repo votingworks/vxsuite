@@ -20,7 +20,7 @@ import Modal from './Modal'
 import Prose from './Prose'
 import { Text } from './Typography'
 
-const tabletMinWidth = 768
+const tabletMinWidth = 720
 
 const ContestSection = styled.small`
   font-weight: 600;

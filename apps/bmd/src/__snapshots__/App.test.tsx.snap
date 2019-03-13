@@ -938,7 +938,7 @@ button.c7 {
   }
 }
 
-@media (min-width:768px) {
+@media (min-width:720px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -1408,7 +1408,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
           class="sc-cSHVUG kaOyer"
         >
           <div
-            class="sc-kAzzGY hvNhWK"
+            class="sc-kAzzGY fVAwVi"
           >
             <label
               class="sc-chPdSV krVmaS"
