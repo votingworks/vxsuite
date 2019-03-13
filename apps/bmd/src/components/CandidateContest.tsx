@@ -474,8 +474,8 @@ class CandidateContest extends React.Component<Props, State> {
                 )}
               </ChoicesGrid>
             </Choices>
-            {false && (
-              /* istanbul ignore next */
+            {isScrollable && (
+              /* istanbul ignore next: Tested by Cypress */
               <ScrollControls aria-hidden="true">
                 <Button
                   data-direction="up"
