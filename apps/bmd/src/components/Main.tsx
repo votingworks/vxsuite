@@ -8,7 +8,7 @@ const Main = styled('main')<Props>`
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: ${({ noPadding }) => (noPadding ? undefined : '1rem 0.5rem 2rem')};
   @media (min-width: 480px) {
     padding: ${({ noPadding }) => (noPadding ? undefined : '2rem 1rem')};
