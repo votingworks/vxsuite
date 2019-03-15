@@ -12,7 +12,7 @@ exports[`renders Main with child 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -68,7 +68,7 @@ exports[`renders centered content 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -124,7 +124,7 @@ exports[`renders not centered content 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 

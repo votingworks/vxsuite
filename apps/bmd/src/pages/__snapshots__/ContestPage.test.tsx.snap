@@ -12,7 +12,7 @@ exports[`displays accessible error if no id match 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -20,6 +20,23 @@ exports[`displays accessible error if no id match 1`] = `
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
+}
+
+.c2 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c4 {
+  color: white;
+  text-align: center;
 }
 
 .c3 {
@@ -93,23 +110,6 @@ exports[`displays accessible error if no id match 1`] = `
   flex: 1;
 }
 
-.c2 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c4 {
-  color: white;
-  text-align: center;
-}
-
 @media (min-width:480px) {
   .c0 {
     padding: 2rem 1rem;
@@ -130,6 +130,12 @@ exports[`displays accessible error if no id match 1`] = `
   .c1 {
     max-width: 100%;
     margin: 0;
+  }
+}
+
+@media print {
+  .c4 {
+    color: white;
   }
 }
 
@@ -169,12 +175,6 @@ exports[`displays accessible error if no id match 1`] = `
 @media print {
   .c5 {
     display: none;
-  }
-}
-
-@media print {
-  .c4 {
-    color: white;
   }
 }
 
@@ -290,6 +290,23 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   margin-bottom: 0;
 }
 
+.c10 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c11 {
+  color: white;
+  text-align: center;
+}
+
 .c9 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -359,23 +376,6 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c10 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c11 {
-  color: white;
-  text-align: center;
 }
 
 .c2 {
@@ -510,6 +510,12 @@ button.c7 {
   }
 }
 
+@media print {
+  .c11 {
+    color: white;
+  }
+}
+
 @media (min-width:480px) {
   .c9 > *:only-child {
     margin: auto;
@@ -546,12 +552,6 @@ button.c7 {
 @media print {
   .c12 {
     display: none;
-  }
-}
-
-@media print {
-  .c11 {
-    color: white;
   }
 }
 
@@ -859,6 +859,23 @@ exports[`renders ContestPage 1`] = `
   margin-bottom: 0;
 }
 
+.c10 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c11 {
+  color: white;
+  text-align: center;
+}
+
 .c9 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -928,23 +945,6 @@ exports[`renders ContestPage 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c10 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c11 {
-  color: white;
-  text-align: center;
 }
 
 .c2 {
@@ -1079,6 +1079,12 @@ button.c7 {
   }
 }
 
+@media print {
+  .c11 {
+    color: white;
+  }
+}
+
 @media (min-width:480px) {
   .c9 > *:only-child {
     margin: auto;
@@ -1115,12 +1121,6 @@ button.c7 {
 @media print {
   .c12 {
     display: none;
-  }
-}
-
-@media print {
-  .c11 {
-    color: white;
   }
 }
 
@@ -1414,7 +1414,7 @@ exports[`renders error if no id match 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -1422,6 +1422,23 @@ exports[`renders error if no id match 1`] = `
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
+}
+
+.c2 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c4 {
+  color: white;
+  text-align: center;
 }
 
 .c3 {
@@ -1495,23 +1512,6 @@ exports[`renders error if no id match 1`] = `
   flex: 1;
 }
 
-.c2 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c4 {
-  color: white;
-  text-align: center;
-}
-
 @media (min-width:480px) {
   .c0 {
     padding: 2rem 1rem;
@@ -1532,6 +1532,12 @@ exports[`renders error if no id match 1`] = `
   .c1 {
     max-width: 100%;
     margin: 0;
+  }
+}
+
+@media print {
+  .c4 {
+    color: white;
   }
 }
 
@@ -1571,12 +1577,6 @@ exports[`renders error if no id match 1`] = `
 @media print {
   .c5 {
     display: none;
-  }
-}
-
-@media print {
-  .c4 {
-    color: white;
   }
 }
 

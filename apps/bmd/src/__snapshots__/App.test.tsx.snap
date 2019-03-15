@@ -23,7 +23,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c3 {
@@ -236,7 +236,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -446,7 +446,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -1160,7 +1160,24 @@ button.c7 {
         </div>
       </div>
     </main>
-    .c0 {
+    .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c2 {
+  color: white;
+  text-align: center;
+}
+
+.c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1194,21 +1211,10 @@ button.c7 {
   flex: 1;
 }
 
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c2 {
-  color: white;
-  text-align: center;
+@media print {
+  .c2 {
+    color: white;
+  }
 }
 
 @media (min-width:480px) {
@@ -1221,12 +1227,6 @@ button.c7 {
 @media print {
   .c0 {
     display: none;
-  }
-}
-
-@media print {
-  .c2 {
-    color: white;
   }
 }
 
@@ -1253,7 +1253,19 @@ button.c7 {
         20
       </p>
     </nav>
-    .c0 {
+    .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -1288,18 +1300,6 @@ button.c7 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 @media (min-width:480px) {
@@ -1362,13 +1362,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     class="sc-bdVaJa eVuSVk"
   >
     <main
-      class="sc-gZMcBi hveKYT"
+      class="sc-VigVT kBERcl"
     >
       <div
-        class="sc-gqjmRU bValyi"
+        class="sc-jTzLTM emRfDJ"
       >
         <small
-          class="sc-iwsKbI jHnxZM"
+          class="sc-gqjmRU WJvLH"
         >
           Federal
           <span
@@ -1402,21 +1402,21 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
         </div>
       </div>
       <div
-        class="sc-VigVT dQtPBZ"
+        class="sc-fjdhpX fgxuVc"
       >
         <div
-          class="sc-fjdhpX fkunai"
+          class="sc-cSHVUG kaOyer"
         >
           <div
-            class="sc-jzJRlG iUuKI"
+            class="sc-kAzzGY hvNhWK"
           >
             <label
-              class="sc-cSHVUG bLLjmt"
+              class="sc-chPdSV krVmaS"
               for="barchi-hallaren"
             >
               <input
                 autofocus=""
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 id="barchi-hallaren"
                 name="president"
                 type="checkbox"
@@ -1438,11 +1438,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="cramer-vuocolo"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="cramer-vuocolo"
                 name="president"
@@ -1465,11 +1465,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="court-blumhardt"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="court-blumhardt"
                 name="president"
@@ -1492,11 +1492,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="boone-lian"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="boone-lian"
                 name="president"
@@ -1519,11 +1519,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="hildebrand-garritty"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="hildebrand-garritty"
                 name="president"
@@ -1546,11 +1546,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="patterson-lariviere"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="patterson-lariviere"
                 name="president"
@@ -1577,22 +1577,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       </div>
     </main>
     <nav
-      class="sc-bZQynM uuSXr"
+      class="sc-iwsKbI hdQCLG"
     >
       <button
-        class="sc-gzVnrw cpFmBu"
+        class="sc-bZQynM ezoVMU"
         type="button"
       >
         Next
       </button>
       <button
-        class="sc-gzVnrw gWpXIP"
+        class="sc-bZQynM fQKIWd"
         type="button"
       >
         Previous
       </button>
       <p
-        class="sc-dnqmqq dhBiUn"
+        class="sc-gzVnrw jekFro"
       >
         1
          of 
@@ -1600,22 +1600,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       </p>
     </nav>
     <nav
-      class="sc-bZQynM ckZihI"
+      class="sc-iwsKbI fzCifg"
     >
       <button
-        class="sc-gzVnrw gWpXIP"
+        class="sc-bZQynM fQKIWd"
         type="button"
       >
         Review
       </button>
       <button
-        class="sc-gzVnrw gWpXIP"
+        class="sc-bZQynM fQKIWd"
         type="button"
       >
         Help
       </button>
       <button
-        class="sc-gzVnrw gWpXIP"
+        class="sc-bZQynM fQKIWd"
         type="button"
       >
         Settings

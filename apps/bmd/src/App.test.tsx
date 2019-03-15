@@ -285,7 +285,12 @@ it(`end to end: election can be uploaded, voter can vote and print`, async () =>
   fireEvent.click(getByText('Yes, I‘m finished. Print ballot.'))
   expect(window.print).toBeCalled()
 
-  await waitForElement(() => getByText('Scan Your Activation Code'))
+  // Review and Cast Instructions
+  getByText('Verify and Cast Ballot')
+  fireEvent.click(getByText('Start Over'))
+
+  // Back to beginning
+  getByText('Scan Your Activation Code')
 })
 
 describe('can start over', () => {

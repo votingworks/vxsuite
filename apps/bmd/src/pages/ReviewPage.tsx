@@ -118,10 +118,13 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
     showConfirmModal: false,
   }
   public componentDidMount = () => {
-    window.addEventListener('afterprint', this.context.resetBallot)
+    window.addEventListener('afterprint', this.resetBallot)
   }
   public componentWillUnmount = () => {
-    window.removeEventListener('afterprint', this.context.resetBallot)
+    window.removeEventListener('afterprint', this.resetBallot)
+  }
+  public resetBallot = () => {
+    this.context.resetBallot('/cast')
   }
   public hideConfirm = () => {
     this.setState({ showConfirmModal: false })
