@@ -286,7 +286,7 @@ it(`end to end: election can be uploaded, voter can vote and print`, async () =>
   expect(window.print).toBeCalled()
 
   // Review and Cast Instructions
-  getByText('Verify and Cast Ballot')
+  getByText('Verify and Cast Your Ballot')
   fireEvent.click(getByText('Start Over'))
 
   // Back to beginning

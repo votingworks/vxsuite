@@ -18,9 +18,12 @@ const Instructions = styled.ol`
   max-width: 24rem;
   list-style: none;
   margin: 0 auto;
-  padding: 2.5rem;
+  padding: 1.5rem 1rem;
   background: white;
   border-radius: 0.25rem;
+  @media (min-width: 480px) {
+    padding: 2.5rem;
+  }
   & > li {
     margin-bottom: 1.75rem;
     position: relative;
@@ -47,7 +50,7 @@ const StartPage = () => {
         <Directions>
           <Prose>
             <h1>
-              Verify and Cast Ballot
+              Verify and Cast Your Ballot
               <span className="visually-hidden">.</span>
             </h1>
             <Text center>Retrieve your printed ballot from the printer.</Text>
@@ -65,7 +68,9 @@ const StartPage = () => {
                 <p>Fold your ballot and deposit into the secured ballot box.</p>
               </li>
             </Instructions>
-            <Text center>I have verified and will cast my ballot.</Text>
+            <Text center>
+              I have verified my selections and will cast my ballot.
+            </Text>
             <Text center>
               <LinkButton primary to={`/`}>
                 Start Over
