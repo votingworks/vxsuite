@@ -799,18 +799,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   margin-bottom: 0;
 }
 
-.c10 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: darkgrey;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .c2 {
   font-weight: 600;
   text-transform: uppercase;
@@ -846,30 +834,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   -ms-flex: 1;
   flex: 1;
   position: relative;
-}
-
-.c9 {
-  display: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  padding-left: calc(100% - 7rem);
-  pointer-events: none;
-}
-
-.c9 > * {
-  pointer-events: auto;
 }
 
 .c5 {
@@ -971,23 +935,6 @@ button.c7 {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
-  }
-}
-
-@media (min-width:768px) {
-  .c9 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
-@media (min-width:840px) {
-  .c9 {
-    left: 50%;
-    margin-left: -420px;
-    padding-left: calc(840px - 7rem);
   }
 }
 
@@ -1210,27 +1157,6 @@ button.c7 {
               </div>
             </label>
           </div>
-        </div>
-        <div
-          aria-hidden="true"
-          class="c9"
-        >
-          <button
-            class="c10"
-            data-direction="up"
-            disabled=""
-            type="button"
-          >
-            ↑ See More
-          </button>
-          <button
-            class="c10"
-            data-direction="down"
-            disabled=""
-            type="button"
-          >
-            ↓ See More
-          </button>
         </div>
       </div>
     </main>
@@ -1647,27 +1573,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
           </div>
-        </div>
-        <div
-          aria-hidden="true"
-          class="sc-jTzLTM bBolzm"
-        >
-          <button
-            class="sc-gzVnrw cyFcFC"
-            data-direction="up"
-            disabled=""
-            type="button"
-          >
-            ↑ See More
-          </button>
-          <button
-            class="sc-gzVnrw cyFcFC"
-            data-direction="down"
-            disabled=""
-            type="button"
-          >
-            ↓ See More
-          </button>
         </div>
       </div>
     </main>

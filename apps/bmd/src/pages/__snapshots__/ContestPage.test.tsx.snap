@@ -290,7 +290,7 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   margin-bottom: 0;
 }
 
-.c11 {
+.c9 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -311,20 +311,20 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   align-items: center;
 }
 
-.c11 > *:first-child {
+.c9 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c11 > * {
+.c9 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c14 {
+.c12 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -348,13 +348,13 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   align-items: center;
 }
 
-.c14 > *:first-child {
+.c12 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c14 > * {
+.c12 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -368,24 +368,12 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   border: none;
   border-radius: 0.25rem;
   padding: 0.4rem 0.7rem;
-  color: darkgrey;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c12 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
   color: black;
   line-height: 1;
   white-space: nowrap;
 }
 
-.c13 {
+.c11 {
   color: white;
   text-align: center;
 }
@@ -425,30 +413,6 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   -ms-flex: 1;
   flex: 1;
   position: relative;
-}
-
-.c9 {
-  display: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  padding-left: calc(100% - 7rem);
-  pointer-events: none;
-}
-
-.c9 > * {
-  pointer-events: auto;
 }
 
 .c5 {
@@ -547,26 +511,26 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c11 > *:only-child {
+  .c9 > *:only-child {
     margin: auto;
     max-width: 30%;
   }
 }
 
 @media print {
-  .c11 {
+  .c9 {
     display: none;
   }
 }
 
 @media (min-width:480px) {
-  .c14 > *:first-child {
+  .c12 > *:first-child {
     margin-left: auto;
   }
 }
 
 @media (min-width:480px) {
-  .c14 > * {
+  .c12 > * {
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
@@ -574,19 +538,19 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c14 > *:only-child {
+  .c12 > *:only-child {
     max-width: 30%;
   }
 }
 
 @media print {
-  .c14 {
+  .c12 {
     display: none;
   }
 }
 
 @media print {
-  .c13 {
+  .c11 {
     color: white;
   }
 }
@@ -595,23 +559,6 @@ button.c7 {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
-  }
-}
-
-@media (min-width:768px) {
-  .c9 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
-@media (min-width:840px) {
-  .c9 {
-    left: 50%;
-    margin-left: -420px;
-    padding-left: calc(840px - 7rem);
   }
 }
 
@@ -836,46 +783,25 @@ button.c7 {
           </label>
         </div>
       </div>
-      <div
-        aria-hidden="true"
-        class="c9"
-      >
-        <button
-          class="c10"
-          data-direction="up"
-          disabled=""
-          type="button"
-        >
-          ↑ See More
-        </button>
-        <button
-          class="c10"
-          data-direction="down"
-          disabled=""
-          type="button"
-        >
-          ↓ See More
-        </button>
-      </div>
     </div>
   </main>
   <nav
-    class="c11"
+    class="c9"
   >
     <button
-      class="c12"
+      class="c10"
       type="button"
     >
       Next
     </button>
     <button
-      class="c12"
+      class="c10"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c13"
+      class="c11"
     >
       1
        of 
@@ -883,10 +809,10 @@ button.c7 {
     </p>
   </nav>
   <nav
-    class="c14"
+    class="c12"
   >
     <button
-      class="c12"
+      class="c10"
       type="button"
     >
       Review
@@ -933,7 +859,7 @@ exports[`renders ContestPage 1`] = `
   margin-bottom: 0;
 }
 
-.c11 {
+.c9 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -954,20 +880,20 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c11 > *:first-child {
+.c9 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c11 > * {
+.c9 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c14 {
+.c12 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -991,13 +917,13 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c14 > *:first-child {
+.c12 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c14 > * {
+.c12 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -1011,24 +937,12 @@ exports[`renders ContestPage 1`] = `
   border: none;
   border-radius: 0.25rem;
   padding: 0.4rem 0.7rem;
-  color: darkgrey;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c12 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
   color: black;
   line-height: 1;
   white-space: nowrap;
 }
 
-.c13 {
+.c11 {
   color: white;
   text-align: center;
 }
@@ -1068,30 +982,6 @@ exports[`renders ContestPage 1`] = `
   -ms-flex: 1;
   flex: 1;
   position: relative;
-}
-
-.c9 {
-  display: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  padding-left: calc(100% - 7rem);
-  pointer-events: none;
-}
-
-.c9 > * {
-  pointer-events: auto;
 }
 
 .c5 {
@@ -1190,26 +1080,26 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c11 > *:only-child {
+  .c9 > *:only-child {
     margin: auto;
     max-width: 30%;
   }
 }
 
 @media print {
-  .c11 {
+  .c9 {
     display: none;
   }
 }
 
 @media (min-width:480px) {
-  .c14 > *:first-child {
+  .c12 > *:first-child {
     margin-left: auto;
   }
 }
 
 @media (min-width:480px) {
-  .c14 > * {
+  .c12 > * {
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
@@ -1217,19 +1107,19 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c14 > *:only-child {
+  .c12 > *:only-child {
     max-width: 30%;
   }
 }
 
 @media print {
-  .c14 {
+  .c12 {
     display: none;
   }
 }
 
 @media print {
-  .c13 {
+  .c11 {
     color: white;
   }
 }
@@ -1238,23 +1128,6 @@ button.c7 {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
-  }
-}
-
-@media (min-width:768px) {
-  .c9 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
-@media (min-width:840px) {
-  .c9 {
-    left: 50%;
-    margin-left: -420px;
-    padding-left: calc(840px - 7rem);
   }
 }
 
@@ -1479,46 +1352,25 @@ button.c7 {
           </label>
         </div>
       </div>
-      <div
-        aria-hidden="true"
-        class="c9"
-      >
-        <button
-          class="c10"
-          data-direction="up"
-          disabled=""
-          type="button"
-        >
-          ↑ See More
-        </button>
-        <button
-          class="c10"
-          data-direction="down"
-          disabled=""
-          type="button"
-        >
-          ↓ See More
-        </button>
-      </div>
     </div>
   </main>
   <nav
-    class="c11"
+    class="c9"
   >
     <button
-      class="c12"
+      class="c10"
       type="button"
     >
       Next
     </button>
     <button
-      class="c12"
+      class="c10"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c13"
+      class="c11"
     >
       1
        of 
@@ -1526,22 +1378,22 @@ button.c7 {
     </p>
   </nav>
   <nav
-    class="c14"
+    class="c12"
   >
     <button
-      class="c12"
+      class="c10"
       type="button"
     >
       Review
     </button>
     <button
-      class="c12"
+      class="c10"
       type="button"
     >
       Help
     </button>
     <button
-      class="c12"
+      class="c10"
       type="button"
     >
       Settings

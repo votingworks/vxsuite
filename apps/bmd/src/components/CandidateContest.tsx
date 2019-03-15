@@ -474,22 +474,25 @@ class CandidateContest extends React.Component<Props, State> {
                 )}
               </ChoicesGrid>
             </Choices>
-            <ScrollControls aria-hidden="true">
-              <Button
-                data-direction="up"
-                disabled={isScrollAtTop}
-                onClick={this.scrollContestChoices}
-              >
-                ↑ See More
-              </Button>
-              <Button
-                data-direction="down"
-                disabled={isScrollAtBottom}
-                onClick={this.scrollContestChoices}
-              >
-                ↓ See More
-              </Button>
-            </ScrollControls>
+            {false && (
+              /* istanbul ignore next */
+              <ScrollControls aria-hidden="true">
+                <Button
+                  data-direction="up"
+                  disabled={isScrollAtTop}
+                  onClick={this.scrollContestChoices}
+                >
+                  ↑ See More
+                </Button>
+                <Button
+                  data-direction="down"
+                  disabled={isScrollAtBottom}
+                  onClick={this.scrollContestChoices}
+                >
+                  ↓ See More
+                </Button>
+              </ScrollControls>
+            )}
           </ChoicesWrapper>
         </FieldSet>
         <Modal

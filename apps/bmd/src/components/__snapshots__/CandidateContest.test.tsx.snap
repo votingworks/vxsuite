@@ -1,18 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports multi-seat contests allows a second candidate to be selected when one is selected 1`] = `
-.c11 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: darkgrey;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .c3 {
   line-height: 1.2;
   max-width: 66ch;
@@ -85,30 +73,6 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   -ms-flex: 1;
   flex: 1;
   position: relative;
-}
-
-.c10 {
-  display: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  padding-left: calc(100% - 7rem);
-  pointer-events: none;
-}
-
-.c10 > * {
-  pointer-events: auto;
 }
 
 .c5 {
@@ -267,23 +231,6 @@ button.c7 {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
-  }
-}
-
-@media (min-width:768px) {
-  .c10 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
-@media (min-width:840px) {
-  .c10 {
-    left: 50%;
-    margin-left: -420px;
-    padding-left: calc(840px - 7rem);
   }
 }
 
@@ -437,45 +384,12 @@ button.c7 {
           </label>
         </div>
       </div>
-      <div
-        aria-hidden="true"
-        class="c10"
-      >
-        <button
-          class="c11"
-          data-direction="up"
-          disabled=""
-          type="button"
-        >
-          ↑ See More
-        </button>
-        <button
-          class="c11"
-          data-direction="down"
-          disabled=""
-          type="button"
-        >
-          ↓ See More
-        </button>
-      </div>
     </div>
   </main>
 </div>
 `;
 
 exports[`supports single-seat contest allows any candidate to be selected when no candidate is selected 1`] = `
-.c10 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: darkgrey;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .c3 {
   line-height: 1.2;
   max-width: 66ch;
@@ -548,30 +462,6 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   -ms-flex: 1;
   flex: 1;
   position: relative;
-}
-
-.c9 {
-  display: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  padding-left: calc(100% - 7rem);
-  pointer-events: none;
-}
-
-.c9 > * {
-  pointer-events: auto;
 }
 
 .c5 {
@@ -673,23 +563,6 @@ button.c7 {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
-  }
-}
-
-@media (min-width:768px) {
-  .c9 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
-@media (min-width:840px) {
-  .c9 {
-    left: 50%;
-    margin-left: -420px;
-    padding-left: calc(840px - 7rem);
   }
 }
 
@@ -836,45 +709,12 @@ button.c7 {
           </label>
         </div>
       </div>
-      <div
-        aria-hidden="true"
-        class="c9"
-      >
-        <button
-          class="c10"
-          data-direction="up"
-          disabled=""
-          type="button"
-        >
-          ↑ See More
-        </button>
-        <button
-          class="c10"
-          data-direction="down"
-          disabled=""
-          type="button"
-        >
-          ↓ See More
-        </button>
-      </div>
     </div>
   </main>
 </div>
 `;
 
 exports[`supports single-seat contest doesn't allow other candidates to be selected when a candidate is selected 1`] = `
-.c11 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: darkgrey;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .c3 {
   line-height: 1.2;
   max-width: 66ch;
@@ -947,30 +787,6 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   -ms-flex: 1;
   flex: 1;
   position: relative;
-}
-
-.c10 {
-  display: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  padding-left: calc(100% - 7rem);
-  pointer-events: none;
-}
-
-.c10 > * {
-  pointer-events: auto;
 }
 
 .c5 {
@@ -1133,23 +949,6 @@ button.c7 {
 }
 
 @media (min-width:768px) {
-  .c10 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
-@media (min-width:840px) {
-  .c10 {
-    left: 50%;
-    margin-left: -420px;
-    padding-left: calc(840px - 7rem);
-  }
-}
-
-@media (min-width:768px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -1301,45 +1100,12 @@ button.c7 {
           </label>
         </div>
       </div>
-      <div
-        aria-hidden="true"
-        class="c10"
-      >
-        <button
-          class="c11"
-          data-direction="up"
-          disabled=""
-          type="button"
-        >
-          ↑ See More
-        </button>
-        <button
-          class="c11"
-          data-direction="down"
-          disabled=""
-          type="button"
-        >
-          ↓ See More
-        </button>
-      </div>
     </div>
   </main>
 </div>
 `;
 
 exports[`supports write-in candidates displays warning if write-in candidate name is too long 1`] = `
-.c10 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: darkgrey;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .c3 {
   line-height: 1.2;
   max-width: 66ch;
@@ -1412,30 +1178,6 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   -ms-flex: 1;
   flex: 1;
   position: relative;
-}
-
-.c9 {
-  display: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  padding-left: calc(100% - 7rem);
-  pointer-events: none;
-}
-
-.c9 > * {
-  pointer-events: auto;
 }
 
 .c5 {
@@ -1537,23 +1279,6 @@ button.c7 {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
-  }
-}
-
-@media (min-width:768px) {
-  .c9 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
-@media (min-width:840px) {
-  .c9 {
-    left: 50%;
-    margin-left: -420px;
-    padding-left: calc(840px - 7rem);
   }
 }
 
@@ -1710,27 +1435,6 @@ button.c7 {
             </div>
           </button>
         </div>
-      </div>
-      <div
-        aria-hidden="true"
-        class="c9"
-      >
-        <button
-          class="c10"
-          data-direction="up"
-          disabled=""
-          type="button"
-        >
-          ↑ See More
-        </button>
-        <button
-          class="c10"
-          data-direction="down"
-          disabled=""
-          type="button"
-        >
-          ↓ See More
-        </button>
       </div>
     </div>
   </main>
