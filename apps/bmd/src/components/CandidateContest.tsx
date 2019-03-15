@@ -31,7 +31,7 @@ const FieldSet = styled.main`
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  overflow: auto;
 `
 // TODO: A11y: no <fieldset>, no <legend>.
 const Legend = styled.div<{ isScrollable: boolean }>`
@@ -78,7 +78,7 @@ const Choices = styled.div<{
   showTopShadow?: boolean
 }>`
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   &:before {
     content: '';
     z-index: 1;

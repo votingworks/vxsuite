@@ -54,7 +54,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c1 {
@@ -79,7 +79,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c5:before {
@@ -443,7 +443,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c1 {
@@ -468,7 +468,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c5:before {
@@ -768,7 +768,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c1 {
@@ -793,7 +793,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c5:before {
@@ -1159,7 +1159,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c1 {
@@ -1184,7 +1184,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c5:before {
