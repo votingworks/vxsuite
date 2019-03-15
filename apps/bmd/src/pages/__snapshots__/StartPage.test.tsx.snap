@@ -53,11 +53,11 @@ exports[`renders StartPage 1`] = `
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 

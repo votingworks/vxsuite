@@ -57,11 +57,11 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 
@@ -203,11 +203,11 @@ exports[`allows file to be uploaded via file input 1`] = `
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 

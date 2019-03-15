@@ -30,11 +30,11 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 
@@ -419,11 +419,11 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 
@@ -744,11 +744,11 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 
@@ -1135,11 +1135,11 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 

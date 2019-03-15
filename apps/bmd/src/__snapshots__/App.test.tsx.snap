@@ -64,11 +64,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c4 :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c4 :last-child {
   margin-bottom: 0;
 }
 
@@ -277,11 +277,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c4 :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c4 :last-child {
   margin-bottom: 0;
 }
 
@@ -487,11 +487,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 
@@ -791,11 +791,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 
@@ -1378,7 +1378,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
           </span>
         </small>
         <div
-          class="sc-bxivhb gobFlP"
+          class="sc-bxivhb jgVNxn"
         >
           <h1>
             President and Vice-President of the United States
@@ -1423,7 +1423,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="barchi-hallaren"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Joseph Barchi and Joseph Hallaren
@@ -1450,7 +1450,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="cramer-vuocolo"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Adam Cramer and Greg Vuocolo
@@ -1477,7 +1477,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="court-blumhardt"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Daniel Court and Amy Blumhardt
@@ -1504,7 +1504,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="boone-lian"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Alvin Boone and James Lian
@@ -1531,7 +1531,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="hildebrand-garritty"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Ashley Hildebrand-MacDougall and James Garritty
@@ -1558,7 +1558,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="patterson-lariviere"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Martin Patterson and Clay Lariviere
