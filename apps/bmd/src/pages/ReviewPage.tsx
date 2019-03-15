@@ -108,9 +108,15 @@ const ContestSelection = styled.dd`
   word-break: break-word;
 `
 
-class SummaryPage extends React.Component<RouteComponentProps> {
+interface State {
+  showConfirmModal: boolean
+}
+
+class SummaryPage extends React.Component<RouteComponentProps, State> {
   public static contextType = BallotContext
-  public state = { isAlert: false }
+  public state: State = {
+    showConfirmModal: false,
+  }
   public componentDidMount = () => {
     window.addEventListener('afterprint', this.context.resetBallot)
   }
@@ -118,10 +124,10 @@ class SummaryPage extends React.Component<RouteComponentProps> {
     window.removeEventListener('afterprint', this.context.resetBallot)
   }
   public hideConfirm = () => {
-    this.setState({ isAlert: false })
+    this.setState({ showConfirmModal: false })
   }
   public showConfirm = () => {
-    this.setState({ isAlert: true })
+    this.setState({ showConfirmModal: true })
   }
   public render() {
     const { seal, title, county, state, date } = this.context.election
@@ -227,7 +233,7 @@ class SummaryPage extends React.Component<RouteComponentProps> {
           <LinkButton goBack>Back</LinkButton>
         </ButtonBar>
         <Modal
-          isOpen={this.state.isAlert}
+          isOpen={this.state.showConfirmModal}
           centerContent
           content={
             <Prose>
