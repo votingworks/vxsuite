@@ -5,6 +5,7 @@ import BallotContext from '../contexts/ballotContext'
 
 import Screen from '../components/Screen'
 import ActivationPage from '../pages/ActivationPage'
+import CastBallotPage from '../pages/CastBallotPage'
 import ContestPage from '../pages/ContestPage'
 import HelpPage from '../pages/HelpPage'
 import ReviewPage from '../pages/ReviewPage'
@@ -23,6 +24,7 @@ const Ballot = () => {
         ) : (
           <Redirect exact path="/" to="/start" />
         )}
+        <Route path="/cast" component={CastBallotPage} />
         <Route path="/start" exact component={StartPage} />
         {contests.length && (
           <Redirect exact from="/contests" to={`/contests/${contests[0].id}`} />

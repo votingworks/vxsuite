@@ -12,7 +12,7 @@ exports[`renders ReviewPage with votes 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -51,11 +51,11 @@ exports[`renders ReviewPage with votes 1`] = `
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c2 :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c2 :last-child {
   margin-bottom: 0;
 }
 
@@ -1337,7 +1337,7 @@ exports[`renders ReviewPage without votes 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -1376,11 +1376,11 @@ exports[`renders ReviewPage without votes 1`] = `
   margin-top: -0.75rem;
 }
 
-.c2 > :first-child {
+.c2 :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c2 :last-child {
   margin-bottom: 0;
 }
 

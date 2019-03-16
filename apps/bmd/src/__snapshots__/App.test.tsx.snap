@@ -23,7 +23,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c3 {
@@ -64,11 +64,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c4 :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c4 :last-child {
   margin-bottom: 0;
 }
 
@@ -236,7 +236,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -277,11 +277,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c4 :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c4 :last-child {
   margin-bottom: 0;
 }
 
@@ -446,7 +446,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -487,11 +487,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 
@@ -791,24 +791,12 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   margin-top: -0.75rem;
 }
 
-.c3 > :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c3 > :last-child {
+.c3 :last-child {
   margin-bottom: 0;
-}
-
-.c10 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: darkgrey;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 .c2 {
@@ -827,7 +815,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c1 {
@@ -848,35 +836,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   position: relative;
 }
 
-.c9 {
-  display: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  padding-left: calc(100% - 7rem);
-  pointer-events: none;
-}
-
-.c9 > * {
-  pointer-events: auto;
-}
-
 .c5 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .c5:before {
@@ -971,23 +935,6 @@ button.c7 {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
-  }
-}
-
-@media (min-width:768px) {
-  .c9 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
-@media (min-width:840px) {
-  .c9 {
-    left: 50%;
-    margin-left: -420px;
-    padding-left: calc(840px - 7rem);
   }
 }
 
@@ -1211,30 +1158,26 @@ button.c7 {
             </label>
           </div>
         </div>
-        <div
-          aria-hidden="true"
-          class="c9"
-        >
-          <button
-            class="c10"
-            data-direction="up"
-            disabled=""
-            type="button"
-          >
-            ↑ See More
-          </button>
-          <button
-            class="c10"
-            data-direction="down"
-            disabled=""
-            type="button"
-          >
-            ↓ See More
-          </button>
-        </div>
       </div>
     </main>
-    .c0 {
+    .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c2 {
+  color: white;
+  text-align: center;
+}
+
+.c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1268,21 +1211,10 @@ button.c7 {
   flex: 1;
 }
 
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c2 {
-  color: white;
-  text-align: center;
+@media print {
+  .c2 {
+    color: white;
+  }
 }
 
 @media (min-width:480px) {
@@ -1295,12 +1227,6 @@ button.c7 {
 @media print {
   .c0 {
     display: none;
-  }
-}
-
-@media print {
-  .c2 {
-    color: white;
   }
 }
 
@@ -1327,7 +1253,19 @@ button.c7 {
         20
       </p>
     </nav>
-    .c0 {
+    .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -1362,18 +1300,6 @@ button.c7 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 @media (min-width:480px) {
@@ -1436,13 +1362,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     class="sc-bdVaJa eVuSVk"
   >
     <main
-      class="sc-gZMcBi PbsSn"
+      class="sc-VigVT kBERcl"
     >
       <div
-        class="sc-gqjmRU bValyi"
+        class="sc-jTzLTM emRfDJ"
       >
         <small
-          class="sc-iwsKbI jHnxZM"
+          class="sc-gqjmRU WJvLH"
         >
           Federal
           <span
@@ -1452,7 +1378,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
           </span>
         </small>
         <div
-          class="sc-bxivhb gobFlP"
+          class="sc-bxivhb jgVNxn"
         >
           <h1>
             President and Vice-President of the United States
@@ -1476,28 +1402,28 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
         </div>
       </div>
       <div
-        class="sc-VigVT dQtPBZ"
+        class="sc-fjdhpX fgxuVc"
       >
         <div
-          class="sc-fjdhpX jpiJhs"
+          class="sc-cSHVUG kaOyer"
         >
           <div
-            class="sc-jzJRlG iUuKI"
+            class="sc-kAzzGY hvNhWK"
           >
             <label
-              class="sc-cSHVUG bLLjmt"
+              class="sc-chPdSV krVmaS"
               for="barchi-hallaren"
             >
               <input
                 autofocus=""
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 id="barchi-hallaren"
                 name="president"
                 type="checkbox"
                 value="barchi-hallaren"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Joseph Barchi and Joseph Hallaren
@@ -1512,11 +1438,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="cramer-vuocolo"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="cramer-vuocolo"
                 name="president"
@@ -1524,7 +1450,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="cramer-vuocolo"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Adam Cramer and Greg Vuocolo
@@ -1539,11 +1465,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="court-blumhardt"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="court-blumhardt"
                 name="president"
@@ -1551,7 +1477,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="court-blumhardt"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Daniel Court and Amy Blumhardt
@@ -1566,11 +1492,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="boone-lian"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="boone-lian"
                 name="president"
@@ -1578,7 +1504,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="boone-lian"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Alvin Boone and James Lian
@@ -1593,11 +1519,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="hildebrand-garritty"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="hildebrand-garritty"
                 name="president"
@@ -1605,7 +1531,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="hildebrand-garritty"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Ashley Hildebrand-MacDougall and James Garritty
@@ -1620,11 +1546,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               </div>
             </label>
             <label
-              class="sc-cSHVUG iHhhUZ"
+              class="sc-chPdSV bwlOYR"
               for="patterson-lariviere"
             >
               <input
-                class="visually-hidden sc-kAzzGY imlBrk"
+                class="visually-hidden sc-kgoBCf fiESkE"
                 disabled=""
                 id="patterson-lariviere"
                 name="president"
@@ -1632,7 +1558,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
                 value="patterson-lariviere"
               />
               <div
-                class="sc-bxivhb gobFlP"
+                class="sc-bxivhb jgVNxn"
               >
                 <strong>
                   Martin Patterson and Clay Lariviere
@@ -1648,46 +1574,25 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </label>
           </div>
         </div>
-        <div
-          aria-hidden="true"
-          class="sc-jTzLTM bBolzm"
-        >
-          <button
-            class="sc-gzVnrw cyFcFC"
-            data-direction="up"
-            disabled=""
-            type="button"
-          >
-            ↑ See More
-          </button>
-          <button
-            class="sc-gzVnrw cyFcFC"
-            data-direction="down"
-            disabled=""
-            type="button"
-          >
-            ↓ See More
-          </button>
-        </div>
       </div>
     </main>
     <nav
-      class="sc-bZQynM uuSXr"
+      class="sc-iwsKbI hdQCLG"
     >
       <button
-        class="sc-gzVnrw cpFmBu"
+        class="sc-bZQynM ezoVMU"
         type="button"
       >
         Next
       </button>
       <button
-        class="sc-gzVnrw gWpXIP"
+        class="sc-bZQynM fQKIWd"
         type="button"
       >
         Previous
       </button>
       <p
-        class="sc-dnqmqq dhBiUn"
+        class="sc-gzVnrw jekFro"
       >
         1
          of 
@@ -1695,22 +1600,22 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       </p>
     </nav>
     <nav
-      class="sc-bZQynM ckZihI"
+      class="sc-iwsKbI fzCifg"
     >
       <button
-        class="sc-gzVnrw gWpXIP"
+        class="sc-bZQynM fQKIWd"
         type="button"
       >
         Review
       </button>
       <button
-        class="sc-gzVnrw gWpXIP"
+        class="sc-bZQynM fQKIWd"
         type="button"
       >
         Help
       </button>
       <button
-        class="sc-gzVnrw gWpXIP"
+        class="sc-bZQynM fQKIWd"
         type="button"
       >
         Settings

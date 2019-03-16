@@ -124,11 +124,10 @@ class App extends React.Component<RouteComponentProps, State> {
     }))
   }
 
-  public resetBallot = () => {
-    this.setState({
-      votes: {},
+  public resetBallot = (path: string = '/') => {
+    this.setState({ votes: initialState.votes }, () => {
+      this.props.history.push(path)
     })
-    this.props.history.push('/')
   }
 
   public setBallotKey = (ballotKey: string) => {

@@ -23,7 +23,7 @@ exports[`can navigate all ballot pages 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
@@ -64,11 +64,11 @@ exports[`can navigate all ballot pages 1`] = `
   margin-top: -0.75rem;
 }
 
-.c4 > :first-child {
+.c4 :first-child {
   margin-top: 0;
 }
 
-.c4 > :last-child {
+.c4 :last-child {
   margin-bottom: 0;
 }
 

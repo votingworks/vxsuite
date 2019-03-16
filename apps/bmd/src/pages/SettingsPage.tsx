@@ -16,6 +16,9 @@ const SettingsPage = () => {
   const cancelResetBallot = () => {
     setResetBallotAlert(false)
   }
+  const requestResetBallot = () => {
+    resetBallot()
+  }
   const requestNewBallot = () => {
     Object.keys(votes).length === 0 ? resetBallot() : setResetBallotAlert(true)
   }
@@ -47,7 +50,7 @@ const SettingsPage = () => {
         }
         actions={
           <>
-            <Button danger onClick={resetBallot}>
+            <Button danger onClick={requestResetBallot}>
               Yes, Remove All Votes
             </Button>
             <Button onClick={cancelResetBallot}>Cancel</Button>

@@ -30,11 +30,11 @@ exports[`renders Prose 1`] = `
   margin-top: -0.75rem;
 }
 
-.c0 > :first-child {
+.c0 :first-child {
   margin-top: 0;
 }
 
-.c0 > :last-child {
+.c0 :last-child {
   margin-bottom: 0;
 }
 

@@ -1,0 +1,214 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders CastBallotPage 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+  padding: 1rem 0.5rem 2rem;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: auto auto;
+}
+
+.c3 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c3 h1 {
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c3 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c3 h3,
+.c3 p {
+  margin: 1rem 0;
+}
+
+.c3 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c3 :first-child {
+  margin-top: 0;
+}
+
+.c3 :last-child {
+  margin-bottom: 0;
+}
+
+.c6 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: #4caf50;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: white;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c4 {
+  text-align: center;
+}
+
+.c2 {
+  margin: auto;
+}
+
+.c2 h1 {
+  text-align: center;
+}
+
+.c5 {
+  max-width: 24rem;
+  list-style: none;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  background: white;
+  border-radius: 0.25rem;
+}
+
+.c5 > li {
+  margin-bottom: 1.75rem;
+  position: relative;
+  counter-increment: asdf;
+  padding-left: 1.75rem;
+}
+
+.c5 > li:last-child {
+  margin-bottom: 0;
+}
+
+.c5 > li:before {
+  content: counter(asdf) '.';
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    padding: 2rem 1rem;
+  }
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c3 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:480px) {
+  .c5 {
+    padding: 2.5rem;
+  }
+}
+
+<main
+  class="c0"
+>
+  <div
+    class="c1"
+  >
+    <div
+      class="c2"
+    >
+      <div
+        class="c3"
+      >
+        <h1>
+          Verify and Cast Your Ballot
+          <span
+            class="visually-hidden"
+          >
+            .
+          </span>
+        </h1>
+        <p
+          class="c4"
+        >
+          Retrieve your printed ballot from the printer.
+        </p>
+        <ol
+          class="c5"
+        >
+          <li>
+            <h2>
+              Verify Ballot Selections.
+            </h2>
+            <p>
+              Review and confirm all selections on your printed ballot.
+            </p>
+          </li>
+          <li>
+            <h2>
+              Cast in Ballot Box.
+            </h2>
+            <p>
+              Deposit your ballot into the secured ballot box.
+            </p>
+          </li>
+        </ol>
+        <p
+          class="c4"
+        >
+          I have verified my selections and will cast my ballot.
+        </p>
+        <p
+          class="c4"
+        >
+          <button
+            class="c6"
+            type="button"
+          >
+            Start Over
+          </button>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+`;

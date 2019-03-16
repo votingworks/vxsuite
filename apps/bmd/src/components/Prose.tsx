@@ -31,10 +31,10 @@ const Prose = styled('div')<Props>`
   & h3 + p {
     margin-top: -0.75rem;
   }
-  & > :first-child {
+  & :first-child {
     margin-top: 0;
   }
-  & > :last-child {
+  & :last-child {
     margin-bottom: 0;
   }
 `
