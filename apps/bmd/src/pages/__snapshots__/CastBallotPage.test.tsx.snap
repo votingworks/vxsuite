@@ -188,7 +188,7 @@ exports[`renders CastBallotPage 1`] = `
               Cast in Ballot Box.
             </h2>
             <p>
-              Fold your ballot and deposit into the secured ballot box.
+              Deposit your ballot into the secured ballot box.
             </p>
           </li>
         </ol>

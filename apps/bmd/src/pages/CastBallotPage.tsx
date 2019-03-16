@@ -65,7 +65,7 @@ const StartPage = () => {
               </li>
               <li>
                 <h2>Cast in Ballot Box.</h2>
-                <p>Fold your ballot and deposit into the secured ballot box.</p>
+                <p>Deposit your ballot into the secured ballot box.</p>
               </li>
             </Instructions>
             <Text center>
