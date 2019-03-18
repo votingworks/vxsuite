@@ -8,6 +8,7 @@ import ActivationPage from '../pages/ActivationPage'
 import CastBallotPage from '../pages/CastBallotPage'
 import ContestPage from '../pages/ContestPage'
 import HelpPage from '../pages/HelpPage'
+import NotFoundPage from '../pages/NotFoundPage'
 import ReviewPage from '../pages/ReviewPage'
 import SettingsPage from '../pages/SettingsPage'
 import StartPage from '../pages/StartPage'
@@ -35,6 +36,7 @@ const Ballot = () => {
         {showSettingsPage && (
           <Route path="/settings" component={SettingsPage} />
         )}
+        <Route path="/:path" component={NotFoundPage} />
       </Switch>
     </Screen>
   )
