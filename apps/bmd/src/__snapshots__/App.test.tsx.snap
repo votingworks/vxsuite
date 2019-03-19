@@ -815,7 +815,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: auto;
 }
 
 .c1 {
@@ -834,6 +833,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   -ms-flex: 1;
   flex: 1;
   position: relative;
+  overflow: auto;
 }
 
 .c5 {
@@ -1362,7 +1362,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     class="sc-bdVaJa eVuSVk"
   >
     <main
-      class="sc-VigVT kBERcl"
+      class="sc-VigVT dUXOR"
     >
       <div
         class="sc-jTzLTM emRfDJ"
@@ -1402,7 +1402,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
         </div>
       </div>
       <div
-        class="sc-fjdhpX fgxuVc"
+        class="sc-fjdhpX fSpUbT"
       >
         <div
           class="sc-cSHVUG kaOyer"

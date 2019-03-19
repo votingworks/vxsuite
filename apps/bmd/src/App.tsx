@@ -84,6 +84,8 @@ class App extends React.Component<RouteComponentProps, State> {
     }
     Mousetrap.bind(removeElectionShortcuts, this.reset)
 
+    document.documentElement.setAttribute('data-useragent', navigator.userAgent)
+
     // setting a delay of 50ms does the following:
     // - the click means that chromevox will now read the whole page
     // - thanks to giving it 50ms of delay, any component that is autoFocused will get autofocused first

@@ -31,7 +31,6 @@ const FieldSet = styled.main`
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: auto;
 `
 // TODO: A11y: no <fieldset>, no <legend>.
 const Legend = styled.div<{ isScrollable: boolean }>`
@@ -48,6 +47,7 @@ const ChoicesWrapper = styled.div`
   display: flex;
   flex: 1;
   position: relative;
+  overflow: auto;
 `
 const ScrollControls = styled.div`
   display: none;
@@ -65,6 +65,9 @@ const ScrollControls = styled.div`
   & > * {
     pointer-events: auto;
   }
+  html[data-useragent*='Windows'] & {
+    margin-left: -17px; /* Windows Chrome scrollbar width */
+  }
   @media (min-width: ${tabletMinWidth}px) {
     display: flex;
   }
@@ -72,6 +75,9 @@ const ScrollControls = styled.div`
     left: 50%;
     margin-left: -420px;
     padding-left: calc(840px - 7rem);
+    html[data-useragent*='Windows'] & {
+      margin-left: calc(-420px + -17px); /* Windows Chrome scrollbar width */
+    }
   }
 `
 const Choices = styled.div<{
@@ -326,15 +332,20 @@ class CandidateContest extends React.Component<Props, State> {
 
   public updateContestChoicesScrollStates = () => {
     const target = this.contestChoices.current!
-    const isTabletMinWidth = target.clientWidth >= tabletMinWidth
+    const isTabletMinWidth = target.offsetWidth >= tabletMinWidth
+    const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
+    const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
     this.setState({
       isScrollAtBottom:
-        target.scrollTop + target.clientHeight === target.scrollHeight,
+        windowsScrollTop +
+          target.offsetHeight +
+          windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
+        target.scrollHeight,
       isScrollAtTop: target.scrollTop === 0,
       isScrollable:
         isTabletMinWidth &&
         /* istanbul ignore next: Tested by Cypress */ target.scrollHeight >
-          target.clientHeight,
+          target.offsetHeight,
     })
   }
 
@@ -345,11 +356,11 @@ class CandidateContest extends React.Component<Props, State> {
       .direction as ScrollDirections
     const contestChoices = this.contestChoices.current!
     const currentScrollTop = contestChoices.scrollTop
-    const clientHeight = contestChoices.clientHeight
+    const offsetHeight = contestChoices.offsetHeight
     const scrollHeight = contestChoices.scrollHeight
-    const idealScrollDistance = Math.round(clientHeight * 0.75)
+    const idealScrollDistance = Math.round(offsetHeight * 0.75)
     const maxScrollableDownDistance =
-      scrollHeight - clientHeight - currentScrollTop
+      scrollHeight - offsetHeight - currentScrollTop
     const maxScrollTop =
       direction === 'down'
         ? currentScrollTop + maxScrollableDownDistance
