@@ -83,19 +83,11 @@ class App extends React.Component<RouteComponentProps, State> {
       })
     }
     Mousetrap.bind(removeElectionShortcuts, this.reset)
-
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
-
-    // setting a delay of 50ms does the following:
-    // - the click means that chromevox will now read the whole page
-    // - thanks to giving it 50ms of delay, any component that is autoFocused will get autofocused first
-    //   which means that when the user presses tab, it goes to the item that was previously autoFocused.
-    // - setting this to 0 is too short to get the focus to happen.
-    // - setting this to 500 (for example) causes chromevox to start speaking the focused item, which is not what we want.
     this.props.history.listen(() => {
       window.setTimeout(() => {
-        clickContainerRef.current!.click()
-      }, 50)
+        clickContainerRef.current!.focus()
+      }, 0)
     })
   }
 
@@ -161,7 +153,7 @@ class App extends React.Component<RouteComponentProps, State> {
 }
 
 const Root = () => (
-  <div className="clickContainer" ref={clickContainerRef}>
+  <div className="clickContainer" ref={clickContainerRef} tabIndex={-1}>
     <BrowserRouter>
       <Route path="/" component={App} />
     </BrowserRouter>

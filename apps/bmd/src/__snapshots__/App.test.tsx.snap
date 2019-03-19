@@ -131,6 +131,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 <div>
   <div
     class="clickContainer"
+    tabindex="-1"
   >
     <div
       class="c0"
@@ -213,6 +214,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 <div>
   <div
     class="clickContainer"
+    tabindex="-1"
   >
     .c0 {
   height: 100%;
@@ -431,6 +433,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 <div
   class="clickContainer"
+  tabindex="-1"
 >
   <div
     class="sc-bdVaJa eVuSVk"
@@ -749,6 +752,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 <div
   class="clickContainer"
+  tabindex="-1"
 >
   <div
     class="sc-bdVaJa eVuSVk"
@@ -1335,6 +1339,7 @@ button.c7 {
 exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 <div
   class="clickContainer"
+  tabindex="-1"
 >
   <div
     class="sc-bdVaJa eVuSVk"
