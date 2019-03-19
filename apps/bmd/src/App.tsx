@@ -42,6 +42,7 @@ export const mergeWithDefaults = (
 ) => lodashMerge(defaults, election)
 
 import Ballot from './components/Ballot'
+import Screen from './components/Screen'
 import UploadConfig from './components/UploadConfig'
 import BallotContext from './contexts/ballotContext'
 
@@ -59,10 +60,6 @@ const initialState = {
   election: undefined,
   votes: {},
 }
-
-// a React reference to the div that we want to click on for voiceover on every screen
-// this will be used in the Root component, and referenced in the App when location changes.
-const clickContainerRef = React.createRef<HTMLDivElement>()
 
 class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
@@ -84,11 +81,6 @@ class App extends React.Component<RouteComponentProps, State> {
     }
     Mousetrap.bind(removeElectionShortcuts, this.reset)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
-    this.props.history.listen(() => {
-      window.setTimeout(() => {
-        clickContainerRef.current!.focus()
-      }, 0)
-    })
   }
 
   public componentWillUnount = /* istanbul ignore next */ () => {
@@ -153,11 +145,11 @@ class App extends React.Component<RouteComponentProps, State> {
 }
 
 const Root = () => (
-  <div className="clickContainer" ref={clickContainerRef} tabIndex={-1}>
-    <BrowserRouter>
+  <BrowserRouter>
+    <Screen>
       <Route path="/" component={App} />
-    </BrowserRouter>
-  </div>
+    </Screen>
+  </BrowserRouter>
 )
 
 export default Root
