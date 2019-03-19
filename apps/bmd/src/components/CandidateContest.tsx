@@ -391,16 +391,12 @@ class CandidateContest extends React.Component<Props, State> {
         <FieldSet>
           <Legend isScrollable={isScrollable}>
             {contest.section && (
-              <ContestSection>
+              <ContestSection aria-label={`${contest.section}.`}>
                 {contest.section}
-                <span className="visually-hidden">.</span>
               </ContestSection>
             )}
             <Prose>
-              <h1>
-                {contest.title}
-                <span className="visually-hidden">.</span>
-              </h1>
+              <h1 aria-label={`${contest.title}.`}>{contest.title}</h1>
               <p>
                 <strong>Vote for {contest.seats}.</strong> You have selected{' '}
                 {vote.length}.
@@ -440,10 +436,13 @@ class CandidateContest extends React.Component<Props, State> {
                         className="visually-hidden"
                       />
                       <Prose>
-                        <strong>{candidate.name}</strong>
-                        <span className="visually-hidden">,</span>
-                        <br />
-                        {candidate.party}
+                        <p
+                          aria-label={`${candidate.name}, ${candidate.party}.`}
+                        >
+                          <strong>{candidate.name}</strong>
+                          <br />
+                          {candidate.party}
+                        </p>
                       </Prose>
                     </Choice>
                   )
@@ -467,7 +466,9 @@ class CandidateContest extends React.Component<Props, State> {
                             className="visually-hidden"
                           />
                           <Prose>
-                            <strong>{candidate.name}</strong>
+                            <p aria-label={`${candidate.name}.`}>
+                              <strong>{candidate.name}</strong>
+                            </p>
                           </Prose>
                         </Choice>
                       )
@@ -479,7 +480,9 @@ class CandidateContest extends React.Component<Props, State> {
                     onClick={this.initWriteInCandidate}
                   >
                     <Prose>
-                      <em>add write-in candidate</em>
+                      <p aria-label={`add write-in candidate.`}>
+                        <em>add write-in candidate</em>
+                      </p>
                     </Prose>
                   </Choice>
                 )}

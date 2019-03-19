@@ -139,8 +139,8 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
         <Main>
           <MainChild>
             <Prose>
-              <h1 className="no-print">
-                Review Your Selections<span className="visually-hidden">.</span>
+              <h1 className="no-print" aria-label={`Review Your Selections.`}>
+                Review Your Selections
               </h1>
               <p className="no-print">
                 Confirm your votes by printing your ballot.
@@ -153,19 +153,12 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                   dangerouslySetInnerHTML={{ __html: seal }}
                 />
                 <Prose className="ballot-header-content">
-                  <h2>
-                    Official Ballot<span className="visually-hidden">.</span>
-                  </h2>
-                  <h3>
-                    {title}
-                    <span className="visually-hidden">.</span>
-                  </h3>
-                  <p>
-                    {county}, {state}
-                    <span className="visually-hidden">.</span>
-                    <br />
+                  <h2 aria-label={`Official Ballot.`}>Official Ballot</h2>
+                  <h3 aria-label={`${title}.`}>{title}</h3>
+                  <p aria-label={`${date}. ${county}, ${state}.`}>
                     {date}
-                    <span className="visually-hidden">.</span>
+                    <br />
+                    {county}, {state}
                   </p>
                 </Prose>
               </Header>
@@ -181,37 +174,44 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                         return (
                           <React.Fragment key={contest.id}>
                             <ContestHeader>
-                              <ContestHeading>
+                              <ContestHeading aria-label={`${contest.title},`}>
                                 {contest.title}
-                                <span className="visually-hidden">,</span>
                               </ContestHeading>
                               <LinkButton
                                 to={`/contests/${contest.id}`}
                                 className="no-print change-button"
-                                aria-label={`Change ${contest.title}`}
+                                aria-label={`Change ${contest.title}.`}
                               >
                                 Change
                               </LinkButton>
-                              <span className="visually-hidden">,</span>
                             </ContestHeader>
                             {contestCandidates.length ? (
-                              contestCandidates.map((candidate, index) => (
-                                <ContestSelection key={candidate.id}>
+                              contestCandidates.map((candidate, index, arr) => (
+                                <ContestSelection
+                                  key={candidate.id}
+                                  aria-label={`${candidate.name}${
+                                    candidate.party
+                                      ? `, ${candidate.party}`
+                                      : ''
+                                  }${candidate.isWriteIn ? `, write-in` : ''}${
+                                    arr.length - 1 === index ? '.' : ','
+                                  }`}
+                                >
                                   <strong>{candidate.name}</strong>{' '}
                                   {candidate.party && `/ ${candidate.party}`}
                                   {candidate.isWriteIn && `(write-in)`}
-                                  <span className="visually-hidden">
-                                    {contestCandidates.length === index + 1
-                                      ? '.'
-                                      : ','}
-                                  </span>
                                 </ContestSelection>
                               ))
                             ) : (
                               <ContestSelection>
-                                <Text as="strong" muted>
+                                <Text
+                                  as="strong"
+                                  muted
+                                  aria-label={`No selection for ${
+                                    contest.title
+                                  }.`}
+                                >
                                   [no selection]
-                                  <span className="visually-hidden">.</span>
                                 </Text>
                               </ContestSelection>
                             )}

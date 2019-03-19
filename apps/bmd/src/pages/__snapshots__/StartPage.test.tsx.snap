@@ -283,30 +283,19 @@ exports[`renders StartPage 1`] = `
     <div
       class="c3"
     >
-      <h1>
+      <h1
+        aria-label="2020 General Election."
+      >
         2020 General Election
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
       </h1>
-      <p>
+      <p
+        aria-label="Tuesday, November 3, 2020. Madison County, State of Maryland."
+      >
         Tuesday, November 3, 2020
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
         <br />
         Madison County
         , 
         State of Maryland
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
       </p>
       <p>
         <button

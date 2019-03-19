@@ -717,30 +717,19 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
         <div
           class="c3"
         >
-          <h1>
+          <h1
+            aria-label="2020 General Election."
+          >
             2020 General Election
-            <span
-              class="visually-hidden"
-            >
-              .
-            </span>
           </h1>
-          <p>
+          <p
+            aria-label="Tuesday, November 3, 2020. Madison County, State of Maryland."
+          >
             Tuesday, November 3, 2020
-            <span
-              class="visually-hidden"
-            >
-              .
-            </span>
             <br />
             Madison County
             , 
             State of Maryland
-            <span
-              class="visually-hidden"
-            >
-              .
-            </span>
           </p>
           <p>
             <button
@@ -960,25 +949,18 @@ button.c7 {
         class="c1"
       >
         <small
+          aria-label="Federal."
           class="c2"
         >
           Federal
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
         </small>
         <div
           class="c3"
         >
-          <h1>
+          <h1
+            aria-label="President and Vice-President of the United States."
+          >
             President and Vice-President of the United States
-            <span
-              class="visually-hidden"
-            >
-              .
-            </span>
           </h1>
           <p>
             <strong>
@@ -1016,16 +998,15 @@ button.c7 {
               <div
                 class="c3"
               >
-                <strong>
-                  Joseph Barchi and Joseph Hallaren
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
                 >
-                  ,
-                </span>
-                <br />
-                Federalist
+                  <strong>
+                    Joseph Barchi and Joseph Hallaren
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
               </div>
             </label>
             <label
@@ -1042,16 +1023,15 @@ button.c7 {
               <div
                 class="c3"
               >
-                <strong>
-                  Adam Cramer and Greg Vuocolo
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Adam Cramer and Greg Vuocolo, People's."
                 >
-                  ,
-                </span>
-                <br />
-                People's
+                  <strong>
+                    Adam Cramer and Greg Vuocolo
+                  </strong>
+                  <br />
+                  People's
+                </p>
               </div>
             </label>
             <label
@@ -1068,16 +1048,15 @@ button.c7 {
               <div
                 class="c3"
               >
-                <strong>
-                  Daniel Court and Amy Blumhardt
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Daniel Court and Amy Blumhardt, Liberty."
                 >
-                  ,
-                </span>
-                <br />
-                Liberty
+                  <strong>
+                    Daniel Court and Amy Blumhardt
+                  </strong>
+                  <br />
+                  Liberty
+                </p>
               </div>
             </label>
             <label
@@ -1094,16 +1073,15 @@ button.c7 {
               <div
                 class="c3"
               >
-                <strong>
-                  Alvin Boone and James Lian
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Alvin Boone and James Lian, Constitution."
                 >
-                  ,
-                </span>
-                <br />
-                Constitution
+                  <strong>
+                    Alvin Boone and James Lian
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
               </div>
             </label>
             <label
@@ -1120,16 +1098,15 @@ button.c7 {
               <div
                 class="c3"
               >
-                <strong>
-                  Ashley Hildebrand-MacDougall and James Garritty
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
                 >
-                  ,
-                </span>
-                <br />
-                Whig
+                  <strong>
+                    Ashley Hildebrand-MacDougall and James Garritty
+                  </strong>
+                  <br />
+                  Whig
+                </p>
               </div>
             </label>
             <label
@@ -1146,16 +1123,15 @@ button.c7 {
               <div
                 class="c3"
               >
-                <strong>
-                  Martin Patterson and Clay Lariviere
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Martin Patterson and Clay Lariviere, Labor."
                 >
-                  ,
-                </span>
-                <br />
-                Labor
+                  <strong>
+                    Martin Patterson and Clay Lariviere
+                  </strong>
+                  <br />
+                  Labor
+                </p>
               </div>
             </label>
           </div>
@@ -1370,25 +1346,18 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
         class="sc-jTzLTM emRfDJ"
       >
         <small
+          aria-label="Federal."
           class="sc-gqjmRU WJvLH"
         >
           Federal
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
         </small>
         <div
           class="sc-bxivhb jgVNxn"
         >
-          <h1>
+          <h1
+            aria-label="President and Vice-President of the United States."
+          >
             President and Vice-President of the United States
-            <span
-              class="visually-hidden"
-            >
-              .
-            </span>
           </h1>
           <p>
             <strong>
@@ -1427,16 +1396,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               <div
                 class="sc-bxivhb jgVNxn"
               >
-                <strong>
-                  Joseph Barchi and Joseph Hallaren
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
                 >
-                  ,
-                </span>
-                <br />
-                Federalist
+                  <strong>
+                    Joseph Barchi and Joseph Hallaren
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
               </div>
             </label>
             <label
@@ -1454,16 +1422,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               <div
                 class="sc-bxivhb jgVNxn"
               >
-                <strong>
-                  Adam Cramer and Greg Vuocolo
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Adam Cramer and Greg Vuocolo, People's."
                 >
-                  ,
-                </span>
-                <br />
-                People's
+                  <strong>
+                    Adam Cramer and Greg Vuocolo
+                  </strong>
+                  <br />
+                  People's
+                </p>
               </div>
             </label>
             <label
@@ -1481,16 +1448,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               <div
                 class="sc-bxivhb jgVNxn"
               >
-                <strong>
-                  Daniel Court and Amy Blumhardt
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Daniel Court and Amy Blumhardt, Liberty."
                 >
-                  ,
-                </span>
-                <br />
-                Liberty
+                  <strong>
+                    Daniel Court and Amy Blumhardt
+                  </strong>
+                  <br />
+                  Liberty
+                </p>
               </div>
             </label>
             <label
@@ -1508,16 +1474,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               <div
                 class="sc-bxivhb jgVNxn"
               >
-                <strong>
-                  Alvin Boone and James Lian
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Alvin Boone and James Lian, Constitution."
                 >
-                  ,
-                </span>
-                <br />
-                Constitution
+                  <strong>
+                    Alvin Boone and James Lian
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
               </div>
             </label>
             <label
@@ -1535,16 +1500,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               <div
                 class="sc-bxivhb jgVNxn"
               >
-                <strong>
-                  Ashley Hildebrand-MacDougall and James Garritty
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
                 >
-                  ,
-                </span>
-                <br />
-                Whig
+                  <strong>
+                    Ashley Hildebrand-MacDougall and James Garritty
+                  </strong>
+                  <br />
+                  Whig
+                </p>
               </div>
             </label>
             <label
@@ -1562,16 +1526,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               <div
                 class="sc-bxivhb jgVNxn"
               >
-                <strong>
-                  Martin Patterson and Clay Lariviere
-                </strong>
-                <span
-                  class="visually-hidden"
+                <p
+                  aria-label="Martin Patterson and Clay Lariviere, Labor."
                 >
-                  ,
-                </span>
-                <br />
-                Labor
+                  <strong>
+                    Martin Patterson and Clay Lariviere
+                  </strong>
+                  <br />
+                  Labor
+                </p>
               </div>
             </label>
           </div>

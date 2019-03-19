@@ -583,25 +583,18 @@ button.c7 {
       class="c1"
     >
       <small
+        aria-label="Federal."
         class="c2"
       >
         Federal
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
       </small>
       <div
         class="c3"
       >
-        <h1>
+        <h1
+          aria-label="President and Vice-President of the United States."
+        >
           President and Vice-President of the United States
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
         </h1>
         <p>
           <strong>
@@ -639,16 +632,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Joseph Barchi and Joseph Hallaren
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
               >
-                ,
-              </span>
-              <br />
-              Federalist
+                <strong>
+                  Joseph Barchi and Joseph Hallaren
+                </strong>
+                <br />
+                Federalist
+              </p>
             </div>
           </label>
           <label
@@ -665,16 +657,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Adam Cramer and Greg Vuocolo
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Adam Cramer and Greg Vuocolo, People's."
               >
-                ,
-              </span>
-              <br />
-              People's
+                <strong>
+                  Adam Cramer and Greg Vuocolo
+                </strong>
+                <br />
+                People's
+              </p>
             </div>
           </label>
           <label
@@ -691,16 +682,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Daniel Court and Amy Blumhardt
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Daniel Court and Amy Blumhardt, Liberty."
               >
-                ,
-              </span>
-              <br />
-              Liberty
+                <strong>
+                  Daniel Court and Amy Blumhardt
+                </strong>
+                <br />
+                Liberty
+              </p>
             </div>
           </label>
           <label
@@ -717,16 +707,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Alvin Boone and James Lian
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Alvin Boone and James Lian, Constitution."
               >
-                ,
-              </span>
-              <br />
-              Constitution
+                <strong>
+                  Alvin Boone and James Lian
+                </strong>
+                <br />
+                Constitution
+              </p>
             </div>
           </label>
           <label
@@ -743,16 +732,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Ashley Hildebrand-MacDougall and James Garritty
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
               >
-                ,
-              </span>
-              <br />
-              Whig
+                <strong>
+                  Ashley Hildebrand-MacDougall and James Garritty
+                </strong>
+                <br />
+                Whig
+              </p>
             </div>
           </label>
           <label
@@ -769,16 +757,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Martin Patterson and Clay Lariviere
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Martin Patterson and Clay Lariviere, Labor."
               >
-                ,
-              </span>
-              <br />
-              Labor
+                <strong>
+                  Martin Patterson and Clay Lariviere
+                </strong>
+                <br />
+                Labor
+              </p>
             </div>
           </label>
         </div>
@@ -1152,25 +1139,18 @@ button.c7 {
       class="c1"
     >
       <small
+        aria-label="Federal."
         class="c2"
       >
         Federal
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
       </small>
       <div
         class="c3"
       >
-        <h1>
+        <h1
+          aria-label="President and Vice-President of the United States."
+        >
           President and Vice-President of the United States
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
         </h1>
         <p>
           <strong>
@@ -1208,16 +1188,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Joseph Barchi and Joseph Hallaren
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
               >
-                ,
-              </span>
-              <br />
-              Federalist
+                <strong>
+                  Joseph Barchi and Joseph Hallaren
+                </strong>
+                <br />
+                Federalist
+              </p>
             </div>
           </label>
           <label
@@ -1234,16 +1213,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Adam Cramer and Greg Vuocolo
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Adam Cramer and Greg Vuocolo, People's."
               >
-                ,
-              </span>
-              <br />
-              People's
+                <strong>
+                  Adam Cramer and Greg Vuocolo
+                </strong>
+                <br />
+                People's
+              </p>
             </div>
           </label>
           <label
@@ -1260,16 +1238,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Daniel Court and Amy Blumhardt
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Daniel Court and Amy Blumhardt, Liberty."
               >
-                ,
-              </span>
-              <br />
-              Liberty
+                <strong>
+                  Daniel Court and Amy Blumhardt
+                </strong>
+                <br />
+                Liberty
+              </p>
             </div>
           </label>
           <label
@@ -1286,16 +1263,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Alvin Boone and James Lian
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Alvin Boone and James Lian, Constitution."
               >
-                ,
-              </span>
-              <br />
-              Constitution
+                <strong>
+                  Alvin Boone and James Lian
+                </strong>
+                <br />
+                Constitution
+              </p>
             </div>
           </label>
           <label
@@ -1312,16 +1288,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Ashley Hildebrand-MacDougall and James Garritty
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
               >
-                ,
-              </span>
-              <br />
-              Whig
+                <strong>
+                  Ashley Hildebrand-MacDougall and James Garritty
+                </strong>
+                <br />
+                Whig
+              </p>
             </div>
           </label>
           <label
@@ -1338,16 +1313,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Martin Patterson and Clay Lariviere
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Martin Patterson and Clay Lariviere, Labor."
               >
-                ,
-              </span>
-              <br />
-              Labor
+                <strong>
+                  Martin Patterson and Clay Lariviere
+                </strong>
+                <br />
+                Labor
+              </p>
             </div>
           </label>
         </div>

@@ -20,16 +20,11 @@ const StartPage = () => {
       <MainChild center>
         <Seal dangerouslySetInnerHTML={{ __html: seal }} />
         <Prose textCenter>
-          <h1>
-            {title}
-            <span className="visually-hidden">.</span>
-          </h1>
-          <p>
+          <h1 aria-label={`${title}.`}>{title}</h1>
+          <p aria-label={`${date}. ${county}, ${state}.`}>
             {date}
-            <span className="visually-hidden">.</span>
             <br />
             {county}, {state}
-            <span className="visually-hidden">.</span>
           </p>
           <p>
             <LinkButton primary to={`/contests`}>

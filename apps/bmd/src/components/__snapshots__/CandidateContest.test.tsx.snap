@@ -261,25 +261,18 @@ button.c7 {
       class="c1"
     >
       <small
+        aria-label="City."
         class="c2"
       >
         City
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
       </small>
       <div
         class="c3"
       >
-        <h1>
+        <h1
+          aria-label="Mayor."
+        >
           Mayor
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
         </h1>
         <p>
           <strong>
@@ -318,16 +311,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 0
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 0, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 0
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <label
@@ -344,16 +336,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 1
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 1, Party 1."
               >
-                ,
-              </span>
-              <br />
-              Party 1
+                <strong>
+                  Name 1
+                </strong>
+                <br />
+                Party 1
+              </p>
             </div>
           </label>
           <label
@@ -370,16 +361,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 2
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 2, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 2
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
         </div>
@@ -587,25 +577,18 @@ button.c7 {
       class="c1"
     >
       <small
+        aria-label="City."
         class="c2"
       >
         City
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
       </small>
       <div
         class="c3"
       >
-        <h1>
+        <h1
+          aria-label="Mayor."
+        >
           Mayor
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
         </h1>
         <p>
           <strong>
@@ -643,16 +626,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 0
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 0, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 0
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <label
@@ -669,16 +651,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 1
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 1, Party 1."
               >
-                ,
-              </span>
-              <br />
-              Party 1
+                <strong>
+                  Name 1
+                </strong>
+                <br />
+                Party 1
+              </p>
             </div>
           </label>
           <label
@@ -695,16 +676,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 2
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 2, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 2
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
         </div>
@@ -975,25 +955,18 @@ button.c7 {
       class="c1"
     >
       <small
+        aria-label="City."
         class="c2"
       >
         City
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
       </small>
       <div
         class="c3"
       >
-        <h1>
+        <h1
+          aria-label="Mayor."
+        >
           Mayor
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
         </h1>
         <p>
           <strong>
@@ -1032,16 +1005,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 0
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 0, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 0
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <label
@@ -1059,16 +1031,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 1
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 1, Party 1."
               >
-                ,
-              </span>
-              <br />
-              Party 1
+                <strong>
+                  Name 1
+                </strong>
+                <br />
+                Party 1
+              </p>
             </div>
           </label>
           <label
@@ -1086,16 +1057,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 2
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 2, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 2
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
         </div>
@@ -1303,25 +1273,18 @@ button.c7 {
       class="c1"
     >
       <small
+        aria-label="City."
         class="c2"
       >
         City
-        <span
-          class="visually-hidden"
-        >
-          .
-        </span>
       </small>
       <div
         class="c3"
       >
-        <h1>
+        <h1
+          aria-label="Mayor."
+        >
           Mayor
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
         </h1>
         <p>
           <strong>
@@ -1359,16 +1322,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 0
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 0, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 0
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <label
@@ -1385,16 +1347,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 1
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 1, Party 1."
               >
-                ,
-              </span>
-              <br />
-              Party 1
+                <strong>
+                  Name 1
+                </strong>
+                <br />
+                Party 1
+              </p>
             </div>
           </label>
           <label
@@ -1411,16 +1372,15 @@ button.c7 {
             <div
               class="c3"
             >
-              <strong>
-                Name 2
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 2, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 2
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <button
@@ -1429,9 +1389,13 @@ button.c7 {
             <div
               class="c3"
             >
-              <em>
-                add write-in candidate
-              </em>
+              <p
+                aria-label="add write-in candidate."
+              >
+                <em>
+                  add write-in candidate
+                </em>
+              </p>
             </div>
           </button>
         </div>
