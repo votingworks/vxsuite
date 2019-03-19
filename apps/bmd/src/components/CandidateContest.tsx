@@ -492,6 +492,7 @@ class CandidateContest extends React.Component<Props, State> {
                   data-direction="up"
                   disabled={isScrollAtTop}
                   onClick={this.scrollContestChoices}
+                  tabIndex={-1}
                 >
                   ↑ See More
                 </Button>
@@ -499,6 +500,7 @@ class CandidateContest extends React.Component<Props, State> {
                   data-direction="down"
                   disabled={isScrollAtBottom}
                   onClick={this.scrollContestChoices}
+                  tabIndex={-1}
                 >
                   ↓ See More
                 </Button>
