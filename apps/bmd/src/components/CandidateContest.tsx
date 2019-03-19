@@ -22,7 +22,8 @@ import { Text } from './Typography'
 
 const tabletMinWidth = 720
 
-const ContestSection = styled.small`
+const ContestSection = styled.div`
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
 `
@@ -390,13 +391,11 @@ class CandidateContest extends React.Component<Props, State> {
       <React.Fragment>
         <FieldSet>
           <Legend isScrollable={isScrollable}>
-            {contest.section && (
-              <ContestSection aria-label={`${contest.section}.`}>
-                {contest.section}
-              </ContestSection>
-            )}
             <Prose>
-              <h1 aria-label={`${contest.title}.`}>{contest.title}</h1>
+              <h1 aria-label={`${contest.section}, ${contest.title}.`}>
+                <ContestSection>{contest.section}</ContestSection>
+                {contest.title}
+              </h1>
               <p>
                 <strong>Vote for {contest.seats}.</strong> You have selected{' '}
                 {vote.length}.

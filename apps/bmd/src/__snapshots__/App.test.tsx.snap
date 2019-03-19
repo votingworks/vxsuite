@@ -753,44 +753,45 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
   <div
     class="sc-bdVaJa eVuSVk"
   >
-    .c3 {
+    .c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c3 h1 {
+.c2 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c3 h2 {
+.c2 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c3 h3,
-.c3 p {
+.c2 h3,
+.c2 p {
   margin: 1rem 0;
 }
 
-.c3 h1 + h2 {
+.c2 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c3 :first-child {
+.c2 :first-child {
   margin-top: 0;
 }
 
-.c3 :last-child {
+.c2 :last-child {
   margin-bottom: 0;
 }
 
-.c2 {
+.c3 {
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -917,7 +918,7 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c3 {
+  .c2 {
     line-height: 1.3;
   }
 }
@@ -948,18 +949,17 @@ button.c7 {
       <div
         class="c1"
       >
-        <small
-          aria-label="Federal."
+        <div
           class="c2"
         >
-          Federal
-        </small>
-        <div
-          class="c3"
-        >
           <h1
-            aria-label="President and Vice-President of the United States."
+            aria-label="Federal, President and Vice-President of the United States."
           >
+            <div
+              class="c3"
+            >
+              Federal
+            </div>
             President and Vice-President of the United States
           </h1>
           <p>
@@ -996,7 +996,7 @@ button.c7 {
                 value="barchi-hallaren"
               />
               <div
-                class="c3"
+                class="c2"
               >
                 <p
                   aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
@@ -1021,7 +1021,7 @@ button.c7 {
                 value="cramer-vuocolo"
               />
               <div
-                class="c3"
+                class="c2"
               >
                 <p
                   aria-label="Adam Cramer and Greg Vuocolo, People's."
@@ -1046,7 +1046,7 @@ button.c7 {
                 value="court-blumhardt"
               />
               <div
-                class="c3"
+                class="c2"
               >
                 <p
                   aria-label="Daniel Court and Amy Blumhardt, Liberty."
@@ -1071,7 +1071,7 @@ button.c7 {
                 value="boone-lian"
               />
               <div
-                class="c3"
+                class="c2"
               >
                 <p
                   aria-label="Alvin Boone and James Lian, Constitution."
@@ -1096,7 +1096,7 @@ button.c7 {
                 value="hildebrand-garritty"
               />
               <div
-                class="c3"
+                class="c2"
               >
                 <p
                   aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
@@ -1121,7 +1121,7 @@ button.c7 {
                 value="patterson-lariviere"
               />
               <div
-                class="c3"
+                class="c2"
               >
                 <p
                   aria-label="Martin Patterson and Clay Lariviere, Labor."
@@ -1345,18 +1345,17 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       <div
         class="sc-jTzLTM emRfDJ"
       >
-        <small
-          aria-label="Federal."
-          class="sc-gqjmRU WJvLH"
-        >
-          Federal
-        </small>
         <div
           class="sc-bxivhb jgVNxn"
         >
           <h1
-            aria-label="President and Vice-President of the United States."
+            aria-label="Federal, President and Vice-President of the United States."
           >
+            <div
+              class="sc-gqjmRU jTjlNq"
+            >
+              Federal
+            </div>
             President and Vice-President of the United States
           </h1>
           <p>
