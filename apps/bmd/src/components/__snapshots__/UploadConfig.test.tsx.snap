@@ -30,7 +30,7 @@ exports[`allows file to be uploaded via drag and drop 1`] = `
 >
   <p>
     File loaded
-
+     
   </p>
 </main>
 `;
@@ -65,7 +65,7 @@ exports[`allows file to be uploaded via file input 1`] = `
 >
   <p>
     File loaded
-
+     
   </p>
 </main>
 `;

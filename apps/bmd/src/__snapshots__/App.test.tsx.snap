@@ -160,13 +160,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
               Configure Ballot Marking Device
             </h1>
             <p>
-              Drag and drop
+              Drag and drop 
               <code>
                 election.json
               </code>
                file here, or click to browse for file.
             </p>
-
+            
           </div>
         </div>
       </label>
@@ -183,15 +183,15 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
           <a
             href="/data/election.json"
           >
-            Download sample
+            Download sample 
             <code>
               election.json
             </code>
              file
           </a>
-
+           
           to upload, or
-
+           
           <button
             class="c7"
             type="button"
@@ -706,7 +706,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
           Tuesday, November 3, 2020
           <br />
           Madison County
-          ,
+          , 
           State of Maryland
         </p>
         <p>
@@ -938,12 +938,12 @@ button.c7 {
         </h1>
         <p>
           <strong>
-            Vote for
+            Vote for 
             1
             .
           </strong>
            You have selected
-
+           
           0
           .
         </p>
@@ -1201,7 +1201,7 @@ button.c7 {
       class="c2"
     >
       1
-       of
+       of 
       20
     </p>
   </nav>
@@ -1330,12 +1330,12 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
         </h1>
         <p>
           <strong>
-            Vote for
+            Vote for 
             1
             .
           </strong>
            You have selected
-
+           
           1
           .
         </p>
@@ -1529,7 +1529,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       class="sc-bZQynM krqOjJ"
     >
       1
-       of
+       of 
       20
     </p>
   </nav>
