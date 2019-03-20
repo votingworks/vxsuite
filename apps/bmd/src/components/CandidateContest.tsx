@@ -544,7 +544,6 @@ class CandidateContest extends React.Component<Props, State> {
             <>
               <Button
                 danger
-                autoFocus
                 onClick={this.confirmRemovePendingWriteInCandidate}
               >
                 Yes, Remove.
@@ -619,7 +618,6 @@ class CandidateContest extends React.Component<Props, State> {
             <>
               <Button
                 primary={this.normalizeName(writeInCandidateName).length > 0}
-                autoFocus
                 onClick={this.addWriteInCandidate}
                 disabled={this.normalizeName(writeInCandidateName).length === 0}
               >
