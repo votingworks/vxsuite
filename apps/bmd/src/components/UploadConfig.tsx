@@ -7,7 +7,6 @@ import isJSON from '../utils/is-json'
 
 import Button from '../components/Button'
 import Prose from '../components/Prose'
-import Screen from '../components/Screen'
 import { Text } from '../components/Typography'
 import { Election } from '../config/types'
 import Main, { MainChild } from './Main'
@@ -96,7 +95,7 @@ class UploadConfig extends React.Component<Props, State> {
   public render() {
     const { loading, loaded, errorMessage } = this.state
     return (
-      <Screen>
+      <>
         <Main noPadding>
           {loading || loaded ? (
             <p>{loaded ? 'File loaded' : 'Loading file…'} </p>
@@ -151,7 +150,7 @@ class UploadConfig extends React.Component<Props, State> {
             </Text>
           </Prose>
         </Footer>
-      </Screen>
+      </>
     )
   }
 }

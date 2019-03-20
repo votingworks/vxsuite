@@ -2,17 +2,6 @@
 
 exports[`can navigate all ballot pages 1`] = `
 .c0 {
-  height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-
-.c1 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -27,68 +16,68 @@ exports[`can navigate all ballot pages 1`] = `
   padding: 1rem 0.5rem 2rem;
 }
 
-.c2 {
+.c1 {
   width: 100%;
   max-width: 35rem;
   margin: auto auto;
 }
 
-.c4 {
+.c3 {
   line-height: 1.2;
   max-width: 66ch;
   text-align: center;
   margin: auto;
 }
 
-.c4 h1 {
+.c3 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c4 h2 {
+.c3 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c4 h3,
-.c4 p {
+.c3 h3,
+.c3 p {
   margin: 1rem 0;
 }
 
-.c4 h1 + h2 {
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h3 + p {
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c4 :first-child {
+.c3 :first-child {
   margin-top: 0;
 }
 
-.c4 :last-child {
+.c3 :last-child {
   margin-bottom: 0;
 }
 
-.c3 {
+.c2 {
   margin: auto;
 }
 
-.c5 {
+.c4 {
   max-width: 320px;
   margin: auto;
 }
 
 @media (min-width:480px) {
-  .c1 {
+  .c0 {
     padding: 2rem 1rem;
   }
 }
 
 @media print {
-  .c1 {
+  .c0 {
     -webkit-box-pack: start;
     -webkit-justify-content: flex-start;
     -ms-flex-pack: start;
@@ -98,117 +87,113 @@ exports[`can navigate all ballot pages 1`] = `
 }
 
 @media print {
-  .c2 {
+  .c1 {
     max-width: 100%;
     margin: 0;
   }
 }
 
 @media (min-width:480px) {
-  .c4 {
+  .c3 {
     line-height: 1.3;
   }
 }
 
-<div
+<main
   class="c0"
 >
-  <main
+  <div
     class="c1"
   >
-    <div
-      class="c2"
-    >
-      <form>
-        <fieldset>
-          <legend
-            class="c3"
+    <form>
+      <fieldset>
+        <legend
+          class="c2"
+        >
+          <label
+            for="BallotCode"
           >
-            <label
-              for="BallotCode"
+            <div
+              class="c3"
             >
+              <h1>
+                Scan Your Activation Code
+              </h1>
+              <p>
+                Your ballot will be displayed after scan is complete.
+              </p>
               <div
                 class="c4"
               >
-                <h1>
-                  Scan Your Activation Code
-                </h1>
-                <p>
-                  Your ballot will be displayed after scan is complete.
-                </p>
-                <div
-                  class="c5"
+                <svg
+                  viewBox="0 0 1160 1160"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <svg
-                    viewBox="0 0 1160 1160"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
+                  <path
+                    d="M0 0h1160v1160H0z"
+                    fill="#FFF"
+                  />
+                  <path
+                    d="M400 80h40v40h-40zM480 80h40v40h-40zM520 80h40v40h-40zM600 80h40v40h-40zM680 80h40v40h-40zM720 80h40v40h-40zM520 120h40v40h-40zM640 120h40v40h-40zM720 120h40v40h-40zM480 160h40v40h-40zM400 200h40v40h-40zM440 200h40v40h-40zM480 200h40v40h-40zM600 200h40v40h-40zM640 200h40v40h-40zM720 200h40v40h-40zM400 240h40v40h-40zM440 240h40v40h-40zM560 240h40v40h-40zM600 240h40v40h-40zM640 240h40v40h-40zM680 240h40v40h-40zM720 240h40v40h-40zM400 280h40v40h-40zM600 280h40v40h-40zM720 280h40v40h-40zM400 320h40v40h-40zM480 320h40v40h-40zM560 320h40v40h-40zM640 320h40v40h-40zM720 320h40v40h-40zM400 360h40v40h-40zM520 360h40v40h-40zM80 400h40v40H80zM240 400h40v40h-40zM320 400h40v40h-40zM360 400h40v40h-40zM400 400h40v40h-40zM480 400h40v40h-40zM520 400h40v40h-40zM600 400h40v40h-40zM640 400h40v40h-40zM720 400h40v40h-40zM760 400h40v40h-40zM800 400h40v40h-40zM840 400h40v40h-40zM880 400h40v40h-40zM920 400h40v40h-40zM1040 400h40v40h-40zM120 440h40v40h-40zM200 440h40v40h-40zM240 440h40v40h-40zM280 440h40v40h-40zM360 440h40v40h-40zM400 440h40v40h-40zM520 440h40v40h-40zM640 440h40v40h-40zM680 440h40v40h-40zM720 440h40v40h-40zM800 440h40v40h-40zM880 440h40v40h-40zM920 440h40v40h-40zM1000 440h40v40h-40zM1040 440h40v40h-40zM80 480h40v40H80zM160 480h40v40h-40zM200 480h40v40h-40zM320 480h40v40h-40zM400 480h40v40h-40zM480 480h40v40h-40zM520 480h40v40h-40zM560 480h40v40h-40zM600 480h40v40h-40zM640 480h40v40h-40zM680 480h40v40h-40zM800 480h40v40h-40zM840 480h40v40h-40zM880 480h40v40h-40zM920 480h40v40h-40zM80 520h40v40H80zM200 520h40v40h-40zM360 520h40v40h-40zM400 520h40v40h-40zM480 520h40v40h-40zM560 520h40v40h-40zM600 520h40v40h-40zM720 520h40v40h-40zM960 520h40v40h-40zM80 560h40v40H80zM120 560h40v40h-40zM160 560h40v40h-40zM200 560h40v40h-40zM240 560h40v40h-40zM320 560h40v40h-40zM400 560h40v40h-40zM440 560h40v40h-40zM480 560h40v40h-40zM520 560h40v40h-40zM560 560h40v40h-40zM600 560h40v40h-40zM720 560h40v40h-40zM760 560h40v40h-40zM800 560h40v40h-40zM960 560h40v40h-40zM80 600h40v40H80zM120 600h40v40h-40zM160 600h40v40h-40zM200 600h40v40h-40zM280 600h40v40h-40zM440 600h40v40h-40zM600 600h40v40h-40zM640 600h40v40h-40zM680 600h40v40h-40zM720 600h40v40h-40zM760 600h40v40h-40zM880 600h40v40h-40zM920 600h40v40h-40zM960 600h40v40h-40zM1000 600h40v40h-40zM200 640h40v40h-40zM320 640h40v40h-40zM360 640h40v40h-40zM680 640h40v40h-40zM760 640h40v40h-40zM800 640h40v40h-40zM840 640h40v40h-40zM160 680h40v40h-40zM200 680h40v40h-40zM440 680h40v40h-40zM480 680h40v40h-40zM560 680h40v40h-40zM640 680h40v40h-40zM720 680h40v40h-40zM880 680h40v40h-40zM960 680h40v40h-40zM80 720h40v40H80zM120 720h40v40h-40zM200 720h40v40h-40zM280 720h40v40h-40zM320 720h40v40h-40zM360 720h40v40h-40zM400 720h40v40h-40zM440 720h40v40h-40zM520 720h40v40h-40zM600 720h40v40h-40zM640 720h40v40h-40zM720 720h40v40h-40zM760 720h40v40h-40zM800 720h40v40h-40zM840 720h40v40h-40zM880 720h40v40h-40zM960 720h40v40h-40zM1000 720h40v40h-40zM400 760h40v40h-40zM440 760h40v40h-40zM560 760h40v40h-40zM680 760h40v40h-40zM720 760h40v40h-40zM880 760h40v40h-40zM960 760h40v40h-40zM1040 760h40v40h-40zM400 800h40v40h-40zM440 800h40v40h-40zM480 800h40v40h-40zM520 800h40v40h-40zM560 800h40v40h-40zM600 800h40v40h-40zM640 800h40v40h-40zM720 800h40v40h-40zM800 800h40v40h-40zM880 800h40v40h-40zM960 800h40v40h-40zM480 840h40v40h-40zM520 840h40v40h-40zM600 840h40v40h-40zM720 840h40v40h-40zM880 840h40v40h-40zM960 840h40v40h-40zM1040 840h40v40h-40zM400 880h40v40h-40zM440 880h40v40h-40zM480 880h40v40h-40zM560 880h40v40h-40zM600 880h40v40h-40zM720 880h40v40h-40zM760 880h40v40h-40zM800 880h40v40h-40zM840 880h40v40h-40zM880 880h40v40h-40zM960 880h40v40h-40zM1040 880h40v40h-40zM480 920h40v40h-40zM600 920h40v40h-40zM640 920h40v40h-40zM680 920h40v40h-40zM760 920h40v40h-40zM800 920h40v40h-40zM840 920h40v40h-40zM880 920h40v40h-40zM1000 920h40v40h-40zM1040 920h40v40h-40zM480 960h40v40h-40zM680 960h40v40h-40zM720 960h40v40h-40zM840 960h40v40h-40zM1000 960h40v40h-40zM440 1000h40v40h-40zM480 1000h40v40h-40zM560 1000h40v40h-40zM640 1000h40v40h-40zM680 1000h40v40h-40zM760 1000h40v40h-40zM840 1000h40v40h-40zM960 1000h40v40h-40zM1000 1000h40v40h-40zM400 1040h40v40h-40zM520 1040h40v40h-40zM600 1040h40v40h-40zM640 1040h40v40h-40zM680 1040h40v40h-40zM800 1040h40v40h-40zM880 1040h40v40h-40zM960 1040h40v40h-40zM1000 1040h40v40h-40zM1040 1040h40v40h-40z"
+                  />
+                  <path
+                    d="M122 122h196v196H122z"
+                    fill="none"
+                  />
+                  <path
+                    d="M318 80H80v280h280V80h-42zm0 238H122V122h196v196z"
+                  />
+                  <path
+                    d="M842 122h196v196H842z"
+                    fill="none"
+                  />
+                  <path
+                    d="M1038 80H800v280h280V80h-42zm0 238H842V122h196v196z"
+                  />
+                  <path
+                    d="M122 842h196v196H122z"
+                    fill="none"
+                  />
+                  <path
+                    d="M318 800H80v280h280V800h-42zm0 238H122V842h196v196z"
+                  />
+                  <g>
                     <path
-                      d="M0 0h1160v1160H0z"
-                      fill="#FFF"
+                      d="M160 160h120v120H160z"
                     />
+                  </g>
+                  <g>
                     <path
-                      d="M400 80h40v40h-40zM480 80h40v40h-40zM520 80h40v40h-40zM600 80h40v40h-40zM680 80h40v40h-40zM720 80h40v40h-40zM520 120h40v40h-40zM640 120h40v40h-40zM720 120h40v40h-40zM480 160h40v40h-40zM400 200h40v40h-40zM440 200h40v40h-40zM480 200h40v40h-40zM600 200h40v40h-40zM640 200h40v40h-40zM720 200h40v40h-40zM400 240h40v40h-40zM440 240h40v40h-40zM560 240h40v40h-40zM600 240h40v40h-40zM640 240h40v40h-40zM680 240h40v40h-40zM720 240h40v40h-40zM400 280h40v40h-40zM600 280h40v40h-40zM720 280h40v40h-40zM400 320h40v40h-40zM480 320h40v40h-40zM560 320h40v40h-40zM640 320h40v40h-40zM720 320h40v40h-40zM400 360h40v40h-40zM520 360h40v40h-40zM80 400h40v40H80zM240 400h40v40h-40zM320 400h40v40h-40zM360 400h40v40h-40zM400 400h40v40h-40zM480 400h40v40h-40zM520 400h40v40h-40zM600 400h40v40h-40zM640 400h40v40h-40zM720 400h40v40h-40zM760 400h40v40h-40zM800 400h40v40h-40zM840 400h40v40h-40zM880 400h40v40h-40zM920 400h40v40h-40zM1040 400h40v40h-40zM120 440h40v40h-40zM200 440h40v40h-40zM240 440h40v40h-40zM280 440h40v40h-40zM360 440h40v40h-40zM400 440h40v40h-40zM520 440h40v40h-40zM640 440h40v40h-40zM680 440h40v40h-40zM720 440h40v40h-40zM800 440h40v40h-40zM880 440h40v40h-40zM920 440h40v40h-40zM1000 440h40v40h-40zM1040 440h40v40h-40zM80 480h40v40H80zM160 480h40v40h-40zM200 480h40v40h-40zM320 480h40v40h-40zM400 480h40v40h-40zM480 480h40v40h-40zM520 480h40v40h-40zM560 480h40v40h-40zM600 480h40v40h-40zM640 480h40v40h-40zM680 480h40v40h-40zM800 480h40v40h-40zM840 480h40v40h-40zM880 480h40v40h-40zM920 480h40v40h-40zM80 520h40v40H80zM200 520h40v40h-40zM360 520h40v40h-40zM400 520h40v40h-40zM480 520h40v40h-40zM560 520h40v40h-40zM600 520h40v40h-40zM720 520h40v40h-40zM960 520h40v40h-40zM80 560h40v40H80zM120 560h40v40h-40zM160 560h40v40h-40zM200 560h40v40h-40zM240 560h40v40h-40zM320 560h40v40h-40zM400 560h40v40h-40zM440 560h40v40h-40zM480 560h40v40h-40zM520 560h40v40h-40zM560 560h40v40h-40zM600 560h40v40h-40zM720 560h40v40h-40zM760 560h40v40h-40zM800 560h40v40h-40zM960 560h40v40h-40zM80 600h40v40H80zM120 600h40v40h-40zM160 600h40v40h-40zM200 600h40v40h-40zM280 600h40v40h-40zM440 600h40v40h-40zM600 600h40v40h-40zM640 600h40v40h-40zM680 600h40v40h-40zM720 600h40v40h-40zM760 600h40v40h-40zM880 600h40v40h-40zM920 600h40v40h-40zM960 600h40v40h-40zM1000 600h40v40h-40zM200 640h40v40h-40zM320 640h40v40h-40zM360 640h40v40h-40zM680 640h40v40h-40zM760 640h40v40h-40zM800 640h40v40h-40zM840 640h40v40h-40zM160 680h40v40h-40zM200 680h40v40h-40zM440 680h40v40h-40zM480 680h40v40h-40zM560 680h40v40h-40zM640 680h40v40h-40zM720 680h40v40h-40zM880 680h40v40h-40zM960 680h40v40h-40zM80 720h40v40H80zM120 720h40v40h-40zM200 720h40v40h-40zM280 720h40v40h-40zM320 720h40v40h-40zM360 720h40v40h-40zM400 720h40v40h-40zM440 720h40v40h-40zM520 720h40v40h-40zM600 720h40v40h-40zM640 720h40v40h-40zM720 720h40v40h-40zM760 720h40v40h-40zM800 720h40v40h-40zM840 720h40v40h-40zM880 720h40v40h-40zM960 720h40v40h-40zM1000 720h40v40h-40zM400 760h40v40h-40zM440 760h40v40h-40zM560 760h40v40h-40zM680 760h40v40h-40zM720 760h40v40h-40zM880 760h40v40h-40zM960 760h40v40h-40zM1040 760h40v40h-40zM400 800h40v40h-40zM440 800h40v40h-40zM480 800h40v40h-40zM520 800h40v40h-40zM560 800h40v40h-40zM600 800h40v40h-40zM640 800h40v40h-40zM720 800h40v40h-40zM800 800h40v40h-40zM880 800h40v40h-40zM960 800h40v40h-40zM480 840h40v40h-40zM520 840h40v40h-40zM600 840h40v40h-40zM720 840h40v40h-40zM880 840h40v40h-40zM960 840h40v40h-40zM1040 840h40v40h-40zM400 880h40v40h-40zM440 880h40v40h-40zM480 880h40v40h-40zM560 880h40v40h-40zM600 880h40v40h-40zM720 880h40v40h-40zM760 880h40v40h-40zM800 880h40v40h-40zM840 880h40v40h-40zM880 880h40v40h-40zM960 880h40v40h-40zM1040 880h40v40h-40zM480 920h40v40h-40zM600 920h40v40h-40zM640 920h40v40h-40zM680 920h40v40h-40zM760 920h40v40h-40zM800 920h40v40h-40zM840 920h40v40h-40zM880 920h40v40h-40zM1000 920h40v40h-40zM1040 920h40v40h-40zM480 960h40v40h-40zM680 960h40v40h-40zM720 960h40v40h-40zM840 960h40v40h-40zM1000 960h40v40h-40zM440 1000h40v40h-40zM480 1000h40v40h-40zM560 1000h40v40h-40zM640 1000h40v40h-40zM680 1000h40v40h-40zM760 1000h40v40h-40zM840 1000h40v40h-40zM960 1000h40v40h-40zM1000 1000h40v40h-40zM400 1040h40v40h-40zM520 1040h40v40h-40zM600 1040h40v40h-40zM640 1040h40v40h-40zM680 1040h40v40h-40zM800 1040h40v40h-40zM880 1040h40v40h-40zM960 1040h40v40h-40zM1000 1040h40v40h-40zM1040 1040h40v40h-40z"
+                      d="M880 160h120v120H880z"
                     />
+                  </g>
+                  <g>
                     <path
-                      d="M122 122h196v196H122z"
-                      fill="none"
+                      d="M160 880h120v120H160z"
                     />
-                    <path
-                      d="M318 80H80v280h280V80h-42zm0 238H122V122h196v196z"
-                    />
-                    <path
-                      d="M842 122h196v196H842z"
-                      fill="none"
-                    />
-                    <path
-                      d="M1038 80H800v280h280V80h-42zm0 238H842V122h196v196z"
-                    />
-                    <path
-                      d="M122 842h196v196H122z"
-                      fill="none"
-                    />
-                    <path
-                      d="M318 800H80v280h280V800h-42zm0 238H122V842h196v196z"
-                    />
-                    <g>
-                      <path
-                        d="M160 160h120v120H160z"
-                      />
-                    </g>
-                    <g>
-                      <path
-                        d="M880 160h120v120H880z"
-                      />
-                    </g>
-                    <g>
-                      <path
-                        d="M160 880h120v120H160z"
-                      />
-                    </g>
-                  </svg>
-                </div>
+                  </g>
+                </svg>
               </div>
-            </label>
-          </legend>
-          <input
-            aria-hidden="true"
-            class="visually-hidden"
-            data-testid="activation-code"
-            id="BallotCode"
-            type="text"
-            value=""
-          />
-          <button
-            aria-hidden="true"
-            class="visually-hidden"
-            type="submit"
-          >
-            Submit
-          </button>
-        </fieldset>
-      </form>
-    </div>
-  </main>
-</div>
+            </div>
+          </label>
+        </legend>
+        <input
+          aria-hidden="true"
+          class="visually-hidden"
+          data-testid="activation-code"
+          id="BallotCode"
+          type="text"
+          value=""
+        />
+        <button
+          aria-hidden="true"
+          class="visually-hidden"
+          type="submit"
+        >
+          Submit
+        </button>
+      </fieldset>
+    </form>
+  </div>
+</main>
 `;

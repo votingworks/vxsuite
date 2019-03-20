@@ -159,13 +159,10 @@ exports[`renders CastBallotPage 1`] = `
       <div
         class="c3"
       >
-        <h1>
+        <h1
+          aria-label="Verify and Cast Your Ballot."
+        >
           Verify and Cast Your Ballot
-          <span
-            class="visually-hidden"
-          >
-            .
-          </span>
         </h1>
         <p
           class="c4"

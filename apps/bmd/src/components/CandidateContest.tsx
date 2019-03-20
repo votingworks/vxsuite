@@ -20,9 +20,10 @@ import Modal from './Modal'
 import Prose from './Prose'
 import { Text } from './Typography'
 
-const tabletMinWidth = 768
+const tabletMinWidth = 720
 
-const ContestSection = styled.small`
+const ContestSection = styled.div`
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
 `
@@ -31,7 +32,6 @@ const FieldSet = styled.main`
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: auto;
 `
 // TODO: A11y: no <fieldset>, no <legend>.
 const Legend = styled.div<{ isScrollable: boolean }>`
@@ -48,6 +48,7 @@ const ChoicesWrapper = styled.div`
   display: flex;
   flex: 1;
   position: relative;
+  overflow: auto;
 `
 const ScrollControls = styled.div`
   display: none;
@@ -65,6 +66,9 @@ const ScrollControls = styled.div`
   & > * {
     pointer-events: auto;
   }
+  html[data-useragent*='Windows'] & {
+    margin-left: -17px; /* Windows Chrome scrollbar width */
+  }
   @media (min-width: ${tabletMinWidth}px) {
     display: flex;
   }
@@ -72,6 +76,9 @@ const ScrollControls = styled.div`
     left: 50%;
     margin-left: -420px;
     padding-left: calc(840px - 7rem);
+    html[data-useragent*='Windows'] & {
+      margin-left: calc(-420px + -17px); /* Windows Chrome scrollbar width */
+    }
   }
 `
 const Choices = styled.div<{
@@ -326,15 +333,20 @@ class CandidateContest extends React.Component<Props, State> {
 
   public updateContestChoicesScrollStates = () => {
     const target = this.contestChoices.current!
-    const isTabletMinWidth = target.clientWidth >= tabletMinWidth
+    const isTabletMinWidth = target.offsetWidth >= tabletMinWidth
+    const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
+    const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
     this.setState({
       isScrollAtBottom:
-        target.scrollTop + target.clientHeight === target.scrollHeight,
+        windowsScrollTop +
+          target.offsetHeight +
+          windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
+        target.scrollHeight,
       isScrollAtTop: target.scrollTop === 0,
       isScrollable:
         isTabletMinWidth &&
         /* istanbul ignore next: Tested by Cypress */ target.scrollHeight >
-          target.clientHeight,
+          target.offsetHeight,
     })
   }
 
@@ -345,11 +357,11 @@ class CandidateContest extends React.Component<Props, State> {
       .direction as ScrollDirections
     const contestChoices = this.contestChoices.current!
     const currentScrollTop = contestChoices.scrollTop
-    const clientHeight = contestChoices.clientHeight
+    const offsetHeight = contestChoices.offsetHeight
     const scrollHeight = contestChoices.scrollHeight
-    const idealScrollDistance = Math.round(clientHeight * 0.75)
+    const idealScrollDistance = Math.round(offsetHeight * 0.75)
     const maxScrollableDownDistance =
-      scrollHeight - clientHeight - currentScrollTop
+      scrollHeight - offsetHeight - currentScrollTop
     const maxScrollTop =
       direction === 'down'
         ? currentScrollTop + maxScrollableDownDistance
@@ -379,16 +391,10 @@ class CandidateContest extends React.Component<Props, State> {
       <React.Fragment>
         <FieldSet>
           <Legend isScrollable={isScrollable}>
-            {contest.section && (
-              <ContestSection>
-                {contest.section}
-                <span className="visually-hidden">.</span>
-              </ContestSection>
-            )}
             <Prose>
-              <h1>
+              <h1 aria-label={`${contest.section}, ${contest.title}.`}>
+                <ContestSection>{contest.section}</ContestSection>
                 {contest.title}
-                <span className="visually-hidden">.</span>
               </h1>
               <p>
                 <strong>Vote for {contest.seats}.</strong> You have selected{' '}
@@ -429,10 +435,13 @@ class CandidateContest extends React.Component<Props, State> {
                         className="visually-hidden"
                       />
                       <Prose>
-                        <strong>{candidate.name}</strong>
-                        <span className="visually-hidden">,</span>
-                        <br />
-                        {candidate.party}
+                        <p
+                          aria-label={`${candidate.name}, ${candidate.party}.`}
+                        >
+                          <strong>{candidate.name}</strong>
+                          <br />
+                          {candidate.party}
+                        </p>
                       </Prose>
                     </Choice>
                   )
@@ -456,7 +465,9 @@ class CandidateContest extends React.Component<Props, State> {
                             className="visually-hidden"
                           />
                           <Prose>
-                            <strong>{candidate.name}</strong>
+                            <p aria-label={`${candidate.name}.`}>
+                              <strong>{candidate.name}</strong>
+                            </p>
                           </Prose>
                         </Choice>
                       )
@@ -468,19 +479,22 @@ class CandidateContest extends React.Component<Props, State> {
                     onClick={this.initWriteInCandidate}
                   >
                     <Prose>
-                      <em>add write-in candidate</em>
+                      <p aria-label={`add write-in candidate.`}>
+                        <em>add write-in candidate</em>
+                      </p>
                     </Prose>
                   </Choice>
                 )}
               </ChoicesGrid>
             </Choices>
-            {false && (
-              /* istanbul ignore next */
+            {isScrollable && (
+              /* istanbul ignore next: Tested by Cypress */
               <ScrollControls aria-hidden="true">
                 <Button
                   data-direction="up"
                   disabled={isScrollAtTop}
                   onClick={this.scrollContestChoices}
+                  tabIndex={-1}
                 >
                   ↑ See More
                 </Button>
@@ -488,6 +502,7 @@ class CandidateContest extends React.Component<Props, State> {
                   data-direction="down"
                   disabled={isScrollAtBottom}
                   onClick={this.scrollContestChoices}
+                  tabIndex={-1}
                 >
                   ↓ See More
                 </Button>

@@ -49,9 +49,8 @@ const StartPage = () => {
       <MainChild center>
         <Directions>
           <Prose>
-            <h1>
+            <h1 aria-label={`Verify and Cast Your Ballot.`}>
               Verify and Cast Your Ballot
-              <span className="visually-hidden">.</span>
             </h1>
             <Text center>Retrieve your printed ballot from the printer.</Text>
             <Instructions>

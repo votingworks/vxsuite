@@ -1,44 +1,45 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports multi-seat contests allows a second candidate to be selected when one is selected 1`] = `
-.c3 {
+.c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c3 h1 {
+.c2 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c3 h2 {
+.c2 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c3 h3,
-.c3 p {
+.c2 h3,
+.c2 p {
   margin: 1rem 0;
 }
 
-.c3 h1 + h2 {
+.c2 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c3 :first-child {
+.c2 :first-child {
   margin-top: 0;
 }
 
-.c3 :last-child {
+.c2 :last-child {
   margin-bottom: 0;
 }
 
-.c2 {
+.c3 {
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -54,7 +55,6 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: auto;
 }
 
 .c1 {
@@ -73,6 +73,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   -ms-flex: 1;
   flex: 1;
   position: relative;
+  overflow: auto;
 }
 
 .c5 {
@@ -222,7 +223,7 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c3 {
+  .c2 {
     line-height: 1.3;
   }
 }
@@ -234,7 +235,7 @@ button.c7 {
   }
 }
 
-@media (min-width:768px) {
+@media (min-width:720px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -260,26 +261,18 @@ button.c7 {
     <div
       class="c1"
     >
-      <small
+      <div
         class="c2"
       >
-        City
-        <span
-          class="visually-hidden"
+        <h1
+          aria-label="City, Mayor."
         >
-          .
-        </span>
-      </small>
-      <div
-        class="c3"
-      >
-        <h1>
-          Mayor
-          <span
-            class="visually-hidden"
+          <div
+            class="c3"
           >
-            .
-          </span>
+            City
+          </div>
+          Mayor
         </h1>
         <p>
           <strong>
@@ -316,18 +309,17 @@ button.c7 {
               value="name-0"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 0
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 0, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 0
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <label
@@ -342,18 +334,17 @@ button.c7 {
               value="name-1"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 1
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 1, Party 1."
               >
-                ,
-              </span>
-              <br />
-              Party 1
+                <strong>
+                  Name 1
+                </strong>
+                <br />
+                Party 1
+              </p>
             </div>
           </label>
           <label
@@ -368,18 +359,17 @@ button.c7 {
               value="name-2"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 2
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 2, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 2
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
         </div>
@@ -390,44 +380,45 @@ button.c7 {
 `;
 
 exports[`supports single-seat contest allows any candidate to be selected when no candidate is selected 1`] = `
-.c3 {
+.c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c3 h1 {
+.c2 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c3 h2 {
+.c2 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c3 h3,
-.c3 p {
+.c2 h3,
+.c2 p {
   margin: 1rem 0;
 }
 
-.c3 h1 + h2 {
+.c2 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c3 :first-child {
+.c2 :first-child {
   margin-top: 0;
 }
 
-.c3 :last-child {
+.c2 :last-child {
   margin-bottom: 0;
 }
 
-.c2 {
+.c3 {
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -443,7 +434,6 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: auto;
 }
 
 .c1 {
@@ -462,6 +452,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   -ms-flex: 1;
   flex: 1;
   position: relative;
+  overflow: auto;
 }
 
 .c5 {
@@ -554,7 +545,7 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c3 {
+  .c2 {
     line-height: 1.3;
   }
 }
@@ -566,7 +557,7 @@ button.c7 {
   }
 }
 
-@media (min-width:768px) {
+@media (min-width:720px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -586,26 +577,18 @@ button.c7 {
     <div
       class="c1"
     >
-      <small
+      <div
         class="c2"
       >
-        City
-        <span
-          class="visually-hidden"
+        <h1
+          aria-label="City, Mayor."
         >
-          .
-        </span>
-      </small>
-      <div
-        class="c3"
-      >
-        <h1>
-          Mayor
-          <span
-            class="visually-hidden"
+          <div
+            class="c3"
           >
-            .
-          </span>
+            City
+          </div>
+          Mayor
         </h1>
         <p>
           <strong>
@@ -641,18 +624,17 @@ button.c7 {
               value="name-0"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 0
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 0, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 0
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <label
@@ -667,18 +649,17 @@ button.c7 {
               value="name-1"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 1
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 1, Party 1."
               >
-                ,
-              </span>
-              <br />
-              Party 1
+                <strong>
+                  Name 1
+                </strong>
+                <br />
+                Party 1
+              </p>
             </div>
           </label>
           <label
@@ -693,18 +674,17 @@ button.c7 {
               value="name-2"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 2
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 2, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 2
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
         </div>
@@ -715,44 +695,45 @@ button.c7 {
 `;
 
 exports[`supports single-seat contest doesn't allow other candidates to be selected when a candidate is selected 1`] = `
-.c3 {
+.c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c3 h1 {
+.c2 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c3 h2 {
+.c2 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c3 h3,
-.c3 p {
+.c2 h3,
+.c2 p {
   margin: 1rem 0;
 }
 
-.c3 h1 + h2 {
+.c2 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c3 :first-child {
+.c2 :first-child {
   margin-top: 0;
 }
 
-.c3 :last-child {
+.c2 :last-child {
   margin-bottom: 0;
 }
 
-.c2 {
+.c3 {
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -768,7 +749,6 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: auto;
 }
 
 .c1 {
@@ -787,6 +767,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   -ms-flex: 1;
   flex: 1;
   position: relative;
+  overflow: auto;
 }
 
 .c5 {
@@ -936,7 +917,7 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c3 {
+  .c2 {
     line-height: 1.3;
   }
 }
@@ -948,7 +929,7 @@ button.c7 {
   }
 }
 
-@media (min-width:768px) {
+@media (min-width:720px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -974,26 +955,18 @@ button.c7 {
     <div
       class="c1"
     >
-      <small
+      <div
         class="c2"
       >
-        City
-        <span
-          class="visually-hidden"
+        <h1
+          aria-label="City, Mayor."
         >
-          .
-        </span>
-      </small>
-      <div
-        class="c3"
-      >
-        <h1>
-          Mayor
-          <span
-            class="visually-hidden"
+          <div
+            class="c3"
           >
-            .
-          </span>
+            City
+          </div>
+          Mayor
         </h1>
         <p>
           <strong>
@@ -1030,18 +1003,17 @@ button.c7 {
               value="name-0"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 0
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 0, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 0
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <label
@@ -1057,18 +1029,17 @@ button.c7 {
               value="name-1"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 1
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 1, Party 1."
               >
-                ,
-              </span>
-              <br />
-              Party 1
+                <strong>
+                  Name 1
+                </strong>
+                <br />
+                Party 1
+              </p>
             </div>
           </label>
           <label
@@ -1084,18 +1055,17 @@ button.c7 {
               value="name-2"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 2
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 2, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 2
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
         </div>
@@ -1106,44 +1076,45 @@ button.c7 {
 `;
 
 exports[`supports write-in candidates displays warning if write-in candidate name is too long 1`] = `
-.c3 {
+.c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c3 h1 {
+.c2 h1 {
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c3 h2 {
+.c2 h2 {
   margin: 1.5rem 0 1rem;
 }
 
-.c3 h3,
-.c3 p {
+.c2 h3,
+.c2 p {
   margin: 1rem 0;
 }
 
-.c3 h1 + h2 {
+.c2 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
   margin-top: -0.75rem;
 }
 
-.c3 :first-child {
+.c2 :first-child {
   margin-top: 0;
 }
 
-.c3 :last-child {
+.c2 :last-child {
   margin-bottom: 0;
 }
 
-.c2 {
+.c3 {
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -1159,7 +1130,6 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: auto;
 }
 
 .c1 {
@@ -1178,6 +1148,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   -ms-flex: 1;
   flex: 1;
   position: relative;
+  overflow: auto;
 }
 
 .c5 {
@@ -1270,7 +1241,7 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c3 {
+  .c2 {
     line-height: 1.3;
   }
 }
@@ -1282,7 +1253,7 @@ button.c7 {
   }
 }
 
-@media (min-width:768px) {
+@media (min-width:720px) {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -1302,26 +1273,18 @@ button.c7 {
     <div
       class="c1"
     >
-      <small
+      <div
         class="c2"
       >
-        City
-        <span
-          class="visually-hidden"
+        <h1
+          aria-label="City, Mayor."
         >
-          .
-        </span>
-      </small>
-      <div
-        class="c3"
-      >
-        <h1>
-          Mayor
-          <span
-            class="visually-hidden"
+          <div
+            class="c3"
           >
-            .
-          </span>
+            City
+          </div>
+          Mayor
         </h1>
         <p>
           <strong>
@@ -1357,18 +1320,17 @@ button.c7 {
               value="name-0"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 0
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 0, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 0
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <label
@@ -1383,18 +1345,17 @@ button.c7 {
               value="name-1"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 1
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 1, Party 1."
               >
-                ,
-              </span>
-              <br />
-              Party 1
+                <strong>
+                  Name 1
+                </strong>
+                <br />
+                Party 1
+              </p>
             </div>
           </label>
           <label
@@ -1409,29 +1370,32 @@ button.c7 {
               value="name-2"
             />
             <div
-              class="c3"
+              class="c2"
             >
-              <strong>
-                Name 2
-              </strong>
-              <span
-                class="visually-hidden"
+              <p
+                aria-label="Name 2, Party 0."
               >
-                ,
-              </span>
-              <br />
-              Party 0
+                <strong>
+                  Name 2
+                </strong>
+                <br />
+                Party 0
+              </p>
             </div>
           </label>
           <button
             class="c7"
           >
             <div
-              class="c3"
+              class="c2"
             >
-              <em>
-                add write-in candidate
-              </em>
+              <p
+                aria-label="add write-in candidate."
+              >
+                <em>
+                  add write-in candidate
+                </em>
+              </p>
             </div>
           </button>
         </div>

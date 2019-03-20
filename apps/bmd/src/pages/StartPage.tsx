@@ -14,28 +14,20 @@ const Seal = styled.div`
 
 const StartPage = () => {
   const { election } = useContext(BallotContext)
-  const { title, state, county, date, seal } = election!
+  const { title, state, contests, county, date, seal } = election!
   return (
     <Main>
       <MainChild center>
-        <Seal
-          aria-label="State Seal."
-          dangerouslySetInnerHTML={{ __html: seal }}
-        />
+        <Seal dangerouslySetInnerHTML={{ __html: seal }} />
         <Prose textCenter>
-          <h1>
-            {title}
-            <span className="visually-hidden">.</span>
-          </h1>
-          <p>
+          <h1 aria-label={`${title}.`}>{title}</h1>
+          <p aria-label={`${date}. ${county}, ${state}.`}>
             {date}
-            <span className="visually-hidden">.</span>
             <br />
             {county}, {state}
-            <span className="visually-hidden">.</span>
           </p>
           <p>
-            <LinkButton primary to={`/contests`}>
+            <LinkButton primary to={`/contests/${contests[0].id}`}>
               Get Started
             </LinkButton>
           </p>

@@ -3,7 +3,6 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 
 import BallotContext from '../contexts/ballotContext'
 
-import Screen from '../components/Screen'
 import ActivationPage from '../pages/ActivationPage'
 import CastBallotPage from '../pages/CastBallotPage'
 import ContestPage from '../pages/ContestPage'
@@ -18,27 +17,23 @@ const Ballot = () => {
   const { bmdConfig, contests } = election!
   const { requireActivation, showHelpPage, showSettingsPage } = bmdConfig!
   return (
-    <Screen>
-      <Switch>
-        {requireActivation ? (
-          <Route exact path="/" component={ActivationPage} />
-        ) : (
-          <Redirect exact path="/" to="/start" />
-        )}
-        <Route path="/cast" component={CastBallotPage} />
-        <Route path="/start" exact component={StartPage} />
-        {contests.length && (
-          <Redirect exact from="/contests" to={`/contests/${contests[0].id}`} />
-        )}
-        <Route path="/contests/:id" component={ContestPage} />
-        <Route path="/review" component={ReviewPage} />
-        {showHelpPage && <Route path="/help" component={HelpPage} />}
-        {showSettingsPage && (
-          <Route path="/settings" component={SettingsPage} />
-        )}
-        <Route path="/:path" component={NotFoundPage} />
-      </Switch>
-    </Screen>
+    <Switch>
+      {requireActivation ? (
+        <Route exact path="/" component={ActivationPage} />
+      ) : (
+        <Redirect exact path="/" to="/start" />
+      )}
+      <Route path="/cast" component={CastBallotPage} />
+      <Route path="/start" exact component={StartPage} />
+      {contests.length && (
+        <Redirect exact from="/contests" to={`/contests/${contests[0].id}`} />
+      )}
+      <Route path="/contests/:id" component={ContestPage} />
+      <Route path="/review" component={ReviewPage} />
+      {showHelpPage && <Route path="/help" component={HelpPage} />}
+      {showSettingsPage && <Route path="/settings" component={SettingsPage} />}
+      <Route path="/:path" component={NotFoundPage} />
+    </Switch>
   )
 }
 
