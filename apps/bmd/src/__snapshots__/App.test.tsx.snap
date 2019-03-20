@@ -89,6 +89,10 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
   flex-direction: column;
 }
 
+.c0:focus {
+  outline: none;
+}
+
 .c2 {
   margin: auto;
   -webkit-flex: 1;
@@ -131,6 +135,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 <div>
   <div
     class="c0"
+    tabindex="-1"
   >
     <main
       class="c1"
@@ -208,7 +213,8 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 <div>
   <div
-    class="sc-eHgmQL bdGVXB"
+    class="sc-eHgmQL ikKWGt"
+    tabindex="-1"
   >
     .c0 {
   display: -webkit-box;
@@ -411,7 +417,8 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 
 exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 <div
-  class="sc-eHgmQL bdGVXB"
+  class="sc-eHgmQL ikKWGt"
+  tabindex="-1"
 >
   .c0 {
   display: -webkit-box;
@@ -725,7 +732,8 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 
 exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 <div
-  class="sc-eHgmQL bdGVXB"
+  class="sc-eHgmQL ikKWGt"
+  tabindex="-1"
 >
   .c2 {
   line-height: 1.2;
@@ -1307,7 +1315,8 @@ button.c7 {
 
 exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 <div
-  class="sc-eHgmQL bdGVXB"
+  class="sc-eHgmQL ikKWGt"
+  tabindex="-1"
 >
   <main
     class="sc-gqjmRU ktPUDL"
