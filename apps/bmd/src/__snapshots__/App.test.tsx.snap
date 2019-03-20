@@ -1364,7 +1364,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             for="barchi-hallaren"
           >
             <input
-              autofocus=""
               class="visually-hidden sc-chPdSV ebSUow"
               id="barchi-hallaren"
               name="president"

@@ -409,7 +409,7 @@ class CandidateContest extends React.Component<Props, State> {
               showTopShadow={!isScrollAtTop}
             >
               <ChoicesGrid isScrollable={isScrollable}>
-                {contest.candidates.map((candidate, index) => {
+                {contest.candidates.map(candidate => {
                   const isChecked = !!this.findCandidateById(vote, candidate.id)
                   const isDisabled = hasReachedMaxSelections && !isChecked
                   const handleDisabledClick = () => {
@@ -425,7 +425,6 @@ class CandidateContest extends React.Component<Props, State> {
                       onClick={handleDisabledClick}
                     >
                       <ChoiceInput
-                        autoFocus={isChecked || (index === 0 && !vote)}
                         id={candidate.id}
                         name={contest.id}
                         value={candidate.id}
