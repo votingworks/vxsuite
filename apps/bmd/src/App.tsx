@@ -1,4 +1,3 @@
-import lodashMerge from 'lodash.merge'
 import Mousetrap from 'mousetrap'
 import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
@@ -39,7 +38,7 @@ import electionSample from './data/electionSample.json'
 export const mergeWithDefaults = (
   election: Election,
   defaults: ElectionDefaults = electionDefaults
-) => lodashMerge(defaults, election)
+) => ({ ...defaults, ...election })
 
 import Ballot from './components/Ballot'
 import Screen from './components/Screen'

@@ -1,4 +1,3 @@
-import lodashMerge from 'lodash.merge'
 import React from 'react'
 import { Route } from 'react-router-dom'
 
@@ -45,12 +44,16 @@ it(`doesn't display help and settings pages if disabled`, () => {
   const { container, queryByText } = render(
     <Route path="/contests/:id" component={ContestPage} />,
     {
-      election: lodashMerge(electionDefaults, electionSample, {
-        bmdConfig: {
-          showHelpPage: false,
-          showSettingsPage: false,
+      election: {
+        ...electionDefaults,
+        ...electionSample,
+        ...{
+          bmdConfig: {
+            showHelpPage: false,
+            showSettingsPage: false,
+          },
         },
-      }),
+      },
       route: `/contests/${firstContestId}`,
     }
   )
