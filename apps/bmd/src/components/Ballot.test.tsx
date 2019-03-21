@@ -1,7 +1,6 @@
 // Accessibility is not tested because ballot alone does not render html.
 // Each route component is tested elsewhere.
 
-import lodashMerge from 'lodash.merge'
 import React from 'react'
 import { fireEvent } from 'react-testing-library'
 
@@ -41,11 +40,14 @@ it(`redirects contests index to first contest`, () => {
 
 it(`skips activation page if disabled`, () => {
   const { getByText } = render(<Ballot />, {
-    election: lodashMerge(electionSample, {
-      bmdConfig: {
-        requireActivation: false,
+    election: {
+      ...electionSample,
+      ...{
+        bmdConfig: {
+          requireActivation: false,
+        },
       },
-    }),
+    },
     route: '/',
   })
   getByText('Get Started')
