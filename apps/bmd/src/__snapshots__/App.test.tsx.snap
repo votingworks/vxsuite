@@ -394,9 +394,13 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
             </legend>
             <input
               aria-hidden="true"
+              autocapitalize="off"
+              autocomplete="off"
+              autocorrect="off"
               class="visually-hidden"
               data-testid="activation-code"
               id="BallotCode"
+              spellcheck="false"
               type="text"
               value=""
             />
