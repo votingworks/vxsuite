@@ -140,7 +140,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
     <main
       class="c1"
     >
-      <label
+      <div
         class="c2"
         data-testid="dropzone"
         for="election-file-upload"
@@ -174,7 +174,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
             
           </div>
         </div>
-      </label>
+      </div>
     </main>
     <footer
       class="c5"

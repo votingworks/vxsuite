@@ -107,9 +107,12 @@ class UploadConfig extends React.Component<Props, State> {
             >
               {({ getRootProps, getInputProps, isDragActive }) => (
                 <Label
+                  // TODO:: remove "as" after issue resolved:
+                  // https://github.com/react-dropzone/react-dropzone/issues/182
+                  as="div"
                   data-testid="dropzone"
                   htmlFor="election-file-upload"
-                  {...getRootProps({ refKey: 'ref' })}
+                  {...getRootProps()}
                 >
                   <MainChild center padded>
                     <input
