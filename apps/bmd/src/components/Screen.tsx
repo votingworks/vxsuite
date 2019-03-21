@@ -6,21 +6,32 @@ const StyledScreen = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
+  &:focus {
+    outline: none;
+  }
 `
 
 class Screen extends React.Component<RouteComponentProps> {
   public screen = React.createRef<HTMLDivElement>()
-  public componentDidUpdate = (prevProps: RouteComponentProps) => {
+  public componentDidMount() {
+    this.focus()
+  }
+  public componentDidUpdate(prevProps: RouteComponentProps) {
     if (this.props.location.pathname !== prevProps.location.pathname) {
-      // Hack: setTimeout delays click until end of current event loop to ensure
-      // new screen has mounted.
-      window.setTimeout(() => {
-        this.screen.current!.click()
-      }, 0)
+      this.focus()
     }
   }
+  public focus = () => {
+    const screen = this.screen.current!
+    screen.focus()
+    screen.click()
+  }
   public render() {
-    return <StyledScreen ref={this.screen}>{this.props.children}</StyledScreen>
+    return (
+      <StyledScreen ref={this.screen} tabIndex={-1}>
+        {this.props.children}
+      </StyledScreen>
+    )
   }
 }
 

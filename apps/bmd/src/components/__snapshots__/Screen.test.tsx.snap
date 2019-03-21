@@ -12,8 +12,13 @@ exports[`renders Screen 1`] = `
   flex-direction: column;
 }
 
+.c0:focus {
+  outline: none;
+}
+
 <div
   class="c0"
+  tabindex="-1"
 >
   foo
 </div>
