@@ -224,7 +224,7 @@ exports[`displays accessible error if no id match 1`] = `
     >
       0
        of 
-      20
+      12
     </p>
   </nav>
   <nav
@@ -792,7 +792,7 @@ button.c7 {
     >
       1
        of 
-      20
+      12
     </p>
   </nav>
   <nav
@@ -1348,7 +1348,7 @@ button.c7 {
     >
       1
        of 
-      20
+      12
     </p>
   </nav>
   <nav
@@ -1600,7 +1600,7 @@ exports[`renders error if no id match 1`] = `
     >
       0
        of 
-      20
+      12
     </p>
   </nav>
   <nav

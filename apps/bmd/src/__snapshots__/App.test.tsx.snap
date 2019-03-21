@@ -1210,7 +1210,7 @@ button.c7 {
     >
       1
        of 
-      20
+      12
     </p>
   </nav>
   .c1 {
@@ -1538,7 +1538,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     >
       1
        of 
-      20
+      12
     </p>
   </nav>
   <nav
