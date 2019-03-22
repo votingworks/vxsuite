@@ -88,6 +88,10 @@ const StartPage = (props: RouteComponentProps) => {
               onChange={onChange}
               value={ballotCode}
               aria-hidden="true"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
             />
             <button
               type="submit"

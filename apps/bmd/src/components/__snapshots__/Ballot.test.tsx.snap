@@ -179,9 +179,13 @@ exports[`can navigate all ballot pages 1`] = `
         </legend>
         <input
           aria-hidden="true"
+          autocapitalize="off"
+          autocomplete="off"
+          autocorrect="off"
           class="visually-hidden"
           data-testid="activation-code"
           id="BallotCode"
+          spellcheck="false"
           type="text"
           value=""
         />
