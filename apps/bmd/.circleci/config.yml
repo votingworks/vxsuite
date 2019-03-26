@@ -2,26 +2,26 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:8
+      - image: cypress/browsers:chrome67
     steps:
       - checkout
       - restore_cache: # special step to restore the dependency cache
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dotcache-cache-{{ checksum "package.json" }}
       - run:
           name: Setup Dependencies
-          command: yarn install
+          command: yarn install --frozen-lockfile
       - run:
           name: Setup Code Climate test-reporter
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
       - save_cache: # special step to save the dependency cache
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dotcache-cache-{{ checksum "package.json" }}
           paths:
-            - ./node_modules
+            - ~/.cache
       - run: # run tests
           name: Run Test and Coverage
           command: |
             ./cc-test-reporter before-build
-            npm test -- --coverage
+            yarn test
             ./cc-test-reporter after-build --exit-code $?

@@ -2,11 +2,29 @@
   "parser": "babel-eslint",
   "env": {
     "browser": true,
-    "jest/globals": true
+    "jest/globals": true,
+    "cypress/globals": true
   },
-  "extends": ["airbnb", "plugin:prettier/recommended"],
+  "extends": [
+    "airbnb",
+    "plugin:prettier/recommended",
+    "plugin:cypress/recommended"
+  ],
   "rules": {
-    "strict": 0
+    "strict": 0,
+    "spaced-comment": [
+      "error",
+      "always",
+      {
+        "markers": ["/"]
+      }
+    ],
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": true
+      }
+    ]
   },
-  "plugins": ["jest"]
+  "plugins": ["jest", "eslint-plugin-cypress"]
 }
