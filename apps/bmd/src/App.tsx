@@ -1,30 +1,19 @@
 import Mousetrap from 'mousetrap'
 import React from 'react'
+// @ts-ignore - @types/react-gamepad doesn't exist
+import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
 import { BrowserRouter, Route } from 'react-router-dom'
 
 import GLOBALS from './config/globals'
 
-// Enable to view the event atrributes
-// document.addEventListener('keydown', event => {
-//   console.log('==============================')
-//   console.log('==============================')
-//   console.log('==============================')
-//   console.log('Event:', event)
-//   console.log('Keyboard Event object keys:', {
-//     charCode: event.charCode,
-//     code: event.code,
-//     key: event.key,
-//     keyCode: event.keyCode,
-//     metaKey: event.metaKey,
-//   })
-//   console.log('==============================')
-//   console.log('==============================')
-//   console.log('==============================')
-// })
-
 import 'normalize.css'
 import './App.css'
+
+import {
+  handleGamepadButtonDown,
+  handleGamepadKeyboardEvent,
+} from './lib/gamepad'
 
 import {
   Election,
@@ -88,12 +77,14 @@ class App extends React.Component<RouteComponentProps, State> {
       })
     }
     Mousetrap.bind(removeElectionShortcuts, this.reset)
+    document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
   }
 
   public componentWillUnount = /* istanbul ignore next */ () => {
     Mousetrap.unbind(removeElectionShortcuts)
+    document.removeEventListener('keydown', handleGamepadKeyboardEvent)
   }
 
   public getElection = (): OptionalElection => {
@@ -169,19 +160,21 @@ class App extends React.Component<RouteComponentProps, State> {
       return <UploadConfig setElection={this.setElection} />
     } else {
       return (
-        <BallotContext.Provider
-          value={{
-            election,
-            resetBallot: this.resetBallot,
-            setBallotKey: this.setBallotKey,
-            setUserSettings: this.setUserSettings,
-            updateVote: this.updateVote,
-            userSettings: this.state.userSettings,
-            votes: this.state.votes,
-          }}
-        >
-          <Ballot />
-        </BallotContext.Provider>
+        <Gamepad onButtonDown={handleGamepadButtonDown}>
+          <BallotContext.Provider
+            value={{
+              election,
+              resetBallot: this.resetBallot,
+              setBallotKey: this.setBallotKey,
+              setUserSettings: this.setUserSettings,
+              updateVote: this.updateVote,
+              userSettings: this.state.userSettings,
+              votes: this.state.votes,
+            }}
+          >
+            <Ballot />
+          </BallotContext.Provider>
+        </Gamepad>
       )
     }
   }

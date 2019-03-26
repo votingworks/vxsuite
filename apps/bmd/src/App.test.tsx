@@ -7,13 +7,19 @@ import electionSample from './data/electionSample.json'
 import App, { electionKey, mergeWithDefaults } from './App'
 import { CandidateContest, Election } from './config/types'
 
+import { handleGamepadButtonDown } from './lib/gamepad'
+
 const contest0 = electionSample.contests[0] as CandidateContest
+const contest1 = electionSample.contests[1] as CandidateContest
 const contest0candidate0 = contest0.candidates[0]
 const contest0candidate1 = contest0.candidates[1]
+const contest1candidate0 = contest1.candidates[0]
 
 const electionSampleAsString = JSON.stringify(
   mergeWithDefaults(electionSample as Election)
 )
+
+const getActiveElement = () => document.activeElement! as HTMLInputElement
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -39,50 +45,6 @@ describe('loads election', () => {
     const { getByText } = render(<App />)
     getByText('Scan Your Activation Code')
     expect(window.localStorage.getItem(electionKey)).toBeTruthy()
-
-    // Tests are not passing.
-    // Unsure why keyboard event does not trigger Mousetrap.
-
-    // Basic "react-testing-library" keyboard event:
-    // fireEvent.keyDown(document.body, {
-    //   code: 'KeyK',
-    //   key: 'k',
-    //   metaKey: true,
-    // })
-    // More verbose keyboard event with to-be-deprecated keys (charCode and keyCode):
-    // fireEvent.keyDown(document.body, {
-    //   charCode: 75,
-    //   code: 'KeyK',
-    //   key: 'k',
-    //   keyCode: 75,
-    //   metaKey: true,
-    // })
-
-    // Direct Event Dispatch
-    // interface ModifiedKeyboardEventInit extends KeyboardEventInit {
-    //   keyCode: number
-    // }
-    // Direct Event Dispatch - option 1
-    // document.dispatchEvent(
-    //   new KeyboardEvent('keydown', {
-    //     charCode: '75',
-    //     code: 'KeyK',
-    //     key: 'k',
-    //     keyCode: 75,
-    //     metaKey: true,
-    //   } as ModifiedKeyboardEventInit)
-    // )
-    // Direct Event Dispatch - option 2
-    // document.dispatchEvent(
-    //   new KeyboardEvent('keydown', {
-    //     keyCode: 75,
-    //     metaKey: true,
-    //   } as ModifiedKeyboardEventInit)
-    // )
-
-    // Tests to confirm keyboard shortcut was pressed…
-    // await waitForElement(() => getByText('Configure Ballot Marking Device'))
-    // expect(window.localStorage.getItem(electionKey)).toBeFalsy()
   })
   it(`Error in App triggers reset and reloads window location`, () => {
     const mockConsoleError = jest.spyOn(console, 'error')
@@ -121,6 +83,10 @@ it(`end to end: election can be uploaded, voter can vote and print`, async () =>
   await waitForElement(() => getByText('Scan Your Activation Code'))
   expect(container).toMatchSnapshot()
 
+  // for test coverage, we test pressing left and right on gamepad here, should do nothing
+  handleGamepadButtonDown('DPadLeft')
+  handleGamepadButtonDown('DPadRight')
+
   // Activation Page
   // TODO: onBlur causes stack overflow error
   // fireEvent.blur(getByTestId('activation-code'))
@@ -147,6 +113,36 @@ it(`end to end: election can be uploaded, voter can vote and print`, async () =>
   // First Contest Page
   getByText(contest0.title)
   expect(contest0.seats).toEqual(1)
+
+  // Test navigation by gamepad
+  handleGamepadButtonDown('DPadDown')
+  expect(getActiveElement().value).toEqual(contest0candidate0.id)
+  handleGamepadButtonDown('DPadDown')
+  expect(getActiveElement().value).toEqual(contest0candidate1.id)
+  handleGamepadButtonDown('DPadUp')
+  expect(getActiveElement().value).toEqual(contest0candidate0.id)
+
+  // test the edge case of rolling over
+  handleGamepadButtonDown('DPadUp')
+  expect(document.activeElement!.textContent).toEqual('Settings')
+  handleGamepadButtonDown('DPadDown')
+  expect(getActiveElement().value).toEqual(contest0candidate0.id)
+
+  handleGamepadButtonDown('DPadRight')
+  // go up first without focus, then down once, should be same as down once.
+  handleGamepadButtonDown('DPadUp')
+  handleGamepadButtonDown('DPadDown')
+  expect(getActiveElement().value).toEqual(contest1candidate0.id)
+  handleGamepadButtonDown('DPadLeft')
+  // A is same as down
+  handleGamepadButtonDown('A')
+  expect(getActiveElement().value).toEqual(contest0candidate0.id)
+
+  // select and unselect
+  handleGamepadButtonDown('B')
+  expect(getActiveElement().checked).toBe(true)
+  handleGamepadButtonDown('B')
+  expect(getActiveElement().checked).toBe(false)
 
   // Test overvote modal
   fireEvent.click(getByText(contest0candidate0.name).closest('label')!)

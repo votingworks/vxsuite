@@ -1202,12 +1202,14 @@ button.c7 {
   >
     <button
       class="c1"
+      id="next"
       type="button"
     >
       Next
     </button>
     <button
       class="c1"
+      id="previous"
       type="button"
     >
       Previous
@@ -1325,21 +1327,274 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
   class="sc-brqgnP dZCvJT"
   tabindex="-1"
 >
-  <main
-    class="sc-gqjmRU ktPUDL"
+  .c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 :first-child {
+  margin-top: 0;
+}
+
+.c2 :last-child {
+  margin-bottom: 0;
+}
+
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c0 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c5:before {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  height: 5px;
+  width: 100%;
+  position: fixed;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c6 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 2rem;
+}
+
+.c9 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c9 {
+  text-align: left;
+}
+
+.c9:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c9:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c9 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c7 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: #028099;
+  color: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c7 {
+  text-align: left;
+}
+
+.c7:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c7:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: #028099;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c7 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c8 {
+  margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:640px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c9 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+@media (min-width:480px) {
+  .c7 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+<main
+    class="c0"
   >
     <div
-      class="sc-VigVT lbUcAU"
+      class="c1"
       id="contest-header"
     >
       <div
-        class="sc-htpNat fSsZTl"
+        class="c2"
       >
         <h1
           aria-label="Federal, President and Vice-President of the United States."
         >
           <div
-            class="sc-gZMcBi jfQfOL"
+            class="c3"
           >
             Federal
           </div>
@@ -1359,29 +1614,29 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
       </div>
     </div>
     <div
-      class="sc-jTzLTM gNXRLH"
+      class="c4"
     >
       <div
-        class="sc-jzJRlG kXRdgz"
+        class="c5"
       >
         <div
           aria-labelledby="contest-header"
-          class="sc-cSHVUG fZpRev"
+          class="c6"
           role="group"
         >
           <label
-            class="sc-kAzzGY buGPUT"
+            class="c7"
             for="barchi-hallaren"
           >
             <input
-              class="visually-hidden sc-chPdSV ebSUow"
+              class="visually-hidden c8"
               id="barchi-hallaren"
               name="Joseph Barchi and Joseph Hallaren"
               type="checkbox"
               value="barchi-hallaren"
             />
             <div
-              class="sc-htpNat fSsZTl"
+              class="c2"
             >
               <p
                 aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
@@ -1395,11 +1650,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-kAzzGY wDcca"
+            class="c9"
             for="cramer-vuocolo"
           >
             <input
-              class="visually-hidden sc-chPdSV ebSUow"
+              class="visually-hidden c8"
               disabled=""
               id="cramer-vuocolo"
               name="Adam Cramer and Greg Vuocolo"
@@ -1407,7 +1662,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               value="cramer-vuocolo"
             />
             <div
-              class="sc-htpNat fSsZTl"
+              class="c2"
             >
               <p
                 aria-label="Adam Cramer and Greg Vuocolo, People's."
@@ -1421,11 +1676,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-kAzzGY wDcca"
+            class="c9"
             for="court-blumhardt"
           >
             <input
-              class="visually-hidden sc-chPdSV ebSUow"
+              class="visually-hidden c8"
               disabled=""
               id="court-blumhardt"
               name="Daniel Court and Amy Blumhardt"
@@ -1433,7 +1688,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               value="court-blumhardt"
             />
             <div
-              class="sc-htpNat fSsZTl"
+              class="c2"
             >
               <p
                 aria-label="Daniel Court and Amy Blumhardt, Liberty."
@@ -1447,11 +1702,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-kAzzGY wDcca"
+            class="c9"
             for="boone-lian"
           >
             <input
-              class="visually-hidden sc-chPdSV ebSUow"
+              class="visually-hidden c8"
               disabled=""
               id="boone-lian"
               name="Alvin Boone and James Lian"
@@ -1459,7 +1714,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               value="boone-lian"
             />
             <div
-              class="sc-htpNat fSsZTl"
+              class="c2"
             >
               <p
                 aria-label="Alvin Boone and James Lian, Constitution."
@@ -1473,11 +1728,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-kAzzGY wDcca"
+            class="c9"
             for="hildebrand-garritty"
           >
             <input
-              class="visually-hidden sc-chPdSV ebSUow"
+              class="visually-hidden c8"
               disabled=""
               id="hildebrand-garritty"
               name="Ashley Hildebrand-MacDougall and James Garritty"
@@ -1485,7 +1740,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               value="hildebrand-garritty"
             />
             <div
-              class="sc-htpNat fSsZTl"
+              class="c2"
             >
               <p
                 aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
@@ -1499,11 +1754,11 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             </div>
           </label>
           <label
-            class="sc-kAzzGY wDcca"
+            class="c9"
             for="patterson-lariviere"
           >
             <input
-              class="visually-hidden sc-chPdSV ebSUow"
+              class="visually-hidden c8"
               disabled=""
               id="patterson-lariviere"
               name="Martin Patterson and Clay Lariviere"
@@ -1511,7 +1766,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               value="patterson-lariviere"
             />
             <div
-              class="sc-htpNat fSsZTl"
+              class="c2"
             >
               <p
                 aria-label="Martin Patterson and Clay Lariviere, Labor."
@@ -1533,12 +1788,26 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
   >
     <button
       class="sc-EHOje bOrYaz"
+      id="next"
       type="button"
     >
       Next
     </button>
-    <button
-      class="sc-EHOje egcjKC"
+    .c0 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+<button
+      class="c0"
+      id="previous"
       type="button"
     >
       Previous

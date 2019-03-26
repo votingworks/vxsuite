@@ -209,12 +209,14 @@ exports[`displays accessible error if no id match 1`] = `
   >
     <button
       class="c2"
+      id="next"
       type="button"
     >
       Next
     </button>
     <button
       class="c2"
+      id="previous"
       type="button"
     >
       Previous
@@ -780,12 +782,14 @@ button.c7 {
   >
     <button
       class="c10"
+      id="next"
       type="button"
     >
       Next
     </button>
     <button
       class="c10"
+      id="previous"
       type="button"
     >
       Previous
@@ -1339,12 +1343,14 @@ button.c7 {
   >
     <button
       class="c10"
+      id="next"
       type="button"
     >
       Next
     </button>
     <button
       class="c10"
+      id="previous"
       type="button"
     >
       Previous
@@ -1591,12 +1597,14 @@ exports[`renders error if no id match 1`] = `
   >
     <button
       class="c2"
+      id="next"
       type="button"
     >
       Next
     </button>
     <button
       class="c2"
+      id="previous"
       type="button"
     >
       Previous

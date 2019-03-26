@@ -232,7 +232,9 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
           <Button primary onClick={this.showConfirm}>
             Print Ballot
           </Button>
-          <LinkButton goBack>Back</LinkButton>
+          <LinkButton goBack id="previous">
+            Back
+          </LinkButton>
         </ButtonBar>
         <Modal
           isOpen={this.state.showConfirmModal}
