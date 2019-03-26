@@ -487,7 +487,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 .c4 {
   box-sizing: border-box;
   cursor: pointer;
-  background: #4caf50;
+  background: rgb(71,167,75);
   border: none;
   border-radius: 0.25rem;
   padding: 0.4rem 0.7rem;
@@ -934,6 +934,7 @@ button.c7 {
   >
     <div
       class="c1"
+      id="contest-header"
     >
       <div
         class="c2"
@@ -968,7 +969,9 @@ button.c7 {
         class="c5"
       >
         <div
+          aria-labelledby="contest-header"
           class="c6"
+          role="group"
         >
           <label
             class="c7"
@@ -977,7 +980,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="barchi-hallaren"
-              name="president"
+              name="Joseph Barchi and Joseph Hallaren"
               type="checkbox"
               value="barchi-hallaren"
             />
@@ -1002,7 +1005,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="cramer-vuocolo"
-              name="president"
+              name="Adam Cramer and Greg Vuocolo"
               type="checkbox"
               value="cramer-vuocolo"
             />
@@ -1027,7 +1030,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="court-blumhardt"
-              name="president"
+              name="Daniel Court and Amy Blumhardt"
               type="checkbox"
               value="court-blumhardt"
             />
@@ -1052,7 +1055,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="boone-lian"
-              name="president"
+              name="Alvin Boone and James Lian"
               type="checkbox"
               value="boone-lian"
             />
@@ -1077,7 +1080,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="hildebrand-garritty"
-              name="president"
+              name="Ashley Hildebrand-MacDougall and James Garritty"
               type="checkbox"
               value="hildebrand-garritty"
             />
@@ -1102,7 +1105,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="patterson-lariviere"
-              name="president"
+              name="Martin Patterson and Clay Lariviere"
               type="checkbox"
               value="patterson-lariviere"
             />
@@ -1327,6 +1330,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
   >
     <div
       class="sc-VigVT lbUcAU"
+      id="contest-header"
     >
       <div
         class="sc-htpNat fSsZTl"
@@ -1361,7 +1365,9 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
         class="sc-jzJRlG kXRdgz"
       >
         <div
+          aria-labelledby="contest-header"
           class="sc-cSHVUG fZpRev"
+          role="group"
         >
           <label
             class="sc-kAzzGY buGPUT"
@@ -1370,7 +1376,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
             <input
               class="visually-hidden sc-chPdSV ebSUow"
               id="barchi-hallaren"
-              name="president"
+              name="Joseph Barchi and Joseph Hallaren"
               type="checkbox"
               value="barchi-hallaren"
             />
@@ -1396,7 +1402,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               class="visually-hidden sc-chPdSV ebSUow"
               disabled=""
               id="cramer-vuocolo"
-              name="president"
+              name="Adam Cramer and Greg Vuocolo"
               type="checkbox"
               value="cramer-vuocolo"
             />
@@ -1422,7 +1428,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               class="visually-hidden sc-chPdSV ebSUow"
               disabled=""
               id="court-blumhardt"
-              name="president"
+              name="Daniel Court and Amy Blumhardt"
               type="checkbox"
               value="court-blumhardt"
             />
@@ -1448,7 +1454,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               class="visually-hidden sc-chPdSV ebSUow"
               disabled=""
               id="boone-lian"
-              name="president"
+              name="Alvin Boone and James Lian"
               type="checkbox"
               value="boone-lian"
             />
@@ -1474,7 +1480,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               class="visually-hidden sc-chPdSV ebSUow"
               disabled=""
               id="hildebrand-garritty"
-              name="president"
+              name="Ashley Hildebrand-MacDougall and James Garritty"
               type="checkbox"
               value="hildebrand-garritty"
             />
@@ -1500,7 +1506,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
               class="visually-hidden sc-chPdSV ebSUow"
               disabled=""
               id="patterson-lariviere"
-              name="president"
+              name="Martin Patterson and Clay Lariviere"
               type="checkbox"
               value="patterson-lariviere"
             />
@@ -1526,7 +1532,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
     class="sc-dnqmqq gUIeTn"
   >
     <button
-      class="sc-EHOje gEPHiK"
+      class="sc-EHOje bOrYaz"
       type="button"
     >
       Next

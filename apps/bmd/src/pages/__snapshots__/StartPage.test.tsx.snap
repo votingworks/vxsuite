@@ -64,7 +64,7 @@ exports[`renders StartPage 1`] = `
 .c4 {
   box-sizing: border-box;
   cursor: pointer;
-  background: #4caf50;
+  background: rgb(71,167,75);
   border: none;
   border-radius: 0.25rem;
   padding: 0.4rem 0.7rem;

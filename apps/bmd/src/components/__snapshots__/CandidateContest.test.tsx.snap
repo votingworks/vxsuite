@@ -260,6 +260,7 @@ button.c7 {
   >
     <div
       class="c1"
+      id="contest-header"
     >
       <div
         class="c2"
@@ -294,7 +295,9 @@ button.c7 {
         class="c5"
       >
         <div
+          aria-labelledby="contest-header"
           class="c6"
+          role="group"
         >
           <label
             class="c7"
@@ -304,7 +307,7 @@ button.c7 {
               checked=""
               class="visually-hidden c8"
               id="name-0"
-              name="contest-id"
+              name="Name 0"
               type="checkbox"
               value="name-0"
             />
@@ -329,7 +332,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="name-1"
-              name="contest-id"
+              name="Name 1"
               type="checkbox"
               value="name-1"
             />
@@ -354,7 +357,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="name-2"
-              name="contest-id"
+              name="Name 2"
               type="checkbox"
               value="name-2"
             />
@@ -576,6 +579,7 @@ button.c7 {
   >
     <div
       class="c1"
+      id="contest-header"
     >
       <div
         class="c2"
@@ -610,7 +614,9 @@ button.c7 {
         class="c5"
       >
         <div
+          aria-labelledby="contest-header"
           class="c6"
+          role="group"
         >
           <label
             class="c7"
@@ -619,7 +625,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="name-0"
-              name="contest-id"
+              name="Name 0"
               type="checkbox"
               value="name-0"
             />
@@ -644,7 +650,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="name-1"
-              name="contest-id"
+              name="Name 1"
               type="checkbox"
               value="name-1"
             />
@@ -669,7 +675,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="name-2"
-              name="contest-id"
+              name="Name 2"
               type="checkbox"
               value="name-2"
             />
@@ -954,6 +960,7 @@ button.c7 {
   >
     <div
       class="c1"
+      id="contest-header"
     >
       <div
         class="c2"
@@ -988,7 +995,9 @@ button.c7 {
         class="c5"
       >
         <div
+          aria-labelledby="contest-header"
           class="c6"
+          role="group"
         >
           <label
             class="c7"
@@ -998,7 +1007,7 @@ button.c7 {
               checked=""
               class="visually-hidden c8"
               id="name-0"
-              name="contest-id"
+              name="Name 0"
               type="checkbox"
               value="name-0"
             />
@@ -1024,7 +1033,7 @@ button.c7 {
               class="visually-hidden c8"
               disabled=""
               id="name-1"
-              name="contest-id"
+              name="Name 1"
               type="checkbox"
               value="name-1"
             />
@@ -1050,7 +1059,7 @@ button.c7 {
               class="visually-hidden c8"
               disabled=""
               id="name-2"
-              name="contest-id"
+              name="Name 2"
               type="checkbox"
               value="name-2"
             />
@@ -1272,6 +1281,7 @@ button.c7 {
   >
     <div
       class="c1"
+      id="contest-header"
     >
       <div
         class="c2"
@@ -1306,7 +1316,9 @@ button.c7 {
         class="c5"
       >
         <div
+          aria-labelledby="contest-header"
           class="c6"
+          role="group"
         >
           <label
             class="c7"
@@ -1315,7 +1327,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="name-0"
-              name="contest-id"
+              name="Name 0"
               type="checkbox"
               value="name-0"
             />
@@ -1340,7 +1352,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="name-1"
-              name="contest-id"
+              name="Name 1"
               type="checkbox"
               value="name-1"
             />
@@ -1365,7 +1377,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="name-2"
-              name="contest-id"
+              name="Name 2"
               type="checkbox"
               value="name-2"
             />

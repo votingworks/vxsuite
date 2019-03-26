@@ -1,4 +1,3 @@
-import { axe } from 'jest-axe'
 import React from 'react'
 import { Route } from 'react-router-dom'
 
@@ -11,5 +10,4 @@ it(`renders StartPage`, async () => {
     route: '/',
   })
   expect(container.firstChild).toMatchSnapshot()
-  expect(await axe(container.innerHTML)).toHaveNoViolations()
 })
