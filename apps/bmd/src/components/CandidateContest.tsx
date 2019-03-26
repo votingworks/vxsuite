@@ -27,14 +27,12 @@ const ContestSection = styled.div`
   font-weight: 600;
   text-transform: uppercase;
 `
-// TODO: A11y likes <fieldset>, but <fieldset> doesn't do flex.
-const FieldSet = styled.main`
+const ContestMain = styled.main`
   flex: 1;
   display: flex;
   flex-direction: column;
 `
-// TODO: A11y: no <fieldset>, no <legend>.
-const Legend = styled.div<{ isScrollable: boolean }>`
+const ContestHeader = styled.div`
   width: 100%;
   max-width: 35rem;
   margin: 0px auto;
@@ -389,8 +387,8 @@ class CandidateContest extends React.Component<Props, State> {
     const maxWriteInCandidateLength = 40
     return (
       <React.Fragment>
-        <FieldSet>
-          <Legend isScrollable={isScrollable}>
+        <ContestMain>
+          <ContestHeader id="contest-header">
             <Prose>
               <h1 aria-label={`${contest.section}, ${contest.title}.`}>
                 <ContestSection>{contest.section}</ContestSection>
@@ -401,14 +399,18 @@ class CandidateContest extends React.Component<Props, State> {
                 {vote.length}.
               </p>
             </Prose>
-          </Legend>
+          </ContestHeader>
           <ChoicesWrapper>
             <Choices
               ref={this.contestChoices}
               onScroll={this.updateContestChoicesScrollStates}
               showTopShadow={!isScrollAtTop}
             >
-              <ChoicesGrid isScrollable={isScrollable}>
+              <ChoicesGrid
+                isScrollable={isScrollable}
+                role="group"
+                aria-labelledby="contest-header"
+              >
                 {contest.candidates.map(candidate => {
                   const isChecked = !!this.findCandidateById(vote, candidate.id)
                   const isDisabled = hasReachedMaxSelections && !isChecked
@@ -426,7 +428,7 @@ class CandidateContest extends React.Component<Props, State> {
                     >
                       <ChoiceInput
                         id={candidate.id}
-                        name={contest.id}
+                        name={candidate.name}
                         value={candidate.id}
                         onChange={this.handleUpdateSelection}
                         checked={isChecked}
@@ -508,7 +510,7 @@ class CandidateContest extends React.Component<Props, State> {
               </ScrollControls>
             )}
           </ChoicesWrapper>
-        </FieldSet>
+        </ContestMain>
         <Modal
           isOpen={!!attemptedOverVoteCandidate}
           content={
