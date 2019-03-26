@@ -86,7 +86,7 @@ class App extends React.Component<RouteComponentProps, State> {
     Mousetrap.unbind(removeElectionShortcuts)
   }
 
-  public getElection = () => {
+  public getElection = (): OptionalElection => {
     const election = window.localStorage.getItem(electionKey)
     return election ? JSON.parse(election) : undefined
   }
