@@ -488,8 +488,7 @@ class CandidateContest extends React.Component<Props, State> {
                 )}
               </ChoicesGrid>
             </Choices>
-            {isScrollable && (
-              /* istanbul ignore next: Tested by Cypress */
+            {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
               <ScrollControls aria-hidden="true">
                 <Button
                   data-direction="up"
@@ -600,10 +599,7 @@ class CandidateContest extends React.Component<Props, State> {
                       '{space} {bksp}',
                     ],
                   }}
-                  display={{
-                    '{bksp}': '⌫ delete',
-                    '{space}': 'space',
-                  }}
+                  display={{ '{bksp}': '⌫ delete', '{space}': 'space' }}
                   mergeDisplay
                   disableCaretPositioning
                   maxLength={maxWriteInCandidateLength}
