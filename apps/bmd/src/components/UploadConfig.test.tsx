@@ -1,4 +1,3 @@
-import { axe } from 'jest-axe'
 import React from 'react'
 import { fireEvent, render, waitForElement } from 'react-testing-library'
 
@@ -127,9 +126,4 @@ it(`election config file must contain json content`, async () => {
   await waitForElement(() =>
     getByText('File content must be JSON text only. Try again.')
   )
-})
-
-it(`UploadConfig is accessible`, async () => {
-  const { container } = render(<UploadConfig setElection={jest.fn()} />)
-  expect(await axe(container.innerHTML)).toHaveNoViolations()
 })

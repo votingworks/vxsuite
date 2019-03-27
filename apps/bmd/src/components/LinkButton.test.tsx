@@ -1,4 +1,3 @@
-import { axe } from 'jest-axe'
 import React from 'react'
 import { StaticRouter } from 'react-router'
 import { fireEvent, render } from 'react-testing-library'
@@ -53,13 +52,4 @@ it(`renders LinkButton with onClick and disabled props`, () => {
   fireEvent.click(button)
   expect(onClickHandler).not.toHaveBeenCalled()
   expect(button).toMatchSnapshot()
-})
-
-it(`LinkButton is accessible`, async () => {
-  const { container } = render(
-    <StaticRouter context={{}}>
-      <LinkButton to="/">Push Me</LinkButton>
-    </StaticRouter>
-  )
-  expect(await axe(container.innerHTML)).toHaveNoViolations()
 })

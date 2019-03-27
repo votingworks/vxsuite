@@ -1,4 +1,3 @@
-import { axe } from 'jest-axe'
 import React from 'react'
 import { render } from 'react-testing-library'
 
@@ -36,6 +35,5 @@ it(`renders Prose`, async () => {
       </p>
     </Prose>
   )
-  expect(await axe(container.innerHTML)).toHaveNoViolations()
   expect(container.firstChild).toMatchSnapshot()
 })

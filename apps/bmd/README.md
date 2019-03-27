@@ -146,5 +146,3 @@ It uses [Styled Components](https://www.styled-components.com/docs/) for styles
 [Jest](https://jestjs.io/), [dom-testing-library](https://testing-library.com)
 and [react-testing-library](https://github.com/kentcdodds/react-testing-library)
 are used to test components and end-to-end user flows.
-[jest-axe](https://github.com/nickcolley/jest-axe) is used to test for basic web
-accessibility.

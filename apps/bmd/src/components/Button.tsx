@@ -20,7 +20,7 @@ const Button = styled('button').attrs((props: Attrs) => ({
   box-sizing: border-box;
   cursor: pointer;
   background: ${({ danger = false, primary = false }) =>
-    (danger && 'red') || (primary && '#4caf50') || 'lightgrey'};
+    (danger && 'red') || (primary && 'rgb(71, 167, 75)') || 'lightgrey'};
   border: none;
   border-radius: 0.25rem;
   padding: 0.4rem 0.7rem;

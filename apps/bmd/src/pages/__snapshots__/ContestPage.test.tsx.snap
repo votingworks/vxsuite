@@ -582,6 +582,7 @@ button.c7 {
   >
     <div
       class="c1"
+      id="contest-header"
     >
       <div
         class="c2"
@@ -616,7 +617,9 @@ button.c7 {
         class="c5"
       >
         <div
+          aria-labelledby="contest-header"
           class="c6"
+          role="group"
         >
           <label
             class="c7"
@@ -625,7 +628,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="barchi-hallaren"
-              name="president"
+              name="Joseph Barchi and Joseph Hallaren"
               type="checkbox"
               value="barchi-hallaren"
             />
@@ -650,7 +653,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="cramer-vuocolo"
-              name="president"
+              name="Adam Cramer and Greg Vuocolo"
               type="checkbox"
               value="cramer-vuocolo"
             />
@@ -675,7 +678,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="court-blumhardt"
-              name="president"
+              name="Daniel Court and Amy Blumhardt"
               type="checkbox"
               value="court-blumhardt"
             />
@@ -700,7 +703,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="boone-lian"
-              name="president"
+              name="Alvin Boone and James Lian"
               type="checkbox"
               value="boone-lian"
             />
@@ -725,7 +728,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="hildebrand-garritty"
-              name="president"
+              name="Ashley Hildebrand-MacDougall and James Garritty"
               type="checkbox"
               value="hildebrand-garritty"
             />
@@ -750,7 +753,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="patterson-lariviere"
-              name="president"
+              name="Martin Patterson and Clay Lariviere"
               type="checkbox"
               value="patterson-lariviere"
             />
@@ -1138,6 +1141,7 @@ button.c7 {
   >
     <div
       class="c1"
+      id="contest-header"
     >
       <div
         class="c2"
@@ -1172,7 +1176,9 @@ button.c7 {
         class="c5"
       >
         <div
+          aria-labelledby="contest-header"
           class="c6"
+          role="group"
         >
           <label
             class="c7"
@@ -1181,7 +1187,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="barchi-hallaren"
-              name="president"
+              name="Joseph Barchi and Joseph Hallaren"
               type="checkbox"
               value="barchi-hallaren"
             />
@@ -1206,7 +1212,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="cramer-vuocolo"
-              name="president"
+              name="Adam Cramer and Greg Vuocolo"
               type="checkbox"
               value="cramer-vuocolo"
             />
@@ -1231,7 +1237,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="court-blumhardt"
-              name="president"
+              name="Daniel Court and Amy Blumhardt"
               type="checkbox"
               value="court-blumhardt"
             />
@@ -1256,7 +1262,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="boone-lian"
-              name="president"
+              name="Alvin Boone and James Lian"
               type="checkbox"
               value="boone-lian"
             />
@@ -1281,7 +1287,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="hildebrand-garritty"
-              name="president"
+              name="Ashley Hildebrand-MacDougall and James Garritty"
               type="checkbox"
               value="hildebrand-garritty"
             />
@@ -1306,7 +1312,7 @@ button.c7 {
             <input
               class="visually-hidden c8"
               id="patterson-lariviere"
-              name="president"
+              name="Martin Patterson and Clay Lariviere"
               type="checkbox"
               value="patterson-lariviere"
             />
