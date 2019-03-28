@@ -9,7 +9,7 @@ import ButtonBar from '../components/ButtonBar'
 import CandidateContest from '../components/CandidateContest'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
-import Text from '../components/Typography'
+import Text from '../components/Text'
 
 interface ContestParams {
   id: string

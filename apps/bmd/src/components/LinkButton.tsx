@@ -1,5 +1,5 @@
 import React from 'react'
-import { RouteComponentProps, withRouter } from 'react-router'
+import { RouteComponentProps, withRouter } from 'react-router-dom'
 
 import Button, { ButtonInterface } from '../components/Button'
 import { ButtonEvent } from '../config/types'

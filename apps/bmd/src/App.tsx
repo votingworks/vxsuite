@@ -2,8 +2,7 @@ import Mousetrap from 'mousetrap'
 import React from 'react'
 // @ts-ignore - @types/react-gamepad doesn't exist
 import Gamepad from 'react-gamepad'
-import { RouteComponentProps } from 'react-router-dom'
-import { BrowserRouter, Route } from 'react-router-dom'
+import { BrowserRouter, Route, RouteComponentProps } from 'react-router-dom'
 
 import GLOBALS from './config/globals'
 

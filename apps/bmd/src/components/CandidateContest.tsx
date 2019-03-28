@@ -21,7 +21,7 @@ import GLOBALS from '../config/globals'
 import Button from './Button'
 import Modal from './Modal'
 import Prose from './Prose'
-import { Text } from './Typography'
+import Text from './Text'
 
 const tabletMinWidth = 720
 
@@ -210,23 +210,18 @@ interface State {
 const initialState = {
   attemptedOverVoteCandidate: undefined,
   candidatePendingRemoval: undefined,
-  isScrollAtBottom: false,
-  isScrollAtTop: true,
   isScrollable: false,
+  isScrollAtBottom: true,
+  isScrollAtTop: true,
   writeInCandateModalIsOpen: false,
   writeInCandidateName: '',
 }
 
 class CandidateContest extends React.Component<Props, State> {
   public static contextType = BallotContext
-  private keyboard: React.RefObject<Keyboard>
-  private contestChoices: React.RefObject<HTMLDivElement>
-  constructor(props: Props) {
-    super(props)
-    this.state = initialState
-    this.keyboard = React.createRef()
-    this.contestChoices = React.createRef()
-  }
+  public state: State = initialState
+  private keyboard = React.createRef<Keyboard>()
+  private scrollContainer = React.createRef<HTMLDivElement>()
 
   public componentDidMount() {
     this.updateContestChoicesScrollStates()
@@ -341,18 +336,18 @@ class CandidateContest extends React.Component<Props, State> {
     const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
     this.setState({
-      isScrollAtBottom:
-        windowsScrollTop +
-          target.offsetHeight +
-          windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
-        target.scrollHeight,
-      isScrollAtTop: target.scrollTop === 0,
       isScrollable:
         isTabletMinWidth &&
         /* istanbul ignore next: Tested by Cypress */
         target.scrollHeight > target.offsetHeight &&
         /* istanbul ignore next: Tested by Cypress */
         target.offsetHeight > targetMinHeight,
+      isScrollAtBottom:
+        windowsScrollTop +
+          target.offsetHeight +
+          windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
+        target.scrollHeight,
+      isScrollAtTop: target.scrollTop === 0,
     })
   }
 

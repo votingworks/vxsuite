@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from 'react-testing-library'
 
-import Text from './Typography'
+import Text from './Text'
 
 it(`outputs paragraph tag`, async () => {
   const text = 'paragraph'

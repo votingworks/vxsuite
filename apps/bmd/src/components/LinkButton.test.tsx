@@ -1,5 +1,5 @@
 import React from 'react'
-import { StaticRouter } from 'react-router'
+import { StaticRouter } from 'react-router-dom'
 import { fireEvent, render } from 'react-testing-library'
 
 import LinkButton from './LinkButton'
