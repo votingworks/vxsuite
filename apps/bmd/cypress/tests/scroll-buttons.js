@@ -1,5 +1,6 @@
-describe('Voter can vote', () => {
+describe('Scroll Buttons', () => {
   /* eslint-disable cypress/no-unnecessary-waiting */
+
   it('Scroll buttons appear and function correctly', () => {
     cy.visit('/#sample')
     cy.getByTestId('activation-code').type('MyVoiceIsMyPassword', {
@@ -30,7 +31,9 @@ describe('Voter can vote', () => {
     cy.wait(250)
     cy.contains('Charlene Franz').should('be.visible')
   })
+
   /* eslint-enable cypress/no-unnecessary-waiting */
+
   it('Scroll buttons do not appear on smaller screens', () => {
     cy.viewport(375, 812) // iPhoneX
     cy.visit('/#sample')

@@ -25,7 +25,7 @@ it(`can navigate all ballot pages`, () => {
   getByText('Help content will be available here.')
   fireEvent.click(getByText('Back'))
   fireEvent.click(getByText('Settings'))
-  getByText('Settings will be available here.')
+  getByText('Adjust the following settings to meet your needs.')
   fireEvent.click(getByText('Back'))
   fireEvent.click(getByText('Review'))
   fireEvent.click(getByText('Back'))

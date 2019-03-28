@@ -1,6 +1,9 @@
 import camelCase from 'lodash.camelcase'
 import React from 'react'
+import Keyboard from 'react-simple-keyboard'
+import 'react-simple-keyboard/build/css/index.css'
 import styled from 'styled-components'
+
 import {
   ButtonEvent,
   Candidate,
@@ -12,9 +15,9 @@ import {
   UpdateVoteFunction,
 } from '../config/types'
 
-import Keyboard from 'react-simple-keyboard'
-import 'react-simple-keyboard/build/css/index.css'
+import BallotContext from '../contexts/ballotContext'
 
+import GLOBALS from '../config/globals'
 import Button from './Button'
 import Modal from './Modal'
 import Prose from './Prose'
@@ -215,6 +218,7 @@ const initialState = {
 }
 
 class CandidateContest extends React.Component<Props, State> {
+  public static contextType = BallotContext
   private keyboard: React.RefObject<Keyboard>
   private contestChoices: React.RefObject<HTMLDivElement>
   constructor(props: Props) {
@@ -332,6 +336,8 @@ class CandidateContest extends React.Component<Props, State> {
   public updateContestChoicesScrollStates = () => {
     const target = this.contestChoices.current!
     const isTabletMinWidth = target.offsetWidth >= tabletMinWidth
+    const targetMinHeight =
+      GLOBALS.FONT_SIZES[this.context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
     this.setState({
@@ -343,8 +349,10 @@ class CandidateContest extends React.Component<Props, State> {
       isScrollAtTop: target.scrollTop === 0,
       isScrollable:
         isTabletMinWidth &&
-        /* istanbul ignore next: Tested by Cypress */ target.scrollHeight >
-          target.offsetHeight,
+        /* istanbul ignore next: Tested by Cypress */
+        target.scrollHeight > target.offsetHeight &&
+        /* istanbul ignore next: Tested by Cypress */
+        target.offsetHeight > targetMinHeight,
     })
   }
 
