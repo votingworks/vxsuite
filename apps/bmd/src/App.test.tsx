@@ -320,3 +320,52 @@ describe('can start over', () => {
     expect(getByText('Scan Your Activation Code')).toBeTruthy()
   })
 })
+
+describe(`Can update settings`, () => {
+  it(`Can update font-settings`, () => {
+    window.localStorage.setItem(electionKey, electionSampleAsString)
+    const { getByText, getByTestId, getByLabelText } = render(<App />)
+    fireEvent.change(getByTestId('activation-code'), {
+      target: { value: 'MyVoiceIsMyPassword' },
+    })
+    // TODO: replace next line with "Enter" keyDown on activation code input
+    fireEvent.click(getByText('Submit'))
+    fireEvent.click(getByText('Get Started'))
+    fireEvent.click(getByText('Settings'))
+    expect(
+      (getByLabelText('Font Size') as HTMLInputElement).value === '1'
+    ).toBeTruthy()
+    fireEvent.change(getByLabelText('Font Size'), {
+      target: { value: '0' },
+    })
+    expect(
+      (getByLabelText('Font Size') as HTMLInputElement).value === '0'
+    ).toBeTruthy()
+    fireEvent.change(getByLabelText('Font Size'), {
+      target: { value: '1' },
+    })
+    expect(
+      (getByLabelText('Font Size') as HTMLInputElement).value === '1'
+    ).toBeTruthy()
+    fireEvent.change(getByLabelText('Font Size'), {
+      target: { value: '2' },
+    })
+    expect(
+      (getByLabelText('Font Size') as HTMLInputElement).value === '2'
+    ).toBeTruthy()
+    fireEvent.change(getByLabelText('Font Size'), {
+      target: { value: '3' },
+    })
+    expect(
+      (getByLabelText('Font Size') as HTMLInputElement).value === '3'
+    ).toBeTruthy()
+    fireEvent.click(getByTestId('decrease-font-size-button'))
+    expect(
+      (getByLabelText('Font Size') as HTMLInputElement).value === '2'
+    ).toBeTruthy()
+    fireEvent.click(getByTestId('increase-font-size-button'))
+    expect(
+      (getByLabelText('Font Size') as HTMLInputElement).value === '3'
+    ).toBeTruthy()
+  })
+})

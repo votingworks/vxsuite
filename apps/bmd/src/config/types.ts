@@ -67,6 +67,13 @@ export interface Election {
 }
 export type OptionalElection = Election | undefined
 
+export type TextSizeSetting = 0 | 1 | 2 | 3
+
+export interface UserSettings {
+  textSize: TextSizeSetting
+}
+export type PartialUserSettings = Partial<UserSettings>
+
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: Vote) => void
 export interface BallotContextInterface {
@@ -75,6 +82,8 @@ export interface BallotContextInterface {
   setBallotKey: (activationCode: string) => void
   updateVote: UpdateVoteFunction
   votes: VotesDict
+  setUserSettings: (partial: PartialUserSettings) => void
+  userSettings: UserSettings
 }
 
 export default {}

@@ -213,7 +213,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 <div>
   <div
-    class="sc-eHgmQL ikKWGt"
+    class="sc-brqgnP dZCvJT"
     tabindex="-1"
   >
     .c0 {
@@ -421,7 +421,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 
 exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 <div
-  class="sc-eHgmQL ikKWGt"
+  class="sc-brqgnP dZCvJT"
   tabindex="-1"
 >
   .c0 {
@@ -736,7 +736,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 
 exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 <div
-  class="sc-eHgmQL ikKWGt"
+  class="sc-brqgnP dZCvJT"
   tabindex="-1"
 >
   .c2 {
@@ -1322,7 +1322,7 @@ button.c7 {
 
 exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 <div
-  class="sc-eHgmQL ikKWGt"
+  class="sc-brqgnP dZCvJT"
   tabindex="-1"
 >
   <main

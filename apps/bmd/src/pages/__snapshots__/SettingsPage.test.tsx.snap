@@ -59,7 +59,7 @@ exports[`renders SettingsPage 1`] = `
   margin-bottom: 0;
 }
 
-.c3 {
+.c5 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -69,6 +69,77 @@ exports[`renders SettingsPage 1`] = `
   color: black;
   line-height: 1;
   white-space: nowrap;
+}
+
+.c6 {
+  width: 300px;
+  background: transparent;
+}
+
+.c6,
+.c6::-webkit-slider-runnable-track,
+.c6::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+
+.c6:focus {
+  outline: none;
+}
+
+.c6::-webkit-slider-runnable-track {
+  cursor: pointer;
+  width: 100%;
+  height: 0.5rem;
+  margin: 0.25rem 0;
+  background: radial-gradient( circle 0.25rem at calc(0% + 0.5rem) 0.25rem, black, black 100%, transparent ), radial-gradient( circle 0.25rem at calc((100% + 0.125rem) * .34) 0.25rem, black, black 100%, transparent ), radial-gradient( circle 0.25rem at calc((100% - 0.125rem) * .66) 0.25rem, black, black 100%, transparent ), radial-gradient( circle 0.25rem at calc(100% - 0.5rem) 0.25rem, black, black 100%, transparent ), linear-gradient( to right, transparent, transparent 0.5rem, lightgrey 0.5rem, lightgrey calc(100% - 0.5rem), transparent calc(100% - 0.5rem), transparent ),#edeff0;
+  border-color: transparent;
+  color: transparent;
+}
+
+.c6:focus::-webkit-slider-runnable-track {
+  outline: none;
+}
+
+.c6::-webkit-slider-thumb {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 0.5rem;
+  background: black;
+  cursor: pointer;
+  margin-top: -0.25rem;
+}
+
+.c6:focus::-webkit-slider-thumb {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c3 {
+  display: block;
+  margin: 1.5rem 0 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c4 input {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.c4 button {
+  border-radius: 50%;
+  height: 2.5rem;
+  width: 2.5rem;
+  padding: 0 0 0.2rem;
 }
 
 @media (min-width:480px) {
@@ -113,8 +184,45 @@ exports[`renders SettingsPage 1`] = `
         Settings
       </h1>
       <p>
-        Settings will be available here.
+        Adjust the following settings to meet your needs.
       </p>
+      <label
+        class="c3"
+        for="font-size"
+      >
+        Font Size
+      </label>
+      <div
+        class="c4"
+      >
+        <button
+          aria-hidden="true"
+          class="c5"
+          data-testid="decrease-font-size-button"
+          type="button"
+          value="-1"
+        >
+          -
+        </button>
+        <input
+          class="c6"
+          id="font-size"
+          max="3"
+          min="0"
+          step="1"
+          type="range"
+          value="1"
+        />
+        <button
+          aria-hidden="true"
+          class="c5"
+          data-testid="increase-font-size-button"
+          type="button"
+          value="1"
+        >
+          +
+        </button>
+      </div>
       <h2>
         Clear Selections
       </h2>
@@ -122,7 +230,7 @@ exports[`renders SettingsPage 1`] = `
         Clear all selections and start over.
       </p>
       <button
-        class="c3"
+        class="c5"
         type="button"
       >
         Start Over

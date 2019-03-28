@@ -48,7 +48,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
   color: #263238;
   background: #edeff0;
-  font-size: 24px;
+  font-size: 24px; /* Magic number, must synced with JavaScript global defaults */
 }
 @media print {
   html {
