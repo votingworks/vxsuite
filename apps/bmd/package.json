@@ -69,7 +69,7 @@
     "mousetrap": "^1.6.2",
     "normalize.css": "^8.0.1",
     "react": "^16.8.6",
-    "react-dom": "^16.8.2",
+    "react-dom": "^16.8.6",
     "react-dropzone": "9.0.0",
     "react-modal": "^3.8.1",
     "react-router-dom": "^4.3.1",
