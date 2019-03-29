@@ -68,7 +68,7 @@
     "lodash.camelcase": "^4.3.0",
     "mousetrap": "^1.6.2",
     "normalize.css": "^8.0.1",
-    "react": "^16.8.2",
+    "react": "^16.8.6",
     "react-dom": "^16.8.2",
     "react-dropzone": "9.0.0",
     "react-modal": "^3.8.1",
