@@ -1,3 +1,4 @@
+import React from 'react'
 import styled from 'styled-components'
 
 interface Props {
@@ -22,5 +23,20 @@ const Text = styled('p')<Props>`
       undefined};
   }
 `
+
+export const TextWithLineBreaks = ({ text }: { text: string }) => (
+  <React.Fragment>
+    {text.split(/[\n|\r]{2}/g).map(x => (
+      <p key={x}>
+        {x.split(/[\n|\r]/g).map((y, i, arr) => (
+          <React.Fragment key={y}>
+            {y}
+            {arr.length > 1 && i !== arr.length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </p>
+    ))}
+  </React.Fragment>
+)
 
 export default Text

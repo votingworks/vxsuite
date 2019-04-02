@@ -800,6 +800,222 @@ exports[`renders ReviewPage with votes 1`] = `
               [no selection]
             </strong>
           </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Retain Robert Demergue as Chief Justice?,"
+              class="c8"
+            >
+              Retain Robert Demergue as Chief Justice?
+            </span>
+            <button
+              aria-label="Change Retain Robert Demergue as Chief Justice?."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Retain Robert Demergue as Chief Justice?."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Retain Elmer Hull as Associate Justice?,"
+              class="c8"
+            >
+              Retain Elmer Hull as Associate Justice?
+            </span>
+            <button
+              aria-label="Change Retain Elmer Hull as Associate Justice?."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Retain Elmer Hull as Associate Justice?."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Question A: Recovery of Property Damages,"
+              class="c8"
+            >
+              Question A: Recovery of Property Damages
+            </span>
+            <button
+              aria-label="Change Question A: Recovery of Property Damages."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Question A: Recovery of Property Damages."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Question B: Separation of Powers,"
+              class="c8"
+            >
+              Question B: Separation of Powers
+            </span>
+            <button
+              aria-label="Change Question B: Separation of Powers."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Question B: Separation of Powers."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Question C: Limits to Damages for Non-Economic Loss,"
+              class="c8"
+            >
+              Question C: Limits to Damages for Non-Economic Loss
+            </span>
+            <button
+              aria-label="Change Question C: Limits to Damages for Non-Economic Loss."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Question C: Limits to Damages for Non-Economic Loss."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Proposition 1: Gambling in Madison and Fromwit Counties,"
+              class="c8"
+            >
+              Proposition 1: Gambling in Madison and Fromwit Counties
+            </span>
+            <button
+              aria-label="Change Proposition 1: Gambling in Madison and Fromwit Counties."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Proposition 1: Gambling in Madison and Fromwit Counties."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Measure 101: Madison County College District,"
+              class="c8"
+            >
+              Measure 101: Madison County College District
+            </span>
+            <button
+              aria-label="Change Measure 101: Madison County College District."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Measure 101: Madison County College District."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Measure 102: Madison County Vehicle Abatement Program,"
+              class="c8"
+            >
+              Measure 102: Madison County Vehicle Abatement Program
+            </span>
+            <button
+              aria-label="Change Measure 102: Madison County Vehicle Abatement Program."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Measure 102: Madison County Vehicle Abatement Program."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
         </dl>
       </div>
       <div
@@ -1628,6 +1844,222 @@ exports[`renders ReviewPage without votes 1`] = `
           >
             <strong
               aria-label="No selection for City Council."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Retain Robert Demergue as Chief Justice?,"
+              class="c8"
+            >
+              Retain Robert Demergue as Chief Justice?
+            </span>
+            <button
+              aria-label="Change Retain Robert Demergue as Chief Justice?."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Retain Robert Demergue as Chief Justice?."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Retain Elmer Hull as Associate Justice?,"
+              class="c8"
+            >
+              Retain Elmer Hull as Associate Justice?
+            </span>
+            <button
+              aria-label="Change Retain Elmer Hull as Associate Justice?."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Retain Elmer Hull as Associate Justice?."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Question A: Recovery of Property Damages,"
+              class="c8"
+            >
+              Question A: Recovery of Property Damages
+            </span>
+            <button
+              aria-label="Change Question A: Recovery of Property Damages."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Question A: Recovery of Property Damages."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Question B: Separation of Powers,"
+              class="c8"
+            >
+              Question B: Separation of Powers
+            </span>
+            <button
+              aria-label="Change Question B: Separation of Powers."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Question B: Separation of Powers."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Question C: Limits to Damages for Non-Economic Loss,"
+              class="c8"
+            >
+              Question C: Limits to Damages for Non-Economic Loss
+            </span>
+            <button
+              aria-label="Change Question C: Limits to Damages for Non-Economic Loss."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Question C: Limits to Damages for Non-Economic Loss."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Proposition 1: Gambling in Madison and Fromwit Counties,"
+              class="c8"
+            >
+              Proposition 1: Gambling in Madison and Fromwit Counties
+            </span>
+            <button
+              aria-label="Change Proposition 1: Gambling in Madison and Fromwit Counties."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Proposition 1: Gambling in Madison and Fromwit Counties."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Measure 101: Madison County College District,"
+              class="c8"
+            >
+              Measure 101: Madison County College District
+            </span>
+            <button
+              aria-label="Change Measure 101: Madison County College District."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Measure 101: Madison County College District."
+              class="c11"
+            >
+              [no selection]
+            </strong>
+          </dd>
+          <dt
+            class="c7"
+          >
+            <span
+              aria-label="Measure 102: Madison County Vehicle Abatement Program,"
+              class="c8"
+            >
+              Measure 102: Madison County Vehicle Abatement Program
+            </span>
+            <button
+              aria-label="Change Measure 102: Madison County Vehicle Abatement Program."
+              class="no-print change-button c9"
+              type="button"
+            >
+              Change
+            </button>
+          </dt>
+          <dd
+            class="c10"
+          >
+            <strong
+              aria-label="No selection for Measure 102: Madison County Vehicle Abatement Program."
               class="c11"
             >
               [no selection]

@@ -18,10 +18,10 @@ import {
   Election,
   ElectionDefaults,
   OptionalElection,
+  OptionalVote,
   PartialUserSettings,
   TextSizeSetting,
   UserSettings,
-  Vote,
   VotesDict,
 } from './config/types'
 
@@ -103,7 +103,7 @@ class App extends React.Component<RouteComponentProps, State> {
     this.props.history.push('/')
   }
 
-  public updateVote = (contestId: string, vote: Vote) => {
+  public updateVote = (contestId: string, vote: OptionalVote) => {
     this.setState(prevState => ({
       votes: { ...prevState.votes, [contestId]: vote },
     }))

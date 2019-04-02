@@ -191,9 +191,9 @@ exports[`displays accessible error if no id match 1`] = `
       <p>
         no contest exists for id 
         <code>
-          "
+          “
           foobar
-          "
+          ”
         </code>
       </p>
       <button
@@ -226,7 +226,7 @@ exports[`displays accessible error if no id match 1`] = `
     >
       0
        of 
-      12
+      20
     </p>
   </nav>
   <nav
@@ -292,7 +292,7 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   margin-bottom: 0;
 }
 
-.c10 {
+.c11 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -304,12 +304,12 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   white-space: nowrap;
 }
 
-.c11 {
+.c12 {
   color: white;
   text-align: center;
 }
 
-.c9 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -330,20 +330,20 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   align-items: center;
 }
 
-.c9 > *:first-child {
+.c10 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c9 > * {
+.c10 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c12 {
+.c13 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -367,23 +367,17 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   align-items: center;
 }
 
-.c12 > *:first-child {
+.c13 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c12 > * {
+.c13 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c3 {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c0 {
@@ -406,6 +400,12 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   padding: 1rem 0.75rem 0.5rem;
 }
 
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .c4 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -418,6 +418,29 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   overflow: auto;
 }
 
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
 .c5 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -425,29 +448,20 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   overflow: auto;
 }
 
-.c5:before {
-  content: '';
-  z-index: 1;
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-  height: 5px;
-  width: 100%;
-  position: fixed;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
 .c6 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
-  padding: 0.5rem 0.5rem 2rem;
+  padding: 0.5rem 0.5rem 1rem;
 }
 
 .c7 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c8 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -462,15 +476,15 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-button.c7 {
+button.c8 {
   text-align: left;
 }
 
-.c7:focus-within {
+.c8:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c7:before {
+.c8:before {
   content: '';
   position: absolute;
   left: 0;
@@ -498,12 +512,12 @@ button.c7 {
   color: #028099;
 }
 
-.c7 > div {
+.c8 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c8 {
+.c9 {
   margin-right: 0.5rem;
 }
 
@@ -514,32 +528,32 @@ button.c7 {
 }
 
 @media print {
-  .c11 {
+  .c12 {
     color: white;
   }
 }
 
 @media (min-width:480px) {
-  .c9 > *:only-child {
+  .c10 > *:only-child {
     margin: auto;
     max-width: 30%;
   }
 }
 
 @media print {
-  .c9 {
+  .c10 {
     display: none;
   }
 }
 
 @media (min-width:480px) {
-  .c12 > *:first-child {
+  .c13 > *:first-child {
     margin-left: auto;
   }
 }
 
 @media (min-width:480px) {
-  .c12 > * {
+  .c13 > * {
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
@@ -547,18 +561,18 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c12 > *:only-child {
+  .c13 > *:only-child {
     max-width: 30%;
   }
 }
 
 @media print {
-  .c12 {
+  .c13 {
     display: none;
   }
 }
 
-@media (min-width:640px) {
+@media (min-width:720px) {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
@@ -573,7 +587,7 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c7 > div {
+  .c8 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
@@ -619,194 +633,198 @@ button.c7 {
         class="c5"
       >
         <div
-          aria-labelledby="contest-header"
           class="c6"
-          role="group"
         >
-          <label
+          <div
+            aria-labelledby="contest-header"
             class="c7"
-            for="barchi-hallaren"
+            role="group"
           >
-            <input
-              class="visually-hidden c8"
-              id="barchi-hallaren"
-              name="Joseph Barchi and Joseph Hallaren"
-              type="checkbox"
-              value="barchi-hallaren"
-            />
-            <div
-              class="c2"
+            <label
+              class="c8"
+              for="barchi-hallaren"
             >
-              <p
-                aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+              <input
+                class="visually-hidden c9"
+                id="barchi-hallaren"
+                name="Joseph Barchi and Joseph Hallaren"
+                type="checkbox"
+                value="barchi-hallaren"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Joseph Barchi and Joseph Hallaren
-                </strong>
-                <br />
-                Federalist
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="cramer-vuocolo"
-          >
-            <input
-              class="visually-hidden c8"
-              id="cramer-vuocolo"
-              name="Adam Cramer and Greg Vuocolo"
-              type="checkbox"
-              value="cramer-vuocolo"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                >
+                  <strong>
+                    Joseph Barchi and Joseph Hallaren
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="cramer-vuocolo"
             >
-              <p
-                aria-label="Adam Cramer and Greg Vuocolo, People's."
+              <input
+                class="visually-hidden c9"
+                id="cramer-vuocolo"
+                name="Adam Cramer and Greg Vuocolo"
+                type="checkbox"
+                value="cramer-vuocolo"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Adam Cramer and Greg Vuocolo
-                </strong>
-                <br />
-                People's
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="court-blumhardt"
-          >
-            <input
-              class="visually-hidden c8"
-              id="court-blumhardt"
-              name="Daniel Court and Amy Blumhardt"
-              type="checkbox"
-              value="court-blumhardt"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Adam Cramer and Greg Vuocolo, People's."
+                >
+                  <strong>
+                    Adam Cramer and Greg Vuocolo
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="court-blumhardt"
             >
-              <p
-                aria-label="Daniel Court and Amy Blumhardt, Liberty."
+              <input
+                class="visually-hidden c9"
+                id="court-blumhardt"
+                name="Daniel Court and Amy Blumhardt"
+                type="checkbox"
+                value="court-blumhardt"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Daniel Court and Amy Blumhardt
-                </strong>
-                <br />
-                Liberty
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="boone-lian"
-          >
-            <input
-              class="visually-hidden c8"
-              id="boone-lian"
-              name="Alvin Boone and James Lian"
-              type="checkbox"
-              value="boone-lian"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Daniel Court and Amy Blumhardt, Liberty."
+                >
+                  <strong>
+                    Daniel Court and Amy Blumhardt
+                  </strong>
+                  <br />
+                  Liberty
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="boone-lian"
             >
-              <p
-                aria-label="Alvin Boone and James Lian, Constitution."
+              <input
+                class="visually-hidden c9"
+                id="boone-lian"
+                name="Alvin Boone and James Lian"
+                type="checkbox"
+                value="boone-lian"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Alvin Boone and James Lian
-                </strong>
-                <br />
-                Constitution
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="hildebrand-garritty"
-          >
-            <input
-              class="visually-hidden c8"
-              id="hildebrand-garritty"
-              name="Ashley Hildebrand-MacDougall and James Garritty"
-              type="checkbox"
-              value="hildebrand-garritty"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Alvin Boone and James Lian, Constitution."
+                >
+                  <strong>
+                    Alvin Boone and James Lian
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="hildebrand-garritty"
             >
-              <p
-                aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
+              <input
+                class="visually-hidden c9"
+                id="hildebrand-garritty"
+                name="Ashley Hildebrand-MacDougall and James Garritty"
+                type="checkbox"
+                value="hildebrand-garritty"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Ashley Hildebrand-MacDougall and James Garritty
-                </strong>
-                <br />
-                Whig
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="patterson-lariviere"
-          >
-            <input
-              class="visually-hidden c8"
-              id="patterson-lariviere"
-              name="Martin Patterson and Clay Lariviere"
-              type="checkbox"
-              value="patterson-lariviere"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
+                >
+                  <strong>
+                    Ashley Hildebrand-MacDougall and James Garritty
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="patterson-lariviere"
             >
-              <p
-                aria-label="Martin Patterson and Clay Lariviere, Labor."
+              <input
+                class="visually-hidden c9"
+                id="patterson-lariviere"
+                name="Martin Patterson and Clay Lariviere"
+                type="checkbox"
+                value="patterson-lariviere"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Martin Patterson and Clay Lariviere
-                </strong>
-                <br />
-                Labor
-              </p>
-            </div>
-          </label>
+                <p
+                  aria-label="Martin Patterson and Clay Lariviere, Labor."
+                >
+                  <strong>
+                    Martin Patterson and Clay Lariviere
+                  </strong>
+                  <br />
+                  Labor
+                </p>
+              </div>
+            </label>
+          </div>
         </div>
       </div>
     </div>
   </main>
   <nav
-    class="c9"
+    class="c10"
   >
     <button
-      class="c10"
+      class="c11"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="c10"
+      class="c11"
       id="previous"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c11"
+      class="c12"
     >
       1
        of 
-      12
+      20
     </p>
   </nav>
   <nav
-    class="c12"
+    class="c13"
   >
     <button
-      class="c10"
+      class="c11"
       type="button"
     >
       Review
@@ -853,7 +871,7 @@ exports[`renders ContestPage 1`] = `
   margin-bottom: 0;
 }
 
-.c10 {
+.c11 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -865,12 +883,12 @@ exports[`renders ContestPage 1`] = `
   white-space: nowrap;
 }
 
-.c11 {
+.c12 {
   color: white;
   text-align: center;
 }
 
-.c9 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -891,20 +909,20 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c9 > *:first-child {
+.c10 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c9 > * {
+.c10 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c12 {
+.c13 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -928,23 +946,17 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c12 > *:first-child {
+.c13 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c12 > * {
+.c13 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c3 {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c0 {
@@ -967,6 +979,12 @@ exports[`renders ContestPage 1`] = `
   padding: 1rem 0.75rem 0.5rem;
 }
 
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .c4 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -979,6 +997,29 @@ exports[`renders ContestPage 1`] = `
   overflow: auto;
 }
 
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
 .c5 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -986,29 +1027,20 @@ exports[`renders ContestPage 1`] = `
   overflow: auto;
 }
 
-.c5:before {
-  content: '';
-  z-index: 1;
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-  height: 5px;
-  width: 100%;
-  position: fixed;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
 .c6 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
-  padding: 0.5rem 0.5rem 2rem;
+  padding: 0.5rem 0.5rem 1rem;
 }
 
 .c7 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c8 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -1023,15 +1055,15 @@ exports[`renders ContestPage 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-button.c7 {
+button.c8 {
   text-align: left;
 }
 
-.c7:focus-within {
+.c8:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c7:before {
+.c8:before {
   content: '';
   position: absolute;
   left: 0;
@@ -1059,12 +1091,12 @@ button.c7 {
   color: #028099;
 }
 
-.c7 > div {
+.c8 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c8 {
+.c9 {
   margin-right: 0.5rem;
 }
 
@@ -1075,32 +1107,32 @@ button.c7 {
 }
 
 @media print {
-  .c11 {
+  .c12 {
     color: white;
   }
 }
 
 @media (min-width:480px) {
-  .c9 > *:only-child {
+  .c10 > *:only-child {
     margin: auto;
     max-width: 30%;
   }
 }
 
 @media print {
-  .c9 {
+  .c10 {
     display: none;
   }
 }
 
 @media (min-width:480px) {
-  .c12 > *:first-child {
+  .c13 > *:first-child {
     margin-left: auto;
   }
 }
 
 @media (min-width:480px) {
-  .c12 > * {
+  .c13 > * {
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
@@ -1108,18 +1140,18 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c12 > *:only-child {
+  .c13 > *:only-child {
     max-width: 30%;
   }
 }
 
 @media print {
-  .c12 {
+  .c13 {
     display: none;
   }
 }
 
-@media (min-width:640px) {
+@media (min-width:720px) {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
@@ -1134,7 +1166,7 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c7 > div {
+  .c8 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
@@ -1180,206 +1212,210 @@ button.c7 {
         class="c5"
       >
         <div
-          aria-labelledby="contest-header"
           class="c6"
-          role="group"
         >
-          <label
+          <div
+            aria-labelledby="contest-header"
             class="c7"
-            for="barchi-hallaren"
+            role="group"
           >
-            <input
-              class="visually-hidden c8"
-              id="barchi-hallaren"
-              name="Joseph Barchi and Joseph Hallaren"
-              type="checkbox"
-              value="barchi-hallaren"
-            />
-            <div
-              class="c2"
+            <label
+              class="c8"
+              for="barchi-hallaren"
             >
-              <p
-                aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+              <input
+                class="visually-hidden c9"
+                id="barchi-hallaren"
+                name="Joseph Barchi and Joseph Hallaren"
+                type="checkbox"
+                value="barchi-hallaren"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Joseph Barchi and Joseph Hallaren
-                </strong>
-                <br />
-                Federalist
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="cramer-vuocolo"
-          >
-            <input
-              class="visually-hidden c8"
-              id="cramer-vuocolo"
-              name="Adam Cramer and Greg Vuocolo"
-              type="checkbox"
-              value="cramer-vuocolo"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                >
+                  <strong>
+                    Joseph Barchi and Joseph Hallaren
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="cramer-vuocolo"
             >
-              <p
-                aria-label="Adam Cramer and Greg Vuocolo, People's."
+              <input
+                class="visually-hidden c9"
+                id="cramer-vuocolo"
+                name="Adam Cramer and Greg Vuocolo"
+                type="checkbox"
+                value="cramer-vuocolo"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Adam Cramer and Greg Vuocolo
-                </strong>
-                <br />
-                People's
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="court-blumhardt"
-          >
-            <input
-              class="visually-hidden c8"
-              id="court-blumhardt"
-              name="Daniel Court and Amy Blumhardt"
-              type="checkbox"
-              value="court-blumhardt"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Adam Cramer and Greg Vuocolo, People's."
+                >
+                  <strong>
+                    Adam Cramer and Greg Vuocolo
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="court-blumhardt"
             >
-              <p
-                aria-label="Daniel Court and Amy Blumhardt, Liberty."
+              <input
+                class="visually-hidden c9"
+                id="court-blumhardt"
+                name="Daniel Court and Amy Blumhardt"
+                type="checkbox"
+                value="court-blumhardt"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Daniel Court and Amy Blumhardt
-                </strong>
-                <br />
-                Liberty
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="boone-lian"
-          >
-            <input
-              class="visually-hidden c8"
-              id="boone-lian"
-              name="Alvin Boone and James Lian"
-              type="checkbox"
-              value="boone-lian"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Daniel Court and Amy Blumhardt, Liberty."
+                >
+                  <strong>
+                    Daniel Court and Amy Blumhardt
+                  </strong>
+                  <br />
+                  Liberty
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="boone-lian"
             >
-              <p
-                aria-label="Alvin Boone and James Lian, Constitution."
+              <input
+                class="visually-hidden c9"
+                id="boone-lian"
+                name="Alvin Boone and James Lian"
+                type="checkbox"
+                value="boone-lian"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Alvin Boone and James Lian
-                </strong>
-                <br />
-                Constitution
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="hildebrand-garritty"
-          >
-            <input
-              class="visually-hidden c8"
-              id="hildebrand-garritty"
-              name="Ashley Hildebrand-MacDougall and James Garritty"
-              type="checkbox"
-              value="hildebrand-garritty"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Alvin Boone and James Lian, Constitution."
+                >
+                  <strong>
+                    Alvin Boone and James Lian
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="hildebrand-garritty"
             >
-              <p
-                aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
+              <input
+                class="visually-hidden c9"
+                id="hildebrand-garritty"
+                name="Ashley Hildebrand-MacDougall and James Garritty"
+                type="checkbox"
+                value="hildebrand-garritty"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Ashley Hildebrand-MacDougall and James Garritty
-                </strong>
-                <br />
-                Whig
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="patterson-lariviere"
-          >
-            <input
-              class="visually-hidden c8"
-              id="patterson-lariviere"
-              name="Martin Patterson and Clay Lariviere"
-              type="checkbox"
-              value="patterson-lariviere"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
+                >
+                  <strong>
+                    Ashley Hildebrand-MacDougall and James Garritty
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="patterson-lariviere"
             >
-              <p
-                aria-label="Martin Patterson and Clay Lariviere, Labor."
+              <input
+                class="visually-hidden c9"
+                id="patterson-lariviere"
+                name="Martin Patterson and Clay Lariviere"
+                type="checkbox"
+                value="patterson-lariviere"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Martin Patterson and Clay Lariviere
-                </strong>
-                <br />
-                Labor
-              </p>
-            </div>
-          </label>
+                <p
+                  aria-label="Martin Patterson and Clay Lariviere, Labor."
+                >
+                  <strong>
+                    Martin Patterson and Clay Lariviere
+                  </strong>
+                  <br />
+                  Labor
+                </p>
+              </div>
+            </label>
+          </div>
         </div>
       </div>
     </div>
   </main>
   <nav
-    class="c9"
+    class="c10"
   >
     <button
-      class="c10"
+      class="c11"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="c10"
+      class="c11"
       id="previous"
       type="button"
     >
       Previous
     </button>
     <p
-      class="c11"
+      class="c12"
     >
       1
        of 
-      12
+      20
     </p>
   </nav>
   <nav
-    class="c12"
+    class="c13"
   >
     <button
-      class="c10"
+      class="c11"
       type="button"
     >
       Review
     </button>
     <button
-      class="c10"
+      class="c11"
       type="button"
     >
       Help
     </button>
     <button
-      class="c10"
+      class="c11"
       type="button"
     >
       Settings
@@ -1579,9 +1615,9 @@ exports[`renders error if no id match 1`] = `
       <p>
         no contest exists for id 
         <code>
-          "
+          “
           foobar
-          "
+          ”
         </code>
       </p>
       <button
@@ -1614,7 +1650,7 @@ exports[`renders error if no id match 1`] = `
     >
       0
        of 
-      12
+      20
     </p>
   </nav>
   <nav

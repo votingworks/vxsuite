@@ -25,11 +25,6 @@ import Text from './Text'
 
 const tabletMinWidth = 720
 
-const ContestSection = styled.div`
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-`
 const ContestMain = styled.main`
   flex: 1;
   display: flex;
@@ -40,16 +35,53 @@ const ContestHeader = styled.div`
   max-width: 35rem;
   margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
-  @media (min-width: 640px) {
+  @media (min-width: ${tabletMinWidth}px) {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
   }
 `
-const ChoicesWrapper = styled.div`
+const ContestSection = styled.div`
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+`
+const VariableContentContainer = styled.div<{
+  showBottomShadow?: boolean
+  showTopShadow?: boolean
+}>`
   display: flex;
   flex: 1;
   position: relative;
   overflow: auto;
+  &:before,
+  &:after {
+    content: '';
+    z-index: 1;
+    transition: opacity 0.25s ease;
+    position: absolute;
+    height: 0.25rem;
+    width: 100%;
+  }
+  &:before {
+    top: 0;
+    opacity: ${({ showTopShadow }) =>
+      showTopShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
+    background: linear-gradient(
+      to bottom,
+      rgb(177, 186, 190) 0%,
+      transparent 100%
+    );
+  }
+  &:after {
+    bottom: 0;
+    opacity: ${({ showBottomShadow }) =>
+      showBottomShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgb(177, 186, 190) 100%
+    );
+  }
 `
 const ScrollControls = styled.div`
   display: none;
@@ -82,35 +114,15 @@ const ScrollControls = styled.div`
     }
   }
 `
-const Choices = styled.div<{
-  showTopShadow?: boolean
-}>`
+const ScrollContainer = styled.div`
   flex: 1;
   overflow: auto;
-  &:before {
-    content: '';
-    z-index: 1;
-    transition: opacity 0.25s ease;
-    height: 5px;
-    width: 100%;
-    position: fixed;
-    opacity: ${({ showTopShadow }) =>
-      showTopShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
-    background: linear-gradient(
-      to bottom,
-      rgb(177, 186, 190) 0%,
-      transparent 100%
-    );
-  }
 `
-const ChoicesGrid = styled.div<{ isScrollable: boolean }>`
-  display: grid;
-  grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 0.75rem;
+const ScrollableContentWrapper = styled.div<{ isScrollable: boolean }>`
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
-  padding: 0.5rem 0.5rem 2rem;
+  padding: 0.5rem 0.5rem 1rem;
   @media (min-width: ${tabletMinWidth}px) {
     padding-right: ${({ isScrollable }) =>
       isScrollable
@@ -118,6 +130,11 @@ const ChoicesGrid = styled.div<{ isScrollable: boolean }>`
         : '1rem'};
     padding-left: 1rem;
   }
+`
+const ChoicesGrid = styled.div`
+  display: grid;
+  grid-auto-rows: minmax(auto, 1fr);
+  grid-gap: 0.75rem;
 `
 const Choice = styled('label')<{ isSelected: boolean }>`
   cursor: pointer;
@@ -198,7 +215,7 @@ interface Props {
 }
 
 interface State {
-  attemptedOverVoteCandidate: OptionalCandidate
+  attemptedOvervoteCandidate: OptionalCandidate
   candidatePendingRemoval: OptionalCandidate
   isScrollAtBottom: boolean
   isScrollAtTop: boolean
@@ -208,7 +225,7 @@ interface State {
 }
 
 const initialState = {
-  attemptedOverVoteCandidate: undefined,
+  attemptedOvervoteCandidate: undefined,
   candidatePendingRemoval: undefined,
   isScrollable: false,
   isScrollAtBottom: true,
@@ -229,6 +246,7 @@ class CandidateContest extends React.Component<Props, State> {
   }
 
   public componentDidUpdate(prevProps: Props) {
+    /* istanbul ignore else */
     if (this.props.vote.length !== prevProps.vote.length) {
       this.updateContestChoicesScrollStates()
     }
@@ -270,13 +288,13 @@ class CandidateContest extends React.Component<Props, State> {
   }
 
   public handleChangeVoteAlert = (
-    attemptedOverVoteCandidate: OptionalCandidate
+    attemptedOvervoteCandidate: OptionalCandidate
   ) => {
-    this.setState({ attemptedOverVoteCandidate })
+    this.setState({ attemptedOvervoteCandidate })
   }
 
   public closeAttemptedVoteAlert = () => {
-    this.setState({ attemptedOverVoteCandidate: undefined })
+    this.setState({ attemptedOvervoteCandidate: undefined })
   }
 
   public confirmRemovePendingWriteInCandidate = () => {
@@ -329,7 +347,11 @@ class CandidateContest extends React.Component<Props, State> {
   }
 
   public updateContestChoicesScrollStates = () => {
-    const target = this.contestChoices.current!
+    const target = this.scrollContainer.current
+    /* istanbul ignore next */
+    if (!target) {
+      return
+    }
     const isTabletMinWidth = target.offsetWidth >= tabletMinWidth
     const targetMinHeight =
       GLOBALS.FONT_SIZES[this.context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
@@ -356,10 +378,10 @@ class CandidateContest extends React.Component<Props, State> {
   ) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
-    const contestChoices = this.contestChoices.current!
-    const currentScrollTop = contestChoices.scrollTop
-    const offsetHeight = contestChoices.offsetHeight
-    const scrollHeight = contestChoices.scrollHeight
+    const scrollContainer = this.scrollContainer.current!
+    const currentScrollTop = scrollContainer.scrollTop
+    const offsetHeight = scrollContainer.offsetHeight
+    const scrollHeight = scrollContainer.scrollHeight
     const idealScrollDistance = Math.round(offsetHeight * 0.75)
     const maxScrollableDownDistance =
       scrollHeight - offsetHeight - currentScrollTop
@@ -372,14 +394,14 @@ class CandidateContest extends React.Component<Props, State> {
         ? currentScrollTop + idealScrollDistance
         : currentScrollTop - idealScrollDistance
     const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
-    contestChoices.scrollTo({ behavior: 'smooth', left: 0, top })
+    scrollContainer.scrollTo({ behavior: 'smooth', left: 0, top })
   }
 
   public render() {
     const { contest, vote } = this.props
     const hasReachedMaxSelections = contest.seats === vote.length
     const {
-      attemptedOverVoteCandidate,
+      attemptedOvervoteCandidate,
       candidatePendingRemoval,
       isScrollable,
       isScrollAtBottom,
@@ -403,94 +425,99 @@ class CandidateContest extends React.Component<Props, State> {
               </p>
             </Prose>
           </ContestHeader>
-          <ChoicesWrapper>
-            <Choices
-              ref={this.contestChoices}
+          <VariableContentContainer
+            showTopShadow={!isScrollAtTop}
+            showBottomShadow={!isScrollAtBottom}
+          >
+            <ScrollContainer
+              ref={this.scrollContainer}
               onScroll={this.updateContestChoicesScrollStates}
-              showTopShadow={!isScrollAtTop}
             >
-              <ChoicesGrid
-                isScrollable={isScrollable}
-                role="group"
-                aria-labelledby="contest-header"
-              >
-                {contest.candidates.map(candidate => {
-                  const isChecked = !!this.findCandidateById(vote, candidate.id)
-                  const isDisabled = hasReachedMaxSelections && !isChecked
-                  const handleDisabledClick = () => {
-                    if (isDisabled) {
-                      this.handleChangeVoteAlert(candidate)
+              <ScrollableContentWrapper isScrollable={isScrollable}>
+                <ChoicesGrid role="group" aria-labelledby="contest-header">
+                  {contest.candidates.map(candidate => {
+                    const isChecked = !!this.findCandidateById(
+                      vote,
+                      candidate.id
+                    )
+                    const isDisabled = hasReachedMaxSelections && !isChecked
+                    const handleDisabledClick = () => {
+                      if (isDisabled) {
+                        this.handleChangeVoteAlert(candidate)
+                      }
                     }
-                  }
-                  return (
+                    return (
+                      <Choice
+                        key={candidate.id}
+                        htmlFor={candidate.id}
+                        isSelected={isChecked}
+                        onClick={handleDisabledClick}
+                      >
+                        <ChoiceInput
+                          id={candidate.id}
+                          name={candidate.name}
+                          value={candidate.id}
+                          onChange={this.handleUpdateSelection}
+                          checked={isChecked}
+                          disabled={isDisabled}
+                          className="visually-hidden"
+                        />
+                        <Prose>
+                          <p
+                            aria-label={`${candidate.name}, ${
+                              candidate.party
+                            }.`}
+                          >
+                            <strong>{candidate.name}</strong>
+                            <br />
+                            {candidate.party}
+                          </p>
+                        </Prose>
+                      </Choice>
+                    )
+                  })}
+                  {contest.allowWriteIns &&
+                    vote
+                      .filter(c => c.isWriteIn)
+                      .map(candidate => {
+                        return (
+                          <Choice
+                            key={candidate.id}
+                            htmlFor={candidate.id}
+                            isSelected
+                          >
+                            <ChoiceInput
+                              id={candidate.id}
+                              name={contest.id}
+                              value={candidate.id}
+                              onChange={this.handleUpdateSelection}
+                              checked
+                              className="visually-hidden"
+                            />
+                            <Prose>
+                              <p aria-label={`${candidate.name}.`}>
+                                <strong>{candidate.name}</strong>
+                              </p>
+                            </Prose>
+                          </Choice>
+                        )
+                      })}
+                  {contest.allowWriteIns && !hasReachedMaxSelections && (
                     <Choice
-                      key={candidate.id}
-                      htmlFor={candidate.id}
-                      isSelected={isChecked}
-                      onClick={handleDisabledClick}
+                      as="button"
+                      isSelected={false}
+                      onClick={this.initWriteInCandidate}
                     >
-                      <ChoiceInput
-                        id={candidate.id}
-                        name={candidate.name}
-                        value={candidate.id}
-                        onChange={this.handleUpdateSelection}
-                        checked={isChecked}
-                        disabled={isDisabled}
-                        className="visually-hidden"
-                      />
                       <Prose>
-                        <p
-                          aria-label={`${candidate.name}, ${candidate.party}.`}
-                        >
-                          <strong>{candidate.name}</strong>
-                          <br />
-                          {candidate.party}
+                        <p aria-label={`add write-in candidate.`}>
+                          <em>add write-in candidate</em>
                         </p>
                       </Prose>
                     </Choice>
-                  )
-                })}
-                {contest.allowWriteIns &&
-                  vote
-                    .filter(c => c.isWriteIn)
-                    .map(candidate => {
-                      return (
-                        <Choice
-                          key={candidate.id}
-                          htmlFor={candidate.id}
-                          isSelected
-                        >
-                          <ChoiceInput
-                            id={candidate.id}
-                            name={contest.id}
-                            value={candidate.id}
-                            onChange={this.handleUpdateSelection}
-                            checked
-                            className="visually-hidden"
-                          />
-                          <Prose>
-                            <p aria-label={`${candidate.name}.`}>
-                              <strong>{candidate.name}</strong>
-                            </p>
-                          </Prose>
-                        </Choice>
-                      )
-                    })}
-                {contest.allowWriteIns && !hasReachedMaxSelections && (
-                  <Choice
-                    as="button"
-                    isSelected={false}
-                    onClick={this.initWriteInCandidate}
-                  >
-                    <Prose>
-                      <p aria-label={`add write-in candidate.`}>
-                        <em>add write-in candidate</em>
-                      </p>
-                    </Prose>
-                  </Choice>
-                )}
-              </ChoicesGrid>
-            </Choices>
+                  )}
+                </ChoicesGrid>
+              </ScrollableContentWrapper>
+            </ScrollContainer>
             {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
               <ScrollControls aria-hidden="true">
                 <Button
@@ -511,17 +538,17 @@ class CandidateContest extends React.Component<Props, State> {
                 </Button>
               </ScrollControls>
             )}
-          </ChoicesWrapper>
+          </VariableContentContainer>
         </ContestMain>
         <Modal
-          isOpen={!!attemptedOverVoteCandidate}
+          isOpen={!!attemptedOvervoteCandidate}
           content={
             <Prose>
               <Text>
                 You may only select {contest.seats}{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'} in this
                 contest. To vote for{' '}
-                {attemptedOverVoteCandidate && attemptedOverVoteCandidate.name},
+                {attemptedOvervoteCandidate && attemptedOvervoteCandidate.name},
                 you must first unselect selected{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'}.
               </Text>
@@ -538,7 +565,7 @@ class CandidateContest extends React.Component<Props, State> {
           content={
             <Prose>
               <Text>
-                Are you sure you want to unselect and remove{' '}
+                Do you want to unselect and remove{' '}
                 {candidatePendingRemoval && candidatePendingRemoval.name}?
               </Text>
             </Prose>

@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from 'react-testing-library'
 
-import Text from './Text'
+import Text, { TextWithLineBreaks } from './Text'
 
 it(`outputs paragraph tag`, async () => {
   const text = 'paragraph'
@@ -32,4 +32,24 @@ it(`displays muted style`, async () => {
 it(`displays error style`, async () => {
   const { container } = render(<Text error>Error Text?</Text>)
   expect(container.firstChild).toMatchSnapshot()
+})
+
+it(`converts line-breaks into <p> and <br/> tags`, () => {
+  const { container } = render(
+    <TextWithLineBreaks
+      text={`I’m a paragraph.\n\nAnd I’m a paragraph with a\nline break.`}
+    />
+  )
+  expect(container).toMatchInlineSnapshot(`
+<div>
+  <p>
+    I’m a paragraph.
+  </p>
+  <p>
+    And I’m a paragraph with a
+    <br />
+    line break.
+  </p>
+</div>
+`)
 })

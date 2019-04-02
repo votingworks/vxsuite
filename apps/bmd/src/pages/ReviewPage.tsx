@@ -2,7 +2,14 @@ import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { CandidateVote } from '../config/types'
+import {
+  Candidate,
+  CandidateContest,
+  CandidateVote,
+  OptionalYesNoVote,
+  YesNoContest,
+  YesNoVote,
+} from '../config/types'
 
 import { Barcode } from '../assets/BarCodes'
 import Button from '../components/Button'
@@ -11,7 +18,8 @@ import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
-import { Text } from '../components/Typography'
+import Text from '../components/Text'
+import GLOBALS from '../config/globals'
 import BallotContext from '../contexts/ballotContext'
 
 const tabletMinWidth = 768
@@ -108,6 +116,53 @@ const ContestSelection = styled.dd`
   word-break: break-word;
 `
 
+const NoSelection = (props: { title: string }) => (
+  <ContestSelection>
+    <Text as="strong" muted aria-label={`No selection for ${props.title}.`}>
+      [no selection]
+    </Text>
+  </ContestSelection>
+)
+
+const CandidateContestResult = (props: {
+  contest: CandidateContest
+  vote: CandidateVote
+}) =>
+  props.vote === undefined || props.vote.length === 0 ? (
+    <NoSelection title={props.contest.title} />
+  ) : (
+    <React.Fragment>
+      {props.vote.map(
+        (candidate: Candidate, index: number, array: CandidateVote) => (
+          <ContestSelection
+            key={candidate.id}
+            aria-label={`${candidate.name}${
+              candidate.party ? `, ${candidate.party}` : ''
+            }${candidate.isWriteIn ? `, write-in` : ''}${
+              array.length - 1 === index ? '.' : ','
+            }`}
+          >
+            <strong>{candidate.name}</strong>{' '}
+            {candidate.party && `/ ${candidate.party}`}
+            {candidate.isWriteIn && `(write-in)`}
+          </ContestSelection>
+        )
+      )}
+    </React.Fragment>
+  )
+
+const YesNoContestResult = (props: {
+  contest: YesNoContest
+  vote: OptionalYesNoVote
+}) =>
+  props.vote ? (
+    <ContestSelection>
+      <Text as="strong">{GLOBALS.YES_NO_VOTES[props.vote]}</Text>
+    </ContestSelection>
+  ) : (
+    <NoSelection title={props.contest.title} />
+  )
+
 interface State {
   showConfirmModal: boolean
 }
@@ -167,10 +222,6 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                   <BallotContext.Consumer>
                     {({ election, votes }) =>
                       election!.contests.map(contest => {
-                        const contestCandidates =
-                          (contest.type === 'candidate' &&
-                            (votes[contest.id] as CandidateVote)) ||
-                          []
                         return (
                           <React.Fragment key={contest.id}>
                             <ContestHeader>
@@ -185,35 +236,18 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                                 Change
                               </LinkButton>
                             </ContestHeader>
-                            {contestCandidates.length ? (
-                              contestCandidates.map((candidate, index, arr) => (
-                                <ContestSelection
-                                  key={candidate.id}
-                                  aria-label={`${candidate.name}${
-                                    candidate.party
-                                      ? `, ${candidate.party}`
-                                      : ''
-                                  }${candidate.isWriteIn ? `, write-in` : ''}${
-                                    arr.length - 1 === index ? '.' : ','
-                                  }`}
-                                >
-                                  <strong>{candidate.name}</strong>{' '}
-                                  {candidate.party && `/ ${candidate.party}`}
-                                  {candidate.isWriteIn && `(write-in)`}
-                                </ContestSelection>
-                              ))
-                            ) : (
-                              <ContestSelection>
-                                <Text
-                                  as="strong"
-                                  muted
-                                  aria-label={`No selection for ${
-                                    contest.title
-                                  }.`}
-                                >
-                                  [no selection]
-                                </Text>
-                              </ContestSelection>
+
+                            {contest.type === 'candidate' && (
+                              <CandidateContestResult
+                                contest={contest}
+                                vote={votes[contest.id] as CandidateVote}
+                              />
+                            )}
+                            {contest.type === 'yesno' && (
+                              <YesNoContestResult
+                                contest={contest}
+                                vote={votes[contest.id] as YesNoVote}
+                              />
                             )}
                           </React.Fragment>
                         )
