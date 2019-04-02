@@ -66,7 +66,7 @@
     "@types/react-transition-group": "^2.0.16",
     "@types/styled-components": "^4.1.6",
     "lodash.camelcase": "^4.3.0",
-    "mousetrap": "^1.6.2",
+    "mousetrap": "^1.6.3",
     "normalize.css": "^8.0.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
