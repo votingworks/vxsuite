@@ -64,7 +64,7 @@
     "@types/react-modal": "^3.8.1",
     "@types/react-router-dom": "^4.3.1",
     "@types/react-transition-group": "^2.0.16",
-    "@types/styled-components": "^4.1.6",
+    "@types/styled-components": "^4.1.13",
     "lodash.camelcase": "^4.3.0",
     "mousetrap": "^1.6.3",
     "normalize.css": "^8.0.1",
