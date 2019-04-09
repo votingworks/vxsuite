@@ -14,6 +14,7 @@
     "no-any": true,
     "no-null-keyword": true,
     "jsx-boolean-value": [true, "never"],
-    "react-hooks-nesting": "error"
+    "react-hooks-nesting": "error",
+    "object-literal-sort-keys": [true, "ignore-case", "locale-compare"]
   }
 }

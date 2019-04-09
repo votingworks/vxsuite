@@ -1,5 +1,3 @@
-import React from 'react'
-
 // Generic
 export interface Dictionary<T> {
   [key: string]: T | undefined
@@ -24,8 +22,9 @@ export type OptionalCandidate = Candidate | undefined
 // Votes
 export type CandidateVote = Candidate[]
 export type YesNoVote = 'yes' | 'no'
+export type OptionalYesNoVote = YesNoVote | undefined
 export type Vote = CandidateVote | YesNoVote
-export type OptionalVote = Candidate[] | undefined
+export type OptionalVote = Vote | undefined
 export type VotesDict = Dictionary<Vote>
 
 // Contests
@@ -75,7 +74,7 @@ export interface UserSettings {
 export type PartialUserSettings = Partial<UserSettings>
 
 // Ballot
-export type UpdateVoteFunction = (contestId: string, vote: Vote) => void
+export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
 export interface BallotContextInterface {
   readonly election: Election | undefined
   resetBallot: (path?: string) => void

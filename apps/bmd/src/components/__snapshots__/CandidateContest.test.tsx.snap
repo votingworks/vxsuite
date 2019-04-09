@@ -38,12 +38,6 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   margin-bottom: 0;
 }
 
-.c3 {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
 .c0 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -64,6 +58,12 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   padding: 1rem 0.75rem 0.5rem;
 }
 
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .c4 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -76,6 +76,29 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   overflow: auto;
 }
 
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
 .c5 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -83,29 +106,20 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   overflow: auto;
 }
 
-.c5:before {
-  content: '';
-  z-index: 1;
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-  height: 5px;
-  width: 100%;
-  position: fixed;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
 .c6 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
-  padding: 0.5rem 0.5rem 2rem;
+  padding: 0.5rem 0.5rem 1rem;
 }
 
-.c9 {
+.c7 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c10 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -120,15 +134,15 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   transition: background 0.25s,color 0.25s;
 }
 
-button.c9 {
+button.c10 {
   text-align: left;
 }
 
-.c9:focus-within {
+.c10:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c9:before {
+.c10:before {
   content: '';
   position: absolute;
   left: 0;
@@ -156,12 +170,12 @@ button.c9 {
   color: #028099;
 }
 
-.c9 > div {
+.c10 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c7 {
+.c8 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -177,15 +191,15 @@ button.c9 {
   transition: background 0.25s,color 0.25s;
 }
 
-button.c7 {
+button.c8 {
   text-align: left;
 }
 
-.c7:focus-within {
+.c8:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c7:before {
+.c8:before {
   content: '✓';
   position: absolute;
   left: 0;
@@ -213,12 +227,12 @@ button.c7 {
   color: #028099;
 }
 
-.c7 > div {
+.c8 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c8 {
+.c9 {
   margin-right: 0.5rem;
 }
 
@@ -228,7 +242,7 @@ button.c7 {
   }
 }
 
-@media (min-width:640px) {
+@media (min-width:720px) {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
@@ -243,13 +257,13 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c9 > div {
+  .c10 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
 
 @media (min-width:480px) {
-  .c7 > div {
+  .c8 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
@@ -295,86 +309,90 @@ button.c7 {
         class="c5"
       >
         <div
-          aria-labelledby="contest-header"
           class="c6"
-          role="group"
         >
-          <label
+          <div
+            aria-labelledby="contest-header"
             class="c7"
-            for="name-0"
+            role="group"
           >
-            <input
-              checked=""
-              class="visually-hidden c8"
-              id="name-0"
-              name="Name 0"
-              type="checkbox"
-              value="name-0"
-            />
-            <div
-              class="c2"
+            <label
+              class="c8"
+              for="name-0"
             >
-              <p
-                aria-label="Name 0, Party 0."
+              <input
+                checked=""
+                class="visually-hidden c9"
+                id="name-0"
+                name="Name 0"
+                type="checkbox"
+                value="name-0"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 0
-                </strong>
-                <br />
-                Party 0
-              </p>
-            </div>
-          </label>
-          <label
-            class="c9"
-            for="name-1"
-          >
-            <input
-              class="visually-hidden c8"
-              id="name-1"
-              name="Name 1"
-              type="checkbox"
-              value="name-1"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Name 0, Party 0."
+                >
+                  <strong>
+                    Name 0
+                  </strong>
+                  <br />
+                  Party 0
+                </p>
+              </div>
+            </label>
+            <label
+              class="c10"
+              for="name-1"
             >
-              <p
-                aria-label="Name 1, Party 1."
+              <input
+                class="visually-hidden c9"
+                id="name-1"
+                name="Name 1"
+                type="checkbox"
+                value="name-1"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 1
-                </strong>
-                <br />
-                Party 1
-              </p>
-            </div>
-          </label>
-          <label
-            class="c9"
-            for="name-2"
-          >
-            <input
-              class="visually-hidden c8"
-              id="name-2"
-              name="Name 2"
-              type="checkbox"
-              value="name-2"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Name 1, Party 1."
+                >
+                  <strong>
+                    Name 1
+                  </strong>
+                  <br />
+                  Party 1
+                </p>
+              </div>
+            </label>
+            <label
+              class="c10"
+              for="name-2"
             >
-              <p
-                aria-label="Name 2, Party 0."
+              <input
+                class="visually-hidden c9"
+                id="name-2"
+                name="Name 2"
+                type="checkbox"
+                value="name-2"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 2
-                </strong>
-                <br />
-                Party 0
-              </p>
-            </div>
-          </label>
+                <p
+                  aria-label="Name 2, Party 0."
+                >
+                  <strong>
+                    Name 2
+                  </strong>
+                  <br />
+                  Party 0
+                </p>
+              </div>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -420,12 +438,6 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   margin-bottom: 0;
 }
 
-.c3 {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
 .c0 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -446,6 +458,12 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   padding: 1rem 0.75rem 0.5rem;
 }
 
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .c4 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -458,6 +476,29 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   overflow: auto;
 }
 
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
 .c5 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -465,29 +506,20 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   overflow: auto;
 }
 
-.c5:before {
-  content: '';
-  z-index: 1;
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-  height: 5px;
-  width: 100%;
-  position: fixed;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
 .c6 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
-  padding: 0.5rem 0.5rem 2rem;
+  padding: 0.5rem 0.5rem 1rem;
 }
 
 .c7 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c8 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -502,15 +534,15 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   transition: background 0.25s,color 0.25s;
 }
 
-button.c7 {
+button.c8 {
   text-align: left;
 }
 
-.c7:focus-within {
+.c8:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c7:before {
+.c8:before {
   content: '';
   position: absolute;
   left: 0;
@@ -538,12 +570,12 @@ button.c7 {
   color: #028099;
 }
 
-.c7 > div {
+.c8 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c8 {
+.c9 {
   margin-right: 0.5rem;
 }
 
@@ -553,7 +585,7 @@ button.c7 {
   }
 }
 
-@media (min-width:640px) {
+@media (min-width:720px) {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
@@ -568,7 +600,7 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c7 > div {
+  .c8 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
@@ -614,85 +646,89 @@ button.c7 {
         class="c5"
       >
         <div
-          aria-labelledby="contest-header"
           class="c6"
-          role="group"
         >
-          <label
+          <div
+            aria-labelledby="contest-header"
             class="c7"
-            for="name-0"
+            role="group"
           >
-            <input
-              class="visually-hidden c8"
-              id="name-0"
-              name="Name 0"
-              type="checkbox"
-              value="name-0"
-            />
-            <div
-              class="c2"
+            <label
+              class="c8"
+              for="name-0"
             >
-              <p
-                aria-label="Name 0, Party 0."
+              <input
+                class="visually-hidden c9"
+                id="name-0"
+                name="Name 0"
+                type="checkbox"
+                value="name-0"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 0
-                </strong>
-                <br />
-                Party 0
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="name-1"
-          >
-            <input
-              class="visually-hidden c8"
-              id="name-1"
-              name="Name 1"
-              type="checkbox"
-              value="name-1"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Name 0, Party 0."
+                >
+                  <strong>
+                    Name 0
+                  </strong>
+                  <br />
+                  Party 0
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="name-1"
             >
-              <p
-                aria-label="Name 1, Party 1."
+              <input
+                class="visually-hidden c9"
+                id="name-1"
+                name="Name 1"
+                type="checkbox"
+                value="name-1"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 1
-                </strong>
-                <br />
-                Party 1
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="name-2"
-          >
-            <input
-              class="visually-hidden c8"
-              id="name-2"
-              name="Name 2"
-              type="checkbox"
-              value="name-2"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Name 1, Party 1."
+                >
+                  <strong>
+                    Name 1
+                  </strong>
+                  <br />
+                  Party 1
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="name-2"
             >
-              <p
-                aria-label="Name 2, Party 0."
+              <input
+                class="visually-hidden c9"
+                id="name-2"
+                name="Name 2"
+                type="checkbox"
+                value="name-2"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 2
-                </strong>
-                <br />
-                Party 0
-              </p>
-            </div>
-          </label>
+                <p
+                  aria-label="Name 2, Party 0."
+                >
+                  <strong>
+                    Name 2
+                  </strong>
+                  <br />
+                  Party 0
+                </p>
+              </div>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -738,12 +774,6 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   margin-bottom: 0;
 }
 
-.c3 {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
 .c0 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -764,6 +794,12 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   padding: 1rem 0.75rem 0.5rem;
 }
 
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .c4 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -776,6 +812,29 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   overflow: auto;
 }
 
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
 .c5 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -783,29 +842,20 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   overflow: auto;
 }
 
-.c5:before {
-  content: '';
-  z-index: 1;
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-  height: 5px;
-  width: 100%;
-  position: fixed;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
 .c6 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
-  padding: 0.5rem 0.5rem 2rem;
+  padding: 0.5rem 0.5rem 1rem;
 }
 
-.c9 {
+.c7 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c10 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -820,15 +870,15 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   transition: background 0.25s,color 0.25s;
 }
 
-button.c9 {
+button.c10 {
   text-align: left;
 }
 
-.c9:focus-within {
+.c10:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c9:before {
+.c10:before {
   content: '';
   position: absolute;
   left: 0;
@@ -856,12 +906,12 @@ button.c9 {
   color: #028099;
 }
 
-.c9 > div {
+.c10 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c7 {
+.c8 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -877,15 +927,15 @@ button.c9 {
   transition: background 0.25s,color 0.25s;
 }
 
-button.c7 {
+button.c8 {
   text-align: left;
 }
 
-.c7:focus-within {
+.c8:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c7:before {
+.c8:before {
   content: '✓';
   position: absolute;
   left: 0;
@@ -913,12 +963,12 @@ button.c7 {
   color: #028099;
 }
 
-.c7 > div {
+.c8 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c8 {
+.c9 {
   margin-right: 0.5rem;
 }
 
@@ -928,7 +978,7 @@ button.c7 {
   }
 }
 
-@media (min-width:640px) {
+@media (min-width:720px) {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
@@ -943,13 +993,13 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c9 > div {
+  .c10 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
 
 @media (min-width:480px) {
-  .c7 > div {
+  .c8 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
@@ -995,88 +1045,92 @@ button.c7 {
         class="c5"
       >
         <div
-          aria-labelledby="contest-header"
           class="c6"
-          role="group"
         >
-          <label
+          <div
+            aria-labelledby="contest-header"
             class="c7"
-            for="name-0"
+            role="group"
           >
-            <input
-              checked=""
-              class="visually-hidden c8"
-              id="name-0"
-              name="Name 0"
-              type="checkbox"
-              value="name-0"
-            />
-            <div
-              class="c2"
+            <label
+              class="c8"
+              for="name-0"
             >
-              <p
-                aria-label="Name 0, Party 0."
+              <input
+                checked=""
+                class="visually-hidden c9"
+                id="name-0"
+                name="Name 0"
+                type="checkbox"
+                value="name-0"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 0
-                </strong>
-                <br />
-                Party 0
-              </p>
-            </div>
-          </label>
-          <label
-            class="c9"
-            for="name-1"
-          >
-            <input
-              class="visually-hidden c8"
-              disabled=""
-              id="name-1"
-              name="Name 1"
-              type="checkbox"
-              value="name-1"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Name 0, Party 0."
+                >
+                  <strong>
+                    Name 0
+                  </strong>
+                  <br />
+                  Party 0
+                </p>
+              </div>
+            </label>
+            <label
+              class="c10"
+              for="name-1"
             >
-              <p
-                aria-label="Name 1, Party 1."
+              <input
+                class="visually-hidden c9"
+                disabled=""
+                id="name-1"
+                name="Name 1"
+                type="checkbox"
+                value="name-1"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 1
-                </strong>
-                <br />
-                Party 1
-              </p>
-            </div>
-          </label>
-          <label
-            class="c9"
-            for="name-2"
-          >
-            <input
-              class="visually-hidden c8"
-              disabled=""
-              id="name-2"
-              name="Name 2"
-              type="checkbox"
-              value="name-2"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Name 1, Party 1."
+                >
+                  <strong>
+                    Name 1
+                  </strong>
+                  <br />
+                  Party 1
+                </p>
+              </div>
+            </label>
+            <label
+              class="c10"
+              for="name-2"
             >
-              <p
-                aria-label="Name 2, Party 0."
+              <input
+                class="visually-hidden c9"
+                disabled=""
+                id="name-2"
+                name="Name 2"
+                type="checkbox"
+                value="name-2"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 2
-                </strong>
-                <br />
-                Party 0
-              </p>
-            </div>
-          </label>
+                <p
+                  aria-label="Name 2, Party 0."
+                >
+                  <strong>
+                    Name 2
+                  </strong>
+                  <br />
+                  Party 0
+                </p>
+              </div>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -1122,12 +1176,6 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   margin-bottom: 0;
 }
 
-.c3 {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
 .c0 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -1148,6 +1196,12 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   padding: 1rem 0.75rem 0.5rem;
 }
 
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .c4 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -1160,6 +1214,29 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   overflow: auto;
 }
 
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
 .c5 {
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -1167,29 +1244,20 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   overflow: auto;
 }
 
-.c5:before {
-  content: '';
-  z-index: 1;
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-  height: 5px;
-  width: 100%;
-  position: fixed;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
 .c6 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
-  padding: 0.5rem 0.5rem 2rem;
+  padding: 0.5rem 0.5rem 1rem;
 }
 
 .c7 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c8 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -1204,15 +1272,15 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   transition: background 0.25s,color 0.25s;
 }
 
-button.c7 {
+button.c8 {
   text-align: left;
 }
 
-.c7:focus-within {
+.c8:focus-within {
   outline: -webkit-focus-ring-color auto 5px;
 }
 
-.c7:before {
+.c8:before {
   content: '';
   position: absolute;
   left: 0;
@@ -1240,12 +1308,12 @@ button.c7 {
   color: #028099;
 }
 
-.c7 > div {
+.c8 > div {
   word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
-.c8 {
+.c9 {
   margin-right: 0.5rem;
 }
 
@@ -1255,7 +1323,7 @@ button.c7 {
   }
 }
 
-@media (min-width:640px) {
+@media (min-width:720px) {
   .c1 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
@@ -1270,7 +1338,7 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c7 > div {
+  .c8 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
@@ -1316,100 +1384,104 @@ button.c7 {
         class="c5"
       >
         <div
-          aria-labelledby="contest-header"
           class="c6"
-          role="group"
         >
-          <label
+          <div
+            aria-labelledby="contest-header"
             class="c7"
-            for="name-0"
+            role="group"
           >
-            <input
-              class="visually-hidden c8"
-              id="name-0"
-              name="Name 0"
-              type="checkbox"
-              value="name-0"
-            />
-            <div
-              class="c2"
+            <label
+              class="c8"
+              for="name-0"
             >
-              <p
-                aria-label="Name 0, Party 0."
+              <input
+                class="visually-hidden c9"
+                id="name-0"
+                name="Name 0"
+                type="checkbox"
+                value="name-0"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 0
-                </strong>
-                <br />
-                Party 0
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="name-1"
-          >
-            <input
-              class="visually-hidden c8"
-              id="name-1"
-              name="Name 1"
-              type="checkbox"
-              value="name-1"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Name 0, Party 0."
+                >
+                  <strong>
+                    Name 0
+                  </strong>
+                  <br />
+                  Party 0
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="name-1"
             >
-              <p
-                aria-label="Name 1, Party 1."
+              <input
+                class="visually-hidden c9"
+                id="name-1"
+                name="Name 1"
+                type="checkbox"
+                value="name-1"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 1
-                </strong>
-                <br />
-                Party 1
-              </p>
-            </div>
-          </label>
-          <label
-            class="c7"
-            for="name-2"
-          >
-            <input
-              class="visually-hidden c8"
-              id="name-2"
-              name="Name 2"
-              type="checkbox"
-              value="name-2"
-            />
-            <div
-              class="c2"
+                <p
+                  aria-label="Name 1, Party 1."
+                >
+                  <strong>
+                    Name 1
+                  </strong>
+                  <br />
+                  Party 1
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="name-2"
             >
-              <p
-                aria-label="Name 2, Party 0."
+              <input
+                class="visually-hidden c9"
+                id="name-2"
+                name="Name 2"
+                type="checkbox"
+                value="name-2"
+              />
+              <div
+                class="c2"
               >
-                <strong>
-                  Name 2
-                </strong>
-                <br />
-                Party 0
-              </p>
-            </div>
-          </label>
-          <button
-            class="c7"
-          >
-            <div
-              class="c2"
+                <p
+                  aria-label="Name 2, Party 0."
+                >
+                  <strong>
+                    Name 2
+                  </strong>
+                  <br />
+                  Party 0
+                </p>
+              </div>
+            </label>
+            <button
+              class="c8"
             >
-              <p
-                aria-label="add write-in candidate."
+              <div
+                class="c2"
               >
-                <em>
-                  add write-in candidate
-                </em>
-              </p>
-            </div>
-          </button>
+                <p
+                  aria-label="add write-in candidate."
+                >
+                  <em>
+                    add write-in candidate
+                  </em>
+                </p>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,733 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`supports yes/no contest allows voting for both yes and no 1`] = `
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 :first-child {
+  margin-top: 0;
+}
+
+.c2 :last-child {
+  margin-bottom: 0;
+}
+
+.c0 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c7 {
+  padding: 0 0.25rem;
+}
+
+.c8 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 1rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c6 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.c9 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c10 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  min-height: 2.5rem;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c10 {
+  text-align: left;
+}
+
+.c10:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c10:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c10 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c11 {
+  margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:720px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c7 {
+    padding-left: 4rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c8 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c10 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+<div>
+  <main
+    class="c0"
+  >
+    <div
+      class="c1"
+      id="contest-header"
+    >
+      <div
+        class="c2"
+      >
+        <h1
+          aria-label="County, Prop 1."
+        >
+          <div
+            class="c3"
+          >
+            County
+          </div>
+          Prop 1
+        </h1>
+        <p>
+          <strong>
+            Vote Yes or No.
+          </strong>
+        </p>
+      </div>
+    </div>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <div
+            class="c7"
+          >
+            <div
+              class="c2"
+            >
+              <p>
+                description
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="c8"
+    >
+      <div
+        aria-labelledby="contest-header"
+        class="c9"
+        role="group"
+      >
+        <label
+          class="c10"
+          for="yes"
+        >
+          <input
+            class="visually-hidden c11"
+            id="yes"
+            name="contest-id"
+            type="checkbox"
+            value="yes"
+          />
+          <div
+            class="c2"
+          >
+            <p>
+              Yes
+            </p>
+          </div>
+        </label>
+        <label
+          class="c10"
+          for="no"
+        >
+          <input
+            class="visually-hidden c11"
+            id="no"
+            name="contest-id"
+            type="checkbox"
+            value="no"
+          />
+          <div
+            class="c2"
+          >
+            <p>
+              No
+            </p>
+          </div>
+        </label>
+      </div>
+    </div>
+  </main>
+</div>
+`;
+
+exports[`supports yes/no contest displays warning when attempting to change vote 1`] = `
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 1rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h3 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 :first-child {
+  margin-top: 0;
+}
+
+.c2 :last-child {
+  margin-bottom: 0;
+}
+
+.c0 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c7 {
+  padding: 0 0.25rem;
+}
+
+.c8 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 1rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c6 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.c9 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c12 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  min-height: 2.5rem;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c12 {
+  text-align: left;
+}
+
+.c12:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c12:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c12 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c10 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  min-height: 2.5rem;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: #028099;
+  color: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c10 {
+  text-align: left;
+}
+
+.c10:focus-within {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.c10:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: #028099;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c10 > div {
+  word-break: break-word;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c11 {
+  margin-right: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:720px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c7 {
+    padding-left: 4rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c8 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c12 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+@media (min-width:480px) {
+  .c10 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+<div>
+  <main
+    class="c0"
+  >
+    <div
+      class="c1"
+      id="contest-header"
+    >
+      <div
+        class="c2"
+      >
+        <h1
+          aria-label="County, Prop 1."
+        >
+          <div
+            class="c3"
+          >
+            County
+          </div>
+          Prop 1
+        </h1>
+        <p>
+          <strong>
+            Vote Yes or No.
+          </strong>
+        </p>
+      </div>
+    </div>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <div
+            class="c7"
+          >
+            <div
+              class="c2"
+            >
+              <p>
+                description
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="c8"
+    >
+      <div
+        aria-labelledby="contest-header"
+        class="c9"
+        role="group"
+      >
+        <label
+          class="c10"
+          for="yes"
+        >
+          <input
+            checked=""
+            class="visually-hidden c11"
+            id="yes"
+            name="contest-id"
+            type="checkbox"
+            value="yes"
+          />
+          <div
+            class="c2"
+          >
+            <p>
+              Yes
+            </p>
+          </div>
+        </label>
+        <label
+          class="c12"
+          for="no"
+        >
+          <input
+            class="visually-hidden c11"
+            disabled=""
+            id="no"
+            name="contest-id"
+            type="checkbox"
+            value="no"
+          />
+          <div
+            class="c2"
+          >
+            <p>
+              No
+            </p>
+          </div>
+        </label>
+      </div>
+    </div>
+  </main>
+</div>
+`;

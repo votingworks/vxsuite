@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
-import { CandidateVote } from '../config/types'
+import { CandidateVote, OptionalYesNoVote } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
 
@@ -9,7 +9,8 @@ import ButtonBar from '../components/ButtonBar'
 import CandidateContest from '../components/CandidateContest'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
-import Text from '../components/Typography'
+import Text from '../components/Text'
+import YesNoContest from '../components/YesNoContest'
 
 interface ContestParams {
   id: string
@@ -33,25 +34,32 @@ const ContestPage = (props: Props) => {
 
   return (
     <React.Fragment>
-      {contest ? (
-        contest.type === 'candidate' && (
-          <CandidateContest
-            key={contest.id}
-            contest={contest}
-            vote={(vote || []) as CandidateVote}
-            updateVote={updateVote}
-          />
-        )
-      ) : (
+      {!contest && (
         <Main>
           <MainChild>
             <h1>Error</h1>
             <p>
-              no contest exists for id <code>"{id}"</code>
+              no contest exists for id <code>“{id}”</code>
             </p>
             <LinkButton to="/">Start Over</LinkButton>
           </MainChild>
         </Main>
+      )}
+      {contest && contest.type === 'candidate' && (
+        <CandidateContest
+          key={contest.id}
+          contest={contest}
+          vote={(vote || []) as CandidateVote}
+          updateVote={updateVote}
+        />
+      )}
+      {contest && contest.type === 'yesno' && (
+        <YesNoContest
+          key={contest.id}
+          contest={contest}
+          vote={vote as OptionalYesNoVote}
+          updateVote={updateVote}
+        />
       )}
       <ButtonBar>
         {nextContest ? (

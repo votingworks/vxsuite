@@ -14,7 +14,7 @@ import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import RangeInput from '../components/RangeInput'
-import { Text } from '../components/Typography'
+import Text from '../components/Text'
 
 const SettingLabel = styled.label`
   display: block;

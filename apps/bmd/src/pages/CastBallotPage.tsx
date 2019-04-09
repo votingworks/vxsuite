@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
-import Text from '../components/Typography'
+import Text from '../components/Text'
 
 const Directions = styled.div`
   margin: auto;

@@ -7,9 +7,9 @@ import isJSON from '../utils/is-json'
 
 import Button from '../components/Button'
 import Prose from '../components/Prose'
-import { Text } from '../components/Typography'
 import { Election } from '../config/types'
 import Main, { MainChild } from './Main'
+import Text from './Text'
 
 const Label = styled.label`
   margin: auto;
@@ -38,10 +38,7 @@ const initialState = {
 }
 
 class UploadConfig extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-    this.state = initialState
-  }
+  public state: State = initialState
 
   public setErrorMessage = (
     errorMessage: string = 'Only files that end in ".json" are accepted. Try again.'

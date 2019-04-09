@@ -2,8 +2,7 @@ import Mousetrap from 'mousetrap'
 import React from 'react'
 // @ts-ignore - @types/react-gamepad doesn't exist
 import Gamepad from 'react-gamepad'
-import { RouteComponentProps } from 'react-router-dom'
-import { BrowserRouter, Route } from 'react-router-dom'
+import { BrowserRouter, Route, RouteComponentProps } from 'react-router-dom'
 
 import GLOBALS from './config/globals'
 
@@ -19,10 +18,10 @@ import {
   Election,
   ElectionDefaults,
   OptionalElection,
+  OptionalVote,
   PartialUserSettings,
   TextSizeSetting,
   UserSettings,
-  Vote,
   VotesDict,
 } from './config/types'
 
@@ -104,7 +103,7 @@ class App extends React.Component<RouteComponentProps, State> {
     this.props.history.push('/')
   }
 
-  public updateVote = (contestId: string, vote: Vote) => {
+  public updateVote = (contestId: string, vote: OptionalVote) => {
     this.setState(prevState => ({
       votes: { ...prevState.votes, [contestId]: vote },
     }))

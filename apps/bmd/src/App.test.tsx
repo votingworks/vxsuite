@@ -5,12 +5,13 @@ import { fireEvent, render, wait, waitForElement } from 'react-testing-library'
 import electionSample from './data/electionSample.json'
 
 import App, { electionKey, mergeWithDefaults } from './App'
-import { CandidateContest, Election } from './config/types'
+import { CandidateContest, Election, YesNoContest } from './config/types'
 
 import { handleGamepadButtonDown } from './lib/gamepad'
 
-const contest0 = electionSample.contests[0] as CandidateContest
-const contest1 = electionSample.contests[1] as CandidateContest
+const election = electionSample as Election
+const contest0 = election.contests[0] as CandidateContest
+const contest1 = election.contests[1] as CandidateContest
 const contest0candidate0 = contest0.candidates[0]
 const contest0candidate1 = contest0.candidates[1]
 const contest1candidate0 = contest1.candidates[0]
@@ -249,6 +250,36 @@ it(`end to end: election can be uploaded, voter can vote and print`, async () =>
     } candidate in this contest. To vote for ${
       contestWithWriteInsFirstCandidate.name
     }, you must first unselect selected candidate.`
+  )
+  fireEvent.click(getByText('Okay'))
+
+  // Go to Yes/No Contest
+  fireEvent.click(getByText('Review'))
+  const yesNoSeatContest = election.contests.find(
+    c => c.type === 'yesno'
+  ) as YesNoContest
+  fireEvent.click(getByText(
+    yesNoSeatContest.title
+  ).parentElement!.querySelector('button') as HTMLButtonElement)
+
+  const yesLabel = getByText('Yes').closest('label') as HTMLLabelElement
+  const getYesLabelInput = () =>
+    getByText('Yes')
+      .closest('label')!
+      .querySelector('input') as HTMLInputElement
+  // Select "Yes"
+  fireEvent.click(yesLabel)
+  expect(getYesLabelInput().checked).toBe(true)
+  // Unselect "Yes"
+  fireEvent.click(yesLabel)
+  expect(getYesLabelInput().checked).not.toBe(true)
+  // Select "Yes"
+  fireEvent.click(yesLabel)
+  expect(getYesLabelInput().checked).toBe(true)
+  // Select "No"
+  fireEvent.click(getByText('No').closest('label') as HTMLLabelElement)
+  expect(getByTestId('modal-content').textContent).toEqual(
+    'Do you want to change your vote to No? To change your vote, first unselect your vote for Yes.'
   )
   fireEvent.click(getByText('Okay'))
 

@@ -1,3 +1,4 @@
+import React from 'react'
 import styled from 'styled-components'
 
 interface Props {
@@ -8,7 +9,7 @@ interface Props {
   small?: boolean
   white?: boolean
 }
-export const Text = styled('p')<Props>`
+const Text = styled('p')<Props>`
   color: ${({ error, muted, white }) =>
     (error && 'red') || (white && 'white') || (muted && 'gray') || undefined};
   text-align: ${({ center }) => (center ? 'center' : undefined)};
@@ -22,5 +23,20 @@ export const Text = styled('p')<Props>`
       undefined};
   }
 `
+
+export const TextWithLineBreaks = ({ text }: { text: string }) => (
+  <React.Fragment>
+    {text.split(/[\n|\r]{2}/g).map(x => (
+      <p key={x}>
+        {x.split(/[\n|\r]/g).map((y, i, arr) => (
+          <React.Fragment key={y}>
+            {y}
+            {arr.length > 1 && i !== arr.length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </p>
+    ))}
+  </React.Fragment>
+)
 
 export default Text

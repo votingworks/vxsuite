@@ -1,5 +1,5 @@
 import React from 'react'
-import { RouteComponentProps, withRouter } from 'react-router'
+import { RouteComponentProps, withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 
 const StyledScreen = styled.div`
