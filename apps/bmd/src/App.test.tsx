@@ -135,14 +135,14 @@ it(`end to end: election can be uploaded, voter can vote and print`, async () =>
   handleGamepadButtonDown('DPadDown')
   expect(getActiveElement().value).toEqual(contest1candidate0.id)
   handleGamepadButtonDown('DPadLeft')
-  // A is same as down
-  handleGamepadButtonDown('A')
+  // B is same as down
+  handleGamepadButtonDown('B')
   expect(getActiveElement().value).toEqual(contest0candidate0.id)
 
   // select and unselect
-  handleGamepadButtonDown('B')
+  handleGamepadButtonDown('A')
   expect(getActiveElement().checked).toBe(true)
-  handleGamepadButtonDown('B')
+  handleGamepadButtonDown('A')
   expect(getActiveElement().checked).toBe(false)
 
   // Test overvote modal
