@@ -1084,7 +1084,6 @@ button.c8 {
             >
               <input
                 class="visually-hidden c9"
-                disabled=""
                 id="name-1"
                 name="Name 1"
                 type="checkbox"
@@ -1110,7 +1109,6 @@ button.c8 {
             >
               <input
                 class="visually-hidden c9"
-                disabled=""
                 id="name-2"
                 name="Name 2"
                 type="checkbox"

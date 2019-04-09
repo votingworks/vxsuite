@@ -272,6 +272,10 @@ class CandidateContest extends React.Component<Props, State> {
     this.props.updateVote(contest.id, newVote)
   }
 
+  public handleDisabledClick = () => {
+    // maybe we'll do more when a disabled item is clicked, for now nothing.
+  }
+
   public handleUpdateSelection = (event: InputEvent) => {
     const { vote } = this.props
     const id = (event.target as HTMLInputElement).value
@@ -457,9 +461,12 @@ class CandidateContest extends React.Component<Props, State> {
                           id={candidate.id}
                           name={candidate.name}
                           value={candidate.id}
-                          onChange={this.handleUpdateSelection}
+                          onChange={
+                            isDisabled
+                              ? this.handleDisabledClick
+                              : this.handleUpdateSelection
+                          }
                           checked={isChecked}
-                          disabled={isDisabled}
                           className="visually-hidden"
                         />
                         <Prose>

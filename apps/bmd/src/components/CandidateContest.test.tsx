@@ -60,13 +60,20 @@ describe(`supports single-seat contest`, () => {
     const candidate1Input = getByText(candidate1.name)
       .closest('label')!
       .querySelector('input')!
-    expect(candidate1Input.disabled).toBeTruthy()
+
+    // we no longer disable, so not checking this condition anymore
+    // but still checking that it isn't checked when clicking
+    // expect(candidate1Input.disabled).toBeTruthy()
+    fireEvent.click(getByText(candidate1.name).closest('label')!)
     expect(candidate1Input.checked).toBeFalsy()
 
     const candidate2Input = getByText(candidate2.name)
       .closest('label')!
       .querySelector('input')!
-    expect(candidate2Input.disabled).toBeTruthy()
+
+    // same here, we no longer disable
+    // expect(candidate2Input.disabled).toBeTruthy()
+    fireEvent.click(getByText(candidate2.name).closest('label')!)
     expect(candidate2Input.checked).toBeFalsy()
 
     fireEvent.click(getByText(candidate1.name).closest('label')!)

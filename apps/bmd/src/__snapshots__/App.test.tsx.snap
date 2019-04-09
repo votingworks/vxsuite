@@ -1690,7 +1690,6 @@ button.c8 {
             >
               <input
                 class="visually-hidden c9"
-                disabled=""
                 id="cramer-vuocolo"
                 name="Adam Cramer and Greg Vuocolo"
                 type="checkbox"
@@ -1716,7 +1715,6 @@ button.c8 {
             >
               <input
                 class="visually-hidden c9"
-                disabled=""
                 id="court-blumhardt"
                 name="Daniel Court and Amy Blumhardt"
                 type="checkbox"
@@ -1742,7 +1740,6 @@ button.c8 {
             >
               <input
                 class="visually-hidden c9"
-                disabled=""
                 id="boone-lian"
                 name="Alvin Boone and James Lian"
                 type="checkbox"
@@ -1768,7 +1765,6 @@ button.c8 {
             >
               <input
                 class="visually-hidden c9"
-                disabled=""
                 id="hildebrand-garritty"
                 name="Ashley Hildebrand-MacDougall and James Garritty"
                 type="checkbox"
@@ -1794,7 +1790,6 @@ button.c8 {
             >
               <input
                 class="visually-hidden c9"
-                disabled=""
                 id="patterson-lariviere"
                 name="Martin Patterson and Clay Lariviere"
                 type="checkbox"

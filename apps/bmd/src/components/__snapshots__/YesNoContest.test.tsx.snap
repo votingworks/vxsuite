@@ -712,7 +712,6 @@ button.c10 {
         >
           <input
             class="visually-hidden c11"
-            disabled=""
             id="no"
             name="contest-id"
             type="checkbox"

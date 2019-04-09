@@ -235,6 +235,10 @@ export default class YesNoContest extends React.Component<Props> {
     }
   }
 
+  public handleDisabledClick = () => {
+    // maybe we'll do more when a disabled item is clicked, for now nothing.
+  }
+
   public handleUpdateSelection = (event: InputEvent) => {
     const target = event.target as HTMLInputElement
     const newVote = target.value as YesNoVote
@@ -390,9 +394,12 @@ export default class YesNoContest extends React.Component<Props> {
                       id={answerLowerCase}
                       name={contest.id}
                       value={answerLowerCase}
-                      onChange={this.handleUpdateSelection}
+                      onChange={
+                        isDisabled
+                          ? this.handleDisabledClick
+                          : this.handleUpdateSelection
+                      }
                       checked={isChecked}
-                      disabled={isDisabled}
                       className="visually-hidden"
                     />
                     <Prose>
