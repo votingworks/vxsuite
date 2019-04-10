@@ -1,7 +1,18 @@
 import mod from '../utils/mod'
 
-const getFocusableElements = (): HTMLElement[] =>
-  Array.from(document.querySelectorAll('button:not([tabindex="-1"]), input'))
+function getFocusableElements(): HTMLElement[] {
+  const tabbableElements = Array.from(
+    document.querySelectorAll('button:not([tabindex="-1"]), input')
+  )
+  const ariaHiddenTabbableElements = Array.from(
+    document.querySelectorAll(
+      '[aria-hidden="true"] button:not([tabindex="-1"]), [aria-hidden="true"] input'
+    )
+  )
+  return tabbableElements.filter(
+    element => ariaHiddenTabbableElements.indexOf(element) === -1
+  ) as HTMLElement[]
+}
 
 const getActiveElement = () => document.activeElement! as HTMLInputElement
 
