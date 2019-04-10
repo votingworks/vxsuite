@@ -157,14 +157,11 @@ it(`end to end: election can be uploaded, voter can vote and print`, async () =>
     }, you must first unselect selected candidate.`
   )
 
-  // test that 'Okay' is the only activate-able element (true modal)
-  // grumble this test doesn't work even though it behaves appropriately in an actual web browser.
-  /*
-  handleGamepadButtonDown('DPadDown')
-  handleGamepadButtonDown('DPadDown')
-  handleGamepadButtonDown('DPadDown')    
-  expect(getActiveElement().textContent).toBe("Okay")
-  */
+  // Test that 'Okay' is the only activate-able element (true modal)
+  handleGamepadButtonDown('DPadDown') // selects Okay button
+  handleGamepadButtonDown('DPadDown') // Okay button should still be selected
+  handleGamepadButtonDown('DPadDown') // Okay button should still be selected
+  expect(getActiveElement().textContent).toBe('Okay')
 
   fireEvent.click(getByText('Okay'))
   expect(

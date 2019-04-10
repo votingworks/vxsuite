@@ -41,8 +41,10 @@ const Modal: React.FC<Props> = ({
   onAfterOpen,
 }) => (
   <ReactModal
-    appElement={document.getElementById('root')!}
-    ariaHideApp={process.env.NODE_ENV !== 'test'}
+    appElement={
+      document.getElementById('root')! || document.body.firstElementChild
+    }
+    ariaHideApp
     isOpen={isOpen}
     contentLabel={ariaLabel}
     portalClassName="modal-portal"

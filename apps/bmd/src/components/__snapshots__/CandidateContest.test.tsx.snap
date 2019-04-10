@@ -1341,7 +1341,9 @@ button.c8 {
   }
 }
 
-<div>
+<div
+  aria-hidden="true"
+>
   <main
     class="c0"
   >
