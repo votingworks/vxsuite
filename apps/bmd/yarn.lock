@@ -9532,10 +9532,10 @@ react-scripts@2.1.8:
   optionalDependencies:
     fsevents "1.2.4"
 
-react-simple-keyboard@^1.21.4:
-  version "1.21.4"
-  resolved "https://registry.yarnpkg.com/react-simple-keyboard/-/react-simple-keyboard-1.21.4.tgz#1b83aea39c9a4561abe33deb693ae3e797a32e97"
-  integrity sha512-hehXrE9lFnnk+Car5XO+VpudccRgN/FunJRzsWIuWrUwYxZjOAvg4wd5u3xt6KjOWBxVw0U/NxsGMfLn2pMTAg==
+react-simple-keyboard@^1.21.5:
+  version "1.21.5"
+  resolved "https://registry.yarnpkg.com/react-simple-keyboard/-/react-simple-keyboard-1.21.5.tgz#bff470ea14c1e506d26546188a28eb449a7ac950"
+  integrity sha512-zYHaMf/r/G4m6PQGiWZK7IgGnxDLq4GhqkyU+IO5TxgHpwc3lTIHgW6bMPqSvFuajkGMriVadPOcLfEG8pmjgA==
 
 react-testing-library@^6.1.2:
   version "6.1.2"
