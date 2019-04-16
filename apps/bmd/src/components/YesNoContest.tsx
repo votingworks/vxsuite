@@ -55,8 +55,8 @@ const ContestFooter = styled.div`
   }
 `
 const VariableContentContainer = styled.div<{
-  showBottomShadow?: boolean
-  showTopShadow?: boolean
+  showBottomShadow: boolean
+  showTopShadow: boolean
 }>`
   display: flex;
   flex: 1;
