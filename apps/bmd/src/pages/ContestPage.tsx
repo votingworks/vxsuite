@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
+import styled from 'styled-components'
 
 import { CandidateVote, OptionalYesNoVote } from '../config/types'
 
@@ -11,6 +12,10 @@ import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Text from '../components/Text'
 import YesNoContest from '../components/YesNoContest'
+
+const Progress = styled(Text)`
+  flex: 2;
+`
 
 interface ContestParams {
   id: string
@@ -73,7 +78,7 @@ const ContestPage = (props: Props) => {
           </LinkButton>
         ) : (
           <LinkButton primary={!!vote} to="/review" key="review" id="next">
-            Review
+            Next
           </LinkButton>
         )}
         {prevContest ? (
@@ -82,16 +87,16 @@ const ContestPage = (props: Props) => {
             to={`/contests/${prevContest && prevContest.id}`}
             key="previous"
           >
-            Previous
+            Back
           </LinkButton>
         ) : (
           <LinkButton key="backtostart" to="/start" id="previous">
-            Previous
+            Back
           </LinkButton>
         )}
-        <Text center white>
+        <Progress center white>
           {currentContestIndex + 1} of {contests.length}
-        </Text>
+        </Progress>
       </ButtonBar>
       <ButtonBar
         secondary

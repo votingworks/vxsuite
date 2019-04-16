@@ -213,7 +213,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 <div>
   <div
-    class="sc-hzDkRC fezyRb"
+    class="sc-jhAzac ilHymy"
     tabindex="-1"
   >
     .c0 {
@@ -421,7 +421,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 
 exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 <div
-  class="sc-hzDkRC fezyRb"
+  class="sc-jhAzac ilHymy"
   tabindex="-1"
 >
   .c0 {
@@ -736,7 +736,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 
 exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 <div
-  class="sc-hzDkRC fezyRb"
+  class="sc-jhAzac ilHymy"
   tabindex="-1"
 >
   .c0 {
@@ -1167,11 +1167,6 @@ button.c8 {
   white-space: nowrap;
 }
 
-.c2 {
-  color: white;
-  text-align: center;
-}
-
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -1206,10 +1201,12 @@ button.c8 {
   flex: 1;
 }
 
-@media print {
-  .c2 {
-    color: white;
-  }
+.c2 {
+  color: white;
+  text-align: center;
+  -webkit-flex: 2;
+  -ms-flex: 2;
+  flex: 2;
 }
 
 @media (min-width:480px) {
@@ -1222,6 +1219,12 @@ button.c8 {
 @media print {
   .c0 {
     display: none;
+  }
+}
+
+@media print {
+  .c2 {
+    color: white;
   }
 }
 
@@ -1240,7 +1243,7 @@ button.c8 {
       id="previous"
       type="button"
     >
-      Previous
+      Back
     </button>
     <p
       class="c2"
@@ -1352,7 +1355,7 @@ button.c8 {
 
 exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 <div
-  class="sc-hzDkRC fezyRb"
+  class="sc-jhAzac ilHymy"
   tabindex="-1"
 >
   .c0 {
@@ -1861,10 +1864,10 @@ button.c8 {
       id="previous"
       type="button"
     >
-      Previous
+      Back
     </button>
     <p
-      class="sc-bZQynM krqOjJ"
+      class="sc-bZQynM sc-jWBwVP fbGOew"
     >
       1
        of 
