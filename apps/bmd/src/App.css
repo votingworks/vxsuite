@@ -30,6 +30,10 @@ legend {
   color: rgb(0, 0, 238);
 }
 
+:focus {
+  outline: -webkit-focus-ring-color auto 0.5rem;
+}
+
 /* Foundational */
 html,
 body,

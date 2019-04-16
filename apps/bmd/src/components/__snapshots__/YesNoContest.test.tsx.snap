@@ -151,7 +151,7 @@ button.c10 {
 }
 
 .c10:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
+  outline: -webkit-focus-ring-color auto 0.5rem;
 }
 
 .c10:before {
@@ -484,7 +484,7 @@ button.c12 {
 }
 
 .c12:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
+  outline: -webkit-focus-ring-color auto 0.5rem;
 }
 
 .c12:before {
@@ -542,7 +542,7 @@ button.c10 {
 }
 
 .c10:focus-within {
-  outline: -webkit-focus-ring-color auto 5px;
+  outline: -webkit-focus-ring-color auto 0.5rem;
 }
 
 .c10:before {
