@@ -172,7 +172,7 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     word-break: break-word;
     padding: 0.5rem 0.5rem 0.5rem 4rem;
     @media (min-width: 480px) {
-      padding: 1rem 1rem 1rem inherit;
+      padding: 1rem 1rem 1rem 4rem;
     }
   }
 `

@@ -598,7 +598,7 @@ button.c8 {
 
 @media (min-width:480px) {
   .c8 > div {
-    padding: 1rem 1rem 1rem inherit;
+    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -1187,7 +1187,7 @@ button.c8 {
 
 @media (min-width:480px) {
   .c8 > div {
-    padding: 1rem 1rem 1rem inherit;
+    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
