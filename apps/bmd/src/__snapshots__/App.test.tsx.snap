@@ -213,7 +213,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 1`] = `
 exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 <div>
   <div
-    class="sc-fBuWsC hMqPic"
+    class="sc-hzDkRC fezyRb"
     tabindex="-1"
   >
     .c0 {
@@ -421,7 +421,7 @@ exports[`end to end: election can be uploaded, voter can vote and print 2`] = `
 
 exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 <div
-  class="sc-fBuWsC hMqPic"
+  class="sc-hzDkRC fezyRb"
   tabindex="-1"
 >
   .c0 {
@@ -736,10 +736,23 @@ exports[`end to end: election can be uploaded, voter can vote and print 3`] = `
 
 exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 <div
-  class="sc-fBuWsC hMqPic"
+  class="sc-hzDkRC fezyRb"
   tabindex="-1"
 >
-  .c2 {
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
@@ -774,19 +787,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 4`] = `
 
 .c2 :last-child {
   margin-bottom: 0;
-}
-
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
 }
 
 .c1 {
@@ -915,6 +915,16 @@ button.c8 {
 
 .c9 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {
@@ -1342,10 +1352,23 @@ button.c8 {
 
 exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 <div
-  class="sc-fBuWsC hMqPic"
+  class="sc-hzDkRC fezyRb"
   tabindex="-1"
 >
-  .c2 {
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
@@ -1380,19 +1403,6 @@ exports[`end to end: election can be uploaded, voter can vote and print 5`] = `
 
 .c2 :last-child {
   margin-bottom: 0;
-}
-
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
 }
 
 .c1 {
@@ -1578,6 +1588,16 @@ button.c8 {
 
 .c9 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {

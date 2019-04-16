@@ -15,6 +15,7 @@ import BallotContext from '../contexts/ballotContext'
 
 import GLOBALS from '../config/globals'
 import Button from './Button'
+import Main from './Main'
 import Modal from './Modal'
 import Prose from './Prose'
 import { TextWithLineBreaks } from './Text'
@@ -22,12 +23,7 @@ import { TextWithLineBreaks } from './Text'
 const tabletMinWidth = 720
 const votes = GLOBALS.YES_NO_VOTES
 
-const ContestMain = styled.main`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-`
-const ContestHeader = styled.div`
+const ContentHeader = styled.div`
   width: 100%;
   max-width: 35rem;
   margin: 0px auto;
@@ -321,8 +317,8 @@ export default class YesNoContest extends React.Component<Props> {
     const { isScrollable, isScrollAtBottom, isScrollAtTop } = this.state
     return (
       <React.Fragment>
-        <ContestMain>
-          <ContestHeader id="contest-header">
+        <Main noOverflow noPadding>
+          <ContentHeader id="contest-header">
             <Prose>
               <h1 aria-label={`${contest.section}, ${contest.title}.`}>
                 <ContestSection>{contest.section}</ContestSection>
@@ -332,7 +328,7 @@ export default class YesNoContest extends React.Component<Props> {
                 <strong>Vote Yes or No.</strong>
               </p>
             </Prose>
-          </ContestHeader>
+          </ContentHeader>
           <VariableContentContainer
             showTopShadow={!isScrollAtTop}
             showBottomShadow={!isScrollAtBottom}
@@ -410,7 +406,7 @@ export default class YesNoContest extends React.Component<Props> {
               })}
             </ChoicesGrid>
           </ContestFooter>
-        </ContestMain>
+        </Main>
         <Modal
           isOpen={!!overvoteSelection}
           content={

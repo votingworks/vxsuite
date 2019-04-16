@@ -255,6 +255,19 @@ exports[`displays accessible error if no id match 1`] = `
 `;
 
 exports[`doesn't display help and settings pages if disabled 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
 .c2 {
   line-height: 1.2;
   max-width: 66ch;
@@ -378,19 +391,6 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
 }
 
 .c1 {
@@ -519,6 +519,16 @@ button.c8 {
 
 .c9 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {
@@ -834,6 +844,19 @@ button.c8 {
 `;
 
 exports[`renders ContestPage 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
 .c2 {
   line-height: 1.2;
   max-width: 66ch;
@@ -957,19 +980,6 @@ exports[`renders ContestPage 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
 }
 
 .c1 {
@@ -1098,6 +1108,16 @@ button.c8 {
 
 .c9 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {
