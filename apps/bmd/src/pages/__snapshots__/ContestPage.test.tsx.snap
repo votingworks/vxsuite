@@ -604,14 +604,14 @@ button.c8 {
         class="c2"
       >
         <h1
-          aria-label="Federal, President and Vice-President of the United States."
+          aria-label="United States, President and Vice-President."
         >
           <div
             class="c3"
           >
-            Federal
+            United States
           </div>
-          President and Vice-President of the United States
+          President and Vice-President
         </h1>
         <p>
           <strong>
@@ -747,7 +747,7 @@ button.c8 {
               <input
                 class="visually-hidden c9"
                 id="hildebrand-garritty"
-                name="Ashley Hildebrand-MacDougall and James Garritty"
+                name="Ashley Hildebrand-McDougall and James Garritty"
                 type="checkbox"
                 value="hildebrand-garritty"
               />
@@ -755,10 +755,10 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
+                  aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
                 >
                   <strong>
-                    Ashley Hildebrand-MacDougall and James Garritty
+                    Ashley Hildebrand-McDougall and James Garritty
                   </strong>
                   <br />
                   Whig
@@ -1183,14 +1183,14 @@ button.c8 {
         class="c2"
       >
         <h1
-          aria-label="Federal, President and Vice-President of the United States."
+          aria-label="United States, President and Vice-President."
         >
           <div
             class="c3"
           >
-            Federal
+            United States
           </div>
-          President and Vice-President of the United States
+          President and Vice-President
         </h1>
         <p>
           <strong>
@@ -1326,7 +1326,7 @@ button.c8 {
               <input
                 class="visually-hidden c9"
                 id="hildebrand-garritty"
-                name="Ashley Hildebrand-MacDougall and James Garritty"
+                name="Ashley Hildebrand-McDougall and James Garritty"
                 type="checkbox"
                 value="hildebrand-garritty"
               />
@@ -1334,10 +1334,10 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Ashley Hildebrand-MacDougall and James Garritty, Whig."
+                  aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
                 >
                   <strong>
-                    Ashley Hildebrand-MacDougall and James Garritty
+                    Ashley Hildebrand-McDougall and James Garritty
                   </strong>
                   <br />
                   Whig
