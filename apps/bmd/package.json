@@ -96,7 +96,7 @@
     "is-ci-cli": "^1.1.1",
     "jest-styled-components": "^6.3.1",
     "lint-staged": "^8.1.5",
-    "prettier": "^1.16.4",
+    "prettier": "^1.17.0",
     "react-testing-library": "^6.1.2",
     "start-server-and-test": "^1.7.13",
     "tslint": "^5.16.0",
