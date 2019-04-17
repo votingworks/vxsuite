@@ -460,13 +460,13 @@ exports[`renders ReviewPage with votes 1`] = `
             2020 General Election
           </h3>
           <p
-            aria-label="Tuesday, November 3, 2020. Madison County, State of Maryland."
+            aria-label="Tuesday, November 3, 2020. Franklin County, State of Hamilton."
           >
             Tuesday, November 3, 2020
             <br />
-            Madison County
+            Franklin County
             , 
-            State of Maryland
+            State of Hamilton
           </p>
         </div>
       </div>
@@ -480,13 +480,13 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="President and Vice-President of the United States,"
+              aria-label="President and Vice-President,"
               class="c8"
             >
-              President and Vice-President of the United States
+              President and Vice-President
             </span>
             <button
-              aria-label="Change President and Vice-President of the United States."
+              aria-label="Change President and Vice-President."
               class="no-print change-button c9"
               type="button"
             >
@@ -507,13 +507,13 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="US Senate,"
+              aria-label="US Senator,"
               class="c8"
             >
-              US Senate
+              US Senator
             </span>
             <button
-              aria-label="Change US Senate."
+              aria-label="Change US Senator."
               class="no-print change-button c9"
               type="button"
             >
@@ -534,13 +534,13 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="US Representative, 6th Congressional District,"
+              aria-label="US Representative, 6th District,"
               class="c8"
             >
-              US Representative, 6th Congressional District
+              US Representative, 6th District
             </span>
             <button
-              aria-label="Change US Representative, 6th Congressional District."
+              aria-label="Change US Representative, 6th District."
               class="no-print change-button c9"
               type="button"
             >
@@ -551,7 +551,7 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for US Representative, 6th Congressional District."
+              aria-label="No selection for US Representative, 6th District."
               class="c11"
             >
               [no selection]
@@ -669,13 +669,13 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="State Assembly, 54th District,"
+              aria-label="State Assembly Member, 54th District,"
               class="c8"
             >
-              State Assembly, 54th District
+              State Assembly Member, 54th District
             </span>
             <button
-              aria-label="Change State Assembly, 54th District."
+              aria-label="Change State Assembly Member, 54th District."
               class="no-print change-button c9"
               type="button"
             >
@@ -686,7 +686,7 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for State Assembly, 54th District."
+              aria-label="No selection for State Assembly Member, 54th District."
               class="c11"
             >
               [no selection]
@@ -723,13 +723,13 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="Registrar of Wills, 4th Seat,"
+              aria-label="Registrar of Wills,"
               class="c8"
             >
-              Registrar of Wills, 4th Seat
+              Registrar of Wills
             </span>
             <button
-              aria-label="Change Registrar of Wills, 4th Seat."
+              aria-label="Change Registrar of Wills."
               class="no-print change-button c9"
               type="button"
             >
@@ -740,7 +740,7 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for Registrar of Wills, 4th Seat."
+              aria-label="No selection for Registrar of Wills."
               class="c11"
             >
               [no selection]
@@ -966,13 +966,13 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="Measure 101: Madison County College District,"
+              aria-label="Measure 101: Franklin County College District,"
               class="c8"
             >
-              Measure 101: Madison County College District
+              Measure 101: Franklin County College District
             </span>
             <button
-              aria-label="Change Measure 101: Madison County College District."
+              aria-label="Change Measure 101: Franklin County College District."
               class="no-print change-button c9"
               type="button"
             >
@@ -983,7 +983,7 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for Measure 101: Madison County College District."
+              aria-label="No selection for Measure 101: Franklin County College District."
               class="c11"
             >
               [no selection]
@@ -993,13 +993,13 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="Measure 102: Madison County Vehicle Abatement Program,"
+              aria-label="Measure 102: Vehicle Abatement Program,"
               class="c8"
             >
-              Measure 102: Madison County Vehicle Abatement Program
+              Measure 102: Vehicle Abatement Program
             </span>
             <button
-              aria-label="Change Measure 102: Madison County Vehicle Abatement Program."
+              aria-label="Change Measure 102: Vehicle Abatement Program."
               class="no-print change-button c9"
               type="button"
             >
@@ -1010,7 +1010,7 @@ exports[`renders ReviewPage with votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for Measure 102: Madison County Vehicle Abatement Program."
+              aria-label="No selection for Measure 102: Vehicle Abatement Program."
               class="c11"
             >
               [no selection]
@@ -1509,13 +1509,13 @@ exports[`renders ReviewPage without votes 1`] = `
             2020 General Election
           </h3>
           <p
-            aria-label="Tuesday, November 3, 2020. Madison County, State of Maryland."
+            aria-label="Tuesday, November 3, 2020. Franklin County, State of Hamilton."
           >
             Tuesday, November 3, 2020
             <br />
-            Madison County
+            Franklin County
             , 
-            State of Maryland
+            State of Hamilton
           </p>
         </div>
       </div>
@@ -1529,13 +1529,13 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="President and Vice-President of the United States,"
+              aria-label="President and Vice-President,"
               class="c8"
             >
-              President and Vice-President of the United States
+              President and Vice-President
             </span>
             <button
-              aria-label="Change President and Vice-President of the United States."
+              aria-label="Change President and Vice-President."
               class="no-print change-button c9"
               type="button"
             >
@@ -1546,7 +1546,7 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for President and Vice-President of the United States."
+              aria-label="No selection for President and Vice-President."
               class="c11"
             >
               [no selection]
@@ -1556,13 +1556,13 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="US Senate,"
+              aria-label="US Senator,"
               class="c8"
             >
-              US Senate
+              US Senator
             </span>
             <button
-              aria-label="Change US Senate."
+              aria-label="Change US Senator."
               class="no-print change-button c9"
               type="button"
             >
@@ -1573,7 +1573,7 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for US Senate."
+              aria-label="No selection for US Senator."
               class="c11"
             >
               [no selection]
@@ -1583,13 +1583,13 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="US Representative, 6th Congressional District,"
+              aria-label="US Representative, 6th District,"
               class="c8"
             >
-              US Representative, 6th Congressional District
+              US Representative, 6th District
             </span>
             <button
-              aria-label="Change US Representative, 6th Congressional District."
+              aria-label="Change US Representative, 6th District."
               class="no-print change-button c9"
               type="button"
             >
@@ -1600,7 +1600,7 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for US Representative, 6th Congressional District."
+              aria-label="No selection for US Representative, 6th District."
               class="c11"
             >
               [no selection]
@@ -1718,13 +1718,13 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="State Assembly, 54th District,"
+              aria-label="State Assembly Member, 54th District,"
               class="c8"
             >
-              State Assembly, 54th District
+              State Assembly Member, 54th District
             </span>
             <button
-              aria-label="Change State Assembly, 54th District."
+              aria-label="Change State Assembly Member, 54th District."
               class="no-print change-button c9"
               type="button"
             >
@@ -1735,7 +1735,7 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for State Assembly, 54th District."
+              aria-label="No selection for State Assembly Member, 54th District."
               class="c11"
             >
               [no selection]
@@ -1772,13 +1772,13 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="Registrar of Wills, 4th Seat,"
+              aria-label="Registrar of Wills,"
               class="c8"
             >
-              Registrar of Wills, 4th Seat
+              Registrar of Wills
             </span>
             <button
-              aria-label="Change Registrar of Wills, 4th Seat."
+              aria-label="Change Registrar of Wills."
               class="no-print change-button c9"
               type="button"
             >
@@ -1789,7 +1789,7 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for Registrar of Wills, 4th Seat."
+              aria-label="No selection for Registrar of Wills."
               class="c11"
             >
               [no selection]
@@ -2015,13 +2015,13 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="Measure 101: Madison County College District,"
+              aria-label="Measure 101: Franklin County College District,"
               class="c8"
             >
-              Measure 101: Madison County College District
+              Measure 101: Franklin County College District
             </span>
             <button
-              aria-label="Change Measure 101: Madison County College District."
+              aria-label="Change Measure 101: Franklin County College District."
               class="no-print change-button c9"
               type="button"
             >
@@ -2032,7 +2032,7 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for Measure 101: Madison County College District."
+              aria-label="No selection for Measure 101: Franklin County College District."
               class="c11"
             >
               [no selection]
@@ -2042,13 +2042,13 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c7"
           >
             <span
-              aria-label="Measure 102: Madison County Vehicle Abatement Program,"
+              aria-label="Measure 102: Vehicle Abatement Program,"
               class="c8"
             >
-              Measure 102: Madison County Vehicle Abatement Program
+              Measure 102: Vehicle Abatement Program
             </span>
             <button
-              aria-label="Change Measure 102: Madison County Vehicle Abatement Program."
+              aria-label="Change Measure 102: Vehicle Abatement Program."
               class="no-print change-button c9"
               type="button"
             >
@@ -2059,7 +2059,7 @@ exports[`renders ReviewPage without votes 1`] = `
             class="c10"
           >
             <strong
-              aria-label="No selection for Measure 102: Madison County Vehicle Abatement Program."
+              aria-label="No selection for Measure 102: Vehicle Abatement Program."
               class="c11"
             >
               [no selection]

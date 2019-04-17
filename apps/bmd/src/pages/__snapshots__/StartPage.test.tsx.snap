@@ -289,13 +289,13 @@ exports[`renders StartPage 1`] = `
         2020 General Election
       </h1>
       <p
-        aria-label="Tuesday, November 3, 2020. Madison County, State of Maryland."
+        aria-label="Tuesday, November 3, 2020. Franklin County, State of Hamilton."
       >
         Tuesday, November 3, 2020
         <br />
-        Madison County
+        Franklin County
         , 
-        State of Maryland
+        State of Hamilton
       </p>
       <p>
         <button
