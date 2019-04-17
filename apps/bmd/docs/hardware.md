@@ -1,4 +1,4 @@
-# Setting up BMD Harware
+# Setting up BMD Hardware
 
 ## Equipment
 
