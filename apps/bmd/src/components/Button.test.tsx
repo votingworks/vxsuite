@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from 'react-testing-library'
 
-import Button from './Button'
+import Button, { DecoyButton } from './Button'
 
 it(`renders Button`, () => {
   const { container } = render(<Button>foo</Button>)
@@ -15,5 +15,10 @@ it(`renders primary Button`, () => {
 
 it(`renders danger Button`, () => {
   const { container } = render(<Button danger>Danger!</Button>)
+  expect(container.firstChild).toMatchSnapshot()
+})
+
+it(`renders DecoyButton`, () => {
+  const { container } = render(<DecoyButton>DecoyButton</DecoyButton>)
   expect(container.firstChild).toMatchSnapshot()
 })

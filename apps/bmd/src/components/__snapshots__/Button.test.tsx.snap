@@ -21,6 +21,26 @@ exports[`renders Button 1`] = `
 </button>
 `;
 
+exports[`renders DecoyButton 1`] = `
+.c0 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+<div
+  class="c0"
+>
+  DecoyButton
+</div>
+`;
+
 exports[`renders danger Button 1`] = `
 .c0 {
   box-sizing: border-box;

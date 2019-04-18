@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 interface Attrs extends HTMLButtonElement {
   readonly type: string
@@ -8,15 +8,14 @@ interface Attrs extends HTMLButtonElement {
 export interface ButtonInterface<T> {
   readonly danger?: boolean
   readonly primary?: boolean
+  readonly fullWidth?: boolean
 }
 
 interface Props
   extends React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 interface Props extends ButtonInterface<{}> {}
 
-const Button = styled('button').attrs((props: Attrs) => ({
-  type: props.type || 'button',
-}))<Props>`
+const buttonStyles = css<Props>`
   box-sizing: border-box;
   cursor: pointer;
   background: ${({ danger = false, primary = false }) =>
@@ -31,6 +30,17 @@ const Button = styled('button').attrs((props: Attrs) => ({
     'black'};
   line-height: 1;
   white-space: nowrap;
+  width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
+`
+
+export const DecoyButton = styled.div<Props>`
+  ${buttonStyles}
+`
+
+const Button = styled('button').attrs((props: Attrs) => ({
+  type: props.type || 'button',
+}))<Props>`
+  ${buttonStyles}
 `
 
 export default Button
