@@ -77,7 +77,7 @@
     "react-simple-keyboard": "^1.21.8",
     "styled-components": "^4.2.0",
     "tslint-react-hooks": "^2.0.0",
-    "typescript": "3.4.3"
+    "typescript": "3.4.4"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.1",
