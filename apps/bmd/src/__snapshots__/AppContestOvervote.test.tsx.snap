@@ -1,0 +1,715 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Overvote triggers modal 1`] = `
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c3 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c3 h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c3 h2 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.c3 h3,
+.c3 p {
+  font-size: 1rem;
+  margin: 1rem 0;
+}
+
+.c3 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c3 h1 + p,
+.c3 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c3 h3 + p {
+  margin-top: -1rem;
+}
+
+.c3 :first-child {
+  margin-top: 0;
+}
+
+.c3 :last-child {
+  margin-bottom: 0;
+}
+
+.c15 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c14 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: rgb(71,167,75);
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: white;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c11 {
+  word-break: break-word;
+}
+
+.c13 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c13 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c13 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c17 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c17 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c17 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c2 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c5:before,
+.c5:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c5:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c5:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c6 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c7 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.c8 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c12 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c12 {
+  text-align: left;
+}
+
+.c12:focus-within {
+  outline: -webkit-focus-ring-color auto 0.5rem;
+}
+
+.c12:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: 700;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c12 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c9 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: #028099;
+  color: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c9 {
+  text-align: left;
+}
+
+.c9:focus-within {
+  outline: -webkit-focus-ring-color auto 0.5rem;
+}
+
+.c9:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: #028099;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: 700;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c9 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c10 {
+  margin-right: 0.5rem;
+}
+
+.c16 {
+  color: white;
+  text-align: center;
+  -webkit-flex: 2;
+  -ms-flex: 2;
+  flex: 2;
+}
+
+.c0 {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c0:focus {
+  outline: none;
+}
+
+@media print {
+  .c1 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c3 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:480px) {
+  .c13 > *:only-child {
+    margin: auto;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c13 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c17 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c17 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c17 > *:only-child {
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c17 {
+    display: none;
+  }
+}
+
+@media (min-width:720px) {
+  .c2 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c7 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c12 > div {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c9 > div {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+@media print {
+  .c16 {
+    color: white;
+  }
+}
+
+<div
+  class="c0"
+  tabindex="-1"
+>
+  <main
+    class="c1"
+  >
+    <div
+      class="c2"
+      id="contest-header"
+    >
+      <div
+        class="c3"
+      >
+        <h1
+          aria-label="United States, President and Vice-President."
+        >
+          <div
+            class="c4"
+          >
+            United States
+          </div>
+          President and Vice-President
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            1
+            .
+          </strong>
+           You have selected
+           
+          1
+          .
+        </p>
+      </div>
+    </div>
+    <div
+      class="c5"
+    >
+      <div
+        class="c6"
+      >
+        <div
+          class="c7"
+        >
+          <div
+            aria-labelledby="contest-header"
+            class="c8"
+            role="group"
+          >
+            <label
+              class="c9"
+              for="barchi-hallaren"
+            >
+              <input
+                class="visually-hidden c10"
+                id="barchi-hallaren"
+                name="Joseph Barchi and Joseph Hallaren"
+                type="checkbox"
+                value="barchi-hallaren"
+              />
+              <div
+                class="c3"
+              >
+                <p
+                  aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                  class="c11"
+                >
+                  <strong>
+                    Joseph Barchi and Joseph Hallaren
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="c12"
+              for="cramer-vuocolo"
+            >
+              <input
+                class="visually-hidden c10"
+                id="cramer-vuocolo"
+                name="Adam Cramer and Greg Vuocolo"
+                type="checkbox"
+                value="cramer-vuocolo"
+              />
+              <div
+                class="c3"
+              >
+                <p
+                  aria-label="Adam Cramer and Greg Vuocolo, People's."
+                  class="c11"
+                >
+                  <strong>
+                    Adam Cramer and Greg Vuocolo
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="c12"
+              for="court-blumhardt"
+            >
+              <input
+                class="visually-hidden c10"
+                id="court-blumhardt"
+                name="Daniel Court and Amy Blumhardt"
+                type="checkbox"
+                value="court-blumhardt"
+              />
+              <div
+                class="c3"
+              >
+                <p
+                  aria-label="Daniel Court and Amy Blumhardt, Liberty."
+                  class="c11"
+                >
+                  <strong>
+                    Daniel Court and Amy Blumhardt
+                  </strong>
+                  <br />
+                  Liberty
+                </p>
+              </div>
+            </label>
+            <label
+              class="c12"
+              for="boone-lian"
+            >
+              <input
+                class="visually-hidden c10"
+                id="boone-lian"
+                name="Alvin Boone and James Lian"
+                type="checkbox"
+                value="boone-lian"
+              />
+              <div
+                class="c3"
+              >
+                <p
+                  aria-label="Alvin Boone and James Lian, Constitution."
+                  class="c11"
+                >
+                  <strong>
+                    Alvin Boone and James Lian
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </label>
+            <label
+              class="c12"
+              for="hildebrand-garritty"
+            >
+              <input
+                class="visually-hidden c10"
+                id="hildebrand-garritty"
+                name="Ashley Hildebrand-McDougall and James Garritty"
+                type="checkbox"
+                value="hildebrand-garritty"
+              />
+              <div
+                class="c3"
+              >
+                <p
+                  aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
+                  class="c11"
+                >
+                  <strong>
+                    Ashley Hildebrand-McDougall and James Garritty
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="c12"
+              for="patterson-lariviere"
+            >
+              <input
+                class="visually-hidden c10"
+                id="patterson-lariviere"
+                name="Martin Patterson and Clay Lariviere"
+                type="checkbox"
+                value="patterson-lariviere"
+              />
+              <div
+                class="c3"
+              >
+                <p
+                  aria-label="Martin Patterson and Clay Lariviere, Labor."
+                  class="c11"
+                >
+                  <strong>
+                    Martin Patterson and Clay Lariviere
+                  </strong>
+                  <br />
+                  Labor
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <nav
+    class="c13"
+  >
+    <button
+      class="c14"
+      id="next"
+      type="button"
+    >
+      Next
+    </button>
+    <button
+      class="c15"
+      id="previous"
+      type="button"
+    >
+      Back
+    </button>
+    <p
+      class="c16"
+    >
+      1
+       of 
+      20
+    </p>
+  </nav>
+  <nav
+    class="c17"
+  >
+    <div />
+    <button
+      class="c15"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="c15"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;

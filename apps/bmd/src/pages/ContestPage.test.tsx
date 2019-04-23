@@ -1,5 +1,6 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
+import { fireEvent } from 'react-testing-library'
 
 import { render } from '../../test/testUtils'
 
@@ -21,23 +22,17 @@ it(`renders ContestPage`, () => {
 })
 
 it(`renders error if no id match`, () => {
-  const { container } = render(
+  const resetBallot = jest.fn()
+  const { container, getByText } = render(
     <Route path="/contests/:id" component={ContestPage} />,
     {
+      resetBallot,
       route: '/contests/foobar',
     }
   )
   expect(container).toMatchSnapshot()
-})
-
-it(`displays accessible error if no id match`, () => {
-  const { container } = render(
-    <Route path="/contests/:id" component={ContestPage} />,
-    {
-      route: '/contests/foobar',
-    }
-  )
-  expect(container).toMatchSnapshot()
+  fireEvent.click(getByText('Start Over'))
+  expect(resetBallot).toHaveBeenCalled()
 })
 
 it(`doesn't display help and settings pages if disabled`, () => {

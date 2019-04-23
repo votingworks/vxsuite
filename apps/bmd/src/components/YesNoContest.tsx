@@ -18,7 +18,7 @@ import Button from './Button'
 import Main from './Main'
 import Modal from './Modal'
 import Prose from './Prose'
-import { TextWithLineBreaks } from './Text'
+import Text, { TextWithLineBreaks } from './Text'
 
 const tabletMinWidth = 720
 const votes = GLOBALS.YES_NO_VOTES
@@ -183,7 +183,6 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     color: #028099;
   }
   & > div {
-    word-break: break-word;
     padding: 0.5rem 0.5rem 0.5rem 4rem;
     @media (min-width: 480px) {
       padding: 1rem 1rem 1rem inherit;
@@ -399,7 +398,7 @@ export default class YesNoContest extends React.Component<Props> {
                       className="visually-hidden"
                     />
                     <Prose>
-                      <p>{answer}</p>
+                      <Text wordBreak>{answer}</Text>
                     </Prose>
                   </Choice>
                 )

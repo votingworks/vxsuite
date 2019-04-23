@@ -39,7 +39,7 @@ const Instructions = styled.ol`
     top: 0;
     left: 0;
     font-weight: bold;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 `
 
@@ -71,7 +71,7 @@ const StartPage = () => {
               I have verified my selections and will cast my ballot.
             </Text>
             <Text center>
-              <LinkButton primary to={`/`}>
+              <LinkButton primary to="/">
                 Start Over
               </LinkButton>
             </Text>

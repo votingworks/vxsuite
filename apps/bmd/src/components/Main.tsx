@@ -30,12 +30,11 @@ interface ChildProps {
 }
 
 export const MainChild = styled('div')<ChildProps>`
-  width: 100%;
   max-width: 35rem;
   margin: ${({
     center = false,
     centerVertical = center,
-    centerHorizontal = true,
+    centerHorizontal = center,
   }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
   padding: ${({ padded = false }) => (padded ? '1rem' : undefined)};
   @media print {

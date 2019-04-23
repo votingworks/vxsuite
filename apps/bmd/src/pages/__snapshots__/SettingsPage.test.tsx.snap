@@ -17,9 +17,8 @@ exports[`renders SettingsPage 1`] = `
 }
 
 .c1 {
-  width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
+  margin: 0 0;
 }
 
 .c2 {
@@ -28,16 +27,19 @@ exports[`renders SettingsPage 1`] = `
 }
 
 .c2 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c2 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c2 h3,
 .c2 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -46,9 +48,12 @@ exports[`renders SettingsPage 1`] = `
 }
 
 .c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c2 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
 }
 
 .c2 :first-child {
@@ -116,7 +121,7 @@ exports[`renders SettingsPage 1`] = `
 .c3 {
   display: block;
   margin: 1.5rem 0 1rem;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: bold;
 }
 

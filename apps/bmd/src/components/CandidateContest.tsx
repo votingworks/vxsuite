@@ -151,7 +151,7 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     outline: -webkit-focus-ring-color auto 0.5rem;
   }
   :before {
-    content: '${({ isSelected }) => (isSelected ? '✓' : '')}';
+    content: '${({ isSelected }) => (isSelected ? GLOBALS.CHECK_ICON : '')}';
     position: absolute;
     left: 0;
     top: 0;
@@ -165,11 +165,11 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     justify-content: center;
     align-items: center;
     font-size: 2rem;
+    font-weight: 700;
     border-radius: 0.125rem 0 0 0.125rem;
     color: #028099;
   }
   & > div {
-    word-break: break-word;
     padding: 0.5rem 0.5rem 0.5rem 4rem;
     @media (min-width: 480px) {
       padding: 1rem 1rem 1rem 4rem;
@@ -466,7 +466,8 @@ class CandidateContest extends React.Component<Props, State> {
                           className="visually-hidden"
                         />
                         <Prose>
-                          <p
+                          <Text
+                            wordBreak
                             aria-label={`${candidate.name}, ${
                               candidate.party
                             }.`}
@@ -474,7 +475,7 @@ class CandidateContest extends React.Component<Props, State> {
                             <strong>{candidate.name}</strong>
                             <br />
                             {candidate.party}
-                          </p>
+                          </Text>
                         </Prose>
                       </Choice>
                     )

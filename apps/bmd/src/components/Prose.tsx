@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 interface Props {
   textCenter?: boolean
+  compact?: boolean
 }
 
 const Prose = styled('div')<Props>`
@@ -13,23 +14,28 @@ const Prose = styled('div')<Props>`
     line-height: 1.3;
   }
   & h1 {
+    font-size: 1.5rem;
     line-height: 1.1;
     margin: 2rem 0 1rem;
   }
   & h2 {
-    margin: 1.5rem 0 1rem;
+    font-size: 1.25rem;
+    margin: 1.5rem 0 0.75rem;
   }
   & h3,
   & p {
-    margin: 1rem 0;
+    font-size: 1rem;
+    margin: ${({ compact }) => (compact ? 0 : '1rem 0')};
   }
   & h1 + h2 {
     margin-top: -0.75rem;
   }
   & h1 + p,
-  & h2 + p,
-  & h3 + p {
+  & h2 + p {
     margin-top: -0.75rem;
+  }
+  & h3 + p {
+    margin-top: ${({ compact }) => (compact ? 0 : '-1rem')};
   }
   & :first-child {
     margin-top: 0;

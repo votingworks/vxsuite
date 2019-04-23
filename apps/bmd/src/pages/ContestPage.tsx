@@ -6,10 +6,12 @@ import { CandidateVote, OptionalYesNoVote } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
 
+import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import CandidateContest from '../components/CandidateContest'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
+import Prose from '../components/Prose'
 import Text from '../components/Text'
 import YesNoContest from '../components/YesNoContest'
 
@@ -25,32 +27,43 @@ interface Props extends RouteComponentProps<ContestParams> {}
 
 const ContestPage = (props: Props) => {
   const { id } = props.match.params
-  const { election, updateVote, votes } = useContext(BallotContext)
+  const { election, resetBallot, updateVote, votes } = useContext(BallotContext)
   const { contests, bmdConfig } = election!
   const { showHelpPage, showSettingsPage } = bmdConfig!
   const currentContestIndex = contests.findIndex(x => x.id === id)
   const contest = contests[currentContestIndex]
+  if (!contest) {
+    const requestResetBallot = () => {
+      resetBallot()
+    }
+    return (
+      <Main>
+        <MainChild center>
+          <Prose textCenter>
+            <Text wordBreak>
+              The id <strong>“{id}”</strong> does not match any contest in this
+              election.
+            </Text>
+            <Button onClick={requestResetBallot}>Start Over</Button>
+          </Prose>
+        </MainChild>
+      </Main>
+    )
+  }
   const prevContest = contests[currentContestIndex - 1]
   const nextContest = contests[currentContestIndex + 1]
-  const vote = contest && votes[contest.id]
-
+  const vote = votes[contest.id]
+  let isVoteComplete = !!vote
+  if (contest.type === 'candidate') {
+    isVoteComplete = contest.seats === ((vote as CandidateVote) || []).length
+  }
+  const isReviewMode = location.hash === '#review'
   // TODO:
   // - confirm intent when navigating away without selecting a candidate
 
   return (
     <React.Fragment>
-      {!contest && (
-        <Main>
-          <MainChild>
-            <h1>Error</h1>
-            <p>
-              no contest exists for id <code>“{id}”</code>
-            </p>
-            <LinkButton to="/">Start Over</LinkButton>
-          </MainChild>
-        </Main>
-      )}
-      {contest && contest.type === 'candidate' && (
+      {contest.type === 'candidate' && (
         <CandidateContest
           key={contest.id}
           contest={contest}
@@ -58,7 +71,7 @@ const ContestPage = (props: Props) => {
           updateVote={updateVote}
         />
       )}
-      {contest && contest.type === 'yesno' && (
+      {contest.type === 'yesno' && (
         <YesNoContest
           key={contest.id}
           contest={contest}
@@ -67,43 +80,51 @@ const ContestPage = (props: Props) => {
         />
       )}
       <ButtonBar>
-        {nextContest ? (
-          <LinkButton
-            id="next"
-            key="next"
-            primary={!!vote}
-            to={`/contests/${nextContest && nextContest.id}`}
-          >
-            Next
-          </LinkButton>
+        {isReviewMode ? (
+          <React.Fragment>
+            <LinkButton
+              primary={isVoteComplete}
+              to={`/review#${contest.id}`}
+              id="next"
+            >
+              Review Ballot
+            </LinkButton>
+          </React.Fragment>
         ) : (
-          <LinkButton primary={!!vote} to="/review" key="review" id="next">
-            Next
-          </LinkButton>
+          <React.Fragment>
+            <LinkButton
+              id="next"
+              primary={isVoteComplete}
+              to={
+                nextContest
+                  ? `/contests/${nextContest && nextContest.id}`
+                  : '/pre-review'
+              }
+            >
+              Next
+            </LinkButton>
+            <LinkButton
+              id="previous"
+              to={
+                prevContest
+                  ? `/contests/${prevContest && prevContest.id}`
+                  : '/start'
+              }
+            >
+              Back
+            </LinkButton>
+            <Progress center white>
+              {currentContestIndex + 1} of {contests.length}
+            </Progress>
+          </React.Fragment>
         )}
-        {prevContest ? (
-          <LinkButton
-            id="previous"
-            to={`/contests/${prevContest && prevContest.id}`}
-            key="previous"
-          >
-            Back
-          </LinkButton>
-        ) : (
-          <LinkButton key="backtostart" to="/start" id="previous">
-            Back
-          </LinkButton>
-        )}
-        <Progress center white>
-          {currentContestIndex + 1} of {contests.length}
-        </Progress>
       </ButtonBar>
       <ButtonBar
         secondary
         separatePrimaryButton
         centerOnlyChild={!showHelpPage && !showSettingsPage && false}
       >
-        <LinkButton to="/review">Review</LinkButton>
+        <div />
         {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
         {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
       </ButtonBar>

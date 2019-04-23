@@ -1,262 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`displays accessible error if no id match 1`] = `
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: auto;
-  padding: 1rem 0.5rem 2rem;
-}
-
-.c1 {
-  width: 100%;
-  max-width: 35rem;
-  margin: 0 auto;
-}
-
-.c2 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  color: black;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.c3 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.c3 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c3 > * {
-  margin: 0.25rem;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
-.c5 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.c5 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c5 > * {
-  margin: 0.25rem;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
-.c4 {
-  color: white;
-  text-align: center;
-  -webkit-flex: 2;
-  -ms-flex: 2;
-  flex: 2;
-}
-
-@media (min-width:480px) {
-  .c0 {
-    padding: 2rem 1rem;
-  }
-}
-
-@media print {
-  .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
-  }
-}
-
-@media print {
-  .c1 {
-    max-width: 100%;
-    margin: 0;
-  }
-}
-
-@media (min-width:480px) {
-  .c3 > *:only-child {
-    margin: auto;
-    max-width: 30%;
-  }
-}
-
-@media print {
-  .c3 {
-    display: none;
-  }
-}
-
-@media (min-width:480px) {
-  .c5 > *:first-child {
-    margin-left: auto;
-  }
-}
-
-@media (min-width:480px) {
-  .c5 > * {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-  }
-}
-
-@media (min-width:480px) {
-  .c5 > *:only-child {
-    max-width: 30%;
-  }
-}
-
-@media print {
-  .c5 {
-    display: none;
-  }
-}
-
-@media print {
-  .c4 {
-    color: white;
-  }
-}
-
-<div>
-  <main
-    class="c0"
-  >
-    <div
-      class="c1"
-    >
-      <h1>
-        Error
-      </h1>
-      <p>
-        no contest exists for id 
-        <code>
-          “
-          foobar
-          ”
-        </code>
-      </p>
-      <button
-        class="c2"
-        type="button"
-      >
-        Start Over
-      </button>
-    </div>
-  </main>
-  <nav
-    class="c3"
-  >
-    <button
-      class="c2"
-      id="next"
-      type="button"
-    >
-      Next
-    </button>
-    <button
-      class="c2"
-      id="previous"
-      type="button"
-    >
-      Back
-    </button>
-    <p
-      class="c4"
-    >
-      0
-       of 
-      20
-    </p>
-  </nav>
-  <nav
-    class="c5"
-  >
-    <button
-      class="c2"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="c2"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="c2"
-      type="button"
-    >
-      Settings
-    </button>
-  </nav>
-</div>
-`;
-
 exports[`doesn't display help and settings pages if disabled 1`] = `
 .c0 {
   display: -webkit-box;
@@ -277,16 +20,19 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
 }
 
 .c2 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c2 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c2 h3,
 .c2 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -295,9 +41,12 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
 }
 
 .c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c2 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
 }
 
 .c2 :first-child {
@@ -308,7 +57,7 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   margin-bottom: 0;
 }
 
-.c11 {
+.c12 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -321,6 +70,10 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
 }
 
 .c10 {
+  word-break: break-word;
+}
+
+.c11 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -341,20 +94,20 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   align-items: center;
 }
 
-.c10 > *:first-child {
+.c11 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c10 > * {
+.c11 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c13 {
+.c14 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -378,13 +131,13 @@ exports[`doesn't display help and settings pages if disabled 1`] = `
   align-items: center;
 }
 
-.c13 > *:first-child {
+.c14 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c13 > * {
+.c14 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -506,12 +259,12 @@ button.c8 {
   -ms-flex-align: center;
   align-items: center;
   font-size: 2rem;
+  font-weight: 700;
   border-radius: 0.125rem 0 0 0.125rem;
   color: #028099;
 }
 
 .c8 > div {
-  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -519,7 +272,7 @@ button.c8 {
   margin-right: 0.5rem;
 }
 
-.c12 {
+.c13 {
   color: white;
   text-align: center;
   -webkit-flex: 2;
@@ -544,26 +297,29 @@ button.c8 {
 }
 
 @media (min-width:480px) {
-  .c10 > *:only-child {
+  .c11 > *:only-child {
     margin: auto;
-    max-width: 30%;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
   }
 }
 
 @media print {
-  .c10 {
+  .c11 {
     display: none;
   }
 }
 
 @media (min-width:480px) {
-  .c13 > *:first-child {
+  .c14 > *:first-child {
     margin-left: auto;
   }
 }
 
 @media (min-width:480px) {
-  .c13 > * {
+  .c14 > * {
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
@@ -571,13 +327,16 @@ button.c8 {
 }
 
 @media (min-width:480px) {
-  .c13 > *:only-child {
-    max-width: 30%;
+  .c14 > *:only-child {
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
   }
 }
 
 @media print {
-  .c13 {
+  .c14 {
     display: none;
   }
 }
@@ -603,7 +362,7 @@ button.c8 {
 }
 
 @media print {
-  .c12 {
+  .c13 {
     color: white;
   }
 }
@@ -672,6 +431,7 @@ button.c8 {
               >
                 <p
                   aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                  class="c10"
                 >
                   <strong>
                     Joseph Barchi and Joseph Hallaren
@@ -697,6 +457,7 @@ button.c8 {
               >
                 <p
                   aria-label="Adam Cramer and Greg Vuocolo, People's."
+                  class="c10"
                 >
                   <strong>
                     Adam Cramer and Greg Vuocolo
@@ -722,6 +483,7 @@ button.c8 {
               >
                 <p
                   aria-label="Daniel Court and Amy Blumhardt, Liberty."
+                  class="c10"
                 >
                   <strong>
                     Daniel Court and Amy Blumhardt
@@ -747,6 +509,7 @@ button.c8 {
               >
                 <p
                   aria-label="Alvin Boone and James Lian, Constitution."
+                  class="c10"
                 >
                   <strong>
                     Alvin Boone and James Lian
@@ -772,6 +535,7 @@ button.c8 {
               >
                 <p
                   aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
+                  class="c10"
                 >
                   <strong>
                     Ashley Hildebrand-McDougall and James Garritty
@@ -797,6 +561,7 @@ button.c8 {
               >
                 <p
                   aria-label="Martin Patterson and Clay Lariviere, Labor."
+                  class="c10"
                 >
                   <strong>
                     Martin Patterson and Clay Lariviere
@@ -812,24 +577,24 @@ button.c8 {
     </div>
   </main>
   <nav
-    class="c10"
+    class="c11"
   >
     <button
-      class="c11"
+      class="c12"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="c11"
+      class="c12"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="c12"
+      class="c13"
     >
       1
        of 
@@ -837,14 +602,9 @@ button.c8 {
     </p>
   </nav>
   <nav
-    class="c13"
+    class="c14"
   >
-    <button
-      class="c11"
-      type="button"
-    >
-      Review
-    </button>
+    <div />
   </nav>
 </div>
 `;
@@ -869,16 +629,19 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c2 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c2 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c2 h3,
 .c2 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -887,9 +650,12 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c2 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
 }
 
 .c2 :first-child {
@@ -900,7 +666,7 @@ exports[`renders ContestPage 1`] = `
   margin-bottom: 0;
 }
 
-.c11 {
+.c12 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -913,6 +679,10 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c10 {
+  word-break: break-word;
+}
+
+.c11 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -933,20 +703,20 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c10 > *:first-child {
+.c11 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c10 > * {
+.c11 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c13 {
+.c14 {
   -webkit-order: -1;
   -ms-flex-order: -1;
   order: -1;
@@ -970,13 +740,13 @@ exports[`renders ContestPage 1`] = `
   align-items: center;
 }
 
-.c13 > *:first-child {
+.c14 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c13 > * {
+.c14 > * {
   margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
@@ -1098,12 +868,12 @@ button.c8 {
   -ms-flex-align: center;
   align-items: center;
   font-size: 2rem;
+  font-weight: 700;
   border-radius: 0.125rem 0 0 0.125rem;
   color: #028099;
 }
 
 .c8 > div {
-  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -1111,7 +881,7 @@ button.c8 {
   margin-right: 0.5rem;
 }
 
-.c12 {
+.c13 {
   color: white;
   text-align: center;
   -webkit-flex: 2;
@@ -1136,26 +906,29 @@ button.c8 {
 }
 
 @media (min-width:480px) {
-  .c10 > *:only-child {
+  .c11 > *:only-child {
     margin: auto;
-    max-width: 30%;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
   }
 }
 
 @media print {
-  .c10 {
+  .c11 {
     display: none;
   }
 }
 
 @media (min-width:480px) {
-  .c13 > *:first-child {
+  .c14 > *:first-child {
     margin-left: auto;
   }
 }
 
 @media (min-width:480px) {
-  .c13 > * {
+  .c14 > * {
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
@@ -1163,13 +936,16 @@ button.c8 {
 }
 
 @media (min-width:480px) {
-  .c13 > *:only-child {
-    max-width: 30%;
+  .c14 > *:only-child {
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
   }
 }
 
 @media print {
-  .c13 {
+  .c14 {
     display: none;
   }
 }
@@ -1195,7 +971,7 @@ button.c8 {
 }
 
 @media print {
-  .c12 {
+  .c13 {
     color: white;
   }
 }
@@ -1264,6 +1040,7 @@ button.c8 {
               >
                 <p
                   aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                  class="c10"
                 >
                   <strong>
                     Joseph Barchi and Joseph Hallaren
@@ -1289,6 +1066,7 @@ button.c8 {
               >
                 <p
                   aria-label="Adam Cramer and Greg Vuocolo, People's."
+                  class="c10"
                 >
                   <strong>
                     Adam Cramer and Greg Vuocolo
@@ -1314,6 +1092,7 @@ button.c8 {
               >
                 <p
                   aria-label="Daniel Court and Amy Blumhardt, Liberty."
+                  class="c10"
                 >
                   <strong>
                     Daniel Court and Amy Blumhardt
@@ -1339,6 +1118,7 @@ button.c8 {
               >
                 <p
                   aria-label="Alvin Boone and James Lian, Constitution."
+                  class="c10"
                 >
                   <strong>
                     Alvin Boone and James Lian
@@ -1364,6 +1144,7 @@ button.c8 {
               >
                 <p
                   aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
+                  class="c10"
                 >
                   <strong>
                     Ashley Hildebrand-McDougall and James Garritty
@@ -1389,6 +1170,7 @@ button.c8 {
               >
                 <p
                   aria-label="Martin Patterson and Clay Lariviere, Labor."
+                  class="c10"
                 >
                   <strong>
                     Martin Patterson and Clay Lariviere
@@ -1404,24 +1186,24 @@ button.c8 {
     </div>
   </main>
   <nav
-    class="c10"
+    class="c11"
   >
     <button
-      class="c11"
+      class="c12"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="c11"
+      class="c12"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="c12"
+      class="c13"
     >
       1
        of 
@@ -1429,22 +1211,17 @@ button.c8 {
     </p>
   </nav>
   <nav
-    class="c13"
+    class="c14"
   >
+    <div />
     <button
-      class="c11"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="c11"
+      class="c12"
       type="button"
     >
       Help
     </button>
     <button
-      class="c11"
+      class="c12"
       type="button"
     >
       Settings
@@ -1470,12 +1247,56 @@ exports[`renders error if no id match 1`] = `
 }
 
 .c1 {
-  width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
+  margin: auto auto;
 }
 
 .c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+  text-align: center;
+  margin: auto;
+}
+
+.c2 h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.c2 h3,
+.c2 p {
+  font-size: 1rem;
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
+}
+
+.c2 :first-child {
+  margin-top: 0;
+}
+
+.c2 :last-child {
+  margin-bottom: 0;
+}
+
+.c4 {
   box-sizing: border-box;
   cursor: pointer;
   background: lightgrey;
@@ -1488,82 +1309,7 @@ exports[`renders error if no id match 1`] = `
 }
 
 .c3 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.c3 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c3 > * {
-  margin: 0.25rem;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
-.c5 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.c5 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c5 > * {
-  margin: 0.25rem;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
-.c4 {
-  color: white;
-  text-align: center;
-  -webkit-flex: 2;
-  -ms-flex: 2;
-  flex: 2;
+  word-break: break-word;
 }
 
 @media (min-width:480px) {
@@ -1590,47 +1336,8 @@ exports[`renders error if no id match 1`] = `
 }
 
 @media (min-width:480px) {
-  .c3 > *:only-child {
-    margin: auto;
-    max-width: 30%;
-  }
-}
-
-@media print {
-  .c3 {
-    display: none;
-  }
-}
-
-@media (min-width:480px) {
-  .c5 > *:first-child {
-    margin-left: auto;
-  }
-}
-
-@media (min-width:480px) {
-  .c5 > * {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-  }
-}
-
-@media (min-width:480px) {
-  .c5 > *:only-child {
-    max-width: 30%;
-  }
-}
-
-@media print {
-  .c5 {
-    display: none;
-  }
-}
-
-@media print {
-  .c4 {
-    color: white;
+  .c2 {
+    line-height: 1.3;
   }
 }
 
@@ -1641,71 +1348,28 @@ exports[`renders error if no id match 1`] = `
     <div
       class="c1"
     >
-      <h1>
-        Error
-      </h1>
-      <p>
-        no contest exists for id 
-        <code>
-          “
-          foobar
-          ”
-        </code>
-      </p>
-      <button
+      <div
         class="c2"
-        type="button"
       >
-        Start Over
-      </button>
+        <p
+          class="c3"
+        >
+          The id 
+          <strong>
+            “
+            foobar
+            ”
+          </strong>
+           does not match any contest in this election.
+        </p>
+        <button
+          class="c4"
+          type="button"
+        >
+          Start Over
+        </button>
+      </div>
     </div>
   </main>
-  <nav
-    class="c3"
-  >
-    <button
-      class="c2"
-      id="next"
-      type="button"
-    >
-      Next
-    </button>
-    <button
-      class="c2"
-      id="previous"
-      type="button"
-    >
-      Back
-    </button>
-    <p
-      class="c4"
-    >
-      0
-       of 
-      20
-    </p>
-  </nav>
-  <nav
-    class="c5"
-  >
-    <button
-      class="c2"
-      type="button"
-    >
-      Review
-    </button>
-    <button
-      class="c2"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="c2"
-      type="button"
-    >
-      Settings
-    </button>
-  </nav>
 </div>
 `;

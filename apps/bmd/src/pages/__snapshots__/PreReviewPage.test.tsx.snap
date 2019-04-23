@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders HelpPage 1`] = `
+exports[`renders PreReviewPage 1`] = `
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -100,13 +100,15 @@ exports[`renders HelpPage 1`] = `
     class="c1"
   >
     <div
-      class="c2"
+      class="no-print c2"
     >
-      <h1>
-        Help
+      <h1
+        aria-label="Pre Review Screen."
+      >
+        Pre Review Screen
       </h1>
       <p>
-        Help content will be available here.
+        Time to go into review mode.
       </p>
     </div>
   </div>
