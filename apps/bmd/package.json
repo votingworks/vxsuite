@@ -98,7 +98,7 @@
     "lint-staged": "^8.1.5",
     "prettier": "^1.17.0",
     "react-testing-library": "^6.1.2",
-    "start-server-and-test": "^1.7.13",
+    "start-server-and-test": "^1.9.0",
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0"
