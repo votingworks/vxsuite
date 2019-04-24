@@ -1,22 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports yes/no contest allows voting for both yes and no 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
 .c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
 .c2 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c2 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c2 h3,
 .c2 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -25,9 +41,12 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 }
 
 .c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c2 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
 }
 
 .c2 :first-child {
@@ -38,17 +57,8 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   margin-bottom: 0;
 }
 
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+.c12 {
+  word-break: break-word;
 }
 
 .c1 {
@@ -183,12 +193,21 @@ button.c10 {
 }
 
 .c10 > div {
-  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c11 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {
@@ -242,14 +261,14 @@ button.c10 {
         class="c2"
       >
         <h1
-          aria-label="County, Prop 1."
+          aria-label="County, Prop 1: Garbage Collection Program."
         >
           <div
             class="c3"
           >
             County
           </div>
-          Prop 1
+          Prop 1: Garbage Collection Program
         </h1>
         <p>
           <strong>
@@ -303,7 +322,9 @@ button.c10 {
           <div
             class="c2"
           >
-            <p>
+            <p
+              class="c12"
+            >
               Yes
             </p>
           </div>
@@ -322,7 +343,9 @@ button.c10 {
           <div
             class="c2"
           >
-            <p>
+            <p
+              class="c12"
+            >
               No
             </p>
           </div>
@@ -334,22 +357,38 @@ button.c10 {
 `;
 
 exports[`supports yes/no contest displays warning when attempting to change vote 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
 .c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
 .c2 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c2 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c2 h3,
 .c2 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -358,9 +397,12 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 }
 
 .c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c2 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
 }
 
 .c2 :first-child {
@@ -371,17 +413,8 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   margin-bottom: 0;
 }
 
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+.c12 {
+  word-break: break-word;
 }
 
 .c1 {
@@ -463,7 +496,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   grid-gap: 0.75rem;
 }
 
-.c12 {
+.c13 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -479,15 +512,15 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   transition: background 0.25s,color 0.25s;
 }
 
-button.c12 {
+button.c13 {
   text-align: left;
 }
 
-.c12:focus-within {
+.c13:focus-within {
   outline: -webkit-focus-ring-color auto 0.5rem;
 }
 
-.c12:before {
+.c13:before {
   content: '';
   position: absolute;
   left: 0;
@@ -515,8 +548,7 @@ button.c12 {
   color: #028099;
 }
 
-.c12 > div {
-  word-break: break-word;
+.c13 > div {
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -574,12 +606,21 @@ button.c10 {
 }
 
 .c10 > div {
-  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c11 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {
@@ -616,7 +657,7 @@ button.c10 {
 }
 
 @media (min-width:480px) {
-  .c12 > div {
+  .c13 > div {
     padding: 1rem 1rem 1rem inherit;
   }
 }
@@ -639,14 +680,14 @@ button.c10 {
         class="c2"
       >
         <h1
-          aria-label="County, Prop 1."
+          aria-label="County, Prop 1: Garbage Collection Program."
         >
           <div
             class="c3"
           >
             County
           </div>
-          Prop 1
+          Prop 1: Garbage Collection Program
         </h1>
         <p>
           <strong>
@@ -701,13 +742,15 @@ button.c10 {
           <div
             class="c2"
           >
-            <p>
+            <p
+              class="c12"
+            >
               Yes
             </p>
           </div>
         </label>
         <label
-          class="c12"
+          class="c13"
           for="no"
         >
           <input
@@ -720,7 +763,9 @@ button.c10 {
           <div
             class="c2"
           >
-            <p>
+            <p
+              class="c12"
+            >
               No
             </p>
           </div>

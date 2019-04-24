@@ -17,9 +17,8 @@ exports[`renders Main with child 1`] = `
 }
 
 .c1 {
-  width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
+  margin: 0 0;
 }
 
 @media (min-width:480px) {
@@ -73,7 +72,6 @@ exports[`renders centered content 1`] = `
 }
 
 .c1 {
-  width: 100%;
   max-width: 35rem;
   margin: auto auto;
 }
@@ -129,7 +127,6 @@ exports[`renders not centered content 1`] = `
 }
 
 .c1 {
-  width: 100%;
   max-width: 35rem;
   margin: 0 0;
 }

@@ -16,9 +16,11 @@ const HelpPage = () => {
           </Prose>
         </MainChild>
       </Main>
-      <ButtonBar secondary>
+      <ButtonBar>
         <div />
         <LinkButton goBack>Back</LinkButton>
+        <div />
+        <div />
       </ButtonBar>
     </>
   )

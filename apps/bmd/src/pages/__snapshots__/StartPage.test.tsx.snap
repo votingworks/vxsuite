@@ -17,7 +17,6 @@ exports[`renders StartPage 1`] = `
 }
 
 .c1 {
-  width: 100%;
   max-width: 35rem;
   margin: auto auto;
 }
@@ -30,16 +29,19 @@ exports[`renders StartPage 1`] = `
 }
 
 .c3 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c3 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c3 h3,
 .c3 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -48,9 +50,12 @@ exports[`renders StartPage 1`] = `
 }
 
 .c3 h1 + p,
-.c3 h2 + p,
-.c3 h3 + p {
+.c3 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c3 h3 + p {
+  margin-top: -1rem;
 }
 
 .c3 :first-child {
@@ -75,7 +80,7 @@ exports[`renders StartPage 1`] = `
 
 .c2 {
   max-width: 320px;
-  margin: auto;
+  margin: 0 auto 1rem;
 }
 
 @media (min-width:480px) {

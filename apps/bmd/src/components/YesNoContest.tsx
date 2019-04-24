@@ -15,19 +15,15 @@ import BallotContext from '../contexts/ballotContext'
 
 import GLOBALS from '../config/globals'
 import Button from './Button'
+import Main from './Main'
 import Modal from './Modal'
 import Prose from './Prose'
-import { TextWithLineBreaks } from './Text'
+import Text, { TextWithLineBreaks } from './Text'
 
 const tabletMinWidth = 720
 const votes = GLOBALS.YES_NO_VOTES
 
-const ContestMain = styled.main`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-`
-const ContestHeader = styled.div`
+const ContentHeader = styled.div`
   width: 100%;
   max-width: 35rem;
   margin: 0px auto;
@@ -59,8 +55,8 @@ const ContestFooter = styled.div`
   }
 `
 const VariableContentContainer = styled.div<{
-  showBottomShadow?: boolean
-  showTopShadow?: boolean
+  showBottomShadow: boolean
+  showTopShadow: boolean
 }>`
   display: flex;
   flex: 1;
@@ -187,7 +183,6 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     color: #028099;
   }
   & > div {
-    word-break: break-word;
     padding: 0.5rem 0.5rem 0.5rem 4rem;
     @media (min-width: 480px) {
       padding: 1rem 1rem 1rem inherit;
@@ -321,8 +316,8 @@ export default class YesNoContest extends React.Component<Props> {
     const { isScrollable, isScrollAtBottom, isScrollAtTop } = this.state
     return (
       <React.Fragment>
-        <ContestMain>
-          <ContestHeader id="contest-header">
+        <Main noOverflow noPadding>
+          <ContentHeader id="contest-header">
             <Prose>
               <h1 aria-label={`${contest.section}, ${contest.title}.`}>
                 <ContestSection>{contest.section}</ContestSection>
@@ -332,7 +327,7 @@ export default class YesNoContest extends React.Component<Props> {
                 <strong>Vote Yes or No.</strong>
               </p>
             </Prose>
-          </ContestHeader>
+          </ContentHeader>
           <VariableContentContainer
             showTopShadow={!isScrollAtTop}
             showBottomShadow={!isScrollAtBottom}
@@ -403,14 +398,14 @@ export default class YesNoContest extends React.Component<Props> {
                       className="visually-hidden"
                     />
                     <Prose>
-                      <p>{answer}</p>
+                      <Text wordBreak>{answer}</Text>
                     </Prose>
                   </Choice>
                 )
               })}
             </ChoicesGrid>
           </ContestFooter>
-        </ContestMain>
+        </Main>
         <Modal
           isOpen={!!overvoteSelection}
           content={

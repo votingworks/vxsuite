@@ -44,6 +44,7 @@ export interface CandidateContest extends Contest {
 export interface YesNoContest extends Contest {
   readonly type: 'yesno'
   readonly description: string
+  readonly shortTitle: string
 }
 
 // Election

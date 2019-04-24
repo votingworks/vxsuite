@@ -1,22 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports multi-seat contests allows a second candidate to be selected when one is selected 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
 .c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
 .c2 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c2 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c2 h3,
 .c2 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -25,9 +41,12 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 }
 
 .c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c2 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
 }
 
 .c2 :first-child {
@@ -38,17 +57,8 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   margin-bottom: 0;
 }
 
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+.c10 {
+  word-break: break-word;
 }
 
 .c1 {
@@ -119,7 +129,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   grid-gap: 0.75rem;
 }
 
-.c10 {
+.c11 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -134,15 +144,15 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   transition: background 0.25s,color 0.25s;
 }
 
-button.c10 {
+button.c11 {
   text-align: left;
 }
 
-.c10:focus-within {
+.c11:focus-within {
   outline: -webkit-focus-ring-color auto 0.5rem;
 }
 
-.c10:before {
+.c11:before {
   content: '';
   position: absolute;
   left: 0;
@@ -166,12 +176,12 @@ button.c10 {
   -ms-flex-align: center;
   align-items: center;
   font-size: 2rem;
+  font-weight: 700;
   border-radius: 0.125rem 0 0 0.125rem;
   color: #028099;
 }
 
-.c10 > div {
-  word-break: break-word;
+.c11 > div {
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -223,17 +233,27 @@ button.c8 {
   -ms-flex-align: center;
   align-items: center;
   font-size: 2rem;
+  font-weight: 700;
   border-radius: 0.125rem 0 0 0.125rem;
   color: #028099;
 }
 
 .c8 > div {
-  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c9 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {
@@ -257,14 +277,14 @@ button.c8 {
 }
 
 @media (min-width:480px) {
-  .c10 > div {
-    padding: 1rem 1rem 1rem inherit;
+  .c11 > div {
+    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
 @media (min-width:480px) {
   .c8 > div {
-    padding: 1rem 1rem 1rem inherit;
+    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -333,6 +353,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 0, Party 0."
+                  class="c10"
                 >
                   <strong>
                     Name 0
@@ -343,7 +364,7 @@ button.c8 {
               </div>
             </label>
             <label
-              class="c10"
+              class="c11"
               for="name-1"
             >
               <input
@@ -358,6 +379,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 1, Party 1."
+                  class="c10"
                 >
                   <strong>
                     Name 1
@@ -368,7 +390,7 @@ button.c8 {
               </div>
             </label>
             <label
-              class="c10"
+              class="c11"
               for="name-2"
             >
               <input
@@ -383,6 +405,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 2, Party 0."
+                  class="c10"
                 >
                   <strong>
                     Name 2
@@ -401,22 +424,38 @@ button.c8 {
 `;
 
 exports[`supports single-seat contest allows any candidate to be selected when no candidate is selected 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
 .c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
 .c2 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c2 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c2 h3,
 .c2 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -425,9 +464,12 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 }
 
 .c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c2 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
 }
 
 .c2 :first-child {
@@ -438,17 +480,8 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   margin-bottom: 0;
 }
 
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+.c10 {
+  word-break: break-word;
 }
 
 .c1 {
@@ -566,17 +599,27 @@ button.c8 {
   -ms-flex-align: center;
   align-items: center;
   font-size: 2rem;
+  font-weight: 700;
   border-radius: 0.125rem 0 0 0.125rem;
   color: #028099;
 }
 
 .c8 > div {
-  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c9 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {
@@ -601,7 +644,7 @@ button.c8 {
 
 @media (min-width:480px) {
   .c8 > div {
-    padding: 1rem 1rem 1rem inherit;
+    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -669,6 +712,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 0, Party 0."
+                  class="c10"
                 >
                   <strong>
                     Name 0
@@ -694,6 +738,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 1, Party 1."
+                  class="c10"
                 >
                   <strong>
                     Name 1
@@ -719,6 +764,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 2, Party 0."
+                  class="c10"
                 >
                   <strong>
                     Name 2
@@ -737,22 +783,38 @@ button.c8 {
 `;
 
 exports[`supports single-seat contest doesn't allow other candidates to be selected when a candidate is selected 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
 .c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
 .c2 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c2 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c2 h3,
 .c2 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -761,9 +823,12 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 }
 
 .c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c2 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
 }
 
 .c2 :first-child {
@@ -774,17 +839,8 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   margin-bottom: 0;
 }
 
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+.c10 {
+  word-break: break-word;
 }
 
 .c1 {
@@ -855,7 +911,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   grid-gap: 0.75rem;
 }
 
-.c10 {
+.c11 {
   cursor: pointer;
   position: relative;
   display: grid;
@@ -870,15 +926,15 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   transition: background 0.25s,color 0.25s;
 }
 
-button.c10 {
+button.c11 {
   text-align: left;
 }
 
-.c10:focus-within {
+.c11:focus-within {
   outline: -webkit-focus-ring-color auto 0.5rem;
 }
 
-.c10:before {
+.c11:before {
   content: '';
   position: absolute;
   left: 0;
@@ -902,12 +958,12 @@ button.c10 {
   -ms-flex-align: center;
   align-items: center;
   font-size: 2rem;
+  font-weight: 700;
   border-radius: 0.125rem 0 0 0.125rem;
   color: #028099;
 }
 
-.c10 > div {
-  word-break: break-word;
+.c11 > div {
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
@@ -959,17 +1015,27 @@ button.c8 {
   -ms-flex-align: center;
   align-items: center;
   font-size: 2rem;
+  font-weight: 700;
   border-radius: 0.125rem 0 0 0.125rem;
   color: #028099;
 }
 
 .c8 > div {
-  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c9 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {
@@ -993,14 +1059,14 @@ button.c8 {
 }
 
 @media (min-width:480px) {
-  .c10 > div {
-    padding: 1rem 1rem 1rem inherit;
+  .c11 > div {
+    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
 @media (min-width:480px) {
   .c8 > div {
-    padding: 1rem 1rem 1rem inherit;
+    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -1069,6 +1135,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 0, Party 0."
+                  class="c10"
                 >
                   <strong>
                     Name 0
@@ -1079,7 +1146,7 @@ button.c8 {
               </div>
             </label>
             <label
-              class="c10"
+              class="c11"
               for="name-1"
             >
               <input
@@ -1094,6 +1161,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 1, Party 1."
+                  class="c10"
                 >
                   <strong>
                     Name 1
@@ -1104,7 +1172,7 @@ button.c8 {
               </div>
             </label>
             <label
-              class="c10"
+              class="c11"
               for="name-2"
             >
               <input
@@ -1119,6 +1187,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 2, Party 0."
+                  class="c10"
                 >
                   <strong>
                     Name 2
@@ -1137,22 +1206,38 @@ button.c8 {
 `;
 
 exports[`supports write-in candidates displays warning if write-in candidate name is too long 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
 .c2 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
 .c2 h1 {
+  font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
 .c2 h2 {
-  margin: 1.5rem 0 1rem;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
 }
 
 .c2 h3,
 .c2 p {
+  font-size: 1rem;
   margin: 1rem 0;
 }
 
@@ -1161,9 +1246,12 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 }
 
 .c2 h1 + p,
-.c2 h2 + p,
-.c2 h3 + p {
+.c2 h2 + p {
   margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
 }
 
 .c2 :first-child {
@@ -1174,17 +1262,8 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   margin-bottom: 0;
 }
 
-.c0 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+.c10 {
+  word-break: break-word;
 }
 
 .c1 {
@@ -1302,17 +1381,27 @@ button.c8 {
   -ms-flex-align: center;
   align-items: center;
   font-size: 2rem;
+  font-weight: 700;
   border-radius: 0.125rem 0 0 0.125rem;
   color: #028099;
 }
 
 .c8 > div {
-  word-break: break-word;
   padding: 0.5rem 0.5rem 0.5rem 4rem;
 }
 
 .c9 {
   margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 @media (min-width:480px) {
@@ -1337,7 +1426,7 @@ button.c8 {
 
 @media (min-width:480px) {
   .c8 > div {
-    padding: 1rem 1rem 1rem inherit;
+    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -1407,6 +1496,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 0, Party 0."
+                  class="c10"
                 >
                   <strong>
                     Name 0
@@ -1432,6 +1522,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 1, Party 1."
+                  class="c10"
                 >
                   <strong>
                     Name 1
@@ -1457,6 +1548,7 @@ button.c8 {
               >
                 <p
                   aria-label="Name 2, Party 0."
+                  class="c10"
                 >
                   <strong>
                     Name 2

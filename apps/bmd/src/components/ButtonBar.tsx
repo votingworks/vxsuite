@@ -38,7 +38,8 @@ const ButtonBar = styled('nav')<Props>`
     @media (min-width: 480px) {
       margin: ${({ centerOnlyChild = true }) =>
         centerOnlyChild ? 'auto' : undefined};
-      max-width: 30%;
+      min-width: 33.333%;
+      flex: 0;
     }
   }
   @media print {

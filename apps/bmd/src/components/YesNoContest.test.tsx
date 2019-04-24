@@ -9,7 +9,8 @@ const contest: YesNoContestInterface = {
   description: 'description',
   id: 'contest-id',
   section: 'County',
-  title: 'Prop 1',
+  shortTitle: 'Prop 1',
+  title: 'Prop 1: Garbage Collection Program',
   type: 'yesno',
 }
 

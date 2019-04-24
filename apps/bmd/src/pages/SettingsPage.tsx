@@ -19,7 +19,7 @@ import Text from '../components/Text'
 const SettingLabel = styled.label`
   display: block;
   margin: 1.5rem 0 1rem;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: bold;
 `
 const FontSizeControlsContainer = styled.div`
@@ -105,9 +105,11 @@ const SettingsPage = () => {
           </Prose>
         </MainChild>
       </Main>
-      <ButtonBar secondary>
+      <ButtonBar>
         <div />
         <LinkButton goBack>Back</LinkButton>
+        <div />
+        <div />
       </ButtonBar>
       <Modal
         isOpen={showResetBallotAlert}

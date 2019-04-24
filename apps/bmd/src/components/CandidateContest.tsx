@@ -19,18 +19,14 @@ import BallotContext from '../contexts/ballotContext'
 
 import GLOBALS from '../config/globals'
 import Button from './Button'
+import Main from './Main'
 import Modal from './Modal'
 import Prose from './Prose'
 import Text from './Text'
 
 const tabletMinWidth = 720
 
-const ContestMain = styled.main`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-`
-const ContestHeader = styled.div`
+const ContentHeader = styled.div`
   width: 100%;
   max-width: 35rem;
   margin: 0px auto;
@@ -46,8 +42,8 @@ const ContestSection = styled.div`
   text-transform: uppercase;
 `
 const VariableContentContainer = styled.div<{
-  showBottomShadow?: boolean
-  showTopShadow?: boolean
+  showBottomShadow: boolean
+  showTopShadow: boolean
 }>`
   display: flex;
   flex: 1;
@@ -155,7 +151,7 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     outline: -webkit-focus-ring-color auto 0.5rem;
   }
   :before {
-    content: '${({ isSelected }) => (isSelected ? '✓' : '')}';
+    content: '${({ isSelected }) => (isSelected ? GLOBALS.CHECK_ICON : '')}';
     position: absolute;
     left: 0;
     top: 0;
@@ -169,14 +165,14 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     justify-content: center;
     align-items: center;
     font-size: 2rem;
+    font-weight: 700;
     border-radius: 0.125rem 0 0 0.125rem;
     color: #028099;
   }
   & > div {
-    word-break: break-word;
     padding: 0.5rem 0.5rem 0.5rem 4rem;
     @media (min-width: 480px) {
-      padding: 1rem 1rem 1rem inherit;
+      padding: 1rem 1rem 1rem 4rem;
     }
   }
 `
@@ -416,8 +412,8 @@ class CandidateContest extends React.Component<Props, State> {
     const maxWriteInCandidateLength = 40
     return (
       <React.Fragment>
-        <ContestMain>
-          <ContestHeader id="contest-header">
+        <Main noOverflow noPadding>
+          <ContentHeader id="contest-header">
             <Prose>
               <h1 aria-label={`${contest.section}, ${contest.title}.`}>
                 <ContestSection>{contest.section}</ContestSection>
@@ -428,7 +424,7 @@ class CandidateContest extends React.Component<Props, State> {
                 {vote.length}.
               </p>
             </Prose>
-          </ContestHeader>
+          </ContentHeader>
           <VariableContentContainer
             showTopShadow={!isScrollAtTop}
             showBottomShadow={!isScrollAtBottom}
@@ -470,7 +466,8 @@ class CandidateContest extends React.Component<Props, State> {
                           className="visually-hidden"
                         />
                         <Prose>
-                          <p
+                          <Text
+                            wordBreak
                             aria-label={`${candidate.name}, ${
                               candidate.party
                             }.`}
@@ -478,7 +475,7 @@ class CandidateContest extends React.Component<Props, State> {
                             <strong>{candidate.name}</strong>
                             <br />
                             {candidate.party}
-                          </p>
+                          </Text>
                         </Prose>
                       </Choice>
                     )
@@ -546,7 +543,7 @@ class CandidateContest extends React.Component<Props, State> {
               </ScrollControls>
             )}
           </VariableContentContainer>
-        </ContestMain>
+        </Main>
         <Modal
           isOpen={!!attemptedOvervoteCandidate}
           content={

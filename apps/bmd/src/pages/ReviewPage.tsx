@@ -1,22 +1,23 @@
+import pluralize from 'pluralize'
 import React from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { Link, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
+  ButtonEvent,
   Candidate,
   CandidateContest,
   CandidateVote,
   OptionalYesNoVote,
+  ScrollDirections,
   YesNoContest,
   YesNoVote,
 } from '../config/types'
 
-import { Barcode } from '../assets/BarCodes'
-import Button from '../components/Button'
+import Button, { DecoyButton } from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
-import Main, { MainChild } from '../components/Main'
-import Modal from '../components/Modal'
+import Main from '../components/Main'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
 import GLOBALS from '../config/globals'
@@ -24,218 +25,306 @@ import BallotContext from '../contexts/ballotContext'
 
 const tabletMinWidth = 768
 
-const Ballot = styled.section`
-  display: flex;
-  flex-direction: column;
-  margin-top: 1rem;
-  padding: 1rem 0.5rem;
-  background: white;
-  @media (min-width: ${tabletMinWidth}px), print {
-    margin-top: 2rem;
-    padding: 2rem;
+const ContentHeader = styled.div`
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 0.5rem 0.5rem;
+  @media (min-width: ${tabletMinWidth}px) {
+    padding: 0.5rem 1rem;
   }
-  @media print {
-    min-height: 11in;
-    margin: 0;
-    padding: 0.5in;
-    font-size: 16px;
+`
+const ContentFooter = styled.div`
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 0.5rem 0.5rem;
+  @media (min-width: ${tabletMinWidth}px) {
+    padding: 0.5rem 1rem;
+  }
+`
+const VariableContentContainer = styled.div<{
+  showBottomShadow: boolean
+  showTopShadow: boolean
+}>`
+  display: flex;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  &:before,
+  &:after {
+    content: '';
+    z-index: 1;
+    transition: opacity 0.25s ease;
+    position: absolute;
+    height: 0.25rem;
+    width: 100%;
+  }
+  &:before {
+    top: 0;
+    opacity: ${({ showTopShadow }) =>
+      showTopShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
+    background: linear-gradient(
+      to bottom,
+      rgb(177, 186, 190) 0%,
+      transparent 100%
+    );
+  }
+  &:after {
+    bottom: 0;
+    opacity: ${({ showBottomShadow }) =>
+      showBottomShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgb(177, 186, 190) 100%
+    );
+  }
+`
+const ScrollContainer = styled.div`
+  flex: 1;
+  overflow: auto;
+`
+const ScrollableContentWrapper = styled.div<{
+  isScrollable: boolean
+}>`
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 1rem;
+  @media (min-width: ${tabletMinWidth}px) {
+    padding-right: 1rem;
+    padding-left: 1rem;
   }
 `
 
-const Header = styled.div`
+const Contest = styled(Link)`
+  color: inherit;
+  text-decoration: inherit;
   display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
   align-items: center;
-  text-align: center;
-  @media (min-width: ${tabletMinWidth}px), print {
-    text-align: left;
-    flex-direction: row;
-  }
-  & > .seal {
-    width: 150px;
-    align-self: flex-start;
-    margin: 0 auto 0.5rem;
-    @media (min-width: ${tabletMinWidth}px), print {
-      width: 175px;
-      margin: 0;
-    }
-    @media print {
-      width: 1.5in;
-      margin: 0;
-    }
-  }
-  & h2 {
+  margin-bottom: 0.75rem;
+  &:last-child {
     margin-bottom: 0;
   }
-  & h3 {
-    margin-top: 0;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
+    0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
+    0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
+  border-radius: 0.125rem;
+  background: white;
+  button& {
+    cursor: pointer;
+    text-align: left;
   }
-  & > .ballot-header-content {
-    flex: 1;
-    @media (min-width: ${tabletMinWidth}px), print {
-      margin-left: 1rem;
-    }
-    @media (min-width: ${tabletMinWidth}px), print {
-      max-width: 100%;
-    }
-  }
-`
-
-const BarCodeContainer = styled.div`
-  margin: 1rem 0 -0.75rem;
-  @media (min-width: 480px), print {
-    width: 50%;
+  padding: 0.375rem 0.5rem;
+  @media (min-width: 480px) {
+    padding: 0.75rem 1rem;
   }
 `
-
-const Content = styled.div`
+const ContestProse = styled(Prose)`
   flex: 1;
-`
-
-const BallotSelections = styled.dl`
-  border-bottom: 1px solid lightgrey;
-  padding-bottom: 0.5rem;
-`
-
-const ContestHeader = styled.dt`
-  margin-top: 0.5rem;
-  border-top: 1px solid lightgrey;
-  padding-top: 0.5rem;
-  & > .change-button {
-    float: right;
+  & > h3 {
+    font-weight: normal;
   }
 `
-
-const ContestHeading = styled.span`
-  font-size: 0.8rem;
+const ContestActions = styled.div`
+  display: none;
+  padding-left: 2rem;
+  @media (min-width: 480px) {
+    display: block;
+  }
 `
-
-const ContestSelection = styled.dd`
-  margin: 0;
-  word-break: break-word;
-`
-
 const NoSelection = (props: { title: string }) => (
-  <ContestSelection>
-    <Text as="strong" muted aria-label={`No selection for ${props.title}.`}>
-      [no selection]
-    </Text>
-  </ContestSelection>
+  <Text
+    aria-label={`No selection was made for ${props.title}.`}
+    bold
+    warning
+    warningIcon
+    wordBreak
+  >
+    No selection was made for this contest.
+  </Text>
 )
 
-const CandidateContestResult = (props: {
+const CandidateContestResult = ({
+  contest,
+  vote = [],
+}: {
   contest: CandidateContest
   vote: CandidateVote
-}) =>
-  props.vote === undefined || props.vote.length === 0 ? (
-    <NoSelection title={props.contest.title} />
+}) => {
+  const remainingChoices = contest.seats - vote.length
+  return vote === undefined || vote.length === 0 ? (
+    <NoSelection title={contest.title} />
   ) : (
     <React.Fragment>
-      {props.vote.map(
-        (candidate: Candidate, index: number, array: CandidateVote) => (
-          <ContestSelection
-            key={candidate.id}
-            aria-label={`${candidate.name}${
-              candidate.party ? `, ${candidate.party}` : ''
-            }${candidate.isWriteIn ? `, write-in` : ''}${
-              array.length - 1 === index ? '.' : ','
-            }`}
-          >
-            <strong>{candidate.name}</strong>{' '}
-            {candidate.party && `/ ${candidate.party}`}
-            {candidate.isWriteIn && `(write-in)`}
-          </ContestSelection>
-        )
+      {vote.map((candidate: Candidate, index: number, array: CandidateVote) => (
+        <Text
+          key={candidate.id}
+          aria-label={`${candidate.name}${
+            candidate.party ? `, ${candidate.party}` : ''
+          }${candidate.isWriteIn ? `, write-in` : ''}${
+            array.length - 1 === index ? '.' : ','
+          }`}
+          wordBreak
+          voteIcon
+        >
+          <strong>{candidate.name}</strong>{' '}
+          {candidate.party && `/ ${candidate.party}`}
+          {candidate.isWriteIn && `(write-in)`}
+        </Text>
+      ))}
+      {!!remainingChoices && (
+        <Text bold warning warningIcon wordBreak>
+          You may select {remainingChoices} more{' '}
+          {pluralize('candidates', remainingChoices)}.
+        </Text>
       )}
     </React.Fragment>
   )
+}
 
 const YesNoContestResult = (props: {
   contest: YesNoContest
   vote: OptionalYesNoVote
 }) =>
   props.vote ? (
-    <ContestSelection>
-      <Text as="strong">{GLOBALS.YES_NO_VOTES[props.vote]}</Text>
-    </ContestSelection>
+    <Text bold wordBreak voteIcon>
+      {GLOBALS.YES_NO_VOTES[props.vote]}{' '}
+      {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
+    </Text>
   ) : (
     <NoSelection title={props.contest.title} />
   )
 
 interface State {
-  showConfirmModal: boolean
+  isScrollAtBottom: boolean
+  isScrollAtTop: boolean
+  isScrollable: boolean
 }
 
-class SummaryPage extends React.Component<RouteComponentProps, State> {
+const initialState: State = {
+  isScrollable: false,
+  isScrollAtBottom: true,
+  isScrollAtTop: true,
+}
+
+class ReviewPage extends React.Component<RouteComponentProps, State> {
   public static contextType = BallotContext
-  public state: State = {
-    showConfirmModal: false,
-  }
+  public state: State = initialState
+  private scrollContainer = React.createRef<HTMLDivElement>()
+
   public componentDidMount = () => {
-    window.addEventListener('afterprint', this.resetBallot)
+    this.updateContestChoicesScrollStates()
+    window.addEventListener('resize', this.updateContestChoicesScrollStates)
+    const targetElement = location.hash && document.querySelector(location.hash)
+    /* istanbul ignore next: Tested by Cypress */
+    if (targetElement && !navigator.userAgent.includes('jsdom')) {
+      targetElement.scrollIntoView({ block: 'center' })
+      window.setTimeout(() => (targetElement as HTMLDivElement).focus(), 1)
+    }
   }
-  public componentWillUnmount = () => {
-    window.removeEventListener('afterprint', this.resetBallot)
+
+  public updateContestChoicesScrollStates = () => {
+    const target = this.scrollContainer.current
+    /* istanbul ignore next */
+    if (!target) {
+      return
+    }
+    const isTabletMinWidth = target.offsetWidth >= tabletMinWidth
+    const targetMinHeight =
+      GLOBALS.FONT_SIZES[this.context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
+    const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
+    const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
+    this.setState({
+      isScrollable:
+        isTabletMinWidth &&
+        /* istanbul ignore next: Tested by Cypress */
+        target.scrollHeight > target.offsetHeight &&
+        /* istanbul ignore next: Tested by Cypress */
+        target.offsetHeight > targetMinHeight,
+      isScrollAtBottom:
+        windowsScrollTop +
+          target.offsetHeight +
+          windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
+        target.scrollHeight,
+      isScrollAtTop: target.scrollTop === 0,
+    })
   }
-  public resetBallot = () => {
-    this.context.resetBallot('/cast')
+
+  public scrollContestChoices = /* istanbul ignore next: Tested by Cypress */ (
+    event: ButtonEvent
+  ) => {
+    const direction = (event.target as HTMLElement).dataset
+      .direction as ScrollDirections
+    const scrollContainer = this.scrollContainer.current!
+    const currentScrollTop = scrollContainer.scrollTop
+    const offsetHeight = scrollContainer.offsetHeight
+    const scrollHeight = scrollContainer.scrollHeight
+    const idealScrollDistance = Math.round(offsetHeight * 0.75)
+    const maxScrollableDownDistance =
+      scrollHeight - offsetHeight - currentScrollTop
+    const maxScrollTop =
+      direction === 'down'
+        ? currentScrollTop + maxScrollableDownDistance
+        : currentScrollTop
+    const idealScrollTop =
+      direction === 'down'
+        ? currentScrollTop + idealScrollDistance
+        : currentScrollTop - idealScrollDistance
+    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
+    scrollContainer.scrollTo({ behavior: 'smooth', left: 0, top })
   }
-  public hideConfirm = () => {
-    this.setState({ showConfirmModal: false })
-  }
-  public showConfirm = () => {
-    this.setState({ showConfirmModal: true })
-  }
+
   public render() {
-    const { seal, title, county, state, date } = this.context.election
+    const { bmdConfig } = this.context.election
+    const { showHelpPage, showSettingsPage } = bmdConfig
+    const { isScrollable, isScrollAtBottom, isScrollAtTop } = this.state
+
     return (
       <React.Fragment>
-        <Main>
-          <MainChild>
+        <Main noOverflow noPadding>
+          <ContentHeader>
             <Prose>
-              <h1 className="no-print" aria-label={`Review Your Selections.`}>
-                Review Your Selections
-              </h1>
-              <p className="no-print">
-                Confirm your votes by printing your ballot.
-              </p>
+              <h1>Review Your Ballot Selections</h1>
+              <Button
+                data-direction="up"
+                disabled={isScrollAtTop}
+                fullWidth
+                onClick={this.scrollContestChoices}
+                tabIndex={-1}
+              >
+                ↑ See More
+              </Button>
             </Prose>
-            <Ballot>
-              <Header>
-                <div
-                  className="seal"
-                  dangerouslySetInnerHTML={{ __html: seal }}
-                />
-                <Prose className="ballot-header-content">
-                  <h2 aria-label={`Official Ballot.`}>Official Ballot</h2>
-                  <h3 aria-label={`${title}.`}>{title}</h3>
-                  <p aria-label={`${date}. ${county}, ${state}.`}>
-                    {date}
-                    <br />
-                    {county}, {state}
-                  </p>
-                </Prose>
-              </Header>
-              <Content>
-                <BallotSelections>
-                  <BallotContext.Consumer>
-                    {({ election, votes }) =>
-                      election!.contests.map(contest => {
-                        return (
-                          <React.Fragment key={contest.id}>
-                            <ContestHeader>
-                              <ContestHeading aria-label={`${contest.title},`}>
-                                {contest.title}
-                              </ContestHeading>
-                              <LinkButton
-                                to={`/contests/${contest.id}`}
-                                className="no-print change-button"
-                                aria-label={`Change ${contest.title}.`}
-                              >
-                                Change
-                              </LinkButton>
-                            </ContestHeader>
+          </ContentHeader>
+          <VariableContentContainer
+            showTopShadow={!isScrollAtTop}
+            showBottomShadow={!isScrollAtBottom}
+          >
+            <ScrollContainer
+              ref={this.scrollContainer}
+              onScroll={this.updateContestChoicesScrollStates}
+            >
+              <ScrollableContentWrapper isScrollable={isScrollable}>
+                <BallotContext.Consumer>
+                  {({ election, votes }) =>
+                    election!.contests.map(contest => {
+                      return (
+                        <Contest
+                          id={contest.id}
+                          key={contest.id}
+                          tabIndex={0}
+                          to={`/contests/${contest.id}#review`}
+                        >
+                          <ContestProse compact>
+                            <h3
+                              aria-label={`${contest.section}, ${
+                                contest.title
+                              },`}
+                            >
+                              {contest.section}, {contest.title}
+                            </h3>
 
                             {contest.type === 'candidate' && (
                               <CandidateContestResult
@@ -249,47 +338,46 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                                 vote={votes[contest.id] as YesNoVote}
                               />
                             )}
-                          </React.Fragment>
-                        )
-                      })
-                    }
-                  </BallotContext.Consumer>
-                </BallotSelections>
-              </Content>
-              <BarCodeContainer aria-hidden="true">
-                <Barcode />
-              </BarCodeContainer>
-            </Ballot>
-          </MainChild>
+                          </ContestProse>
+                          <ContestActions>
+                            <DecoyButton>Change</DecoyButton>
+                          </ContestActions>
+                        </Contest>
+                      )
+                    })
+                  }
+                </BallotContext.Consumer>
+              </ScrollableContentWrapper>
+            </ScrollContainer>
+          </VariableContentContainer>
+          <ContentFooter>
+            <Button
+              data-direction="down"
+              disabled={isScrollAtBottom}
+              fullWidth
+              onClick={this.scrollContestChoices}
+              tabIndex={-1}
+            >
+              ↓ See More
+            </Button>
+          </ContentFooter>
         </Main>
-        <ButtonBar separatePrimaryButton>
-          <Button primary onClick={this.showConfirm}>
-            Print Ballot
-          </Button>
-          <LinkButton goBack id="previous">
-            Back
+        <ButtonBar>
+          <LinkButton to="/print" id="next">
+            Next
           </LinkButton>
+          <div />
+          <div />
+          <div />
         </ButtonBar>
-        <Modal
-          isOpen={this.state.showConfirmModal}
-          centerContent
-          content={
-            <Prose>
-              <Text center>Are you finished voting?</Text>
-            </Prose>
-          }
-          actions={
-            <>
-              <Button primary onClick={window.print}>
-                Yes, I‘m finished. Print ballot.
-              </Button>
-              <Button onClick={this.hideConfirm}>No. Go Back.</Button>
-            </>
-          }
-        />
+        <ButtonBar secondary separatePrimaryButton>
+          <div />
+          {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
+          {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
+        </ButtonBar>
       </React.Fragment>
     )
   }
 }
 
-export default SummaryPage
+export default ReviewPage

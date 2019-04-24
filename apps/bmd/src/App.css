@@ -57,6 +57,7 @@ html {
 @media print {
   html {
     background: #fff;
+    font-size: 20px !important; /* Adjust printed ballot font-size */
   }
 }
 

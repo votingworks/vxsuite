@@ -9,7 +9,7 @@ import Prose from '../components/Prose'
 
 const Seal = styled.div`
   max-width: 320px;
-  margin: auto;
+  margin: 0 auto 1rem;
 `
 
 const StartPage = () => {
