@@ -31,11 +31,22 @@
         "eslint --quiet --fix",
         "git add"
       ],
+      "*.css": [
+        "stylelint --fix",
+        "git add"
+      ],
       "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
         "prettier --write",
         "git add"
       ]
     }
+  },
+  "stylelint": {
+    "extends": [
+      "stylelint-config-palantir",
+      "stylelint-config-styled-components",
+      "stylelint-config-prettier"
+    ]
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -66,6 +77,10 @@
     "eslint-plugin-react": "^7.12.4",
     "husky": "^2.1.0",
     "lint-staged": "^8.1.5",
-    "prettier": "^1.17.0"
+    "prettier": "^1.17.0",
+    "stylelint": "^10.0.1",
+    "stylelint-config-palantir": "^4.0.0",
+    "stylelint-config-prettier": "^5.1.0",
+    "stylelint-config-styled-components": "^0.1.1"
   }
 }
