@@ -20,6 +20,23 @@
     "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsc && lint-staged"
+    }
+  },
+  "lint-staged": {
+    "linters": {
+      "*.+(js|jsx|ts|tsx)": [
+        "eslint --quiet --fix",
+        "git add"
+      ],
+      "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+        "prettier --write",
+        "git add"
+      ]
+    }
+  },
   "eslintConfig": {
     "extends": "react-app"
   },
@@ -47,6 +64,8 @@
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.12.4",
+    "husky": "^2.1.0",
+    "lint-staged": "^8.1.5",
     "prettier": "^1.17.0"
   }
 }
