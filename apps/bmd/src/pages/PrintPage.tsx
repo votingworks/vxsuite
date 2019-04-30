@@ -30,7 +30,7 @@ const Ballot = styled.section`
   flex-direction: column;
   margin: 0;
   min-height: 11in;
-  padding: 0.5in;
+  padding: 0.375in;
   background: white;
 `
 const Header = styled.div`
@@ -39,8 +39,8 @@ const Header = styled.div`
   border-bottom: 0.2rem solid black;
   align-items: center;
   & > .seal {
-    width: 1.25in;
-    margin: 0.5rem 0;
+    width: 1in;
+    margin: 0.25rem 0;
   }
   & h2 {
     margin-bottom: 0;
@@ -55,7 +55,7 @@ const Header = styled.div`
   }
 `
 const QRCodeContainer = styled.div`
-  max-width: 40%;
+  max-width: 50%;
   align-self: flex-end;
   display: flex;
   flex-direction: row;
@@ -75,9 +75,9 @@ const QRCodeContainer = styled.div`
       flex-direction: column;
       justify-content: space-between;
       align-self: stretch;
-      font-size: 0.6rem;
+      font-size: 0.8rem;
       & strong {
-        font-size: 0.8rem;
+        font-size: 1rem;
         word-break: break-word;
       }
     }
@@ -97,11 +97,7 @@ const Contest = styled.div`
 `
 const ContestProse = styled(Prose)`
   & > h3 {
-    font-size: ${2 / 3}rem;
     font-weight: normal;
-  }
-  & > p {
-    font-size: ${2 / 3}rem;
   }
 `
 const NoSelection = () => (
