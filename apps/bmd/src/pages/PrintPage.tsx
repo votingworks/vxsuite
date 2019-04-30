@@ -1,6 +1,7 @@
 import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
+import QRCode from '../components/QRCode'
 
 import {
   Candidate,
@@ -11,7 +12,6 @@ import {
   YesNoVote,
 } from '../config/types'
 
-import { Barcode } from '../assets/BarCodes'
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
@@ -30,19 +30,17 @@ const Ballot = styled.section`
   flex-direction: column;
   margin: 0;
   min-height: 11in;
-  padding: 0.5in;
+  padding: 0.375in;
   background: white;
 `
 const Header = styled.div`
   display: flex;
   flex-direction: row;
-  margin-bottom: 1rem;
+  border-bottom: 0.2rem solid black;
   align-items: center;
-  text-align: left;
   & > .seal {
-    align-self: flex-start;
-    width: 7rem;
-    margin: 0;
+    width: 1in;
+    margin: 0.25rem 0;
   }
   & h2 {
     margin-bottom: 0;
@@ -52,13 +50,38 @@ const Header = styled.div`
   }
   & > .ballot-header-content {
     flex: 1;
-    margin-left: 1rem;
     max-width: 100%;
+    margin: 0 1rem;
   }
 `
-const BarCodeContainer = styled.div`
-  margin: 1rem 0 -0.75rem;
-  width: 50%;
+const QRCodeContainer = styled.div`
+  max-width: 50%;
+  align-self: flex-end;
+  display: flex;
+  flex-direction: row;
+  border: 0.2rem solid black;
+  border-bottom: 0;
+  padding: 0.25rem;
+  & > div:first-child {
+    width: 1in;
+    margin-right: 0.25rem;
+  }
+  & > div:last-child {
+    flex: 1;
+    display: flex;
+    & > div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-self: stretch;
+      font-size: 0.8rem;
+      & strong {
+        font-size: 1rem;
+        word-break: break-word;
+      }
+    }
+  }
 `
 const Content = styled.div`
   flex: 1;
@@ -66,7 +89,6 @@ const Content = styled.div`
 const BallotSelections = styled.div`
   columns: 2;
   column-gap: 2rem;
-  border-top: 0.01rem solid black;
 `
 const Contest = styled.div`
   break-inside: avoid;
@@ -75,11 +97,7 @@ const Contest = styled.div`
 `
 const ContestProse = styled(Prose)`
   & > h3 {
-    font-size: ${2 / 3}rem;
     font-weight: normal;
-  }
-  & > p {
-    font-size: ${2 / 3}rem;
   }
 `
 const NoSelection = () => (
@@ -186,6 +204,25 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                     {county}, {state}
                   </p>
                 </Prose>
+                <QRCodeContainer>
+                  <QRCode value="MyVoiceIsMyPassword" />
+                  <div>
+                    <div>
+                      <div>
+                        <div>Ballot Style</div>
+                        <strong>5R</strong>
+                      </div>
+                      <div>
+                        <div>Precinct Number</div>
+                        <strong>21</strong>
+                      </div>
+                      <div>
+                        <div>Serial Number</div>
+                        <strong>7zA5s434g2sj12</strong>
+                      </div>
+                    </div>
+                  </div>
+                </QRCodeContainer>
               </Header>
               <Content>
                 <BallotSelections>
@@ -216,9 +253,6 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                   </BallotContext.Consumer>
                 </BallotSelections>
               </Content>
-              <BarCodeContainer>
-                <Barcode />
-              </BarCodeContainer>
             </Ballot>
           </MainChild>
         </Main>
