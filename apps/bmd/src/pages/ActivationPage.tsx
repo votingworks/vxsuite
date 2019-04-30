@@ -4,14 +4,15 @@ import styled from 'styled-components'
 
 import BallotContext from '../contexts/ballotContext'
 
-import { MyVoiceIsMyPassword } from '../assets/BarCodes'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
+import QRCode from '../components/QRCode'
 
 const Legend = styled.legend`
   margin: auto;
 `
 const CodeBox = styled.div`
+  border: 1rem solid white;
   max-width: 320px;
   margin: auto;
 `
@@ -73,7 +74,7 @@ const StartPage = (props: RouteComponentProps) => {
                   <h1>Scan Your Activation Code</h1>
                   <p>Your ballot will be displayed after scan is complete.</p>
                   <CodeBox onClick={takeShortcut}>
-                    <MyVoiceIsMyPassword />
+                    <QRCode value="VX.21.5R" />
                   </CodeBox>
                 </Prose>
               </label>
