@@ -101,7 +101,7 @@
     "jest-styled-components": "^6.3.1",
     "lint-staged": "^8.1.5",
     "prettier": "^1.17.0",
-    "react-testing-library": "^6.1.2",
+    "react-testing-library": "7.0.0",
     "start-server-and-test": "^1.9.0",
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
