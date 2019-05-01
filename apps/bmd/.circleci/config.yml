@@ -1,12 +1,12 @@
 version: 2
 jobs:
-  build:
+  test-frontend-and-server:
     docker:
-      - image: cypress/browsers:chrome67
+      - image: circleci/python:3.7.3-node-browsers
     steps:
       - checkout
-      - restore_cache: # special step to restore the dependency cache
-          key: dotcache-cache-{{ checksum "package.json" }}
+      - restore_cache: # the version on this cache changes rarely, only when a significant setting breaks the cache
+          key: dotcache-cache-v20190430-{{ checksum "package.json" }}
       - run:
           name: Setup Dependencies
           command: yarn install --frozen-lockfile
@@ -16,12 +16,29 @@ jobs:
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
       - save_cache: # special step to save the dependency cache
-          key: dotcache-cache-{{ checksum "package.json" }}
+          key: dotcache-cache-v20190430-{{ checksum "package.json" }}
           paths:
             - ~/.cache
       - run: # run tests
-          name: Run Test and Coverage
+          name: Run Front-End Test and Coverage
           command: |
             ./cc-test-reporter before-build
             yarn test
             ./cc-test-reporter after-build --exit-code $?
+      - run:
+          name: Set up python tools for backend
+          command: |
+            cd server
+            pip install pipenv
+            pipenv install
+      - run:
+          name: Run Python Tests and Coverage
+          command: |
+            cd server
+            pipenv run make coverage
+
+workflows:
+  version: 2
+  test-frontend-and-server:
+    jobs:
+      - test-frontend-and-server
