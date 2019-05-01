@@ -9,7 +9,9 @@ import {
   CandidateContest,
   CandidateVote,
   OptionalYesNoVote,
+  Scrollable,
   ScrollDirections,
+  ScrollShadows,
   YesNoContest,
   YesNoVote,
 } from '../config/types'
@@ -43,10 +45,7 @@ const ContentFooter = styled.div`
     padding: 0.5rem 1rem;
   }
 `
-const VariableContentContainer = styled.div<{
-  showBottomShadow: boolean
-  showTopShadow: boolean
-}>`
+const VariableContentContainer = styled.div<ScrollShadows>`
   display: flex;
   flex: 1;
   position: relative;
@@ -85,9 +84,7 @@ const ScrollContainer = styled.div`
   flex: 1;
   overflow: auto;
 `
-const ScrollableContentWrapper = styled.div<{
-  isScrollable: boolean
-}>`
+const ScrollableContentWrapper = styled.div<Scrollable>`
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
@@ -217,7 +214,8 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
   public componentDidMount = () => {
     this.updateContestChoicesScrollStates()
     window.addEventListener('resize', this.updateContestChoicesScrollStates)
-    const targetElement = location.hash && document.querySelector(location.hash)
+    const targetElement =
+      window.location.hash && document.querySelector(window.location.hash)
     /* istanbul ignore next: Tested by Cypress */
     if (targetElement && !navigator.userAgent.includes('jsdom')) {
       targetElement.scrollIntoView({ block: 'center' })

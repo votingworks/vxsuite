@@ -47,12 +47,18 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "dependencies": {
     "@types/jest": "24.0.12",
     "@types/lodash.camelcase": "^4.3.6",
@@ -77,7 +83,7 @@
     "react-gamepad": "^1.0.3",
     "react-modal": "^3.8.1",
     "react-router-dom": "^5.0.0",
-    "react-scripts": "2.1.8",
+    "react-scripts": "3.0.0",
     "react-simple-keyboard": "^1.22.0",
     "styled-components": "^4.2.0",
     "tslint-react-hooks": "^2.1.0",

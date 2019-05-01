@@ -9,6 +9,13 @@ export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
 // UI
 export type ScrollDirections = 'up' | 'down'
+export interface ScrollShadows {
+  showBottomShadow: boolean
+  showTopShadow: boolean
+}
+export interface Scrollable {
+  isScrollable: boolean
+}
 
 // Election
 export interface Candidate {
