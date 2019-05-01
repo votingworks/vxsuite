@@ -32,23 +32,21 @@ describe('supports yes/no contest', () => {
     fireEvent.click(getByText('No').closest('label')!)
     expect(updateVote).toHaveBeenCalledTimes(2)
   })
+
   it(`displays warning when attempting to change vote`, () => {
     const updateVote = jest.fn()
-    const { container, getByText } = render(
+    const { container, getByText, getAllByText } = render(
       <YesNoContest contest={contest} vote={'yes'} updateVote={updateVote} />
     )
     expect(container).toMatchSnapshot()
     fireEvent.click(getByText('No').closest('label')!)
     expect(
-      getByText(
-        (_, node) =>
-          node.textContent ===
+      getAllByText(
+        (_, element) =>
+          element.textContent ===
           'Do you want to change your vote to No? To change your vote, first unselect your vote for Yes.'
       )
-    )
-    // expect(getByTestId('modal-content').textContent).toEqual(
-    //   'Do you want to change your vote to No? To change your vote, first unselect your vote for Yes.'
-    // )
+    ).toBeTruthy()
     fireEvent.click(getByText('Okay'))
   })
 })
