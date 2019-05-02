@@ -10,6 +10,8 @@ pytest = "*"
 flask = "*"
 coverage = "*"
 pytest-cov = "*"
+pytest = "*"
+pyscard = "*"
 
 [requires]
 python_version = "3.7"

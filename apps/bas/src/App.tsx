@@ -32,6 +32,21 @@ const App: React.FC = () => {
     setPrecinct('')
     setBallot('')
   }
+  const programCard = () => {
+    fetch('/card/write', {
+      method: 'post',
+      body: JSON.stringify({ code: `VX.${precinct}.${ballot}` }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then(res => res.json())
+      .then(response => {
+        if (response.success) {
+          // TODO: better notification of success
+          // https://github.com/votingworks/bas/issues/7
+          reset()
+        }
+      })
+  }
   if (precinct && ballot) {
     return (
       <Body>
@@ -43,6 +58,11 @@ const App: React.FC = () => {
             </button>
           </p>
           <p>{`{ ballot: ${ballot}, precinct: ${precinct} }`}</p>
+          <p>
+            <button onClick={programCard} type="button">
+              Program Card
+            </button>
+          </p>
         </Content>
       </Body>
     )
