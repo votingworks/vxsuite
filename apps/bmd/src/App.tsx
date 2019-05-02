@@ -25,6 +25,11 @@ import {
   VotesDict,
 } from './config/types'
 
+import Ballot from './components/Ballot'
+import Screen from './components/Screen'
+import UploadConfig from './components/UploadConfig'
+import BallotContext from './contexts/ballotContext'
+
 import electionDefaults from './data/electionDefaults.json'
 import electionSample from './data/electionSample.json'
 
@@ -32,11 +37,6 @@ export const mergeWithDefaults = (
   election: Election,
   defaults: ElectionDefaults = electionDefaults
 ) => ({ ...defaults, ...election })
-
-import Ballot from './components/Ballot'
-import Screen from './components/Screen'
-import UploadConfig from './components/UploadConfig'
-import BallotContext from './contexts/ballotContext'
 
 interface State {
   ballotKey: string

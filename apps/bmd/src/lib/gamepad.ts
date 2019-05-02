@@ -68,6 +68,7 @@ export function handleGamepadButtonDown(buttonName: string) {
     case 'A':
       handleClick()
       break
+    // no default
   }
 }
 
@@ -93,5 +94,6 @@ export /* istanbul ignore next */ function handleGamepadKeyboardEvent(
     case ']':
       handleClick()
       break
+    // no default
   }
 }

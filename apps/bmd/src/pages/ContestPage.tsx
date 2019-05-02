@@ -57,7 +57,7 @@ const ContestPage = (props: Props) => {
   if (contest.type === 'candidate') {
     isVoteComplete = contest.seats === ((vote as CandidateVote) || []).length
   }
-  const isReviewMode = location.hash === '#review'
+  const isReviewMode = window.location.hash === '#review'
   // TODO:
   // - confirm intent when navigating away without selecting a candidate
 

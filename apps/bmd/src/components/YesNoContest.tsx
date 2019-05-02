@@ -5,7 +5,9 @@ import {
   ButtonEvent,
   InputEvent,
   OptionalYesNoVote,
+  Scrollable,
   ScrollDirections,
+  ScrollShadows,
   UpdateVoteFunction,
   YesNoContest as YesNoContestInterface,
   YesNoVote,
@@ -54,10 +56,7 @@ const ContestFooter = styled.div`
     padding-left: 1rem;
   }
 `
-const VariableContentContainer = styled.div<{
-  showBottomShadow: boolean
-  showTopShadow: boolean
-}>`
+const VariableContentContainer = styled.div<ScrollShadows>`
   display: flex;
   flex: 1;
   position: relative;
@@ -127,7 +126,7 @@ const ScrollContainer = styled.div`
   flex: 1;
   overflow: auto;
 `
-const ScrollableContentWrapper = styled.div<{ isScrollable: boolean }>`
+const ScrollableContentWrapper = styled.div<Scrollable>`
   width: 100%;
   max-width: 35rem;
   margin: 0 auto;
