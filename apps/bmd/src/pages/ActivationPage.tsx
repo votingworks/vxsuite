@@ -56,7 +56,7 @@ const StartPage = (props: RouteComponentProps) => {
     ) {
       setBallot({ ballotStyle, precinct })
     }
-    // TODO: add invalid code state?
+    // TODO: add invalid code state? - https://github.com/votingworks/bmd/issues/289
   }
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault()
@@ -72,7 +72,7 @@ const StartPage = (props: RouteComponentProps) => {
     }, 1000)
   }
   // TODO: testing for onBlur causes stack overflow error
-  /* istanbul ignore next */
+  /* istanbul ignore next - causes stack overflow error in jest. */
   const onBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.target.focus()
   }

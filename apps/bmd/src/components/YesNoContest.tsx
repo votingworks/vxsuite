@@ -250,7 +250,7 @@ export default class YesNoContest extends React.Component<Props> {
 
   public updateContestChoicesScrollStates = () => {
     const target = this.scrollContainer.current
-    /* istanbul ignore next */
+    /* istanbul ignore next - `target` should aways exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
     if (!target) {
       return
     }

@@ -101,7 +101,7 @@ class App extends React.Component<RouteComponentProps, State> {
     this.setDocumentFontSize()
   }
 
-  public componentWillUnount = /* istanbul ignore next */ () => {
+  public componentWillUnount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     Mousetrap.unbind(removeElectionShortcuts)
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
   }
@@ -149,7 +149,7 @@ class App extends React.Component<RouteComponentProps, State> {
     window.localStorage.removeItem(votesStorageKey)
   }
 
-  public reset = /* istanbul ignore next */ () => {
+  public reset = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     this.setState(initialState)
     window.localStorage.removeItem(electionKey)
     this.resetVoterData()
