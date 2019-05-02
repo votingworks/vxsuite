@@ -4,7 +4,12 @@ import { fireEvent, render } from 'react-testing-library'
 
 import electionSample from './data/electionSample.json'
 
-import App, { electionKey, mergeWithDefaults } from './App'
+import App, {
+  activationStorageKey,
+  electionKey,
+  mergeWithDefaults,
+  votesStorageKey,
+} from './App'
 import { CandidateContest, Election } from './config/types'
 
 const election = electionSample as Election
@@ -33,7 +38,6 @@ describe('loads election', () => {
     getByText('Scan Your Activation Code')
     expect(window.localStorage.getItem(electionKey)).toBeFalsy()
   })
-
   it(`from localStorage`, () => {
     window.localStorage.setItem(electionKey, electionSampleAsString)
     const { getByText } = render(<App />)
@@ -49,6 +53,39 @@ describe('loads election', () => {
     const { getByText } = render(<App />)
     getByText('Configure Ballot Marking Device')
   })
+  it(`App uses data from localStorage when set`, () => {
+    const ballotStyleId = electionSample.ballotStyles[0].id
+    const precinctId = electionSample.precincts[0].id
+    const presidentFirstCandidate = electionSample.contests.find(
+      c => c.id === 'president'
+    )!.candidates![0]
+
+    window.localStorage.setItem(electionKey, electionSampleAsString)
+    window.localStorage.setItem(
+      activationStorageKey,
+      JSON.stringify({
+        ballotStyleId,
+        precinctId,
+      })
+    )
+    window.localStorage.setItem(
+      votesStorageKey,
+      JSON.stringify({
+        president: [presidentFirstCandidate],
+      })
+    )
+
+    const { getByText } = render(<App />)
+
+    // Click Get Started
+    fireEvent.click(getByText('Get Started'))
+
+    // First contest candidate should be selected
+    const candidate1Input = getByText(presidentFirstCandidate.name)
+      .closest('label')!
+      .querySelector('input')!
+    expect(candidate1Input.checked).toBeTruthy()
+  })
 })
 
 describe('can start over', () => {
@@ -56,7 +93,7 @@ describe('can start over', () => {
     window.localStorage.setItem(electionKey, electionSampleAsString)
     const { getByText, getByTestId } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {
-      target: { value: 'MyVoiceIsMyPassword' },
+      target: { value: 'VX.precinct-23.12D' },
     })
     // TODO: replace next line with "Enter" keyDown on activation code input
     fireEvent.click(getByText('Submit'))
@@ -69,7 +106,7 @@ describe('can start over', () => {
     window.localStorage.setItem(electionKey, electionSampleAsString)
     const { getByText, getByTestId } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {
-      target: { value: 'MyVoiceIsMyPassword' },
+      target: { value: 'VX.precinct-23.12D' },
     })
     // TODO: replace next line with "Enter" keyDown on activation code input
     fireEvent.click(getByText('Submit'))
@@ -89,7 +126,7 @@ describe(`Can update settings`, () => {
     window.localStorage.setItem(electionKey, electionSampleAsString)
     const { getByText, getByTestId, getByLabelText } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {
-      target: { value: 'MyVoiceIsMyPassword' },
+      target: { value: 'VX.precinct-23.12D' },
     })
     // TODO: replace next line with "Enter" keyDown on activation code input
     fireEvent.click(getByText('Submit'))

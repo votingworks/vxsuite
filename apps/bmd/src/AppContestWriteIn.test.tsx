@@ -26,7 +26,7 @@ it(`Write-In Candidate flow with single seat contest`, () => {
   window.localStorage.setItem(electionKey, electionSampleAsString)
   const { getByText, getByTestId, queryByText } = render(<App />)
   fireEvent.change(getByTestId('activation-code'), {
-    target: { value: 'MyVoiceIsMyPassword' },
+    target: { value: 'VX.precinct-23.12D' },
   })
 
   // TODO: replace next line with "Enter" keyDown on activation code input

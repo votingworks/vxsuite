@@ -2,6 +2,8 @@ import React, { useContext, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { ActivationData, Election, Precinct } from '../config/types'
+
 import BallotContext from '../contexts/ballotContext'
 
 import Main, { MainChild } from '../components/Main'
@@ -17,44 +19,56 @@ const CodeBox = styled.div`
   margin: auto;
 `
 
-// TODO: Codes will eventually be derived from the election file.
-const validBallotCodes = [
-  'MyVoiceIsMyPassword',
-  'Foo',
-  'Password',
-  'VotingWorks',
-]
-
 let resetBallotCode: number
 
 const StartPage = (props: RouteComponentProps) => {
-  const { setBallotKey } = useContext(BallotContext)
-  const [ballotCode, setBallotCode] = useState('')
-  const setBallot = (code: string) => {
+  const { election: contextElection, activateBallot } = useContext(
+    BallotContext
+  )
+  const election = contextElection as Election
+  const [activationCode, setActivationCode] = useState('')
+  const setBallot = (activationData: ActivationData) => {
     clearTimeout(resetBallotCode)
-    setBallotKey(code)
+    activateBallot(activationData)
     props.history.push('/start')
   }
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - shortcut will not exist in official release */
   const takeShortcut = () => {
-    setBallot(validBallotCodes[0])
+    const ballotStyle = election.ballotStyles[0]
+    setBallot({
+      ballotStyle,
+      precinct: election.precincts.find(
+        p => p.id === ballotStyle.precincts[0]
+      ) as Precinct,
+    })
+  }
+  const decodeActivationCode = () => {
+    const [brand, precinctId, ballotStyleId] = activationCode.split('.')
+    const ballotStyle = election.ballotStyles.find(b => b.id === ballotStyleId)
+    const precinct = election.precincts.find(p => p.id === precinctId)
+    /* istanbul ignore else */
+    if (
+      brand === 'VX' &&
+      !!precinct &&
+      !!ballotStyle &&
+      ballotStyle.precincts.includes(precinct.id)
+    ) {
+      setBallot({ ballotStyle, precinct })
+    }
+    // TODO: add invalid code state?
   }
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    // TODO: add invalid code state?
-    /* istanbul ignore else */
-    if (validBallotCodes.includes(ballotCode)) {
-      setBallot(ballotCode)
-    }
+    decodeActivationCode()
   }
   // TODO: Mock jest timers
   /* istanbul ignore next */
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     clearTimeout(resetBallotCode)
-    setBallotCode(event.target.value)
+    setActivationCode(event.target.value)
     resetBallotCode = window.setTimeout(() => {
-      setBallotCode('')
+      setActivationCode('')
     }, 1000)
   }
   // TODO: testing for onBlur causes stack overflow error
@@ -87,7 +101,7 @@ const StartPage = (props: RouteComponentProps) => {
               className="visually-hidden"
               onBlur={onBlur}
               onChange={onChange}
-              value={ballotCode}
+              value={activationCode}
               aria-hidden="true"
               autoComplete="off"
               autoCorrect="off"

@@ -1,43 +1,47 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
-import { fireEvent } from 'react-testing-library'
 
 import { render } from '../../test/testUtils'
 
 import electionDefaults from '../data/electionDefaults.json'
 import electionSample from '../data/electionSample.json'
 
-const firstContestId = electionSample.contests[0].id
+const firstContestTitle = electionSample.contests[0].title
 
 import ContestPage from './ContestPage'
 
 it(`renders ContestPage`, () => {
-  const { container } = render(
-    <Route path="/contests/:id" component={ContestPage} />,
+  const { container, getByText } = render(
+    <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
-      route: `/contests/${firstContestId}`,
+      route: `/contests/0`,
     }
   )
+  getByText(firstContestTitle)
   expect(container).toMatchSnapshot()
 })
 
-it(`renders error if no id match`, () => {
+it(`redirects to top-level page if no contest number match`, () => {
   const resetBallot = jest.fn()
-  const { container, getByText } = render(
-    <Route path="/contests/:id" component={ContestPage} />,
+  const homeMock = () => <div>Home Mock</div>
+  const { getByText } = render(
+    <>
+      <Route path="/contests/:contestNumber" component={ContestPage} />
+      <Route exact path="/" render={homeMock} />
+    </>,
     {
       resetBallot,
-      route: '/contests/foobar',
+      route: '/contests/666666',
     }
   )
-  expect(container).toMatchSnapshot()
-  fireEvent.click(getByText('Start Over'))
-  expect(resetBallot).toHaveBeenCalled()
+
+  expect(resetBallot).toBeCalled()
+  getByText('Home Mock')
 })
 
 it(`doesn't display help and settings pages if disabled`, () => {
-  const { container, queryByText } = render(
-    <Route path="/contests/:id" component={ContestPage} />,
+  const { queryByText } = render(
+    <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
       election: {
         ...electionDefaults,
@@ -49,10 +53,9 @@ it(`doesn't display help and settings pages if disabled`, () => {
           },
         },
       },
-      route: `/contests/${firstContestId}`,
+      route: `/contests/0`,
     }
   )
   expect(queryByText('Help')).toBeFalsy()
   expect(queryByText('Settings')).toBeFalsy()
-  expect(container).toMatchSnapshot()
 })

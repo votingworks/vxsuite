@@ -970,3 +970,4975 @@ button.c8 {
   </nav>
 </div>
 `;
+
+exports[`basic end-to-end flow 3`] = `
+<div
+  class="sc-kjoXOD TMpcb"
+  tabindex="-1"
+>
+  <main
+    class="sc-bdVaJa hfkSsq"
+  >
+    <div
+      class="sc-gqjmRU lmDYCV"
+      id="contest-header"
+    >
+      <div
+        class="sc-htpNat cmKtxO"
+      >
+        <h1
+          aria-label="United States, President and Vice-President."
+        >
+          <div
+            class="sc-VigVT kDWoeG"
+          >
+            United States
+          </div>
+          President and Vice-President
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            1
+            .
+          </strong>
+           You have selected
+           
+          1
+          .
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-jTzLTM blGMhx"
+    >
+      <div
+        class="sc-jzJRlG cAGrfg"
+      >
+        <div
+          class="sc-cSHVUG hSFHkp"
+        >
+          <div
+            aria-labelledby="contest-header"
+            class="sc-kAzzGY beqXHv"
+            role="group"
+          >
+            <label
+              class="sc-chPdSV gXtyBR"
+              for="barchi-hallaren"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="barchi-hallaren"
+                name="Joseph Barchi and Joseph Hallaren"
+                type="checkbox"
+                value="barchi-hallaren"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Joseph Barchi and Joseph Hallaren
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="cramer-vuocolo"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="cramer-vuocolo"
+                name="Adam Cramer and Greg Vuocolo"
+                type="checkbox"
+                value="cramer-vuocolo"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Adam Cramer and Greg Vuocolo, People's."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Adam Cramer and Greg Vuocolo
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="court-blumhardt"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="court-blumhardt"
+                name="Daniel Court and Amy Blumhardt"
+                type="checkbox"
+                value="court-blumhardt"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Daniel Court and Amy Blumhardt, Liberty."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Daniel Court and Amy Blumhardt
+                  </strong>
+                  <br />
+                  Liberty
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="boone-lian"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="boone-lian"
+                name="Alvin Boone and James Lian"
+                type="checkbox"
+                value="boone-lian"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Alvin Boone and James Lian, Constitution."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Alvin Boone and James Lian
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="hildebrand-garritty"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="hildebrand-garritty"
+                name="Ashley Hildebrand-McDougall and James Garritty"
+                type="checkbox"
+                value="hildebrand-garritty"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Ashley Hildebrand-McDougall and James Garritty
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="patterson-lariviere"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="patterson-lariviere"
+                name="Martin Patterson and Clay Lariviere"
+                type="checkbox"
+                value="patterson-lariviere"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Martin Patterson and Clay Lariviere, Labor."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Martin Patterson and Clay Lariviere
+                  </strong>
+                  <br />
+                  Labor
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <nav
+    class="sc-iwsKbI fsZkzg"
+  >
+    <button
+      class="sc-bZQynM ejBrvH"
+      id="next"
+      type="button"
+    >
+      Next
+    </button>
+    <button
+      class="sc-bZQynM gmroKB"
+      id="previous"
+      type="button"
+    >
+      Back
+    </button>
+    <p
+      class="sc-gzVnrw sc-brqgnP jQNkYe"
+    >
+      1
+       of 
+      20
+    </p>
+  </nav>
+  <nav
+    class="sc-iwsKbI dbClwP"
+  >
+    <div />
+    <button
+      class="sc-bZQynM gmroKB"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="sc-bZQynM gmroKB"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`basic end-to-end flow 4`] = `
+<div
+  class="sc-kjoXOD TMpcb"
+  tabindex="-1"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.c2 h3,
+.c2 p {
+  font-size: 1rem;
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
+}
+
+.c2 :first-child {
+  margin-top: 0;
+}
+
+.c2 :last-child {
+  margin-bottom: 0;
+}
+
+.c12 {
+  word-break: break-word;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c7 {
+  padding: 0 0.25rem;
+}
+
+.c8 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 1rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c6 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.c9 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c10 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  min-height: 2.5rem;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c10 {
+  text-align: left;
+}
+
+.c10:focus-within {
+  outline: -webkit-focus-ring-color auto 0.5rem;
+}
+
+.c10:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c10 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c11 {
+  margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:720px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c7 {
+    padding-left: 4rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c8 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c10 > div {
+    padding: 1rem 1rem 1rem inherit;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="c1"
+      id="contest-header"
+    >
+      <div
+        class="c2"
+      >
+        <h1
+          aria-label="Franklin County, Measure 102: Vehicle Abatement Program."
+        >
+          <div
+            class="c3"
+          >
+            Franklin County
+          </div>
+          Measure 102: Vehicle Abatement Program
+        </h1>
+        <p>
+          <strong>
+            Vote Yes or No.
+          </strong>
+        </p>
+      </div>
+    </div>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <div
+            class="c7"
+          >
+            <div
+              class="c2"
+            >
+              <p>
+                Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="c8"
+    >
+      <div
+        aria-labelledby="contest-header"
+        class="c9"
+        role="group"
+      >
+        <label
+          class="c10"
+          for="yes"
+        >
+          <input
+            class="visually-hidden c11"
+            id="yes"
+            name="measure-102"
+            type="checkbox"
+            value="yes"
+          />
+          <div
+            class="c2"
+          >
+            <p
+              class="c12"
+            >
+              Yes
+            </p>
+          </div>
+        </label>
+        <label
+          class="c10"
+          for="no"
+        >
+          <input
+            class="visually-hidden c11"
+            id="no"
+            name="measure-102"
+            type="checkbox"
+            value="no"
+          />
+          <div
+            class="c2"
+          >
+            <p
+              class="c12"
+            >
+              No
+            </p>
+          </div>
+        </label>
+      </div>
+    </div>
+  </main>
+  <nav
+    class="sc-iwsKbI fsZkzg"
+  >
+    <button
+      class="sc-bZQynM gmroKB"
+      id="next"
+      type="button"
+    >
+      Next
+    </button>
+    <button
+      class="sc-bZQynM gmroKB"
+      id="previous"
+      type="button"
+    >
+      Back
+    </button>
+    <p
+      class="sc-gzVnrw sc-brqgnP jQNkYe"
+    >
+      20
+       of 
+      20
+    </p>
+  </nav>
+  <nav
+    class="sc-iwsKbI dbClwP"
+  >
+    <div />
+    <button
+      class="sc-bZQynM gmroKB"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="sc-bZQynM gmroKB"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`basic end-to-end flow 5`] = `
+<div
+  class="sc-kjoXOD TMpcb"
+  tabindex="-1"
+>
+  <main
+    class="sc-bdVaJa hfkSsq"
+  >
+    <div
+      class="sc-ckVGcZ cpKlqu"
+      id="contest-header"
+    >
+      <div
+        class="sc-htpNat cmKtxO"
+      >
+        <h1
+          aria-label="Franklin County, Measure 102: Vehicle Abatement Program."
+        >
+          <div
+            class="sc-jKJlTe iJKnIc"
+          >
+            Franklin County
+          </div>
+          Measure 102: Vehicle Abatement Program
+        </h1>
+        <p>
+          <strong>
+            Vote Yes or No.
+          </strong>
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-kEYyzF cbBTUV"
+    >
+      <div
+        class="sc-iAyFgw iBpivr"
+      >
+        <div
+          class="sc-hSdWYo fmvdQZ"
+        >
+          <div
+            class="sc-eNQAEJ idldKc"
+          >
+            <div
+              class="sc-htpNat cmKtxO"
+            >
+              <p>
+                Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="sc-hMqMXs edztJV"
+    >
+      <div
+        aria-labelledby="contest-header"
+        class="sc-eHgmQL jxhWgK"
+        role="group"
+      >
+        <label
+          class="sc-cvbbAY jzwvdB"
+          for="yes"
+        >
+          <input
+            class="visually-hidden sc-jWBwVP cUnqLo"
+            id="yes"
+            name="measure-102"
+            type="checkbox"
+            value="yes"
+          />
+          <div
+            class="sc-htpNat cmKtxO"
+          >
+            <p
+              class="sc-gzVnrw hGZfPE"
+            >
+              Yes
+            </p>
+          </div>
+        </label>
+        <label
+          class="sc-cvbbAY gClCDI"
+          for="no"
+        >
+          <input
+            class="visually-hidden sc-jWBwVP cUnqLo"
+            id="no"
+            name="measure-102"
+            type="checkbox"
+            value="no"
+          />
+          <div
+            class="sc-htpNat cmKtxO"
+          >
+            <p
+              class="sc-gzVnrw hGZfPE"
+            >
+              No
+            </p>
+          </div>
+        </label>
+      </div>
+    </div>
+  </main>
+  <nav
+    class="sc-iwsKbI fsZkzg"
+  >
+    <button
+      class="sc-bZQynM ejBrvH"
+      id="next"
+      type="button"
+    >
+      Next
+    </button>
+    <button
+      class="sc-bZQynM gmroKB"
+      id="previous"
+      type="button"
+    >
+      Back
+    </button>
+    <p
+      class="sc-gzVnrw sc-brqgnP jQNkYe"
+    >
+      20
+       of 
+      20
+    </p>
+  </nav>
+  <nav
+    class="sc-iwsKbI dbClwP"
+  >
+    <div />
+    <button
+      class="sc-bZQynM gmroKB"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="sc-bZQynM gmroKB"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`basic end-to-end flow 6`] = `
+<div
+  class="sc-kjoXOD TMpcb"
+  tabindex="-1"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+  padding: 1rem 0.5rem 2rem;
+}
+
+.c1 {
+  max-width: 35rem;
+  margin: 0 0;
+}
+
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.c2 h3,
+.c2 p {
+  font-size: 1rem;
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
+}
+
+.c2 :first-child {
+  margin-top: 0;
+}
+
+.c2 :last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    padding: 2rem 1rem;
+  }
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media print {
+  .c1 {
+    max-width: 100%;
+    margin: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="c1"
+    >
+      <div
+        class="no-print c2"
+      >
+        <h1
+          aria-label="Pre Review Screen."
+        >
+          Pre Review Screen
+        </h1>
+        <p>
+          Time to go into review mode.
+        </p>
+      </div>
+    </div>
+  </main>
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <button
+      class="c1"
+      id="next"
+      type="button"
+    >
+      Next
+    </button>
+    <button
+      class="c1"
+      id="previous"
+      type="button"
+    >
+      Back
+    </button>
+    <div />
+    <div />
+  </nav>
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media (min-width:480px) {
+  .c0 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <div />
+    <button
+      class="c1"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="c1"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`basic end-to-end flow 7`] = `
+<div
+  class="sc-kjoXOD TMpcb"
+  tabindex="-1"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.c2 h3,
+.c2 p {
+  font-size: 1rem;
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
+}
+
+.c2 :first-child {
+  margin-top: 0;
+}
+
+.c2 :last-child {
+  margin-bottom: 0;
+}
+
+.c11 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c3 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: darkgrey;
+  line-height: 1;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.c9 {
+  word-break: break-word;
+}
+
+.c9:before {
+  content: '✓';
+  display: inline-block;
+  margin-top: -0.3rem;
+  margin-right: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  background: #028099;
+  color: white;
+  text-align: center;
+  line-height: 1.1;
+  font-size: 90%;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.c12 {
+  color: darkorange;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.c12:before {
+  content: '!';
+  display: inline-block;
+  margin-top: -0.3rem;
+  margin-right: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: darkorange;
+  color: white;
+  text-align: center;
+  line-height: 1.1;
+  font-size: 90%;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.c13 {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.c13:before {
+  content: '✓';
+  display: inline-block;
+  margin-top: -0.3rem;
+  margin-right: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  background: #028099;
+  color: white;
+  text-align: center;
+  line-height: 1.1;
+  font-size: 90%;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 0.5rem 0.5rem;
+}
+
+.c14 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 0.5rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c6 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.c7 {
+  color: inherit;
+  -webkit-text-decoration: inherit;
+  text-decoration: inherit;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  border-radius: 0.125rem;
+  background: white;
+  padding: 0.375rem 0.5rem;
+}
+
+.c7:last-child {
+  margin-bottom: 0;
+}
+
+button.c7 {
+  cursor: pointer;
+  text-align: left;
+}
+
+.c8 {
+  line-height: 1.2;
+  max-width: 66ch;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c8 h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c8 h2 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.c8 h3,
+.c8 p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.c8 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c8 h1 + p,
+.c8 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c8 h3 + p {
+  margin-top: 0;
+}
+
+.c8 :first-child {
+  margin-top: 0;
+}
+
+.c8 :last-child {
+  margin-bottom: 0;
+}
+
+.c8 > h3 {
+  font-weight: normal;
+}
+
+.c10 {
+  display: none;
+  padding-left: 2rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media print {
+  .c12 {
+    color: black;
+  }
+}
+
+@media (min-width:768px) {
+  .c1 {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c14 {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c7 {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c8 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:480px) {
+  .c10 {
+    display: block;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="c1"
+    >
+      <div
+        class="c2"
+      >
+        <h1>
+          Review Your Ballot Selections
+        </h1>
+        <button
+          class="c3"
+          data-direction="up"
+          disabled=""
+          tabindex="-1"
+          type="button"
+        >
+          ↑ See More
+        </button>
+      </div>
+    </div>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <a
+            class="c7"
+            href="/contests/0#review"
+            id="president"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="United States, President and Vice-President,"
+              >
+                United States
+                , 
+                President and Vice-President
+              </h3>
+              <p
+                aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                class="c9"
+              >
+                <strong>
+                  Joseph Barchi and Joseph Hallaren
+                </strong>
+                 
+                / Federalist
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/1#review"
+            id="senator"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="United States, Senator,"
+              >
+                United States
+                , 
+                Senator
+              </h3>
+              <p
+                aria-label="No selection was made for Senator."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/2#review"
+            id="representative-district-6"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="United States, Representative, District 6,"
+              >
+                United States
+                , 
+                Representative, District 6
+              </h3>
+              <p
+                aria-label="No selection was made for Representative, District 6."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/3#review"
+            id="governor"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Governor,"
+              >
+                State of Hamilton
+                , 
+                Governor
+              </h3>
+              <p
+                aria-label="No selection was made for Governor."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/4#review"
+            id="lieutenant-governor"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Lieutenant Governor,"
+              >
+                State of Hamilton
+                , 
+                Lieutenant Governor
+              </h3>
+              <p
+                aria-label="No selection was made for Lieutenant Governor."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/5#review"
+            id="secretary-of-state"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Secretary of State,"
+              >
+                State of Hamilton
+                , 
+                Secretary of State
+              </h3>
+              <p
+                aria-label="No selection was made for Secretary of State."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/6#review"
+            id="state-senator-district-31"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Senator, District 31,"
+              >
+                State of Hamilton
+                , 
+                Senator, District 31
+              </h3>
+              <p
+                aria-label="No selection was made for Senator, District 31."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/7#review"
+            id="state-assembly-district-54"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Assembly Member, District 54,"
+              >
+                State of Hamilton
+                , 
+                Assembly Member, District 54
+              </h3>
+              <p
+                aria-label="No selection was made for Assembly Member, District 54."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/8#review"
+            id="county-commissioners"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Franklin County, County Commissioners,"
+              >
+                Franklin County
+                , 
+                County Commissioners
+              </h3>
+              <p
+                aria-label="No selection was made for County Commissioners."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/9#review"
+            id="county-registrar-of-wills"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Franklin County, Registrar of Wills,"
+              >
+                Franklin County
+                , 
+                Registrar of Wills
+              </h3>
+              <p
+                aria-label="No selection was made for Registrar of Wills."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/10#review"
+            id="city-mayor"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="City of Springfield, Mayor,"
+              >
+                City of Springfield
+                , 
+                Mayor
+              </h3>
+              <p
+                aria-label="No selection was made for Mayor."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/11#review"
+            id="city-council"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="City of Springfield, City Council,"
+              >
+                City of Springfield
+                , 
+                City Council
+              </h3>
+              <p
+                aria-label="No selection was made for City Council."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/12#review"
+            id="judicial-robert-demergue"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?,"
+              >
+                Hamilton Court of Appeals
+                , 
+                Retain Robert Demergue as Chief Justice?
+              </h3>
+              <p
+                aria-label="No selection was made for Retain Robert Demergue as Chief Justice?."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/13#review"
+            id="judicial-elmer-hull"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Hamilton Court of Appeals, Retain Elmer Hull as Associate Justice?,"
+              >
+                Hamilton Court of Appeals
+                , 
+                Retain Elmer Hull as Associate Justice?
+              </h3>
+              <p
+                aria-label="No selection was made for Retain Elmer Hull as Associate Justice?."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/14#review"
+            id="question-a"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Question A: Recovery of Property Damages,"
+              >
+                State of Hamilton
+                , 
+                Question A: Recovery of Property Damages
+              </h3>
+              <p
+                aria-label="No selection was made for Question A: Recovery of Property Damages."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/15#review"
+            id="question-b"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Question B: Separation of Powers,"
+              >
+                State of Hamilton
+                , 
+                Question B: Separation of Powers
+              </h3>
+              <p
+                aria-label="No selection was made for Question B: Separation of Powers."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/16#review"
+            id="question-c"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Question C: Limits to Damages for Non-Economic Loss,"
+              >
+                State of Hamilton
+                , 
+                Question C: Limits to Damages for Non-Economic Loss
+              </h3>
+              <p
+                aria-label="No selection was made for Question C: Limits to Damages for Non-Economic Loss."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/17#review"
+            id="proposition-1"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Proposition 1: Gambling in Franklin and Fromwit Counties,"
+              >
+                State of Hamilton
+                , 
+                Proposition 1: Gambling in Franklin and Fromwit Counties
+              </h3>
+              <p
+                aria-label="No selection was made for Proposition 1: Gambling in Franklin and Fromwit Counties."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/18#review"
+            id="measure-101"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Franklin County, Measure 101: College District,"
+              >
+                Franklin County
+                , 
+                Measure 101: College District
+              </h3>
+              <p
+                aria-label="No selection was made for Measure 101: College District."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/19#review"
+            id="measure-102"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Franklin County, Measure 102: Vehicle Abatement Program,"
+              >
+                Franklin County
+                , 
+                Measure 102: Vehicle Abatement Program
+              </h3>
+              <p
+                class="c13"
+              >
+                Yes
+                 
+                on Measure 102
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div
+      class="c14"
+    >
+      <button
+        class="c3"
+        data-direction="down"
+        disabled=""
+        tabindex="-1"
+        type="button"
+      >
+        ↓ See More
+      </button>
+    </div>
+  </main>
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <button
+      class="c1"
+      id="next"
+      type="button"
+    >
+      Next
+    </button>
+    <div />
+    <div />
+    <div />
+  </nav>
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media (min-width:480px) {
+  .c0 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <div />
+    <button
+      class="c1"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="c1"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`basic end-to-end flow 8`] = `
+<div
+  class="sc-kjoXOD TMpcb"
+  tabindex="-1"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.c2 h3,
+.c2 p {
+  font-size: 1rem;
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
+}
+
+.c2 :first-child {
+  margin-top: 0;
+}
+
+.c2 :last-child {
+  margin-bottom: 0;
+}
+
+.c10 {
+  word-break: break-word;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c6 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.c7 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 0.75rem;
+}
+
+.c8 {
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-radius: 0.125rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+button.c8 {
+  text-align: left;
+}
+
+.c8:focus-within {
+  outline: -webkit-focus-ring-color auto 0.5rem;
+}
+
+.c8:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: white;
+  border-right: 1px solid;
+  border-color: lightgrey;
+  width: 3rem;
+  text-align: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: 700;
+  border-radius: 0.125rem 0 0 0.125rem;
+  color: #028099;
+}
+
+.c8 > div {
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+}
+
+.c9 {
+  margin-right: 0.5rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:720px) {
+  .c1 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c8 > div {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="c1"
+      id="contest-header"
+    >
+      <div
+        class="c2"
+      >
+        <h1
+          aria-label="Franklin County, County Commissioners."
+        >
+          <div
+            class="c3"
+          >
+            Franklin County
+          </div>
+          County Commissioners
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            4
+            .
+          </strong>
+           You have selected
+           
+          0
+          .
+        </p>
+      </div>
+    </div>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <div
+            aria-labelledby="contest-header"
+            class="c7"
+            role="group"
+          >
+            <label
+              class="c8"
+              for="argent"
+            >
+              <input
+                class="visually-hidden c9"
+                id="argent"
+                name="Camille Argent"
+                type="checkbox"
+                value="argent"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Camille Argent, Federalist."
+                  class="c10"
+                >
+                  <strong>
+                    Camille Argent
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="witherspoonsmithson"
+            >
+              <input
+                class="visually-hidden c9"
+                id="witherspoonsmithson"
+                name="Chloe Witherspoon-Smithson"
+                type="checkbox"
+                value="witherspoonsmithson"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Chloe Witherspoon-Smithson, Federalist."
+                  class="c10"
+                >
+                  <strong>
+                    Chloe Witherspoon-Smithson
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="bainbridge"
+            >
+              <input
+                class="visually-hidden c9"
+                id="bainbridge"
+                name="Clayton Bainbridge"
+                type="checkbox"
+                value="bainbridge"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Clayton Bainbridge, Federalist."
+                  class="c10"
+                >
+                  <strong>
+                    Clayton Bainbridge
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="hennessey"
+            >
+              <input
+                class="visually-hidden c9"
+                id="hennessey"
+                name="Charlene Hennessey"
+                type="checkbox"
+                value="hennessey"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Charlene Hennessey, People's."
+                  class="c10"
+                >
+                  <strong>
+                    Charlene Hennessey
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="savoy"
+            >
+              <input
+                class="visually-hidden c9"
+                id="savoy"
+                name="Eric Savoy"
+                type="checkbox"
+                value="savoy"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Eric Savoy, People's."
+                  class="c10"
+                >
+                  <strong>
+                    Eric Savoy
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="tawa"
+            >
+              <input
+                class="visually-hidden c9"
+                id="tawa"
+                name="Susan Tawa"
+                type="checkbox"
+                value="tawa"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Susan Tawa, People's."
+                  class="c10"
+                >
+                  <strong>
+                    Susan Tawa
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="tawa-mary"
+            >
+              <input
+                class="visually-hidden c9"
+                id="tawa-mary"
+                name="Mary Tawa"
+                type="checkbox"
+                value="tawa-mary"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Mary Tawa, People's."
+                  class="c10"
+                >
+                  <strong>
+                    Mary Tawa
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="rangel"
+            >
+              <input
+                class="visually-hidden c9"
+                id="rangel"
+                name="Damian Rangel"
+                type="checkbox"
+                value="rangel"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Damian Rangel, Liberty."
+                  class="c10"
+                >
+                  <strong>
+                    Damian Rangel
+                  </strong>
+                  <br />
+                  Liberty
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="altman"
+            >
+              <input
+                class="visually-hidden c9"
+                id="altman"
+                name="Valarie Altman"
+                type="checkbox"
+                value="altman"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Valarie Altman, Constitution."
+                  class="c10"
+                >
+                  <strong>
+                    Valarie Altman
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="moore"
+            >
+              <input
+                class="visually-hidden c9"
+                id="moore"
+                name="Helen Moore"
+                type="checkbox"
+                value="moore"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Helen Moore, Constitution."
+                  class="c10"
+                >
+                  <strong>
+                    Helen Moore
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="white"
+            >
+              <input
+                class="visually-hidden c9"
+                id="white"
+                name="John White"
+                type="checkbox"
+                value="white"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="John White, Whig."
+                  class="c10"
+                >
+                  <strong>
+                    John White
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="schmidt"
+            >
+              <input
+                class="visually-hidden c9"
+                id="schmidt"
+                name="Joe Schmidt"
+                type="checkbox"
+                value="schmidt"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Joe Schmidt, Whig."
+                  class="c10"
+                >
+                  <strong>
+                    Joe Schmidt
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="smith"
+            >
+              <input
+                class="visually-hidden c9"
+                id="smith"
+                name="Joe Smith"
+                type="checkbox"
+                value="smith"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Joe Smith, Whig."
+                  class="c10"
+                >
+                  <strong>
+                    Joe Smith
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="marracini"
+            >
+              <input
+                class="visually-hidden c9"
+                id="marracini"
+                name="Amanda Marracini"
+                type="checkbox"
+                value="marracini"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Amanda Marracini, Labor."
+                  class="c10"
+                >
+                  <strong>
+                    Amanda Marracini
+                  </strong>
+                  <br />
+                  Labor
+                </p>
+              </div>
+            </label>
+            <label
+              class="c8"
+              for="schreiner"
+            >
+              <input
+                class="visually-hidden c9"
+                id="schreiner"
+                name="Martin Schreiner"
+                type="checkbox"
+                value="schreiner"
+              />
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="Martin Schreiner, Independent."
+                  class="c10"
+                >
+                  <strong>
+                    Martin Schreiner
+                  </strong>
+                  <br />
+                  Independent
+                </p>
+              </div>
+            </label>
+            <button
+              class="c8"
+            >
+              <div
+                class="c2"
+              >
+                <p
+                  aria-label="add write-in candidate."
+                >
+                  <em>
+                    add write-in candidate
+                  </em>
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <button
+      class="c1"
+      id="next"
+      type="button"
+    >
+      Review Ballot
+    </button>
+  </nav>
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media (min-width:480px) {
+  .c0 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <div />
+    <button
+      class="c1"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="c1"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`basic end-to-end flow 9`] = `
+<div
+  class="sc-kjoXOD TMpcb"
+  tabindex="-1"
+>
+  <main
+    class="sc-bdVaJa hfkSsq"
+  >
+    <div
+      class="sc-gqjmRU lmDYCV"
+      id="contest-header"
+    >
+      <div
+        class="sc-htpNat cmKtxO"
+      >
+        <h1
+          aria-label="Franklin County, County Commissioners."
+        >
+          <div
+            class="sc-VigVT kDWoeG"
+          >
+            Franklin County
+          </div>
+          County Commissioners
+        </h1>
+        <p>
+          <strong>
+            Vote for 
+            4
+            .
+          </strong>
+           You have selected
+           
+          2
+          .
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-jTzLTM blGMhx"
+    >
+      <div
+        class="sc-jzJRlG cAGrfg"
+      >
+        <div
+          class="sc-cSHVUG hSFHkp"
+        >
+          <div
+            aria-labelledby="contest-header"
+            class="sc-kAzzGY beqXHv"
+            role="group"
+          >
+            <label
+              class="sc-chPdSV gXtyBR"
+              for="argent"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="argent"
+                name="Camille Argent"
+                type="checkbox"
+                value="argent"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Camille Argent, Federalist."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Camille Argent
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV gXtyBR"
+              for="witherspoonsmithson"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="witherspoonsmithson"
+                name="Chloe Witherspoon-Smithson"
+                type="checkbox"
+                value="witherspoonsmithson"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Chloe Witherspoon-Smithson, Federalist."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Chloe Witherspoon-Smithson
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="bainbridge"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="bainbridge"
+                name="Clayton Bainbridge"
+                type="checkbox"
+                value="bainbridge"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Clayton Bainbridge, Federalist."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Clayton Bainbridge
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="hennessey"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="hennessey"
+                name="Charlene Hennessey"
+                type="checkbox"
+                value="hennessey"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Charlene Hennessey, People's."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Charlene Hennessey
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="savoy"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="savoy"
+                name="Eric Savoy"
+                type="checkbox"
+                value="savoy"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Eric Savoy, People's."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Eric Savoy
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="tawa"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="tawa"
+                name="Susan Tawa"
+                type="checkbox"
+                value="tawa"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Susan Tawa, People's."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Susan Tawa
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="tawa-mary"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="tawa-mary"
+                name="Mary Tawa"
+                type="checkbox"
+                value="tawa-mary"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Mary Tawa, People's."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Mary Tawa
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="rangel"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="rangel"
+                name="Damian Rangel"
+                type="checkbox"
+                value="rangel"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Damian Rangel, Liberty."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Damian Rangel
+                  </strong>
+                  <br />
+                  Liberty
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="altman"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="altman"
+                name="Valarie Altman"
+                type="checkbox"
+                value="altman"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Valarie Altman, Constitution."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Valarie Altman
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="moore"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="moore"
+                name="Helen Moore"
+                type="checkbox"
+                value="moore"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Helen Moore, Constitution."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Helen Moore
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="white"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="white"
+                name="John White"
+                type="checkbox"
+                value="white"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="John White, Whig."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    John White
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="schmidt"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="schmidt"
+                name="Joe Schmidt"
+                type="checkbox"
+                value="schmidt"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Joe Schmidt, Whig."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Joe Schmidt
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="smith"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="smith"
+                name="Joe Smith"
+                type="checkbox"
+                value="smith"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Joe Smith, Whig."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Joe Smith
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="marracini"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="marracini"
+                name="Amanda Marracini"
+                type="checkbox"
+                value="marracini"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Amanda Marracini, Labor."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Amanda Marracini
+                  </strong>
+                  <br />
+                  Labor
+                </p>
+              </div>
+            </label>
+            <label
+              class="sc-chPdSV dhzFVr"
+              for="schreiner"
+            >
+              <input
+                class="visually-hidden sc-kgoBCf fiESkE"
+                id="schreiner"
+                name="Martin Schreiner"
+                type="checkbox"
+                value="schreiner"
+              />
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="Martin Schreiner, Independent."
+                  class="sc-gzVnrw hGZfPE"
+                >
+                  <strong>
+                    Martin Schreiner
+                  </strong>
+                  <br />
+                  Independent
+                </p>
+              </div>
+            </label>
+            <button
+              class="sc-chPdSV dhzFVr"
+            >
+              <div
+                class="sc-htpNat cmKtxO"
+              >
+                <p
+                  aria-label="add write-in candidate."
+                >
+                  <em>
+                    add write-in candidate
+                  </em>
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <nav
+    class="sc-iwsKbI fsZkzg"
+  >
+    <button
+      class="sc-bZQynM gmroKB"
+      id="next"
+      type="button"
+    >
+      Review Ballot
+    </button>
+  </nav>
+  <nav
+    class="sc-iwsKbI dbClwP"
+  >
+    <div />
+    <button
+      class="sc-bZQynM gmroKB"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="sc-bZQynM gmroKB"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;
+
+exports[`basic end-to-end flow 10`] = `
+<div
+  class="sc-kjoXOD TMpcb"
+  tabindex="-1"
+>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c2 {
+  line-height: 1.2;
+  max-width: 66ch;
+}
+
+.c2 h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c2 h2 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.c2 h3,
+.c2 p {
+  font-size: 1rem;
+  margin: 1rem 0;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
+}
+
+.c2 :first-child {
+  margin-top: 0;
+}
+
+.c2 :last-child {
+  margin-bottom: 0;
+}
+
+.c11 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c3 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: darkgrey;
+  line-height: 1;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.c9 {
+  word-break: break-word;
+}
+
+.c9:before {
+  content: '✓';
+  display: inline-block;
+  margin-top: -0.3rem;
+  margin-right: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  background: #028099;
+  color: white;
+  text-align: center;
+  line-height: 1.1;
+  font-size: 90%;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.c12 {
+  color: darkorange;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.c12:before {
+  content: '!';
+  display: inline-block;
+  margin-top: -0.3rem;
+  margin-right: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: darkorange;
+  color: white;
+  text-align: center;
+  line-height: 1.1;
+  font-size: 90%;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.c13 {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.c13:before {
+  content: '✓';
+  display: inline-block;
+  margin-top: -0.3rem;
+  margin-right: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  background: #028099;
+  color: white;
+  text-align: center;
+  line-height: 1.1;
+  font-size: 90%;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 0.5rem 0.5rem;
+}
+
+.c14 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0px auto;
+  padding: 0.5rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c4:before,
+.c4:after {
+  content: '';
+  z-index: 1;
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+  position: absolute;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.c4:before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4:after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c6 {
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.c7 {
+  color: inherit;
+  -webkit-text-decoration: inherit;
+  text-decoration: inherit;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  border-radius: 0.125rem;
+  background: white;
+  padding: 0.375rem 0.5rem;
+}
+
+.c7:last-child {
+  margin-bottom: 0;
+}
+
+button.c7 {
+  cursor: pointer;
+  text-align: left;
+}
+
+.c8 {
+  line-height: 1.2;
+  max-width: 66ch;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c8 h1 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 2rem 0 1rem;
+}
+
+.c8 h2 {
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.c8 h3,
+.c8 p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.c8 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c8 h1 + p,
+.c8 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c8 h3 + p {
+  margin-top: 0;
+}
+
+.c8 :first-child {
+  margin-top: 0;
+}
+
+.c8 :last-child {
+  margin-bottom: 0;
+}
+
+.c8 > h3 {
+  font-weight: normal;
+}
+
+.c10 {
+  display: none;
+  padding-left: 2rem;
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
+  }
+}
+
+@media print {
+  .c12 {
+    color: black;
+  }
+}
+
+@media (min-width:768px) {
+  .c1 {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c14 {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (min-width:768px) {
+  .c6 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c7 {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c8 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:480px) {
+  .c10 {
+    display: block;
+  }
+}
+
+<main
+    class="c0"
+  >
+    <div
+      class="c1"
+    >
+      <div
+        class="c2"
+      >
+        <h1>
+          Review Your Ballot Selections
+        </h1>
+        <button
+          class="c3"
+          data-direction="up"
+          disabled=""
+          tabindex="-1"
+          type="button"
+        >
+          ↑ See More
+        </button>
+      </div>
+    </div>
+    <div
+      class="c4"
+    >
+      <div
+        class="c5"
+      >
+        <div
+          class="c6"
+        >
+          <a
+            class="c7"
+            href="/contests/0#review"
+            id="president"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="United States, President and Vice-President,"
+              >
+                United States
+                , 
+                President and Vice-President
+              </h3>
+              <p
+                aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                class="c9"
+              >
+                <strong>
+                  Joseph Barchi and Joseph Hallaren
+                </strong>
+                 
+                / Federalist
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/1#review"
+            id="senator"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="United States, Senator,"
+              >
+                United States
+                , 
+                Senator
+              </h3>
+              <p
+                aria-label="No selection was made for Senator."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/2#review"
+            id="representative-district-6"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="United States, Representative, District 6,"
+              >
+                United States
+                , 
+                Representative, District 6
+              </h3>
+              <p
+                aria-label="No selection was made for Representative, District 6."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/3#review"
+            id="governor"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Governor,"
+              >
+                State of Hamilton
+                , 
+                Governor
+              </h3>
+              <p
+                aria-label="No selection was made for Governor."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/4#review"
+            id="lieutenant-governor"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Lieutenant Governor,"
+              >
+                State of Hamilton
+                , 
+                Lieutenant Governor
+              </h3>
+              <p
+                aria-label="No selection was made for Lieutenant Governor."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/5#review"
+            id="secretary-of-state"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Secretary of State,"
+              >
+                State of Hamilton
+                , 
+                Secretary of State
+              </h3>
+              <p
+                aria-label="No selection was made for Secretary of State."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/6#review"
+            id="state-senator-district-31"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Senator, District 31,"
+              >
+                State of Hamilton
+                , 
+                Senator, District 31
+              </h3>
+              <p
+                aria-label="No selection was made for Senator, District 31."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/7#review"
+            id="state-assembly-district-54"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Assembly Member, District 54,"
+              >
+                State of Hamilton
+                , 
+                Assembly Member, District 54
+              </h3>
+              <p
+                aria-label="No selection was made for Assembly Member, District 54."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/8#review"
+            id="county-commissioners"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Franklin County, County Commissioners,"
+              >
+                Franklin County
+                , 
+                County Commissioners
+              </h3>
+              <p
+                aria-label="Camille Argent, Federalist,"
+                class="c9"
+              >
+                <strong>
+                  Camille Argent
+                </strong>
+                 
+                / Federalist
+              </p>
+              <p
+                aria-label="Chloe Witherspoon-Smithson, Federalist."
+                class="c9"
+              >
+                <strong>
+                  Chloe Witherspoon-Smithson
+                </strong>
+                 
+                / Federalist
+              </p>
+              <p
+                class="c12"
+              >
+                You may select 
+                2
+                 more
+                 
+                candidates
+                .
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/9#review"
+            id="county-registrar-of-wills"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Franklin County, Registrar of Wills,"
+              >
+                Franklin County
+                , 
+                Registrar of Wills
+              </h3>
+              <p
+                aria-label="No selection was made for Registrar of Wills."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/10#review"
+            id="city-mayor"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="City of Springfield, Mayor,"
+              >
+                City of Springfield
+                , 
+                Mayor
+              </h3>
+              <p
+                aria-label="No selection was made for Mayor."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/11#review"
+            id="city-council"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="City of Springfield, City Council,"
+              >
+                City of Springfield
+                , 
+                City Council
+              </h3>
+              <p
+                aria-label="No selection was made for City Council."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/12#review"
+            id="judicial-robert-demergue"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?,"
+              >
+                Hamilton Court of Appeals
+                , 
+                Retain Robert Demergue as Chief Justice?
+              </h3>
+              <p
+                aria-label="No selection was made for Retain Robert Demergue as Chief Justice?."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/13#review"
+            id="judicial-elmer-hull"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Hamilton Court of Appeals, Retain Elmer Hull as Associate Justice?,"
+              >
+                Hamilton Court of Appeals
+                , 
+                Retain Elmer Hull as Associate Justice?
+              </h3>
+              <p
+                aria-label="No selection was made for Retain Elmer Hull as Associate Justice?."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/14#review"
+            id="question-a"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Question A: Recovery of Property Damages,"
+              >
+                State of Hamilton
+                , 
+                Question A: Recovery of Property Damages
+              </h3>
+              <p
+                aria-label="No selection was made for Question A: Recovery of Property Damages."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/15#review"
+            id="question-b"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Question B: Separation of Powers,"
+              >
+                State of Hamilton
+                , 
+                Question B: Separation of Powers
+              </h3>
+              <p
+                aria-label="No selection was made for Question B: Separation of Powers."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/16#review"
+            id="question-c"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Question C: Limits to Damages for Non-Economic Loss,"
+              >
+                State of Hamilton
+                , 
+                Question C: Limits to Damages for Non-Economic Loss
+              </h3>
+              <p
+                aria-label="No selection was made for Question C: Limits to Damages for Non-Economic Loss."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/17#review"
+            id="proposition-1"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="State of Hamilton, Proposition 1: Gambling in Franklin and Fromwit Counties,"
+              >
+                State of Hamilton
+                , 
+                Proposition 1: Gambling in Franklin and Fromwit Counties
+              </h3>
+              <p
+                aria-label="No selection was made for Proposition 1: Gambling in Franklin and Fromwit Counties."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/18#review"
+            id="measure-101"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Franklin County, Measure 101: College District,"
+              >
+                Franklin County
+                , 
+                Measure 101: College District
+              </h3>
+              <p
+                aria-label="No selection was made for Measure 101: College District."
+                class="c12"
+              >
+                No selection was made for this contest.
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+          <a
+            class="c7"
+            href="/contests/19#review"
+            id="measure-102"
+            tabindex="0"
+          >
+            <div
+              class="c8"
+            >
+              <h3
+                aria-label="Franklin County, Measure 102: Vehicle Abatement Program,"
+              >
+                Franklin County
+                , 
+                Measure 102: Vehicle Abatement Program
+              </h3>
+              <p
+                class="c13"
+              >
+                Yes
+                 
+                on Measure 102
+              </p>
+            </div>
+            <div
+              class="c10"
+            >
+              <div
+                class="c11"
+              >
+                Change
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div
+      class="c14"
+    >
+      <button
+        class="c3"
+        data-direction="down"
+        disabled=""
+        tabindex="-1"
+        type="button"
+      >
+        ↓ See More
+      </button>
+    </div>
+  </main>
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <button
+      class="c1"
+      id="next"
+      type="button"
+    >
+      Next
+    </button>
+    <div />
+    <div />
+    <div />
+  </nav>
+  .c1 {
+  box-sizing: border-box;
+  cursor: pointer;
+  background: lightgrey;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  color: black;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c0 {
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  padding: 0.5rem;
+  background: #455a64;
+  border-bottom: 1px solid darkgrey;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c0 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c0 > * {
+  margin: 0.25rem;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media (min-width:480px) {
+  .c0 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c0 > *:only-child {
+    margin: auto;
+    min-width: 33.333%;
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<nav
+    class="c0"
+  >
+    <div />
+    <button
+      class="c1"
+      type="button"
+    >
+      Help
+    </button>
+    <button
+      class="c1"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;

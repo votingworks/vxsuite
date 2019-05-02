@@ -1,17 +1,14 @@
 import React, { useContext } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { Redirect, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { CandidateVote, OptionalYesNoVote } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
 
-import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import CandidateContest from '../components/CandidateContest'
 import LinkButton from '../components/LinkButton'
-import Main, { MainChild } from '../components/Main'
-import Prose from '../components/Prose'
 import Text from '../components/Text'
 import YesNoContest from '../components/YesNoContest'
 
@@ -20,38 +17,32 @@ const Progress = styled(Text)`
 `
 
 interface ContestParams {
-  id: string
+  contestNumber: string
 }
 
 interface Props extends RouteComponentProps<ContestParams> {}
 
 const ContestPage = (props: Props) => {
-  const { id } = props.match.params
-  const { election, resetBallot, updateVote, votes } = useContext(BallotContext)
-  const { contests, bmdConfig } = election!
+  const { contestNumber } = props.match.params
+  const { election, updateVote, votes, contests, resetBallot } = useContext(
+    BallotContext
+  )
+
+  const { bmdConfig } = election!
   const { showHelpPage, showSettingsPage } = bmdConfig!
-  const currentContestIndex = contests.findIndex(x => x.id === id)
+  const currentContestIndex = parseInt(contestNumber, 10)
   const contest = contests[currentContestIndex]
+
   if (!contest) {
-    const requestResetBallot = () => {
-      resetBallot()
-    }
-    return (
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <Text wordBreak>
-              The id <strong>“{id}”</strong> does not match any contest in this
-              election.
-            </Text>
-            <Button onClick={requestResetBallot}>Start Over</Button>
-          </Prose>
-        </MainChild>
-      </Main>
-    )
+    resetBallot()
+    return <Redirect to="/" />
   }
-  const prevContest = contests[currentContestIndex - 1]
-  const nextContest = contests[currentContestIndex + 1]
+
+  const prevContestIndex = currentContestIndex - 1
+  const prevContest = contests[prevContestIndex]
+
+  const nextContestIndex = currentContestIndex + 1
+  const nextContest = contests[nextContestIndex]
   const vote = votes[contest.id]
   let isVoteComplete = !!vote
   if (contest.type === 'candidate') {
@@ -95,21 +86,13 @@ const ContestPage = (props: Props) => {
             <LinkButton
               id="next"
               primary={isVoteComplete}
-              to={
-                nextContest
-                  ? `/contests/${nextContest && nextContest.id}`
-                  : '/pre-review'
-              }
+              to={nextContest ? `/contests/${nextContestIndex}` : '/pre-review'}
             >
               Next
             </LinkButton>
             <LinkButton
               id="previous"
-              to={
-                prevContest
-                  ? `/contests/${prevContest && prevContest.id}`
-                  : '/start'
-              }
+              to={prevContest ? `/contests/${prevContestIndex}` : '/start'}
             >
               Back
             </LinkButton>

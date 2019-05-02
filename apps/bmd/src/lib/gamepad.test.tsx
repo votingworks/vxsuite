@@ -39,7 +39,7 @@ it(`gamepad controls work`, () => {
   // Activation Page
   fireEvent.change(getByTestId('activation-code'), {
     target: {
-      value: 'MyVoiceIsMyPassword',
+      value: 'VX.precinct-23.12D',
     },
   })
   // TODO: replace next line with "Enter" keyDown on activation code input

@@ -7,6 +7,7 @@ import {
   Candidate,
   CandidateContest,
   CandidateVote,
+  Contests,
   OptionalYesNoVote,
   YesNoContest,
   YesNoVote,
@@ -173,14 +174,12 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
   }
   public render() {
     const {
-      seal,
-      title,
-      county,
-      state,
-      date,
-      bmdConfig,
-    } = this.context.election
+      contests,
+      election: { seal, title, county, state, date, bmdConfig },
+      votes,
+    } = this.context
     const { showHelpPage, showSettingsPage } = bmdConfig
+
     return (
       <React.Fragment>
         <Main>
@@ -226,31 +225,27 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
               </Header>
               <Content>
                 <BallotSelections>
-                  <BallotContext.Consumer>
-                    {({ election, votes }) =>
-                      election!.contests.map(contest => (
-                        <Contest key={contest.id}>
-                          <ContestProse compact>
-                            <h3>
-                              {contest.section}, {contest.title}
-                            </h3>
-                            {contest.type === 'candidate' && (
-                              <CandidateContestResult
-                                contest={contest}
-                                vote={votes[contest.id] as CandidateVote}
-                              />
-                            )}
-                            {contest.type === 'yesno' && (
-                              <YesNoContestResult
-                                contest={contest}
-                                vote={votes[contest.id] as YesNoVote}
-                              />
-                            )}
-                          </ContestProse>
-                        </Contest>
-                      ))
-                    }
-                  </BallotContext.Consumer>
+                  {(contests as Contests).map(contest => (
+                    <Contest key={contest.id}>
+                      <ContestProse compact>
+                        <h3>
+                          {contest.section}, {contest.title}
+                        </h3>
+                        {contest.type === 'candidate' && (
+                          <CandidateContestResult
+                            contest={contest}
+                            vote={votes[contest.id] as CandidateVote}
+                          />
+                        )}
+                        {contest.type === 'yesno' && (
+                          <YesNoContestResult
+                            contest={contest}
+                            vote={votes[contest.id] as YesNoVote}
+                          />
+                        )}
+                      </ContestProse>
+                    </Contest>
+                  ))}
                 </BallotSelections>
               </Content>
             </Ballot>

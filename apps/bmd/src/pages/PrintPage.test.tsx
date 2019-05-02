@@ -12,28 +12,22 @@ const contest1 = electionSample.contests[1] as CandidateContest
 const contest0candidate0 = contest0.candidates[0]
 const contest1candidate0 = contest1.candidates[0]
 
-import ReviewPage from './ReviewPage'
+import PrintPage from './PrintPage'
 
-it(`renders ReviewPage without votes`, () => {
-  const { container } = render(
-    <Route path="/review" component={ReviewPage} />,
-    {
-      route: '/review',
-    }
-  )
+it(`renders PrintPage without votes`, () => {
+  const { container } = render(<Route path="/review" component={PrintPage} />, {
+    route: '/print',
+  })
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders ReviewPage with votes`, () => {
-  const { container } = render(
-    <Route path="/review" component={ReviewPage} />,
-    {
-      route: '/review',
-      votes: {
-        president: [contest0candidate0],
-        senator: [contest1candidate0],
-      },
-    }
-  )
+it(`renders PrintPage with votes`, () => {
+  const { container } = render(<Route path="/print" component={PrintPage} />, {
+    route: '/print',
+    votes: {
+      president: [contest0candidate0],
+      senator: [contest1candidate0],
+    },
+  })
   expect(container.firstChild).toMatchSnapshot()
 })

@@ -7,6 +7,7 @@ import YesNoContest from './YesNoContest'
 
 const contest: YesNoContestInterface = {
   description: 'description',
+  districtId: 'district-id',
   id: 'contest-id',
   section: 'County',
   shortTitle: 'Prop 1',

@@ -5,7 +5,7 @@ const clickThoughPages = [...electionSample.contests, { id: 'pre-review-page' }]
 describe('Review Page', () => {
   it('When navigating from contest, scroll to contest and place focus on contest.', () => {
     cy.visit('/#sample')
-    cy.getByTestId('activation-code').type('MyVoiceIsMyPassword', {
+    cy.getByTestId('activation-code').type('VX.precinct-23.12D', {
       force: true,
     })
     cy.contains('Submit').click({ force: true })
