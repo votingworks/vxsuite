@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait, waitForElement } from 'react-testing-library'
+import { fireEvent, render, wait } from 'react-testing-library'
 
 import electionSample from './data/electionSample.json'
 
@@ -10,7 +10,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it(`basic end-to-end flow`, async () => {
+it(`Sets election config file`, async () => {
   /* tslint:disable-next-line */
   const eventListenerCallbacksDictionary: any = {}
   window.addEventListener = jest.fn((event, cb) => {
@@ -34,25 +34,5 @@ it(`basic end-to-end flow`, async () => {
       ],
     },
   })
-  await waitForElement(() => getByText('Scan Your Activation Code'))
-  expect(container).toMatchSnapshot()
-
-  // Activation Page
-  // TODO: onBlur causes stack overflow error
-  // fireEvent.blur(getByTestId('activation-code'))
-  fireEvent.change(getByTestId('activation-code'), {
-    target: { value: 'Invalid Activation Code' },
-  })
-  expect(
-    (getByTestId('activation-code') as HTMLInputElement).value ===
-      'Invalid Activation Code'
-  ).toBeTruthy()
-  wait(() => (getByTestId('activation-code') as HTMLInputElement).value === '')
-  fireEvent.change(getByTestId('activation-code'), {
-    target: { value: 'VX.23.12D' },
-  })
-
-  // TODO: replace next line with "Enter" keyDown on activation code input
-  fireEvent.click(getByText('Submit'))
-  expect(container.firstChild).toMatchSnapshot()
+  await wait(() => expect(getByText('Scan Your Activation Code')).toBeTruthy())
 })
