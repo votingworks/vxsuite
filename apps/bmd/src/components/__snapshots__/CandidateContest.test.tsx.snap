@@ -149,7 +149,7 @@ button.c11 {
 }
 
 .c11:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c11:before {
@@ -206,7 +206,7 @@ button.c8 {
 }
 
 .c8:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c8:before {
@@ -572,7 +572,7 @@ button.c8 {
 }
 
 .c8:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c8:before {
@@ -931,7 +931,7 @@ button.c11 {
 }
 
 .c11:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c11:before {
@@ -988,7 +988,7 @@ button.c8 {
 }
 
 .c8:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c8:before {
@@ -1354,7 +1354,7 @@ button.c8 {
 }
 
 .c8:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c8:before {

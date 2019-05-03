@@ -488,7 +488,7 @@ button.c8 {
 }
 
 .c8:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c8:before {
@@ -973,14 +973,14 @@ button.c8 {
 
 exports[`basic end-to-end flow 3`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-cHGsZl ewbOfU"
   tabindex="-1"
 >
   <main
     class="sc-bdVaJa hfkSsq"
   >
     <div
-      class="sc-gqjmRU lmDYCV"
+      class="sc-VigVT lGzbZ"
       id="contest-header"
     >
       <div
@@ -990,7 +990,7 @@ exports[`basic end-to-end flow 3`] = `
           aria-label="United States, President and Vice-President."
         >
           <div
-            class="sc-VigVT kDWoeG"
+            class="sc-jTzLTM kebpRS"
           >
             United States
           </div>
@@ -1010,25 +1010,25 @@ exports[`basic end-to-end flow 3`] = `
       </div>
     </div>
     <div
-      class="sc-jTzLTM blGMhx"
+      class="sc-fjdhpX cZUKSt"
     >
       <div
-        class="sc-jzJRlG cAGrfg"
+        class="sc-cSHVUG gJClgN"
       >
         <div
-          class="sc-cSHVUG hSFHkp"
+          class="sc-kAzzGY gctkeX"
         >
           <div
             aria-labelledby="contest-header"
-            class="sc-kAzzGY beqXHv"
+            class="sc-chPdSV gqeJVR"
             role="group"
           >
             <label
-              class="sc-chPdSV gXtyBR"
+              class="sc-kgoBCf hcQLYY"
               for="barchi-hallaren"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="barchi-hallaren"
                 name="Joseph Barchi and Joseph Hallaren"
                 type="checkbox"
@@ -1039,7 +1039,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Joseph Barchi and Joseph Hallaren
@@ -1050,11 +1050,11 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="cramer-vuocolo"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="cramer-vuocolo"
                 name="Adam Cramer and Greg Vuocolo"
                 type="checkbox"
@@ -1065,7 +1065,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Adam Cramer and Greg Vuocolo, People's."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Adam Cramer and Greg Vuocolo
@@ -1076,11 +1076,11 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="court-blumhardt"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="court-blumhardt"
                 name="Daniel Court and Amy Blumhardt"
                 type="checkbox"
@@ -1091,7 +1091,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Daniel Court and Amy Blumhardt, Liberty."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Daniel Court and Amy Blumhardt
@@ -1102,11 +1102,11 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="boone-lian"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="boone-lian"
                 name="Alvin Boone and James Lian"
                 type="checkbox"
@@ -1117,7 +1117,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Alvin Boone and James Lian, Constitution."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Alvin Boone and James Lian
@@ -1128,11 +1128,11 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="hildebrand-garritty"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="hildebrand-garritty"
                 name="Ashley Hildebrand-McDougall and James Garritty"
                 type="checkbox"
@@ -1143,7 +1143,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Ashley Hildebrand-McDougall and James Garritty
@@ -1154,11 +1154,11 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="patterson-lariviere"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="patterson-lariviere"
                 name="Martin Patterson and Clay Lariviere"
                 type="checkbox"
@@ -1169,7 +1169,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Martin Patterson and Clay Lariviere, Labor."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Martin Patterson and Clay Lariviere
@@ -1185,24 +1185,24 @@ exports[`basic end-to-end flow 3`] = `
     </div>
   </main>
   <nav
-    class="sc-iwsKbI fsZkzg"
+    class="sc-gZMcBi dJHMPG"
   >
     <button
-      class="sc-bZQynM ejBrvH"
+      class="sc-gzVnrw bjmCwv"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="sc-gzVnrw sc-brqgnP jQNkYe"
+      class="sc-htoDjs sc-cMljjf huyxdo"
     >
       1
        of 
@@ -1210,17 +1210,17 @@ exports[`basic end-to-end flow 3`] = `
     </p>
   </nav>
   <nav
-    class="sc-iwsKbI dbClwP"
+    class="sc-gZMcBi iwVJXz"
   >
     <div />
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       type="button"
     >
       Settings
@@ -1231,7 +1231,7 @@ exports[`basic end-to-end flow 3`] = `
 
 exports[`basic end-to-end flow 4`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-cHGsZl ewbOfU"
   tabindex="-1"
 >
   .c0 {
@@ -1394,7 +1394,7 @@ button.c10 {
 }
 
 .c10:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c10:before {
@@ -1586,24 +1586,24 @@ button.c10 {
     </div>
   </main>
   <nav
-    class="sc-iwsKbI fsZkzg"
+    class="sc-gZMcBi dJHMPG"
   >
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="sc-gzVnrw sc-brqgnP jQNkYe"
+      class="sc-htoDjs sc-cMljjf huyxdo"
     >
       20
        of 
@@ -1611,17 +1611,17 @@ button.c10 {
     </p>
   </nav>
   <nav
-    class="sc-iwsKbI dbClwP"
+    class="sc-gZMcBi iwVJXz"
   >
     <div />
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       type="button"
     >
       Settings
@@ -1632,14 +1632,14 @@ button.c10 {
 
 exports[`basic end-to-end flow 5`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-cHGsZl ewbOfU"
   tabindex="-1"
 >
   <main
     class="sc-bdVaJa hfkSsq"
   >
     <div
-      class="sc-ckVGcZ cpKlqu"
+      class="sc-jKJlTe rnwXT"
       id="contest-header"
     >
       <div
@@ -1649,7 +1649,7 @@ exports[`basic end-to-end flow 5`] = `
           aria-label="Franklin County, Measure 102: Vehicle Abatement Program."
         >
           <div
-            class="sc-jKJlTe iJKnIc"
+            class="sc-eNQAEJ hJwOuf"
           >
             Franklin County
           </div>
@@ -1663,16 +1663,16 @@ exports[`basic end-to-end flow 5`] = `
       </div>
     </div>
     <div
-      class="sc-kEYyzF cbBTUV"
+      class="sc-kkGfuU fnDKlM"
     >
       <div
-        class="sc-iAyFgw iBpivr"
+        class="sc-hSdWYo dMFGHI"
       >
         <div
-          class="sc-hSdWYo fmvdQZ"
+          class="sc-eHgmQL eWVPqM"
         >
           <div
-            class="sc-eNQAEJ idldKc"
+            class="sc-hMqMXs blIdFX"
           >
             <div
               class="sc-htpNat cmKtxO"
@@ -1686,19 +1686,19 @@ exports[`basic end-to-end flow 5`] = `
       </div>
     </div>
     <div
-      class="sc-hMqMXs edztJV"
+      class="sc-kEYyzF kPdqzF"
     >
       <div
         aria-labelledby="contest-header"
-        class="sc-eHgmQL jxhWgK"
+        class="sc-cvbbAY ixdjgi"
         role="group"
       >
         <label
-          class="sc-cvbbAY jzwvdB"
+          class="sc-jWBwVP jYopjf"
           for="yes"
         >
           <input
-            class="visually-hidden sc-jWBwVP cUnqLo"
+            class="visually-hidden sc-brqgnP fZhdBB"
             id="yes"
             name="measure-102"
             type="checkbox"
@@ -1708,18 +1708,18 @@ exports[`basic end-to-end flow 5`] = `
             class="sc-htpNat cmKtxO"
           >
             <p
-              class="sc-gzVnrw hGZfPE"
+              class="sc-htoDjs gWVGA"
             >
               Yes
             </p>
           </div>
         </label>
         <label
-          class="sc-cvbbAY gClCDI"
+          class="sc-jWBwVP fPfICq"
           for="no"
         >
           <input
-            class="visually-hidden sc-jWBwVP cUnqLo"
+            class="visually-hidden sc-brqgnP fZhdBB"
             id="no"
             name="measure-102"
             type="checkbox"
@@ -1729,7 +1729,7 @@ exports[`basic end-to-end flow 5`] = `
             class="sc-htpNat cmKtxO"
           >
             <p
-              class="sc-gzVnrw hGZfPE"
+              class="sc-htoDjs gWVGA"
             >
               No
             </p>
@@ -1739,24 +1739,24 @@ exports[`basic end-to-end flow 5`] = `
     </div>
   </main>
   <nav
-    class="sc-iwsKbI fsZkzg"
+    class="sc-gZMcBi dJHMPG"
   >
     <button
-      class="sc-bZQynM ejBrvH"
+      class="sc-gzVnrw bjmCwv"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="sc-gzVnrw sc-brqgnP jQNkYe"
+      class="sc-htoDjs sc-cMljjf huyxdo"
     >
       20
        of 
@@ -1764,17 +1764,17 @@ exports[`basic end-to-end flow 5`] = `
     </p>
   </nav>
   <nav
-    class="sc-iwsKbI dbClwP"
+    class="sc-gZMcBi iwVJXz"
   >
     <div />
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       type="button"
     >
       Settings
@@ -1785,7 +1785,7 @@ exports[`basic end-to-end flow 5`] = `
 
 exports[`basic end-to-end flow 6`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-cHGsZl ewbOfU"
   tabindex="-1"
 >
   .c0 {
@@ -2083,7 +2083,7 @@ exports[`basic end-to-end flow 6`] = `
 
 exports[`basic end-to-end flow 7`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-cHGsZl ewbOfU"
   tabindex="-1"
 >
   .c0 {
@@ -3327,7 +3327,7 @@ button.c7 {
 
 exports[`basic end-to-end flow 8`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-cHGsZl ewbOfU"
   tabindex="-1"
 >
   .c0 {
@@ -3478,7 +3478,7 @@ button.c8 {
 }
 
 .c8:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c8:before {
@@ -4184,14 +4184,14 @@ button.c8 {
 
 exports[`basic end-to-end flow 9`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-cHGsZl ewbOfU"
   tabindex="-1"
 >
   <main
     class="sc-bdVaJa hfkSsq"
   >
     <div
-      class="sc-gqjmRU lmDYCV"
+      class="sc-VigVT lGzbZ"
       id="contest-header"
     >
       <div
@@ -4201,7 +4201,7 @@ exports[`basic end-to-end flow 9`] = `
           aria-label="Franklin County, County Commissioners."
         >
           <div
-            class="sc-VigVT kDWoeG"
+            class="sc-jTzLTM kebpRS"
           >
             Franklin County
           </div>
@@ -4221,25 +4221,25 @@ exports[`basic end-to-end flow 9`] = `
       </div>
     </div>
     <div
-      class="sc-jTzLTM blGMhx"
+      class="sc-fjdhpX cZUKSt"
     >
       <div
-        class="sc-jzJRlG cAGrfg"
+        class="sc-cSHVUG gJClgN"
       >
         <div
-          class="sc-cSHVUG hSFHkp"
+          class="sc-kAzzGY gctkeX"
         >
           <div
             aria-labelledby="contest-header"
-            class="sc-kAzzGY beqXHv"
+            class="sc-chPdSV gqeJVR"
             role="group"
           >
             <label
-              class="sc-chPdSV gXtyBR"
+              class="sc-kgoBCf hcQLYY"
               for="argent"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="argent"
                 name="Camille Argent"
                 type="checkbox"
@@ -4250,7 +4250,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Camille Argent, Federalist."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Camille Argent
@@ -4261,11 +4261,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV gXtyBR"
+              class="sc-kgoBCf hcQLYY"
               for="witherspoonsmithson"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="witherspoonsmithson"
                 name="Chloe Witherspoon-Smithson"
                 type="checkbox"
@@ -4276,7 +4276,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Chloe Witherspoon-Smithson, Federalist."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Chloe Witherspoon-Smithson
@@ -4287,11 +4287,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="bainbridge"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="bainbridge"
                 name="Clayton Bainbridge"
                 type="checkbox"
@@ -4302,7 +4302,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Clayton Bainbridge, Federalist."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Clayton Bainbridge
@@ -4313,11 +4313,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="hennessey"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="hennessey"
                 name="Charlene Hennessey"
                 type="checkbox"
@@ -4328,7 +4328,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Charlene Hennessey, People's."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Charlene Hennessey
@@ -4339,11 +4339,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="savoy"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="savoy"
                 name="Eric Savoy"
                 type="checkbox"
@@ -4354,7 +4354,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Eric Savoy, People's."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Eric Savoy
@@ -4365,11 +4365,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="tawa"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="tawa"
                 name="Susan Tawa"
                 type="checkbox"
@@ -4380,7 +4380,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Susan Tawa, People's."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Susan Tawa
@@ -4391,11 +4391,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="tawa-mary"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="tawa-mary"
                 name="Mary Tawa"
                 type="checkbox"
@@ -4406,7 +4406,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Mary Tawa, People's."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Mary Tawa
@@ -4417,11 +4417,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="rangel"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="rangel"
                 name="Damian Rangel"
                 type="checkbox"
@@ -4432,7 +4432,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Damian Rangel, Liberty."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Damian Rangel
@@ -4443,11 +4443,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="altman"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="altman"
                 name="Valarie Altman"
                 type="checkbox"
@@ -4458,7 +4458,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Valarie Altman, Constitution."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Valarie Altman
@@ -4469,11 +4469,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="moore"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="moore"
                 name="Helen Moore"
                 type="checkbox"
@@ -4484,7 +4484,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Helen Moore, Constitution."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Helen Moore
@@ -4495,11 +4495,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="white"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="white"
                 name="John White"
                 type="checkbox"
@@ -4510,7 +4510,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="John White, Whig."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     John White
@@ -4521,11 +4521,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="schmidt"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="schmidt"
                 name="Joe Schmidt"
                 type="checkbox"
@@ -4536,7 +4536,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Joe Schmidt, Whig."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Joe Schmidt
@@ -4547,11 +4547,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="smith"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="smith"
                 name="Joe Smith"
                 type="checkbox"
@@ -4562,7 +4562,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Joe Smith, Whig."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Joe Smith
@@ -4573,11 +4573,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="marracini"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="marracini"
                 name="Amanda Marracini"
                 type="checkbox"
@@ -4588,7 +4588,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Amanda Marracini, Labor."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Amanda Marracini
@@ -4599,11 +4599,11 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
               for="schreiner"
             >
               <input
-                class="visually-hidden sc-kgoBCf fiESkE"
+                class="visually-hidden sc-kGXeez iOxSgc"
                 id="schreiner"
                 name="Martin Schreiner"
                 type="checkbox"
@@ -4614,7 +4614,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Martin Schreiner, Independent."
-                  class="sc-gzVnrw hGZfPE"
+                  class="sc-htoDjs gWVGA"
                 >
                   <strong>
                     Martin Schreiner
@@ -4625,7 +4625,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <button
-              class="sc-chPdSV dhzFVr"
+              class="sc-kgoBCf gJWwjg"
             >
               <div
                 class="sc-htpNat cmKtxO"
@@ -4645,10 +4645,10 @@ exports[`basic end-to-end flow 9`] = `
     </div>
   </main>
   <nav
-    class="sc-iwsKbI fsZkzg"
+    class="sc-gZMcBi dJHMPG"
   >
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       id="next"
       type="button"
     >
@@ -4656,17 +4656,17 @@ exports[`basic end-to-end flow 9`] = `
     </button>
   </nav>
   <nav
-    class="sc-iwsKbI dbClwP"
+    class="sc-gZMcBi iwVJXz"
   >
     <div />
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-bZQynM gmroKB"
+      class="sc-gzVnrw fTQUZr"
       type="button"
     >
       Settings
@@ -4677,7 +4677,7 @@ exports[`basic end-to-end flow 9`] = `
 
 exports[`basic end-to-end flow 10`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-cHGsZl ewbOfU"
   tabindex="-1"
 >
   .c0 {

@@ -161,7 +161,7 @@ const Choice = styled('label')<{ isSelected: boolean }>`
     text-align: left;
   }
   :focus-within {
-    outline: -webkit-focus-ring-color auto 0.5rem;
+    outline: rgb(77, 144, 254) dashed 0.25rem;
   }
   :before {
     content: '${({ isSelected }) => (isSelected ? '✓' : '')}';

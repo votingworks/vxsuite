@@ -31,7 +31,7 @@ legend {
 }
 
 :focus {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77, 144, 254) dashed 0.25rem;
 }
 
 /* Foundational */

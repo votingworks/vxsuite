@@ -80,7 +80,7 @@ const Range = styled.input.attrs({
     ${thumbStyles}
   }
   &:focus::-webkit-slider-thumb {
-    outline: -webkit-focus-ring-color auto 5px;
+    outline: rgb(77, 144, 254) dashed 0.25rem;
   }
 
   /* Enable the below if/when adding styles for Moz / MSIE */
