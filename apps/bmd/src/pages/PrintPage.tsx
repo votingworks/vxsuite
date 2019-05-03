@@ -166,11 +166,36 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
   }
   public render() {
     const {
+      ballotStyleId,
       contests,
       election: { seal, title, county, state, date, bmdConfig },
+      precinctId,
       votes,
     } = this.context
     const { showHelpPage, showSettingsPage } = bmdConfig
+
+    const encodedVotes: string = (contests as Contests)
+      .map(contest => {
+        if (!votes[contest.id]) {
+          return ''
+        }
+
+        if (contest.type === 'yesno') {
+          if (votes[contest.id] === 'yes') {
+            return '1'
+          } else {
+            return '0'
+          }
+        }
+
+        const candidateIDs = (contest as CandidateContest).candidates.map(
+          (c: Candidate) => c.id
+        )
+        return votes[contest.id]
+          .map((c: Candidate) => candidateIDs.indexOf(c.id))
+          .join(',')
+      })
+      .join('/')
 
     return (
       <React.Fragment>
@@ -196,16 +221,18 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                   </p>
                 </Prose>
                 <QRCodeContainer>
-                  <QRCode value="MyVoiceIsMyPassword" />
+                  <QRCode
+                    value={`${ballotStyleId}.${precinctId}.${encodedVotes}`}
+                  />
                   <div>
                     <div>
                       <div>
                         <div>Ballot Style</div>
-                        <strong>5R</strong>
+                        <strong>{ballotStyleId}</strong>
                       </div>
                       <div>
                         <div>Precinct Number</div>
-                        <strong>21</strong>
+                        <strong>{precinctId}</strong>
                       </div>
                       <div>
                         <div>Serial Number</div>

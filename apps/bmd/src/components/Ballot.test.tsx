@@ -12,7 +12,10 @@ import Ballot from './Ballot'
 
 it(`can navigate all ballot pages`, () => {
   window.print = jest.fn()
-  const { container, getByText, getByTestId, history } = render(<Ballot />)
+  const { container, getByText, getByTestId, history } = render(<Ballot />, {
+    ballotStyleId: '',
+    precinctId: '',
+  })
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.change(getByTestId('activation-code'), {
