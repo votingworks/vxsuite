@@ -161,7 +161,7 @@ button.c10 {
 }
 
 .c10:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c10:before {
@@ -517,7 +517,7 @@ button.c13 {
 }
 
 .c13:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c13:before {
@@ -574,7 +574,7 @@ button.c10 {
 }
 
 .c10:focus-within {
-  outline: -webkit-focus-ring-color auto 0.5rem;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c10:before {

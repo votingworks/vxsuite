@@ -115,7 +115,7 @@ exports[`renders SettingsPage 1`] = `
 }
 
 .c6:focus::-webkit-slider-thumb {
-  outline: -webkit-focus-ring-color auto 5px;
+  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c3 {

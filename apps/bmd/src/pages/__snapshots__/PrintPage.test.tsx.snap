@@ -64,12 +64,18 @@ exports[`renders PrintPage with votes 1`] = `
   margin-bottom: 0;
 }
 
-.c9 {
+.c6 > svg {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.c11 {
   font-weight: 600;
   word-break: break-word;
 }
 
-.c10 {
+.c12 {
   color: gray;
   font-weight: 600;
 }
@@ -81,7 +87,7 @@ exports[`renders PrintPage with votes 1`] = `
   flex-direction: column;
   margin: 0;
   min-height: 11in;
-  padding: 0.5in;
+  padding: 0.375in;
   background: white;
 }
 
@@ -93,20 +99,16 @@ exports[`renders PrintPage with votes 1`] = `
   -webkit-flex-direction: row;
   -ms-flex-direction: row;
   flex-direction: row;
-  margin-bottom: 1rem;
+  border-bottom: 0.2rem solid black;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  text-align: left;
 }
 
 .c4 > .seal {
-  -webkit-align-self: flex-start;
-  -ms-flex-item-align: start;
-  align-self: flex-start;
-  width: 7rem;
-  margin: 0;
+  width: 1in;
+  margin: 0.25rem 0;
 }
 
 .c4 h2 {
@@ -121,86 +123,133 @@ exports[`renders PrintPage with votes 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin-left: 1rem;
   max-width: 100%;
-}
-
-.c11 {
-  margin: 1rem 0 -0.75rem;
-  width: 50%;
+  margin: 0 1rem;
 }
 
 .c5 {
+  max-width: 50%;
+  -webkit-align-self: flex-end;
+  -ms-flex-item-align: end;
+  align-self: flex-end;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  border: 0.2rem solid black;
+  border-bottom: 0;
+  padding: 0.25rem;
+}
+
+.c5 > div:first-child {
+  width: 1in;
+  margin-right: 0.25rem;
+}
+
+.c5 > div:last-child {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c5 > div:last-child > div {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-self: stretch;
+  -ms-flex-item-align: stretch;
+  align-self: stretch;
+  font-size: 0.8rem;
+}
+
+.c5 > div:last-child > div strong {
+  font-size: 1rem;
+  word-break: break-word;
+}
+
+.c7 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c6 {
+.c8 {
   -webkit-columns: 2;
   columns: 2;
   -webkit-column-gap: 2rem;
   column-gap: 2rem;
-  border-top: 0.01rem solid black;
 }
 
-.c7 {
+.c9 {
   -webkit-break-inside: avoid;
   break-inside: avoid;
   padding: 0.5rem 0;
   border-bottom: 0.01rem solid black;
 }
 
-.c8 {
+.c10 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c8 h1 {
+.c10 h1 {
   font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c8 h2 {
+.c10 h2 {
   font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
 }
 
-.c8 h3,
-.c8 p {
+.c10 h3,
+.c10 p {
   font-size: 1rem;
   margin: 0;
 }
 
-.c8 h1 + h2 {
+.c10 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c8 h1 + p,
-.c8 h2 + p {
+.c10 h1 + p,
+.c10 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c8 h3 + p {
+.c10 h3 + p {
   margin-top: 0;
 }
 
-.c8 :first-child {
+.c10 :first-child {
   margin-top: 0;
 }
 
-.c8 :last-child {
+.c10 :last-child {
   margin-bottom: 0;
 }
 
-.c8 > h3 {
-  font-size: 0.6666666666666666rem;
+.c10 > h3 {
   font-weight: normal;
-}
-
-.c8 > p {
-  font-size: 0.6666666666666666rem;
 }
 
 @media (min-width:480px) {
@@ -233,7 +282,7 @@ exports[`renders PrintPage with votes 1`] = `
 }
 
 @media print {
-  .c10 {
+  .c12 {
     color: black;
   }
 }
@@ -248,7 +297,7 @@ exports[`renders PrintPage with votes 1`] = `
 }
 
 @media (min-width:480px) {
-  .c8 {
+  .c10 {
     line-height: 1.3;
   }
 }
@@ -462,18 +511,69 @@ exports[`renders PrintPage with votes 1`] = `
             State of Hamilton
           </p>
         </div>
-      </div>
-      <div
-        class="c5"
-      >
         <div
-          class="c6"
+          class="c5"
         >
           <div
-            class="c7"
+            class="c6"
+          >
+            <svg
+              height="128"
+              shape-rendering="crispEdges"
+              viewBox="0 0 29 29"
+              width="128"
+            >
+              <path
+                d="M0,0 h29v29H0z"
+                fill="#FFFFFF"
+              />
+              <path
+                d="M0 0h7v1H0zM8 0h2v1H8zM12 0h2v1H12zM17 0h1v1H17zM22,0 h7v1H22zM0 1h1v1H0zM6 1h1v1H6zM8 1h2v1H8zM13 1h2v1H13zM16 1h1v1H16zM18 1h1v1H18zM20 1h1v1H20zM22 1h1v1H22zM28,1 h1v1H28zM0 2h1v1H0zM2 2h3v1H2zM6 2h1v1H6zM8 2h1v1H8zM13 2h1v1H13zM15 2h1v1H15zM22 2h1v1H22zM24 2h3v1H24zM28,2 h1v1H28zM0 3h1v1H0zM2 3h3v1H2zM6 3h1v1H6zM12 3h2v1H12zM20 3h1v1H20zM22 3h1v1H22zM24 3h3v1H24zM28,3 h1v1H28zM0 4h1v1H0zM2 4h3v1H2zM6 4h1v1H6zM10 4h2v1H10zM13 4h2v1H13zM17 4h1v1H17zM19 4h2v1H19zM22 4h1v1H22zM24 4h3v1H24zM28,4 h1v1H28zM0 5h1v1H0zM6 5h1v1H6zM8 5h3v1H8zM12 5h1v1H12zM14 5h1v1H14zM16 5h2v1H16zM20 5h1v1H20zM22 5h1v1H22zM28,5 h1v1H28zM0 6h7v1H0zM8 6h1v1H8zM10 6h1v1H10zM12 6h1v1H12zM14 6h1v1H14zM16 6h1v1H16zM18 6h1v1H18zM20 6h1v1H20zM22,6 h7v1H22zM8 7h1v1H8zM10 7h1v1H10zM13 7h1v1H13zM15 7h1v1H15zM17 7h2v1H17zM20 7h1v1H20zM2 8h3v1H2zM6 8h1v1H6zM8 8h2v1H8zM11 8h1v1H11zM13 8h1v1H13zM15 8h1v1H15zM19 8h1v1H19zM21 8h3v1H21zM26,8 h3v1H26zM0 9h1v1H0zM5 9h1v1H5zM10 9h3v1H10zM14 9h1v1H14zM17 9h2v1H17zM20 9h5v1H20zM28,9 h1v1H28zM1 10h2v1H1zM6 10h1v1H6zM9 10h2v1H9zM15 10h1v1H15zM17 10h1v1H17zM19 10h1v1H19zM21 10h1v1H21zM25 10h2v1H25zM7 11h1v1H7zM9 11h1v1H9zM13 11h1v1H13zM19 11h2v1H19zM22 11h1v1H22zM24 11h2v1H24zM0 12h1v1H0zM2 12h1v1H2zM6 12h1v1H6zM8 12h2v1H8zM12 12h1v1H12zM19 12h1v1H19zM25 12h2v1H25zM28,12 h1v1H28zM2 13h3v1H2zM7 13h1v1H7zM9 13h4v1H9zM14 13h1v1H14zM16 13h1v1H16zM18 13h1v1H18zM20 13h5v1H20zM26 13h1v1H26zM28,13 h1v1H28zM4 14h1v1H4zM6 14h1v1H6zM10 14h3v1H10zM14 14h1v1H14zM17 14h2v1H17zM20 14h1v1H20zM23 14h3v1H23zM0 15h3v1H0zM8 15h7v1H8zM16 15h2v1H16zM19 15h1v1H19zM21 15h1v1H21zM25 15h1v1H25zM0 16h1v1H0zM3 16h2v1H3zM6 16h1v1H6zM8 16h3v1H8zM14 16h1v1H14zM18 16h1v1H18zM20 16h2v1H20zM23 16h1v1H23zM25 16h1v1H25zM27 16h1v1H27zM0 17h1v1H0zM2 17h2v1H2zM8 17h2v1H8zM12 17h2v1H12zM15 17h4v1H15zM21 17h1v1H21zM23 17h2v1H23zM27 17h1v1H27zM0 18h1v1H0zM2 18h1v1H2zM4 18h1v1H4zM6 18h2v1H6zM9 18h7v1H9zM18 18h1v1H18zM20 18h1v1H20zM23 18h1v1H23zM25 18h2v1H25zM0 19h1v1H0zM7 19h1v1H7zM14 19h2v1H14zM17 19h2v1H17zM23 19h1v1H23zM25 19h1v1H25zM28,19 h1v1H28zM0 20h1v1H0zM6 20h4v1H6zM14 20h3v1H14zM18 20h1v1H18zM20 20h8v1H20zM8 21h4v1H8zM13 21h2v1H13zM16 21h1v1H16zM19 21h2v1H19zM24 21h2v1H24zM27,21 h2v1H27zM0 22h7v1H0zM11 22h1v1H11zM13 22h3v1H13zM18 22h3v1H18zM22 22h1v1H22zM24 22h1v1H24zM26 22h1v1H26zM0 23h1v1H0zM6 23h1v1H6zM9 23h1v1H9zM11 23h3v1H11zM19 23h2v1H19zM24 23h2v1H24zM27 23h1v1H27zM0 24h1v1H0zM2 24h3v1H2zM6 24h1v1H6zM8 24h1v1H8zM10 24h3v1H10zM14 24h1v1H14zM16 24h2v1H16zM20 24h5v1H20zM26 24h2v1H26zM0 25h1v1H0zM2 25h3v1H2zM6 25h1v1H6zM8 25h3v1H8zM13 25h2v1H13zM16 25h2v1H16zM19 25h1v1H19zM25 25h1v1H25zM0 26h1v1H0zM2 26h3v1H2zM6 26h1v1H6zM8 26h2v1H8zM13 26h1v1H13zM16 26h1v1H16zM18 26h1v1H18zM20 26h2v1H20zM23 26h5v1H23zM0 27h1v1H0zM6 27h1v1H6zM12 27h2v1H12zM18 27h1v1H18zM22 27h2v1H22zM25 27h1v1H25zM27 27h1v1H27zM0 28h7v1H0zM11 28h2v1H11zM14 28h3v1H14zM19 28h5v1H19zM26 28h1v1H26z"
+                fill="#000000"
+              />
+            </svg>
+          </div>
+          <div>
+            <div>
+              <div>
+                <div>
+                  Ballot Style
+                </div>
+                <strong>
+                  5R
+                </strong>
+              </div>
+              <div>
+                <div>
+                  Precinct Number
+                </div>
+                <strong>
+                  21
+                </strong>
+              </div>
+              <div>
+                <div>
+                  Serial Number
+                </div>
+                <strong>
+                  7zA5s434g2sj12
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="c7"
+      >
+        <div
+          class="c8"
+        >
+          <div
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 United States
@@ -481,7 +581,7 @@ exports[`renders PrintPage with votes 1`] = `
                 President and Vice-President
               </h3>
               <p
-                class="c9"
+                class="c11"
               >
                 <strong>
                   Joseph Barchi and Joseph Hallaren
@@ -492,10 +592,10 @@ exports[`renders PrintPage with votes 1`] = `
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 United States
@@ -503,7 +603,7 @@ exports[`renders PrintPage with votes 1`] = `
                 Senator
               </h3>
               <p
-                class="c9"
+                class="c11"
               >
                 <strong>
                   Dennis Weiford
@@ -514,10 +614,10 @@ exports[`renders PrintPage with votes 1`] = `
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 United States
@@ -525,17 +625,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Representative, District 6
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 State of Hamilton
@@ -543,17 +643,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Governor
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 State of Hamilton
@@ -561,17 +661,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Lieutenant Governor
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 State of Hamilton
@@ -579,17 +679,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Secretary of State
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 State of Hamilton
@@ -597,17 +697,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Senator, District 31
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 State of Hamilton
@@ -615,17 +715,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Assembly Member, District 54
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 Franklin County
@@ -633,17 +733,17 @@ exports[`renders PrintPage with votes 1`] = `
                 County Commissioners
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 Franklin County
@@ -651,17 +751,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Registrar of Wills
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 City of Springfield
@@ -669,17 +769,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Mayor
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 City of Springfield
@@ -687,17 +787,17 @@ exports[`renders PrintPage with votes 1`] = `
                 City Council
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 Hamilton Court of Appeals
@@ -705,17 +805,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Retain Robert Demergue as Chief Justice?
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 Hamilton Court of Appeals
@@ -723,17 +823,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Retain Elmer Hull as Associate Justice?
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 State of Hamilton
@@ -741,17 +841,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Question A: Recovery of Property Damages
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 State of Hamilton
@@ -759,17 +859,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Question B: Separation of Powers
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 State of Hamilton
@@ -777,17 +877,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Question C: Limits to Damages for Non-Economic Loss
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 State of Hamilton
@@ -795,17 +895,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Proposition 1: Gambling in Franklin and Fromwit Counties
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 Franklin County
@@ -813,17 +913,17 @@ exports[`renders PrintPage with votes 1`] = `
                 Measure 101: College District
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c7"
+            class="c9"
           >
             <div
-              class="c8"
+              class="c10"
             >
               <h3>
                 Franklin County
@@ -831,38 +931,13 @@ exports[`renders PrintPage with votes 1`] = `
                 Measure 102: Vehicle Abatement Program
               </h3>
               <p
-                class="c10"
+                class="c12"
               >
                 [no selection]
               </p>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        class="c11"
-      >
-        <svg
-          viewBox="0 0 1293 177"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M0 0h1293v177H0z"
-            fill="#FFF"
-          />
-          <path
-            d="M0 0h6v150H0zM9 0h3v150H9zM18 0h3v150h-3zM33 0h6v150h-6zM45 0h3v150h-3zM54 0h9v150h-9zM66 0h3v150h-3zM75 0h9v150h-9zM87 0h6v150h-6zM99 0h3v150h-3zM108 0h3v150h-3zM123 0h6v150h-6zM132 0h3v150h-3zM141 0h3v150h-3zM156 0h6v150h-6zM165 0h9v150h-9zM177 0h6v150h-6zM186 0h9v150h-9zM198 0h3v150h-3zM213 0h3v150h-3zM222 0h6v150h-6zM231 0h9v150h-9zM246 0h3v150h-3zM252 0h6v150h-6zM264 0h3v150h-3zM279 0h3v150h-3zM285 0h6v150h-6zM297 0h3v150h-3zM306 0h6v150h-6zM315 0h9v150h-9zM330 0h3v150h-3zM336 0h9v150h-9zM348 0h12v150h-12zM363 0h6v150h-6zM372 0h12v150h-12zM387 0h6v150h-6zM396 0h6v150h-6zM405 0h3v150h-3zM417 0h9v150h-9zM429 0h3v150h-3zM435 0h12v150h-12zM450 0h9v150h-9zM462 0h3v150h-3zM471 0h6v150h-6zM480 0h9v150h-9zM495 0h3v150h-3zM501 0h9v150h-9zM513 0h12v150h-12zM528 0h9v150h-9zM540 0h9v150h-9zM552 0h6v150h-6zM561 0h3v150h-3zM576 0h6v150h-6zM585 0h3v150h-3zM594 0h3v150h-3zM600 0h12v150h-12zM615 0h9v150h-9zM627 0h3v150h-3zM636 0h6v150h-6zM645 0h9v150h-9zM660 0h3v150h-3zM669 0h3v150h-3zM675 0h6v150h-6zM693 0h3v150h-3zM699 0h6v150h-6zM717 0h3v150h-3zM726 0h6v150h-6zM735 0h9v150h-9zM750 0h3v150h-3zM759 0h3v150h-3zM765 0h6v150h-6zM777 0h3v150h-3zM792 0h3v150h-3zM801 0h6v150h-6zM810 0h9v150h-9zM825 0h6v150h-6zM834 0h9v150h-9zM849 0h3v150h-3zM858 0h3v150h-3zM864 0h6v150h-6zM876 0h3v150h-3zM891 0h6v150h-6zM903 0h9v150h-9zM915 0h3v150h-3zM924 0h6v150h-6zM936 0h9v150h-9zM948 0h3v150h-3zM957 0h3v150h-3zM963 0h6v150h-6zM981 0h3v150h-3zM990 0h3v150h-3zM999 0h9v150h-9zM1011 0h6v150h-6zM1023 0h3v150h-3zM1032 0h3v150h-3zM1047 0h6v150h-6zM1056 0h3v150h-3zM1065 0h3v150h-3zM1080 0h6v150h-6zM1089 0h3v150h-3zM1104 0h3v150h-3zM1110 0h6v150h-6zM1122 0h9v150h-9zM1134 0h6v150h-6zM1143 0h9v150h-9zM1155 0h6v150h-6zM1167 0h3v150h-3zM1173 0h9v150h-9zM1188 0h3v150h-3zM1194 0h6v150h-6zM1206 0h3v150h-3zM1221 0h3v150h-3zM1227 0h6v150h-6zM1245 0h3v150h-3zM1254 0h6v150h-6zM1269 0h9v150h-9zM1281 0h3v150h-3zM1287 0h6v150h-6z"
-          />
-          <text
-            font-family="Helvetica"
-            font-size="24"
-            text-anchor="middle"
-            x="646.5"
-            y="177"
-          >
-            40bb7d9c-9049-4873-af5e-5e66f0bbc73e
-          </text>
-        </svg>
       </div>
     </section>
   </div>
