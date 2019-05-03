@@ -42,6 +42,14 @@ body,
   height: 100%;
   overflow: hidden;
 }
+@media print {
+  html,
+  body,
+  #root {
+    height: auto;
+    overflow: visible;
+  }
+}
 
 /* Typography */
 html {
@@ -79,7 +87,13 @@ html {
 }
 
 /* Utilities */
+.print-only {
+  display: none;
+}
 @media print {
+  .print-only {
+    display: block;
+  }
   .no-print {
     display: none;
   }
@@ -139,4 +153,10 @@ html {
     /* Extra specificity/!important ensure this rule is followed. */
     display: none !important;
   }
+}
+
+/* Adjust printed ballot paper settings */
+@page {
+  size: letter portrait;
+  margin: 0.375in;
 }

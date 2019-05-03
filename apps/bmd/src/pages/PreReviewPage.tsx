@@ -16,7 +16,7 @@ class SummaryPage extends React.Component<RouteComponentProps> {
       <React.Fragment>
         <Main>
           <MainChild>
-            <Prose className="no-print">
+            <Prose>
               <h1 aria-label={`Pre Review Screen.`}>Pre Review Screen</h1>
               <p>Time to go into review mode.</p>
             </Prose>

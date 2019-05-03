@@ -100,7 +100,7 @@ exports[`renders PreReviewPage 1`] = `
     class="c1"
   >
     <div
-      class="no-print c2"
+      class="c2"
     >
       <h1
         aria-label="Pre Review Screen."

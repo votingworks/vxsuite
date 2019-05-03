@@ -23,18 +23,8 @@ import Text from '../components/Text'
 import GLOBALS from '../config/globals'
 import BallotContext from '../contexts/ballotContext'
 
-const Ballot = styled.section`
-  display: none;
-  @media print {
-    display: flex;
-  }
-  flex-direction: column;
-  margin: 0;
-  min-height: 11in;
-  padding: 0.375in;
-  background: white;
-`
 const Header = styled.div`
+  height: 1.15in;
   display: flex;
   flex-direction: row;
   border-bottom: 0.2rem solid black;
@@ -92,6 +82,7 @@ const BallotSelections = styled.div`
   column-gap: 2rem;
 `
 const Contest = styled.div`
+  page-break-inside: avoid;
   break-inside: avoid;
   padding: 0.5rem 0;
   border-bottom: 0.01rem solid black;
@@ -99,6 +90,7 @@ const Contest = styled.div`
 const ContestProse = styled(Prose)`
   & > h3 {
     font-weight: normal;
+    font-size: 0.875em;
   }
 `
 const NoSelection = () => (
@@ -188,7 +180,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
               <h1 aria-label={`Print your ballot.`}>Print your ballot</h1>
               <p>Ready to print ballot.</p>
             </Prose>
-            <Ballot aria-hidden="true">
+            <div aria-hidden="true" className="print-only">
               <Header>
                 <div
                   className="seal"
@@ -248,7 +240,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                   ))}
                 </BallotSelections>
               </Content>
-            </Ballot>
+            </div>
           </MainChild>
         </Main>
         <ButtonBar>
