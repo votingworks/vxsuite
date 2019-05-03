@@ -220,9 +220,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                   {(contests as Contests).map(contest => (
                     <Contest key={contest.id}>
                       <ContestProse compact>
-                        <h3>
-                          {contest.section}, {contest.title}
-                        </h3>
+                        <h3>{contest.title}</h3>
                         {contest.type === 'candidate' && (
                           <CandidateContestResult
                             contest={contest}

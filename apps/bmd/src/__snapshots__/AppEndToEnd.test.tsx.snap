@@ -973,7 +973,7 @@ button.c8 {
 
 exports[`basic end-to-end flow 3`] = `
 <div
-  class="sc-cHGsZl ewbOfU"
+  class="sc-kjoXOD TMpcb"
   tabindex="-1"
 >
   <main
@@ -1231,7 +1231,7 @@ exports[`basic end-to-end flow 3`] = `
 
 exports[`basic end-to-end flow 4`] = `
 <div
-  class="sc-cHGsZl ewbOfU"
+  class="sc-kjoXOD TMpcb"
   tabindex="-1"
 >
   .c0 {
@@ -1632,7 +1632,7 @@ button.c10 {
 
 exports[`basic end-to-end flow 5`] = `
 <div
-  class="sc-cHGsZl ewbOfU"
+  class="sc-kjoXOD TMpcb"
   tabindex="-1"
 >
   <main
@@ -1785,7 +1785,7 @@ exports[`basic end-to-end flow 5`] = `
 
 exports[`basic end-to-end flow 6`] = `
 <div
-  class="sc-cHGsZl ewbOfU"
+  class="sc-kjoXOD TMpcb"
   tabindex="-1"
 >
   .c0 {
@@ -1887,7 +1887,7 @@ exports[`basic end-to-end flow 6`] = `
       class="c1"
     >
       <div
-        class="no-print c2"
+        class="c2"
       >
         <h1
           aria-label="Pre Review Screen."
@@ -2083,7 +2083,7 @@ exports[`basic end-to-end flow 6`] = `
 
 exports[`basic end-to-end flow 7`] = `
 <div
-  class="sc-cHGsZl ewbOfU"
+  class="sc-kjoXOD TMpcb"
   tabindex="-1"
 >
   .c0 {
@@ -3327,7 +3327,7 @@ button.c7 {
 
 exports[`basic end-to-end flow 8`] = `
 <div
-  class="sc-cHGsZl ewbOfU"
+  class="sc-kjoXOD TMpcb"
   tabindex="-1"
 >
   .c0 {
@@ -4184,7 +4184,7 @@ button.c8 {
 
 exports[`basic end-to-end flow 9`] = `
 <div
-  class="sc-cHGsZl ewbOfU"
+  class="sc-kjoXOD TMpcb"
   tabindex="-1"
 >
   <main
@@ -4677,7 +4677,7 @@ exports[`basic end-to-end flow 9`] = `
 
 exports[`basic end-to-end flow 10`] = `
 <div
-  class="sc-cHGsZl ewbOfU"
+  class="sc-kjoXOD TMpcb"
   tabindex="-1"
 >
   .c0 {

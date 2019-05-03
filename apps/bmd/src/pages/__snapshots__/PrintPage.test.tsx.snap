@@ -64,34 +64,24 @@ exports[`renders PrintPage with votes 1`] = `
   margin-bottom: 0;
 }
 
-.c6 > svg {
+.c5 > svg {
   display: block;
   height: auto;
   width: 100%;
 }
 
-.c11 {
+.c10 {
   font-weight: 600;
   word-break: break-word;
 }
 
-.c12 {
+.c11 {
   color: gray;
   font-weight: 600;
 }
 
 .c3 {
-  display: none;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  margin: 0;
-  min-height: 11in;
-  padding: 0.375in;
-  background: white;
-}
-
-.c4 {
+  height: 1.15in;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -106,20 +96,20 @@ exports[`renders PrintPage with votes 1`] = `
   align-items: center;
 }
 
-.c4 > .seal {
+.c3 > .seal {
   width: 1in;
   margin: 0.25rem 0;
 }
 
-.c4 h2 {
+.c3 h2 {
   margin-bottom: 0;
 }
 
-.c4 h3 {
+.c3 h3 {
   margin-top: 0;
 }
 
-.c4 > .ballot-header-content {
+.c3 > .ballot-header-content {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
@@ -127,7 +117,7 @@ exports[`renders PrintPage with votes 1`] = `
   margin: 0 1rem;
 }
 
-.c5 {
+.c4 {
   max-width: 50%;
   -webkit-align-self: flex-end;
   -ms-flex-item-align: end;
@@ -144,12 +134,12 @@ exports[`renders PrintPage with votes 1`] = `
   padding: 0.25rem;
 }
 
-.c5 > div:first-child {
+.c4 > div:first-child {
   width: 1in;
   margin-right: 0.25rem;
 }
 
-.c5 > div:last-child {
+.c4 > div:last-child {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
@@ -159,7 +149,7 @@ exports[`renders PrintPage with votes 1`] = `
   display: flex;
 }
 
-.c5 > div:last-child > div {
+.c4 > div:last-child > div {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
@@ -180,76 +170,78 @@ exports[`renders PrintPage with votes 1`] = `
   font-size: 0.8rem;
 }
 
-.c5 > div:last-child > div strong {
+.c4 > div:last-child > div strong {
   font-size: 1rem;
   word-break: break-word;
 }
 
-.c7 {
+.c6 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c8 {
+.c7 {
   -webkit-columns: 2;
   columns: 2;
   -webkit-column-gap: 2rem;
   column-gap: 2rem;
 }
 
-.c9 {
+.c8 {
+  page-break-inside: avoid;
   -webkit-break-inside: avoid;
   break-inside: avoid;
   padding: 0.5rem 0;
   border-bottom: 0.01rem solid black;
 }
 
-.c10 {
+.c9 {
   line-height: 1.2;
   max-width: 66ch;
 }
 
-.c10 h1 {
+.c9 h1 {
   font-size: 1.5rem;
   line-height: 1.1;
   margin: 2rem 0 1rem;
 }
 
-.c10 h2 {
+.c9 h2 {
   font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
 }
 
-.c10 h3,
-.c10 p {
+.c9 h3,
+.c9 p {
   font-size: 1rem;
   margin: 0;
 }
 
-.c10 h1 + h2 {
+.c9 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c10 h1 + p,
-.c10 h2 + p {
+.c9 h1 + p,
+.c9 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c10 h3 + p {
+.c9 h3 + p {
   margin-top: 0;
 }
 
-.c10 :first-child {
+.c9 :first-child {
   margin-top: 0;
 }
 
-.c10 :last-child {
+.c9 :last-child {
   margin-bottom: 0;
 }
 
-.c10 > h3 {
+.c9 > h3 {
   font-weight: normal;
+  font-size: 0.875em;
 }
 
 @media (min-width:480px) {
@@ -282,22 +274,13 @@ exports[`renders PrintPage with votes 1`] = `
 }
 
 @media print {
-  .c12 {
+  .c11 {
     color: black;
   }
 }
 
-@media print {
-  .c3 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
 @media (min-width:480px) {
-  .c10 {
+  .c9 {
     line-height: 1.3;
   }
 }
@@ -320,12 +303,12 @@ exports[`renders PrintPage with votes 1`] = `
         Ready to print ballot.
       </p>
     </div>
-    <section
+    <div
       aria-hidden="true"
-      class="c3"
+      class="print-only"
     >
       <div
-        class="c4"
+        class="c3"
       >
         <div
           class="seal"
@@ -512,10 +495,10 @@ exports[`renders PrintPage with votes 1`] = `
           </p>
         </div>
         <div
-          class="c5"
+          class="c4"
         >
           <div
-            class="c6"
+            class="c5"
           >
             <svg
               height="128"
@@ -564,24 +547,22 @@ exports[`renders PrintPage with votes 1`] = `
         </div>
       </div>
       <div
-        class="c7"
+        class="c6"
       >
         <div
-          class="c8"
+          class="c7"
         >
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                United States
-                , 
                 President and Vice-President
               </h3>
               <p
-                class="c11"
+                class="c10"
               >
                 <strong>
                   Joseph Barchi and Joseph Hallaren
@@ -592,18 +573,16 @@ exports[`renders PrintPage with votes 1`] = `
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                United States
-                , 
                 Senator
               </h3>
               <p
-                class="c11"
+                class="c10"
               >
                 <strong>
                   Dennis Weiford
@@ -614,324 +593,288 @@ exports[`renders PrintPage with votes 1`] = `
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                United States
-                , 
                 Representative, District 6
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                State of Hamilton
-                , 
                 Governor
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                State of Hamilton
-                , 
                 Lieutenant Governor
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                State of Hamilton
-                , 
                 Secretary of State
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                State of Hamilton
-                , 
                 Senator, District 31
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                State of Hamilton
-                , 
                 Assembly Member, District 54
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                Franklin County
-                , 
                 County Commissioners
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                Franklin County
-                , 
                 Registrar of Wills
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                City of Springfield
-                , 
                 Mayor
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                City of Springfield
-                , 
                 City Council
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                Hamilton Court of Appeals
-                , 
                 Retain Robert Demergue as Chief Justice?
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                Hamilton Court of Appeals
-                , 
                 Retain Elmer Hull as Associate Justice?
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                State of Hamilton
-                , 
                 Question A: Recovery of Property Damages
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                State of Hamilton
-                , 
                 Question B: Separation of Powers
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                State of Hamilton
-                , 
                 Question C: Limits to Damages for Non-Economic Loss
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                State of Hamilton
-                , 
                 Proposition 1: Gambling in Franklin and Fromwit Counties
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                Franklin County
-                , 
                 Measure 101: College District
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
             </div>
           </div>
           <div
-            class="c9"
+            class="c8"
           >
             <div
-              class="c10"
+              class="c9"
             >
               <h3>
-                Franklin County
-                , 
                 Measure 102: Vehicle Abatement Program
               </h3>
               <p
-                class="c12"
+                class="c11"
               >
                 [no selection]
               </p>
@@ -939,7 +882,7 @@ exports[`renders PrintPage with votes 1`] = `
           </div>
         </div>
       </div>
-    </section>
+    </div>
   </div>
 </main>
 `;
