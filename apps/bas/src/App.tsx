@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
+import { useDropzone } from 'react-dropzone'
 import styled from 'styled-components'
 
 import './App.css'
 
 import electionSample from './data/electionSample.json'
+
+type Election = typeof electionSample | undefined
 
 type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
@@ -18,6 +21,7 @@ const Content = styled.div`
 `
 
 const App: React.FC = () => {
+  const [election, setElection] = useState(undefined)
   const [precinct, setPrecinct] = useState('')
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
@@ -28,6 +32,18 @@ const App: React.FC = () => {
     const { id = '' } = (event.target as HTMLElement).dataset
     setBallot(id)
   }
+  const onDrop = (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 1) {
+      const file = acceptedFiles[0]
+      const reader = new FileReader()
+      reader.onload = () => {
+        setElection(JSON.parse(reader.result as string))
+      }
+      reader.readAsText(file)
+    }
+  }
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+
   const reset = () => {
     setPrecinct('')
     setBallot('')
@@ -67,7 +83,7 @@ const App: React.FC = () => {
       </Body>
     )
   }
-  if (precinct) {
+  if (election && precinct) {
     return (
       <Body>
         <Content>
@@ -77,7 +93,7 @@ const App: React.FC = () => {
               Reset
             </button>
           </p>
-          {electionSample.ballotStyles
+          {(election as Election)!.ballotStyles
             .filter(b => b.precincts.find(p => p === precinct))
             .map(ballot => (
               <div key={ballot.id}>
@@ -94,17 +110,35 @@ const App: React.FC = () => {
       </Body>
     )
   }
+  if (election) {
+    return (
+      <Body>
+        <Content>
+          <h1>Precincts</h1>
+          {(election as Election)!.precincts.map(p => (
+            <div key={p.id}>
+              <button data-id={p.id} onClick={updatePrecinct} type="button">
+                {p.name}
+              </button>
+            </div>
+          ))}
+        </Content>
+      </Body>
+    )
+  }
+
   return (
     <Body>
       <Content>
-        <h1>Precincts</h1>
-        {electionSample.precincts.map(p => (
-          <div key={p.id}>
-            <button data-id={p.id} onClick={updatePrecinct} type="button">
-              {p.name}
-            </button>
-          </div>
-        ))}
+        <h1>Load Election</h1>
+        <div {...getRootProps()}>
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p>Drop the files here ...</p>
+          ) : (
+            <p>Drag and drop election file here</p>
+          )}
+        </div>
       </Content>
     </Body>
   )
