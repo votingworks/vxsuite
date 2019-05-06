@@ -1553,7 +1553,7 @@ button.c10 {
           <input
             class="visually-hidden c11"
             id="yes"
-            name="measure-102"
+            name="102"
             type="checkbox"
             value="yes"
           />
@@ -1574,7 +1574,7 @@ button.c10 {
           <input
             class="visually-hidden c11"
             id="no"
-            name="measure-102"
+            name="102"
             type="checkbox"
             value="no"
           />
@@ -1706,7 +1706,7 @@ exports[`basic end-to-end flow 5`] = `
           <input
             class="visually-hidden sc-brqgnP fZhdBB"
             id="yes"
-            name="measure-102"
+            name="102"
             type="checkbox"
             value="yes"
           />
@@ -1727,7 +1727,7 @@ exports[`basic end-to-end flow 5`] = `
           <input
             class="visually-hidden sc-brqgnP fZhdBB"
             id="no"
-            name="measure-102"
+            name="102"
             type="checkbox"
             value="no"
           />
@@ -2477,7 +2477,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/0#review"
-            id="president"
+            id="contest-president"
             tabindex="0"
           >
             <div
@@ -2514,7 +2514,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/1#review"
-            id="senator"
+            id="contest-senator"
             tabindex="0"
           >
             <div
@@ -2547,7 +2547,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/2#review"
-            id="representative-district-6"
+            id="contest-representative-district-6"
             tabindex="0"
           >
             <div
@@ -2580,7 +2580,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/3#review"
-            id="governor"
+            id="contest-governor"
             tabindex="0"
           >
             <div
@@ -2613,7 +2613,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/4#review"
-            id="lieutenant-governor"
+            id="contest-lieutenant-governor"
             tabindex="0"
           >
             <div
@@ -2646,7 +2646,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/5#review"
-            id="secretary-of-state"
+            id="contest-secretary-of-state"
             tabindex="0"
           >
             <div
@@ -2679,7 +2679,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/6#review"
-            id="state-senator-district-31"
+            id="contest-state-senator-district-31"
             tabindex="0"
           >
             <div
@@ -2712,7 +2712,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/7#review"
-            id="state-assembly-district-54"
+            id="contest-state-assembly-district-54"
             tabindex="0"
           >
             <div
@@ -2745,7 +2745,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/8#review"
-            id="county-commissioners"
+            id="contest-county-commissioners"
             tabindex="0"
           >
             <div
@@ -2778,7 +2778,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/9#review"
-            id="county-registrar-of-wills"
+            id="contest-county-registrar-of-wills"
             tabindex="0"
           >
             <div
@@ -2811,7 +2811,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/10#review"
-            id="city-mayor"
+            id="contest-city-mayor"
             tabindex="0"
           >
             <div
@@ -2844,7 +2844,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/11#review"
-            id="city-council"
+            id="contest-city-council"
             tabindex="0"
           >
             <div
@@ -2877,7 +2877,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/12#review"
-            id="judicial-robert-demergue"
+            id="contest-judicial-robert-demergue"
             tabindex="0"
           >
             <div
@@ -2910,7 +2910,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/13#review"
-            id="judicial-elmer-hull"
+            id="contest-judicial-elmer-hull"
             tabindex="0"
           >
             <div
@@ -2943,7 +2943,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/14#review"
-            id="question-a"
+            id="contest-question-a"
             tabindex="0"
           >
             <div
@@ -2976,7 +2976,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/15#review"
-            id="question-b"
+            id="contest-question-b"
             tabindex="0"
           >
             <div
@@ -3009,7 +3009,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/16#review"
-            id="question-c"
+            id="contest-question-c"
             tabindex="0"
           >
             <div
@@ -3042,7 +3042,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/17#review"
-            id="proposition-1"
+            id="contest-proposition-1"
             tabindex="0"
           >
             <div
@@ -3075,7 +3075,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/18#review"
-            id="measure-101"
+            id="contest-measure-101"
             tabindex="0"
           >
             <div
@@ -3108,7 +3108,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/19#review"
-            id="measure-102"
+            id="contest-102"
             tabindex="0"
           >
             <div
@@ -5071,7 +5071,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/0#review"
-            id="president"
+            id="contest-president"
             tabindex="0"
           >
             <div
@@ -5108,7 +5108,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/1#review"
-            id="senator"
+            id="contest-senator"
             tabindex="0"
           >
             <div
@@ -5141,7 +5141,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/2#review"
-            id="representative-district-6"
+            id="contest-representative-district-6"
             tabindex="0"
           >
             <div
@@ -5174,7 +5174,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/3#review"
-            id="governor"
+            id="contest-governor"
             tabindex="0"
           >
             <div
@@ -5207,7 +5207,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/4#review"
-            id="lieutenant-governor"
+            id="contest-lieutenant-governor"
             tabindex="0"
           >
             <div
@@ -5240,7 +5240,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/5#review"
-            id="secretary-of-state"
+            id="contest-secretary-of-state"
             tabindex="0"
           >
             <div
@@ -5273,7 +5273,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/6#review"
-            id="state-senator-district-31"
+            id="contest-state-senator-district-31"
             tabindex="0"
           >
             <div
@@ -5306,7 +5306,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/7#review"
-            id="state-assembly-district-54"
+            id="contest-state-assembly-district-54"
             tabindex="0"
           >
             <div
@@ -5339,7 +5339,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/8#review"
-            id="county-commissioners"
+            id="contest-county-commissioners"
             tabindex="0"
           >
             <div
@@ -5396,7 +5396,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/9#review"
-            id="county-registrar-of-wills"
+            id="contest-county-registrar-of-wills"
             tabindex="0"
           >
             <div
@@ -5429,7 +5429,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/10#review"
-            id="city-mayor"
+            id="contest-city-mayor"
             tabindex="0"
           >
             <div
@@ -5462,7 +5462,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/11#review"
-            id="city-council"
+            id="contest-city-council"
             tabindex="0"
           >
             <div
@@ -5495,7 +5495,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/12#review"
-            id="judicial-robert-demergue"
+            id="contest-judicial-robert-demergue"
             tabindex="0"
           >
             <div
@@ -5528,7 +5528,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/13#review"
-            id="judicial-elmer-hull"
+            id="contest-judicial-elmer-hull"
             tabindex="0"
           >
             <div
@@ -5561,7 +5561,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/14#review"
-            id="question-a"
+            id="contest-question-a"
             tabindex="0"
           >
             <div
@@ -5594,7 +5594,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/15#review"
-            id="question-b"
+            id="contest-question-b"
             tabindex="0"
           >
             <div
@@ -5627,7 +5627,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/16#review"
-            id="question-c"
+            id="contest-question-c"
             tabindex="0"
           >
             <div
@@ -5660,7 +5660,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/17#review"
-            id="proposition-1"
+            id="contest-proposition-1"
             tabindex="0"
           >
             <div
@@ -5693,7 +5693,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/18#review"
-            id="measure-101"
+            id="contest-measure-101"
             tabindex="0"
           >
             <div
@@ -5726,7 +5726,7 @@ button.c7 {
           <a
             class="c7"
             href="/contests/19#review"
-            id="measure-102"
+            id="contest-102"
             tabindex="0"
           >
             <div

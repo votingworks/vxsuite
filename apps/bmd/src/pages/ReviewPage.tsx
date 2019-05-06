@@ -313,7 +313,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
               <ScrollableContentWrapper isScrollable={isScrollable}>
                 {(contests as Contests).map((contest, i) => (
                   <Contest
-                    id={contest.id}
+                    id={`contest-${contest.id}`}
                     key={contest.id}
                     tabIndex={0}
                     to={`/contests/${i}#review`}

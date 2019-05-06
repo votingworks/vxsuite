@@ -13,9 +13,9 @@ describe('Review Page', () => {
     cy.wrap(clickThoughPages).each(() => {
       cy.contains('Next').click()
     })
-    cy.get('#county-commissioners').click()
+    cy.get('#contest-county-commissioners').click()
     cy.contains('Review Ballot').click()
-    cy.get('#county-commissioners').should('be.visible')
-    cy.focused().should('have.attr', 'id', 'county-commissioners')
+    cy.get('#contest-county-commissioners').should('be.visible')
+    cy.focused().should('have.attr', 'id', 'contest-county-commissioners')
   })
 })

@@ -75,7 +75,7 @@ const ContestPage = (props: Props) => {
           <React.Fragment>
             <LinkButton
               primary={isVoteComplete}
-              to={`/review#${contest.id}`}
+              to={`/review#contest-${contest.id}`}
               id="next"
             >
               Review Ballot

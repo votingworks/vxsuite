@@ -14,6 +14,8 @@ const contest1candidate0 = contest1.candidates[0]
 
 import ReviewPage from './ReviewPage'
 
+const idValueStartsWithNumberRegex = new RegExp('id="[0-9]')
+
 it(`renders ReviewPage without votes`, () => {
   const { container } = render(
     <Route path="/review" component={ReviewPage} />,
@@ -35,5 +37,8 @@ it(`renders ReviewPage with votes`, () => {
       },
     }
   )
+
+  // DOM node IDs cannot start with a number. Browsers will error out.
+  expect(idValueStartsWithNumberRegex.test(container.outerHTML)).toBeFalsy()
   expect(container.firstChild).toMatchSnapshot()
 })
