@@ -5,12 +5,18 @@ import { CandidateContest as CandidateContestInterface } from '../config/types'
 
 import CandidateContest from './CandidateContest'
 
+const parties = [0, 1].map(i => ({
+  abbrev: `${i}`,
+  id: `party-${i}`,
+  name: `Party ${i}`,
+}))
+
 const contest = {
   allowWriteIns: false,
   candidates: [0, 1, 2].map(i => ({
     id: `name-${i}`,
     name: `Name ${i}`,
-    party: `Party ${i % 2}`,
+    partyId: `party-${i % 2}`,
   })),
   id: 'contest-id',
   seats: 1,
@@ -26,7 +32,12 @@ describe(`supports single-seat contest`, () => {
   it(`allows any candidate to be selected when no candidate is selected`, () => {
     const updateVote = jest.fn()
     const { container, getByText } = render(
-      <CandidateContest contest={contest} vote={[]} updateVote={updateVote} />
+      <CandidateContest
+        contest={contest}
+        parties={parties}
+        vote={[]}
+        updateVote={updateVote}
+      />
     )
     expect(container).toMatchSnapshot()
 
@@ -45,6 +56,7 @@ describe(`supports single-seat contest`, () => {
     const { container, getByText } = render(
       <CandidateContest
         contest={contest}
+        parties={parties}
         vote={[candidate0]}
         updateVote={updateVote}
       />
@@ -93,6 +105,7 @@ describe(`supports multi-seat contests`, () => {
     const { container, getByText } = render(
       <CandidateContest
         contest={{ ...contest, seats: 2 }}
+        parties={parties}
         vote={[candidate0]}
         updateVote={updateVote}
       />
@@ -134,6 +147,7 @@ describe(`supports write-in candidates`, () => {
     const { container, getByText, queryByText } = render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
+        parties={parties}
         vote={[]}
         updateVote={updateVote}
       />

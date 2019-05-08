@@ -24,7 +24,7 @@ it(`Multi-seat Contest Flow`, () => {
   window.localStorage.setItem(electionKey, electionSampleAsString)
   const { getByText, getByTestId, queryByText } = render(<App />)
   fireEvent.change(getByTestId('activation-code'), {
-    target: { value: 'VX.23.12D' },
+    target: { value: 'VX.23.12' },
   })
 
   // TODO: replace next line with "Enter" keyDown on activation code input

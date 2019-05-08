@@ -105,7 +105,7 @@ const StartPage = (props: RouteComponentProps) => {
                   <h1>Scan Your Activation Code</h1>
                   <p>Your ballot will be displayed after scan is complete.</p>
                   <CodeBox onClick={takeShortcut}>
-                    <QRCode value="VX.21.5R" />
+                    <QRCode value="VX.21.5" />
                   </CodeBox>
                 </Prose>
               </label>

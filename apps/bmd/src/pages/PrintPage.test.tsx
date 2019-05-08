@@ -23,7 +23,7 @@ it(`renders PrintPage without votes`, () => {
 
 it(`renders PrintPage with votes`, () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
-    ballotStyleId: '5R',
+    ballotStyleId: '5',
     precinctId: '21',
     route: '/print',
     votes: {

@@ -25,16 +25,14 @@ it(`Activation code is reset if not submitted`, async () => {
 
   // Set invalid activation code and do not submit form
   fireEvent.change(getByTestId('activation-code'), {
-    target: { value: 'VX.precinct-21.5R' },
+    target: { value: 'VX.21.5' },
   })
-  expect(activationCodeInput.value).toBe('VX.precinct-21.5R')
+  expect(activationCodeInput.value).toBe('VX.21.5')
 
-  jest.runOnlyPendingTimers()
+  jest.advanceTimersByTime(1000)
 
   // Activation code input value is cleared.
-  await wait(() => {
-    expect(activationCodeInput.value).toBe('')
-  })
+  expect(activationCodeInput.value).toBe('')
 
   jest.useRealTimers()
 })
@@ -75,7 +73,7 @@ it(`Displays alternate ballot`, () => {
 
   fireEvent.change(getByTestId('activation-code'), {
     // Enter activation code with different ballot style.
-    target: { value: 'VX.21.5R' },
+    target: { value: 'VX.21.5' },
   })
 
   // TODO: replace next line with "Enter" keyDown on activation code input

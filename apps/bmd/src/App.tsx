@@ -181,8 +181,10 @@ class App extends React.Component<RouteComponentProps, State> {
   }
 
   public getContests = (ballotStyle: BallotStyle, election?: Election) =>
-    (election || this.state.election!).contests.filter(c =>
-      ballotStyle.districts.includes(c.districtId)
+    (election || this.state.election!).contests.filter(
+      c =>
+        ballotStyle.districts.includes(c.districtId) &&
+        ballotStyle.partyId === c.partyId
     )
 
   public activateBallot = ({ ballotStyle, precinct }: ActivationData) => {

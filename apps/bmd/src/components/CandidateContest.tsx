@@ -4,6 +4,8 @@ import Keyboard from 'react-simple-keyboard'
 import 'react-simple-keyboard/build/css/index.css'
 import styled from 'styled-components'
 
+import { findPartyById } from '../utils/find'
+
 import {
   ButtonEvent,
   Candidate,
@@ -11,6 +13,7 @@ import {
   CandidateVote,
   InputEvent,
   OptionalCandidate,
+  Parties,
   Scrollable,
   ScrollDirections,
   ScrollShadows,
@@ -205,6 +208,7 @@ const WriteInCandidateInput = styled.input.attrs({
 
 interface Props {
   contest: CandidateContestInterface
+  parties: Parties
   vote: CandidateVote
   updateVote: UpdateVoteFunction
 }
@@ -397,7 +401,7 @@ class CandidateContest extends React.Component<Props, State> {
   }
 
   public render() {
-    const { contest, vote } = this.props
+    const { contest, parties, vote } = this.props
     const hasReachedMaxSelections = contest.seats === vote.length
     const {
       attemptedOvervoteCandidate,
@@ -445,6 +449,9 @@ class CandidateContest extends React.Component<Props, State> {
                         this.handleChangeVoteAlert(candidate)
                       }
                     }
+                    const party =
+                      candidate.partyId &&
+                      findPartyById(parties, candidate.partyId)
                     return (
                       <Choice
                         key={candidate.id}
@@ -468,12 +475,12 @@ class CandidateContest extends React.Component<Props, State> {
                           <Text
                             wordBreak
                             aria-label={`${candidate.name}, ${
-                              candidate.party
+                              party ? party.name : ''
                             }.`}
                           >
                             <strong>{candidate.name}</strong>
                             <br />
-                            {candidate.party}
+                            {party ? party.name : ''}
                           </Text>
                         </Prose>
                       </Choice>

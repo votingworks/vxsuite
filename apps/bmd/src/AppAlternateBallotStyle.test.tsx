@@ -21,7 +21,7 @@ it(`Handles invalid activation code`, async () => {
 
   fireEvent.change(getByTestId('activation-code'), {
     // Enter activation code with non-existant precinct.
-    target: { value: 'VX.404.5R' },
+    target: { value: 'VX.404.5' },
   })
 
   // Still on Activation Screen
@@ -34,7 +34,7 @@ it(`Displays alternate ballot`, async () => {
 
   fireEvent.change(getByTestId('activation-code'), {
     // Enter activation code with different ballot style.
-    target: { value: 'VX.21.5R' },
+    target: { value: 'VX.21.5' },
   })
 
   // TODO: replace next line with "Enter" keyDown on activation code input

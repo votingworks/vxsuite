@@ -42,7 +42,7 @@ it(`basic end-to-end flow`, async () => {
   const { container, getByText, getByTestId, queryByText } = render(<App />)
   fireEvent.change(getByTestId('activation-code'), {
     target: {
-      value: 'VX.23.12D',
+      value: 'VX.23.12',
     },
   })
 

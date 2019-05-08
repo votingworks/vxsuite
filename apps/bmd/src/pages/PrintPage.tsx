@@ -2,6 +2,7 @@ import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 import QRCode from '../components/QRCode'
+import { findPartyById } from '../utils/find'
 
 import {
   Candidate,
@@ -9,6 +10,7 @@ import {
   CandidateVote,
   Contests,
   OptionalYesNoVote,
+  Parties,
   YesNoContest,
   YesNoVote,
 } from '../config/types'
@@ -101,9 +103,11 @@ const NoSelection = () => (
 
 const CandidateContestResult = ({
   contest,
+  parties,
   vote = [],
 }: {
   contest: CandidateContest
+  parties: Parties
   vote: CandidateVote
 }) => {
   const remainingChoices = contest.seats - vote.length
@@ -114,7 +118,8 @@ const CandidateContestResult = ({
       {vote.map((candidate: Candidate) => (
         <Text bold key={candidate.id} wordBreak>
           <strong>{candidate.name}</strong>{' '}
-          {candidate.party && `/ ${candidate.party}`}
+          {candidate.partyId &&
+            `/ ${findPartyById(parties, candidate.partyId)!.name}`}
           {candidate.isWriteIn && `(write-in)`}
         </Text>
       ))}
@@ -168,7 +173,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
     const {
       ballotStyleId,
       contests,
-      election: { seal, title, county, state, date, bmdConfig },
+      election: { seal, parties, title, county, state, date, bmdConfig },
       precinctId,
       votes,
     } = this.context
@@ -251,6 +256,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                         {contest.type === 'candidate' && (
                           <CandidateContestResult
                             contest={contest}
+                            parties={parties}
                             vote={votes[contest.id] as CandidateVote}
                           />
                         )}

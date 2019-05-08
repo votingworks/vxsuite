@@ -1030,6 +1030,72 @@ button.c7 {
             </div>
           </div>
         </a>
+        <a
+          class="c7"
+          href="/contests/20#review"
+          id="contest-measure-666"
+          tabindex="0"
+        >
+          <div
+            class="c8"
+          >
+            <h3
+              aria-label="Franklin County, Measure 666: The Question No One Gets To,"
+            >
+              Franklin County
+              , 
+              Measure 666: The Question No One Gets To
+            </h3>
+            <p
+              aria-label="No selection was made for Measure 666: The Question No One Gets To."
+              class="c12"
+            >
+              No selection was made for this contest.
+            </p>
+          </div>
+          <div
+            class="c10"
+          >
+            <div
+              class="c11"
+            >
+              Change
+            </div>
+          </div>
+        </a>
+        <a
+          class="c7"
+          href="/contests/21#review"
+          id="contest-primary-constitution-head-of-party"
+          tabindex="0"
+        >
+          <div
+            class="c8"
+          >
+            <h3
+              aria-label="Franklin County, Head of Constitution Party,"
+            >
+              Franklin County
+              , 
+              Head of Constitution Party
+            </h3>
+            <p
+              aria-label="No selection was made for Head of Constitution Party."
+              class="c12"
+            >
+              No selection was made for this contest.
+            </p>
+          </div>
+          <div
+            class="c10"
+          >
+            <div
+              class="c11"
+            >
+              Change
+            </div>
+          </div>
+        </a>
       </div>
     </div>
   </div>
@@ -2036,6 +2102,72 @@ button.c7 {
             </h3>
             <p
               aria-label="No selection was made for Measure 102: Vehicle Abatement Program."
+              class="c9"
+            >
+              No selection was made for this contest.
+            </p>
+          </div>
+          <div
+            class="c10"
+          >
+            <div
+              class="c11"
+            >
+              Change
+            </div>
+          </div>
+        </a>
+        <a
+          class="c7"
+          href="/contests/20#review"
+          id="contest-measure-666"
+          tabindex="0"
+        >
+          <div
+            class="c8"
+          >
+            <h3
+              aria-label="Franklin County, Measure 666: The Question No One Gets To,"
+            >
+              Franklin County
+              , 
+              Measure 666: The Question No One Gets To
+            </h3>
+            <p
+              aria-label="No selection was made for Measure 666: The Question No One Gets To."
+              class="c9"
+            >
+              No selection was made for this contest.
+            </p>
+          </div>
+          <div
+            class="c10"
+          >
+            <div
+              class="c11"
+            >
+              Change
+            </div>
+          </div>
+        </a>
+        <a
+          class="c7"
+          href="/contests/21#review"
+          id="contest-primary-constitution-head-of-party"
+          tabindex="0"
+        >
+          <div
+            class="c8"
+          >
+            <h3
+              aria-label="Franklin County, Head of Constitution Party,"
+            >
+              Franklin County
+              , 
+              Head of Constitution Party
+            </h3>
+            <p
+              aria-label="No selection was made for Head of Constitution Party."
               class="c9"
             >
               No selection was made for this contest.

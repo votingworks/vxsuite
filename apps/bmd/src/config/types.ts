@@ -21,7 +21,7 @@ export interface Scrollable {
 export interface Candidate {
   readonly id: string
   readonly name: string
-  readonly party?: string
+  readonly partyId?: string
   isWriteIn?: boolean
 }
 export type OptionalCandidate = Candidate | undefined
@@ -39,6 +39,7 @@ export type ContestTypes = 'candidate' | 'yesno'
 export interface Contest {
   readonly id: string
   readonly districtId: string
+  readonly partyId?: string
   readonly section: string
   readonly title: string
   readonly type: ContestTypes
@@ -69,7 +70,14 @@ export interface BallotStyle {
   readonly id: string
   readonly precincts: string[]
   readonly districts: string[]
+  readonly partyId?: string
 }
+export interface Party {
+  readonly id: string
+  readonly name: string
+  readonly abbrev: string
+}
+export type Parties = Party[]
 export interface Precinct {
   readonly id: string
   readonly name: string
@@ -80,6 +88,7 @@ export interface District {
 }
 export interface Election {
   readonly ballotStyles: BallotStyle[]
+  readonly parties: Parties
   readonly precincts: Precinct[]
   readonly districts: District[]
   readonly contests: Contests

@@ -24,7 +24,7 @@ it(`Overvote triggers modal`, () => {
   window.localStorage.setItem(electionKey, electionSampleAsString)
   const { container, getByText, getByTestId } = render(<App />)
   fireEvent.change(getByTestId('activation-code'), {
-    target: { value: 'VX.23.12D' },
+    target: { value: 'VX.23.12' },
   })
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))

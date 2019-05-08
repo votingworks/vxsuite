@@ -2,6 +2,7 @@ import pluralize from 'pluralize'
 import React from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
+import { findPartyById } from '../utils/find'
 
 import {
   ButtonEvent,
@@ -10,6 +11,7 @@ import {
   CandidateVote,
   Contests,
   OptionalYesNoVote,
+  Parties,
   Scrollable,
   ScrollDirections,
   ScrollShadows,
@@ -146,9 +148,11 @@ const NoSelection = (props: { title: string }) => (
 
 const CandidateContestResult = ({
   contest,
+  parties,
   vote = [],
 }: {
   contest: CandidateContest
+  parties: Parties
   vote: CandidateVote
 }) => {
   const remainingChoices = contest.seats - vote.length
@@ -156,22 +160,23 @@ const CandidateContestResult = ({
     <NoSelection title={contest.title} />
   ) : (
     <React.Fragment>
-      {vote.map((candidate: Candidate, index: number, array: CandidateVote) => (
-        <Text
-          key={candidate.id}
-          aria-label={`${candidate.name}${
-            candidate.party ? `, ${candidate.party}` : ''
-          }${candidate.isWriteIn ? `, write-in` : ''}${
-            array.length - 1 === index ? '.' : ','
-          }`}
-          wordBreak
-          voteIcon
-        >
-          <strong>{candidate.name}</strong>{' '}
-          {candidate.party && `/ ${candidate.party}`}
-          {candidate.isWriteIn && `(write-in)`}
-        </Text>
-      ))}
+      {vote.map((candidate: Candidate, index: number, array: CandidateVote) => {
+        const party =
+          candidate.partyId && findPartyById(parties, candidate.partyId)
+        return (
+          <Text
+            key={candidate.id}
+            aria-label={`${candidate.name}${party && `, ${party.name}`}${
+              candidate.isWriteIn ? `, write-in` : ''
+            }${array.length - 1 === index ? '.' : ','}`}
+            wordBreak
+            voteIcon
+          >
+            <strong>{candidate.name}</strong> {party && `/ ${party.name}`}
+            {candidate.isWriteIn && `(write-in)`}
+          </Text>
+        )
+      })}
       {!!remainingChoices && (
         <Text bold warning warningIcon wordBreak>
           You may select {remainingChoices} more{' '}
@@ -280,6 +285,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
       contests,
       election: {
         bmdConfig: { showHelpPage, showSettingsPage },
+        parties,
       },
       votes,
     } = this.context
@@ -326,6 +332,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                       {contest.type === 'candidate' && (
                         <CandidateContestResult
                           contest={contest}
+                          parties={parties}
                           vote={votes[contest.id] as CandidateVote}
                         />
                       )}

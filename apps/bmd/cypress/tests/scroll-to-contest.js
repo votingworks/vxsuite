@@ -1,11 +1,14 @@
 import electionSample from '../../src/data/electionSample'
 
-const clickThoughPages = [...electionSample.contests, { id: 'pre-review-page' }]
+const clickThoughPages = [
+  ...electionSample.contests.slice(0, 20),
+  { id: 'pre-review-page' },
+]
 
 describe('Review Page', () => {
   it('When navigating from contest, scroll to contest and place focus on contest.', () => {
     cy.visit('/#sample')
-    cy.getByTestId('activation-code').type('VX.23.12D', {
+    cy.getByTestId('activation-code').type('VX.23.12', {
       force: true,
     })
     cy.contains('Submit').click({ force: true })

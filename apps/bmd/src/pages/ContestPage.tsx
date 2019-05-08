@@ -58,6 +58,7 @@ const ContestPage = (props: Props) => {
         <CandidateContest
           key={contest.id}
           contest={contest}
+          parties={election!.parties}
           vote={(vote || []) as CandidateVote}
           updateVote={updateVote}
         />
