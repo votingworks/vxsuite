@@ -3,7 +3,7 @@ describe('Scroll Buttons', () => {
 
   it('Scroll buttons appear and function correctly', () => {
     cy.visit('/#sample')
-    cy.getByTestId('activation-code').type('VX.precinct-23.12D', {
+    cy.getByTestId('activation-code').type('VX.23.12D', {
       force: true,
     })
     cy.contains('Submit').click({ force: true })
@@ -41,7 +41,7 @@ describe('Scroll Buttons', () => {
   it('Scroll buttons do not appear on smaller screens', () => {
     cy.viewport(375, 812) // iPhoneX
     cy.visit('/#sample')
-    cy.getByTestId('activation-code').type('VX.precinct-23.12D', {
+    cy.getByTestId('activation-code').type('VX.23.12D', {
       force: true,
     })
     cy.contains('Submit').click({ force: true })

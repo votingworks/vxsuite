@@ -49,7 +49,7 @@ it(`basic end-to-end flow`, async () => {
   ).toBeTruthy()
   wait(() => (getByTestId('activation-code') as HTMLInputElement).value === '')
   fireEvent.change(getByTestId('activation-code'), {
-    target: { value: 'VX.precinct-23.12D' },
+    target: { value: 'VX.23.12D' },
   })
 
   // TODO: replace next line with "Enter" keyDown on activation code input

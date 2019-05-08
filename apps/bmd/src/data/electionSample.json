@@ -638,23 +638,23 @@
   ],
   "precincts": [
     {
-      "id": "precinct-23",
+      "id": "23",
       "name": "Center Springfield"
     },
     {
-      "id": "precinct-21",
+      "id": "21",
       "name": "North Springfield"
     }
   ],
   "ballotStyles": [
     {
       "id": "12D",
-      "precincts": ["precinct-23", "precinct-21"],
+      "precincts": ["23", "21"],
       "districts": ["district-1", "district-2"]
     },
     {
       "id": "5R",
-      "precincts": ["precinct-21"],
+      "precincts": ["21"],
       "districts": ["district-1"]
     }
   ],

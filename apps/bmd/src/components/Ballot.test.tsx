@@ -20,7 +20,7 @@ it(`can navigate all ballot pages`, () => {
 
   fireEvent.change(getByTestId('activation-code'), {
     target: {
-      value: 'VX.precinct-23.12D',
+      value: 'VX.23.12D',
     },
   })
   // TODO: replace next line with "Enter" keyDown on activation code input
