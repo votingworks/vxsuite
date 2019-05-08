@@ -712,6 +712,12 @@ exports[`basic end-to-end flow 3`] = `
           Franklin County
           , 
           State of Hamilton
+          <br />
+          Ballot Style 
+          12D
+          <br />
+          Precinct 
+          precinct-23
         </p>
         <p>
           <button

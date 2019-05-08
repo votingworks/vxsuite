@@ -301,6 +301,12 @@ exports[`renders StartPage 1`] = `
         Franklin County
         , 
         State of Hamilton
+        <br />
+        Ballot Style 
+        
+        <br />
+        Precinct 
+        
       </p>
       <p>
         <button

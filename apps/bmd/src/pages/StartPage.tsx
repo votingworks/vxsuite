@@ -13,7 +13,7 @@ const Seal = styled.div`
 `
 
 const StartPage = () => {
-  const { election } = useContext(BallotContext)
+  const { ballotStyleId, election, precinctId } = useContext(BallotContext)
   const { title, state, county, date, seal } = election!
 
   return (
@@ -26,6 +26,10 @@ const StartPage = () => {
             {date}
             <br />
             {county}, {state}
+            <br />
+            Ballot Style {ballotStyleId}
+            <br />
+            Precinct {precinctId}
           </p>
           <p>
             <LinkButton primary to={`/contests/`}>
