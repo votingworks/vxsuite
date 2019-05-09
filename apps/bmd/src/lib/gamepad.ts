@@ -74,7 +74,7 @@ export function handleGamepadButtonDown(buttonName: string) {
 
 // Add Cypress tests if this solution will become permanent
 // https://docs.cypress.io/api/commands/type.html
-export /* istanbul ignore next */ function handleGamepadKeyboardEvent(
+export /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ function handleGamepadKeyboardEvent(
   event: KeyboardEvent
 ) {
   switch (event.key) {
