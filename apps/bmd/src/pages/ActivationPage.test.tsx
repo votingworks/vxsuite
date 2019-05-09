@@ -5,11 +5,6 @@ import { render } from '../../test/testUtils'
 
 import ActivationPage from './ActivationPage'
 
-import fetch, { FetchMock, GlobalWithFetchMock } from 'jest-fetch-mock'
-const customGlobal = global as GlobalWithFetchMock
-customGlobal.fetch = fetch as FetchMock
-customGlobal.fetchMock = customGlobal.fetch
-
 it(`fetches the card data after 1 second`, async () => {
   jest.useFakeTimers()
 

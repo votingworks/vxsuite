@@ -14,9 +14,9 @@ const Legend = styled.legend`
   margin: auto;
 `
 const CodeBox = styled.div`
-  border: 1rem solid white;
-  max-width: 320px;
   margin: auto;
+  border: 1rem solid #ffffff;
+  max-width: 320px;
 `
 
 let resetBallotCode: number
@@ -82,7 +82,7 @@ const StartPage = (props: RouteComponentProps) => {
       .then(result => result.json())
       .then(resultJSON => {
         const cardState = resultJSON.card
-        if (!!cardState) {
+        if (cardState) {
           window.clearInterval(checkCard)
           setActivationCode(cardState)
           decodeActivationCode()
@@ -100,31 +100,34 @@ const StartPage = (props: RouteComponentProps) => {
         <form onSubmit={onSubmit}>
           <fieldset>
             <Legend>
-              <label htmlFor="BallotCode">
-                <Prose textCenter>
-                  <h1>Scan Your Activation Code</h1>
-                  <p>Your ballot will be displayed after scan is complete.</p>
-                  <CodeBox onClick={takeShortcut}>
-                    <QRCode value="VX.21.5" />
-                  </CodeBox>
-                </Prose>
-              </label>
+              <Prose textCenter>
+                <h1>Scan Your Activation Code</h1>
+                <p>Your ballot will be displayed after scan is complete.</p>
+                <CodeBox onClick={takeShortcut}>
+                  <QRCode value="VX.21.5" />
+                </CodeBox>
+              </Prose>
             </Legend>
-            <input
-              data-testid="activation-code"
-              type="text"
-              id="BallotCode"
-              autoFocus
-              className="visually-hidden"
-              onBlur={onBlur}
-              onChange={onChange}
-              value={activationCode}
+            <label
               aria-hidden="true"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-            />
+              className="visually-hidden"
+              htmlFor="BallotCode"
+            >
+              <div>Activation Code</div>
+              <input
+                data-testid="activation-code"
+                type="text"
+                id="BallotCode"
+                autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+                onBlur={onBlur}
+                onChange={onChange}
+                value={activationCode}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+              />
+            </label>
             <button
               type="submit"
               className="visually-hidden"

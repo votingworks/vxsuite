@@ -55,7 +55,7 @@ export interface YesNoContest extends Contest {
   readonly description: string
   readonly shortTitle: string
 }
-export type Contests = Array<CandidateContest | YesNoContest>
+export type Contests = (CandidateContest | YesNoContest)[]
 
 // Election
 export interface BMDConfig {

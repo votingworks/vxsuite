@@ -65,15 +65,15 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 .c6 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: rgb(71,167,75);
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: white;
   line-height: 1;
   white-space: nowrap;
+  color: white;
 }
 
 .c4 {

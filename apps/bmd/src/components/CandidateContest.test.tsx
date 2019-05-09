@@ -11,19 +11,20 @@ const parties = [0, 1].map(i => ({
   name: `Party ${i}`,
 }))
 
-const contest = {
+const contest: CandidateContestInterface = {
   allowWriteIns: false,
   candidates: [0, 1, 2].map(i => ({
     id: `name-${i}`,
     name: `Name ${i}`,
     partyId: `party-${i % 2}`,
   })),
+  districtId: '7',
   id: 'contest-id',
   seats: 1,
   section: 'City',
   title: 'Mayor',
   type: 'candidate',
-} as CandidateContestInterface
+}
 const candidate0 = contest.candidates[0]
 const candidate1 = contest.candidates[1]
 const candidate2 = contest.candidates[2]

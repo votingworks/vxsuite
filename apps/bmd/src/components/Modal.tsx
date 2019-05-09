@@ -11,13 +11,13 @@ interface ModalContentInterface {
 }
 
 const ModalContent = styled('div')<ModalContentInterface>`
-  flex: 1;
   display: flex;
+  flex: 1;
   align-items: center;
-  overflow: auto;
-  padding: 1rem 0.5rem;
   justify-content: ${({ centerContent = false }) =>
     centerContent ? 'center' : undefined};
+  overflow: auto;
+  padding: 1rem 0.5rem;
   @media (min-width: 480px) {
     padding: 2rem 1rem;
   }
@@ -39,7 +39,7 @@ const Modal: React.FC<Props> = ({
   ariaLabel = 'Alert Modal',
   isOpen,
   onAfterOpen,
-}) => (
+}: Props) => (
   <ReactModal
     appElement={
       document.getElementById('root')! || document.body.firstElementChild

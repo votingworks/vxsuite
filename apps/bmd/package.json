@@ -16,16 +16,33 @@
     "pretest:e2e:ci": "yarn build",
     "test:e2e:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "test:e2e:watch": "start-server-and-test start http://localhost:3000 cypress:open",
-    "eslint:base": "eslint 'src/**/*.+(js|jsx)'",
-    "prettier:base": "prettier '**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|graphql|mdx)'",
-    "prettier:check": "yarn prettier:base --list-different",
-    "prettier:write": "yarn prettier:base --write",
-    "tslint:base": "tslint -c tslint.json 'src/**/*.+(ts,tsx)'"
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix && stylelint --fix",
+    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "tsc && lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "lint-staged": {
+    "linters": {
+      "*.+(js|jsx|ts|tsx)": [
+        "eslint --quiet --fix",
+        "git add"
+      ],
+      "*.css": [
+        "stylelint --fix",
+        "git add"
+      ],
+      "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+        "prettier --write",
+        "git add"
+      ]
+    }
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   },
   "jest": {
     "collectCoverageFrom": [
@@ -43,9 +60,6 @@
         "functions": 100
       }
     }
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": {
     "production": [
@@ -72,6 +86,7 @@
     "@types/react-modal": "^3.8.2",
     "@types/react-router-dom": "^4.3.3",
     "@types/styled-components": "^4.1.14",
+    "history": "^4.9.0",
     "lodash.camelcase": "^4.3.0",
     "mousetrap": "^1.6.3",
     "normalize.css": "^8.0.1",
@@ -86,11 +101,13 @@
     "react-scripts": "3.0.1",
     "react-simple-keyboard": "^1.22.0",
     "styled-components": "^4.2.0",
-    "tslint-react-hooks": "^2.1.0",
     "typescript": "3.4.5"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
+    "@commitlint/cli": "^7.5.2",
+    "@commitlint/config-conventional": "^7.5.0",
+    "@typescript-eslint/eslint-plugin": "^1.7.0",
+    "@typescript-eslint/parser": "^1.7.0",
     "cypress": "^3.2.0",
     "cypress-testing-library": "^3.0.1",
     "eslint": "^5.16.0",
@@ -100,6 +117,7 @@
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-jest": "^22.5.1",
     "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.13.0",
     "husky": "^2.2.0",
@@ -110,8 +128,10 @@
     "prettier": "^1.17.0",
     "react-testing-library": "7.0.0",
     "start-server-and-test": "^1.9.0",
-    "tslint": "^5.16.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-react": "^4.0.0"
+    "stylelint": "^10.0.1",
+    "stylelint-config-palantir": "^4.0.0",
+    "stylelint-config-prettier": "^5.1.0",
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-processor-styled-components": "^1.6.0"
   }
 }

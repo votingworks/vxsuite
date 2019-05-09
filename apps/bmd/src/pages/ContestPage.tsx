@@ -20,9 +20,7 @@ interface ContestParams {
   contestNumber: string
 }
 
-interface Props extends RouteComponentProps<ContestParams> {}
-
-const ContestPage = (props: Props) => {
+const ContestPage = (props: RouteComponentProps<ContestParams>) => {
   const { contestNumber } = props.match.params
   const { election, updateVote, votes, contests, resetBallot } = useContext(
     BallotContext
