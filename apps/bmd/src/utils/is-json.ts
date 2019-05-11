@@ -1,7 +1,15 @@
-/* tslint:disable:no-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 // Ported to TypeScript from:
 // https://github.com/joaquimserafim/is-json
+
+function isString(x: string) {
+  return Object.prototype.toString.call(x) === '[object String]'
+}
+
+function isObject(obj: {}) {
+  return Object.prototype.toString.call(obj) === '[object Object]'
+}
 
 export function isJSON(str: any, passObject?: boolean): boolean {
   if (passObject && isObject(str)) {
@@ -44,14 +52,6 @@ export function isJSONStrict(str: any) {
   } catch (ex) {
     return false
   }
-}
-
-function isString(x: string) {
-  return Object.prototype.toString.call(x) === '[object String]'
-}
-
-function isObject(obj: {}) {
-  return Object.prototype.toString.call(obj) === '[object Object]'
 }
 
 export default isJSON

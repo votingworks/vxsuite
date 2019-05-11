@@ -6,9 +6,9 @@ import { render } from '../../test/testUtils'
 import electionDefaults from '../data/electionDefaults.json'
 import electionSample from '../data/electionSample.json'
 
-const firstContestTitle = electionSample.contests[0].title
-
 import ContestPage from './ContestPage'
+
+const firstContestTitle = electionSample.contests[0].title
 
 it(`renders ContestPage`, () => {
   const { container, getByText } = render(

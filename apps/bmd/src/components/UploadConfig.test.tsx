@@ -6,9 +6,9 @@ import electionSample from '../data/electionSample.json'
 import { mergeWithDefaults } from '../App'
 import { Election } from '../config/types'
 
-const goodElectionFile = mergeWithDefaults(electionSample as Election)
-
 import UploadConfig from './UploadConfig'
+
+const goodElectionFile = mergeWithDefaults(electionSample as Election)
 
 it(`allows file to be uploaded via file input`, async () => {
   const setElection = jest.fn()

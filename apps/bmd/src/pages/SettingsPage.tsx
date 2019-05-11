@@ -1,7 +1,6 @@
-import GLOBALS from '../config/globals'
-
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
+import GLOBALS from '../config/globals'
 
 import { ButtonEvent, InputEvent, TextSizeSetting } from '../config/types'
 

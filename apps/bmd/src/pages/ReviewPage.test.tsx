@@ -7,12 +7,12 @@ import { render } from '../../test/testUtils'
 
 import electionSample from '../data/electionSample.json'
 
+import ReviewPage from './ReviewPage'
+
 const contest0 = electionSample.contests[0] as CandidateContest
 const contest1 = electionSample.contests[1] as CandidateContest
 const contest0candidate0 = contest0.candidates[0]
 const contest1candidate0 = contest1.candidates[0]
-
-import ReviewPage from './ReviewPage'
 
 const idValueStartsWithNumberRegex = new RegExp('id="[0-9]')
 

@@ -4,8 +4,7 @@
 import React from 'react'
 
 interface Props {
-  /* tslint:disable-next-line */
-  data: any
+  data: any // eslint-disable-line @typescript-eslint/no-explicit-any
   hide?: boolean
 }
 

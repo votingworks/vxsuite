@@ -58,28 +58,28 @@ exports[`renders ReviewPage with votes 1`] = `
 }
 
 .c11 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c3 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
+  width: 100%;
   padding: 0.4rem 0.7rem;
-  color: darkgrey;
   line-height: 1;
   white-space: nowrap;
-  width: 100%;
+  color: darkgrey;
 }
 
 .c12 {
@@ -1173,28 +1173,28 @@ exports[`renders ReviewPage without votes 1`] = `
 }
 
 .c11 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c3 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
+  width: 100%;
   padding: 0.4rem 0.7rem;
-  color: darkgrey;
   line-height: 1;
   white-space: nowrap;
-  width: 100%;
+  color: darkgrey;
 }
 
 .c9 {

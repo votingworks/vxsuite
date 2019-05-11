@@ -11,8 +11,7 @@ beforeEach(() => {
 })
 
 it(`Sets election config file`, async () => {
-  /* tslint:disable-next-line */
-  const eventListenerCallbacksDictionary: any = {}
+  const eventListenerCallbacksDictionary: any = {} // eslint-disable-line @typescript-eslint/no-explicit-any
   window.addEventListener = jest.fn((event, cb) => {
     eventListenerCallbacksDictionary[event] = cb
   })

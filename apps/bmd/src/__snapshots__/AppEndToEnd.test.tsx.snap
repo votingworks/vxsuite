@@ -67,15 +67,15 @@ exports[`basic end-to-end flow 1`] = `
 }
 
 .c5 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: rgb(71,167,75);
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: white;
   line-height: 1;
   white-space: nowrap;
+  color: white;
 }
 
 .c3 {
@@ -779,15 +779,15 @@ button.c8 {
     </div>
   </main>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {
@@ -880,15 +880,15 @@ button.c8 {
     </p>
   </nav>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {
@@ -1194,14 +1194,14 @@ exports[`basic end-to-end flow 3`] = `
     class="sc-gZMcBi dJHMPG"
   >
     <button
-      class="sc-gzVnrw bjmCwv"
+      class="sc-gzVnrw kuchIe"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       id="previous"
       type="button"
     >
@@ -1220,13 +1220,13 @@ exports[`basic end-to-end flow 3`] = `
   >
     <div />
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       type="button"
     >
       Settings
@@ -1595,14 +1595,14 @@ button.c10 {
     class="sc-gZMcBi dJHMPG"
   >
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       id="previous"
       type="button"
     >
@@ -1621,13 +1621,13 @@ button.c10 {
   >
     <div />
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       type="button"
     >
       Settings
@@ -1748,14 +1748,14 @@ exports[`basic end-to-end flow 5`] = `
     class="sc-gZMcBi dJHMPG"
   >
     <button
-      class="sc-gzVnrw bjmCwv"
+      class="sc-gzVnrw kuchIe"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       id="previous"
       type="button"
     >
@@ -1774,13 +1774,13 @@ exports[`basic end-to-end flow 5`] = `
   >
     <div />
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       type="button"
     >
       Settings
@@ -1907,15 +1907,15 @@ exports[`basic end-to-end flow 6`] = `
     </div>
   </main>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {
@@ -1989,15 +1989,15 @@ exports[`basic end-to-end flow 6`] = `
     <div />
   </nav>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {
@@ -2149,28 +2149,28 @@ exports[`basic end-to-end flow 7`] = `
 }
 
 .c11 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c3 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
+  width: 100%;
   padding: 0.4rem 0.7rem;
-  color: darkgrey;
   line-height: 1;
   white-space: nowrap;
-  width: 100%;
+  color: darkgrey;
 }
 
 .c9 {
@@ -3157,15 +3157,15 @@ button.c7 {
     </div>
   </main>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {
@@ -3233,15 +3233,15 @@ button.c7 {
     <div />
   </nav>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {
@@ -4018,15 +4018,15 @@ button.c8 {
     </div>
   </main>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {
@@ -4091,15 +4091,15 @@ button.c8 {
     </button>
   </nav>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {
@@ -4654,7 +4654,7 @@ exports[`basic end-to-end flow 9`] = `
     class="sc-gZMcBi dJHMPG"
   >
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       id="next"
       type="button"
     >
@@ -4666,13 +4666,13 @@ exports[`basic end-to-end flow 9`] = `
   >
     <div />
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw fTQUZr"
+      class="sc-gzVnrw bGNUxc"
       type="button"
     >
       Settings
@@ -4743,28 +4743,28 @@ exports[`basic end-to-end flow 10`] = `
 }
 
 .c11 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c3 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
+  width: 100%;
   padding: 0.4rem 0.7rem;
-  color: darkgrey;
   line-height: 1;
   white-space: nowrap;
-  width: 100%;
+  color: darkgrey;
 }
 
 .c9 {
@@ -5775,15 +5775,15 @@ button.c7 {
     </div>
   </main>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {
@@ -5851,15 +5851,15 @@ button.c7 {
     <div />
   </nav>
   .c1 {
-  box-sizing: border-box;
-  cursor: pointer;
-  background: lightgrey;
   border: none;
   border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: lightgrey;
+  cursor: pointer;
   padding: 0.4rem 0.7rem;
-  color: black;
   line-height: 1;
   white-space: nowrap;
+  color: black;
 }
 
 .c0 {

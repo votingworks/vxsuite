@@ -279,7 +279,7 @@ class CandidateContest extends React.Component<Props, State> {
     const { vote } = this.props
     const id = (event.target as HTMLInputElement).value
     const candidate = this.findCandidateById(vote, id)
-    if (!!candidate) {
+    if (candidate) {
       if (candidate.isWriteIn) {
         this.setState({ candidatePendingRemoval: candidate })
       } else {
@@ -519,7 +519,7 @@ class CandidateContest extends React.Component<Props, State> {
                       onClick={this.initWriteInCandidate}
                     >
                       <Prose>
-                        <p aria-label={`add write-in candidate.`}>
+                        <p aria-label="add write-in candidate.">
                           <em>add write-in candidate</em>
                         </p>
                       </Prose>
@@ -644,7 +644,7 @@ class CandidateContest extends React.Component<Props, State> {
                   disableCaretPositioning
                   maxLength={maxWriteInCandidateLength}
                   layoutName="default"
-                  theme={'hg-theme-default vs-simple-keyboard'}
+                  theme="hg-theme-default vs-simple-keyboard"
                   onChange={this.onKeyboardInputChange}
                   useButtonTag
                 />

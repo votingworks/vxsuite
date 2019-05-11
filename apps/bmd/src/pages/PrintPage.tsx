@@ -207,7 +207,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
         <Main>
           <MainChild>
             <Prose className="no-print">
-              <h1 aria-label={`Print your ballot.`}>Print your ballot</h1>
+              <h1 aria-label="Print your ballot.">Print your ballot</h1>
               <p>Ready to print ballot.</p>
             </Prose>
             <div aria-hidden="true" className="print-only">

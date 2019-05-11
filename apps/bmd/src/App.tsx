@@ -67,11 +67,6 @@ const initialState = {
 class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
 
-  public componentDidCatch() {
-    this.reset()
-    window.location.reload()
-  }
-
   public componentDidMount = () => {
     if (window.location.hash === '#sample') {
       this.setState({
@@ -201,9 +196,9 @@ class App extends React.Component<RouteComponentProps, State> {
 
   public setUserSettings = (partial: PartialUserSettings) => {
     this.setState(
-      {
-        userSettings: { ...this.state.userSettings, ...partial },
-      },
+      prevState => ({
+        userSettings: { ...prevState.userSettings, ...partial },
+      }),
       () => {
         const { textSize } = partial
         const isValidTextSize =
@@ -223,6 +218,11 @@ class App extends React.Component<RouteComponentProps, State> {
     document.documentElement.style.fontSize = `${
       GLOBALS.FONT_SIZES[textSize]
     }px`
+  }
+
+  public componentDidCatch() {
+    this.reset()
+    window.location.reload()
   }
 
   public render() {
