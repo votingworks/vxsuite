@@ -6,43 +6,43 @@ exports[`Sets election config file 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   overflow: auto;
 }
 
 .c3 {
-  max-width: 35rem;
   margin: auto auto;
+  max-width: 35rem;
   padding: 1rem;
 }
 
 .c4 {
-  line-height: 1.2;
+  margin: auto;
   max-width: 66ch;
   text-align: center;
-  margin: auto;
+  line-height: 1.2;
 }
 
 .c4 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c4 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c4 h3,
 .c4 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c4 h1 + h2 {
@@ -70,7 +70,7 @@ exports[`Sets election config file 1`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -84,7 +84,6 @@ exports[`Sets election config file 1`] = `
 }
 
 .c0 {
-  height: 100%;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -92,6 +91,7 @@ exports[`Sets election config file 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  height: 100%;
 }
 
 .c0:focus {
@@ -99,15 +99,15 @@ exports[`Sets election config file 1`] = `
 }
 
 .c2 {
-  margin: auto;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  width: 100%;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: auto;
+  width: 100%;
 }
 
 .c5 {
@@ -126,8 +126,8 @@ exports[`Sets election config file 1`] = `
 
 @media print {
   .c3 {
-    max-width: 100%;
     margin: 0;
+    max-width: 100%;
   }
 }
 

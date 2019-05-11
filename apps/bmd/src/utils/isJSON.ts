@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // Ported to TypeScript from:
-// https://github.com/joaquimserafim/is-json
+// https://github.com/joaquimserafim/isJSON
 
 function isString(x: string) {
   return Object.prototype.toString.call(x) === '[object String]'

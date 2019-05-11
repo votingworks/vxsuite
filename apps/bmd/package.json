@@ -16,7 +16,8 @@
     "pretest:e2e:ci": "yarn build",
     "test:e2e:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "test:e2e:watch": "start-server-and-test start http://localhost:3000 cypress:open",
-    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix && stylelint --fix",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
   },
   "husky": {
@@ -27,11 +28,12 @@
   "lint-staged": {
     "linters": {
       "*.+(js|jsx|ts|tsx)": [
+        "stylelint",
         "eslint --quiet --fix",
         "git add"
       ],
       "*.css": [
-        "stylelint --fix",
+        "stylelint --config .stylelintrc-css.js --fix",
         "git add"
       ],
       "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [

@@ -3,8 +3,8 @@
 exports[`renders QRCode 1`] = `
 .c0 > svg {
   display: block;
-  height: auto;
   width: 100%;
+  height: auto;
 }
 
 <div

@@ -8,8 +8,8 @@ import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 
 const Seal = styled.div`
-  max-width: 320px;
   margin: 0 auto 1rem;
+  max-width: 320px;
 `
 
 const StartPage = () => {

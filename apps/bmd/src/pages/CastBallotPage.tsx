@@ -8,38 +8,37 @@ import Text from '../components/Text'
 
 const Directions = styled.div`
   margin: auto;
-  /* outline: 1px solid tan; */
   & h1 {
     text-align: center;
   }
 `
 
 const Instructions = styled.ol`
-  max-width: 24rem;
-  list-style: none;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
-  background: white;
   border-radius: 0.25rem;
+  background: #ffffff;
+  max-width: 24rem;
+  padding: 1.5rem 1rem;
+  list-style: none;
   @media (min-width: 480px) {
     padding: 2.5rem;
   }
   & > li {
-    margin-bottom: 1.75rem;
     position: relative;
-    counter-increment: asdf;
+    margin-bottom: 1.75rem;
     padding-left: 1.75rem;
+    counter-increment: asdf;
   }
   & > li:last-child {
     margin-bottom: 0;
   }
-  & > li:before {
-    content: counter(asdf) '.';
+  & > li::before {
     position: absolute;
     top: 0;
     left: 0;
-    font-weight: bold;
     font-size: 1.25rem;
+    font-weight: 700;
+    content: counter(asdf) '.';
   }
 `
 

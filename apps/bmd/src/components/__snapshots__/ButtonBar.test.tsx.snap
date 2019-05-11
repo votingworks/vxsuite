@@ -9,17 +9,17 @@ exports[`renders ButtonBar 1`] = `
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -29,19 +29,19 @@ exports[`renders ButtonBar 1`] = `
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 

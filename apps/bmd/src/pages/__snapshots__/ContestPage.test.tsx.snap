@@ -6,34 +6,34 @@ exports[`renders ContestPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -61,7 +61,7 @@ exports[`renders ContestPage 1`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -81,17 +81,17 @@ exports[`renders ContestPage 1`] = `
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c11 > *:first-child {
@@ -101,16 +101,13 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c11 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 .c14 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -118,17 +115,20 @@ exports[`renders ContestPage 1`] = `
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c14 > *:first-child {
@@ -138,23 +138,23 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c14 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
 }
 
 .c3 {
+  text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c4 {
@@ -169,24 +169,24 @@ exports[`renders ContestPage 1`] = `
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -200,9 +200,9 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
@@ -213,16 +213,16 @@ exports[`renders ContestPage 1`] = `
 }
 
 .c8 {
-  cursor: pointer;
-  position: relative;
   display: grid;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -235,33 +235,33 @@ button.c8 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c8:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
+.c8::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
   font-size: 2rem;
   font-weight: 700;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  content: '';
 }
 
 .c8 > div {
@@ -273,8 +273,8 @@ button.c8 {
 }
 
 .c13 {
-  color: white;
   text-align: center;
+  color: #FFFFFF;
   -webkit-flex: 2;
   -ms-flex: 2;
   flex: 2;
@@ -298,11 +298,11 @@ button.c8 {
 
 @media (min-width:480px) {
   .c11 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 
@@ -328,10 +328,10 @@ button.c8 {
 
 @media (min-width:480px) {
   .c14 > *:only-child {
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    min-width: 33.333%;
   }
 }
 
@@ -363,7 +363,7 @@ button.c8 {
 
 @media print {
   .c13 {
-    color: white;
+    color: #FFFFFF;
   }
 }
 

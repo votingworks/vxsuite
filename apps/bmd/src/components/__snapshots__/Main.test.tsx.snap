@@ -6,19 +6,19 @@ exports[`renders Main with child 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
-  max-width: 35rem;
   margin: 0 0;
+  max-width: 35rem;
 }
 
 @media (min-width:480px) {
@@ -39,8 +39,8 @@ exports[`renders Main with child 1`] = `
 
 @media print {
   .c1 {
-    max-width: 100%;
     margin: 0;
+    max-width: 100%;
   }
 }
 
@@ -61,19 +61,19 @@ exports[`renders centered content 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
-  max-width: 35rem;
   margin: auto auto;
+  max-width: 35rem;
 }
 
 @media (min-width:480px) {
@@ -94,8 +94,8 @@ exports[`renders centered content 1`] = `
 
 @media print {
   .c1 {
-    max-width: 100%;
     margin: 0;
+    max-width: 100%;
   }
 }
 
@@ -116,19 +116,19 @@ exports[`renders not centered content 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
-  max-width: 35rem;
   margin: 0 0;
+  max-width: 35rem;
 }
 
 @media (min-width:480px) {
@@ -149,8 +149,8 @@ exports[`renders not centered content 1`] = `
 
 @media print {
   .c1 {
-    max-width: 100%;
     margin: 0;
+    max-width: 100%;
   }
 }
 

@@ -26,14 +26,14 @@ import GLOBALS from '../config/globals'
 import BallotContext from '../contexts/ballotContext'
 
 const Header = styled.div`
-  height: 1.15in;
   display: flex;
   flex-direction: row;
-  border-bottom: 0.2rem solid black;
   align-items: center;
+  border-bottom: 0.2rem solid #000000;
+  height: 1.15in;
   & > .seal {
-    width: 1in;
     margin: 0.25rem 0;
+    width: 1in;
   }
   & h2 {
     margin-bottom: 0;
@@ -43,31 +43,31 @@ const Header = styled.div`
   }
   & > .ballot-header-content {
     flex: 1;
-    max-width: 100%;
     margin: 0 1rem;
+    max-width: 100%;
   }
 `
 const QRCodeContainer = styled.div`
-  max-width: 50%;
-  align-self: flex-end;
   display: flex;
   flex-direction: row;
-  border: 0.2rem solid black;
+  align-self: flex-end;
+  border: 0.2rem solid #000000;
   border-bottom: 0;
+  max-width: 50%;
   padding: 0.25rem;
   & > div:first-child {
-    width: 1in;
     margin-right: 0.25rem;
+    width: 1in;
   }
   & > div:last-child {
-    flex: 1;
     display: flex;
+    flex: 1;
     & > div {
-      flex: 1;
       display: flex;
+      flex: 1;
       flex-direction: column;
-      justify-content: space-between;
       align-self: stretch;
+      justify-content: space-between;
       font-size: 0.8rem;
       & strong {
         font-size: 1rem;
@@ -84,15 +84,15 @@ const BallotSelections = styled.div`
   column-gap: 2rem;
 `
 const Contest = styled.div`
-  page-break-inside: avoid;
-  break-inside: avoid;
+  border-bottom: 0.01rem solid #000000;
   padding: 0.5rem 0;
-  border-bottom: 0.01rem solid black;
+  break-inside: avoid;
+  page-break-inside: avoid;
 `
 const ContestProse = styled(Prose)`
   & > h3 {
-    font-weight: normal;
     font-size: 0.875em;
+    font-weight: 400;
   }
 `
 const NoSelection = () => (

@@ -3,9 +3,9 @@ import { RouteComponentProps, withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 
 const StyledScreen = styled.div`
-  height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
   &:focus {
     outline: none;
   }

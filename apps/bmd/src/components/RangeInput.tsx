@@ -4,7 +4,7 @@ const thumbSize = 1
 const thumbRadius = thumbSize / 2
 const stepSize = 0.5
 const stepRadius = stepSize / 2
-const trackBackgroundColor = 'lightgrey'
+const trackBackgroundColor = 'rgb(211, 211, 211)'
 const thumbColor = 'black'
 
 const trackStyles = `
@@ -60,31 +60,33 @@ const thumbStyles = `
 const Range = styled.input.attrs({
   type: 'range',
 })`
+  background: transparent;
+  width: 300px;
   &,
   &::-webkit-slider-runnable-track,
   &::-webkit-slider-thumb {
-    -webkit-appearance: none;
+    appearance: none;
   }
-  width: 300px;
-  background: transparent;
   &:focus {
     outline: none;
   }
   &::-webkit-slider-runnable-track {
-    ${trackStyles}
+    ${trackStyles} /* stylelint-disable-line value-keyword-case */
   }
   &:focus::-webkit-slider-runnable-track {
     outline: none;
   }
   &::-webkit-slider-thumb {
-    ${thumbStyles}
+    ${thumbStyles} /* stylelint-disable-line value-keyword-case */
   }
   &:focus::-webkit-slider-thumb {
     outline: rgb(77, 144, 254) dashed 0.25rem;
   }
 
-  /* Enable the below if/when adding styles for Moz / MSIE */
   /*
+
+  Enable the below if/when adding styles for Moz / MSIE
+
   &::-moz-range-track {
     ${trackStyles}
   }

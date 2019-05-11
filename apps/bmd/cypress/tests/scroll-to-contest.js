@@ -1,9 +1,4 @@
-import electionSample from '../../src/data/electionSample'
-
-const clickThoughPages = [
-  ...electionSample.contests.slice(0, 20),
-  { id: 'pre-review-page' },
-]
+const clickThoughPages = new Array(21) // number of contests + pre-review screen for activation code 'VX.23.12'
 
 describe('Review Page', () => {
   it('When navigating from contest, scroll to contest and place focus on contest.', () => {

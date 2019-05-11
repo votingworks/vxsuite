@@ -6,43 +6,43 @@ exports[`basic end-to-end flow 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
 .c2 {
-  max-width: 35rem;
   margin: auto auto;
+  max-width: 35rem;
 }
 
 .c4 {
-  line-height: 1.2;
+  margin: auto;
   max-width: 66ch;
   text-align: center;
-  margin: auto;
+  line-height: 1.2;
 }
 
 .c4 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c4 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c4 h3,
 .c4 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c4 h1 + h2 {
@@ -75,16 +75,15 @@ exports[`basic end-to-end flow 1`] = `
   padding: 0.4rem 0.7rem;
   line-height: 1;
   white-space: nowrap;
-  color: white;
+  color: #FFFFFF;
 }
 
 .c3 {
-  max-width: 320px;
   margin: 0 auto 1rem;
+  max-width: 320px;
 }
 
 .c0 {
-  height: 100%;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -92,6 +91,7 @@ exports[`basic end-to-end flow 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  height: 100%;
 }
 
 .c0:focus {
@@ -116,8 +116,8 @@ exports[`basic end-to-end flow 1`] = `
 
 @media print {
   .c2 {
-    max-width: 100%;
     margin: 0;
+    max-width: 100%;
   }
 }
 
@@ -343,7 +343,7 @@ exports[`basic end-to-end flow 1`] = `
 
 exports[`basic end-to-end flow 2`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-kjoXOD byAYBe"
   tabindex="-1"
 >
   .c0 {
@@ -351,34 +351,34 @@ exports[`basic end-to-end flow 2`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -407,16 +407,16 @@ exports[`basic end-to-end flow 2`] = `
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
 }
 
 .c3 {
+  text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c4 {
@@ -431,24 +431,24 @@ exports[`basic end-to-end flow 2`] = `
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -462,9 +462,9 @@ exports[`basic end-to-end flow 2`] = `
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
@@ -475,16 +475,16 @@ exports[`basic end-to-end flow 2`] = `
 }
 
 .c8 {
-  cursor: pointer;
-  position: relative;
   display: grid;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -497,33 +497,33 @@ button.c8 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c8:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
+.c8::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
   font-size: 2rem;
   font-weight: 700;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  content: '';
 }
 
 .c8 > div {
@@ -782,7 +782,7 @@ button.c8 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -798,17 +798,17 @@ button.c8 {
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -818,15 +818,15 @@ button.c8 {
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 .c2 {
-  color: white;
   text-align: center;
+  color: #FFFFFF;
   -webkit-flex: 2;
   -ms-flex: 2;
   flex: 2;
@@ -834,11 +834,11 @@ button.c8 {
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 
@@ -850,7 +850,7 @@ button.c8 {
 
 @media print {
   .c2 {
-    color: white;
+    color: #FFFFFF;
   }
 }
 
@@ -883,7 +883,7 @@ button.c8 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -892,9 +892,6 @@ button.c8 {
 }
 
 .c0 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -902,17 +899,20 @@ button.c8 {
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -922,10 +922,10 @@ button.c8 {
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
@@ -944,10 +944,10 @@ button.c8 {
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    min-width: 33.333%;
   }
 }
 
@@ -979,24 +979,24 @@ button.c8 {
 
 exports[`basic end-to-end flow 3`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-kjoXOD byAYBe"
   tabindex="-1"
 >
   <main
-    class="sc-bdVaJa hfkSsq"
+    class="sc-bdVaJa bkrzlo"
   >
     <div
-      class="sc-VigVT lGzbZ"
+      class="sc-VigVT eeTnSv"
       id="contest-header"
     >
       <div
-        class="sc-htpNat cmKtxO"
+        class="sc-htpNat sACUF"
       >
         <h1
           aria-label="United States, President and Vice-President."
         >
           <div
-            class="sc-jTzLTM kebpRS"
+            class="sc-jTzLTM inwRBF"
           >
             United States
           </div>
@@ -1016,13 +1016,13 @@ exports[`basic end-to-end flow 3`] = `
       </div>
     </div>
     <div
-      class="sc-fjdhpX cZUKSt"
+      class="sc-fjdhpX bqujVf"
     >
       <div
         class="sc-cSHVUG gJClgN"
       >
         <div
-          class="sc-kAzzGY gctkeX"
+          class="sc-kAzzGY jKIeml"
         >
           <div
             aria-labelledby="contest-header"
@@ -1030,7 +1030,7 @@ exports[`basic end-to-end flow 3`] = `
             role="group"
           >
             <label
-              class="sc-kgoBCf hcQLYY"
+              class="sc-kgoBCf iCLyJC"
               for="barchi-hallaren"
             >
               <input
@@ -1041,11 +1041,11 @@ exports[`basic end-to-end flow 3`] = `
                 value="barchi-hallaren"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Joseph Barchi and Joseph Hallaren
@@ -1056,7 +1056,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="cramer-vuocolo"
             >
               <input
@@ -1067,11 +1067,11 @@ exports[`basic end-to-end flow 3`] = `
                 value="cramer-vuocolo"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Adam Cramer and Greg Vuocolo, People's."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Adam Cramer and Greg Vuocolo
@@ -1082,7 +1082,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="court-blumhardt"
             >
               <input
@@ -1093,11 +1093,11 @@ exports[`basic end-to-end flow 3`] = `
                 value="court-blumhardt"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Daniel Court and Amy Blumhardt, Liberty."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Daniel Court and Amy Blumhardt
@@ -1108,7 +1108,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="boone-lian"
             >
               <input
@@ -1119,11 +1119,11 @@ exports[`basic end-to-end flow 3`] = `
                 value="boone-lian"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Alvin Boone and James Lian, Constitution."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Alvin Boone and James Lian
@@ -1134,7 +1134,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="hildebrand-garritty"
             >
               <input
@@ -1145,11 +1145,11 @@ exports[`basic end-to-end flow 3`] = `
                 value="hildebrand-garritty"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Ashley Hildebrand-McDougall and James Garritty
@@ -1160,7 +1160,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="patterson-lariviere"
             >
               <input
@@ -1171,11 +1171,11 @@ exports[`basic end-to-end flow 3`] = `
                 value="patterson-lariviere"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Martin Patterson and Clay Lariviere, Labor."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Martin Patterson and Clay Lariviere
@@ -1191,24 +1191,24 @@ exports[`basic end-to-end flow 3`] = `
     </div>
   </main>
   <nav
-    class="sc-gZMcBi dJHMPG"
+    class="sc-gZMcBi ctBJCE"
   >
     <button
-      class="sc-gzVnrw kuchIe"
+      class="sc-gzVnrw gRptmX"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="sc-htoDjs sc-cMljjf huyxdo"
+      class="sc-htoDjs sc-cMljjf bAyswa"
     >
       1
        of 
@@ -1216,17 +1216,17 @@ exports[`basic end-to-end flow 3`] = `
     </p>
   </nav>
   <nav
-    class="sc-gZMcBi iwVJXz"
+    class="sc-gZMcBi MRwYf"
   >
     <div />
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       type="button"
     >
       Settings
@@ -1237,7 +1237,7 @@ exports[`basic end-to-end flow 3`] = `
 
 exports[`basic end-to-end flow 4`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-kjoXOD byAYBe"
   tabindex="-1"
 >
   .c0 {
@@ -1245,34 +1245,34 @@ exports[`basic end-to-end flow 4`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -1301,16 +1301,16 @@ exports[`basic end-to-end flow 4`] = `
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
 }
 
 .c3 {
+  text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c7 {
@@ -1318,9 +1318,9 @@ exports[`basic end-to-end flow 4`] = `
 }
 
 .c8 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 1rem 0.5rem;
 }
 
@@ -1336,24 +1336,24 @@ exports[`basic end-to-end flow 4`] = `
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -1367,9 +1367,9 @@ exports[`basic end-to-end flow 4`] = `
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
@@ -1380,17 +1380,17 @@ exports[`basic end-to-end flow 4`] = `
 }
 
 .c10 {
-  cursor: pointer;
-  position: relative;
   display: grid;
-  min-height: 2.5rem;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  min-height: 2.5rem;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -1403,32 +1403,32 @@ button.c10 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c10:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
+.c10::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  font-size: 2rem;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
   border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
   color: #028099;
+  font-size: 2rem;
+  content: '';
 }
 
 .c10 > div {
@@ -1592,24 +1592,24 @@ button.c10 {
     </div>
   </main>
   <nav
-    class="sc-gZMcBi dJHMPG"
+    class="sc-gZMcBi ctBJCE"
   >
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="sc-htoDjs sc-cMljjf huyxdo"
+      class="sc-htoDjs sc-cMljjf bAyswa"
     >
       20
        of 
@@ -1617,17 +1617,17 @@ button.c10 {
     </p>
   </nav>
   <nav
-    class="sc-gZMcBi iwVJXz"
+    class="sc-gZMcBi MRwYf"
   >
     <div />
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       type="button"
     >
       Settings
@@ -1638,24 +1638,24 @@ button.c10 {
 
 exports[`basic end-to-end flow 5`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-kjoXOD byAYBe"
   tabindex="-1"
 >
   <main
-    class="sc-bdVaJa hfkSsq"
+    class="sc-bdVaJa bkrzlo"
   >
     <div
-      class="sc-jKJlTe rnwXT"
+      class="sc-jKJlTe iGHmUT"
       id="contest-header"
     >
       <div
-        class="sc-htpNat cmKtxO"
+        class="sc-htpNat sACUF"
       >
         <h1
           aria-label="Franklin County, Measure 102: Vehicle Abatement Program."
         >
           <div
-            class="sc-eNQAEJ hJwOuf"
+            class="sc-eNQAEJ bsRtdi"
           >
             Franklin County
           </div>
@@ -1669,19 +1669,19 @@ exports[`basic end-to-end flow 5`] = `
       </div>
     </div>
     <div
-      class="sc-kkGfuU fnDKlM"
+      class="sc-kkGfuU GnMSr"
     >
       <div
         class="sc-hSdWYo dMFGHI"
       >
         <div
-          class="sc-eHgmQL eWVPqM"
+          class="sc-eHgmQL ipUphx"
         >
           <div
             class="sc-hMqMXs blIdFX"
           >
             <div
-              class="sc-htpNat cmKtxO"
+              class="sc-htpNat sACUF"
             >
               <p>
                 Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?
@@ -1692,7 +1692,7 @@ exports[`basic end-to-end flow 5`] = `
       </div>
     </div>
     <div
-      class="sc-kEYyzF kPdqzF"
+      class="sc-kEYyzF cXHfSU"
     >
       <div
         aria-labelledby="contest-header"
@@ -1700,7 +1700,7 @@ exports[`basic end-to-end flow 5`] = `
         role="group"
       >
         <label
-          class="sc-jWBwVP jYopjf"
+          class="sc-jWBwVP eOvFxe"
           for="yes"
         >
           <input
@@ -1711,17 +1711,17 @@ exports[`basic end-to-end flow 5`] = `
             value="yes"
           />
           <div
-            class="sc-htpNat cmKtxO"
+            class="sc-htpNat sACUF"
           >
             <p
-              class="sc-htoDjs gWVGA"
+              class="sc-htoDjs bgnMeQ"
             >
               Yes
             </p>
           </div>
         </label>
         <label
-          class="sc-jWBwVP fPfICq"
+          class="sc-jWBwVP jsqSWT"
           for="no"
         >
           <input
@@ -1732,10 +1732,10 @@ exports[`basic end-to-end flow 5`] = `
             value="no"
           />
           <div
-            class="sc-htpNat cmKtxO"
+            class="sc-htpNat sACUF"
           >
             <p
-              class="sc-htoDjs gWVGA"
+              class="sc-htoDjs bgnMeQ"
             >
               No
             </p>
@@ -1745,24 +1745,24 @@ exports[`basic end-to-end flow 5`] = `
     </div>
   </main>
   <nav
-    class="sc-gZMcBi dJHMPG"
+    class="sc-gZMcBi ctBJCE"
   >
     <button
-      class="sc-gzVnrw kuchIe"
+      class="sc-gzVnrw gRptmX"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="sc-htoDjs sc-cMljjf huyxdo"
+      class="sc-htoDjs sc-cMljjf bAyswa"
     >
       20
        of 
@@ -1770,17 +1770,17 @@ exports[`basic end-to-end flow 5`] = `
     </p>
   </nav>
   <nav
-    class="sc-gZMcBi iwVJXz"
+    class="sc-gZMcBi MRwYf"
   >
     <div />
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       type="button"
     >
       Settings
@@ -1791,7 +1791,7 @@ exports[`basic end-to-end flow 5`] = `
 
 exports[`basic end-to-end flow 6`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-kjoXOD byAYBe"
   tabindex="-1"
 >
   .c0 {
@@ -1799,41 +1799,41 @@ exports[`basic end-to-end flow 6`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
-  max-width: 35rem;
   margin: 0 0;
+  max-width: 35rem;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -1875,8 +1875,8 @@ exports[`basic end-to-end flow 6`] = `
 
 @media print {
   .c1 {
-    max-width: 100%;
     margin: 0;
+    max-width: 100%;
   }
 }
 
@@ -1910,7 +1910,7 @@ exports[`basic end-to-end flow 6`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -1926,17 +1926,17 @@ exports[`basic end-to-end flow 6`] = `
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -1946,19 +1946,19 @@ exports[`basic end-to-end flow 6`] = `
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 
@@ -1992,7 +1992,7 @@ exports[`basic end-to-end flow 6`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -2001,9 +2001,6 @@ exports[`basic end-to-end flow 6`] = `
 }
 
 .c0 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -2011,17 +2008,20 @@ exports[`basic end-to-end flow 6`] = `
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -2031,10 +2031,10 @@ exports[`basic end-to-end flow 6`] = `
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
@@ -2053,11 +2053,11 @@ exports[`basic end-to-end flow 6`] = `
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 
@@ -2089,7 +2089,7 @@ exports[`basic end-to-end flow 6`] = `
 
 exports[`basic end-to-end flow 7`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-kjoXOD byAYBe"
   tabindex="-1"
 >
   .c0 {
@@ -2097,34 +2097,34 @@ exports[`basic end-to-end flow 7`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -2152,7 +2152,7 @@ exports[`basic end-to-end flow 7`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -2164,33 +2164,33 @@ exports[`basic end-to-end flow 7`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   width: 100%;
   padding: 0.4rem 0.7rem;
   line-height: 1;
   white-space: nowrap;
-  color: darkgrey;
+  color: rgb(169,169,169);
 }
 
 .c9 {
   word-break: break-word;
 }
 
-.c9:before {
-  content: '✓';
+.c9::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
+  background: #028099;
   width: 1rem;
   height: 1rem;
-  background: #028099;
-  color: white;
+  vertical-align: middle;
   text-align: center;
   line-height: 1.1;
+  color: #ffffff;
   font-size: 90%;
   font-weight: 800;
-  vertical-align: middle;
+  content: '✓';
 }
 
 .c12 {
@@ -2199,21 +2199,21 @@ exports[`basic end-to-end flow 7`] = `
   word-break: break-word;
 }
 
-.c12:before {
-  content: '!';
+.c12::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
-  width: 1rem;
-  height: 1rem;
   border-radius: 50%;
   background: darkorange;
-  color: white;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
   text-align: center;
   line-height: 1.1;
+  color: #ffffff;
   font-size: 90%;
   font-weight: 800;
-  vertical-align: middle;
+  content: '!';
 }
 
 .c13 {
@@ -2221,33 +2221,33 @@ exports[`basic end-to-end flow 7`] = `
   word-break: break-word;
 }
 
-.c13:before {
-  content: '✓';
+.c13::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
+  background: #028099;
   width: 1rem;
   height: 1rem;
-  background: #028099;
-  color: white;
+  vertical-align: middle;
   text-align: center;
   line-height: 1.1;
+  color: #ffffff;
   font-size: 90%;
   font-weight: 800;
-  vertical-align: middle;
+  content: '✓';
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 0.5rem 0.5rem;
 }
 
 .c14 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 0.5rem 0.5rem;
 }
 
@@ -2263,24 +2263,24 @@ exports[`basic end-to-end flow 7`] = `
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -2294,16 +2294,13 @@ exports[`basic end-to-end flow 7`] = `
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
 .c7 {
-  color: inherit;
-  -webkit-text-decoration: inherit;
-  text-decoration: inherit;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -2313,14 +2310,13 @@ exports[`basic end-to-end flow 7`] = `
   -ms-flex-align: center;
   align-items: center;
   margin-bottom: 0.75rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
   border-radius: 0.125rem;
-  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #ffffff;
   padding: 0.375rem 0.5rem;
-}
-
-.c7:last-child {
-  margin-bottom: 0;
+  -webkit-text-decoration: inherit;
+  text-decoration: inherit;
+  color: inherit;
 }
 
 button.c7 {
@@ -2328,29 +2324,33 @@ button.c7 {
   text-align: left;
 }
 
+.c7:last-child {
+  margin-bottom: 0;
+}
+
 .c8 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
 .c8 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c8 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c8 h3,
 .c8 p {
-  font-size: 1rem;
   margin: 0;
+  font-size: 1rem;
 }
 
 .c8 h1 + h2 {
@@ -2375,7 +2375,7 @@ button.c7 {
 }
 
 .c8 > h3 {
-  font-weight: normal;
+  font-weight: 400;
 }
 
 .c10 {
@@ -3160,7 +3160,7 @@ button.c7 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -3176,17 +3176,17 @@ button.c7 {
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -3196,19 +3196,19 @@ button.c7 {
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 
@@ -3236,7 +3236,7 @@ button.c7 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -3245,9 +3245,6 @@ button.c7 {
 }
 
 .c0 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -3255,17 +3252,20 @@ button.c7 {
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -3275,10 +3275,10 @@ button.c7 {
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
@@ -3297,11 +3297,11 @@ button.c7 {
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 
@@ -3333,7 +3333,7 @@ button.c7 {
 
 exports[`basic end-to-end flow 8`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-kjoXOD byAYBe"
   tabindex="-1"
 >
   .c0 {
@@ -3341,34 +3341,34 @@ exports[`basic end-to-end flow 8`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -3397,16 +3397,16 @@ exports[`basic end-to-end flow 8`] = `
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
 }
 
 .c3 {
+  text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c4 {
@@ -3421,24 +3421,24 @@ exports[`basic end-to-end flow 8`] = `
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -3452,9 +3452,9 @@ exports[`basic end-to-end flow 8`] = `
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
@@ -3465,16 +3465,16 @@ exports[`basic end-to-end flow 8`] = `
 }
 
 .c8 {
-  cursor: pointer;
-  position: relative;
   display: grid;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -3487,33 +3487,33 @@ button.c8 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c8:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
+.c8::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
   font-size: 2rem;
   font-weight: 700;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  content: '';
 }
 
 .c8 > div {
@@ -4021,7 +4021,7 @@ button.c8 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -4037,17 +4037,17 @@ button.c8 {
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -4057,19 +4057,19 @@ button.c8 {
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 
@@ -4094,7 +4094,7 @@ button.c8 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -4103,9 +4103,6 @@ button.c8 {
 }
 
 .c0 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -4113,17 +4110,20 @@ button.c8 {
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -4133,10 +4133,10 @@ button.c8 {
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
@@ -4155,10 +4155,10 @@ button.c8 {
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    min-width: 33.333%;
   }
 }
 
@@ -4190,24 +4190,24 @@ button.c8 {
 
 exports[`basic end-to-end flow 9`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-kjoXOD byAYBe"
   tabindex="-1"
 >
   <main
-    class="sc-bdVaJa hfkSsq"
+    class="sc-bdVaJa bkrzlo"
   >
     <div
-      class="sc-VigVT lGzbZ"
+      class="sc-VigVT eeTnSv"
       id="contest-header"
     >
       <div
-        class="sc-htpNat cmKtxO"
+        class="sc-htpNat sACUF"
       >
         <h1
           aria-label="Franklin County, County Commissioners."
         >
           <div
-            class="sc-jTzLTM kebpRS"
+            class="sc-jTzLTM inwRBF"
           >
             Franklin County
           </div>
@@ -4227,13 +4227,13 @@ exports[`basic end-to-end flow 9`] = `
       </div>
     </div>
     <div
-      class="sc-fjdhpX cZUKSt"
+      class="sc-fjdhpX bqujVf"
     >
       <div
         class="sc-cSHVUG gJClgN"
       >
         <div
-          class="sc-kAzzGY gctkeX"
+          class="sc-kAzzGY jKIeml"
         >
           <div
             aria-labelledby="contest-header"
@@ -4241,7 +4241,7 @@ exports[`basic end-to-end flow 9`] = `
             role="group"
           >
             <label
-              class="sc-kgoBCf hcQLYY"
+              class="sc-kgoBCf iCLyJC"
               for="argent"
             >
               <input
@@ -4252,11 +4252,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="argent"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Camille Argent, Federalist."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Camille Argent
@@ -4267,7 +4267,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf hcQLYY"
+              class="sc-kgoBCf iCLyJC"
               for="witherspoonsmithson"
             >
               <input
@@ -4278,11 +4278,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="witherspoonsmithson"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Chloe Witherspoon-Smithson, Federalist."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Chloe Witherspoon-Smithson
@@ -4293,7 +4293,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="bainbridge"
             >
               <input
@@ -4304,11 +4304,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="bainbridge"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Clayton Bainbridge, Federalist."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Clayton Bainbridge
@@ -4319,7 +4319,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="hennessey"
             >
               <input
@@ -4330,11 +4330,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="hennessey"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Charlene Hennessey, People's."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Charlene Hennessey
@@ -4345,7 +4345,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="savoy"
             >
               <input
@@ -4356,11 +4356,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="savoy"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Eric Savoy, People's."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Eric Savoy
@@ -4371,7 +4371,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="tawa"
             >
               <input
@@ -4382,11 +4382,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="tawa"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Susan Tawa, People's."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Susan Tawa
@@ -4397,7 +4397,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="tawa-mary"
             >
               <input
@@ -4408,11 +4408,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="tawa-mary"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Mary Tawa, People's."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Mary Tawa
@@ -4423,7 +4423,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="rangel"
             >
               <input
@@ -4434,11 +4434,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="rangel"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Damian Rangel, Liberty."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Damian Rangel
@@ -4449,7 +4449,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="altman"
             >
               <input
@@ -4460,11 +4460,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="altman"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Valarie Altman, Constitution."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Valarie Altman
@@ -4475,7 +4475,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="moore"
             >
               <input
@@ -4486,11 +4486,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="moore"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Helen Moore, Constitution."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Helen Moore
@@ -4501,7 +4501,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="white"
             >
               <input
@@ -4512,11 +4512,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="white"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="John White, Whig."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     John White
@@ -4527,7 +4527,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="schmidt"
             >
               <input
@@ -4538,11 +4538,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="schmidt"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Joe Schmidt, Whig."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Joe Schmidt
@@ -4553,7 +4553,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="smith"
             >
               <input
@@ -4564,11 +4564,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="smith"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Joe Smith, Whig."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Joe Smith
@@ -4579,7 +4579,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="marracini"
             >
               <input
@@ -4590,11 +4590,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="marracini"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Amanda Marracini, Labor."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Amanda Marracini
@@ -4605,7 +4605,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
               for="schreiner"
             >
               <input
@@ -4616,11 +4616,11 @@ exports[`basic end-to-end flow 9`] = `
                 value="schreiner"
               />
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="Martin Schreiner, Independent."
-                  class="sc-htoDjs gWVGA"
+                  class="sc-htoDjs bgnMeQ"
                 >
                   <strong>
                     Martin Schreiner
@@ -4631,10 +4631,10 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <button
-              class="sc-kgoBCf gJWwjg"
+              class="sc-kgoBCf kcbHEC"
             >
               <div
-                class="sc-htpNat cmKtxO"
+                class="sc-htpNat sACUF"
               >
                 <p
                   aria-label="add write-in candidate."
@@ -4651,10 +4651,10 @@ exports[`basic end-to-end flow 9`] = `
     </div>
   </main>
   <nav
-    class="sc-gZMcBi dJHMPG"
+    class="sc-gZMcBi ctBJCE"
   >
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       id="next"
       type="button"
     >
@@ -4662,17 +4662,17 @@ exports[`basic end-to-end flow 9`] = `
     </button>
   </nav>
   <nav
-    class="sc-gZMcBi iwVJXz"
+    class="sc-gZMcBi MRwYf"
   >
     <div />
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw bGNUxc"
+      class="sc-gzVnrw bhvIQV"
       type="button"
     >
       Settings
@@ -4683,7 +4683,7 @@ exports[`basic end-to-end flow 9`] = `
 
 exports[`basic end-to-end flow 10`] = `
 <div
-  class="sc-kjoXOD TMpcb"
+  class="sc-kjoXOD byAYBe"
   tabindex="-1"
 >
   .c0 {
@@ -4691,34 +4691,34 @@ exports[`basic end-to-end flow 10`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -4746,7 +4746,7 @@ exports[`basic end-to-end flow 10`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -4758,33 +4758,33 @@ exports[`basic end-to-end flow 10`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   width: 100%;
   padding: 0.4rem 0.7rem;
   line-height: 1;
   white-space: nowrap;
-  color: darkgrey;
+  color: rgb(169,169,169);
 }
 
 .c9 {
   word-break: break-word;
 }
 
-.c9:before {
-  content: '✓';
+.c9::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
+  background: #028099;
   width: 1rem;
   height: 1rem;
-  background: #028099;
-  color: white;
+  vertical-align: middle;
   text-align: center;
   line-height: 1.1;
+  color: #ffffff;
   font-size: 90%;
   font-weight: 800;
-  vertical-align: middle;
+  content: '✓';
 }
 
 .c12 {
@@ -4793,21 +4793,21 @@ exports[`basic end-to-end flow 10`] = `
   word-break: break-word;
 }
 
-.c12:before {
-  content: '!';
+.c12::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
-  width: 1rem;
-  height: 1rem;
   border-radius: 50%;
   background: darkorange;
-  color: white;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
   text-align: center;
   line-height: 1.1;
+  color: #ffffff;
   font-size: 90%;
   font-weight: 800;
-  vertical-align: middle;
+  content: '!';
 }
 
 .c13 {
@@ -4815,33 +4815,33 @@ exports[`basic end-to-end flow 10`] = `
   word-break: break-word;
 }
 
-.c13:before {
-  content: '✓';
+.c13::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
+  background: #028099;
   width: 1rem;
   height: 1rem;
-  background: #028099;
-  color: white;
+  vertical-align: middle;
   text-align: center;
   line-height: 1.1;
+  color: #ffffff;
   font-size: 90%;
   font-weight: 800;
-  vertical-align: middle;
+  content: '✓';
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 0.5rem 0.5rem;
 }
 
 .c14 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 0.5rem 0.5rem;
 }
 
@@ -4857,24 +4857,24 @@ exports[`basic end-to-end flow 10`] = `
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -4888,16 +4888,13 @@ exports[`basic end-to-end flow 10`] = `
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
 .c7 {
-  color: inherit;
-  -webkit-text-decoration: inherit;
-  text-decoration: inherit;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -4907,14 +4904,13 @@ exports[`basic end-to-end flow 10`] = `
   -ms-flex-align: center;
   align-items: center;
   margin-bottom: 0.75rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
   border-radius: 0.125rem;
-  background: white;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #ffffff;
   padding: 0.375rem 0.5rem;
-}
-
-.c7:last-child {
-  margin-bottom: 0;
+  -webkit-text-decoration: inherit;
+  text-decoration: inherit;
+  color: inherit;
 }
 
 button.c7 {
@@ -4922,29 +4918,33 @@ button.c7 {
   text-align: left;
 }
 
+.c7:last-child {
+  margin-bottom: 0;
+}
+
 .c8 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
 .c8 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c8 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c8 h3,
 .c8 p {
-  font-size: 1rem;
   margin: 0;
+  font-size: 1rem;
 }
 
 .c8 h1 + h2 {
@@ -4969,7 +4969,7 @@ button.c7 {
 }
 
 .c8 > h3 {
-  font-weight: normal;
+  font-weight: 400;
 }
 
 .c10 {
@@ -5778,7 +5778,7 @@ button.c7 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -5794,17 +5794,17 @@ button.c7 {
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -5814,19 +5814,19 @@ button.c7 {
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 
@@ -5854,7 +5854,7 @@ button.c7 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -5863,9 +5863,6 @@ button.c7 {
 }
 
 .c0 {
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -5873,17 +5870,20 @@ button.c7 {
   -webkit-flex-wrap: wrap-reverse;
   -ms-flex-wrap: wrap-reverse;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
-  background: #455a64;
-  border-bottom: 1px solid darkgrey;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.5rem;
 }
 
 .c0 > *:first-child {
@@ -5893,10 +5893,10 @@ button.c7 {
 }
 
 .c0 > * {
-  margin: 0.25rem;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  margin: 0.25rem;
 }
 
 @media (min-width:480px) {
@@ -5915,11 +5915,11 @@ button.c7 {
 
 @media (min-width:480px) {
   .c0 > *:only-child {
-    margin: auto;
-    min-width: 33.333%;
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
+    margin: auto;
+    min-width: 33.333%;
   }
 }
 

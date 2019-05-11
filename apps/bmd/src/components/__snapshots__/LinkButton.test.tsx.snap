@@ -5,7 +5,7 @@ exports[`navigates back 1`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -26,7 +26,7 @@ exports[`navigates to page 1`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -47,12 +47,12 @@ exports[`renders LinkButton with onClick and disabled props 1`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
   white-space: nowrap;
-  color: darkgrey;
+  color: rgb(169,169,169);
 }
 
 <button
@@ -69,7 +69,7 @@ exports[`renders LinkButton with onClick prop 1`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;

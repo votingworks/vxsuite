@@ -32,9 +32,9 @@ import Text from './Text'
 const tabletMinWidth = 720
 
 const ContentHeader = styled.div`
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
   @media (min-width: ${tabletMinWidth}px) {
     padding: 1rem 1.5rem 0.5rem;
@@ -42,25 +42,25 @@ const ContentHeader = styled.div`
   }
 `
 const ContestSection = styled.div`
+  text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
 `
 const VariableContentContainer = styled.div<ScrollShadows>`
   display: flex;
   flex: 1;
   position: relative;
   overflow: auto;
-  &:before,
-  &:after {
-    content: '';
-    z-index: 1;
-    transition: opacity 0.25s ease;
+  &::before,
+  &::after {
     position: absolute;
-    height: 0.25rem;
+    z-index: 1;
     width: 100%;
+    height: 0.25rem;
+    content: '';
+    transition: opacity 0.25s ease;
   }
-  &:before {
+  &::before {
     top: 0;
     opacity: ${({ showTopShadow }) =>
       showTopShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
@@ -70,7 +70,7 @@ const VariableContentContainer = styled.div<ScrollShadows>`
       transparent 100%
     );
   }
-  &:after {
+  &::after {
     bottom: 0;
     opacity: ${({ showBottomShadow }) =>
       showBottomShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
@@ -83,12 +83,12 @@ const VariableContentContainer = styled.div<ScrollShadows>`
 `
 const ScrollControls = styled.div`
   display: none;
+  flex-direction: column;
+  justify-content: space-between;
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
-  flex-direction: column;
-  justify-content: space-between;
   width: 100%;
   max-width: 35rem;
   padding: 0.5rem 0.75rem 0.5rem 0;
@@ -117,9 +117,9 @@ const ScrollContainer = styled.div`
   overflow: auto;
 `
 const ScrollableContentWrapper = styled.div<Scrollable>`
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
   @media (min-width: ${tabletMinWidth}px) {
     padding-right: ${({ isScrollable }) =>
@@ -135,16 +135,16 @@ const ChoicesGrid = styled.div`
   grid-gap: 0.75rem;
 `
 const Choice = styled('label')<{ isSelected: boolean }>`
-  cursor: pointer;
-  position: relative;
   display: grid;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: ${({ isSelected }) => (isSelected ? '#028099' : 'white')};
-  color: ${({ isSelected }) => (isSelected ? 'white' : undefined)};
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
     0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
     0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
+  background: ${({ isSelected }) => (isSelected ? '#028099' : '#FFFFFF')};
+  cursor: pointer;
+  color: ${({ isSelected }) => (isSelected ? '#FFFFFF' : undefined)};
   transition: background 0.25s, color 0.25s;
   button& {
     text-align: left;
@@ -152,24 +152,25 @@ const Choice = styled('label')<{ isSelected: boolean }>`
   :focus-within {
     outline: rgb(77, 144, 254) dashed 0.25rem;
   }
-  :before {
-    content: '${({ isSelected }) => (isSelected ? GLOBALS.CHECK_ICON : '')}';
+  ::before {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
-    left: 0;
     top: 0;
     bottom: 0;
-    background: white;
+    left: 0;
     border-right: 1px solid;
-    border-color: ${({ isSelected }) => (isSelected ? '#028099' : 'lightgrey')};
+    border-color: ${({ isSelected }) =>
+      isSelected ? '#028099' : 'rgb(211, 211, 211)'};
+    border-radius: 0.125rem 0 0 0.125rem;
+    background: #FFFFFF;
     width: 3rem;
     text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    color: #028099;
     font-size: 2rem;
     font-weight: 700;
-    border-radius: 0.125rem 0 0 0.125rem;
-    color: #028099;
+    content: '${({ isSelected }) => (isSelected ? GLOBALS.CHECK_ICON : '')}';
   }
   & > div {
     padding: 0.5rem 0.5rem 0.5rem 4rem;
@@ -185,9 +186,9 @@ const ChoiceInput = styled.input.attrs({
 `
 
 const WriteInCandidateForm = styled.div`
-  background-color: lightgrey;
   margin: 1rem 0 -1rem;
   border-radius: 0.25rem;
+  background-color: rgb(211, 211, 211);
   padding: 0.25rem;
 `
 
@@ -199,10 +200,10 @@ const WriteInCandidateInput = styled.input.attrs({
   readOnly: true,
   type: 'text',
 })`
-  width: 100%;
   outline: none;
+  border: 1px solid rgb(169, 169, 169);
   box-shadow: 0 0 3px -1px rgba(0, 0, 0, 0.3);
-  border: 1px solid darkgrey;
+  width: 100%;
   padding: 0.25rem 0.35rem;
 `
 

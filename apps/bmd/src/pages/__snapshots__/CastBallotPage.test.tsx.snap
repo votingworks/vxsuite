@@ -6,41 +6,41 @@ exports[`renders CastBallotPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
-  max-width: 35rem;
   margin: auto auto;
+  max-width: 35rem;
 }
 
 .c3 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c3 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c3 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c3 h3,
 .c3 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c3 h1 + h2 {
@@ -73,7 +73,7 @@ exports[`renders CastBallotPage 1`] = `
   padding: 0.4rem 0.7rem;
   line-height: 1;
   white-space: nowrap;
-  color: white;
+  color: #FFFFFF;
 }
 
 .c4 {
@@ -89,32 +89,32 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 .c5 {
-  max-width: 24rem;
-  list-style: none;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
-  background: white;
   border-radius: 0.25rem;
+  background: #ffffff;
+  max-width: 24rem;
+  padding: 1.5rem 1rem;
+  list-style: none;
 }
 
 .c5 > li {
-  margin-bottom: 1.75rem;
   position: relative;
-  counter-increment: asdf;
+  margin-bottom: 1.75rem;
   padding-left: 1.75rem;
+  counter-increment: asdf;
 }
 
 .c5 > li:last-child {
   margin-bottom: 0;
 }
 
-.c5 > li:before {
-  content: counter(asdf) '.';
+.c5 > li::before {
   position: absolute;
   top: 0;
   left: 0;
-  font-weight: bold;
   font-size: 1.25rem;
+  font-weight: 700;
+  content: counter(asdf) '.';
 }
 
 @media (min-width:480px) {
@@ -135,8 +135,8 @@ exports[`renders CastBallotPage 1`] = `
 
 @media print {
   .c1 {
-    max-width: 100%;
     margin: 0;
+    max-width: 100%;
   }
 }
 
