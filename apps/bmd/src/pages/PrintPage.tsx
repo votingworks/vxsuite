@@ -214,7 +214,8 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
               <Header>
                 <div
                   className="seal"
-                  dangerouslySetInnerHTML={{ __html: seal }}
+                  // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
+                  dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
                 />
                 <Prose className="ballot-header-content">
                   <h2>Official Ballot</h2>
