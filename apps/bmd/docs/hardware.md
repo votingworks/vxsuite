@@ -132,5 +132,6 @@ Use the keyboard shortcut Alt+F4 (or Ctrl+W) to exit kiosk mode.
 1. Open browser, go to random web page, and select print (or Ctrl-P).
 1. Select "Destination" to be Brother HL-L2300D series. It should not require
    any additional drivers.
-1. Select "More settings", then change "Margins" to "None".
+1. Select "More settings", then change "Margins" to "Default".
+1. Uncheck "Options: Headers and footers".
 1. Under "Options" unselect "Two-sided".
