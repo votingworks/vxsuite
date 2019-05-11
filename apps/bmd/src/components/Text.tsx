@@ -7,6 +7,7 @@ interface Props {
   bold?: boolean
   center?: boolean
   error?: boolean
+  italic?: boolean
   muted?: boolean
   small?: boolean
   warning?: boolean
@@ -55,6 +56,7 @@ const Text = styled('p')<Props>`
   }
   font-size: ${({ small }) => (small ? '0.8rem' : undefined)};
   font-weight: ${({ bold }) => (bold ? '600' : undefined)};
+  font-style: ${({ italic }) => (italic ? 'italic' : undefined)};
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
   /* stylelint-disable-next-line value-keyword-case, order/properties-order */
   ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}

@@ -1045,7 +1045,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Joseph Barchi and Joseph Hallaren
@@ -1071,7 +1071,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Adam Cramer and Greg Vuocolo, People's."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Adam Cramer and Greg Vuocolo
@@ -1097,7 +1097,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Daniel Court and Amy Blumhardt, Liberty."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Daniel Court and Amy Blumhardt
@@ -1123,7 +1123,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Alvin Boone and James Lian, Constitution."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Alvin Boone and James Lian
@@ -1149,7 +1149,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Ashley Hildebrand-McDougall and James Garritty
@@ -1175,7 +1175,7 @@ exports[`basic end-to-end flow 3`] = `
               >
                 <p
                   aria-label="Martin Patterson and Clay Lariviere, Labor."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Martin Patterson and Clay Lariviere
@@ -1208,7 +1208,7 @@ exports[`basic end-to-end flow 3`] = `
       Back
     </button>
     <p
-      class="sc-htoDjs sc-cMljjf bAyswa"
+      class="sc-htoDjs sc-cMljjf kXDLsX"
     >
       1
        of 
@@ -1609,7 +1609,7 @@ button.c10 {
       Back
     </button>
     <p
-      class="sc-htoDjs sc-cMljjf bAyswa"
+      class="sc-htoDjs sc-cMljjf kXDLsX"
     >
       20
        of 
@@ -1714,7 +1714,7 @@ exports[`basic end-to-end flow 5`] = `
             class="sc-htpNat sACUF"
           >
             <p
-              class="sc-htoDjs bgnMeQ"
+              class="sc-htoDjs cdAKTE"
             >
               Yes
             </p>
@@ -1735,7 +1735,7 @@ exports[`basic end-to-end flow 5`] = `
             class="sc-htpNat sACUF"
           >
             <p
-              class="sc-htoDjs bgnMeQ"
+              class="sc-htoDjs cdAKTE"
             >
               No
             </p>
@@ -1762,7 +1762,7 @@ exports[`basic end-to-end flow 5`] = `
       Back
     </button>
     <p
-      class="sc-htoDjs sc-cMljjf bAyswa"
+      class="sc-htoDjs sc-cMljjf kXDLsX"
     >
       20
        of 
@@ -4256,7 +4256,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Camille Argent, Federalist."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Camille Argent
@@ -4282,7 +4282,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Chloe Witherspoon-Smithson, Federalist."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Chloe Witherspoon-Smithson
@@ -4308,7 +4308,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Clayton Bainbridge, Federalist."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Clayton Bainbridge
@@ -4334,7 +4334,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Charlene Hennessey, People's."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Charlene Hennessey
@@ -4360,7 +4360,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Eric Savoy, People's."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Eric Savoy
@@ -4386,7 +4386,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Susan Tawa, People's."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Susan Tawa
@@ -4412,7 +4412,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Mary Tawa, People's."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Mary Tawa
@@ -4438,7 +4438,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Damian Rangel, Liberty."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Damian Rangel
@@ -4464,7 +4464,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Valarie Altman, Constitution."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Valarie Altman
@@ -4490,7 +4490,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Helen Moore, Constitution."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Helen Moore
@@ -4516,7 +4516,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="John White, Whig."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     John White
@@ -4542,7 +4542,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Joe Schmidt, Whig."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Joe Schmidt
@@ -4568,7 +4568,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Joe Smith, Whig."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Joe Smith
@@ -4594,7 +4594,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Amanda Marracini, Labor."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Amanda Marracini
@@ -4620,7 +4620,7 @@ exports[`basic end-to-end flow 9`] = `
               >
                 <p
                   aria-label="Martin Schreiner, Independent."
-                  class="sc-htoDjs bgnMeQ"
+                  class="sc-htoDjs cdAKTE"
                 >
                   <strong>
                     Martin Schreiner

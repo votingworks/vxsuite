@@ -96,7 +96,7 @@ const ContestProse = styled(Prose)`
   }
 `
 const NoSelection = () => (
-  <Text bold muted>
+  <Text italic muted>
     [no selection]
   </Text>
 )
@@ -124,7 +124,7 @@ const CandidateContestResult = ({
         </Text>
       ))}
       {!!remainingChoices && (
-        <Text bold muted>
+        <Text italic muted>
           [no selection for {remainingChoices} of {contest.seats} choices]
         </Text>
       )}
@@ -138,8 +138,10 @@ const YesNoContestResult = (props: {
 }) =>
   props.vote ? (
     <Text bold wordBreak>
-      {GLOBALS.YES_NO_VOTES[props.vote]}{' '}
-      {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
+      <strong>
+        {GLOBALS.YES_NO_VOTES[props.vote]}{' '}
+        {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
+      </strong>
     </Text>
   ) : (
     <NoSelection />
