@@ -279,7 +279,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
           <Button primary onClick={this.showConfirm}>
             Print Ballot
           </Button>
-          <LinkButton goBack id="previous">
+          <LinkButton to="/review" id="previous">
             Back
           </LinkButton>
           <div />
