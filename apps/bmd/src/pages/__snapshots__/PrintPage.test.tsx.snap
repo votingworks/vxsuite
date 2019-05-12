@@ -77,7 +77,7 @@ exports[`renders PrintPage with votes 1`] = `
 
 .c11 {
   color: gray;
-  font-weight: 600;
+  font-style: italic;
 }
 
 .c3 {
@@ -796,9 +796,11 @@ exports[`renders PrintPage with votes 1`] = `
               <p
                 class="c10"
               >
-                No
-                 
-                on Question A
+                <strong>
+                  No
+                   
+                  on Question A
+                </strong>
               </p>
             </div>
           </div>
@@ -814,9 +816,11 @@ exports[`renders PrintPage with votes 1`] = `
               <p
                 class="c10"
               >
-                Yes
-                 
-                on Question B
+                <strong>
+                  Yes
+                   
+                  on Question B
+                </strong>
               </p>
             </div>
           </div>
