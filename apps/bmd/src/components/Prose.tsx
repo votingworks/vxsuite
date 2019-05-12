@@ -6,26 +6,26 @@ interface Props {
 }
 
 const Prose = styled('div')<Props>`
-  line-height: 1.2;
+  margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
   max-width: 66ch;
   text-align: ${({ textCenter }) => (textCenter ? 'center' : undefined)};
-  margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
+  line-height: 1.2;
   @media (min-width: 480px) {
     line-height: 1.3;
   }
   & h1 {
-    font-size: 1.5rem;
-    line-height: 1.1;
     margin: 2rem 0 1rem;
+    line-height: 1.1;
+    font-size: 1.5rem;
   }
   & h2 {
-    font-size: 1.25rem;
     margin: 1.5rem 0 0.75rem;
+    font-size: 1.25rem;
   }
   & h3,
   & p {
-    font-size: 1rem;
     margin: ${({ compact }) => (compact ? 0 : '1rem 0')};
+    font-size: 1rem;
   }
   & h1 + h2 {
     margin-top: -0.75rem;

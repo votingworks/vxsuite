@@ -17,45 +17,46 @@ interface Props {
 }
 
 const iconStyles = css<Props>`
-  &:before {
-    content: ${({ warningIcon, voteIcon }) =>
-      (warningIcon && `'!'`) || (voteIcon && `'${GLOBALS.CHECK_ICON}'`)};
+  &::before {
     display: inline-block;
     margin-top: -0.3rem;
     margin-right: 0.25rem;
-    width: 1rem;
-    height: 1rem;
     border-radius: ${({ warningIcon }) => (warningIcon && '50%') || undefined};
     background: ${({ warningIcon, voteIcon }) =>
       (warningIcon && 'darkorange') || (voteIcon && '#028099')};
-    color: white;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
     text-align: center;
     line-height: 1.1;
+    color: #ffffff;
     font-size: 90%;
     font-weight: 800;
-    vertical-align: middle;
+    content: ${({ warningIcon, voteIcon }) =>
+      (warningIcon && `'!'`) || (voteIcon && `'${GLOBALS.CHECK_ICON}'`)};
   }
 `
 
 const Text = styled('p')<Props>`
+  text-align: ${({ center }) => (center ? 'center' : undefined)};
   color: ${({ error, muted, warning, white }) =>
     (error && 'red') ||
     (warning && 'darkorange') ||
-    (white && 'white') ||
+    (white && '#FFFFFF') ||
     (muted && 'gray') ||
     undefined};
   @media print {
     color: ${({ error, muted, warning, white }) =>
       (error && 'black') ||
       (warning && 'black') ||
-      (white && 'white') ||
+      (white && '#FFFFFF') ||
       (muted && 'black') ||
       undefined};
   }
-  text-align: ${({ center }) => (center ? 'center' : undefined)};
   font-size: ${({ small }) => (small ? '0.8rem' : undefined)};
   font-weight: ${({ bold }) => (bold ? '600' : undefined)};
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
+  /* stylelint-disable-next-line value-keyword-case, order/properties-order */
   ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}
 `
 

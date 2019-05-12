@@ -2,25 +2,25 @@
 
 exports[`renders Prose defaults 1`] = `
 .c0 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c0 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c0 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c0 h3,
 .c0 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c0 h1 + h2 {
@@ -88,25 +88,25 @@ exports[`renders Prose defaults 1`] = `
 
 exports[`renders Prose with compact spacing 1`] = `
 .c0 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c0 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c0 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c0 h3,
 .c0 p {
-  font-size: 1rem;
   margin: 0;
+  font-size: 1rem;
 }
 
 .c0 h1 + h2 {
@@ -175,27 +175,27 @@ exports[`renders Prose with compact spacing 1`] = `
 
 exports[`renders Prose with compact spacing 2`] = `
 .c0 {
-  line-height: 1.2;
+  margin: auto;
   max-width: 66ch;
   text-align: center;
-  margin: auto;
+  line-height: 1.2;
 }
 
 .c0 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c0 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c0 h3,
 .c0 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c0 h1 + h2 {

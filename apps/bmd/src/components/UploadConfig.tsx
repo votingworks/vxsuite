@@ -3,7 +3,7 @@ import Dropzone from 'react-dropzone'
 import styled from 'styled-components'
 
 import electionSample from '../data/electionSample.json'
-import isJSON from '../utils/is-json'
+import isJSON from '../utils/isJSON'
 
 import Button from './Button'
 import Prose from './Prose'
@@ -12,10 +12,10 @@ import Main, { MainChild } from './Main'
 import Text from './Text'
 
 const Label = styled.label`
-  margin: auto;
-  flex: 1;
-  width: 100%;
   display: flex;
+  flex: 1;
+  margin: auto;
+  width: 100%;
 `
 
 const Footer = styled.footer`

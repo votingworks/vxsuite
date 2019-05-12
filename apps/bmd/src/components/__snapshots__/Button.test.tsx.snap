@@ -5,7 +5,7 @@ exports[`renders Button 1`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -26,7 +26,7 @@ exports[`renders DecoyButton 1`] = `
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: lightgrey;
+  background: rgb(211,211,211);
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   line-height: 1;
@@ -51,7 +51,7 @@ exports[`renders danger Button 1`] = `
   padding: 0.4rem 0.7rem;
   line-height: 1;
   white-space: nowrap;
-  color: white;
+  color: #FFFFFF;
 }
 
 <button
@@ -72,7 +72,7 @@ exports[`renders primary Button 1`] = `
   padding: 0.4rem 0.7rem;
   line-height: 1;
   white-space: nowrap;
-  color: white;
+  color: #FFFFFF;
 }
 
 <button

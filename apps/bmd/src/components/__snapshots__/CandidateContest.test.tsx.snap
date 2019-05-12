@@ -6,34 +6,34 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -62,16 +62,16 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
 }
 
 .c3 {
+  text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c4 {
@@ -86,24 +86,24 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -117,9 +117,9 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
@@ -130,16 +130,16 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 }
 
 .c11 {
-  cursor: pointer;
-  position: relative;
   display: grid;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -152,33 +152,33 @@ button.c11 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c11:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
+.c11::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
   font-size: 2rem;
   font-weight: 700;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  content: '';
 }
 
 .c11 > div {
@@ -186,17 +186,17 @@ button.c11 {
 }
 
 .c8 {
-  cursor: pointer;
-  position: relative;
   display: grid;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: #028099;
-  color: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #028099;
+  cursor: pointer;
+  color: #FFFFFF;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -209,33 +209,33 @@ button.c8 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c8:before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: #028099;
-  width: 3rem;
-  text-align: center;
+.c8::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: #028099;
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
   font-size: 2rem;
   font-weight: 700;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  content: '✓';
 }
 
 .c8 > div {
@@ -429,34 +429,34 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -485,16 +485,16 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
 }
 
 .c3 {
+  text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c4 {
@@ -509,24 +509,24 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -540,9 +540,9 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
@@ -553,16 +553,16 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 }
 
 .c8 {
-  cursor: pointer;
-  position: relative;
   display: grid;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -575,33 +575,33 @@ button.c8 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c8:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
+.c8::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
   font-size: 2rem;
   font-weight: 700;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  content: '';
 }
 
 .c8 > div {
@@ -788,34 +788,34 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -844,16 +844,16 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
 }
 
 .c3 {
+  text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c4 {
@@ -868,24 +868,24 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -899,9 +899,9 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
@@ -912,16 +912,16 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 }
 
 .c11 {
-  cursor: pointer;
-  position: relative;
   display: grid;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -934,33 +934,33 @@ button.c11 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c11:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
+.c11::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
   font-size: 2rem;
   font-weight: 700;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  content: '';
 }
 
 .c11 > div {
@@ -968,17 +968,17 @@ button.c11 {
 }
 
 .c8 {
-  cursor: pointer;
-  position: relative;
   display: grid;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: #028099;
-  color: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #028099;
+  cursor: pointer;
+  color: #FFFFFF;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -991,33 +991,33 @@ button.c8 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c8:before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: #028099;
-  width: 3rem;
-  text-align: center;
+.c8::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: #028099;
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
   font-size: 2rem;
   font-weight: 700;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  content: '✓';
 }
 
 .c8 > div {
@@ -1211,34 +1211,34 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -1267,16 +1267,16 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 }
 
 .c1 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 1rem 0.75rem 0.5rem;
 }
 
 .c3 {
+  text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .c4 {
@@ -1291,24 +1291,24 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   overflow: auto;
 }
 
-.c4:before,
-.c4:after {
-  content: '';
+.c4::before,
+.c4::after {
+  position: absolute;
   z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
   -webkit-transition: opacity 0.25s ease;
   transition: opacity 0.25s ease;
-  position: absolute;
-  height: 0.25rem;
-  width: 100%;
 }
 
-.c4:before {
+.c4::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4:after {
+.c4::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
@@ -1322,9 +1322,9 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 }
 
 .c6 {
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
 }
 
@@ -1335,16 +1335,16 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 }
 
 .c8 {
-  cursor: pointer;
-  position: relative;
   display: grid;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  position: relative;
   border-radius: 0.125rem;
-  background: white;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
@@ -1357,33 +1357,33 @@ button.c8 {
   outline: rgb(77,144,254) dashed 0.25rem;
 }
 
-.c8:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: white;
-  border-right: 1px solid;
-  border-color: lightgrey;
-  width: 3rem;
-  text-align: center;
+.c8::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
   font-size: 2rem;
   font-weight: 700;
-  border-radius: 0.125rem 0 0 0.125rem;
-  color: #028099;
+  content: '';
 }
 
 .c8 > div {

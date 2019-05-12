@@ -31,18 +31,18 @@ import BallotContext from '../contexts/ballotContext'
 const tabletMinWidth = 768
 
 const ContentHeader = styled.div`
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 0.5rem 0.5rem;
   @media (min-width: ${tabletMinWidth}px) {
     padding: 0.5rem 1rem;
   }
 `
 const ContentFooter = styled.div`
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0px auto;
   padding: 0.5rem 0.5rem;
   @media (min-width: ${tabletMinWidth}px) {
     padding: 0.5rem 1rem;
@@ -53,16 +53,16 @@ const VariableContentContainer = styled.div<ScrollShadows>`
   flex: 1;
   position: relative;
   overflow: auto;
-  &:before,
-  &:after {
-    content: '';
-    z-index: 1;
-    transition: opacity 0.25s ease;
+  &::before,
+  &::after {
     position: absolute;
-    height: 0.25rem;
+    z-index: 1;
     width: 100%;
+    height: 0.25rem;
+    content: '';
+    transition: opacity 0.25s ease;
   }
-  &:before {
+  &::before {
     top: 0;
     opacity: ${({ showTopShadow }) =>
       showTopShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
@@ -72,7 +72,7 @@ const VariableContentContainer = styled.div<ScrollShadows>`
       transparent 100%
     );
   }
-  &:after {
+  &::after {
     bottom: 0;
     opacity: ${({ showBottomShadow }) =>
       showBottomShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
@@ -88,9 +88,9 @@ const ScrollContainer = styled.div`
   overflow: auto;
 `
 const ScrollableContentWrapper = styled.div<Scrollable>`
+  margin: 0 auto;
   width: 100%;
   max-width: 35rem;
-  margin: 0 auto;
   padding: 0.5rem 0.5rem 1rem;
   @media (min-width: ${tabletMinWidth}px) {
     padding-right: 1rem;
@@ -99,24 +99,24 @@ const ScrollableContentWrapper = styled.div<Scrollable>`
 `
 
 const Contest = styled(Link)`
-  color: inherit;
-  text-decoration: inherit;
   display: flex;
   align-items: center;
   margin-bottom: 0.75rem;
-  &:last-child {
-    margin-bottom: 0;
-  }
+  border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
     0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
     0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
-  border-radius: 0.125rem;
-  background: white;
+  background: #ffffff;
+  padding: 0.375rem 0.5rem;
+  text-decoration: inherit;
+  color: inherit;
   button& {
     cursor: pointer;
     text-align: left;
   }
-  padding: 0.375rem 0.5rem;
+  &:last-child {
+    margin-bottom: 0;
+  }
   @media (min-width: 480px) {
     padding: 0.75rem 1rem;
   }
@@ -124,7 +124,7 @@ const Contest = styled(Link)`
 const ContestProse = styled(Prose)`
   flex: 1;
   & > h3 {
-    font-weight: normal;
+    font-weight: 400;
   }
 `
 const ContestActions = styled.div`

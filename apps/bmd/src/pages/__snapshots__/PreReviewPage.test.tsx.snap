@@ -6,41 +6,41 @@ exports[`renders PreReviewPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
-  max-width: 35rem;
   margin: 0 0;
+  max-width: 35rem;
 }
 
 .c2 {
-  line-height: 1.2;
   max-width: 66ch;
+  line-height: 1.2;
 }
 
 .c2 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c2 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c2 h3,
 .c2 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -82,8 +82,8 @@ exports[`renders PreReviewPage 1`] = `
 
 @media print {
   .c1 {
-    max-width: 100%;
     margin: 0;
+    max-width: 100%;
   }
 }
 

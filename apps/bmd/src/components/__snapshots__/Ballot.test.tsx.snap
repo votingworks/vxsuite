@@ -6,43 +6,43 @@ exports[`can navigate all ballot pages 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
-  max-width: 35rem;
   margin: auto auto;
+  max-width: 35rem;
 }
 
 .c3 {
-  line-height: 1.2;
+  margin: auto;
   max-width: 66ch;
   text-align: center;
-  margin: auto;
+  line-height: 1.2;
 }
 
 .c3 h1 {
-  font-size: 1.5rem;
-  line-height: 1.1;
   margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
 }
 
 .c3 h2 {
-  font-size: 1.25rem;
   margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
 }
 
 .c3 h3,
 .c3 p {
-  font-size: 1rem;
   margin: 1rem 0;
+  font-size: 1rem;
 }
 
 .c3 h1 + h2 {
@@ -68,8 +68,8 @@ exports[`can navigate all ballot pages 1`] = `
 
 .c5 > svg {
   display: block;
-  height: auto;
   width: 100%;
+  height: auto;
 }
 
 .c2 {
@@ -100,8 +100,8 @@ exports[`can navigate all ballot pages 1`] = `
 
 @media print {
   .c1 {
-    max-width: 100%;
     margin: 0;
+    max-width: 100%;
   }
 }
 

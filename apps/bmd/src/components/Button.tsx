@@ -20,16 +20,18 @@ const buttonStyles = css<Props>`
   border-radius: 0.25rem;
   box-sizing: border-box;
   background: ${({ danger = false, primary = false }) =>
-    (danger && 'red') || (primary && 'rgb(71, 167, 75)') || 'lightgrey'};
+    (danger && 'red') ||
+    (primary && 'rgb(71, 167, 75)') ||
+    'rgb(211, 211, 211)'};
   cursor: pointer;
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
   padding: 0.4rem 0.7rem;
   line-height: 1;
   white-space: nowrap;
   color: ${({ disabled = false, danger = false, primary = false }) =>
-    (disabled && 'darkgrey') ||
-    (danger && 'white') ||
-    (primary && 'white') ||
+    (disabled && 'rgb(169, 169, 169)') ||
+    (danger && '#FFFFFF') ||
+    (primary && '#FFFFFF') ||
     'black'};
 `
 

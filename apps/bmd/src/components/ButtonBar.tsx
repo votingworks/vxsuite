@@ -8,15 +8,15 @@ interface Props {
 }
 
 const ButtonBar = styled('nav')<Props>`
-  order: ${({ secondary }) => (secondary ? '-1' : undefined)};
   display: flex;
   flex-wrap: wrap-reverse;
-  padding: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  order: ${({ secondary }) => (secondary ? '-1' : undefined)};
+  border-bottom: 1px solid rgb(169, 169, 169);
   background: ${({ dark = true }) =>
     dark ? '#455a64' : 'rgba(0, 0, 0, 0.05)'};
-  border-bottom: 1px solid darkgrey;
-  justify-content: space-between;
-  align-items: center;
+  padding: 0.5rem;
 
   & > *:first-child {
     order: 2;
@@ -27,8 +27,8 @@ const ButtonBar = styled('nav')<Props>`
   }
 
   & > * {
-    margin: 0.25rem;
     flex: 1;
+    margin: 0.25rem;
     @media (min-width: 480px) {
       flex: ${({ separatePrimaryButton }) =>
         separatePrimaryButton ? '0' : undefined};
@@ -36,10 +36,10 @@ const ButtonBar = styled('nav')<Props>`
   }
   & > *:only-child {
     @media (min-width: 480px) {
+      flex: 0;
       margin: ${({ centerOnlyChild = true }) =>
         centerOnlyChild ? 'auto' : undefined};
       min-width: 33.333%;
-      flex: 0;
     }
   }
   @media print {

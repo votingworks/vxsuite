@@ -1,7 +1,7 @@
 // Ported to TypeScript from:
-// https://github.com/joaquimserafim/is-json/blob/master/test/index.js
+// https://github.com/joaquimserafim/isJSON/blob/master/test/index.js
 
-import { isJSON, isJSONStrict } from './is-json'
+import { isJSON, isJSONStrict } from './isJSON'
 
 it(`perform isJSON verifications`, () => {
   expect(isJSON('asdada[]asdadada sd asdasda das das')).toBeFalsy()

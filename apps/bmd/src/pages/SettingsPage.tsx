@@ -19,7 +19,7 @@ const SettingLabel = styled.label`
   display: block;
   margin: 1.5rem 0 1rem;
   font-size: 1.25rem;
-  font-weight: bold;
+  font-weight: 700;
 `
 const FontSizeControlsContainer = styled.div`
   display: flex;
@@ -30,8 +30,8 @@ const FontSizeControlsContainer = styled.div`
   }
   button {
     border-radius: 50%;
-    height: 2.5rem;
     width: 2.5rem;
+    height: 2.5rem;
     padding: 0 0 0.2rem;
   }
 `

@@ -2,7 +2,6 @@
 
 exports[`renders Screen 1`] = `
 .c0 {
-  height: 100%;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -10,6 +9,7 @@ exports[`renders Screen 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  height: 100%;
 }
 
 .c0:focus {
