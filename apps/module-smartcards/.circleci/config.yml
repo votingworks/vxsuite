@@ -1,0 +1,23 @@
+version: 2
+jobs:
+  test-server:
+    docker:
+      - image: circleci/python:3.7.3
+    steps:
+      - checkout
+      - run:
+          name: Set up python tools for backend
+          command: |
+            sudo make install-smartcard
+            make install-dependencies
+            make install-dev-dependencies
+      - run:
+          name: Run Python Tests and Coverage
+          command: |
+            pipenv run make coverage
+
+workflows:
+  version: 2
+  test-server:
+    jobs:
+      - test-server
