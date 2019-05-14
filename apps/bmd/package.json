@@ -86,7 +86,7 @@
     "@types/react-dropzone": "^4.2.2",
     "@types/react-modal": "^3.8.2",
     "@types/react-router-dom": "^4.3.3",
-    "@types/styled-components": "^4.1.14",
+    "@types/styled-components": "^4.1.15",
     "history": "^4.9.0",
     "lodash.camelcase": "^4.3.0",
     "mousetrap": "^1.6.3",
