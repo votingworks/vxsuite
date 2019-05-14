@@ -1,0 +1,24 @@
+<html>
+  <head><title>Test Page for SmartCards</title></head>
+  <script>
+    function card_read() {
+    fetch('/card/read')
+    .then(function(response) {
+    return response.json();
+    })
+    .then(function(responseJSON) {
+    document.getElementById('result').value=JSON.stringify(responseJSON)
+    })
+    }
+
+    window.setInterval(card_read, 200)
+  </script>
+  <body>
+    <h1>Test Page for SmartCards</h1>
+    
+    <form>
+      <textarea id="result" style="font-family: monospace;" cols=80>
+      </textarea>
+    </form>
+
+  </body>

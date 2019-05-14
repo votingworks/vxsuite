@@ -1,5 +1,5 @@
 
-import json
+import json, os
 
 from flask import Flask, send_from_directory, request
 
@@ -12,9 +12,21 @@ app = Flask(__name__)
 
 @app.route('/card/read')
 def card_read():
-    card_data = (CardInterface.read() or b'').decode('utf-8')
+    card_bytes, long_value_exists = CardInterface.read()
+    if card_bytes is None:
+        return json.dumps({"present": False})
+
+    card_data = card_bytes.decode('utf-8')
     if card_data:
-        return json.dumps({"card": card_data})
+        return json.dumps({"present": True, "shortValue": card_data, "longValueExists": long_value_exists})
+    else:
+        return json.dumps({"present": True})
+
+@app.route('/card/read_long')
+def card_read_long():
+    long_bytes = CardInterface.read_long()
+    if long_bytes:
+        return json.dumps({"longValue": long_bytes.decode('utf-8')})
     else:
         return json.dumps({})
 
@@ -24,3 +36,7 @@ def card_write():
     rv = CardInterface.write(content['code'].encode('utf-8'))
     return json.dumps({"success": rv})
 
+
+@app.route('/')
+def index_test(): # pragma: no cover this is just for testing
+    return send_from_directory(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'), 'index.html')

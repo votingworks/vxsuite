@@ -5,8 +5,9 @@
 #
 # The short value is something like an identifier or a hash. At most 63 bytes.
 #
-# The long value can be as long as 16,500 bytes, though for now we only support the AT24C64 card,
-# which has a total capacity of 8,192 bytes (only about 8,000 bytes can be used for the long value.)
+# The long value can be as long as 65,536 bytes, though for now we only support
+# the AT24C256 card, which has a total capacity of 32,768 bytes (only about 32,500 bytes
+# can be used for the long value.)
 #
 # The long value is not fetched by default, as that takes a while.
 # 
@@ -21,7 +22,7 @@
 
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
-from time import sleep
+import gzip
 
 VERSION = [0x00, 0x01]
 
@@ -31,19 +32,34 @@ class Card:
         self.connection = pyscard_connection
         self.short_value = None
         self.long_value = None
+        self.short_value_length = 0
+        self.long_value_length = 0
+
+    def __initial_bytes(self, short_length, long_length):
+        initial_bytes = b'VX.'+ bytes(VERSION)
+        initial_bytes += bytes([short_length]) + long_length.to_bytes(2,'big')
+        return initial_bytes
 
     def write_short_value(self, short_value_bytes):
-        full_bytes = b'VX.'+ bytes(VERSION)
-        full_bytes += bytes([len(short_value_bytes)])
-        full_bytes += bytes([0,0])
+        full_bytes = self.__initial_bytes(len(short_value_bytes), 0)
         full_bytes += short_value_bytes
         self.write_chunk(0, full_bytes)
 
-# uncomment once implemented with tests
-#    def write_short_and_long_values(self, short_value_bytes, long_value_bytes):
-#        pass
+    def write_short_and_long_values(self, short_value_bytes, long_value_bytes):
+        long_value_compressed = gzip.compress(long_value_bytes)
+        full_bytes = self.__initial_bytes(len(short_value_bytes), len(long_value_compressed))
+        full_bytes += short_value_bytes
+        full_bytes += long_value_compressed
 
-    def read_short_value(self):
+        offset_into_bytes = 0
+        chunk_num = 0
+
+        while offset_into_bytes < len(full_bytes):
+            self.write_chunk(chunk_num, full_bytes[offset_into_bytes:offset_into_bytes+self.CHUNK_SIZE])
+            chunk_num += 1
+            offset_into_bytes += self.CHUNK_SIZE
+
+    def read_raw_first_chunk(self):
         data = self.read_chunk(0)
 
         # the right card by prefix?
@@ -52,19 +68,38 @@ class Card:
 
         self.short_value_length = data[5]
         self.long_value_length = data[6]*256 + data[7]
+        self.short_value = bytes(data[8:8+self.short_value_length])
 
-        self.short_value = data[8:8+self.short_value_length]
-        return self.short_value
+        return bytes(data)
+        
+    def read_short_value(self):
+        self.read_raw_first_chunk()
+        if self.short_value:
+            return bytes(self.short_value)
+        else:
+            return None
 
-# uncomment once implemented with tests
-#    def read_long_value(self):
-#        pass
+    def read_long_value(self):
+        full_bytes = self.read_raw_first_chunk()
+        
+        total_expected_length = 8 + self.short_value_length + self.long_value_length
+
+        read_so_far = len(full_bytes)
+        chunk_num = 1
+        while read_so_far < total_expected_length:
+            full_bytes += bytes(self.read_chunk(chunk_num))
+            read_so_far += self.CHUNK_SIZE
+            chunk_num += 1
+
+        return gzip.decompress(full_bytes[8+self.short_value_length:total_expected_length+1])
 
     # to implement in subclass
+    # returns a bytes structure
     def read_chunk(self, chunk_number): # pragma: no cover
         pass
 
     # to implement in subclass
+    # expects a bytes structure
     def write_chunk(self, chunk_number, chunk_bytes): # pragma: no cover
         pass
 
@@ -95,7 +130,7 @@ class Card4442(Card):
         response, sw1, sw2 = self.connection.transmit(apdu)
         return response
 
-class CardAT24C64(Card):
+class CardAT24C(Card):
     # This is the identifier for the card
     ATR = b';\x04I2C.'
 
@@ -140,7 +175,7 @@ class CardAT24C64(Card):
         result, sw1, sw2 = self.connection.transmit(apdu)
         return result
 
-CARD_TYPES = [Card4442, CardAT24C64]
+CARD_TYPES = [Card4442, CardAT24C]
 
 def find_card_by_atr(atr_bytes):
     for card_type in CARD_TYPES:
@@ -160,9 +195,12 @@ class VXCardObserver(CardObserver):
 
     def read(self):
         if self.card:
-            return self.card_value
+            second_value = None
+            if self.card_value:
+                second_value = self.card.long_value_length > 0
+            return self.card_value, second_value
         else:
-            return None
+            return None, None
 
     def write(self, data):
         if not self.card:
@@ -172,6 +210,21 @@ class VXCardObserver(CardObserver):
         self._read_from_card()
 
         return self.card_value == data
+
+    def read_long(self):
+        if self.card:
+            return self.card.read_long_value()
+        else:
+            return None
+
+    def write_short_and_long(self, short_bytes, long_bytes):
+        if not self.card:
+            return False
+
+        self.card.write_short_and_long_values(short_bytes, long_bytes)
+        self._read_from_card()
+
+        return self.card_value == short_bytes
 
     def _read_from_card(self):
         self.card_value = self.card.read_short_value()

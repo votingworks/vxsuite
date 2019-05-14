@@ -1,15 +1,35 @@
 
 # going to test the consructor
-from smartcards.card import VXCardObserver, Card4442, CardAT24C64, find_card_by_atr, CARD_TYPES
+from smartcards.card import VXCardObserver, Card4442, CardAT24C, find_card_by_atr, CARD_TYPES, Card
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
 
 from unittest.mock import patch, MagicMock, Mock
 
-import pytest, json
+import pytest, json, os
 
 # data on card mocked
 CONTENT_BYTES = b'hello1234'
 CARD_BYTES = b'VX.'+bytes([0x00,0x01])+bytes([len(CONTENT_BYTES), 0x00, 0x00]) + CONTENT_BYTES
+
+class MockCard(Card):
+    CHUNK_SIZE = 250
+    MAX_LENGTH = 32000
+    ATR = [0xde,0xad,0xbe,0xef]
+    
+    def __init__(self):
+        super().__init__(None, None)
+        self.chunks = {}
+
+    def read_chunk(self, chunk_number):
+        if chunk_number in self.chunks:
+            return self.chunks[chunk_number]
+        else:
+            return [0x00] * self.CHUNK_SIZE
+
+    def write_chunk(self, chunk_number, chunk_bytes):
+        assert type(chunk_bytes) == bytes
+        assert chunk_number <= (self.MAX_LENGTH / self.CHUNK_SIZE)
+        self.chunks[chunk_number] = chunk_bytes
 
 @patch('smartcard.CardMonitoring.CardMonitor')
 def test_constructor(mock_card_monitor):
@@ -18,7 +38,7 @@ def test_constructor(mock_card_monitor):
 def test_read_no_card():
     vxco = VXCardObserver()
     test_value = vxco.read()
-    assert test_value is None
+    assert test_value == (None, None)
 
 def test_write_no_card():
     vxco = VXCardObserver()
@@ -35,7 +55,7 @@ def test_read():
     vxco._read_from_card()
     test_value = vxco.read()
     
-    assert test_value == CONTENT_BYTES
+    assert test_value == (CONTENT_BYTES, False)
     vxco.card.read_chunk.assert_called_with(0)
 
 def test_read_bad_data_on_card():
@@ -49,7 +69,7 @@ def test_read_bad_data_on_card():
     test_value = vxco.read()
 
     # since the reading is still returning the bad bytes, this should be none
-    assert test_value is None
+    assert test_value == (None,None)
         
     
 def test_write():
@@ -96,5 +116,36 @@ def test_card_write_chunk():
 
         assert c.write_chunk(0, CARD_BYTES)
         c.connection.transmit.assert_called()
+
+def test_short_value():
+    c = MockCard()
+    c.write_short_value(CONTENT_BYTES)
+    check = c.read_short_value()
+
+    assert CONTENT_BYTES == check
+
+def test_long_value():
+    f = open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'electionSample.json'), "r")
+    long_content = f.read()
+
+    c = MockCard()
+    vxco = VXCardObserver()
+
+    # before a card is put in
+    assert vxco.read_long() is None
+    assert not vxco.write_short_and_long(CONTENT_BYTES, long_content.encode('utf-8'))
+
+    # now we put in a card
+    vxco.card = c
+    vxco.write_short_and_long(CONTENT_BYTES, long_content.encode('utf-8'))
+
+    test_short_value, long_value_present = vxco.read()
+    assert test_short_value == CONTENT_BYTES
+    assert long_value_present
+
+    test_long_value = vxco.read_long().decode('utf-8')
+    print(test_long_value[-20:])
+    print(long_content[-100:])
+    assert test_long_value == long_content
 
     
