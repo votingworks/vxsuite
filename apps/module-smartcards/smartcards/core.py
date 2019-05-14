@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 @app.route('/card/read')
 def card_read():
-    card_data = CardInterface.read()
+    card_data = (CardInterface.read() or b'').decode('utf-8')
     if card_data:
         return json.dumps({"card": card_data})
     else:
@@ -21,6 +21,6 @@ def card_read():
 @app.route('/card/write', methods=["POST"])
 def card_write():
     content = request.get_json()
-    rv = CardInterface.write(content['code'])
+    rv = CardInterface.write(content['code'].encode('utf-8'))
     return json.dumps({"success": rv})
 

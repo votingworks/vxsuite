@@ -14,7 +14,7 @@ def client():
 
     # any cleanup goes here
 
-@patch('smartcards.card.CardInterface.read', return_value="XYZ")
+@patch('smartcards.card.CardInterface.read', return_value=b"XYZ")
 def test_card_read(MockCardInterfaceRead, client):
     rv = json.loads(client.get("/card/read").data)
     assert rv['card'] == "XYZ"
