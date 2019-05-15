@@ -15,8 +15,10 @@ import {
 } from './lib/gamepad'
 
 import {
+  ActivationCardData,
   ActivationData,
   BallotStyle,
+  CardData,
   Contests,
   Election,
   ElectionDefaults,
@@ -43,6 +45,7 @@ export const mergeWithDefaults = (
 
 interface State {
   ballotStyleId: string
+  cardData?: CardData
   contests: Contests
   election: OptionalElection
   precinctId: string
@@ -64,8 +67,33 @@ const initialState = {
   votes: {},
 }
 
-class App extends React.Component<RouteComponentProps, State> {
+export class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
+  public checkCard: number = 0
+
+  public processCardData = (cardData: CardData) => {
+    if (cardData.t === 'activation') {
+      if (!this.state.election) {
+        return
+      }
+
+      const activationCardData = cardData as ActivationCardData
+      const ballotStyle = this.state.election.ballotStyles.find(
+        bs => activationCardData.bs === bs.id
+      )
+      const precinct = this.state.election.precincts.find(
+        pr => pr.id === activationCardData.pr
+      )
+
+      if (ballotStyle && precinct) {
+        const activationData: ActivationData = {
+          ballotStyle,
+          precinct,
+        }
+        this.activateBallot(activationData)
+      }
+    }
+  }
 
   public componentDidMount = () => {
     if (window.location.hash === '#sample') {
@@ -94,11 +122,27 @@ class App extends React.Component<RouteComponentProps, State> {
     document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
+
+    this.checkCard = window.setInterval(() => {
+      fetch('/card/read')
+        .then(result => result.json())
+        .then(resultJSON => {
+          if (resultJSON.shortValue) {
+            const cardData = JSON.parse(resultJSON.shortValue) as CardData
+            this.processCardData(cardData)
+          }
+        })
+        .catch(err => {
+          // if it's an error, aggressively assume there's no backend and stop hammering
+          window.clearInterval(this.checkCard)
+        })
+    }, 1000)
   }
 
   public componentWillUnount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     Mousetrap.unbind(removeElectionShortcuts)
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
+    window.clearInterval(this.checkCard)
   }
 
   public getElection = (): OptionalElection => {
@@ -117,7 +161,7 @@ class App extends React.Component<RouteComponentProps, State> {
     return voterData ? JSON.parse(voterData) : {}
   }
 
-  public setBalotActivation = (data: {
+  public setBallotActivation = (data: {
     ballotStyleId: string
     precinctId: string
   }) => {
@@ -183,7 +227,7 @@ class App extends React.Component<RouteComponentProps, State> {
     )
 
   public activateBallot = ({ ballotStyle, precinct }: ActivationData) => {
-    this.setBalotActivation({
+    this.setBallotActivation({
       ballotStyleId: ballotStyle.id,
       precinctId: precinct.id,
     })

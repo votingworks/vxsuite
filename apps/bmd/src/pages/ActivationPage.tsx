@@ -21,8 +21,6 @@ const CodeBox = styled.div`
 
 let resetBallotCode: number
 
-let checkCard: number
-
 const StartPage = (props: RouteComponentProps) => {
   const { election: contextElection, activateBallot } = useContext(
     BallotContext
@@ -76,23 +74,6 @@ const StartPage = (props: RouteComponentProps) => {
   const onBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.target.focus()
   }
-
-  checkCard = window.setInterval(() => {
-    fetch('/card/read')
-      .then(result => result.json())
-      .then(resultJSON => {
-        const cardState = resultJSON.card
-        if (cardState) {
-          window.clearInterval(checkCard)
-          setActivationCode(cardState)
-          decodeActivationCode()
-        }
-      })
-      .catch(() => {
-        // if it's an error, aggressively assume there's no backend and stop hammering
-        window.clearInterval(checkCard)
-      })
-  }, 1000)
 
   return (
     <Main>
