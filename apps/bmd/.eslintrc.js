@@ -65,6 +65,10 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-null-keyword': 'on',
+    'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
+    '@typescript-eslint/no-unused-vars': ['error', {
+      'vars': 'all'
+    }],
     camelcase: 'error',
     'import/no-extraneous-dependencies': [
       'error',

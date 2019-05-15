@@ -132,7 +132,7 @@ export class App extends React.Component<RouteComponentProps, State> {
             this.processCardData(cardData)
           }
         })
-        .catch(err => {
+        .catch(() => {
           // if it's an error, aggressively assume there's no backend and stop hammering
           window.clearInterval(this.checkCard)
         })

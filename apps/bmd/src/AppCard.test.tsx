@@ -5,12 +5,7 @@ import { render } from 'react-testing-library'
 import electionSample from './data/electionSample.json'
 
 import Root, { App } from './App'
-import {
-  ActivationCardData,
-  AdminCardData,
-  CardData,
-  Election,
-} from './config/types'
+import { ActivationCardData, AdminCardData, Election } from './config/types'
 
 const election = electionSample as Election
 
