@@ -165,6 +165,7 @@ exports[`can navigate all ballot pages 1`] = `
             Activation Code
           </div>
           <input
+            aria-hidden="true"
             autocapitalize="off"
             autocomplete="off"
             autocorrect="off"

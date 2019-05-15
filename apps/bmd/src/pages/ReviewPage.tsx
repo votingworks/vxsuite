@@ -1,6 +1,6 @@
 import pluralize from 'pluralize'
 import React from 'react'
-import { Link, RouteComponentProps } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 import { findPartyById } from '../utils/find'
 
@@ -98,7 +98,7 @@ const ScrollableContentWrapper = styled.div<Scrollable>`
   }
 `
 
-const Contest = styled(Link)`
+const Contest = styled(LinkButton)`
   display: flex;
   align-items: center;
   margin-bottom: 0.75rem;
@@ -107,8 +107,10 @@ const Contest = styled(Link)`
     0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
     0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
   background: #ffffff;
+  width: 100%; /* reset Button default here at component rather than pass 'fullWidth' param. */
   padding: 0.375rem 0.5rem;
   text-decoration: inherit;
+  white-space: normal; /* reset Button default */
   color: inherit;
   button& {
     cursor: pointer;
@@ -298,11 +300,11 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
             <Prose>
               <h1>Review Your Ballot Selections</h1>
               <Button
+                aria-hidden
                 data-direction="up"
                 disabled={isScrollAtTop}
                 fullWidth
                 onClick={this.scrollContestChoices}
-                tabIndex={-1}
               >
                 ↑ See More
               </Button>
@@ -321,7 +323,6 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                   <Contest
                     id={`contest-${contest.id}`}
                     key={contest.id}
-                    tabIndex={0}
                     to={`/contests/${i}#review`}
                   >
                     <ContestProse compact>
@@ -353,11 +354,11 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
           </VariableContentContainer>
           <ContentFooter>
             <Button
+              aria-hidden
               data-direction="down"
               disabled={isScrollAtBottom}
               fullWidth
               onClick={this.scrollContestChoices}
-              tabIndex={-1}
             >
               ↓ See More
             </Button>

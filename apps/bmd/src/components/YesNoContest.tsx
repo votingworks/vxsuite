@@ -350,7 +350,6 @@ export default class YesNoContest extends React.Component<Props> {
                   data-direction="up"
                   disabled={isScrollAtTop}
                   onClick={this.scrollContestChoices}
-                  tabIndex={-1}
                 >
                   ↑ See More
                 </Button>
@@ -358,7 +357,6 @@ export default class YesNoContest extends React.Component<Props> {
                   data-direction="down"
                   disabled={isScrollAtBottom}
                   onClick={this.scrollContestChoices}
-                  tabIndex={-1}
                 >
                   ↓ See More
                 </Button>

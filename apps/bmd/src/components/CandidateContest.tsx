@@ -532,18 +532,18 @@ class CandidateContest extends React.Component<Props, State> {
             {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
               <ScrollControls aria-hidden="true">
                 <Button
+                  aria-hidden
                   data-direction="up"
                   disabled={isScrollAtTop}
                   onClick={this.scrollContestChoices}
-                  tabIndex={-1}
                 >
                   ↑ See More
                 </Button>
                 <Button
+                  aria-hidden
                   data-direction="down"
                   disabled={isScrollAtBottom}
                   onClick={this.scrollContestChoices}
-                  tabIndex={-1}
                 >
                   ↓ See More
                 </Button>

@@ -87,7 +87,7 @@ it(`basic end-to-end flow`, async () => {
       `${countyCommissionersContest.section}, ${
         countyCommissionersContest.title
       }`
-    ).closest('a')!
+    ).closest('button')!
   )
   // Select first candidate
   expect(container.firstChild).toMatchSnapshot()

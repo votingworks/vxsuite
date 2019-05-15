@@ -115,6 +115,7 @@ const StartPage = (props: RouteComponentProps) => {
             >
               <div>Activation Code</div>
               <input
+                aria-hidden="true"
                 data-testid="activation-code"
                 type="text"
                 id="BallotCode"
