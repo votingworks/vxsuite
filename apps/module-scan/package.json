@@ -1,0 +1,80 @@
+{
+  "name": "module-scan",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/register": "^7.4.4",
+    "@types/express": "^4.16.1",
+    "@types/node": "^12.0.0",
+    "@types/sqlite3": "^3.1.5",
+    "@types/supertest": "^2.0.7",
+    "chokidar": "^2.1.6",
+    "express": "^4.16.4",
+    "husky": "^2.3.0",
+    "image-js": "^0.21.6",
+    "jpeg-js": "^0.3.5",
+    "jsqr": "^1.2.0",
+    "lint-staged": "^8.1.7",
+    "prettier": "^1.17.1",
+    "sqlite3": "^4.0.8",
+    "stylelint": "^10.0.1",
+    "stylelint-config-palantir": "^4.0.0",
+    "stylelint-config-prettier": "^5.2.0",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "start": "ts-node ./src/index.ts",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
+    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsc && lint-staged"
+    }
+  },
+  "lint-staged": {
+    "linters": {
+      "*.+(js|jsx|ts|tsx)": [
+        "stylelint",
+        "eslint --quiet --fix",
+        "git add"
+      ],
+      "*.css": [
+        "stylelint --config .stylelintrc-css.js --fix",
+        "git add"
+      ],
+      "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+        "prettier --write",
+        "git add"
+      ]
+    }
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^1.9.0",
+    "@typescript-eslint/parser": "^1.9.0",
+    "@types/jest": "^24.0.13",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-cypress": "^2.2.1",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jest": "^22.5.1",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.13.0",
+    "jest": "^24.8.0",
+    "supertest": "^4.0.2",
+    "ts-jest": "^24.0.2"
+  }
+}
