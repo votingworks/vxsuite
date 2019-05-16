@@ -14,7 +14,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it(`App fetches the card data every 1 second`, async () => {
+it(`App fetches the card data every 1 second`, () => {
   fetchMock.resetMocks()
   jest.useFakeTimers()
 
