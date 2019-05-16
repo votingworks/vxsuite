@@ -48,9 +48,10 @@ const App: React.FC = () => {
     setBallot('')
   }
   const programCard = () => {
+    const code: string = `VX.${precinct}.${ballot}`
     fetch('/card/write', {
       method: 'post',
-      body: JSON.stringify({ code: `VX.${precinct}.${ballot}` }),
+      body: JSON.stringify({ code }),
       headers: { 'Content-Type': 'application/json' },
     })
       .then(res => res.json())
@@ -60,6 +61,12 @@ const App: React.FC = () => {
           // https://github.com/votingworks/bas/issues/7
           reset()
         }
+      })
+      .catch(() => {
+        // TODO: UI Notification if unable to write to card
+        // https://github.com/votingworks/bas/issues/10
+        console.log(code) // eslint-disable-line no-console
+        reset()
       })
   }
   if (precinct && ballot) {
