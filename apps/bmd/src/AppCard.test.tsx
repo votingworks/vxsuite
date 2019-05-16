@@ -20,6 +20,7 @@ it(`App fetches the card data every 1 second`, () => {
 
   fetchMock.mockResponses(
     [JSON.stringify({}), { status: 200 }],
+    // This response covers the App functionality for processing card data.
     [
       JSON.stringify({
         present: true,
