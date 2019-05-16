@@ -2148,7 +2148,19 @@ exports[`basic end-to-end flow 7`] = `
   margin-bottom: 0;
 }
 
-.c11 {
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.4rem 0.7rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: black;
+}
+
+.c8 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
@@ -2173,11 +2185,11 @@ exports[`basic end-to-end flow 7`] = `
   color: rgb(169,169,169);
 }
 
-.c9 {
+.c10 {
   word-break: break-word;
 }
 
-.c9::before {
+.c10::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
@@ -2193,13 +2205,13 @@ exports[`basic end-to-end flow 7`] = `
   content: '✓';
 }
 
-.c12 {
+.c13 {
   color: darkorange;
   font-weight: 600;
   word-break: break-word;
 }
 
-.c12::before {
+.c13::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
@@ -2216,12 +2228,12 @@ exports[`basic end-to-end flow 7`] = `
   content: '!';
 }
 
-.c13 {
+.c14 {
   font-weight: 600;
   word-break: break-word;
 }
 
-.c13::before {
+.c14::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
@@ -2244,7 +2256,7 @@ exports[`basic end-to-end flow 7`] = `
   padding: 0.5rem 0.5rem;
 }
 
-.c14 {
+.c15 {
   margin: 0 auto;
   width: 100%;
   max-width: 35rem;
@@ -2313,9 +2325,11 @@ exports[`basic end-to-end flow 7`] = `
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
   background: #ffffff;
+  width: 100%;
   padding: 0.375rem 0.5rem;
   -webkit-text-decoration: inherit;
   text-decoration: inherit;
+  white-space: normal;
   color: inherit;
 }
 
@@ -2328,7 +2342,7 @@ button.c7 {
   margin-bottom: 0;
 }
 
-.c8 {
+.c9 {
   max-width: 66ch;
   line-height: 1.2;
   -webkit-flex: 1;
@@ -2336,49 +2350,49 @@ button.c7 {
   flex: 1;
 }
 
-.c8 h1 {
+.c9 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c8 h2 {
+.c9 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c8 h3,
-.c8 p {
+.c9 h3,
+.c9 p {
   margin: 0;
   font-size: 1rem;
 }
 
-.c8 h1 + h2 {
+.c9 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c8 h1 + p,
-.c8 h2 + p {
+.c9 h1 + p,
+.c9 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c8 h3 + p {
+.c9 h3 + p {
   margin-top: 0;
 }
 
-.c8 :first-child {
+.c9 :first-child {
   margin-top: 0;
 }
 
-.c8 :last-child {
+.c9 :last-child {
   margin-bottom: 0;
 }
 
-.c8 > h3 {
+.c9 > h3 {
   font-weight: 400;
 }
 
-.c10 {
+.c11 {
   display: none;
   padding-left: 2rem;
 }
@@ -2400,7 +2414,7 @@ button.c7 {
 }
 
 @media print {
-  .c12 {
+  .c13 {
     color: black;
   }
 }
@@ -2412,7 +2426,7 @@ button.c7 {
 }
 
 @media (min-width:768px) {
-  .c14 {
+  .c15 {
     padding: 0.5rem 1rem;
   }
 }
@@ -2431,13 +2445,13 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c8 {
+  .c9 {
     line-height: 1.3;
   }
 }
 
 @media (min-width:480px) {
-  .c10 {
+  .c11 {
     display: block;
   }
 }
@@ -2455,10 +2469,10 @@ button.c7 {
           Review Your Ballot Selections
         </h1>
         <button
+          aria-hidden="true"
           class="c3"
           data-direction="up"
           disabled=""
-          tabindex="-1"
           type="button"
         >
           ↑ See More
@@ -2474,14 +2488,13 @@ button.c7 {
         <div
           class="c6"
         >
-          <a
-            class="c7"
-            href="/contests/0#review"
+          <button
+            class="c7 c8"
             id="contest-president"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="United States, President and Vice-President,"
@@ -2492,7 +2505,7 @@ button.c7 {
               </h3>
               <p
                 aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
-                class="c9"
+                class="c10"
               >
                 <strong>
                   Joseph Barchi and Joseph Hallaren
@@ -2502,23 +2515,22 @@ button.c7 {
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/1#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-senator"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="United States, Senator,"
@@ -2529,29 +2541,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Senator."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/2#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-representative-district-6"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="United States, Representative, District 6,"
@@ -2562,29 +2573,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Representative, District 6."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/3#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-governor"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Governor,"
@@ -2595,29 +2605,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Governor."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/4#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-lieutenant-governor"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Lieutenant Governor,"
@@ -2628,29 +2637,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Lieutenant Governor."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/5#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-secretary-of-state"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Secretary of State,"
@@ -2661,29 +2669,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Secretary of State."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/6#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-state-senator-district-31"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Senator, District 31,"
@@ -2694,29 +2701,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Senator, District 31."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/7#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-state-assembly-district-54"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Assembly Member, District 54,"
@@ -2727,29 +2733,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Assembly Member, District 54."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/8#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-county-commissioners"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Franklin County, County Commissioners,"
@@ -2760,29 +2765,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for County Commissioners."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/9#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-county-registrar-of-wills"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Franklin County, Registrar of Wills,"
@@ -2793,29 +2797,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Registrar of Wills."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/10#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-city-mayor"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="City of Springfield, Mayor,"
@@ -2826,29 +2829,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Mayor."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/11#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-city-council"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="City of Springfield, City Council,"
@@ -2859,29 +2861,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for City Council."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/12#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-judicial-robert-demergue"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?,"
@@ -2892,29 +2893,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Retain Robert Demergue as Chief Justice?."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/13#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-judicial-elmer-hull"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Hamilton Court of Appeals, Retain Elmer Hull as Associate Justice?,"
@@ -2925,29 +2925,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Retain Elmer Hull as Associate Justice?."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/14#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-question-a"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Question A: Recovery of Property Damages,"
@@ -2958,29 +2957,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Question A: Recovery of Property Damages."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/15#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-question-b"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Question B: Separation of Powers,"
@@ -2991,29 +2989,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Question B: Separation of Powers."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/16#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-question-c"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Question C: Limits to Damages for Non-Economic Loss,"
@@ -3024,29 +3021,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Question C: Limits to Damages for Non-Economic Loss."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/17#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-proposition-1"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Proposition 1: Gambling in Franklin and Fromwit Counties,"
@@ -3057,29 +3053,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Proposition 1: Gambling in Franklin and Fromwit Counties."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/18#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-measure-101"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Franklin County, Measure 101: College District,"
@@ -3090,29 +3085,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Measure 101: College District."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/19#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-102"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Franklin County, Measure 102: Vehicle Abatement Program,"
@@ -3122,7 +3116,7 @@ button.c7 {
                 Measure 102: Vehicle Abatement Program
               </h3>
               <p
-                class="c13"
+                class="c14"
               >
                 Yes
                  
@@ -3130,26 +3124,26 @@ button.c7 {
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
+          </button>
         </div>
       </div>
     </div>
     <div
-      class="c14"
+      class="c15"
     >
       <button
+        aria-hidden="true"
         class="c3"
         data-direction="down"
         disabled=""
-        tabindex="-1"
         type="button"
       >
         ↓ See More
@@ -4742,7 +4736,19 @@ exports[`basic end-to-end flow 10`] = `
   margin-bottom: 0;
 }
 
-.c11 {
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.4rem 0.7rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: black;
+}
+
+.c8 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
@@ -4767,11 +4773,11 @@ exports[`basic end-to-end flow 10`] = `
   color: rgb(169,169,169);
 }
 
-.c9 {
+.c10 {
   word-break: break-word;
 }
 
-.c9::before {
+.c10::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
@@ -4787,13 +4793,13 @@ exports[`basic end-to-end flow 10`] = `
   content: '✓';
 }
 
-.c12 {
+.c13 {
   color: darkorange;
   font-weight: 600;
   word-break: break-word;
 }
 
-.c12::before {
+.c13::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
@@ -4810,12 +4816,12 @@ exports[`basic end-to-end flow 10`] = `
   content: '!';
 }
 
-.c13 {
+.c14 {
   font-weight: 600;
   word-break: break-word;
 }
 
-.c13::before {
+.c14::before {
   display: inline-block;
   margin-top: -0.3rem;
   margin-right: 0.25rem;
@@ -4838,7 +4844,7 @@ exports[`basic end-to-end flow 10`] = `
   padding: 0.5rem 0.5rem;
 }
 
-.c14 {
+.c15 {
   margin: 0 auto;
   width: 100%;
   max-width: 35rem;
@@ -4907,9 +4913,11 @@ exports[`basic end-to-end flow 10`] = `
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
   background: #ffffff;
+  width: 100%;
   padding: 0.375rem 0.5rem;
   -webkit-text-decoration: inherit;
   text-decoration: inherit;
+  white-space: normal;
   color: inherit;
 }
 
@@ -4922,7 +4930,7 @@ button.c7 {
   margin-bottom: 0;
 }
 
-.c8 {
+.c9 {
   max-width: 66ch;
   line-height: 1.2;
   -webkit-flex: 1;
@@ -4930,49 +4938,49 @@ button.c7 {
   flex: 1;
 }
 
-.c8 h1 {
+.c9 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c8 h2 {
+.c9 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c8 h3,
-.c8 p {
+.c9 h3,
+.c9 p {
   margin: 0;
   font-size: 1rem;
 }
 
-.c8 h1 + h2 {
+.c9 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c8 h1 + p,
-.c8 h2 + p {
+.c9 h1 + p,
+.c9 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c8 h3 + p {
+.c9 h3 + p {
   margin-top: 0;
 }
 
-.c8 :first-child {
+.c9 :first-child {
   margin-top: 0;
 }
 
-.c8 :last-child {
+.c9 :last-child {
   margin-bottom: 0;
 }
 
-.c8 > h3 {
+.c9 > h3 {
   font-weight: 400;
 }
 
-.c10 {
+.c11 {
   display: none;
   padding-left: 2rem;
 }
@@ -4994,7 +5002,7 @@ button.c7 {
 }
 
 @media print {
-  .c12 {
+  .c13 {
     color: black;
   }
 }
@@ -5006,7 +5014,7 @@ button.c7 {
 }
 
 @media (min-width:768px) {
-  .c14 {
+  .c15 {
     padding: 0.5rem 1rem;
   }
 }
@@ -5025,13 +5033,13 @@ button.c7 {
 }
 
 @media (min-width:480px) {
-  .c8 {
+  .c9 {
     line-height: 1.3;
   }
 }
 
 @media (min-width:480px) {
-  .c10 {
+  .c11 {
     display: block;
   }
 }
@@ -5049,10 +5057,10 @@ button.c7 {
           Review Your Ballot Selections
         </h1>
         <button
+          aria-hidden="true"
           class="c3"
           data-direction="up"
           disabled=""
-          tabindex="-1"
           type="button"
         >
           ↑ See More
@@ -5068,14 +5076,13 @@ button.c7 {
         <div
           class="c6"
         >
-          <a
-            class="c7"
-            href="/contests/0#review"
+          <button
+            class="c7 c8"
             id="contest-president"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="United States, President and Vice-President,"
@@ -5086,7 +5093,7 @@ button.c7 {
               </h3>
               <p
                 aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
-                class="c9"
+                class="c10"
               >
                 <strong>
                   Joseph Barchi and Joseph Hallaren
@@ -5096,23 +5103,22 @@ button.c7 {
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/1#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-senator"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="United States, Senator,"
@@ -5123,29 +5129,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Senator."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/2#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-representative-district-6"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="United States, Representative, District 6,"
@@ -5156,29 +5161,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Representative, District 6."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/3#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-governor"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Governor,"
@@ -5189,29 +5193,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Governor."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/4#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-lieutenant-governor"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Lieutenant Governor,"
@@ -5222,29 +5225,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Lieutenant Governor."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/5#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-secretary-of-state"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Secretary of State,"
@@ -5255,29 +5257,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Secretary of State."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/6#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-state-senator-district-31"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Senator, District 31,"
@@ -5288,29 +5289,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Senator, District 31."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/7#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-state-assembly-district-54"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Assembly Member, District 54,"
@@ -5321,29 +5321,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Assembly Member, District 54."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/8#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-county-commissioners"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Franklin County, County Commissioners,"
@@ -5354,7 +5353,7 @@ button.c7 {
               </h3>
               <p
                 aria-label="Camille Argent, Federalist,"
-                class="c9"
+                class="c10"
               >
                 <strong>
                   Camille Argent
@@ -5364,7 +5363,7 @@ button.c7 {
               </p>
               <p
                 aria-label="Chloe Witherspoon-Smithson, Federalist."
-                class="c9"
+                class="c10"
               >
                 <strong>
                   Chloe Witherspoon-Smithson
@@ -5373,7 +5372,7 @@ button.c7 {
                 / Federalist
               </p>
               <p
-                class="c12"
+                class="c13"
               >
                 You may select 
                 2
@@ -5384,23 +5383,22 @@ button.c7 {
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/9#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-county-registrar-of-wills"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Franklin County, Registrar of Wills,"
@@ -5411,29 +5409,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Registrar of Wills."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/10#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-city-mayor"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="City of Springfield, Mayor,"
@@ -5444,29 +5441,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Mayor."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/11#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-city-council"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="City of Springfield, City Council,"
@@ -5477,29 +5473,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for City Council."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/12#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-judicial-robert-demergue"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?,"
@@ -5510,29 +5505,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Retain Robert Demergue as Chief Justice?."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/13#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-judicial-elmer-hull"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Hamilton Court of Appeals, Retain Elmer Hull as Associate Justice?,"
@@ -5543,29 +5537,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Retain Elmer Hull as Associate Justice?."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/14#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-question-a"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Question A: Recovery of Property Damages,"
@@ -5576,29 +5569,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Question A: Recovery of Property Damages."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/15#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-question-b"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Question B: Separation of Powers,"
@@ -5609,29 +5601,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Question B: Separation of Powers."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/16#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-question-c"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Question C: Limits to Damages for Non-Economic Loss,"
@@ -5642,29 +5633,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Question C: Limits to Damages for Non-Economic Loss."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/17#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-proposition-1"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="State of Hamilton, Proposition 1: Gambling in Franklin and Fromwit Counties,"
@@ -5675,29 +5665,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Proposition 1: Gambling in Franklin and Fromwit Counties."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/18#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-measure-101"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Franklin County, Measure 101: College District,"
@@ -5708,29 +5697,28 @@ button.c7 {
               </h3>
               <p
                 aria-label="No selection was made for Measure 101: College District."
-                class="c12"
+                class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
-          <a
-            class="c7"
-            href="/contests/19#review"
+          </button>
+          <button
+            class="c7 c8"
             id="contest-102"
-            tabindex="0"
+            type="button"
           >
             <div
-              class="c8"
+              class="c9"
             >
               <h3
                 aria-label="Franklin County, Measure 102: Vehicle Abatement Program,"
@@ -5740,7 +5728,7 @@ button.c7 {
                 Measure 102: Vehicle Abatement Program
               </h3>
               <p
-                class="c13"
+                class="c14"
               >
                 Yes
                  
@@ -5748,26 +5736,26 @@ button.c7 {
               </p>
             </div>
             <div
-              class="c10"
+              class="c11"
             >
               <div
-                class="c11"
+                class="c12"
               >
                 Change
               </div>
             </div>
-          </a>
+          </button>
         </div>
       </div>
     </div>
     <div
-      class="c14"
+      class="c15"
     >
       <button
+        aria-hidden="true"
         class="c3"
         data-direction="down"
         disabled=""
-        tabindex="-1"
         type="button"
       >
         ↓ See More

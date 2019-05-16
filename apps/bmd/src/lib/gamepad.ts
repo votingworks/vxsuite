@@ -2,11 +2,13 @@ import mod from '../utils/mod'
 
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(
-    document.querySelectorAll('button:not([tabindex="-1"]), input')
+    document.querySelectorAll(
+      'button:not([aria-hidden="true"]):not([disabled]), input:not([aria-hidden="true"]):not([disabled])'
+    )
   )
   const ariaHiddenTabbableElements = Array.from(
     document.querySelectorAll(
-      '[aria-hidden="true"] button:not([tabindex="-1"]), [aria-hidden="true"] input'
+      '[aria-hidden="true"] button, [aria-hidden="true"] input'
     )
   )
   return tabbableElements.filter(
@@ -19,17 +21,23 @@ const getActiveElement = () => document.activeElement! as HTMLInputElement
 function handleArrowUp() {
   const focusable = getFocusableElements()
   const currentIndex = focusable.indexOf(getActiveElement())
-  if (currentIndex > -1) {
-    focusable[mod(currentIndex - 1, focusable.length)].focus()
-  } else {
-    focusable[focusable.length - 1].focus()
+  /* istanbul ignore else */
+  if (focusable.length) {
+    if (currentIndex > -1) {
+      focusable[mod(currentIndex - 1, focusable.length)].focus()
+    } else {
+      focusable[focusable.length - 1].focus()
+    }
   }
 }
 
 function handleArrowDown() {
   const focusable = getFocusableElements()
   const currentIndex = focusable.indexOf(getActiveElement())
-  focusable[mod(currentIndex + 1, focusable.length)].focus()
+  /* istanbul ignore else */
+  if (focusable.length) {
+    focusable[mod(currentIndex + 1, focusable.length)].focus()
+  }
 }
 
 function handleArrowLeft() {
