@@ -2,7 +2,7 @@ version: 2
 jobs:
   test-frontend-and-server:
     docker:
-      - image: circleci/python:3.7.3-node-browsers
+      - image: circleci/node:8.16.0-browsers
     steps:
       - checkout
       - restore_cache:
@@ -29,18 +29,6 @@ jobs:
             ./cc-test-reporter before-build
             yarn test
             ./cc-test-reporter after-build --exit-code $?
-      - run:
-          name: Set up python tools for backend
-          command: |
-            cd server
-            sudo make install-smartcard
-            make install-dependencies
-            make install-dev-dependencies
-      - run:
-          name: Run Python Tests and Coverage
-          command: |
-            cd server
-            pipenv run make coverage
 
 workflows:
   version: 2
