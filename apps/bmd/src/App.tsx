@@ -15,7 +15,6 @@ import {
 } from './lib/gamepad'
 
 import {
-  ActivationCardData,
   ActivationData,
   BallotStyle,
   CardData,
@@ -27,6 +26,7 @@ import {
   PartialUserSettings,
   TextSizeSetting,
   UserSettings,
+  VoterCardData,
   VotesDict,
 } from './config/types'
 
@@ -67,22 +67,23 @@ const initialState = {
   votes: {},
 }
 
+let checkCardInterval = 0
+
 export class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
-  public checkCard: number = 0
 
   public processCardData = (cardData: CardData) => {
-    if (cardData.t === 'activation') {
+    if (cardData.t === 'voter') {
       if (!this.state.election) {
         return
       }
 
-      const activationCardData = cardData as ActivationCardData
+      const voterCardData = cardData as VoterCardData
       const ballotStyle = this.state.election.ballotStyles.find(
-        bs => activationCardData.bs === bs.id
+        bs => voterCardData.bs === bs.id
       )
       const precinct = this.state.election.precincts.find(
-        pr => pr.id === activationCardData.pr
+        pr => pr.id === voterCardData.pr
       )
 
       if (ballotStyle && precinct) {
@@ -123,7 +124,7 @@ export class App extends React.Component<RouteComponentProps, State> {
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
 
-    this.checkCard = window.setInterval(() => {
+    checkCardInterval = window.setInterval(() => {
       fetch('/card/read')
         .then(result => result.json())
         .then(resultJSON => {
@@ -134,7 +135,7 @@ export class App extends React.Component<RouteComponentProps, State> {
         })
         .catch(() => {
           // if it's an error, aggressively assume there's no backend and stop hammering
-          window.clearInterval(this.checkCard)
+          window.clearInterval(checkCardInterval)
         })
     }, 1000)
   }
@@ -142,7 +143,7 @@ export class App extends React.Component<RouteComponentProps, State> {
   public componentWillUnount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     Mousetrap.unbind(removeElectionShortcuts)
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
-    window.clearInterval(this.checkCard)
+    window.clearInterval(checkCardInterval)
   }
 
   public getElection = (): OptionalElection => {

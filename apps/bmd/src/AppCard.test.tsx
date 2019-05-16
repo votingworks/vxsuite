@@ -5,7 +5,7 @@ import { render } from 'react-testing-library'
 import electionSample from './data/electionSample.json'
 
 import Root, { App } from './App'
-import { ActivationCardData, AdminCardData, Election } from './config/types'
+import { AdminCardData, Election, VoterCardData } from './config/types'
 
 const election = electionSample as Election
 
@@ -25,7 +25,7 @@ it(`App fetches the card data every 1 second`, () => {
       JSON.stringify({
         present: true,
         shortValue: JSON.stringify({
-          t: 'activation',
+          t: 'voter',
           pr: election.precincts[0].id,
           bs: election.ballotStyles[0].id,
         }),
@@ -68,25 +68,25 @@ it(`CardData processing processes card data properly`, () => {
   // for now just for code coverage of the else, we don't do anything useful yet
   app.processCardData(adminCardData)
 
-  const activationCardData: ActivationCardData = {
+  const voterCardData: VoterCardData = {
     bs: election.ballotStyles[0].id,
     pr: election.precincts[0].id,
-    t: 'activation',
+    t: 'voter',
   }
 
-  app.processCardData(activationCardData)
+  app.processCardData(voterCardData)
   expect(app.activateBallot).not.toHaveBeenCalled()
 
   app.state.election = election
-  app.processCardData(activationCardData)
+  app.processCardData(voterCardData)
 
   // also bad ballot style and precinct, for coverage.
-  const badActivationCardData: ActivationCardData = {
+  const badVoterCardData: VoterCardData = {
     bs: 'foobar',
     pr: 'barbaz',
-    t: 'activation',
+    t: 'voter',
   }
-  app.processCardData(badActivationCardData)
+  app.processCardData(badVoterCardData)
 
   expect(app.activateBallot).toBeCalled()
 })

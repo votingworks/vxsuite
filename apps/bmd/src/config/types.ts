@@ -129,12 +129,12 @@ export interface BallotContextInterface {
 }
 
 // Smart Card Content
-export type CardDataTypes = 'activation' | 'admin'
+export type CardDataTypes = 'voter' | 'admin'
 export interface CardData {
   readonly t: CardDataTypes
 }
-export interface ActivationCardData extends CardData {
-  readonly t: 'activation'
+export interface VoterCardData extends CardData {
+  readonly t: 'voter'
   readonly bs: string
   readonly pr: string
 }
