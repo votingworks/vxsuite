@@ -19,8 +19,15 @@ const Content = styled.div`
   padding: 2rem;
 `
 
+const electionKey = 'election'
+
+const getElection = (): OptionalElection => {
+  const election = window.localStorage.getItem(electionKey)
+  return election ? JSON.parse(election) : undefined
+}
+
 const App: React.FC = () => {
-  const [election, setElection] = useState<OptionalElection>(undefined)
+  const [election, setElection] = useState<OptionalElection>(getElection())
   const [precinct, setPrecinct] = useState('')
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
@@ -36,7 +43,9 @@ const App: React.FC = () => {
       const file = acceptedFiles[0]
       const reader = new FileReader()
       reader.onload = () => {
-        setElection(JSON.parse(reader.result as string))
+        const result = reader.result as string
+        setElection(JSON.parse(result))
+        window.localStorage.setItem(electionKey, result)
       }
       reader.readAsText(file)
     }
