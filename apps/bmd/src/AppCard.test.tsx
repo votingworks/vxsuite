@@ -12,10 +12,10 @@ const election = electionSample as Election
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
-  fetchMock.resetMocks()
 })
 
 it(`App fetches the card data every 1 second`, async () => {
+  fetchMock.resetMocks()
   jest.useFakeTimers()
 
   fetchMock.mockResponses(
