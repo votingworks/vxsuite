@@ -6,8 +6,7 @@ import './App.css'
 
 import electionSample from './data/electionSample.json'
 
-type Election = typeof electionSample | undefined
-
+type OptionalElection = typeof electionSample | undefined
 type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
 const Body = styled.div`
@@ -21,7 +20,7 @@ const Content = styled.div`
 `
 
 const App: React.FC = () => {
-  const [election, setElection] = useState(undefined)
+  const [election, setElection] = useState<OptionalElection>(undefined)
   const [precinct, setPrecinct] = useState('')
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
@@ -93,7 +92,7 @@ const App: React.FC = () => {
               Reset
             </button>
           </p>
-          {(election as Election)!.ballotStyles
+          {election.ballotStyles
             .filter(b => b.precincts.find(p => p === precinct))
             .map(ballot => (
               <div key={ballot.id}>
@@ -115,7 +114,7 @@ const App: React.FC = () => {
       <Body>
         <Content>
           <h1>Precincts</h1>
-          {(election as Election)!.precincts.map(p => (
+          {election.precincts.map(p => (
             <div key={p.id}>
               <button data-id={p.id} onClick={updatePrecinct} type="button">
                 {p.name}
