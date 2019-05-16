@@ -53,10 +53,9 @@ it(`App fetches the card data every 1 second`, async () => {
 })
 
 it(`CardData processing processes card data properly`, () => {
-  // load the sample election
   const div = document.createElement('div')
-  // @ts-ignore the compiler really wants us to provide full context to App, but that's gnarly and unnecessary
-  const app = ReactDOM.render(<App />, div) as App
+  // @ts-ignore - App expects ReactRouter props, but are unnecessary for this test.
+  const app = (ReactDOM.render(<App />, div) as unknown) as App
 
   app.activateBallot = jest.fn()
 
