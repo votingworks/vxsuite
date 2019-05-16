@@ -7,7 +7,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
   },
   "husky": {
@@ -19,11 +20,12 @@
   "lint-staged": {
     "linters": {
       "*.+(js|jsx|ts|tsx)": [
+        "stylelint",
         "eslint --quiet --fix",
         "git add"
       ],
       "*.css": [
-        "stylelint --fix",
+        "stylelint --config .stylelintrc-css.js --fix",
         "git add"
       ],
       "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
@@ -80,6 +82,7 @@
     "stylelint": "^10.0.1",
     "stylelint-config-palantir": "^4.0.0",
     "stylelint-config-prettier": "^5.1.0",
-    "stylelint-config-styled-components": "^0.1.1"
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-processor-styled-components": "^1.6.0"
   }
 }

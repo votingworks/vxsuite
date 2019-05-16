@@ -10281,6 +10281,15 @@ stylelint-order@^2.0.0:
     postcss "^7.0.2"
     postcss-sorting "^4.1.0"
 
+stylelint-processor-styled-components@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/stylelint-processor-styled-components/-/stylelint-processor-styled-components-1.6.0.tgz#26e4317cd4ba1c3196bd6d832e8fcba3f159dd9d"
+  integrity sha512-ecqHh5G17rTPJUP/IMBxJf9kBspP4j5NrYl2aAWWBJxsK8RknT3PxO9Y5zHiYa7pGWmCRRdfR4ZOBO9CgouKjw==
+  dependencies:
+    "@babel/parser" "^7.0.0"
+    "@babel/traverse" "^7.0.0"
+    postcss "^7.0.0"
+
 stylelint-scss@^3.3.1:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/stylelint-scss/-/stylelint-scss-3.6.0.tgz#5fafe815b68119965f7aa75f0cfc1b04ae4021bd"
