@@ -3,7 +3,6 @@
 // and process/interpret them into a cast-vote record.
 //
 
-import * as chokidar from 'chokidar'
 import * as ImageJS from 'image-js'
 import jsQR from 'jsqr'
 
@@ -17,8 +16,6 @@ import {
   Dictionary,
   Election,
 } from './types'
-
-let watcher: chokidar.FSWatcher, election: Election
 
 interface Rectangle {
   readonly x: number
@@ -65,7 +62,11 @@ const scan = (image: Image) => {
   return secondScan
 }
 
-export function interpretFile(path: string, callback: BallotCallbackFunction) {
+export default function interpretFile(
+  election: Election,
+  path: string,
+  callback: BallotCallbackFunction
+) {
   const yesNoValues: Dictionary<string> = { '0': 'no', '1': 'yes' }
 
   ImageJS.Image.load(path).then(function(im: typeof Image) {
@@ -122,18 +123,4 @@ export function interpretFile(path: string, callback: BallotCallbackFunction) {
 
     callback(path, votes)
   })
-}
-
-export function init(
-  e: Election,
-  directoryToWatch: string,
-  callback: BallotCallbackFunction
-) {
-  election = e
-  watcher = chokidar.watch(directoryToWatch, { persistent: true })
-  watcher.on('add', (path: string) => interpretFile(path, callback))
-}
-
-export function stop() {
-  watcher.close()
 }

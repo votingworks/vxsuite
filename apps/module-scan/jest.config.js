@@ -1,14 +1,13 @@
 module.exports = {
-  "roots": [
-    "<rootDir>/src"
-  ],
-  "transform": {
-    "^.+\\.tsx?$": "ts-jest"
+  roots: ['<rootDir>/src'],
+  transform: {
+    '^.+\\.tsx?$': 'ts-jest',
   },
-  "collectCoverageFrom": [
-    "**/*.{ts,tsx}",
-    "!**/node_modules/**",
-    "!src/index.ts",
-    "!src/types.ts"    
-  ]
+  collectCoverageFrom: [
+    '**/*.{ts,tsx}',
+    '!**/node_modules/**',
+    '!src/index.ts',
+    '!src/types.ts',
+  ],
+  setupFiles: ['<rootDir>/src/setupTests.ts'],
 }
