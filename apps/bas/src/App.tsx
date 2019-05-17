@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import { ButtonEvent, OptionalElection } from './config/types'
 
+import Button from './components/Button'
 import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
 import LoadElectionScreen from './screens/LoadElectionScreen'
 
@@ -67,15 +68,11 @@ const App: React.FC = () => {
         <Content>
           <h1>Activation Code</h1>
           <p>
-            <button onClick={reset} type="button">
-              Reset
-            </button>
+            <Button onClick={reset}>Reset</Button>
           </p>
           <p>{`{ ballot: ${ballot}, precinct: ${precinct} }`}</p>
           <p>
-            <button onClick={programCard} type="button">
-              Program Card
-            </button>
+            <Button onClick={programCard}>Program Card</Button>
           </p>
         </Content>
       </Body>
@@ -87,21 +84,15 @@ const App: React.FC = () => {
         <Content>
           <h1>Ballot Styles</h1>
           <p>
-            <button onClick={reset} type="button">
-              Reset
-            </button>
+            <Button onClick={reset}>Reset</Button>
           </p>
           {election.ballotStyles
             .filter(b => b.precincts.find(p => p === precinct))
             .map(ballot => (
               <div key={ballot.id}>
-                <button
-                  data-id={ballot.id}
-                  onClick={updateBallot}
-                  type="button"
-                >
+                <Button data-id={ballot.id} onClick={updateBallot}>
                   {ballot.id}
-                </button>
+                </Button>
               </div>
             ))}
         </Content>
@@ -115,9 +106,9 @@ const App: React.FC = () => {
           <h1>Precincts</h1>
           {election.precincts.map(p => (
             <div key={p.id}>
-              <button data-id={p.id} onClick={updatePrecinct} type="button">
+              <Button data-id={p.id} onClick={updatePrecinct}>
                 {p.name}
-              </button>
+              </Button>
             </div>
           ))}
         </Content>
