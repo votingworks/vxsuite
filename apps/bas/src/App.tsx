@@ -4,9 +4,9 @@ import styled from 'styled-components'
 import { ButtonEvent, OptionalElection } from './config/types'
 
 import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
-
 import LoadElectionScreen from './screens/LoadElectionScreen'
 
+import 'normalize.css'
 import './App.css'
 
 const Body = styled.div`
