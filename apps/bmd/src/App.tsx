@@ -48,6 +48,7 @@ interface State {
   cardData?: CardData
   contests: Contests
   election: OptionalElection
+  loadingElection: boolean
   precinctId: string
   userSettings: UserSettings
   votes: VotesDict
@@ -62,6 +63,7 @@ const initialState = {
   ballotStyleId: '',
   contests: [],
   election: undefined,
+  loadingElection: false,
   precinctId: '',
   userSettings: { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
   votes: {},
@@ -72,7 +74,7 @@ let checkCardInterval = 0
 export class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
 
-  public processCardData = (cardData: CardData) => {
+  public processCardData = (cardData: CardData, longValueExists: boolean) => {
     if (cardData.t === 'voter') {
       if (!this.state.election) {
         return
@@ -94,6 +96,42 @@ export class App extends React.Component<RouteComponentProps, State> {
         this.activateBallot(activationData)
       }
     }
+
+    if (cardData.t === 'admin') {
+      if (!this.state.election) {
+        if (longValueExists && !this.state.loadingElection) {
+          this.setState({ loadingElection: true })
+          this.fetchElection().then(election => {
+            this.setElection(JSON.parse(election.longValue))
+          })
+        }
+      }
+    }
+  }
+
+  public fetchElection = async () => {
+    return fetch('/card/read_long').then(result => result.json())
+  }
+
+  public startPolling = () => {
+    checkCardInterval = window.setInterval(() => {
+      fetch('/card/read')
+        .then(result => result.json())
+        .then(resultJSON => {
+          if (resultJSON.shortValue) {
+            const cardData = JSON.parse(resultJSON.shortValue) as CardData
+            this.processCardData(cardData, resultJSON.longValueExists)
+          }
+        })
+        .catch(() => {
+          // if it's an error, aggressively assume there's no backend and stop hammering
+          this.stopPolling()
+        })
+    }, 1000)
+  }
+
+  public stopPolling = () => {
+    window.clearInterval(checkCardInterval)
   }
 
   public componentDidMount = () => {
@@ -124,20 +162,7 @@ export class App extends React.Component<RouteComponentProps, State> {
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
 
-    checkCardInterval = window.setInterval(() => {
-      fetch('/card/read')
-        .then(result => result.json())
-        .then(resultJSON => {
-          if (resultJSON.shortValue) {
-            const cardData = JSON.parse(resultJSON.shortValue) as CardData
-            this.processCardData(cardData)
-          }
-        })
-        .catch(() => {
-          // if it's an error, aggressively assume there's no backend and stop hammering
-          window.clearInterval(checkCardInterval)
-        })
-    }, 1000)
+    this.startPolling()
   }
 
   public componentWillUnount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
@@ -153,7 +178,7 @@ export class App extends React.Component<RouteComponentProps, State> {
 
   public setElection = (electionConfigFile: Election) => {
     const election = mergeWithDefaults(electionConfigFile)
-    this.setState({ election })
+    this.setState({ election, loadingElection: false })
     window.localStorage.setItem(electionKey, JSON.stringify(election))
   }
 
