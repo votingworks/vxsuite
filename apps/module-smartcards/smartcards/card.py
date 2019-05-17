@@ -55,7 +55,7 @@ class Card:
         chunk_num = 0
 
         while offset_into_bytes < len(full_bytes):
-            self.write_chunk(chunk_num, full_bytes[offset_into_bytes:offset_into_bytes+self.CHUNK_SIZE])
+            result = self.write_chunk(chunk_num, full_bytes[offset_into_bytes:offset_into_bytes+self.CHUNK_SIZE])
             chunk_num += 1
             offset_into_bytes += self.CHUNK_SIZE
 
@@ -91,7 +91,8 @@ class Card:
             read_so_far += self.CHUNK_SIZE
             chunk_num += 1
 
-        return gzip.decompress(full_bytes[8+self.short_value_length:total_expected_length+1])
+        compressed_content = full_bytes[8+self.short_value_length:total_expected_length]
+        return gzip.decompress(compressed_content)
 
     # to implement in subclass
     # returns a bytes structure
@@ -136,7 +137,7 @@ class CardAT24C(Card):
 
     # we're using a generic protocol (i2c) which needs metadata about the card
     # card type (1 byte), page size (1byte), address size (1byte), and capacity (4 bytes)
-    CARD_IDENTITY = [0x14, 32, 2, 0x00, 0x00, 0x20, 0x00]
+    CARD_IDENTITY = [0x18, 64, 2, 0x00, 0x00, 0x80, 0x00]
     INIT_APDU = [0xFF, 0x30, 0x00, 0x04] + [1 + len(CARD_IDENTITY)] + [0x01] + CARD_IDENTITY
 
     VERSION = 0x01

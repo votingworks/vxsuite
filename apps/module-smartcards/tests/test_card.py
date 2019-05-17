@@ -22,7 +22,12 @@ class MockCard(Card):
 
     def read_chunk(self, chunk_number):
         if chunk_number in self.chunks:
-            return self.chunks[chunk_number]
+            chunk = self.chunks[chunk_number]
+
+            # if the chunk is too short, add a bunch of bogus values at the end
+            while len(chunk) < self.CHUNK_SIZE:
+                chunk+= b'V'
+            return chunk
         else:
             return [0x00] * self.CHUNK_SIZE
 
