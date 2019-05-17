@@ -167,7 +167,7 @@ exports[`Sets election config file 1`] = `
             class="c4"
           >
             <h1>
-              Configure Ballot Marking Device
+              Load Election Configuration File
             </h1>
             <p>
               Drag and drop 
