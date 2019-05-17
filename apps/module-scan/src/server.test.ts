@@ -7,16 +7,6 @@ import election from '../election.json'
 jest.mock('./scanner.ts')
 const mockScanner = scanner as jest.Mocked<typeof scanner>
 
-test('GET /', (done) => {
-  request(app)
-    .get('/')
-    .expect(200)
-    .then((response) => {
-      expect(response.text).toContain('Hello')
-      done()
-    })
-})
-
 test('POST /scan/configure', (done) => {
   request(app)
     .post('/scan/configure')
@@ -64,6 +54,16 @@ test('GET /scan/status', (done) => {
 	     .expect(200, {numBallots:10})
     .then(_response => {
       expect(scanner.getStatus).toBeCalled()
+      done()
+    })
+})
+
+test('GET /', (done) => {
+  request(app)
+    .get('/')
+    .expect(200)
+    .then(response => {
+      expect(response.text).toContain("Test Page for Scan")
       done()
     })
 })

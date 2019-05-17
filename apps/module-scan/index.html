@@ -1,0 +1,25 @@
+<html>
+  <head><title>Test Page for Scan</title></head>
+  <script>
+    function get_status() {
+    fetch('/scan/status')
+    .then(function(response) {
+    return response.json();
+    })
+    .then(function(responseJSON) {
+    document.getElementById('result').value=JSON.stringify(responseJSON)
+    })
+    }
+
+    window.setInterval(get_status, 2000)
+    
+  </script>
+  <body>
+    <h1>Test Page for Scan</h1>
+    
+    <form>
+      <textarea id="result" style="font-family: monospace;" cols=80>
+      </textarea>
+    </form>
+
+  </body>

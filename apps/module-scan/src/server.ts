@@ -10,6 +10,8 @@ import * as store from "./store"
 
 import {Election} from "./types"
 
+import * as path from 'path'
+
 // for now, we reset on every start
 store.reset()
 
@@ -17,10 +19,6 @@ export const app : Application = express()
 const port = 3002
 
 app.use(express.json())
-
-app.get("/", (_request : Request, response : Response) => {
-  response.send("Hello!")
-})
 
 app.post("/scan/configure", (request: Request, response: Response) => {
   // store the election file
@@ -49,6 +47,10 @@ app.get("/scan/status", (_request: Request, response: Response) => {
 app.post("/scan/zero", (_request: Request, response: Response) => {
   doZero(store.getDB())
   response.json({"status": "ok"})
+})
+
+app.get("/", (_request: Request, response: Response) => {
+  response.sendFile(path.join(__dirname, '..', 'index.html'))
 })
 
 export function start() {
