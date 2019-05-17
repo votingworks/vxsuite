@@ -9,6 +9,7 @@ module.exports = {
     es6: true,
     'jest/globals': true,
   },
+  parser: '@typescript-eslint/parser', // Specifies the ESLint parser
   extends: [
     'airbnb',
     'plugin:import/errors',
@@ -16,12 +17,12 @@ module.exports = {
     'plugin:import/typescript',
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended', // Uses the recommended rules from @typescript-eslint/eslint-plugin
-    'plugin:react/recommended', // Uses the recommended rules from @eslint-plugin-react
     'prettier/@typescript-eslint', // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
     'plugin:prettier/recommended', // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+    'plugin:react/recommended', // Uses the recommended rules from @eslint-plugin-react
+    'plugin:jsx-a11y/recommended',
     'prettier/react', // Overrides some of the rules in 'airbnb' to have more relaxed formatting in react.
   ],
-  parser: '@typescript-eslint/parser', // Specifies the ESLint parser
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
@@ -34,7 +35,7 @@ module.exports = {
     project: './tsconfig.json',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'jest', 'no-null', 'react'],
+  plugins: ['@typescript-eslint', 'jest', 'no-null', 'react', 'jsx-a11y'],
   settings: {
     react: {
       version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
@@ -51,22 +52,26 @@ module.exports = {
   },
   rules: {
     camelcase: 'error',
-    'spaced-comment': [
+    'import/no-extraneous-dependencies': [
       'error',
-      'always',
       {
-        markers: ['/'],
+        devDependencies: true,
       },
     ],
+    'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
+    '@typescript-eslint/no-unused-vars': ['error', {
+      'vars': 'all'
+    }],
+    'no-null/no-null': 2, // TypeScript with strictNullChecks
+    'react/destructuring-assignment': 'off',
+    'react/jsx-boolean-value': [2, 'never'],
     'react/jsx-filename-extension': [
       1,
       { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
     ],
-    '@typescript-eslint/indent': ['error', 2],
-    '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/no-null-keyword': 'on',
+    strict: 0,
     '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
-    'react/jsx-boolean-value': [2, 'never'],
-    'no-null/no-null': 2, // TypeScript with strictNullChecks
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-null-keyword': 'on'
   },
 }
