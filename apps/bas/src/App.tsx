@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
-import { useDropzone } from 'react-dropzone'
 import styled from 'styled-components'
 
+import { ButtonEvent, OptionalElection } from './config/types'
+
+import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
+
+import LoadElectionScreen from './screens/LoadElectionScreen'
+
 import './App.css'
-
-import electionSample from './data/electionSample.json'
-
-type OptionalElection = typeof electionSample | undefined
-type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
 const Body = styled.div`
   background: #ad7af7;
@@ -19,15 +19,11 @@ const Content = styled.div`
   padding: 2rem;
 `
 
-const electionKey = 'election'
-
-const getElection = (): OptionalElection => {
-  const election = window.localStorage.getItem(electionKey)
-  return election ? JSON.parse(election) : undefined
-}
-
 const App: React.FC = () => {
-  const [election, setElection] = useState<OptionalElection>(getElection())
+  const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
+    'election',
+    undefined
+  )
   const [precinct, setPrecinct] = useState('')
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
@@ -38,19 +34,6 @@ const App: React.FC = () => {
     const { id = '' } = (event.target as HTMLElement).dataset
     setBallot(id)
   }
-  const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 1) {
-      const file = acceptedFiles[0]
-      const reader = new FileReader()
-      reader.onload = () => {
-        const result = reader.result as string
-        setElection(JSON.parse(result))
-        window.localStorage.setItem(electionKey, result)
-      }
-      reader.readAsText(file)
-    }
-  }
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
   const reset = () => {
     setPrecinct('')
@@ -145,15 +128,7 @@ const App: React.FC = () => {
   return (
     <Body>
       <Content>
-        <h1>Load Election</h1>
-        <div {...getRootProps()}>
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p>Drop the files here ...</p>
-          ) : (
-            <p>Drag and drop election file here</p>
-          )}
-        </div>
+        <LoadElectionScreen setElection={setElection} />
       </Content>
     </Body>
   )
