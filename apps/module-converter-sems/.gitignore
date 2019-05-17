@@ -1,0 +1,4 @@
+*~
+*.pyc
+election_files/
+.coverage

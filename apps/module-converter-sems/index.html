@@ -10,4 +10,26 @@
       </textarea>
     </form>
 
+
+    <form method="POST" enctype="multipart/form-data" action="/convert/election/submitfile">
+      the main file
+      <input type="hidden" name="name" value="SEMS main file">
+      <input type="file" name="file">
+      <input type="submit">
+    </form>
+
+    <form method="POST" enctype="multipart/form-data" action="/convert/election/submitfile">
+      the candidate mapping file
+      <input type="hidden" name="name" value="SEMS candidate mapping file">
+      <input type="file" name="file">
+      <input type="submit">
+    </form>
+
+    <form method="POST" enctype="multipart/form-data" action="/convert/results/submitfile">
+      the results file
+      <input type="hidden" name="name" value="SEMS results">
+      <input type="file" name="file">
+      <input type="submit">
+    </form>
+    
   </body>
