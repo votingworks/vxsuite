@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  tests:
+    docker:
+      - image: circleci/node:8.16.0
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "package.json" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache: # special step to save the dependency cache
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "package.json" }}
+          paths:
+            - ~/.cache
+      - run: 
+          name: Run Tests
+          command: |
+            yarn test
+
+workflows:
+  version: 2
+  tests:
+    jobs:
+      - tests
