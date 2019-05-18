@@ -122,7 +122,7 @@ class UploadConfig extends React.Component<Props, State> {
                         <p>Drop files here…</p>
                       ) : (
                         <React.Fragment>
-                          <h1>Configure Ballot Marking Device</h1>
+                          <h1>Load Election Configuration File</h1>
                           <p>
                             Drag and drop <code>election.json</code> file here,
                             or click to browse for file.

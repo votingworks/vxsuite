@@ -4,15 +4,14 @@ interface Attrs extends HTMLButtonElement {
   readonly type: string
 }
 
-// @ts-ignore: 'T' triggers noUnusedParameters, but must exist for this interface to be 'generic'.
-export interface ButtonInterface<T> {
+export interface ButtonInterface {
   readonly danger?: boolean
   readonly primary?: boolean
   readonly fullWidth?: boolean
 }
 
 interface Props
-  extends ButtonInterface<{}>,
+  extends ButtonInterface,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 
 const buttonStyles = css<Props>`

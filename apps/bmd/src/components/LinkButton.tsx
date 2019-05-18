@@ -5,7 +5,7 @@ import Button, { ButtonInterface } from './Button'
 import { ButtonEvent } from '../config/types'
 
 interface Props
-  extends ButtonInterface<{}>,
+  extends ButtonInterface,
     RouteComponentProps<{}>,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 

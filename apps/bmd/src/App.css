@@ -1,5 +1,7 @@
-/* Reset */
+/* Allow selectors to be used multiple times in this file for grouping of concerns. */
+/* stylelint-disable no-duplicate-selectors */
 
+/* Reset */
 html {
   box-sizing: border-box;
   line-height: 1;
@@ -9,6 +11,10 @@ html {
 *::before,
 *::after {
   box-sizing: inherit;
+}
+
+body {
+  margin: 0;
 }
 
 table {
@@ -51,7 +57,6 @@ body,
 }
 
 /* Typography */
-/* stylelint-disable-next-line no-duplicate-selectors */
 html {
   background: #edeff0;
   color: #263238;

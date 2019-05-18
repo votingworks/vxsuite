@@ -7,17 +7,7 @@ export interface Dictionary<T> {
 export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
-// UI
-export type ScrollDirections = 'up' | 'down'
-export interface ScrollShadows {
-  showBottomShadow: boolean
-  showTopShadow: boolean
-}
-export interface Scrollable {
-  isScrollable: boolean
-}
-
-// Election
+// Candidates
 export interface Candidate {
   readonly id: string
   readonly name: string
@@ -25,14 +15,6 @@ export interface Candidate {
   isWriteIn?: boolean
 }
 export type OptionalCandidate = Candidate | undefined
-
-// Votes
-export type CandidateVote = Candidate[]
-export type YesNoVote = 'yes' | 'no'
-export type OptionalYesNoVote = YesNoVote | undefined
-export type Vote = CandidateVote | YesNoVote
-export type OptionalVote = Vote | undefined
-export type VotesDict = Dictionary<Vote>
 
 // Contests
 export type ContestTypes = 'candidate' | 'yesno'
@@ -106,12 +88,13 @@ export interface ActivationData {
   precinct: Precinct
 }
 
-export type TextSizeSetting = 0 | 1 | 2 | 3
-
-export interface UserSettings {
-  textSize: TextSizeSetting
-}
-export type PartialUserSettings = Partial<UserSettings>
+// Votes
+export type CandidateVote = Candidate[]
+export type YesNoVote = 'yes' | 'no'
+export type OptionalYesNoVote = YesNoVote | undefined
+export type Vote = CandidateVote | YesNoVote
+export type OptionalVote = Vote | undefined
+export type VotesDict = Dictionary<Vote>
 
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
@@ -142,5 +125,22 @@ export interface AdminCardData extends CardData {
   readonly t: 'admin'
   readonly h: string
 }
+
+// User Interface
+export type ScrollDirections = 'up' | 'down'
+export interface ScrollShadows {
+  showBottomShadow: boolean
+  showTopShadow: boolean
+}
+export interface Scrollable {
+  isScrollable: boolean
+}
+
+export type TextSizeSetting = 0 | 1 | 2 | 3
+
+export interface UserSettings {
+  textSize: TextSizeSetting
+}
+export type PartialUserSettings = Partial<UserSettings>
 
 export default {}

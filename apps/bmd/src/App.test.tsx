@@ -51,7 +51,7 @@ describe('loads election', () => {
     })
     window.localStorage.setItem(electionKey, JSON.stringify(electionSample))
     const { getByText } = render(<App />)
-    getByText('Configure Ballot Marking Device')
+    getByText('Load Election Configuration File')
   })
   it(`App uses data from localStorage when set`, () => {
     const ballotStyleId = electionSample.ballotStyles[0].id
