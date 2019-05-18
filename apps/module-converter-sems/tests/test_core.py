@@ -3,12 +3,29 @@ from unittest.mock import patch
 
 import pytest, json, io, os
 
-from converter.core import app
+from converter.core import app, reset
 
-ELECTION_FILES = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'election_files')
+PARENT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+ELECTION_FILES = os.path.join(PARENT_DIR, 'election_files')
+SAMPLE_FILES = os.path.join(PARENT_DIR, 'sample_files')
+SAMPLE_MAIN_FILE = os.path.join(SAMPLE_FILES, '53_5-2-2019.txt')
+SAMPLE_CANDIDATE_MAPPING_FILE = os.path.join(SAMPLE_FILES, '53_CANDMAP_5-2-2019.txt')
+EXPECTED_ELECTION_FILE = os.path.join(SAMPLE_FILES, 'expected-election.json')
+
+
+def upload_file(client, url, filepath, extra_params={}):
+    data = extra_params
+    data['file'] = open(filepath,"rb")
+    return client.post(
+        url,
+        data=data,
+        content_type="multipart/form-data"
+    )
+    
 
 @pytest.fixture
 def client():
+    reset()
     app.config['TESTING'] = True
     client = app.test_client()
 
@@ -26,40 +43,46 @@ def test_results_filelist(client):
     assert 'SEMS results' in rv
 
 def test_election_submitfile(client):
-    data = {
-        'name': 'SEMS main file',
-        'file': (io.BytesIO(b"abcdef"), 'foo.txt')
-    }
-    client.post(
-        '/convert/election/submitfile',
-        data=data,
-        content_type="multipart/form-data"
-    )
+    upload_file(client, '/convert/election/submitfile', SAMPLE_MAIN_FILE, {
+        'name': 'SEMS main file'
+    })
 
     # check the file got there
     filelist = json.loads(client.get('/convert/election/filelist').data)
+    print(filelist)
     assert filelist['SEMS main file']
 
 def test_results_submitfile(client):
     the_path = "./election_files/vx-results.txt"
     if os.path.exists(the_path):
         os.remove(the_path)
-    
-    data = {
-        'name': 'VX result',
-        'file': (io.BytesIO(b"abcdef"), 'foo.txt')
-    }
-    client.post(
-        '/convert/results/submitfile',
-        data=data,
-        content_type="multipart/form-data"
-    )
+
+    # TODO: real results file
+    upload_file(client, '/convert/results/submitfile', SAMPLE_MAIN_FILE, {
+        'name': 'VX result'
+    })
 
     # check the file got there
     assert os.path.exists(the_path)
 
 def test_election_process(client):
+    # upload the sample files
+    upload_file(client, '/convert/election/submitfile', SAMPLE_MAIN_FILE, {'name': 'SEMS main file'})
+
+    # try to process before ready
+    rv = client.post('/convert/election/process').data
+    assert b"not all files" in rv    
+    
+    upload_file(client, '/convert/election/submitfile', SAMPLE_CANDIDATE_MAPPING_FILE, {'name': 'SEMS candidate mapping file'})
+
+    # process
     client.post('/convert/election/process')
+
+    # download and check that it's the right file
+    election = json.loads(client.get('/convert/election/output').data)
+    expected_election = json.loads(open(EXPECTED_ELECTION_FILE, "r").read())
+
+    assert election == expected_election
     
 def test_results_process(client):
     client.post('/convert/results/process')

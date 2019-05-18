@@ -25,11 +25,14 @@
       <input type="submit">
     </form>
 
+    <form method="POST" action="/convert/election/process">
+      <input type="submit" value="process election file">
+    </form>
+    
     <form method="POST" enctype="multipart/form-data" action="/convert/results/submitfile">
       the results file
       <input type="hidden" name="name" value="SEMS results">
       <input type="file" name="file">
       <input type="submit">
     </form>
-    
   </body>

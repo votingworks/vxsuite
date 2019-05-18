@@ -4,8 +4,15 @@ import json, os
 from flask import Flask, send_from_directory, send_file, request
 from werkzeug.utils import secure_filename
 
+from . import SEMStoVX
+
 # directory for all files
 FILES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'election_files')
+
+VX_FILENAMES = {
+    "election": "vx-election.json",
+    "result": "vx-results.txt"
+}
 
 # paths for the Vx files, the election.json and the VX results file.
 VX_FILES = {
@@ -38,7 +45,9 @@ def results_filelist():
 
 @app.route('/convert/election/submitfile', methods=["POST"])
 def election_submitfile():
+    print("YOOOOO", request.files.get('file'))
     the_file = request.files['file']
+    print(the_file)
     the_name = request.form['name']
     if the_name in ELECTION_FILES:
         the_path = os.path.join(FILES_DIR, the_name)
@@ -56,7 +65,19 @@ def results_submitfile():
 
 @app.route('/convert/election/process', methods=["POST"])
 def election_process():
-    return json.dumps({})
+    for f in ELECTION_FILES.keys():
+        if not ELECTION_FILES[f]:
+            return json.dumps({"status": "not all files are ready to process"})
+
+    vx_election = SEMStoVX.process_files(ELECTION_FILES['SEMS main file'], ELECTION_FILES['SEMS candidate mapping file'])
+    the_path = os.path.join(FILES_DIR, VX_FILENAMES['election'])
+    vx_file = open(the_path, "w")
+    vx_file.write(json.dumps(vx_election, indent=2))
+    vx_file.close()
+
+    VX_FILES["election"] = the_path
+    
+    return json.dumps({"status": "ok"})
 
 @app.route('/convert/results/process', methods=["POST"])
 def results_process():
@@ -81,3 +102,8 @@ def results_output():
 @app.route('/')
 def index_test(): # pragma: no cover this is just for testing
     return send_from_directory(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'), 'index.html')
+
+def reset():
+    for d in [VX_FILES, ELECTION_FILES, RESULTS_FILES]:
+        for k in d.keys():
+            d[k] = None

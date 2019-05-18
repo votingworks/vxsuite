@@ -1,0 +1,2516 @@
+{
+  "county": "Oktibbeha County", 
+  "districts": [
+    {
+      "id": "100000275", 
+      "name": "State Of Mississippi"
+    }, 
+    {
+      "id": "575001705", 
+      "name": "Public Service Commissioner"
+    }, 
+    {
+      "id": "575001697", 
+      "name": "Transportation Commissioner"
+    }, 
+    {
+      "id": "100000371", 
+      "name": "District Attorney 16"
+    }, 
+    {
+      "id": "100000234", 
+      "name": "State Senate 15"
+    }, 
+    {
+      "id": "100000235", 
+      "name": "State Senate 16"
+    }, 
+    {
+      "id": "100000087", 
+      "name": "State House Of Rep 37"
+    }, 
+    {
+      "id": "100000088", 
+      "name": "State House Of Rep 38"
+    }, 
+    {
+      "id": "100000092", 
+      "name": "State House Of Rep 43"
+    }, 
+    {
+      "id": "100000328", 
+      "name": "Oktibbeha"
+    }, 
+    {
+      "id": "575000195", 
+      "name": "Supervisor Dist 1"
+    }, 
+    {
+      "id": "575000196", 
+      "name": "Supervisor Dist 2"
+    }, 
+    {
+      "id": "575000197", 
+      "name": "Supervisor Dist 3"
+    }, 
+    {
+      "id": "575000198", 
+      "name": "Supervisor Dist 4"
+    }, 
+    {
+      "id": "575000199", 
+      "name": "Supervisor Dist 5"
+    }, 
+    {
+      "id": "575000268", 
+      "name": "Justice Court Judge Dist 2"
+    }, 
+    {
+      "id": "775000248", 
+      "name": "Justice Court Judge Dist 1"
+    }, 
+    {
+      "id": "775000250", 
+      "name": "Justice Court Judge Dist 3"
+    }, 
+    {
+      "id": "775000251", 
+      "name": "Constable Dist 1"
+    }, 
+    {
+      "id": "775000252", 
+      "name": "Constable Dist 2"
+    }, 
+    {
+      "id": "775000253", 
+      "name": "Constable Dist 3"
+    }
+  ], 
+  "state": "State of Mississippi", 
+  "contests": [
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Governor-Democrat", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "575021571", 
+          "name": "Robert Gray"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "575021572", 
+          "name": "Valerie Adream Smartt Short"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "575021573", 
+          "name": "Vicki Slater"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Governor", 
+      "type": "candidate", 
+      "id": "775013743"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Lieutenant Governor-Democrat", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "575021577", 
+          "name": "Jelani Barr"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "575021576", 
+          "name": "Tim Johnson"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Lieutenant Governor", 
+      "type": "candidate", 
+      "id": "775013745"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Secretary Of State-Democrat", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "575021580", 
+          "name": "Charles E. Graham"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Secretary Of State", 
+      "type": "candidate", 
+      "id": "775013747"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Attorney General-Democrat", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "575021569", 
+          "name": "Jim Hood"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Attorney General", 
+      "type": "candidate", 
+      "id": "775013738"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "State Auditor-Democrat", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "575021582", 
+          "name": "Jocelyn Pepper Pritchett"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "State Auditor", 
+      "type": "candidate", 
+      "id": "775013749"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Commissioner Of Agriculture & Commerce-Democrat", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775021489", 
+          "name": "Addie Lee Green"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Commissioner Of Agriculture & Commerce", 
+      "type": "candidate", 
+      "id": "775013740"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Northern District-Democrat", 
+      "districtId": "575001705", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775021514", 
+          "name": "Brandon Presley"
+        }
+      ], 
+      "section": "Public Service Commissioner", 
+      "title": "Northern District", 
+      "type": "candidate", 
+      "id": "775013573"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Northern District-Democrat", 
+      "districtId": "575001697", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775021501", 
+          "name": "Danny Woods"
+        }
+      ], 
+      "section": "Transportation Commissioner", 
+      "title": "Northern District", 
+      "type": "candidate", 
+      "id": "775013819"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "District 16-Democrat", 
+      "districtId": "100000371", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "575021682", 
+          "name": "Scott Colom"
+        }
+      ], 
+      "section": "District Attorney 16", 
+      "title": "District 16", 
+      "type": "candidate", 
+      "id": "775013566"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "District 15-Democrat", 
+      "districtId": "100000234", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "575021807", 
+          "name": "Cecil L. Simmons"
+        }
+      ], 
+      "section": "State Senate 15", 
+      "title": "District 15", 
+      "type": "candidate", 
+      "id": "775013767"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "District 16-Democrat", 
+      "districtId": "100000235", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "575021809", 
+          "name": "Angela Turner"
+        }
+      ], 
+      "section": "State Senate 16", 
+      "title": "District 16", 
+      "type": "candidate", 
+      "id": "775013769"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "District 38-Democrat", 
+      "districtId": "100000088", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "575021756", 
+          "name": "Tyrone Ellis"
+        }
+      ], 
+      "section": "State House Of Rep 38", 
+      "title": "District 38", 
+      "type": "candidate", 
+      "id": "775013660"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "District 43-Democrat", 
+      "districtId": "100000092", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775021702", 
+          "name": "Paul Millsaps"
+        }
+      ], 
+      "section": "State House Of Rep 43", 
+      "title": "District 43", 
+      "type": "candidate", 
+      "id": "775013667"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Chancery Court Clerk-Democrat", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022281", 
+          "name": "Monica W. Banks"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Chancery Court Clerk", 
+      "type": "candidate", 
+      "id": "775014094"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Circuit Court Clerk-Democrat", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022283", 
+          "name": "E. Regina Evans"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Circuit Court Clerk", 
+      "type": "candidate", 
+      "id": "775014096"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Coroner-Democrat", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022286", 
+          "name": "Michael R. Hunt"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Coroner", 
+      "type": "candidate", 
+      "id": "775014098"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "County Attorney-Democrat", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022289", 
+          "name": "Haley Brown"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "County Attorney", 
+      "type": "candidate", 
+      "id": "775014100"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Sheriff-Democrat", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022290", 
+          "name": "Steve C. Gladney"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Sheriff", 
+      "type": "candidate", 
+      "id": "775014101"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Surveyor-Democrat", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022292", 
+          "name": "Tom L. Gregory"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Surveyor", 
+      "type": "candidate", 
+      "id": "775014103"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Tax Accessor/Collector-Democrat", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022293", 
+          "name": "John S. Brown"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Tax Accessor/Collector", 
+      "type": "candidate", 
+      "id": "775014104"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Supervisor -Democrat", 
+      "districtId": "575000195", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022295", 
+          "name": "Donald Thompson"
+        }
+      ], 
+      "section": "Supervisor Dist 1", 
+      "title": "Supervisor ", 
+      "type": "candidate", 
+      "id": "775014106"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Supervisor -Democrat", 
+      "districtId": "575000196", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022298", 
+          "name": "Gene Autry Perry"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022299", 
+          "name": "Tremell Orlando Sherman"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022297", 
+          "name": "Orlando K. Trainer"
+        }
+      ], 
+      "section": "Supervisor Dist 2", 
+      "title": "Supervisor ", 
+      "type": "candidate", 
+      "id": "775014108"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Supervisor -Democrat", 
+      "districtId": "575000197", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022300", 
+          "name": "Marvell Howard"
+        }
+      ], 
+      "section": "Supervisor Dist 3", 
+      "title": "Supervisor ", 
+      "type": "candidate", 
+      "id": "775014109"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Supervisor -Democrat", 
+      "districtId": "575000198", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022302", 
+          "name": "Daniel Jackson"
+        }
+      ], 
+      "section": "Supervisor Dist 4", 
+      "title": "Supervisor ", 
+      "type": "candidate", 
+      "id": "775014111"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Supervisor -Democrat", 
+      "districtId": "575000199", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022307", 
+          "name": "Sylvester Dewayne\" Davis\""
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022306", 
+          "name": "Ernest Rogers, Jr"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022305", 
+          "name": "Joe L. Williams"
+        }
+      ], 
+      "section": "Supervisor Dist 5", 
+      "title": "Supervisor ", 
+      "type": "candidate", 
+      "id": "775014113"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Justice Court Judge Dist 1-Democrat", 
+      "districtId": "775000248", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022270", 
+          "name": "William Anton 'Tony' Boykin"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022271", 
+          "name": "Jessi A. Collier"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022272", 
+          "name": "Lynn Williams"
+        }
+      ], 
+      "section": "Justice Court Judge Dist 1", 
+      "title": "Justice Court Judge Dist 1", 
+      "type": "candidate", 
+      "id": "775014090"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Justice Court Judge Dist 2-Democrat", 
+      "districtId": "575000268", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022275", 
+          "name": "Larnzy Lee Carpenter, Jr"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022273", 
+          "name": "W. Bernard Crump"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022274", 
+          "name": "Kennedy Neal"
+        }
+      ], 
+      "section": "Justice Court Judge Dist 2", 
+      "title": "Justice Court Judge Dist 2", 
+      "type": "candidate", 
+      "id": "775014091"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Justice Court Judge Dist 3-Democrat", 
+      "districtId": "775000250", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022279", 
+          "name": "C. Marty Haug"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022277", 
+          "name": "W. L. Will\" Hutchinson\""
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022276", 
+          "name": "James 'Jim' Mills"
+        }, 
+        {
+          "partyId": "2", 
+          "id": "775022278", 
+          "name": "Cheikh A. Taylor"
+        }
+      ], 
+      "section": "Justice Court Judge Dist 3", 
+      "title": "Justice Court Judge Dist 3", 
+      "type": "candidate", 
+      "id": "775014092"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Constable District 2-Democrat", 
+      "districtId": "775000252", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022266", 
+          "name": "Andre Quinn"
+        }
+      ], 
+      "section": "Constable Dist 2", 
+      "title": "Constable District 2", 
+      "type": "candidate", 
+      "id": "775014086"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Constable District 2-Democrat", 
+      "districtId": "775000252", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022267", 
+          "name": "Curtis D. Randle"
+        }
+      ], 
+      "section": "Constable Dist 2", 
+      "title": "Constable District 2", 
+      "type": "candidate", 
+      "id": "775014087"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "2", 
+      "official_label": "Constable District 3-Democrat", 
+      "districtId": "775000253", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "2", 
+          "id": "775022269", 
+          "name": "James Lindsey"
+        }
+      ], 
+      "section": "Constable Dist 3", 
+      "title": "Constable District 3", 
+      "type": "candidate", 
+      "id": "775014089"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Governor-Republican", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "575021574", 
+          "name": "Phil Bryant"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "575021575", 
+          "name": "Mitch Young"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Governor", 
+      "type": "candidate", 
+      "id": "775013744"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Lieutenant Governor-Republican", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "575021578", 
+          "name": "Alisha Nelson McElhenney"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "575021579", 
+          "name": "Tate Reeves"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Lieutenant Governor", 
+      "type": "candidate", 
+      "id": "775013746"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Secretary Of State-Republican", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "575021581", 
+          "name": "Delbert Hosemann"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Secretary Of State", 
+      "type": "candidate", 
+      "id": "775013748"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Attorney General-Republican", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "575021570", 
+          "name": "Mike Hurst"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Attorney General", 
+      "type": "candidate", 
+      "id": "775013739"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "State Auditor-Republican", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "575021583", 
+          "name": "Mary Hawkins Butler"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "575021584", 
+          "name": "Stacey E. Pickering"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "State Auditor", 
+      "type": "candidate", 
+      "id": "775013750"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "State Treasurer-Republican", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "575021585", 
+          "name": "Lynn Fitch"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "575021586", 
+          "name": "David McRae"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "State Treasurer", 
+      "type": "candidate", 
+      "id": "775013751"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Commissioner Of Agriculture & Commerce-Republican", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775021490", 
+          "name": "Cindy Hyde-Smith"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Commissioner Of Agriculture & Commerce", 
+      "type": "candidate", 
+      "id": "775013741"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Commissioner Of Insurance-Republican", 
+      "districtId": "100000275", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775021491", 
+          "name": "Mike Chaney"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "775021492", 
+          "name": "John Mosley"
+        }
+      ], 
+      "section": "State Of Mississippi", 
+      "title": "Commissioner Of Insurance", 
+      "type": "candidate", 
+      "id": "775013742"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Northern District-Republican", 
+      "districtId": "575001705", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775021515", 
+          "name": "Mike Maynard"
+        }
+      ], 
+      "section": "Public Service Commissioner", 
+      "title": "Northern District", 
+      "type": "candidate", 
+      "id": "775013574"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Northern District-Republican", 
+      "districtId": "575001697", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775021503", 
+          "name": "Jimmie D. Mills"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "775021504", 
+          "name": "Mike Tagert"
+        }
+      ], 
+      "section": "Transportation Commissioner", 
+      "title": "Northern District", 
+      "type": "candidate", 
+      "id": "775013820"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "District 15-Republican", 
+      "districtId": "100000234", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "575021808", 
+          "name": "Gary Jackson"
+        }
+      ], 
+      "section": "State Senate 15", 
+      "title": "District 15", 
+      "type": "candidate", 
+      "id": "775013768"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "District 37-Republican", 
+      "districtId": "100000087", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "575021755", 
+          "name": "Gary A. Chism"
+        }
+      ], 
+      "section": "State House Of Rep 37", 
+      "title": "District 37", 
+      "type": "candidate", 
+      "id": "775013659"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "District 43-Republican", 
+      "districtId": "100000092", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775021703", 
+          "name": "Loyd B. 'Rob' Roberson"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "775021704", 
+          "name": "Mac Smith"
+        }
+      ], 
+      "section": "State House Of Rep 43", 
+      "title": "District 43", 
+      "type": "candidate", 
+      "id": "775013668"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Circuit Court Clerk-Republican", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022285", 
+          "name": "Michael Jason Campbell"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "775022284", 
+          "name": "Glenn Hamilton"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Circuit Court Clerk", 
+      "type": "candidate", 
+      "id": "775014097"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Coroner-Republican", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022288", 
+          "name": "Chris Pollan"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "775022287", 
+          "name": "Doug Hamiton"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Coroner", 
+      "type": "candidate", 
+      "id": "775014099"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Sheriff-Republican", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022291", 
+          "name": "George Carrithers"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Sheriff", 
+      "type": "candidate", 
+      "id": "775014102"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Tax Accessor/Collector-Republican", 
+      "districtId": "100000328", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022294", 
+          "name": "Allen Morgan"
+        }
+      ], 
+      "section": "Oktibbeha", 
+      "title": "Tax Accessor/Collector", 
+      "type": "candidate", 
+      "id": "775014105"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Supervisor -Republican", 
+      "districtId": "575000195", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022296", 
+          "name": "John Prate Montgomery, Jr."
+        }
+      ], 
+      "section": "Supervisor Dist 1", 
+      "title": "Supervisor ", 
+      "type": "candidate", 
+      "id": "775014107"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Supervisor -Republican", 
+      "districtId": "575000197", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022301", 
+          "name": "Dennis Denny\" Daniels\""
+        }
+      ], 
+      "section": "Supervisor Dist 3", 
+      "title": "Supervisor ", 
+      "type": "candidate", 
+      "id": "775014110"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Supervisor -Republican", 
+      "districtId": "575000198", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022304", 
+          "name": "Bart Gregory"
+        }, 
+        {
+          "partyId": "3", 
+          "id": "775022303", 
+          "name": "Bricklee Miller"
+        }
+      ], 
+      "section": "Supervisor Dist 4", 
+      "title": "Supervisor ", 
+      "type": "candidate", 
+      "id": "775014112"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Justice Court Judge Dist 3-Republican", 
+      "districtId": "775000250", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022280", 
+          "name": "Buddy Johnston"
+        }
+      ], 
+      "section": "Justice Court Judge Dist 3", 
+      "title": "Justice Court Judge Dist 3", 
+      "type": "candidate", 
+      "id": "775014093"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Constable District 1-Republican", 
+      "districtId": "775000251", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022263", 
+          "name": "Shank Phelps"
+        }
+      ], 
+      "section": "Constable Dist 1", 
+      "title": "Constable District 1", 
+      "type": "candidate", 
+      "id": "775014085"
+    }, 
+    {
+      "allowWriteIns": true, 
+      "partyId": "3", 
+      "official_label": "Constable District 3-Republican", 
+      "districtId": "775000253", 
+      "seats": 1, 
+      "candidates": [
+        {
+          "partyId": "3", 
+          "id": "775022268", 
+          "name": "Tim Cook"
+        }
+      ], 
+      "section": "Constable Dist 3", 
+      "title": "Constable District 3", 
+      "type": "candidate", 
+      "id": "775014088"
+    }
+  ], 
+  "title": "2019 MOCK Primary Election", 
+  "date": "5/2/2019", 
+  "ballotStyles": [
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "852", 
+        "862"
+      ], 
+      "partyId": "3", 
+      "id": "69R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "852", 
+        "862"
+      ], 
+      "partyId": "2", 
+      "id": "7D"
+    }, 
+    {
+      "districts": [
+        "100000087", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251", 
+        "100000092"
+      ], 
+      "precincts": [
+        "750000056", 
+        "862"
+      ], 
+      "partyId": "3", 
+      "id": "1R"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "750000056", 
+        "862"
+      ], 
+      "partyId": "2", 
+      "id": "20D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "750000056", 
+        "862"
+      ], 
+      "partyId": "3", 
+      "id": "37R"
+    }, 
+    {
+      "districts": [
+        "100000087", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251", 
+        "100000092"
+      ], 
+      "precincts": [
+        "750000056", 
+        "862"
+      ], 
+      "partyId": "2", 
+      "id": "66D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000198", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "750000058", 
+        "750000053", 
+        "872", 
+        "874"
+      ], 
+      "partyId": "2", 
+      "id": "27D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000198", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "750000058", 
+        "750000053", 
+        "872", 
+        "874"
+      ], 
+      "partyId": "3", 
+      "id": "44R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "853"
+      ], 
+      "partyId": "2", 
+      "id": "11D"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "853"
+      ], 
+      "partyId": "2", 
+      "id": "12D"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "853", 
+        "858"
+      ], 
+      "partyId": "2", 
+      "id": "13D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "853", 
+        "858"
+      ], 
+      "partyId": "2", 
+      "id": "24D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "853"
+      ], 
+      "partyId": "2", 
+      "id": "25D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "853", 
+        "858"
+      ], 
+      "partyId": "2", 
+      "id": "26D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "853", 
+        "858"
+      ], 
+      "partyId": "3", 
+      "id": "41R"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "853"
+      ], 
+      "partyId": "3", 
+      "id": "42R"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "853", 
+        "858"
+      ], 
+      "partyId": "3", 
+      "id": "43R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "853"
+      ], 
+      "partyId": "3", 
+      "id": "57R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "853"
+      ], 
+      "partyId": "3", 
+      "id": "58R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "853", 
+        "858"
+      ], 
+      "partyId": "3", 
+      "id": "59R"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "857", 
+        "862"
+      ], 
+      "partyId": "2", 
+      "id": "21D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "857"
+      ], 
+      "partyId": "2", 
+      "id": "29D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "857"
+      ], 
+      "partyId": "2", 
+      "id": "31D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "857", 
+        "862"
+      ], 
+      "partyId": "3", 
+      "id": "38R"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "857"
+      ], 
+      "partyId": "3", 
+      "id": "46R"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "857"
+      ], 
+      "partyId": "3", 
+      "id": "48R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000196", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "750000055", 
+        "867"
+      ], 
+      "partyId": "2", 
+      "id": "10D"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000196", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "750000055"
+      ], 
+      "partyId": "3", 
+      "id": "70R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000196", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "750000055", 
+        "867"
+      ], 
+      "partyId": "3", 
+      "id": "72R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000196", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "750000055"
+      ], 
+      "partyId": "2", 
+      "id": "8D"
+    }, 
+    {
+      "districts": [
+        "100000087", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "860"
+      ], 
+      "partyId": "3", 
+      "id": "3R"
+    }, 
+    {
+      "districts": [
+        "100000087", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "860"
+      ], 
+      "partyId": "2", 
+      "id": "55D"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000196", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "861"
+      ], 
+      "partyId": "3", 
+      "id": "71R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000196", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "861"
+      ], 
+      "partyId": "2", 
+      "id": "9D"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "862"
+      ], 
+      "partyId": "2", 
+      "id": "16D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "862"
+      ], 
+      "partyId": "2", 
+      "id": "30D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "862"
+      ], 
+      "partyId": "3", 
+      "id": "47R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000197", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "862"
+      ], 
+      "partyId": "3", 
+      "id": "62R"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "865", 
+        "876"
+      ], 
+      "partyId": "2", 
+      "id": "34D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "865", 
+        "869", 
+        "876"
+      ], 
+      "partyId": "2", 
+      "id": "35D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "865", 
+        "876"
+      ], 
+      "partyId": "3", 
+      "id": "51R"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "865", 
+        "869", 
+        "876"
+      ], 
+      "partyId": "3", 
+      "id": "52R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "858", 
+        "866", 
+        "873"
+      ], 
+      "partyId": "3", 
+      "id": "68R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000235", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000199", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "858", 
+        "866", 
+        "873"
+      ], 
+      "partyId": "2", 
+      "id": "6D"
+    }, 
+    {
+      "districts": [
+        "100000087", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "750000054"
+      ], 
+      "partyId": "3", 
+      "id": "4R"
+    }, 
+    {
+      "districts": [
+        "100000087", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "750000054"
+      ], 
+      "partyId": "2", 
+      "id": "56D"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000198", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "874"
+      ], 
+      "partyId": "2", 
+      "id": "14D"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000198", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "874"
+      ], 
+      "partyId": "2", 
+      "id": "15D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000198", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "874"
+      ], 
+      "partyId": "2", 
+      "id": "28D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000198", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "874"
+      ], 
+      "partyId": "3", 
+      "id": "45R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000198", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "874"
+      ], 
+      "partyId": "3", 
+      "id": "60R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000198", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "874"
+      ], 
+      "partyId": "3", 
+      "id": "61R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "876"
+      ], 
+      "partyId": "2", 
+      "id": "17D"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "876"
+      ], 
+      "partyId": "2", 
+      "id": "18D"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "876"
+      ], 
+      "partyId": "2", 
+      "id": "19D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "876"
+      ], 
+      "partyId": "2", 
+      "id": "36D"
+    }, 
+    {
+      "districts": [
+        "100000092", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "876"
+      ], 
+      "partyId": "3", 
+      "id": "53R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000250", 
+        "775000253"
+      ], 
+      "precincts": [
+        "876"
+      ], 
+      "partyId": "3", 
+      "id": "63R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575001697", 
+        "575001705", 
+        "775000248", 
+        "775000251"
+      ], 
+      "precincts": [
+        "876"
+      ], 
+      "partyId": "3", 
+      "id": "64R"
+    }, 
+    {
+      "districts": [
+        "100000088", 
+        "100000234", 
+        "100000275", 
+        "100000328", 
+        "100000371", 
+        "575000195", 
+        "575000268", 
+        "575001697", 
+        "575001705", 
+        "775000252"
+      ], 
+      "precincts": [
+        "876"
+      ], 
+      "partyId": "3", 
+      "id": "65R"
+    }
+  ], 
+  "parties": [
+    {
+      "abbrev": "D", 
+      "id": "2", 
+      "name": "Democrat"
+    }, 
+    {
+      "abbrev": "R", 
+      "id": "3", 
+      "name": "Republican"
+    }, 
+    {
+      "abbrev": "L", 
+      "id": "4", 
+      "name": "Libertarian"
+    }, 
+    {
+      "abbrev": "REF", 
+      "id": "5", 
+      "name": "Reform"
+    }, 
+    {
+      "abbrev": "N", 
+      "id": "6", 
+      "name": "Natural Law"
+    }, 
+    {
+      "abbrev": "C", 
+      "id": "8", 
+      "name": "Constitution"
+    }, 
+    {
+      "abbrev": "G", 
+      "id": "9", 
+      "name": "Green"
+    }, 
+    {
+      "abbrev": "A", 
+      "id": "10", 
+      "name": "America First"
+    }, 
+    {
+      "abbrev": "I", 
+      "id": "11", 
+      "name": "Independent"
+    }, 
+    {
+      "abbrev": "NP", 
+      "id": "12", 
+      "name": "Nonpartisan"
+    }, 
+    {
+      "abbrev": "JUS", 
+      "id": "575000001", 
+      "name": "Justice"
+    }, 
+    {
+      "abbrev": "PRO", 
+      "id": "575000002", 
+      "name": "Prohibition"
+    }, 
+    {
+      "abbrev": "ADP", 
+      "id": "575000003", 
+      "name": "American Delta"
+    }, 
+    {
+      "abbrev": "VET", 
+      "id": "575000004", 
+      "name": "Veterans"
+    }
+  ], 
+  "precincts": [
+    {
+      "id": "750000053", 
+      "name": "Sturgis/North Bradley"
+    }, 
+    {
+      "id": "750000054", 
+      "name": "Self Creek/Double Springs"
+    }, 
+    {
+      "id": "750000055", 
+      "name": "Hickory Grove/Southeast"
+    }, 
+    {
+      "id": "750000056", 
+      "name": "Center Grove/North Adaton"
+    }, 
+    {
+      "id": "750000058", 
+      "name": "Craig Springs/South Bradley"
+    }, 
+    {
+      "id": "852", 
+      "name": "Bell Schoolhouse"
+    }, 
+    {
+      "id": "853", 
+      "name": "Central Starkville"
+    }, 
+    {
+      "id": "857", 
+      "name": "East Starkville"
+    }, 
+    {
+      "id": "858", 
+      "name": "Needmore Community Center"
+    }, 
+    {
+      "id": "860", 
+      "name": "Maben"
+    }, 
+    {
+      "id": "861", 
+      "name": "North Starkville District 2"
+    }, 
+    {
+      "id": "862", 
+      "name": "North Starkville District 3"
+    }, 
+    {
+      "id": "865", 
+      "name": "North Longview"
+    }, 
+    {
+      "id": "866", 
+      "name": "Oktoc"
+    }, 
+    {
+      "id": "867", 
+      "name": "Osborn"
+    }, 
+    {
+      "id": "869", 
+      "name": "South Adaton"
+    }, 
+    {
+      "id": "872", 
+      "name": "South Longview"
+    }, 
+    {
+      "id": "873", 
+      "name": "Sessums"
+    }, 
+    {
+      "id": "874", 
+      "name": "South Starkville"
+    }, 
+    {
+      "id": "876", 
+      "name": "West Starkville"
+    }
+  ]
+}
