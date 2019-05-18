@@ -2,6 +2,9 @@ import React from 'react'
 import { useDropzone } from 'react-dropzone'
 import { SetElection } from '../config/types'
 
+import Main, { MainChild } from '../components/Main'
+import Screen from '../components/Screen'
+
 interface Props {
   setElection: SetElection
 }
@@ -21,20 +24,24 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
   return (
-    <div>
-      <h1>Load Election Configuration File</h1>
-      <div {...getRootProps()}>
-        <input {...getInputProps()} />
-        {isDragActive ? (
-          <p>Drop files here…</p>
-        ) : (
-          <p>
-            Drag and drop <code>election.json</code> file here, or click to
-            browse for file.
-          </p>
-        )}
-      </div>
-    </div>
+    <Screen {...getRootProps()}>
+      <Main noPadding>
+        <MainChild center padded>
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p>Drop files here…</p>
+          ) : (
+            <React.Fragment>
+              <h1>Load Election Configuration File</h1>
+              <p>
+                Drag and drop <code>election.json</code> file here, or click to
+                browse for file.
+              </p>
+            </React.Fragment>
+          )}
+        </MainChild>
+      </Main>
+    </Screen>
   )
 }
 

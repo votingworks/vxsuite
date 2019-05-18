@@ -24,7 +24,7 @@ const buttonStyles = css<Props>`
     'rgb(211, 211, 211)'};
   cursor: pointer;
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
-  padding: 0.4rem 0.7rem;
+  padding: 0.75rem;
   line-height: 1;
   white-space: nowrap;
   color: ${({ disabled = false, danger = false, primary = false }) =>
