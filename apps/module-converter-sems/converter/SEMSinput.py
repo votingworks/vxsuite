@@ -74,7 +74,7 @@
 
 import csv, json, sqlite3
 
-TABLES = {
+ELECTION_TABLES = {
     "1": {"name": "election", "fields": ["title", "date"]},
     "2": {"name": "districts", "fields": ["parent_district_id", "district_id", "label"]},
     "3": {"name": "locations", "fields": ["region_id", "location_id", "label"]},
@@ -86,7 +86,7 @@ TABLES = {
     "9": {"name": "sems_candidates", "fields": ["county_code", "contest_id", "candidate_id", "candidate_sems_id"]}
 }
     
-def process_files(election_details_file_path, candidate_map_file_path):
+def process_election_files(election_details_file_path, candidate_map_file_path):
     election_details_file = open(election_details_file_path, "r")
     candidate_map_file = open(candidate_map_file_path, "r")
 
@@ -97,13 +97,13 @@ def process_files(election_details_file_path, candidate_map_file_path):
     db = sqlite3.connect(":memory:")
     c = db.cursor()
     
-    for table_def in TABLES.values():
+    for table_def in ELECTION_TABLES.values():
         fields = ["%s varchar(500)" % f for f in table_def["fields"]]
         sql = "create table %s (%s)" % (table_def["name"], ",".join(fields))
         c.execute(sql)
 
     def process_row(row):
-        table_def = TABLES.get(row[0], None)
+        table_def = ELECTION_TABLES.get(row[0], None)
 
         if not table_def:
             return
@@ -195,3 +195,5 @@ def process_files(election_details_file_path, candidate_map_file_path):
     }
 
     return(vx_election)
+
+

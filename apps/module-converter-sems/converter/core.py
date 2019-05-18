@@ -4,7 +4,8 @@ import json, os
 from flask import Flask, send_from_directory, send_file, request
 from werkzeug.utils import secure_filename
 
-from . import SEMStoVX
+from . import SEMSinput
+from . import SEMSoutput
 
 # directory for all files
 FILES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'election_files')
@@ -69,7 +70,7 @@ def election_process():
         if not ELECTION_FILES[f]:
             return json.dumps({"status": "not all files are ready to process"})
 
-    vx_election = SEMStoVX.process_files(ELECTION_FILES['SEMS main file'], ELECTION_FILES['SEMS candidate mapping file'])
+    vx_election = SEMSinput.process_election_files(ELECTION_FILES['SEMS main file'], ELECTION_FILES['SEMS candidate mapping file'])
     the_path = os.path.join(FILES_DIR, VX_FILENAMES['election'])
     vx_file = open(the_path, "w")
     vx_file.write(json.dumps(vx_election, indent=2))
@@ -81,8 +82,21 @@ def election_process():
 
 @app.route('/convert/results/process', methods=["POST"])
 def results_process():
-    return json.dumps({})
+    for f in VX_FILES.keys():
+        if not VX_FILES[f]:
+            return json.dumps({"status": "not all files are ready to process"})
 
+    sems_result = SEMSoutput.process_results_file("53", VX_FILES['election'], VX_FILES['result'])
+    the_path = os.path.join(FILES_DIR, 'SEMS result')
+    result_file = open(the_path, "w")
+    result_file.write(sems_result)
+    result_file.close()
+
+    RESULTS_FILES['SEMS result'] = the_path
+
+    return json.dumps({"status": "ok"})
+    
+    
 @app.route('/convert/election/output', methods=["GET"])
 def election_output():
     election_file = VX_FILES["election"]

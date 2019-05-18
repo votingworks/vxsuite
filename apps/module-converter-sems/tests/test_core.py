@@ -12,6 +12,8 @@ SAMPLE_MAIN_FILE = os.path.join(SAMPLE_FILES, '53_5-2-2019.txt')
 SAMPLE_CANDIDATE_MAPPING_FILE = os.path.join(SAMPLE_FILES, '53_CANDMAP_5-2-2019.txt')
 EXPECTED_ELECTION_FILE = os.path.join(SAMPLE_FILES, 'expected-election.json')
 
+SAMPLE_CVRS_FILE = os.path.join(SAMPLE_FILES, "CVRs.txt")
+EXPECTED_RESULTS_FILE = os.path.join(SAMPLE_FILES, '53_Results.txt')
 
 def upload_file(client, url, filepath, extra_params={}):
     data = extra_params
@@ -85,7 +87,23 @@ def test_election_process(client):
     assert election == expected_election
     
 def test_results_process(client):
-    client.post('/convert/results/process')
+    # get the election.json generated
+    upload_file(client, '/convert/election/submitfile', SAMPLE_MAIN_FILE, {'name': 'SEMS main file'})
+    upload_file(client, '/convert/election/submitfile', SAMPLE_CANDIDATE_MAPPING_FILE, {'name': 'SEMS candidate mapping file'})
+    client.post("/convert/election/process")
+
+    rv = client.post("/convert/results/process").data
+    assert b"not all files" in rv
+    
+    upload_file(client, '/convert/results/submitfile', SAMPLE_CVRS_FILE, {'name': 'results'})
+
+    client.post("/convert/results/process")
+    
+    # download and check that it's the right file
+    results = client.get('/convert/results/output?name=SEMS%20result').data
+    expected_results = open(EXPECTED_RESULTS_FILE, "r").read()
+
+    assert results == expected_results.encode('utf-8')
 
 def test_election_output(client):
     the_path = os.path.join(ELECTION_FILES, "election.json")
