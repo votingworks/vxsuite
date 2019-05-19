@@ -44,10 +44,10 @@ const App: React.FC = () => {
     const ballotStyleId = (event.target as HTMLElement).dataset.ballotStyleId
     if (precinctId && ballotStyleId) {
       setIsProgrammingCard(true)
-      const code: string = `VX.${precinctId}.${ballotStyleId}`
+      const code = { t: 'voter', pr: `${precinctId}`, bs: `${ballotStyleId}` }
       fetch('/card/write', {
         method: 'post',
-        body: JSON.stringify({ code }),
+        body: JSON.stringify(code),
         headers: { 'Content-Type': 'application/json' },
       })
         .then(res => res.json())
