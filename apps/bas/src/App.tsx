@@ -18,9 +18,12 @@ import './App.css'
 
 let checkCardInterval = 0
 
+// I want to use a hook for this, but it's not reacting quickly enough
+// in the loop to prevent multiple loads of the long value.
+let loadingElection = false
+
 const App: React.FC = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
-  const [isLoadingElection, setIsLoadingElection] = useState(false)
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
   )
@@ -40,31 +43,33 @@ const App: React.FC = () => {
 
     if (cardData.t === 'admin') {
       if (!election) {
-        if (longValueExists && !isLoadingElection) {
-          setIsLoadingElection(true)
+        if (longValueExists && !loadingElection) {
+          loadingElection = true
           fetchElection().then(election => {
             setElection(election)
-            setIsLoadingElection(false)
+            loadingElection = false
           })
         }
       }
     }
   }
 
-  checkCardInterval = window.setInterval(() => {
-    fetch('/card/read')
-      .then(result => result.json())
-      .then(resultJSON => {
-        if (resultJSON.shortValue) {
-          const cardData = JSON.parse(resultJSON.shortValue) as CardData
-          processCardData(cardData, resultJSON.longValueExists)
-        }
-      })
-      .catch(() => {
-        // if it's an error, aggressively assume there's no backend and stop hammering
-        window.clearInterval(checkCardInterval)
-      })
-  }, 1000)
+  if (!checkCardInterval) {
+    checkCardInterval = window.setInterval(() => {
+      fetch('/card/read')
+        .then(result => result.json())
+        .then(resultJSON => {
+          if (resultJSON.shortValue) {
+            const cardData = JSON.parse(resultJSON.shortValue) as CardData
+            processCardData(cardData, resultJSON.longValueExists)
+          }
+        })
+        .catch(() => {
+          // if it's an error, aggressively assume there's no backend and stop hammering
+          window.clearInterval(checkCardInterval)
+        })
+    }, 1000)
+  }
 
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
