@@ -32,8 +32,8 @@ def card_read_long():
 
 @app.route('/card/write', methods=["POST"])
 def card_write():
-    content = request.get_json()
-    rv = CardInterface.write(content['code'].encode('utf-8'))
+    content = request.data
+    rv = CardInterface.write(content)
     return json.dumps({"success": rv})
 
 
