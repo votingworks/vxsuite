@@ -90,3 +90,18 @@ export interface ActivationData {
   ballotStyle: BallotStyle
   precinct: Precinct
 }
+
+// Smart Card Content
+export type CardDataTypes = 'voter' | 'admin'
+export interface CardData {
+  readonly t: CardDataTypes
+}
+export interface VoterCardData extends CardData {
+  readonly t: 'voter'
+  readonly bs: string
+  readonly pr: string
+}
+export interface AdminCardData extends CardData {
+  readonly t: 'admin'
+  readonly h: string
+}

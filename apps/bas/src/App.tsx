@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { ButtonEvent, OptionalElection } from './config/types'
+import { ButtonEvent, CardData, OptionalElection } from './config/types'
 
 import Brand from './components/Brand'
 import Button from './components/Button'
@@ -16,12 +16,55 @@ import PrecinctsScreen from './screens/PrecinctsScreen'
 import 'normalize.css'
 import './App.css'
 
+let checkCardInterval = 0
+
 const App: React.FC = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
+  const [isLoadingElection, setIsLoadingElection] = useState(false)
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
   )
   const [precinctId, setPrecinctId] = useState('')
+
+  const fetchElection = async () => {
+    return fetch('/card/read_long')
+      .then(result => result.json())
+      .then(resultJSON => JSON.parse(resultJSON.longValue))
+  }
+
+  const processCardData = (cardData: CardData, longValueExists: boolean) => {
+    // TODO: keep track of the card being present so we don't try
+    //       to write to a non-existent card?
+    // if (cardData.t === 'voter') {
+    // }
+
+    if (cardData.t === 'admin') {
+      if (!election) {
+        if (longValueExists && !isLoadingElection) {
+          setIsLoadingElection(true)
+          fetchElection().then(election => {
+            setElection(election)
+            setIsLoadingElection(false)
+          })
+        }
+      }
+    }
+  }
+
+  checkCardInterval = window.setInterval(() => {
+    fetch('/card/read')
+      .then(result => result.json())
+      .then(resultJSON => {
+        if (resultJSON.shortValue) {
+          const cardData = JSON.parse(resultJSON.shortValue) as CardData
+          processCardData(cardData, resultJSON.longValueExists)
+        }
+      })
+      .catch(() => {
+        // if it's an error, aggressively assume there's no backend and stop hammering
+        window.clearInterval(checkCardInterval)
+      })
+  }, 1000)
 
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
