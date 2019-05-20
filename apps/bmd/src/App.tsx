@@ -69,12 +69,18 @@ const initialState = {
   votes: {},
 }
 
+interface CompleteCardData {
+  cardData: CardData
+  longValueExists: boolean
+}
+
 let checkCardInterval = 0
 
 export class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
 
-  public processCardData = (cardData: CardData, longValueExists: boolean) => {
+  public processCardData = (completeCardData: CompleteCardData) => {
+    const { cardData, longValueExists } = completeCardData
     if (cardData.t === 'voter') {
       if (!this.state.election) {
         return
@@ -120,7 +126,10 @@ export class App extends React.Component<RouteComponentProps, State> {
         .then(resultJSON => {
           if (resultJSON.shortValue) {
             const cardData = JSON.parse(resultJSON.shortValue) as CardData
-            this.processCardData(cardData, resultJSON.longValueExists)
+            this.processCardData({
+              cardData: cardData,
+              longValueExists: resultJSON.longValueExists,
+            })
           }
         })
         .catch(() => {

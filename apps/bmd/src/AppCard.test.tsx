@@ -66,20 +66,32 @@ it(`CardData processing processes card data properly`, () => {
     t: 'admin',
   }
 
-  app.processCardData(adminCardData, false)
+  app.processCardData({
+    cardData: adminCardData,
+    longValueExists: false,
+  })
   expect(app.fetchElection).not.toHaveBeenCalled()
 
   app.state.election = election
-  app.processCardData(adminCardData, true)
+  app.processCardData({
+    cardData: adminCardData,
+    longValueExists: true,
+  })
   expect(app.fetchElection).not.toHaveBeenCalled()
 
   app.state.election = undefined
   app.state.loadingElection = true
-  app.processCardData(adminCardData, true)
+  app.processCardData({
+    cardData: adminCardData,
+    longValueExists: true,
+  })
   expect(app.fetchElection).not.toHaveBeenCalled()
 
   app.state.loadingElection = false
-  app.processCardData(adminCardData, true)
+  app.processCardData({
+    cardData: adminCardData,
+    longValueExists: true,
+  })
   expect(app.fetchElection).toHaveBeenCalled()
 
   const voterCardData: VoterCardData = {
@@ -88,11 +100,17 @@ it(`CardData processing processes card data properly`, () => {
     t: 'voter',
   }
 
-  app.processCardData(voterCardData, false)
+  app.processCardData({
+    cardData: voterCardData,
+    longValueExists: false,
+  })
   expect(app.activateBallot).not.toHaveBeenCalled()
 
   app.state.election = election
-  app.processCardData(voterCardData, false)
+  app.processCardData({
+    cardData: voterCardData,
+    longValueExists: false,
+  })
 
   // also bad ballot style and precinct, for coverage.
   const badVoterCardData: VoterCardData = {
@@ -100,7 +118,10 @@ it(`CardData processing processes card data properly`, () => {
     pr: 'barbaz',
     t: 'voter',
   }
-  app.processCardData(badVoterCardData, false)
+  app.processCardData({
+    cardData: badVoterCardData,
+    longValueExists: false,
+  })
 
   expect(app.activateBallot).toBeCalled()
 })
