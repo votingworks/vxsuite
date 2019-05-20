@@ -6,6 +6,7 @@ export interface Dictionary<T> {
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
+export type ButtonEventFunction = (event: ButtonEvent) => void
 
 // Candidates
 export interface Candidate {
