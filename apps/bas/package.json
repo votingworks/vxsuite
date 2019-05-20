@@ -2,25 +2,13 @@
   "name": "bas",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@types/jest": "24.0.11",
-    "@types/node": "11.13.7",
-    "@types/react": "16.8.14",
-    "@types/react-dom": "16.8.4",
-    "@types/styled-components": "^4.1.14",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-dropzone": "^10.1.4",
-    "react-scripts": "3.0.0",
-    "styled-components": "^4.2.0",
-    "typescript": "3.4.5"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
   },
   "husky": {
@@ -32,11 +20,12 @@
   "lint-staged": {
     "linters": {
       "*.+(js|jsx|ts|tsx)": [
+        "stylelint",
         "eslint --quiet --fix",
         "git add"
       ],
       "*.css": [
-        "stylelint --fix",
+        "stylelint --config .stylelintrc-css.js --fix",
         "git add"
       ],
       "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
@@ -60,6 +49,20 @@
       "last 1 safari version"
     ]
   },
+  "dependencies": {
+    "@types/jest": "24.0.11",
+    "@types/node": "11.13.7",
+    "@types/react": "16.8.14",
+    "@types/react-dom": "16.8.4",
+    "@types/styled-components": "^4.1.14",
+    "normalize.css": "^8.0.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-dropzone": "^10.1.4",
+    "react-scripts": "3.0.0",
+    "styled-components": "^4.2.0",
+    "typescript": "3.4.5"
+  },
   "devDependencies": {
     "@commitlint/cli": "^7.5.2",
     "@commitlint/config-conventional": "^7.5.0",
@@ -80,6 +83,7 @@
     "stylelint": "^10.0.1",
     "stylelint-config-palantir": "^4.0.0",
     "stylelint-config-prettier": "^5.1.0",
-    "stylelint-config-styled-components": "^0.1.1"
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-processor-styled-components": "^1.6.0"
   }
 }

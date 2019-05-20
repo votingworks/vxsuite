@@ -1,147 +1,123 @@
-import React, { useState } from 'react'
-import { useDropzone } from 'react-dropzone'
-import styled from 'styled-components'
+import React, { useCallback, useEffect, useState } from 'react'
 
+import { ButtonEvent, OptionalElection } from './config/types'
+
+import Brand from './components/Brand'
+import Button from './components/Button'
+import ButtonBar from './components/ButtonBar'
+import Main, { MainChild } from './components/Main'
+import Screen from './components/Screen'
+import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
+
+import PrecinctBallotStylesScreen from './screens/PrecinctBallotStylesScreen'
+import LoadElectionScreen from './screens/LoadElectionScreen'
+import PrecinctsScreen from './screens/PrecinctsScreen'
+
+import 'normalize.css'
 import './App.css'
 
-import electionSample from './data/electionSample.json'
-
-type Election = typeof electionSample | undefined
-
-type ButtonEvent = React.MouseEvent<HTMLButtonElement>
-
-const Body = styled.div`
-  background: #ad7af7;
-  height: 100%;
-  padding: 2rem;
-`
-const Content = styled.div`
-  background: #c8a9f5;
-  padding: 2rem;
-`
-
 const App: React.FC = () => {
-  const [election, setElection] = useState(undefined)
-  const [precinct, setPrecinct] = useState('')
+  const [isProgrammingCard, setIsProgrammingCard] = useState(false)
+  const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
+    'election'
+  )
+  const [precinctId, setPrecinctId] = useState('')
+
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
-    setPrecinct(id)
+    setPrecinctId(id)
   }
-  const [ballot, setBallot] = useState('')
-  const updateBallot = (event: ButtonEvent) => {
-    const { id = '' } = (event.target as HTMLElement).dataset
-    setBallot(id)
-  }
-  const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 1) {
-      const file = acceptedFiles[0]
-      const reader = new FileReader()
-      reader.onload = () => {
-        setElection(JSON.parse(reader.result as string))
-      }
-      reader.readAsText(file)
-    }
-  }
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+
+  const getPrecinctNameByPrecinctId = (precinctId: string): string =>
+    (election && election.precincts.find(p => p.id === precinctId)!.name) || ''
+
+  const getBallotStylesByPreinctId = (id: string) =>
+    (election &&
+      election.ballotStyles.filter(b => b.precincts.find(p => p === id))) ||
+    []
 
   const reset = () => {
-    setPrecinct('')
-    setBallot('')
+    setPrecinctId('')
   }
-  const programCard = () => {
-    fetch('/card/write', {
-      method: 'post',
-      body: JSON.stringify({ code: `VX.${precinct}.${ballot}` }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then(res => res.json())
-      .then(response => {
-        if (response.success) {
-          // TODO: better notification of success
-          // https://github.com/votingworks/bas/issues/7
-          reset()
-        }
+
+  const programCard = (event: ButtonEvent) => {
+    const ballotStyleId = (event.target as HTMLElement).dataset.ballotStyleId
+    if (precinctId && ballotStyleId) {
+      setIsProgrammingCard(true)
+      const code: string = `VX.${precinctId}.${ballotStyleId}`
+      fetch('/card/write', {
+        method: 'post',
+        body: JSON.stringify({ code }),
+        headers: { 'Content-Type': 'application/json' },
       })
+        .then(res => res.json())
+        .then(response => {
+          if (response.success) {
+            // TODO: better notification of success
+            // https://github.com/votingworks/bas/issues/7
+            reset()
+            setIsProgrammingCard(false)
+          }
+        })
+        .catch(() => {
+          window.setTimeout(() => {
+            // TODO: UI Notification if unable to write to card
+            // https://github.com/votingworks/bas/issues/10
+            console.log(code) // eslint-disable-line no-console
+            reset()
+            setIsProgrammingCard(false)
+          }, 500)
+        })
+    }
   }
-  if (precinct && ballot) {
-    return (
-      <Body>
-        <Content>
-          <h1>Activation Code</h1>
-          <p>
-            <button onClick={reset} type="button">
-              Reset
-            </button>
-          </p>
-          <p>{`{ ballot: ${ballot}, precinct: ${precinct} }`}</p>
-          <p>
-            <button onClick={programCard} type="button">
-              Program Card
-            </button>
-          </p>
-        </Content>
-      </Body>
-    )
-  }
-  if (election && precinct) {
-    return (
-      <Body>
-        <Content>
-          <h1>Ballot Styles</h1>
-          <p>
-            <button onClick={reset} type="button">
-              Reset
-            </button>
-          </p>
-          {(election as Election)!.ballotStyles
-            .filter(b => b.precincts.find(p => p === precinct))
-            .map(ballot => (
-              <div key={ballot.id}>
-                <button
-                  data-id={ballot.id}
-                  onClick={updateBallot}
-                  type="button"
-                >
-                  {ballot.id}
-                </button>
-              </div>
-            ))}
-        </Content>
-      </Body>
-    )
-  }
+
+  const handleUserKeyPress = useCallback(event => {
+    event.keyCode === 27 && reset()
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleUserKeyPress)
+    return () => {
+      window.removeEventListener('keydown', handleUserKeyPress)
+    }
+  }, [handleUserKeyPress])
+
   if (election) {
     return (
-      <Body>
-        <Content>
-          <h1>Precincts</h1>
-          {(election as Election)!.precincts.map(p => (
-            <div key={p.id}>
-              <button data-id={p.id} onClick={updatePrecinct} type="button">
-                {p.name}
-              </button>
-            </div>
-          ))}
-        </Content>
-      </Body>
+      <Screen>
+        <Main>
+          {isProgrammingCard ? (
+            <MainChild center>
+              <h1>Programming card…</h1>
+            </MainChild>
+          ) : (
+            <MainChild maxWidth={false}>
+              {precinctId ? (
+                <PrecinctBallotStylesScreen
+                  precinctBallotStyles={getBallotStylesByPreinctId(precinctId)}
+                  precinctName={getPrecinctNameByPrecinctId(precinctId)}
+                  programCard={programCard}
+                />
+              ) : (
+                <PrecinctsScreen
+                  precincts={election.precincts}
+                  updatePrecinct={updatePrecinct}
+                />
+              )}
+            </MainChild>
+          )}
+        </Main>
+        <ButtonBar secondary separatePrimaryButton>
+          <Button disabled={!precinctId || isProgrammingCard} onClick={reset}>
+            Reset
+          </Button>
+          <Brand>VxEncode</Brand>
+        </ButtonBar>
+      </Screen>
     )
   }
 
-  return (
-    <Body>
-      <Content>
-        <h1>Load Election</h1>
-        <div {...getRootProps()}>
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p>Drop the files here ...</p>
-          ) : (
-            <p>Drag and drop election file here</p>
-          )}
-        </div>
-      </Content>
-    </Body>
-  )
+  return <LoadElectionScreen setElection={setElection} />
 }
 
 export default App
