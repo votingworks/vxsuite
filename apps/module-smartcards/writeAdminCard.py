@@ -2,6 +2,7 @@
 import json, hashlib, sys
 from smartcards.card import CardInterface
 
+# wait for the reader to wake up and notice the card
 import time
 time.sleep(2)
 
