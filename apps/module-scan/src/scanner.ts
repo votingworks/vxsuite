@@ -70,7 +70,10 @@ export function configure(newElection: Election) {
   election = newElection
 
   // start watching the ballots
-  watcher = chokidar.watch(ballotImagesPath, { persistent: true })
+  watcher = chokidar.watch(ballotImagesPath, {
+    persistent: true,
+    awaitWriteFinish: true,
+  })
   watcher.on('add', fileAdded)
 }
 
@@ -81,7 +84,7 @@ export function doScan() {
 
   // trigger a scan
   exec(
-    'scanimage -d fujitsu --resolution 300 --format=jpeg --batch=ballots/batch-$(date +%Y%m%d_%H%M%S)-ballot-%04d.jpg > test.jpg',
+    `scanimage -d fujitsu --resolution 300 --format=jpeg --batch=${ballotImagesPath}batch-$(date +%Y%m%d_%H%M%S)-ballot-%04d.jpg`,
     err => {
       if (err) {
         // node couldn't execute the command
