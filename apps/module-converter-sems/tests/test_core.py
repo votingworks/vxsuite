@@ -82,11 +82,16 @@ def test_election_process(client):
     
     upload_file(client, '/convert/election/submitfile', SAMPLE_CANDIDATE_MAPPING_FILE, {'name': 'SEMS candidate mapping file'})
 
+    # try downloading before process should fail
+    election_url= '/convert/election/output?name=Vx%20Election%20Definition'
+    election = client.get(election_url).data
+    assert election == b''
+    
     # process
     client.post('/convert/election/process')
 
     # download and check that it's the right file
-    election = json.loads(client.get('/convert/election/output?name=Vx%20Election%20Definition').data)
+    election = json.loads(client.get(election_url).data)
     expected_election = json.loads(open(EXPECTED_ELECTION_FILE, "r").read())
 
     assert election == expected_election
@@ -100,11 +105,17 @@ def test_results_process(client):
     assert b"not all files" in rv
     
     upload_file(client, '/convert/results/submitfile', SAMPLE_CVRS_FILE, {'name': 'Vx CVRs'})
+
+    # try file before done, shouldn't be there
+    results_url = '/convert/results/output?name=SEMS%20Results'
+    rv = client.get(results_url).data
+    assert rv == b""
+    
     rv = client.post("/convert/results/process").data
     assert json.loads(rv) == {"status": "ok"}
     
     # download and check that it's the right file
-    results = client.get('/convert/results/output?name=SEMS%20Results').data
+    results = client.get(results_url).data
     expected_results = open(EXPECTED_RESULTS_FILE, "r").read()
 
     assert results == expected_results.encode('utf-8')

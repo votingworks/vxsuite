@@ -48,13 +48,9 @@ RESULTS_FILES = {
 }
 
 def find_by_name(lst_of_obj, name):
-    if not lst_of_obj:
-        return None
     for obj in lst_of_obj:
         if obj['name'] == name:
             return obj
-
-    return None
 
 @app.route('/convert/election/files', methods=["GET"])
 def election_filelist():
