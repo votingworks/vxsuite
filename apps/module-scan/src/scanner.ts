@@ -52,6 +52,7 @@ export function fileAdded(ballotImagePath: string) {
     ballotImagePath,
     (ballotImagePath: string, cvr: CastVoteRecord) => {
       // TODO: work on these status messages a bit more
+      // https://github.com/votingworks/module-scan/issues/6
       setStatus('scanning', '1 ballot scanned')
       addCVR(ballotImagePath, cvr)
       const newBallotImagePath = path.join(
