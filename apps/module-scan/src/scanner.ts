@@ -7,18 +7,26 @@ import * as chokidar from 'chokidar'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
-import { Ballot, Election } from './types'
-import { addBallot, exportCVRs } from './store'
+import { CastVoteRecord, Election } from './types'
+import { addCVR, exportCVRs } from './store'
 import interpretFile from './interpreter'
 
 import exec from './exec'
 
-export const ballotsPath = path.join(__dirname, '..', 'ballots/')
-export const scannedBallotsPath = path.join(__dirname, '..', 'scanned-ballots/')
-export const sampleBallotsPath = path.join(__dirname, '..', 'sample-ballots/')
+export const ballotImagesPath = path.join(__dirname, '..', 'ballot-images/')
+export const scannedBallotImagesPath = path.join(
+  __dirname,
+  '..',
+  'scanned-ballot-images/'
+)
+export const sampleBallotImagesPath = path.join(
+  __dirname,
+  '..',
+  'sample-ballot-images/'
+)
 
 // make sure those directories exist
-const allPaths = [ballotsPath, scannedBallotsPath]
+const allPaths = [ballotImagesPath, scannedBallotImagesPath]
 allPaths.forEach(path => {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path)
@@ -38,24 +46,28 @@ function setStatus(newStatus: string, newMessage: string) {
   message = newMessage
 }
 
-export function fileAdded(ballotPath: string) {
-  interpretFile(election, ballotPath, (ballotPath: string, ballot: Ballot) => {
-    // TODO: work on these status messages a bit more
-    setStatus('scanning', '1 ballot scanned')
-    addBallot(ballotPath, ballot)
-    const newBallotPath = path.join(
-      scannedBallotsPath,
-      path.basename(ballotPath)
-    )
-    fs.renameSync(ballotPath, newBallotPath)
-  })
+export function fileAdded(ballotImagePath: string) {
+  interpretFile(
+    election,
+    ballotImagePath,
+    (ballotImagePath: string, cvr: CastVoteRecord) => {
+      // TODO: work on these status messages a bit more
+      setStatus('scanning', '1 ballot scanned')
+      addCVR(ballotImagePath, cvr)
+      const newBallotImagePath = path.join(
+        scannedBallotImagesPath,
+        path.basename(ballotImagePath)
+      )
+      fs.renameSync(ballotImagePath, newBallotImagePath)
+    }
+  )
 }
 
 export function configure(newElection: Election) {
   election = newElection
 
   // start watching the ballots
-  watcher = chokidar.watch(ballotsPath, { persistent: true })
+  watcher = chokidar.watch(ballotImagesPath, { persistent: true })
   watcher.on('add', fileAdded)
 }
 

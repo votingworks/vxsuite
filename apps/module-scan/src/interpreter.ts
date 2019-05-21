@@ -7,12 +7,12 @@ import * as ImageJS from 'image-js'
 import jsQR from 'jsqr'
 
 import {
-  BallotCallbackFunction,
-  Ballot,
   BallotStyle,
   CandidateContest,
+  CastVoteRecord,
   Contest,
   Contests,
+  CVRCallbackFunction,
   Dictionary,
   Election,
 } from './types'
@@ -65,7 +65,7 @@ const scan = (image: Image) => {
 export default function interpretFile(
   election: Election,
   path: string,
-  callback: BallotCallbackFunction
+  callback: CVRCallbackFunction
 ) {
   const yesNoValues: Dictionary<string> = { '0': 'no', '1': 'yes' }
 
@@ -94,7 +94,7 @@ export default function interpretFile(
     )
 
     // prepare the CVR
-    let votes: Ballot = {}
+    let cvr: CastVoteRecord = {}
 
     const allSelectionsList = allSelections.split('/')
     contests.forEach((contest: Contest, contestNum: number) => {
@@ -102,25 +102,25 @@ export default function interpretFile(
       // not the same thing as undefined.
 
       if (contest.type === 'yesno') {
-        votes[contest.id] = yesNoValues[allSelectionsList[contestNum]] || ''
+        cvr[contest.id] = yesNoValues[allSelectionsList[contestNum]] || ''
       } else {
         if (contest.type === 'candidate') {
           // selections for this question
           const selections = allSelectionsList[contestNum].split(',')
           if (selections.length > 1 || selections[0] !== '') {
-            votes[contest.id] = selections.map(
+            cvr[contest.id] = selections.map(
               selection =>
                 (contest as CandidateContest).candidates[parseInt(selection)].id
             )
           } else {
-            votes[contest.id] = ''
+            cvr[contest.id] = ''
           }
         }
       }
     })
 
-    votes['_precinctId'] = precinctId
+    cvr['_precinctId'] = precinctId
 
-    callback(path, votes)
+    callback(path, cvr)
   })
 }

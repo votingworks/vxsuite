@@ -7,7 +7,7 @@ import fs from 'fs'
 import path from 'path'
 import { Writable } from 'stream'
 
-import { Ballot } from './types'
+import { CastVoteRecord } from './types'
 
 const dbPath = path.join(__dirname, '..', 'cvrs.db')
 
@@ -41,11 +41,11 @@ export function reset() {
   db.run('create table CVRs (filename text, cvr_json text)')
 }
 
-export function addBallot(filename: string, ballot: Ballot) {
-  db.run('insert into CVRs values (?,?)', filename, JSON.stringify(ballot))
+export function addCVR(filename: string, cvr: CastVoteRecord) {
+  db.run('insert into CVRs values (?,?)', filename, JSON.stringify(cvr))
 }
 
-export function countBallots() {
+export function countCVRs() {
   db.run('select count(*) from CVRs')
 }
 

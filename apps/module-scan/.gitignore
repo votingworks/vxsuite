@@ -1,5 +1,5 @@
 node_modules
 cvrs.db
-ballots/
-scanned-ballots/
+ballot-images/
+scanned-ballot-images/
 *~

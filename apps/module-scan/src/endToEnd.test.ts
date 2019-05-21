@@ -3,7 +3,11 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { app } from './server'
 import election from '../election.json'
-import { ballotsPath, scannedBallotsPath, sampleBallotsPath } from './scanner'
+import {
+  ballotImagesPath,
+  scannedBallotImagesPath,
+  sampleBallotImagesPath,
+} from './scanner'
 
 const expectedOutcomeRaw =
   '{"102":"","president":["barchi-hallaren"],"senator":["hewetson"],"representative-district-6":["reeder"],"governor":["steelloy"],"lieutenant-governor":["davis"],"secretary-of-state":["talarico"],"state-senator-district-31":["shiplett"],"state-assembly-district-54":["keller"],"county-commissioners":["savoy","bainbridge","witherspoonsmithson"],"county-registrar-of-wills":["ramachandrani"],"city-mayor":["seldon"],"city-council":["rupp"],"judicial-robert-demergue":"","judicial-elmer-hull":"","question-a":"","question-b":"","question-c":"","proposition-1":"","measure-101":"","_precinctId":"23"}\n{"102":"","president":["boone-lian"],"senator":["wentworthfarthington"],"representative-district-6":["reeder"],"governor":["harris"],"lieutenant-governor":"","secretary-of-state":"","state-senator-district-31":"","state-assembly-district-54":"","county-commissioners":"","county-registrar-of-wills":"","city-mayor":"","city-council":"","judicial-robert-demergue":"","judicial-elmer-hull":"","question-a":"","question-b":"","question-c":"","proposition-1":"","measure-101":"","_precinctId":"23"}'
@@ -20,8 +24,8 @@ const emptyDir = function(dirPath: string) {
 
 test('going through the whole process works', done => {
   // clean up
-  emptyDir(ballotsPath)
-  emptyDir(scannedBallotsPath)
+  emptyDir(ballotImagesPath)
+  emptyDir(scannedBallotImagesPath)
 
   request(app)
     .post('/scan/configure')
@@ -31,10 +35,10 @@ test('going through the whole process works', done => {
     .expect(200, { status: 'ok' })
     .then(() => {
       // move some sample ballots into the ballots directory
-      const sampleBallots = fs.readdirSync(sampleBallotsPath)
+      const sampleBallots = fs.readdirSync(sampleBallotImagesPath)
       for (const ballot of sampleBallots) {
-        const oldPath = path.join(sampleBallotsPath, ballot)
-        const newPath = path.join(ballotsPath, ballot)
+        const oldPath = path.join(sampleBallotImagesPath, ballot)
+        const newPath = path.join(ballotImagesPath, ballot)
         fs.copyFileSync(oldPath, newPath)
       }
 

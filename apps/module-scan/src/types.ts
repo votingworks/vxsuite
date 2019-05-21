@@ -40,9 +40,9 @@ export interface YesNoContest extends Contest {
 }
 export type Contests = (CandidateContest | YesNoContest)[]
 
-export type Ballot = Dictionary<string | string[]>
+export type CastVoteRecord = Dictionary<string | string[]>
 
-export type BallotCallbackFunction = (path: string, ballot: Ballot) => void
+export type CVRCallbackFunction = (path: string, cvr: CastVoteRecord) => void
 
 export interface Party {
   readonly id: string
