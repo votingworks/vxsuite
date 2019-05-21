@@ -27,89 +27,126 @@ app = Flask(__name__)
 
 # paths
 ELECTION_FILES = {
-    "SEMS main file": None,
-    "SEMS candidate mapping file": None
+    "inputFiles": [
+        {"name": "SEMS main file", "path": None},
+        {"name": "SEMS candidate mapping file", "path": None}
+    ],
+    "outputFiles": [
+        {"name": "Vx Election Definition", "path": None}
+    ]
 }
 
 # paths
 RESULTS_FILES = {
-    "SEMS results": None
+    "inputFiles": [
+        {"name": "Vx Election Definition", "path": None},
+        {"name": "Vx CVRs", "path": None}
+    ],
+    "outputFiles": [
+        {"name": "SEMS Results", "path": None}
+    ]
 }
 
-@app.route('/convert/election/filelist', methods=["GET"])
+def find_by_name(lst_of_obj, name):
+    if not lst_of_obj:
+        return None
+    for obj in lst_of_obj:
+        if obj['name'] == name:
+            return obj
+
+    return None
+
+@app.route('/convert/election/files', methods=["GET"])
 def election_filelist():
     return json.dumps(ELECTION_FILES)
 
-@app.route('/convert/results/filelist', methods=["GET"])
+@app.route('/convert/results/files', methods=["GET"])
 def results_filelist():
     return json.dumps(RESULTS_FILES)
 
-@app.route('/convert/election/submitfile', methods=["POST"])
-def election_submitfile():
-    print("YOOOOO", request.files.get('file'))
+def submitfile(request, file_list):
     the_file = request.files['file']
-    print(the_file)
     the_name = request.form['name']
-    if the_name in ELECTION_FILES:
+
+    the_entry = find_by_name(file_list['inputFiles'], the_name)
+    if the_entry:
         the_path = os.path.join(FILES_DIR, the_name)
         the_file.save(the_path)
-        ELECTION_FILES[the_name] = the_path
+        the_entry['path'] = the_path
+
+@app.route('/convert/election/submitfile', methods=["POST"])
+def election_submitfile():
+    submitfile(request, ELECTION_FILES)
     return json.dumps({"status": "ok"})
 
 @app.route('/convert/results/submitfile', methods=["POST"])
 def results_submitfile():
-    the_file = request.files['file']
-    the_path = os.path.join(FILES_DIR, 'vx-results.txt')
-    the_file.save(the_path)
-    VX_FILES["result"] = the_path
+    submitfile(request, RESULTS_FILES)
     return json.dumps({"status": "ok"})
 
 @app.route('/convert/election/process', methods=["POST"])
 def election_process():
-    for f in ELECTION_FILES.keys():
-        if not ELECTION_FILES[f]:
+    for f in ELECTION_FILES['inputFiles']:
+        if not f['path']:
             return json.dumps({"status": "not all files are ready to process"})
 
-    vx_election = SEMSinput.process_election_files(ELECTION_FILES['SEMS main file'], ELECTION_FILES['SEMS candidate mapping file'])
-    the_path = os.path.join(FILES_DIR, VX_FILENAMES['election'])
+    input_files = ELECTION_FILES['inputFiles']
+    vx_election = SEMSinput.process_election_files(
+        find_by_name(input_files, 'SEMS main file')['path'],
+        find_by_name(input_files, 'SEMS candidate mapping file')['path']
+    )
+
+    file_name = 'Vx Election Definition'
+    the_path = os.path.join(FILES_DIR, file_name)
     vx_file = open(the_path, "w")
     vx_file.write(json.dumps(vx_election, indent=2))
     vx_file.close()
 
-    VX_FILES["election"] = the_path
+    the_output_file = find_by_name(ELECTION_FILES['outputFiles'], file_name)
+    the_output_file['path']= the_path
     
     return json.dumps({"status": "ok"})
 
+@app.route('/convert/election/output', methods=["GET"])
+def election_output():
+    the_name = request.args.get('name', None)
+    the_entry = find_by_name(ELECTION_FILES['outputFiles'], the_name)
+
+    if the_entry and the_entry['path']:
+        return send_file(the_entry['path'])
+    else:
+        return "", 404
+
 @app.route('/convert/results/process', methods=["POST"])
 def results_process():
-    for f in VX_FILES.keys():
-        if not VX_FILES[f]:
+    for f in ELECTION_FILES['inputFiles']:
+        if not f['path']:
             return json.dumps({"status": "not all files are ready to process"})
 
-    sems_result = SEMSoutput.process_results_file("53", VX_FILES['election'], VX_FILES['result'])
+    sems_result = SEMSoutput.process_results_file(
+        "53",
+        find_by_name(RESULTS_FILES['inputFiles'], 'Vx Election Definition')['path'],
+        find_by_name(RESULTS_FILES['inputFiles'], 'Vx CVRs')['path']
+    )
     the_path = os.path.join(FILES_DIR, 'SEMS result')
     result_file = open(the_path, "w")
     result_file.write(sems_result)
     result_file.close()
 
-    RESULTS_FILES['SEMS result'] = the_path
+    find_by_name(RESULTS_FILES['outputFiles'], 'SEMS result')['path'] = the_path
 
     return json.dumps({"status": "ok"})
     
     
-@app.route('/convert/election/output', methods=["GET"])
-def election_output():
-    election_file = VX_FILES["election"]
-    if election_file:
-        return send_file(election_file)
-    else:
-        return "", 404
-
 @app.route('/convert/results/output', methods=["GET"])
 def results_output():
     the_name = request.args.get('name', None)
-    if the_name and RESULTS_FILES.get(the_name, None):
-        return send_file(RESULTS_FILES[the_name])
+    the_entry = find_by_name(RESULTS_FILES['outputFiles'], the_name)
+
+    print(the_entry)
+    print(RESULTS_FILES)
+    if the_entry and the_entry['path']:
+        return send_file(the_entry['path'])
     else:
         return "", 404
 
@@ -118,6 +155,7 @@ def index_test(): # pragma: no cover this is just for testing
     return send_from_directory(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'), 'index.html')
 
 def reset():
-    for d in [VX_FILES, ELECTION_FILES, RESULTS_FILES]:
-        for k in d.keys():
-            d[k] = None
+    for category in [ELECTION_FILES, RESULTS_FILES]:
+        for file_list in [category['inputFiles'], category['outputFiles']]:
+            for f in file_list:
+                f['path'] = None

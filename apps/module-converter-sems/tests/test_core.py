@@ -6,7 +6,7 @@ import pytest, json, io, os
 from converter.core import app, reset
 
 PARENT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-ELECTION_FILES = os.path.join(PARENT_DIR, 'election_files')
+FILES_DIR = os.path.join(PARENT_DIR, 'election_files')
 SAMPLE_FILES = os.path.join(PARENT_DIR, 'sample_files')
 SAMPLE_MAIN_FILE = os.path.join(SAMPLE_FILES, '53_5-2-2019.txt')
 SAMPLE_CANDIDATE_MAPPING_FILE = os.path.join(SAMPLE_FILES, '53_CANDMAP_5-2-2019.txt')
@@ -35,14 +35,15 @@ def client():
 
     # any cleanup goes here
 
-def test_election_filelist(client):
-    rv = json.loads(client.get('/convert/election/filelist').data)
-    assert 'SEMS main file' in rv
-    assert 'SEMS candidate mapping file' in rv
+def test_election_files(client):
+    rv = json.loads(client.get('/convert/election/files').data)
+    assert 'inputFiles' in rv
+    assert 'outputFiles' in rv
 
 def test_results_filelist(client):
-    rv = json.loads(client.get('/convert/results/filelist').data)
-    assert 'SEMS results' in rv
+    rv = json.loads(client.get('/convert/results/files').data)
+    assert 'inputFiles' in rv
+    assert 'outputFiles' in rv
 
 def test_election_submitfile(client):
     upload_file(client, '/convert/election/submitfile', SAMPLE_MAIN_FILE, {
@@ -50,30 +51,34 @@ def test_election_submitfile(client):
     })
 
     # check the file got there
-    filelist = json.loads(client.get('/convert/election/filelist').data)
-    print(filelist)
-    assert filelist['SEMS main file']
+    filelist = json.loads(client.get('/convert/election/files').data)
+    assert filelist['inputFiles'][0]['name'] == 'SEMS main file'
 
 def test_results_submitfile(client):
-    the_path = "./election_files/vx-results.txt"
-    if os.path.exists(the_path):
-        os.remove(the_path)
+    reset()
 
-    # TODO: real results file
-    upload_file(client, '/convert/results/submitfile', SAMPLE_MAIN_FILE, {
-        'name': 'VX result'
+    upload_file(client, '/convert/results/submitfile', EXPECTED_ELECTION_FILE, {
+        'name': 'Vx Election Definition'
     })
 
+    upload_file(client, '/convert/results/submitfile', SAMPLE_CVRS_FILE, {
+        'name': 'Vx CVRs'
+    })
+    
     # check the file got there
-    assert os.path.exists(the_path)
-
+    filelist = json.loads(client.get('/convert/results/files').data)
+    assert filelist['inputFiles'][0]['path']    
+    assert filelist['inputFiles'][1]['path']
+    
 def test_election_process(client):
+    reset()
+    
     # upload the sample files
     upload_file(client, '/convert/election/submitfile', SAMPLE_MAIN_FILE, {'name': 'SEMS main file'})
 
     # try to process before ready
     rv = client.post('/convert/election/process').data
-    assert b"not all files" in rv    
+    assert b"not all files" in rv
     
     upload_file(client, '/convert/election/submitfile', SAMPLE_CANDIDATE_MAPPING_FILE, {'name': 'SEMS candidate mapping file'})
 
@@ -81,16 +86,15 @@ def test_election_process(client):
     client.post('/convert/election/process')
 
     # download and check that it's the right file
-    election = json.loads(client.get('/convert/election/output').data)
+    election = json.loads(client.get('/convert/election/output?name=Vx%20Election%20Definition').data)
     expected_election = json.loads(open(EXPECTED_ELECTION_FILE, "r").read())
 
     assert election == expected_election
     
 def test_results_process(client):
-    # get the election.json generated
-    upload_file(client, '/convert/election/submitfile', SAMPLE_MAIN_FILE, {'name': 'SEMS main file'})
-    upload_file(client, '/convert/election/submitfile', SAMPLE_CANDIDATE_MAPPING_FILE, {'name': 'SEMS candidate mapping file'})
-    client.post("/convert/election/process")
+    reset()
+    
+    upload_file(client, '/convert/results/submitfile', EXPECTED_ELECTION_FILE, {'name': 'Vx Election Definition'})
 
     rv = client.post("/convert/results/process").data
     assert b"not all files" in rv
@@ -104,37 +108,4 @@ def test_results_process(client):
     expected_results = open(EXPECTED_RESULTS_FILE, "r").read()
 
     assert results == expected_results.encode('utf-8')
-
-def test_election_output(client):
-    the_path = os.path.join(ELECTION_FILES, "election.json")
-    f = open(the_path,"w")
-    f.write("yoyoyo")
-    f.close()
-
-    # before pointer is set
-    rv = client.get('/convert/election/output')
-    assert rv.status == "404 NOT FOUND"
-    
-    import converter.core
-    converter.core.VX_FILES["election"] = the_path
-    
-    rv = client.get('/convert/election/output').data
-    assert rv == b"yoyoyo"
-
-def test_results_output(client):
-    the_path = os.path.join(ELECTION_FILES, "SEMS results")
-    f = open(the_path,"w")
-    f.write("yoyoyo2")
-    f.close()
-
-    url = '/convert/results/output?name=SEMS%20results'
-    # before pointer is set
-    rv = client.get(url)
-    assert rv.status == "404 NOT FOUND"
-    
-    import converter.core
-    converter.core.RESULTS_FILES["SEMS results"] = the_path
-    
-    rv = client.get(url).data
-    assert rv == b"yoyoyo2"
 
