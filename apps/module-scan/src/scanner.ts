@@ -46,22 +46,24 @@ function setStatus(newStatus: string, newMessage: string) {
   message = newMessage
 }
 
+function cvrCallback(ballotImagePath: string, cvr: CastVoteRecord) {
+  // TODO: work on these status messages a bit more
+  // https://github.com/votingworks/module-scan/issues/6
+  setStatus('scanning', '1 ballot scanned')
+  addCVR(ballotImagePath, cvr)
+  const newBallotImagePath = path.join(
+    scannedBallotImagesPath,
+    path.basename(ballotImagePath)
+  )
+  fs.renameSync(ballotImagePath, newBallotImagePath)
+}
+
 export function fileAdded(ballotImagePath: string) {
-  interpretFile(
+  interpretFile({
     election,
     ballotImagePath,
-    (ballotImagePath: string, cvr: CastVoteRecord) => {
-      // TODO: work on these status messages a bit more
-      // https://github.com/votingworks/module-scan/issues/6
-      setStatus('scanning', '1 ballot scanned')
-      addCVR(ballotImagePath, cvr)
-      const newBallotImagePath = path.join(
-        scannedBallotImagesPath,
-        path.basename(ballotImagePath)
-      )
-      fs.renameSync(ballotImagePath, newBallotImagePath)
-    }
-  )
+    cvrCallback,
+  })
 }
 
 export function configure(newElection: Election) {

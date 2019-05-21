@@ -62,15 +62,21 @@ const scan = (image: Image) => {
   return secondScan
 }
 
+export interface InterpretFileParams {
+  readonly election: Election
+  readonly ballotImagePath: string
+  readonly cvrCallback: CVRCallbackFunction
+}
+
 export default function interpretFile(
-  election: Election,
-  path: string,
-  callback: CVRCallbackFunction
+  interpretFileParams: InterpretFileParams
 ) {
+  const { election, ballotImagePath, cvrCallback } = interpretFileParams
+
   const yesNoValues: Dictionary<string> = { '0': 'no', '1': 'yes' }
 
-  ImageJS.Image.load(path).then(function(im: typeof Image) {
-    const scanResult = scan(im)
+  ImageJS.Image.load(ballotImagePath).then(function(image: typeof Image) {
+    const scanResult = scan(image)
     if (!scanResult) {
       return
     }
@@ -121,6 +127,6 @@ export default function interpretFile(
 
     cvr['_precinctId'] = precinctId
 
-    callback(path, cvr)
+    cvrCallback(ballotImagePath, cvr)
   })
 }
