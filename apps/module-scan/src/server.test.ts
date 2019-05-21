@@ -6,6 +6,23 @@ import election from '../election.json'
 jest.mock('./scanner')
 const mockScanner = scanner as jest.Mocked<typeof scanner>
 
+test('GET /scan/status', done => {
+  const status = {
+    status: 'scanning',
+    numBallotsScanned: 85,
+    message: '20 ballots scanned in batch',
+  }
+  mockScanner.getStatus.mockReturnValue(status)
+  request(app)
+    .get('/scan/status')
+    .set('Accept', 'application/json')
+    .expect(200, status)
+    .then(() => {
+      expect(scanner.getStatus).toBeCalled()
+      done()
+    })
+})
+
 test('POST /scan/configure', done => {
   request(app)
     .post('/scan/configure')
@@ -23,9 +40,20 @@ test('POST /scan/configure', done => {
     })
 })
 
-test('POST /scan/scan', done => {
+test('POST /scan/scanBatch', done => {
   request(app)
-    .post('/scan/scan')
+    .post('/scan/scanBatch')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+    .then(() => {
+      expect(scanner.doScan).toBeCalled()
+      done()
+    })
+})
+
+test('POST /scan/invalidateBatch', done => {
+  request(app)
+    .post('/scan/invalidateBatch')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
     .then(() => {
@@ -50,21 +78,20 @@ test('POST /scan/export', done => {
     })
 })
 
-test('GET /scan/status', done => {
-  const status = {
-    status: 'scanning',
-    numBallotsScanned: 85,
-    message: '20 ballots scanned in batch',
-  }
-  mockScanner.getStatus.mockReturnValue(status)
+test('POST /scan/zero', done => {
   request(app)
-    .get('/scan/status')
+    .post('/scan/zero')
     .set('Accept', 'application/json')
-    .expect(200, status)
-    .then(() => {
-      expect(scanner.getStatus).toBeCalled()
-      done()
-    })
+    .expect(200, { status: 'ok' })
+    .then(() => done())
+})
+
+test('POST /scan/unconfigure', done => {
+  request(app)
+    .post('/scan/unconfigure')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+    .then(() => done())
 })
 
 test('GET /', done => {

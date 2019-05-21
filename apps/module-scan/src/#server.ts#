@@ -37,7 +37,7 @@ app.post('/scan/scanBatch', (_request: Request, response: Response) => {
   response.json({ status: 'ok' })
 })
 
-app.post('/scan/invalidateBatch', (_request: Request, response: Response) => {
+app.post('/scan/invalidateBatch', (_request: Request, response: Response) => {z
   response.json({ status: 'ok' })
 })
 
