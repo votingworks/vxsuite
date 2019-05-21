@@ -119,7 +119,7 @@ def election_output():
 
 @app.route('/convert/results/process', methods=["POST"])
 def results_process():
-    for f in ELECTION_FILES['inputFiles']:
+    for f in RESULTS_FILES['inputFiles']:
         if not f['path']:
             return json.dumps({"status": "not all files are ready to process"})
 
@@ -128,12 +128,12 @@ def results_process():
         find_by_name(RESULTS_FILES['inputFiles'], 'Vx Election Definition')['path'],
         find_by_name(RESULTS_FILES['inputFiles'], 'Vx CVRs')['path']
     )
-    the_path = os.path.join(FILES_DIR, 'SEMS result')
+    the_path = os.path.join(FILES_DIR, 'SEMS Results')
     result_file = open(the_path, "w")
     result_file.write(sems_result)
     result_file.close()
 
-    find_by_name(RESULTS_FILES['outputFiles'], 'SEMS result')['path'] = the_path
+    find_by_name(RESULTS_FILES['outputFiles'], 'SEMS Results')['path'] = the_path
 
     return json.dumps({"status": "ok"})
     

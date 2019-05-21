@@ -99,12 +99,12 @@ def test_results_process(client):
     rv = client.post("/convert/results/process").data
     assert b"not all files" in rv
     
-    upload_file(client, '/convert/results/submitfile', SAMPLE_CVRS_FILE, {'name': 'results'})
-
-    client.post("/convert/results/process")
+    upload_file(client, '/convert/results/submitfile', SAMPLE_CVRS_FILE, {'name': 'Vx CVRs'})
+    rv = client.post("/convert/results/process").data
+    assert json.loads(rv) == {"status": "ok"}
     
     # download and check that it's the right file
-    results = client.get('/convert/results/output?name=SEMS%20result').data
+    results = client.get('/convert/results/output?name=SEMS%20Results').data
     expected_results = open(EXPECTED_RESULTS_FILE, "r").read()
 
     assert results == expected_results.encode('utf-8')
