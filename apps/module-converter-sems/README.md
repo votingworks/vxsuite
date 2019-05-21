@@ -39,18 +39,47 @@ make run
 
 ## API
 
-First, some API calls that inform the front-end about the files that are needed for conversion:
-* `GET /convert/election/filelist` lists the files that are needed for conversion into an election file
-* `GET /convert/results/filelist` lists the files that are produced for results
+First, some API calls to work with election definitions:
 
-Then, submission of files
-* `POST /convert/election/submitfile`
-* `POST /convert/result/submitfile`
+* `GET /convert/election/files` lists the files that are needed for conversion into an election file as well
+  as the files that are produced by the conversion process.
 
-Request the processing
-* `POST /convert/election/process` converts SEMS election files to a Vx Election File
+  ```
+  {
+	"inputFiles": [{"name": <filename>, "path": <filepath>}, ...],
+	"outputFiles": [{"name": "Vx Election Definition", "path": <filepath>}]
+  }
+  ```
+
+  where `<filepath>` is null if not yet uploaded.
+  
+* `POST /convert/election/submitfile` sends a needed file with parameters with `enctype="multipart/form-data"`
+  * `name` which should be one of the file names from `filelist`
+  * `file` is the file being uploaded
+
+* `POST /convert/election/process` converts SEMS election files to a Vx Election File, doesn't return anything.
+
+* `GET /convert/election/output?name=<name>` download the election.json file from `outputFiles`.
+
+
+Next, we do results
+
+* `GET /convert/results/files` lists the files for input and output, just like above
+
+  ```
+  {
+	"inputFiles": [{"name": "Vx Election Definition", "path": <filepath>}, {"name": "CVRs", "path": <filepath>}],
+	"outputFiles": [{"name": "election.json", "path": <filepath>}]
+  }
+  ```
+
+  where `<filepath>` is null if not yet uploaded.
+
+
+* `POST /convert/results/submitfile` submit a file, `enctype="multipart/form-data`
+  * `name` of the inputFile
+  * `file`
+
 * `POST /convert/results/process` converts Vx CVRs to a SEMS result file
 
-Read the results
-* `GET /convert/election/output` download the election.json file
-* `GET /convert/election/result?name=` download the result file indicated by the name picked from the `results/filelist`
+* `GET /convert/results/output?name=<name>` download the result file indicated by the name picked from the `results/filelist`
