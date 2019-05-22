@@ -95,7 +95,15 @@ def test_election_process(client):
     expected_election = json.loads(open(EXPECTED_ELECTION_FILE, "r").read())
 
     assert election == expected_election
-    
+
+    # request reset files
+    reset_url = '/convert/reset'
+    rv = client.post(reset_url).data
+
+    # try file after reset, shouldn't be there
+    rv = client.get(election_url).data
+    assert rv == b""
+
 def test_results_process(client):
     reset()
     
@@ -120,3 +128,10 @@ def test_results_process(client):
 
     assert results == expected_results.encode('utf-8')
 
+    # request reset files
+    reset_url = '/convert/reset'
+    rv = client.post(reset_url).data
+
+    # try file after reset, shouldn't be there
+    rv = client.get(results_url).data
+    assert rv == b""
