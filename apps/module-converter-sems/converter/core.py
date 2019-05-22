@@ -10,19 +10,6 @@ from . import SEMSoutput
 # directory for all files
 FILES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'election_files')
 
-VX_FILENAMES = {
-    "election": "vx-election.json",
-    "result": "vx-results.txt"
-}
-
-# paths for the Vx files, the election.json and the VX results file.
-VX_FILES = {
-    "election" : None,
-    "result" : None
-}
-
-ALLOWED_EXTENSIONS = set(['txt', 'csv'])
-
 app = Flask(__name__)
 
 # paths
@@ -154,4 +141,10 @@ def reset():
     for category in [ELECTION_FILES, RESULTS_FILES]:
         for file_list in [category['inputFiles'], category['outputFiles']]:
             for f in file_list:
+                the_path = os.path.join(FILES_DIR, f['name'])
+                if os.path.isfile(the_path):
+                    os.remove(the_path)
                 f['path'] = None
+                
+# on startup, reset everything
+reset()
