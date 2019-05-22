@@ -18,12 +18,13 @@ import './App.css'
 
 let checkCardInterval = 0
 
-// I want to use a hook for this, but it's not reacting quickly enough
+// I want to use a hook for these, but it's not reacting quickly enough
 // in the loop to prevent multiple loads of the long value.
 let loadingElection = false
 
 const App: React.FC = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
+  const [isWritableCard, setIsWritableCard] = useState(false)
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
   )
@@ -36,22 +37,28 @@ const App: React.FC = () => {
   }
 
   const processCardData = (cardData: CardData, longValueExists: boolean) => {
-    // TODO: keep track of the card being present so we don't try
-    //       to write to a non-existent card?
-    // if (cardData.t === 'voter') {
-    // }
-
-    if (cardData.t === 'admin') {
-      if (!election) {
-        if (longValueExists && !loadingElection) {
+    let isWritableCard = false
+    switch (cardData.t) {
+      case 'voter':
+        isWritableCard = true
+        break
+      case 'pollworker':
+        break
+      case 'clerk':
+        if (!election && longValueExists && !loadingElection) {
           loadingElection = true
           fetchElection().then(election => {
             setElection(election)
             loadingElection = false
           })
         }
-      }
+        break
+      default:
+        isWritableCard = true
+        break
     }
+
+    setIsWritableCard(isWritableCard)
   }
 
   if (!checkCardInterval) {
@@ -60,8 +67,12 @@ const App: React.FC = () => {
         .then(result => result.json())
         .then(resultJSON => {
           if (resultJSON.shortValue) {
-            const cardData = JSON.parse(resultJSON.shortValue) as CardData
-            processCardData(cardData, resultJSON.longValueExists)
+            if (resultJSON.present) {
+              const cardData = JSON.parse(resultJSON.shortValue) as CardData
+              processCardData(cardData, resultJSON.longValueExists)
+            } else {
+              setIsWritableCard(false)
+            }
           }
         })
         .catch(() => {
@@ -90,8 +101,16 @@ const App: React.FC = () => {
 
   const programCard = (event: ButtonEvent) => {
     const ballotStyleId = (event.target as HTMLElement).dataset.ballotStyleId
+
+    // eventually we want better UI, but for now,
+    // let's not program a non-writable card
+    if (!isWritableCard) {
+      return
+    }
+
     if (precinctId && ballotStyleId) {
       setIsProgrammingCard(true)
+
       const code = { t: 'voter', pr: `${precinctId}`, bs: `${ballotStyleId}` }
       fetch('/card/write', {
         method: 'post',
@@ -104,7 +123,11 @@ const App: React.FC = () => {
             // TODO: better notification of success
             // https://github.com/votingworks/bas/issues/7
             reset()
-            setIsProgrammingCard(false)
+
+            // show some delay here for UI purposes
+            window.setTimeout(() => {
+              setIsProgrammingCard(false)
+            }, 2000)
           }
         })
         .catch(() => {
