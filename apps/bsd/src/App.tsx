@@ -80,15 +80,11 @@ const App: React.FC = () => {
             </MainChild>
           )}
         </Main>
-        <ButtonBar secondary separatePrimaryButton>
-          <Button
-            disabled={isProgrammingCard}
-            onClick={programCard}
-            data-id="admin"
-          >
-            Program Card
-          </Button>
+        <ButtonBar secondary naturalOrder separatePrimaryButton>
           <Brand>VxScanner</Brand>
+          <Button>Zero</Button>
+          <Button>Export</Button>
+          <Button primary>Scan New Batch</Button>
         </ButtonBar>
       </Screen>
     )
