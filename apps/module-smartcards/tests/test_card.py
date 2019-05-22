@@ -73,8 +73,8 @@ def test_read_bad_data_on_card():
     vxco._read_from_card()
     test_value = vxco.read()
 
-    # since the reading is still returning the bad bytes, this should be none
-    assert test_value == (None,None)
+    # since the reading is still returning the bad bytes, this should look like an empty card
+    assert test_value == (b'',None)
         
     
 def test_write():
