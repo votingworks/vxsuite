@@ -8,7 +8,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import { CastVoteRecord, Election } from './types'
-import { addCVR, exportCVRs } from './store'
+import { addBatch, addCVR, batchStatus, exportCVRs, finishBatch } from './store'
 import interpretFile from './interpreter'
 
 import exec from './exec'
@@ -36,21 +36,12 @@ allPaths.forEach(path => {
 // keeping track of election
 let watcher: chokidar.FSWatcher, election: Election
 
-// keeping track of status
-let status = '' // scanning, exporting, idle
-let message = ''
-let numBallotsScanned = 0
-
-function setStatus(newStatus: string, newMessage: string) {
-  status = newStatus
-  message = newMessage
-}
-
-function cvrCallback(ballotImagePath: string, cvr: CastVoteRecord) {
-  // TODO: work on these status messages a bit more
-  // https://github.com/votingworks/module-scan/issues/6
-  setStatus('scanning', '1 ballot scanned')
-  addCVR(ballotImagePath, cvr)
+function cvrCallbackWithBatchId(
+  batchId: number,
+  ballotImagePath: string,
+  cvr: CastVoteRecord
+) {
+  addCVR(batchId, ballotImagePath, cvr)
   const newBallotImagePath = path.join(
     scannedBallotImagesPath,
     path.basename(ballotImagePath)
@@ -59,10 +50,22 @@ function cvrCallback(ballotImagePath: string, cvr: CastVoteRecord) {
 }
 
 export function fileAdded(ballotImagePath: string) {
+  // get the batch ID from the path
+  const filename = path.basename(ballotImagePath)
+  const batchIdMatch = filename.match(/-batch-([^-]*)-/)
+
+  if (!batchIdMatch) {
+    return
+  }
+
+  const batchId = parseInt(batchIdMatch[1])
+
   interpretFile({
     election,
     ballotImagePath,
-    cvrCallback,
+    cvrCallback: (ballotImagePath: string, cvr: CastVoteRecord) => {
+      cvrCallbackWithBatchId(batchId, ballotImagePath, cvr)
+    },
   })
 }
 
@@ -78,39 +81,44 @@ export function configure(newElection: Election) {
 }
 
 export function doScan() {
-  if (!election) {
-    return
-  }
+  return new Promise((resolve, reject) => {
+    if (!election) {
+      reject(new Error('no election configuration'))
+    } else {
+      addBatch().then(batchId => {
+        // trigger a scan
+        exec(
+          `scanimage -d fujitsu --resolution 300 --format=jpeg --batch=${ballotImagesPath}batch-${batchId}-$(date +%Y%m%d_%H%M%S)-ballot-%04d.jpg`,
+          err => {
+            if (err) {
+              // node couldn't execute the command
+              return reject(new Error('problem scanning'))
+            }
 
-  // trigger a scan
-  exec(
-    `scanimage -d fujitsu --resolution 300 --format=jpeg --batch=${ballotImagesPath}batch-$(date +%Y%m%d_%H%M%S)-ballot-%04d.jpg`,
-    err => {
-      if (err) {
-        // node couldn't execute the command
-        return
-      }
-
-      // the *entire* stdout and stderr (buffered)
+            // mark the batch done in a few seconds
+            setTimeout(finishBatch, 5000)
+            resolve()
+          }
+        )
+      })
     }
-  )
+  })
 }
 
-export function doExport(callback: (arg0: string) => void) {
+export async function doExport() {
   if (!election) {
-    return callback('')
+    return ''
   }
 
   const outputStream = new streams.WritableStream()
-  exportCVRs(outputStream, function() {
-    callback(outputStream.toString())
-  })
+  await exportCVRs(outputStream)
+  return outputStream.toString()
 }
 
 export function doZero() {}
 
-export function getStatus() {
-  return { message, numBallotsScanned, status }
+export async function getStatus() {
+  return { batches: await batchStatus() }
 }
 
 export function shutdown() {

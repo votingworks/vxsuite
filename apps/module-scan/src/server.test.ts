@@ -8,11 +8,9 @@ const mockScanner = scanner as jest.Mocked<typeof scanner>
 
 test('GET /scan/status', done => {
   const status = {
-    status: 'scanning',
-    numBallotsScanned: 85,
-    message: '20 ballots scanned in batch',
+    batches: [],
   }
-  mockScanner.getStatus.mockReturnValue(status)
+  mockScanner.getStatus.mockResolvedValue(status)
   request(app)
     .get('/scan/status')
     .set('Accept', 'application/json')
@@ -41,6 +39,7 @@ test('POST /scan/configure', done => {
 })
 
 test('POST /scan/scanBatch', done => {
+  mockScanner.doScan.mockResolvedValue('')
   request(app)
     .post('/scan/scanBatch')
     .set('Accept', 'application/json')
@@ -63,11 +62,8 @@ test('POST /scan/invalidateBatch', done => {
 })
 
 test('POST /scan/export', done => {
-  mockScanner.doExport.mockImplementation(
-    (callback: (arg0: string) => void) => {
-      callback('')
-    }
-  )
+  mockScanner.doExport.mockResolvedValue('')
+
   request(app)
     .post('/scan/export')
     .set('Accept', 'application/json')

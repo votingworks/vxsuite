@@ -17,9 +17,6 @@ import * as store from './store'
 
 import { Election } from './types'
 
-// for now, we reset on every start
-store.reset()
-
 export const app: Application = express()
 const port = 3002
 
@@ -34,7 +31,12 @@ app.post('/scan/configure', (request: Request, response: Response) => {
 
 app.post('/scan/scanBatch', (_request: Request, response: Response) => {
   doScan()
-  response.json({ status: 'ok' })
+    .then(() => {
+      response.json({ status: 'ok' })
+    })
+    .catch(err => {
+      response.json({ status: `could not scan ${err}` })
+    })
 })
 
 app.post('/scan/invalidateBatch', (_request: Request, response: Response) => {
@@ -42,14 +44,16 @@ app.post('/scan/invalidateBatch', (_request: Request, response: Response) => {
 })
 
 app.post('/scan/export', (_request: Request, response: Response) => {
-  doExport(function(result: string) {
+  doExport().then(cvrs => {
     response.set('Content-Type', 'text/plain')
-    response.send(result)
+    response.send(cvrs)
   })
 })
 
 app.get('/scan/status', (_request: Request, response: Response) => {
-  response.json(getStatus())
+  getStatus().then(status => {
+    response.json(status)
+  })
 })
 
 app.post('/scan/zero', (_request: Request, response: Response) => {
@@ -67,8 +71,10 @@ app.get('/', (_request: Request, response: Response) => {
 })
 
 export function start() {
-  app.listen(port, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Listening at http://localhost:${port}/`)
+  store.reset().then(() => {
+    app.listen(port, () => {
+      // eslint-disable-next-line no-console
+      console.log(`Listening at http://localhost:${port}/`)
+    })
   })
 }

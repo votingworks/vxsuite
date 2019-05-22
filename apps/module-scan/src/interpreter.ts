@@ -55,7 +55,7 @@ const scan = (image: Image) => {
   const secondScan = cropAndScan(image, {
     x: width / 5,
     width: width / 5,
-    y: (height * 3) / 4,
+    y: (height * 3) / 4 - 1,
     height: height / 4,
   })
 
