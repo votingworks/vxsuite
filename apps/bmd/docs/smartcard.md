@@ -21,23 +21,38 @@ The short value on the card is always serialized JSON with short field names to
 save space. Every short value must be valid serialized JSON, with at least the
 following fields:
 
-- `t` -- the type of card, e.g. `activation` or `admin`
+- `t` -- the type of card, e.g. `voter` or `pollworker` or `clerk`
 
-## Activation Card
+## Voter
 
-An activation card includes the following additional fields in the short value's
+A voter card includes the following additional fields in the short value's
 serialized JSON:
 
 - `bs` -- the ballot style ID as a string
 - `pr` -- the precinct ID as a string
+- `uz` -- optionally, the Unix timestamp at which a card was used (thus `uz`) to
+  print a ballot. Once this field is set, the card is no longer usable to print
+  another ballot
 
-An activation card does _not_ use the long value on the card.
+A voter card does _not_ use the long value on the card.
 
-## Admin Card
+## Poll Worker
 
-An admin card includes the following additional fields in the short value's
+A poll worker card includes the following additional fields in the short value's
 serialized JSON:
+
+- `h` -- the base64-encoded SHA256 of the election for which this is a valid
+  poll worker card
+
+A poll-worker card does _not_ use the long value on the card.
+
+## Clerk Card
+
+The clerk card is the full administrative card, and contains the following
+fields in the short value.
 
 - `h` -- the base64-encoded SHA256 of the `election.json`
 
-The admin card then includes the `election.json` in the long value of the card.
+The clerk card also includes the serialized `election.json` in the long value of
+the card. This is the value which, when hashed with SHA256, should match `h` in
+both the clerk and poll-worker cards.
