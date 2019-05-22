@@ -73,6 +73,8 @@ const App: React.FC = () => {
             } else {
               setIsWritableCard(false)
             }
+          } else {
+            setIsWritableCard(true)
           }
         })
         .catch(() => {
@@ -127,7 +129,7 @@ const App: React.FC = () => {
             // show some delay here for UI purposes
             window.setTimeout(() => {
               setIsProgrammingCard(false)
-            }, 2000)
+            }, 1000)
           }
         })
         .catch(() => {
