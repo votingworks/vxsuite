@@ -79,39 +79,49 @@ let checkCardInterval = 0
 export class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
 
-  public processCardData = (completeCardData: CompleteCardData) => {
-    const { cardData, longValueExists } = completeCardData
-    if (cardData.t === 'voter') {
-      if (!this.state.election) {
-        return
-      }
-
-      const voterCardData = cardData as VoterCardData
-      const ballotStyle = this.state.election.ballotStyles.find(
-        bs => voterCardData.bs === bs.id
-      )
-      const precinct = this.state.election.precincts.find(
-        pr => pr.id === voterCardData.pr
-      )
-
-      if (ballotStyle && precinct) {
-        const activationData: ActivationData = {
-          ballotStyle,
-          precinct,
-        }
-        this.activateBallot(activationData)
-      }
+  public processVoterCardData = (voterCardData: VoterCardData) => {
+    if (!this.state.election) {
+      return
     }
 
-    if (cardData.t === 'admin') {
-      if (!this.state.election) {
-        if (longValueExists && !this.state.loadingElection) {
+    const ballotStyle = this.state.election.ballotStyles.find(
+      bs => voterCardData.bs === bs.id
+    )
+    const precinct = this.state.election.precincts.find(
+      pr => pr.id === voterCardData.pr
+    )
+
+    if (ballotStyle && precinct) {
+      const activationData: ActivationData = {
+        ballotStyle,
+        precinct,
+      }
+      this.activateBallot(activationData)
+    }
+  }
+
+  public processCardData = (completeCardData: CompleteCardData) => {
+    const { cardData, longValueExists } = completeCardData
+
+    switch (cardData.t) {
+      case 'voter':
+        this.processVoterCardData(cardData as VoterCardData)
+        break
+      case 'pollworker':
+        // poll worker admin screen goes here
+        break
+      case 'clerk':
+        if (
+          !this.state.election &&
+          longValueExists &&
+          !this.state.loadingElection
+        ) {
           this.setState({ loadingElection: true })
           this.fetchElection().then(election => {
             this.setElection(JSON.parse(election.longValue))
           })
         }
-      }
+        break
     }
   }
 

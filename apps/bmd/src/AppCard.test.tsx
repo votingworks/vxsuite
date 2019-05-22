@@ -5,7 +5,12 @@ import { render } from 'react-testing-library'
 import electionSample from './data/electionSample.json'
 
 import Root, { App } from './App'
-import { AdminCardData, Election, VoterCardData } from './config/types'
+import {
+  ClerkCardData,
+  Election,
+  PollworkerCardData,
+  VoterCardData,
+} from './config/types'
 
 const election = electionSample as Election
 
@@ -59,22 +64,36 @@ it(`CardData processing processes card data properly`, () => {
   const app = (ReactDOM.render(<App />, div) as unknown) as App
 
   app.activateBallot = jest.fn()
-  app.fetchElection = jest.fn().mockResolvedValue(election)
+  app.fetchElection = jest
+    .fn()
+    .mockResolvedValue({ longValue: JSON.stringify(election) })
+  app.setElection = jest.fn()
 
-  const adminCardData: AdminCardData = {
+  // pollworker card
+  // TODO: fill in the right tests for this card
+  const pollworkerCardData: PollworkerCardData = {
     h: 'abcdef',
-    t: 'admin',
+    t: 'pollworker',
+  }
+  app.processCardData({
+    cardData: pollworkerCardData,
+    longValueExists: false,
+  })
+
+  const clerkCardData: ClerkCardData = {
+    h: 'abcdef',
+    t: 'clerk',
   }
 
   app.processCardData({
-    cardData: adminCardData,
+    cardData: clerkCardData,
     longValueExists: false,
   })
   expect(app.fetchElection).not.toHaveBeenCalled()
 
   app.state.election = election
   app.processCardData({
-    cardData: adminCardData,
+    cardData: clerkCardData,
     longValueExists: true,
   })
   expect(app.fetchElection).not.toHaveBeenCalled()
@@ -82,14 +101,14 @@ it(`CardData processing processes card data properly`, () => {
   app.state.election = undefined
   app.state.loadingElection = true
   app.processCardData({
-    cardData: adminCardData,
+    cardData: clerkCardData,
     longValueExists: true,
   })
   expect(app.fetchElection).not.toHaveBeenCalled()
 
   app.state.loadingElection = false
   app.processCardData({
-    cardData: adminCardData,
+    cardData: clerkCardData,
     longValueExists: true,
   })
   expect(app.fetchElection).toHaveBeenCalled()
