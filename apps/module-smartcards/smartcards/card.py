@@ -77,7 +77,7 @@ class Card:
         if self.short_value:
             return bytes(self.short_value)
         else:
-            return None
+            return b''
 
     def read_long_value(self):
         full_bytes = self.read_raw_first_chunk()
