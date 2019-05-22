@@ -171,6 +171,13 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
   public showConfirm = () => {
     this.setState({ showConfirmModal: true })
   }
+  public print = () => {
+    this.context.markVoterCardUsed().then((success: boolean) => {
+      if (success) {
+        window.print()
+      }
+    })
+  }
   public render() {
     const {
       ballotStyleId,
@@ -305,7 +312,12 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
           }
           actions={
             <>
-              <Button primary onClick={window.print}>
+              <Button
+                primary
+                onClick={() => {
+                  this.print()
+                }}
+              >
                 Yes, print my ballot.
               </Button>
               <Button onClick={this.hideConfirm}>No, go back.</Button>

@@ -3,6 +3,9 @@ export interface Dictionary<T> {
   [key: string]: T | undefined
 }
 
+// AsyncFunction
+export type AsyncFunction<O> = () => Promise<O>
+
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
@@ -101,6 +104,7 @@ export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
 export interface BallotContextInterface {
   contests: Contests
   readonly election: Election | undefined
+  markVoterCardUsed: AsyncFunction<boolean>
   resetBallot: (path?: string) => void
   activateBallot: (activationData: ActivationData) => void
   updateVote: UpdateVoteFunction
@@ -120,6 +124,7 @@ export interface VoterCardData extends CardData {
   readonly t: 'voter'
   readonly bs: string
   readonly pr: string
+  readonly uz?: number
 }
 export interface PollworkerCardData extends CardData {
   readonly t: 'pollworker'

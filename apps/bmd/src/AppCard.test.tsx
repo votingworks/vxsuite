@@ -16,10 +16,9 @@ const election = electionSample as Election
 
 beforeEach(() => {
   window.localStorage.clear()
-  window.location.href = '/'
 })
 
-it(`App fetches the card data every 1 second`, () => {
+it(`App fetches the card data every 200 ms`, () => {
   fetchMock.resetMocks()
   jest.useFakeTimers()
 
@@ -46,7 +45,7 @@ it(`App fetches the card data every 1 second`, () => {
 
   expect(window.setInterval).toHaveBeenCalledTimes(1)
 
-  jest.advanceTimersByTime(3000)
+  jest.advanceTimersByTime(600)
 
   expect(fetchMock.mock.calls.length).toEqual(3)
   expect(fetchMock.mock.calls).toEqual([

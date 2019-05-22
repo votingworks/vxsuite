@@ -84,6 +84,12 @@ export class App extends React.Component<RouteComponentProps, State> {
       return
     }
 
+    // better UI at some point
+    // don't reuse a card that has been written
+    if (voterCardData.uz) {
+      return
+    }
+
     const ballotStyle = this.state.election.ballotStyles.find(
       bs => voterCardData.bs === bs.id
     )
@@ -118,7 +124,10 @@ export class App extends React.Component<RouteComponentProps, State> {
         ) {
           this.setState({ loadingElection: true })
           this.fetchElection().then(election => {
-            this.setElection(JSON.parse(election.longValue))
+            // setTimeout to prevent tests from going into infinite loops
+            window.setTimeout(() => {
+              this.setElection(JSON.parse(election.longValue))
+            }, 0)
           })
         }
         break
@@ -134,6 +143,13 @@ export class App extends React.Component<RouteComponentProps, State> {
       fetch('/card/read')
         .then(result => result.json())
         .then(resultJSON => {
+          // card was just taken out
+          const { ballotStyleId } = this.getBallotActivation()
+          if (!resultJSON.present && ballotStyleId) {
+            this.resetBallot()
+            return
+          }
+
           if (resultJSON.shortValue) {
             const cardData = JSON.parse(resultJSON.shortValue) as CardData
             this.processCardData({
@@ -146,11 +162,35 @@ export class App extends React.Component<RouteComponentProps, State> {
           // if it's an error, aggressively assume there's no backend and stop hammering
           this.stopPolling()
         })
-    }, 1000)
+    }, 200)
   }
 
   public stopPolling = () => {
     window.clearInterval(checkCardInterval)
+  }
+
+  public markVoterCardUsed = async () => {
+    const { ballotStyleId, precinctId } = this.getBallotActivation()
+
+    const newCardData: VoterCardData = {
+      bs: ballotStyleId,
+      pr: precinctId,
+      t: 'voter',
+      uz: new Date().getTime(),
+    }
+
+    const newCardDataSerialized = JSON.stringify(newCardData)
+
+    await fetch('/card/write', {
+      method: 'post',
+      body: newCardDataSerialized,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const readCheck = await fetch('/card/read')
+    const readCheckObj = await readCheck.json()
+
+    return readCheckObj.shortValue === newCardDataSerialized
   }
 
   public componentDidMount = () => {
@@ -327,6 +367,7 @@ export class App extends React.Component<RouteComponentProps, State> {
               ballotStyleId: this.state.ballotStyleId,
               contests: this.state.contests,
               election,
+              markVoterCardUsed: this.markVoterCardUsed,
               precinctId: this.state.precinctId,
               resetBallot: this.resetBallot,
               setUserSettings: this.setUserSettings,
