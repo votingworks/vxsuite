@@ -8,6 +8,7 @@
 
 const proxy = require('http-proxy-middleware')
 
-module.exports = function(app) {
+module.exports = function (app) {
   app.use(proxy('/card', { target: 'http://localhost:3001/' }))
+  app.use(proxy('/scan', { target: 'http://localhost:3002/' }))
 }

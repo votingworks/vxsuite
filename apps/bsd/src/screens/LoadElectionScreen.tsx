@@ -6,17 +6,17 @@ import Main, { MainChild } from '../components/Main'
 import Screen from '../components/Screen'
 
 interface Props {
-  setElection: SetElection
+  uploadElection: SetElection
 }
 
-const LoadElectionConfigScreen = ({ setElection }: Props) => {
+const LoadElectionConfigScreen = ({ uploadElection }: Props) => {
   const onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 1) {
       const file = acceptedFiles[0]
       const reader = new FileReader()
       reader.onload = () => {
         const result = reader.result as string
-        setElection(JSON.parse(result))
+        uploadElection(JSON.parse(result))
       }
       reader.readAsText(file)
     }

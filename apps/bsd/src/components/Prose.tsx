@@ -23,7 +23,8 @@ const Prose = styled('div')<Props>`
     font-size: 1.25rem;
   }
   & h3,
-  & p {
+  & p,
+  & table {
     margin: ${({ compact }) => (compact ? 0 : '1rem 0')};
     font-size: 1rem;
   }
