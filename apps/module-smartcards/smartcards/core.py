@@ -10,9 +10,38 @@ from .card import CardInterface
 
 app = Flask(__name__)
 
+mock_short_value = os.environ.get("MOCK_SHORT_VALUE", None)
+mock_long_value_file = os.environ.get("MOCK_LONG_VALUE_FILE", None)
+mock_long_value = None
+
+if mock_short_value: # pragma: no cover this is just for mocking
+    mock_short_value = mock_short_value.encode('utf-8')
+
+if mock_long_value_file: # pragma: no cover this is just for mocking
+    f = open(mock_long_value_file, "r")
+    mock_long_value = f.read().encode('utf-8')
+
+def _read():
+    if mock_short_value:
+        return mock_short_value, mock_long_value != None
+    
+    return CardInterface.read()
+
+def _read_long():
+    if mock_long_value:
+        return mock_long_value
+    
+    return CardInterface.read_long()
+
+def _write(content):
+    return CardInterface.write(content)    
+
+def _write_short_and_long(short_value, long_value):
+    return CardInterface.write_short_and_long(short_value, long_value)
+
 @app.route('/card/read')
 def card_read():
-    card_bytes, long_value_exists = CardInterface.read()
+    card_bytes, long_value_exists = _read()
     if card_bytes is None:
         return json.dumps({"present": False})
 
@@ -24,7 +53,7 @@ def card_read():
 
 @app.route('/card/read_long')
 def card_read_long():
-    long_bytes = CardInterface.read_long()
+    long_bytes = _read_long()
     if long_bytes:
         return json.dumps({"longValue": long_bytes.decode('utf-8')})
     else:
@@ -33,14 +62,14 @@ def card_read_long():
 @app.route('/card/write', methods=["POST"])
 def card_write():
     content = request.data
-    rv = CardInterface.write(content)
+    rv = _write(content)
     return json.dumps({"success": rv})
 
 @app.route('/card/write_short_and_long', methods=["POST"])
 def card_write_short_and_long():
     short_value = request.form['short_value']
     long_value = request.form['long_value']
-    rv = CardInterface.write_short_and_long(short_value.encode('utf-8'), long_value.encode('utf-8'))
+    rv = _write_short_and_long(short_value.encode('utf-8'), long_value.encode('utf-8'))
     return json.dumps({"success": rv})
 
 

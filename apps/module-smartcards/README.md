@@ -39,3 +39,11 @@ Make sure you're in the `server/` directory
 pipenv shell
 make run
 ```
+
+## Mock a Smart Card
+
+You can run the service with a mocked smart card as follows:
+
+```
+MOCK_SHORT_VALUE="<short_value_json>" MOCK_LONG_VALUE_FILE="<path_to_file>" make run
+```
