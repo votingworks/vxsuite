@@ -66,15 +66,17 @@ const App: React.FC = () => {
       fetch('/card/read')
         .then(result => result.json())
         .then(resultJSON => {
-          if (resultJSON.shortValue) {
-            if (resultJSON.present) {
+          if (resultJSON.present) {
+            if (resultJSON.shortValue) {
               const cardData = JSON.parse(resultJSON.shortValue) as CardData
               processCardData(cardData, resultJSON.longValueExists)
             } else {
-              setIsWritableCard(false)
+              // happy to overwrite a card with no data on it
+              setIsWritableCard(true)
             }
           } else {
-            setIsWritableCard(true)
+            // can't write if there's no card
+            setIsWritableCard(false)
           }
         })
         .catch(() => {
