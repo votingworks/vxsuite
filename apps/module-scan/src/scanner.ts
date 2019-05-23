@@ -88,7 +88,7 @@ export function doScan() {
       addBatch().then(batchId => {
         // trigger a scan
         exec(
-          `scanimage -d fujitsu --resolution 300 --format=jpeg --batch=${ballotImagesPath}batch-${batchId}-$(date +%Y%m%d_%H%M%S)-ballot-%04d.jpg`,
+          `scanimage -d fujitsu --resolution 300 --format=jpeg --batch=${ballotImagesPath}$(date +%Y%m%d_%H%M%S)-batch-${batchId}-ballot-%04d.jpg`,
           err => {
             if (err) {
               // node couldn't execute the command
