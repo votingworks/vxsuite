@@ -59,6 +59,21 @@ const App: React.FC = () => {
       })
   }
 
+  const unconfigureServer = () => {
+    fetch('/scan/unconfigure', {
+      method: 'post',
+    })
+      .then(r => r.json())
+      .then(response => {
+        if (response.status === 'ok') {
+          setElection(undefined)
+        }
+      })
+      .catch(error => {
+        console.log('failed handleFileInput()', error) // eslint-disable-line no-console
+      })
+  }
+
   const fetchElection = async () => {
     return fetch('/card/read_long')
       .then(r => r.json())
@@ -169,6 +184,7 @@ const App: React.FC = () => {
         </Main>
         <ButtonBar secondary naturalOrder separatePrimaryButton>
           <Brand>VxScanner</Brand>
+          <Button onClick={unconfigureServer}>Factory Reset</Button>
           <Button onClick={zeroData}>Zero</Button>
           <Button onClick={exportResults}>Export</Button>
           <Button disabled={isScanning} primary onClick={scanBatch}>
