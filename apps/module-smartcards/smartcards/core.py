@@ -36,6 +36,13 @@ def card_write():
     rv = CardInterface.write(content)
     return json.dumps({"success": rv})
 
+@app.route('/card/write_short_and_long', methods=["POST"])
+def card_write_short_and_long():
+    short_value = request.form['short_value']
+    long_value = request.form['long_value']
+    rv = CardInterface.write_short_and_long(short_value.encode('utf-8'), long_value.encode('utf-8'))
+    return json.dumps({"success": rv})
+
 
 @app.route('/')
 def index_test(): # pragma: no cover this is just for testing
