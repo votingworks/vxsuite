@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
+import pluralize from 'pluralize'
 
-import { ButtonEventFunction } from '../config/types'
+import { ButtonEventFunction, ScannerStatus } from '../config/types'
 
 import Button from '../components/Button'
 import Prose from '../components/Prose'
@@ -13,8 +14,11 @@ const Table = styled.table`
     border-bottom: 1px solid rgb(194, 200, 203);
     padding: 0.25rem 0.5rem;
     text-align: left;
+    &:first-child {
+      padding-left: 0;
+    }
     &:last-child {
-      text-align: right;
+      padding-right: 0;
     }
   }
   & th {
@@ -27,62 +31,96 @@ const Table = styled.table`
   }
 `
 
-interface Props {
-  programCard: ButtonEventFunction
+interface TableData {
+  narrow?: boolean
+  nowrap?: boolean
 }
 
-const PrecinctsScreen = ({ programCard }: Props) => {
+const TD = styled.td<TableData>`
+  width: ${({ narrow = false }) => (narrow ? '1%' : undefined)};
+  white-space: ${({ nowrap = false }) => (nowrap ? 'nowrap' : undefined)};
+`
+
+const Scanning = styled.em`
+  color: rgb(71, 167, 75);
+`
+
+const shortDateTime = (unixTimestamp: number) => {
+  const d = new Date(unixTimestamp * 1000)
+  return `${d.getFullYear()}-${d.getMonth() +
+    1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
+}
+
+interface Props {
+  invalidateBranch: ButtonEventFunction
+  isScanning: boolean
+  status: ScannerStatus
+}
+
+const PrecinctsScreen = ({ invalidateBranch, isScanning, status }: Props) => {
+  const { batches } = status
+  const batchCount = (batches && batches.length) || 0
+  const ballotCount =
+    batches &&
+    batches.reduce((result: number, b) => {
+      result = result + b.count
+      return result
+    }, 0)
   return (
     <React.Fragment>
       <Prose>
         <h1>Scanned Ballot Batches</h1>
-        <p>1037 ballots scanned in 33 batches.</p>
-        <Table>
-          <thead>
-            <tr>
-              <th>id</th>
-              <th>count</th>
-              <th>start time</th>
-              <th>end time</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1234</td>
-              <td>57</td>
-              <td>10:01am</td>
-              <td>10:07am</td>
-              <td>
-                <Button onClick={programCard} data-id="admin">
-                  Invalidate
-                </Button>
-              </td>
-            </tr>
-            <tr>
-              <td>1234</td>
-              <td>57</td>
-              <td>10:01am</td>
-              <td>10:07am</td>
-              <td>
-                <Button onClick={programCard} data-id="admin">
-                  Invalidate
-                </Button>
-              </td>
-            </tr>
-            <tr>
-              <td>1234</td>
-              <td>57</td>
-              <td>10:01am</td>
-              <td>10:07am</td>
-              <td>
-                <Button onClick={programCard} data-id="admin">
-                  Invalidate
-                </Button>
-              </td>
-            </tr>
-          </tbody>
-        </Table>
+        {batchCount ? (
+          <React.Fragment>
+            <p>
+              A total of{' '}
+              <strong>{pluralize('ballots', ballotCount, true)}</strong> have
+              been scanned in{' '}
+              <strong>{pluralize('batches', batchCount, true)}</strong>.
+            </p>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Batch ID</th>
+                  <th>Ballot Count</th>
+                  <th>Started At</th>
+                  <th>Finished At</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {batches.map(batch => (
+                  <tr key={batch.id}>
+                    <td>{batch.id}</td>
+                    <td>{batch.count}</td>
+                    <TD nowrap>
+                      <small>{shortDateTime(batch.startedAt)}</small>
+                    </TD>
+                    <TD nowrap>
+                      {isScanning ? (
+                        <Scanning>Scanning…</Scanning>
+                      ) : (
+                        <small>{shortDateTime(batch.endedAt)}</small>
+                      )}
+                    </TD>
+                    <TD narrow>
+                      <Button
+                        disabled={isScanning}
+                        onClick={invalidateBranch}
+                        data-id={batch.id}
+                        small
+                      >
+                        Invalidate
+                      </Button>
+                    </TD>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </React.Fragment>
+        ) : (
+          <p>No ballots have been scanned.</p>
+        )}
       </Prose>
     </React.Fragment>
   )

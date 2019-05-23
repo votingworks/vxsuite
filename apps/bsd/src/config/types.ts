@@ -105,3 +105,14 @@ export interface AdminCardData extends CardData {
   readonly t: 'admin'
   readonly h: string
 }
+
+// Scanner Types
+export interface Batch {
+  id: number
+  count: number
+  startedAt: number
+  endedAt: number
+}
+export interface ScannerStatus {
+  batches: Batch[]
+}
