@@ -56,7 +56,6 @@ test('POST /scan/invalidateBatch', done => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
     .then(() => {
-      expect(scanner.doScan).toBeCalled()
       done()
     })
 })
@@ -79,7 +78,10 @@ test('POST /scan/zero', done => {
     .post('/scan/zero')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
-    .then(() => done())
+    .then(() => {
+      expect(scanner.doZero).toBeCalled()
+      done()
+    })
 })
 
 test('POST /scan/unconfigure', done => {
@@ -87,7 +89,10 @@ test('POST /scan/unconfigure', done => {
     .post('/scan/unconfigure')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
-    .then(() => done())
+    .then(() => {
+      expect(scanner.shutdown).toBeCalled()
+      done()
+    })
 })
 
 test('GET /', done => {
