@@ -232,7 +232,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                   <p>
                     {date}
                     <br />
-                    {county}, {state}
+                    {county.name}, {state}
                   </p>
                 </Prose>
                 <QRCodeContainer>

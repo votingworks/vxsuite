@@ -22,10 +22,10 @@ const StartPage = () => {
         <Seal dangerouslySetInnerHTML={{ __html: seal }} />
         <Prose textCenter>
           <h1 aria-label={`${title}.`}>{title}</h1>
-          <p aria-label={`${date}. ${county}, ${state}.`}>
+          <p aria-label={`${date}. ${county.name}, ${state}.`}>
             {date}
             <br />
-            {county}, {state}
+            {county.name}, {state}
             <br />
             Ballot Style {ballotStyleId}
             <br />

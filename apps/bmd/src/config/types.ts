@@ -71,13 +71,18 @@ export interface District {
   readonly id: string
   readonly name: string
 }
+export interface County {
+  readonly id: string
+  readonly name: string
+}
+
 export interface Election {
   readonly ballotStyles: BallotStyle[]
+  readonly county: County
   readonly parties: Parties
   readonly precincts: Precinct[]
   readonly districts: District[]
   readonly contests: Contests
-  readonly county: string
   readonly date: string
   readonly seal: string
   readonly state: string
