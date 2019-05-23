@@ -208,6 +208,7 @@ it(`basic end-to-end flow`, async () => {
   })
 
   // Review and Cast Instructions
+  await sleep(100)
   getByText('Verify and Cast Your Ballot')
 
   // ===========================================================================

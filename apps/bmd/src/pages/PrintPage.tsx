@@ -163,7 +163,9 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
     window.removeEventListener('afterprint', this.resetBallot)
   }
   public resetBallot = () => {
-    this.context.resetBallot('/cast')
+    window.setTimeout(() => {
+      this.context.resetBallot('/cast')
+    }, 0)
   }
   public hideConfirm = () => {
     this.setState({ showConfirmModal: false })
