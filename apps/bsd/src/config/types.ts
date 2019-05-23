@@ -92,7 +92,7 @@ export interface ActivationData {
 }
 
 // Smart Card Content
-export type CardDataTypes = 'voter' | 'admin'
+export type CardDataTypes = 'voter' | 'pollworker' | 'clerk'
 export interface CardData {
   readonly t: CardDataTypes
 }
@@ -100,9 +100,14 @@ export interface VoterCardData extends CardData {
   readonly t: 'voter'
   readonly bs: string
   readonly pr: string
+  readonly uz?: number
 }
-export interface AdminCardData extends CardData {
-  readonly t: 'admin'
+export interface PollworkerCardData extends CardData {
+  readonly t: 'pollworker'
+  readonly h: string
+}
+export interface ClerkCardData extends CardData {
+  readonly t: 'clerk'
   readonly h: string
 }
 

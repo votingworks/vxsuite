@@ -66,7 +66,7 @@ const App: React.FC = () => {
   }
 
   const processCardData = (cardData: CardData, longValueExists: boolean) => {
-    if (cardData.t === 'admin') {
+    if (cardData.t === 'clerk') {
       if (!election) {
         if (longValueExists && !loadingElection) {
           loadingElection = true
@@ -74,13 +74,14 @@ const App: React.FC = () => {
             setElection(election)
             configureServer(election)
             loadingElection = false
+            window.clearInterval(checkCardInterval)
           })
         }
       }
     }
   }
 
-  if (!checkCardInterval) {
+  if (!checkCardInterval && !election) {
     checkCardInterval = window.setInterval(() => {
       fetch('/card/read')
         .then(r => r.json())
