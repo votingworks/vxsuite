@@ -163,6 +163,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
     window.removeEventListener('afterprint', this.resetBallot)
   }
   public resetBallot = () => {
+    // setTimeout to prevent a React infinite recursion issue
     window.setTimeout(() => {
       this.context.resetBallot('/cast')
     }, 0)

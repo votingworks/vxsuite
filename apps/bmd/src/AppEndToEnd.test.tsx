@@ -208,6 +208,7 @@ it(`basic end-to-end flow`, async () => {
   })
 
   // Review and Cast Instructions
+  // wait a little bit because the page transition is behind a setTimeout
   await sleep(100)
   getByText('Verify and Cast Your Ballot')
 
