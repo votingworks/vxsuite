@@ -74,8 +74,8 @@ export async function reset() {
   )
 }
 
-export function addBatch() {
-  const result = new Promise(function(resolve, reject) {
+export async function addBatch() {
+  const result = new Promise<number>(function(resolve, reject) {
     db.run(
       "insert into batches (startedAt) values (strftime('%s','now'))",
       err => {
@@ -86,7 +86,7 @@ export function addBatch() {
             if (err) {
               reject(err)
             } else {
-              resolve(row.row_id)
+              resolve(parseInt(row.row_id))
             }
           })
         }
@@ -119,7 +119,7 @@ export function countCVRs() {
 
 export async function batchStatus() {
   const sql =
-    'select batches.id as id, startedAt, endedAt, count(*) as count from CVRs, batches where CVRS.batch_id = batches.id group by batches.id, batches.startedAt, batches.endedAt'
+    'select batches.id as id, startedAt, endedAt, count(*) as count from CVRs, batches where CVRS.batch_id = batches.id group by batches.id, batches.startedAt, batches.endedAt order by batches.startedAt desc'
   return dbAllAsync(db, sql)
 }
 

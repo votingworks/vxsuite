@@ -85,7 +85,7 @@ export function doScan() {
     if (!election) {
       reject(new Error('no election configuration'))
     } else {
-      addBatch().then(batchId => {
+      addBatch().then((batchId: number) => {
         // trigger a scan
         exec(
           `scanimage -d fujitsu --resolution 300 --format=jpeg --batch=${ballotImagesPath}$(date +%Y%m%d_%H%M%S)-batch-${batchId}-ballot-%04d.jpg`,
@@ -96,7 +96,9 @@ export function doScan() {
             }
 
             // mark the batch done in a few seconds
-            setTimeout(finishBatch, 5000)
+            setTimeout(() => {
+              finishBatch(batchId)
+            }, 5000)
             resolve()
           }
         )
