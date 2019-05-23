@@ -1,5 +1,8 @@
 {
-  "county": "Oktibbeha County", 
+  "county": {
+    "id": "53",
+    "name": "County of ?"
+  },
   "districts": [
     {
       "id": "100000275", 

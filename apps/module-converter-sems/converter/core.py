@@ -107,7 +107,6 @@ def results_process():
             return json.dumps({"status": "not all files are ready to process"})
 
     sems_result = SEMSoutput.process_results_file(
-        "53",
         find_by_name(RESULTS_FILES['inputFiles'], 'Vx Election Definition')['path'],
         find_by_name(RESULTS_FILES['inputFiles'], 'Vx CVRs')['path']
     )

@@ -10,6 +10,8 @@ pytest-cov = "*"
 
 [packages]
 flask = "*"
+pytes = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.7"

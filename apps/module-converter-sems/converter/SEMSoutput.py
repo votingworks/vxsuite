@@ -64,12 +64,14 @@ CANDIDATE_FIELDS = ["county_id", "contest_id", "candidate_id"]
 CONTEST_PRECINCTS_FIELDS = ["contest_id", "precinct_id"]
 
 
-def process_results_file(county_id, election_file_path, vx_results_file_path):
+def process_results_file(election_file_path, vx_results_file_path):
     election = json.loads(open(election_file_path,"r").read())
     contests = election["contests"]
     ballot_styles = election["ballotStyles"]
     precincts = election["precincts"]
     parties = election["parties"] + [NOPARTY_PARTY]
+
+    county_id = election["county"]["id"]
 
     cvrs_file = open(vx_results_file_path, "r")
     
