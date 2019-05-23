@@ -21,6 +21,7 @@ let checkCardInterval = 0
 // I want to use a hook for these, but it's not reacting quickly enough
 // in the loop to prevent multiple loads of the long value.
 let loadingElection = false
+let electionLoaded = false
 
 const App: React.FC = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
@@ -29,6 +30,8 @@ const App: React.FC = () => {
     'election'
   )
   const [precinctId, setPrecinctId] = useState('')
+
+  electionLoaded = !!election
 
   const fetchElection = async () => {
     return fetch('/card/read_long')
@@ -45,11 +48,14 @@ const App: React.FC = () => {
       case 'pollworker':
         break
       case 'clerk':
-        if (!election && longValueExists && !loadingElection) {
+        // TODO: understand why election here is not updating,
+        // thus why we have to use electionLoaded
+        if (!electionLoaded && longValueExists && !loadingElection) {
           loadingElection = true
           fetchElection().then(election => {
             setElection(election)
             loadingElection = false
+            electionLoaded = true
           })
         }
         break
