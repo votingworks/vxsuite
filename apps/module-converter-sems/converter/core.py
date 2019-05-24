@@ -133,6 +133,11 @@ def results_output():
     else:
         return "", 404
 
+@app.route('/convert/reset', methods=["POST"])
+def convert_reset():
+    reset()
+    return json.dumps({"status": "ok"})
+
 @app.route('/')
 def index_test(): # pragma: no cover this is just for testing
     return send_from_directory(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'), 'index.html')

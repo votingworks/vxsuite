@@ -61,6 +61,8 @@ First, some API calls to work with election definitions:
 
 * `GET /convert/election/output?name=<name>` download the election.json file from `outputFiles`.
 
+* `POST /convert/reset` resets input and output file paths.
+
 
 Next, we do results
 
@@ -83,3 +85,5 @@ Next, we do results
 * `POST /convert/results/process` converts Vx CVRs to a SEMS result file
 
 * `GET /convert/results/output?name=<name>` download the result file indicated by the name picked from the `results/filelist`
+
+* `POST /convert/reset` resets input and output file paths.
