@@ -12,14 +12,26 @@ const Seal = styled.div`
   max-width: 320px;
 `
 
+const SealImage = styled.img`
+  max-width: 320px;
+`
+
 const StartPage = () => {
   const { ballotStyleId, election, precinctId } = useContext(BallotContext)
-  const { title, state, county, date, seal } = election!
+  const { title, state, county, date, seal, sealURL } = election!
 
   return (
     <Main>
       <MainChild center>
-        <Seal aria-hidden="true" dangerouslySetInnerHTML={{ __html: seal }} />
+        {seal ? (
+          <Seal aria-hidden="true" dangerouslySetInnerHTML={{ __html: seal }} />
+        ) : sealURL ? (
+          <Seal aria-hidden="true">
+            <SealImage alt="" src={sealURL} />
+          </Seal>
+        ) : (
+          <React.Fragment />
+        )}
         <Prose textCenter>
           <h1 aria-label={`${title}.`}>{title}</h1>
           <p aria-hidden="true">

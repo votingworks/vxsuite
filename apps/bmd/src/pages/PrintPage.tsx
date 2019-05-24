@@ -50,6 +50,11 @@ const Header = styled.div`
     max-width: 100%;
   }
 `
+
+const SealImage = styled.img`
+  max-width: 1in;
+`
+
 const QRCodeContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -188,7 +193,16 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
     const {
       ballotStyleId,
       contests,
-      election: { seal, parties, title, county, state, date, bmdConfig },
+      election: {
+        seal,
+        sealURL,
+        parties,
+        title,
+        county,
+        state,
+        date,
+        bmdConfig,
+      },
       precinctId,
       votes,
     } = this.context
@@ -267,11 +281,19 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
         />
         <div aria-hidden="true" className="print-only">
           <Header>
-            <div
-              className="seal"
-              // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
-              dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
-            />
+            {seal ? (
+              <div
+                className="seal"
+                // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
+                dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+              />
+            ) : sealURL ? (
+              <div className="seal">
+                <SealImage src={sealURL} alt="" />
+              </div>
+            ) : (
+              <React.Fragment />
+            )}
             <Prose className="ballot-header-content">
               <h2>Official Ballot</h2>
               <h3>{title}</h3>

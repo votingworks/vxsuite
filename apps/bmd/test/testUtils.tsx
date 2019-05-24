@@ -5,7 +5,10 @@ import { render as testRender } from 'react-testing-library'
 
 import GLOBALS from '../src/config/globals'
 
-import electionSample from '../src/data/electionSample.json'
+// it's necessary to use the no-seal version, which has neither
+// of the two optional seal fields, because otherwise
+// typescript concludes that sealURL is required.
+import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
 import { Contests, Election, TextSizeSetting } from '../src/config/types'
 
@@ -18,9 +21,9 @@ export function render(
     route = '/',
     activateBallot = jest.fn(),
     ballotStyleId = '',
-    contests = electionSample.contests as Contests,
+    contests = electionSampleNoSeal.contests as Contests,
     markVoterCardUsed = jest.fn(),
-    election = electionSample,
+    election = electionSampleNoSeal,
     history = createMemoryHistory({ initialEntries: [route] }),
     precinctId = '',
     resetBallot = jest.fn(),

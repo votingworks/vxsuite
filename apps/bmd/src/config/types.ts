@@ -84,7 +84,8 @@ export interface Election {
   readonly districts: District[]
   readonly contests: Contests
   readonly date: string
-  readonly seal: string
+  readonly seal?: string
+  readonly sealURL?: string
   readonly state: string
   readonly title: string
   readonly bmdConfig?: BMDConfig

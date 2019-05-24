@@ -6,6 +6,8 @@ import { CandidateContest } from '../config/types'
 import { render } from '../../test/testUtils'
 
 import electionSample from '../data/electionSample.json'
+import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
+import electionSampleNoSeal from '../data/electionSampleNoSeal.json'
 
 import PrintPage from './PrintPage'
 
@@ -22,7 +24,7 @@ const contest0candidate0 = contest0.candidates[0]
 const contest1candidate0 = contest1.candidates[0]
 
 it(`renders PrintPage without votes`, () => {
-  const { container } = render(<Route path="/review" component={PrintPage} />, {
+  const { container } = render(<Route path="/print" component={PrintPage} />, {
     route: '/print',
   })
   expect(container.firstChild).toMatchSnapshot()
@@ -39,6 +41,22 @@ it(`renders PrintPage with votes`, () => {
       'question-b': 'yes',
       senator: [contest1candidate0],
     },
+  })
+  expect(container.firstChild).toMatchSnapshot()
+})
+
+it(`renders PrintPage without votes and inline seal`, () => {
+  const { container } = render(<Route path="/print" component={PrintPage} />, {
+    election: electionSampleWithSeal,
+    route: '/print',
+  })
+  expect(container.firstChild).toMatchSnapshot()
+})
+
+it(`renders PrintPage without votes and no seal`, () => {
+  const { container } = render(<Route path="/print" component={PrintPage} />, {
+    election: electionSampleNoSeal,
+    route: '/print',
   })
   expect(container.firstChild).toMatchSnapshot()
 })
