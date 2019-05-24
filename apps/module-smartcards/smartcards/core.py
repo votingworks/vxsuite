@@ -33,8 +33,8 @@ def _read_long():
     
     return CardInterface.read_long()
 
-def _write(content):
-    return CardInterface.write(content)    
+def _write(content, write_protect=False):
+    return CardInterface.write(content, write_protect)
 
 def _write_short_and_long(short_value, long_value):
     return CardInterface.write_short_and_long(short_value, long_value)
@@ -63,6 +63,12 @@ def card_read_long():
 def card_write():
     content = request.data
     rv = _write(content)
+    return json.dumps({"success": rv})
+
+@app.route('/card/write_and_protect', methods=["POST"])
+def card_write_and_protect():
+    content = request.data
+    rv = _write(content, write_protect=True)
     return json.dumps({"success": rv})
 
 @app.route('/card/write_short_and_long', methods=["POST"])

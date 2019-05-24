@@ -64,6 +64,12 @@ def test_card_write(MockCardInterfaceWrite, client):
     rv = json.loads(client.post("/card/write",data=json.dumps({"code":"test"}),content_type='application/json').data)
     assert rv['success']
 
+@patch('smartcards.card.CardInterface.write', return_value=True)
+def test_card_write_and_protect(MockCardInterfaceWrite, client):
+    rv = json.loads(client.post("/card/write_and_protect",data=json.dumps({"code":"test"}),content_type='application/json').data)
+    MockCardInterfaceWrite.assert_called_with(json.dumps({"code":"test"}).encode('utf-8'), True)
+    assert rv['success']
+    
 @patch('smartcards.card.CardInterface.write_short_and_long', return_value=True)
 def test_card_write_short_and_long(MockCardInterfaceWrite, client):
     data = {"short_value": "blah blah", "long_value": "blue blue"}
