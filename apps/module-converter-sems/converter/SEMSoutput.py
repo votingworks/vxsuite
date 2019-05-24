@@ -159,8 +159,10 @@ def process_results_file(election_file_path, vx_results_file_path):
                     continue
                 
                 for answer in answers:
-                    # TODO: write-ins
-                    add_entry(precinct_id, contest["id"], answer)
+                    if answer == 'writein':
+                        add_entry(precinct_id, contest["id"], WRITEIN_CANDIDATE["id"])
+                    else:
+                        add_entry(precinct_id, contest["id"], answer)
 
     # now it's all in in-memory sqlite
     sems_sql = """
