@@ -75,7 +75,10 @@ export function configure(newElection: Election) {
   // start watching the ballots
   watcher = chokidar.watch(ballotImagesPath, {
     persistent: true,
-    awaitWriteFinish: true,
+    awaitWriteFinish: {
+      stabilityThreshold: 1000,
+      pollInterval: 100,
+    },
   })
   watcher.on('add', fileAdded)
 }

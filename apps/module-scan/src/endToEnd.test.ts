@@ -10,12 +10,6 @@ import {
   sampleBallotImagesPath,
 } from './scanner'
 
-const expectedOutcomeRaw =
-  '{"102":"","president":["barchi-hallaren"],"senator":["hewetson"],"representative-district-6":["reeder"],"governor":["steelloy"],"lieutenant-governor":["davis"],"secretary-of-state":["talarico"],"state-senator-district-31":["shiplett"],"state-assembly-district-54":["keller"],"county-commissioners":["savoy","bainbridge","witherspoonsmithson"],"county-registrar-of-wills":["ramachandrani"],"city-mayor":["seldon"],"city-council":["rupp"],"judicial-robert-demergue":"","judicial-elmer-hull":"","question-a":"","question-b":"","question-c":"","proposition-1":"","measure-101":"","_precinctId":"23"}\n{"102":"","president":["boone-lian"],"senator":["wentworthfarthington"],"representative-district-6":["reeder"],"governor":["harris"],"lieutenant-governor":"","secretary-of-state":"","state-senator-district-31":"","state-assembly-district-54":"","county-commissioners":"","county-registrar-of-wills":"","city-mayor":"","city-council":"","judicial-robert-demergue":"","judicial-elmer-hull":"","question-a":"","question-b":"","question-c":"","proposition-1":"","measure-101":"","_precinctId":"23"}'
-
-// @ts-ignore
-const expectedOutcome = expectedOutcomeRaw.split('\n').map(JSON.parse)
-
 const emptyDir = function(dirPath: string) {
   const files = fs.readdirSync(dirPath)
   for (const file of files) {
@@ -66,7 +60,7 @@ test('going through the whole process works', async done => {
   }
 
   // wait for the processing (takes more than 2 seconds cause chokidar)
-  await new Promise(resolve => setTimeout(resolve, 3000))
+  await new Promise(resolve => setTimeout(resolve, 2000))
 
   // check the status
   const status = await request(app)
@@ -86,7 +80,13 @@ test('going through the whole process works', async done => {
   // to expected outcome as a string directly.
   // @ts-ignore
   const CVRs = exportResponse.text.split('\n').map(JSON.parse)
-  expect(CVRs.length).toBe(expectedOutcome.length)
+  const serialNumbers = CVRs.map(
+    (cvr: { _serialNumber: string }) => cvr._serialNumber
+  )
+  serialNumbers.sort()
+  expect(JSON.stringify(serialNumbers)).toBe(
+    JSON.stringify(['85lnPkvfNEytP3Z8gMoEcA', 'r6UYR4t7hEFMz8QlMWf1Sw'])
+  )
 
   // clean up
   request(app)

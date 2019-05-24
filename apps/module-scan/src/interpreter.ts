@@ -42,8 +42,8 @@ const scan = (image: Image) => {
   const [width, height] = image.sizes
 
   const firstScan = cropAndScan(image, {
-    x: (width * 3) / 5,
-    width: width / 5,
+    x: width / 2,
+    width: width / 4,
     y: 0,
     height: height / 4,
   })
@@ -53,8 +53,8 @@ const scan = (image: Image) => {
   }
 
   const secondScan = cropAndScan(image, {
-    x: width / 5,
-    width: width / 5,
+    x: width / 4,
+    width: width / 4,
     y: (height * 3) / 4 - 1,
     height: height / 4,
   })
@@ -82,7 +82,12 @@ export default function interpretFile(
     }
 
     const qrData: string = scanResult.data
-    const [ballotStyleId, precinctId, allSelections] = qrData.split('.')
+    const [
+      ballotStyleId,
+      precinctId,
+      allSelections,
+      serialNumber,
+    ] = qrData.split('.')
 
     // figure out the contests
     const ballotStyle = election.ballotStyles.find(
@@ -102,7 +107,7 @@ export default function interpretFile(
     // prepare the CVR
     let cvr: CastVoteRecord = {}
 
-    const allSelectionsList = allSelections.split('/')
+    const allSelectionsList = allSelections.split('|')
     contests.forEach((contest: Contest, contestNum: number) => {
       // no answer for a particular contest is recorded in our final dictionary as an empty string
       // not the same thing as undefined.
@@ -114,9 +119,11 @@ export default function interpretFile(
           // selections for this question
           const selections = allSelectionsList[contestNum].split(',')
           if (selections.length > 1 || selections[0] !== '') {
-            cvr[contest.id] = selections.map(
-              selection =>
-                (contest as CandidateContest).candidates[parseInt(selection)].id
+            cvr[contest.id] = selections.map(selection =>
+              selection === 'W'
+                ? 'writein'
+                : (contest as CandidateContest).candidates[parseInt(selection)]
+                    .id
             )
           } else {
             cvr[contest.id] = ''
@@ -126,6 +133,7 @@ export default function interpretFile(
     })
 
     cvr['_precinctId'] = precinctId
+    cvr['_serialNumber'] = serialNumber
 
     cvrCallback(ballotImagePath, cvr)
   })
