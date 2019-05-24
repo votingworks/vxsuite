@@ -29,6 +29,7 @@ const App: React.FC = () => {
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
   )
+  const unsetElection = () => setElection(undefined)
   const [precinctId, setPrecinctId] = useState('')
 
   electionLoaded = !!election
@@ -188,11 +189,12 @@ const App: React.FC = () => {
             </MainChild>
           )}
         </Main>
-        <ButtonBar secondary separatePrimaryButton>
-          <Button disabled={!precinctId || isProgrammingCard} onClick={reset}>
-            Reset
-          </Button>
+        <ButtonBar secondary naturalOrder separatePrimaryButton>
           <Brand>VxEncode</Brand>
+          <Button onClick={unsetElection}>Factory Reset</Button>
+          <Button disabled={!precinctId || isProgrammingCard} onClick={reset}>
+            Precincts
+          </Button>
         </ButtonBar>
       </Screen>
     )
