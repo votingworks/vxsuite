@@ -13,8 +13,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "tsc && lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+      "pre-commit": "tsc && lint-staged"
     }
   },
   "lint-staged": {
@@ -65,8 +64,6 @@
     "typescript": "3.4.5"
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.5.2",
-    "@commitlint/config-conventional": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^1.7.0",
     "@typescript-eslint/parser": "^1.7.0",
     "eslint": "^5.16.0",
