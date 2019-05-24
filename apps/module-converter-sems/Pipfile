@@ -10,7 +10,6 @@ pytest-cov = "*"
 
 [packages]
 flask = "*"
-pytes = "*"
 pytest = "*"
 
 [requires]
