@@ -14,6 +14,7 @@ election_json_bytes = json.dumps(election).encode('utf-8')
 short_value = json.dumps({'t':'clerk', 'h': hashlib.sha256(election_json_bytes).hexdigest()})
 
 print(CardInterface.card)
+CardInterface.override_protection()
 CardInterface.write_short_and_long(short_value.encode('utf-8'), election_json_bytes)
 
 print("done")

@@ -9,16 +9,21 @@ import pytest, json, os
 
 # data on card mocked
 CONTENT_BYTES = b'hello1234'
-CARD_BYTES = b'VX.'+bytes([0x00,0x01])+bytes([len(CONTENT_BYTES), 0x00, 0x00]) + CONTENT_BYTES
+CARD_BYTES = b'VX.'+bytes([0x01])+bytes([0x00])+bytes([len(CONTENT_BYTES), 0x00, 0x00]) + CONTENT_BYTES
+
+# copy and modify one byte for write-protected
+write_protected_card_bytearray = bytearray(CARD_BYTES)
+write_protected_card_bytearray[4] = 0x01
+WRITE_PROTECTED_CARD_BYTES = bytes(write_protected_card_bytearray)
 
 class MockCard(Card):
     CHUNK_SIZE = 250
     MAX_LENGTH = 32000
     ATR = [0xde,0xad,0xbe,0xef]
     
-    def __init__(self):
+    def __init__(self, initial_chunks=None):
+        self.chunks = initial_chunks or {}
         super().__init__(None, None)
-        self.chunks = {}
 
     def read_chunk(self, chunk_number):
         if chunk_number in self.chunks:
@@ -52,7 +57,7 @@ def test_write_no_card():
     
 def test_read():
     vxco = VXCardObserver()
-    vxco.card = Card4442(Mock(), Mock())
+    vxco.card = MockCard()
 
     vxco.card.read_chunk = Mock(return_value=CARD_BYTES)
 
@@ -65,7 +70,7 @@ def test_read():
 
 def test_read_bad_data_on_card():
     vxco = VXCardObserver()
-    vxco.card = Card4442(Mock(), Mock())
+    vxco.card = MockCard()
 
     vxco.card.read_chunk = Mock(return_value = b'X' + CARD_BYTES)
 
@@ -79,7 +84,7 @@ def test_read_bad_data_on_card():
     
 def test_write():
     vxco = VXCardObserver()
-    vxco.card = Card4442(Mock(), Mock())
+    vxco.card = MockCard()
 
     vxco.card.write_chunk = Mock()
     vxco.card.read_chunk = Mock(return_value=CARD_BYTES)
@@ -89,6 +94,21 @@ def test_write():
     vxco.card.write_chunk.assert_called_with(0, CARD_BYTES)
     vxco.card.read_chunk.assert_called()
     assert rv
+
+def test_write_card_protected():
+    vxco = VXCardObserver()
+    vxco.card = MockCard(initial_chunks = {0: WRITE_PROTECTED_CARD_BYTES})
+
+    vxco.card.write_chunk = Mock()
+    
+    rv = vxco.write(CONTENT_BYTES)
+    rv = vxco.write_short_and_long(CONTENT_BYTES, CONTENT_BYTES)
+
+    vxco.card.write_chunk.assert_not_called()
+
+    vxco.override_protection()
+    rv = vxco.write(CONTENT_BYTES)
+    vxco.card.write_chunk.assert_called()
 
 def test_card_insert_and_remove():
     for test_atr in [card_type.ATR for card_type in CARD_TYPES]:
@@ -116,8 +136,9 @@ def test_find_by_atr():
 
 def test_card_write_chunk():
     for card_type in CARD_TYPES:
-        c = card_type(Mock(), Mock())
-        c.connection.transmit = Mock(return_value=([], 0x90, 0x00))
+        connection_mock = Mock()
+        connection_mock.transmit = Mock(return_value=([], 0x90, 0x00))        
+        c = card_type(Mock(), connection_mock)
 
         assert c.write_chunk(0, CARD_BYTES)
         c.connection.transmit.assert_called()

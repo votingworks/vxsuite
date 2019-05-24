@@ -14,7 +14,8 @@
 # Data Format on a card is:
 #
 # "VX." - 3 ascii byte identifier
-# <version_number> - 2 bytes
+# <version_number> - 1 byte
+# <write_protection> - 1 byte
 # <short_value_length> - 1 byte
 # <long_value_length> - 2 bytes
 # <short_value> - up to 63 bytes
@@ -24,30 +25,46 @@ from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
 import gzip
 
-VERSION = [0x00, 0x01]
+WRITABLE = [0x00]
+WRITE_PROTECTED = [0x01]
+VERSION = [0x01]
 
 class Card:
     def __init__(self, pyscard_card, pyscard_connection):
         self.card = pyscard_card
         self.connection = pyscard_connection
+        self.write_enabled = True
         self.short_value = None
         self.long_value = None
         self.short_value_length = 0
         self.long_value_length = 0
+        self.read_raw_first_chunk()
 
-    def __initial_bytes(self, short_length, long_length):
-        initial_bytes = b'VX.'+ bytes(VERSION)
+    def __initial_bytes(self, writable, short_length, long_length):
+        initial_bytes = b'VX.'+ bytes(VERSION) + bytes(writable)
         initial_bytes += bytes([short_length]) + long_length.to_bytes(2,'big')
         return initial_bytes
 
+    # clear the card fully, including of any write protection
+    def override_protection(self):
+        self.write_enabled=True
+        
     def write_short_value(self, short_value_bytes):
-        full_bytes = self.__initial_bytes(len(short_value_bytes), 0)
+        if not self.write_enabled:
+            return
+        
+        full_bytes = self.__initial_bytes(WRITABLE, len(short_value_bytes), 0)
         full_bytes += short_value_bytes
         self.write_chunk(0, full_bytes)
 
     def write_short_and_long_values(self, short_value_bytes, long_value_bytes):
+        if not self.write_enabled:
+            return
+
         long_value_compressed = gzip.compress(long_value_bytes)
-        full_bytes = self.__initial_bytes(len(short_value_bytes), len(long_value_compressed))
+
+        # by default, we write protect the cards with short-and-long values
+        full_bytes = self.__initial_bytes(WRITE_PROTECTED, len(short_value_bytes), len(long_value_compressed))
         full_bytes += short_value_bytes
         full_bytes += long_value_compressed
 
@@ -63,9 +80,10 @@ class Card:
         data = self.read_chunk(0)
 
         # the right card by prefix?
-        if bytes(data[:5]) != b'VX.' + bytes(VERSION):
+        if bytes(data[:4]) != b'VX.' + bytes(VERSION):
             return None
 
+        self.write_enabled = (data[4] == WRITABLE)
         self.short_value_length = data[5]
         self.long_value_length = data[6]*256 + data[7]
         self.short_value = bytes(data[8:8+self.short_value_length])
@@ -194,6 +212,10 @@ class VXCardObserver(CardObserver):
         cardmonitor = CardMonitor()
         cardmonitor.addObserver(self)
 
+    def override_protection(self):
+        if self.card:
+            self.card.override_protection()
+            
     def read(self):
         if self.card:
             second_value = None
