@@ -16,11 +16,7 @@ export default function encodeVotes(contests: Contests, votes: VotesDict) {
       }
 
       if (contest.type === 'yesno') {
-        if (contestVote === 'yes') {
-          return '1'
-        } else {
-          return '0'
-        }
+        return contestVote === 'yes' ? '1' : '0'
       }
 
       const candidateIDs = (contest as CandidateContest).candidates.map(

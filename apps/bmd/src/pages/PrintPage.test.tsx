@@ -9,7 +9,7 @@ import electionSample from '../data/electionSample.json'
 
 import PrintPage from './PrintPage'
 
-import randomBase64 from '../utils/random'
+import { randomBase64 } from '../utils/random'
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random')

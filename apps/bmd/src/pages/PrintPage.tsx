@@ -3,8 +3,8 @@ import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 import QRCode from '../components/QRCode'
 import { findPartyById } from '../utils/find'
-import randomBase64 from '../utils/random'
-import encodeVotes from '../votecoding'
+import { randomBase64 } from '../utils/random'
+import encodeVotes from '../encodeVotes'
 
 import {
   Candidate,

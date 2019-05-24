@@ -1,6 +1,6 @@
 import { Election, VotesDict } from './config/types'
 
-import encodeVotes from './votecoding'
+import encodeVotes from './encodeVotes'
 
 import electionSample from './data/electionSample.json'
 
