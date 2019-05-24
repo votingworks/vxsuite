@@ -75,6 +75,7 @@ interface CompleteCardData {
 }
 
 let checkCardInterval = 0
+let cardReaderAttached = true
 
 export class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
@@ -161,6 +162,7 @@ export class App extends React.Component<RouteComponentProps, State> {
         .catch(() => {
           // if it's an error, aggressively assume there's no backend and stop hammering
           this.stopPolling()
+          cardReaderAttached = false
         })
     }, 200)
   }
@@ -170,6 +172,13 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public markVoterCardUsed = async () => {
+    // this is a demo with no card reader attached
+    // TODO: limit this to demo elections
+    // https://github.com/votingworks/bmd/issues/390
+    if (!cardReaderAttached) {
+      return true
+    }
+
     const { ballotStyleId, precinctId } = this.getBallotActivation()
 
     const newCardData: VoterCardData = {
