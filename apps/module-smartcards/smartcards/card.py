@@ -49,11 +49,11 @@ class Card:
     def override_protection(self):
         self.write_enabled=True
         
-    def write_short_value(self, short_value_bytes):
+    def write_short_value(self, short_value_bytes, write_protect=False):
         if not self.write_enabled:
             return
         
-        full_bytes = self.__initial_bytes(WRITABLE, len(short_value_bytes), 0)
+        full_bytes = self.__initial_bytes(WRITE_PROTECTED if write_protect else WRITABLE, len(short_value_bytes), 0)
         full_bytes += short_value_bytes
         self.write_chunk(0, full_bytes)
 
@@ -225,11 +225,11 @@ class VXCardObserver(CardObserver):
         else:
             return None, None
 
-    def write(self, data):
+    def write(self, data, write_protect=False):
         if not self.card:
             return False
 
-        self.card.write_short_value(data)
+        self.card.write_short_value(data, write_protect)
         self._read_from_card()
 
         return self.card_value == data

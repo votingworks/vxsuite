@@ -110,6 +110,17 @@ def test_write_card_protected():
     rv = vxco.write(CONTENT_BYTES)
     vxco.card.write_chunk.assert_called()
 
+def test_write_protect_card():
+    vxco = VXCardObserver()
+    vxco.card = MockCard(initial_chunks = {0: CARD_BYTES})
+
+    rv = vxco.write(CONTENT_BYTES, write_protect=True)
+
+    vxco.card.write_chunk = Mock()
+    
+    rv = vxco.write(CONTENT_BYTES, write_protect=True)
+    vxco.card.write_chunk.assert_not_called()
+    
 def test_card_insert_and_remove():
     for test_atr in [card_type.ATR for card_type in CARD_TYPES]:
         vxco = VXCardObserver()
