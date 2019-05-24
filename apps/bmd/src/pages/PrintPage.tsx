@@ -3,6 +3,8 @@ import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 import QRCode from '../components/QRCode'
 import { findPartyById } from '../utils/find'
+import randomBase64 from '../utils/random'
+import encodeVotes from '../votecoding'
 
 import {
   Candidate,
@@ -191,28 +193,9 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
     } = this.context
     const { showHelpPage, showSettingsPage } = bmdConfig
 
-    const encodedVotes: string = (contests as Contests)
-      .map(contest => {
-        if (!votes[contest.id]) {
-          return ''
-        }
+    const encodedVotes: string = encodeVotes(contests, votes)
 
-        if (contest.type === 'yesno') {
-          if (votes[contest.id] === 'yes') {
-            return '1'
-          } else {
-            return '0'
-          }
-        }
-
-        const candidateIDs = (contest as CandidateContest).candidates.map(
-          (c: Candidate) => c.id
-        )
-        return votes[contest.id]
-          .map((c: Candidate) => candidateIDs.indexOf(c.id))
-          .join(',')
-      })
-      .join('/')
+    const serialNumber: string = randomBase64(16)
 
     return (
       <React.Fragment>
@@ -240,7 +223,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                 </Prose>
                 <QRCodeContainer>
                   <QRCode
-                    value={`${ballotStyleId}.${precinctId}.${encodedVotes}`}
+                    value={`${ballotStyleId}.${precinctId}.${encodedVotes}.${serialNumber}`}
                   />
                   <div>
                     <div>
@@ -254,7 +237,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                       </div>
                       <div>
                         <div>Serial Number</div>
-                        <strong>7zA5s434g2sj12</strong>
+                        <strong>{serialNumber}</strong>
                       </div>
                     </div>
                   </div>

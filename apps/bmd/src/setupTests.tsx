@@ -4,6 +4,15 @@ import 'jest-styled-components'
 import 'react-testing-library/cleanup-after-each'
 import JestFetchMock, { FetchMock, GlobalWithFetchMock } from 'jest-fetch-mock'
 
+// window.crypto is defined in the browser, this helps for testing.
+import crypto from 'crypto'
+
+Object.defineProperty(global, 'crypto', {
+  value: {
+    getRandomValues: (arr: number[]) => crypto.randomBytes(arr.length),
+  },
+})
+
 const customGlobal = global as GlobalWithFetchMock
 customGlobal.fetch = JestFetchMock as FetchMock
 customGlobal.fetchMock = customGlobal.fetch
