@@ -133,6 +133,7 @@ exports[`can navigate all ballot pages 1`] = `
             </p>
             <div
               class="c4"
+              data-testid="qrContainer"
             >
               <div
                 class="c5"
