@@ -14,7 +14,8 @@ import Button from './components/Button'
 import ButtonBar from './components/ButtonBar'
 import Main, { MainChild } from './components/Main'
 import Screen from './components/Screen'
-import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
+import useStateWithLocalStorage from './hooks/useStateWithLocalStorage'
+import useInterval from './hooks/useInterval'
 
 import LoadElectionScreen from './screens/LoadElectionScreen'
 import DashboardScreen from './screens/DashboardScreen'
@@ -22,13 +23,11 @@ import DashboardScreen from './screens/DashboardScreen'
 import 'normalize.css'
 import './App.css'
 
-let checkCardInterval = 0
-let checkStatusInterval = 0
-
 let loadingElection = false
 
 const App: React.FC = () => {
-  const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
+  const [cardServerAvailable, setCardServerAvailable] = useState(true)
+  const [election, setElection] = useStateWithLocalStorage<OptionalElection>(
     'election'
   )
   const [status, setStatus] = useState<ScannerStatus>({ batches: [] })
@@ -89,27 +88,24 @@ const App: React.FC = () => {
             setElection(election)
             configureServer(election)
             loadingElection = false
-            window.clearInterval(checkCardInterval)
           })
         }
       }
     }
   }
 
-  if (!checkCardInterval && !election) {
-    checkCardInterval = window.setInterval(() => {
-      fetch('/card/read')
-        .then(r => r.json())
-        .then(card => {
-          if (card.shortValue) {
-            const cardData = JSON.parse(card.shortValue) as CardData
-            processCardData(cardData, card.longValueExists)
-          }
-        })
-        .catch(() => {
-          window.clearInterval(checkCardInterval)
-        })
-    }, 1000)
+  const readCard = () => {
+    fetch('/card/read')
+      .then(r => r.json())
+      .then(card => {
+        if (card.shortValue) {
+          const cardData = JSON.parse(card.shortValue) as CardData
+          processCardData(cardData, card.longValueExists)
+        }
+      })
+      .catch(() => {
+        setCardServerAvailable(false)
+      })
   }
 
   const scanBatch = () => {
@@ -158,15 +154,13 @@ const App: React.FC = () => {
       .then(setStatus)
       .catch(error => {
         console.log('failed updateStatus()', error) // eslint-disable-line no-console
-        window.clearInterval(checkStatusInterval)
       })
   }
 
-  if (!checkStatusInterval) {
-    checkStatusInterval = window.setInterval(() => {
-      updateStatus()
-    }, 1000)
-  }
+  useInterval(() => {
+    election && updateStatus()
+    cardServerAvailable && !election && readCard()
+  }, 1000)
 
   useEffect(updateStatus, [])
 
