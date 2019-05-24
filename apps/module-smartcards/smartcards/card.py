@@ -45,7 +45,8 @@ class Card:
         initial_bytes += bytes([short_length]) + long_length.to_bytes(2,'big')
         return initial_bytes
 
-    # clear the card fully, including of any write protection
+    # override the write protection bit. Typically used
+    # right before a call to write_short_value or write_short_and_long_values
     def override_protection(self):
         self.write_enabled=True
         
