@@ -125,8 +125,6 @@ def results_output():
     the_name = request.args.get('name', None)
     the_entry = find_by_name(RESULTS_FILES['outputFiles'], the_name)
 
-    print(the_entry)
-    print(RESULTS_FILES)
     if the_entry and the_entry['path']:
         return send_file(the_entry['path'])
     else:

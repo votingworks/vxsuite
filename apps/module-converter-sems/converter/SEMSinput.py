@@ -125,7 +125,6 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     # the county ID is in the sems_candidates table (only stable place it appears)
     sql = "select distinct(county_code) from sems_candidates"
     county_id = c.execute(sql).fetchall()[0][0]
-    print("COUNTY IS ", county_id)
 
     # basic info
     sql = "select title, date from election"
