@@ -17,7 +17,7 @@ async function sleep(milliseconds: number) {
   })
 }
 
-it(`quick end-to-end flow`, async () => {
+it(`quick end-to-end flow with absent module-smartcards`, async () => {
   // this is what happens in demo mode
   fetchMock.get('/card/read', 500)
 
