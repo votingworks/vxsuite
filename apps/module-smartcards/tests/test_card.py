@@ -186,3 +186,22 @@ def test_long_value():
     assert test_long_value == long_content
 
     
+def test_short_value_too_long():
+    c = MockCard()
+    c.write_chunk = Mock()
+    short_value = CONTENT_BYTES * 60
+
+    c.write_short_value(short_value)
+
+    c.write_chunk.assert_not_called()
+
+def test_long_value_too_long():
+    c = MockCard()
+    c.write_chunk = Mock()
+    short_value = CONTENT_BYTES
+    long_value = bytes(os.urandom(33000))
+
+    c.write_short_and_long_values(short_value, long_value)
+
+    c.write_chunk.assert_not_called()
+    

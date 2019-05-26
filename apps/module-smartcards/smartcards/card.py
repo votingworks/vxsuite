@@ -53,6 +53,9 @@ class Card:
     def write_short_value(self, short_value_bytes, write_protect=False):
         if not self.write_enabled:
             return
+
+        if len(short_value_bytes) > 250:
+            return
         
         full_bytes = self.__initial_bytes(WRITE_PROTECTED if write_protect else WRITABLE, len(short_value_bytes), 0)
         full_bytes += short_value_bytes
@@ -64,6 +67,9 @@ class Card:
 
         long_value_compressed = gzip.compress(long_value_bytes)
 
+        if len(long_value_compressed) > self.MAX_LENGTH:
+            return
+        
         # by default, we write protect the cards with short-and-long values
         full_bytes = self.__initial_bytes(WRITE_PROTECTED, len(short_value_bytes), len(long_value_compressed))
         full_bytes += short_value_bytes
