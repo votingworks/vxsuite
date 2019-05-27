@@ -16,7 +16,7 @@ const ButtonBar = styled('nav')<Props>`
   border-bottom: 1px solid rgb(169, 169, 169);
   background: ${({ dark = true }) =>
     dark ? '#455a64' : 'rgba(0, 0, 0, 0.05)'};
-  padding: 0.5rem;
+  padding: 0.25rem;
 
   & > *:first-child {
     order: 2;

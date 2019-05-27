@@ -18,6 +18,16 @@ it(`renders danger Button`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
+it(`renders big Button`, () => {
+  const { container } = render(<Button big>I’m a big button!</Button>)
+  expect(container.firstChild).toMatchSnapshot()
+})
+
+it(`renders small Button`, () => {
+  const { container } = render(<Button small>I’m a small button!</Button>)
+  expect(container.firstChild).toMatchSnapshot()
+})
+
 it(`renders DecoyButton`, () => {
   const { container } = render(<DecoyButton>DecoyButton</DecoyButton>)
   expect(container.firstChild).toMatchSnapshot()

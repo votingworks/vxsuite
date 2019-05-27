@@ -44,8 +44,13 @@ it(`gamepad controls work`, () => {
   })
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))
-  // Get Started Page
+
+  // Go to Voting Instructions
   fireEvent.click(getByText('Get Started'))
+
+  // Go to First Contest
+  fireEvent.click(getByText('Start Voting'))
+
   // First Contest Page
   getByText(contest0.title)
 

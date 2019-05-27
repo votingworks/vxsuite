@@ -17,6 +17,7 @@ import {
   YesNoVote,
 } from '../config/types'
 
+import Breadcrumbs from '../components/Breadcrumbs'
 import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
@@ -200,80 +201,24 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
     return (
       <React.Fragment>
         <Main>
-          <MainChild>
-            <Prose className="no-print">
-              <h1 aria-label="Print your ballot.">Print your ballot</h1>
-              <p>Ready to print ballot.</p>
+          <MainChild center>
+            <Breadcrumbs step={3} />
+            <Prose textCenter className="no-print">
+              <h1 aria-label="Print your ballot.">
+                Print your official ballot
+              </h1>
+              <Text narrow>
+                If you have reviewed your selections and you are done voting,
+                you are ready to print your official ballot.
+              </Text>
+              <Button primary big onClick={this.showConfirm}>
+                Print Ballot
+              </Button>
             </Prose>
-            <div aria-hidden="true" className="print-only">
-              <Header>
-                <div
-                  className="seal"
-                  // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
-                  dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
-                />
-                <Prose className="ballot-header-content">
-                  <h2>Official Ballot</h2>
-                  <h3>{title}</h3>
-                  <p>
-                    {date}
-                    <br />
-                    {county.name}, {state}
-                  </p>
-                </Prose>
-                <QRCodeContainer>
-                  <QRCode
-                    value={`${ballotStyleId}.${precinctId}.${encodedVotes}.${serialNumber}`}
-                  />
-                  <div>
-                    <div>
-                      <div>
-                        <div>Ballot Style</div>
-                        <strong>{ballotStyleId}</strong>
-                      </div>
-                      <div>
-                        <div>Precinct Number</div>
-                        <strong>{precinctId}</strong>
-                      </div>
-                      <div>
-                        <div>Serial Number</div>
-                        <strong>{serialNumber}</strong>
-                      </div>
-                    </div>
-                  </div>
-                </QRCodeContainer>
-              </Header>
-              <Content>
-                <BallotSelections>
-                  {(contests as Contests).map(contest => (
-                    <Contest key={contest.id}>
-                      <ContestProse compact>
-                        <h3>{contest.title}</h3>
-                        {contest.type === 'candidate' && (
-                          <CandidateContestResult
-                            contest={contest}
-                            parties={parties}
-                            vote={votes[contest.id] as CandidateVote}
-                          />
-                        )}
-                        {contest.type === 'yesno' && (
-                          <YesNoContestResult
-                            contest={contest}
-                            vote={votes[contest.id] as YesNoVote}
-                          />
-                        )}
-                      </ContestProse>
-                    </Contest>
-                  ))}
-                </BallotSelections>
-              </Content>
-            </div>
           </MainChild>
         </Main>
         <ButtonBar>
-          <Button primary onClick={this.showConfirm}>
-            Print Ballot
-          </Button>
+          <div />
           <LinkButton to="/review" id="previous">
             Back
           </LinkButton>
@@ -310,6 +255,69 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
             </>
           }
         />
+        <div aria-hidden="true" className="print-only">
+          <Header>
+            <div
+              className="seal"
+              // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
+              dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+            />
+            <Prose className="ballot-header-content">
+              <h2>Official Ballot</h2>
+              <h3>{title}</h3>
+              <p>
+                {date}
+                <br />
+                {county.name}, {state}
+              </p>
+            </Prose>
+            <QRCodeContainer>
+              <QRCode
+                value={`${ballotStyleId}.${precinctId}.${encodedVotes}.${serialNumber}`}
+              />
+              <div>
+                <div>
+                  <div>
+                    <div>Ballot Style</div>
+                    <strong>{ballotStyleId}</strong>
+                  </div>
+                  <div>
+                    <div>Precinct Number</div>
+                    <strong>{precinctId}</strong>
+                  </div>
+                  <div>
+                    <div>Serial Number</div>
+                    <strong>{serialNumber}</strong>
+                  </div>
+                </div>
+              </div>
+            </QRCodeContainer>
+          </Header>
+          <Content>
+            <BallotSelections>
+              {(contests as Contests).map(contest => (
+                <Contest key={contest.id}>
+                  <ContestProse compact>
+                    <h3>{contest.title}</h3>
+                    {contest.type === 'candidate' && (
+                      <CandidateContestResult
+                        contest={contest}
+                        parties={parties}
+                        vote={votes[contest.id] as CandidateVote}
+                      />
+                    )}
+                    {contest.type === 'yesno' && (
+                      <YesNoContestResult
+                        contest={contest}
+                        vote={votes[contest.id] as YesNoVote}
+                      />
+                    )}
+                  </ContestProse>
+                </Contest>
+              ))}
+            </BallotSelections>
+          </Content>
+        </div>
       </React.Fragment>
     )
   }

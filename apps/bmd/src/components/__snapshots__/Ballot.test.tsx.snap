@@ -18,11 +18,13 @@ exports[`can navigate all ballot pages 1`] = `
 
 .c1 {
   margin: auto auto;
+  width: 100%;
   max-width: 35rem;
 }
 
 .c3 {
   margin: auto;
+  width: 100%;
   max-width: 66ch;
   text-align: center;
   line-height: 1.2;
@@ -41,7 +43,8 @@ exports[`can navigate all ballot pages 1`] = `
 
 .c3 h3,
 .c3 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 

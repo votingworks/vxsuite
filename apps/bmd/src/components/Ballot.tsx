@@ -13,6 +13,7 @@ import PrintPage from '../pages/PrintPage'
 import ReviewPage from '../pages/ReviewPage'
 import SettingsPage from '../pages/SettingsPage'
 import StartPage from '../pages/StartPage'
+import InstructionsPage from '../pages/InstructionsPage'
 
 const Ballot = () => {
   const { ballotStyleId, contests, election, precinctId } = useContext(
@@ -35,6 +36,7 @@ const Ballot = () => {
       <Route exact path="/activate" component={ActivationPage} />
       <Route path="/cast" component={CastBallotPage} />
       <Route path="/start" exact component={StartPage} />
+      <Route path="/instructions" exact component={InstructionsPage} />
       <Redirect
         exact
         from="/contests"

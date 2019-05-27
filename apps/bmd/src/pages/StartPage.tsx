@@ -32,7 +32,7 @@ const StartPage = () => {
             Precinct {precinctId}
           </p>
           <p>
-            <LinkButton primary to="/contests/">
+            <LinkButton primary to="/instructions/">
               Get Started
             </LinkButton>
           </p>

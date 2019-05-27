@@ -2,6 +2,7 @@
 
 exports[`renders Prose defaults 1`] = `
 .c0 {
+  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -19,7 +20,8 @@ exports[`renders Prose defaults 1`] = `
 
 .c0 h3,
 .c0 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
@@ -88,6 +90,7 @@ exports[`renders Prose defaults 1`] = `
 
 exports[`renders Prose with compact spacing 1`] = `
 .c0 {
+  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -105,7 +108,8 @@ exports[`renders Prose with compact spacing 1`] = `
 
 .c0 h3,
 .c0 p {
-  margin: 0;
+  margin-top: 0;
+  margin-bottom: 0;
   font-size: 1rem;
 }
 
@@ -176,6 +180,7 @@ exports[`renders Prose with compact spacing 1`] = `
 exports[`renders Prose with compact spacing 2`] = `
 .c0 {
   margin: auto;
+  width: 100%;
   max-width: 66ch;
   text-align: center;
   line-height: 1.2;
@@ -194,7 +199,8 @@ exports[`renders Prose with compact spacing 2`] = `
 
 .c0 h3,
 .c0 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 

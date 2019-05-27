@@ -40,8 +40,11 @@ it(`Displays alternate ballot`, async () => {
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))
 
-  // Get Started Page
+  // Go to Voting Instructions
   fireEvent.click(getByText('Get Started'))
+
+  // Go to First Contest
+  fireEvent.click(getByText('Start Voting'))
 
   // Number of questions maps to expected length
   getByText('1 of 11')
