@@ -23,7 +23,7 @@ coverage:
 	python -m pytest --cov=smartcards --cov-report term-missing --cov-fail-under=100 tests/
 
 run:
-	FLASK_APP=smartcards.core pipenv run python -m flask run --port 3001
+	FLASK_APP=smartcards.core python3 -m pipenv run python -m flask run --port 3001
 
 mock:
 	FLASK_APP=smartcards.core MOCK_SHORT_VALUE="{\"t\":\"clerk\",\"h\":\"blah\"}" MOCK_LONG_VALUE_FILE="tests/electionSample.json" pipenv run python -m flask run --port 3001
