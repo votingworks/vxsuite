@@ -6,8 +6,8 @@ This web server component provides a web interface to convert files for Mississi
 
 ```
 sudo add-apt-repository ppa:deadsnakes/ppa
-sudo make install-python
-make install-dependencies
+sudo make install
+make build
 ```
 
 ## Run Tests
@@ -33,7 +33,6 @@ make coverage
 ## Start the Development Server
 
 ```
-pipenv shell
 make run
 ```
 
