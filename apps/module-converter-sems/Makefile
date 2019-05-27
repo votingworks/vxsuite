@@ -20,4 +20,4 @@ coverage:
 	pipenv run python -m pytest --cov=converter --cov-report term-missing --cov-fail-under=100 tests/
 
 run:
-	FLASK_APP=converter.core pipenv run python -m flask run --port 3003
+	FLASK_APP=converter.core python3 -m pipenv run python -m flask run --port 3003
