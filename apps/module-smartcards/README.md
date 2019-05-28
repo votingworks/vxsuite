@@ -44,3 +44,20 @@ You can run the service with a mocked smart card as follows:
 ```
 MOCK_SHORT_VALUE="<short_value_json>" MOCK_LONG_VALUE_FILE="<path_to_file>" make run
 ```
+
+If using the `tests/electionSample.json` file, you may use the following commands:
+
+### Voter
+```
+MOCK_SHORT_VALUE="{\"t\":\"voter\",\"bs\":\"12\",\"pr\":\"23\"}" make run
+```
+
+### Poll Worker
+```
+MOCK_SHORT_VALUE="{\"t\":\"pollworker\",\"h\":\"blah\"}" make run
+```
+
+### Clerk
+```
+MOCK_SHORT_VALUE="{\"t\":\"clerk\",\"h\":\"blah\"}" MOCK_LONG_VALUE_FILE="tests/electionSample.json" make run
+```
