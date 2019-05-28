@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 import { ButtonEvent, CardData, OptionalElection } from './config/types'
 
-import Brand from './components/Brand'
 import Button from './components/Button'
-import ButtonBar from './components/ButtonBar'
 import Main, { MainChild } from './components/Main'
+import MainNav from './components/MainNav'
 import Screen from './components/Screen'
+import Text from './components/Text'
 import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
 
 import PrecinctBallotStylesScreen from './screens/PrecinctBallotStylesScreen'
@@ -18,29 +18,30 @@ import './App.css'
 
 let checkCardInterval = 0
 
-// I want to use a hook for these, but it's not reacting quickly enough
-// in the loop to prevent multiple loads of the long value.
-let loadingElection = false
-let electionLoaded = false
-
 const App: React.FC = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
+  const [isClerkCardPresent, setIsClerkCardPresent] = useState(false)
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
   )
   const unsetElection = () => setElection(undefined)
+  const [isLoadingElection, setIsLoadingElection] = useState(false)
   const [precinctId, setPrecinctId] = useState('')
 
-  electionLoaded = !!election
-
   const fetchElection = async () => {
+    setIsLoadingElection(true)
     return fetch('/card/read_long')
       .then(result => result.json())
       .then(resultJSON => JSON.parse(resultJSON.longValue))
+      .then(election => {
+        setElection(election)
+        setIsLoadingElection(false)
+      })
   }
 
   const processCardData = (cardData: CardData, longValueExists: boolean) => {
+    setIsClerkCardPresent(false)
     let isWritableCard = false
     switch (cardData.t) {
       case 'voter':
@@ -49,15 +50,8 @@ const App: React.FC = () => {
       case 'pollworker':
         break
       case 'clerk':
-        // TODO: understand why election here is not updating,
-        // thus why we have to use electionLoaded
-        if (!electionLoaded && longValueExists && !loadingElection) {
-          loadingElection = true
-          fetchElection().then(election => {
-            setElection(election)
-            loadingElection = false
-            electionLoaded = true
-          })
+        if (longValueExists) {
+          setIsClerkCardPresent(true)
         }
         break
       default:
@@ -164,7 +158,46 @@ const App: React.FC = () => {
     }
   }, [handleUserKeyPress])
 
-  if (election) {
+  if (isClerkCardPresent) {
+    return (
+      <Screen>
+        <Main>
+          <MainChild>
+            <h1>Configuration</h1>
+            {isLoadingElection ? (
+              <p>Loading Election Definition from Clerk Card…</p>
+            ) : (
+              <React.Fragment>
+                <p>
+                  <Text as="span" voteIcon={!!election} warningIcon={!election}>
+                    {election ? (
+                      'Election definition file is loaded.'
+                    ) : (
+                      <span>
+                        Election definition file is <strong>not Loaded</strong>.
+                      </span>
+                    )}
+                  </Text>
+                </p>
+                <p>
+                  {election ? (
+                    <Button onClick={unsetElection}>
+                      Reset Election Definition
+                    </Button>
+                  ) : (
+                    <Button onClick={fetchElection}>
+                      Load Election Definition
+                    </Button>
+                  )}
+                </p>
+              </React.Fragment>
+            )}
+          </MainChild>
+        </Main>
+        <MainNav title="Clerk Actions" />
+      </Screen>
+    )
+  } else if (election) {
     return (
       <Screen>
         <Main>
@@ -189,13 +222,11 @@ const App: React.FC = () => {
             </MainChild>
           )}
         </Main>
-        <ButtonBar secondary naturalOrder separatePrimaryButton>
-          <Brand>VxEncode</Brand>
-          <Button onClick={unsetElection}>Factory Reset</Button>
+        <MainNav>
           <Button disabled={!precinctId || isProgrammingCard} onClick={reset}>
             Precincts
           </Button>
-        </ButtonBar>
+        </MainNav>
       </Screen>
     )
   }

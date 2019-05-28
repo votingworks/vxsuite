@@ -8,6 +8,7 @@ export interface ButtonInterface {
   readonly danger?: boolean
   readonly primary?: boolean
   readonly fullWidth?: boolean
+  readonly small?: boolean
 }
 
 interface Props
@@ -22,9 +23,10 @@ const buttonStyles = css<Props>`
     (danger && 'red') ||
     (primary && 'rgb(71, 167, 75)') ||
     'rgb(211, 211, 211)'};
-  cursor: pointer;
+  cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
-  padding: 0.75rem;
+  padding: ${({ small = false }) =>
+    small ? '0.35rem 0.5rem' : '0.75rem 1rem'};
   line-height: 1;
   white-space: nowrap;
   color: ${({ disabled = false, danger = false, primary = false }) =>
