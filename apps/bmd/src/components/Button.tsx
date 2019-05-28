@@ -8,6 +8,8 @@ export interface ButtonInterface {
   readonly danger?: boolean
   readonly primary?: boolean
   readonly fullWidth?: boolean
+  readonly small?: boolean
+  readonly big?: boolean
 }
 
 interface Props
@@ -22,16 +24,17 @@ const buttonStyles = css<Props>`
     (danger && 'red') ||
     (primary && 'rgb(71, 167, 75)') ||
     'rgb(211, 211, 211)'};
-  cursor: pointer;
+  cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: ${({ big = false, small = false }) =>
+    small ? '0.35rem 0.5rem' : big ? '1rem 1.75rem' : '0.75rem 1rem'};
+  line-height: 1.25;
   color: ${({ disabled = false, danger = false, primary = false }) =>
     (disabled && 'rgb(169, 169, 169)') ||
     (danger && '#FFFFFF') ||
     (primary && '#FFFFFF') ||
     'black'};
+  font-size: ${({ big = false }) => (big ? '1.25rem' : undefined)};
 `
 
 export const DecoyButton = styled.div`

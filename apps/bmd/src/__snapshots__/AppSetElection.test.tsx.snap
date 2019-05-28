@@ -17,12 +17,14 @@ exports[`Sets election config file 1`] = `
 
 .c3 {
   margin: auto auto;
+  width: 100%;
   max-width: 35rem;
   padding: 1rem;
 }
 
 .c4 {
   margin: auto;
+  width: 100%;
   max-width: 66ch;
   text-align: center;
   line-height: 1.2;
@@ -41,7 +43,8 @@ exports[`Sets election config file 1`] = `
 
 .c4 h3,
 .c4 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
@@ -72,9 +75,8 @@ exports[`Sets election config file 1`] = `
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: black;
 }
 

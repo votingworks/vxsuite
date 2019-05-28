@@ -8,34 +8,26 @@ import Prose from '../components/Prose'
 import Text from '../components/Text'
 import BallotContext from '../contexts/ballotContext'
 
-const SummaryPage = () => {
-  const { election } = useContext(BallotContext)
+const InstructionsPage = () => {
+  const { contests, election } = useContext(BallotContext)
   const { bmdConfig } = election!
   const { showHelpPage, showSettingsPage } = bmdConfig!
   return (
     <React.Fragment>
       <Main>
         <MainChild center>
-          <Breadcrumbs step={2} />
+          <Breadcrumbs step={1} />
           <Prose textCenter>
-            <h1 aria-label="Review Your Selections.">Review Your Selections</h1>
-            <Text narrow>Confirm and change any votes as necessary.</Text>
+            <h1 aria-label="Mark your ballot.">Mark your ballot</h1>
+            <Text narrow>{`This ballot has ${contests.length} contests.`}</Text>
             <p>
-              <LinkButton primary big to="/review">
-                Review Selections
+              <LinkButton primary big to="/contests/">
+                Start Voting
               </LinkButton>
             </p>
           </Prose>
         </MainChild>
       </Main>
-      <ButtonBar>
-        <div />
-        <LinkButton goBack id="previous">
-          Back
-        </LinkButton>
-        <div />
-        <div />
-      </ButtonBar>
       <ButtonBar secondary separatePrimaryButton>
         <div />
         {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
@@ -45,4 +37,4 @@ const SummaryPage = () => {
   )
 }
 
-export default SummaryPage
+export default InstructionsPage

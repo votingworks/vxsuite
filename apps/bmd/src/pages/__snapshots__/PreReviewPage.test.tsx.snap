@@ -17,51 +17,240 @@ exports[`renders PreReviewPage 1`] = `
 }
 
 .c1 {
-  margin: 0 0;
+  margin: auto auto;
+  width: 100%;
   max-width: 35rem;
 }
 
-.c2 {
+.c10 {
+  margin: auto;
+  width: 100%;
   max-width: 66ch;
+  text-align: center;
   line-height: 1.2;
 }
 
-.c2 h1 {
+.c10 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c2 h2 {
+.c10 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c2 h3,
-.c2 p {
-  margin: 1rem 0;
+.c10 h3,
+.c10 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
-.c2 h1 + h2 {
+.c10 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c2 h1 + p,
-.c2 h2 + p {
+.c10 h1 + p,
+.c10 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c10 h3 + p {
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c10 :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c10 :last-child {
   margin-bottom: 0;
+}
+
+.c2 {
+  margin: 0 auto 2rem;
+  max-width: 600px;
+  padding-bottom: 2rem;
+}
+
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  position: relative;
+}
+
+.c3::before {
+  position: absolute;
+  top: 45%;
+  right: 12%;
+  left: 12%;
+  z-index: -1;
+  background-color: #c7d7df;
+  height: 10%;
+  content: '';
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  position: relative;
+  padding: 0 4%;
+}
+
+.c5 {
+  position: relative;
+  border-radius: 50%;
+  background: #ffffff;
+  width: 100%;
+  height: 0;
+  padding-top: 100%;
+}
+
+.c5 > span {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: #35809c;
+  font-size: 7vw;
+  font-weight: 700;
+}
+
+.c7 {
+  position: relative;
+  border-radius: 50%;
+  background: #35809c;
+  width: 100%;
+  height: 0;
+  padding-top: 100%;
+}
+
+.c7 > span {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-size: 7vw;
+  font-weight: 700;
+}
+
+.c9 {
+  position: relative;
+  border-radius: 50%;
+  background: #c7d7df;
+  width: 100%;
+  height: 0;
+  padding-top: 100%;
+}
+
+.c9 > span {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-size: 7vw;
+  font-weight: 700;
+}
+
+.c6 {
+  position: absolute;
+  margin: 0.25rem -1rem 0;
+  width: calc(100% + 2rem);
+  text-align: center;
+  color: #c7d7df;
+}
+
+.c8 {
+  position: absolute;
+  margin: 0.25rem -1rem 0;
+  width: calc(100% + 2rem);
+  text-align: center;
+  font-weight: 600;
+}
+
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 1rem 1.75rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  font-size: 1.25rem;
+}
+
+.c11 {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 33ch;
 }
 
 @media (min-width:480px) {
@@ -88,8 +277,32 @@ exports[`renders PreReviewPage 1`] = `
 }
 
 @media (min-width:480px) {
-  .c2 {
+  .c10 {
     line-height: 1.3;
+  }
+}
+
+@media print {
+  .c2 {
+    display: none;
+  }
+}
+
+@media (min-width:686px) {
+  .c5 > span {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width:686px) {
+  .c7 > span {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width:686px) {
+  .c9 > span {
+    font-size: 2rem;
   }
 }
 
@@ -102,13 +315,95 @@ exports[`renders PreReviewPage 1`] = `
     <div
       class="c2"
     >
-      <h1
-        aria-label="Pre Review Screen."
+      <div
+        class="c3"
       >
-        Pre Review Screen
+        <div
+          class="c4"
+        >
+          <div
+            class="c5"
+          >
+            <span>
+              ✓
+            </span>
+            <div
+              class="c6"
+            >
+              Mark
+            </div>
+          </div>
+        </div>
+        <div
+          class="c4"
+        >
+          <div
+            class="c7"
+          >
+            <span>
+              2
+            </span>
+            <div
+              class="c8"
+            >
+              Review
+            </div>
+          </div>
+        </div>
+        <div
+          class="c4"
+        >
+          <div
+            class="c9"
+          >
+            <span>
+              3
+            </span>
+            <div
+              class="c6"
+            >
+              Print
+            </div>
+          </div>
+        </div>
+        <div
+          class="c4"
+        >
+          <div
+            class="c9"
+          >
+            <span>
+              4
+            </span>
+            <div
+              class="c6"
+            >
+              Cast
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="c10"
+    >
+      <h1
+        aria-label="Review Your Selections."
+      >
+        Review Your Selections
       </h1>
+      <p
+        class="c11"
+      >
+        Confirm and change any votes as necessary.
+      </p>
       <p>
-        Time to go into review mode.
+        <button
+          class="c12"
+          type="button"
+        >
+          Review Selections
+        </button>
       </p>
     </div>
   </div>

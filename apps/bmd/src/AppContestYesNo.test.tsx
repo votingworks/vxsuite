@@ -30,7 +30,12 @@ it(`Yes/No Contest`, () => {
 
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))
+
+  // Go to Voting Instructions
   fireEvent.click(getByText('Get Started'))
+
+  // Go to First Contest
+  fireEvent.click(getByText('Start Voting'))
 
   // click Next until getting to multi-seat contest
   while (!queryByText(yesNoContest.title)) {
@@ -59,9 +64,10 @@ it(`Yes/No Contest`, () => {
   fireEvent.click(getByText('Okay'))
 
   // Go to review page and confirm write in exists
-  while (!queryByText('Review Your Ballot Selections')) {
+  while (!queryByText('Review Your Selections')) {
     fireEvent.click(getByText('Next'))
   }
+  fireEvent.click(getByText('Review Selections'))
   const reviewTitle = getByText(
     `${yesNoContest.section}, ${yesNoContest.title}`
   )

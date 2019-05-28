@@ -9,6 +9,7 @@ interface Props {
   error?: boolean
   italic?: boolean
   muted?: boolean
+  narrow?: boolean
   small?: boolean
   warning?: boolean
   warningIcon?: boolean
@@ -39,6 +40,9 @@ const iconStyles = css<Props>`
 `
 
 const Text = styled('p')<Props>`
+  margin-right: ${({ narrow }) => (narrow ? 'auto' : undefined)};
+  margin-left: ${({ narrow }) => (narrow ? 'auto' : undefined)};
+  max-width: ${({ narrow }) => (narrow ? '33ch' : undefined)};
   text-align: ${({ center }) => (center ? 'center' : undefined)};
   color: ${({ error, muted, warning, white }) =>
     (error && 'red') ||

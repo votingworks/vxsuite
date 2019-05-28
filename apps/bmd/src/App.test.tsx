@@ -77,8 +77,11 @@ describe('loads election', () => {
 
     const { getByText } = render(<App />)
 
-    // Click Get Started
+    // Go to Voting Instructions
     fireEvent.click(getByText('Get Started'))
+
+    // Go to First Contest
+    fireEvent.click(getByText('Start Voting'))
 
     // First contest candidate should be selected
     const candidate1Input = getByText(presidentFirstCandidate.name)
@@ -98,6 +101,7 @@ describe('can start over', () => {
     // TODO: replace next line with "Enter" keyDown on activation code input
     fireEvent.click(getByText('Submit'))
     fireEvent.click(getByText('Get Started'))
+    fireEvent.click(getByText('Start Voting'))
     fireEvent.click(getByText('Settings'))
     fireEvent.click(getByText('Start Over'))
     expect(getByText('Scan Your Activation Code')).toBeTruthy()
@@ -111,6 +115,7 @@ describe('can start over', () => {
     // TODO: replace next line with "Enter" keyDown on activation code input
     fireEvent.click(getByText('Submit'))
     fireEvent.click(getByText('Get Started'))
+    fireEvent.click(getByText('Start Voting'))
     fireEvent.click(getByText(contest0candidate0.name).closest('label')!)
     fireEvent.click(getByText('Settings'))
     fireEvent.click(getByText('Start Over'))
@@ -131,6 +136,7 @@ describe(`Can update settings`, () => {
     // TODO: replace next line with "Enter" keyDown on activation code input
     fireEvent.click(getByText('Submit'))
     fireEvent.click(getByText('Get Started'))
+    fireEvent.click(getByText('Start Voting'))
     fireEvent.click(getByText('Settings'))
     expect(
       (getByLabelText('Font Size') as HTMLInputElement).value === '1'

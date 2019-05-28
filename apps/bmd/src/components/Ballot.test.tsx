@@ -12,10 +12,13 @@ import Ballot from './Ballot'
 
 it(`can navigate all ballot pages`, () => {
   window.print = jest.fn()
-  const { container, getByText, getByTestId, history } = render(<Ballot />, {
-    ballotStyleId: '',
-    precinctId: '',
-  })
+  const { container, getByText, getByTestId, queryByText, history } = render(
+    <Ballot />,
+    {
+      ballotStyleId: '',
+      precinctId: '',
+    }
+  )
   expect(container.firstChild).toMatchSnapshot()
 
   fireEvent.change(getByTestId('activation-code'), {
@@ -26,6 +29,7 @@ it(`can navigate all ballot pages`, () => {
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))
   fireEvent.click(getByText('Get Started'))
+  fireEvent.click(getByText('Start Voting'))
   fireEvent.click(getByText('Help'))
   getByText('Help content will be available here.')
   fireEvent.click(getByText('Back'))
@@ -37,24 +41,25 @@ it(`can navigate all ballot pages`, () => {
   electionSample.contests.forEach(() => {
     fireEvent.click(getByText('Next'))
   })
-
-  // Pre Review Screen
-  getByText('Pre Review Screen')
+  // Go to Pre Review Screen, through all contest pages.
+  while (!queryByText('Review Your Selections')) {
+    fireEvent.click(getByText('Next'))
+  }
 
   // Review Screen
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(getByText('Review Selections'))
   getByText('Review Your Ballot Selections')
 
   // Print Screen
   fireEvent.click(getByText('Next'))
-  getByText('Print your ballot')
+  getByText('Print your official ballot')
 
   // Manually load cast page (as full BallotContext not provided to integration test)
   history.push('/cast')
 
   // Verify and Cast Screen
-  getByText('Verify and Cast Your Ballot')
-  fireEvent.click(getByText('Start Over'))
+  getByText('Cast your printed ballot')
+  fireEvent.click(getByText('Okay, I will review and cast my printed ballot.'))
 
   // Back to beginning
   getByText('Scan Your Activation Code')

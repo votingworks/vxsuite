@@ -28,7 +28,12 @@ it(`Overvote triggers modal`, () => {
   })
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))
+
+  // Go to Voting Instructions
   fireEvent.click(getByText('Get Started'))
+
+  // Go to First Contest
+  fireEvent.click(getByText('Start Voting'))
 
   // Confirm Correct Contest
   getByText(contest0.title)

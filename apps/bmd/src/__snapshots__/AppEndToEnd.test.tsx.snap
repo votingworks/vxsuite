@@ -18,11 +18,13 @@ exports[`basic end-to-end flow 1`] = `
 
 .c2 {
   margin: auto auto;
+  width: 100%;
   max-width: 35rem;
 }
 
 .c4 {
   margin: auto;
+  width: 100%;
   max-width: 66ch;
   text-align: center;
   line-height: 1.2;
@@ -41,7 +43,8 @@ exports[`basic end-to-end flow 1`] = `
 
 .c4 h3,
 .c4 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
@@ -72,9 +75,8 @@ exports[`basic end-to-end flow 1`] = `
   box-sizing: border-box;
   background: rgb(71,167,75);
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: #FFFFFF;
 }
 
@@ -343,7 +345,7 @@ exports[`basic end-to-end flow 1`] = `
 
 exports[`basic end-to-end flow 2`] = `
 <div
-  class="sc-kjoXOD byAYBe"
+  class="sc-kgAjT czgpHe"
   tabindex="-1"
 >
   .c0 {
@@ -360,6 +362,7 @@ exports[`basic end-to-end flow 2`] = `
 }
 
 .c2 {
+  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -377,7 +380,8 @@ exports[`basic end-to-end flow 2`] = `
 
 .c2 h3,
 .c2 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
@@ -778,19 +782,7 @@ button.c8 {
       </div>
     </div>
   </main>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -808,7 +800,7 @@ button.c8 {
   justify-content: space-between;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -822,6 +814,17 @@ button.c8 {
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 .c2 {
@@ -879,19 +882,7 @@ button.c8 {
       20
     </p>
   </nav>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -912,7 +903,7 @@ button.c8 {
   order: -1;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -926,6 +917,17 @@ button.c8 {
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 @media (min-width:480px) {
@@ -979,24 +981,24 @@ button.c8 {
 
 exports[`basic end-to-end flow 3`] = `
 <div
-  class="sc-kjoXOD byAYBe"
+  class="sc-kgAjT czgpHe"
   tabindex="-1"
 >
   <main
     class="sc-bdVaJa bkrzlo"
   >
     <div
-      class="sc-VigVT eeTnSv"
+      class="sc-jzJRlG gxlhof"
       id="contest-header"
     >
       <div
-        class="sc-htpNat sACUF"
+        class="sc-htpNat eqsiuG"
       >
         <h1
           aria-label="United States, President and Vice-President."
         >
           <div
-            class="sc-jTzLTM inwRBF"
+            class="sc-cSHVUG vJbrg"
           >
             United States
           </div>
@@ -1016,36 +1018,36 @@ exports[`basic end-to-end flow 3`] = `
       </div>
     </div>
     <div
-      class="sc-fjdhpX bqujVf"
+      class="sc-kAzzGY jhegov"
     >
       <div
-        class="sc-cSHVUG gJClgN"
+        class="sc-kgoBCf bKtsLD"
       >
         <div
-          class="sc-kAzzGY jKIeml"
+          class="sc-kGXeez izhLGa"
         >
           <div
             aria-labelledby="contest-header"
-            class="sc-chPdSV gqeJVR"
+            class="sc-kpOJdX tRUHJ"
             role="group"
           >
             <label
-              class="sc-kgoBCf iCLyJC"
+              class="sc-dxgOiQ jJuFX"
               for="barchi-hallaren"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="barchi-hallaren"
                 name="Joseph Barchi and Joseph Hallaren"
                 type="checkbox"
                 value="barchi-hallaren"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Joseph Barchi and Joseph Hallaren
@@ -1056,22 +1058,22 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="cramer-vuocolo"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="cramer-vuocolo"
                 name="Adam Cramer and Greg Vuocolo"
                 type="checkbox"
                 value="cramer-vuocolo"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Adam Cramer and Greg Vuocolo, People's."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Adam Cramer and Greg Vuocolo
@@ -1082,22 +1084,22 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="court-blumhardt"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="court-blumhardt"
                 name="Daniel Court and Amy Blumhardt"
                 type="checkbox"
                 value="court-blumhardt"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Daniel Court and Amy Blumhardt, Liberty."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Daniel Court and Amy Blumhardt
@@ -1108,22 +1110,22 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="boone-lian"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="boone-lian"
                 name="Alvin Boone and James Lian"
                 type="checkbox"
                 value="boone-lian"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Alvin Boone and James Lian, Constitution."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Alvin Boone and James Lian
@@ -1134,22 +1136,22 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="hildebrand-garritty"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="hildebrand-garritty"
                 name="Ashley Hildebrand-McDougall and James Garritty"
                 type="checkbox"
                 value="hildebrand-garritty"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Ashley Hildebrand-McDougall and James Garritty
@@ -1160,22 +1162,22 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="patterson-lariviere"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="patterson-lariviere"
                 name="Martin Patterson and Clay Lariviere"
                 type="checkbox"
                 value="patterson-lariviere"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Martin Patterson and Clay Lariviere, Labor."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Martin Patterson and Clay Lariviere
@@ -1191,24 +1193,24 @@ exports[`basic end-to-end flow 3`] = `
     </div>
   </main>
   <nav
-    class="sc-gZMcBi ctBJCE"
+    class="sc-gZMcBi csVzww"
   >
     <button
-      class="sc-gzVnrw gRptmX"
+      class="sc-VigVT DKoLO"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="sc-htoDjs sc-cMljjf kXDLsX"
+      class="sc-jTzLTM sc-gPEVay QUuNb"
     >
       1
        of 
@@ -1216,17 +1218,17 @@ exports[`basic end-to-end flow 3`] = `
     </p>
   </nav>
   <nav
-    class="sc-gZMcBi MRwYf"
+    class="sc-gZMcBi fYBBKS"
   >
     <div />
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       type="button"
     >
       Settings
@@ -1237,7 +1239,7 @@ exports[`basic end-to-end flow 3`] = `
 
 exports[`basic end-to-end flow 4`] = `
 <div
-  class="sc-kjoXOD byAYBe"
+  class="sc-kgAjT czgpHe"
   tabindex="-1"
 >
   .c0 {
@@ -1254,6 +1256,7 @@ exports[`basic end-to-end flow 4`] = `
 }
 
 .c2 {
+  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -1271,7 +1274,8 @@ exports[`basic end-to-end flow 4`] = `
 
 .c2 h3,
 .c2 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
@@ -1592,24 +1596,24 @@ button.c10 {
     </div>
   </main>
   <nav
-    class="sc-gZMcBi ctBJCE"
+    class="sc-gZMcBi csVzww"
   >
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="sc-htoDjs sc-cMljjf kXDLsX"
+      class="sc-jTzLTM sc-gPEVay QUuNb"
     >
       20
        of 
@@ -1617,17 +1621,17 @@ button.c10 {
     </p>
   </nav>
   <nav
-    class="sc-gZMcBi MRwYf"
+    class="sc-gZMcBi fYBBKS"
   >
     <div />
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       type="button"
     >
       Settings
@@ -1638,24 +1642,24 @@ button.c10 {
 
 exports[`basic end-to-end flow 5`] = `
 <div
-  class="sc-kjoXOD byAYBe"
+  class="sc-kgAjT czgpHe"
   tabindex="-1"
 >
   <main
     class="sc-bdVaJa bkrzlo"
   >
     <div
-      class="sc-jKJlTe iGHmUT"
+      class="sc-kEYyzF kMJybS"
       id="contest-header"
     >
       <div
-        class="sc-htpNat sACUF"
+        class="sc-htpNat eqsiuG"
       >
         <h1
           aria-label="Franklin County, Measure 102: Vehicle Abatement Program."
         >
           <div
-            class="sc-eNQAEJ bsRtdi"
+            class="sc-kkGfuU dTnssN"
           >
             Franklin County
           </div>
@@ -1669,19 +1673,19 @@ exports[`basic end-to-end flow 5`] = `
       </div>
     </div>
     <div
-      class="sc-kkGfuU GnMSr"
+      class="sc-eHgmQL gErzCK"
     >
       <div
-        class="sc-hSdWYo dMFGHI"
+        class="sc-jWBwVP juhLHA"
       >
         <div
-          class="sc-eHgmQL ipUphx"
+          class="sc-brqgnP doXbdD"
         >
           <div
-            class="sc-hMqMXs blIdFX"
+            class="sc-iAyFgw fYLPHT"
           >
             <div
-              class="sc-htpNat sACUF"
+              class="sc-htpNat eqsiuG"
             >
               <p>
                 Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?
@@ -1692,50 +1696,50 @@ exports[`basic end-to-end flow 5`] = `
       </div>
     </div>
     <div
-      class="sc-kEYyzF cXHfSU"
+      class="sc-hSdWYo bBJVLg"
     >
       <div
         aria-labelledby="contest-header"
-        class="sc-cvbbAY ixdjgi"
+        class="sc-cMljjf jIhRcK"
         role="group"
       >
         <label
-          class="sc-jWBwVP eOvFxe"
+          class="sc-jAaTju kikqpu"
           for="yes"
         >
           <input
-            class="visually-hidden sc-brqgnP fZhdBB"
+            class="visually-hidden sc-jDwBTQ fQAjmo"
             id="yes"
             name="102"
             type="checkbox"
             value="yes"
           />
           <div
-            class="sc-htpNat sACUF"
+            class="sc-htpNat eqsiuG"
           >
             <p
-              class="sc-htoDjs cdAKTE"
+              class="sc-jTzLTM ekvCWw"
             >
               Yes
             </p>
           </div>
         </label>
         <label
-          class="sc-jWBwVP jsqSWT"
+          class="sc-jAaTju jkokTZ"
           for="no"
         >
           <input
-            class="visually-hidden sc-brqgnP fZhdBB"
+            class="visually-hidden sc-jDwBTQ fQAjmo"
             id="no"
             name="102"
             type="checkbox"
             value="no"
           />
           <div
-            class="sc-htpNat sACUF"
+            class="sc-htpNat eqsiuG"
           >
             <p
-              class="sc-htoDjs cdAKTE"
+              class="sc-jTzLTM ekvCWw"
             >
               No
             </p>
@@ -1745,24 +1749,24 @@ exports[`basic end-to-end flow 5`] = `
     </div>
   </main>
   <nav
-    class="sc-gZMcBi ctBJCE"
+    class="sc-gZMcBi csVzww"
   >
     <button
-      class="sc-gzVnrw gRptmX"
+      class="sc-VigVT DKoLO"
       id="next"
       type="button"
     >
       Next
     </button>
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       id="previous"
       type="button"
     >
       Back
     </button>
     <p
-      class="sc-htoDjs sc-cMljjf kXDLsX"
+      class="sc-jTzLTM sc-gPEVay QUuNb"
     >
       20
        of 
@@ -1770,17 +1774,17 @@ exports[`basic end-to-end flow 5`] = `
     </p>
   </nav>
   <nav
-    class="sc-gZMcBi MRwYf"
+    class="sc-gZMcBi fYBBKS"
   >
     <div />
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       type="button"
     >
       Settings
@@ -1791,7 +1795,7 @@ exports[`basic end-to-end flow 5`] = `
 
 exports[`basic end-to-end flow 6`] = `
 <div
-  class="sc-kjoXOD byAYBe"
+  class="sc-kgAjT czgpHe"
   tabindex="-1"
 >
   .c0 {
@@ -1810,51 +1814,240 @@ exports[`basic end-to-end flow 6`] = `
 }
 
 .c1 {
-  margin: 0 0;
+  margin: auto auto;
+  width: 100%;
   max-width: 35rem;
 }
 
-.c2 {
+.c10 {
+  margin: auto;
+  width: 100%;
   max-width: 66ch;
+  text-align: center;
   line-height: 1.2;
 }
 
-.c2 h1 {
+.c10 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c2 h2 {
+.c10 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c2 h3,
-.c2 p {
-  margin: 1rem 0;
+.c10 h3,
+.c10 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
-.c2 h1 + h2 {
+.c10 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c2 h1 + p,
-.c2 h2 + p {
+.c10 h1 + p,
+.c10 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c10 h3 + p {
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c10 :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c10 :last-child {
   margin-bottom: 0;
+}
+
+.c2 {
+  margin: 0 auto 2rem;
+  max-width: 600px;
+  padding-bottom: 2rem;
+}
+
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  position: relative;
+}
+
+.c3::before {
+  position: absolute;
+  top: 45%;
+  right: 12%;
+  left: 12%;
+  z-index: -1;
+  background-color: #c7d7df;
+  height: 10%;
+  content: '';
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  position: relative;
+  padding: 0 4%;
+}
+
+.c7 {
+  position: relative;
+  border-radius: 50%;
+  background: #35809c;
+  width: 100%;
+  height: 0;
+  padding-top: 100%;
+}
+
+.c7 > span {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-size: 7vw;
+  font-weight: 700;
+}
+
+.c9 {
+  position: relative;
+  border-radius: 50%;
+  background: #c7d7df;
+  width: 100%;
+  height: 0;
+  padding-top: 100%;
+}
+
+.c9 > span {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-size: 7vw;
+  font-weight: 700;
+}
+
+.c5 {
+  position: relative;
+  border-radius: 50%;
+  background: #ffffff;
+  width: 100%;
+  height: 0;
+  padding-top: 100%;
+}
+
+.c5 > span {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: #35809c;
+  font-size: 7vw;
+  font-weight: 700;
+}
+
+.c8 {
+  position: absolute;
+  margin: 0.25rem -1rem 0;
+  width: calc(100% + 2rem);
+  text-align: center;
+  font-weight: 600;
+}
+
+.c6 {
+  position: absolute;
+  margin: 0.25rem -1rem 0;
+  width: calc(100% + 2rem);
+  text-align: center;
+  color: #c7d7df;
+}
+
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 1rem 1.75rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  font-size: 1.25rem;
+}
+
+.c11 {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 33ch;
 }
 
 @media (min-width:480px) {
@@ -1881,8 +2074,32 @@ exports[`basic end-to-end flow 6`] = `
 }
 
 @media (min-width:480px) {
-  .c2 {
+  .c10 {
     line-height: 1.3;
+  }
+}
+
+@media print {
+  .c2 {
+    display: none;
+  }
+}
+
+@media (min-width:686px) {
+  .c7 > span {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width:686px) {
+  .c9 > span {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width:686px) {
+  .c5 > span {
+    font-size: 2rem;
   }
 }
 
@@ -1895,30 +2112,100 @@ exports[`basic end-to-end flow 6`] = `
       <div
         class="c2"
       >
-        <h1
-          aria-label="Pre Review Screen."
+        <div
+          class="c3"
         >
-          Pre Review Screen
+          <div
+            class="c4"
+          >
+            <div
+              class="c5"
+            >
+              <span>
+                ✓
+              </span>
+              <div
+                class="c6"
+              >
+                Mark
+              </div>
+            </div>
+          </div>
+          <div
+            class="c4"
+          >
+            <div
+              class="c7"
+            >
+              <span>
+                2
+              </span>
+              <div
+                class="c8"
+              >
+                Review
+              </div>
+            </div>
+          </div>
+          <div
+            class="c4"
+          >
+            <div
+              class="c9"
+            >
+              <span>
+                3
+              </span>
+              <div
+                class="c6"
+              >
+                Print
+              </div>
+            </div>
+          </div>
+          <div
+            class="c4"
+          >
+            <div
+              class="c9"
+            >
+              <span>
+                4
+              </span>
+              <div
+                class="c6"
+              >
+                Cast
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="c10"
+      >
+        <h1
+          aria-label="Review Your Selections."
+        >
+          Review Your Selections
         </h1>
+        <p
+          class="c11"
+        >
+          Confirm and change any votes as necessary.
+        </p>
         <p>
-          Time to go into review mode.
+          <button
+            class="c12"
+            type="button"
+          >
+            Review Selections
+          </button>
         </p>
       </div>
     </div>
   </main>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1936,7 +2223,7 @@ exports[`basic end-to-end flow 6`] = `
   justify-content: space-between;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -1950,6 +2237,17 @@ exports[`basic end-to-end flow 6`] = `
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 @media (min-width:480px) {
@@ -1971,13 +2269,7 @@ exports[`basic end-to-end flow 6`] = `
 <nav
     class="c0"
   >
-    <button
-      class="c1"
-      id="next"
-      type="button"
-    >
-      Next
-    </button>
+    <div />
     <button
       class="c1"
       id="previous"
@@ -1988,19 +2280,7 @@ exports[`basic end-to-end flow 6`] = `
     <div />
     <div />
   </nav>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -2021,7 +2301,7 @@ exports[`basic end-to-end flow 6`] = `
   order: -1;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -2035,6 +2315,17 @@ exports[`basic end-to-end flow 6`] = `
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 @media (min-width:480px) {
@@ -2089,7 +2380,7 @@ exports[`basic end-to-end flow 6`] = `
 
 exports[`basic end-to-end flow 7`] = `
 <div
-  class="sc-kjoXOD byAYBe"
+  class="sc-kgAjT czgpHe"
   tabindex="-1"
 >
   .c0 {
@@ -2106,6 +2397,7 @@ exports[`basic end-to-end flow 7`] = `
 }
 
 .c2 {
+  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -2123,7 +2415,8 @@ exports[`basic end-to-end flow 7`] = `
 
 .c2 h3,
 .c2 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
@@ -2154,9 +2447,8 @@ exports[`basic end-to-end flow 7`] = `
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: black;
 }
 
@@ -2166,9 +2458,8 @@ exports[`basic end-to-end flow 7`] = `
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: black;
 }
 
@@ -2177,11 +2468,9 @@ exports[`basic end-to-end flow 7`] = `
   border-radius: 0.25rem;
   box-sizing: border-box;
   background: rgb(211,211,211);
-  cursor: pointer;
   width: 100%;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: rgb(169,169,169);
 }
 
@@ -2343,6 +2632,7 @@ button.c7 {
 }
 
 .c9 {
+  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
   -webkit-flex: 1;
@@ -2363,7 +2653,8 @@ button.c7 {
 
 .c9 h3,
 .c9 p {
-  margin: 0;
+  margin-top: 0;
+  margin-bottom: 0;
   font-size: 1rem;
 }
 
@@ -3150,19 +3441,7 @@ button.c7 {
       </button>
     </div>
   </main>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -3180,7 +3459,7 @@ button.c7 {
   justify-content: space-between;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -3194,6 +3473,17 @@ button.c7 {
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 @media (min-width:480px) {
@@ -3226,19 +3516,7 @@ button.c7 {
     <div />
     <div />
   </nav>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -3259,7 +3537,7 @@ button.c7 {
   order: -1;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -3273,6 +3551,17 @@ button.c7 {
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 @media (min-width:480px) {
@@ -3327,7 +3616,7 @@ button.c7 {
 
 exports[`basic end-to-end flow 8`] = `
 <div
-  class="sc-kjoXOD byAYBe"
+  class="sc-kgAjT czgpHe"
   tabindex="-1"
 >
   .c0 {
@@ -3344,6 +3633,7 @@ exports[`basic end-to-end flow 8`] = `
 }
 
 .c2 {
+  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -3361,7 +3651,8 @@ exports[`basic end-to-end flow 8`] = `
 
 .c2 h3,
 .c2 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
@@ -4011,19 +4302,7 @@ button.c8 {
       </div>
     </div>
   </main>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -4041,7 +4320,7 @@ button.c8 {
   justify-content: space-between;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -4055,6 +4334,17 @@ button.c8 {
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 @media (min-width:480px) {
@@ -4084,19 +4374,7 @@ button.c8 {
       Review Ballot
     </button>
   </nav>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -4117,7 +4395,7 @@ button.c8 {
   order: -1;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -4131,6 +4409,17 @@ button.c8 {
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 @media (min-width:480px) {
@@ -4184,24 +4473,24 @@ button.c8 {
 
 exports[`basic end-to-end flow 9`] = `
 <div
-  class="sc-kjoXOD byAYBe"
+  class="sc-kgAjT czgpHe"
   tabindex="-1"
 >
   <main
     class="sc-bdVaJa bkrzlo"
   >
     <div
-      class="sc-VigVT eeTnSv"
+      class="sc-jzJRlG gxlhof"
       id="contest-header"
     >
       <div
-        class="sc-htpNat sACUF"
+        class="sc-htpNat eqsiuG"
       >
         <h1
           aria-label="Franklin County, County Commissioners."
         >
           <div
-            class="sc-jTzLTM inwRBF"
+            class="sc-cSHVUG vJbrg"
           >
             Franklin County
           </div>
@@ -4221,36 +4510,36 @@ exports[`basic end-to-end flow 9`] = `
       </div>
     </div>
     <div
-      class="sc-fjdhpX bqujVf"
+      class="sc-kAzzGY jhegov"
     >
       <div
-        class="sc-cSHVUG gJClgN"
+        class="sc-kgoBCf bKtsLD"
       >
         <div
-          class="sc-kAzzGY jKIeml"
+          class="sc-kGXeez izhLGa"
         >
           <div
             aria-labelledby="contest-header"
-            class="sc-chPdSV gqeJVR"
+            class="sc-kpOJdX tRUHJ"
             role="group"
           >
             <label
-              class="sc-kgoBCf iCLyJC"
+              class="sc-dxgOiQ jJuFX"
               for="argent"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="argent"
                 name="Camille Argent"
                 type="checkbox"
                 value="argent"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Camille Argent, Federalist."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Camille Argent
@@ -4261,22 +4550,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf iCLyJC"
+              class="sc-dxgOiQ jJuFX"
               for="witherspoonsmithson"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="witherspoonsmithson"
                 name="Chloe Witherspoon-Smithson"
                 type="checkbox"
                 value="witherspoonsmithson"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Chloe Witherspoon-Smithson, Federalist."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Chloe Witherspoon-Smithson
@@ -4287,22 +4576,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="bainbridge"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="bainbridge"
                 name="Clayton Bainbridge"
                 type="checkbox"
                 value="bainbridge"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Clayton Bainbridge, Federalist."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Clayton Bainbridge
@@ -4313,22 +4602,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="hennessey"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="hennessey"
                 name="Charlene Hennessey"
                 type="checkbox"
                 value="hennessey"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Charlene Hennessey, People's."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Charlene Hennessey
@@ -4339,22 +4628,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="savoy"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="savoy"
                 name="Eric Savoy"
                 type="checkbox"
                 value="savoy"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Eric Savoy, People's."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Eric Savoy
@@ -4365,22 +4654,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="tawa"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="tawa"
                 name="Susan Tawa"
                 type="checkbox"
                 value="tawa"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Susan Tawa, People's."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Susan Tawa
@@ -4391,22 +4680,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="tawa-mary"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="tawa-mary"
                 name="Mary Tawa"
                 type="checkbox"
                 value="tawa-mary"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Mary Tawa, People's."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Mary Tawa
@@ -4417,22 +4706,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="rangel"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="rangel"
                 name="Damian Rangel"
                 type="checkbox"
                 value="rangel"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Damian Rangel, Liberty."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Damian Rangel
@@ -4443,22 +4732,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="altman"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="altman"
                 name="Valarie Altman"
                 type="checkbox"
                 value="altman"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Valarie Altman, Constitution."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Valarie Altman
@@ -4469,22 +4758,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="moore"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="moore"
                 name="Helen Moore"
                 type="checkbox"
                 value="moore"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Helen Moore, Constitution."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Helen Moore
@@ -4495,22 +4784,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="white"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="white"
                 name="John White"
                 type="checkbox"
                 value="white"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="John White, Whig."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     John White
@@ -4521,22 +4810,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="schmidt"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="schmidt"
                 name="Joe Schmidt"
                 type="checkbox"
                 value="schmidt"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Joe Schmidt, Whig."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Joe Schmidt
@@ -4547,22 +4836,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="smith"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="smith"
                 name="Joe Smith"
                 type="checkbox"
                 value="smith"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Joe Smith, Whig."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Joe Smith
@@ -4573,22 +4862,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="marracini"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="marracini"
                 name="Amanda Marracini"
                 type="checkbox"
                 value="marracini"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Amanda Marracini, Labor."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Amanda Marracini
@@ -4599,22 +4888,22 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
               for="schreiner"
             >
               <input
-                class="visually-hidden sc-kGXeez iOxSgc"
+                class="visually-hidden sc-ckVGcZ fAbweD"
                 id="schreiner"
                 name="Martin Schreiner"
                 type="checkbox"
                 value="schreiner"
               />
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="Martin Schreiner, Independent."
-                  class="sc-htoDjs cdAKTE"
+                  class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
                     Martin Schreiner
@@ -4625,10 +4914,10 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <button
-              class="sc-kgoBCf kcbHEC"
+              class="sc-dxgOiQ jGAILV"
             >
               <div
-                class="sc-htpNat sACUF"
+                class="sc-htpNat eqsiuG"
               >
                 <p
                   aria-label="add write-in candidate."
@@ -4645,10 +4934,10 @@ exports[`basic end-to-end flow 9`] = `
     </div>
   </main>
   <nav
-    class="sc-gZMcBi ctBJCE"
+    class="sc-gZMcBi csVzww"
   >
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       id="next"
       type="button"
     >
@@ -4656,17 +4945,17 @@ exports[`basic end-to-end flow 9`] = `
     </button>
   </nav>
   <nav
-    class="sc-gZMcBi MRwYf"
+    class="sc-gZMcBi fYBBKS"
   >
     <div />
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       type="button"
     >
       Help
     </button>
     <button
-      class="sc-gzVnrw bhvIQV"
+      class="sc-VigVT BEGsm"
       type="button"
     >
       Settings
@@ -4677,7 +4966,7 @@ exports[`basic end-to-end flow 9`] = `
 
 exports[`basic end-to-end flow 10`] = `
 <div
-  class="sc-kjoXOD byAYBe"
+  class="sc-kgAjT czgpHe"
   tabindex="-1"
 >
   .c0 {
@@ -4694,6 +4983,7 @@ exports[`basic end-to-end flow 10`] = `
 }
 
 .c2 {
+  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -4711,7 +5001,8 @@ exports[`basic end-to-end flow 10`] = `
 
 .c2 h3,
 .c2 p {
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
@@ -4742,9 +5033,8 @@ exports[`basic end-to-end flow 10`] = `
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: black;
 }
 
@@ -4754,9 +5044,8 @@ exports[`basic end-to-end flow 10`] = `
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: black;
 }
 
@@ -4765,11 +5054,9 @@ exports[`basic end-to-end flow 10`] = `
   border-radius: 0.25rem;
   box-sizing: border-box;
   background: rgb(211,211,211);
-  cursor: pointer;
   width: 100%;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: rgb(169,169,169);
 }
 
@@ -4931,6 +5218,7 @@ button.c7 {
 }
 
 .c9 {
+  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
   -webkit-flex: 1;
@@ -4951,7 +5239,8 @@ button.c7 {
 
 .c9 h3,
 .c9 p {
-  margin: 0;
+  margin-top: 0;
+  margin-bottom: 0;
   font-size: 1rem;
 }
 
@@ -5762,19 +6051,7 @@ button.c7 {
       </button>
     </div>
   </main>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -5792,7 +6069,7 @@ button.c7 {
   justify-content: space-between;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -5806,6 +6083,17 @@ button.c7 {
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 @media (min-width:480px) {
@@ -5838,19 +6126,7 @@ button.c7 {
     <div />
     <div />
   </nav>
-  .c1 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: black;
-}
-
-.c0 {
+  .c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -5871,7 +6147,7 @@ button.c7 {
   order: -1;
   border-bottom: 1px solid rgb(169,169,169);
   background: #455a64;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .c0 > *:first-child {
@@ -5885,6 +6161,17 @@ button.c7 {
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
+}
+
+.c1 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
 }
 
 @media (min-width:480px) {

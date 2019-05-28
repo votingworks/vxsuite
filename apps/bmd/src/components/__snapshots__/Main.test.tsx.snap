@@ -18,6 +18,7 @@ exports[`renders Main with child 1`] = `
 
 .c1 {
   margin: 0 0;
+  width: 100%;
   max-width: 35rem;
 }
 
@@ -73,6 +74,7 @@ exports[`renders centered content 1`] = `
 
 .c1 {
   margin: auto auto;
+  width: 100%;
   max-width: 35rem;
 }
 
@@ -128,6 +130,7 @@ exports[`renders not centered content 1`] = `
 
 .c1 {
   margin: 0 0;
+  width: 100%;
   max-width: 35rem;
 }
 

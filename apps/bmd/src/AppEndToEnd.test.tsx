@@ -131,8 +131,11 @@ it(`basic end-to-end flow`, async () => {
   currentCardValue = cardValueVoter
   await sleep(250)
 
-  // Go to First Contest
+  // Go to Voting Instructions
   fireEvent.click(getByText('Get Started'))
+
+  // Go to First Contest
+  fireEvent.click(getByText('Start Voting'))
 
   // Vote for President contest
   expect(container.firstChild).toMatchSnapshot()
@@ -150,14 +153,13 @@ it(`basic end-to-end flow`, async () => {
   expect(container.firstChild).toMatchSnapshot()
 
   // Go to Pre Review Screen
-  while (!queryByText('Pre Review Screen')) {
+  while (!queryByText('Review Your Selections')) {
     fireEvent.click(getByText('Next'))
   }
-  getByText('Pre Review Screen')
   expect(container.firstChild).toMatchSnapshot()
 
   // Go to Review Screen
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(getByText('Review Selections'))
   getByText('Review Your Ballot Selections')
   expect(container.firstChild).toMatchSnapshot()
 
@@ -187,7 +189,7 @@ it(`basic end-to-end flow`, async () => {
 
   // Print Screen
   fireEvent.click(getByText('Next'))
-  getByText('Print your ballot')
+  getByText('Print your official ballot')
 
   // Test Print Ballot Modal
   fireEvent.click(getByText('Print Ballot'))
@@ -210,7 +212,7 @@ it(`basic end-to-end flow`, async () => {
   // Review and Cast Instructions
   // wait a little bit because the page transition is behind a setTimeout
   await sleep(100)
-  getByText('Verify and Cast Your Ballot')
+  getByText('Cast your printed ballot')
 
   // ===========================================================================
   // TODO: determine why test errors occur here when the following click is uncommented.

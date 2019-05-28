@@ -29,7 +29,12 @@ it(`Multi-seat Contest Flow`, () => {
 
   // TODO: replace next line with "Enter" keyDown on activation code input
   fireEvent.click(getByText('Submit'))
+
+  // Go to Voting Instructions
   fireEvent.click(getByText('Get Started'))
+
+  // Go to First Contest
+  fireEvent.click(getByText('Start Voting'))
 
   // click Next until getting to multi-seat contest
   while (!queryByText(multiSeatContest.title)) {
@@ -54,9 +59,10 @@ it(`Multi-seat Contest Flow`, () => {
     }, you must first unselect selected candidates.`
   )
 
-  while (!queryByText('Review Your Ballot Selections')) {
+  while (!queryByText('Review Your Selections')) {
     fireEvent.click(getByText('Next'))
   }
+  fireEvent.click(getByText('Review Selections'))
   expect(getByText(multiSeatCandidate0.name)).toBeTruthy()
   expect(getByText(multiSeatCandidate1.name)).toBeTruthy()
   expect(getByText(multiSeatCandidate2.name)).toBeTruthy()

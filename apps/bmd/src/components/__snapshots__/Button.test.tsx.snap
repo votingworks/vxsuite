@@ -7,9 +7,8 @@ exports[`renders Button 1`] = `
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: black;
 }
 
@@ -28,9 +27,8 @@ exports[`renders DecoyButton 1`] = `
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: black;
 }
 
@@ -41,6 +39,27 @@ exports[`renders DecoyButton 1`] = `
 </div>
 `;
 
+exports[`renders big Button 1`] = `
+.c0 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 1rem 1.75rem;
+  line-height: 1.25;
+  color: black;
+  font-size: 1.25rem;
+}
+
+<button
+  class="c0"
+  type="button"
+>
+  I’m a big button!
+</button>
+`;
+
 exports[`renders danger Button 1`] = `
 .c0 {
   border: none;
@@ -48,9 +67,8 @@ exports[`renders danger Button 1`] = `
   box-sizing: border-box;
   background: red;
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: #FFFFFF;
 }
 
@@ -69,9 +87,8 @@ exports[`renders primary Button 1`] = `
   box-sizing: border-box;
   background: rgb(71,167,75);
   cursor: pointer;
-  padding: 0.4rem 0.7rem;
-  line-height: 1;
-  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
   color: #FFFFFF;
 }
 
@@ -80,5 +97,25 @@ exports[`renders primary Button 1`] = `
   type="button"
 >
   Primary
+</button>
+`;
+
+exports[`renders small Button 1`] = `
+.c0 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  line-height: 1.25;
+  color: black;
+}
+
+<button
+  class="c0"
+  type="button"
+>
+  I’m a small button!
 </button>
 `;

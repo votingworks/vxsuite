@@ -18,6 +18,7 @@ describe('Font Settings', () => {
     })
     cy.contains('Submit').click({ force: true })
     cy.contains('Get Started').click()
+    cy.contains('Start Voting').click()
     cy.contains('Settings').click()
     cy.contains('Adjust the following settings to meet your needs.')
       .should('have.css', 'font-size')
