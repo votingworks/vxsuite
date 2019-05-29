@@ -313,6 +313,7 @@ exports[`renders PrintPage with votes 1`] = `
     class="c1"
   >
     <div
+      aria-label="Step 3 of 4."
       class="c2"
     >
       <div
@@ -386,9 +387,10 @@ exports[`renders PrintPage with votes 1`] = `
     </div>
     <div
       class="no-print c10"
+      id="audiofocus"
     >
       <h1
-        aria-label="Print your ballot."
+        aria-label="Print your official ballot."
       >
         Print your official ballot
       </h1>
@@ -397,7 +399,11 @@ exports[`renders PrintPage with votes 1`] = `
       >
         If you have reviewed your selections and you are done voting, you are ready to print your official ballot.
       </p>
+      <span
+        aria-label="First, press the down arrow, then"
+      />
       <button
+        aria-label="Use the select button to print your ballot."
         class="c12"
         type="button"
       >

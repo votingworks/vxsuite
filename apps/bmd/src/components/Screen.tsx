@@ -22,9 +22,10 @@ class Screen extends React.Component<RouteComponentProps> {
     }
   }
   public focus = () => {
-    const screen = this.screen.current!
-    screen.focus()
-    screen.click()
+    const elementToFocus =
+      document.getElementById('audiofocus') || this.screen.current!
+    elementToFocus.focus()
+    elementToFocus.click()
   }
   public render() {
     return (

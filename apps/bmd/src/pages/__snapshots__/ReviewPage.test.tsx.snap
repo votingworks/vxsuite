@@ -352,8 +352,11 @@ button.c7 {
   >
     <div
       class="c2"
+      id="audiofocus"
     >
-      <h1>
+      <h1
+        aria-label="Review your ballot selections. Use the down arrow to go through all contests. Use the select button to change a particular contest. When you are done reviewing, use the right arrow to continue."
+      >
         Review Your Ballot Selections
       </h1>
       <button
@@ -379,13 +382,14 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-president"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="United States, President and Vice-President,"
+              aria-label="President and Vice-President,"
             >
               United States
               , 
@@ -403,9 +407,11 @@ button.c7 {
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -415,13 +421,14 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-senator"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="United States, Senator,"
+              aria-label="Senator,"
             >
               United States
               , 
@@ -439,9 +446,11 @@ button.c7 {
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -451,29 +460,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-representative-district-6"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="United States, Representative, District 6,"
+              aria-label="Representative District 6,"
             >
               United States
               , 
               Representative, District 6
             </h3>
             <p
-              aria-label="No selection was made for Representative, District 6."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -483,29 +495,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-governor"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Governor,"
+              aria-label="Governor,"
             >
               State of Hamilton
               , 
               Governor
             </h3>
             <p
-              aria-label="No selection was made for Governor."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -515,29 +530,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-lieutenant-governor"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Lieutenant Governor,"
+              aria-label="Lieutenant Governor,"
             >
               State of Hamilton
               , 
               Lieutenant Governor
             </h3>
             <p
-              aria-label="No selection was made for Lieutenant Governor."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -547,29 +565,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-secretary-of-state"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Secretary of State,"
+              aria-label="Secretary of State,"
             >
               State of Hamilton
               , 
               Secretary of State
             </h3>
             <p
-              aria-label="No selection was made for Secretary of State."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -579,29 +600,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-state-senator-district-31"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Senator, District 31,"
+              aria-label="Senator District 31,"
             >
               State of Hamilton
               , 
               Senator, District 31
             </h3>
             <p
-              aria-label="No selection was made for Senator, District 31."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -611,29 +635,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-state-assembly-district-54"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Assembly Member, District 54,"
+              aria-label="Assembly Member District 54,"
             >
               State of Hamilton
               , 
               Assembly Member, District 54
             </h3>
             <p
-              aria-label="No selection was made for Assembly Member, District 54."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -643,29 +670,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-county-commissioners"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, County Commissioners,"
+              aria-label="County Commissioners,"
             >
               Franklin County
               , 
               County Commissioners
             </h3>
             <p
-              aria-label="No selection was made for County Commissioners."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -675,29 +705,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-county-registrar-of-wills"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Registrar of Wills,"
+              aria-label="Registrar of Wills,"
             >
               Franklin County
               , 
               Registrar of Wills
             </h3>
             <p
-              aria-label="No selection was made for Registrar of Wills."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -707,29 +740,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-city-mayor"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="City of Springfield, Mayor,"
+              aria-label="Mayor,"
             >
               City of Springfield
               , 
               Mayor
             </h3>
             <p
-              aria-label="No selection was made for Mayor."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -739,29 +775,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-city-council"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="City of Springfield, City Council,"
+              aria-label="City Council,"
             >
               City of Springfield
               , 
               City Council
             </h3>
             <p
-              aria-label="No selection was made for City Council."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -771,29 +810,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-judicial-robert-demergue"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?,"
+              aria-label="Retain Robert Demergue as Chief Justice?,"
             >
               Hamilton Court of Appeals
               , 
               Retain Robert Demergue as Chief Justice?
             </h3>
             <p
-              aria-label="No selection was made for Retain Robert Demergue as Chief Justice?."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -803,29 +845,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-judicial-elmer-hull"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Hamilton Court of Appeals, Retain Elmer Hull as Associate Justice?,"
+              aria-label="Retain Elmer Hull as Associate Justice?,"
             >
               Hamilton Court of Appeals
               , 
               Retain Elmer Hull as Associate Justice?
             </h3>
             <p
-              aria-label="No selection was made for Retain Elmer Hull as Associate Justice?."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -835,29 +880,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-question-a"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Question A: Recovery of Property Damages,"
+              aria-label="Question A: Recovery of Property Damages,"
             >
               State of Hamilton
               , 
               Question A: Recovery of Property Damages
             </h3>
             <p
-              aria-label="No selection was made for Question A: Recovery of Property Damages."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -867,29 +915,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-question-b"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Question B: Separation of Powers,"
+              aria-label="Question B: Separation of Powers,"
             >
               State of Hamilton
               , 
               Question B: Separation of Powers
             </h3>
             <p
-              aria-label="No selection was made for Question B: Separation of Powers."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -899,29 +950,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-question-c"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Question C: Limits to Damages for Non-Economic Loss,"
+              aria-label="Question C: Limits to Damages for Non-Economic Loss,"
             >
               State of Hamilton
               , 
               Question C: Limits to Damages for Non-Economic Loss
             </h3>
             <p
-              aria-label="No selection was made for Question C: Limits to Damages for Non-Economic Loss."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -931,29 +985,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-proposition-1"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Proposition 1: Gambling in Franklin and Fromwit Counties,"
+              aria-label="Proposition 1: Gambling in Franklin and Fromwit Counties,"
             >
               State of Hamilton
               , 
               Proposition 1: Gambling in Franklin and Fromwit Counties
             </h3>
             <p
-              aria-label="No selection was made for Proposition 1: Gambling in Franklin and Fromwit Counties."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -963,29 +1020,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-measure-101"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Measure 101: College District,"
+              aria-label="Measure 101: College District,"
             >
               Franklin County
               , 
               Measure 101: College District
             </h3>
             <p
-              aria-label="No selection was made for Measure 101: College District."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -995,29 +1055,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-102"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Measure 102: Vehicle Abatement Program,"
+              aria-label="Measure 102: Vehicle Abatement Program,"
             >
               Franklin County
               , 
               Measure 102: Vehicle Abatement Program
             </h3>
             <p
-              aria-label="No selection was made for Measure 102: Vehicle Abatement Program."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1027,29 +1090,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-measure-666"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Measure 666: The Question No One Gets To,"
+              aria-label="Measure 666: The Question No One Gets To,"
             >
               Franklin County
               , 
               Measure 666: The Question No One Gets To
             </h3>
             <p
-              aria-label="No selection was made for Measure 666: The Question No One Gets To."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1059,29 +1125,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-primary-constitution-head-of-party"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Head of Constitution Party,"
+              aria-label="Head of Constitution Party,"
             >
               Franklin County
               , 
               Head of Constitution Party
             </h3>
             <p
-              aria-label="No selection was made for Head of Constitution Party."
+              aria-label="No selection was made for this contest."
               class="c13"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1439,8 +1508,11 @@ button.c7 {
   >
     <div
       class="c2"
+      id="audiofocus"
     >
-      <h1>
+      <h1
+        aria-label="Review your ballot selections. Use the down arrow to go through all contests. Use the select button to change a particular contest. When you are done reviewing, use the right arrow to continue."
+      >
         Review Your Ballot Selections
       </h1>
       <button
@@ -1466,29 +1538,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-president"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="United States, President and Vice-President,"
+              aria-label="President and Vice-President,"
             >
               United States
               , 
               President and Vice-President
             </h3>
             <p
-              aria-label="No selection was made for President and Vice-President."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1498,29 +1573,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-senator"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="United States, Senator,"
+              aria-label="Senator,"
             >
               United States
               , 
               Senator
             </h3>
             <p
-              aria-label="No selection was made for Senator."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1530,29 +1608,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-representative-district-6"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="United States, Representative, District 6,"
+              aria-label="Representative District 6,"
             >
               United States
               , 
               Representative, District 6
             </h3>
             <p
-              aria-label="No selection was made for Representative, District 6."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1562,29 +1643,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-governor"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Governor,"
+              aria-label="Governor,"
             >
               State of Hamilton
               , 
               Governor
             </h3>
             <p
-              aria-label="No selection was made for Governor."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1594,29 +1678,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-lieutenant-governor"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Lieutenant Governor,"
+              aria-label="Lieutenant Governor,"
             >
               State of Hamilton
               , 
               Lieutenant Governor
             </h3>
             <p
-              aria-label="No selection was made for Lieutenant Governor."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1626,29 +1713,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-secretary-of-state"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Secretary of State,"
+              aria-label="Secretary of State,"
             >
               State of Hamilton
               , 
               Secretary of State
             </h3>
             <p
-              aria-label="No selection was made for Secretary of State."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1658,29 +1748,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-state-senator-district-31"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Senator, District 31,"
+              aria-label="Senator District 31,"
             >
               State of Hamilton
               , 
               Senator, District 31
             </h3>
             <p
-              aria-label="No selection was made for Senator, District 31."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1690,29 +1783,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-state-assembly-district-54"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Assembly Member, District 54,"
+              aria-label="Assembly Member District 54,"
             >
               State of Hamilton
               , 
               Assembly Member, District 54
             </h3>
             <p
-              aria-label="No selection was made for Assembly Member, District 54."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1722,29 +1818,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-county-commissioners"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, County Commissioners,"
+              aria-label="County Commissioners,"
             >
               Franklin County
               , 
               County Commissioners
             </h3>
             <p
-              aria-label="No selection was made for County Commissioners."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1754,29 +1853,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-county-registrar-of-wills"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Registrar of Wills,"
+              aria-label="Registrar of Wills,"
             >
               Franklin County
               , 
               Registrar of Wills
             </h3>
             <p
-              aria-label="No selection was made for Registrar of Wills."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1786,29 +1888,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-city-mayor"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="City of Springfield, Mayor,"
+              aria-label="Mayor,"
             >
               City of Springfield
               , 
               Mayor
             </h3>
             <p
-              aria-label="No selection was made for Mayor."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1818,29 +1923,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-city-council"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="City of Springfield, City Council,"
+              aria-label="City Council,"
             >
               City of Springfield
               , 
               City Council
             </h3>
             <p
-              aria-label="No selection was made for City Council."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1850,29 +1958,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-judicial-robert-demergue"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?,"
+              aria-label="Retain Robert Demergue as Chief Justice?,"
             >
               Hamilton Court of Appeals
               , 
               Retain Robert Demergue as Chief Justice?
             </h3>
             <p
-              aria-label="No selection was made for Retain Robert Demergue as Chief Justice?."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1882,29 +1993,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-judicial-elmer-hull"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Hamilton Court of Appeals, Retain Elmer Hull as Associate Justice?,"
+              aria-label="Retain Elmer Hull as Associate Justice?,"
             >
               Hamilton Court of Appeals
               , 
               Retain Elmer Hull as Associate Justice?
             </h3>
             <p
-              aria-label="No selection was made for Retain Elmer Hull as Associate Justice?."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1914,29 +2028,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-question-a"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Question A: Recovery of Property Damages,"
+              aria-label="Question A: Recovery of Property Damages,"
             >
               State of Hamilton
               , 
               Question A: Recovery of Property Damages
             </h3>
             <p
-              aria-label="No selection was made for Question A: Recovery of Property Damages."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1946,29 +2063,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-question-b"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Question B: Separation of Powers,"
+              aria-label="Question B: Separation of Powers,"
             >
               State of Hamilton
               , 
               Question B: Separation of Powers
             </h3>
             <p
-              aria-label="No selection was made for Question B: Separation of Powers."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -1978,29 +2098,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-question-c"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Question C: Limits to Damages for Non-Economic Loss,"
+              aria-label="Question C: Limits to Damages for Non-Economic Loss,"
             >
               State of Hamilton
               , 
               Question C: Limits to Damages for Non-Economic Loss
             </h3>
             <p
-              aria-label="No selection was made for Question C: Limits to Damages for Non-Economic Loss."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -2010,29 +2133,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-proposition-1"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="State of Hamilton, Proposition 1: Gambling in Franklin and Fromwit Counties,"
+              aria-label="Proposition 1: Gambling in Franklin and Fromwit Counties,"
             >
               State of Hamilton
               , 
               Proposition 1: Gambling in Franklin and Fromwit Counties
             </h3>
             <p
-              aria-label="No selection was made for Proposition 1: Gambling in Franklin and Fromwit Counties."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -2042,29 +2168,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-measure-101"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Measure 101: College District,"
+              aria-label="Measure 101: College District,"
             >
               Franklin County
               , 
               Measure 101: College District
             </h3>
             <p
-              aria-label="No selection was made for Measure 101: College District."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -2074,29 +2203,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-102"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Measure 102: Vehicle Abatement Program,"
+              aria-label="Measure 102: Vehicle Abatement Program,"
             >
               Franklin County
               , 
               Measure 102: Vehicle Abatement Program
             </h3>
             <p
-              aria-label="No selection was made for Measure 102: Vehicle Abatement Program."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -2106,29 +2238,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-measure-666"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Measure 666: The Question No One Gets To,"
+              aria-label="Measure 666: The Question No One Gets To,"
             >
               Franklin County
               , 
               Measure 666: The Question No One Gets To
             </h3>
             <p
-              aria-label="No selection was made for Measure 666: The Question No One Gets To."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change
@@ -2138,29 +2273,32 @@ button.c7 {
         <button
           class="c7 c8"
           id="contest-primary-constitution-head-of-party"
+          role="option"
           type="button"
         >
           <div
             class="c9"
           >
             <h3
-              aria-label="Franklin County, Head of Constitution Party,"
+              aria-label="Head of Constitution Party,"
             >
               Franklin County
               , 
               Head of Constitution Party
             </h3>
             <p
-              aria-label="No selection was made for Head of Constitution Party."
+              aria-label="No selection was made for this contest."
               class="c10"
             >
               No selection was made for this contest.
             </p>
           </div>
           <div
+            aria-label="press enter to change your answer for this contest."
             class="c11"
           >
             <div
+              aria-hidden="true"
               class="c12"
             >
               Change

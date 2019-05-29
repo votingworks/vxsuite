@@ -121,6 +121,7 @@ exports[`renders StartPage 1`] = `
     class="c1"
   >
     <div
+      aria-hidden="true"
       class="c2"
     >
       <svg
@@ -296,7 +297,7 @@ exports[`renders StartPage 1`] = `
         2020 General Election
       </h1>
       <p
-        aria-label="Tuesday, November 3, 2020. Franklin County, State of Hamilton."
+        aria-hidden="true"
       >
         Tuesday, November 3, 2020
         <br />
@@ -312,7 +313,10 @@ exports[`renders StartPage 1`] = `
       </p>
       <p>
         <button
+          aria-label="Select Next to Get Started."
           class="c4"
+          id="next"
+          role="option"
           type="button"
         >
           Get Started

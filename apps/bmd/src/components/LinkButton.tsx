@@ -41,6 +41,7 @@ const LinkButton = (props: Props) => {
   return (
     <Button
       {...rest} // `children` is just another prop!
+      role="option"
       onClick={handleOnClick}
     />
   )

@@ -41,20 +41,21 @@ it(`quick end-to-end flow with absent module-smartcards`, async () => {
 
   // Go to First Contest
   fireEvent.click(getByText('Get Started'))
+  fireEvent.click(getByText('Start Voting'))
 
   // Go to Pre Review Screen
-  while (!queryByText('Pre Review Screen')) {
+  while (!queryByText('Review Your Selections')) {
     fireEvent.click(getByText('Next'))
   }
-  getByText('Pre Review Screen')
+  getByText('Review Your Selections')
 
   // Go to Review Screen
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(getByText('Review Selections'))
   getByText('Review Your Ballot Selections')
 
   // Print Screen
   fireEvent.click(getByText('Next'))
-  getByText('Print your ballot')
+  getByText('Print your official ballot')
 
   // Test Print Ballot Modal
   fireEvent.click(getByText('Print Ballot'))
@@ -66,5 +67,5 @@ it(`quick end-to-end flow with absent module-smartcards`, async () => {
   // Review and Cast Instructions
   // wait a little bit because the page transition is behind a setTimeout
   await sleep(100)
-  getByText('Verify and Cast Your Ballot')
+  getByText('Cast your printed ballot')
 })

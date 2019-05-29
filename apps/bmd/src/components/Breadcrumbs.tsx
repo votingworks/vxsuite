@@ -78,7 +78,7 @@ const StepLabel = styled.div<StepProps>`
 `
 
 const Breadcrumbs = ({ step }: { step: number }) => (
-  <BreadcrumbContainer>
+  <BreadcrumbContainer aria-label={`Step ${step} of 4.`}>
     <StepContainer>
       {['Mark', 'Review', 'Print', 'Cast'].map((label, i) => {
         const stepNumber = i + 1

@@ -378,9 +378,10 @@ button.c8 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="United States, President and Vice-President."
+          aria-label="President and Vice-President."
         >
           <div
             class="c3"
@@ -389,7 +390,9 @@ button.c8 {
           </div>
           President and Vice-President
         </h1>
-        <p>
+        <p
+          aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote for 
             1
@@ -412,11 +415,10 @@ button.c8 {
           class="c6"
         >
           <div
-            aria-labelledby="contest-header"
             class="c7"
-            role="group"
           >
             <label
+              aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
               class="c8"
               for="barchi-hallaren"
             >
@@ -424,6 +426,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="barchi-hallaren"
                 name="Joseph Barchi and Joseph Hallaren"
+                role="option"
                 type="checkbox"
                 value="barchi-hallaren"
               />
@@ -431,7 +434,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
                   class="c10"
                 >
                   <strong>
@@ -443,6 +445,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Adam Cramer and Greg Vuocolo, People's."
               class="c8"
               for="cramer-vuocolo"
             >
@@ -450,6 +453,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="cramer-vuocolo"
                 name="Adam Cramer and Greg Vuocolo"
+                role="option"
                 type="checkbox"
                 value="cramer-vuocolo"
               />
@@ -457,7 +461,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Adam Cramer and Greg Vuocolo, People's."
                   class="c10"
                 >
                   <strong>
@@ -469,6 +472,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Daniel Court and Amy Blumhardt, Liberty."
               class="c8"
               for="court-blumhardt"
             >
@@ -476,6 +480,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="court-blumhardt"
                 name="Daniel Court and Amy Blumhardt"
+                role="option"
                 type="checkbox"
                 value="court-blumhardt"
               />
@@ -483,7 +488,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Daniel Court and Amy Blumhardt, Liberty."
                   class="c10"
                 >
                   <strong>
@@ -495,6 +499,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Alvin Boone and James Lian, Constitution."
               class="c8"
               for="boone-lian"
             >
@@ -502,6 +507,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="boone-lian"
                 name="Alvin Boone and James Lian"
+                role="option"
                 type="checkbox"
                 value="boone-lian"
               />
@@ -509,7 +515,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Alvin Boone and James Lian, Constitution."
                   class="c10"
                 >
                   <strong>
@@ -521,6 +526,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
               class="c8"
               for="hildebrand-garritty"
             >
@@ -528,6 +534,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="hildebrand-garritty"
                 name="Ashley Hildebrand-McDougall and James Garritty"
+                role="option"
                 type="checkbox"
                 value="hildebrand-garritty"
               />
@@ -535,7 +542,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
                   class="c10"
                 >
                   <strong>
@@ -547,6 +553,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Martin Patterson and Clay Lariviere, Labor."
               class="c8"
               for="patterson-lariviere"
             >
@@ -554,6 +561,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="patterson-lariviere"
                 name="Martin Patterson and Clay Lariviere"
+                role="option"
                 type="checkbox"
                 value="patterson-lariviere"
               />
@@ -561,7 +569,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Martin Patterson and Clay Lariviere, Labor."
                   class="c10"
                 >
                   <strong>
@@ -583,6 +590,7 @@ button.c8 {
     <button
       class="c12"
       id="next"
+      role="option"
       type="button"
     >
       Next
@@ -590,6 +598,7 @@ button.c8 {
     <button
       class="c12"
       id="previous"
+      role="option"
       type="button"
     >
       Back
@@ -608,12 +617,14 @@ button.c8 {
     <div />
     <button
       class="c12"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="c12"
+      role="option"
       type="button"
     >
       Settings

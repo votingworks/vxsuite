@@ -15,13 +15,19 @@ const InstructionsPage = () => {
   return (
     <React.Fragment>
       <Main>
-        <MainChild center>
+        <MainChild center id="audiofocus">
           <Breadcrumbs step={1} />
           <Prose textCenter>
             <h1 aria-label="Mark your ballot.">Mark your ballot</h1>
             <Text narrow>{`This ballot has ${contests.length} contests.`}</Text>
             <p>
-              <LinkButton primary big to="/contests/">
+              <LinkButton
+                primary
+                big
+                to="/contests/"
+                id="next"
+                aria-label="Select Next to Start Voting."
+              >
                 Start Voting
               </LinkButton>
             </p>

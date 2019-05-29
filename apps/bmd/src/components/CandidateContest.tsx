@@ -181,6 +181,7 @@ const Choice = styled('label')<{ isSelected: boolean }>`
 `
 const ChoiceInput = styled.input.attrs({
   type: 'checkbox',
+  role: 'option',
 })`
   margin-right: 0.5rem;
 `
@@ -418,12 +419,16 @@ class CandidateContest extends React.Component<Props, State> {
       <React.Fragment>
         <Main noOverflow noPadding>
           <ContentHeader id="contest-header">
-            <Prose>
-              <h1 aria-label={`${contest.section}, ${contest.title}.`}>
+            <Prose id="audiofocus">
+              <h1 aria-label={`${contest.title}.`}>
                 <ContestSection>{contest.section}</ContestSection>
                 {contest.title}
               </h1>
-              <p>
+              <p
+                aria-label={`Vote for ${contest.seats}. You have selected ${
+                  vote.length
+                }. Use the down arrow to hear your options. Use the right arrow to move to the next contest.`}
+              >
                 <strong>Vote for {contest.seats}.</strong> You have selected{' '}
                 {vote.length}.
               </p>
@@ -438,7 +443,7 @@ class CandidateContest extends React.Component<Props, State> {
               onScroll={this.updateContestChoicesScrollStates}
             >
               <ScrollableContentWrapper isScrollable={isScrollable}>
-                <ChoicesGrid role="group" aria-labelledby="contest-header">
+                <ChoicesGrid>
                   {contest.candidates.map(candidate => {
                     const isChecked = !!this.findCandidateById(
                       vote,
@@ -459,6 +464,9 @@ class CandidateContest extends React.Component<Props, State> {
                         htmlFor={candidate.id}
                         isSelected={isChecked}
                         onClick={handleDisabledClick}
+                        aria-label={`${candidate.name}, ${
+                          party ? party.name : ''
+                        }.`}
                       >
                         <ChoiceInput
                           id={candidate.id}
@@ -473,12 +481,7 @@ class CandidateContest extends React.Component<Props, State> {
                           className="visually-hidden"
                         />
                         <Prose>
-                          <Text
-                            wordBreak
-                            aria-label={`${candidate.name}, ${
-                              party ? party.name : ''
-                            }.`}
-                          >
+                          <Text wordBreak>
                             <strong>{candidate.name}</strong>
                             <br />
                             {party ? party.name : ''}
@@ -553,20 +556,27 @@ class CandidateContest extends React.Component<Props, State> {
         </Main>
         <Modal
           isOpen={!!attemptedOvervoteCandidate}
+          ariaLabel=""
           content={
             <Prose>
-              <Text>
+              <Text id="modalaudiofocus">
                 You may only select {contest.seats}{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'} in this
                 contest. To vote for{' '}
                 {attemptedOvervoteCandidate && attemptedOvervoteCandidate.name},
                 you must first unselect selected{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'}.
+                <span aria-label="Use the select button to continue." />
               </Text>
             </Prose>
           }
           actions={
-            <Button primary autoFocus onClick={this.closeAttemptedVoteAlert}>
+            <Button
+              primary
+              autoFocus
+              onClick={this.closeAttemptedVoteAlert}
+              aria-label="use the select button to continue."
+            >
               Okay
             </Button>
           }

@@ -19,10 +19,10 @@ const StartPage = () => {
   return (
     <Main>
       <MainChild center>
-        <Seal dangerouslySetInnerHTML={{ __html: seal }} />
+        <Seal aria-hidden="true" dangerouslySetInnerHTML={{ __html: seal }} />
         <Prose textCenter>
           <h1 aria-label={`${title}.`}>{title}</h1>
-          <p aria-label={`${date}. ${county.name}, ${state}.`}>
+          <p aria-hidden="true">
             {date}
             <br />
             {county.name}, {state}
@@ -32,7 +32,12 @@ const StartPage = () => {
             Precinct {precinctId}
           </p>
           <p>
-            <LinkButton primary to="/instructions/">
+            <LinkButton
+              primary
+              to="/instructions/"
+              id="next"
+              aria-label="Select Next to Get Started."
+            >
               Get Started
             </LinkButton>
           </p>

@@ -261,9 +261,10 @@ button.c10 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="County, Prop 1: Garbage Collection Program."
+          aria-label="Prop 1: Garbage Collection Program."
         >
           <div
             class="c3"
@@ -272,7 +273,9 @@ button.c10 {
           </div>
           Prop 1: Garbage Collection Program
         </h1>
-        <p>
+        <p
+          aria-label="Vote Yes or No. Use the down arrow to select your preference. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote Yes or No.
           </strong>
@@ -306,9 +309,7 @@ button.c10 {
       class="c8"
     >
       <div
-        aria-labelledby="contest-header"
         class="c9"
-        role="group"
       >
         <label
           class="c10"
@@ -318,6 +319,7 @@ button.c10 {
             class="visually-hidden c11"
             id="yes"
             name="contest-id"
+            role="option"
             type="checkbox"
             value="yes"
           />
@@ -325,6 +327,7 @@ button.c10 {
             class="c2"
           >
             <p
+              aria-label="Yes on Prop 1"
               class="c12"
             >
               Yes
@@ -339,6 +342,7 @@ button.c10 {
             class="visually-hidden c11"
             id="no"
             name="contest-id"
+            role="option"
             type="checkbox"
             value="no"
           />
@@ -346,6 +350,7 @@ button.c10 {
             class="c2"
           >
             <p
+              aria-label="No on Prop 1"
               class="c12"
             >
               No
@@ -682,9 +687,10 @@ button.c10 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="County, Prop 1: Garbage Collection Program."
+          aria-label="Prop 1: Garbage Collection Program."
         >
           <div
             class="c3"
@@ -693,7 +699,9 @@ button.c10 {
           </div>
           Prop 1: Garbage Collection Program
         </h1>
-        <p>
+        <p
+          aria-label="Vote Yes or No. Use the down arrow to select your preference. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote Yes or No.
           </strong>
@@ -727,9 +735,7 @@ button.c10 {
       class="c8"
     >
       <div
-        aria-labelledby="contest-header"
         class="c9"
-        role="group"
       >
         <label
           class="c10"
@@ -740,6 +746,7 @@ button.c10 {
             class="visually-hidden c11"
             id="yes"
             name="contest-id"
+            role="option"
             type="checkbox"
             value="yes"
           />
@@ -747,6 +754,7 @@ button.c10 {
             class="c2"
           >
             <p
+              aria-label="Yes on Prop 1"
               class="c12"
             >
               Yes
@@ -761,6 +769,7 @@ button.c10 {
             class="visually-hidden c11"
             id="no"
             name="contest-id"
+            role="option"
             type="checkbox"
             value="no"
           />
@@ -768,6 +777,7 @@ button.c10 {
             class="c2"
           >
             <p
+              aria-label="No on Prop 1"
               class="c12"
             >
               No

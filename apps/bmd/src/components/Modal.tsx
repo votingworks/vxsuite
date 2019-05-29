@@ -38,13 +38,22 @@ const Modal: React.FC<Props> = ({
   centerContent,
   ariaLabel = 'Alert Modal',
   isOpen,
-  onAfterOpen,
+  onAfterOpen = () => {
+    window.setTimeout(() => {
+      const element = document.getElementById('modalaudiofocus')
+      if (element) {
+        element.focus()
+        element.click()
+      }
+    }, 10)
+  },
 }: Props) => (
   <ReactModal
     appElement={
       document.getElementById('root')! || document.body.firstElementChild
     }
     ariaHideApp
+    role="none"
     isOpen={isOpen}
     contentLabel={ariaLabel}
     portalClassName="modal-portal"

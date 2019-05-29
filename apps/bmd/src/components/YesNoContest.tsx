@@ -190,6 +190,7 @@ const Choice = styled('label')<{ isSelected: boolean }>`
   }
 `
 const ChoiceInput = styled.input.attrs({
+  role: 'option',
   type: 'checkbox',
 })`
   margin-right: 0.5rem;
@@ -318,12 +319,12 @@ export default class YesNoContest extends React.Component<Props> {
       <React.Fragment>
         <Main noOverflow noPadding>
           <ContentHeader id="contest-header">
-            <Prose>
-              <h1 aria-label={`${contest.section}, ${contest.title}.`}>
+            <Prose id="audiofocus">
+              <h1 aria-label={`${contest.title}.`}>
                 <ContestSection>{contest.section}</ContestSection>
                 {contest.title}
               </h1>
-              <p>
+              <p aria-label="Vote Yes or No. Use the down arrow to select your preference. Use the right arrow to move to the next contest.">
                 <strong>Vote Yes or No.</strong>
               </p>
             </Prose>
@@ -364,7 +365,7 @@ export default class YesNoContest extends React.Component<Props> {
             )}
           </VariableContentContainer>
           <ContestFooter>
-            <ChoicesGrid role="group" aria-labelledby="contest-header">
+            <ChoicesGrid>
               {['Yes', 'No'].map(answer => {
                 const answerLowerCase = answer.toLowerCase()
                 const isChecked = vote === answerLowerCase
@@ -396,7 +397,13 @@ export default class YesNoContest extends React.Component<Props> {
                       className="visually-hidden"
                     />
                     <Prose>
-                      <Text wordBreak>{answer}</Text>
+                      <Text
+                        aria-label={`${answer} on ${contest.shortTitle ||
+                          contest.title}`}
+                        wordBreak
+                      >
+                        {answer}
+                      </Text>
                     </Prose>
                   </Choice>
                 )

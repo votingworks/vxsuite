@@ -203,15 +203,21 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
         <Main>
           <MainChild center>
             <Breadcrumbs step={3} />
-            <Prose textCenter className="no-print">
-              <h1 aria-label="Print your ballot.">
+            <Prose textCenter className="no-print" id="audiofocus">
+              <h1 aria-label="Print your official ballot.">
                 Print your official ballot
               </h1>
               <Text narrow>
                 If you have reviewed your selections and you are done voting,
                 you are ready to print your official ballot.
               </Text>
-              <Button primary big onClick={this.showConfirm}>
+              <span aria-label="First, press the down arrow, then" />
+              <Button
+                primary
+                big
+                onClick={this.showConfirm}
+                aria-label="Use the select button to print your ballot."
+              >
                 Print Ballot
               </Button>
             </Prose>
@@ -233,17 +239,21 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
         <Modal
           isOpen={this.state.showConfirmModal}
           centerContent
+          ariaLabel=""
           content={
-            <Prose>
+            <Prose id="modalaudiofocus">
               <Text center>
                 You may not make any changes after you print your ballot.
               </Text>
               <Text center>Do you want to print your ballot?</Text>
+              <span aria-label="Use the down arrow to continue." />
             </Prose>
           }
           actions={
             <>
               <Button
+                role="link"
+                aria-label="Use the select button to print your ballot."
                 primary
                 onClick={() => {
                   this.print()

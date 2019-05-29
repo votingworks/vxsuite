@@ -136,9 +136,9 @@ const ContestActions = styled.div`
     display: block;
   }
 `
-const NoSelection = (props: { title: string }) => (
+const NoSelection = () => (
   <Text
-    aria-label={`No selection was made for ${props.title}.`}
+    aria-label="No selection was made for this contest."
     bold
     warning
     warningIcon
@@ -159,7 +159,7 @@ const CandidateContestResult = ({
 }) => {
   const remainingChoices = contest.seats - vote.length
   return vote === undefined || vote.length === 0 ? (
-    <NoSelection title={contest.title} />
+    <NoSelection />
   ) : (
     <React.Fragment>
       {vote.map((candidate: Candidate, index: number, array: CandidateVote) => {
@@ -199,7 +199,7 @@ const YesNoContestResult = (props: {
       {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
     </Text>
   ) : (
-    <NoSelection title={props.contest.title} />
+    <NoSelection />
   )
 
 interface State {
@@ -297,8 +297,10 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
       <React.Fragment>
         <Main noOverflow noPadding>
           <ContentHeader>
-            <Prose>
-              <h1>Review Your Ballot Selections</h1>
+            <Prose id="audiofocus">
+              <h1 aria-label="Review your ballot selections. Use the down arrow to go through all contests. Use the select button to change a particular contest. When you are done reviewing, use the right arrow to continue.">
+                Review Your Ballot Selections
+              </h1>
               <Button
                 aria-hidden
                 data-direction="up"
@@ -326,7 +328,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                     to={`/contests/${i}#review`}
                   >
                     <ContestProse compact>
-                      <h3 aria-label={`${contest.section}, ${contest.title},`}>
+                      <h3 aria-label={`${contest.title.replace(',', '')},`}>
                         {contest.section}, {contest.title}
                       </h3>
 
@@ -344,8 +346,8 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                         />
                       )}
                     </ContestProse>
-                    <ContestActions>
-                      <DecoyButton>Change</DecoyButton>
+                    <ContestActions aria-label="press enter to change your answer for this contest.">
+                      <DecoyButton aria-hidden="true">Change</DecoyButton>
                     </ContestActions>
                   </Contest>
                 ))}

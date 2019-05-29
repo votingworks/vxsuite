@@ -54,6 +54,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
     <React.Fragment>
       {contest.type === 'candidate' && (
         <CandidateContest
+          aria-live="assertive"
           key={contest.id}
           contest={contest}
           parties={election!.parties}

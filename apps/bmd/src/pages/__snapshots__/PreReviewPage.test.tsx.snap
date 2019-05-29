@@ -313,6 +313,7 @@ exports[`renders PreReviewPage 1`] = `
     class="c1"
   >
     <div
+      aria-label="Step 2 of 4."
       class="c2"
     >
       <div
@@ -386,6 +387,7 @@ exports[`renders PreReviewPage 1`] = `
     </div>
     <div
       class="c10"
+      id="audiofocus"
     >
       <h1
         aria-label="Review Your Selections."
@@ -397,9 +399,14 @@ exports[`renders PreReviewPage 1`] = `
       >
         Confirm and change any votes as necessary.
       </p>
+      <div
+        aria-label="Use the down arrow, then"
+      />
       <p>
         <button
+          aria-label="Use the select button to begin your review."
           class="c12"
+          role="option"
           type="button"
         >
           Review Selections

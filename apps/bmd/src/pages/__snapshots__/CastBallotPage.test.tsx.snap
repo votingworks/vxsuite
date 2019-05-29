@@ -274,6 +274,7 @@ exports[`renders CastBallotPage 1`] = `
     class="c1"
   >
     <div
+      aria-label="Step 4 of 4."
       class="c2"
     >
       <div
@@ -347,6 +348,7 @@ exports[`renders CastBallotPage 1`] = `
     </div>
     <div
       class="c9"
+      id="audiofocus"
     >
       <h1
         aria-label="Cast your ballot."
@@ -363,9 +365,14 @@ exports[`renders CastBallotPage 1`] = `
       >
         If you find a mistake, ask a poll worker for help.
       </p>
+      <div
+        aria-label="Press the down arrow to continue, then"
+      />
       <p>
         <button
+          aria-label="Press the select button to confirm that you will review and cast your printed ballot."
           class="c11"
+          role="option"
           type="button"
         >
           Okay, I will review and cast my printed ballot.

@@ -140,6 +140,7 @@ exports[`basic end-to-end flow 1`] = `
       class="c2"
     >
       <div
+        aria-hidden="true"
         class="c3"
       >
         <svg
@@ -315,7 +316,7 @@ exports[`basic end-to-end flow 1`] = `
           2020 General Election
         </h1>
         <p
-          aria-label="Tuesday, November 3, 2020. Franklin County, State of Hamilton."
+          aria-hidden="true"
         >
           Tuesday, November 3, 2020
           <br />
@@ -331,7 +332,10 @@ exports[`basic end-to-end flow 1`] = `
         </p>
         <p>
           <button
+            aria-label="Select Next to Get Started."
             class="c5"
+            id="next"
+            role="option"
             type="button"
           >
             Get Started
@@ -583,9 +587,10 @@ button.c8 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="United States, President and Vice-President."
+          aria-label="President and Vice-President."
         >
           <div
             class="c3"
@@ -594,7 +599,9 @@ button.c8 {
           </div>
           President and Vice-President
         </h1>
-        <p>
+        <p
+          aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote for 
             1
@@ -617,11 +624,10 @@ button.c8 {
           class="c6"
         >
           <div
-            aria-labelledby="contest-header"
             class="c7"
-            role="group"
           >
             <label
+              aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
               class="c8"
               for="barchi-hallaren"
             >
@@ -629,6 +635,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="barchi-hallaren"
                 name="Joseph Barchi and Joseph Hallaren"
+                role="option"
                 type="checkbox"
                 value="barchi-hallaren"
               />
@@ -636,7 +643,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
                   class="c10"
                 >
                   <strong>
@@ -648,6 +654,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Adam Cramer and Greg Vuocolo, People's."
               class="c8"
               for="cramer-vuocolo"
             >
@@ -655,6 +662,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="cramer-vuocolo"
                 name="Adam Cramer and Greg Vuocolo"
+                role="option"
                 type="checkbox"
                 value="cramer-vuocolo"
               />
@@ -662,7 +670,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Adam Cramer and Greg Vuocolo, People's."
                   class="c10"
                 >
                   <strong>
@@ -674,6 +681,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Daniel Court and Amy Blumhardt, Liberty."
               class="c8"
               for="court-blumhardt"
             >
@@ -681,6 +689,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="court-blumhardt"
                 name="Daniel Court and Amy Blumhardt"
+                role="option"
                 type="checkbox"
                 value="court-blumhardt"
               />
@@ -688,7 +697,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Daniel Court and Amy Blumhardt, Liberty."
                   class="c10"
                 >
                   <strong>
@@ -700,6 +708,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Alvin Boone and James Lian, Constitution."
               class="c8"
               for="boone-lian"
             >
@@ -707,6 +716,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="boone-lian"
                 name="Alvin Boone and James Lian"
+                role="option"
                 type="checkbox"
                 value="boone-lian"
               />
@@ -714,7 +724,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Alvin Boone and James Lian, Constitution."
                   class="c10"
                 >
                   <strong>
@@ -726,6 +735,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
               class="c8"
               for="hildebrand-garritty"
             >
@@ -733,6 +743,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="hildebrand-garritty"
                 name="Ashley Hildebrand-McDougall and James Garritty"
+                role="option"
                 type="checkbox"
                 value="hildebrand-garritty"
               />
@@ -740,7 +751,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
                   class="c10"
                 >
                   <strong>
@@ -752,6 +762,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Martin Patterson and Clay Lariviere, Labor."
               class="c8"
               for="patterson-lariviere"
             >
@@ -759,6 +770,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="patterson-lariviere"
                 name="Martin Patterson and Clay Lariviere"
+                role="option"
                 type="checkbox"
                 value="patterson-lariviere"
               />
@@ -766,7 +778,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Martin Patterson and Clay Lariviere, Labor."
                   class="c10"
                 >
                   <strong>
@@ -863,6 +874,7 @@ button.c8 {
     <button
       class="c1"
       id="next"
+      role="option"
       type="button"
     >
       Next
@@ -870,6 +882,7 @@ button.c8 {
     <button
       class="c1"
       id="previous"
+      role="option"
       type="button"
     >
       Back
@@ -965,12 +978,14 @@ button.c8 {
     <div />
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Settings
@@ -993,9 +1008,10 @@ exports[`basic end-to-end flow 3`] = `
     >
       <div
         class="sc-htpNat eqsiuG"
+        id="audiofocus"
       >
         <h1
-          aria-label="United States, President and Vice-President."
+          aria-label="President and Vice-President."
         >
           <div
             class="sc-cSHVUG vJbrg"
@@ -1004,7 +1020,9 @@ exports[`basic end-to-end flow 3`] = `
           </div>
           President and Vice-President
         </h1>
-        <p>
+        <p
+          aria-label="Vote for 1. You have selected 1. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote for 
             1
@@ -1027,11 +1045,10 @@ exports[`basic end-to-end flow 3`] = `
           class="sc-kGXeez izhLGa"
         >
           <div
-            aria-labelledby="contest-header"
             class="sc-kpOJdX tRUHJ"
-            role="group"
           >
             <label
+              aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
               class="sc-dxgOiQ jJuFX"
               for="barchi-hallaren"
             >
@@ -1039,6 +1056,7 @@ exports[`basic end-to-end flow 3`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="barchi-hallaren"
                 name="Joseph Barchi and Joseph Hallaren"
+                role="option"
                 type="checkbox"
                 value="barchi-hallaren"
               />
@@ -1046,7 +1064,6 @@ exports[`basic end-to-end flow 3`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -1058,6 +1075,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
+              aria-label="Adam Cramer and Greg Vuocolo, People's."
               class="sc-dxgOiQ jGAILV"
               for="cramer-vuocolo"
             >
@@ -1065,6 +1083,7 @@ exports[`basic end-to-end flow 3`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="cramer-vuocolo"
                 name="Adam Cramer and Greg Vuocolo"
+                role="option"
                 type="checkbox"
                 value="cramer-vuocolo"
               />
@@ -1072,7 +1091,6 @@ exports[`basic end-to-end flow 3`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Adam Cramer and Greg Vuocolo, People's."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -1084,6 +1102,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
+              aria-label="Daniel Court and Amy Blumhardt, Liberty."
               class="sc-dxgOiQ jGAILV"
               for="court-blumhardt"
             >
@@ -1091,6 +1110,7 @@ exports[`basic end-to-end flow 3`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="court-blumhardt"
                 name="Daniel Court and Amy Blumhardt"
+                role="option"
                 type="checkbox"
                 value="court-blumhardt"
               />
@@ -1098,7 +1118,6 @@ exports[`basic end-to-end flow 3`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Daniel Court and Amy Blumhardt, Liberty."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -1110,6 +1129,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
+              aria-label="Alvin Boone and James Lian, Constitution."
               class="sc-dxgOiQ jGAILV"
               for="boone-lian"
             >
@@ -1117,6 +1137,7 @@ exports[`basic end-to-end flow 3`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="boone-lian"
                 name="Alvin Boone and James Lian"
+                role="option"
                 type="checkbox"
                 value="boone-lian"
               />
@@ -1124,7 +1145,6 @@ exports[`basic end-to-end flow 3`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Alvin Boone and James Lian, Constitution."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -1136,6 +1156,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
+              aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
               class="sc-dxgOiQ jGAILV"
               for="hildebrand-garritty"
             >
@@ -1143,6 +1164,7 @@ exports[`basic end-to-end flow 3`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="hildebrand-garritty"
                 name="Ashley Hildebrand-McDougall and James Garritty"
+                role="option"
                 type="checkbox"
                 value="hildebrand-garritty"
               />
@@ -1150,7 +1172,6 @@ exports[`basic end-to-end flow 3`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -1162,6 +1183,7 @@ exports[`basic end-to-end flow 3`] = `
               </div>
             </label>
             <label
+              aria-label="Martin Patterson and Clay Lariviere, Labor."
               class="sc-dxgOiQ jGAILV"
               for="patterson-lariviere"
             >
@@ -1169,6 +1191,7 @@ exports[`basic end-to-end flow 3`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="patterson-lariviere"
                 name="Martin Patterson and Clay Lariviere"
+                role="option"
                 type="checkbox"
                 value="patterson-lariviere"
               />
@@ -1176,7 +1199,6 @@ exports[`basic end-to-end flow 3`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Martin Patterson and Clay Lariviere, Labor."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -1198,6 +1220,7 @@ exports[`basic end-to-end flow 3`] = `
     <button
       class="sc-VigVT DKoLO"
       id="next"
+      role="option"
       type="button"
     >
       Next
@@ -1205,6 +1228,7 @@ exports[`basic end-to-end flow 3`] = `
     <button
       class="sc-VigVT BEGsm"
       id="previous"
+      role="option"
       type="button"
     >
       Back
@@ -1223,12 +1247,14 @@ exports[`basic end-to-end flow 3`] = `
     <div />
     <button
       class="sc-VigVT BEGsm"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="sc-VigVT BEGsm"
+      role="option"
       type="button"
     >
       Settings
@@ -1501,9 +1527,10 @@ button.c10 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="Franklin County, Measure 102: Vehicle Abatement Program."
+          aria-label="Measure 102: Vehicle Abatement Program."
         >
           <div
             class="c3"
@@ -1512,7 +1539,9 @@ button.c10 {
           </div>
           Measure 102: Vehicle Abatement Program
         </h1>
-        <p>
+        <p
+          aria-label="Vote Yes or No. Use the down arrow to select your preference. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote Yes or No.
           </strong>
@@ -1546,9 +1575,7 @@ button.c10 {
       class="c8"
     >
       <div
-        aria-labelledby="contest-header"
         class="c9"
-        role="group"
       >
         <label
           class="c10"
@@ -1558,6 +1585,7 @@ button.c10 {
             class="visually-hidden c11"
             id="yes"
             name="102"
+            role="option"
             type="checkbox"
             value="yes"
           />
@@ -1565,6 +1593,7 @@ button.c10 {
             class="c2"
           >
             <p
+              aria-label="Yes on Measure 102"
               class="c12"
             >
               Yes
@@ -1579,6 +1608,7 @@ button.c10 {
             class="visually-hidden c11"
             id="no"
             name="102"
+            role="option"
             type="checkbox"
             value="no"
           />
@@ -1586,6 +1616,7 @@ button.c10 {
             class="c2"
           >
             <p
+              aria-label="No on Measure 102"
               class="c12"
             >
               No
@@ -1601,6 +1632,7 @@ button.c10 {
     <button
       class="sc-VigVT BEGsm"
       id="next"
+      role="option"
       type="button"
     >
       Next
@@ -1608,6 +1640,7 @@ button.c10 {
     <button
       class="sc-VigVT BEGsm"
       id="previous"
+      role="option"
       type="button"
     >
       Back
@@ -1626,12 +1659,14 @@ button.c10 {
     <div />
     <button
       class="sc-VigVT BEGsm"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="sc-VigVT BEGsm"
+      role="option"
       type="button"
     >
       Settings
@@ -1654,9 +1689,10 @@ exports[`basic end-to-end flow 5`] = `
     >
       <div
         class="sc-htpNat eqsiuG"
+        id="audiofocus"
       >
         <h1
-          aria-label="Franklin County, Measure 102: Vehicle Abatement Program."
+          aria-label="Measure 102: Vehicle Abatement Program."
         >
           <div
             class="sc-kkGfuU dTnssN"
@@ -1665,7 +1701,9 @@ exports[`basic end-to-end flow 5`] = `
           </div>
           Measure 102: Vehicle Abatement Program
         </h1>
-        <p>
+        <p
+          aria-label="Vote Yes or No. Use the down arrow to select your preference. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote Yes or No.
           </strong>
@@ -1699,9 +1737,7 @@ exports[`basic end-to-end flow 5`] = `
       class="sc-hSdWYo bBJVLg"
     >
       <div
-        aria-labelledby="contest-header"
         class="sc-cMljjf jIhRcK"
-        role="group"
       >
         <label
           class="sc-jAaTju kikqpu"
@@ -1711,6 +1747,7 @@ exports[`basic end-to-end flow 5`] = `
             class="visually-hidden sc-jDwBTQ fQAjmo"
             id="yes"
             name="102"
+            role="option"
             type="checkbox"
             value="yes"
           />
@@ -1718,6 +1755,7 @@ exports[`basic end-to-end flow 5`] = `
             class="sc-htpNat eqsiuG"
           >
             <p
+              aria-label="Yes on Measure 102"
               class="sc-jTzLTM ekvCWw"
             >
               Yes
@@ -1732,6 +1770,7 @@ exports[`basic end-to-end flow 5`] = `
             class="visually-hidden sc-jDwBTQ fQAjmo"
             id="no"
             name="102"
+            role="option"
             type="checkbox"
             value="no"
           />
@@ -1739,6 +1778,7 @@ exports[`basic end-to-end flow 5`] = `
             class="sc-htpNat eqsiuG"
           >
             <p
+              aria-label="No on Measure 102"
               class="sc-jTzLTM ekvCWw"
             >
               No
@@ -1754,6 +1794,7 @@ exports[`basic end-to-end flow 5`] = `
     <button
       class="sc-VigVT DKoLO"
       id="next"
+      role="option"
       type="button"
     >
       Next
@@ -1761,6 +1802,7 @@ exports[`basic end-to-end flow 5`] = `
     <button
       class="sc-VigVT BEGsm"
       id="previous"
+      role="option"
       type="button"
     >
       Back
@@ -1779,12 +1821,14 @@ exports[`basic end-to-end flow 5`] = `
     <div />
     <button
       class="sc-VigVT BEGsm"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="sc-VigVT BEGsm"
+      role="option"
       type="button"
     >
       Settings
@@ -2110,6 +2154,7 @@ exports[`basic end-to-end flow 6`] = `
       class="c1"
     >
       <div
+        aria-label="Step 2 of 4."
         class="c2"
       >
         <div
@@ -2183,6 +2228,7 @@ exports[`basic end-to-end flow 6`] = `
       </div>
       <div
         class="c10"
+        id="audiofocus"
       >
         <h1
           aria-label="Review Your Selections."
@@ -2194,9 +2240,14 @@ exports[`basic end-to-end flow 6`] = `
         >
           Confirm and change any votes as necessary.
         </p>
+        <div
+          aria-label="Use the down arrow, then"
+        />
         <p>
           <button
+            aria-label="Use the select button to begin your review."
             class="c12"
+            role="option"
             type="button"
           >
             Review Selections
@@ -2273,6 +2324,7 @@ exports[`basic end-to-end flow 6`] = `
     <button
       class="c1"
       id="previous"
+      role="option"
       type="button"
     >
       Back
@@ -2364,12 +2416,14 @@ exports[`basic end-to-end flow 6`] = `
     <div />
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Settings
@@ -2755,8 +2809,11 @@ button.c7 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
-        <h1>
+        <h1
+          aria-label="Review your ballot selections. Use the down arrow to go through all contests. Use the select button to change a particular contest. When you are done reviewing, use the right arrow to continue."
+        >
           Review Your Ballot Selections
         </h1>
         <button
@@ -2782,13 +2839,14 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-president"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="United States, President and Vice-President,"
+                aria-label="President and Vice-President,"
               >
                 United States
                 , 
@@ -2806,9 +2864,11 @@ button.c7 {
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -2818,29 +2878,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-senator"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="United States, Senator,"
+                aria-label="Senator,"
               >
                 United States
                 , 
                 Senator
               </h3>
               <p
-                aria-label="No selection was made for Senator."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -2850,29 +2913,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-representative-district-6"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="United States, Representative, District 6,"
+                aria-label="Representative District 6,"
               >
                 United States
                 , 
                 Representative, District 6
               </h3>
               <p
-                aria-label="No selection was made for Representative, District 6."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -2882,29 +2948,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-governor"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Governor,"
+                aria-label="Governor,"
               >
                 State of Hamilton
                 , 
                 Governor
               </h3>
               <p
-                aria-label="No selection was made for Governor."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -2914,29 +2983,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-lieutenant-governor"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Lieutenant Governor,"
+                aria-label="Lieutenant Governor,"
               >
                 State of Hamilton
                 , 
                 Lieutenant Governor
               </h3>
               <p
-                aria-label="No selection was made for Lieutenant Governor."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -2946,29 +3018,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-secretary-of-state"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Secretary of State,"
+                aria-label="Secretary of State,"
               >
                 State of Hamilton
                 , 
                 Secretary of State
               </h3>
               <p
-                aria-label="No selection was made for Secretary of State."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -2978,29 +3053,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-state-senator-district-31"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Senator, District 31,"
+                aria-label="Senator District 31,"
               >
                 State of Hamilton
                 , 
                 Senator, District 31
               </h3>
               <p
-                aria-label="No selection was made for Senator, District 31."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3010,29 +3088,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-state-assembly-district-54"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Assembly Member, District 54,"
+                aria-label="Assembly Member District 54,"
               >
                 State of Hamilton
                 , 
                 Assembly Member, District 54
               </h3>
               <p
-                aria-label="No selection was made for Assembly Member, District 54."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3042,29 +3123,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-county-commissioners"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Franklin County, County Commissioners,"
+                aria-label="County Commissioners,"
               >
                 Franklin County
                 , 
                 County Commissioners
               </h3>
               <p
-                aria-label="No selection was made for County Commissioners."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3074,29 +3158,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-county-registrar-of-wills"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Franklin County, Registrar of Wills,"
+                aria-label="Registrar of Wills,"
               >
                 Franklin County
                 , 
                 Registrar of Wills
               </h3>
               <p
-                aria-label="No selection was made for Registrar of Wills."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3106,29 +3193,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-city-mayor"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="City of Springfield, Mayor,"
+                aria-label="Mayor,"
               >
                 City of Springfield
                 , 
                 Mayor
               </h3>
               <p
-                aria-label="No selection was made for Mayor."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3138,29 +3228,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-city-council"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="City of Springfield, City Council,"
+                aria-label="City Council,"
               >
                 City of Springfield
                 , 
                 City Council
               </h3>
               <p
-                aria-label="No selection was made for City Council."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3170,29 +3263,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-judicial-robert-demergue"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?,"
+                aria-label="Retain Robert Demergue as Chief Justice?,"
               >
                 Hamilton Court of Appeals
                 , 
                 Retain Robert Demergue as Chief Justice?
               </h3>
               <p
-                aria-label="No selection was made for Retain Robert Demergue as Chief Justice?."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3202,29 +3298,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-judicial-elmer-hull"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Hamilton Court of Appeals, Retain Elmer Hull as Associate Justice?,"
+                aria-label="Retain Elmer Hull as Associate Justice?,"
               >
                 Hamilton Court of Appeals
                 , 
                 Retain Elmer Hull as Associate Justice?
               </h3>
               <p
-                aria-label="No selection was made for Retain Elmer Hull as Associate Justice?."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3234,29 +3333,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-question-a"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Question A: Recovery of Property Damages,"
+                aria-label="Question A: Recovery of Property Damages,"
               >
                 State of Hamilton
                 , 
                 Question A: Recovery of Property Damages
               </h3>
               <p
-                aria-label="No selection was made for Question A: Recovery of Property Damages."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3266,29 +3368,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-question-b"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Question B: Separation of Powers,"
+                aria-label="Question B: Separation of Powers,"
               >
                 State of Hamilton
                 , 
                 Question B: Separation of Powers
               </h3>
               <p
-                aria-label="No selection was made for Question B: Separation of Powers."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3298,29 +3403,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-question-c"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Question C: Limits to Damages for Non-Economic Loss,"
+                aria-label="Question C: Limits to Damages for Non-Economic Loss,"
               >
                 State of Hamilton
                 , 
                 Question C: Limits to Damages for Non-Economic Loss
               </h3>
               <p
-                aria-label="No selection was made for Question C: Limits to Damages for Non-Economic Loss."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3330,29 +3438,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-proposition-1"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Proposition 1: Gambling in Franklin and Fromwit Counties,"
+                aria-label="Proposition 1: Gambling in Franklin and Fromwit Counties,"
               >
                 State of Hamilton
                 , 
                 Proposition 1: Gambling in Franklin and Fromwit Counties
               </h3>
               <p
-                aria-label="No selection was made for Proposition 1: Gambling in Franklin and Fromwit Counties."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3362,29 +3473,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-measure-101"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Franklin County, Measure 101: College District,"
+                aria-label="Measure 101: College District,"
               >
                 Franklin County
                 , 
                 Measure 101: College District
               </h3>
               <p
-                aria-label="No selection was made for Measure 101: College District."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3394,13 +3508,14 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-102"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Franklin County, Measure 102: Vehicle Abatement Program,"
+                aria-label="Measure 102: Vehicle Abatement Program,"
               >
                 Franklin County
                 , 
@@ -3415,9 +3530,11 @@ button.c7 {
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -3508,6 +3625,7 @@ button.c7 {
     <button
       class="c1"
       id="next"
+      role="option"
       type="button"
     >
       Next
@@ -3600,12 +3718,14 @@ button.c7 {
     <div />
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Settings
@@ -3854,9 +3974,10 @@ button.c8 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="Franklin County, County Commissioners."
+          aria-label="County Commissioners."
         >
           <div
             class="c3"
@@ -3865,7 +3986,9 @@ button.c8 {
           </div>
           County Commissioners
         </h1>
-        <p>
+        <p
+          aria-label="Vote for 4. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote for 
             4
@@ -3888,11 +4011,10 @@ button.c8 {
           class="c6"
         >
           <div
-            aria-labelledby="contest-header"
             class="c7"
-            role="group"
           >
             <label
+              aria-label="Camille Argent, Federalist."
               class="c8"
               for="argent"
             >
@@ -3900,6 +4022,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="argent"
                 name="Camille Argent"
+                role="option"
                 type="checkbox"
                 value="argent"
               />
@@ -3907,7 +4030,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Camille Argent, Federalist."
                   class="c10"
                 >
                   <strong>
@@ -3919,6 +4041,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Chloe Witherspoon-Smithson, Federalist."
               class="c8"
               for="witherspoonsmithson"
             >
@@ -3926,6 +4049,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="witherspoonsmithson"
                 name="Chloe Witherspoon-Smithson"
+                role="option"
                 type="checkbox"
                 value="witherspoonsmithson"
               />
@@ -3933,7 +4057,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Chloe Witherspoon-Smithson, Federalist."
                   class="c10"
                 >
                   <strong>
@@ -3945,6 +4068,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Clayton Bainbridge, Federalist."
               class="c8"
               for="bainbridge"
             >
@@ -3952,6 +4076,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="bainbridge"
                 name="Clayton Bainbridge"
+                role="option"
                 type="checkbox"
                 value="bainbridge"
               />
@@ -3959,7 +4084,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Clayton Bainbridge, Federalist."
                   class="c10"
                 >
                   <strong>
@@ -3971,6 +4095,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Charlene Hennessey, People's."
               class="c8"
               for="hennessey"
             >
@@ -3978,6 +4103,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="hennessey"
                 name="Charlene Hennessey"
+                role="option"
                 type="checkbox"
                 value="hennessey"
               />
@@ -3985,7 +4111,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Charlene Hennessey, People's."
                   class="c10"
                 >
                   <strong>
@@ -3997,6 +4122,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Eric Savoy, People's."
               class="c8"
               for="savoy"
             >
@@ -4004,6 +4130,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="savoy"
                 name="Eric Savoy"
+                role="option"
                 type="checkbox"
                 value="savoy"
               />
@@ -4011,7 +4138,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Eric Savoy, People's."
                   class="c10"
                 >
                   <strong>
@@ -4023,6 +4149,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Susan Tawa, People's."
               class="c8"
               for="tawa"
             >
@@ -4030,6 +4157,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="tawa"
                 name="Susan Tawa"
+                role="option"
                 type="checkbox"
                 value="tawa"
               />
@@ -4037,7 +4165,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Susan Tawa, People's."
                   class="c10"
                 >
                   <strong>
@@ -4049,6 +4176,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Mary Tawa, People's."
               class="c8"
               for="tawa-mary"
             >
@@ -4056,6 +4184,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="tawa-mary"
                 name="Mary Tawa"
+                role="option"
                 type="checkbox"
                 value="tawa-mary"
               />
@@ -4063,7 +4192,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Mary Tawa, People's."
                   class="c10"
                 >
                   <strong>
@@ -4075,6 +4203,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Damian Rangel, Liberty."
               class="c8"
               for="rangel"
             >
@@ -4082,6 +4211,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="rangel"
                 name="Damian Rangel"
+                role="option"
                 type="checkbox"
                 value="rangel"
               />
@@ -4089,7 +4219,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Damian Rangel, Liberty."
                   class="c10"
                 >
                   <strong>
@@ -4101,6 +4230,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Valarie Altman, Constitution."
               class="c8"
               for="altman"
             >
@@ -4108,6 +4238,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="altman"
                 name="Valarie Altman"
+                role="option"
                 type="checkbox"
                 value="altman"
               />
@@ -4115,7 +4246,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Valarie Altman, Constitution."
                   class="c10"
                 >
                   <strong>
@@ -4127,6 +4257,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Helen Moore, Constitution."
               class="c8"
               for="moore"
             >
@@ -4134,6 +4265,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="moore"
                 name="Helen Moore"
+                role="option"
                 type="checkbox"
                 value="moore"
               />
@@ -4141,7 +4273,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Helen Moore, Constitution."
                   class="c10"
                 >
                   <strong>
@@ -4153,6 +4284,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="John White, Whig."
               class="c8"
               for="white"
             >
@@ -4160,6 +4292,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="white"
                 name="John White"
+                role="option"
                 type="checkbox"
                 value="white"
               />
@@ -4167,7 +4300,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="John White, Whig."
                   class="c10"
                 >
                   <strong>
@@ -4179,6 +4311,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Joe Schmidt, Whig."
               class="c8"
               for="schmidt"
             >
@@ -4186,6 +4319,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="schmidt"
                 name="Joe Schmidt"
+                role="option"
                 type="checkbox"
                 value="schmidt"
               />
@@ -4193,7 +4327,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Joe Schmidt, Whig."
                   class="c10"
                 >
                   <strong>
@@ -4205,6 +4338,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Joe Smith, Whig."
               class="c8"
               for="smith"
             >
@@ -4212,6 +4346,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="smith"
                 name="Joe Smith"
+                role="option"
                 type="checkbox"
                 value="smith"
               />
@@ -4219,7 +4354,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Joe Smith, Whig."
                   class="c10"
                 >
                   <strong>
@@ -4231,6 +4365,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Amanda Marracini, Labor."
               class="c8"
               for="marracini"
             >
@@ -4238,6 +4373,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="marracini"
                 name="Amanda Marracini"
+                role="option"
                 type="checkbox"
                 value="marracini"
               />
@@ -4245,7 +4381,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Amanda Marracini, Labor."
                   class="c10"
                 >
                   <strong>
@@ -4257,6 +4392,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Martin Schreiner, Independent."
               class="c8"
               for="schreiner"
             >
@@ -4264,6 +4400,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="schreiner"
                 name="Martin Schreiner"
+                role="option"
                 type="checkbox"
                 value="schreiner"
               />
@@ -4271,7 +4408,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Martin Schreiner, Independent."
                   class="c10"
                 >
                   <strong>
@@ -4369,6 +4505,7 @@ button.c8 {
     <button
       class="c1"
       id="next"
+      role="option"
       type="button"
     >
       Review Ballot
@@ -4457,12 +4594,14 @@ button.c8 {
     <div />
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Settings
@@ -4485,9 +4624,10 @@ exports[`basic end-to-end flow 9`] = `
     >
       <div
         class="sc-htpNat eqsiuG"
+        id="audiofocus"
       >
         <h1
-          aria-label="Franklin County, County Commissioners."
+          aria-label="County Commissioners."
         >
           <div
             class="sc-cSHVUG vJbrg"
@@ -4496,7 +4636,9 @@ exports[`basic end-to-end flow 9`] = `
           </div>
           County Commissioners
         </h1>
-        <p>
+        <p
+          aria-label="Vote for 4. You have selected 2. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote for 
             4
@@ -4519,11 +4661,10 @@ exports[`basic end-to-end flow 9`] = `
           class="sc-kGXeez izhLGa"
         >
           <div
-            aria-labelledby="contest-header"
             class="sc-kpOJdX tRUHJ"
-            role="group"
           >
             <label
+              aria-label="Camille Argent, Federalist."
               class="sc-dxgOiQ jJuFX"
               for="argent"
             >
@@ -4531,6 +4672,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="argent"
                 name="Camille Argent"
+                role="option"
                 type="checkbox"
                 value="argent"
               />
@@ -4538,7 +4680,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Camille Argent, Federalist."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4550,6 +4691,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Chloe Witherspoon-Smithson, Federalist."
               class="sc-dxgOiQ jJuFX"
               for="witherspoonsmithson"
             >
@@ -4557,6 +4699,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="witherspoonsmithson"
                 name="Chloe Witherspoon-Smithson"
+                role="option"
                 type="checkbox"
                 value="witherspoonsmithson"
               />
@@ -4564,7 +4707,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Chloe Witherspoon-Smithson, Federalist."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4576,6 +4718,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Clayton Bainbridge, Federalist."
               class="sc-dxgOiQ jGAILV"
               for="bainbridge"
             >
@@ -4583,6 +4726,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="bainbridge"
                 name="Clayton Bainbridge"
+                role="option"
                 type="checkbox"
                 value="bainbridge"
               />
@@ -4590,7 +4734,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Clayton Bainbridge, Federalist."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4602,6 +4745,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Charlene Hennessey, People's."
               class="sc-dxgOiQ jGAILV"
               for="hennessey"
             >
@@ -4609,6 +4753,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="hennessey"
                 name="Charlene Hennessey"
+                role="option"
                 type="checkbox"
                 value="hennessey"
               />
@@ -4616,7 +4761,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Charlene Hennessey, People's."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4628,6 +4772,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Eric Savoy, People's."
               class="sc-dxgOiQ jGAILV"
               for="savoy"
             >
@@ -4635,6 +4780,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="savoy"
                 name="Eric Savoy"
+                role="option"
                 type="checkbox"
                 value="savoy"
               />
@@ -4642,7 +4788,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Eric Savoy, People's."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4654,6 +4799,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Susan Tawa, People's."
               class="sc-dxgOiQ jGAILV"
               for="tawa"
             >
@@ -4661,6 +4807,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="tawa"
                 name="Susan Tawa"
+                role="option"
                 type="checkbox"
                 value="tawa"
               />
@@ -4668,7 +4815,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Susan Tawa, People's."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4680,6 +4826,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Mary Tawa, People's."
               class="sc-dxgOiQ jGAILV"
               for="tawa-mary"
             >
@@ -4687,6 +4834,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="tawa-mary"
                 name="Mary Tawa"
+                role="option"
                 type="checkbox"
                 value="tawa-mary"
               />
@@ -4694,7 +4842,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Mary Tawa, People's."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4706,6 +4853,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Damian Rangel, Liberty."
               class="sc-dxgOiQ jGAILV"
               for="rangel"
             >
@@ -4713,6 +4861,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="rangel"
                 name="Damian Rangel"
+                role="option"
                 type="checkbox"
                 value="rangel"
               />
@@ -4720,7 +4869,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Damian Rangel, Liberty."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4732,6 +4880,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Valarie Altman, Constitution."
               class="sc-dxgOiQ jGAILV"
               for="altman"
             >
@@ -4739,6 +4888,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="altman"
                 name="Valarie Altman"
+                role="option"
                 type="checkbox"
                 value="altman"
               />
@@ -4746,7 +4896,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Valarie Altman, Constitution."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4758,6 +4907,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Helen Moore, Constitution."
               class="sc-dxgOiQ jGAILV"
               for="moore"
             >
@@ -4765,6 +4915,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="moore"
                 name="Helen Moore"
+                role="option"
                 type="checkbox"
                 value="moore"
               />
@@ -4772,7 +4923,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Helen Moore, Constitution."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4784,6 +4934,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="John White, Whig."
               class="sc-dxgOiQ jGAILV"
               for="white"
             >
@@ -4791,6 +4942,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="white"
                 name="John White"
+                role="option"
                 type="checkbox"
                 value="white"
               />
@@ -4798,7 +4950,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="John White, Whig."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4810,6 +4961,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Joe Schmidt, Whig."
               class="sc-dxgOiQ jGAILV"
               for="schmidt"
             >
@@ -4817,6 +4969,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="schmidt"
                 name="Joe Schmidt"
+                role="option"
                 type="checkbox"
                 value="schmidt"
               />
@@ -4824,7 +4977,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Joe Schmidt, Whig."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4836,6 +4988,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Joe Smith, Whig."
               class="sc-dxgOiQ jGAILV"
               for="smith"
             >
@@ -4843,6 +4996,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="smith"
                 name="Joe Smith"
+                role="option"
                 type="checkbox"
                 value="smith"
               />
@@ -4850,7 +5004,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Joe Smith, Whig."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4862,6 +5015,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Amanda Marracini, Labor."
               class="sc-dxgOiQ jGAILV"
               for="marracini"
             >
@@ -4869,6 +5023,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="marracini"
                 name="Amanda Marracini"
+                role="option"
                 type="checkbox"
                 value="marracini"
               />
@@ -4876,7 +5031,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Amanda Marracini, Labor."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4888,6 +5042,7 @@ exports[`basic end-to-end flow 9`] = `
               </div>
             </label>
             <label
+              aria-label="Martin Schreiner, Independent."
               class="sc-dxgOiQ jGAILV"
               for="schreiner"
             >
@@ -4895,6 +5050,7 @@ exports[`basic end-to-end flow 9`] = `
                 class="visually-hidden sc-ckVGcZ fAbweD"
                 id="schreiner"
                 name="Martin Schreiner"
+                role="option"
                 type="checkbox"
                 value="schreiner"
               />
@@ -4902,7 +5058,6 @@ exports[`basic end-to-end flow 9`] = `
                 class="sc-htpNat eqsiuG"
               >
                 <p
-                  aria-label="Martin Schreiner, Independent."
                   class="sc-jTzLTM ekvCWw"
                 >
                   <strong>
@@ -4939,6 +5094,7 @@ exports[`basic end-to-end flow 9`] = `
     <button
       class="sc-VigVT BEGsm"
       id="next"
+      role="option"
       type="button"
     >
       Review Ballot
@@ -4950,12 +5106,14 @@ exports[`basic end-to-end flow 9`] = `
     <div />
     <button
       class="sc-VigVT BEGsm"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="sc-VigVT BEGsm"
+      role="option"
       type="button"
     >
       Settings
@@ -5341,8 +5499,11 @@ button.c7 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
-        <h1>
+        <h1
+          aria-label="Review your ballot selections. Use the down arrow to go through all contests. Use the select button to change a particular contest. When you are done reviewing, use the right arrow to continue."
+        >
           Review Your Ballot Selections
         </h1>
         <button
@@ -5368,13 +5529,14 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-president"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="United States, President and Vice-President,"
+                aria-label="President and Vice-President,"
               >
                 United States
                 , 
@@ -5392,9 +5554,11 @@ button.c7 {
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5404,29 +5568,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-senator"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="United States, Senator,"
+                aria-label="Senator,"
               >
                 United States
                 , 
                 Senator
               </h3>
               <p
-                aria-label="No selection was made for Senator."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5436,29 +5603,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-representative-district-6"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="United States, Representative, District 6,"
+                aria-label="Representative District 6,"
               >
                 United States
                 , 
                 Representative, District 6
               </h3>
               <p
-                aria-label="No selection was made for Representative, District 6."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5468,29 +5638,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-governor"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Governor,"
+                aria-label="Governor,"
               >
                 State of Hamilton
                 , 
                 Governor
               </h3>
               <p
-                aria-label="No selection was made for Governor."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5500,29 +5673,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-lieutenant-governor"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Lieutenant Governor,"
+                aria-label="Lieutenant Governor,"
               >
                 State of Hamilton
                 , 
                 Lieutenant Governor
               </h3>
               <p
-                aria-label="No selection was made for Lieutenant Governor."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5532,29 +5708,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-secretary-of-state"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Secretary of State,"
+                aria-label="Secretary of State,"
               >
                 State of Hamilton
                 , 
                 Secretary of State
               </h3>
               <p
-                aria-label="No selection was made for Secretary of State."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5564,29 +5743,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-state-senator-district-31"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Senator, District 31,"
+                aria-label="Senator District 31,"
               >
                 State of Hamilton
                 , 
                 Senator, District 31
               </h3>
               <p
-                aria-label="No selection was made for Senator, District 31."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5596,29 +5778,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-state-assembly-district-54"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Assembly Member, District 54,"
+                aria-label="Assembly Member District 54,"
               >
                 State of Hamilton
                 , 
                 Assembly Member, District 54
               </h3>
               <p
-                aria-label="No selection was made for Assembly Member, District 54."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5628,13 +5813,14 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-county-commissioners"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Franklin County, County Commissioners,"
+                aria-label="County Commissioners,"
               >
                 Franklin County
                 , 
@@ -5672,9 +5858,11 @@ button.c7 {
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5684,29 +5872,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-county-registrar-of-wills"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Franklin County, Registrar of Wills,"
+                aria-label="Registrar of Wills,"
               >
                 Franklin County
                 , 
                 Registrar of Wills
               </h3>
               <p
-                aria-label="No selection was made for Registrar of Wills."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5716,29 +5907,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-city-mayor"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="City of Springfield, Mayor,"
+                aria-label="Mayor,"
               >
                 City of Springfield
                 , 
                 Mayor
               </h3>
               <p
-                aria-label="No selection was made for Mayor."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5748,29 +5942,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-city-council"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="City of Springfield, City Council,"
+                aria-label="City Council,"
               >
                 City of Springfield
                 , 
                 City Council
               </h3>
               <p
-                aria-label="No selection was made for City Council."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5780,29 +5977,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-judicial-robert-demergue"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?,"
+                aria-label="Retain Robert Demergue as Chief Justice?,"
               >
                 Hamilton Court of Appeals
                 , 
                 Retain Robert Demergue as Chief Justice?
               </h3>
               <p
-                aria-label="No selection was made for Retain Robert Demergue as Chief Justice?."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5812,29 +6012,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-judicial-elmer-hull"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Hamilton Court of Appeals, Retain Elmer Hull as Associate Justice?,"
+                aria-label="Retain Elmer Hull as Associate Justice?,"
               >
                 Hamilton Court of Appeals
                 , 
                 Retain Elmer Hull as Associate Justice?
               </h3>
               <p
-                aria-label="No selection was made for Retain Elmer Hull as Associate Justice?."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5844,29 +6047,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-question-a"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Question A: Recovery of Property Damages,"
+                aria-label="Question A: Recovery of Property Damages,"
               >
                 State of Hamilton
                 , 
                 Question A: Recovery of Property Damages
               </h3>
               <p
-                aria-label="No selection was made for Question A: Recovery of Property Damages."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5876,29 +6082,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-question-b"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Question B: Separation of Powers,"
+                aria-label="Question B: Separation of Powers,"
               >
                 State of Hamilton
                 , 
                 Question B: Separation of Powers
               </h3>
               <p
-                aria-label="No selection was made for Question B: Separation of Powers."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5908,29 +6117,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-question-c"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Question C: Limits to Damages for Non-Economic Loss,"
+                aria-label="Question C: Limits to Damages for Non-Economic Loss,"
               >
                 State of Hamilton
                 , 
                 Question C: Limits to Damages for Non-Economic Loss
               </h3>
               <p
-                aria-label="No selection was made for Question C: Limits to Damages for Non-Economic Loss."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5940,29 +6152,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-proposition-1"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="State of Hamilton, Proposition 1: Gambling in Franklin and Fromwit Counties,"
+                aria-label="Proposition 1: Gambling in Franklin and Fromwit Counties,"
               >
                 State of Hamilton
                 , 
                 Proposition 1: Gambling in Franklin and Fromwit Counties
               </h3>
               <p
-                aria-label="No selection was made for Proposition 1: Gambling in Franklin and Fromwit Counties."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -5972,29 +6187,32 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-measure-101"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Franklin County, Measure 101: College District,"
+                aria-label="Measure 101: College District,"
               >
                 Franklin County
                 , 
                 Measure 101: College District
               </h3>
               <p
-                aria-label="No selection was made for Measure 101: College District."
+                aria-label="No selection was made for this contest."
                 class="c13"
               >
                 No selection was made for this contest.
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -6004,13 +6222,14 @@ button.c7 {
           <button
             class="c7 c8"
             id="contest-102"
+            role="option"
             type="button"
           >
             <div
               class="c9"
             >
               <h3
-                aria-label="Franklin County, Measure 102: Vehicle Abatement Program,"
+                aria-label="Measure 102: Vehicle Abatement Program,"
               >
                 Franklin County
                 , 
@@ -6025,9 +6244,11 @@ button.c7 {
               </p>
             </div>
             <div
+              aria-label="press enter to change your answer for this contest."
               class="c11"
             >
               <div
+                aria-hidden="true"
                 class="c12"
               >
                 Change
@@ -6118,6 +6339,7 @@ button.c7 {
     <button
       class="c1"
       id="next"
+      role="option"
       type="button"
     >
       Next
@@ -6210,12 +6432,14 @@ button.c7 {
     <div />
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Help
     </button>
     <button
       class="c1"
+      role="option"
       type="button"
     >
       Settings

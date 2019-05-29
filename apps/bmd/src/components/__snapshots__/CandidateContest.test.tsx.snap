@@ -300,9 +300,10 @@ button.c8 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="City, Mayor."
+          aria-label="Mayor."
         >
           <div
             class="c3"
@@ -311,7 +312,9 @@ button.c8 {
           </div>
           Mayor
         </h1>
-        <p>
+        <p
+          aria-label="Vote for 2. You have selected 1. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote for 
             2
@@ -334,11 +337,10 @@ button.c8 {
           class="c6"
         >
           <div
-            aria-labelledby="contest-header"
             class="c7"
-            role="group"
           >
             <label
+              aria-label="Name 0, Party 0."
               class="c8"
               for="name-0"
             >
@@ -347,6 +349,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-0"
                 name="Name 0"
+                role="option"
                 type="checkbox"
                 value="name-0"
               />
@@ -354,7 +357,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 0, Party 0."
                   class="c10"
                 >
                   <strong>
@@ -366,6 +368,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Name 1, Party 1."
               class="c11"
               for="name-1"
             >
@@ -373,6 +376,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-1"
                 name="Name 1"
+                role="option"
                 type="checkbox"
                 value="name-1"
               />
@@ -380,7 +384,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 1, Party 1."
                   class="c10"
                 >
                   <strong>
@@ -392,6 +395,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Name 2, Party 0."
               class="c11"
               for="name-2"
             >
@@ -399,6 +403,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-2"
                 name="Name 2"
+                role="option"
                 type="checkbox"
                 value="name-2"
               />
@@ -406,7 +411,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 2, Party 0."
                   class="c10"
                 >
                   <strong>
@@ -662,9 +666,10 @@ button.c8 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="City, Mayor."
+          aria-label="Mayor."
         >
           <div
             class="c3"
@@ -673,7 +678,9 @@ button.c8 {
           </div>
           Mayor
         </h1>
-        <p>
+        <p
+          aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote for 
             1
@@ -696,11 +703,10 @@ button.c8 {
           class="c6"
         >
           <div
-            aria-labelledby="contest-header"
             class="c7"
-            role="group"
           >
             <label
+              aria-label="Name 0, Party 0."
               class="c8"
               for="name-0"
             >
@@ -708,6 +714,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-0"
                 name="Name 0"
+                role="option"
                 type="checkbox"
                 value="name-0"
               />
@@ -715,7 +722,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 0, Party 0."
                   class="c10"
                 >
                   <strong>
@@ -727,6 +733,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Name 1, Party 1."
               class="c8"
               for="name-1"
             >
@@ -734,6 +741,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-1"
                 name="Name 1"
+                role="option"
                 type="checkbox"
                 value="name-1"
               />
@@ -741,7 +749,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 1, Party 1."
                   class="c10"
                 >
                   <strong>
@@ -753,6 +760,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Name 2, Party 0."
               class="c8"
               for="name-2"
             >
@@ -760,6 +768,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-2"
                 name="Name 2"
+                role="option"
                 type="checkbox"
                 value="name-2"
               />
@@ -767,7 +776,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 2, Party 0."
                   class="c10"
                 >
                   <strong>
@@ -1086,9 +1094,10 @@ button.c8 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="City, Mayor."
+          aria-label="Mayor."
         >
           <div
             class="c3"
@@ -1097,7 +1106,9 @@ button.c8 {
           </div>
           Mayor
         </h1>
-        <p>
+        <p
+          aria-label="Vote for 1. You have selected 1. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote for 
             1
@@ -1120,11 +1131,10 @@ button.c8 {
           class="c6"
         >
           <div
-            aria-labelledby="contest-header"
             class="c7"
-            role="group"
           >
             <label
+              aria-label="Name 0, Party 0."
               class="c8"
               for="name-0"
             >
@@ -1133,6 +1143,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-0"
                 name="Name 0"
+                role="option"
                 type="checkbox"
                 value="name-0"
               />
@@ -1140,7 +1151,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 0, Party 0."
                   class="c10"
                 >
                   <strong>
@@ -1152,6 +1162,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Name 1, Party 1."
               class="c11"
               for="name-1"
             >
@@ -1159,6 +1170,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-1"
                 name="Name 1"
+                role="option"
                 type="checkbox"
                 value="name-1"
               />
@@ -1166,7 +1178,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 1, Party 1."
                   class="c10"
                 >
                   <strong>
@@ -1178,6 +1189,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Name 2, Party 0."
               class="c11"
               for="name-2"
             >
@@ -1185,6 +1197,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-2"
                 name="Name 2"
+                role="option"
                 type="checkbox"
                 value="name-2"
               />
@@ -1192,7 +1205,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 2, Party 0."
                   class="c10"
                 >
                   <strong>
@@ -1450,9 +1462,10 @@ button.c8 {
     >
       <div
         class="c2"
+        id="audiofocus"
       >
         <h1
-          aria-label="City, Mayor."
+          aria-label="Mayor."
         >
           <div
             class="c3"
@@ -1461,7 +1474,9 @@ button.c8 {
           </div>
           Mayor
         </h1>
-        <p>
+        <p
+          aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
           <strong>
             Vote for 
             1
@@ -1484,11 +1499,10 @@ button.c8 {
           class="c6"
         >
           <div
-            aria-labelledby="contest-header"
             class="c7"
-            role="group"
           >
             <label
+              aria-label="Name 0, Party 0."
               class="c8"
               for="name-0"
             >
@@ -1496,6 +1510,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-0"
                 name="Name 0"
+                role="option"
                 type="checkbox"
                 value="name-0"
               />
@@ -1503,7 +1518,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 0, Party 0."
                   class="c10"
                 >
                   <strong>
@@ -1515,6 +1529,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Name 1, Party 1."
               class="c8"
               for="name-1"
             >
@@ -1522,6 +1537,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-1"
                 name="Name 1"
+                role="option"
                 type="checkbox"
                 value="name-1"
               />
@@ -1529,7 +1545,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 1, Party 1."
                   class="c10"
                 >
                   <strong>
@@ -1541,6 +1556,7 @@ button.c8 {
               </div>
             </label>
             <label
+              aria-label="Name 2, Party 0."
               class="c8"
               for="name-2"
             >
@@ -1548,6 +1564,7 @@ button.c8 {
                 class="visually-hidden c9"
                 id="name-2"
                 name="Name 2"
+                role="option"
                 type="checkbox"
                 value="name-2"
               />
@@ -1555,7 +1572,6 @@ button.c8 {
                 class="c2"
               >
                 <p
-                  aria-label="Name 2, Party 0."
                   class="c10"
                 >
                   <strong>
