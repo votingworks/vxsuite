@@ -141,7 +141,6 @@ const App: React.FC = () => {
       .then(response => response.blob())
       .then(blob => {
         fileDownload(blob, 'vx-results.csv', 'text/csv')
-        zeroData()
       })
       .catch(error => {
         console.log('failed getOutputFile()', error) // eslint-disable-line no-console
@@ -165,6 +164,9 @@ const App: React.FC = () => {
   useEffect(updateStatus, [])
 
   if (election) {
+    if (!status.electionHash) {
+      configureServer(election)
+    }
     return (
       <Screen>
         <Main>

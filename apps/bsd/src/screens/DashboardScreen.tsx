@@ -97,7 +97,7 @@ const PrecinctsScreen = ({ invalidateBranch, isScanning, status }: Props) => {
                       <small>{shortDateTime(batch.startedAt)}</small>
                     </TD>
                     <TD nowrap>
-                      {isScanning ? (
+                      {isScanning && !batch.endedAt ? (
                         <Scanning>Scanning…</Scanning>
                       ) : (
                         <small>{shortDateTime(batch.endedAt)}</small>

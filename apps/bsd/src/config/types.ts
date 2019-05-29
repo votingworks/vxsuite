@@ -119,5 +119,6 @@ export interface Batch {
   endedAt: number
 }
 export interface ScannerStatus {
+  electionHash?: string
   batches: Batch[]
 }
