@@ -182,6 +182,10 @@ export class App extends React.Component<RouteComponentProps, State> {
               cardData: cardData,
               longValueExists: card.longValueExists,
             })
+          } else {
+            this.setState({
+              ...defaultCardPresentState,
+            })
           }
         })
         .catch(() => {
