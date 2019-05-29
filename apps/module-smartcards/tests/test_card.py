@@ -91,6 +91,8 @@ def test_write():
     
     rv = vxco.write(CONTENT_BYTES)
 
+    assert vxco.card.write_enabled
+
     vxco.card.write_chunk.assert_called_with(0, CARD_BYTES)
     vxco.card.read_chunk.assert_called()
     assert rv
