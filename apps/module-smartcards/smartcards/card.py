@@ -59,7 +59,6 @@ class Card:
         
         full_bytes = self.__initial_bytes(WRITE_PROTECTED if write_protect else WRITABLE, len(short_value_bytes), 0)
         full_bytes += short_value_bytes
-        print(full_bytes)
         self.write_chunk(0, full_bytes)
 
     def write_short_and_long_values(self, short_value_bytes, long_value_bytes):
@@ -96,8 +95,6 @@ class Card:
         self.long_value_length = data[6]*256 + data[7]
         self.short_value = bytes(data[8:8+self.short_value_length])
 
-        print(self.write_enabled, self.short_value_length, self.long_value_length, self.short_value)
-        
         return bytes(data)
         
     def read_short_value(self):

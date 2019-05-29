@@ -183,8 +183,6 @@ def test_long_value():
     assert long_value_present
 
     test_long_value = vxco.read_long().decode('utf-8')
-    print(test_long_value[-20:])
-    print(long_content[-100:])
     assert test_long_value == long_content
 
     
