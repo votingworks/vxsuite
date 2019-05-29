@@ -9,6 +9,7 @@ import Button from './Button'
 import Prose from './Prose'
 import { Election } from '../config/types'
 import Main, { MainChild } from './Main'
+import MainNav from './MainNav'
 import Text from './Text'
 
 const Label = styled.label`
@@ -91,66 +92,81 @@ class UploadConfig extends React.Component<Props, State> {
 
   public render() {
     const { loading, loaded, errorMessage } = this.state
+    if (process.env.NODE_ENV === 'production') {
+      return (
+        <>
+          <Main noPadding>
+            {loading || loaded ? (
+              <p>{loaded ? 'File loaded' : 'Loading file…'} </p>
+            ) : (
+              <Dropzone
+                accept="application/json"
+                onDrop={this.onDrop}
+                multiple={false}
+              >
+                {({ getRootProps, getInputProps, isDragActive }) => (
+                  <Label
+                    // TODO:: remove "as" after issue resolved:
+                    // https://github.com/react-dropzone/react-dropzone/issues/182
+                    as="div"
+                    data-testid="dropzone"
+                    htmlFor="election-file-upload"
+                    {...getRootProps()}
+                  >
+                    <MainChild center padded>
+                      <input
+                        id="election-file-upload"
+                        data-testid="file-input"
+                        {...getInputProps()}
+                      />
+                      <Prose textCenter>
+                        {isDragActive ? (
+                          <p>Drop files here…</p>
+                        ) : (
+                          <React.Fragment>
+                            <h1>Load Election Configuration File</h1>
+                            <p>
+                              Drag and drop <code>election.json</code> file
+                              here, or click to browse for file.
+                            </p>
+                            {errorMessage && <Text error>{errorMessage}</Text>}
+                          </React.Fragment>
+                        )}
+                      </Prose>
+                    </MainChild>
+                  </Label>
+                )}
+              </Dropzone>
+            )}
+          </Main>
+          <Footer>
+            <Prose textCenter>
+              <Text center small>
+                <a href="/data/election.json">
+                  Download sample <code>election.json</code> file
+                </a>{' '}
+                to upload, or{' '}
+                <Button onClick={this.loadSampleElection}>
+                  Load Sample Election File
+                </Button>
+              </Text>
+            </Prose>
+          </Footer>
+        </>
+      )
+    }
     return (
-      <>
-        <Main noPadding>
-          {loading || loaded ? (
-            <p>{loaded ? 'File loaded' : 'Loading file…'} </p>
-          ) : (
-            <Dropzone
-              accept="application/json"
-              onDrop={this.onDrop}
-              multiple={false}
-            >
-              {({ getRootProps, getInputProps, isDragActive }) => (
-                <Label
-                  // TODO:: remove "as" after issue resolved:
-                  // https://github.com/react-dropzone/react-dropzone/issues/182
-                  as="div"
-                  data-testid="dropzone"
-                  htmlFor="election-file-upload"
-                  {...getRootProps()}
-                >
-                  <MainChild center padded>
-                    <input
-                      id="election-file-upload"
-                      data-testid="file-input"
-                      {...getInputProps()}
-                    />
-                    <Prose textCenter>
-                      {isDragActive ? (
-                        <p>Drop files here…</p>
-                      ) : (
-                        <React.Fragment>
-                          <h1>Load Election Configuration File</h1>
-                          <p>
-                            Drag and drop <code>election.json</code> file here,
-                            or click to browse for file.
-                          </p>
-                          {errorMessage && <Text error>{errorMessage}</Text>}
-                        </React.Fragment>
-                      )}
-                    </Prose>
-                  </MainChild>
-                </Label>
-              )}
-            </Dropzone>
-          )}
+      <React.Fragment>
+        <Main>
+          <MainChild center>
+            <Prose textCenter>
+              <h1>Not Configured</h1>
+              <p>Insert Election Clerk card.</p>
+            </Prose>
+          </MainChild>
         </Main>
-        <Footer>
-          <Prose textCenter>
-            <Text center small>
-              <a href="/data/election.json">
-                Download sample <code>election.json</code> file
-              </a>{' '}
-              to upload, or{' '}
-              <Button onClick={this.loadSampleElection}>
-                Load Sample Election File
-              </Button>
-            </Text>
-          </Prose>
-        </Footer>
-      </>
+        <MainNav />
+      </React.Fragment>
     )
   }
 }

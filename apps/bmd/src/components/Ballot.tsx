@@ -3,7 +3,6 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 
 import BallotContext from '../contexts/ballotContext'
 
-import ActivationPage from '../pages/ActivationPage'
 import CastBallotPage from '../pages/CastBallotPage'
 import ContestPage from '../pages/ContestPage'
 import HelpPage from '../pages/HelpPage'
@@ -16,26 +15,12 @@ import StartPage from '../pages/StartPage'
 import InstructionsPage from '../pages/InstructionsPage'
 
 const Ballot = () => {
-  const { ballotStyleId, contests, election, precinctId } = useContext(
-    BallotContext
-  )
-  const {
-    requireActivation,
-    showHelpPage,
-    showSettingsPage,
-  } = election!.bmdConfig!
-  const ballotActivated = !!ballotStyleId && !!precinctId
+  const { contests, election } = useContext(BallotContext)
+  const { showHelpPage, showSettingsPage } = election!.bmdConfig!
 
   return (
     <Switch>
-      {requireActivation && !ballotActivated ? (
-        <Route exact path="/" component={ActivationPage} />
-      ) : (
-        <Redirect exact path="/" to="/start" />
-      )}
-      <Route exact path="/activate" component={ActivationPage} />
-      <Route path="/cast" component={CastBallotPage} />
-      <Route path="/start" exact component={StartPage} />
+      <Route path="/" exact component={StartPage} />
       <Route path="/instructions" exact component={InstructionsPage} />
       <Redirect
         exact
@@ -46,6 +31,7 @@ const Ballot = () => {
       <Route path="/pre-review" component={PreReviewPage} />
       <Route path="/review" component={ReviewPage} />
       <Route path="/print" component={PrintPage} />
+      <Route path="/cast" component={CastBallotPage} />
       {showHelpPage && <Route path="/help" component={HelpPage} />}
       {showSettingsPage && <Route path="/settings" component={SettingsPage} />}
       <Route path="/:path" component={NotFoundPage} />
