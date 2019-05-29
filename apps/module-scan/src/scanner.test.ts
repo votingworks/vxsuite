@@ -4,7 +4,7 @@ import * as scanner from './scanner'
 import election from '../election.json'
 import { Election } from './types'
 import exec from './exec'
-import { reset } from './store'
+import { init } from './store'
 
 jest.mock('chokidar')
 const mockChokidar = chokidar as jest.Mocked<typeof chokidar>
@@ -18,7 +18,7 @@ jest.mock('./exec', () => ({
 }))
 
 beforeAll(done => {
-  reset().then(() => done())
+  init(true).then(() => done())
 })
 
 test('doScan calls exec with scanimage', async () => {
@@ -43,12 +43,11 @@ test('doScan calls exec with scanimage', async () => {
   execErrorMessage = undefined
   await scanner.doScan()
 
-  scanner.shutdown()
-
-  expect(mockWatcherClose).toHaveBeenCalled()
+  scanner.unconfigure()
 
   // @ts-ignore
   await waitForExpect(() => {
+    expect(mockWatcherClose).toHaveBeenCalled()
     expect(exec).toHaveBeenCalled()
   })
 })

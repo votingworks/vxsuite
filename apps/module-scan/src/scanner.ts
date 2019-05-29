@@ -7,8 +7,17 @@ import * as chokidar from 'chokidar'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
+import * as fsExtra from 'fs-extra'
+
 import { CastVoteRecord, Election } from './types'
-import { addBatch, addCVR, batchStatus, exportCVRs, finishBatch } from './store'
+import {
+  addBatch,
+  addCVR,
+  batchStatus,
+  exportCVRs,
+  init,
+  finishBatch,
+} from './store'
 import interpretFile from './interpreter'
 
 import exec from './exec'
@@ -34,7 +43,7 @@ allPaths.forEach(path => {
 })
 
 // keeping track of election
-let watcher: chokidar.FSWatcher, election: Election
+let watcher: chokidar.FSWatcher, election: Election | null
 
 function cvrCallbackWithBatchId(
   batchId: number,
@@ -50,6 +59,10 @@ function cvrCallbackWithBatchId(
 }
 
 export function fileAdded(ballotImagePath: string) {
+  if (!election) {
+    return
+  }
+
   // get the batch ID from the path
   const filename = path.basename(ballotImagePath)
   const batchIdMatch = filename.match(/-batch-([^-]*)-/)
@@ -76,8 +89,8 @@ export function configure(newElection: Election) {
   watcher = chokidar.watch(ballotImagesPath, {
     persistent: true,
     awaitWriteFinish: {
-      stabilityThreshold: 1000,
-      pollInterval: 100,
+      stabilityThreshold: 2000,
+      pollInterval: 200,
     },
   })
   watcher.on('add', fileAdded)
@@ -120,12 +133,26 @@ export async function doExport() {
   return outputStream.toString()
 }
 
-export function doZero() {}
-
-export async function getStatus() {
-  return { batches: await batchStatus() }
+export async function doZero() {
+  await init(true)
+  fsExtra.emptyDirSync(ballotImagesPath)
+  fsExtra.emptyDirSync(scannedBallotImagesPath)
 }
 
-export function shutdown() {
-  watcher.close()
+export async function getStatus() {
+  const batches = await batchStatus()
+  if (election) {
+    return { electionHash: 'hashgoeshere', batches }
+  } else {
+    return { batches }
+  }
+}
+
+export async function unconfigure() {
+  await doZero()
+  // eslint-disable-next-line no-null/no-null
+  election = null
+  if (watcher) {
+    watcher.close()
+  }
 }

@@ -3,19 +3,10 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { app } from './server'
 import election from '../election.json'
-import { reset } from './store'
-import {
-  ballotImagesPath,
-  scannedBallotImagesPath,
-  sampleBallotImagesPath,
-} from './scanner'
+import { ballotImagesPath, doZero, sampleBallotImagesPath } from './scanner'
 
-const emptyDir = function(dirPath: string) {
-  const files = fs.readdirSync(dirPath)
-  for (const file of files) {
-    fs.unlinkSync(path.join(dirPath, file))
-  }
-}
+// we need longer to make chokidar work
+jest.setTimeout(10000)
 
 jest.mock('./exec', () => ({
   __esModule: true,
@@ -25,14 +16,10 @@ jest.mock('./exec', () => ({
 }))
 
 beforeAll(done => {
-  reset().then(() => done())
+  doZero().then(() => done())
 })
 
 test('going through the whole process works', async done => {
-  // clean up
-  emptyDir(ballotImagesPath)
-  emptyDir(scannedBallotImagesPath)
-
   // try export before configure
   const response = await request(app)
     .post('/scan/export')
@@ -59,8 +46,8 @@ test('going through the whole process works', async done => {
     fs.copyFileSync(oldPath, newPath)
   }
 
-  // wait for the processing (takes more than 2 seconds cause chokidar)
-  await new Promise(resolve => setTimeout(resolve, 2000))
+  // wait for the processing (takes more than 4 seconds cause chokidar)
+  await new Promise(resolve => setTimeout(resolve, 4000))
 
   // check the status
   const status = await request(app)

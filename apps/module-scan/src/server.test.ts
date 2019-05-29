@@ -74,6 +74,8 @@ test('POST /scan/export', done => {
 })
 
 test('POST /scan/zero', done => {
+  mockScanner.doZero.mockResolvedValue()
+
   request(app)
     .post('/scan/zero')
     .set('Accept', 'application/json')
@@ -85,12 +87,14 @@ test('POST /scan/zero', done => {
 })
 
 test('POST /scan/unconfigure', done => {
+  mockScanner.unconfigure.mockResolvedValue()
+
   request(app)
     .post('/scan/unconfigure')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
     .then(() => {
-      expect(scanner.shutdown).toBeCalled()
+      expect(scanner.unconfigure).toBeCalled()
       done()
     })
 })

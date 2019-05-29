@@ -11,7 +11,7 @@ import {
   doExport,
   getStatus,
   doZero,
-  shutdown,
+  unconfigure,
 } from './scanner'
 import * as store from './store'
 
@@ -57,13 +57,15 @@ app.get('/scan/status', (_request: Request, response: Response) => {
 })
 
 app.post('/scan/zero', (_request: Request, response: Response) => {
-  doZero()
-  response.json({ status: 'ok' })
+  doZero().then(() => {
+    response.json({ status: 'ok' })
+  })
 })
 
 app.post('/scan/unconfigure', (_request: Request, response: Response) => {
-  shutdown()
-  response.json({ status: 'ok' })
+  unconfigure().then(() => {
+    response.json({ status: 'ok' })
+  })
 })
 
 app.get('/', (_request: Request, response: Response) => {
@@ -71,7 +73,7 @@ app.get('/', (_request: Request, response: Response) => {
 })
 
 export function start() {
-  store.reset().then(() => {
+  store.init().then(() => {
     app.listen(port, () => {
       // eslint-disable-next-line no-console
       console.log(`Listening at http://localhost:${port}/`)

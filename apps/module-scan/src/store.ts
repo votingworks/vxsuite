@@ -39,39 +39,46 @@ const dbAllAsync = function(db: sqlite3.Database, sql: string) {
   })
 }
 
-export function init() {
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      db = new sqlite3.Database(isTesting ? ':memory:' : dbPath, err => {
-        if (err) {
-          return reject(err)
-        }
-
-        resolve()
+export async function init(resetDB = false) {
+  return new Promise(async (resolve, reject) => {
+    if (db) {
+      await new Promise(resolve => {
+        db.close(() => {
+          if (fs.existsSync(dbPath)) {
+            fs.unlinkSync(dbPath)
+          }
+          resolve()
+        })
       })
     }
+
+    if (resetDB) {
+      if (fs.existsSync(dbPath)) {
+        fs.unlinkSync(dbPath)
+      }
+    }
+
+    db = new sqlite3.Database(isTesting ? ':memory:' : dbPath, async err => {
+      if (err) {
+        return reject(err)
+      }
+
+      await dbRunAsync(
+        db,
+        'create table if not exists batches (id integer primary key autoincrement, startedAt datetime, endedAt datetime)'
+      )
+      await dbRunAsync(
+        db,
+        'create table if not exists CVRs (id integer primary key autoincrement, batch_id, filename text unique, cvr_json text)'
+      )
+
+      resolve()
+    })
   })
 }
 
 export function thisIsATest() {
   isTesting = true
-}
-
-export async function reset() {
-  if (fs.existsSync(dbPath)) {
-    fs.unlinkSync(dbPath)
-  }
-
-  await init()
-
-  await dbRunAsync(
-    db,
-    'create table batches (id integer primary key autoincrement, startedAt datetime, endedAt datetime)'
-  )
-  await dbRunAsync(
-    db,
-    'create table CVRs (id integer primary key autoincrement, batch_id, filename text, cvr_json text)'
-  )
 }
 
 export async function addBatch() {
@@ -109,7 +116,12 @@ export function addCVR(batchId: number, filename: string, cvr: CastVoteRecord) {
     'insert into CVRs (batch_id, filename, cvr_json) values (?, ?, ?)',
     batchId,
     filename,
-    JSON.stringify(cvr)
+    JSON.stringify(cvr),
+    () => {
+      // this callback effectively swallows an insert error
+      // this might happen on duplicate insert, which happens
+      // when chokidar sometimes notices a file twice.
+    }
   )
 }
 
