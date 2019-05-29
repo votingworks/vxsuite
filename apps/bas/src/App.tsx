@@ -74,10 +74,12 @@ const App: React.FC = () => {
             } else {
               // happy to overwrite a card with no data on it
               setIsWritableCard(true)
+              setIsClerkCardPresent(false)
             }
           } else {
             // can't write if there's no card
             setIsWritableCard(false)
+            setIsClerkCardPresent(false)
           }
         })
         .catch(() => {
