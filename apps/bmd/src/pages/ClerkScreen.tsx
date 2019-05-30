@@ -44,7 +44,7 @@ const ClerkScreen = ({
   return (
     <React.Fragment>
       <Main>
-        <MainChild>
+        <MainChild maxWidth={false}>
           <Prose>
             {election && (
               <React.Fragment>
