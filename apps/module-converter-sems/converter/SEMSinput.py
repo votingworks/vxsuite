@@ -103,6 +103,9 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         c.execute(sql)
 
     def process_row(row):
+        # windows ctrl-m issue, shows up as an extra row
+        if len(row) == 0:
+            return
         table_def = ELECTION_TABLES.get(row[0], None)
 
         if not table_def:

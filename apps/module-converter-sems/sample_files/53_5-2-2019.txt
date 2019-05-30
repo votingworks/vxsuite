@@ -1,4 +1,4 @@
-0, "GEMS Import Data", 1, 5, 1, 1, 1, 1
+0, "GEMS Import Data", 1, 5, 1, 1, 1, 1
 1, "2019 MOCK Primary Election", "5/2/2019"
 2, -1, 100000275, "State Of Mississippi"
 2, -1, 575001705, "Public Service Commissioner"
