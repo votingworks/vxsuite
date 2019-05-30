@@ -98,14 +98,12 @@ it(`CardData processing processes card data properly`, () => {
   expect(app.fetchElection).not.toHaveBeenCalled()
 
   app.state.election = undefined
-  app.state.loadingElection = true
   app.processCardData({
     cardData: clerkCardData,
     longValueExists: true,
   })
   expect(app.fetchElection).not.toHaveBeenCalled()
 
-  app.state.loadingElection = false
   app.processCardData({
     cardData: clerkCardData,
     longValueExists: true,

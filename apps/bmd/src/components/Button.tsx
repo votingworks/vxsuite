@@ -47,4 +47,21 @@ const Button = styled('button').attrs((props: Attrs) => ({
   ${buttonStyles} /* stylelint-disable-line value-keyword-case */
 `
 
+export const SegmentedButton = styled.span`
+  display: inline-block;
+  white-space: nowrap;
+  & > button:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  & > button:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  & > button:disabled {
+    background: #028099;
+    color: #ffffff;
+  }
+`
+
 export default Button

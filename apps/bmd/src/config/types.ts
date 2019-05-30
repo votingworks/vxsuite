@@ -9,6 +9,7 @@ export type AsyncFunction<O> = () => Promise<O>
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
+export type ButtonEventFunction = (event: ButtonEvent) => void
 
 // Candidates
 export interface Candidate {
@@ -108,17 +109,18 @@ export type VotesDict = Dictionary<Vote>
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
 export interface BallotContextInterface {
+  activateBallot: (activationData: ActivationData) => void
+  ballotStyleId: string
   contests: Contests
   readonly election: Election | undefined
+  incrementBallotsPrintedCount: () => void
   markVoterCardUsed: AsyncFunction<boolean>
-  resetBallot: (path?: string) => void
-  activateBallot: (activationData: ActivationData) => void
-  updateVote: UpdateVoteFunction
-  votes: VotesDict
   precinctId: string
-  ballotStyleId: string
+  resetBallot: (path?: string) => void
   setUserSettings: (partial: PartialUserSettings) => void
+  updateVote: UpdateVoteFunction
   userSettings: UserSettings
+  votes: VotesDict
 }
 
 // Smart Card Content

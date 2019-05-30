@@ -3,7 +3,7 @@ import { fireEvent, render } from 'react-testing-library'
 
 import electionSample from './data/electionSample.json'
 
-import App, { electionKey, mergeWithDefaults } from './App'
+import App, { electionStorageKey, mergeWithDefaults } from './App'
 import { Election } from './config/types'
 
 const electionSampleAsString = JSON.stringify(
@@ -16,7 +16,7 @@ beforeEach(() => {
 })
 
 it(`Handles invalid activation code`, async () => {
-  window.localStorage.setItem(electionKey, electionSampleAsString)
+  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
   const { getByText, getByTestId } = render(<App />)
 
   fireEvent.change(getByTestId('activation-code'), {
@@ -29,7 +29,7 @@ it(`Handles invalid activation code`, async () => {
 })
 
 it(`Displays alternate ballot`, async () => {
-  window.localStorage.setItem(electionKey, electionSampleAsString)
+  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
   const { getByText, getByTestId } = render(<App />)
 
   fireEvent.change(getByTestId('activation-code'), {
