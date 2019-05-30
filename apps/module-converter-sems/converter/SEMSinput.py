@@ -201,7 +201,8 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "contests": contests,
         "districts": districts,
         "precincts": precincts,
-        "ballotStyles": ballot_styles
+        "ballotStyles": ballot_styles,
+        "sealURL": "/seals/Seal_of_Mississippi_%28B%26W%29.svg"
     }
 
     return(vx_election)
