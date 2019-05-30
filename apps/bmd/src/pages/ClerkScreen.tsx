@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 
 import { ButtonEventFunction, OptionalElection } from '../config/types'
 
+import TestBallotDeckScreen from './TestBallotDeckScreen'
+
 import Button, { SegmentedButton } from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
@@ -41,10 +43,18 @@ const ClerkScreen = ({
   useEffect(() => {
     setIsLoadingElection(false)
   }, [election])
+  const [isTestDeck, setIsTestDeck] = useState(false)
+  const showTestDeck = () => setIsTestDeck(true)
+  const hideTestDeck = () => setIsTestDeck(false)
+  if (isTestDeck && election) {
+    return (
+      <TestBallotDeckScreen election={election} hideTestDeck={hideTestDeck} />
+    )
+  }
   return (
     <React.Fragment>
       <Main>
-        <MainChild>
+        <MainChild maxWidth={false}>
           <Prose>
             {election && (
               <React.Fragment>
@@ -76,7 +86,9 @@ const ClerkScreen = ({
                   <React.Fragment>
                     <h2>Testing Mode Options</h2>
                     <p>
-                      <Button small>View Testing Ballots Deck</Button>
+                      <Button small onClick={showTestDeck}>
+                        View Test Ballot Decks
+                      </Button>
                     </p>
                   </React.Fragment>
                 )}

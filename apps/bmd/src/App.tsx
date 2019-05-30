@@ -16,7 +16,6 @@ import {
 
 import {
   ActivationData,
-  BallotStyle,
   CardData,
   Contests,
   Election,
@@ -29,6 +28,8 @@ import {
   VoterCardData,
   VotesDict,
 } from './config/types'
+
+import { getBallotStyle, getContests } from './utils/election'
 
 import Ballot from './components/Ballot'
 import Screen from './components/Screen'
@@ -114,9 +115,10 @@ export class App extends React.Component<RouteComponentProps, State> {
       return
     }
 
-    const ballotStyle = this.state.election.ballotStyles.find(
-      bs => voterCardData.bs === bs.id
-    )
+    const ballotStyle = getBallotStyle({
+      ballotStyleId: voterCardData.bs,
+      election: this.state.election,
+    })
     const precinct = this.state.election.precincts.find(
       pr => pr.id === voterCardData.pr
     )
@@ -248,10 +250,14 @@ export class App extends React.Component<RouteComponentProps, State> {
       const ballotStyle =
         ballotStyleId &&
         election &&
-        election.ballotStyles.find(bs => bs.id === ballotStyleId)
-      const contests = ballotStyle
-        ? this.getContests(ballotStyle, election)
-        : initialState.contests
+        getBallotStyle({
+          ballotStyleId,
+          election,
+        })
+      const contests =
+        ballotStyle && election
+          ? getContests({ ballotStyle, election })
+          : initialState.contests
       this.setState({
         ballotsPrintedCount,
         ballotStyleId,
@@ -363,23 +369,19 @@ export class App extends React.Component<RouteComponentProps, State> {
     })
   }
 
-  public getContests = (ballotStyle: BallotStyle, election?: Election) =>
-    (election || this.state.election!).contests.filter(
-      c =>
-        ballotStyle.districts.includes(c.districtId) &&
-        ballotStyle.partyId === c.partyId
-    )
-
   public activateBallot = ({ ballotStyle, precinct }: ActivationData) => {
-    this.setBallotActivation({
-      ballotStyleId: ballotStyle.id,
-      precinctId: precinct.id,
-    })
-    this.setState({
-      ballotStyleId: ballotStyle.id,
-      contests: this.getContests(ballotStyle),
-      precinctId: precinct.id,
-    })
+    const { election } = this.state
+    if (election) {
+      this.setBallotActivation({
+        ballotStyleId: ballotStyle.id,
+        precinctId: precinct.id,
+      })
+      this.setState({
+        ballotStyleId: ballotStyle.id,
+        contests: getContests({ ballotStyle, election }),
+        precinctId: precinct.id,
+      })
+    }
   }
 
   public setUserSettings = (partial: PartialUserSettings) => {
