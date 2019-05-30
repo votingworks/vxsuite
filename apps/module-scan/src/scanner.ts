@@ -9,7 +9,7 @@ import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
 
-import { CastVoteRecord, Election } from './types'
+import { CVRCallbackParams, Election } from './types'
 import {
   addBatch,
   addCVR,
@@ -45,12 +45,20 @@ allPaths.forEach(path => {
 // keeping track of election
 let watcher: chokidar.FSWatcher, election: Election | null
 
-function cvrCallbackWithBatchId(
-  batchId: number,
-  ballotImagePath: string,
-  cvr: CastVoteRecord
-) {
-  addCVR(batchId, ballotImagePath, cvr)
+interface CVRCallbackWithBatchIDParams extends CVRCallbackParams {
+  batchId: number
+}
+
+function cvrCallbackWithBatchId({
+  batchId,
+  ballotImagePath,
+  cvr,
+}: CVRCallbackWithBatchIDParams) {
+  if (cvr) {
+    addCVR(batchId, ballotImagePath, cvr)
+  }
+
+  // whether or not there is a CVR in that image, we move it to scanned
   const newBallotImagePath = path.join(
     scannedBallotImagesPath,
     path.basename(ballotImagePath)
@@ -76,8 +84,8 @@ export function fileAdded(ballotImagePath: string) {
   interpretFile({
     election,
     ballotImagePath,
-    cvrCallback: (ballotImagePath: string, cvr: CastVoteRecord) => {
-      cvrCallbackWithBatchId(batchId, ballotImagePath, cvr)
+    cvrCallback: ({ ballotImagePath, cvr }: CVRCallbackParams) => {
+      cvrCallbackWithBatchId({ batchId, ballotImagePath, cvr })
     },
   })
 }
@@ -104,7 +112,7 @@ export function doScan() {
       addBatch().then((batchId: number) => {
         // trigger a scan
         exec(
-          `scanimage -d fujitsu --resolution 300 --format=jpeg --batch=${ballotImagesPath}$(date +%Y%m%d_%H%M%S)-batch-${batchId}-ballot-%04d.jpg`,
+          `scanimage -d fujitsu --resolution 300 --format=jpeg --source="ADF Duplex" --batch=${ballotImagesPath}$(date +%Y%m%d_%H%M%S)-batch-${batchId}-ballot-%04d.jpg`,
           err => {
             if (err) {
               // node couldn't execute the command

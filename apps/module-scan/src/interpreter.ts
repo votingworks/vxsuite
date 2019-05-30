@@ -78,7 +78,7 @@ export default function interpretFile(
   ImageJS.Image.load(ballotImagePath).then(function(image: typeof Image) {
     const scanResult = scan(image)
     if (!scanResult) {
-      return
+      return cvrCallback({ ballotImagePath })
     }
 
     const qrData: string = scanResult.data
@@ -135,6 +135,6 @@ export default function interpretFile(
     cvr['_precinctId'] = precinctId
     cvr['_serialNumber'] = serialNumber
 
-    cvrCallback(ballotImagePath, cvr)
+    cvrCallback({ ballotImagePath, cvr })
   })
 }

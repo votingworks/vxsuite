@@ -42,7 +42,11 @@ export type Contests = (CandidateContest | YesNoContest)[]
 
 export type CastVoteRecord = Dictionary<string | string[]>
 
-export type CVRCallbackFunction = (path: string, cvr: CastVoteRecord) => void
+export interface CVRCallbackParams {
+  ballotImagePath: string
+  cvr?: CastVoteRecord
+}
+export type CVRCallbackFunction = (arg0: CVRCallbackParams) => void
 
 export interface Party {
   readonly id: string
