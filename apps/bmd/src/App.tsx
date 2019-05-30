@@ -474,7 +474,7 @@ export class App extends React.Component<RouteComponentProps, State> {
         />
       )
     } else if (election && !isPollsOpen) {
-      return <PollsClosedScreen />
+      return <PollsClosedScreen isLiveMode={isLiveMode} />
     } else if (election) {
       if (isVoterCardPresent && ballotStyleId && precinctId) {
         return (
@@ -501,7 +501,7 @@ export class App extends React.Component<RouteComponentProps, State> {
           </Gamepad>
         )
       } else {
-        return <ActivationScreen />
+        return <ActivationScreen isLiveMode={isLiveMode} />
       }
     } else {
       return <UploadConfig setElection={this.setElection} />
