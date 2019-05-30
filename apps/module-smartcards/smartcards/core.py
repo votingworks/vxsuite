@@ -78,6 +78,11 @@ def card_write_short_and_long():
     rv = _write_short_and_long(short_value.encode('utf-8'), long_value.encode('utf-8'))
     return json.dumps({"success": rv})
 
+@app.route('/card/write_protect_override', methods=["POST"])
+def card_write_protect_override():
+    CardInterface.override_protection()
+    return json.dumps({"success": True})
+
 
 @app.route('/')
 def index_test(): # pragma: no cover this is just for testing

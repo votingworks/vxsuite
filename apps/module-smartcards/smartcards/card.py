@@ -23,7 +23,7 @@
 
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
-import gzip
+import gzip, time
 
 WRITABLE = [0x00]
 WRITE_PROTECTED = [0x01]
@@ -82,6 +82,9 @@ class Card:
             result = self.write_chunk(chunk_num, full_bytes[offset_into_bytes:offset_into_bytes+self.CHUNK_SIZE])
             chunk_num += 1
             offset_into_bytes += self.CHUNK_SIZE
+
+        # wait a little bit
+        time.sleep(2)
 
     def read_raw_first_chunk(self):
         data = self.read_chunk(0)

@@ -76,6 +76,11 @@ def test_card_write_short_and_long(MockCardInterfaceWrite, client):
     rv = json.loads(client.post("/card/write_short_and_long",data=data).data)
     assert rv['success']
     
+@patch('smartcards.card.CardInterface.override_protection', return_value=None)
+def test_card_write_protect_override(MockCardInterfaceOverride, client):
+    rv = json.loads(client.post("/card/write_protect_override").data)
+    assert rv['success']
+
 def test_card_write_no_cardreader(client):
     rv = json.loads(client.post("/card/write",data=json.dumps({"code":"test"}),content_type='application/json').data)
     assert not rv['success']
