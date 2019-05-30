@@ -389,7 +389,10 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public toggleLiveMode = () => {
-    this.setState(prevState => ({ isLiveMode: !prevState.isLiveMode }))
+    this.setState(prevState => ({
+      isLiveMode: !prevState.isLiveMode,
+      ballotsPrintedCount: initialState.ballotsPrintedCount,
+    }))
   }
 
   public togglePollsOpen = () => {

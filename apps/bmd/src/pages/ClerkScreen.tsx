@@ -5,6 +5,7 @@ import { ButtonEventFunction, OptionalElection } from '../config/types'
 import Button, { SegmentedButton } from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
+import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
 
@@ -25,6 +26,13 @@ const ClerkScreen = ({
   unconfigure,
   toggleLiveMode,
 }: Props) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const showModal = () => setIsModalOpen(true)
+  const hideModal = () => setIsModalOpen(false)
+  const handleToggleLiveMode = () => {
+    hideModal()
+    toggleLiveMode()
+  }
   const [isLoadingElection, setIsLoadingElection] = useState(false)
   const loadElection = () => {
     setIsLoadingElection(true)
@@ -49,14 +57,14 @@ const ClerkScreen = ({
                 <p>
                   <SegmentedButton>
                     <Button
-                      onClick={toggleLiveMode}
+                      onClick={showModal}
                       primary={!isLiveMode}
                       disabled={!isLiveMode}
                     >
                       Testing Mode
                     </Button>
                     <Button
-                      onClick={toggleLiveMode}
+                      onClick={showModal}
                       primary={isLiveMode}
                       disabled={isLiveMode}
                     >
@@ -102,6 +110,27 @@ const ClerkScreen = ({
         </MainChild>
       </Main>
       <MainNav title="Clerk Actions" />
+      <Modal
+        isOpen={isModalOpen}
+        centerContent
+        content={
+          <Prose textCenter>
+            <p>
+              {isLiveMode
+                ? 'Switch to Testing Mode and zero Printed Ballots count?'
+                : 'Switch to Live Election Mode and zero Printed Ballots count?'}
+            </p>
+          </Prose>
+        }
+        actions={
+          <>
+            <Button primary onClick={handleToggleLiveMode}>
+              Yes
+            </Button>
+            <Button onClick={hideModal}>Cancel</Button>
+          </>
+        }
+      />
     </React.Fragment>
   )
 }
