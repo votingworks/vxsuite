@@ -64,7 +64,7 @@ interface State {
   votes: VotesDict
 }
 
-export const electionKey = 'election'
+export const electionStorageKey = 'election'
 export const activationStorageKey = 'activation'
 export const votesStorageKey = 'votes'
 const removeElectionShortcuts = ['mod+k']
@@ -269,14 +269,14 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public getElection = (): OptionalElection => {
-    const election = window.localStorage.getItem(electionKey)
+    const election = window.localStorage.getItem(electionStorageKey)
     return election ? JSON.parse(election) : undefined
   }
 
   public setElection = (electionConfigFile: Election) => {
     const election = mergeWithDefaults(electionConfigFile)
     this.setState({ election })
-    window.localStorage.setItem(electionKey, JSON.stringify(election))
+    window.localStorage.setItem(electionStorageKey, JSON.stringify(election))
   }
 
   public getBallotActivation = () => {
@@ -313,7 +313,7 @@ export class App extends React.Component<RouteComponentProps, State> {
 
   public unconfigure = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     this.setState(initialState)
-    window.localStorage.removeItem(electionKey)
+    window.localStorage.removeItem(electionStorageKey)
     this.resetVoterData()
     this.props.history.push('/')
   }
