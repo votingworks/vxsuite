@@ -67,6 +67,7 @@ interface State {
 export const electionStorageKey = 'election'
 export const activationStorageKey = 'activation'
 export const votesStorageKey = 'votes'
+export const stateStorageKey = 'state'
 const removeElectionShortcuts = ['mod+k']
 
 const defaultCardPresentState = {
@@ -239,6 +240,11 @@ export class App extends React.Component<RouteComponentProps, State> {
     } else {
       const election = this.getElection()
       const { ballotStyleId, precinctId } = this.getBallotActivation()
+      const {
+        ballotsPrintedCount = initialState.ballotsPrintedCount,
+        isLiveMode = initialState.isLiveMode,
+        isPollsOpen = initialState.isPollsOpen,
+      } = this.getStoredState()
       const ballotStyle =
         ballotStyleId &&
         election &&
@@ -247,9 +253,12 @@ export class App extends React.Component<RouteComponentProps, State> {
         ? this.getContests(ballotStyle, election)
         : initialState.contests
       this.setState({
+        ballotsPrintedCount,
         ballotStyleId,
         contests,
         election,
+        isLiveMode,
+        isPollsOpen,
         precinctId,
         votes: this.getVotes(),
       })
@@ -318,6 +327,23 @@ export class App extends React.Component<RouteComponentProps, State> {
     this.props.history.push('/')
   }
 
+  public setStoredState = () => {
+    const { ballotsPrintedCount, isLiveMode, isPollsOpen } = this.state
+    window.localStorage.setItem(
+      stateStorageKey,
+      JSON.stringify({
+        ballotsPrintedCount,
+        isLiveMode,
+        isPollsOpen,
+      })
+    )
+  }
+
+  public getStoredState = () => {
+    const storedState = window.localStorage.getItem(stateStorageKey)
+    return storedState ? JSON.parse(storedState) : {}
+  }
+
   public updateVote = (contestId: string, vote: OptionalVote) => {
     this.setState(
       prevState => ({
@@ -331,16 +357,10 @@ export class App extends React.Component<RouteComponentProps, State> {
 
   public resetBallot = (path: string = '/') => {
     this.resetVoterData()
-    this.setState(
-      prevState => ({
-        ...initialState,
-        ballotsPrintedCount: prevState.ballotsPrintedCount,
-        election: prevState.election,
-      }),
-      () => {
-        this.props.history.push(path)
-      }
-    )
+    this.setState(userState, () => {
+      this.setStoredState()
+      this.props.history.push(path)
+    })
   }
 
   public getContests = (ballotStyle: BallotStyle, election?: Election) =>
@@ -389,20 +409,29 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public toggleLiveMode = () => {
-    this.setState(prevState => ({
-      isLiveMode: !prevState.isLiveMode,
-      ballotsPrintedCount: initialState.ballotsPrintedCount,
-    }))
+    this.setState(
+      prevState => ({
+        isLiveMode: !prevState.isLiveMode,
+        ballotsPrintedCount: initialState.ballotsPrintedCount,
+      }),
+      this.setStoredState
+    )
   }
 
   public togglePollsOpen = () => {
-    this.setState(prevState => ({ isPollsOpen: !prevState.isPollsOpen }))
+    this.setState(
+      prevState => ({ isPollsOpen: !prevState.isPollsOpen }),
+      this.setStoredState
+    )
   }
 
   public incrementBallotsPrintedCount = () => {
-    this.setState(prevState => ({
-      ballotsPrintedCount: prevState.ballotsPrintedCount + 1,
-    }))
+    this.setState(
+      prevState => ({
+        ballotsPrintedCount: prevState.ballotsPrintedCount + 1,
+      }),
+      this.setStoredState
+    )
   }
 
   public componentDidCatch() {
