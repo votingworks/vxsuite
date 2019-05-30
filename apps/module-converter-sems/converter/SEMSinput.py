@@ -73,6 +73,7 @@
 
 
 import csv, json, sqlite3
+from .counties import COUNTIES
 
 ELECTION_TABLES = {
     "1": {"name": "election", "fields": ["title", "date"]},
@@ -193,7 +194,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "state": "State of Mississippi",
         "county": {
             "id": county_id,
-            "name": "County of ?"
+            "name": "%s County" % COUNTIES[county_id]
         },
         "date": election_date,
         "parties": parties,
