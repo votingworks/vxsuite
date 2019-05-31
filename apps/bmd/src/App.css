@@ -105,6 +105,11 @@ html {
   }
 }
 
+/* Make scrollbar invisible on test deck */
+.invisible-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* React Simple Keyboard */
 .simple-keyboard.hg-theme-default.vs-simple-keyboard {
   border-radius: 0;

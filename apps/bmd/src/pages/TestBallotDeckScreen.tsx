@@ -116,7 +116,7 @@ const TestBallotDeckScreen = ({
 
   return (
     <React.Fragment>
-      <Main>
+      <Main className="invisible-scrollbar">
         <MainChild maxWidth={false}>
           {ballots.length ? (
             <React.Fragment>
