@@ -1,6 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders SettingsPage 1`] = `
+.c5 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -18,7 +29,6 @@ exports[`renders SettingsPage 1`] = `
 
 .c1 {
   margin: 0 0;
-  width: 100%;
   max-width: 35rem;
 }
 
@@ -65,17 +75,6 @@ exports[`renders SettingsPage 1`] = `
 
 .c2 :last-child {
   margin-bottom: 0;
-}
-
-.c5 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
 }
 
 .c6 {
@@ -153,7 +152,7 @@ exports[`renders SettingsPage 1`] = `
 
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 

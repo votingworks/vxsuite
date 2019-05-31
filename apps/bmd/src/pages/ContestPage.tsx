@@ -92,7 +92,9 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
             </LinkButton>
             <LinkButton
               id="previous"
-              to={prevContest ? `/contests/${prevContestIndex}` : '/start'}
+              to={
+                prevContest ? `/contests/${prevContestIndex}` : '/instructions'
+              }
             >
               Back
             </LinkButton>

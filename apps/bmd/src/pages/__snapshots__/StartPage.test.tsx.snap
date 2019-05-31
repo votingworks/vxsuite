@@ -1,6 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders StartPage 1`] = `
+.c3 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -18,7 +29,6 @@ exports[`renders StartPage 1`] = `
 
 .c1 {
   margin: auto auto;
-  width: 100%;
   max-width: 35rem;
 }
 
@@ -69,20 +79,9 @@ exports[`renders StartPage 1`] = `
   margin-bottom: 0;
 }
 
-.c3 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-}
-
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
@@ -155,6 +154,17 @@ exports[`renders StartPage 1`] = `
 `;
 
 exports[`renders StartPage with inline SVG 1`] = `
+.c4 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -172,7 +182,6 @@ exports[`renders StartPage with inline SVG 1`] = `
 
 .c1 {
   margin: auto auto;
-  width: 100%;
   max-width: 35rem;
 }
 
@@ -223,17 +232,6 @@ exports[`renders StartPage with inline SVG 1`] = `
   margin-bottom: 0;
 }
 
-.c4 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-}
-
 .c2 {
   margin: 0 auto 1rem;
   max-width: 320px;
@@ -241,7 +239,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
@@ -482,6 +480,17 @@ exports[`renders StartPage with inline SVG 1`] = `
 `;
 
 exports[`renders StartPage with no seal 1`] = `
+.c3 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -499,7 +508,6 @@ exports[`renders StartPage with no seal 1`] = `
 
 .c1 {
   margin: auto auto;
-  width: 100%;
   max-width: 35rem;
 }
 
@@ -550,20 +558,9 @@ exports[`renders StartPage with no seal 1`] = `
   margin-bottom: 0;
 }
 
-.c3 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-}
-
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
