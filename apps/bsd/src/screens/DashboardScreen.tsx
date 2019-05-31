@@ -4,7 +4,7 @@ import pluralize from 'pluralize'
 
 import { ButtonEventFunction, ScannerStatus } from '../config/types'
 
-import Button from '../components/Button'
+// import Button from '../components/Button'
 import Prose from '../components/Prose'
 
 const Table = styled.table`
@@ -57,7 +57,7 @@ interface Props {
   status: ScannerStatus
 }
 
-const PrecinctsScreen = ({ invalidateBranch, isScanning, status }: Props) => {
+const PrecinctsScreen = ({ isScanning, status }: Props) => {
   const { batches } = status
   const batchCount = (batches && batches.length) || 0
   const ballotCount =
@@ -102,16 +102,6 @@ const PrecinctsScreen = ({ invalidateBranch, isScanning, status }: Props) => {
                       ) : (
                         <small>{shortDateTime(batch.endedAt)}</small>
                       )}
-                    </TD>
-                    <TD narrow>
-                      <Button
-                        disabled={isScanning}
-                        onClick={invalidateBranch}
-                        data-id={batch.id}
-                        small
-                      >
-                        Invalidate
-                      </Button>
                     </TD>
                   </tr>
                 ))}
