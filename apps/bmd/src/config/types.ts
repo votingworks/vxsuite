@@ -114,6 +114,7 @@ export interface BallotContextInterface {
   contests: Contests
   readonly election: Election | undefined
   incrementBallotsPrintedCount: () => void
+  isLiveMode: boolean
   markVoterCardUsed: AsyncFunction<boolean>
   precinctId: string
   resetBallot: (path?: string) => void

@@ -86,11 +86,16 @@ interface Precinct {
 interface Props {
   election: Election
   hideTestDeck: () => void
+  isLiveMode: boolean
 }
 
 const initialPrecinct: Precinct = { id: '', name: '' }
 
-const TestBallotDeckScreen = ({ election, hideTestDeck }: Props) => {
+const TestBallotDeckScreen = ({
+  election,
+  hideTestDeck,
+  isLiveMode,
+}: Props) => {
   const [ballots, setBallots] = useState<Ballot[]>([])
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
 
@@ -116,10 +121,7 @@ const TestBallotDeckScreen = ({ election, hideTestDeck }: Props) => {
           {ballots.length ? (
             <React.Fragment>
               <Prose className="no-print">
-                <h1>
-                  Test Ballots Deck for{' '}
-                  {precinct ? precinct.name : 'All Precincts'}
-                </h1>
+                <h1>Test Ballots Deck for {precinct.name}</h1>
                 <p>
                   <Button primary onClick={window.print}>
                     Print {ballots.length} ballots
@@ -139,6 +141,7 @@ const TestBallotDeckScreen = ({ election, hideTestDeck }: Props) => {
                     ballotId={undefined} // TODO: add ballotId here: https://github.com/votingworks/bmd/issues/424
                     ballotStyleId={ballot.ballotStyleId}
                     election={election}
+                    isLiveMode={isLiveMode}
                     precinctId={ballot.precinctId}
                     votes={ballot.votes}
                   />
