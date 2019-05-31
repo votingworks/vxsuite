@@ -115,10 +115,10 @@ const TestBallotDeckScreen = ({ election, hideTestDeck }: Props) => {
         <MainChild maxWidth={false}>
           {ballots.length ? (
             <React.Fragment>
-              <div className="no-print">
+              <Prose className="no-print">
                 <h1>
-                  {precinct ? precinct.name : 'All Precincts'}: {ballots.length}{' '}
-                  ballots
+                  Test Ballots Deck for{' '}
+                  {precinct ? precinct.name : 'All Precincts'}
                 </h1>
                 <p>
                   <Button primary onClick={window.print}>
@@ -130,21 +130,20 @@ const TestBallotDeckScreen = ({ election, hideTestDeck }: Props) => {
                     Back to All Decks
                   </Button>
                 </p>
-              </div>
-              <div className="xprint-only">
-                {ballots.map((ballot, i) => {
-                  const key = `ballot-${i}`
-                  return (
-                    <PrintedBallot
-                      key={key}
-                      ballotStyleId={ballot.ballotStyleId}
-                      election={election}
-                      precinctId={ballot.precinctId}
-                      votes={ballot.votes}
-                    />
-                  )
-                })}
-              </div>
+              </Prose>
+              {ballots.map((ballot, i) => {
+                const ballotId = `temp-ballot-id-${i}`
+                return (
+                  <PrintedBallot
+                    key={ballotId}
+                    ballotId={undefined} // TODO: add ballotId here: https://github.com/votingworks/bmd/issues/424
+                    ballotStyleId={ballot.ballotStyleId}
+                    election={election}
+                    precinctId={ballot.precinctId}
+                    votes={ballot.votes}
+                  />
+                )
+              })}
             </React.Fragment>
           ) : (
             <React.Fragment>
@@ -182,7 +181,7 @@ const TestBallotDeckScreen = ({ election, hideTestDeck }: Props) => {
           )}
         </MainChild>
       </Main>
-      <MainNav title="Print Test Deck">
+      <MainNav title="Clerk Actions">
         <Button small onClick={hideTestDeck}>
           Dashboard
         </Button>
