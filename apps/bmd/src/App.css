@@ -154,12 +154,10 @@ html {
   }
 }
 
-@media print {
-  /* stylelint-disable-next-line selector-class-pattern */
-  html body .cvox_indicator_container {
-    /* Extra specificity/!important ensure this rule is followed. */
-    display: none !important; /* stylelint-disable-line declaration-no-important */
-  }
+/* stylelint-disable-next-line selector-class-pattern */
+html body .cvox_indicator_container {
+  /* Extra specificity/!important ensure this rule is followed. */
+  display: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
 /* Adjust printed ballot paper settings */
