@@ -105,9 +105,11 @@ html {
   }
 }
 
-/* Make scrollbar invisible on test deck */
-.invisible-scrollbar::-webkit-scrollbar {
-  display: none;
+@media print {
+  /* Chrome on Linux prints scrollbars */
+  ::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* React Simple Keyboard */
