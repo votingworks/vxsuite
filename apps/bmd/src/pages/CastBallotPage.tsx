@@ -1,32 +1,3 @@
-// <Prose>
-//   <h1 aria-label="Verify and Cast Your Ballot.">
-//     Verify and Cast Your Ballot
-//   </h1>
-//   <Text center>Retrieve your printed ballot from the printer.</Text>
-//   <Instructions>
-//     {/* <li>
-//       <h2>Collect Printed Ballot.</h2>
-//       <p>The printer has printed your ballot.</p>
-//     </li> */}
-//     <li>
-//       <h2>Verify Ballot Selections.</h2>
-//       <p>Review and confirm all selections on your printed ballot.</p>
-//     </li>
-//     <li>
-//       <h2>Cast in Ballot Box.</h2>
-//       <p>Deposit your ballot into the secured ballot box.</p>
-//     </li>
-//   </Instructions>
-//   <Text center>
-//     I have verified my selections and will cast my ballot.
-//   </Text>
-//   <Text center>
-//     <LinkButton primary to="/">
-//       Start Over
-//     </LinkButton>
-//   </Text>
-// </Prose>
-
 import React, { useContext } from 'react'
 
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -44,7 +15,7 @@ const VoteInstructionsPage = () => {
   return (
     <React.Fragment>
       <Main>
-        <MainChild center>
+        <MainChild centerVertical>
           <Breadcrumbs step={4} />
           <Prose textCenter id="audiofocus">
             <h1 aria-label="Cast your ballot.">Cast your printed ballot</h1>

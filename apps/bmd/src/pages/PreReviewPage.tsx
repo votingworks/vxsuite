@@ -15,7 +15,7 @@ const SummaryPage = () => {
   return (
     <React.Fragment>
       <Main>
-        <MainChild center>
+        <MainChild centerVertical>
           <Breadcrumbs step={2} />
           <Prose textCenter id="audiofocus">
             <h1 aria-label="Review Your Selections.">Review Your Selections</h1>
