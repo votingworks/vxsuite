@@ -10,6 +10,9 @@ jobs:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "package.json" }}
       - run:
+          name: install libraries
+          command: sudo make install
+      - run:
           name: Setup Dependencies
           command: yarn install --frozen-lockfile
       - save_cache: # special step to save the dependency cache
@@ -18,7 +21,7 @@ jobs:
             "package.json" }}
           paths:
             - ~/.cache
-      - run: 
+      - run:
           name: Run Tests
           command: |
             yarn test

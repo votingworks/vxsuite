@@ -63,7 +63,9 @@ function cvrCallbackWithBatchId({
     scannedBallotImagesPath,
     path.basename(ballotImagePath)
   )
-  fs.renameSync(ballotImagePath, newBallotImagePath)
+  if (fs.existsSync(ballotImagePath)) {
+    fs.renameSync(ballotImagePath, newBallotImagePath)
+  }
 }
 
 export function fileAdded(ballotImagePath: string) {
