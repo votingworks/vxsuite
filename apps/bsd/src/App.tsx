@@ -191,7 +191,7 @@ const App: React.FC = () => {
     )
   }
 
-  return <LoadElectionScreen uploadElection={uploadElection} />
+  return <LoadElectionScreen setElection={uploadElection} />
 }
 
 export default App
