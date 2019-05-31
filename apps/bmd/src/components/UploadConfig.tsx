@@ -92,7 +92,7 @@ class UploadConfig extends React.Component<Props, State> {
 
   public render() {
     const { loading, loaded, errorMessage } = this.state
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'test') {
       return (
         <>
           <Main noPadding>
