@@ -160,7 +160,7 @@ class UploadConfig extends React.Component<Props, State> {
         <Main>
           <MainChild center>
             <Prose textCenter>
-              <h1>Not Configured</h1>
+              <h1>Device Not Configured</h1>
               <p>Insert Election Clerk card.</p>
             </Prose>
           </MainChild>

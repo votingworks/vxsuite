@@ -104,7 +104,7 @@ const ClerkScreen = ({
             ) : election ? (
               <p>
                 <Text as="span" voteIcon>
-                  Election definition loaded.
+                  Election definition is loaded.
                 </Text>{' '}
                 <Button small onClick={unconfigure}>
                   Remove
@@ -112,9 +112,7 @@ const ClerkScreen = ({
               </p>
             ) : (
               <React.Fragment>
-                <Text warningIcon>
-                  Election definition <strong>not Loaded</strong>.
-                </Text>
+                <Text warningIcon>Election definition is not Loaded.</Text>
                 <p>
                   <Button onClick={loadElection}>
                     Load Election Definition
