@@ -48,7 +48,11 @@ const ClerkScreen = ({
   const hideTestDeck = () => setIsTestDeck(false)
   if (isTestDeck && election) {
     return (
-      <TestBallotDeckScreen election={election} hideTestDeck={hideTestDeck} />
+      <TestBallotDeckScreen
+        election={election}
+        hideTestDeck={hideTestDeck}
+        isLiveMode={false} // always false for Test Mode
+      />
     )
   }
   return (

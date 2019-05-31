@@ -159,6 +159,7 @@ interface Props {
   ballotId?: string
   ballotStyleId: string
   election: Election
+  isLiveMode: boolean
   precinctId: string
   votes: VotesDict
 }
@@ -167,6 +168,7 @@ const PrintBallot = ({
   ballotId = randomBase64(16),
   ballotStyleId,
   election,
+  isLiveMode,
   precinctId,
   votes,
 }: Props) => {
@@ -192,7 +194,7 @@ const PrintBallot = ({
           <React.Fragment />
         )}
         <Prose className="ballot-header-content">
-          <h2>Official Ballot</h2>
+          <h2>{isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}</h2>
           <h3>{title}</h3>
           <p>
             {date}

@@ -123,6 +123,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
           ballotId={undefined} // TODO: add ballotId here: https://github.com/votingworks/bmd/issues/424
           ballotStyleId={ballotStyleId}
           election={election}
+          isLiveMode={this.context.isLiveMode}
           precinctId={precinctId}
           votes={votes}
         />

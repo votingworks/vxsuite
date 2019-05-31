@@ -9,6 +9,7 @@ const ballot: BallotContextInterface = {
   contests: [],
   election: undefined,
   incrementBallotsPrintedCount: () => undefined,
+  isLiveMode: false,
   markVoterCardUsed: async () => false,
   precinctId: '',
   resetBallot: () => undefined,
