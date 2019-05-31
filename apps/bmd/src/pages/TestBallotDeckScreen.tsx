@@ -121,10 +121,7 @@ const TestBallotDeckScreen = ({
           {ballots.length ? (
             <React.Fragment>
               <Prose className="no-print">
-                <h1>
-                  Test Ballots Deck for{' '}
-                  {precinct ? precinct.name : 'All Precincts'}
-                </h1>
+                <h1>Test Ballots Deck for {precinct.name}</h1>
                 <p>
                   <Button primary onClick={window.print}>
                     Print {ballots.length} ballots
