@@ -1,5 +1,7 @@
 import React, { useContext } from 'react'
 
+import { Election } from '../config/types'
+
 import BallotContext from '../contexts/ballotContext'
 
 import LinkButton from '../components/LinkButton'
@@ -8,8 +10,11 @@ import Prose from '../components/Prose'
 import Seal from '../components/Seal'
 
 const StartPage = () => {
-  const { ballotStyleId, election, precinctId } = useContext(BallotContext)
-  const { title, state, county, date, seal, sealURL } = election!
+  const { ballotStyleId, election: e, precinctId } = useContext(BallotContext)
+  const election = e as Election
+  const { title, state, county, date, seal, sealURL } = election
+  const precinct = election.precincts.find(p => p.id === precinctId)
+  const precinctName = precinct ? precinct.name : precinctId
 
   return (
     <Main>
@@ -24,7 +29,7 @@ const StartPage = () => {
           </p>
           <hr />
           <h2>
-            Precinct: {precinctId}
+            Precinct: {precinctName}
             <br />
             Ballot Style: {ballotStyleId}
           </h2>
