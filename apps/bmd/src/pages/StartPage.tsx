@@ -1,20 +1,11 @@
 import React, { useContext } from 'react'
-import styled from 'styled-components'
 
 import BallotContext from '../contexts/ballotContext'
 
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
-
-const Seal = styled.div`
-  margin: 0 auto 1rem;
-  max-width: 320px;
-`
-
-const SealImage = styled.img`
-  max-width: 320px;
-`
+import Seal from '../components/Seal'
 
 const StartPage = () => {
   const { ballotStyleId, election, precinctId } = useContext(BallotContext)
@@ -23,27 +14,22 @@ const StartPage = () => {
   return (
     <Main>
       <MainChild center>
-        {seal ? (
-          <Seal aria-hidden="true" dangerouslySetInnerHTML={{ __html: seal }} />
-        ) : sealURL ? (
-          <Seal aria-hidden="true">
-            <SealImage alt="" src={sealURL} />
-          </Seal>
-        ) : (
-          <React.Fragment />
-        )}
+        <Seal seal={seal} sealURL={sealURL} />
         <Prose textCenter>
           <h1 aria-label={`${title}.`}>{title}</h1>
           <p aria-hidden="true">
             {date}
             <br />
             {county.name}, {state}
-            <br />
-            Ballot Style {ballotStyleId}
-            <br />
-            Precinct {precinctId}
           </p>
+          <hr />
+          <h2>
+            Precinct: {precinctId}
+            <br />
+            Ballot Style: {ballotStyleId}
+          </h2>
           <p>
+            <br />
             <LinkButton
               primary
               to="/instructions/"
