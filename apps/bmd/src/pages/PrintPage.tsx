@@ -120,6 +120,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
           }
         />
         <PrintedBallot
+          ballotId={undefined} // TODO: add ballotId here: https://github.com/votingworks/bmd/issues/424
           ballotStyleId={ballotStyleId}
           election={election}
           precinctId={precinctId}
