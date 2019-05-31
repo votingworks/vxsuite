@@ -4,7 +4,6 @@ import pluralize from 'pluralize'
 
 import { ButtonEventFunction, ScannerStatus } from '../config/types'
 
-// import Button from '../components/Button'
 import Prose from '../components/Prose'
 
 const Table = styled.table`
