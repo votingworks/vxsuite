@@ -54,8 +54,11 @@ function handleArrowRight() {
   }
 }
 
-function handleClick() {
-  getActiveElement().click()
+function handleClick(sendEvenIfButton: boolean) {
+  const activeElement = getActiveElement()
+  if (activeElement.type !== 'button' || sendEvenIfButton) {
+    activeElement.click()
+  }
 }
 
 export function handleGamepadButtonDown(buttonName: string) {
@@ -74,7 +77,7 @@ export function handleGamepadButtonDown(buttonName: string) {
       handleArrowRight()
       break
     case 'A':
-      handleClick()
+      handleClick(true)
       break
     // no default
   }
@@ -100,8 +103,10 @@ export /* istanbul ignore next - triggering keystrokes issue - https://github.co
       handleArrowRight()
       break
     case ']':
+      handleClick(true)
+      break
     case 'Enter':
-      handleClick()
+      handleClick(false)
       break
     // no default
   }

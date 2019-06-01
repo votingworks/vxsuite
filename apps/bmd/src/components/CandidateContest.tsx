@@ -527,10 +527,10 @@ class CandidateContest extends React.Component<Props, State> {
                       })}
                   {contest.allowWriteIns && !hasReachedMaxSelections && (
                     <Choice
-                      as="button"
                       isSelected={false}
                       onClick={this.initWriteInCandidate}
                     >
+                      <ChoiceInput className="visually-hidden" />
                       <Prose>
                         <p aria-label="add write-in candidate.">
                           <em>add write-in candidate</em>
@@ -615,12 +615,13 @@ class CandidateContest extends React.Component<Props, State> {
           }
         />
         <Modal
+          ariaLabel=""
           isOpen={writeInCandateModalIsOpen}
           content={
             <div>
-              <Prose>
-                <h2>Write-In Candidate</h2>
-                <Text>
+              <Prose id="modalaudiofocus">
+                <h2 aria-label="Write-In Candidate.">Write-In Candidate</h2>
+                <Text aria-label="Enter the name of a person who is not on the ballot. Use the up and down arrows to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
                   Enter the name of a person who is <strong>not</strong> on the
                   ballot using the on-screen keyboard.
                 </Text>
@@ -645,6 +646,7 @@ class CandidateContest extends React.Component<Props, State> {
                   </legend>
                   <WriteInCandidateInput
                     id="WriteInCandidateName"
+                    aria-label="Name of Write-in Candidate."
                     value={writeInCandidateName}
                     placeholder="candidate name"
                   />

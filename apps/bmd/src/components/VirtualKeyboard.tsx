@@ -57,7 +57,12 @@ const VirtualKeyboard = ({ onKeyPress }: Props) => (
       return (
         <div key={String(`row${i}`)}>
           {row.map((key: string) => (
-            <Button key={key} data-key={key} onClick={onKeyPress}>
+            <Button
+              key={key}
+              data-key={key}
+              aria-label={key.toLowerCase()}
+              onClick={onKeyPress}
+            >
               {key}
             </Button>
           ))}
