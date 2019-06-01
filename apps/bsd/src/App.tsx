@@ -179,7 +179,7 @@ const App: React.FC = () => {
           </MainChild>
         </Main>
         <ButtonBar secondary naturalOrder separatePrimaryButton>
-          <Brand>VxScanner</Brand>
+          <Brand>VxScan</Brand>
           <Button onClick={unconfigureServer}>Factory Reset</Button>
           <Button onClick={zeroData}>Zero</Button>
           <Button onClick={exportResults}>Export</Button>

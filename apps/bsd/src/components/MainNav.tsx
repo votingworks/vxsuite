@@ -10,7 +10,7 @@ interface Props {
 
 const MainNav = ({ children, title }: Props) => (
   <ButtonBar secondary naturalOrder>
-    <Brand>VxEncode{title && <span> / {title}</span>}</Brand>
+    <Brand>VxScan{title && <span> / {title}</span>}</Brand>
     {children || <div />}
   </ButtonBar>
 )
