@@ -195,7 +195,7 @@ export class App extends React.Component<RouteComponentProps, State> {
           // if it's an error, aggressively assume there's no backend and stop hammering
           this.stopPolling()
         })
-    }, 1000)
+    }, 200)
   }
 
   public stopPolling = () => {
