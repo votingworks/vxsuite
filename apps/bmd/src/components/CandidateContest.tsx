@@ -1,7 +1,5 @@
 import camelCase from 'lodash.camelcase'
 import React from 'react'
-import Keyboard from 'react-simple-keyboard'
-import 'react-simple-keyboard/build/css/index.css'
 import styled from 'styled-components'
 
 import { findPartyById } from '../utils/find'
@@ -28,6 +26,7 @@ import Main from './Main'
 import Modal from './Modal'
 import Prose from './Prose'
 import Text from './Text'
+import VirtualKeyboard from './VirtualKeyboard'
 
 const tabletMinWidth = 720
 
@@ -238,7 +237,6 @@ const initialState = {
 class CandidateContest extends React.Component<Props, State> {
   public static contextType = BallotContext
   public state: State = initialState
-  private keyboard = React.createRef<Keyboard>()
   private scrollContainer = React.createRef<HTMLDivElement>()
 
   public componentDidMount() {
@@ -347,8 +345,19 @@ class CandidateContest extends React.Component<Props, State> {
     this.setState({ writeInCandateModalIsOpen })
   }
 
-  public onKeyboardInputChange = (writeInCandidateName: string) => {
-    this.setState({ writeInCandidateName })
+  public onKeyboardInput = (event: ButtonEvent) => {
+    const { key } = (event.target as HTMLElement).dataset
+    this.setState(prevState => {
+      let writeInCandidateName = prevState.writeInCandidateName
+      if (key === 'space') {
+        writeInCandidateName += ' '
+      } else if (key === '⌫ delete') {
+        writeInCandidateName = writeInCandidateName.slice(0, -1)
+      } else {
+        writeInCandidateName += key
+      }
+      return { writeInCandidateName }
+    })
   }
 
   public updateContestChoicesScrollStates = () => {
@@ -640,25 +649,7 @@ class CandidateContest extends React.Component<Props, State> {
                     placeholder="candidate name"
                   />
                 </WriteInCandidateFieldSet>
-                <Keyboard
-                  ref={this.keyboard}
-                  layout={{
-                    default: [
-                      'Q W E R T Y U I O P',
-                      'A S D F G H J K L -',
-                      'Z X C V B N M , .',
-                      '{space} {bksp}',
-                    ],
-                  }}
-                  display={{ '{bksp}': '⌫ delete', '{space}': 'space' }}
-                  mergeDisplay
-                  disableCaretPositioning
-                  maxLength={maxWriteInCandidateLength}
-                  layoutName="default"
-                  theme="hg-theme-default vs-simple-keyboard"
-                  onChange={this.onKeyboardInputChange}
-                  useButtonTag
-                />
+                <VirtualKeyboard onKeyPress={this.onKeyboardInput} />
               </WriteInCandidateForm>
             </div>
           }

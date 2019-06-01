@@ -103,7 +103,6 @@
     "react-modal": "^3.8.1",
     "react-router-dom": "^5.0.0",
     "react-scripts": "3.0.1",
-    "react-simple-keyboard": "^1.22.3",
     "styled-components": "^4.2.0",
     "typescript": "3.4.5",
     "wait-for-expect": "^1.2.0"
