@@ -51,11 +51,11 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
 }
 
@@ -414,11 +414,11 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
 }
 

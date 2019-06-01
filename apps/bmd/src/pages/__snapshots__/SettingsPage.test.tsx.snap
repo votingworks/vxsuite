@@ -69,11 +69,11 @@ exports[`renders SettingsPage 1`] = `
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
 }
 

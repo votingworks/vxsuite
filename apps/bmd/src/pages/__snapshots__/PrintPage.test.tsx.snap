@@ -238,11 +238,11 @@ exports[`renders PrintPage with votes 1`] = `
   margin-top: -1rem;
 }
 
-.c10 :first-child {
+.c10 > :first-child {
   margin-top: 0;
 }
 
-.c10 :last-child {
+.c10 > :last-child {
   margin-bottom: 0;
 }
 

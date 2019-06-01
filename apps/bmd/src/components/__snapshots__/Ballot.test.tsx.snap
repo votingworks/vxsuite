@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`can navigate all ballot pages 1`] = `
-.c3 {
+.c4 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
@@ -32,7 +32,7 @@ exports[`can navigate all ballot pages 1`] = `
   max-width: 35rem;
 }
 
-.c2 {
+.c3 {
   margin: auto;
   width: 100%;
   max-width: 66ch;
@@ -40,43 +40,48 @@ exports[`can navigate all ballot pages 1`] = `
   line-height: 1.2;
 }
 
-.c2 h1 {
+.c3 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c2 h2 {
+.c3 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c2 h3,
-.c2 p {
+.c3 h3,
+.c3 p {
   margin-top: 1rem;
   margin-bottom: 1rem;
   font-size: 1rem;
 }
 
-.c2 h1 + h2 {
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c2 h1 + p,
-.c2 h2 + p {
+.c3 h1 + p,
+.c3 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c3 h3 + p {
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
+}
+
+.c2 {
+  margin: 0 auto 1rem;
+  max-width: 320px;
 }
 
 @media (min-width:480px) {
@@ -103,7 +108,7 @@ exports[`can navigate all ballot pages 1`] = `
 }
 
 @media (min-width:480px) {
-  .c2 {
+  .c3 {
     line-height: 1.3;
   }
 }
@@ -114,8 +119,12 @@ exports[`can navigate all ballot pages 1`] = `
   <div
     class="c1"
   >
-    <div
+    <p
+      aria-hidden="true"
       class="c2"
+    />
+    <div
+      class="c3"
     >
       <h1
         aria-label="2020 General Election."
@@ -130,17 +139,20 @@ exports[`can navigate all ballot pages 1`] = `
         Franklin County
         , 
         State of Hamilton
-        <br />
-        Ballot Style 
-        
-        <br />
-        Precinct 
-        
       </p>
+      <hr />
+      <h2>
+        Precinct: 
+        
+        <br />
+        Ballot Style: 
+        
+      </h2>
       <p>
+        <br />
         <button
           aria-label="Select Next to Get Started."
-          class="c3"
+          class="c4"
           id="next"
           role="option"
           type="button"
