@@ -126,6 +126,12 @@ const App: React.FC = () => {
     })
   }
 
+  const ejectUSB = () => {
+    fetch('/usbstick/eject', {
+      method: 'post',
+    })
+  }
+
   const zeroData = () => {
     fetch('/scan/zero', {
       method: 'post',
@@ -182,6 +188,7 @@ const App: React.FC = () => {
           <Brand>VxScan</Brand>
           <Button onClick={unconfigureServer}>Factory Reset</Button>
           <Button onClick={zeroData}>Zero</Button>
+          <Button onClick={ejectUSB}>Eject USB</Button>
           <Button onClick={exportResults}>Export</Button>
           <Button disabled={isScanning} primary onClick={scanBatch}>
             Scan New Batch
