@@ -94,7 +94,7 @@
     "lodash.camelcase": "^4.3.0",
     "mousetrap": "^1.6.3",
     "normalize.css": "^8.0.1",
-    "pluralize": "^7.0.0",
+    "pluralize": "^8.0.0",
     "qrcode.react": "^0.9.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
