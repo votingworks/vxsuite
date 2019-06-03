@@ -60,6 +60,7 @@ class Card:
         full_bytes = self.__initial_bytes(WRITE_PROTECTED if write_protect else WRITABLE, len(short_value_bytes), 0)
         full_bytes += short_value_bytes
         self.write_chunk(0, full_bytes)
+        time.sleep(1)
 
     def write_short_and_long_values(self, short_value_bytes, long_value_bytes):
         if not self.write_enabled:
