@@ -5,15 +5,14 @@ const ButtonList = styled.div`
   @media (min-width: 720px) {
     columns: 2;
   }
-  @media (min-width: 1080px) {
-    columns: 3;
-  }
   @media (min-width: 1440px) {
-    columns: 4;
+    columns: 3;
   }
   & > button {
     margin-bottom: 0.5rem;
     overflow: hidden;
+    padding: 2rem 1rem;
+    font-size: 1.5rem;
   }
 `
 
