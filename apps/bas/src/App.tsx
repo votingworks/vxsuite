@@ -1,8 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { ButtonEvent, CardData, OptionalElection } from './config/types'
+import {
+  ButtonEvent,
+  CardData,
+  OptionalElection,
+  OptionalVoterCardData,
+  VoterCardData,
+} from './config/types'
 
 import Button from './components/Button'
+import CurrentVoterCard from './components/CurrentVoterCard'
 import Main, { MainChild } from './components/Main'
 import MainNav from './components/MainNav'
 import Screen from './components/Screen'
@@ -28,6 +35,9 @@ const App: React.FC = () => {
   const unsetElection = () => setElection(undefined)
   const [isLoadingElection, setIsLoadingElection] = useState(false)
   const [precinctId, setPrecinctId] = useState('')
+  const [voterCardData, setVoterCardData] = useState<OptionalVoterCardData>(
+    undefined
+  )
 
   const fetchElection = async () => {
     setIsLoadingElection(true)
@@ -46,6 +56,7 @@ const App: React.FC = () => {
     switch (cardData.t) {
       case 'voter':
         isWritableCard = true
+        setVoterCardData(cardData as VoterCardData)
         break
       case 'pollworker':
         break
@@ -75,16 +86,19 @@ const App: React.FC = () => {
               // happy to overwrite a card with no data on it
               setIsWritableCard(true)
               setIsClerkCardPresent(false)
+              setVoterCardData(undefined)
             }
           } else {
             // can't write if there's no card
             setIsWritableCard(false)
             setIsClerkCardPresent(false)
+            setVoterCardData(undefined)
           }
         })
         .catch(() => {
           // if it's an error, aggressively assume there's no backend and stop hammering
           window.clearInterval(checkCardInterval)
+          setVoterCardData(undefined)
         })
     }, 1000)
   }
@@ -214,6 +228,7 @@ const App: React.FC = () => {
                   precinctBallotStyles={getBallotStylesByPreinctId(precinctId)}
                   precinctName={getPrecinctNameByPrecinctId(precinctId)}
                   programCard={programCard}
+                  showPrecincts={reset}
                 />
               ) : (
                 <PrecinctsScreen
@@ -225,9 +240,14 @@ const App: React.FC = () => {
           )}
         </Main>
         <MainNav>
-          <Button disabled={!precinctId || isProgrammingCard} onClick={reset}>
-            Precincts
-          </Button>
+          {!isProgrammingCard && (
+            <CurrentVoterCard
+              ballotStyleId={voterCardData && voterCardData.bs}
+              precinctName={
+                voterCardData && getPrecinctNameByPrecinctId(voterCardData.pr)
+              }
+            />
+          )}
         </MainNav>
       </Screen>
     )
