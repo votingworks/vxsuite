@@ -86,7 +86,7 @@ def test_card_write_no_cardreader(client):
     assert not rv['success']
 
 
-def test_mock_card_read(client):
+def test_mock_card_read_and_write(client):
     smartcards.core.mock_short_value=b'XYZ'
     smartcards.core.mock_long_value=b'yeehah'
     rv = json.loads(client.get("/card/read").data)
@@ -96,6 +96,10 @@ def test_mock_card_read(client):
 
     rv = json.loads(client.get("/card/read_long").data)
     assert rv == {'longValue': 'yeehah'}
+
+    client.post("/card/write", data="oy")
+    rv = client.get("/card/read")
+    assert json.loads(rv.data)['shortValue'] == "oy"
+    
     smartcards.core.mock_short_value=None
     smartcards.core.mock_long_value=None    
-

@@ -34,6 +34,11 @@ def _read_long():
     return CardInterface.read_long()
 
 def _write(content, write_protect=False):
+    global mock_short_value
+    if mock_short_value:
+        mock_short_value = content
+        return True
+
     return CardInterface.write(content, write_protect)
 
 def _write_short_and_long(short_value, long_value):
