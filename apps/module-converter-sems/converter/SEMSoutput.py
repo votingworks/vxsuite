@@ -202,7 +202,7 @@ def process_results_file(election_file_path, vx_results_file_path):
         sems_row_writer.writerow([county_id, precinct_id, contest_id, contest["official_label"], contest["partyId"], contest_party["abbrev"], candidate_id, candidate["name"], candidate["partyId"], candidate_party["abbrev"], count])
         
         sems_io.write(row_bytesio.getvalue().strip('\r\n'))
-        sems_io.write(",\n")
+        sems_io.write(",\r\n")
 
     return sems_io.getvalue()
         

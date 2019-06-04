@@ -124,9 +124,9 @@ def test_results_process(client):
     
     # download and check that it's the right file
     results = client.get(results_url).data
-    expected_results = open(EXPECTED_RESULTS_FILE, "r").read()
+    expected_results = open(EXPECTED_RESULTS_FILE, "rb").read()
 
-    assert results == expected_results.encode('utf-8')
+    assert results == expected_results
 
     # request reset files
     reset_url = '/convert/reset'
