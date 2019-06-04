@@ -18,6 +18,7 @@ import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
 
 import PrecinctBallotStylesScreen from './screens/PrecinctBallotStylesScreen'
 import LoadElectionScreen from './screens/LoadElectionScreen'
+import LockedScreen from './screens/LockedScreen'
 import PrecinctsScreen from './screens/PrecinctsScreen'
 
 import 'normalize.css'
@@ -29,6 +30,7 @@ const App: React.FC = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isClerkCardPresent, setIsClerkCardPresent] = useState(false)
+  const [isLocked, setIsLocked] = useState(true)
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
   )
@@ -59,6 +61,7 @@ const App: React.FC = () => {
         setVoterCardData(cardData as VoterCardData)
         break
       case 'pollworker':
+        setIsLocked(false)
         break
       case 'clerk':
         if (longValueExists) {
@@ -214,43 +217,56 @@ const App: React.FC = () => {
       </Screen>
     )
   } else if (election) {
-    return (
-      <Screen>
-        <Main>
-          {isProgrammingCard ? (
-            <MainChild center>
-              <h1>Programming card…</h1>
-            </MainChild>
-          ) : (
-            <MainChild maxWidth={false}>
-              {precinctId ? (
-                <PrecinctBallotStylesScreen
-                  precinctBallotStyles={getBallotStylesByPreinctId(precinctId)}
-                  precinctName={getPrecinctNameByPrecinctId(precinctId)}
-                  programCard={programCard}
-                  showPrecincts={reset}
-                />
-              ) : (
-                <PrecinctsScreen
-                  precincts={election.precincts}
-                  updatePrecinct={updatePrecinct}
-                />
-              )}
-            </MainChild>
-          )}
-        </Main>
-        <MainNav>
-          {!isProgrammingCard && (
-            <CurrentVoterCard
-              ballotStyleId={voterCardData && voterCardData.bs}
-              precinctName={
-                voterCardData && getPrecinctNameByPrecinctId(voterCardData.pr)
-              }
-            />
-          )}
-        </MainNav>
-      </Screen>
-    )
+    if (isLocked) {
+      return <LockedScreen />
+    } else {
+      return (
+        <Screen>
+          <Main>
+            {isProgrammingCard ? (
+              <MainChild center>
+                <h1>Programming card…</h1>
+              </MainChild>
+            ) : (
+              <MainChild maxWidth={false}>
+                {precinctId ? (
+                  <PrecinctBallotStylesScreen
+                    precinctBallotStyles={getBallotStylesByPreinctId(
+                      precinctId
+                    )}
+                    precinctName={getPrecinctNameByPrecinctId(precinctId)}
+                    programCard={programCard}
+                    showPrecincts={reset}
+                  />
+                ) : (
+                  <PrecinctsScreen
+                    precincts={election.precincts}
+                    updatePrecinct={updatePrecinct}
+                  />
+                )}
+              </MainChild>
+            )}
+          </Main>
+          <MainNav>
+            <Button
+              onClick={() => {
+                setIsLocked(true)
+              }}
+            >
+              Lock
+            </Button>
+            {!isProgrammingCard && (
+              <CurrentVoterCard
+                ballotStyleId={voterCardData && voterCardData.bs}
+                precinctName={
+                  voterCardData && getPrecinctNameByPrecinctId(voterCardData.pr)
+                }
+              />
+            )}
+          </MainNav>
+        </Screen>
+      )
+    }
   }
 
   return <LoadElectionScreen setElection={setElection} />
