@@ -111,8 +111,11 @@ const App: React.FC = () => {
     setPrecinctId(id)
   }
 
-  const getPrecinctNameByPrecinctId = (precinctId: string): string =>
-    (election && election.precincts.find(p => p.id === precinctId)!.name) || ''
+  const getPrecinctNameByPrecinctId = (precinctId: string): string => {
+    const precinct =
+      election && election.precincts.find(p => p.id === precinctId)
+    return (precinct && precinct.name) || 'no precinct'
+  }
 
   const getBallotStylesByPreinctId = (id: string) =>
     (election &&
