@@ -42,10 +42,7 @@ const Ballot = () => {
       timeout={5 * 1000}
     >
       {isIdle ? (
-        <Switch>
-          <Route path="/" component={IdlePage} />
-          <Route path="/:path" component={IdlePage} />
-        </Switch>
+        <IdlePage />
       ) : (
         <Switch>
           <Route path="/" exact component={StartPage} />
