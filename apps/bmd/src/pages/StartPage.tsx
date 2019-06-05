@@ -10,6 +10,7 @@ import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Seal from '../components/Seal'
+import Text from '../components/Text'
 
 const StartPage = () => {
   const { ballotStyleId, election: e, precinctId } = useContext(BallotContext)
@@ -41,6 +42,11 @@ const StartPage = () => {
             <br />
             Ballot Style: {ballotStyleId}
           </h2>
+          <Text narrow>
+            <br />
+            Do not remove card until
+            <br /> official ballot is printed.
+          </Text>
           <p>
             <br />
             <LinkButton
