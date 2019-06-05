@@ -13,6 +13,14 @@ export const getContests = ({
       ballotStyle.partyId === c.partyId
   )
 
+export const getPrecinctById = ({
+  election,
+  precinctId,
+}: {
+  election: Election
+  precinctId: string
+}) => election.precincts.find(p => p.id === precinctId)
+
 export const getBallotStyle = ({
   ballotStyleId,
   election,
@@ -39,4 +47,5 @@ export default {
   getBallotStyle,
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
+  getPrecinctById,
 }
