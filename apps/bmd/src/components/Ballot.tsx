@@ -39,7 +39,7 @@ const Ballot = () => {
       onActive={onActive}
       onIdle={onIdle}
       debounce={250}
-      timeout={5 * 1000}
+      timeout={60 * 1000}
     >
       {isIdle ? (
         <IdlePage />
