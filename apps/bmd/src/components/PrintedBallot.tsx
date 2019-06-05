@@ -9,6 +9,7 @@ import {
   getBallotStyle,
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
+  getPrecinctById,
 } from '../utils/election'
 
 import encodeVotes from '../encodeVotes'
@@ -42,7 +43,6 @@ const Header = styled.div`
   flex-direction: row;
   align-items: center;
   border-bottom: 0.2rem solid #000000;
-  height: 1.15in;
   & > .seal {
     margin: 0.25rem 0;
     width: 1in;
@@ -54,17 +54,19 @@ const Header = styled.div`
     margin-top: 0;
   }
   & > .ballot-header-content {
-    flex: 1;
+    flex: 4;
     margin: 0 1rem;
     max-width: 100%;
   }
 `
 const QRCodeContainer = styled.div`
   display: flex;
+  flex: 3;
   flex-direction: row;
   align-self: flex-end;
   border: 0.2rem solid #000000;
   border-bottom: 0;
+  min-width: 2.5in;
   max-width: 50%;
   padding: 0.25rem;
   & > div:first-child {
@@ -79,8 +81,13 @@ const QRCodeContainer = styled.div`
       flex: 1;
       flex-direction: column;
       align-self: stretch;
-      justify-content: space-between;
       font-size: 0.8rem;
+      & > div {
+        margin-bottom: 0.75rem;
+      }
+      & > div:last-child {
+        margin-bottom: 0;
+      }
       & strong {
         font-size: 1rem;
         word-break: break-word;
@@ -184,6 +191,7 @@ const PrintBallot = ({
   const ballotStyle = getBallotStyle({ ballotStyleId, election })
   const contests = getContests({ ballotStyle, election })
   const encodedVotes: string = encodeVotes(contests, votes)
+  const precinctName: string = getPrecinctById({ election, precinctId })!.name
 
   return (
     <Ballot aria-hidden="true" className="print-only">
@@ -219,16 +227,12 @@ const PrintBallot = ({
           <div>
             <div>
               <div>
+                <div>Precinct</div>
+                <strong>{precinctName}</strong>
+              </div>
+              <div>
                 <div>Ballot Style</div>
                 <strong>{ballotStyleId}</strong>
-              </div>
-              <div>
-                <div>Precinct Number</div>
-                <strong>{precinctId}</strong>
-              </div>
-              <div>
-                <div>Ballot ID</div>
-                <strong>{ballotId}</strong>
               </div>
             </div>
           </div>
