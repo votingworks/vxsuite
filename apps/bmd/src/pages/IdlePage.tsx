@@ -18,7 +18,7 @@ const IdlePage = () => {
 
   useEffect(() => {
     const clearCardTimeout = window.setTimeout(async () => {
-      await markVoterCardUsed(false)
+      await markVoterCardUsed({ ballotPrinted: false })
       resetBallot('/')
     }, timeoutSeconds * 1000)
 

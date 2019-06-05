@@ -211,7 +211,7 @@ export class App extends React.Component<RouteComponentProps, State> {
     this.setState(defaultCardPresentState)
   }
 
-  public markVoterCardUsed = async (ballotPrinted = true) => {
+  public markVoterCardUsed = async ({ ballotPrinted = true }) => {
     // this is a demo with no card reader attached
     // TODO: limit this to demo elections
     // https://github.com/votingworks/bmd/issues/390

@@ -105,9 +105,9 @@ export type VotesDict = Dictionary<Vote>
 
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
-export type MarkVoterCardUsedFunction = (
+export type MarkVoterCardUsedFunction = (props: {
   ballotPrinted: boolean
-) => Promise<boolean>
+}) => Promise<boolean>
 export interface BallotContextInterface {
   activateBallot: (activationData: ActivationData) => void
   ballotStyleId: string
