@@ -5,6 +5,7 @@ import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
+import Text from '../components/Text'
 
 interface Props {
   ballotsPrintedCount: number
@@ -34,7 +35,9 @@ const ClerkScreen = ({
         <MainChild>
           <Prose className="no-print">
             <p>Remove card when finished making changes.</p>
-            <h2>Open/Close Polls</h2>
+            <Text as="h2" warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
+              {isPollsOpen ? 'Polls are open.' : 'Polls are closed.'}
+            </Text>
             <p>A summary will be printed when toggling open/closed.</p>
             <p>
               <Button onClick={showModal}>
