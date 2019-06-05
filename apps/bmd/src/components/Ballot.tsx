@@ -23,7 +23,7 @@ const Ballot = () => {
   const { showHelpPage, showSettingsPage } = election!.bmdConfig!
 
   const onActive = () => {
-    // a timeout because otherwise the click handler is passed to the candidate page
+    // Delay until after the tap event is processed so that tap event is not passed to the last screen the voter was on.
     window.setTimeout(() => {
       setIsIdle(false)
     }, 100)
