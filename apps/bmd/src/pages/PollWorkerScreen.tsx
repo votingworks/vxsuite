@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import Button, { SegmentedButton } from '../components/Button'
+import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Modal from '../components/Modal'
@@ -9,12 +9,14 @@ import Prose from '../components/Prose'
 interface Props {
   ballotsPrintedCount: number
   isPollsOpen: boolean
+  isLiveMode: boolean
   togglePollsOpen: () => void
 }
 
 const ClerkScreen = ({
   ballotsPrintedCount,
   isPollsOpen,
+  isLiveMode,
   togglePollsOpen,
 }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -31,30 +33,20 @@ const ClerkScreen = ({
       <Main>
         <MainChild>
           <Prose className="no-print">
-            <h2>Actions</h2>
+            <p>Remove card when finished making changes.</p>
+            <h2>Open/Close Polls</h2>
             <p>A summary will be printed when toggling open/closed.</p>
             <p>
-              <SegmentedButton>
-                <Button
-                  onClick={showModal}
-                  primary={!isPollsOpen}
-                  disabled={!isPollsOpen}
-                >
-                  Polls Closed
-                </Button>
-                <Button
-                  onClick={showModal}
-                  primary={isPollsOpen}
-                  disabled={isPollsOpen}
-                >
-                  Polls Open
-                </Button>
-              </SegmentedButton>
+              <Button onClick={showModal}>
+                {isPollsOpen ? 'Close Polls' : 'Open Polls'}
+              </Button>
             </p>
           </Prose>
           <Prose className="print-only">
             <h1>
-              {isPollsOpen ? 'Polls Closed Report' : 'Polls Opened Report'}
+              {isPollsOpen
+                ? `${isLiveMode && 'Unofficial TEST'} Polls Closed Report`
+                : `${isLiveMode && 'Unofficial TEST'} Polls Opened Report`}
             </h1>
             <p>
               {isPollsOpen

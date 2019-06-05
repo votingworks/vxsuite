@@ -60,6 +60,7 @@ const ClerkScreen = ({
       <Main>
         <MainChild maxWidth={false}>
           <Prose>
+            <p>Remove card when finished making changes.</p>
             {election && (
               <React.Fragment>
                 <h1>Stats</h1>
