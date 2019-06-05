@@ -21,4 +21,22 @@ export const getBallotStyle = ({
   election: Election
 }) => election.ballotStyles.find(bs => bs.id === ballotStyleId) as BallotStyle
 
-export default { getBallotStyle, getContests }
+export const getPartyPrimaryAdjectiveFromBallotStyle = ({
+  ballotStyleId,
+  election,
+}: {
+  ballotStyleId: string
+  election: Election
+}) => {
+  const parts = ballotStyleId && ballotStyleId.match(/(\d+)(\w+)/i)
+  const abbrev = parts && parts[2]
+  const party = abbrev && election.parties.find(p => p.abbrev === abbrev)
+  const name = party && party.name
+  return (name === 'Democrat' && 'Democratic') || name || ''
+}
+
+export default {
+  getBallotStyle,
+  getContests,
+  getPartyPrimaryAdjectiveFromBallotStyle,
+}

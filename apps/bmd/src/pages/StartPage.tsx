@@ -4,6 +4,8 @@ import { Election } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
 
+import { getPartyPrimaryAdjectiveFromBallotStyle } from '../utils/election'
+
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
@@ -15,13 +17,19 @@ const StartPage = () => {
   const { title, state, county, date, seal, sealURL } = election
   const precinct = election.precincts.find(p => p.id === precinctId)
   const precinctName = precinct ? precinct.name : precinctId
+  const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
+    election,
+    ballotStyleId,
+  })
 
   return (
     <Main>
       <MainChild center>
         <Seal seal={seal} sealURL={sealURL} />
         <Prose textCenter>
-          <h1 aria-label={`${title}.`}>{title}</h1>
+          <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
+            {partyPrimaryAdjective} {title}
+          </h1>
           <p aria-hidden="true">
             {date}
             <br />

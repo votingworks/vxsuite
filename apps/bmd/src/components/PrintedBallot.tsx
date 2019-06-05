@@ -5,7 +5,11 @@ import GLOBALS from '../config/globals'
 
 import { randomBase64 } from '../utils/random'
 import { findPartyById } from '../utils/find'
-import { getBallotStyle, getContests } from '../utils/election'
+import {
+  getBallotStyle,
+  getContests,
+  getPartyPrimaryAdjectiveFromBallotStyle,
+} from '../utils/election'
 
 import encodeVotes from '../encodeVotes'
 import QRCode from './QRCode'
@@ -173,6 +177,10 @@ const PrintBallot = ({
   votes,
 }: Props) => {
   const { county, date, seal, sealURL, state, parties, title } = election
+  const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
+    ballotStyleId,
+    election,
+  })
   const ballotStyle = getBallotStyle({ ballotStyleId, election })
   const contests = getContests({ ballotStyle, election })
   const encodedVotes: string = encodeVotes(contests, votes)
@@ -195,7 +203,9 @@ const PrintBallot = ({
         )}
         <Prose className="ballot-header-content">
           <h2>{isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}</h2>
-          <h3>{title}</h3>
+          <h3>
+            {partyPrimaryAdjective} {title}
+          </h3>
           <p>
             {date}
             <br />
