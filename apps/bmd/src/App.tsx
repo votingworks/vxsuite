@@ -105,7 +105,8 @@ export class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
 
   public processVoterCardData = (voterCardData: VoterCardData) => {
-    if (!this.state.election) {
+    const { election } = this.state
+    if (!election) {
       return
     }
 
@@ -117,11 +118,9 @@ export class App extends React.Component<RouteComponentProps, State> {
 
     const ballotStyle = getBallotStyle({
       ballotStyleId: voterCardData.bs,
-      election: this.state.election,
+      election,
     })
-    const precinct = this.state.election.precincts.find(
-      pr => pr.id === voterCardData.pr
-    )
+    const precinct = election.precincts.find(pr => pr.id === voterCardData.pr)
 
     if (ballotStyle && precinct) {
       const activationData: ActivationData = {
