@@ -3,9 +3,6 @@ export interface Dictionary<T> {
   [key: string]: T | undefined
 }
 
-// AsyncFunction
-export type AsyncFunction<O> = () => Promise<O>
-
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
@@ -108,6 +105,9 @@ export type VotesDict = Dictionary<Vote>
 
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
+export type MarkVoterCardUsedFunction = (
+  ballotPrinted: boolean
+) => Promise<boolean>
 export interface BallotContextInterface {
   activateBallot: (activationData: ActivationData) => void
   ballotStyleId: string
@@ -115,7 +115,7 @@ export interface BallotContextInterface {
   readonly election: Election | undefined
   incrementBallotsPrintedCount: () => void
   isLiveMode: boolean
-  markVoterCardUsed: AsyncFunction<boolean>
+  markVoterCardUsed: MarkVoterCardUsedFunction
   precinctId: string
   resetBallot: (path?: string) => void
   setUserSettings: (partial: PartialUserSettings) => void
@@ -134,6 +134,7 @@ export interface VoterCardData extends CardData {
   readonly bs: string
   readonly pr: string
   readonly uz?: number
+  readonly bp?: number
 }
 export interface PollworkerCardData extends CardData {
   readonly t: 'pollworker'

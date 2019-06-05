@@ -168,10 +168,19 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public startPolling = () => {
+    let lastCardDataString = ''
+
     checkCardInterval = window.setInterval(() => {
       fetch('/card/read')
         .then(result => result.json())
         .then(card => {
+          // check whether this has changed to reduce work by a lot
+          const currentCardDataString = JSON.stringify(card)
+          if (currentCardDataString === lastCardDataString) {
+            return
+          }
+          lastCardDataString = currentCardDataString
+
           const { isVoterCardPresent } = this.state
           if (isVoterCardPresent && !card.present) {
             this.resetBallot()
@@ -202,7 +211,7 @@ export class App extends React.Component<RouteComponentProps, State> {
     this.setState(defaultCardPresentState)
   }
 
-  public markVoterCardUsed = async () => {
+  public markVoterCardUsed = async (ballotPrinted = true) => {
     // this is a demo with no card reader attached
     // TODO: limit this to demo elections
     // https://github.com/votingworks/bmd/issues/390
@@ -217,6 +226,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       pr: precinctId,
       t: 'voter',
       uz: new Date().getTime(),
+      bp: ballotPrinted ? 1 : 0,
     }
 
     const newCardDataSerialized = JSON.stringify(newCardData)
