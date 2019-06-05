@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import Button, { SegmentedButton } from '../components/Button'
+import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Modal from '../components/Modal'
@@ -31,25 +31,13 @@ const ClerkScreen = ({
       <Main>
         <MainChild>
           <Prose className="no-print">
-            <h2>Actions</h2>
+            <p>Remove card when finished making changes.</p>
+            <h2>Open/Close Polls</h2>
             <p>A summary will be printed when toggling open/closed.</p>
             <p>
-              <SegmentedButton>
-                <Button
-                  onClick={showModal}
-                  primary={!isPollsOpen}
-                  disabled={!isPollsOpen}
-                >
-                  Polls Closed
-                </Button>
-                <Button
-                  onClick={showModal}
-                  primary={isPollsOpen}
-                  disabled={isPollsOpen}
-                >
-                  Polls Open
-                </Button>
-              </SegmentedButton>
+              <Button onClick={showModal}>
+                {isPollsOpen ? 'Close Polls' : 'Open Polls'}
+              </Button>
             </p>
           </Prose>
           <Prose className="print-only">
