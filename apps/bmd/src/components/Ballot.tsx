@@ -26,7 +26,7 @@ const Ballot = () => {
     // a timeout because otherwise the click handler is passed to the candidate page
     window.setTimeout(() => {
       setIsIdle(false)
-    }, 10)
+    }, 100)
   }
 
   const onIdle = () => {
