@@ -9,12 +9,14 @@ import Prose from '../components/Prose'
 interface Props {
   ballotsPrintedCount: number
   isPollsOpen: boolean
+  isLiveMode: boolean
   togglePollsOpen: () => void
 }
 
 const ClerkScreen = ({
   ballotsPrintedCount,
   isPollsOpen,
+  isLiveMode,
   togglePollsOpen,
 }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -42,7 +44,9 @@ const ClerkScreen = ({
           </Prose>
           <Prose className="print-only">
             <h1>
-              {isPollsOpen ? 'Polls Closed Report' : 'Polls Opened Report'}
+              {isPollsOpen
+                ? `${isLiveMode && 'Unofficial TEST'} Polls Closed Report`
+                : `${isLiveMode && 'Unofficial TEST'} Polls Opened Report`}
             </h1>
             <p>
               {isPollsOpen

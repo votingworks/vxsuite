@@ -493,6 +493,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       return (
         <PollWorkerScreen
           ballotsPrintedCount={ballotsPrintedCount}
+          isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
           togglePollsOpen={this.togglePollsOpen}
         />
