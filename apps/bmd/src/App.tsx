@@ -59,7 +59,7 @@ interface State {
   isPollsOpen: boolean
   isPollWorkerCardPresent: boolean
   isVoterCardPresent: boolean
-  isVoterCardUsed: boolean
+  isVoterCardInvalid: boolean
   precinctId: string
   ballotsPrintedCount: number
   userSettings: UserSettings
@@ -76,7 +76,7 @@ const defaultCardPresentState = {
   isClerkCardPresent: false,
   isPollWorkerCardPresent: false,
   isVoterCardPresent: false,
-  isVoterCardUsed: false,
+  isVoterCardInvalid: false,
 }
 
 const userState = {
@@ -112,12 +112,6 @@ export class App extends React.Component<RouteComponentProps, State> {
       return
     }
 
-    // better UI at some point
-    // don't reuse a card that has been written
-    if (voterCardData.uz) {
-      return
-    }
-
     const ballotStyle = getBallotStyle({
       ballotStyleId: voterCardData.bs,
       election,
@@ -125,11 +119,14 @@ export class App extends React.Component<RouteComponentProps, State> {
     const precinct = election.precincts.find(pr => pr.id === voterCardData.pr)
 
     if (ballotStyle && precinct) {
-      const activationData: ActivationData = {
+      this.activateBallot({
         ballotStyle,
         precinct,
-      }
-      this.activateBallot(activationData)
+      })
+    } else {
+      this.setState({
+        isVoterCardInvalid: true,
+      })
     }
   }
 
@@ -146,13 +143,13 @@ export class App extends React.Component<RouteComponentProps, State> {
     switch (cardData.t) {
       case 'voter': {
         const voterCardData = cardData as VoterCardData
-        const isVoterCardUsed = !!voterCardData.uz
+        const isVoterCardInvalid = !!voterCardData.uz
         this.setState({
           ...defaultCardPresentState,
           isVoterCardPresent: true,
-          isVoterCardUsed,
+          isVoterCardInvalid,
         })
-        if (!isVoterCardUsed) {
+        if (!isVoterCardInvalid) {
           this.processVoterCardData(voterCardData)
         }
         break
@@ -473,7 +470,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       isPollsOpen,
       isPollWorkerCardPresent,
       isVoterCardPresent,
-      isVoterCardUsed,
+      isVoterCardInvalid,
       precinctId,
       userSettings,
       votes,
@@ -502,7 +499,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       return <PollsClosedScreen election={election} isLiveMode={isLiveMode} />
     } else if (election) {
       if (
-        !isVoterCardUsed &&
+        !isVoterCardInvalid &&
         isVoterCardPresent &&
         ballotStyleId &&
         precinctId
@@ -535,7 +532,7 @@ export class App extends React.Component<RouteComponentProps, State> {
           <ActivationScreen
             election={election}
             isLiveMode={isLiveMode}
-            isVoterCardUsed={isVoterCardUsed}
+            isVoterCardInvalid={isVoterCardInvalid}
           />
         )
       }
