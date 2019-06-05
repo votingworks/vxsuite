@@ -16,9 +16,10 @@ const InsertCardImage = styled.img`
 interface Props {
   election: Election
   isLiveMode: boolean
+  isVoterCardUsed: boolean
 }
 
-const ActivationScreen = ({ election, isLiveMode }: Props) => {
+const ActivationScreen = ({ election, isLiveMode, isVoterCardUsed }: Props) => {
   const { title, state, county, date, seal, sealURL } = election
   return (
     <Main>
@@ -33,11 +34,24 @@ const ActivationScreen = ({ election, isLiveMode }: Props) => {
             {county.name}, {state}
           </p>
           <hr />
-          <p>
-            <InsertCardImage src="/insert-card.svg" alt="Insert Card Diagram" />
-          </p>
-          <h1>Insert Card</h1>
-          <p>Insert voter card to load ballot.</p>
+          {isVoterCardUsed ? (
+            <React.Fragment>
+              <h1>Inactive Card</h1>
+              <p>This card is no longer active.</p>
+              <p>Please return card to poll worker.</p>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <p>
+                <InsertCardImage
+                  src="/insert-card.svg"
+                  alt="Insert Card Diagram"
+                />
+              </p>
+              <h1>Insert Card</h1>
+              <p>Insert voter card to load ballot.</p>
+            </React.Fragment>
+          )}
         </Prose>
       </MainChild>
     </Main>

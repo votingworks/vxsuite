@@ -59,6 +59,7 @@ interface State {
   isPollsOpen: boolean
   isPollWorkerCardPresent: boolean
   isVoterCardPresent: boolean
+  isVoterCardUsed: boolean
   precinctId: string
   ballotsPrintedCount: number
   userSettings: UserSettings
@@ -75,6 +76,7 @@ const defaultCardPresentState = {
   isClerkCardPresent: false,
   isPollWorkerCardPresent: false,
   isVoterCardPresent: false,
+  isVoterCardUsed: false,
 }
 
 const userState = {
@@ -142,21 +144,28 @@ export class App extends React.Component<RouteComponentProps, State> {
   public processCardData = (completeCardData: CompleteCardData) => {
     const { cardData, longValueExists } = completeCardData
     switch (cardData.t) {
-      case 'voter':
+      case 'voter': {
+        const voterCardData = cardData as VoterCardData
+        const isVoterCardUsed = !!voterCardData.uz
         this.setState({
           ...defaultCardPresentState,
           isVoterCardPresent: true,
+          isVoterCardUsed,
         })
-        this.processVoterCardData(cardData as VoterCardData)
+        if (!isVoterCardUsed) {
+          this.processVoterCardData(voterCardData)
+        }
         break
-      case 'pollworker':
+      }
+      case 'pollworker': {
         // poll worker admin screen goes here
         this.setState({
           ...defaultCardPresentState,
           isPollWorkerCardPresent: true,
         })
         break
-      case 'clerk':
+      }
+      case 'clerk': {
         if (longValueExists) {
           this.setState({
             ...defaultCardPresentState,
@@ -164,6 +173,7 @@ export class App extends React.Component<RouteComponentProps, State> {
           })
         }
         break
+      }
     }
   }
 
@@ -463,6 +473,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       isPollsOpen,
       isPollWorkerCardPresent,
       isVoterCardPresent,
+      isVoterCardUsed,
       precinctId,
       userSettings,
       votes,
@@ -489,7 +500,12 @@ export class App extends React.Component<RouteComponentProps, State> {
     } else if (election && !isPollsOpen) {
       return <PollsClosedScreen election={election} isLiveMode={isLiveMode} />
     } else if (election) {
-      if (isVoterCardPresent && ballotStyleId && precinctId) {
+      if (
+        !isVoterCardUsed &&
+        isVoterCardPresent &&
+        ballotStyleId &&
+        precinctId
+      ) {
         return (
           <Gamepad onButtonDown={handleGamepadButtonDown}>
             <BallotContext.Provider
@@ -514,7 +530,13 @@ export class App extends React.Component<RouteComponentProps, State> {
           </Gamepad>
         )
       } else {
-        return <ActivationScreen election={election} isLiveMode={isLiveMode} />
+        return (
+          <ActivationScreen
+            election={election}
+            isLiveMode={isLiveMode}
+            isVoterCardUsed={isVoterCardUsed}
+          />
+        )
       }
     } else {
       return <UploadConfig setElection={this.setElection} />
