@@ -131,7 +131,7 @@ const ScrollableContentWrapper = styled.div<Scrollable>`
 const ChoicesGrid = styled.div`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 0.75rem;
+  grid-gap: 1.25rem;
 `
 const Choice = styled('label')<{ isSelected: boolean }>`
   display: grid;
