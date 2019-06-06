@@ -19,7 +19,7 @@ interface Props {
 }
 
 const MainNav = ({ children, title }: Props) => (
-  <ButtonBar secondary naturalOrder>
+  <ButtonBar secondary naturalOrder separatePrimaryButton>
     <Brand>VxEncode{title && <span> / {title}</span>}</Brand>
     {children || <div />}
   </ButtonBar>

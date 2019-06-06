@@ -258,15 +258,15 @@ const App: React.FC = () => {
             >
               Lock
             </Button>
-            {!isProgrammingCard && (
-              <CurrentVoterCard
-                ballotStyleId={voterCardData && voterCardData.bs}
-                precinctName={
-                  voterCardData && getPrecinctNameByPrecinctId(voterCardData.pr)
-                }
-              />
-            )}
           </MainNav>
+          {!isProgrammingCard && (
+            <CurrentVoterCard
+              ballotStyleId={voterCardData && voterCardData.bs}
+              precinctName={
+                voterCardData && getPrecinctNameByPrecinctId(voterCardData.pr)
+              }
+            />
+          )}
         </Screen>
       )
     }
