@@ -16,11 +16,13 @@ interface Props {
 
 const CurrentCard = ({ ballotStyleId, precinctName }: Props) => (
   <ButtonBar secondary>
-    {precinctName && ballotStyleId ? (
+    {precinctName || ballotStyleId ? (
       <CardContainer>
         Current Card:{' '}
         <strong>
-          {precinctName}, {ballotStyleId}
+          {precinctName && ballotStyleId
+            ? `${precinctName}, ${ballotStyleId}`
+            : 'no data'}
         </strong>
       </CardContainer>
     ) : (
