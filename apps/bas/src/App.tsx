@@ -114,7 +114,7 @@ const App: React.FC = () => {
   const getPrecinctNameByPrecinctId = (precinctId: string): string => {
     const precinct =
       election && election.precincts.find(p => p.id === precinctId)
-    return (precinct && precinct.name) || 'no precinct'
+    return (precinct && precinct.name) || ''
   }
 
   const getBallotStylesByPreinctId = (id: string) =>
@@ -258,15 +258,15 @@ const App: React.FC = () => {
             >
               Lock
             </Button>
-            {!isProgrammingCard && (
-              <CurrentVoterCard
-                ballotStyleId={voterCardData && voterCardData.bs}
-                precinctName={
-                  voterCardData && getPrecinctNameByPrecinctId(voterCardData.pr)
-                }
-              />
-            )}
           </MainNav>
+          {!isProgrammingCard && (
+            <CurrentVoterCard
+              ballotStyleId={voterCardData && voterCardData.bs}
+              precinctName={
+                voterCardData && getPrecinctNameByPrecinctId(voterCardData.pr)
+              }
+            />
+          )}
         </Screen>
       )
     }

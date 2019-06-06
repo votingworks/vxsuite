@@ -42,7 +42,6 @@ const ButtonBar = styled('nav')<Props>`
       flex: 0;
       margin: ${({ centerOnlyChild = true }) =>
         centerOnlyChild ? 'auto' : undefined};
-      min-width: 33.333%;
     }
   }
   @media print {
