@@ -55,7 +55,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
     return (
       <React.Fragment>
         <Main>
-          <MainChild centerVertical>
+          <MainChild centerVertical maxWidth={false}>
             <Breadcrumbs step={3} />
             <Prose textCenter className="no-print" id="audiofocus">
               <h1 aria-label="Print your official ballot.">

@@ -15,7 +15,7 @@ const VoteInstructionsPage = () => {
   return (
     <React.Fragment>
       <Main>
-        <MainChild centerVertical>
+        <MainChild centerVertical maxWidth={false}>
           <Breadcrumbs step={4} />
           <Prose textCenter id="audiofocus">
             <h1 aria-label="Cast your ballot.">Cast your printed ballot</h1>
