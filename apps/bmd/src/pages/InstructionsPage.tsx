@@ -15,7 +15,7 @@ const InstructionsPage = () => {
   return (
     <React.Fragment>
       <Main>
-        <MainChild centerVertical id="audiofocus">
+        <MainChild centerVertical maxWidth={false} id="audiofocus">
           <Breadcrumbs step={1} />
           <Prose textCenter>
             <h1 aria-label="Mark your ballot.">Mark your ballot</h1>
