@@ -465,9 +465,7 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public unsetIsRecentVoterPrint = () => {
-    this.setState({
-      isRecentVoterPrint: false,
-    })
+    this.setState(defaultCardPresentState)
   }
 
   public componentDidCatch() {
