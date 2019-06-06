@@ -40,6 +40,7 @@ import ClerkScreen from './pages/ClerkScreen'
 import PollWorkerScreen from './pages/PollWorkerScreen'
 import PollsClosedScreen from './pages/PollsClosedScreen'
 import ActivationScreen from './pages/ActivationScreen'
+import CastBallotPage from './pages/CastBallotPage'
 
 import electionDefaults from './data/electionDefaults.json'
 import electionSample from './data/electionSample.json'
@@ -60,6 +61,7 @@ interface State {
   isPollWorkerCardPresent: boolean
   isVoterCardPresent: boolean
   isVoterCardInvalid: boolean
+  isRecentVoterPrint: boolean
   precinctId: string
   ballotsPrintedCount: number
   userSettings: UserSettings
@@ -77,6 +79,7 @@ const defaultCardPresentState = {
   isPollWorkerCardPresent: false,
   isVoterCardPresent: false,
   isVoterCardInvalid: false,
+  isRecentVoterPrint: false,
 }
 
 const userState = {
@@ -143,11 +146,16 @@ export class App extends React.Component<RouteComponentProps, State> {
     switch (cardData.t) {
       case 'voter': {
         const voterCardData = cardData as VoterCardData
-        const isVoterCardInvalid = !!voterCardData.uz
+        const ballotPrintedTime = Number(voterCardData.uz) || 0
+        const isVoterCardInvalid = !!ballotPrintedTime
+        const expirationGracePeriod = 60 * 1000 // 1 minute
+        const isRecentVoterPrint =
+          ballotPrintedTime + expirationGracePeriod > new Date().getTime()
         this.setState({
           ...defaultCardPresentState,
           isVoterCardPresent: true,
           isVoterCardInvalid,
+          isRecentVoterPrint,
         })
         if (!isVoterCardInvalid) {
           this.processVoterCardData(voterCardData)
@@ -456,6 +464,12 @@ export class App extends React.Component<RouteComponentProps, State> {
     )
   }
 
+  public unsetIsRecentVoterPrint = () => {
+    this.setState({
+      isRecentVoterPrint: false,
+    })
+  }
+
   public componentDidCatch() {
     this.unconfigure()
     window.location.reload()
@@ -473,6 +487,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       isPollWorkerCardPresent,
       isVoterCardPresent,
       isVoterCardInvalid,
+      isRecentVoterPrint,
       precinctId,
       userSettings,
       votes,
@@ -501,7 +516,13 @@ export class App extends React.Component<RouteComponentProps, State> {
     } else if (election && !isPollsOpen) {
       return <PollsClosedScreen election={election} isLiveMode={isLiveMode} />
     } else if (election) {
-      if (
+      if (isRecentVoterPrint && isVoterCardInvalid) {
+        return (
+          <CastBallotPage
+            unsetIsRecentVoterPrint={this.unsetIsRecentVoterPrint}
+          />
+        )
+      } else if (
         !isVoterCardInvalid &&
         isVoterCardPresent &&
         ballotStyleId &&
