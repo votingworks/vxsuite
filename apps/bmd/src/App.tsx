@@ -354,9 +354,7 @@ export class App extends React.Component<RouteComponentProps, State> {
 
   public unconfigure = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     this.setState(initialState)
-    window.localStorage.removeItem(electionStorageKey)
-    window.localStorage.removeItem(stateStorageKey)
-    this.resetVoterData()
+    window.localStorage.clear()
     this.props.history.push('/')
   }
 
