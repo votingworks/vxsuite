@@ -5,40 +5,7 @@ import pluralize from 'pluralize'
 import { ButtonEventFunction, ScannerStatus } from '../config/types'
 
 import Prose from '../components/Prose'
-
-const Table = styled.table`
-  width: 100%;
-  & th,
-  & td {
-    border-bottom: 1px solid rgb(194, 200, 203);
-    padding: 0.25rem 0.5rem;
-    text-align: left;
-    &:first-child {
-      padding-left: 0;
-    }
-    &:last-child {
-      padding-right: 0;
-    }
-  }
-  & th {
-    border-top: 1px solid rgb(194, 200, 203);
-  }
-  & tr:nth-child(2n) {
-    td {
-      background-color: rgb(222, 225, 227);
-    }
-  }
-`
-
-interface TableData {
-  narrow?: boolean
-  nowrap?: boolean
-}
-
-const TD = styled.td<TableData>`
-  width: ${({ narrow = false }) => (narrow ? '1%' : undefined)};
-  white-space: ${({ nowrap = false }) => (nowrap ? 'nowrap' : undefined)};
-`
+import Table, { TD } from '../components/Table'
 
 const Scanning = styled.em`
   color: rgb(71, 167, 75);
@@ -84,7 +51,6 @@ const PrecinctsScreen = ({ isScanning, status }: Props) => {
                   <th>Ballot Count</th>
                   <th>Started At</th>
                   <th>Finished At</th>
-                  <th />
                 </tr>
               </thead>
               <tbody>
