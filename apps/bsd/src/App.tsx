@@ -34,6 +34,11 @@ const App: React.FC = () => {
   const { batches } = status
   const isScanning = batches && batches[0] && !batches[0].endedAt
 
+  const unconfigure = () => {
+    setElection(undefined)
+    window.localStorage.clear()
+  }
+
   const uploadElection = (election: OptionalElection) => {
     election && configureServer(election) // eslint-disable-line @typescript-eslint/no-use-before-define
     setElection(election)
@@ -65,7 +70,7 @@ const App: React.FC = () => {
       .then(r => r.json())
       .then(response => {
         if (response.status === 'ok') {
-          setElection(undefined)
+          unconfigure()
         }
       })
       .catch(error => {
