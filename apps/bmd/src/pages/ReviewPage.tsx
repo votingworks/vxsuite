@@ -168,7 +168,7 @@ const CandidateContestResult = ({
         return (
           <Text
             key={candidate.id}
-            aria-label={`${candidate.name}${party && `, ${party.name}`}${
+            aria-label={`${candidate.name}${party ? `, ${party.name}` : ''}${
               candidate.isWriteIn ? `, write-in` : ''
             }${array.length - 1 === index ? '.' : ','}`}
             wordBreak
