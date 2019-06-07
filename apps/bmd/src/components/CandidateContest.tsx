@@ -3,6 +3,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { findPartyById } from '../utils/find'
+import stripQuotes from '../utils/stripQuotes'
 
 import {
   ButtonEvent,
@@ -473,7 +474,7 @@ class CandidateContest extends React.Component<Props, State> {
                         htmlFor={candidate.id}
                         isSelected={isChecked}
                         onClick={handleDisabledClick}
-                        aria-label={`${candidate.name}, ${
+                        aria-label={`${stripQuotes(candidate.name)}, ${
                           party ? party.name : ''
                         }.`}
                       >
