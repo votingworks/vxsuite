@@ -34,12 +34,16 @@ const App: React.FC = () => {
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
   )
-  const unsetElection = () => setElection(undefined)
   const [isLoadingElection, setIsLoadingElection] = useState(false)
   const [precinctId, setPrecinctId] = useState('')
   const [voterCardData, setVoterCardData] = useState<OptionalVoterCardData>(
     undefined
   )
+
+  const unconfigure = () => {
+    setElection(undefined)
+    window.localStorage.clear()
+  }
 
   const fetchElection = async () => {
     setIsLoadingElection(true)
@@ -203,8 +207,8 @@ const App: React.FC = () => {
                 </p>
                 <p>
                   {election ? (
-                    <Button onClick={unsetElection}>
-                      Reset Election Definition
+                    <Button onClick={unconfigure}>
+                      Clear all election data
                     </Button>
                   ) : (
                     <Button onClick={fetchElection}>
