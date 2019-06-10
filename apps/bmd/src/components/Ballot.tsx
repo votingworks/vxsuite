@@ -4,7 +4,6 @@ import IdleTimer from 'react-idle-timer'
 
 import BallotContext from '../contexts/ballotContext'
 
-import CastBallotPage from '../pages/CastBallotPage'
 import ContestPage from '../pages/ContestPage'
 import HelpPage from '../pages/HelpPage'
 import IdlePage from '../pages/IdlePage'
@@ -56,7 +55,6 @@ const Ballot = () => {
           <Route path="/pre-review" component={PreReviewPage} />
           <Route path="/review" component={ReviewPage} />
           <Route path="/print" component={PrintPage} />
-          <Route path="/cast" component={CastBallotPage} />
           {showHelpPage && <Route path="/help" component={HelpPage} />}
           {showSettingsPage && (
             <Route path="/settings" component={SettingsPage} />

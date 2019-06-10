@@ -32,7 +32,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
     // setTimeout to prevent a React infinite recursion issue
     window.setTimeout(() => {
       this.context.incrementBallotsPrintedCount()
-      this.context.resetBallot('/cast')
+      this.context.resetBallot('/')
     }, 0)
   }
   public hideConfirm = () => {
