@@ -1,3 +1,4 @@
+import React, { PointerEventHandler } from 'react'
 import styled, { css } from 'styled-components'
 
 interface Attrs extends HTMLButtonElement {
@@ -41,11 +42,19 @@ export const DecoyButton = styled.div`
   ${buttonStyles} /* stylelint-disable-line value-keyword-case */
 `
 
-const Button = styled('button').attrs((props: Attrs) => ({
+const StyledButton = styled('button').attrs((props: Attrs) => ({
   type: props.type || 'button',
 }))`
   ${buttonStyles} /* stylelint-disable-line value-keyword-case */
 `
+
+interface PointerButtonProps extends Props {
+  onPress: PointerEventHandler
+}
+
+const Button = ({ onPress, ...rest }: PointerButtonProps) => (
+  <StyledButton {...rest} onPointerUp={onPress} />
+)
 
 export const SegmentedButton = styled.span`
   display: inline-block;

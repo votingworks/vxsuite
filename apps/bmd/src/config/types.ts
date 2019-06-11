@@ -1,12 +1,11 @@
 // Generic
+export type VoidFunction = () => void
 export interface Dictionary<T> {
   [key: string]: T | undefined
 }
 
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
-export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
-export type ButtonEventFunction = (event: ButtonEvent) => void
 
 // Candidates
 export interface Candidate {

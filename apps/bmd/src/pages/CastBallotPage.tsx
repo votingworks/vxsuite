@@ -27,7 +27,7 @@ const CastBallotPage = ({ unsetIsRecentVoterPrint }: Props) => (
             <Button
               primary
               big
-              onClick={unsetIsRecentVoterPrint}
+              onPress={unsetIsRecentVoterPrint}
               aria-label="Press the select button to confirm that you will review and cast your printed ballot."
             >
               Okay, I will review and cast my printed ballot.

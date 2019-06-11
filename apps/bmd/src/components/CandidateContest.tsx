@@ -1,12 +1,11 @@
 import camelCase from 'lodash.camelcase'
-import React from 'react'
+import React, { PointerEventHandler } from 'react'
 import styled from 'styled-components'
 
 import { findPartyById } from '../utils/find'
 import stripQuotes from '../utils/stripQuotes'
 
 import {
-  ButtonEvent,
   Candidate,
   CandidateContest as CandidateContestInterface,
   CandidateVote,
@@ -346,7 +345,7 @@ class CandidateContest extends React.Component<Props, State> {
     this.setState({ writeInCandateModalIsOpen })
   }
 
-  public onKeyboardInput = (event: ButtonEvent) => {
+  public onKeyboardInput: PointerEventHandler = event => {
     const { key } = (event.target as HTMLElement).dataset
     this.setState(prevState => {
       let writeInCandidateName = prevState.writeInCandidateName
@@ -388,9 +387,7 @@ class CandidateContest extends React.Component<Props, State> {
     })
   }
 
-  public scrollContestChoices = /* istanbul ignore next: Tested by Cypress */ (
-    event: ButtonEvent
-  ) => {
+  public scrollContestChoices: PointerEventHandler /* istanbul ignore next: Tested by Cypress */ = event => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
     const scrollContainer = this.scrollContainer.current!
@@ -473,7 +470,7 @@ class CandidateContest extends React.Component<Props, State> {
                         key={candidate.id}
                         htmlFor={candidate.id}
                         isSelected={isChecked}
-                        onClick={handleDisabledClick}
+                        onPointerUp={handleDisabledClick}
                         aria-label={`${stripQuotes(candidate.name)}, ${
                           party ? party.name : ''
                         }.`}
@@ -529,7 +526,7 @@ class CandidateContest extends React.Component<Props, State> {
                   {contest.allowWriteIns && !hasReachedMaxSelections && (
                     <Choice
                       isSelected={false}
-                      onClick={this.initWriteInCandidate}
+                      onPointerUp={this.initWriteInCandidate}
                     >
                       <ChoiceInput className="visually-hidden" />
                       <Prose>
@@ -548,7 +545,7 @@ class CandidateContest extends React.Component<Props, State> {
                   aria-hidden
                   data-direction="up"
                   disabled={isScrollAtTop}
-                  onClick={this.scrollContestChoices}
+                  onPress={this.scrollContestChoices}
                 >
                   ↑ See More
                 </Button>
@@ -556,7 +553,7 @@ class CandidateContest extends React.Component<Props, State> {
                   aria-hidden
                   data-direction="down"
                   disabled={isScrollAtBottom}
-                  onClick={this.scrollContestChoices}
+                  onPress={this.scrollContestChoices}
                 >
                   ↓ See More
                 </Button>
@@ -584,7 +581,7 @@ class CandidateContest extends React.Component<Props, State> {
             <Button
               primary
               autoFocus
-              onClick={this.closeAttemptedVoteAlert}
+              onPress={this.closeAttemptedVoteAlert}
               aria-label="use the select button to continue."
             >
               Okay
@@ -605,11 +602,11 @@ class CandidateContest extends React.Component<Props, State> {
             <>
               <Button
                 danger
-                onClick={this.confirmRemovePendingWriteInCandidate}
+                onPress={this.confirmRemovePendingWriteInCandidate}
               >
                 Yes, Remove.
               </Button>
-              <Button onClick={this.clearCandidateIdPendingRemoval}>
+              <Button onPress={this.clearCandidateIdPendingRemoval}>
                 Cancel
               </Button>
             </>
@@ -660,12 +657,12 @@ class CandidateContest extends React.Component<Props, State> {
             <>
               <Button
                 primary={this.normalizeName(writeInCandidateName).length > 0}
-                onClick={this.addWriteInCandidate}
+                onPress={this.addWriteInCandidate}
                 disabled={this.normalizeName(writeInCandidateName).length === 0}
               >
                 Accept
               </Button>
-              <Button onClick={this.cancelWriteInCandidateModal}>Cancel</Button>
+              <Button onPress={this.cancelWriteInCandidateModal}>Cancel</Button>
             </>
           }
         />

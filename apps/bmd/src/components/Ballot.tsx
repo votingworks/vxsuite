@@ -23,10 +23,10 @@ const Ballot = () => {
   const { showHelpPage, showSettingsPage } = election!.bmdConfig!
 
   const onActive = () => {
-    // Delay until after the tap event is processed so that tap event is not passed to the last screen the voter was on.
+    // Delay to avoid passing tap to next screen
     window.setTimeout(() => {
       setIsIdle(false)
-    }, 100)
+    }, 200)
   }
 
   const onIdle = () => {

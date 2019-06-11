@@ -1,11 +1,6 @@
-import React, { useState } from 'react'
+import React, { PointerEventHandler, useState } from 'react'
 
-import {
-  ButtonEvent,
-  CandidateContest,
-  Election,
-  VotesDict,
-} from '../config/types'
+import { CandidateContest, Election, VotesDict } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
@@ -99,7 +94,7 @@ const TestBallotDeckScreen = ({
   const [ballots, setBallots] = useState<Ballot[]>([])
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
 
-  const selectPrecinct = (event: ButtonEvent) => {
+  const selectPrecinct: PointerEventHandler = event => {
     const { id = '', name = '' } = (event.target as HTMLElement).dataset
     setPrecinct({ name, id })
     const selectedBallots = generateTestDeckBallots({
@@ -123,12 +118,12 @@ const TestBallotDeckScreen = ({
               <Prose className="no-print">
                 <h1>Test Ballots Deck for {precinct.name}</h1>
                 <p>
-                  <Button primary onClick={window.print}>
+                  <Button primary onPress={window.print}>
                     Print {ballots.length} ballots
                   </Button>
                 </p>
                 <p>
-                  <Button small onClick={resetDeck}>
+                  <Button small onPress={resetDeck}>
                     Back to All Decks
                   </Button>
                 </p>
@@ -162,7 +157,7 @@ const TestBallotDeckScreen = ({
                   data-name="All Precincts"
                   fullWidth
                   key="all-precincts"
-                  onClick={selectPrecinct}
+                  onPress={selectPrecinct}
                 >
                   <strong>All Precincts</strong>
                 </Button>
@@ -174,7 +169,7 @@ const TestBallotDeckScreen = ({
                     data-name={p.name}
                     fullWidth
                     key={p.id}
-                    onClick={selectPrecinct}
+                    onPress={selectPrecinct}
                   >
                     {p.name}
                   </Button>
@@ -185,7 +180,7 @@ const TestBallotDeckScreen = ({
         </MainChild>
       </Main>
       <MainNav title="Clerk Actions">
-        <Button small onClick={hideTestDeck}>
+        <Button small onPress={hideTestDeck}>
           Dashboard
         </Button>
       </MainNav>

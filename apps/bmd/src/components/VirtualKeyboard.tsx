@@ -1,7 +1,5 @@
-import React from 'react'
+import React, { PointerEventHandler } from 'react'
 import styled from 'styled-components'
-
-import { ButtonEvent } from '../config/types'
 
 import Button from './Button'
 
@@ -43,7 +41,7 @@ const Keyboard = styled.div`
 `
 
 interface Props {
-  onKeyPress: (event: ButtonEvent) => void
+  onKeyPress: PointerEventHandler
 }
 
 const VirtualKeyboard = ({ onKeyPress }: Props) => (
@@ -61,7 +59,7 @@ const VirtualKeyboard = ({ onKeyPress }: Props) => (
               key={key}
               data-key={key}
               aria-label={key.toLowerCase()}
-              onClick={onKeyPress}
+              onPress={onKeyPress}
             >
               {key}
             </Button>

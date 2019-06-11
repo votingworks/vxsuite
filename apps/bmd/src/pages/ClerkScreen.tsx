@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { ButtonEventFunction, OptionalElection } from '../config/types'
+import { OptionalElection, VoidFunction } from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
@@ -15,9 +15,9 @@ interface Props {
   ballotsPrintedCount: number
   election: OptionalElection
   isLiveMode: boolean
-  fetchElection: () => void
-  unconfigure: ButtonEventFunction
-  toggleLiveMode: () => void
+  fetchElection: VoidFunction
+  unconfigure: VoidFunction
+  toggleLiveMode: VoidFunction
 }
 
 const ClerkScreen = ({
@@ -72,14 +72,14 @@ const ClerkScreen = ({
                 <p>
                   <SegmentedButton>
                     <Button
-                      onClick={showModal}
+                      onPress={showModal}
                       primary={!isLiveMode}
                       disabled={!isLiveMode}
                     >
                       Testing Mode
                     </Button>
                     <Button
-                      onClick={showModal}
+                      onPress={showModal}
                       primary={isLiveMode}
                       disabled={isLiveMode}
                     >
@@ -91,7 +91,7 @@ const ClerkScreen = ({
                   <React.Fragment>
                     <h2>Testing Mode Options</h2>
                     <p>
-                      <Button small onClick={showTestDeck}>
+                      <Button small onPress={showTestDeck}>
                         View Test Ballot Decks
                       </Button>
                     </p>
@@ -107,7 +107,7 @@ const ClerkScreen = ({
                 <Text as="span" voteIcon>
                   Election definition is loaded.
                 </Text>{' '}
-                <Button small onClick={unconfigure}>
+                <Button small onPress={unconfigure}>
                   Remove
                 </Button>
               </p>
@@ -115,7 +115,7 @@ const ClerkScreen = ({
               <React.Fragment>
                 <Text warningIcon>Election definition is not Loaded.</Text>
                 <p>
-                  <Button onClick={loadElection}>
+                  <Button onPress={loadElection}>
                     Load Election Definition
                   </Button>
                 </p>
@@ -139,10 +139,10 @@ const ClerkScreen = ({
         }
         actions={
           <>
-            <Button primary onClick={handleToggleLiveMode}>
+            <Button primary onPress={handleToggleLiveMode}>
               Yes
             </Button>
-            <Button onClick={hideModal}>Cancel</Button>
+            <Button onPress={hideModal}>Cancel</Button>
           </>
         }
       />
