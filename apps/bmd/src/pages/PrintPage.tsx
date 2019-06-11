@@ -23,12 +23,12 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
     showConfirmModal: false,
   }
   public componentDidMount = () => {
-    window.addEventListener('afterprint', this.resetBallot)
+    window.addEventListener('afterprint', this.afterPrint)
   }
   public componentWillUnmount = () => {
-    window.removeEventListener('afterprint', this.resetBallot)
+    window.removeEventListener('afterprint', this.afterPrint)
   }
-  public resetBallot = () => {
+  public afterPrint = () => {
     // setTimeout to prevent a React infinite recursion issue
     window.setTimeout(() => {
       this.context.incrementBallotsPrintedCount()
