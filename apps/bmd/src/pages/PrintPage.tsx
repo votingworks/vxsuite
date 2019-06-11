@@ -17,7 +17,7 @@ interface State {
   showConfirmModal: boolean
 }
 
-class SummaryPage extends React.Component<RouteComponentProps, State> {
+class PrintPage extends React.Component<RouteComponentProps, State> {
   public static contextType = BallotContext
   public state: State = {
     showConfirmModal: false,
@@ -132,4 +132,4 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
   }
 }
 
-export default SummaryPage
+export default PrintPage
