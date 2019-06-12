@@ -1,5 +1,9 @@
 import mod from '../utils/mod'
 
+const upPointerEvent = new PointerEvent('pointerup', {
+  bubbles: true,
+})
+
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(
     document.querySelectorAll(
@@ -43,20 +47,22 @@ function handleArrowDown() {
 function handleArrowLeft() {
   const prevButton = document.getElementById('previous') as HTMLButtonElement
   if (prevButton) {
-    prevButton.click()
+    prevButton.dispatchEvent(upPointerEvent)
   }
 }
 
 function handleArrowRight() {
   const nextButton = document.getElementById('next') as HTMLButtonElement
   if (nextButton) {
-    nextButton.click()
+    nextButton.dispatchEvent(upPointerEvent)
   }
 }
 
-function handleClick(sendEvenIfButton: boolean) {
+function handleClick() {
   const activeElement = getActiveElement()
-  if (activeElement.type !== 'button' || sendEvenIfButton) {
+  if (activeElement.type === 'button') {
+    activeElement.dispatchEvent(upPointerEvent)
+  } else {
     activeElement.click()
   }
 }
@@ -77,7 +83,7 @@ export function handleGamepadButtonDown(buttonName: string) {
       handleArrowRight()
       break
     case 'A':
-      handleClick(true)
+      handleClick()
       break
     // no default
   }
@@ -103,10 +109,10 @@ export /* istanbul ignore next - triggering keystrokes issue - https://github.co
       handleArrowRight()
       break
     case ']':
-      handleClick(true)
+      handleClick()
       break
     case 'Enter':
-      handleClick(false)
+      handleClick()
       break
     // no default
   }

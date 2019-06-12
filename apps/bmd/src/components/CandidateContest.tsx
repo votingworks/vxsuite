@@ -470,7 +470,7 @@ class CandidateContest extends React.Component<Props, State> {
                         key={candidate.id}
                         htmlFor={candidate.id}
                         isSelected={isChecked}
-                        onPointerUp={handleDisabledClick}
+                        onClick={handleDisabledClick}
                         aria-label={`${stripQuotes(candidate.name)}, ${
                           party ? party.name : ''
                         }.`}
@@ -526,7 +526,7 @@ class CandidateContest extends React.Component<Props, State> {
                   {contest.allowWriteIns && !hasReachedMaxSelections && (
                     <Choice
                       isSelected={false}
-                      onPointerUp={this.initWriteInCandidate}
+                      onClick={this.initWriteInCandidate}
                     >
                       <ChoiceInput className="visually-hidden" />
                       <Prose>

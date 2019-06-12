@@ -379,7 +379,7 @@ export default class YesNoContest extends React.Component<Props> {
                     key={answer}
                     htmlFor={answerLowerCase}
                     isSelected={isChecked}
-                    onPointerUp={handleDisabledClick}
+                    onClick={handleDisabledClick}
                   >
                     <ChoiceInput
                       id={answerLowerCase}
