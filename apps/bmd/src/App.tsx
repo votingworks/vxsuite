@@ -146,11 +146,13 @@ export class App extends React.Component<RouteComponentProps, State> {
     switch (cardData.t) {
       case 'voter': {
         const voterCardData = cardData as VoterCardData
-        const ballotPrintedTime = Number(voterCardData.uz) || 0
-        const isVoterCardInvalid = !!ballotPrintedTime
+        const isBallotPrinted = Boolean(voterCardData.bp)
+        const ballotUsedTime = Number(voterCardData.uz) || 0
+        const isVoterCardInvalid = Boolean(ballotUsedTime)
         const expirationGracePeriod = 60 * 1000 // 1 minute
         const isRecentVoterPrint =
-          ballotPrintedTime + expirationGracePeriod > new Date().getTime()
+          isBallotPrinted &&
+          ballotUsedTime + expirationGracePeriod > new Date().getTime()
         this.setState({
           ...defaultCardPresentState,
           isVoterCardPresent: true,
