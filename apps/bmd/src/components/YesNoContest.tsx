@@ -1,8 +1,7 @@
-import React from 'react'
+import React, { PointerEventHandler } from 'react'
 import styled from 'styled-components'
 
 import {
-  ButtonEvent,
   InputEvent,
   OptionalYesNoVote,
   Scrollable,
@@ -277,9 +276,7 @@ export default class YesNoContest extends React.Component<Props> {
     })
   }
 
-  public scrollContestChoices = /* istanbul ignore next: Tested by Cypress */ (
-    event: ButtonEvent
-  ) => {
+  public scrollContestChoices: PointerEventHandler = /* istanbul ignore next: Tested by Cypress */ event => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
     const scrollContainer = this.scrollContainer.current!
@@ -350,14 +347,14 @@ export default class YesNoContest extends React.Component<Props> {
                 <Button
                   data-direction="up"
                   disabled={isScrollAtTop}
-                  onClick={this.scrollContestChoices}
+                  onPress={this.scrollContestChoices}
                 >
                   ↑ See More
                 </Button>
                 <Button
                   data-direction="down"
                   disabled={isScrollAtBottom}
-                  onClick={this.scrollContestChoices}
+                  onPress={this.scrollContestChoices}
                 >
                   ↓ See More
                 </Button>
@@ -382,7 +379,7 @@ export default class YesNoContest extends React.Component<Props> {
                     key={answer}
                     htmlFor={answerLowerCase}
                     isSelected={isChecked}
-                    onClick={handleDisabledClick}
+                    onPointerUp={handleDisabledClick}
                   >
                     <ChoiceInput
                       id={answerLowerCase}
@@ -434,7 +431,7 @@ export default class YesNoContest extends React.Component<Props> {
             </Prose>
           }
           actions={
-            <Button primary autoFocus onClick={this.closeOvervoteAlert}>
+            <Button primary autoFocus onPress={this.closeOvervoteAlert}>
               Okay
             </Button>
           }

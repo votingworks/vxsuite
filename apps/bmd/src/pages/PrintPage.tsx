@@ -69,7 +69,7 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
               <Button
                 primary
                 big
-                onClick={this.showConfirm}
+                onPress={this.showConfirm}
                 aria-label="Use the select button to print your ballot."
               >
                 Print Ballot
@@ -109,13 +109,13 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
                 role="link"
                 aria-label="Use the select button to print your ballot."
                 primary
-                onClick={() => {
+                onPress={() => {
                   this.print()
                 }}
               >
                 Yes, print my ballot.
               </Button>
-              <Button onClick={this.hideConfirm}>No, go back.</Button>
+              <Button onPress={this.hideConfirm}>No, go back.</Button>
             </>
           }
         />

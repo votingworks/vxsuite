@@ -1,8 +1,8 @@
-import React, { useContext, useState } from 'react'
+import React, { PointerEventHandler, useContext, useState } from 'react'
 import styled from 'styled-components'
 import GLOBALS from '../config/globals'
 
-import { ButtonEvent, InputEvent, TextSizeSetting } from '../config/types'
+import { InputEvent, TextSizeSetting } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
 
@@ -55,7 +55,7 @@ const SettingsPage = () => {
     const textSize = +target.value as TextSizeSetting
     setUserSettings({ textSize })
   }
-  const adjustFontSize = (event: ButtonEvent) => {
+  const adjustFontSize: PointerEventHandler = event => {
     const target = event.target as HTMLButtonElement
     const textSize = (userSettings.textSize + +target.value) as TextSizeSetting
     setUserSettings({ textSize })
@@ -73,7 +73,7 @@ const SettingsPage = () => {
                 aria-hidden
                 data-testid="decrease-font-size-button"
                 disabled={userSettings.textSize === 0}
-                onClick={adjustFontSize}
+                onPress={adjustFontSize}
                 value={-1}
               >
                 -
@@ -92,7 +92,7 @@ const SettingsPage = () => {
                 disabled={
                   userSettings.textSize === GLOBALS.FONT_SIZES.length - 1
                 }
-                onClick={adjustFontSize}
+                onPress={adjustFontSize}
                 value={1}
               >
                 +
@@ -100,7 +100,7 @@ const SettingsPage = () => {
             </FontSizeControlsContainer>
             <h2>Clear Selections</h2>
             <p>Clear all selections and start over.</p>
-            <Button onClick={requestNewBallot}>Start Over</Button>
+            <Button onPress={requestNewBallot}>Start Over</Button>
           </Prose>
         </MainChild>
       </Main>
@@ -121,10 +121,10 @@ const SettingsPage = () => {
         }
         actions={
           <>
-            <Button danger onClick={requestResetBallot}>
+            <Button danger onPress={requestResetBallot}>
               Yes, Remove All Votes
             </Button>
-            <Button onClick={cancelResetBallot}>Cancel</Button>
+            <Button onPress={cancelResetBallot}>Cancel</Button>
           </>
         }
       />

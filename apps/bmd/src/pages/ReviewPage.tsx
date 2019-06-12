@@ -1,11 +1,10 @@
 import pluralize from 'pluralize'
-import React from 'react'
+import React, { PointerEventHandler } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 import { findPartyById } from '../utils/find'
 
 import {
-  ButtonEvent,
   Candidate,
   CandidateContest,
   CandidateVote,
@@ -258,9 +257,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
     })
   }
 
-  public scrollContestChoices = /* istanbul ignore next: Tested by Cypress */ (
-    event: ButtonEvent
-  ) => {
+  public scrollContestChoices: PointerEventHandler = /* istanbul ignore next: Tested by Cypress */ event => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
     const scrollContainer = this.scrollContainer.current!
@@ -306,7 +303,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                 data-direction="up"
                 disabled={isScrollAtTop}
                 fullWidth
-                onClick={this.scrollContestChoices}
+                onPress={this.scrollContestChoices}
               >
                 ↑ See More
               </Button>
@@ -360,7 +357,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
               data-direction="down"
               disabled={isScrollAtBottom}
               fullWidth
-              onClick={this.scrollContestChoices}
+              onPress={this.scrollContestChoices}
             >
               ↓ See More
             </Button>

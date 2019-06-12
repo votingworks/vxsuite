@@ -79,7 +79,7 @@ const PollWorkerScreen = ({
             </Text>
             <p>A summary will be printed when toggling open/closed.</p>
             <p>
-              <Button onClick={showModal}>
+              <Button onPress={showModal}>
                 {isPollsOpen ? 'Close Polls' : 'Open Polls'}
               </Button>
             </p>
@@ -144,10 +144,10 @@ const PollWorkerScreen = ({
         }
         actions={
           <>
-            <Button primary onClick={printStatus}>
+            <Button primary onPress={printStatus}>
               Yes
             </Button>
-            <Button onClick={hideModal}>Cancel</Button>
+            <Button onPress={hideModal}>Cancel</Button>
           </>
         }
       />
