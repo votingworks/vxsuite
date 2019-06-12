@@ -15,6 +15,7 @@ import {
 import BallotContext from '../contexts/ballotContext'
 
 import GLOBALS from '../config/globals'
+import ChoiceButton from './ChoiceButton'
 import Button from './Button'
 import Main from './Main'
 import Modal from './Modal'
@@ -143,57 +144,7 @@ const ChoicesGrid = styled.div`
   grid-auto-rows: minmax(auto, 1fr);
   grid-gap: 1.25rem;
 `
-const Choice = styled('label')<{ isSelected: boolean }>`
-  display: grid;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
-    0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
-    0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
-  background: ${({ isSelected }) => (isSelected ? '#028099' : '#FFFFFF')};
-  cursor: pointer;
-  min-height: 2.5rem;
-  color: ${({ isSelected }) => (isSelected ? '#FFFFFF' : undefined)};
-  transition: background 0.25s, color 0.25s;
-  button& {
-    text-align: left;
-  }
-  :focus-within {
-    outline: rgb(77, 144, 254) dashed 0.25rem;
-  }
-  ::before {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    border-right: 1px solid;
-    border-color: ${({ isSelected }) =>
-      isSelected ? '#028099' : 'rgb(211, 211, 211)'};
-    border-radius: 0.125rem 0 0 0.125rem;
-    background: #FFFFFF;
-    width: 3rem;
-    text-align: center;
-    color: #028099;
-    font-size: 2rem;
-    content: '${({ isSelected }) => (isSelected ? '✓' : '')}';
-  }
-  & > div {
-    padding: 0.5rem 0.5rem 0.5rem 4rem;
-    @media (min-width: 480px) {
-      padding: 1rem 1rem 1rem inherit;
-    }
-  }
-`
-const ChoiceInput = styled.input.attrs({
-  role: 'option',
-  type: 'checkbox',
-})`
-  margin-right: 0.5rem;
-`
+
 interface Props {
   contest: YesNoContestInterface
   vote: OptionalYesNoVote
@@ -230,18 +181,16 @@ export default class YesNoContest extends React.Component<Props> {
     }
   }
 
-  public handleDisabledClick = () => {
-    // maybe we'll do more when a disabled item is clicked, for now nothing.
-  }
-
   public handleUpdateSelection = (event: InputEvent) => {
-    const target = event.target as HTMLInputElement
-    const newVote = target.value as YesNoVote
     const { vote } = this.props
-    if (vote === newVote) {
-      this.props.updateVote(this.props.contest.id, undefined)
-    } else {
-      this.props.updateVote(this.props.contest.id, newVote)
+    const newVote = (event.currentTarget as HTMLInputElement).dataset
+      .vote as YesNoVote
+    if (newVote) {
+      if (vote === newVote) {
+        this.props.updateVote(this.props.contest.id, undefined)
+      } else {
+        this.props.updateVote(this.props.contest.id, newVote)
+      }
     }
   }
 
@@ -303,9 +252,10 @@ export default class YesNoContest extends React.Component<Props> {
   }
 
   public closeOvervoteAlert = () => {
-    this.setState({
-      overvoteSelection: initialState.overvoteSelection,
-    })
+    // Delay to avoid passing tap to next screen
+    window.setTimeout(() => {
+      this.setState({ overvoteSelection: initialState.overvoteSelection })
+    }, 200)
   }
 
   public render() {
@@ -375,24 +325,16 @@ export default class YesNoContest extends React.Component<Props> {
                   }
                 }
                 return (
-                  <Choice
+                  <ChoiceButton
                     key={answer}
-                    htmlFor={answerLowerCase}
+                    data-vote={answerLowerCase}
                     isSelected={isChecked}
-                    onClick={handleDisabledClick}
+                    onPress={
+                      isDisabled
+                        ? handleDisabledClick
+                        : this.handleUpdateSelection
+                    }
                   >
-                    <ChoiceInput
-                      id={answerLowerCase}
-                      name={contest.id}
-                      value={answerLowerCase}
-                      onChange={
-                        isDisabled
-                          ? this.handleDisabledClick
-                          : this.handleUpdateSelection
-                      }
-                      checked={isChecked}
-                      className="visually-hidden"
-                    />
                     <Prose>
                       <Text
                         aria-label={`${answer} on ${contest.shortTitle ||
@@ -402,7 +344,7 @@ export default class YesNoContest extends React.Component<Props> {
                         {answer}
                       </Text>
                     </Prose>
-                  </Choice>
+                  </ChoiceButton>
                 )
               })}
             </ChoicesGrid>

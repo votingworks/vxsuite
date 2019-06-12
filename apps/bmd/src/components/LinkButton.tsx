@@ -27,7 +27,7 @@ const LinkButton = (props: Props) => {
     // ⬆ filtering out props which are not intrinsic to `<button>` element.
     ...rest
   } = props
-  const handleOnClick: PointerEventHandler = event => {
+  const handleOnPress: PointerEventHandler = event => {
     if (onPress) {
       onPress(event)
     } else if (goBack && !to) {
@@ -46,7 +46,7 @@ const LinkButton = (props: Props) => {
     <Button
       {...rest} // `children` is just another prop!
       role="option"
-      onPress={handleOnClick}
+      onPress={handleOnPress}
     />
   )
 }
