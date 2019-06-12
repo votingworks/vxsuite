@@ -8,7 +8,7 @@ import Prose from '../components/Prose'
 import Text from '../components/Text'
 import BallotContext from '../contexts/ballotContext'
 
-const SummaryPage = () => {
+const PreReviewPage = () => {
   const { election } = useContext(BallotContext)
   const { bmdConfig } = election!
   const { showHelpPage, showSettingsPage } = bmdConfig!
@@ -51,4 +51,4 @@ const SummaryPage = () => {
   )
 }
 
-export default SummaryPage
+export default PreReviewPage

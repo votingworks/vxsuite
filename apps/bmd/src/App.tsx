@@ -183,47 +183,50 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public startPolling = () => {
-    let lastCardDataString = ''
+    if (checkCardInterval === 0) {
+      let lastCardDataString = ''
 
-    checkCardInterval = window.setInterval(() => {
-      fetch('/card/read')
-        .then(result => result.json())
-        .then(card => {
-          // check whether this has changed to reduce work by a lot
-          const currentCardDataString = JSON.stringify(card)
-          if (currentCardDataString === lastCardDataString) {
-            return
-          }
-          lastCardDataString = currentCardDataString
+      checkCardInterval = window.setInterval(() => {
+        fetch('/card/read')
+          .then(result => result.json())
+          .then(card => {
+            // check whether this has changed to reduce work by a lot
+            const currentCardDataString = JSON.stringify(card)
+            if (currentCardDataString === lastCardDataString) {
+              return
+            }
+            lastCardDataString = currentCardDataString
 
-          const { isVoterCardPresent } = this.state
-          if (isVoterCardPresent && !card.present) {
-            this.resetBallot()
-            return
-          }
+            const { isVoterCardPresent } = this.state
+            if (isVoterCardPresent && !card.present) {
+              this.resetBallot()
+              return
+            }
 
-          if (card.shortValue) {
-            const cardData = JSON.parse(card.shortValue) as CardData
-            this.processCardData({
-              cardData: cardData,
-              longValueExists: card.longValueExists,
-            })
-          } else {
-            this.setState({
-              ...defaultCardPresentState,
-            })
-          }
-        })
-        .catch(() => {
-          // if it's an error, aggressively assume there's no backend and stop hammering
-          this.stopPolling()
-        })
-    }, 200)
+            if (card.shortValue) {
+              const cardData = JSON.parse(card.shortValue) as CardData
+              this.processCardData({
+                cardData: cardData,
+                longValueExists: card.longValueExists,
+              })
+            } else {
+              this.setState({
+                ...defaultCardPresentState,
+              })
+            }
+          })
+          .catch(() => {
+            // if it's an error, aggressively assume there's no backend and stop hammering
+            this.stopPolling()
+            this.setState(defaultCardPresentState)
+          })
+      }, 200)
+    }
   }
 
   public stopPolling = () => {
     window.clearInterval(checkCardInterval)
-    this.setState(defaultCardPresentState)
+    checkCardInterval = 0 // To indicate setInterval is not running.
   }
 
   public markVoterCardUsed = async (
@@ -235,6 +238,7 @@ export class App extends React.Component<RouteComponentProps, State> {
     if (!this.state.isVoterCardPresent) {
       return true
     }
+    this.stopPolling()
 
     const { ballotStyleId, precinctId } = this.getBallotActivation()
 
@@ -257,7 +261,11 @@ export class App extends React.Component<RouteComponentProps, State> {
     const readCheck = await fetch('/card/read')
     const readCheckObj = await readCheck.json()
 
-    return readCheckObj.shortValue === newCardDataSerialized
+    if (readCheckObj.shortValue !== newCardDataSerialized) {
+      this.startPolling()
+      return false
+    }
+    return true
   }
 
   public componentDidMount = () => {
@@ -306,7 +314,7 @@ export class App extends React.Component<RouteComponentProps, State> {
   public componentWillUnount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     Mousetrap.unbind(removeElectionShortcuts)
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
-    window.clearInterval(checkCardInterval)
+    this.stopPolling()
   }
 
   public getElection = (): OptionalElection => {
@@ -392,6 +400,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       this.setStoredState()
       this.props.history.push(path)
     })
+    this.startPolling()
   }
 
   public activateBallot = ({ ballotStyle, precinct }: ActivationData) => {

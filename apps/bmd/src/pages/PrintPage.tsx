@@ -17,22 +17,22 @@ interface State {
   showConfirmModal: boolean
 }
 
-class SummaryPage extends React.Component<RouteComponentProps, State> {
+class PrintPage extends React.Component<RouteComponentProps, State> {
   public static contextType = BallotContext
   public state: State = {
     showConfirmModal: false,
   }
   public componentDidMount = () => {
-    window.addEventListener('afterprint', this.resetBallot)
+    window.addEventListener('afterprint', this.afterPrint)
   }
   public componentWillUnmount = () => {
-    window.removeEventListener('afterprint', this.resetBallot)
+    window.removeEventListener('afterprint', this.afterPrint)
   }
-  public resetBallot = () => {
+  public afterPrint = () => {
     // setTimeout to prevent a React infinite recursion issue
     window.setTimeout(() => {
       this.context.incrementBallotsPrintedCount()
-      this.context.resetBallot('/cast')
+      this.context.resetBallot('/')
     }, 0)
   }
   public hideConfirm = () => {
@@ -132,4 +132,4 @@ class SummaryPage extends React.Component<RouteComponentProps, State> {
   }
 }
 
-export default SummaryPage
+export default PrintPage
