@@ -5,6 +5,7 @@ import ButtonBar from './ButtonBar'
 
 const Brand = styled.div`
   margin: 1rem 0.25rem;
+  white-space: nowrap;
   color: #ffffff;
   font-size: 1.3rem;
   font-weight: 600;

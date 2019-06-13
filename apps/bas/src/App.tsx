@@ -19,6 +19,7 @@ import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
 import PrecinctBallotStylesScreen from './screens/PrecinctBallotStylesScreen'
 import LoadElectionScreen from './screens/LoadElectionScreen'
 import LockedScreen from './screens/LockedScreen'
+import PollWorkerScreen from './screens/PollWorkerScreen'
 import PrecinctsScreen from './screens/PrecinctsScreen'
 
 import 'normalize.css'
@@ -30,6 +31,7 @@ const App: React.FC = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isClerkCardPresent, setIsClerkCardPresent] = useState(false)
+  const [isPollWorkerCardPresent, setIsPollWorkerCardPresent] = useState(false)
   const [isLocked, setIsLocked] = useState(true)
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
@@ -58,6 +60,7 @@ const App: React.FC = () => {
 
   const processCardData = (cardData: CardData, longValueExists: boolean) => {
     setIsClerkCardPresent(false)
+    setIsPollWorkerCardPresent(false)
     let isWritableCard = false
     switch (cardData.t) {
       case 'voter':
@@ -65,6 +68,7 @@ const App: React.FC = () => {
         setVoterCardData(cardData as VoterCardData)
         break
       case 'pollworker':
+        setIsPollWorkerCardPresent(true)
         setIsLocked(false)
         break
       case 'clerk':
@@ -80,6 +84,7 @@ const App: React.FC = () => {
     setIsWritableCard(isWritableCard)
   }
 
+  // TODO: this needs a major refactor to remove duplication.
   if (!checkCardInterval) {
     checkCardInterval = window.setInterval(() => {
       fetch('/card/read')
@@ -93,19 +98,23 @@ const App: React.FC = () => {
               // happy to overwrite a card with no data on it
               setIsWritableCard(true)
               setIsClerkCardPresent(false)
+              setIsPollWorkerCardPresent(false)
               setVoterCardData(undefined)
             }
           } else {
             // can't write if there's no card
             setIsWritableCard(false)
             setIsClerkCardPresent(false)
+            setIsPollWorkerCardPresent(false)
             setVoterCardData(undefined)
           }
         })
         .catch(() => {
           // if it's an error, aggressively assume there's no backend and stop hammering
-          window.clearInterval(checkCardInterval)
+          setIsClerkCardPresent(false)
+          setIsPollWorkerCardPresent(false)
           setVoterCardData(undefined)
+          window.clearInterval(checkCardInterval)
         })
     }, 1000)
   }
@@ -223,6 +232,8 @@ const App: React.FC = () => {
         <MainNav title="Clerk Actions" />
       </Screen>
     )
+  } else if (isPollWorkerCardPresent) {
+    return <PollWorkerScreen />
   } else if (election) {
     if (isLocked) {
       return <LockedScreen />
