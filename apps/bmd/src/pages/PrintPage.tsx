@@ -32,7 +32,7 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
     // setTimeout to prevent a React infinite recursion issue
     window.setTimeout(() => {
       this.context.incrementBallotsPrintedCount()
-      this.context.resetBallot('/')
+      this.context.resetBallot()
     }, 0)
   }
   public hideConfirm = () => {

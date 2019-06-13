@@ -74,7 +74,7 @@ export const votesStorageKey = 'votes'
 export const stateStorageKey = 'state'
 const removeElectionShortcuts = ['mod+k']
 
-const defaultCardPresentState = {
+const initialCardPresentState = {
   isClerkCardPresent: false,
   isPollWorkerCardPresent: false,
   isVoterCardPresent: false,
@@ -82,7 +82,7 @@ const defaultCardPresentState = {
   isRecentVoterPrint: false,
 }
 
-const userState = {
+const initialUserState = {
   ballotStyleId: '',
   contests: [],
   precinctId: '',
@@ -91,8 +91,8 @@ const userState = {
 }
 
 const initialState = {
-  ...userState,
-  ...defaultCardPresentState,
+  ...initialUserState,
+  ...initialCardPresentState,
   ballotsPrintedCount: 0,
   election: undefined,
   isLiveMode: false,
@@ -154,7 +154,7 @@ export class App extends React.Component<RouteComponentProps, State> {
           isBallotPrinted &&
           ballotUsedTime + expirationGracePeriod > new Date().getTime()
         this.setState({
-          ...defaultCardPresentState,
+          ...initialCardPresentState,
           isVoterCardPresent: true,
           isVoterCardInvalid,
           isRecentVoterPrint,
@@ -167,7 +167,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       case 'pollworker': {
         // poll worker admin screen goes here
         this.setState({
-          ...defaultCardPresentState,
+          ...initialCardPresentState,
           isPollWorkerCardPresent: true,
         })
         break
@@ -175,7 +175,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       case 'clerk': {
         if (longValueExists) {
           this.setState({
-            ...defaultCardPresentState,
+            ...initialCardPresentState,
             isClerkCardPresent: true,
           })
         }
@@ -192,35 +192,28 @@ export class App extends React.Component<RouteComponentProps, State> {
         fetch('/card/read')
           .then(result => result.json())
           .then(card => {
-            // check whether this has changed to reduce work by a lot
             const currentCardDataString = JSON.stringify(card)
             if (currentCardDataString === lastCardDataString) {
               return
             }
             lastCardDataString = currentCardDataString
 
-            const { isVoterCardPresent } = this.state
-            if (isVoterCardPresent && !card.present) {
+            if (!card.present || !card.shortValue) {
               this.resetBallot()
               return
             }
 
-            if (card.shortValue) {
-              const cardData = JSON.parse(card.shortValue) as CardData
-              this.processCardData({
-                cardData: cardData,
-                longValueExists: card.longValueExists,
-              })
-            } else {
-              this.setState({
-                ...defaultCardPresentState,
-              })
-            }
+            const cardData = JSON.parse(card.shortValue) as CardData
+            this.processCardData({
+              cardData: cardData,
+              longValueExists: card.longValueExists,
+            })
           })
           .catch(() => {
+            this.resetBallot()
+            lastCardDataString = ''
             // if it's an error, aggressively assume there's no backend and stop hammering
             this.stopPolling()
-            this.setState(defaultCardPresentState)
           })
       }, 200)
     }
@@ -398,10 +391,16 @@ export class App extends React.Component<RouteComponentProps, State> {
 
   public resetBallot = (path: string = '/') => {
     this.resetVoterData()
-    this.setState(userState, () => {
-      this.setStoredState()
-      this.props.history.push(path)
-    })
+    this.setState(
+      {
+        ...initialCardPresentState,
+        ...initialUserState,
+      },
+      () => {
+        this.setStoredState()
+        this.props.history.push(path)
+      }
+    )
     this.startPolling()
   }
 
@@ -474,7 +473,7 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public unsetIsRecentVoterPrint = () => {
-    this.setState(defaultCardPresentState)
+    this.setState(initialCardPresentState)
   }
 
   public componentDidCatch() {

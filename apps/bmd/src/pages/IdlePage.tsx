@@ -29,7 +29,7 @@ const IdlePage = () => {
   useEffect(() => {
     const reset = async () => {
       await markVoterCardUsed({ ballotPrinted: false })
-      resetBallot('/')
+      resetBallot()
     }
     countdown === 0 && reset()
   }, [countdown, markVoterCardUsed, resetBallot])
