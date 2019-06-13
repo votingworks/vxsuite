@@ -4,7 +4,6 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
-import Text from '../components/Text'
 
 interface Props {
   unsetIsRecentVoterPrint: () => void
@@ -17,11 +16,16 @@ const CastBallotPage = ({ unsetIsRecentVoterPrint }: Props) => (
         <Breadcrumbs step={4} />
         <Prose textCenter id="audiofocus">
           <h1 aria-label="Cast your ballot.">Cast your printed ballot</h1>
-          <Text narrow>
-            Before you cast your official printed ballot in the ballot box,
-            double-check your printed ballot to confirm your selections.
-          </Text>
-          <Text narrow>If you find a mistake, ask a poll worker for help.</Text>
+          <p>
+            Double check your official printed ballot.
+            <br />
+            <em>To make any changes, ask a poll worker for help.</em>
+          </p>
+          <p>
+            Cast your official printed ballot in the ballot box
+            <br />
+            and return your voter card to a poll worker.
+          </p>
           <div aria-label="Press the down arrow to continue, then" />
           <p>
             <Button
