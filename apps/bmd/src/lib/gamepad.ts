@@ -1,15 +1,17 @@
 import mod from '../utils/mod'
 
+const pointerUpEvent = new PointerEvent('pointerup', {
+  bubbles: true,
+})
+
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(
     document.querySelectorAll(
-      'button:not([aria-hidden="true"]):not([disabled]), input:not([aria-hidden="true"]):not([disabled])'
+      'button:not([aria-hidden="true"]):not([disabled])'
     )
   )
   const ariaHiddenTabbableElements = Array.from(
-    document.querySelectorAll(
-      '[aria-hidden="true"] button, [aria-hidden="true"] input'
-    )
+    document.querySelectorAll('[aria-hidden="true"] button')
   )
   return tabbableElements.filter(
     element => ariaHiddenTabbableElements.indexOf(element) === -1
@@ -43,22 +45,20 @@ function handleArrowDown() {
 function handleArrowLeft() {
   const prevButton = document.getElementById('previous') as HTMLButtonElement
   if (prevButton) {
-    prevButton.click()
+    prevButton.dispatchEvent(pointerUpEvent)
   }
 }
 
 function handleArrowRight() {
   const nextButton = document.getElementById('next') as HTMLButtonElement
   if (nextButton) {
-    nextButton.click()
+    nextButton.dispatchEvent(pointerUpEvent)
   }
 }
 
-function handleClick(sendEvenIfButton: boolean) {
+function handleClick() {
   const activeElement = getActiveElement()
-  if (activeElement.type !== 'button' || sendEvenIfButton) {
-    activeElement.click()
-  }
+  activeElement.dispatchEvent(pointerUpEvent)
 }
 
 export function handleGamepadButtonDown(buttonName: string) {
@@ -77,7 +77,7 @@ export function handleGamepadButtonDown(buttonName: string) {
       handleArrowRight()
       break
     case 'A':
-      handleClick(true)
+      handleClick()
       break
     // no default
   }
@@ -103,10 +103,10 @@ export /* istanbul ignore next - triggering keystrokes issue - https://github.co
       handleArrowRight()
       break
     case ']':
-      handleClick(true)
+      handleClick()
       break
     case 'Enter':
-      handleClick(false)
+      handleClick()
       break
     // no default
   }
