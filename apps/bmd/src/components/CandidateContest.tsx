@@ -21,6 +21,7 @@ import {
 import BallotContext from '../contexts/ballotContext'
 
 import GLOBALS from '../config/globals'
+import ChoiceButton from './ChoiceButton'
 import Button from './Button'
 import Main from './Main'
 import Modal from './Modal'
@@ -133,57 +134,6 @@ const ChoicesGrid = styled.div`
   grid-auto-rows: minmax(auto, 1fr);
   grid-gap: 1.25rem;
 `
-const Choice = styled('label')<{ isSelected: boolean }>`
-  display: grid;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
-    0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
-    0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
-  background: ${({ isSelected }) => (isSelected ? '#028099' : '#FFFFFF')};
-  cursor: pointer;
-  color: ${({ isSelected }) => (isSelected ? '#FFFFFF' : undefined)};
-  transition: background 0.25s, color 0.25s;
-  button& {
-    text-align: left;
-  }
-  :focus-within {
-    outline: rgb(77, 144, 254) dashed 0.25rem;
-  }
-  ::before {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    border-right: 1px solid;
-    border-color: ${({ isSelected }) =>
-      isSelected ? '#028099' : 'rgb(211, 211, 211)'};
-    border-radius: 0.125rem 0 0 0.125rem;
-    background: #FFFFFF;
-    width: 3rem;
-    text-align: center;
-    color: #028099;
-    font-size: 2rem;
-    font-weight: 700;
-    content: '${({ isSelected }) => (isSelected ? GLOBALS.CHECK_ICON : '')}';
-  }
-  & > div {
-    padding: 0.5rem 0.5rem 0.5rem 4rem;
-    @media (min-width: 480px) {
-      padding: 1rem 1rem 1rem 4rem;
-    }
-  }
-`
-const ChoiceInput = styled.input.attrs({
-  type: 'checkbox',
-  role: 'option',
-})`
-  margin-right: 0.5rem;
-`
 
 const WriteInCandidateForm = styled.div`
   margin: 1rem 0 -1rem;
@@ -271,22 +221,20 @@ class CandidateContest extends React.Component<Props, State> {
     this.props.updateVote(contest.id, newVote)
   }
 
-  public handleDisabledClick = () => {
-    // maybe we'll do more when a disabled item is clicked, for now nothing.
-  }
-
   public handleUpdateSelection = (event: InputEvent) => {
     const { vote } = this.props
-    const id = (event.target as HTMLInputElement).value
-    const candidate = this.findCandidateById(vote, id)
-    if (candidate) {
-      if (candidate.isWriteIn) {
-        this.setState({ candidatePendingRemoval: candidate })
+    const candidateId = (event.currentTarget as HTMLInputElement).dataset.id
+    if (candidateId) {
+      const candidate = this.findCandidateById(vote, candidateId)
+      if (candidate) {
+        if (candidate.isWriteIn) {
+          this.setState({ candidatePendingRemoval: candidate })
+        } else {
+          this.removeCandidateFromVote(candidateId)
+        }
       } else {
-        this.removeCandidateFromVote(id)
+        this.addCandidateToVote(candidateId)
       }
-    } else {
-      this.addCandidateToVote(id)
     }
   }
 
@@ -297,16 +245,25 @@ class CandidateContest extends React.Component<Props, State> {
   }
 
   public closeAttemptedVoteAlert = () => {
-    this.setState({ attemptedOvervoteCandidate: undefined })
+    // Delay to avoid passing tap to next screen
+    window.setTimeout(() => {
+      this.setState({ attemptedOvervoteCandidate: undefined })
+    }, 200)
   }
 
   public confirmRemovePendingWriteInCandidate = () => {
-    this.removeCandidateFromVote(this.state.candidatePendingRemoval!.id)
+    // Delay to avoid passing tap to next screen
+    window.setTimeout(() => {
+      this.removeCandidateFromVote(this.state.candidatePendingRemoval!.id)
+    }, 200)
     this.clearCandidateIdPendingRemoval()
   }
 
   public clearCandidateIdPendingRemoval = () => {
-    this.setState({ candidatePendingRemoval: undefined })
+    // Delay to avoid passing tap to next screen
+    window.setTimeout(() => {
+      this.setState({ candidatePendingRemoval: undefined })
+    }, 200)
   }
 
   public initWriteInCandidate = () => {
@@ -320,25 +277,31 @@ class CandidateContest extends React.Component<Props, State> {
       .replace(/\s+/g, ' ')
 
   public addWriteInCandidate = () => {
-    const { contest, vote } = this.props
-    const normalizedCandidateName = this.normalizeName(
-      this.state.writeInCandidateName
-    )
-    this.props.updateVote(contest.id, [
-      ...vote,
-      {
-        id: `write-in__${camelCase(normalizedCandidateName)}`,
-        isWriteIn: true,
-        name: normalizedCandidateName,
-      },
-    ])
-    this.setState({ writeInCandidateName: '' })
-    this.toggleWriteInCandidateModal(false)
+    // Delay to avoid passing tap to next screen
+    window.setTimeout(() => {
+      const { contest, vote } = this.props
+      const normalizedCandidateName = this.normalizeName(
+        this.state.writeInCandidateName
+      )
+      this.props.updateVote(contest.id, [
+        ...vote,
+        {
+          id: `write-in__${camelCase(normalizedCandidateName)}`,
+          isWriteIn: true,
+          name: normalizedCandidateName,
+        },
+      ])
+      this.setState({ writeInCandidateName: '' })
+      this.toggleWriteInCandidateModal(false)
+    }, 200)
   }
 
   public cancelWriteInCandidateModal = () => {
-    this.setState({ writeInCandidateName: '' })
-    this.toggleWriteInCandidateModal(false)
+    // Delay to avoid passing tap to next screen
+    window.setTimeout(() => {
+      this.setState({ writeInCandidateName: '' })
+      this.toggleWriteInCandidateModal(false)
+    }, 200)
   }
 
   public toggleWriteInCandidateModal = (writeInCandateModalIsOpen: boolean) => {
@@ -466,27 +429,19 @@ class CandidateContest extends React.Component<Props, State> {
                       candidate.partyId &&
                       findPartyById(parties, candidate.partyId)
                     return (
-                      <Choice
+                      <ChoiceButton
                         key={candidate.id}
-                        htmlFor={candidate.id}
                         isSelected={isChecked}
-                        onClick={handleDisabledClick}
+                        onPress={
+                          isDisabled
+                            ? handleDisabledClick
+                            : this.handleUpdateSelection
+                        }
+                        data-id={candidate.id}
                         aria-label={`${stripQuotes(candidate.name)}, ${
                           party ? party.name : ''
                         }.`}
                       >
-                        <ChoiceInput
-                          id={candidate.id}
-                          name={candidate.name}
-                          value={candidate.id}
-                          onChange={
-                            isDisabled
-                              ? this.handleDisabledClick
-                              : this.handleUpdateSelection
-                          }
-                          checked={isChecked}
-                          className="visually-hidden"
-                        />
                         <Prose>
                           <Text wordBreak>
                             <strong>{candidate.name}</strong>
@@ -494,7 +449,7 @@ class CandidateContest extends React.Component<Props, State> {
                             {party ? party.name : ''}
                           </Text>
                         </Prose>
-                      </Choice>
+                      </ChoiceButton>
                     )
                   })}
                   {contest.allowWriteIns &&
@@ -502,39 +457,31 @@ class CandidateContest extends React.Component<Props, State> {
                       .filter(c => c.isWriteIn)
                       .map(candidate => {
                         return (
-                          <Choice
+                          <ChoiceButton
                             key={candidate.id}
-                            htmlFor={candidate.id}
                             isSelected
+                            data-id={candidate.id}
+                            onPress={this.handleUpdateSelection}
                           >
-                            <ChoiceInput
-                              id={candidate.id}
-                              name={contest.id}
-                              value={candidate.id}
-                              onChange={this.handleUpdateSelection}
-                              checked
-                              className="visually-hidden"
-                            />
                             <Prose>
                               <p aria-label={`${candidate.name}.`}>
                                 <strong>{candidate.name}</strong>
                               </p>
                             </Prose>
-                          </Choice>
+                          </ChoiceButton>
                         )
                       })}
                   {contest.allowWriteIns && !hasReachedMaxSelections && (
-                    <Choice
+                    <ChoiceButton
                       isSelected={false}
-                      onClick={this.initWriteInCandidate}
+                      onPress={this.initWriteInCandidate}
                     >
-                      <ChoiceInput className="visually-hidden" />
                       <Prose>
                         <p aria-label="add write-in candidate.">
                           <em>add write-in candidate</em>
                         </p>
                       </Prose>
-                    </Choice>
+                    </ChoiceButton>
                   )}
                 </ChoicesGrid>
               </ScrollableContentWrapper>
