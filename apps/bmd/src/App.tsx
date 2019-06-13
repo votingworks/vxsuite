@@ -472,10 +472,6 @@ export class App extends React.Component<RouteComponentProps, State> {
     )
   }
 
-  public unsetIsRecentVoterPrint = () => {
-    this.setState(initialCardPresentState)
-  }
-
   public componentDidCatch() {
     this.unconfigure()
     window.location.reload()
@@ -523,11 +519,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       return <PollsClosedScreen election={election} isLiveMode={isLiveMode} />
     } else if (election) {
       if (isRecentVoterPrint && isVoterCardInvalid) {
-        return (
-          <CastBallotPage
-            unsetIsRecentVoterPrint={this.unsetIsRecentVoterPrint}
-          />
-        )
+        return <CastBallotPage />
       } else if (
         !isVoterCardInvalid &&
         isVoterCardPresent &&
