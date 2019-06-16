@@ -7,20 +7,25 @@ import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
+import PrintedBallot from '../components/PrintedBallot'
+import ProgressEllipsis from '../components/ProgressEllipsis'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
-import PrintedBallot from '../components/PrintedBallot'
 
 import BallotContext from '../contexts/ballotContext'
 
 interface State {
   showConfirmModal: boolean
+  showPrintingModal: boolean
 }
+
+const printingModalDisplaySeconds = 7
 
 class PrintPage extends React.Component<RouteComponentProps, State> {
   public static contextType = BallotContext
   public state: State = {
     showConfirmModal: false,
+    showPrintingModal: false,
   }
   public componentDidMount = () => {
     window.addEventListener('afterprint', this.afterPrint)
@@ -32,8 +37,10 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
     // setTimeout to prevent a React infinite recursion issue
     window.setTimeout(() => {
       this.context.incrementBallotsPrintedCount()
-      this.context.resetBallot()
     }, 0)
+    window.setTimeout(() => {
+      this.context.resetBallot()
+    }, printingModalDisplaySeconds * 1000)
   }
   public hideConfirm = () => {
     this.setState({ showConfirmModal: false })
@@ -42,15 +49,27 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
     this.setState({ showConfirmModal: true })
   }
   public print = () => {
-    this.context.markVoterCardUsed().then((success: boolean) => {
-      if (success) {
-        window.print()
-      }
-    })
+    const { showPrintingModal } = this.state
+    if (!showPrintingModal) {
+      this.setState(
+        {
+          showConfirmModal: false,
+          showPrintingModal: true,
+        },
+        () => {
+          this.context.markVoterCardUsed().then((success: boolean) => {
+            if (success) {
+              window.print()
+            }
+          })
+        }
+      )
+    }
   }
   public render() {
     const { ballotStyleId, election, precinctId, votes } = this.context
     const { showHelpPage, showSettingsPage } = election.bmdConfig
+    const { showConfirmModal, showPrintingModal } = this.state
 
     return (
       <React.Fragment>
@@ -91,7 +110,17 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
           {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
         </ButtonBar>
         <Modal
-          isOpen={this.state.showConfirmModal}
+          isOpen={showPrintingModal}
+          content={
+            <Prose textCenter>
+              <h1>
+                <ProgressEllipsis>Printing</ProgressEllipsis>
+              </h1>
+            </Prose>
+          }
+        />
+        <Modal
+          isOpen={showConfirmModal}
           centerContent
           ariaLabel=""
           content={
@@ -109,9 +138,7 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
                 role="link"
                 aria-label="Use the select button to print your ballot."
                 primary
-                onPress={() => {
-                  this.print()
-                }}
+                onPress={this.print}
               >
                 Yes, print my ballot.
               </Button>

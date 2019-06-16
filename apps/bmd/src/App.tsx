@@ -257,7 +257,7 @@ export class App extends React.Component<RouteComponentProps, State> {
     const readCheckObj = await readCheck.json()
 
     if (readCheckObj.shortValue !== newCardDataSerialized) {
-      this.startPolling()
+      this.resetBallot()
       return false
     }
     return true
