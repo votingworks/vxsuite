@@ -56,9 +56,11 @@ const generateTestDeckBallots = ({
           if (contest.type === 'yesno') {
             votes[contest.id] = ballotNum % 2 === 0 ? 'yes' : 'no'
           } else {
-            votes[contest.id] = [
-              contest.candidates[ballotNum % contest.candidates.length],
-            ]
+            if (contest.candidates.length > 0) {
+              votes[contest.id] = [
+                contest.candidates[ballotNum % contest.candidates.length],
+              ]
+            }
           }
         })
         ballots.push({
