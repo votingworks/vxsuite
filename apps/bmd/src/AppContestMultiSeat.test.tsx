@@ -3,7 +3,7 @@ import { fireEvent, render } from 'react-testing-library'
 
 import electionSample from './data/electionSample.json'
 
-import App, { electionKey, mergeWithDefaults } from './App'
+import App, { electionStorageKey, mergeWithDefaults } from './App'
 import { CandidateContest, Election } from './config/types'
 
 const electionSampleAsString = JSON.stringify(
@@ -21,7 +21,7 @@ it(`Multi-seat Contest Flow`, () => {
   ) as CandidateContest
   expect(multiSeatContest.seats).toEqual(4)
 
-  window.localStorage.setItem(electionKey, electionSampleAsString)
+  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
   const { getByText, getByTestId, queryByText } = render(<App />)
   fireEvent.change(getByTestId('activation-code'), {
     target: { value: 'VX.23.12' },

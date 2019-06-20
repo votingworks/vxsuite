@@ -39,11 +39,22 @@ const Prose = styled('div')<Props>`
   & h3 + p {
     margin-top: ${({ compact }) => (compact ? 0 : '-1rem')};
   }
-  & :first-child {
+  & > :first-child {
     margin-top: 0;
   }
-  & :last-child {
+  & > :last-child {
     margin-bottom: 0;
+  }
+  & dl {
+    margin: 1rem 0;
+    & > dt {
+      font-size: 1rem;
+    }
+    & > dd {
+      margin: 0 0 2rem;
+      font-size: 2rem;
+      font-weight: 600;
+    }
   }
 `
 

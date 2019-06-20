@@ -22,7 +22,7 @@ const NotFoundPage = (props: RouteComponentProps) => {
             No page exists at <code>{pathname}</code>.
           </p>
           <p>
-            <Button onClick={requestResetBallot}>Start Over</Button>
+            <Button onPress={requestResetBallot}>Start Over</Button>
           </p>
         </Prose>
       </MainChild>

@@ -1,6 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`can navigate all ballot pages 1`] = `
+.c4 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -18,7 +29,6 @@ exports[`can navigate all ballot pages 1`] = `
 
 .c1 {
   margin: auto auto;
-  width: 100%;
   max-width: 35rem;
 }
 
@@ -61,33 +71,22 @@ exports[`can navigate all ballot pages 1`] = `
   margin-top: -1rem;
 }
 
-.c3 :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c3 :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c5 > svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 .c2 {
-  margin: auto;
-}
-
-.c4 {
-  margin: auto;
-  border: 1rem solid #ffffff;
+  margin: 0 auto 1rem;
   max-width: 320px;
 }
 
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
@@ -120,75 +119,48 @@ exports[`can navigate all ballot pages 1`] = `
   <div
     class="c1"
   >
-    <form>
-      <fieldset>
-        <legend
-          class="c2"
-        >
-          <div
-            class="c3"
-          >
-            <h1>
-              Scan Your Activation Code
-            </h1>
-            <p>
-              Your ballot will be displayed after scan is complete.
-            </p>
-            <div
-              class="c4"
-              data-testid="qrContainer"
-            >
-              <div
-                class="c5"
-              >
-                <svg
-                  height="128"
-                  shape-rendering="crispEdges"
-                  viewBox="0 0 21 21"
-                  width="128"
-                >
-                  <path
-                    d="M0,0 h21v21H0z"
-                    fill="#FFFFFF"
-                  />
-                  <path
-                    d="M0 0h7v1H0zM8 0h3v1H8zM12 0h1v1H12zM14,0 h7v1H14zM0 1h1v1H0zM6 1h1v1H6zM10 1h1v1H10zM12 1h1v1H12zM14 1h1v1H14zM20,1 h1v1H20zM0 2h1v1H0zM2 2h3v1H2zM6 2h1v1H6zM8 2h1v1H8zM11 2h1v1H11zM14 2h1v1H14zM16 2h3v1H16zM20,2 h1v1H20zM0 3h1v1H0zM2 3h3v1H2zM6 3h1v1H6zM9 3h4v1H9zM14 3h1v1H14zM16 3h3v1H16zM20,3 h1v1H20zM0 4h1v1H0zM2 4h3v1H2zM6 4h1v1H6zM8 4h1v1H8zM12 4h1v1H12zM14 4h1v1H14zM16 4h3v1H16zM20,4 h1v1H20zM0 5h1v1H0zM6 5h1v1H6zM9 5h1v1H9zM11 5h2v1H11zM14 5h1v1H14zM20,5 h1v1H20zM0 6h7v1H0zM8 6h1v1H8zM10 6h1v1H10zM12 6h1v1H12zM14,6 h7v1H14zM8 7h1v1H8zM12 7h1v1H12zM5 8h2v1H5zM9 8h2v1H9zM14 8h1v1H14zM16 8h1v1H16zM18 8h1v1H18zM20,8 h1v1H20zM2 9h1v1H2zM8 9h3v1H8zM12 9h2v1H12zM16 9h1v1H16zM19,9 h2v1H19zM2 10h5v1H2zM9 10h2v1H9zM13 10h1v1H13zM15 10h1v1H15zM18 10h2v1H18zM3 11h1v1H3zM5 11h1v1H5zM8 11h1v1H8zM10 11h1v1H10zM12 11h4v1H12zM18 11h1v1H18zM20,11 h1v1H20zM0 12h2v1H0zM3 12h1v1H3zM5 12h3v1H5zM9 12h1v1H9zM11 12h1v1H11zM13 12h2v1H13zM16 12h2v1H16zM20,12 h1v1H20zM8 13h3v1H8zM13 13h5v1H13zM19 13h1v1H19zM0 14h7v1H0zM10 14h2v1H10zM14 14h2v1H14zM19 14h1v1H19zM0 15h1v1H0zM6 15h1v1H6zM8 15h1v1H8zM11 15h1v1H11zM14 15h1v1H14zM18 15h2v1H18zM0 16h1v1H0zM2 16h3v1H2zM6 16h1v1H6zM9 16h5v1H9zM16 16h2v1H16zM19 16h1v1H19zM0 17h1v1H0zM2 17h3v1H2zM6 17h1v1H6zM9 17h3v1H9zM13 17h2v1H13zM16 17h1v1H16zM18 17h1v1H18zM0 18h1v1H0zM2 18h3v1H2zM6 18h1v1H6zM9 18h2v1H9zM12 18h1v1H12zM15 18h3v1H15zM19,18 h2v1H19zM0 19h1v1H0zM6 19h1v1H6zM9 19h1v1H9zM11 19h1v1H11zM15 19h1v1H15zM18 19h1v1H18zM0 20h7v1H0zM13 20h1v1H13zM15 20h1v1H15zM17 20h1v1H17zM19 20h1v1H19z"
-                    fill="#000000"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </legend>
-        <label
-          aria-hidden="true"
-          class="visually-hidden"
-          for="BallotCode"
-        >
-          <div>
-            Activation Code
-          </div>
-          <input
-            aria-hidden="true"
-            autocapitalize="off"
-            autocomplete="off"
-            autocorrect="off"
-            data-testid="activation-code"
-            id="BallotCode"
-            spellcheck="false"
-            type="text"
-            value=""
-          />
-        </label>
+    <p
+      aria-hidden="true"
+      class="c2"
+    />
+    <div
+      class="c3"
+    >
+      <h1
+        aria-label="2020 General Election."
+      >
+        2020 General Election
+      </h1>
+      <p
+        aria-hidden="true"
+      >
+        Tuesday, November 3, 2020
+        <br />
+        Franklin County
+        , 
+        State of Hamilton
+      </p>
+      <hr />
+      <h2>
+        Precinct: 
+        
+        <br />
+        Ballot Style: 
+        
+      </h2>
+      <p>
+        <br />
         <button
-          aria-hidden="true"
-          class="visually-hidden"
-          type="submit"
+          aria-label="Select Next to Get Started."
+          class="c4"
+          id="next"
+          role="option"
+          type="button"
         >
-          Submit
+          Get Started
         </button>
-      </fieldset>
-    </form>
+      </p>
+    </div>
   </div>
 </main>
 `;

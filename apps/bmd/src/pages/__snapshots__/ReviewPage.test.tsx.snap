@@ -1,6 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders ReviewPage with votes 1`] = `
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+}
+
+.c3 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  width: 100%;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: rgb(169,169,169);
+}
+
+.c8 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -51,45 +84,12 @@ exports[`renders ReviewPage with votes 1`] = `
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
-}
-
-.c12 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
-}
-
-.c3 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  width: 100%;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: rgb(169,169,169);
-}
-
-.c8 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
 }
 
 .c13 {
@@ -268,11 +268,11 @@ button.c7 {
   margin-top: 0;
 }
 
-.c9 :first-child {
+.c9 > :first-child {
   margin-top: 0;
 }
 
-.c9 :last-child {
+.c9 > :last-child {
   margin-bottom: 0;
 }
 
@@ -1177,6 +1177,39 @@ button.c7 {
 `;
 
 exports[`renders ReviewPage without votes 1`] = `
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+}
+
+.c3 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  width: 100%;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: rgb(169,169,169);
+}
+
+.c8 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -1227,45 +1260,12 @@ exports[`renders ReviewPage without votes 1`] = `
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
-}
-
-.c12 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
-}
-
-.c3 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  width: 100%;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: rgb(169,169,169);
-}
-
-.c8 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
 }
 
 .c10 {
@@ -1424,11 +1424,11 @@ button.c7 {
   margin-top: 0;
 }
 
-.c9 :first-child {
+.c9 > :first-child {
   margin-top: 0;
 }
 
-.c9 :last-child {
+.c9 > :last-child {
   margin-bottom: 0;
 }
 

@@ -1,6 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders NotFoundPage 1`] = `
+.c3 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -18,7 +29,6 @@ exports[`renders NotFoundPage 1`] = `
 
 .c1 {
   margin: auto auto;
-  width: 100%;
   max-width: 35rem;
 }
 
@@ -61,28 +71,17 @@ exports[`renders NotFoundPage 1`] = `
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
-}
-
-.c3 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
 }
 
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 

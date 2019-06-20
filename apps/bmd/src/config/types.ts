@@ -1,14 +1,11 @@
 // Generic
+export type VoidFunction = () => void
 export interface Dictionary<T> {
   [key: string]: T | undefined
 }
 
-// AsyncFunction
-export type AsyncFunction<O> = () => Promise<O>
-
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
-export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 
 // Candidates
 export interface Candidate {
@@ -107,18 +104,23 @@ export type VotesDict = Dictionary<Vote>
 
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
+export type MarkVoterCardUsedFunction = (props: {
+  ballotPrinted: boolean
+}) => Promise<boolean>
 export interface BallotContextInterface {
+  activateBallot: (activationData: ActivationData) => void
+  ballotStyleId: string
   contests: Contests
   readonly election: Election | undefined
-  markVoterCardUsed: AsyncFunction<boolean>
-  resetBallot: (path?: string) => void
-  activateBallot: (activationData: ActivationData) => void
-  updateVote: UpdateVoteFunction
-  votes: VotesDict
+  incrementBallotsPrintedCount: () => void
+  isLiveMode: boolean
+  markVoterCardUsed: MarkVoterCardUsedFunction
   precinctId: string
-  ballotStyleId: string
+  resetBallot: (path?: string) => void
   setUserSettings: (partial: PartialUserSettings) => void
+  updateVote: UpdateVoteFunction
   userSettings: UserSettings
+  votes: VotesDict
 }
 
 // Smart Card Content
@@ -131,6 +133,7 @@ export interface VoterCardData extends CardData {
   readonly bs: string
   readonly pr: string
   readonly uz?: number
+  readonly bp?: number
 }
 export interface PollworkerCardData extends CardData {
   readonly t: 'pollworker'

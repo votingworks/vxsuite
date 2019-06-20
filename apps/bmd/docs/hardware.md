@@ -105,7 +105,8 @@ Install BMD as PWA (Progressive Web App) in kiosk mode.
 1. Right-click the shortcut, and select "Properties" in the menu.
 1. In the Properties window that appears, select the "Shortcut" tab.
 1. Under "Target" there is a string. Append the following to the end of the
-   string: " --kiosk --kiosk-printing"
+   string: " --kiosk --kiosk-printing --disable-pinch
+   --overscroll-history-navigation=0"
 1. Click "Apply" then "OK"
 
 ## Launch and Exit BMD in Kiosk Mode

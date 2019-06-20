@@ -16,7 +16,6 @@ import {
 
 import {
   ActivationData,
-  BallotStyle,
   CardData,
   Contests,
   Election,
@@ -30,10 +29,18 @@ import {
   VotesDict,
 } from './config/types'
 
+import { getBallotStyle, getContests } from './utils/election'
+
 import Ballot from './components/Ballot'
 import Screen from './components/Screen'
 import UploadConfig from './components/UploadConfig'
 import BallotContext from './contexts/ballotContext'
+
+import ClerkScreen from './pages/ClerkScreen'
+import PollWorkerScreen from './pages/PollWorkerScreen'
+import PollsClosedScreen from './pages/PollsClosedScreen'
+import ActivationScreen from './pages/ActivationScreen'
+import CastBallotPage from './pages/CastBallotPage'
 
 import electionDefaults from './data/electionDefaults.json'
 import electionSample from './data/electionSample.json'
@@ -48,25 +55,48 @@ interface State {
   cardData?: CardData
   contests: Contests
   election: OptionalElection
-  loadingElection: boolean
+  isClerkCardPresent: boolean
+  isLiveMode: boolean
+  isPollsOpen: boolean
+  isPollWorkerCardPresent: boolean
+  isVoterCardPresent: boolean
+  isVoterCardInvalid: boolean
+  isRecentVoterPrint: boolean
   precinctId: string
+  ballotsPrintedCount: number
   userSettings: UserSettings
   votes: VotesDict
 }
 
-export const electionKey = 'election'
+export const electionStorageKey = 'election'
 export const activationStorageKey = 'activation'
 export const votesStorageKey = 'votes'
+export const stateStorageKey = 'state'
 const removeElectionShortcuts = ['mod+k']
 
-const initialState = {
+const initialCardPresentState = {
+  isClerkCardPresent: false,
+  isPollWorkerCardPresent: false,
+  isVoterCardPresent: false,
+  isVoterCardInvalid: false,
+  isRecentVoterPrint: false,
+}
+
+const initialUserState = {
   ballotStyleId: '',
   contests: [],
-  election: undefined,
-  loadingElection: false,
   precinctId: '',
   userSettings: { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
   votes: {},
+}
+
+const initialState = {
+  ...initialUserState,
+  ...initialCardPresentState,
+  ballotsPrintedCount: 0,
+  election: undefined,
+  isLiveMode: false,
+  isPollsOpen: false,
 }
 
 interface CompleteCardData {
@@ -75,109 +105,135 @@ interface CompleteCardData {
 }
 
 let checkCardInterval = 0
-let cardReaderAttached = true
 
 export class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
 
   public processVoterCardData = (voterCardData: VoterCardData) => {
-    if (!this.state.election) {
+    const { election } = this.state
+    if (!election) {
       return
     }
 
-    // better UI at some point
-    // don't reuse a card that has been written
-    if (voterCardData.uz) {
-      return
-    }
-
-    const ballotStyle = this.state.election.ballotStyles.find(
-      bs => voterCardData.bs === bs.id
-    )
-    const precinct = this.state.election.precincts.find(
-      pr => pr.id === voterCardData.pr
-    )
+    const ballotStyle = getBallotStyle({
+      ballotStyleId: voterCardData.bs,
+      election,
+    })
+    const precinct = election.precincts.find(pr => pr.id === voterCardData.pr)
 
     if (ballotStyle && precinct) {
-      const activationData: ActivationData = {
+      this.activateBallot({
         ballotStyle,
         precinct,
-      }
-      this.activateBallot(activationData)
-    }
-  }
-
-  public processCardData = (completeCardData: CompleteCardData) => {
-    const { cardData, longValueExists } = completeCardData
-
-    switch (cardData.t) {
-      case 'voter':
-        this.processVoterCardData(cardData as VoterCardData)
-        break
-      case 'pollworker':
-        // poll worker admin screen goes here
-        break
-      case 'clerk':
-        if (
-          !this.state.election &&
-          longValueExists &&
-          !this.state.loadingElection
-        ) {
-          this.setState({ loadingElection: true })
-          this.fetchElection().then(election => {
-            // setTimeout to prevent tests from going into infinite loops
-            window.setTimeout(() => {
-              this.setElection(JSON.parse(election.longValue))
-            }, 0)
-          })
-        }
-        break
+      })
+    } else {
+      this.setState({
+        isVoterCardInvalid: true,
+      })
     }
   }
 
   public fetchElection = async () => {
-    return fetch('/card/read_long').then(result => result.json())
+    fetch('/card/read_long')
+      .then(result => result.json())
+      .then(election => {
+        this.setElection(JSON.parse(election.longValue))
+      })
+  }
+
+  public processCardData = (completeCardData: CompleteCardData) => {
+    const { cardData, longValueExists } = completeCardData
+    switch (cardData.t) {
+      case 'voter': {
+        const voterCardData = cardData as VoterCardData
+        const isBallotPrinted = Boolean(voterCardData.bp)
+        const ballotUsedTime = Number(voterCardData.uz) || 0
+        const isVoterCardInvalid = Boolean(ballotUsedTime)
+        const expirationGracePeriod = 60 * 1000 // 1 minute
+        const isRecentVoterPrint =
+          isBallotPrinted &&
+          ballotUsedTime + expirationGracePeriod > new Date().getTime()
+        this.setState({
+          ...initialCardPresentState,
+          isVoterCardPresent: true,
+          isVoterCardInvalid,
+          isRecentVoterPrint,
+        })
+        if (!isVoterCardInvalid) {
+          this.processVoterCardData(voterCardData)
+        }
+        break
+      }
+      case 'pollworker': {
+        // poll worker admin screen goes here
+        this.setState({
+          ...initialCardPresentState,
+          isPollWorkerCardPresent: true,
+        })
+        break
+      }
+      case 'clerk': {
+        if (longValueExists) {
+          this.setState({
+            ...initialCardPresentState,
+            isClerkCardPresent: true,
+          })
+        }
+        break
+      }
+    }
   }
 
   public startPolling = () => {
-    checkCardInterval = window.setInterval(() => {
-      fetch('/card/read')
-        .then(result => result.json())
-        .then(resultJSON => {
-          // card was just taken out
-          const { ballotStyleId } = this.getBallotActivation()
-          if (!resultJSON.present && ballotStyleId) {
-            this.resetBallot()
-            return
-          }
+    if (checkCardInterval === 0) {
+      let lastCardDataString = ''
 
-          if (resultJSON.shortValue) {
-            const cardData = JSON.parse(resultJSON.shortValue) as CardData
+      checkCardInterval = window.setInterval(() => {
+        fetch('/card/read')
+          .then(result => result.json())
+          .then(card => {
+            const currentCardDataString = JSON.stringify(card)
+            if (currentCardDataString === lastCardDataString) {
+              return
+            }
+            lastCardDataString = currentCardDataString
+
+            if (!card.present || !card.shortValue) {
+              this.resetBallot()
+              return
+            }
+
+            const cardData = JSON.parse(card.shortValue) as CardData
             this.processCardData({
               cardData: cardData,
-              longValueExists: resultJSON.longValueExists,
+              longValueExists: card.longValueExists,
             })
-          }
-        })
-        .catch(() => {
-          // if it's an error, aggressively assume there's no backend and stop hammering
-          this.stopPolling()
-          cardReaderAttached = false
-        })
-    }, 200)
+          })
+          .catch(() => {
+            this.resetBallot()
+            lastCardDataString = ''
+            // if it's an error, aggressively assume there's no backend and stop hammering
+            this.stopPolling()
+          })
+      }, 200)
+    }
   }
 
   public stopPolling = () => {
     window.clearInterval(checkCardInterval)
+    checkCardInterval = 0 // To indicate setInterval is not running.
   }
 
-  public markVoterCardUsed = async () => {
+  public markVoterCardUsed = async (
+    { ballotPrinted } = { ballotPrinted: true }
+  ) => {
     // this is a demo with no card reader attached
     // TODO: limit this to demo elections
     // https://github.com/votingworks/bmd/issues/390
-    if (!cardReaderAttached) {
+    if (!this.state.isVoterCardPresent) {
       return true
     }
+    this.stopPolling()
 
     const { ballotStyleId, precinctId } = this.getBallotActivation()
 
@@ -186,6 +242,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       pr: precinctId,
       t: 'voter',
       uz: new Date().getTime(),
+      bp: ballotPrinted ? 1 : 0,
     }
 
     const newCardDataSerialized = JSON.stringify(newCardData)
@@ -199,7 +256,11 @@ export class App extends React.Component<RouteComponentProps, State> {
     const readCheck = await fetch('/card/read')
     const readCheckObj = await readCheck.json()
 
-    return readCheckObj.shortValue === newCardDataSerialized
+    if (readCheckObj.shortValue !== newCardDataSerialized) {
+      this.resetBallot()
+      return false
+    }
+    return true
   }
 
   public componentDidMount = () => {
@@ -210,22 +271,34 @@ export class App extends React.Component<RouteComponentProps, State> {
     } else {
       const election = this.getElection()
       const { ballotStyleId, precinctId } = this.getBallotActivation()
+      const {
+        ballotsPrintedCount = initialState.ballotsPrintedCount,
+        isLiveMode = initialState.isLiveMode,
+        isPollsOpen = initialState.isPollsOpen,
+      } = this.getStoredState()
       const ballotStyle =
         ballotStyleId &&
         election &&
-        election.ballotStyles.find(bs => bs.id === ballotStyleId)
-      const contests = ballotStyle
-        ? this.getContests(ballotStyle, election)
-        : initialState.contests
+        getBallotStyle({
+          ballotStyleId,
+          election,
+        })
+      const contests =
+        ballotStyle && election
+          ? getContests({ ballotStyle, election })
+          : initialState.contests
       this.setState({
+        ballotsPrintedCount,
         ballotStyleId,
         contests,
         election,
+        isLiveMode,
+        isPollsOpen,
         precinctId,
         votes: this.getVotes(),
       })
     }
-    Mousetrap.bind(removeElectionShortcuts, this.reset)
+    Mousetrap.bind(removeElectionShortcuts, this.unconfigure)
     document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
@@ -236,18 +309,18 @@ export class App extends React.Component<RouteComponentProps, State> {
   public componentWillUnount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     Mousetrap.unbind(removeElectionShortcuts)
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
-    window.clearInterval(checkCardInterval)
+    this.stopPolling()
   }
 
   public getElection = (): OptionalElection => {
-    const election = window.localStorage.getItem(electionKey)
+    const election = window.localStorage.getItem(electionStorageKey)
     return election ? JSON.parse(election) : undefined
   }
 
   public setElection = (electionConfigFile: Election) => {
     const election = mergeWithDefaults(electionConfigFile)
-    this.setState({ election, loadingElection: false })
-    window.localStorage.setItem(electionKey, JSON.stringify(election))
+    this.setState({ election })
+    window.localStorage.setItem(electionStorageKey, JSON.stringify(election))
   }
 
   public getBallotActivation = () => {
@@ -282,11 +355,27 @@ export class App extends React.Component<RouteComponentProps, State> {
     window.localStorage.removeItem(votesStorageKey)
   }
 
-  public reset = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
+  public unconfigure = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     this.setState(initialState)
-    window.localStorage.removeItem(electionKey)
-    this.resetVoterData()
+    window.localStorage.clear()
     this.props.history.push('/')
+  }
+
+  public setStoredState = () => {
+    const { ballotsPrintedCount, isLiveMode, isPollsOpen } = this.state
+    window.localStorage.setItem(
+      stateStorageKey,
+      JSON.stringify({
+        ballotsPrintedCount,
+        isLiveMode,
+        isPollsOpen,
+      })
+    )
+  }
+
+  public getStoredState = () => {
+    const storedState = window.localStorage.getItem(stateStorageKey)
+    return storedState ? JSON.parse(storedState) : {}
   }
 
   public updateVote = (contestId: string, vote: OptionalVote) => {
@@ -304,32 +393,30 @@ export class App extends React.Component<RouteComponentProps, State> {
     this.resetVoterData()
     this.setState(
       {
-        ...initialState,
-        election: this.getElection(),
+        ...initialCardPresentState,
+        ...initialUserState,
       },
       () => {
+        this.setStoredState()
         this.props.history.push(path)
       }
     )
+    this.startPolling()
   }
 
-  public getContests = (ballotStyle: BallotStyle, election?: Election) =>
-    (election || this.state.election!).contests.filter(
-      c =>
-        ballotStyle.districts.includes(c.districtId) &&
-        ballotStyle.partyId === c.partyId
-    )
-
   public activateBallot = ({ ballotStyle, precinct }: ActivationData) => {
-    this.setBallotActivation({
-      ballotStyleId: ballotStyle.id,
-      precinctId: precinct.id,
-    })
-    this.setState({
-      ballotStyleId: ballotStyle.id,
-      contests: this.getContests(ballotStyle),
-      precinctId: precinct.id,
-    })
+    const { election } = this.state
+    if (election) {
+      this.setBallotActivation({
+        ballotStyleId: ballotStyle.id,
+        precinctId: precinct.id,
+      })
+      this.setState({
+        ballotStyleId: ballotStyle.id,
+        contests: getContests({ ballotStyle, election }),
+        precinctId: precinct.id,
+      })
+    }
   }
 
   public setUserSettings = (partial: PartialUserSettings) => {
@@ -358,37 +445,121 @@ export class App extends React.Component<RouteComponentProps, State> {
     }px`
   }
 
+  public toggleLiveMode = () => {
+    this.setState(
+      prevState => ({
+        isLiveMode: !prevState.isLiveMode,
+        ballotsPrintedCount: initialState.ballotsPrintedCount,
+        isPollsOpen: initialState.isPollsOpen,
+      }),
+      this.setStoredState
+    )
+  }
+
+  public togglePollsOpen = () => {
+    this.setState(
+      prevState => ({ isPollsOpen: !prevState.isPollsOpen }),
+      this.setStoredState
+    )
+  }
+
+  public incrementBallotsPrintedCount = () => {
+    this.setState(
+      prevState => ({
+        ballotsPrintedCount: prevState.ballotsPrintedCount + 1,
+      }),
+      this.setStoredState
+    )
+  }
+
   public componentDidCatch() {
-    this.reset()
+    this.unconfigure()
     window.location.reload()
   }
 
   public render() {
-    const { election } = this.state
-    if (!election) {
-      return <UploadConfig setElection={this.setElection} />
-    } else {
+    const {
+      ballotsPrintedCount,
+      ballotStyleId,
+      contests,
+      election,
+      isClerkCardPresent,
+      isLiveMode,
+      isPollsOpen,
+      isPollWorkerCardPresent,
+      isVoterCardPresent,
+      isVoterCardInvalid,
+      isRecentVoterPrint,
+      precinctId,
+      userSettings,
+      votes,
+    } = this.state
+    if (isClerkCardPresent) {
       return (
-        <Gamepad onButtonDown={handleGamepadButtonDown}>
-          <BallotContext.Provider
-            value={{
-              activateBallot: this.activateBallot,
-              ballotStyleId: this.state.ballotStyleId,
-              contests: this.state.contests,
-              election,
-              markVoterCardUsed: this.markVoterCardUsed,
-              precinctId: this.state.precinctId,
-              resetBallot: this.resetBallot,
-              setUserSettings: this.setUserSettings,
-              updateVote: this.updateVote,
-              userSettings: this.state.userSettings,
-              votes: this.state.votes,
-            }}
-          >
-            <Ballot />
-          </BallotContext.Provider>
-        </Gamepad>
+        <ClerkScreen
+          ballotsPrintedCount={ballotsPrintedCount}
+          election={election}
+          fetchElection={this.fetchElection}
+          isLiveMode={isLiveMode}
+          unconfigure={this.unconfigure}
+          toggleLiveMode={this.toggleLiveMode}
+        />
       )
+    } else if (election && isPollWorkerCardPresent) {
+      return (
+        <PollWorkerScreen
+          ballotsPrintedCount={ballotsPrintedCount}
+          election={election}
+          isLiveMode={isLiveMode}
+          isPollsOpen={isPollsOpen}
+          togglePollsOpen={this.togglePollsOpen}
+        />
+      )
+    } else if (election && !isPollsOpen) {
+      return <PollsClosedScreen election={election} isLiveMode={isLiveMode} />
+    } else if (election) {
+      if (isRecentVoterPrint && isVoterCardInvalid) {
+        return <CastBallotPage />
+      } else if (
+        !isVoterCardInvalid &&
+        isVoterCardPresent &&
+        ballotStyleId &&
+        precinctId
+      ) {
+        return (
+          <Gamepad onButtonDown={handleGamepadButtonDown}>
+            <BallotContext.Provider
+              value={{
+                activateBallot: this.activateBallot,
+                ballotStyleId,
+                contests,
+                election,
+                incrementBallotsPrintedCount: this.incrementBallotsPrintedCount,
+                isLiveMode,
+                markVoterCardUsed: this.markVoterCardUsed,
+                precinctId,
+                resetBallot: this.resetBallot,
+                setUserSettings: this.setUserSettings,
+                updateVote: this.updateVote,
+                userSettings,
+                votes,
+              }}
+            >
+              <Ballot />
+            </BallotContext.Provider>
+          </Gamepad>
+        )
+      } else {
+        return (
+          <ActivationScreen
+            election={election}
+            isLiveMode={isLiveMode}
+            isVoterCardInvalid={isVoterCardInvalid}
+          />
+        )
+      }
+    } else {
+      return <UploadConfig setElection={this.setElection} />
     }
   }
 }
