@@ -1,64 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders ContestPage 1`] = `
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-
-.c2 {
-  width: 100%;
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c2 h1 {
-  margin: 2rem 0 1rem;
-  line-height: 1.1;
-  font-size: 1.5rem;
-}
-
-.c2 h2 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.25rem;
-}
-
-.c2 h3,
-.c2 p {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c2 h1 + p,
-.c2 h2 + p {
-  margin-top: -0.75rem;
-}
-
-.c2 h3 + p {
-  margin-top: -1rem;
-}
-
-.c2 :first-child {
-  margin-top: 0;
-}
-
-.c2 :last-child {
-  margin-bottom: 0;
-}
-
 .c11 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -139,6 +81,64 @@ exports[`renders ContestPage 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: black;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c2 {
+  width: 100%;
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c2 h1 {
+  margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
 }
 
 .c10 {
@@ -281,22 +281,6 @@ button.c8 {
   flex: 2;
 }
 
-@media print {
-  .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
-  }
-}
-
-@media (min-width:480px) {
-  .c2 {
-    line-height: 1.3;
-  }
-}
-
 @media (min-width:480px) {
   .c11 > *:only-child {
     -webkit-flex: 0;
@@ -339,6 +323,22 @@ button.c8 {
 @media print {
   .c14 {
     display: none;
+  }
+}
+
+@media print {
+  .c0 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c2 {
+    line-height: 1.3;
   }
 }
 
@@ -615,13 +615,6 @@ button.c8 {
     class="c14"
   >
     <div />
-    <button
-      class="c12"
-      role="option"
-      type="button"
-    >
-      Help
-    </button>
     <button
       class="c12"
       role="option"

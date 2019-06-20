@@ -8,14 +8,14 @@ import Prose from '../components/Prose'
 import Text from '../components/Text'
 import BallotContext from '../contexts/ballotContext'
 
-const SummaryPage = () => {
+const PreReviewPage = () => {
   const { election } = useContext(BallotContext)
   const { bmdConfig } = election!
   const { showHelpPage, showSettingsPage } = bmdConfig!
   return (
     <React.Fragment>
       <Main>
-        <MainChild center>
+        <MainChild centerVertical maxWidth={false}>
           <Breadcrumbs step={2} />
           <Prose textCenter id="audiofocus">
             <h1 aria-label="Review Your Selections.">Review Your Selections</h1>
@@ -51,4 +51,4 @@ const SummaryPage = () => {
   )
 }
 
-export default SummaryPage
+export default PreReviewPage

@@ -1,6 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Sets election config file 1`] = `
+.c7 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+}
+
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -17,7 +28,6 @@ exports[`Sets election config file 1`] = `
 
 .c3 {
   margin: auto auto;
-  width: 100%;
   max-width: 35rem;
   padding: 1rem;
 }
@@ -61,23 +71,12 @@ exports[`Sets election config file 1`] = `
   margin-top: -1rem;
 }
 
-.c4 :first-child {
+.c4 > :first-child {
   margin-top: 0;
 }
 
-.c4 :last-child {
+.c4 > :last-child {
   margin-bottom: 0;
-}
-
-.c7 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
 }
 
 .c6 {

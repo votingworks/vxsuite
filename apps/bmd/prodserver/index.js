@@ -11,6 +11,10 @@ const proxy = require('../src/setupProxy')
 const app = express()
 const port = 3000
 
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+  next()
+})
 proxy(app)
 app.use('/', express.static('../build'))
 

@@ -3,7 +3,7 @@ import { fireEvent, render } from 'react-testing-library'
 
 import electionSample from './data/electionSample.json'
 
-import App, { electionKey, mergeWithDefaults } from './App'
+import App, { electionStorageKey, mergeWithDefaults } from './App'
 import { CandidateContest, Election } from './config/types'
 
 const election = electionSample as Election
@@ -23,7 +23,7 @@ it(`Write-In Candidate flow with single seat contest`, () => {
     c => !!c.allowWriteIns && c.seats === 1
   ) as CandidateContest
 
-  window.localStorage.setItem(electionKey, electionSampleAsString)
+  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
   const { getByText, getByTestId, queryByText } = render(<App />)
   fireEvent.change(getByTestId('activation-code'), {
     target: { value: 'VX.23.12' },

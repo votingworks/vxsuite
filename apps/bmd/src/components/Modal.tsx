@@ -64,9 +64,11 @@ const Modal: React.FC<Props> = ({
     <ModalContent centerContent={centerContent} data-testid="modal-content">
       {content}
     </ModalContent>
-    <ButtonBar as="div" dark={false}>
-      {actions}
-    </ButtonBar>
+    {actions && (
+      <ButtonBar as="div" dark={false}>
+        {actions}
+      </ButtonBar>
+    )}
   </ReactModal>
 )
 

@@ -38,11 +38,11 @@ exports[`renders Prose defaults 1`] = `
   margin-top: -1rem;
 }
 
-.c0 :first-child {
+.c0 > :first-child {
   margin-top: 0;
 }
 
-.c0 :last-child {
+.c0 > :last-child {
   margin-bottom: 0;
 }
 
@@ -126,11 +126,11 @@ exports[`renders Prose with compact spacing 1`] = `
   margin-top: 0;
 }
 
-.c0 :first-child {
+.c0 > :first-child {
   margin-top: 0;
 }
 
-.c0 :last-child {
+.c0 > :last-child {
   margin-bottom: 0;
 }
 
@@ -217,11 +217,11 @@ exports[`renders Prose with compact spacing 2`] = `
   margin-top: -1rem;
 }
 
-.c0 :first-child {
+.c0 > :first-child {
   margin-top: 0;
 }
 
-.c0 :last-child {
+.c0 > :last-child {
   margin-bottom: 0;
 }
 

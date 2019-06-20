@@ -3,7 +3,7 @@ import { fireEvent, render, wait } from 'react-testing-library'
 
 import electionSample from './data/electionSample.json'
 
-import App, { electionKey, mergeWithDefaults } from './App'
+import App, { electionStorageKey, mergeWithDefaults } from './App'
 import { Election } from './config/types'
 
 const electionSampleAsString = JSON.stringify(
@@ -16,7 +16,7 @@ beforeEach(() => {
 })
 
 it(`Activation code is reset if not submitted`, async () => {
-  window.localStorage.setItem(electionKey, electionSampleAsString)
+  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
   const { getByTestId } = render(<App />)
 
   jest.useFakeTimers()
@@ -38,7 +38,7 @@ it(`Activation code is reset if not submitted`, async () => {
 })
 
 it(`Invalid activation code submitted does nothing and is reset.`, async () => {
-  window.localStorage.setItem(electionKey, electionSampleAsString)
+  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
   const { getByText, getByTestId } = render(<App />)
 
   jest.useFakeTimers()
@@ -68,7 +68,7 @@ it(`Invalid activation code submitted does nothing and is reset.`, async () => {
 })
 
 it(`Displays alternate ballot`, () => {
-  window.localStorage.setItem(electionKey, electionSampleAsString)
+  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
   const { getByText, getByTestId } = render(<App />)
 
   fireEvent.change(getByTestId('activation-code'), {
