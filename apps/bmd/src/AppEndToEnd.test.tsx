@@ -166,9 +166,7 @@ it(`basic end-to-end flow`, async () => {
   // Change "County Commissioners" Contest
   fireEvent.click(
     getByText(
-      `${countyCommissionersContest.section}, ${
-        countyCommissionersContest.title
-      }`
+      `${countyCommissionersContest.section}, ${countyCommissionersContest.title}`
     ).closest('button')!
   )
   // Select first candidate

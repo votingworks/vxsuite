@@ -44,11 +44,7 @@ it(`Overvote triggers modal`, () => {
   fireEvent.click(getByText(contest0candidate1.name).closest('label')!)
   expect(container.firstChild).toMatchSnapshot()
   getByText(
-    `You may only select ${
-      contest0.seats
-    } candidate in this contest. To vote for ${
-      contest0candidate1.name
-    }, you must first unselect selected candidate.`
+    `You may only select ${contest0.seats} candidate in this contest. To vote for ${contest0candidate1.name}, you must first unselect selected candidate.`
   )
 
   fireEvent.click(getByText('Okay'))

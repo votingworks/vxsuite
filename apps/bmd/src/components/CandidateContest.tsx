@@ -395,9 +395,7 @@ class CandidateContest extends React.Component<Props, State> {
                 {contest.title}
               </h1>
               <p
-                aria-label={`Vote for ${contest.seats}. You have selected ${
-                  vote.length
-                }. Use the down arrow to hear your options. Use the right arrow to move to the next contest.`}
+                aria-label={`Vote for ${contest.seats}. You have selected ${vote.length}. Use the down arrow to hear your options. Use the right arrow to move to the next contest.`}
               >
                 <strong>Vote for {contest.seats}.</strong> You have selected{' '}
                 {vote.length}.

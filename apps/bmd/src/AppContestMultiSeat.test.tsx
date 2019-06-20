@@ -52,11 +52,7 @@ it(`Multi-seat Contest Flow`, () => {
   fireEvent.click(getByText(multiSeatCandidate3.name).closest('label')!)
   fireEvent.click(getByText(multiSeatCandidate4.name).closest('label')!)
   getByText(
-    `You may only select ${
-      multiSeatContest.seats
-    } candidates in this contest. To vote for ${
-      multiSeatCandidate4.name
-    }, you must first unselect selected candidates.`
+    `You may only select ${multiSeatContest.seats} candidates in this contest. To vote for ${multiSeatCandidate4.name}, you must first unselect selected candidates.`
   )
 
   while (!queryByText('Review Your Selections')) {
