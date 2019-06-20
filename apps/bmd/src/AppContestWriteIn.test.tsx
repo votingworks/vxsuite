@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from 'react-testing-library'
+import { fireEvent, render } from '@testing-library/react'
 
 import electionSample from './data/electionSample.json'
 
@@ -76,11 +76,7 @@ it(`Write-In Candidate flow with single seat contest`, () => {
     getByText(contestWithWriteIn.candidates[0].name).closest('label')!
   )
   getByText(
-    `You may only select ${
-      contest0.seats
-    } candidate in this contest. To vote for ${
-      contestWithWriteIn.candidates[0].name
-    }, you must first unselect selected candidate.`
+    `You may only select ${contest0.seats} candidate in this contest. To vote for ${contestWithWriteIn.candidates[0].name}, you must first unselect selected candidate.`
   )
   fireEvent.click(getByText('Okay'))
 

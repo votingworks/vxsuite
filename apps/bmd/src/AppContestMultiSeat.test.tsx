@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from 'react-testing-library'
+import { fireEvent, render } from '@testing-library/react'
 
 import electionSample from './data/electionSample.json'
 
@@ -52,11 +52,7 @@ it(`Multi-seat Contest Flow`, () => {
   fireEvent.click(getByText(multiSeatCandidate3.name).closest('label')!)
   fireEvent.click(getByText(multiSeatCandidate4.name).closest('label')!)
   getByText(
-    `You may only select ${
-      multiSeatContest.seats
-    } candidates in this contest. To vote for ${
-      multiSeatCandidate4.name
-    }, you must first unselect selected candidates.`
+    `You may only select ${multiSeatContest.seats} candidates in this contest. To vote for ${multiSeatCandidate4.name}, you must first unselect selected candidates.`
   )
 
   while (!queryByText('Review Your Selections')) {

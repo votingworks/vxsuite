@@ -440,9 +440,7 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public setDocumentFontSize = (textSize: number = GLOBALS.TEXT_SIZE) => {
-    document.documentElement.style.fontSize = `${
-      GLOBALS.FONT_SIZES[textSize]
-    }px`
+    document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[textSize]}px`
   }
 
   public toggleLiveMode = () => {

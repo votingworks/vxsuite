@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from 'react-testing-library'
+import { fireEvent, render } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
 import waitForExpect from 'wait-for-expect'
@@ -166,9 +166,7 @@ it(`basic end-to-end flow`, async () => {
   // Change "County Commissioners" Contest
   fireEvent.click(
     getByText(
-      `${countyCommissionersContest.section}, ${
-        countyCommissionersContest.title
-      }`
+      `${countyCommissionersContest.section}, ${countyCommissionersContest.title}`
     ).closest('button')!
   )
   // Select first candidate

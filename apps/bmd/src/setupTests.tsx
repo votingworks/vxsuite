@@ -1,7 +1,7 @@
 // https://til.hashrocket.com/posts/hzqwty5ykx-create-react-app-has-a-default-test-setup-file
 
 import 'jest-styled-components'
-import 'react-testing-library/cleanup-after-each'
+import '@testing-library/react/cleanup-after-each'
 import JestFetchMock, { FetchMock, GlobalWithFetchMock } from 'jest-fetch-mock'
 
 // window.crypto is defined in the browser, this helps for testing.
