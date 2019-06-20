@@ -3,7 +3,7 @@ import { fireEvent, render } from 'react-testing-library'
 
 import electionSample from '../data/electionSample.json'
 
-import App, { electionKey, mergeWithDefaults } from '../App'
+import App, { electionStorageKey, mergeWithDefaults } from '../App'
 import { CandidateContest, Election } from '../config/types'
 
 import { handleGamepadButtonDown } from './gamepad'
@@ -28,7 +28,7 @@ beforeEach(() => {
 
 it(`gamepad controls work`, () => {
   // load election from localStorage
-  window.localStorage.setItem(electionKey, electionSampleAsString)
+  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
   const { getByTestId, getByText } = render(<App />)
 
   // for test coverage, we test pressing left and right on gamepad here, should do nothing

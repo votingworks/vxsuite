@@ -46,6 +46,7 @@ body,
 #root {
   height: 100%;
   overflow: hidden;
+  touch-action: none;
 }
 @media print {
   html,
@@ -105,61 +106,17 @@ html {
   }
 }
 
-/* React Simple Keyboard */
-.simple-keyboard.hg-theme-default.vs-simple-keyboard {
-  border-radius: 0;
-  background-color: rgb(211, 211, 211);
-  padding: 0;
-}
-.simple-keyboard.vs-simple-keyboard .hg-button {
-  flex: 1;
-  white-space: nowrap;
-}
-.simple-keyboard.vs-simple-keyboard .hg-button-space {
-  flex: 3;
-}
-.simple-keyboard.vs-simple-keyboard .hg-button-bksp {
-  flex: 2;
-}
-.simple-keyboard.vs-simple-keyboard .hg-row:nth-child(2) {
-  margin-right: 0;
-  margin-left: 0.4rem;
-}
-.simple-keyboard.vs-simple-keyboard .hg-row:nth-child(3) {
-  margin-right: 0.5rem;
-  margin-left: 0.9rem;
-}
-@media (min-width: 480px) {
-  .simple-keyboard.vs-simple-keyboard .hg-button-space {
-    flex: 2;
-  }
-  .simple-keyboard.vs-simple-keyboard .hg-button-bksp {
-    flex: 1;
-  }
-  .simple-keyboard.vs-simple-keyboard .hg-row:nth-child(1) {
-    margin-right: 0.4rem;
-    margin-left: 0;
-  }
-  .simple-keyboard.vs-simple-keyboard .hg-row:nth-child(2) {
-    margin-right: 0;
-    margin-left: 0.75rem;
-  }
-  .simple-keyboard.vs-simple-keyboard .hg-row:nth-child(3) {
-    margin-right: 1.4rem;
-    margin-left: 1.7rem;
-  }
-  .simple-keyboard.vs-simple-keyboard .hg-row:nth-child(4) {
-    margin-right: 0;
-    margin-left: 2.7rem;
+@media print {
+  /* Chrome on Linux prints scrollbars */
+  ::-webkit-scrollbar {
+    display: none;
   }
 }
 
-@media print {
-  /* stylelint-disable-next-line selector-class-pattern */
-  html body .cvox_indicator_container {
-    /* Extra specificity/!important ensure this rule is followed. */
-    display: none !important; /* stylelint-disable-line declaration-no-important */
-  }
+/* stylelint-disable-next-line selector-class-pattern */
+html body .cvox_indicator_container {
+  /* Extra specificity/!important ensure this rule is followed. */
+  display: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
 /* Adjust printed ballot paper settings */

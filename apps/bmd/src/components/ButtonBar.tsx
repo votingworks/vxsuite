@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 interface Props {
   dark?: boolean
+  naturalOrder?: boolean
   secondary?: boolean
   separatePrimaryButton?: boolean
   centerOnlyChild?: boolean
@@ -19,10 +20,12 @@ const ButtonBar = styled('nav')<Props>`
   padding: 0.25rem;
 
   & > *:first-child {
-    order: 2;
+    order: ${({ naturalOrder = false }) => (naturalOrder ? undefined : '2')};
     @media (min-width: 480px) {
-      margin-left: ${({ separatePrimaryButton }) =>
-        separatePrimaryButton ? 'auto' : undefined};
+      margin-right: ${({ naturalOrder = false, separatePrimaryButton }) =>
+        separatePrimaryButton && naturalOrder ? 'auto' : undefined};
+      margin-left: ${({ naturalOrder = false, separatePrimaryButton }) =>
+        separatePrimaryButton && !naturalOrder ? 'auto' : undefined};
     }
   }
 

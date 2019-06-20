@@ -11,7 +11,7 @@ function isObject(obj: {}) {
   return Object.prototype.toString.call(obj) === '[object Object]'
 }
 
-export function isJSON(str: any, passObject?: boolean): boolean {
+function isJSON(str: any, passObject?: boolean): boolean {
   if (passObject && isObject(str)) {
     return true
   }

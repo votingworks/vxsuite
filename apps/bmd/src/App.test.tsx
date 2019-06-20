@@ -6,7 +6,7 @@ import electionSample from './data/electionSample.json'
 
 import App, {
   activationStorageKey,
-  electionKey,
+  electionStorageKey,
   mergeWithDefaults,
   votesStorageKey,
 } from './App'
@@ -36,20 +36,23 @@ describe('loads election', () => {
     window.location.href = '/#sample'
     const { getByText } = render(<App />)
     getByText('Scan Your Activation Code')
-    expect(window.localStorage.getItem(electionKey)).toBeFalsy()
+    expect(window.localStorage.getItem(electionStorageKey)).toBeFalsy()
   })
   it(`from localStorage`, () => {
-    window.localStorage.setItem(electionKey, electionSampleAsString)
+    window.localStorage.setItem(electionStorageKey, electionSampleAsString)
     const { getByText } = render(<App />)
     getByText('Scan Your Activation Code')
-    expect(window.localStorage.getItem(electionKey)).toBeTruthy()
+    expect(window.localStorage.getItem(electionStorageKey)).toBeTruthy()
   })
   it(`Error in App triggers reset and reloads window location`, () => {
     const mockConsoleError = jest.spyOn(console, 'error')
     mockConsoleError.mockImplementation(() => {
       // do nothing instead of triggering console.error()
     })
-    window.localStorage.setItem(electionKey, JSON.stringify(electionSample))
+    window.localStorage.setItem(
+      electionStorageKey,
+      JSON.stringify(electionSample)
+    )
     const { getByText } = render(<App />)
     getByText('Load Election Configuration File')
   })
@@ -60,7 +63,7 @@ describe('loads election', () => {
       c => c.id === 'president'
     )!.candidates![0]
 
-    window.localStorage.setItem(electionKey, electionSampleAsString)
+    window.localStorage.setItem(electionStorageKey, electionSampleAsString)
     window.localStorage.setItem(
       activationStorageKey,
       JSON.stringify({
@@ -93,7 +96,7 @@ describe('loads election', () => {
 
 describe('can start over', () => {
   it(`when has no votes`, async () => {
-    window.localStorage.setItem(electionKey, electionSampleAsString)
+    window.localStorage.setItem(electionStorageKey, electionSampleAsString)
     const { getByText, getByTestId } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {
       target: { value: 'VX.23.12' },
@@ -107,7 +110,7 @@ describe('can start over', () => {
     expect(getByText('Scan Your Activation Code')).toBeTruthy()
   })
   it(`when has votes`, async () => {
-    window.localStorage.setItem(electionKey, electionSampleAsString)
+    window.localStorage.setItem(electionStorageKey, electionSampleAsString)
     const { getByText, getByTestId } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {
       target: { value: 'VX.23.12' },
@@ -128,7 +131,7 @@ describe('can start over', () => {
 
 describe(`Can update settings`, () => {
   it(`Can update font-settings`, () => {
-    window.localStorage.setItem(electionKey, electionSampleAsString)
+    window.localStorage.setItem(electionStorageKey, electionSampleAsString)
     const { getByText, getByTestId, getByLabelText } = render(<App />)
     fireEvent.change(getByTestId('activation-code'), {
       target: { value: 'VX.23.12' },
