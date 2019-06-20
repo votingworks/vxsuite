@@ -8,7 +8,7 @@ import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
 import PrintedBallot from '../components/PrintedBallot'
-import ProgressEllipsis from '../components/ProgressEllipsis'
+import Loading from '../components/Loading'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
 
@@ -111,13 +111,7 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
         </ButtonBar>
         <Modal
           isOpen={showPrintingModal}
-          content={
-            <Prose textCenter>
-              <h1>
-                <ProgressEllipsis>Printing</ProgressEllipsis>
-              </h1>
-            </Prose>
-          }
+          content={<Loading>Printing</Loading>}
         />
         <Modal
           isOpen={showConfirmModal}
