@@ -2,7 +2,7 @@
 // Each route component is tested elsewhere.
 
 import React from 'react'
-import { fireEvent } from 'react-testing-library'
+import { fireEvent } from '@testing-library/react'
 
 import { render } from '../../test/testUtils'
 

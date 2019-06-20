@@ -109,6 +109,7 @@
     "wait-for-expect": "^1.2.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
     "cypress": "^3.3.1",
@@ -129,7 +130,6 @@
     "jest-styled-components": "^6.3.3",
     "lint-staged": "^8.1.7",
     "prettier": "^1.18.2",
-    "react-testing-library": "7.0.1",
     "start-server-and-test": "^1.9.1",
     "stylelint": "^10.1.0",
     "stylelint-config-palantir": "^4.0.0",
