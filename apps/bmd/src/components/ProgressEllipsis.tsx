@@ -4,6 +4,7 @@ const ellipsisWidth = '1em'
 const ProgressEllipsis = styled.span`
   margin-left: -${ellipsisWidth};
   text-align: center;
+  white-space: nowrap;
   &::before,
   &::after {
     display: inline-block;
