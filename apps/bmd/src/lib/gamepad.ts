@@ -1,9 +1,5 @@
 import mod from '../utils/mod'
 
-const pointerUpEvent = new PointerEvent('pointerup', {
-  bubbles: true,
-})
-
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(
     document.querySelectorAll(
@@ -45,20 +41,20 @@ function handleArrowDown() {
 function handleArrowLeft() {
   const prevButton = document.getElementById('previous') as HTMLButtonElement
   if (prevButton) {
-    prevButton.dispatchEvent(pointerUpEvent)
+    prevButton.click()
   }
 }
 
 function handleArrowRight() {
   const nextButton = document.getElementById('next') as HTMLButtonElement
   if (nextButton) {
-    nextButton.dispatchEvent(pointerUpEvent)
+    nextButton.click()
   }
 }
 
 function handleClick() {
   const activeElement = getActiveElement()
-  activeElement.dispatchEvent(pointerUpEvent)
+  activeElement.click()
 }
 
 export function handleGamepadButtonDown(buttonName: string) {
