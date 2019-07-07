@@ -11,14 +11,6 @@ beforeEach(() => {
 })
 
 it(`Sets election config file`, async () => {
-  const eventListenerCallbacksDictionary: any = {} // eslint-disable-line @typescript-eslint/no-explicit-any
-  window.addEventListener = jest.fn((event, cb) => {
-    eventListenerCallbacksDictionary[event] = cb
-  })
-  window.print = jest.fn(() => {
-    eventListenerCallbacksDictionary.afterprint()
-  })
-
   const { container, getByTestId, getByText } = render(<App />)
   expect(container).toMatchSnapshot()
 

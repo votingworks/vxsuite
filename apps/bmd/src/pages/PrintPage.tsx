@@ -19,7 +19,7 @@ interface State {
   showPrintingModal: boolean
 }
 
-const printingModalDisplaySeconds = 7
+export const printingModalDisplaySeconds = 7
 
 class PrintPage extends React.Component<RouteComponentProps, State> {
   public static contextType = BallotContext

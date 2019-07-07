@@ -33,7 +33,6 @@ import { getBallotStyle, getContests } from './utils/election'
 
 import Ballot from './components/Ballot'
 import Screen from './components/Screen'
-import UploadConfig from './components/UploadConfig'
 import BallotContext from './contexts/ballotContext'
 
 import ClerkScreen from './pages/ClerkScreen'
@@ -41,6 +40,7 @@ import PollWorkerScreen from './pages/PollWorkerScreen'
 import PollsClosedScreen from './pages/PollsClosedScreen'
 import ActivationScreen from './pages/ActivationScreen'
 import CastBallotPage from './pages/CastBallotPage'
+import UnconfiguredScreen from './pages/UnconfiguredScreen'
 
 import electionDefaults from './data/electionDefaults.json'
 import electionSample from './data/electionSample.json'
@@ -217,7 +217,7 @@ export class App extends React.Component<RouteComponentProps, State> {
             // if it's an error, aggressively assume there's no backend and stop hammering
             this.stopPolling()
           })
-      }, 200)
+      }, GLOBALS.CARD_POLLING_INTERVAL)
     }
   }
 
@@ -585,7 +585,7 @@ export class App extends React.Component<RouteComponentProps, State> {
         )
       }
     } else {
-      return <UploadConfig setElection={this.setElection} />
+      return <UnconfiguredScreen />
     }
   }
 }

@@ -21,14 +21,6 @@ it(`quick end-to-end flow with absent module-smartcards`, async () => {
   // this is what happens in demo mode
   fetchMock.get('/card/read', 500)
 
-  const eventListenerCallbacksDictionary: any = {} // eslint-disable-line @typescript-eslint/no-explicit-any
-  window.addEventListener = jest.fn((event, cb) => {
-    eventListenerCallbacksDictionary[event] = cb
-  })
-  window.print = jest.fn(() => {
-    eventListenerCallbacksDictionary.afterprint()
-  })
-
   const { getByText, getByTestId, queryByText } = render(<App />)
 
   fireEvent.click(getByText('Load Sample Election File'))

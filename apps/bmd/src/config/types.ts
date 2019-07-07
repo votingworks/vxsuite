@@ -143,6 +143,11 @@ export interface ClerkCardData extends CardData {
   readonly t: 'clerk'
   readonly h: string
 }
+export interface CardAPI {
+  present: boolean
+  shortValue?: string
+  longValueExists?: boolean
+}
 
 // User Interface
 export type ScrollDirections = 'up' | 'down'
