@@ -1,14 +1,15 @@
 import styled from 'styled-components'
 
 interface Props {
-  textCenter?: boolean
   compact?: boolean
+  maxWidth?: boolean
+  textCenter?: boolean
 }
 
 const Prose = styled('div')<Props>`
   margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
   width: 100%;
-  max-width: 66ch;
+  max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
   text-align: ${({ textCenter }) => (textCenter ? 'center' : undefined)};
   line-height: 1.2;
   @media (min-width: 480px) {
