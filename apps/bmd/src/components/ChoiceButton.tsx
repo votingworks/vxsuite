@@ -1,4 +1,4 @@
-import React, { PointerEventHandler } from 'react'
+import React, { MouseEventHandler } from 'react'
 import styled from 'styled-components'
 
 import GLOBALS from '../config/globals'
@@ -53,11 +53,11 @@ const StyledChoiceButton = styled('button').attrs((props: Attrs) => ({
 `
 
 interface ChoiceButtonProps extends StyledChoiceButtonProps {
-  onPress: PointerEventHandler
+  onPress: MouseEventHandler
 }
 
 const ChoiceButton = ({ onPress, ...rest }: ChoiceButtonProps) => (
-  <StyledChoiceButton {...rest} onPointerUp={onPress} />
+  <StyledChoiceButton {...rest} onClick={onPress} />
 )
 
 export default ChoiceButton

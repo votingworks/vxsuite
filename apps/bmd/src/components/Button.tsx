@@ -1,4 +1,4 @@
-import React, { PointerEventHandler } from 'react'
+import React, { MouseEventHandler } from 'react'
 import styled, { css } from 'styled-components'
 
 interface Attrs extends HTMLButtonElement {
@@ -36,6 +36,7 @@ const buttonStyles = css<Props>`
     (primary && '#FFFFFF') ||
     'black'};
   font-size: ${({ big = false }) => (big ? '1.25rem' : undefined)};
+  touch-action: manipulation;
 `
 
 export const DecoyButton = styled.div`
@@ -49,11 +50,11 @@ const StyledButton = styled('button').attrs((props: Attrs) => ({
 `
 
 interface PointerButtonProps extends Props {
-  onPress: PointerEventHandler
+  onPress: MouseEventHandler
 }
 
 const Button = ({ onPress, ...rest }: PointerButtonProps) => (
-  <StyledButton {...rest} onPointerUp={onPress} />
+  <StyledButton {...rest} onClick={onPress} />
 )
 
 export const SegmentedButton = styled.span`
