@@ -41,6 +41,13 @@ const Header = styled.div`
 `
 const Content = styled.div`
   padding-top: 2rem;
+  & dl {
+    & > dd {
+      margin: 0 0 2rem;
+      font-size: 2rem;
+      font-weight: 600;
+    }
+  }
 `
 
 interface Props {

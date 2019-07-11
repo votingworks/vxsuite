@@ -48,14 +48,6 @@ const Prose = styled('div')<Props>`
   }
   & dl {
     margin: 1rem 0;
-    & > dt {
-      font-size: 1rem;
-    }
-    & > dd {
-      margin: 0 0 2rem;
-      font-size: 2rem;
-      font-weight: 600;
-    }
   }
 `
 
