@@ -12,6 +12,7 @@ import Text from '../components/Text'
 
 const Report = styled.div`
   margin: 0;
+  page-break-before: always;
 `
 
 const SealImage = styled.img`
@@ -41,9 +42,9 @@ const Header = styled.div`
 `
 const Content = styled.div`
   padding-top: 2rem;
-  & dl {
-    & > dd {
-      margin: 0 0 2rem;
+  & dd {
+    margin: 0 0 2rem;
+    & > span {
       font-size: 2rem;
       font-weight: 600;
     }
@@ -53,13 +54,14 @@ const Content = styled.div`
 const Certification = styled.div`
   margin-top: 0.5rem;
   width: 50%;
+  font-weight: 600;
 `
 const SignatureLine = styled.div`
   display: flex;
   align-items: flex-end;
   border-bottom: 1px solid #000000;
   width: 50%;
-  min-height: 2em;
+  min-height: 4em;
   &::before {
     font-size: 1.5rem;
     content: '⨉';
@@ -91,6 +93,7 @@ const PollWorkerScreen = ({
     hideModal()
   }
   const currentDateTime = new Date().toLocaleString()
+  const reportIds = [1, 2, 3]
   return (
     <React.Fragment>
       <Main>
@@ -107,66 +110,81 @@ const PollWorkerScreen = ({
               </Button>
             </p>
           </Prose>
-          <Report className="print-only">
-            <Header>
-              {seal ? (
-                <div
-                  className="seal"
-                  // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
-                  dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
-                />
-              ) : sealURL ? (
-                <div className="seal">
-                  <SealImage src={sealURL} alt="" />
-                </div>
-              ) : (
-                <React.Fragment />
-              )}
-              <Prose className="ballot-header-content">
-                <h2>
-                  {!isLiveMode ? 'Unofficial TEST' : 'Official'}{' '}
-                  {isPollsOpen ? `Polls Closed Report` : `Polls Opened Report`}
-                </h2>
-                <h3>{title}</h3>
-                <p>
-                  {date}
-                  <br />
-                  {county.name}, {state}
-                </p>
-              </Prose>
-            </Header>
-            <Content>
-              <Prose maxWidth={false}>
-                <dl>
-                  <dt>Voting Machine ID</dt>
-                  <dd>VxMark #002</dd>
-                  <dt>Status</dt>
-                  <dd>{isPollsOpen ? 'Closed' : 'Opened'}</dd>
-                  <dt>Report Time</dt>
-                  <dd>{currentDateTime}</dd>
-                  <dt>Ballots Printed Count</dt>
-                  <dd>{ballotsPrintedCount}</dd>
-                  <dt>Certification Signatures</dt>
-                  <dd>
-                    <Certification>
-                      <Prose>
-                        <p>
-                          <em>
-                            We, the undersigned, do hereby certify the election
-                            was conducted in accordance with the laws of the
-                            state.
-                          </em>
-                        </p>
-                      </Prose>
-                    </Certification>
-                    <SignatureLine />
-                    <SignatureLine />
-                    <SignatureLine />
-                  </dd>
-                </dl>
-              </Prose>
-            </Content>
-          </Report>
+          {reportIds.map(id => (
+            <Report key={id} className="print-only">
+              <Header>
+                {seal ? (
+                  <div
+                    className="seal"
+                    // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
+                    dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+                  />
+                ) : sealURL ? (
+                  <div className="seal">
+                    <SealImage src={sealURL} alt="" />
+                  </div>
+                ) : (
+                  <React.Fragment />
+                )}
+                <Prose className="ballot-header-content">
+                  <h2>
+                    {!isLiveMode ? 'Unofficial TEST' : 'Official'}{' '}
+                    {isPollsOpen
+                      ? `Polls Closed Report`
+                      : `Polls Opened Report`}
+                  </h2>
+                  <h3>{title}</h3>
+                  <p>
+                    {date}
+                    <br />
+                    {county.name}, {state}
+                  </p>
+                </Prose>
+              </Header>
+              <Content>
+                <Prose maxWidth={false}>
+                  <p>
+                    Report <strong>#{id}</strong> of {reportIds.length} printed.
+                  </p>
+                  <dl>
+                    <dt>Voting Machine ID</dt>
+                    <dd>
+                      <span>VxMark #002</span>
+                    </dd>
+                    <dt>Status</dt>
+                    <dd>
+                      <span>{isPollsOpen ? 'Closed' : 'Opened'}</span>
+                    </dd>
+                    <dt>Report Time</dt>
+                    <dd>
+                      <span>{currentDateTime}</span>
+                    </dd>
+                    <dt>Ballots Printed Count</dt>
+                    <dd>
+                      <span>{ballotsPrintedCount}</span>
+                    </dd>
+                    <dt>Certification Signatures</dt>
+                    <dd>
+                      <Certification>
+                        <Prose>
+                          <p>
+                            <em>
+                              We, the undersigned, do hereby certify the
+                              election was conducted in accordance with the laws
+                              of the state.
+                            </em>
+                          </p>
+                        </Prose>
+                      </Certification>
+                      <SignatureLine />
+                      <SignatureLine />
+                      <SignatureLine />
+                    </dd>
+                  </dl>
+                </Prose>
+              </Content>
+            </Report>
+          ))}
         </MainChild>
       </Main>
       <MainNav title="Poll Worker" />
