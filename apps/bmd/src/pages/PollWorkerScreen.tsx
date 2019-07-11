@@ -50,6 +50,22 @@ const Content = styled.div`
   }
 `
 
+const Certification = styled.div`
+  margin-top: 0.5rem;
+  width: 50%;
+`
+const SignatureLine = styled.div`
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid #000000;
+  width: 50%;
+  min-height: 2em;
+  &::before {
+    font-size: 1.5rem;
+    content: '⨉';
+  }
+`
+
 interface Props {
   ballotsPrintedCount: number
   election: OptionalElection
@@ -120,7 +136,7 @@ const PollWorkerScreen = ({
               </Prose>
             </Header>
             <Content>
-              <Prose>
+              <Prose maxWidth={false}>
                 <dl>
                   <dt>Voting Machine ID</dt>
                   <dd>VxMark #002</dd>
@@ -130,6 +146,23 @@ const PollWorkerScreen = ({
                   <dd>{currentDateTime}</dd>
                   <dt>Ballots Printed Count</dt>
                   <dd>{ballotsPrintedCount}</dd>
+                  <dt>Certification Signatures</dt>
+                  <dd>
+                    <Certification>
+                      <Prose>
+                        <p>
+                          <em>
+                            We, the undersigned, do hereby certify the election
+                            was conducted in accordance with the laws of the
+                            state.
+                          </em>
+                        </p>
+                      </Prose>
+                    </Certification>
+                    <SignatureLine />
+                    <SignatureLine />
+                    <SignatureLine />
+                  </dd>
                 </dl>
               </Prose>
             </Content>
