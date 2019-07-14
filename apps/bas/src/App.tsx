@@ -27,7 +27,7 @@ import './App.css'
 
 let checkCardInterval = 0
 
-const App: React.FC = () => {
+const App = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isClerkCardPresent, setIsClerkCardPresent] = useState(false)
