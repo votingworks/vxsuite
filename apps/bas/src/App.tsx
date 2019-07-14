@@ -6,6 +6,7 @@ import {
   OptionalElection,
   OptionalVoterCardData,
   VoterCardData,
+  BallotStyle,
 } from './config/types'
 
 import Button from './components/Button'
@@ -33,17 +34,27 @@ const App = () => {
   const [isClerkCardPresent, setIsClerkCardPresent] = useState(false)
   const [isPollWorkerCardPresent, setIsPollWorkerCardPresent] = useState(false)
   const [isLocked, setIsLocked] = useState(true)
+  const [
+    isSinglePrecinctMode,
+    setIsSinglePrecinctMode,
+  ] = useStateAndLocalStorage<boolean>('singlePrecinctMode')
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
   )
   const [isLoadingElection, setIsLoadingElection] = useState(false)
-  const [precinctId, setPrecinctId] = useState('')
+  const [precinctId, setPrecinctId] = useStateAndLocalStorage<string>(
+    'precinctId'
+  )
+  const [partyId, setPartyId] = useStateAndLocalStorage<string>('partyId')
   const [voterCardData, setVoterCardData] = useState<OptionalVoterCardData>(
     undefined
   )
 
   const unconfigure = () => {
     setElection(undefined)
+    setPrecinctId('')
+    setPartyId('')
+    setIsSinglePrecinctMode(false)
     window.localStorage.clear()
   }
 
@@ -128,9 +139,28 @@ const App = () => {
     }, 1000)
   }
 
+  const setPrecinct = (id: string) => {
+    setPrecinctId(id)
+    setPartyId('')
+  }
+
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
     setPrecinctId(id)
+  }
+
+  const setParty = (id: string) => {
+    setPartyId(id)
+  }
+
+  const getPartyNameById = (partyId: string) => {
+    const party = election && election.parties.find(p => p.id === partyId)
+    return (party && party.name) || ''
+  }
+
+  const getPartyAdjectiveById = (partyId: string) => {
+    const partyName = getPartyNameById(partyId)
+    return (partyName === 'Democrat' && 'Democratic') || partyName
   }
 
   const getPrecinctNameByPrecinctId = (precinctId: string): string => {
@@ -139,7 +169,7 @@ const App = () => {
     return (precinct && precinct.name) || ''
   }
 
-  const getBallotStylesByPreinctId = (id: string) =>
+  const getBallotStylesByPreinctId = (id: string): BallotStyle[] =>
     (election &&
       election.ballotStyles.filter(b => b.precincts.find(p => p === id))) ||
     []
@@ -209,9 +239,19 @@ const App = () => {
     return (
       <AdminScreen
         election={election}
-        isLoadingElection={isLoadingElection}
-        unconfigure={unconfigure}
         fetchElection={fetchElection}
+        getBallotStylesByPreinctId={getBallotStylesByPreinctId}
+        isLoadingElection={isLoadingElection}
+        partyId={partyId}
+        partyName={getPartyAdjectiveById(partyId)}
+        precinctId={precinctId}
+        precinctName={getPrecinctNameByPrecinctId(precinctId)}
+        setParty={setParty}
+        setPrecinct={setPrecinct}
+        unconfigure={unconfigure}
+        isSinglePrecinctMode={isSinglePrecinctMode}
+        setIsSinglePrecinctMode={setIsSinglePrecinctMode}
+        precinctBallotStyles={getBallotStylesByPreinctId(precinctId)}
       />
     )
   } else if (isPollWorkerCardPresent) {
@@ -231,6 +271,8 @@ const App = () => {
               <MainChild maxWidth={false}>
                 {precinctId ? (
                   <PrecinctBallotStylesScreen
+                    isSinglePrecinctMode={isSinglePrecinctMode}
+                    partyId={partyId}
                     precinctBallotStyles={getBallotStylesByPreinctId(
                       precinctId
                     )}
