@@ -86,14 +86,22 @@ const App: React.FC = () => {
 
   // TODO: this needs a major refactor to remove duplication.
   if (!checkCardInterval) {
+    let lastCardDataString = ''
+
     checkCardInterval = window.setInterval(() => {
       fetch('/card/read')
         .then(result => result.json())
-        .then(resultJSON => {
-          if (resultJSON.present) {
-            if (resultJSON.shortValue) {
-              const cardData = JSON.parse(resultJSON.shortValue) as CardData
-              processCardData(cardData, resultJSON.longValueExists)
+        .then(card => {
+          const currentCardDataString = JSON.stringify(card)
+          if (currentCardDataString === lastCardDataString) {
+            return
+          }
+          lastCardDataString = currentCardDataString
+
+          if (card.present) {
+            if (card.shortValue) {
+              const cardData = JSON.parse(card.shortValue) as CardData
+              processCardData(cardData, card.longValueExists)
             } else {
               // happy to overwrite a card with no data on it
               setIsWritableCard(true)
@@ -111,6 +119,7 @@ const App: React.FC = () => {
         })
         .catch(() => {
           // if it's an error, aggressively assume there's no backend and stop hammering
+          lastCardDataString = ''
           setIsClerkCardPresent(false)
           setIsPollWorkerCardPresent(false)
           setVoterCardData(undefined)
