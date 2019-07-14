@@ -13,9 +13,9 @@ import CurrentVoterCard from './components/CurrentVoterCard'
 import Main, { MainChild } from './components/Main'
 import MainNav from './components/MainNav'
 import Screen from './components/Screen'
-import Text from './components/Text'
 import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
 
+import AdminScreen from './screens/AdminScreen'
 import PrecinctBallotStylesScreen from './screens/PrecinctBallotStylesScreen'
 import LoadElectionScreen from './screens/LoadElectionScreen'
 import LockedScreen from './screens/LockedScreen'
@@ -195,42 +195,12 @@ const App: React.FC = () => {
 
   if (isClerkCardPresent) {
     return (
-      <Screen>
-        <Main>
-          <MainChild>
-            <h1>Configuration</h1>
-            {isLoadingElection ? (
-              <p>Loading Election Definition from Clerk Card…</p>
-            ) : (
-              <React.Fragment>
-                <p>
-                  <Text as="span" voteIcon={!!election} warningIcon={!election}>
-                    {election ? (
-                      'Election definition file is loaded.'
-                    ) : (
-                      <span>
-                        Election definition file is <strong>not Loaded</strong>.
-                      </span>
-                    )}
-                  </Text>
-                </p>
-                <p>
-                  {election ? (
-                    <Button onClick={unconfigure}>
-                      Clear all election data
-                    </Button>
-                  ) : (
-                    <Button onClick={fetchElection}>
-                      Load Election Definition
-                    </Button>
-                  )}
-                </p>
-              </React.Fragment>
-            )}
-          </MainChild>
-        </Main>
-        <MainNav title="Clerk Actions" />
-      </Screen>
+      <AdminScreen
+        election={election}
+        isLoadingElection={isLoadingElection}
+        unconfigure={unconfigure}
+        fetchElection={fetchElection}
+      />
     )
   } else if (isPollWorkerCardPresent) {
     return <PollWorkerScreen />
