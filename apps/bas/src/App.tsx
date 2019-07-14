@@ -144,9 +144,9 @@ const App = () => {
       election.ballotStyles.filter(b => b.precincts.find(p => p === id))) ||
     []
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setPrecinctId('')
-  }
+  }, [setPrecinctId])
 
   const programCard = (event: ButtonEvent) => {
     const ballotStyleId = (event.target as HTMLElement).dataset.ballotStyleId
@@ -191,9 +191,12 @@ const App = () => {
     }
   }
 
-  const handleUserKeyPress = useCallback(event => {
-    event.keyCode === 27 && reset()
-  }, [])
+  const handleUserKeyPress = useCallback(
+    event => {
+      event.keyCode === 27 && reset()
+    },
+    [reset]
+  )
 
   useEffect(() => {
     window.addEventListener('keydown', handleUserKeyPress)
