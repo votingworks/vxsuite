@@ -13,6 +13,8 @@ const ButtonContainer = styled.div`
 `
 
 interface Props {
+  isSinglePrecinctMode: boolean
+  partyId: string
   precinctBallotStyles: BallotStyle[]
   precinctName: string
   programCard: ButtonEventFunction
@@ -20,24 +22,31 @@ interface Props {
 }
 
 const PrecinctBallotStylesScreen = ({
+  isSinglePrecinctMode,
+  partyId,
   precinctBallotStyles,
   precinctName,
   programCard,
   showPrecincts,
 }: Props) => {
+  const ballotStyles = partyId
+    ? precinctBallotStyles.filter(bs => bs.partyId === partyId)
+    : precinctBallotStyles
   return (
     <React.Fragment>
       <Heading>
-        <ButtonContainer>
-          <Button onClick={showPrecincts}>All Precincts</Button>
-        </ButtonContainer>
+        {!isSinglePrecinctMode && (
+          <ButtonContainer>
+            <Button onClick={showPrecincts}>All Precincts</Button>
+          </ButtonContainer>
+        )}
         <Prose>
           <p>{precinctName}</p>
           <h1>Ballot Styles</h1>
         </Prose>
       </Heading>
       <ButtonList>
-        {precinctBallotStyles.map(ballotStyle => (
+        {ballotStyles.map(ballotStyle => (
           <Button
             fullWidth
             data-ballot-style-id={ballotStyle.id}

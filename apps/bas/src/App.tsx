@@ -6,6 +6,7 @@ import {
   OptionalElection,
   OptionalVoterCardData,
   VoterCardData,
+  BallotStyle,
 } from './config/types'
 
 import Button from './components/Button'
@@ -13,9 +14,9 @@ import CurrentVoterCard from './components/CurrentVoterCard'
 import Main, { MainChild } from './components/Main'
 import MainNav from './components/MainNav'
 import Screen from './components/Screen'
-import Text from './components/Text'
 import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
 
+import AdminScreen from './screens/AdminScreen'
 import PrecinctBallotStylesScreen from './screens/PrecinctBallotStylesScreen'
 import LoadElectionScreen from './screens/LoadElectionScreen'
 import LockedScreen from './screens/LockedScreen'
@@ -27,23 +28,33 @@ import './App.css'
 
 let checkCardInterval = 0
 
-const App: React.FC = () => {
+const App = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isClerkCardPresent, setIsClerkCardPresent] = useState(false)
   const [isPollWorkerCardPresent, setIsPollWorkerCardPresent] = useState(false)
   const [isLocked, setIsLocked] = useState(true)
+  const [
+    isSinglePrecinctMode,
+    setIsSinglePrecinctMode,
+  ] = useStateAndLocalStorage<boolean>('singlePrecinctMode')
   const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
     'election'
   )
   const [isLoadingElection, setIsLoadingElection] = useState(false)
-  const [precinctId, setPrecinctId] = useState('')
+  const [precinctId, setPrecinctId] = useStateAndLocalStorage<string>(
+    'precinctId'
+  )
+  const [partyId, setPartyId] = useStateAndLocalStorage<string>('partyId')
   const [voterCardData, setVoterCardData] = useState<OptionalVoterCardData>(
     undefined
   )
 
   const unconfigure = () => {
     setElection(undefined)
+    setPrecinctId('')
+    setPartyId('')
+    setIsSinglePrecinctMode(false)
     window.localStorage.clear()
   }
 
@@ -86,14 +97,22 @@ const App: React.FC = () => {
 
   // TODO: this needs a major refactor to remove duplication.
   if (!checkCardInterval) {
+    let lastCardDataString = ''
+
     checkCardInterval = window.setInterval(() => {
       fetch('/card/read')
         .then(result => result.json())
-        .then(resultJSON => {
-          if (resultJSON.present) {
-            if (resultJSON.shortValue) {
-              const cardData = JSON.parse(resultJSON.shortValue) as CardData
-              processCardData(cardData, resultJSON.longValueExists)
+        .then(card => {
+          const currentCardDataString = JSON.stringify(card)
+          if (currentCardDataString === lastCardDataString) {
+            return
+          }
+          lastCardDataString = currentCardDataString
+
+          if (card.present) {
+            if (card.shortValue) {
+              const cardData = JSON.parse(card.shortValue) as CardData
+              processCardData(cardData, card.longValueExists)
             } else {
               // happy to overwrite a card with no data on it
               setIsWritableCard(true)
@@ -111,6 +130,7 @@ const App: React.FC = () => {
         })
         .catch(() => {
           // if it's an error, aggressively assume there's no backend and stop hammering
+          lastCardDataString = ''
           setIsClerkCardPresent(false)
           setIsPollWorkerCardPresent(false)
           setVoterCardData(undefined)
@@ -119,9 +139,28 @@ const App: React.FC = () => {
     }, 1000)
   }
 
+  const setPrecinct = (id: string) => {
+    setPrecinctId(id)
+    setPartyId('')
+  }
+
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
     setPrecinctId(id)
+  }
+
+  const setParty = (id: string) => {
+    setPartyId(id)
+  }
+
+  const getPartyNameById = (partyId: string) => {
+    const party = election && election.parties.find(p => p.id === partyId)
+    return (party && party.name) || ''
+  }
+
+  const getPartyAdjectiveById = (partyId: string) => {
+    const partyName = getPartyNameById(partyId)
+    return (partyName === 'Democrat' && 'Democratic') || partyName
   }
 
   const getPrecinctNameByPrecinctId = (precinctId: string): string => {
@@ -130,14 +169,14 @@ const App: React.FC = () => {
     return (precinct && precinct.name) || ''
   }
 
-  const getBallotStylesByPreinctId = (id: string) =>
+  const getBallotStylesByPreinctId = (id: string): BallotStyle[] =>
     (election &&
       election.ballotStyles.filter(b => b.precincts.find(p => p === id))) ||
     []
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setPrecinctId('')
-  }
+  }, [setPrecinctId])
 
   const programCard = (event: ButtonEvent) => {
     const ballotStyleId = (event.target as HTMLElement).dataset.ballotStyleId
@@ -182,9 +221,12 @@ const App: React.FC = () => {
     }
   }
 
-  const handleUserKeyPress = useCallback(event => {
-    event.keyCode === 27 && reset()
-  }, [])
+  const handleUserKeyPress = useCallback(
+    event => {
+      event.keyCode === 27 && reset()
+    },
+    [reset]
+  )
 
   useEffect(() => {
     window.addEventListener('keydown', handleUserKeyPress)
@@ -195,42 +237,22 @@ const App: React.FC = () => {
 
   if (isClerkCardPresent) {
     return (
-      <Screen>
-        <Main>
-          <MainChild>
-            <h1>Configuration</h1>
-            {isLoadingElection ? (
-              <p>Loading Election Definition from Clerk Card…</p>
-            ) : (
-              <React.Fragment>
-                <p>
-                  <Text as="span" voteIcon={!!election} warningIcon={!election}>
-                    {election ? (
-                      'Election definition file is loaded.'
-                    ) : (
-                      <span>
-                        Election definition file is <strong>not Loaded</strong>.
-                      </span>
-                    )}
-                  </Text>
-                </p>
-                <p>
-                  {election ? (
-                    <Button onClick={unconfigure}>
-                      Clear all election data
-                    </Button>
-                  ) : (
-                    <Button onClick={fetchElection}>
-                      Load Election Definition
-                    </Button>
-                  )}
-                </p>
-              </React.Fragment>
-            )}
-          </MainChild>
-        </Main>
-        <MainNav title="Clerk Actions" />
-      </Screen>
+      <AdminScreen
+        election={election}
+        fetchElection={fetchElection}
+        getBallotStylesByPreinctId={getBallotStylesByPreinctId}
+        isLoadingElection={isLoadingElection}
+        partyId={partyId}
+        partyName={getPartyAdjectiveById(partyId)}
+        precinctId={precinctId}
+        precinctName={getPrecinctNameByPrecinctId(precinctId)}
+        setParty={setParty}
+        setPrecinct={setPrecinct}
+        unconfigure={unconfigure}
+        isSinglePrecinctMode={isSinglePrecinctMode}
+        setIsSinglePrecinctMode={setIsSinglePrecinctMode}
+        precinctBallotStyles={getBallotStylesByPreinctId(precinctId)}
+      />
     )
   } else if (isPollWorkerCardPresent) {
     return <PollWorkerScreen />
@@ -249,6 +271,8 @@ const App: React.FC = () => {
               <MainChild maxWidth={false}>
                 {precinctId ? (
                   <PrecinctBallotStylesScreen
+                    isSinglePrecinctMode={isSinglePrecinctMode}
+                    partyId={partyId}
                     precinctBallotStyles={getBallotStylesByPreinctId(
                       precinctId
                     )}

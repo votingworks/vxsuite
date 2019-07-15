@@ -16,18 +16,17 @@ interface Props
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 
 const buttonStyles = css<Props>`
-  border: none;
+  border: 1px solid #bbbbbb;
   border-radius: 0.25rem;
   box-sizing: border-box;
   background: ${({ danger = false, primary = false }) =>
     (danger && 'red') ||
     (primary && 'rgb(71, 167, 75)') ||
     'rgb(211, 211, 211)'};
-  cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
+  cursor: ${({ disabled = false }) => (disabled ? 'not-allowed' : 'pointer')};
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
   padding: ${({ small = false }) =>
     small ? '0.35rem 0.5rem' : '0.75rem 1rem'};
-  line-height: 1;
   white-space: nowrap;
   color: ${({ disabled = false, danger = false, primary = false }) =>
     (disabled && 'rgb(169, 169, 169)') ||
