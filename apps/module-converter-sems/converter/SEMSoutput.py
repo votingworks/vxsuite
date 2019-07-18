@@ -178,8 +178,6 @@ def process_results_file(election_file_path, vx_results_file_path):
 
     sems_io = io.StringIO()
     
-    sems_writer = csv.writer(sems_io, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-    
     # add the extra special candidates
     for contest in contests:
         contest["candidates"] += [UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE, WRITEIN_CANDIDATE]
