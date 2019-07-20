@@ -62,6 +62,7 @@ interface State {
   isVoterCardPresent: boolean
   isVoterCardInvalid: boolean
   isRecentVoterPrint: boolean
+  machineId: string
   precinctId: string
   ballotsPrintedCount: number
   userSettings: UserSettings
@@ -97,6 +98,7 @@ const initialState = {
   election: undefined,
   isLiveMode: false,
   isPollsOpen: false,
+  machineId: '---',
 }
 
 interface CompleteCardData {
@@ -303,6 +305,20 @@ export class App extends React.Component<RouteComponentProps, State> {
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
 
+    fetch('/machine-id').then(response => {
+      response
+        .json()
+        .catch(() => {})
+        .then(responseJSON => {
+          if (responseJSON) {
+            const { machineId } = responseJSON
+            this.setState({
+              machineId,
+            })
+          }
+        })
+    })
+
     this.startPolling()
   }
 
@@ -488,6 +504,7 @@ export class App extends React.Component<RouteComponentProps, State> {
       isVoterCardPresent,
       isVoterCardInvalid,
       isRecentVoterPrint,
+      machineId,
       precinctId,
       userSettings,
       votes,
@@ -510,6 +527,7 @@ export class App extends React.Component<RouteComponentProps, State> {
           election={election}
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
+          machineId={machineId}
           togglePollsOpen={this.togglePollsOpen}
         />
       )

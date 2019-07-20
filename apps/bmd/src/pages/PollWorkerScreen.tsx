@@ -73,6 +73,7 @@ interface Props {
   election: OptionalElection
   isPollsOpen: boolean
   isLiveMode: boolean
+  machineId: string
   togglePollsOpen: () => void
 }
 
@@ -81,6 +82,7 @@ const PollWorkerScreen = ({
   election,
   isPollsOpen,
   isLiveMode,
+  machineId,
   togglePollsOpen,
 }: Props) => {
   const { title, date, county, state, seal, sealURL } = election!
@@ -149,7 +151,7 @@ const PollWorkerScreen = ({
                   <dl>
                     <dt>Voting Machine ID</dt>
                     <dd>
-                      <span>VxMark #002</span>
+                      <span>VxMark #{machineId}</span>
                     </dd>
                     <dt>Status</dt>
                     <dd>

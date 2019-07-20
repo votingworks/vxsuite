@@ -16,6 +16,13 @@ app.use((req, res, next) => {
   next()
 })
 proxy(app)
+
+app.get('/machine-id', (req, res) => {
+  res.json({
+    "machineId": process.env.VX_MACHINE_ID || "000",
+  })
+})
+
 app.use('/', express.static('../build'))
 
 app.listen(port, () => console.log(`BMD listening on port ${port}!`))
