@@ -535,6 +535,16 @@ export class App extends React.Component<RouteComponentProps, State> {
       return <PollsClosedScreen election={election} isLiveMode={isLiveMode} />
     } else if (election) {
       if (isRecentVoterPrint && isVoterCardInvalid) {
+        // explicit clicking on this screen for audio because
+        // it is being rendered in a different way than the other screens
+        // which prevents the typical triggering we've used.
+        window.setTimeout(() => {
+          const elementToFocus = document.getElementById('audiofocus')
+          if (elementToFocus) {
+            elementToFocus.focus()
+            elementToFocus.click()
+          }
+        }, 250)
         return <CastBallotPage />
       } else if (
         !isVoterCardInvalid &&
