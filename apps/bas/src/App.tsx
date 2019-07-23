@@ -175,8 +175,10 @@ const App = () => {
     []
 
   const reset = useCallback(() => {
-    setPrecinctId('')
-  }, [setPrecinctId])
+    if (!isSinglePrecinctMode) {
+      setPrecinctId('')
+    }
+  }, [setPrecinctId, isSinglePrecinctMode])
 
   const programCard = (event: ButtonEvent) => {
     const ballotStyleId = (event.target as HTMLElement).dataset.ballotStyleId
