@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 import { OptionalElection } from '../config/types'
@@ -89,11 +89,24 @@ const PollWorkerScreen = ({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const showModal = () => setIsModalOpen(true)
   const hideModal = () => setIsModalOpen(false)
+
   const printStatus = () => {
     window.print()
+  }
+
+  const afterPrint = () => {
     togglePollsOpen()
     hideModal()
   }
+
+  useEffect(() => {
+    window.addEventListener('afterprint', afterPrint)
+
+    return () => {
+      window.removeEventListener('afterprint', afterPrint)
+    }
+  }, [])
+
   const currentDateTime = new Date().toLocaleString()
   const reportIds = [1, 2, 3]
   return (
