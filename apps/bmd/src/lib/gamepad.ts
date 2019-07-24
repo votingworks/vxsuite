@@ -105,7 +105,8 @@ export /* istanbul ignore next - triggering keystrokes issue - https://github.co
       handleClick()
       break
     case 'Enter':
-      handleClick()
+      // Enter already acts like a click
+      // handleClick()
       break
     // no default
   }
