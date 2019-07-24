@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import { OptionalElection } from '../config/types'
@@ -12,7 +12,7 @@ import Text from '../components/Text'
 
 const Report = styled.div`
   margin: 0;
-  page-break-before: always;
+  page-break-after: always;
 `
 
 const SealImage = styled.img`
@@ -87,31 +87,27 @@ const PollWorkerScreen = ({
 }: Props) => {
   const { title, date, county, state, seal, sealURL } = election!
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [reportId, setReportId] = useState(1)
   const showModal = () => setIsModalOpen(true)
   const hideModal = () => setIsModalOpen(false)
 
-  const printStatus = () => {
-    window.print()
-  }
-
-  const afterPrint = () => {
-    togglePollsOpen()
-    hideModal()
-  }
-
-  useEffect(() => {
-    window.addEventListener('afterprint', afterPrint)
-
-    return () => {
-      window.removeEventListener('afterprint', afterPrint)
-    }
-  }, [])
-
   const currentDateTime = new Date().toLocaleString()
-  const reportIds = [1, 2, 3]
+  const numReports = 3
+
+  const doPrint = (currentReportId: number) => {
+    window.print()
+
+    if (currentReportId >= numReports) {
+      togglePollsOpen()
+      hideModal()
+    } else {
+      setReportId(currentReportId + 1)
+    }
+  }
+
   return (
     <React.Fragment>
-      <Main>
+      <Main aria-hidden="true">
         <MainChild>
           <Prose className="no-print">
             <p>Remove card when finished making changes.</p>
@@ -125,99 +121,101 @@ const PollWorkerScreen = ({
               </Button>
             </p>
           </Prose>
-          {reportIds.map(id => (
-            <Report key={id} className="print-only">
-              <Header>
-                {seal ? (
-                  <div
-                    className="seal"
-                    // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
-                    dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
-                  />
-                ) : sealURL ? (
-                  <div className="seal">
-                    <SealImage src={sealURL} alt="" />
-                  </div>
-                ) : (
-                  <React.Fragment />
-                )}
-                <Prose className="ballot-header-content">
-                  <h2>
-                    {!isLiveMode ? 'Unofficial TEST' : 'Official'}{' '}
-                    {isPollsOpen
-                      ? `Polls Closed Report`
-                      : `Polls Opened Report`}
-                  </h2>
-                  <h3>{title}</h3>
-                  <p>
-                    {date}
-                    <br />
-                    {county.name}, {state}
-                  </p>
-                </Prose>
-              </Header>
-              <Content>
-                <Prose maxWidth={false}>
-                  <p>
-                    Report <strong>#{id}</strong> of {reportIds.length} printed.
-                  </p>
-                  <dl>
-                    <dt>Voting Machine ID</dt>
-                    <dd>
-                      <span>VxMark #{machineId}</span>
-                    </dd>
-                    <dt>Status</dt>
-                    <dd>
-                      <span>{isPollsOpen ? 'Closed' : 'Opened'}</span>
-                    </dd>
-                    <dt>Report Time</dt>
-                    <dd>
-                      <span>{currentDateTime}</span>
-                    </dd>
-                    <dt>Ballots Printed Count</dt>
-                    <dd>
-                      <span>{ballotsPrintedCount}</span>
-                    </dd>
-                    <dt>Certification Signatures</dt>
-                    <dd>
-                      <Certification>
-                        <Prose>
-                          <p>
-                            <em>
-                              We, the undersigned, do hereby certify the
-                              election was conducted in accordance with the laws
-                              of the state.
-                            </em>
-                          </p>
-                        </Prose>
-                      </Certification>
-                      <SignatureLine />
-                      <SignatureLine />
-                      <SignatureLine />
-                    </dd>
-                  </dl>
-                </Prose>
-              </Content>
-            </Report>
-          ))}
+          <Report key={reportId} className="print-only" aria-hidden="true">
+            <Header>
+              {seal ? (
+                <div
+                  className="seal"
+                  // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
+                  dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+                />
+              ) : sealURL ? (
+                <div className="seal">
+                  <SealImage src={sealURL} alt="" />
+                </div>
+              ) : (
+                <React.Fragment />
+              )}
+              <Prose className="ballot-header-content">
+                <h2>
+                  {!isLiveMode ? 'Unofficial TEST' : 'Official'}{' '}
+                  {isPollsOpen ? `Polls Closed Report` : `Polls Opened Report`}
+                </h2>
+                <h3>{title}</h3>
+                <p>
+                  {date}
+                  <br />
+                  {county.name}, {state}
+                </p>
+              </Prose>
+            </Header>
+            <Content>
+              <Prose maxWidth={false}>
+                <p>
+                  Report <strong>#{reportId}</strong> of {numReports} printed.
+                </p>
+                <dl>
+                  <dt>Voting Machine ID</dt>
+                  <dd>
+                    <span>VxMark #{machineId}</span>
+                  </dd>
+                  <dt>Status</dt>
+                  <dd>
+                    <span>{isPollsOpen ? 'Closed' : 'Opened'}</span>
+                  </dd>
+                  <dt>Report Time</dt>
+                  <dd>
+                    <span>{currentDateTime}</span>
+                  </dd>
+                  <dt>Ballots Printed Count</dt>
+                  <dd>
+                    <span>{ballotsPrintedCount}</span>
+                  </dd>
+                  <dt>Certification Signatures</dt>
+                  <dd>
+                    <Certification>
+                      <Prose>
+                        <p>
+                          <em>
+                            We, the undersigned, do hereby certify the election
+                            was conducted in accordance with the laws of the
+                            state.
+                          </em>
+                        </p>
+                      </Prose>
+                    </Certification>
+                    <SignatureLine />
+                    <SignatureLine />
+                    <SignatureLine />
+                  </dd>
+                </dl>
+              </Prose>
+            </Content>
+          </Report>
         </MainChild>
       </Main>
-      <MainNav title="Poll Worker" />
+      <MainNav aria-hidden="true" title="Poll Worker" />
       <Modal
         isOpen={isModalOpen}
         centerContent
+        aria-hidden="true"
         content={
           <Prose textCenter>
             <p>
               {isPollsOpen
-                ? 'Close Polls and print report?'
-                : 'Open polls and print report?'}
+                ? `Close Polls -- Print report ${reportId} of ${numReports}?`
+                : `Open polls -- Print report ${reportId} of ${numReports}?`}
             </p>
           </Prose>
         }
         actions={
           <>
-            <Button primary onPress={printStatus}>
+            <Button
+              primary
+              onPress={() => {
+                doPrint(reportId)
+              }}
+            >
               Yes
             </Button>
             <Button onPress={hideModal}>Cancel</Button>
