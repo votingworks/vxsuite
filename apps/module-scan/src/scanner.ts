@@ -145,7 +145,7 @@ export async function addManualBallot(ballotString: string) {
   }
 
   const cvr = interpretBallotString({
-    election: election,
+    election,
     ballotString,
   })
 
