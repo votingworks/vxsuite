@@ -50,12 +50,55 @@ test('going through the whole process works', async done => {
   await new Promise(resolve => setTimeout(resolve, 4000))
 
   // check the status
-  const status = await request(app)
+  let status = await request(app)
     .get('/scan/status')
     .set('Accept', 'application/json')
     .expect(200)
 
   expect(JSON.parse(status.text).batches[0].count).toBe(2)
+
+  // a manual ballot
+  await request(app)
+    .post('/scan/addManualBallot')
+    .send({
+      ballotString: '12.23.1|0|0|0||||||||||||||||.manual-test-serial-number',
+    })
+    .set('Accept', 'application/json')
+    .expect(200)
+
+  // a manual ballot - a second time shouldn't affect count
+  await request(app)
+    .post('/scan/addManualBallot')
+    .send({
+      ballotString: '12.23.1|0|0|0||||||||||||||||.manual-test-serial-number',
+    })
+    .set('Accept', 'application/json')
+    .expect(200)
+
+  // check the latest batch has one ballot in it (the one we just made)
+  status = await request(app)
+    .get('/scan/status')
+    .set('Accept', 'application/json')
+    .expect(200)
+  expect(JSON.parse(status.text).batches[0].count).toBe(1)
+  expect(JSON.parse(status.text).batches.length).toBe(2)
+
+  // a second distinct manual ballot
+  await request(app)
+    .post('/scan/addManualBallot')
+    .send({
+      ballotString: '12.23.1|1|0|0||||||||||||||||.manual-test-serial-number-2',
+    })
+    .set('Accept', 'application/json')
+    .expect(200)
+
+  // check the latest batch has two manual ballots in it
+  status = await request(app)
+    .get('/scan/status')
+    .set('Accept', 'application/json')
+    .expect(200)
+  expect(JSON.parse(status.text).batches[0].count).toBe(2)
+  expect(JSON.parse(status.text).batches.length).toBe(2)
 
   const exportResponse = await request(app)
     .post('/scan/export')
@@ -72,7 +115,12 @@ test('going through the whole process works', async done => {
   )
   serialNumbers.sort()
   expect(JSON.stringify(serialNumbers)).toBe(
-    JSON.stringify(['85lnPkvfNEytP3Z8gMoEcA', 'r6UYR4t7hEFMz8QlMWf1Sw'])
+    JSON.stringify([
+      '85lnPkvfNEytP3Z8gMoEcA',
+      'manual-test-serial-number',
+      'manual-test-serial-number-2',
+      'r6UYR4t7hEFMz8QlMWf1Sw',
+    ])
   )
 
   // clean up

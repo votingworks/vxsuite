@@ -18,9 +18,11 @@ import {
   init,
   finishBatch,
 } from './store'
-import interpretFile from './interpreter'
+import interpretFile, { interpretBallotString } from './interpreter'
 
 import exec from './exec'
+
+let manualBatchId: number | undefined
 
 export const ballotImagesPath = path.join(__dirname, '..', 'ballot-images/')
 export const scannedBallotImagesPath = path.join(
@@ -133,6 +135,25 @@ export function doScan() {
   })
 }
 
+export async function addManualBallot(ballotString: string) {
+  if (!election) {
+    return
+  }
+
+  if (!manualBatchId) {
+    manualBatchId = await addBatch()
+  }
+
+  const cvr = interpretBallotString({
+    election: election,
+    ballotString,
+  })
+
+  if (cvr) {
+    addCVR(manualBatchId!, 'manual-' + cvr['_serialNumber'], cvr)
+  }
+}
+
 export async function doExport() {
   if (!election) {
     return ''
@@ -147,6 +168,7 @@ export async function doZero() {
   await init(true)
   fsExtra.emptyDirSync(ballotImagesPath)
   fsExtra.emptyDirSync(scannedBallotImagesPath)
+  manualBatchId = undefined
 }
 
 export async function getStatus() {

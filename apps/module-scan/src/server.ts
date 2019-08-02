@@ -6,6 +6,7 @@
 import express, { Application, Request, Response } from 'express'
 import * as path from 'path'
 import {
+  addManualBallot,
   configure,
   doScan,
   doExport,
@@ -13,6 +14,7 @@ import {
   doZero,
   unconfigure,
 } from './scanner'
+
 import * as store from './store'
 
 import { Election } from './types'
@@ -41,6 +43,13 @@ app.post('/scan/scanBatch', (_request: Request, response: Response) => {
 
 app.post('/scan/invalidateBatch', (_request: Request, response: Response) => {
   response.json({ status: 'ok' })
+})
+
+app.post('/scan/addManualBallot', (request: Request, response: Response) => {
+  const { ballotString } = request.body
+  addManualBallot(ballotString).then(() => {
+    response.json({ status: 'ok' })
+  })
 })
 
 app.post('/scan/export', (_request: Request, response: Response) => {

@@ -50,6 +50,21 @@ test('POST /scan/scanBatch', done => {
     })
 })
 
+test('POST /scan/addManualBallot', done => {
+  mockScanner.addManualBallot.mockResolvedValue(undefined)
+  request(app)
+    .post('/scan/addManualBallot')
+    .send({
+      ballotString: '12.23.1|0|0|0||||||||||||||||.r6UYR4t7hEFMz8ZlMWf1Sw',
+    })
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+    .then(() => {
+      expect(scanner.addManualBallot).toBeCalled()
+      done()
+    })
+})
+
 test('POST /scan/invalidateBatch', done => {
   request(app)
     .post('/scan/invalidateBatch')
