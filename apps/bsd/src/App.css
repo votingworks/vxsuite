@@ -59,3 +59,18 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.visually-hidden {
+  position: absolute !important; /* stylelint-disable-line declaration-no-important */
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+}
+.visually-hidden a:focus,
+.visually-hidden input:focus,
+.visually-hidden button:focus {
+  position: static;
+  width: auto;
+  height: auto;
+}

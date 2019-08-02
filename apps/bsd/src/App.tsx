@@ -113,6 +113,20 @@ const App: React.FC = () => {
       })
   }
 
+  const addBallot = async (event: React.FormEvent) => {
+    event.preventDefault()
+    const input = document.getElementById('ballotString')! as HTMLInputElement
+    const ballotString = input.value
+    input.value = ''
+    fetch('/scan/addManualBallot', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ballotString }),
+    })
+  }
+
   const scanBatch = () => {
     fetch('/scan/scanBatch', {
       method: 'post',
@@ -170,6 +184,7 @@ const App: React.FC = () => {
   useInterval(() => {
     election && updateStatus()
     cardServerAvailable && !election && readCard()
+    document.getElementById('ballotString')!.focus()
   }, 1000)
 
   useEffect(updateStatus, [])
@@ -187,6 +202,17 @@ const App: React.FC = () => {
               isScanning={isScanning}
               status={status}
             />
+            <form onSubmit={addBallot} className="visually-hidden">
+              <input
+                type="text"
+                id="ballotString"
+                name="ballotString"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+              />
+            </form>
           </MainChild>
         </Main>
         <ButtonBar secondary naturalOrder separatePrimaryButton>
