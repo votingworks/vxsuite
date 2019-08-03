@@ -1,6 +1,6 @@
 
 from unittest.mock import patch
-import pytest, json, io, os
+import pytest, json, io, os, filecmp
 
 from converter.combineSEMSresults import main
 
@@ -18,7 +18,7 @@ def test_combination():
     main(FILE1_PATH, FILE2_PATH, COMPUTED_RESULTS_PATH)
 
     # need to diff the files here
-    assert False
+    assert filecmp.cmp(COMPUTED_RESULTS_PATH, EXPECTED_RESULTS_PATH, shallow=False)
 
     try:
         os.unlink(COMPUTED_RESULTS_PATH)
