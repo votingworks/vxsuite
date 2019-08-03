@@ -2,6 +2,8 @@
 #
 # Combine two SEMS results files
 #
+# pipenv run python converter/combineSEMSresults.py <input_sems_1> <input_sems_2> <output_sems>
+#
 # This is used for combining results files from Vx and another vendor into a single file.
 # The reason for this script is that, in SEMS, the last upload overwrites all.
 #
