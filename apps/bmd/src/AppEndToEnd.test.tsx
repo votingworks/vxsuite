@@ -159,7 +159,11 @@ it(`basic end-to-end flow`, async () => {
   currentCard = pollWorkerCard
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Open Polls')))
-  getByText('Open polls and print report?')
+  getByText('Open polls -- Print report 1 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Open polls -- Print report 2 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Open polls -- Print report 3 of 3?')
   fireEvent.click(getByText('Yes'))
   getByText('Close Polls')
 
