@@ -101,31 +101,32 @@ const advanceTimers = (ms: number = 0) => {
   jest.advanceTimersByTime(ms + GLOBALS.CARD_POLLING_INTERVAL)
 }
 
+fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
+
+fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+
+fetchMock.post('/card/write', (url, options) => {
+  currentCard = {
+    present: true,
+    shortValue: options.body as string,
+  }
+  return ''
+})
+
+fetchMock.get('/card/read_long', () =>
+  JSON.stringify({ longValue: electionSampleAsString })
+)
+
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
-
-  currentCard = noCard
-
-  fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
-
-  fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-
-  fetchMock.post('/card/write', (url, options) => {
-    currentCard = {
-      present: true,
-      shortValue: options.body as string,
-    }
-    return ''
-  })
-
-  fetchMock.get('/card/read_long', () =>
-    JSON.stringify({ longValue: electionSampleAsString })
-  )
 })
 
 it(`basic end-to-end flow`, async () => {
   const { getByText } = render(<App />)
+
+  currentCard = noCard
+  advanceTimers()
 
   // Default Unconfigured
   getByText('Device Not Configured')
