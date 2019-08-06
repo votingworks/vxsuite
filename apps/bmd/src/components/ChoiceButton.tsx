@@ -57,7 +57,11 @@ interface ChoiceButtonProps extends StyledChoiceButtonProps {
 }
 
 const ChoiceButton = ({ onPress, ...rest }: ChoiceButtonProps) => (
-  <StyledChoiceButton {...rest} onClick={onPress} />
+  <StyledChoiceButton
+    {...rest}
+    data-selected={rest.isSelected}
+    onClick={onPress}
+  />
 )
 
 export default ChoiceButton
