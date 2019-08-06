@@ -108,6 +108,8 @@ beforeEach(() => {
 
   currentCard = noCard
 
+  fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '111' }))
+
   fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
   fetchMock.post('/card/write', (url, options) => {
