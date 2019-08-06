@@ -19,7 +19,6 @@ import {
   YesNoContest,
 } from './config/types'
 
-// TODO: use jest.useFakeTimers() to speed up test.
 jest.useFakeTimers()
 
 const election = electionSample as Election
@@ -62,8 +61,8 @@ const pollWorkerCard: CardAPI = {
 
 const voterCardShortValue = {
   t: 'voter',
-  pr: '23',
-  bs: '12',
+  pr: election.precincts[0].id,
+  bs: election.ballotStyles[0].id,
 }
 
 const voterCard: CardAPI = {
@@ -108,7 +107,7 @@ beforeEach(() => {
 
   currentCard = noCard
 
-  fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '111' }))
+  fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
 
   fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
