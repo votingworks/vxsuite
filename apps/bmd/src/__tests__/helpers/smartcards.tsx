@@ -36,6 +36,15 @@ export const voterCard: CardAPI = {
   shortValue: JSON.stringify(voterCardShortValue),
 }
 
+export const altVoterCard: CardAPI = {
+  present: true,
+  shortValue: JSON.stringify({
+    ...voterCardShortValue,
+    pr: election.precincts[1].id,
+    bs: election.ballotStyles[1].id,
+  }),
+}
+
 export const invalidatedVoterCard: CardAPI = {
   present: true,
   shortValue: JSON.stringify({

@@ -13,6 +13,7 @@ import {
   adminCard,
   pollWorkerCard,
   voterCard,
+  altVoterCard,
   invalidatedVoterCard,
   getPrintedVoterCard,
   advanceTimers,
@@ -119,7 +120,24 @@ it(`basic end-to-end flow`, async () => {
   currentCard = voterCard
   advanceTimers()
   await wait(() => getByText(/Precinct: Center Springfield/))
+  getByText(/Ballot Style: 12/)
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Alternate Ballot Style
+  currentCard = altVoterCard
+  advanceTimers()
+  await wait(() => getByText(/Precinct: North Springfield/))
+  getByText(/Ballot Style: 5/)
   fireEvent.click(getByText('Get Started'))
+
+  advanceTimers()
+  getByText('This ballot has 11 contests.')
 
   // Remove card
   currentCard = noCard
@@ -138,6 +156,7 @@ it(`basic end-to-end flow`, async () => {
   fireEvent.click(getByText('Get Started'))
 
   advanceTimers()
+  getByText('This ballot has 20 contests.')
   fireEvent.click(getByText('Start Voting'))
 
   // Advance through every contest
