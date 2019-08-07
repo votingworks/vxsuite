@@ -2,7 +2,7 @@ import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
-import App, { electionStorageKey, stateStorageKey } from '../App'
+import App from '../App'
 
 import {
   noCard,
@@ -15,7 +15,8 @@ import {
   contest0candidate0,
   contest0candidate1,
   contest1candidate0,
-  electionAsString,
+  setElectionInLocalStorage,
+  setStateInLocalStorage,
 } from '../__tests__/helpers/election'
 
 import { getActiveElement, handleGamepadButtonDown } from './gamepad'
@@ -32,11 +33,8 @@ it(`gamepad controls work`, async () => {
   jest.useFakeTimers()
 
   // load election from localStorage
-  window.localStorage.setItem(electionStorageKey, electionAsString)
-  window.localStorage.setItem(
-    stateStorageKey,
-    '{"ballotsPrintedCount":0,"isLiveMode":true,"isPollsOpen":true}'
-  )
+  setElectionInLocalStorage()
+  setStateInLocalStorage()
   const { getByText } = render(<App />)
 
   currentCard = voterCard

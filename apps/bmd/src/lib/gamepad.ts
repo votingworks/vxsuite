@@ -1,5 +1,8 @@
 import mod from '../utils/mod'
 
+export const getActiveElement = () =>
+  document.activeElement! as HTMLInputElement
+
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(
     document.querySelectorAll(
@@ -13,9 +16,6 @@ function getFocusableElements(): HTMLElement[] {
     element => ariaHiddenTabbableElements.indexOf(element) === -1
   ) as HTMLElement[]
 }
-
-export const getActiveElement = () =>
-  document.activeElement! as HTMLInputElement
 
 function handleArrowUp() {
   const focusable = getFocusableElements()

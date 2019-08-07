@@ -2,7 +2,11 @@ import electionSample from '../../data/electionSample.json'
 import { CandidateContest, Election, YesNoContest } from '../../config/types'
 import { getBallotStyle, getContests } from '../../utils/election'
 
-import { mergeWithDefaults } from '../../App'
+import {
+  electionStorageKey,
+  stateStorageKey,
+  mergeWithDefaults,
+} from '../../App'
 
 export const election = electionSample as Election
 export const contest0 = election.contests[0] as CandidateContest
@@ -33,5 +37,16 @@ export const voterContests = getContests({
 })
 
 export const electionAsString = JSON.stringify(mergeWithDefaults(election))
+
+export const setElectionInLocalStorage = () => {
+  window.localStorage.setItem(electionStorageKey, electionAsString)
+}
+
+export const setStateInLocalStorage = () => {
+  window.localStorage.setItem(
+    stateStorageKey,
+    '{"ballotsPrintedCount":0,"isLiveMode":true,"isPollsOpen":true}'
+  )
+}
 
 export default {}
