@@ -5,12 +5,12 @@ import fetchMock from 'fetch-mock'
 
 // import Root, { App } from './App'
 import Root from './App'
-import {
-  CardAPI,
-  // ClerkCardData,
-  // PollworkerCardData,
-  // VoterCardData,
-} from './config/types'
+// import {
+//   // CardAPI,
+//   // ClerkCardData,
+//   // PollworkerCardData,
+//   // VoterCardData,
+// } from './config/types'
 
 import {
   noCard,
@@ -18,8 +18,7 @@ import {
   advanceTimers,
 } from './__tests__/helpers/smartcards'
 
-let currentCard: CardAPI = noCard
-
+let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
 beforeEach(() => {

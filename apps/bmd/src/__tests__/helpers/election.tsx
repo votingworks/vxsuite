@@ -1,0 +1,37 @@
+import electionSample from '../../data/electionSample.json'
+import { CandidateContest, Election, YesNoContest } from '../../config/types'
+import { getBallotStyle, getContests } from '../../utils/election'
+
+import { mergeWithDefaults } from '../../App'
+
+export const election = electionSample as Election
+export const contest0 = election.contests[0] as CandidateContest
+export const contest1 = election.contests[1] as CandidateContest
+export const contest0candidate0 = contest0.candidates[0]
+export const contest0candidate1 = contest0.candidates[1]
+export const contest1candidate0 = contest1.candidates[0]
+
+export const presidentContest = electionSample.contests.find(
+  c => c.title === 'President and Vice-President' && c.seats === 1
+) as CandidateContest
+
+export const countyCommissionersContest = electionSample.contests.find(
+  c => c.title === 'County Commissioners' && c.seats === 4
+) as CandidateContest
+
+export const measure102Contest = electionSample.contests.find(
+  c =>
+    c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'yesno'
+) as YesNoContest
+
+export const voterContests = getContests({
+  ballotStyle: getBallotStyle({
+    ballotStyleId: election.ballotStyles[0].id,
+    election,
+  }),
+  election,
+})
+
+export const electionAsString = JSON.stringify(mergeWithDefaults(election))
+
+export default {}

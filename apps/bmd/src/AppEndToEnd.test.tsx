@@ -4,19 +4,9 @@ import fetchMock from 'fetch-mock'
 
 import waitForExpect from 'wait-for-expect'
 
-import { getBallotStyle, getContests } from './utils/election'
-
 import { printingModalDisplaySeconds } from './pages/PrintPage'
 
-import electionSample from './data/electionSample.json'
-
-import App, { mergeWithDefaults } from './App'
-import {
-  CardAPI,
-  CandidateContest,
-  Election,
-  YesNoContest,
-} from './config/types'
+import App from './App'
 
 import {
   noCard,
@@ -28,33 +18,15 @@ import {
   advanceTimers,
 } from './__tests__/helpers/smartcards'
 
-const election = electionSample as Election
+import {
+  electionAsString,
+  presidentContest,
+  countyCommissionersContest,
+  measure102Contest,
+  voterContests,
+} from './__tests__/helpers/election'
 
-const electionSampleAsString = JSON.stringify(mergeWithDefaults(election))
-
-const presidentContest = electionSample.contests.find(
-  c => c.title === 'President and Vice-President' && c.seats === 1
-) as CandidateContest
-
-const countyCommissionersContest = electionSample.contests.find(
-  c => c.title === 'County Commissioners' && c.seats === 4
-) as CandidateContest
-
-const measure102Contest = electionSample.contests.find(
-  c =>
-    c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'yesno'
-) as YesNoContest
-
-const voterContests = getContests({
-  ballotStyle: getBallotStyle({
-    ballotStyleId: election.ballotStyles[0].id,
-    election,
-  }),
-  election,
-})
-
-let currentCard: CardAPI = noCard
-
+let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
 fetchMock.post('/card/write', (url, options) => {
@@ -66,7 +38,7 @@ fetchMock.post('/card/write', (url, options) => {
 })
 
 fetchMock.get('/card/read_long', () =>
-  JSON.stringify({ longValue: electionSampleAsString })
+  JSON.stringify({ longValue: electionAsString })
 )
 
 beforeEach(() => {

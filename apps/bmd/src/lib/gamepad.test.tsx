@@ -2,14 +2,7 @@ import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
-import electionSample from '../data/electionSample.json'
-
-import App, {
-  electionStorageKey,
-  stateStorageKey,
-  mergeWithDefaults,
-} from '../App'
-import { CardAPI, CandidateContest, Election } from '../config/types'
+import App, { electionStorageKey, stateStorageKey } from '../App'
 
 import { handleGamepadButtonDown } from './gamepad'
 
@@ -19,20 +12,17 @@ import {
   advanceTimers,
 } from '../__tests__/helpers/smartcards'
 
-const election = electionSample as Election
-const contest0 = election.contests[0] as CandidateContest
-const contest1 = election.contests[1] as CandidateContest
-const contest0candidate0 = contest0.candidates[0]
-const contest0candidate1 = contest0.candidates[1]
-const contest1candidate0 = contest1.candidates[0]
-
-const electionSampleAsString = JSON.stringify(
-  mergeWithDefaults(electionSample as Election)
-)
+import {
+  contest0,
+  contest0candidate0,
+  contest0candidate1,
+  contest1candidate0,
+  electionAsString,
+} from '../__tests__/helpers/election'
 
 const getActiveElement = () => document.activeElement! as HTMLInputElement
 
-let currentCard: CardAPI = noCard
+let currentCard = noCard
 
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
@@ -45,7 +35,7 @@ it(`gamepad controls work`, async () => {
   jest.useFakeTimers()
 
   // load election from localStorage
-  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
+  window.localStorage.setItem(electionStorageKey, electionAsString)
   window.localStorage.setItem(
     stateStorageKey,
     '{"ballotsPrintedCount":0,"isLiveMode":true,"isPollsOpen":true}'
