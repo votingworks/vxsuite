@@ -28,6 +28,10 @@ export const measure102Contest = electionSample.contests.find(
     c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'yesno'
 ) as YesNoContest
 
+export const singleSeatContestWithWriteIn = electionSample.contests.find(
+  c => !!c.allowWriteIns && c.seats === 1
+) as CandidateContest
+
 export const voterContests = getContests({
   ballotStyle: getBallotStyle({
     ballotStyleId: election.ballotStyles[0].id,
