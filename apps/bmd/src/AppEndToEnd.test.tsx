@@ -55,8 +55,6 @@ const voterContests = getContests({
 
 let currentCard: CardAPI = noCard
 
-fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
-
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
 fetchMock.post('/card/write', (url, options) => {

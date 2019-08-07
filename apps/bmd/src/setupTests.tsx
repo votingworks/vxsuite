@@ -3,6 +3,9 @@
 import 'jest-styled-components'
 import '@testing-library/react/cleanup-after-each'
 import crypto from 'crypto'
+import fetchMock from 'fetch-mock'
+
+fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
 
 // window.crypto is not defined in JSDOM
 // TODO: consider https://github.com/jsdom/jsdom/issues/1612#issuecomment-454040272
