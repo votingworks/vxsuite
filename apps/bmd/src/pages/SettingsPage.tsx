@@ -1,4 +1,4 @@
-import React, { PointerEventHandler, useContext, useState } from 'react'
+import React, { PointerEventHandler, useContext } from 'react'
 import styled from 'styled-components'
 import GLOBALS from '../config/globals'
 
@@ -10,10 +10,8 @@ import Button from '../components/Button'
 import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
-import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import RangeInput from '../components/RangeInput'
-import Text from '../components/Text'
 
 const SettingLabel = styled.label`
   display: block;
@@ -37,19 +35,7 @@ const FontSizeControlsContainer = styled.div`
 `
 
 const SettingsPage = () => {
-  const { resetBallot, userSettings, setUserSettings, votes } = useContext(
-    BallotContext
-  )
-  const [showResetBallotAlert, setResetBallotAlert] = useState(false)
-  const cancelResetBallot = () => {
-    setResetBallotAlert(false)
-  }
-  const requestResetBallot = () => {
-    resetBallot()
-  }
-  const requestNewBallot = () => {
-    Object.keys(votes).length === 0 ? resetBallot() : setResetBallotAlert(true)
-  }
+  const { userSettings, setUserSettings } = useContext(BallotContext)
   const onFontSizeChange = (event: InputEvent) => {
     const target = event.target as HTMLInputElement
     const textSize = +target.value as TextSizeSetting
@@ -98,9 +84,6 @@ const SettingsPage = () => {
                 +
               </Button>
             </FontSizeControlsContainer>
-            <h2>Clear Selections</h2>
-            <p>Clear all selections and start over.</p>
-            <Button onPress={requestNewBallot}>Start Over</Button>
           </Prose>
         </MainChild>
       </Main>
@@ -110,24 +93,6 @@ const SettingsPage = () => {
         <div />
         <div />
       </ButtonBar>
-      <Modal
-        isOpen={showResetBallotAlert}
-        content={
-          <Prose>
-            <Text>
-              Are you sure you want to clear all selections and start over?
-            </Text>
-          </Prose>
-        }
-        actions={
-          <>
-            <Button danger onPress={requestResetBallot}>
-              Yes, Remove All Votes
-            </Button>
-            <Button onPress={cancelResetBallot}>Cancel</Button>
-          </>
-        }
-      />
     </>
   )
 }

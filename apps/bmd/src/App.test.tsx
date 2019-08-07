@@ -10,11 +10,7 @@ import App, {
   mergeWithDefaults,
   votesStorageKey,
 } from './App'
-import { CandidateContest, Election } from './config/types'
-
-const election = electionSample as Election
-const contest0 = election.contests[0] as CandidateContest
-const contest0candidate0 = contest0.candidates[0]
+import { Election } from './config/types'
 
 const electionSampleAsString = JSON.stringify(
   mergeWithDefaults(electionSample as Election)
@@ -91,41 +87,6 @@ describe('loads election', () => {
       .closest('label')!
       .querySelector('input')!
     expect(candidate1Input.checked).toBeTruthy()
-  })
-})
-
-describe('can start over', () => {
-  it(`when has no votes`, async () => {
-    window.localStorage.setItem(electionStorageKey, electionSampleAsString)
-    const { getByText, getByTestId } = render(<App />)
-    fireEvent.change(getByTestId('activation-code'), {
-      target: { value: 'VX.23.12' },
-    })
-    // TODO: replace next line with "Enter" keyDown on activation code input
-    fireEvent.click(getByText('Submit'))
-    fireEvent.click(getByText('Get Started'))
-    fireEvent.click(getByText('Start Voting'))
-    fireEvent.click(getByText('Settings'))
-    fireEvent.click(getByText('Start Over'))
-    expect(getByText('Scan Your Activation Code')).toBeTruthy()
-  })
-  it(`when has votes`, async () => {
-    window.localStorage.setItem(electionStorageKey, electionSampleAsString)
-    const { getByText, getByTestId } = render(<App />)
-    fireEvent.change(getByTestId('activation-code'), {
-      target: { value: 'VX.23.12' },
-    })
-    // TODO: replace next line with "Enter" keyDown on activation code input
-    fireEvent.click(getByText('Submit'))
-    fireEvent.click(getByText('Get Started'))
-    fireEvent.click(getByText('Start Voting'))
-    fireEvent.click(getByText(contest0candidate0.name).closest('label')!)
-    fireEvent.click(getByText('Settings'))
-    fireEvent.click(getByText('Start Over'))
-    fireEvent.click(getByText('Cancel'))
-    fireEvent.click(getByText('Start Over'))
-    fireEvent.click(getByText('Yes, Remove All Votes'))
-    expect(getByText('Scan Your Activation Code')).toBeTruthy()
   })
 })
 
