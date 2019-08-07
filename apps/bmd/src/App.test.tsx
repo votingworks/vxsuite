@@ -1,16 +1,12 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import { fireEvent, render } from '@testing-library/react'
 
 import electionSample from './data/electionSample.json'
 
-import App, {
-  activationStorageKey,
-  electionStorageKey,
-  mergeWithDefaults,
-  votesStorageKey,
-} from './App'
+import App, { electionStorageKey, mergeWithDefaults } from './App'
 import { Election } from './config/types'
+
+const election = electionSample as Election
 
 const electionSampleAsString = JSON.stringify(
   mergeWithDefaults(electionSample as Election)
@@ -21,26 +17,27 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it(`renders without crashing`, () => {
-  const div = document.createElement('div')
-  ReactDOM.render(<App />, div)
-  ReactDOM.unmountComponentAtNode(div)
-})
-
 describe('loads election', () => {
+  it(`Machine is not configured by default`, () => {
+    const { getByText } = render(<App />)
+    getByText('Device Not Configured')
+  })
   it(`via url hash and does't store in localStorage`, () => {
     window.location.href = '/#sample'
     const { getByText } = render(<App />)
-    getByText('Scan Your Activation Code')
+    getByText(election.title)
     expect(window.localStorage.getItem(electionStorageKey)).toBeFalsy()
   })
+
   it(`from localStorage`, () => {
     window.localStorage.setItem(electionStorageKey, electionSampleAsString)
     const { getByText } = render(<App />)
-    getByText('Scan Your Activation Code')
+    getByText(election.title)
     expect(window.localStorage.getItem(electionStorageKey)).toBeTruthy()
   })
-  it(`Error in App triggers reset and reloads window location`, () => {
+
+  // Not sure this test works any longer
+  xit(`Error in App triggers reset and reloads window location`, () => {
     const mockConsoleError = jest.spyOn(console, 'error')
     mockConsoleError.mockImplementation(() => {
       // do nothing instead of triggering console.error()
@@ -50,43 +47,7 @@ describe('loads election', () => {
       JSON.stringify(electionSample)
     )
     const { getByText } = render(<App />)
-    getByText('Load Election Configuration File')
-  })
-  it(`App uses data from localStorage when set`, () => {
-    const ballotStyleId = electionSample.ballotStyles[0].id
-    const precinctId = electionSample.precincts[0].id
-    const presidentFirstCandidate = electionSample.contests.find(
-      c => c.id === 'president'
-    )!.candidates![0]
-
-    window.localStorage.setItem(electionStorageKey, electionSampleAsString)
-    window.localStorage.setItem(
-      activationStorageKey,
-      JSON.stringify({
-        ballotStyleId,
-        precinctId,
-      })
-    )
-    window.localStorage.setItem(
-      votesStorageKey,
-      JSON.stringify({
-        president: [presidentFirstCandidate],
-      })
-    )
-
-    const { getByText } = render(<App />)
-
-    // Go to Voting Instructions
-    fireEvent.click(getByText('Get Started'))
-
-    // Go to First Contest
-    fireEvent.click(getByText('Start Voting'))
-
-    // First contest candidate should be selected
-    const candidate1Input = getByText(presidentFirstCandidate.name)
-      .closest('label')!
-      .querySelector('input')!
-    expect(candidate1Input.checked).toBeTruthy()
+    getByText('Device Not Configured')
   })
 })
 
