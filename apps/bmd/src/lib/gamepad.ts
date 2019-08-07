@@ -14,7 +14,8 @@ function getFocusableElements(): HTMLElement[] {
   ) as HTMLElement[]
 }
 
-const getActiveElement = () => document.activeElement! as HTMLInputElement
+export const getActiveElement = () =>
+  document.activeElement! as HTMLInputElement
 
 function handleArrowUp() {
   const focusable = getFocusableElements()

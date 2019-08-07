@@ -4,8 +4,6 @@ import fetchMock from 'fetch-mock'
 
 import App, { electionStorageKey, stateStorageKey } from '../App'
 
-import { handleGamepadButtonDown } from './gamepad'
-
 import {
   noCard,
   voterCard,
@@ -20,10 +18,9 @@ import {
   electionAsString,
 } from '../__tests__/helpers/election'
 
-const getActiveElement = () => document.activeElement! as HTMLInputElement
+import { getActiveElement, handleGamepadButtonDown } from './gamepad'
 
 let currentCard = noCard
-
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
 beforeEach(() => {
