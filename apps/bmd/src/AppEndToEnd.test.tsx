@@ -3,7 +3,6 @@ import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
 import waitForExpect from 'wait-for-expect'
-import GLOBALS from './config/globals'
 
 import { getBallotStyle, getContests } from './utils/election'
 
@@ -19,7 +18,15 @@ import {
   YesNoContest,
 } from './config/types'
 
-jest.useFakeTimers()
+import {
+  noCard,
+  adminCard,
+  pollWorkerCard,
+  voterCard,
+  invalidatedVoterCard,
+  getPrintedVoterCard,
+  advanceTimers,
+} from './__tests__/helpers/smartcards'
 
 const election = electionSample as Election
 
@@ -38,68 +45,15 @@ const measure102Contest = electionSample.contests.find(
     c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'yesno'
 ) as YesNoContest
 
-const noCard: CardAPI = {
-  present: false,
-}
-
-const adminCard: CardAPI = {
-  present: true,
-  longValueExists: true,
-  shortValue: JSON.stringify({
-    t: 'clerk',
-    h: 'abcd',
-  }),
-}
-
-const pollWorkerCard: CardAPI = {
-  present: true,
-  shortValue: JSON.stringify({
-    t: 'pollworker',
-    h: 'abcd',
-  }),
-}
-
-const voterCardShortValue = {
-  t: 'voter',
-  pr: election.precincts[0].id,
-  bs: election.ballotStyles[0].id,
-}
-
-const voterCard: CardAPI = {
-  present: true,
-  shortValue: JSON.stringify(voterCardShortValue),
-}
-
-const invalidatedVoterCard: CardAPI = {
-  present: true,
-  shortValue: JSON.stringify({
-    ...voterCardShortValue,
-    uz: new Date().getTime(),
-  }),
-}
-
-const getPrintedVoterCard = (): CardAPI => ({
-  present: true,
-  shortValue: JSON.stringify({
-    ...voterCardShortValue,
-    bp: 1,
-    uz: new Date().getTime(),
-  }),
-})
-
 const voterContests = getContests({
   ballotStyle: getBallotStyle({
-    ballotStyleId: voterCardShortValue.bs,
+    ballotStyleId: election.ballotStyles[0].id,
     election,
   }),
   election,
 })
 
 let currentCard: CardAPI = noCard
-
-const advanceTimers = (ms: number = 0) => {
-  jest.advanceTimersByTime(ms + GLOBALS.CARD_POLLING_INTERVAL)
-}
 
 fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
 
@@ -123,6 +77,8 @@ beforeEach(() => {
 })
 
 it(`basic end-to-end flow`, async () => {
+  jest.useFakeTimers()
+
   const { getByText } = render(<App />)
 
   currentCard = noCard

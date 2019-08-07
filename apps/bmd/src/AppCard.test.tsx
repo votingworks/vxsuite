@@ -3,47 +3,25 @@ import React from 'react'
 import { render } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
-import GLOBALS from './config/globals'
-
-import electionSample from './data/electionSample.json'
-
 // import Root, { App } from './App'
 import Root from './App'
 import {
   CardAPI,
   // ClerkCardData,
-  Election,
   // PollworkerCardData,
   // VoterCardData,
 } from './config/types'
 
-const election = electionSample as Election
-
-jest.useFakeTimers()
-
-const noCard: CardAPI = {
-  present: false,
-}
-
-const voterCardShortValue = {
-  t: 'voter',
-  pr: election.precincts[0].id,
-  bs: election.ballotStyles[0].id,
-}
-
-const voterCard: CardAPI = {
-  present: true,
-  shortValue: JSON.stringify(voterCardShortValue),
-}
+import {
+  noCard,
+  voterCard,
+  advanceTimers,
+} from './__tests__/helpers/smartcards'
 
 let currentCard: CardAPI = noCard
 
 fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-
-const advanceTimers = (ms: number = 0) => {
-  jest.advanceTimersByTime(ms + GLOBALS.CARD_POLLING_INTERVAL)
-}
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -51,6 +29,8 @@ beforeEach(() => {
 
 // TODO: Delete this test? Is it useful?
 it(`App fetches the card data every 200 ms`, () => {
+  jest.useFakeTimers()
+
   render(<Root />)
 
   expect(window.setInterval).toHaveBeenCalledTimes(1)

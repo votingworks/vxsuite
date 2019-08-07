@@ -4,7 +4,6 @@ import fetchMock from 'fetch-mock'
 
 import electionSample from '../data/electionSample.json'
 
-import GLOBALS from '../config/globals'
 import App, {
   electionStorageKey,
   stateStorageKey,
@@ -14,6 +13,12 @@ import { CardAPI, CandidateContest, Election } from '../config/types'
 
 import { handleGamepadButtonDown } from './gamepad'
 
+import {
+  noCard,
+  voterCard,
+  advanceTimers,
+} from '../__tests__/helpers/smartcards'
+
 const election = electionSample as Election
 const contest0 = election.contests[0] as CandidateContest
 const contest1 = election.contests[1] as CandidateContest
@@ -21,37 +26,16 @@ const contest0candidate0 = contest0.candidates[0]
 const contest0candidate1 = contest0.candidates[1]
 const contest1candidate0 = contest1.candidates[0]
 
-jest.useFakeTimers()
-
 const electionSampleAsString = JSON.stringify(
   mergeWithDefaults(electionSample as Election)
 )
 
 const getActiveElement = () => document.activeElement! as HTMLInputElement
 
-const noCard: CardAPI = {
-  present: false,
-}
-
-const voterCardShortValue = {
-  t: 'voter',
-  pr: election.precincts[0].id,
-  bs: election.ballotStyles[0].id,
-}
-
-const voterCard: CardAPI = {
-  present: true,
-  shortValue: JSON.stringify(voterCardShortValue),
-}
-
 let currentCard: CardAPI = noCard
 
 fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-
-const advanceTimers = (ms: number = 0) => {
-  jest.advanceTimersByTime(ms + GLOBALS.CARD_POLLING_INTERVAL)
-}
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -59,6 +43,8 @@ beforeEach(() => {
 })
 
 it(`gamepad controls work`, async () => {
+  jest.useFakeTimers()
+
   // load election from localStorage
   window.localStorage.setItem(electionStorageKey, electionSampleAsString)
   window.localStorage.setItem(
