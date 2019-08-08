@@ -18,6 +18,7 @@
     "test:e2e:watch": "start-server-and-test start http://localhost:3000 cypress:open",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
+    "lint:fix": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --fix --quiet && yarn stylelint:run --fix",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
   },
   "husky": {
