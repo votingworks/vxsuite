@@ -277,29 +277,30 @@ class CandidateContest extends React.Component<Props, State> {
       .replace(/\s+/g, ' ')
 
   public addWriteInCandidate = () => {
+    const { contest, vote } = this.props
+    const normalizedCandidateName = this.normalizeName(
+      this.state.writeInCandidateName
+    )
+    this.props.updateVote(contest.id, [
+      ...vote,
+      {
+        id: `write-in__${camelCase(normalizedCandidateName)}`,
+        isWriteIn: true,
+        name: normalizedCandidateName,
+      },
+    ])
+    this.setState({ writeInCandidateName: '' })
+
     // Delay to avoid passing tap to next screen
     window.setTimeout(() => {
-      const { contest, vote } = this.props
-      const normalizedCandidateName = this.normalizeName(
-        this.state.writeInCandidateName
-      )
-      this.props.updateVote(contest.id, [
-        ...vote,
-        {
-          id: `write-in__${camelCase(normalizedCandidateName)}`,
-          isWriteIn: true,
-          name: normalizedCandidateName,
-        },
-      ])
-      this.setState({ writeInCandidateName: '' })
       this.toggleWriteInCandidateModal(false)
     }, 200)
   }
 
   public cancelWriteInCandidateModal = () => {
+    this.setState({ writeInCandidateName: '' })
     // Delay to avoid passing tap to next screen
     window.setTimeout(() => {
-      this.setState({ writeInCandidateName: '' })
       this.toggleWriteInCandidateModal(false)
     }, 200)
   }
