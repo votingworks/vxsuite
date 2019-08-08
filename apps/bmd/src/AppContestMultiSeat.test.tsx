@@ -60,8 +60,6 @@ it(`Single Seat Contest`, async () => {
     advanceTimers()
   }
 
-  getByText(countyCommissionersContest.title)
-
   // Select 5 candidates for 4 seats
   fireEvent.click(getByText(candidate0.name))
   fireEvent.click(getByText(candidate1.name))

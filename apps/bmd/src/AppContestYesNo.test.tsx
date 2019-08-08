@@ -65,8 +65,6 @@ it(`Single Seat Contest`, async () => {
     advanceTimers()
   }
 
-  getByText(measure102Contest.title)
-
   // Select Yes
   fireEvent.click(getByText('Yes'))
   expect(getByText('Yes').closest('button')!.dataset.selected).toBe('true')
