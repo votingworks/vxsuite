@@ -11,9 +11,7 @@ import {
 } from './__tests__/helpers/smartcards'
 
 import {
-  presidentContest, // overvote
-  // countyCommissionersContest, // multiseat
-  // measure102Contest, // yes/no
+  presidentContest,
   setElectionInLocalStorage,
   setStateInLocalStorage,
 } from './__tests__/helpers/election'
@@ -26,13 +24,14 @@ jest.useFakeTimers()
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
-  // load election from localStorage
-  setElectionInLocalStorage()
-  setStateInLocalStorage()
 })
 
 it(`Single Seat Contest`, async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
+
+  setElectionInLocalStorage()
+  setStateInLocalStorage()
+
   const { container, getByText } = render(<App />)
 
   // Insert Voter Card
@@ -53,7 +52,6 @@ it(`Single Seat Contest`, async () => {
   const candidate1 = presidentContest.candidates[1].name
 
   getByText(presidentContest.title)
-  expect(presidentContest.seats).toEqual(1)
 
   // Select first candiate
   fireEvent.click(getByText(candidate0))
