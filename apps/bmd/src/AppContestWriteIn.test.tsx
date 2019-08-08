@@ -1,46 +1,57 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, wait } from '@testing-library/react'
+import fetchMock from 'fetch-mock'
 
-import electionSample from './data/electionSample.json'
+import App from './App'
 
-import App, { electionStorageKey, mergeWithDefaults } from './App'
-import { CandidateContest, Election } from './config/types'
+import {
+  noCard,
+  voterCard,
+  advanceTimers,
+} from './__tests__/helpers/smartcards'
 
-const election = electionSample as Election
-const contest0 = election.contests[0] as CandidateContest
+import {
+  singleSeatContestWithWriteIn,
+  setElectionInLocalStorage,
+  setStateInLocalStorage,
+} from './__tests__/helpers/election'
 
-const electionSampleAsString = JSON.stringify(
-  mergeWithDefaults(electionSample as Election)
-)
+let currentCard = noCard
+fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+
+jest.useFakeTimers()
 
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
 })
 
-it(`Write-In Candidate flow with single seat contest`, () => {
-  const contestWithWriteIn = electionSample.contests.find(
-    c => !!c.allowWriteIns && c.seats === 1
-  ) as CandidateContest
+it(`Single Seat Contest`, async () => {
+  // ====================== BEGIN CONTEST SETUP ====================== //
 
-  window.localStorage.setItem(electionStorageKey, electionSampleAsString)
-  const { getByText, getByTestId, queryByText } = render(<App />)
-  fireEvent.change(getByTestId('activation-code'), {
-    target: { value: 'VX.23.12' },
-  })
+  setElectionInLocalStorage()
+  setStateInLocalStorage()
 
-  // TODO: replace next line with "Enter" keyDown on activation code input
-  fireEvent.click(getByText('Submit'))
+  const { container, getByText, queryByText } = render(<App />)
+
+  // Insert Voter Card
+  currentCard = voterCard
+  advanceTimers()
 
   // Go to Voting Instructions
-  fireEvent.click(getByText('Get Started'))
+  await wait(() => fireEvent.click(getByText('Get Started')))
+  advanceTimers()
 
   // Go to First Contest
   fireEvent.click(getByText('Start Voting'))
+  advanceTimers()
 
-  // click Next until getting to multi-seat contest
-  while (!queryByText(contestWithWriteIn.title)) {
+  // ====================== END CONTEST SETUP ====================== //
+
+  // Advance to Single-Seat Contest with Write-In
+  while (!queryByText(singleSeatContestWithWriteIn.title)) {
     fireEvent.click(getByText('Next'))
+    advanceTimers()
   }
 
   // Test Write-In Candidate Modal Cancel
@@ -50,14 +61,21 @@ it(`Write-In Candidate flow with single seat contest`, () => {
   // Add Write-In Candidate
   fireEvent.click(getByText('add write-in candidate').closest('button')!)
   expect(getByText('Write-In Candidate')).toBeTruthy()
-  fireEvent.click(getByText('B').closest('button')!)
-  fireEvent.click(getByText('O').closest('button')!)
-  fireEvent.click(getByText('B').closest('button')!)
+  // Capture styles of Single Candidate Contest
+  expect(container.firstChild).toMatchSnapshot()
+
+  // Enter Write-in Candidate Name
+  fireEvent.click(getByText('B'))
+  fireEvent.click(getByText('O'))
+  fireEvent.click(getByText('B'))
   fireEvent.click(getByText('Accept'))
+  advanceTimers()
 
   // Remove Write-In Candidate
-  fireEvent.click(getByText('BOB').closest('label')!)
+  // await wait(() => getByText('BOB'))
+  fireEvent.click(getByText('BOB').closest('button')!)
   fireEvent.click(getByText('Yes, Remove.'))
+  advanceTimers()
 
   // Add Different Write-In Candidate
   fireEvent.click(getByText('add write-in candidate').closest('button')!)
@@ -65,28 +83,26 @@ it(`Write-In Candidate flow with single seat contest`, () => {
   fireEvent.click(getByText('A').closest('button')!)
   fireEvent.click(getByText('L').closest('button')!)
   fireEvent.click(getByText('Accept'))
-  expect(
-    (getByText('SAL')
-      .closest('label')!
-      .querySelector('input') as HTMLInputElement).checked
-  ).toBeTruthy()
+  expect(getByText('SAL').closest('button')!.dataset.selected).toBe('true')
 
   // Try to Select Other Candidate when Max Candidates Selected.
   fireEvent.click(
-    getByText(contestWithWriteIn.candidates[0].name).closest('label')!
+    getByText(singleSeatContestWithWriteIn.candidates[0].name).closest(
+      'button'
+    )!
   )
   getByText(
-    `You may only select ${contest0.seats} candidate in this contest. To vote for ${contestWithWriteIn.candidates[0].name}, you must first unselect selected candidate.`
+    `You may only select ${singleSeatContestWithWriteIn.seats} candidate in this contest. To vote for ${singleSeatContestWithWriteIn.candidates[0].name}, you must first unselect selected candidate.`
   )
   fireEvent.click(getByText('Okay'))
 
   // Go to review page and confirm write in exists
   while (!queryByText('Review Your Selections')) {
     fireEvent.click(getByText('Next'))
+    advanceTimers()
   }
   fireEvent.click(getByText('Review Selections'))
+  advanceTimers()
   expect(getByText('SAL')).toBeTruthy()
   expect(getByText('(write-in)')).toBeTruthy()
-
-  fireEvent.click(getByText('Next'))
 })
