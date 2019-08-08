@@ -69,7 +69,7 @@ it(`Single Seat Contest`, async () => {
   fireEvent.click(getByText(candidate3.name))
   fireEvent.click(getByText(candidate4.name))
 
-  // Overvote modal is triggered
+  // Overvote modal is displayed
   getByText(
     `You may only select ${countyCommissionersContest.seats} candidates in this contest. To vote for ${candidate4.name}, you must first unselect selected candidates.`
   )

@@ -312,7 +312,7 @@ export default class YesNoContest extends React.Component<Props> {
             )}
           </VariableContentContainer>
           <ContestFooter>
-            <ChoicesGrid>
+            <ChoicesGrid data-testid="contest-choices">
               {['Yes', 'No'].map(answer => {
                 const answerLowerCase = answer.toLowerCase()
                 const isChecked = vote === answerLowerCase

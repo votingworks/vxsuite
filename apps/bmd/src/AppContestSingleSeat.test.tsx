@@ -59,7 +59,7 @@ it(`Single Seat Contest`, async () => {
   // Select second candidate
   fireEvent.click(getByText(candidate1))
 
-  // Overvote modal is triggered
+  // Overvote modal is displayed
   getByText(
     `You may only select ${presidentContest.seats} candidate in this contest. To vote for ${candidate1}, you must first unselect selected candidate.`
   )
