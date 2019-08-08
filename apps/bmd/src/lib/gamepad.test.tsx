@@ -4,11 +4,7 @@ import fetchMock from 'fetch-mock'
 
 import App from '../App'
 
-import {
-  noCard,
-  voterCard,
-  advanceTimers,
-} from '../__tests__/helpers/smartcards'
+import { noCard, voterCard, advanceTimers } from '../../test/helpers/smartcards'
 
 import {
   contest0,
@@ -17,7 +13,7 @@ import {
   contest1candidate0,
   setElectionInLocalStorage,
   setStateInLocalStorage,
-} from '../__tests__/helpers/election'
+} from '../../test/helpers/election'
 
 import { getActiveElement, handleGamepadButtonDown } from './gamepad'
 

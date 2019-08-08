@@ -16,5 +16,5 @@
     "target": "es5"
   },
   "exclude": ["src/setupProxy.js"],
-  "include": ["src"]
+  "include": ["src", "test"]
 }

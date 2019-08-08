@@ -17,7 +17,7 @@ import {
   invalidatedVoterCard,
   getPrintedVoterCard,
   advanceTimers,
-} from './__tests__/helpers/smartcards'
+} from '../test/helpers/smartcards'
 
 import {
   electionAsString,
@@ -25,7 +25,7 @@ import {
   countyCommissionersContest,
   measure102Contest,
   voterContests,
-} from './__tests__/helpers/election'
+} from '../test/helpers/election'
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))

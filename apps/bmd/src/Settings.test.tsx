@@ -7,13 +7,9 @@ import App from './App'
 import {
   setElectionInLocalStorage,
   setStateInLocalStorage,
-} from './__tests__/helpers/election'
+} from '../test/helpers/election'
 
-import {
-  noCard,
-  voterCard,
-  advanceTimers,
-} from './__tests__/helpers/smartcards'
+import { noCard, voterCard, advanceTimers } from '../test/helpers/smartcards'
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))

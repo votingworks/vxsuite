@@ -4,17 +4,13 @@ import fetchMock from 'fetch-mock'
 
 import App from './App'
 
-import {
-  noCard,
-  voterCard,
-  advanceTimers,
-} from './__tests__/helpers/smartcards'
+import { noCard, voterCard, advanceTimers } from '../test/helpers/smartcards'
 
 import {
   singleSeatContestWithWriteIn,
   setElectionInLocalStorage,
   setStateInLocalStorage,
-} from './__tests__/helpers/election'
+} from '../test/helpers/election'
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))

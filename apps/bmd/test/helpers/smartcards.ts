@@ -1,6 +1,6 @@
-import GLOBALS from '../../config/globals'
-import { CardAPI, Election } from '../../config/types'
-import electionSample from '../../data/electionSample.json'
+import GLOBALS from '../../src/config/globals'
+import { CardAPI, Election } from '../../src/config/types'
+import electionSample from '../../src/data/electionSample.json'
 
 const election = electionSample as Election
 

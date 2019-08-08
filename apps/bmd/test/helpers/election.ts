@@ -1,12 +1,16 @@
-import electionSample from '../../data/electionSample.json'
-import { CandidateContest, Election, YesNoContest } from '../../config/types'
-import { getBallotStyle, getContests } from '../../utils/election'
+import electionSample from '../../src/data/electionSample.json'
+import {
+  CandidateContest,
+  Election,
+  YesNoContest,
+} from '../../src/config/types'
+import { getBallotStyle, getContests } from '../../src/utils/election'
 
 import {
   electionStorageKey,
   stateStorageKey,
   mergeWithDefaults,
-} from '../../App'
+} from '../../src/App'
 
 export const election = electionSample as Election
 export const contest0 = election.contests[0] as CandidateContest

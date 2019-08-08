@@ -5,10 +5,7 @@ import electionSample from './data/electionSample.json'
 
 import App, { electionStorageKey } from './App'
 
-import {
-  election,
-  setElectionInLocalStorage,
-} from './__tests__/helpers/election'
+import { election, setElectionInLocalStorage } from '../test/helpers/election'
 
 beforeEach(() => {
   window.localStorage.clear()

@@ -12,11 +12,7 @@ import Root from './App'
 //   // VoterCardData,
 // } from './config/types'
 
-import {
-  noCard,
-  voterCard,
-  advanceTimers,
-} from './__tests__/helpers/smartcards'
+import { noCard, voterCard, advanceTimers } from '../test/helpers/smartcards'
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
