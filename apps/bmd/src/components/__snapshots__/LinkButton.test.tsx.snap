@@ -10,6 +10,7 @@ exports[`navigates back 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: black;
+  touch-action: manipulation;
 }
 
 <button
@@ -31,6 +32,7 @@ exports[`navigates to page 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: black;
+  touch-action: manipulation;
 }
 
 <button
@@ -51,6 +53,7 @@ exports[`renders LinkButton with onClick and disabled props 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: rgb(169,169,169);
+  touch-action: manipulation;
 }
 
 <button
@@ -73,6 +76,7 @@ exports[`renders LinkButton with onClick prop 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: black;
+  touch-action: manipulation;
 }
 
 <button

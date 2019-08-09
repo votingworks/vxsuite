@@ -27,7 +27,7 @@ it(`renders LinkButton with onClick prop`, () => {
   const onClickHandler = jest.fn()
   const { getByText } = render(
     <StaticRouter context={{}}>
-      <LinkButton to="/" onClick={onClickHandler}>
+      <LinkButton to="/" onPress={onClickHandler}>
         {text}
       </LinkButton>
     </StaticRouter>

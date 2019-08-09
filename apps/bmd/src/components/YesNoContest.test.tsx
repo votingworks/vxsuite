@@ -27,10 +27,10 @@ describe('supports yes/no contest', () => {
     )
     expect(container).toMatchSnapshot()
 
-    fireEvent.click(getByText('Yes').closest('label')!)
+    fireEvent.click(getByText('Yes').closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(1)
 
-    fireEvent.click(getByText('No').closest('label')!)
+    fireEvent.click(getByText('No').closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(2)
   })
 
@@ -40,7 +40,7 @@ describe('supports yes/no contest', () => {
       <YesNoContest contest={contest} vote="yes" updateVote={updateVote} />
     )
     expect(container).toMatchSnapshot()
-    fireEvent.click(getByText('No').closest('label')!)
+    fireEvent.click(getByText('No').closest('button')!)
     expect(
       getAllByText(
         (_, element) =>
