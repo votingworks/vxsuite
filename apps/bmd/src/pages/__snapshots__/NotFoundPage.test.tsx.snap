@@ -10,6 +10,7 @@ exports[`renders NotFoundPage 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: black;
+  touch-action: manipulation;
 }
 
 .c0 {
@@ -77,6 +78,10 @@ exports[`renders NotFoundPage 1`] = `
 
 .c2 > :last-child {
   margin-bottom: 0;
+}
+
+.c2 dl {
+  margin: 1rem 0;
 }
 
 @media (min-width:480px) {
