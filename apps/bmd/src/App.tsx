@@ -110,6 +110,7 @@ let checkCardInterval = 0
 
 export class App extends React.Component<RouteComponentProps, State> {
   public state: State = initialState
+  private machineIdAbortController = new AbortController()
 
   public processVoterCardData = (voterCardData: VoterCardData) => {
     const { election } = this.state
@@ -305,24 +306,25 @@ export class App extends React.Component<RouteComponentProps, State> {
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
 
-    fetch('/machine-id').then(response => {
-      response
-        .json()
-        .catch(() => {})
-        .then(responseJSON => {
-          if (responseJSON) {
-            const { machineId } = responseJSON
-            this.setState({
-              machineId,
-            })
-          }
-        })
-    })
+    const { signal } = this.machineIdAbortController
+    fetch('/machine-id', { signal })
+      .then(response => response.json())
+      .then(response => {
+        const { machineId } = response
+        const { aborted } = signal
+        if (machineId && !aborted) {
+          this.setState({
+            machineId,
+          })
+        }
+      })
+      .catch(() => {})
 
     this.startPolling()
   }
 
   public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
+    this.machineIdAbortController.abort()
     Mousetrap.unbind(removeElectionShortcuts)
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
     this.stopPolling()

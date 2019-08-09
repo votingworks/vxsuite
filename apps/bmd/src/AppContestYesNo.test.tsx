@@ -86,6 +86,7 @@ it(`Single Seat Contest`, async () => {
     'Do you want to change your vote to No? To change your vote, first unselect your vote for Yes.'
   )
   fireEvent.click(getByText('Okay'))
+  advanceTimers() // For 200ms Delay in closing modal
 
   // Go to review page and confirm write in exists
   while (!queryByText('Review Your Selections')) {

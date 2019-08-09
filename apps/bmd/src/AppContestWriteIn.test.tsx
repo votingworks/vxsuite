@@ -91,6 +91,7 @@ it(`Single Seat Contest`, async () => {
     `You may only select ${singleSeatContestWithWriteIn.seats} candidate in this contest. To vote for ${singleSeatContestWithWriteIn.candidates[0].name}, you must first unselect selected candidate.`
   )
   fireEvent.click(getByText('Okay'))
+  advanceTimers() // For 200ms Delay in closing modal
 
   // Go to review page and confirm write in exists
   while (!queryByText('Review Your Selections')) {
