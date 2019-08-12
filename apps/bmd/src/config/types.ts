@@ -42,7 +42,6 @@ export type Contests = (CandidateContest | YesNoContest)[]
 // Election
 export interface BMDConfig {
   readonly requireActivation?: boolean
-  readonly showHelpPage?: boolean
   readonly showSettingsPage?: boolean
 }
 export interface ElectionDefaults {

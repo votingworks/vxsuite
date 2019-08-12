@@ -68,7 +68,7 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
   }
   public render() {
     const { ballotStyleId, election, precinctId, votes } = this.context
-    const { showHelpPage, showSettingsPage } = election.bmdConfig
+    const { showSettingsPage } = election.bmdConfig
     const { showConfirmModal, showPrintingModal } = this.state
 
     return (
@@ -106,7 +106,6 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
         </ButtonBar>
         <ButtonBar secondary separatePrimaryButton>
           <div />
-          {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
           {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
         </ButtonBar>
         <Modal

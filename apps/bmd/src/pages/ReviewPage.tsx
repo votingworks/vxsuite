@@ -283,7 +283,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
     const {
       contests,
       election: {
-        bmdConfig: { showHelpPage, showSettingsPage },
+        bmdConfig: { showSettingsPage },
         parties,
       },
       votes,
@@ -373,7 +373,6 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
         </ButtonBar>
         <ButtonBar secondary separatePrimaryButton>
           <div />
-          {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
           {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
         </ButtonBar>
       </React.Fragment>

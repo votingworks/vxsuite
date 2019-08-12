@@ -27,7 +27,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
   )
 
   const { bmdConfig } = election!
-  const { showHelpPage, showSettingsPage } = bmdConfig!
+  const { showSettingsPage } = bmdConfig!
   const currentContestIndex = parseInt(contestNumber, 10)
   const contest = contests[currentContestIndex]
 
@@ -107,10 +107,9 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
       <ButtonBar
         secondary
         separatePrimaryButton
-        centerOnlyChild={!showHelpPage && !showSettingsPage}
+        centerOnlyChild={!showSettingsPage}
       >
         <div />
-        {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
         {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
       </ButtonBar>
     </React.Fragment>

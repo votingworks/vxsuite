@@ -5,7 +5,6 @@ import IdleTimer from 'react-idle-timer'
 import BallotContext from '../contexts/ballotContext'
 
 import ContestPage from '../pages/ContestPage'
-import HelpPage from '../pages/HelpPage'
 import IdlePage from '../pages/IdlePage'
 import NotFoundPage from '../pages/NotFoundPage'
 import PreReviewPage from '../pages/PreReviewPage'
@@ -19,7 +18,7 @@ const Ballot = () => {
   const [isIdle, setIsIdle] = useState(false)
 
   const { contests, election } = useContext(BallotContext)
-  const { showHelpPage, showSettingsPage } = election!.bmdConfig!
+  const { showSettingsPage } = election!.bmdConfig!
 
   const onActive = () => {
     // Delay to avoid passing tap to next screen
@@ -55,7 +54,6 @@ const Ballot = () => {
           <Route path="/pre-review" component={PreReviewPage} />
           <Route path="/review" component={ReviewPage} />
           <Route path="/print" component={PrintPage} />
-          {showHelpPage && <Route path="/help" component={HelpPage} />}
           {showSettingsPage && (
             <Route path="/settings" component={SettingsPage} />
           )}

@@ -11,7 +11,7 @@ import BallotContext from '../contexts/ballotContext'
 const PreReviewPage = () => {
   const { election } = useContext(BallotContext)
   const { bmdConfig } = election!
-  const { showHelpPage, showSettingsPage } = bmdConfig!
+  const { showSettingsPage } = bmdConfig!
   return (
     <React.Fragment>
       <Main>
@@ -44,7 +44,6 @@ const PreReviewPage = () => {
       </ButtonBar>
       <ButtonBar secondary separatePrimaryButton>
         <div />
-        {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
         {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
       </ButtonBar>
     </React.Fragment>
