@@ -10,7 +10,7 @@ jest.setTimeout(10000)
 
 jest.mock('./exec', () => ({
   __esModule: true,
-  default: jest.fn((_command, callback) => {
+  default: jest.fn((_file, _args, callback) => {
     callback()
   }),
 }))

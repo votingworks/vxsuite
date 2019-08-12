@@ -12,7 +12,7 @@ const mockChokidar = chokidar as jest.Mocked<typeof chokidar>
 let execErrorMessage: string | undefined = undefined
 jest.mock('./exec', () => ({
   __esModule: true,
-  default: jest.fn((_command, callback) => {
+  default: jest.fn((_file, _args, callback) => {
     callback(execErrorMessage)
   }),
 }))

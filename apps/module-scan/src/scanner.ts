@@ -20,7 +20,7 @@ import {
 } from './store'
 import interpretFile, { interpretBallotString } from './interpreter'
 
-import exec from './exec'
+import execFile from './exec'
 
 let manualBatchId: number | undefined
 
@@ -108,6 +108,18 @@ export function configure(newElection: Election) {
   watcher.on('add', fileAdded)
 }
 
+function zeroPad(number: number, maxLength: number = 2): string {
+  return number.toString().padStart(maxLength, '0')
+}
+
+function dateStamp(date: Date = new Date()): string {
+  return `${zeroPad(date.getFullYear(), 4)}${zeroPad(
+    date.getMonth() + 1
+  )}${zeroPad(date.getDay())}_${zeroPad(date.getHours())}${zeroPad(
+    date.getMinutes()
+  )}${zeroPad(date.getSeconds())}`
+}
+
 export function doScan() {
   return new Promise((resolve, reject) => {
     if (!election) {
@@ -115,8 +127,17 @@ export function doScan() {
     } else {
       addBatch().then((batchId: number) => {
         // trigger a scan
-        exec(
-          `scanimage -d fujitsu --resolution 300 --format=jpeg --source="ADF Duplex" --batch=${ballotImagesPath}$(date +%Y%m%d_%H%M%S)-batch-${batchId}-ballot-%04d.jpg`,
+        execFile(
+          'scanimage',
+          [
+            '-d',
+            'fujitsu',
+            '--resolution',
+            '300',
+            '--format=jpeg',
+            '--source="ADF Duplex"',
+            `--batch=${ballotImagesPath}${dateStamp()}-batch-${batchId}-ballot-%04d.jpg`,
+          ],
           err => {
             if (err) {
               // node couldn't execute the command

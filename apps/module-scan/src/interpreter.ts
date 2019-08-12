@@ -3,7 +3,7 @@
 // and process/interpret them into a cast-vote record.
 //
 
-import { exec, ExecException } from 'child_process'
+import { execFile, ExecException } from 'child_process'
 
 import {
   BallotStyle,
@@ -94,8 +94,9 @@ export default function interpretFile(
 ) {
   const { election, ballotImagePath, cvrCallback } = interpretFileParams
 
-  exec(
-    `zbarimg -q --raw ${ballotImagePath}`,
+  execFile(
+    'zbarimg',
+    ['-q', '--raw', ballotImagePath],
     (exc: ExecException | null, stdout: string) => {
       if (exc) {
         return cvrCallback({ ballotImagePath })
