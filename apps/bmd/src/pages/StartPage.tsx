@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 
-import { Election } from '../config/types'
+import { Election, Precinct } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
 
@@ -16,8 +16,7 @@ const StartPage = () => {
   const { ballotStyleId, election: e, precinctId } = useContext(BallotContext)
   const election = e as Election
   const { title, state, county, date, seal, sealURL } = election
-  const precinct = election.precincts.find(p => p.id === precinctId)
-  const precinctName = precinct ? precinct.name : precinctId
+  const precinct = election.precincts.find(p => p.id === precinctId) as Precinct
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     election,
     ballotStyleId,
@@ -38,7 +37,7 @@ const StartPage = () => {
           </p>
           <hr />
           <h2>
-            Precinct: {precinctName}
+            Precinct: {precinct.name}
             <br />
             Ballot Style: {ballotStyleId}
           </h2>

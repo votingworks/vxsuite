@@ -50,6 +50,7 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
   }
   public print = () => {
     const { showPrintingModal } = this.state
+    /* istanbul ignore else */
     if (!showPrintingModal) {
       this.setState(
         {
@@ -58,6 +59,7 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
         },
         () => {
           this.context.markVoterCardUsed().then((success: boolean) => {
+            /* istanbul ignore else */
             if (success) {
               window.print()
             }

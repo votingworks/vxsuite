@@ -123,13 +123,16 @@ const PollWorkerScreen = ({
           </Prose>
           <Report key={reportId} className="print-only" aria-hidden="true">
             <Header>
-              {seal ? (
+              {seal && !sealURL ? (
                 <div
                   className="seal"
                   // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
                   dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
                 />
-              ) : sealURL ? (
+              ) : (
+                <React.Fragment />
+              )}
+              {sealURL && !seal ? (
                 <div className="seal">
                   <SealImage src={sealURL} alt="" />
                 </div>

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders ContestPage 1`] = `
-.c11 {
+exports[`Renders ContestPage 1`] = `
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -22,20 +22,20 @@ exports[`renders ContestPage 1`] = `
   padding: 0.25rem;
 }
 
-.c11 > *:first-child {
+.c10 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c11 > * {
+.c10 > * {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
 }
 
-.c14 {
+.c13 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -59,20 +59,61 @@ exports[`renders ContestPage 1`] = `
   padding: 0.25rem;
 }
 
-.c14 > *:first-child {
+.c13 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
 }
 
-.c14 > * {
+.c13 > * {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   margin: 0.25rem;
 }
 
-.c12 {
+.c8 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c8::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
+.c11 {
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
@@ -81,6 +122,7 @@ exports[`renders ContestPage 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: black;
+  touch-action: manipulation;
 }
 
 .c0 {
@@ -141,7 +183,11 @@ exports[`renders ContestPage 1`] = `
   margin-bottom: 0;
 }
 
-.c10 {
+.c2 dl {
+  margin: 1rem 0;
+}
+
+.c9 {
   word-break: break-word;
 }
 
@@ -210,70 +256,10 @@ exports[`renders ContestPage 1`] = `
 .c7 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+  grid-gap: 1.25rem;
 }
 
-.c8 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-button.c8 {
-  text-align: left;
-}
-
-.c8:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c8::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '';
-}
-
-.c8 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c9 {
-  margin-right: 0.5rem;
-}
-
-.c13 {
+.c12 {
   text-align: center;
   color: #FFFFFF;
   -webkit-flex: 2;
@@ -282,7 +268,7 @@ button.c8 {
 }
 
 @media (min-width:480px) {
-  .c11 > *:only-child {
+  .c10 > *:only-child {
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
@@ -292,19 +278,19 @@ button.c8 {
 }
 
 @media print {
-  .c11 {
+  .c10 {
     display: none;
   }
 }
 
 @media (min-width:480px) {
-  .c14 > *:first-child {
+  .c13 > *:first-child {
     margin-left: auto;
   }
 }
 
 @media (min-width:480px) {
-  .c14 > * {
+  .c13 > * {
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
@@ -312,7 +298,7 @@ button.c8 {
 }
 
 @media (min-width:480px) {
-  .c14 > *:only-child {
+  .c13 > *:only-child {
     -webkit-flex: 0;
     -ms-flex: 0;
     flex: 0;
@@ -321,8 +307,14 @@ button.c8 {
 }
 
 @media print {
-  .c14 {
+  .c13 {
     display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c8 {
+    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -356,14 +348,8 @@ button.c8 {
   }
 }
 
-@media (min-width:480px) {
-  .c8 > div {
-    padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
 @media print {
-  .c13 {
+  .c12 {
     color: #FFFFFF;
   }
 }
@@ -417,24 +403,19 @@ button.c8 {
           <div
             class="c7"
           >
-            <label
+            <button
               aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
               class="c8"
-              for="barchi-hallaren"
+              data-id="barchi-hallaren"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="barchi-hallaren"
-                name="Joseph Barchi and Joseph Hallaren"
-                role="option"
-                type="checkbox"
-                value="barchi-hallaren"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Joseph Barchi and Joseph Hallaren
@@ -443,25 +424,20 @@ button.c8 {
                   Federalist
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Adam Cramer and Greg Vuocolo, People's."
               class="c8"
-              for="cramer-vuocolo"
+              data-id="cramer-vuocolo"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="cramer-vuocolo"
-                name="Adam Cramer and Greg Vuocolo"
-                role="option"
-                type="checkbox"
-                value="cramer-vuocolo"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Adam Cramer and Greg Vuocolo
@@ -470,25 +446,20 @@ button.c8 {
                   People's
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Daniel Court and Amy Blumhardt, Liberty."
               class="c8"
-              for="court-blumhardt"
+              data-id="court-blumhardt"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="court-blumhardt"
-                name="Daniel Court and Amy Blumhardt"
-                role="option"
-                type="checkbox"
-                value="court-blumhardt"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Daniel Court and Amy Blumhardt
@@ -497,25 +468,20 @@ button.c8 {
                   Liberty
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Alvin Boone and James Lian, Constitution."
               class="c8"
-              for="boone-lian"
+              data-id="boone-lian"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="boone-lian"
-                name="Alvin Boone and James Lian"
-                role="option"
-                type="checkbox"
-                value="boone-lian"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Alvin Boone and James Lian
@@ -524,25 +490,20 @@ button.c8 {
                   Constitution
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
               class="c8"
-              for="hildebrand-garritty"
+              data-id="hildebrand-garritty"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="hildebrand-garritty"
-                name="Ashley Hildebrand-McDougall and James Garritty"
-                role="option"
-                type="checkbox"
-                value="hildebrand-garritty"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Ashley Hildebrand-McDougall and James Garritty
@@ -551,25 +512,20 @@ button.c8 {
                   Whig
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Martin Patterson and Clay Lariviere, Labor."
               class="c8"
-              for="patterson-lariviere"
+              data-id="patterson-lariviere"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="patterson-lariviere"
-                name="Martin Patterson and Clay Lariviere"
-                role="option"
-                type="checkbox"
-                value="patterson-lariviere"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Martin Patterson and Clay Lariviere
@@ -578,17 +534,17 @@ button.c8 {
                   Labor
                 </p>
               </div>
-            </label>
+            </button>
           </div>
         </div>
       </div>
     </div>
   </main>
   <nav
-    class="c11"
+    class="c10"
   >
     <button
-      class="c12"
+      class="c11"
       id="next"
       role="option"
       type="button"
@@ -596,7 +552,7 @@ button.c8 {
       Next
     </button>
     <button
-      class="c12"
+      class="c11"
       id="previous"
       role="option"
       type="button"
@@ -604,7 +560,7 @@ button.c8 {
       Back
     </button>
     <p
-      class="c13"
+      class="c12"
     >
       1
        of 
@@ -612,11 +568,11 @@ button.c8 {
     </p>
   </nav>
   <nav
-    class="c14"
+    class="c13"
   >
     <div />
     <button
-      class="c12"
+      class="c11"
       role="option"
       type="button"
     >

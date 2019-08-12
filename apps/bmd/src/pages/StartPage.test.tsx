@@ -9,6 +9,7 @@ import StartPage from './StartPage'
 
 it(`renders StartPage`, async () => {
   const { container } = render(<Route path="/" component={StartPage} />, {
+    precinctId: '23',
     route: '/',
   })
   expect(container.firstChild).toMatchSnapshot()
@@ -16,16 +17,18 @@ it(`renders StartPage`, async () => {
 
 it(`renders StartPage with inline SVG`, async () => {
   const { container } = render(<Route path="/" component={StartPage} />, {
-    route: '/',
     election: electionSampleWithSeal,
+    precinctId: '23',
+    route: '/',
   })
   expect(container.firstChild).toMatchSnapshot()
 })
 
 it(`renders StartPage with no seal`, async () => {
   const { container } = render(<Route path="/" component={StartPage} />, {
-    route: '/',
     election: electionSampleNoSeal,
+    precinctId: '23',
+    route: '/',
   })
   expect(container.firstChild).toMatchSnapshot()
 })

@@ -53,14 +53,16 @@ const generateTestDeckBallots = ({
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
         let votes: VotesDict = {}
         contests.forEach(contest => {
+          /* istanbul ignore else */
           if (contest.type === 'yesno') {
             votes[contest.id] = ballotNum % 2 === 0 ? 'yes' : 'no'
-          } else {
-            if (contest.candidates.length > 0) {
-              votes[contest.id] = [
-                contest.candidates[ballotNum % contest.candidates.length],
-              ]
-            }
+          } else if (
+            contest.type === 'candidate' &&
+            contest.candidates.length > 0 // safety check
+          ) {
+            votes[contest.id] = [
+              contest.candidates[ballotNum % contest.candidates.length],
+            ]
           }
         })
         ballots.push({

@@ -518,8 +518,8 @@ export class App extends React.Component<RouteComponentProps, State> {
           election={election}
           fetchElection={this.fetchElection}
           isLiveMode={isLiveMode}
-          unconfigure={this.unconfigure}
           toggleLiveMode={this.toggleLiveMode}
+          unconfigure={this.unconfigure}
         />
       )
     } else if (election && isPollWorkerCardPresent) {
