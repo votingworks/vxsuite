@@ -107,7 +107,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
       <ButtonBar
         secondary
         separatePrimaryButton
-        centerOnlyChild={!showHelpPage && !showSettingsPage && false}
+        centerOnlyChild={!showHelpPage && !showSettingsPage}
       >
         <div />
         {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
