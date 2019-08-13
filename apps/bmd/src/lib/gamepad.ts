@@ -48,6 +48,7 @@ function handleArrowLeft() {
 
 function handleArrowRight() {
   const nextButton = document.getElementById('next') as HTMLButtonElement
+  /* istanbul ignore else */
   if (nextButton) {
     nextButton.click()
   }
