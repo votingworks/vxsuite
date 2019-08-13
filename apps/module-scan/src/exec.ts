@@ -4,17 +4,18 @@
 // notably related to sqlite3, can't be imported at all, because
 // they use exec under the covers.
 
-import { exec as systemExec, ExecException, ChildProcess } from 'child_process'
+import { execFile as systemExecFile, ChildProcess } from 'child_process'
 
-const exec = (
-  command: string,
-  callback?: (
-    error: ExecException | null,
+const execFile = (
+  file: string,
+  args: string[],
+  callback: (
+    error: Error | null,
     stdout: string,
     stderr: string
-  ) => void
+  ) => void = () => {}
 ): ChildProcess => {
-  return systemExec(command, callback)
+  return systemExecFile(file, args, callback)
 }
 
-export default exec
+export default execFile
