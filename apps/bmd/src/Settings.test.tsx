@@ -27,23 +27,26 @@ describe(`Can update settings`, () => {
 
     const { getByText, getByTestId, getByLabelText } = render(<App />)
 
+    // Insert Voter Card
     currentCard = voterCard
     advanceTimers()
-
     await wait(() => getByText(/Precinct: Center Springfield/))
 
+    // Go to Activation Screen
     fireEvent.click(getByText('Get Started'))
     advanceTimers()
 
+    // Go to First Contest
     fireEvent.click(getByText('Start Voting'))
 
+    // Go to Setting Screen
     fireEvent.click(getByText('Settings'))
     advanceTimers()
-
     await wait(() =>
       getByText('Adjust the following settings to meet your needs.')
     )
 
+    // Test each of four Font Settings
     expect(
       (getByLabelText('Font Size') as HTMLInputElement).value === '1'
     ).toBeTruthy()
@@ -71,13 +74,25 @@ describe(`Can update settings`, () => {
     expect(
       (getByLabelText('Font Size') as HTMLInputElement).value === '3'
     ).toBeTruthy()
+
+    // Decrease Button
     fireEvent.click(getByTestId('decrease-font-size-button'))
     expect(
       (getByLabelText('Font Size') as HTMLInputElement).value === '2'
     ).toBeTruthy()
+
+    // Increase Button
     fireEvent.click(getByTestId('increase-font-size-button'))
     expect(
       (getByLabelText('Font Size') as HTMLInputElement).value === '3'
     ).toBeTruthy()
+
+    // Close Settings Screen
+    fireEvent.click(getByText('Back'))
+    advanceTimers()
+
+    // Expect to on Start Screen
+    // TODO: this works when this test file is run independently, but is not critical for 100% test coverage.
+    // await wait(() => getByText('Start Voting'))
   })
 })
