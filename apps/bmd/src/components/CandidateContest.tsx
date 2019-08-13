@@ -224,6 +224,7 @@ class CandidateContest extends React.Component<Props, State> {
   public handleUpdateSelection = (event: InputEvent) => {
     const { vote } = this.props
     const candidateId = (event.currentTarget as HTMLInputElement).dataset.id
+    /* istanbul ignore else */
     if (candidateId) {
       const candidate = this.findCandidateById(vote, candidateId)
       if (candidate) {
@@ -420,6 +421,7 @@ class CandidateContest extends React.Component<Props, State> {
                     )
                     const isDisabled = hasReachedMaxSelections && !isChecked
                     const handleDisabledClick = () => {
+                      /* istanbul ignore else */
                       if (isDisabled) {
                         this.handleChangeVoteAlert(candidate)
                       }
