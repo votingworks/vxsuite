@@ -63,6 +63,8 @@ it(`Single Seat Contest`, async () => {
   // Enter Write-in Candidate Name
   fireEvent.click(getByText('B'))
   fireEvent.click(getByText('O'))
+  fireEvent.click(getByText('V'))
+  fireEvent.click(getByText('⌫ delete'))
   fireEvent.click(getByText('B'))
   fireEvent.click(getByText('Accept'))
   advanceTimers()
