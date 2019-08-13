@@ -37,7 +37,6 @@ export const MainChild = styled('div')<ChildProps>`
     centerHorizontal = center,
   }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
   max-width: ${({ maxWidth = true }) => (maxWidth ? '35rem' : undefined)};
-  padding: ${({ padded = false }) => (padded ? '1rem' : undefined)};
   @media print {
     margin: 0;
     max-width: 100%;
