@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { Redirect, Route, Switch } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 import IdleTimer from 'react-idle-timer'
 
 import BallotContext from '../contexts/ballotContext'
@@ -17,7 +17,7 @@ import InstructionsPage from '../pages/InstructionsPage'
 const Ballot = () => {
   const [isIdle, setIsIdle] = useState(false)
 
-  const { contests, election } = useContext(BallotContext)
+  const { election } = useContext(BallotContext)
   const { showSettingsPage } = election!.bmdConfig!
 
   const onActive = () => {
@@ -45,11 +45,6 @@ const Ballot = () => {
         <Switch>
           <Route path="/" exact component={StartPage} />
           <Route path="/instructions" exact component={InstructionsPage} />
-          <Redirect
-            exact
-            from="/contests"
-            to={contests.length ? '/contests/0' : '/'}
-          />
           <Route path="/contests/:contestNumber" component={ContestPage} />
           <Route path="/pre-review" component={PreReviewPage} />
           <Route path="/review" component={ReviewPage} />

@@ -24,7 +24,7 @@ const InstructionsPage = () => {
               <LinkButton
                 primary
                 big
-                to="/contests/"
+                to="/contests/0"
                 id="next"
                 aria-label="Select Next to Start Voting."
               >
