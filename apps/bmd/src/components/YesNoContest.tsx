@@ -185,12 +185,10 @@ export default class YesNoContest extends React.Component<Props> {
     const { vote } = this.props
     const newVote = (event.currentTarget as HTMLInputElement).dataset
       .vote as YesNoVote
-    if (newVote) {
-      if (vote === newVote) {
-        this.props.updateVote(this.props.contest.id, undefined)
-      } else {
-        this.props.updateVote(this.props.contest.id, newVote)
-      }
+    if (vote === newVote) {
+      this.props.updateVote(this.props.contest.id, undefined)
+    } else {
+      this.props.updateVote(this.props.contest.id, newVote)
     }
   }
 
@@ -318,11 +316,7 @@ export default class YesNoContest extends React.Component<Props> {
                 const isChecked = vote === answerLowerCase
                 const isDisabled = !isChecked && !!vote
                 const handleDisabledClick = () => {
-                  if (isDisabled) {
-                    this.handleChangeVoteAlert(
-                      answer.toLowerCase() as YesNoVote
-                    )
-                  }
+                  this.handleChangeVoteAlert(answer.toLowerCase() as YesNoVote)
                 }
                 return (
                   <ChoiceButton
