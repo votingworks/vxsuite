@@ -6,7 +6,7 @@ import React, {
 } from 'react'
 import pluralize from 'pluralize'
 
-import useInterval from '../hooks/useInterval'
+import useInterval from 'use-interval'
 
 import BallotContext from '../contexts/ballotContext'
 
@@ -29,10 +29,11 @@ const IdlePage = () => {
   const onPress: PointerEventHandler = () => {}
 
   useEffect(() => {
-    const reset = async () => {
+    const reset = () => {
       setIsLoading(true)
-      await markVoterCardUsed({ ballotPrinted: false })
-      resetBallot()
+      markVoterCardUsed({ ballotPrinted: false }).then(() => {
+        resetBallot()
+      })
     }
     countdown === 0 && reset()
   }, [countdown, markVoterCardUsed, resetBallot])

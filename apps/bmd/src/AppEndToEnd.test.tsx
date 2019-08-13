@@ -50,7 +50,7 @@ beforeEach(() => {
 it(`basic end-to-end flow`, async () => {
   jest.useFakeTimers()
 
-  const { getByText } = render(<App />)
+  const { getByText, queryByText } = render(<App />)
 
   currentCard = noCard
   advanceTimers()
@@ -138,6 +138,53 @@ it(`basic end-to-end flow`, async () => {
 
   advanceTimers()
   getByText('This ballot has 11 contests.')
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Test the Idle Screen
+  const idleScreenCopy =
+    'This voting station has been inactive for more than one minute.'
+
+  // Insert Voter card
+  currentCard = voterCard
+  advanceTimers()
+  await wait(() => getByText(/Precinct: Center Springfield/))
+
+  // Elapse 60 seconds
+  advanceTimers(60 * 1000)
+
+  // Idle Screen is displayed
+  getByText(idleScreenCopy)
+
+  // User action removes Idle Screen
+  fireEvent.click(getByText('Touch the screen to go back to the ballot.'))
+  fireEvent.mouseDown(document)
+  advanceTimers()
+  expect(queryByText(idleScreenCopy)).toBeFalsy()
+
+  // Elapse 60 seconds
+  advanceTimers(60 * 1000)
+
+  // Idle Screen is displayed
+  getByText(idleScreenCopy)
+
+  // Countdown works
+  advanceTimers(1000)
+  getByText('29 seconds')
+
+  advanceTimers(29000)
+  advanceTimers()
+  getByText('Clearing ballot')
+
+  advanceTimers()
+
+  // 30 seconds passes, Expect Invalid card
+  // await wait(() => getByText('Inactive Card'))
 
   // Remove card
   currentCard = noCard
