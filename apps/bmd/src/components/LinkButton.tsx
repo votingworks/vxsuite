@@ -28,6 +28,7 @@ const LinkButton = (props: Props) => {
     ...rest
   } = props
   const handleOnPress: PointerEventHandler = event => {
+    /* istanbul ignore else */
     if (onPress) {
       onPress(event)
     } else if (goBack && !to) {
