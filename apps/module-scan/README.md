@@ -8,15 +8,8 @@ This web server component provides a web interface to a scanner
 # install application packages
 yarn install
 
-# install external tools (macOS)
-if [ "$(uname)" = "Darwin" ]; then
-  brew install zbar
-fi
-
-# install external tools (linux)
-if [ "$(uname)" = "Linux" ]; then
-  sudo apt-get install -y zbar-tools
-fi
+# install external tools
+make install
 ```
 
 ## Run Tests
