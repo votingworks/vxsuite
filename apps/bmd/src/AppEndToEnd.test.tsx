@@ -1,7 +1,6 @@
 import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
-
 import waitForExpect from 'wait-for-expect'
 
 import { printingModalDisplaySeconds } from './pages/PrintPage'

@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
+import waitForExpect from 'wait-for-expect'
 
 import App from './App'
 
@@ -14,6 +15,14 @@ import {
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+
+fetchMock.post('/card/write', (url, options) => {
+  currentCard = {
+    present: true,
+    shortValue: options.body as string,
+  }
+  return ''
+})
 
 jest.useFakeTimers()
 
@@ -100,8 +109,28 @@ it(`Single Seat Contest`, async () => {
     fireEvent.click(getByText('Next'))
     advanceTimers()
   }
+
+  // Pre-Review Screen
   fireEvent.click(getByText('Review Selections'))
   advanceTimers()
+
+  // Review Screen
+  getByText('Review Your Ballot Selections')
   expect(getByText('SAL')).toBeTruthy()
   expect(getByText('(write-in)')).toBeTruthy()
+
+  // Print Screen
+  fireEvent.click(getByText('Next'))
+  advanceTimers()
+  expect(getByText('Official Ballot')).toBeTruthy()
+  expect(getByText('(write-in)')).toBeTruthy()
+  getByText('Print your official ballot')
+
+  // Test Print Ballot Modal
+  fireEvent.click(getByText('Print Ballot'))
+  fireEvent.click(getByText('Yes, print my ballot.'))
+  advanceTimers()
+  await waitForExpect(() => {
+    expect(window.print).toBeCalled()
+  })
 })
