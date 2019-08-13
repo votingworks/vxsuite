@@ -4,14 +4,22 @@ import { Route } from 'react-router-dom'
 import { render } from '../../test/testUtils'
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 import electionSampleNoSeal from '../data/electionSampleNoSeal.json'
+import electionPrimarySample from '../data/electionPrimarySample.json'
 
 import StartPage from './StartPage'
 
 it(`renders StartPage`, async () => {
-  const { container } = render(<Route path="/" component={StartPage} />, {
-    precinctId: '23',
-    route: '/',
-  })
+  const { container, getByText } = render(
+    <Route path="/" component={StartPage} />,
+    {
+      ballotStyleId: '12D',
+      election: electionPrimarySample,
+      precinctId: '23',
+      route: '/',
+    }
+  )
+  getByText('Democratic 2020 Primary Election')
+  getByText(/Ballot Style: 12D/)
   expect(container.firstChild).toMatchSnapshot()
 })
 
