@@ -230,12 +230,6 @@ export class App extends React.Component<RouteComponentProps, State> {
   public markVoterCardUsed = async (
     { ballotPrinted } = { ballotPrinted: true }
   ) => {
-    // this is a demo with no card reader attached
-    // TODO: limit this to demo elections
-    // https://github.com/votingworks/bmd/issues/390
-    if (!this.state.isVoterCardPresent) {
-      return true
-    }
     this.stopPolling()
 
     const { ballotStyleId, precinctId } = this.getBallotActivation()
