@@ -300,7 +300,9 @@ export class App extends React.Component<RouteComponentProps, State> {
           })
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        // TODO: what should happen if `machineId` is not returned?
+      })
 
     this.startPolling()
   }
