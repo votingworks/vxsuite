@@ -113,27 +113,16 @@ export class App extends React.Component<RouteComponentProps, State> {
   private machineIdAbortController = new AbortController()
 
   public processVoterCardData = (voterCardData: VoterCardData) => {
-    const { election } = this.state
-    if (!election) {
-      return
-    }
-
+    const election = this.state.election!
     const ballotStyle = getBallotStyle({
       ballotStyleId: voterCardData.bs,
       election,
     })
-    const precinct = election.precincts.find(pr => pr.id === voterCardData.pr)
-
-    if (ballotStyle && precinct) {
-      this.activateBallot({
-        ballotStyle,
-        precinct,
-      })
-    } else {
-      this.setState({
-        isVoterCardInvalid: true,
-      })
-    }
+    const precinct = election.precincts.find(pr => pr.id === voterCardData.pr)!
+    this.activateBallot({
+      ballotStyle,
+      precinct,
+    })
   }
 
   public fetchElection = async () => {
