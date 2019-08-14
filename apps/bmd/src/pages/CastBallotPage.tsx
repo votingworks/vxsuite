@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
+import Screen from '../components/Screen'
 
 const Instructions = styled.ol`
   display: inline-block;
@@ -15,7 +16,7 @@ const Instructions = styled.ol`
 `
 
 const CastBallotPage = () => (
-  <React.Fragment>
+  <Screen>
     <Main>
       <MainChild centerVertical maxWidth={false}>
         <Breadcrumbs step={4} />
@@ -31,7 +32,7 @@ const CastBallotPage = () => (
         </Prose>
       </MainChild>
     </Main>
-  </React.Fragment>
+  </Screen>
 )
 
 export default CastBallotPage
