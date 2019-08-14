@@ -49,6 +49,7 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
+      "!src/config/*",
       "!src/**/*.d.ts",
       "!src/index.tsx",
       "!src/contexts/ballotContext.ts",
