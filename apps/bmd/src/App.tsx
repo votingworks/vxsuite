@@ -165,12 +165,11 @@ export class App extends React.Component<RouteComponentProps, State> {
         break
       }
       case 'clerk': {
-        if (longValueExists) {
+        longValueExists &&
           this.setState({
             ...initialCardPresentState,
             isClerkCardPresent: true,
           })
-        }
         break
       }
     }
@@ -406,18 +405,15 @@ export class App extends React.Component<RouteComponentProps, State> {
   }
 
   public activateBallot = ({ ballotStyle, precinct }: ActivationData) => {
-    const { election } = this.state
-    if (election) {
-      this.setBallotActivation({
-        ballotStyleId: ballotStyle.id,
-        precinctId: precinct.id,
-      })
-      this.setState({
-        ballotStyleId: ballotStyle.id,
-        contests: getContests({ ballotStyle, election }),
-        precinctId: precinct.id,
-      })
-    }
+    this.setBallotActivation({
+      ballotStyleId: ballotStyle.id,
+      precinctId: precinct.id,
+    })
+    this.setState(prevState => ({
+      ballotStyleId: ballotStyle.id,
+      contests: getContests({ ballotStyle, election: prevState.election! }),
+      precinctId: precinct.id,
+    }))
   }
 
   public setUserSettings = (partial: PartialUserSettings) => {
