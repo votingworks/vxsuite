@@ -1,50 +1,46 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 // Ported to TypeScript from:
 // https://github.com/joaquimserafim/isJSON
 
-function isString(x: string) {
+function isString(x: unknown): x is string {
   return Object.prototype.toString.call(x) === '[object String]'
 }
 
-function isObject(obj: {}) {
+function isObject(obj: unknown): obj is object {
   return Object.prototype.toString.call(obj) === '[object Object]'
 }
 
-function isJSON(str: any, passObject?: boolean): boolean {
-  if (passObject && isObject(str)) {
+function isJSON(value: unknown, passObject: boolean = false): boolean {
+  if (passObject && isObject(value)) {
     return true
   }
 
-  if (!isString(str)) {
+  if (!isString(value)) {
     return false
   }
 
-  str = str.replace(/\s/g, '').replace(/\n|\r/, '')
+  const str = value.replace(/\s/g, '').replace(/\n|\r/, '')
 
   if (/^\{(.*?)\}$/.test(str)) {
     return /"(.*?)":(.*?)/g.test(str)
   }
 
   if (/^\[(.*?)\]$/.test(str)) {
-    return (
-      str
-        .replace(/^\[/, '')
-        .replace(/\]$/, '')
-        .replace(/},{/g, '}\n{')
-        .split(/\n/)
-        .map((s: any) => isJSON(s))
-        // @ts-ignore: 'prev' must be defined but is unused.
-        .reduce((prev: any, curr: any) => !!curr)
-    )
+    return str
+      .replace(/^\[/, '')
+      .replace(/\]$/, '')
+      .replace(/},{/g, '}\n{')
+      .split(/\n/)
+      .every(s => isJSON(s))
   }
 
   return false
 }
 
-export function isJSONStrict(str: any) {
+export function isJSONStrict(str: unknown): boolean {
   if (isObject(str)) {
     return true
+  } else if (!isString(str)) {
+    return false
   }
 
   try {

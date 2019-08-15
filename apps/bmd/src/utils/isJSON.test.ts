@@ -49,4 +49,5 @@ it(`perform isJSON verifications`, () => {
     })
   ).toBeTruthy()
   expect(isJSONStrict('asdf')).toBeFalsy()
+  expect(isJSONStrict(true)).toBeFalsy()
 })
