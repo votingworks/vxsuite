@@ -356,7 +356,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     window.localStorage.removeItem(votesStorageKey)
   }
 
-  public unconfigure = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
+  public unconfigure = () => {
     this.setState(initialState)
     window.localStorage.clear()
     this.props.history.push('/')
