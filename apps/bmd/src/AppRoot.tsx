@@ -468,11 +468,6 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     )
   }
 
-  public componentDidCatch() {
-    this.unconfigure()
-    window.location.reload()
-  }
-
   public render() {
     const {
       ballotsPrintedCount,
