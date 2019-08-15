@@ -292,4 +292,31 @@ it(`basic end-to-end flow`, async () => {
   currentCard = noCard
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // Insert Pollworker Card
+  currentCard = pollWorkerCard
+  advanceTimers()
+  await wait(() => fireEvent.click(getByText('Close Polls')))
+  getByText('Close Polls -- Print report 1 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Close Polls -- Print report 2 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Close Polls -- Print report 3 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Open Polls')
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert Poll Worker card to open.'))
+
+  // Unconfigure with Admin Card
+  currentCard = adminCard
+  advanceTimers()
+  await wait(() => getByText('Election definition is loaded.'))
+  fireEvent.click(getByText('Remove'))
+  advanceTimers()
+
+  // Default Unconfigured
+  getByText('Device Not Configured')
 })
