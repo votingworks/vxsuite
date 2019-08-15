@@ -1,12 +1,17 @@
 // TODO: Remove this workaround: https://github.com/cypress-io/cypress/issues/1570#issuecomment-450966053
 // when https://github.com/cypress-io/cypress/issues/1570 is resolved.
 // See also: https://github.com/cypress-io/cypress/issues/1570#issuecomment-477382752
+// @ts-ignore
 const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+  // @ts-ignore
   window.HTMLInputElement.prototype,
   'value'
 ).set
+// @ts-ignore
 const changeRangeInputValue = $range => value => {
+  // @ts-ignore
   nativeInputValueSetter.call($range[0], value)
+  // @ts-ignore
   $range[0].dispatchEvent(new Event('change', { value, bubbles: true }))
 }
 
