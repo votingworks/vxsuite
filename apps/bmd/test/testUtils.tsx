@@ -12,7 +12,7 @@ import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
 import { Contests, Election, TextSizeSetting } from '../src/config/types'
 
-import { mergeWithDefaults } from '../src/App'
+import { mergeWithDefaults } from '../src/AppRoot'
 import BallotContext from '../src/contexts/ballotContext'
 
 export function render(

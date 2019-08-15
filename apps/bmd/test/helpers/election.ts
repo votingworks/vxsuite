@@ -10,7 +10,7 @@ import {
   electionStorageKey,
   stateStorageKey,
   mergeWithDefaults,
-} from '../../src/App'
+} from '../../src/AppRoot'
 
 export const election = electionSample as Election
 export const contest0 = election.contests[0] as CandidateContest

@@ -1,11 +1,12 @@
 import React from 'react'
 import { render } from '@testing-library/react'
 
-import electionSample from './data/electionSample.json'
-
-import App, { electionStorageKey } from './App'
+import App from './App'
+import { electionStorageKey } from './AppRoot'
 
 import { election, setElectionInLocalStorage } from '../test/helpers/election'
+
+jest.useFakeTimers()
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -30,19 +31,5 @@ describe('loads election', () => {
     const { getByText } = render(<App />)
     getByText(election.title)
     expect(window.localStorage.getItem(electionStorageKey)).toBeTruthy()
-  })
-
-  // TODO: Not sure this test works any longer. Need to relearn how this works.
-  xit(`Error in App triggers reset and reloads window location`, () => {
-    const mockConsoleError = jest.spyOn(console, 'error')
-    mockConsoleError.mockImplementation(() => {
-      // do nothing instead of triggering console.error()
-    })
-    window.localStorage.setItem(
-      electionStorageKey,
-      JSON.stringify(electionSample)
-    )
-    const { getByText } = render(<App />)
-    getByText('Device Not Configured')
   })
 })
