@@ -292,8 +292,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       .then(response => response.json())
       .then(response => {
         const { machineId } = response
-        const { aborted } = signal
-        if (machineId && !aborted) {
+        if (machineId) {
           this.setState({
             machineId,
           })
