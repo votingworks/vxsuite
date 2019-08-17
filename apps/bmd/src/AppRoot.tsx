@@ -61,6 +61,7 @@ interface State {
   isVoterCardPresent: boolean
   isVoterCardInvalid: boolean
   isRecentVoterPrint: boolean
+  isFetchingElection: boolean
   machineId: string
   precinctId: string
   ballotsPrintedCount: number
@@ -97,6 +98,7 @@ const initialState = {
   election: undefined,
   isLiveMode: false,
   isPollsOpen: false,
+  isFetchingElection: false,
   machineId: '---',
 }
 
@@ -125,11 +127,13 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public fetchElection = async () => {
+    this.setState({ isFetchingElection: true })
     fetch('/card/read_long')
       .then(result => result.json())
       .then(election => {
         this.setElection(JSON.parse(election.longValue))
       })
+      .finally(() => this.setState({ isFetchingElection: false }))
   }
 
   public processCardData = (completeCardData: CompleteCardData) => {
@@ -491,6 +495,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           ballotsPrintedCount={ballotsPrintedCount}
           election={election}
           fetchElection={this.fetchElection}
+          isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
           toggleLiveMode={this.toggleLiveMode}
           unconfigure={this.unconfigure}

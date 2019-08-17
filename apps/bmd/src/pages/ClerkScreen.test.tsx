@@ -21,6 +21,7 @@ it(`renders ClerkScreen`, async () => {
       ballotsPrintedCount={0}
       election={election}
       fetchElection={jest.fn()}
+      isFetchingElection={false}
       isLiveMode={false}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}

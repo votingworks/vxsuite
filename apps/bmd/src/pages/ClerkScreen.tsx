@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { OptionalElection, VoidFunction } from '../config/types'
 
@@ -16,6 +16,7 @@ interface Props {
   election: OptionalElection
   isLiveMode: boolean
   fetchElection: VoidFunction
+  isFetchingElection: boolean
   unconfigure: VoidFunction
   toggleLiveMode: VoidFunction
 }
@@ -25,6 +26,7 @@ const ClerkScreen = ({
   election,
   isLiveMode,
   fetchElection,
+  isFetchingElection,
   unconfigure,
   toggleLiveMode,
 }: Props) => {
@@ -35,14 +37,9 @@ const ClerkScreen = ({
     hideModal()
     toggleLiveMode()
   }
-  const [isLoadingElection, setIsLoadingElection] = useState(false)
   const loadElection = () => {
-    setIsLoadingElection(true)
     fetchElection()
   }
-  useEffect(() => {
-    setIsLoadingElection(false)
-  }, [election])
   const [isTestDeck, setIsTestDeck] = useState(false)
   const showTestDeck = () => setIsTestDeck(true)
   const hideTestDeck = () => setIsTestDeck(false)
@@ -100,7 +97,7 @@ const ClerkScreen = ({
               </React.Fragment>
             )}
             <h1>Configuration</h1>
-            {isLoadingElection ? (
+            {isFetchingElection ? (
               <p>Loading Election Definition from Clerk Card…</p>
             ) : election ? (
               <p>
