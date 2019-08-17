@@ -128,12 +128,13 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public fetchElection = async () => {
     this.setState({ isFetchingElection: true })
-    fetch('/card/read_long')
-      .then(result => result.json())
-      .then(election => {
-        this.setElection(JSON.parse(election.longValue))
-      })
-      .finally(() => this.setState({ isFetchingElection: false }))
+    try {
+      const response = await fetch('/card/read_long')
+      const election = await response.json()
+      this.setElection(JSON.parse(election.longValue))
+    } finally {
+      this.setState({ isFetchingElection: false })
+    }
   }
 
   public processCardData = (completeCardData: CompleteCardData) => {
