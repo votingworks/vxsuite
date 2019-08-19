@@ -1,56 +1,54 @@
 import React from 'react'
-import { fireEvent, render } from 'react-testing-library'
+import { fireEvent, render, wait } from '@testing-library/react'
+import fetchMock from 'fetch-mock'
 
-import electionSample from '../data/electionSample.json'
+import App from '../App'
 
-import App, { electionKey, mergeWithDefaults } from '../App'
-import { CandidateContest, Election } from '../config/types'
+import { noCard, voterCard, advanceTimers } from '../../test/helpers/smartcards'
 
-import { handleGamepadButtonDown } from './gamepad'
+import {
+  contest0,
+  contest0candidate0,
+  contest0candidate1,
+  contest1candidate0,
+  setElectionInLocalStorage,
+  setStateInLocalStorage,
+} from '../../test/helpers/election'
 
-const election = electionSample as Election
-const contest0 = election.contests[0] as CandidateContest
-const contest1 = election.contests[1] as CandidateContest
-const contest0candidate0 = contest0.candidates[0]
-const contest0candidate1 = contest0.candidates[1]
-const contest1candidate0 = contest1.candidates[0]
+import { getActiveElement, handleGamepadButtonDown } from './gamepad'
 
-const electionSampleAsString = JSON.stringify(
-  mergeWithDefaults(electionSample as Election)
-)
-
-const getActiveElement = () => document.activeElement! as HTMLInputElement
+let currentCard = noCard
+fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
 })
 
-it(`gamepad controls work`, () => {
+it(`gamepad controls work`, async () => {
+  jest.useFakeTimers()
+
   // load election from localStorage
-  window.localStorage.setItem(electionKey, electionSampleAsString)
-  const { getByTestId, getByText } = render(<App />)
+  setElectionInLocalStorage()
+  setStateInLocalStorage()
+  const { getByText } = render(<App />)
+
+  currentCard = voterCard
+  advanceTimers()
+  await wait(() => getByText(/Precinct: Center Springfield/))
 
   // for test coverage, we test pressing left and right on gamepad here, should do nothing
   handleGamepadButtonDown('DPadLeft')
   handleGamepadButtonDown('DPadRight')
 
-  // Go to first contest
-  // Activation Page
-  fireEvent.change(getByTestId('activation-code'), {
-    target: {
-      value: 'VX.23.12',
-    },
-  })
-  // TODO: replace next line with "Enter" keyDown on activation code input
-  fireEvent.click(getByText('Submit'))
-
   // Go to Voting Instructions
   fireEvent.click(getByText('Get Started'))
 
   // Go to First Contest
+  advanceTimers()
   fireEvent.click(getByText('Start Voting'))
 
+  advanceTimers()
   // First Contest Page
   getByText(contest0.title)
 
@@ -59,37 +57,39 @@ it(`gamepad controls work`, () => {
 
   // Test navigation by gamepad
   handleGamepadButtonDown('DPadDown')
-  expect(getActiveElement().value).toEqual(contest0candidate0.id)
+  expect(getActiveElement().dataset.id).toEqual(contest0candidate0.id)
   handleGamepadButtonDown('DPadDown')
-  expect(getActiveElement().value).toEqual(contest0candidate1.id)
+  expect(getActiveElement().dataset.id).toEqual(contest0candidate1.id)
   handleGamepadButtonDown('DPadUp')
-  expect(getActiveElement().value).toEqual(contest0candidate0.id)
+  expect(getActiveElement().dataset.id).toEqual(contest0candidate0.id)
 
   // test the edge case of rolling over
   handleGamepadButtonDown('DPadUp')
   expect(document.activeElement!.textContent).toEqual('Settings')
   handleGamepadButtonDown('DPadDown')
-  expect(getActiveElement().value).toEqual(contest0candidate0.id)
+  expect(getActiveElement().dataset.id).toEqual(contest0candidate0.id)
 
   handleGamepadButtonDown('DPadRight')
+  advanceTimers()
   // go up first without focus, then down once, should be same as down once.
   handleGamepadButtonDown('DPadUp')
   handleGamepadButtonDown('DPadDown')
-  expect(getActiveElement().value).toEqual(contest1candidate0.id)
+  expect(getActiveElement().dataset.id).toEqual(contest1candidate0.id)
   handleGamepadButtonDown('DPadLeft')
+  advanceTimers()
   // B is same as down
   handleGamepadButtonDown('B')
-  expect(getActiveElement().value).toEqual(contest0candidate0.id)
+  expect(getActiveElement().dataset.id).toEqual(contest0candidate0.id)
 
   // select and unselect
   handleGamepadButtonDown('A')
-  expect(getActiveElement().checked).toBe(true)
+  expect(getActiveElement().dataset.selected).toBe('true')
   handleGamepadButtonDown('A')
-  expect(getActiveElement().checked).toBe(false)
+  expect(getActiveElement().dataset.selected).toBe('false')
 
   // Confirm 'Okay' is only active element on page. Modal is "true" modal.
-  fireEvent.click(getByText(contest0candidate0.name).closest('label')!)
-  fireEvent.click(getByText(contest0candidate1.name).closest('label')!)
+  fireEvent.click(getByText(contest0candidate0.name))
+  fireEvent.click(getByText(contest0candidate1.name))
   handleGamepadButtonDown('DPadDown') // selects Okay button
   handleGamepadButtonDown('DPadDown') // Okay button should still be selected
   handleGamepadButtonDown('DPadDown') // Okay button should still be selected

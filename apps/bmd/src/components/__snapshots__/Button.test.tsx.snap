@@ -10,6 +10,7 @@ exports[`renders Button 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: black;
+  touch-action: manipulation;
 }
 
 <button
@@ -30,6 +31,7 @@ exports[`renders DecoyButton 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: black;
+  touch-action: manipulation;
 }
 
 <div
@@ -50,6 +52,7 @@ exports[`renders big Button 1`] = `
   line-height: 1.25;
   color: black;
   font-size: 1.25rem;
+  touch-action: manipulation;
 }
 
 <button
@@ -70,6 +73,7 @@ exports[`renders danger Button 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: #FFFFFF;
+  touch-action: manipulation;
 }
 
 <button
@@ -90,6 +94,7 @@ exports[`renders primary Button 1`] = `
   padding: 0.75rem 1rem;
   line-height: 1.25;
   color: #FFFFFF;
+  touch-action: manipulation;
 }
 
 <button
@@ -110,6 +115,7 @@ exports[`renders small Button 1`] = `
   padding: 0.35rem 0.5rem;
   line-height: 1.25;
   color: black;
+  touch-action: manipulation;
 }
 
 <button

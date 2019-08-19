@@ -1,0 +1,203 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders default 1`] = `
+.c1 {
+  margin-left: -1em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.c1::before,
+.c1::after {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  text-align: left;
+  content: '…';
+  -webkit-animation: loadingEllipsis steps(4,end) 2s infinite;
+  animation: loadingEllipsis steps(4,end) 2s infinite;
+}
+
+.c1::before {
+  color: transparent;
+}
+
+.c0 {
+  width: 100%;
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c0 h1 {
+  margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
+}
+
+.c0 h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.c0 h3,
+.c0 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.c0 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c0 h1 + p,
+.c0 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c0 h3 + p {
+  margin-top: -1rem;
+}
+
+.c0 > :first-child {
+  margin-top: 0;
+}
+
+.c0 > :last-child {
+  margin-bottom: 0;
+}
+
+.c0 dl {
+  margin: 1rem 0;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    line-height: 1.3;
+  }
+}
+
+<div
+  class="c0"
+>
+  <h1
+    aria-label="Loading."
+    class="c1"
+  >
+    Loading
+  </h1>
+</div>
+`;
+
+exports[`renders fullscreen with tag and label 1`] = `
+.c2 {
+  margin-left: -1em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.c2::before,
+.c2::after {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  text-align: left;
+  content: '…';
+  -webkit-animation: loadingEllipsis steps(4,end) 2s infinite;
+  animation: loadingEllipsis steps(4,end) 2s infinite;
+}
+
+.c2::before {
+  color: transparent;
+}
+
+.c1 {
+  width: 100%;
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c1 h1 {
+  margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
+}
+
+.c1 h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.c1 h3,
+.c1 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.c1 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c1 h1 + p,
+.c1 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c1 h3 + p {
+  margin-top: -1rem;
+}
+
+.c1 > :first-child {
+  margin-top: 0;
+}
+
+.c1 > :last-child {
+  margin-bottom: 0;
+}
+
+.c1 dl {
+  margin: 1rem 0;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+@media (min-width:480px) {
+  .c1 {
+    line-height: 1.3;
+  }
+}
+
+<div
+  class="c0"
+>
+  <div
+    class="c1"
+  >
+    <p
+      aria-label="Printing."
+      class="c2"
+    >
+      Printing
+    </p>
+  </div>
+</div>
+`;

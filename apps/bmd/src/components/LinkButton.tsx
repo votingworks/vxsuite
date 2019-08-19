@@ -1,8 +1,7 @@
-import React from 'react'
+import React, { PointerEventHandler } from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 
 import Button, { ButtonInterface } from './Button'
-import { ButtonEvent } from '../config/types'
 
 interface Props
   extends ButtonInterface,
@@ -11,6 +10,7 @@ interface Props
 
 interface Props {
   goBack?: boolean
+  onPress?: PointerEventHandler
   primary?: boolean
   to?: string
 }
@@ -21,28 +21,33 @@ const LinkButton = (props: Props) => {
     history,
     location, // eslint-disable-line @typescript-eslint/no-unused-vars
     match, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onClick,
+    onPress,
     staticContext, // eslint-disable-line @typescript-eslint/no-unused-vars
     to,
-    // ⬆ filtering out props that `button` doesn’t know what to do with.
+    // ⬆ filtering out props which are not intrinsic to `<button>` element.
     ...rest
   } = props
-  const handleOnClick = (event: ButtonEvent) => {
-    if (onClick) {
-      onClick(event)
-    }
-    if (goBack && !to) {
-      history.goBack()
-    }
-    if (to && !goBack) {
-      history.push(to)
+  const handleOnPress: PointerEventHandler = event => {
+    /* istanbul ignore else */
+    if (onPress) {
+      onPress(event)
+    } else if (goBack && !to) {
+      // Delay to avoid passing tap to next screen
+      window.setTimeout(() => {
+        history.goBack()
+      }, 100)
+    } else if (to && !goBack) {
+      // Delay to avoid passing tap to next screen
+      window.setTimeout(() => {
+        history.push(to)
+      }, 100)
     }
   }
   return (
     <Button
       {...rest} // `children` is just another prop!
       role="option"
-      onClick={handleOnClick}
+      onPress={handleOnPress}
     />
   )
 }

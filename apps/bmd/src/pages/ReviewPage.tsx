@@ -1,11 +1,10 @@
 import pluralize from 'pluralize'
-import React from 'react'
+import React, { PointerEventHandler } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
 import { findPartyById } from '../utils/find'
 
 import {
-  ButtonEvent,
   Candidate,
   CandidateContest,
   CandidateVote,
@@ -168,7 +167,7 @@ const CandidateContestResult = ({
         return (
           <Text
             key={candidate.id}
-            aria-label={`${candidate.name}${party && `, ${party.name}`}${
+            aria-label={`${candidate.name}${party ? `, ${party.name}` : ''}${
               candidate.isWriteIn ? `, write-in` : ''
             }${array.length - 1 === index ? '.' : ','}`}
             wordBreak
@@ -258,9 +257,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
     })
   }
 
-  public scrollContestChoices = /* istanbul ignore next: Tested by Cypress */ (
-    event: ButtonEvent
-  ) => {
+  public scrollContestChoices: PointerEventHandler = /* istanbul ignore next: Tested by Cypress */ event => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
     const scrollContainer = this.scrollContainer.current!
@@ -286,7 +283,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
     const {
       contests,
       election: {
-        bmdConfig: { showHelpPage, showSettingsPage },
+        bmdConfig: { showSettingsPage },
         parties,
       },
       votes,
@@ -295,7 +292,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
 
     return (
       <React.Fragment>
-        <Main noOverflow noPadding>
+        <Main noPadding>
           <ContentHeader>
             <Prose id="audiofocus">
               <h1 aria-label="Review your ballot selections. Use the down arrow to go through all contests. Use the select button to change a particular contest. When you are done reviewing, use the right arrow to continue.">
@@ -306,7 +303,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                 data-direction="up"
                 disabled={isScrollAtTop}
                 fullWidth
-                onClick={this.scrollContestChoices}
+                onPress={this.scrollContestChoices}
               >
                 ↑ See More
               </Button>
@@ -360,7 +357,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
               data-direction="down"
               disabled={isScrollAtBottom}
               fullWidth
-              onClick={this.scrollContestChoices}
+              onPress={this.scrollContestChoices}
             >
               ↓ See More
             </Button>
@@ -376,7 +373,6 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
         </ButtonBar>
         <ButtonBar secondary separatePrimaryButton>
           <div />
-          {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
           {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
         </ButtonBar>
       </React.Fragment>

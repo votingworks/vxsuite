@@ -11,11 +11,11 @@ import BallotContext from '../contexts/ballotContext'
 const InstructionsPage = () => {
   const { contests, election } = useContext(BallotContext)
   const { bmdConfig } = election!
-  const { showHelpPage, showSettingsPage } = bmdConfig!
+  const { showSettingsPage } = bmdConfig!
   return (
     <React.Fragment>
       <Main>
-        <MainChild center id="audiofocus">
+        <MainChild centerVertical maxWidth={false} id="audiofocus">
           <Breadcrumbs step={1} />
           <Prose textCenter>
             <h1 aria-label="Mark your ballot.">Mark your ballot</h1>
@@ -24,7 +24,7 @@ const InstructionsPage = () => {
               <LinkButton
                 primary
                 big
-                to="/contests/"
+                to="/contests/0"
                 id="next"
                 aria-label="Select Next to Start Voting."
               >
@@ -36,7 +36,6 @@ const InstructionsPage = () => {
       </Main>
       <ButtonBar secondary separatePrimaryButton>
         <div />
-        {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
         {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
       </ButtonBar>
     </React.Fragment>

@@ -13,5 +13,5 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-import 'cypress-testing-library/add-commands'
+import '@testing-library/cypress/add-commands'
 import './commands'

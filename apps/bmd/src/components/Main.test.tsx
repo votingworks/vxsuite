@@ -1,5 +1,5 @@
 import React from 'react'
-import { render } from 'react-testing-library'
+import { render } from '@testing-library/react'
 
 import Main, { MainChild } from './Main'
 
@@ -23,7 +23,7 @@ it(`renders centered content`, () => {
 
 it(`renders not centered content`, () => {
   const { container } = render(
-    <Main>
+    <Main noOverflow>
       <MainChild centerHorizontal={false}>foo</MainChild>
     </Main>
   )

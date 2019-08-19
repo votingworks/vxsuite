@@ -1,6 +1,6 @@
 import React from 'react'
 import { StaticRouter } from 'react-router-dom'
-import { fireEvent, render } from 'react-testing-library'
+import { fireEvent, render } from '@testing-library/react'
 
 import LinkButton from './LinkButton'
 
@@ -27,7 +27,7 @@ it(`renders LinkButton with onClick prop`, () => {
   const onClickHandler = jest.fn()
   const { getByText } = render(
     <StaticRouter context={{}}>
-      <LinkButton to="/" onClick={onClickHandler}>
+      <LinkButton to="/" onPress={onClickHandler}>
         {text}
       </LinkButton>
     </StaticRouter>

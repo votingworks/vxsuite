@@ -1,70 +1,87 @@
 import React from 'react'
-import { fireEvent, render } from 'react-testing-library'
+import { fireEvent, render, wait } from '@testing-library/react'
+import fetchMock from 'fetch-mock'
 
-import electionSample from './data/electionSample.json'
+import App from './App'
 
-import App, { electionKey, mergeWithDefaults } from './App'
-import { CandidateContest, Election } from './config/types'
+import { noCard, voterCard, advanceTimers } from '../test/helpers/smartcards'
 
-const electionSampleAsString = JSON.stringify(
-  mergeWithDefaults(electionSample as Election)
-)
+import {
+  countyCommissionersContest,
+  setElectionInLocalStorage,
+  setStateInLocalStorage,
+} from '../test/helpers/election'
+
+let currentCard = noCard
+fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+
+jest.useFakeTimers()
 
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
 })
 
-it(`Multi-seat Contest Flow`, () => {
-  const multiSeatContest = electionSample.contests.find(
-    c => c.seats === 4
-  ) as CandidateContest
-  expect(multiSeatContest.seats).toEqual(4)
+it(`Single Seat Contest`, async () => {
+  // ====================== BEGIN CONTEST SETUP ====================== //
 
-  window.localStorage.setItem(electionKey, electionSampleAsString)
-  const { getByText, getByTestId, queryByText } = render(<App />)
-  fireEvent.change(getByTestId('activation-code'), {
-    target: { value: 'VX.23.12' },
-  })
+  setElectionInLocalStorage()
+  setStateInLocalStorage()
 
-  // TODO: replace next line with "Enter" keyDown on activation code input
-  fireEvent.click(getByText('Submit'))
+  const { container, getByText, queryByText } = render(<App />)
+
+  // Insert Voter Card
+  currentCard = voterCard
+  advanceTimers()
 
   // Go to Voting Instructions
-  fireEvent.click(getByText('Get Started'))
+  await wait(() => fireEvent.click(getByText('Get Started')))
+  advanceTimers()
 
   // Go to First Contest
   fireEvent.click(getByText('Start Voting'))
+  advanceTimers()
 
-  // click Next until getting to multi-seat contest
-  while (!queryByText(multiSeatContest.title)) {
+  // ====================== END CONTEST SETUP ====================== //
+
+  const candidate0 = countyCommissionersContest.candidates[0]
+  const candidate1 = countyCommissionersContest.candidates[1]
+  const candidate2 = countyCommissionersContest.candidates[2]
+  const candidate3 = countyCommissionersContest.candidates[3]
+  const candidate4 = countyCommissionersContest.candidates[4]
+
+  // Advance to multi-seat contest
+  while (!queryByText(countyCommissionersContest.title)) {
     fireEvent.click(getByText('Next'))
+    advanceTimers()
   }
 
-  const multiSeatCandidate0 = multiSeatContest.candidates[0]
-  const multiSeatCandidate1 = multiSeatContest.candidates[1]
-  const multiSeatCandidate2 = multiSeatContest.candidates[2]
-  const multiSeatCandidate3 = multiSeatContest.candidates[3]
-  const multiSeatCandidate4 = multiSeatContest.candidates[4]
-  fireEvent.click(getByText(multiSeatCandidate0.name).closest('label')!)
-  fireEvent.click(getByText(multiSeatCandidate1.name).closest('label')!)
-  fireEvent.click(getByText(multiSeatCandidate2.name).closest('label')!)
-  fireEvent.click(getByText(multiSeatCandidate3.name).closest('label')!)
-  fireEvent.click(getByText(multiSeatCandidate4.name).closest('label')!)
+  // Select 5 candidates for 4 seats
+  fireEvent.click(getByText(candidate0.name))
+  fireEvent.click(getByText(candidate1.name))
+  fireEvent.click(getByText(candidate2.name))
+  fireEvent.click(getByText(candidate3.name))
+  fireEvent.click(getByText(candidate4.name))
+
+  // Overvote modal is displayed
   getByText(
-    `You may only select ${
-      multiSeatContest.seats
-    } candidates in this contest. To vote for ${
-      multiSeatCandidate4.name
-    }, you must first unselect selected candidates.`
+    `You may only select ${countyCommissionersContest.seats} candidates in this contest. To vote for ${candidate4.name}, you must first unselect selected candidates.`
   )
 
+  // Capture styles of Single Candidate Contest
+  expect(container.firstChild).toMatchSnapshot()
+
+  // Go to Review Screen
   while (!queryByText('Review Your Selections')) {
     fireEvent.click(getByText('Next'))
+    advanceTimers()
   }
   fireEvent.click(getByText('Review Selections'))
-  expect(getByText(multiSeatCandidate0.name)).toBeTruthy()
-  expect(getByText(multiSeatCandidate1.name)).toBeTruthy()
-  expect(getByText(multiSeatCandidate2.name)).toBeTruthy()
-  expect(getByText(multiSeatCandidate3.name)).toBeTruthy()
+  advanceTimers()
+
+  // Expect to see the first four selected candidates
+  expect(getByText(candidate0.name)).toBeTruthy()
+  expect(getByText(candidate1.name)).toBeTruthy()
+  expect(getByText(candidate2.name)).toBeTruthy()
+  expect(getByText(candidate3.name)).toBeTruthy()
 })

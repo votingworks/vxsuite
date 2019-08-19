@@ -1,6 +1,89 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports multi-seat contests allows a second candidate to be selected when one is selected 1`] = `
+.c10 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c10::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
+.c8 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #028099;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  color: #FFFFFF;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c8::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: #028099;
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '✓';
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -12,6 +95,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow: auto;
 }
 
 .c2 {
@@ -51,15 +135,19 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
 }
 
-.c10 {
+.c2 dl {
+  margin: 1rem 0;
+}
+
+.c9 {
   word-break: break-word;
 }
 
@@ -128,124 +216,19 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 .c7 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+  grid-gap: 1.25rem;
 }
 
-.c11 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
+@media (min-width:480px) {
+  .c10 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
 }
 
-button.c11 {
-  text-align: left;
-}
-
-.c11:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c11::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '';
-}
-
-.c11 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c8 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #028099;
-  cursor: pointer;
-  color: #FFFFFF;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-button.c8 {
-  text-align: left;
-}
-
-.c8:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c8::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: #028099;
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '✓';
-}
-
-.c8 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c9 {
-  margin-right: 0.5rem;
+@media (min-width:480px) {
+  .c8 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
 }
 
 @media print {
@@ -275,18 +258,6 @@ button.c8 {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c11 > div {
-    padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c8 > div {
-    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -339,25 +310,19 @@ button.c8 {
           <div
             class="c7"
           >
-            <label
+            <button
               aria-label="Name 0, Party 0."
               class="c8"
-              for="name-0"
+              data-id="name-0"
+              data-selected="true"
+              role="option"
+              type="button"
             >
-              <input
-                checked=""
-                class="visually-hidden c9"
-                id="name-0"
-                name="Name 0"
-                role="option"
-                type="checkbox"
-                value="name-0"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 0
@@ -366,25 +331,20 @@ button.c8 {
                   Party 0
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Name 1, Party 1."
-              class="c11"
-              for="name-1"
+              class="c10"
+              data-id="name-1"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-1"
-                name="Name 1"
-                role="option"
-                type="checkbox"
-                value="name-1"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 1
@@ -393,25 +353,20 @@ button.c8 {
                   Party 1
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Name 2, Party 0."
-              class="c11"
-              for="name-2"
+              class="c10"
+              data-id="name-2"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-2"
-                name="Name 2"
-                role="option"
-                type="checkbox"
-                value="name-2"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 2
@@ -420,7 +375,7 @@ button.c8 {
                   Party 0
                 </p>
               </div>
-            </label>
+            </button>
           </div>
         </div>
       </div>
@@ -430,6 +385,47 @@ button.c8 {
 `;
 
 exports[`supports single-seat contest allows any candidate to be selected when no candidate is selected 1`] = `
+.c8 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c8::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -441,6 +437,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow: auto;
 }
 
 .c2 {
@@ -480,15 +477,19 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
 }
 
-.c10 {
+.c2 dl {
+  margin: 1rem 0;
+}
+
+.c9 {
   word-break: break-word;
 }
 
@@ -557,67 +558,13 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 .c7 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+  grid-gap: 1.25rem;
 }
 
-.c8 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-button.c8 {
-  text-align: left;
-}
-
-.c8:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c8::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '';
-}
-
-.c8 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c9 {
-  margin-right: 0.5rem;
+@media (min-width:480px) {
+  .c8 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
 }
 
 @media print {
@@ -647,12 +594,6 @@ button.c8 {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c8 > div {
-    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -705,24 +646,19 @@ button.c8 {
           <div
             class="c7"
           >
-            <label
+            <button
               aria-label="Name 0, Party 0."
               class="c8"
-              for="name-0"
+              data-id="name-0"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-0"
-                name="Name 0"
-                role="option"
-                type="checkbox"
-                value="name-0"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 0
@@ -731,25 +667,20 @@ button.c8 {
                   Party 0
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Name 1, Party 1."
               class="c8"
-              for="name-1"
+              data-id="name-1"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-1"
-                name="Name 1"
-                role="option"
-                type="checkbox"
-                value="name-1"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 1
@@ -758,25 +689,20 @@ button.c8 {
                   Party 1
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Name 2, Party 0."
               class="c8"
-              for="name-2"
+              data-id="name-2"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-2"
-                name="Name 2"
-                role="option"
-                type="checkbox"
-                value="name-2"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 2
@@ -785,7 +711,7 @@ button.c8 {
                   Party 0
                 </p>
               </div>
-            </label>
+            </button>
           </div>
         </div>
       </div>
@@ -795,6 +721,89 @@ button.c8 {
 `;
 
 exports[`supports single-seat contest doesn't allow other candidates to be selected when a candidate is selected 1`] = `
+.c10 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c10::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
+.c8 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #028099;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  color: #FFFFFF;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c8::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: #028099;
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '✓';
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -806,6 +815,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow: auto;
 }
 
 .c2 {
@@ -845,15 +855,19 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
 }
 
-.c10 {
+.c2 dl {
+  margin: 1rem 0;
+}
+
+.c9 {
   word-break: break-word;
 }
 
@@ -922,124 +936,19 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 .c7 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+  grid-gap: 1.25rem;
 }
 
-.c11 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
+@media (min-width:480px) {
+  .c10 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
 }
 
-button.c11 {
-  text-align: left;
-}
-
-.c11:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c11::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '';
-}
-
-.c11 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c8 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #028099;
-  cursor: pointer;
-  color: #FFFFFF;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-button.c8 {
-  text-align: left;
-}
-
-.c8:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c8::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: #028099;
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '✓';
-}
-
-.c8 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c9 {
-  margin-right: 0.5rem;
+@media (min-width:480px) {
+  .c8 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
 }
 
 @media print {
@@ -1069,18 +978,6 @@ button.c8 {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c11 > div {
-    padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c8 > div {
-    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -1133,25 +1030,19 @@ button.c8 {
           <div
             class="c7"
           >
-            <label
+            <button
               aria-label="Name 0, Party 0."
               class="c8"
-              for="name-0"
+              data-id="name-0"
+              data-selected="true"
+              role="option"
+              type="button"
             >
-              <input
-                checked=""
-                class="visually-hidden c9"
-                id="name-0"
-                name="Name 0"
-                role="option"
-                type="checkbox"
-                value="name-0"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 0
@@ -1160,25 +1051,20 @@ button.c8 {
                   Party 0
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Name 1, Party 1."
-              class="c11"
-              for="name-1"
+              class="c10"
+              data-id="name-1"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-1"
-                name="Name 1"
-                role="option"
-                type="checkbox"
-                value="name-1"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 1
@@ -1187,25 +1073,20 @@ button.c8 {
                   Party 1
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Name 2, Party 0."
-              class="c11"
-              for="name-2"
+              class="c10"
+              data-id="name-2"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-2"
-                name="Name 2"
-                role="option"
-                type="checkbox"
-                value="name-2"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 2
@@ -1214,7 +1095,7 @@ button.c8 {
                   Party 0
                 </p>
               </div>
-            </label>
+            </button>
           </div>
         </div>
       </div>
@@ -1224,6 +1105,47 @@ button.c8 {
 `;
 
 exports[`supports write-in candidates displays warning if write-in candidate name is too long 1`] = `
+.c8 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c8::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -1235,6 +1157,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow: auto;
 }
 
 .c2 {
@@ -1274,15 +1197,19 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
 }
 
-.c10 {
+.c2 dl {
+  margin: 1rem 0;
+}
+
+.c9 {
   word-break: break-word;
 }
 
@@ -1351,67 +1278,13 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 .c7 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+  grid-gap: 1.25rem;
 }
 
-.c8 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-button.c8 {
-  text-align: left;
-}
-
-.c8:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c8::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '';
-}
-
-.c8 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c9 {
-  margin-right: 0.5rem;
+@media (min-width:480px) {
+  .c8 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
 }
 
 @media print {
@@ -1441,12 +1314,6 @@ button.c8 {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c8 > div {
-    padding: 1rem 1rem 1rem 4rem;
   }
 }
 
@@ -1501,24 +1368,19 @@ button.c8 {
           <div
             class="c7"
           >
-            <label
+            <button
               aria-label="Name 0, Party 0."
               class="c8"
-              for="name-0"
+              data-id="name-0"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-0"
-                name="Name 0"
-                role="option"
-                type="checkbox"
-                value="name-0"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 0
@@ -1527,25 +1389,20 @@ button.c8 {
                   Party 0
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Name 1, Party 1."
               class="c8"
-              for="name-1"
+              data-id="name-1"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-1"
-                name="Name 1"
-                role="option"
-                type="checkbox"
-                value="name-1"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 1
@@ -1554,25 +1411,20 @@ button.c8 {
                   Party 1
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Name 2, Party 0."
               class="c8"
-              for="name-2"
+              data-id="name-2"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c9"
-                id="name-2"
-                name="Name 2"
-                role="option"
-                type="checkbox"
-                value="name-2"
-              />
               <div
                 class="c2"
               >
                 <p
-                  class="c10"
+                  class="c9"
                 >
                   <strong>
                     Name 2
@@ -1581,9 +1433,12 @@ button.c8 {
                   Party 0
                 </p>
               </div>
-            </label>
+            </button>
             <button
               class="c8"
+              data-selected="false"
+              role="option"
+              type="button"
             >
               <div
                 class="c2"

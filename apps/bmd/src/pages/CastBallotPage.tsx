@@ -1,81 +1,38 @@
-// <Prose>
-//   <h1 aria-label="Verify and Cast Your Ballot.">
-//     Verify and Cast Your Ballot
-//   </h1>
-//   <Text center>Retrieve your printed ballot from the printer.</Text>
-//   <Instructions>
-//     {/* <li>
-//       <h2>Collect Printed Ballot.</h2>
-//       <p>The printer has printed your ballot.</p>
-//     </li> */}
-//     <li>
-//       <h2>Verify Ballot Selections.</h2>
-//       <p>Review and confirm all selections on your printed ballot.</p>
-//     </li>
-//     <li>
-//       <h2>Cast in Ballot Box.</h2>
-//       <p>Deposit your ballot into the secured ballot box.</p>
-//     </li>
-//   </Instructions>
-//   <Text center>
-//     I have verified my selections and will cast my ballot.
-//   </Text>
-//   <Text center>
-//     <LinkButton primary to="/">
-//       Start Over
-//     </LinkButton>
-//   </Text>
-// </Prose>
-
-import React, { useContext } from 'react'
+import React from 'react'
+import styled from 'styled-components'
 
 import Breadcrumbs from '../components/Breadcrumbs'
-import ButtonBar from '../components/ButtonBar'
-import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
-import Text from '../components/Text'
-import BallotContext from '../contexts/ballotContext'
+import Screen from '../components/Screen'
 
-const VoteInstructionsPage = () => {
-  const { election } = useContext(BallotContext)
-  const { bmdConfig } = election!
-  const { showHelpPage, showSettingsPage } = bmdConfig!
-  return (
-    <React.Fragment>
-      <Main>
-        <MainChild center>
-          <Breadcrumbs step={4} />
-          <Prose textCenter id="audiofocus">
-            <h1 aria-label="Cast your ballot.">Cast your printed ballot</h1>
-            <Text narrow>
-              Before you cast your official printed ballot in the ballot box,
-              double-check your printed ballot to confirm your selections.
-            </Text>
-            <Text narrow>
-              If you find a mistake, ask a poll worker for help.
-            </Text>
-            <div aria-label="Press the down arrow to continue, then" />
-            <p>
-              <LinkButton
-                primary
-                big
-                to="/"
-                aria-label="Press the select button to confirm that you will review and cast your printed ballot."
-              >
-                Okay, I will review and cast my printed ballot.
-              </LinkButton>
-            </p>
-          </Prose>
-        </MainChild>
-      </Main>
-      <ButtonBar secondary separatePrimaryButton>
-        <div />
-        {showHelpPage && <LinkButton to="/help">Help</LinkButton>}
-        {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
-      </ButtonBar>
-    </React.Fragment>
-  )
-}
+const Instructions = styled.ol`
+  display: inline-block;
+  margin: auto;
+  border-top: 1px solid #9a9a9a;
+  border-bottom: 1px solid #9a9a9a;
+  padding: 1rem 1rem 1rem 2rem;
+  text-align: left;
+`
 
-export default VoteInstructionsPage
+const CastBallotPage = () => (
+  <Screen>
+    <Main>
+      <MainChild centerVertical maxWidth={false}>
+        <Breadcrumbs step={4} />
+        <Prose textCenter id="audiofocus">
+          <h1 aria-label="You’re almost done.">You’re Almost Done…</h1>
+          <p>Your official paper ballot is printing. To finish voting:</p>
+          <Instructions>
+            <li>Review the votes on your printed ballot.</li>
+            <li>Place your ballot in the ballot box.</li>
+            <li>Return card to poll worker.</li>
+          </Instructions>
+          <p>Need help? Ask a poll worker.</p>
+        </Prose>
+      </MainChild>
+    </Main>
+  </Screen>
+)
+
+export default CastBallotPage

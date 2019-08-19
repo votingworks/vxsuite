@@ -1,6 +1,199 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Overvote triggers modal 1`] = `
+exports[`Single Seat Contest 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  height: 100%;
+}
+
+.c0:focus {
+  outline: none;
+}
+
+.c12 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.25rem;
+}
+
+.c12 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c12 > * {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 0.25rem;
+}
+
+.c16 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.25rem;
+}
+
+.c16 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c16 > * {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 0.25rem;
+}
+
+.c11 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c11::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
+.c9 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #028099;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  color: #FFFFFF;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c9::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: #028099;
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '✓';
+}
+
+.c13 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  touch-action: manipulation;
+}
+
+.c14 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -12,6 +205,7 @@ exports[`Overvote triggers modal 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow: auto;
 }
 
 .c3 {
@@ -51,108 +245,19 @@ exports[`Overvote triggers modal 1`] = `
   margin-top: -1rem;
 }
 
-.c3 :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c3 :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c13 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  border-bottom: 1px solid rgb(169,169,169);
-  background: #455a64;
-  padding: 0.25rem;
+.c3 dl {
+  margin: 1rem 0;
 }
 
-.c13 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c13 > * {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  margin: 0.25rem;
-}
-
-.c17 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
-  border-bottom: 1px solid rgb(169,169,169);
-  background: #455a64;
-  padding: 0.25rem;
-}
-
-.c17 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c17 > * {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  margin: 0.25rem;
-}
-
-.c15 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
-}
-
-.c14 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-}
-
-.c11 {
+.c10 {
   word-break: break-word;
 }
 
@@ -221,127 +326,10 @@ exports[`Overvote triggers modal 1`] = `
 .c8 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+  grid-gap: 1.25rem;
 }
 
-.c12 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-button.c12 {
-  text-align: left;
-}
-
-.c12:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c12::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '';
-}
-
-.c12 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c9 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #028099;
-  cursor: pointer;
-  color: #FFFFFF;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-button.c9 {
-  text-align: left;
-}
-
-.c9:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c9::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: #028099;
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '✓';
-}
-
-.c9 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c10 {
-  margin-right: 0.5rem;
-}
-
-.c16 {
+.c15 {
   text-align: center;
   color: #FFFFFF;
   -webkit-flex: 2;
@@ -349,19 +337,61 @@ button.c9 {
   flex: 2;
 }
 
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  height: 100%;
+@media (min-width:480px) {
+  .c12 > *:only-child {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+    margin: auto;
+    min-width: 33.333%;
+  }
 }
 
-.c0:focus {
-  outline: none;
+@media print {
+  .c12 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c16 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c16 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c16 > *:only-child {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+    min-width: 33.333%;
+  }
+}
+
+@media print {
+  .c16 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c11 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c9 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
 }
 
 @media print {
@@ -380,51 +410,6 @@ button.c9 {
   }
 }
 
-@media (min-width:480px) {
-  .c13 > *:only-child {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-    margin: auto;
-    min-width: 33.333%;
-  }
-}
-
-@media print {
-  .c13 {
-    display: none;
-  }
-}
-
-@media (min-width:480px) {
-  .c17 > *:first-child {
-    margin-left: auto;
-  }
-}
-
-@media (min-width:480px) {
-  .c17 > * {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-  }
-}
-
-@media (min-width:480px) {
-  .c17 > *:only-child {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-    min-width: 33.333%;
-  }
-}
-
-@media print {
-  .c17 {
-    display: none;
-  }
-}
-
 @media (min-width:720px) {
   .c2 {
     padding: 1rem 1.5rem 0.5rem;
@@ -439,20 +424,8 @@ button.c9 {
   }
 }
 
-@media (min-width:480px) {
-  .c12 > div {
-    padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c9 > div {
-    padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
 @media print {
-  .c16 {
+  .c15 {
     color: #FFFFFF;
   }
 }
@@ -509,24 +482,19 @@ button.c9 {
           <div
             class="c8"
           >
-            <label
+            <button
               aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
               class="c9"
-              for="barchi-hallaren"
+              data-id="barchi-hallaren"
+              data-selected="true"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c10"
-                id="barchi-hallaren"
-                name="Joseph Barchi and Joseph Hallaren"
-                role="option"
-                type="checkbox"
-                value="barchi-hallaren"
-              />
               <div
                 class="c3"
               >
                 <p
-                  class="c11"
+                  class="c10"
                 >
                   <strong>
                     Joseph Barchi and Joseph Hallaren
@@ -535,25 +503,20 @@ button.c9 {
                   Federalist
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Adam Cramer and Greg Vuocolo, People's."
-              class="c12"
-              for="cramer-vuocolo"
+              class="c11"
+              data-id="cramer-vuocolo"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c10"
-                id="cramer-vuocolo"
-                name="Adam Cramer and Greg Vuocolo"
-                role="option"
-                type="checkbox"
-                value="cramer-vuocolo"
-              />
               <div
                 class="c3"
               >
                 <p
-                  class="c11"
+                  class="c10"
                 >
                   <strong>
                     Adam Cramer and Greg Vuocolo
@@ -562,25 +525,20 @@ button.c9 {
                   People's
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Daniel Court and Amy Blumhardt, Liberty."
-              class="c12"
-              for="court-blumhardt"
+              class="c11"
+              data-id="court-blumhardt"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c10"
-                id="court-blumhardt"
-                name="Daniel Court and Amy Blumhardt"
-                role="option"
-                type="checkbox"
-                value="court-blumhardt"
-              />
               <div
                 class="c3"
               >
                 <p
-                  class="c11"
+                  class="c10"
                 >
                   <strong>
                     Daniel Court and Amy Blumhardt
@@ -589,25 +547,20 @@ button.c9 {
                   Liberty
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Alvin Boone and James Lian, Constitution."
-              class="c12"
-              for="boone-lian"
+              class="c11"
+              data-id="boone-lian"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c10"
-                id="boone-lian"
-                name="Alvin Boone and James Lian"
-                role="option"
-                type="checkbox"
-                value="boone-lian"
-              />
               <div
                 class="c3"
               >
                 <p
-                  class="c11"
+                  class="c10"
                 >
                   <strong>
                     Alvin Boone and James Lian
@@ -616,25 +569,20 @@ button.c9 {
                   Constitution
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
-              class="c12"
-              for="hildebrand-garritty"
+              class="c11"
+              data-id="hildebrand-garritty"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c10"
-                id="hildebrand-garritty"
-                name="Ashley Hildebrand-McDougall and James Garritty"
-                role="option"
-                type="checkbox"
-                value="hildebrand-garritty"
-              />
               <div
                 class="c3"
               >
                 <p
-                  class="c11"
+                  class="c10"
                 >
                   <strong>
                     Ashley Hildebrand-McDougall and James Garritty
@@ -643,25 +591,20 @@ button.c9 {
                   Whig
                 </p>
               </div>
-            </label>
-            <label
+            </button>
+            <button
               aria-label="Martin Patterson and Clay Lariviere, Labor."
-              class="c12"
-              for="patterson-lariviere"
+              class="c11"
+              data-id="patterson-lariviere"
+              data-selected="false"
+              role="option"
+              type="button"
             >
-              <input
-                class="visually-hidden c10"
-                id="patterson-lariviere"
-                name="Martin Patterson and Clay Lariviere"
-                role="option"
-                type="checkbox"
-                value="patterson-lariviere"
-              />
               <div
                 class="c3"
               >
                 <p
-                  class="c11"
+                  class="c10"
                 >
                   <strong>
                     Martin Patterson and Clay Lariviere
@@ -670,17 +613,17 @@ button.c9 {
                   Labor
                 </p>
               </div>
-            </label>
+            </button>
           </div>
         </div>
       </div>
     </div>
   </main>
   <nav
-    class="c13"
+    class="c12"
   >
     <button
-      class="c14"
+      class="c13"
       id="next"
       role="option"
       type="button"
@@ -688,7 +631,7 @@ button.c9 {
       Next
     </button>
     <button
-      class="c15"
+      class="c14"
       id="previous"
       role="option"
       type="button"
@@ -696,7 +639,7 @@ button.c9 {
       Back
     </button>
     <p
-      class="c16"
+      class="c15"
     >
       1
        of 
@@ -704,18 +647,11 @@ button.c9 {
     </p>
   </nav>
   <nav
-    class="c17"
+    class="c16"
   >
     <div />
     <button
-      class="c15"
-      role="option"
-      type="button"
-    >
-      Help
-    </button>
-    <button
-      class="c15"
+      class="c14"
       role="option"
       type="button"
     >

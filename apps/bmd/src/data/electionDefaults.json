@@ -1,7 +1,6 @@
 {
   "bmdConfig": {
     "requireActivation": true,
-    "showHelpPage": true,
     "showSettingsPage": true
   }
 }

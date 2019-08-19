@@ -1,230 +1,322 @@
 import React from 'react'
-import { fireEvent, render } from 'react-testing-library'
+import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
-
 import waitForExpect from 'wait-for-expect'
-import electionSample from './data/electionSample.json'
 
-import App, { mergeWithDefaults } from './App'
-import { CandidateContest, Election, YesNoContest } from './config/types'
+import { printingModalDisplaySeconds } from './pages/PrintPage'
 
-const electionSampleAsString = JSON.stringify(
-  mergeWithDefaults(electionSample as Election)
+import App from './App'
+
+import {
+  noCard,
+  adminCard,
+  pollWorkerCard,
+  voterCard,
+  altVoterCard,
+  invalidatedVoterCard,
+  getPrintedVoterCard,
+  advanceTimers,
+} from '../test/helpers/smartcards'
+
+import {
+  electionAsString,
+  presidentContest,
+  countyCommissionersContest,
+  measure102Contest,
+  voterContests,
+} from '../test/helpers/election'
+
+let currentCard = noCard
+fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+
+fetchMock.post('/card/write', (url, options) => {
+  currentCard = {
+    present: true,
+    shortValue: options.body as string,
+  }
+  return ''
+})
+
+fetchMock.get('/card/read_long', () =>
+  JSON.stringify({ longValue: electionAsString })
 )
-
-const presidentContest = electionSample.contests.find(
-  c => c.title === 'President and Vice-President' && c.seats === 1
-) as CandidateContest
-
-const countyCommissionersContest = electionSample.contests.find(
-  c => c.title === 'County Commissioners' && c.seats === 4
-) as CandidateContest
-
-const measure102Contest = electionSample.contests.find(
-  c =>
-    c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'yesno'
-) as YesNoContest
 
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
 })
 
-async function sleep(milliseconds: number) {
-  return new Promise(resolve => {
-    window.setTimeout(resolve, milliseconds)
-  })
-}
-
-const cardValueVoter = {
-  present: true,
-  shortValue: JSON.stringify({
-    t: 'voter',
-    pr: '23',
-    bs: '12',
-  }),
-}
-
-const cardValueVoterUsed = {
-  present: true,
-  shortValue: JSON.stringify({
-    t: 'voter',
-    pr: '23',
-    bs: '12',
-    uz: new Date().getTime(),
-  }),
-}
-
-const cardValueAbsent = {
-  present: false,
-  shortValue: '',
-}
-
-const cardValueClerk = {
-  longValueExists: true,
-  present: true,
-  shortValue: JSON.stringify({
-    t: 'clerk',
-    h: 'abcd',
-  }),
-}
-
 it(`basic end-to-end flow`, async () => {
-  let cardFunctionsAsExpected = true
-  let currentCardValue = cardValueAbsent
+  jest.useFakeTimers()
 
-  fetchMock.get('/card/read', () => {
-    return JSON.stringify(currentCardValue)
-  })
+  const { getByText, queryByText } = render(<App />)
 
-  fetchMock.get('/card/read_long', () => {
-    return JSON.stringify({ longValue: electionSampleAsString })
-  })
+  currentCard = noCard
+  advanceTimers()
 
-  fetchMock.post('/card/write', (url, options) => {
-    // if we want to simulate a card that is malfunctioning,
-    // we don't accept the write
-    if (cardFunctionsAsExpected) {
-      currentCardValue = { present: true, shortValue: options.body as string }
-    }
-    return ''
-  })
+  // Default Unconfigured
+  getByText('Device Not Configured')
 
-  const eventListenerCallbacksDictionary: any = {} // eslint-disable-line @typescript-eslint/no-explicit-any
-  window.addEventListener = jest.fn((event, cb) => {
-    eventListenerCallbacksDictionary[event] = cb
-  })
-  window.print = jest.fn(() => {
-    eventListenerCallbacksDictionary.afterprint()
-  })
+  // ---------------
 
-  const { container, getByText, getByTestId, queryByText } = render(<App />)
+  // Configure with Admin Card
+  currentCard = adminCard
+  advanceTimers()
+  await wait(() => fireEvent.click(getByText('Load Election Definition')))
 
-  // first the clerk card
-  currentCardValue = cardValueClerk
-  await sleep(250)
+  advanceTimers()
+  await wait(() => getByText('Election definition is loaded.'))
 
-  getByText('Scan Your Activation Code')
+  fireEvent.click(getByText('Live Election Mode'))
+  getByText('Switch to Live Election Mode and zero Printed Ballots count?')
+  fireEvent.click(getByText('Yes'))
 
-  // first a voter card that's already been used
-  currentCardValue = cardValueVoterUsed
-  await sleep(250)
-  getByText('Scan Your Activation Code')
+  expect(
+    (getByText('Live Election Mode') as HTMLButtonElement).disabled
+  ).toBeTruthy()
 
-  // then the voter card that is good to go
-  currentCardValue = cardValueVoter
-  await sleep(250)
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Polls Closed'))
+  getByText('Insert Poll Worker card to open.')
 
-  // Get Started Page
-  expect(container.firstChild).toMatchSnapshot()
+  // ---------------
 
-  // Go to First Contest
+  // Open Polls with Poll Worker Card
+  currentCard = pollWorkerCard
+  advanceTimers()
+  await wait(() => fireEvent.click(getByText('Open Polls')))
+  getByText('Open polls -- Print report 1 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Open polls -- Print report 2 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Open polls -- Print report 3 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Close Polls')
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Insert used Voter card
+  currentCard = invalidatedVoterCard
+  advanceTimers()
+  await wait(() => getByText('This card is no longer active.'))
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Insert Voter card, go to first contest, then remove card, expect to be on
+  // insert card screen.
+  currentCard = voterCard
+  advanceTimers()
+  await wait(() => getByText(/Precinct: Center Springfield/))
+  getByText(/Ballot Style: 12/)
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Alternate Ballot Style
+  currentCard = altVoterCard
+  advanceTimers()
+  await wait(() => getByText(/Precinct: North Springfield/))
+  getByText(/Ballot Style: 5/)
   fireEvent.click(getByText('Get Started'))
 
-  // take out card, should reset
-  currentCardValue = cardValueAbsent
-  await sleep(250)
+  advanceTimers()
+  getByText('This ballot has 11 contests.')
 
-  getByTestId('activation-code')
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
 
-  // ok put the card back in
-  currentCardValue = cardValueVoter
-  await sleep(250)
+  // ---------------
 
-  // Go to Voting Instructions
+  // Test the Idle Screen
+  const idleScreenCopy =
+    'This voting station has been inactive for more than one minute.'
+
+  // Insert Voter card
+  currentCard = voterCard
+  advanceTimers()
+  await wait(() => getByText(/Precinct: Center Springfield/))
+
+  // Elapse 60 seconds
+  advanceTimers(60 * 1000)
+
+  // Idle Screen is displayed
+  getByText(idleScreenCopy)
+
+  // User action removes Idle Screen
+  fireEvent.click(getByText('Touch the screen to go back to the ballot.'))
+  fireEvent.mouseDown(document)
+  advanceTimers()
+  expect(queryByText(idleScreenCopy)).toBeFalsy()
+
+  // Elapse 60 seconds
+  advanceTimers(60 * 1000)
+
+  // Idle Screen is displayed
+  getByText(idleScreenCopy)
+
+  // Countdown works
+  advanceTimers(1000)
+  getByText('29 seconds')
+
+  advanceTimers(29000)
+  advanceTimers()
+  getByText('Clearing ballot')
+
+  advanceTimers()
+
+  // 30 seconds passes, Expect Invalid card
+  // await wait(() => getByText('Inactive Card'))
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Complete Voter Happy Path
+
+  // Insert Voter card
+  currentCard = voterCard
+  advanceTimers()
+  await wait(() => getByText(/Precinct: Center Springfield/))
+  getByText(/Ballot Style: 12/)
   fireEvent.click(getByText('Get Started'))
 
-  // Go to First Contest
+  advanceTimers()
+  getByText('This ballot has 20 contests.')
   fireEvent.click(getByText('Start Voting'))
 
-  // Vote for President contest
-  expect(container.firstChild).toMatchSnapshot()
-  fireEvent.click(
-    getByText(presidentContest.candidates[0].name).closest('label')!
-  )
-  expect(container.firstChild).toMatchSnapshot()
+  // Advance through every contest
+  for (let i = 0; i < voterContests.length; i++) {
+    const title = voterContests[i].title
 
-  // Vote for Measure 102 contest
-  while (!queryByText(measure102Contest.title)) {
+    advanceTimers()
+    getByText(title)
+
+    // Vote for candidate contest
+    if (title === presidentContest.title) {
+      fireEvent.click(getByText(presidentContest.candidates[0].name))
+    }
+    // Vote for yesno contest
+    else if (title === measure102Contest.title) {
+      fireEvent.click(getByText('Yes'))
+    }
+
     fireEvent.click(getByText('Next'))
   }
-  expect(container.firstChild).toMatchSnapshot()
-  fireEvent.click(getByText('Yes').closest('label')!)
-  expect(container.firstChild).toMatchSnapshot()
 
-  // Go to Pre Review Screen
-  while (!queryByText('Review Your Selections')) {
-    fireEvent.click(getByText('Next'))
-  }
-  expect(container.firstChild).toMatchSnapshot()
-
-  // Go to Review Screen
+  // Pre-Review screen
+  fireEvent.click(getByText('Next'))
+  advanceTimers()
+  getByText('Review Your Selections')
   fireEvent.click(getByText('Review Selections'))
+
+  // Review Screen
+  advanceTimers()
   getByText('Review Your Ballot Selections')
-  expect(container.firstChild).toMatchSnapshot()
+  getByText(presidentContest.candidates[0].name)
+  getByText(`Yes on ${measure102Contest.shortTitle}`)
 
   // Change "County Commissioners" Contest
   fireEvent.click(
     getByText(
-      `${countyCommissionersContest.section}, ${
-        countyCommissionersContest.title
-      }`
-    ).closest('button')!
+      `${countyCommissionersContest.section}, ${countyCommissionersContest.title}`
+    )
   )
+  advanceTimers()
+  getByText(/Vote for 4/i)
+
   // Select first candidate
-  expect(container.firstChild).toMatchSnapshot()
-  fireEvent.click(
-    getByText(countyCommissionersContest.candidates[0].name).closest('label')!
-  )
-  fireEvent.click(
-    getByText(countyCommissionersContest.candidates[1].name).closest('label')!
-  )
-  expect(container.firstChild).toMatchSnapshot()
+  fireEvent.click(getByText(countyCommissionersContest.candidates[0].name))
+  fireEvent.click(getByText(countyCommissionersContest.candidates[1].name))
+
   // Back to Review screen
   fireEvent.click(getByText('Review Ballot'))
+  advanceTimers()
+  getByText('Review Your Ballot Selections')
   getByText(countyCommissionersContest.candidates[0].name)
   getByText(countyCommissionersContest.candidates[1].name)
   getByText('You may select 2 more candidates.')
-  expect(container.firstChild).toMatchSnapshot()
 
   // Print Screen
   fireEvent.click(getByText('Next'))
+  advanceTimers()
   getByText('Print your official ballot')
 
   // Test Print Ballot Modal
   fireEvent.click(getByText('Print Ballot'))
   fireEvent.click(getByText('No, go back.'))
   fireEvent.click(getByText('Print Ballot'))
-
-  // card malfunctions, we should not advance
-  cardFunctionsAsExpected = false
   fireEvent.click(getByText('Yes, print my ballot.'))
-  await waitForExpect(() => {
-    expect(window.print).not.toBeCalled()
-  })
-
-  cardFunctionsAsExpected = true
-  fireEvent.click(getByText('Yes, print my ballot.'))
+  advanceTimers()
   await waitForExpect(() => {
     expect(window.print).toBeCalled()
   })
 
+  // Wait for printing setTimeout
+  advanceTimers(printingModalDisplaySeconds * 1000)
+
   // Review and Cast Instructions
-  // wait a little bit because the page transition is behind a setTimeout
-  await sleep(100)
-  getByText('Cast your printed ballot')
+  await wait(() => getByText('You’re Almost Done…'))
 
-  // ===========================================================================
-  // TODO: determine why test errors occur here when the following click is uncommented.
-  // Errors:
-  // - TypeError: stack.split is not a function
-  // - multiple errors
-  //   - Error: Uncaught [RangeError: Maximum call stack size exceeded]
-  //   - Error: Uncaught [Error: An error was thrown inside one of your components, but React doesn't know what it was. This is likely due to browser flakiness. React does its best to preserve the "Pause on exceptions" behavior of the DevTools, which requires some DEV-mode only tricks. It's possible that these don't work in your browser. Try triggering the error in production mode, or switching to a modern browser. If you suspect that this is actually an issue with React, please file an issue.]
-  // ===========================================================================
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
 
-  // fireEvent.click(getByText('Start Over'))
+  // Insert Voter card which has just printed.
+  currentCard = getPrintedVoterCard()
+  advanceTimers()
+  await wait(() => getByText('You’re Almost Done…'))
 
-  // Redirected to Activation
-  // getByText('Scan Your Activation Code')
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // Insert Pollworker Card
+  currentCard = pollWorkerCard
+  advanceTimers()
+  await wait(() => fireEvent.click(getByText('Close Polls')))
+  getByText('Close Polls -- Print report 1 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Close Polls -- Print report 2 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Close Polls -- Print report 3 of 3?')
+  fireEvent.click(getByText('Yes'))
+  getByText('Open Polls')
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert Poll Worker card to open.'))
+
+  // Unconfigure with Admin Card
+  currentCard = adminCard
+  advanceTimers()
+  await wait(() => getByText('Election definition is loaded.'))
+  fireEvent.click(getByText('Remove'))
+  advanceTimers()
+
+  // Default Unconfigured
+  getByText('Device Not Configured')
 })

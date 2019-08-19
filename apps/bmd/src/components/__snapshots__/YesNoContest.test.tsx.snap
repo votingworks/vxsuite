@@ -1,6 +1,47 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports yes/no contest allows voting for both yes and no 1`] = `
+.c10 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c10::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -12,6 +53,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow: auto;
 }
 
 .c2 {
@@ -51,15 +93,19 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   margin-top: -1rem;
 }
 
-.c2 :first-child {
+.c2 > :first-child {
   margin-top: 0;
 }
 
-.c2 :last-child {
+.c2 > :last-child {
   margin-bottom: 0;
 }
 
-.c12 {
+.c2 dl {
+  margin: 1rem 0;
+}
+
+.c11 {
   word-break: break-word;
 }
 
@@ -139,67 +185,13 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 .c9 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
+  grid-gap: 1.25rem;
 }
 
-.c10 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  min-height: 2.5rem;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-button.c10 {
-  text-align: left;
-}
-
-.c10:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c10::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  content: '';
-}
-
-.c10 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
-.c11 {
-  margin-right: 0.5rem;
+@media (min-width:480px) {
+  .c10 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
 }
 
 @media print {
@@ -242,12 +234,6 @@ button.c10 {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c10 > div {
-    padding: 1rem 1rem 1rem inherit;
   }
 }
 
@@ -310,53 +296,44 @@ button.c10 {
     >
       <div
         class="c9"
+        data-testid="contest-choices"
       >
-        <label
+        <button
           class="c10"
-          for="yes"
+          data-selected="false"
+          data-vote="yes"
+          role="option"
+          type="button"
         >
-          <input
-            class="visually-hidden c11"
-            id="yes"
-            name="contest-id"
-            role="option"
-            type="checkbox"
-            value="yes"
-          />
           <div
             class="c2"
           >
             <p
               aria-label="Yes on Prop 1"
-              class="c12"
+              class="c11"
             >
               Yes
             </p>
           </div>
-        </label>
-        <label
+        </button>
+        <button
           class="c10"
-          for="no"
+          data-selected="false"
+          data-vote="no"
+          role="option"
+          type="button"
         >
-          <input
-            class="visually-hidden c11"
-            id="no"
-            name="contest-id"
-            role="option"
-            type="checkbox"
-            value="no"
-          />
           <div
             class="c2"
           >
             <p
               aria-label="No on Prop 1"
-              class="c12"
+              class="c11"
             >
               No
             </p>
           </div>
-        </label>
+        </button>
       </div>
     </div>
   </main>
@@ -364,172 +341,19 @@ button.c10 {
 `;
 
 exports[`supports yes/no contest displays warning when attempting to change vote 1`] = `
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-
-.c2 {
-  width: 100%;
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c2 h1 {
-  margin: 2rem 0 1rem;
-  line-height: 1.1;
-  font-size: 1.5rem;
-}
-
-.c2 h2 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.25rem;
-}
-
-.c2 h3,
-.c2 p {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c2 h1 + p,
-.c2 h2 + p {
-  margin-top: -0.75rem;
-}
-
-.c2 h3 + p {
-  margin-top: -1rem;
-}
-
-.c2 :first-child {
-  margin-top: 0;
-}
-
-.c2 :last-child {
-  margin-bottom: 0;
-}
-
 .c12 {
-  word-break: break-word;
-}
-
-.c1 {
-  margin: 0 auto;
-  width: 100%;
-  max-width: 35rem;
-  padding: 1rem 0.75rem 0.5rem;
-}
-
-.c3 {
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.c7 {
-  padding: 0 0.25rem;
-}
-
-.c8 {
-  margin: 0 auto;
-  width: 100%;
-  max-width: 35rem;
-  padding: 1rem 0.5rem;
-}
-
-.c4 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  position: relative;
-  overflow: auto;
-}
-
-.c4::before,
-.c4::after {
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  height: 0.25rem;
-  content: '';
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-}
-
-.c4::before {
-  top: 0;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
-.c4::after {
-  bottom: 0;
-  opacity: 0;
-  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
-}
-
-.c5 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: auto;
-}
-
-.c6 {
-  margin: 0 auto;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem 1rem;
-}
-
-.c9 {
-  display: grid;
-  grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 0.75rem;
-}
-
-.c13 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
   background: #FFFFFF;
   cursor: pointer;
-  min-height: 2.5rem;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
 }
 
-button.c13 {
-  text-align: left;
-}
-
-.c13:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
-}
-
-.c13::before {
+.c12::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -554,36 +378,21 @@ button.c13 {
   text-align: center;
   color: #028099;
   font-size: 2rem;
+  font-weight: 700;
   content: '';
 }
 
-.c13 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-}
-
 .c10 {
-  display: grid;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
   background: #028099;
   cursor: pointer;
-  min-height: 2.5rem;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
   color: #FFFFFF;
   -webkit-transition: background 0.25s,color 0.25s;
   transition: background 0.25s,color 0.25s;
-}
-
-button.c10 {
-  text-align: left;
-}
-
-.c10:focus-within {
-  outline: rgb(77,144,254) dashed 0.25rem;
 }
 
 .c10::before {
@@ -611,15 +420,166 @@ button.c10 {
   text-align: center;
   color: #028099;
   font-size: 2rem;
+  font-weight: 700;
   content: '✓';
 }
 
-.c10 > div {
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.c2 {
+  width: 100%;
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c2 h1 {
+  margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
+}
+
+.c2 h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.c2 h3,
+.c2 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c2 h1 + p,
+.c2 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c2 h3 + p {
+  margin-top: -1rem;
+}
+
+.c2 > :first-child {
+  margin-top: 0;
+}
+
+.c2 > :last-child {
+  margin-bottom: 0;
+}
+
+.c2 dl {
+  margin: 1rem 0;
 }
 
 .c11 {
-  margin-right: 0.5rem;
+  word-break: break-word;
+}
+
+.c1 {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 35rem;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c3 {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.c7 {
+  padding: 0 0.25rem;
+}
+
+.c8 {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 35rem;
+  padding: 1rem 0.5rem;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c4::before,
+.c4::after {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.c4::before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c4::after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c6 {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 35rem;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.c9 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 1.25rem;
+}
+
+@media (min-width:480px) {
+  .c12 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c10 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
 }
 
 @media print {
@@ -662,18 +622,6 @@ button.c10 {
   .c6 {
     padding-right: 1rem;
     padding-left: 1rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c13 > div {
-    padding: 1rem 1rem 1rem inherit;
-  }
-}
-
-@media (min-width:480px) {
-  .c10 > div {
-    padding: 1rem 1rem 1rem inherit;
   }
 }
 
@@ -736,54 +684,44 @@ button.c10 {
     >
       <div
         class="c9"
+        data-testid="contest-choices"
       >
-        <label
+        <button
           class="c10"
-          for="yes"
+          data-selected="true"
+          data-vote="yes"
+          role="option"
+          type="button"
         >
-          <input
-            checked=""
-            class="visually-hidden c11"
-            id="yes"
-            name="contest-id"
-            role="option"
-            type="checkbox"
-            value="yes"
-          />
           <div
             class="c2"
           >
             <p
               aria-label="Yes on Prop 1"
-              class="c12"
+              class="c11"
             >
               Yes
             </p>
           </div>
-        </label>
-        <label
-          class="c13"
-          for="no"
+        </button>
+        <button
+          class="c12"
+          data-selected="false"
+          data-vote="no"
+          role="option"
+          type="button"
         >
-          <input
-            class="visually-hidden c11"
-            id="no"
-            name="contest-id"
-            role="option"
-            type="checkbox"
-            value="no"
-          />
           <div
             class="c2"
           >
             <p
               aria-label="No on Prop 1"
-              class="c12"
+              class="c11"
             >
               No
             </p>
           </div>
-        </label>
+        </button>
       </div>
     </div>
   </main>

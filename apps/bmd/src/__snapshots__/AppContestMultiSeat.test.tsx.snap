@@ -1,0 +1,860 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Single Seat Contest 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  height: 100%;
+}
+
+.c0:focus {
+  outline: none;
+}
+
+.c12 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.25rem;
+}
+
+.c12 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c12 > * {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 0.25rem;
+}
+
+.c16 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap-reverse;
+  -ms-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+  border-bottom: 1px solid rgb(169,169,169);
+  background: #455a64;
+  padding: 0.25rem;
+}
+
+.c16 > *:first-child {
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+}
+
+.c16 > * {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 0.25rem;
+}
+
+.c11 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c11::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
+.c9 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #028099;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  color: #FFFFFF;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c9::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: #028099;
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '✓';
+}
+
+.c13 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  touch-action: manipulation;
+}
+
+.c14 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.c3 {
+  width: 100%;
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c3 h1 {
+  margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
+}
+
+.c3 h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.c3 h3,
+.c3 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.c3 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c3 h1 + p,
+.c3 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c3 h3 + p {
+  margin-top: -1rem;
+}
+
+.c3 > :first-child {
+  margin-top: 0;
+}
+
+.c3 > :last-child {
+  margin-bottom: 0;
+}
+
+.c3 dl {
+  margin: 1rem 0;
+}
+
+.c10 {
+  word-break: break-word;
+}
+
+.c2 {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 35rem;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.c4 {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.c5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  overflow: auto;
+}
+
+.c5::before,
+.c5::after {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.c5::before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c5::after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c6 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c7 {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 35rem;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.c8 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 1.25rem;
+}
+
+.c15 {
+  text-align: center;
+  color: #FFFFFF;
+  -webkit-flex: 2;
+  -ms-flex: 2;
+  flex: 2;
+}
+
+@media (min-width:480px) {
+  .c12 > *:only-child {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+    margin: auto;
+    min-width: 33.333%;
+  }
+}
+
+@media print {
+  .c12 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c16 > *:first-child {
+    margin-left: auto;
+  }
+}
+
+@media (min-width:480px) {
+  .c16 > * {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c16 > *:only-child {
+    -webkit-flex: 0;
+    -ms-flex: 0;
+    flex: 0;
+    min-width: 33.333%;
+  }
+}
+
+@media print {
+  .c16 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+  .c11 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+@media (min-width:480px) {
+  .c9 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+@media print {
+  .c1 {
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
+
+@media (min-width:480px) {
+  .c3 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:720px) {
+  .c2 {
+    padding: 1rem 1.5rem 0.5rem;
+    padding-left: 5rem;
+  }
+}
+
+@media (min-width:720px) {
+  .c7 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media print {
+  .c15 {
+    color: #FFFFFF;
+  }
+}
+
+<div
+  class="c0"
+  tabindex="-1"
+>
+  <main
+    class="c1"
+  >
+    <div
+      class="c2"
+      id="contest-header"
+    >
+      <div
+        class="c3"
+        id="audiofocus"
+      >
+        <h1
+          aria-label="County Commissioners."
+        >
+          <div
+            class="c4"
+          >
+            Franklin County
+          </div>
+          County Commissioners
+        </h1>
+        <p
+          aria-label="Vote for 4. You have selected 4. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+        >
+          <strong>
+            Vote for 
+            4
+            .
+          </strong>
+           You have selected
+           
+          4
+          .
+        </p>
+      </div>
+    </div>
+    <div
+      class="c5"
+    >
+      <div
+        class="c6"
+      >
+        <div
+          class="c7"
+        >
+          <div
+            class="c8"
+          >
+            <button
+              aria-label="Camille Argent, Federalist."
+              class="c9"
+              data-id="argent"
+              data-selected="true"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Camille Argent
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Chloe Witherspoon-Smithson, Federalist."
+              class="c9"
+              data-id="witherspoonsmithson"
+              data-selected="true"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Chloe Witherspoon-Smithson
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Clayton Bainbridge, Federalist."
+              class="c9"
+              data-id="bainbridge"
+              data-selected="true"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Clayton Bainbridge
+                  </strong>
+                  <br />
+                  Federalist
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Charlene Hennessey, People's."
+              class="c9"
+              data-id="hennessey"
+              data-selected="true"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Charlene Hennessey
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Eric Savoy, People's."
+              class="c11"
+              data-id="savoy"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Eric Savoy
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Susan Tawa, People's."
+              class="c11"
+              data-id="tawa"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Susan Tawa
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Mary Tawa, People's."
+              class="c11"
+              data-id="tawa-mary"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Mary Tawa
+                  </strong>
+                  <br />
+                  People's
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Damian Rangel, Liberty."
+              class="c11"
+              data-id="rangel"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Damian Rangel
+                  </strong>
+                  <br />
+                  Liberty
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Valarie Altman, Constitution."
+              class="c11"
+              data-id="altman"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Valarie Altman
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Helen Moore, Constitution."
+              class="c11"
+              data-id="moore"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Helen Moore
+                  </strong>
+                  <br />
+                  Constitution
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="John White, Whig."
+              class="c11"
+              data-id="white"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    John White
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Joe Schmidt, Whig."
+              class="c11"
+              data-id="schmidt"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Joe Schmidt
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Joe Smith, Whig."
+              class="c11"
+              data-id="smith"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Joe Smith
+                  </strong>
+                  <br />
+                  Whig
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Amanda Marracini, Labor."
+              class="c11"
+              data-id="marracini"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Amanda Marracini
+                  </strong>
+                  <br />
+                  Labor
+                </p>
+              </div>
+            </button>
+            <button
+              aria-label="Martin Schreiner, Independent."
+              class="c11"
+              data-id="schreiner"
+              data-selected="false"
+              role="option"
+              type="button"
+            >
+              <div
+                class="c3"
+              >
+                <p
+                  class="c10"
+                >
+                  <strong>
+                    Martin Schreiner
+                  </strong>
+                  <br />
+                  Independent
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <nav
+    class="c12"
+  >
+    <button
+      class="c13"
+      id="next"
+      role="option"
+      type="button"
+    >
+      Next
+    </button>
+    <button
+      class="c14"
+      id="previous"
+      role="option"
+      type="button"
+    >
+      Back
+    </button>
+    <p
+      class="c15"
+    >
+      9
+       of 
+      20
+    </p>
+  </nav>
+  <nav
+    class="c16"
+  >
+    <div />
+    <button
+      class="c14"
+      role="option"
+      type="button"
+    >
+      Settings
+    </button>
+  </nav>
+</div>
+`;

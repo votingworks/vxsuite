@@ -25,6 +25,8 @@ const contest1candidate0 = contest1.candidates[0]
 
 it(`renders PrintPage without votes`, () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
+    ballotStyleId: '5',
+    precinctId: '21',
     route: '/print',
   })
   expect(container.firstChild).toMatchSnapshot()
@@ -47,7 +49,9 @@ it(`renders PrintPage with votes`, () => {
 
 it(`renders PrintPage without votes and inline seal`, () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
+    ballotStyleId: '5',
     election: electionSampleWithSeal,
+    precinctId: '21',
     route: '/print',
   })
   expect(container.firstChild).toMatchSnapshot()
@@ -55,7 +59,9 @@ it(`renders PrintPage without votes and inline seal`, () => {
 
 it(`renders PrintPage without votes and no seal`, () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
+    ballotStyleId: '5',
     election: electionSampleNoSeal,
+    precinctId: '21',
     route: '/print',
   })
   expect(container.firstChild).toMatchSnapshot()

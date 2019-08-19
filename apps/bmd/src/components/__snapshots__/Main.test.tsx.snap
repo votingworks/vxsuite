@@ -18,13 +18,12 @@ exports[`renders Main with child 1`] = `
 
 .c1 {
   margin: 0 0;
-  width: 100%;
   max-width: 35rem;
 }
 
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
@@ -74,13 +73,12 @@ exports[`renders centered content 1`] = `
 
 .c1 {
   margin: auto auto;
-  width: 100%;
   max-width: 35rem;
 }
 
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
@@ -124,19 +122,17 @@ exports[`renders not centered content 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow: auto;
   padding: 1rem 0.5rem 2rem;
 }
 
 .c1 {
   margin: 0 0;
-  width: 100%;
   max-width: 35rem;
 }
 
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 

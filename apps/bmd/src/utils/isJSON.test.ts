@@ -1,7 +1,7 @@
 // Ported to TypeScript from:
 // https://github.com/joaquimserafim/isJSON/blob/master/test/index.js
 
-import { isJSON, isJSONStrict } from './isJSON'
+import isJSON, { isJSONStrict } from './isJSON'
 
 it(`perform isJSON verifications`, () => {
   expect(isJSON('asdada[]asdadada sd asdasda das das')).toBeFalsy()
@@ -49,4 +49,5 @@ it(`perform isJSON verifications`, () => {
     })
   ).toBeTruthy()
   expect(isJSONStrict('asdf')).toBeFalsy()
+  expect(isJSONStrict(true)).toBeFalsy()
 })

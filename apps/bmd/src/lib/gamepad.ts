@@ -1,22 +1,21 @@
 import mod from '../utils/mod'
 
+export const getActiveElement = () =>
+  document.activeElement! as HTMLInputElement
+
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(
     document.querySelectorAll(
-      'button:not([aria-hidden="true"]):not([disabled]), input:not([aria-hidden="true"]):not([disabled])'
+      'button:not([aria-hidden="true"]):not([disabled])'
     )
   )
   const ariaHiddenTabbableElements = Array.from(
-    document.querySelectorAll(
-      '[aria-hidden="true"] button, [aria-hidden="true"] input'
-    )
+    document.querySelectorAll('[aria-hidden="true"] button')
   )
   return tabbableElements.filter(
     element => ariaHiddenTabbableElements.indexOf(element) === -1
   ) as HTMLElement[]
 }
-
-const getActiveElement = () => document.activeElement! as HTMLInputElement
 
 function handleArrowUp() {
   const focusable = getFocusableElements()
@@ -49,13 +48,15 @@ function handleArrowLeft() {
 
 function handleArrowRight() {
   const nextButton = document.getElementById('next') as HTMLButtonElement
+  /* istanbul ignore else */
   if (nextButton) {
     nextButton.click()
   }
 }
 
 function handleClick() {
-  getActiveElement().click()
+  const activeElement = getActiveElement()
+  activeElement.click()
 }
 
 export function handleGamepadButtonDown(buttonName: string) {
@@ -100,6 +101,8 @@ export /* istanbul ignore next - triggering keystrokes issue - https://github.co
       handleArrowRight()
       break
     case ']':
+      handleClick()
+      break
     case 'Enter':
       handleClick()
       break

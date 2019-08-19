@@ -1,6 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders PrintPage with votes 1`] = `
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 1rem 1.75rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  font-size: 1.25rem;
+  touch-action: manipulation;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -17,9 +30,7 @@ exports[`renders PrintPage with votes 1`] = `
 }
 
 .c1 {
-  margin: auto auto;
-  width: 100%;
-  max-width: 35rem;
+  margin: auto 0;
 }
 
 .c10 {
@@ -61,12 +72,22 @@ exports[`renders PrintPage with votes 1`] = `
   margin-top: -1rem;
 }
 
-.c10 :first-child {
+.c10 > :first-child {
   margin-top: 0;
 }
 
-.c10 :last-child {
+.c10 > :last-child {
   margin-bottom: 0;
+}
+
+.c10 dl {
+  margin: 1rem 0;
+}
+
+.c11 {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 33ch;
 }
 
 .c2 {
@@ -235,27 +256,9 @@ exports[`renders PrintPage with votes 1`] = `
   font-weight: 600;
 }
 
-.c12 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 1rem 1.75rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  font-size: 1.25rem;
-}
-
-.c11 {
-  margin-right: auto;
-  margin-left: auto;
-  max-width: 33ch;
-}
-
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
@@ -379,7 +382,7 @@ exports[`renders PrintPage with votes 1`] = `
             <div
               class="c6"
             >
-              Cast
+              Vote
             </div>
           </div>
         </div>
@@ -415,6 +418,19 @@ exports[`renders PrintPage with votes 1`] = `
 `;
 
 exports[`renders PrintPage without votes 1`] = `
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 1rem 1.75rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  font-size: 1.25rem;
+  touch-action: manipulation;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -431,9 +447,7 @@ exports[`renders PrintPage without votes 1`] = `
 }
 
 .c1 {
-  margin: auto auto;
-  width: 100%;
-  max-width: 35rem;
+  margin: auto 0;
 }
 
 .c10 {
@@ -475,12 +489,22 @@ exports[`renders PrintPage without votes 1`] = `
   margin-top: -1rem;
 }
 
-.c10 :first-child {
+.c10 > :first-child {
   margin-top: 0;
 }
 
-.c10 :last-child {
+.c10 > :last-child {
   margin-bottom: 0;
+}
+
+.c10 dl {
+  margin: 1rem 0;
+}
+
+.c11 {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 33ch;
 }
 
 .c2 {
@@ -649,27 +673,9 @@ exports[`renders PrintPage without votes 1`] = `
   font-weight: 600;
 }
 
-.c12 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 1rem 1.75rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  font-size: 1.25rem;
-}
-
-.c11 {
-  margin-right: auto;
-  margin-left: auto;
-  max-width: 33ch;
-}
-
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
@@ -793,7 +799,7 @@ exports[`renders PrintPage without votes 1`] = `
             <div
               class="c6"
             >
-              Cast
+              Vote
             </div>
           </div>
         </div>
@@ -829,6 +835,19 @@ exports[`renders PrintPage without votes 1`] = `
 `;
 
 exports[`renders PrintPage without votes and inline seal 1`] = `
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 1rem 1.75rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  font-size: 1.25rem;
+  touch-action: manipulation;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -845,9 +864,7 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 }
 
 .c1 {
-  margin: auto auto;
-  width: 100%;
-  max-width: 35rem;
+  margin: auto 0;
 }
 
 .c10 {
@@ -889,12 +906,22 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
   margin-top: -1rem;
 }
 
-.c10 :first-child {
+.c10 > :first-child {
   margin-top: 0;
 }
 
-.c10 :last-child {
+.c10 > :last-child {
   margin-bottom: 0;
+}
+
+.c10 dl {
+  margin: 1rem 0;
+}
+
+.c11 {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 33ch;
 }
 
 .c2 {
@@ -1063,27 +1090,9 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
   font-weight: 600;
 }
 
-.c12 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 1rem 1.75rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  font-size: 1.25rem;
-}
-
-.c11 {
-  margin-right: auto;
-  margin-left: auto;
-  max-width: 33ch;
-}
-
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
@@ -1207,7 +1216,7 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
             <div
               class="c6"
             >
-              Cast
+              Vote
             </div>
           </div>
         </div>
@@ -1243,6 +1252,19 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 `;
 
 exports[`renders PrintPage without votes and no seal 1`] = `
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 1rem 1.75rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  font-size: 1.25rem;
+  touch-action: manipulation;
+}
+
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -1259,9 +1281,7 @@ exports[`renders PrintPage without votes and no seal 1`] = `
 }
 
 .c1 {
-  margin: auto auto;
-  width: 100%;
-  max-width: 35rem;
+  margin: auto 0;
 }
 
 .c10 {
@@ -1303,12 +1323,22 @@ exports[`renders PrintPage without votes and no seal 1`] = `
   margin-top: -1rem;
 }
 
-.c10 :first-child {
+.c10 > :first-child {
   margin-top: 0;
 }
 
-.c10 :last-child {
+.c10 > :last-child {
   margin-bottom: 0;
+}
+
+.c10 dl {
+  margin: 1rem 0;
+}
+
+.c11 {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 33ch;
 }
 
 .c2 {
@@ -1477,27 +1507,9 @@ exports[`renders PrintPage without votes and no seal 1`] = `
   font-weight: 600;
 }
 
-.c12 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 1rem 1.75rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  font-size: 1.25rem;
-}
-
-.c11 {
-  margin-right: auto;
-  margin-left: auto;
-  max-width: 33ch;
-}
-
 @media (min-width:480px) {
   .c0 {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem 2rem;
   }
 }
 
@@ -1621,7 +1633,7 @@ exports[`renders PrintPage without votes and no seal 1`] = `
             <div
               class="c6"
             >
-              Cast
+              Vote
             </div>
           </div>
         </div>

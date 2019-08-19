@@ -14,7 +14,7 @@ const Main = styled('main')<Props>`
     noPadding ? undefined : '1rem 0.5rem 2rem'};
   @media (min-width: 480px) {
     padding: ${({ noPadding = false }) =>
-      noPadding ? undefined : '2rem 1rem'};
+      noPadding ? undefined : '1rem 1rem 2rem'};
   }
   @media print {
     justify-content: flex-start;
@@ -26,6 +26,7 @@ interface ChildProps {
   center?: boolean
   centerVertical?: boolean
   centerHorizontal?: boolean
+  maxWidth?: boolean
   padded?: boolean
 }
 
@@ -35,9 +36,7 @@ export const MainChild = styled('div')<ChildProps>`
     centerVertical = center,
     centerHorizontal = center,
   }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
-  width: 100%;
-  max-width: 35rem;
-  padding: ${({ padded = false }) => (padded ? '1rem' : undefined)};
+  max-width: ${({ maxWidth = true }) => (maxWidth ? '35rem' : undefined)};
   @media print {
     margin: 0;
     max-width: 100%;

@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from 'react-testing-library'
+import { fireEvent, render } from '@testing-library/react'
 
 import { CandidateContest as CandidateContestInterface } from '../config/types'
 
@@ -42,13 +42,13 @@ describe(`supports single-seat contest`, () => {
     )
     expect(container).toMatchSnapshot()
 
-    fireEvent.click(getByText(candidate0.name).closest('label')!)
+    fireEvent.click(getByText(candidate0.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(1)
 
-    fireEvent.click(getByText(candidate1.name).closest('label')!)
+    fireEvent.click(getByText(candidate1.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(2)
 
-    fireEvent.click(getByText(candidate2.name).closest('label')!)
+    fireEvent.click(getByText(candidate2.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(3)
   })
 
@@ -64,38 +64,17 @@ describe(`supports single-seat contest`, () => {
     )
     expect(container).toMatchSnapshot()
 
-    const candidate0Input = getByText(candidate0.name)
-      .closest('label')!
-      .querySelector('input')!
-    expect(candidate0Input.disabled).toBeFalsy()
-    expect(candidate0Input.checked).toBeTruthy()
+    expect(getByText(candidate0.name).closest('button')!.dataset.selected).toBe(
+      'true'
+    )
 
-    const candidate1Input = getByText(candidate1.name)
-      .closest('label')!
-      .querySelector('input')!
-
-    // we no longer disable, so not checking this condition anymore
-    // but still checking that it isn't checked when clicking
-    // expect(candidate1Input.disabled).toBeTruthy()
-    fireEvent.click(getByText(candidate1.name).closest('label')!)
-    expect(candidate1Input.checked).toBeFalsy()
-
-    const candidate2Input = getByText(candidate2.name)
-      .closest('label')!
-      .querySelector('input')!
-
-    // same here, we no longer disable
-    // expect(candidate2Input.disabled).toBeTruthy()
-    fireEvent.click(getByText(candidate2.name).closest('label')!)
-    expect(candidate2Input.checked).toBeFalsy()
-
-    fireEvent.click(getByText(candidate1.name).closest('label')!)
+    fireEvent.click(getByText(candidate1.name).closest('button')!)
     expect(updateVote).not.toHaveBeenCalled()
 
-    fireEvent.click(getByText(candidate2.name).closest('label')!)
+    fireEvent.click(getByText(candidate2.name).closest('button')!)
     expect(updateVote).not.toHaveBeenCalled()
 
-    fireEvent.click(getByText(candidate0.name).closest('label')!)
+    fireEvent.click(getByText(candidate0.name).closest('button')!)
     expect(updateVote).toHaveBeenCalled()
   })
 })
@@ -113,37 +92,30 @@ describe(`supports multi-seat contests`, () => {
     )
     expect(container).toMatchSnapshot()
 
-    const candidate0Input = getByText(candidate0.name)
-      .closest('label')!
-      .querySelector('input')!
-    expect(candidate0Input.disabled).toBeFalsy()
-    expect(candidate0Input.checked).toBeTruthy()
+    expect(getByText(candidate0.name).closest('button')!.dataset.selected).toBe(
+      'true'
+    )
+    expect(getByText(candidate1.name).closest('button')!.dataset.selected).toBe(
+      'false'
+    )
+    expect(getByText(candidate2.name).closest('button')!.dataset.selected).toBe(
+      'false'
+    )
 
-    const candidate1Input = getByText(candidate1.name)
-      .closest('label')!
-      .querySelector('input')!
-    expect(candidate1Input.disabled).toBeFalsy()
-    expect(candidate1Input.checked).toBeFalsy()
+    fireEvent.click(getByText(candidate1.name).closest('button')!)
+    expect(updateVote).toHaveBeenCalledTimes(1)
 
-    const candidate2Input = getByText(candidate2.name)
-      .closest('label')!
-      .querySelector('input')!
-    expect(candidate2Input.disabled).toBeFalsy()
-    expect(candidate2Input.checked).toBeFalsy()
+    fireEvent.click(getByText(candidate2.name).closest('button')!)
+    expect(updateVote).toHaveBeenCalledTimes(2)
 
-    fireEvent.click(getByText(candidate1.name).closest('label')!)
-    expect(updateVote).toHaveBeenCalled()
-
-    fireEvent.click(getByText(candidate2.name).closest('label')!)
-    expect(updateVote).toHaveBeenCalled()
-
-    fireEvent.click(getByText(candidate0.name).closest('label')!)
-    expect(updateVote).toHaveBeenCalled()
+    fireEvent.click(getByText(candidate0.name).closest('button')!)
+    expect(updateVote).toHaveBeenCalledTimes(3)
   })
 })
 
 describe(`supports write-in candidates`, () => {
   it(`displays warning if write-in candidate name is too long`, () => {
+    jest.useFakeTimers()
     const updateVote = jest.fn()
     const { container, getByText, queryByText } = render(
       <CandidateContest
@@ -154,16 +126,15 @@ describe(`supports write-in candidates`, () => {
       />
     )
     fireEvent.click(getByText('add write-in candidate').closest('button')!)
-    expect(getByText('Write-In Candidate')).toBeTruthy()
+    getByText('Write-In Candidate')
     Array.from('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT').forEach(i => {
       const key = i === ' ' ? 'space' : i
       fireEvent.click(getByText(key).closest('button')!)
     })
-    expect(
-      getByText('You have entered 37 of maximum 40 characters.')
-    ).toBeTruthy()
+    getByText('You have entered 37 of maximum 40 characters.')
     expect(container).toMatchSnapshot()
     fireEvent.click(getByText('Cancel'))
+    jest.runOnlyPendingTimers() // Handle Delay when clicking "Cancel"
     expect(queryByText('Write-In Candidate')).toBeFalsy()
   })
 })

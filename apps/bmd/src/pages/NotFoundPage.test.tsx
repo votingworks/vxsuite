@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
-import { fireEvent } from 'react-testing-library'
+import { fireEvent } from '@testing-library/react'
 
 import { render } from '../../test/testUtils'
 

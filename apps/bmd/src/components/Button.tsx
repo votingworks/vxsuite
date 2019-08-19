@@ -1,3 +1,4 @@
+import React, { MouseEventHandler } from 'react'
 import styled, { css } from 'styled-components'
 
 interface Attrs extends HTMLButtonElement {
@@ -35,16 +36,42 @@ const buttonStyles = css<Props>`
     (primary && '#FFFFFF') ||
     'black'};
   font-size: ${({ big = false }) => (big ? '1.25rem' : undefined)};
+  touch-action: manipulation;
 `
 
 export const DecoyButton = styled.div`
   ${buttonStyles} /* stylelint-disable-line value-keyword-case */
 `
 
-const Button = styled('button').attrs((props: Attrs) => ({
+const StyledButton = styled('button').attrs((props: Attrs) => ({
   type: props.type || 'button',
 }))`
   ${buttonStyles} /* stylelint-disable-line value-keyword-case */
+`
+
+interface PointerButtonProps extends Props {
+  onPress: MouseEventHandler
+}
+
+const Button = ({ onPress, ...rest }: PointerButtonProps) => (
+  <StyledButton {...rest} onClick={onPress} />
+)
+
+export const SegmentedButton = styled.span`
+  display: inline-block;
+  white-space: nowrap;
+  & > button:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  & > button:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  & > button:disabled {
+    background: #028099;
+    color: #ffffff;
+  }
 `
 
 export default Button
