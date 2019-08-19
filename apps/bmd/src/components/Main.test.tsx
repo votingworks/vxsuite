@@ -23,7 +23,7 @@ it(`renders centered content`, () => {
 
 it(`renders not centered content`, () => {
   const { container } = render(
-    <Main>
+    <Main noOverflow>
       <MainChild centerHorizontal={false}>foo</MainChild>
     </Main>
   )

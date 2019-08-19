@@ -389,7 +389,7 @@ class CandidateContest extends React.Component<Props, State> {
     const maxWriteInCandidateLength = 40
     return (
       <React.Fragment>
-        <Main noOverflow noPadding>
+        <Main noPadding>
           <ContentHeader id="contest-header">
             <Prose id="audiofocus">
               <h1 aria-label={`${contest.title}.`}>

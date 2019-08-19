@@ -53,6 +53,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow: auto;
 }
 
 .c2 {
@@ -434,6 +435,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow: auto;
 }
 
 .c2 {

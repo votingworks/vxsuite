@@ -262,7 +262,7 @@ export default class YesNoContest extends React.Component<Props> {
     const { isScrollable, isScrollAtBottom, isScrollAtTop } = this.state
     return (
       <React.Fragment>
-        <Main noOverflow noPadding>
+        <Main noPadding>
           <ContentHeader id="contest-header">
             <Prose id="audiofocus">
               <h1 aria-label={`${contest.title}.`}>
