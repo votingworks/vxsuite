@@ -1,7 +1,7 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
 
-import GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals'
 
 interface Props {
   bold?: boolean

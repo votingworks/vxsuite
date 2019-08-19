@@ -1,5 +1,5 @@
 import { act } from '@testing-library/react'
-import GLOBALS from '../../src/config/globals'
+import * as GLOBALS from '../../src/config/globals'
 import { CardAPI, Election } from '../../src/config/types'
 import electionSample from '../../src/data/electionSample.json'
 

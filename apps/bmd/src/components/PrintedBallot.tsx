@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals'
 
 import { randomBase64 } from '../utils/random'
 import { findPartyById } from '../utils/find'

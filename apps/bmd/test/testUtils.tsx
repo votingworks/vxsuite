@@ -3,7 +3,7 @@ import React from 'react'
 import { Router } from 'react-router-dom'
 import { render as testRender } from '@testing-library/react'
 
-import GLOBALS from '../src/config/globals'
+import * as GLOBALS from '../src/config/globals'
 
 // it's necessary to use the no-seal version, which has neither
 // of the two optional seal fields, because otherwise

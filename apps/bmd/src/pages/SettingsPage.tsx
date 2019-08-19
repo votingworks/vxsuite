@@ -1,6 +1,6 @@
 import React, { PointerEventHandler, useContext } from 'react'
 import styled from 'styled-components'
-import GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals'
 
 import { InputEvent, TextSizeSetting } from '../config/types'
 

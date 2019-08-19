@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals'
 
 import { BallotContextInterface, TextSizeSetting } from '../config/types'
 

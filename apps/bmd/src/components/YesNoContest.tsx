@@ -14,7 +14,7 @@ import {
 
 import BallotContext from '../contexts/ballotContext'
 
-import GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals'
 import ChoiceButton from './ChoiceButton'
 import Button from './Button'
 import Main from './Main'
