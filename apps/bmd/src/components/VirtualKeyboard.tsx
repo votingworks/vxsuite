@@ -51,10 +51,10 @@ const VirtualKeyboard = ({ onKeyPress }: Props) => (
       ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', "'", '"'],
       ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '-'],
       ['space', '⌫ delete'],
-    ].map((row, i) => {
+    ].map(row => {
       return (
-        <div key={String(`row${i}`)}>
-          {row.map((key: string) => (
+        <div key={`row-${row.join()}`}>
+          {row.map(key => (
             <Button
               key={key}
               data-key={key}
