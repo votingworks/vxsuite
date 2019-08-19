@@ -68,5 +68,3 @@ export const advanceTimers = (ms: number = 0) => {
     jest.advanceTimersByTime(ms + GLOBALS.CARD_POLLING_INTERVAL)
   })
 }
-
-export default {}
