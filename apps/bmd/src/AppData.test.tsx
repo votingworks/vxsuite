@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from '@testing-library/react'
 
 import App from './App'
-import { electionStorageKey } from './AppRoot'
+import { activationStorageKey, electionStorageKey } from './AppRoot'
 
 import { election, setElectionInLocalStorage } from '../test/helpers/election'
 
@@ -19,11 +19,14 @@ describe('loads election', () => {
     getByText('Device Not Configured')
   })
 
-  it(`via url hash and does't store in localStorage`, () => {
+  it(`#sample url hash loads elecation and activates ballot`, () => {
     window.location.href = '/#sample'
     const { getByText } = render(<App />)
     getByText(election.title)
-    expect(window.localStorage.getItem(electionStorageKey)).toBeFalsy()
+    getByText(/Precinct: Center Springfield/)
+    getByText(/Ballot Style: 12/)
+    expect(window.localStorage.getItem(electionStorageKey)).toBeTruthy()
+    expect(window.localStorage.getItem(activationStorageKey)).toBeTruthy()
   })
 
   it(`from localStorage`, () => {
