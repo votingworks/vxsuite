@@ -1410,10 +1410,10 @@
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
   integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
 
-"@types/fetch-mock@^7.3.0":
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/@types/fetch-mock/-/fetch-mock-7.3.0.tgz#b56bafcb60fcd7f77d6464227ac18e99acb53e83"
-  integrity sha512-pkvJyDRlf36Z2GVFWXGlR6wbOWwoqu2G7fpb9eY8ji4zD/u8YIqew+J8lYLg2LSch3Pfk/kHKNKz6byLR+nKkw==
+"@types/fetch-mock@^7.3.1":
+  version "7.3.1"
+  resolved "https://registry.yarnpkg.com/@types/fetch-mock/-/fetch-mock-7.3.1.tgz#df7421e8bcb351b430bfbfa5c52bb353826ac94f"
+  integrity sha512-2U4vZWHNbsbK7TRmizgr/pbKe0FKopcxu+hNDtIBDiM1wvrKRItybaYj7VQ6w/hZJStU/JxRiNi5ww4YDEvKbA==
 
 "@types/glob@^7.1.1":
   version "7.1.1"
@@ -1542,10 +1542,10 @@
     "@types/prop-types" "*"
     "@types/react" "*"
 
-"@types/react-router-dom@^4.3.3":
-  version "4.3.3"
-  resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-4.3.3.tgz#7837e3e9fefbc84a8f6c8a51dca004f4e83e94e3"
-  integrity sha512-xj0DmFjgvAqRfh/kJPO7apD5G30yPQe+8slu/dugioQOkdKpyzc4Fgk4hoTelm6CSHz7pI2PPsW5+Y6GRBF2zw==
+"@types/react-router-dom@^4.3.4":
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-4.3.4.tgz#63a7a8558129d2f4ff76e4bdd099bf4b98e25a0d"
+  integrity sha512-xrwaWHpnxKk/TTRe7pmoGy3E4SyF/ojFqNfFJacw7OLdfLXRvGfk4r/XePVaZNVfeJzL8fcnNilPN7xOdJ/vGw==
   dependencies:
     "@types/history" "*"
     "@types/react" "*"
