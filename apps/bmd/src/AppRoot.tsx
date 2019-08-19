@@ -254,9 +254,32 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public componentDidMount = () => {
     if (window.location.hash === '#sample') {
-      this.setState({
-        election: mergeWithDefaults(electionSample as Election),
-      })
+      checkCardInterval = 1 // don't poll for card data.
+      this.setState(
+        {
+          election: mergeWithDefaults(electionSample as Election),
+          ballotsPrintedCount: 0,
+          isLiveMode: true,
+          isPollsOpen: true,
+          ballotStyleId: '12',
+          precinctId: '23',
+        },
+        () => {
+          const { ballotStyleId, precinctId, election } = this.state
+          this.setBallotActivation({ ballotStyleId, precinctId })
+          this.setElection(election as Election)
+          this.setStoredState()
+          const cardData: VoterCardData = {
+            t: 'voter',
+            bs: ballotStyleId,
+            pr: precinctId,
+          }
+          this.processCardData({
+            cardData,
+            longValueExists: false,
+          })
+        }
+      )
     } else {
       const election = this.getElection()
       const { ballotStyleId, precinctId } = this.getBallotActivation()

@@ -18,10 +18,6 @@ const changeRangeInputValue = $range => value => {
 describe('Font Settings', () => {
   it('Voter can adjust font settings', () => {
     cy.visit('/#sample')
-    cy.getByTestId('activation-code').type('VX.23.12', {
-      force: true,
-    })
-    cy.contains('Submit').click({ force: true })
     cy.contains('Get Started').click()
     cy.contains('Start Voting').click()
     cy.contains('Settings').click()
