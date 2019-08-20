@@ -4,7 +4,7 @@ import React from 'react'
 import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
 
-import GLOBALS from './config/globals'
+import * as GLOBALS from './config/globals'
 
 import 'normalize.css'
 import './App.css'

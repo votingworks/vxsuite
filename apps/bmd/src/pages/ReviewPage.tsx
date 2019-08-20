@@ -24,7 +24,7 @@ import LinkButton from '../components/LinkButton'
 import Main from '../components/Main'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
-import GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals'
 import BallotContext from '../contexts/ballotContext'
 
 const tabletMinWidth = 768

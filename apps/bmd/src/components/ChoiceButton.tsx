@@ -1,7 +1,7 @@
 import React, { MouseEventHandler } from 'react'
 import styled from 'styled-components'
 
-import GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals'
 
 interface Attrs extends HTMLButtonElement {
   readonly type: string
