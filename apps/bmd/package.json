@@ -28,21 +28,19 @@
     }
   },
   "lint-staged": {
-    "linters": {
-      "*.+(js|jsx|ts|tsx)": [
-        "stylelint",
-        "eslint --quiet --fix",
-        "git add"
-      ],
-      "*.css": [
-        "stylelint --config .stylelintrc-css.js --fix",
-        "git add"
-      ],
-      "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-        "prettier --write",
-        "git add"
-      ]
-    }
+    "*.+(js|jsx|ts|tsx)": [
+      "stylelint",
+      "eslint --quiet --fix",
+      "git add"
+    ],
+    "*.css": [
+      "stylelint --config .stylelintrc-css.js --fix",
+      "git add"
+    ],
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "eslintConfig": {
     "extends": "react-app"
