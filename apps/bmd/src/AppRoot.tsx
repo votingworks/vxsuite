@@ -1,6 +1,5 @@
 import Mousetrap from 'mousetrap'
 import React from 'react'
-// @ts-ignore - @types/react-gamepad doesn't exist
 import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
 

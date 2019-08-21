@@ -1,4 +1,5 @@
 import mod from '../utils/mod'
+import { Button } from 'react-gamepad';
 
 export const getActiveElement = () =>
   document.activeElement! as HTMLInputElement
@@ -59,7 +60,7 @@ function handleClick() {
   activeElement.click()
 }
 
-export function handleGamepadButtonDown(buttonName: string) {
+export function handleGamepadButtonDown(buttonName: Button) {
   switch (buttonName) {
     case 'DPadUp':
       handleArrowUp()
