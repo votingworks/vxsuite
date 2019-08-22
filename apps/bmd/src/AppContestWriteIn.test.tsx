@@ -1,7 +1,6 @@
 import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
-import waitForExpect from 'wait-for-expect'
 
 import App from './App'
 
@@ -130,7 +129,5 @@ it(`Single Seat Contest`, async () => {
   fireEvent.click(getByText('Print Ballot'))
   fireEvent.click(getByText('Yes, print my ballot.'))
   advanceTimers()
-  await waitForExpect(() => {
-    expect(window.print).toBeCalled()
-  })
+  await wait(() => expect(window.print).toBeCalled())
 })
