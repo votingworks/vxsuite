@@ -1,7 +1,6 @@
 import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
-import waitForExpect from 'wait-for-expect'
 
 import { printingModalDisplaySeconds } from './pages/PrintPage'
 
@@ -268,9 +267,7 @@ it(`basic end-to-end flow`, async () => {
   fireEvent.click(getByText('Print Ballot'))
   fireEvent.click(getByText('Yes, print my ballot.'))
   advanceTimers()
-  await waitForExpect(() => {
-    expect(window.print).toBeCalled()
-  })
+  await wait(() => expect(window.print).toBeCalled())
 
   // Wait for printing setTimeout
   advanceTimers(printingModalDisplaySeconds * 1000)
