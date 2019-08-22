@@ -158,7 +158,7 @@ interface State {
   overvoteSelection: OptionalYesNoVote
 }
 
-const initialState = {
+const initialState: State = {
   isScrollable: false,
   isScrollAtBottom: true,
   isScrollAtTop: true,
