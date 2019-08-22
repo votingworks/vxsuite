@@ -23,6 +23,7 @@ export const printingModalDisplaySeconds = 7
 
 class PrintPage extends React.Component<RouteComponentProps, State> {
   public static contextType = BallotContext
+  public context!: React.ContextType<typeof BallotContext>
   public state: State = {
     showConfirmModal: false,
     showPrintingModal: false,
@@ -70,7 +71,7 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
   }
   public render() {
     const { ballotStyleId, election, precinctId, votes } = this.context
-    const { showSettingsPage } = election.bmdConfig
+    const { showSettingsPage } = election!.bmdConfig!
     const { showConfirmModal, showPrintingModal } = this.state
 
     return (
@@ -144,7 +145,7 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
         <PrintedBallot
           ballotId={undefined} // TODO: add ballotId here: https://github.com/votingworks/bmd/issues/424
           ballotStyleId={ballotStyleId}
-          election={election}
+          election={election!}
           isLiveMode={this.context.isLiveMode}
           precinctId={precinctId}
           votes={votes}

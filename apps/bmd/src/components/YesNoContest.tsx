@@ -167,7 +167,8 @@ const initialState = {
 
 export default class YesNoContest extends React.Component<Props> {
   public static contextType = BallotContext
-  public state: State = initialState
+  public context!: React.ContextType<typeof BallotContext>
+  public state = initialState
   private scrollContainer = React.createRef<HTMLDivElement>()
 
   public componentDidMount() {
