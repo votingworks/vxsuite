@@ -22,7 +22,6 @@ import {
   OptionalElection,
   OptionalVote,
   PartialUserSettings,
-  TextSizeSetting,
   UserSettings,
   VoterCardData,
   VotesDict,
@@ -48,10 +47,16 @@ export const mergeWithDefaults = (
   defaults: ElectionDefaults = electionDefaults
 ) => ({ ...defaults, ...election })
 
-interface State {
+interface UserState {
   ballotStyleId: string
-  cardData?: CardData
   contests: Contests
+  precinctId: string
+  userSettings: UserSettings
+  votes: VotesDict
+}
+
+interface State extends UserState {
+  cardData?: CardData
   election: OptionalElection
   isClerkCardPresent: boolean
   isLiveMode: boolean
@@ -62,10 +67,7 @@ interface State {
   isRecentVoterPrint: boolean
   isFetchingElection: boolean
   machineId: string
-  precinctId: string
   ballotsPrintedCount: number
-  userSettings: UserSettings
-  votes: VotesDict
 }
 
 export const electionStorageKey = 'election'
@@ -82,15 +84,15 @@ const initialCardPresentState = {
   isRecentVoterPrint: false,
 }
 
-const initialUserState = {
+const initialUserState: UserState = {
   ballotStyleId: '',
   contests: [],
   precinctId: '',
-  userSettings: { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
+  userSettings: { textSize: GLOBALS.TEXT_SIZE },
   votes: {},
 }
 
-const initialState = {
+const initialState: State = {
   ...initialUserState,
   ...initialCardPresentState,
   ballotsPrintedCount: 0,
@@ -109,7 +111,7 @@ interface CompleteCardData {
 let checkCardInterval = 0
 
 class AppRoot extends React.Component<RouteComponentProps, State> {
-  public state: State = initialState
+  public state = initialState
   private machineIdAbortController = new AbortController()
 
   public processVoterCardData = (voterCardData: VoterCardData) => {

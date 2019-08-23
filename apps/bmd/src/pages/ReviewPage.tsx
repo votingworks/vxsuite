@@ -215,6 +215,7 @@ const initialState: State = {
 
 class ReviewPage extends React.Component<RouteComponentProps, State> {
   public static contextType = BallotContext
+  public context!: React.ContextType<typeof BallotContext>
   public state: State = initialState
   private scrollContainer = React.createRef<HTMLDivElement>()
 
@@ -280,14 +281,9 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
   }
 
   public render() {
-    const {
-      contests,
-      election: {
-        bmdConfig: { showSettingsPage },
-        parties,
-      },
-      votes,
-    } = this.context
+    const { contests, election, votes } = this.context
+    const { bmdConfig, parties } = election!
+    const { showSettingsPage } = bmdConfig!
     const { isScrollable, isScrollAtBottom, isScrollAtTop } = this.state
 
     return (

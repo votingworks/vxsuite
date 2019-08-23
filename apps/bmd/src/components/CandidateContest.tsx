@@ -186,6 +186,7 @@ const initialState = {
 
 class CandidateContest extends React.Component<Props, State> {
   public static contextType = BallotContext
+  public context!: React.ContextType<typeof BallotContext>
   public state: State = initialState
   private scrollContainer = React.createRef<HTMLDivElement>()
 
