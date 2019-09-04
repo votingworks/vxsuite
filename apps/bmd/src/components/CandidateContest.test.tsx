@@ -29,8 +29,8 @@ const candidate0 = contest.candidates[0]
 const candidate1 = contest.candidates[1]
 const candidate2 = contest.candidates[2]
 
-describe(`supports single-seat contest`, () => {
-  it(`allows any candidate to be selected when no candidate is selected`, () => {
+describe('supports single-seat contest', () => {
+  it('allows any candidate to be selected when no candidate is selected', () => {
     const updateVote = jest.fn()
     const { container, getByText } = render(
       <CandidateContest
@@ -52,7 +52,7 @@ describe(`supports single-seat contest`, () => {
     expect(updateVote).toHaveBeenCalledTimes(3)
   })
 
-  it(`doesn't allow other candidates to be selected when a candidate is selected`, () => {
+  it("doesn't allow other candidates to be selected when a candidate is selected", () => {
     const updateVote = jest.fn()
     const { container, getByText } = render(
       <CandidateContest
@@ -79,8 +79,8 @@ describe(`supports single-seat contest`, () => {
   })
 })
 
-describe(`supports multi-seat contests`, () => {
-  it(`allows a second candidate to be selected when one is selected`, () => {
+describe('supports multi-seat contests', () => {
+  it('allows a second candidate to be selected when one is selected', () => {
     const updateVote = jest.fn()
     const { container, getByText } = render(
       <CandidateContest
@@ -113,8 +113,8 @@ describe(`supports multi-seat contests`, () => {
   })
 })
 
-describe(`supports write-in candidates`, () => {
-  it(`displays warning if write-in candidate name is too long`, () => {
+describe('supports write-in candidates', () => {
+  it('displays warning if write-in candidate name is too long', () => {
     jest.useFakeTimers()
     const updateVote = jest.fn()
     const { container, getByText, queryByText } = render(

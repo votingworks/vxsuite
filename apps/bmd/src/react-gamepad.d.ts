@@ -90,11 +90,7 @@ declare module 'react-gamepad' {
     /**
      * triggered when an axis is changed.
      */
-    onAxisChange?(
-      axisName: Axis,
-      value: number,
-      previousValue: number
-    ): void
+    onAxisChange?(axisName: Axis, value: number, previousValue: number): void
 
     /**
      * triggered when the A button is pressed.

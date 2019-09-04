@@ -16,7 +16,7 @@ const contest1candidate0 = contest1.candidates[0]
 
 const idValueStartsWithNumberRegex = new RegExp('id="[0-9]')
 
-it(`renders ReviewPage without votes`, () => {
+it('renders ReviewPage without votes', () => {
   const { container } = render(
     <Route path="/review" component={ReviewPage} />,
     {
@@ -26,7 +26,7 @@ it(`renders ReviewPage without votes`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders ReviewPage with votes`, () => {
+it('renders ReviewPage with votes', () => {
   const { container } = render(
     <Route path="/review" component={ReviewPage} />,
     {

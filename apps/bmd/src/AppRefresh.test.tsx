@@ -22,7 +22,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it(`Refresh window and expect to be on same contest`, async () => {
+it('Refresh window and expect to be on same contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   setElectionInLocalStorage()

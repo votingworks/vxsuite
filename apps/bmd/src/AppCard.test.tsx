@@ -22,7 +22,7 @@ beforeEach(() => {
 })
 
 // TODO: Delete this test? Is it useful?
-xit(`App fetches the card data every 200 ms`, () => {
+xit('App fetches the card data every 200 ms', () => {
   jest.useFakeTimers()
 
   render(<Root />)

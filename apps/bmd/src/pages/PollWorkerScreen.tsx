@@ -142,7 +142,7 @@ const PollWorkerScreen = ({
               <Prose className="ballot-header-content">
                 <h2>
                   {!isLiveMode ? 'Unofficial TEST' : 'Official'}{' '}
-                  {isPollsOpen ? `Polls Closed Report` : `Polls Opened Report`}
+                  {isPollsOpen ? 'Polls Closed Report' : 'Polls Opened Report'}
                 </h2>
                 <h3>{title}</h3>
                 <p>

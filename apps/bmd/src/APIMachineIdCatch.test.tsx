@@ -9,7 +9,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it(`Cause "/machine-id" API to catch`, async () => {
+it('Cause "/machine-id" API to catch', async () => {
   // Mock Failed response
   fetchMock.get(
     '/machine-id',
@@ -25,7 +25,7 @@ it(`Cause "/machine-id" API to catch`, async () => {
   // for the `catch` block of the fetch to /machine-id
 })
 
-it(`/machine-id fails with bad gateway response`, async () => {
+it('/machine-id fails with bad gateway response', async () => {
   // Mock Failed response
   fetchMock.get('/machine-id', () => new Response(undefined, { status: 504 }), {
     overwriteRoutes: true,

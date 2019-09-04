@@ -9,18 +9,18 @@ import ContestPage from './ContestPage'
 
 const firstContestTitle = electionSample.contests[0].title
 
-it(`Renders ContestPage`, () => {
+it('Renders ContestPage', () => {
   const { container, getByText } = render(
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
-      route: `/contests/0`,
+      route: '/contests/0',
     }
   )
   getByText(firstContestTitle)
   expect(container).toMatchSnapshot()
 })
 
-it(`Redirects to top-level page if no contest number match`, () => {
+it('Redirects to top-level page if no contest number match', () => {
   const resetBallot = jest.fn()
   const homeMock = () => <div>Home Mock</div>
   const { getByText } = render(

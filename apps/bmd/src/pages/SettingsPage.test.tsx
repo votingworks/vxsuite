@@ -5,7 +5,7 @@ import { render } from '../../test/testUtils'
 
 import SettingsPage from './SettingsPage'
 
-it(`renders SettingsPage`, () => {
+it('renders SettingsPage', () => {
   const { container } = render(<Route path="/" component={SettingsPage} />, {
     route: '/',
   })

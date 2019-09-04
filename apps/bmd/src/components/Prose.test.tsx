@@ -38,17 +38,17 @@ const proseContent = (
   </React.Fragment>
 )
 
-it(`renders Prose defaults`, async () => {
+it('renders Prose defaults', async () => {
   const { container } = render(<Prose>{proseContent}</Prose>)
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders Prose with compact spacing`, async () => {
+it('renders Prose with compact spacing', async () => {
   const { container } = render(<Prose compact>{proseContent} </Prose>)
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders Prose with compact spacing`, async () => {
+it('renders Prose with compact spacing', async () => {
   const { container } = render(<Prose textCenter>{proseContent}</Prose>)
   expect(container.firstChild).toMatchSnapshot()
 })

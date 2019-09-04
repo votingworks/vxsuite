@@ -16,7 +16,7 @@ const contest: YesNoContestInterface = {
 }
 
 describe('supports yes/no contest', () => {
-  it(`allows voting for both yes and no`, () => {
+  it('allows voting for both yes and no', () => {
     const updateVote = jest.fn()
     const { container, getByText } = render(
       <YesNoContest
@@ -34,7 +34,7 @@ describe('supports yes/no contest', () => {
     expect(updateVote).toHaveBeenCalledTimes(2)
   })
 
-  it(`displays warning when attempting to change vote`, () => {
+  it('displays warning when attempting to change vote', () => {
     const updateVote = jest.fn()
     const { container, getByText, getAllByText } = render(
       <YesNoContest contest={contest} vote="yes" updateVote={updateVote} />

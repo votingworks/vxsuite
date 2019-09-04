@@ -5,12 +5,12 @@ import Button, { DecoyButton } from './Button'
 
 const onPress = jest.fn()
 
-it(`renders Button`, () => {
+it('renders Button', () => {
   const { container } = render(<Button onPress={onPress}>foo</Button>)
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders primary Button`, () => {
+it('renders primary Button', () => {
   const { container } = render(
     <Button onPress={onPress} primary>
       Primary
@@ -19,7 +19,7 @@ it(`renders primary Button`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders danger Button`, () => {
+it('renders danger Button', () => {
   const { container } = render(
     <Button onPress={onPress} danger>
       Danger!
@@ -28,7 +28,7 @@ it(`renders danger Button`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders big Button`, () => {
+it('renders big Button', () => {
   const { container } = render(
     <Button onPress={onPress} big>
       I’m a big button!
@@ -37,7 +37,7 @@ it(`renders big Button`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders small Button`, () => {
+it('renders small Button', () => {
   const { container } = render(
     <Button onPress={onPress} small>
       I’m a small button!
@@ -46,7 +46,7 @@ it(`renders small Button`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders DecoyButton`, () => {
+it('renders DecoyButton', () => {
   const { container } = render(<DecoyButton>DecoyButton</DecoyButton>)
   expect(container.firstChild).toMatchSnapshot()
 })

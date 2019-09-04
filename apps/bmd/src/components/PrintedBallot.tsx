@@ -139,7 +139,7 @@ const CandidateContestResult = ({
           <strong>{candidate.name}</strong>{' '}
           {candidate.partyId &&
             `/ ${findPartyById(parties, candidate.partyId)!.name}`}
-          {candidate.isWriteIn && `(write-in)`}
+          {candidate.isWriteIn && '(write-in)'}
         </Text>
       ))}
       {!!remainingChoices && (

@@ -35,7 +35,7 @@ const iconStyles = css<Props>`
     font-size: 90%;
     font-weight: 800;
     content: ${({ warningIcon, voteIcon }) =>
-      (warningIcon && `'!'`) || (voteIcon && `'${GLOBALS.CHECK_ICON}'`)};
+      (warningIcon && "'!'") || (voteIcon && `'${GLOBALS.CHECK_ICON}'`)};
   }
 `
 

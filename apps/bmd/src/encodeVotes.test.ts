@@ -6,7 +6,7 @@ import electionSample from './data/electionSample.json'
 
 const election = electionSample as Election
 
-it(`encodes votes correctly`, () => {
+it('encodes votes correctly', () => {
   let votes: VotesDict = {}
 
   // this should yield all 0s
