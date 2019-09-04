@@ -196,8 +196,8 @@ const App = () => {
       const code = {
         c: createAtSeconds,
         t: 'voter',
-        pr: `${precinctId}`,
-        bs: `${ballotStyleId}`,
+        pr: precinctId,
+        bs: ballotStyleId,
       }
       fetch('/card/write', {
         method: 'post',
