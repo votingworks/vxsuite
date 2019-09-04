@@ -100,6 +100,7 @@ export interface VoterCardData extends CardData {
   readonly t: 'voter'
   readonly bs: string
   readonly pr: string
+  readonly c: number
 }
 export type OptionalVoterCardData = VoterCardData | undefined
 export interface PollworkerCardData extends CardData {
