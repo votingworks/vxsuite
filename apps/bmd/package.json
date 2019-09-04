@@ -109,7 +109,7 @@
     "use-interval": "^1.1.0"
   },
   "devDependencies": {
-    "@testing-library/cypress": "^4.2.0",
+    "@testing-library/cypress": "^5.0.0",
     "@testing-library/react": "^9.1.4",
     "@typescript-eslint/eslint-plugin": "1.13.0",
     "@typescript-eslint/parser": "^1.13.0",
