@@ -48,8 +48,9 @@ MOCK_SHORT_VALUE="<short_value_json>" MOCK_LONG_VALUE_FILE="<path_to_file>" make
 If using the `tests/electionSample.json` file, you may use the following commands:
 
 ### Voter
+This will interpolate the current unix time stamp in seconds as the value of `c`.
 ```
-MOCK_SHORT_VALUE="{\"t\":\"voter\",\"bs\":\"12\",\"pr\":\"23\"}" make run
+MOCK_SHORT_VALUE="{\"t\":\"voter\",\"bs\":\"12\",\"pr\":\"23\",\"c\":$(date +%s)}" make run
 ```
 
 ### Poll Worker
