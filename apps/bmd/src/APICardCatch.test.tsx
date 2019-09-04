@@ -18,7 +18,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it(`Cause "/card/read" API to catch`, async () => {
+it('Cause "/card/read" API to catch', async () => {
   const failureResponse = jest.fn(() => undefined)
   // Configure Machine
   setElectionInLocalStorage()

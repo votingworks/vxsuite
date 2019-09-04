@@ -14,12 +14,12 @@ beforeEach(() => {
 })
 
 describe('loads election', () => {
-  it(`Machine is not configured by default`, () => {
+  it('Machine is not configured by default', () => {
     const { getByText } = render(<App />)
     getByText('Device Not Configured')
   })
 
-  it(`#sample url hash loads elecation and activates ballot`, () => {
+  it('#sample url hash loads elecation and activates ballot', () => {
     window.location.href = '/#sample'
     const { getByText } = render(<App />)
     getByText(election.title)
@@ -29,7 +29,7 @@ describe('loads election', () => {
     expect(window.localStorage.getItem(activationStorageKey)).toBeTruthy()
   })
 
-  it(`from localStorage`, () => {
+  it('from localStorage', () => {
     setElectionInLocalStorage()
     const { getByText } = render(<App />)
     getByText(election.title)

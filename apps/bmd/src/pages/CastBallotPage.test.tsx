@@ -5,7 +5,7 @@ import { render } from '../../test/testUtils'
 
 import CastBallotPage from './CastBallotPage'
 
-it(`renders CastBallotPage`, () => {
+it('renders CastBallotPage', () => {
   const { container } = render(<Route path="/" component={CastBallotPage} />, {
     route: '/',
   })

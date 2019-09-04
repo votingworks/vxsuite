@@ -30,7 +30,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it(`Single Seat Contest`, async () => {
+it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   setElectionInLocalStorage()

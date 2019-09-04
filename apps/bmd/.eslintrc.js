@@ -74,6 +74,7 @@ module.exports = {
       'vars': 'all'
     }],
     'no-null/no-null': 2, // TypeScript with strictNullChecks
+    'quotes': ["error", "single", { "avoidEscape": true }],
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],
     'react/jsx-filename-extension': [

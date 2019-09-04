@@ -45,7 +45,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it(`basic end-to-end flow`, async () => {
+it('basic end-to-end flow', async () => {
   jest.useFakeTimers()
 
   const { getByText, queryByText } = render(<App />)

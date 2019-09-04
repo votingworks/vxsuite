@@ -4,7 +4,7 @@ import { fireEvent, render } from '@testing-library/react'
 
 import LinkButton from './LinkButton'
 
-it(`navigates to page`, () => {
+it('navigates to page', () => {
   const { container } = render(
     <StaticRouter context={{}}>
       <LinkButton to="/">Go Home</LinkButton>
@@ -13,7 +13,7 @@ it(`navigates to page`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`navigates back`, () => {
+it('navigates back', () => {
   const { container } = render(
     <StaticRouter context={{}}>
       <LinkButton goBack>Go Back</LinkButton>
@@ -22,7 +22,7 @@ it(`navigates back`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders LinkButton with onClick prop`, () => {
+it('renders LinkButton with onClick prop', () => {
   const text = 'Push Me'
   const onClickHandler = jest.fn()
   const { getByText } = render(
@@ -38,7 +38,7 @@ it(`renders LinkButton with onClick prop`, () => {
   expect(button).toMatchSnapshot()
 })
 
-it(`renders LinkButton with onClick and disabled props`, () => {
+it('renders LinkButton with onClick and disabled props', () => {
   const text = 'Push Me'
   const onClickHandler = jest.fn()
   const { getByText } = render(

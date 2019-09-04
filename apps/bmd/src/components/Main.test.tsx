@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 
 import Main, { MainChild } from './Main'
 
-it(`renders Main with child`, () => {
+it('renders Main with child', () => {
   const { container } = render(
     <Main>
       <MainChild>foo</MainChild>
@@ -12,7 +12,7 @@ it(`renders Main with child`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders centered content`, () => {
+it('renders centered content', () => {
   const { container } = render(
     <Main>
       <MainChild center>foo</MainChild>
@@ -21,7 +21,7 @@ it(`renders centered content`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders not centered content`, () => {
+it('renders not centered content', () => {
   const { container } = render(
     <Main noOverflow>
       <MainChild centerHorizontal={false}>foo</MainChild>

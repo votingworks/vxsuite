@@ -15,7 +15,7 @@ jest.useFakeTimers()
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
-it(`renders ClerkScreen`, async () => {
+it('renders ClerkScreen', async () => {
   const { getByText } = render(
     <ClerkScreen
       ballotsPrintedCount={0}

@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 
 import Text, { TextWithLineBreaks } from './Text'
 
-it(`outputs paragraph tag`, async () => {
+it('outputs paragraph tag', async () => {
   const text = 'paragraph'
   const { getByText } = render(<Text>{text}</Text>)
   const element = getByText(text)
@@ -11,7 +11,7 @@ it(`outputs paragraph tag`, async () => {
   expect(element).toMatchSnapshot()
 })
 
-it(`outputs "span" tag specified by "as" prop`, async () => {
+it('outputs "span" tag specified by "as" prop', async () => {
   const text = 'Text in a span?'
   const { getByText } = render(<Text as="span">{text}</Text>)
   const element = getByText(text)
@@ -19,25 +19,25 @@ it(`outputs "span" tag specified by "as" prop`, async () => {
   expect(element).toMatchSnapshot()
 })
 
-it(`centers centered style`, async () => {
+it('centers centered style', async () => {
   const { container } = render(<Text center>Centered Text?</Text>)
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`displays muted style`, async () => {
+it('displays muted style', async () => {
   const { container } = render(<Text muted>Muted Text?</Text>)
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`displays error style`, async () => {
+it('displays error style', async () => {
   const { container } = render(<Text error>Error Text?</Text>)
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`converts line-breaks into <p> and <br/> tags`, () => {
+it('converts line-breaks into <p> and <br/> tags', () => {
   const { container } = render(
     <TextWithLineBreaks
-      text={`I’m a paragraph.\n\nAnd I’m a paragraph with a\nline break.`}
+      text={'I’m a paragraph.\n\nAnd I’m a paragraph with a\nline break.'}
     />
   )
   expect(container).toMatchInlineSnapshot(`

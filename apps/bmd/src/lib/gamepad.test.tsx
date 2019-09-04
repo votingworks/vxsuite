@@ -25,7 +25,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it(`gamepad controls work`, async () => {
+it('gamepad controls work', async () => {
   jest.useFakeTimers()
 
   // load election from localStorage

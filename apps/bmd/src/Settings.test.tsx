@@ -19,8 +19,8 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-describe(`Can update settings`, () => {
-  it(`Can update font-settings`, async () => {
+describe('Can update settings', () => {
+  it('Can update font-settings', async () => {
     jest.useFakeTimers()
     setElectionInLocalStorage()
     setStateInLocalStorage()

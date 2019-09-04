@@ -168,13 +168,13 @@ const CandidateContestResult = ({
           <Text
             key={candidate.id}
             aria-label={`${candidate.name}${party ? `, ${party.name}` : ''}${
-              candidate.isWriteIn ? `, write-in` : ''
+              candidate.isWriteIn ? ', write-in' : ''
             }${array.length - 1 === index ? '.' : ','}`}
             wordBreak
             voteIcon
           >
             <strong>{candidate.name}</strong> {party && `/ ${party.name}`}
-            {candidate.isWriteIn && `(write-in)`}
+            {candidate.isWriteIn && '(write-in)'}
           </Text>
         )
       })}

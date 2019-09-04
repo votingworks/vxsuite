@@ -6,7 +6,7 @@ import { render } from '../../test/testUtils'
 
 import NotFoundPage from './NotFoundPage'
 
-it(`renders NotFoundPage`, () => {
+it('renders NotFoundPage', () => {
   const resetBallot = jest.fn()
   const { container, getByText } = render(
     <Route path="/" component={NotFoundPage} />,

@@ -8,7 +8,7 @@ import electionPrimarySample from '../data/electionPrimarySample.json'
 
 import StartPage from './StartPage'
 
-it(`renders StartPage`, async () => {
+it('renders StartPage', async () => {
   const { container, getByText } = render(
     <Route path="/" component={StartPage} />,
     {
@@ -23,7 +23,7 @@ it(`renders StartPage`, async () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders StartPage with inline SVG`, async () => {
+it('renders StartPage with inline SVG', async () => {
   const { container } = render(<Route path="/" component={StartPage} />, {
     election: electionSampleWithSeal,
     precinctId: '23',
@@ -32,7 +32,7 @@ it(`renders StartPage with inline SVG`, async () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`renders StartPage with no seal`, async () => {
+it('renders StartPage with no seal', async () => {
   const { container } = render(<Route path="/" component={StartPage} />, {
     election: electionSampleNoSeal,
     precinctId: '23',

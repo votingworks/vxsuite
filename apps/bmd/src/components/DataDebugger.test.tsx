@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 
 import DataDebugger from './DataDebugger'
 
-it(`renders DataDebugger`, () => {
+it('renders DataDebugger', () => {
   const { container } = render(
     <DataDebugger
       data={{
@@ -14,7 +14,7 @@ it(`renders DataDebugger`, () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it(`hides DataDebugger`, () => {
+it('hides DataDebugger', () => {
   const { container } = render(
     <DataDebugger
       hide
