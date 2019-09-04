@@ -306,12 +306,10 @@ const App = () => {
               Lock
             </Button>
           </MainNav>
-          {!isProgrammingCard && (
+          {!isProgrammingCard && voterCardData && (
             <CurrentVoterCard
-              ballotStyleId={voterCardData && voterCardData.bs}
-              precinctName={
-                voterCardData && getPrecinctNameByPrecinctId(voterCardData.pr)
-              }
+              ballotStyleId={voterCardData.bs}
+              precinctName={getPrecinctNameByPrecinctId(voterCardData.pr)}
             />
           )}
         </Screen>
