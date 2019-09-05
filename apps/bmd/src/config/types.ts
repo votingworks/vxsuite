@@ -8,6 +8,7 @@ export interface Dictionary<T> {
 
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
+export type InputEventFunction = (event: InputEvent) => void
 
 // Candidates
 export interface Candidate {
@@ -152,6 +153,7 @@ export interface CardAPI {
 }
 
 // User Interface
+export type AppMode = 'mark' | 'print' | 'mark+print'
 export type ScrollDirections = 'up' | 'down'
 export interface ScrollShadows {
   showBottomShadow: boolean

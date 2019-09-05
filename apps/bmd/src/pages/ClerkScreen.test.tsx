@@ -18,11 +18,13 @@ fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 it('renders ClerkScreen', async () => {
   const { getByText } = render(
     <ClerkScreen
+      appMode="mark"
       ballotsPrintedCount={0}
       election={election}
       fetchElection={jest.fn()}
       isFetchingElection={false}
       isLiveMode={false}
+      setAppMode={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
     />

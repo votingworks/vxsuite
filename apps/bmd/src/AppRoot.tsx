@@ -15,10 +15,12 @@ import {
 
 import {
   ActivationData,
+  AppMode,
   CardData,
   Contests,
   Election,
   ElectionDefaults,
+  InputEvent,
   OptionalElection,
   OptionalVote,
   PartialUserSettings,
@@ -57,6 +59,7 @@ interface UserState {
 }
 
 interface State extends UserState {
+  appMode: AppMode
   cardData?: CardData
   election: OptionalElection
   isClerkCardPresent: boolean
@@ -96,6 +99,7 @@ const initialUserState: UserState = {
 const initialState: State = {
   ...initialUserState,
   ...initialCardPresentState,
+  appMode: 'mark',
   ballotsPrintedCount: 0,
   election: undefined,
   isLiveMode: false,
@@ -286,6 +290,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       const election = this.getElection()
       const { ballotStyleId, precinctId } = this.getBallotActivation()
       const {
+        appMode = initialState.appMode,
         ballotsPrintedCount = initialState.ballotsPrintedCount,
         isLiveMode = initialState.isLiveMode,
         isPollsOpen = initialState.isPollsOpen,
@@ -302,6 +307,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           ? getContests({ ballotStyle, election })
           : initialState.contests
       this.setState({
+        appMode,
         ballotsPrintedCount,
         ballotStyleId,
         contests,
@@ -392,10 +398,11 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public setStoredState = () => {
-    const { ballotsPrintedCount, isLiveMode, isPollsOpen } = this.state
+    const { appMode, ballotsPrintedCount, isLiveMode, isPollsOpen } = this.state
     window.localStorage.setItem(
       stateStorageKey,
       JSON.stringify({
+        appMode,
         ballotsPrintedCount,
         isLiveMode,
         isPollsOpen,
@@ -470,6 +477,12 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[textSize]}px`
   }
 
+  public setAppMode = (event: InputEvent) => {
+    const currentTarget = event.currentTarget as HTMLInputElement
+    const appMode = currentTarget.dataset.appMode as AppMode
+    this.setState({ appMode }, this.setStoredState)
+  }
+
   public toggleLiveMode = () => {
     this.setState(
       prevState => ({
@@ -499,6 +512,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public render() {
     const {
+      appMode,
       ballotsPrintedCount,
       ballotStyleId,
       contests,
@@ -518,11 +532,13 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     if (isClerkCardPresent) {
       return (
         <ClerkScreen
+          appMode={appMode}
           ballotsPrintedCount={ballotsPrintedCount}
           election={election}
           fetchElection={this.fetchElection}
           isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
+          setAppMode={this.setAppMode}
           toggleLiveMode={this.toggleLiveMode}
           unconfigure={this.unconfigure}
         />

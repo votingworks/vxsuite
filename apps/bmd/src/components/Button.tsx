@@ -60,6 +60,12 @@ const Button = ({ onPress, ...rest }: PointerButtonProps) => (
 export const SegmentedButton = styled.span`
   display: inline-block;
   white-space: nowrap;
+  & > button {
+    box-shadow: inset 1px 0 0 rgb(190, 190, 190);
+  }
+  & > button:first-child {
+    box-shadow: none;
+  }
   & > button:not(:last-child) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
