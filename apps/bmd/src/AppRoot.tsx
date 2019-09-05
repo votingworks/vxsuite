@@ -41,6 +41,7 @@ import UnconfiguredScreen from './pages/UnconfiguredScreen'
 
 import electionDefaults from './data/electionDefaults.json'
 import electionSample from './data/electionSample.json'
+import makePrinter, { PrintMethod } from './utils/printer'
 
 export const mergeWithDefaults = (
   election: Election,
@@ -560,6 +561,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
                 isLiveMode,
                 markVoterCardUsed: this.markVoterCardUsed,
                 precinctId,
+                printer: makePrinter(PrintMethod.RemoteWithLocalFallback),
                 resetBallot: this.resetBallot,
                 setUserSettings: this.setUserSettings,
                 updateVote: this.updateVote,

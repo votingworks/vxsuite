@@ -29,11 +29,7 @@ exports[`renders Main with child 1`] = `
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 
@@ -84,11 +80,7 @@ exports[`renders centered content 1`] = `
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 
@@ -138,11 +130,7 @@ exports[`renders not centered content 1`] = `
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 

@@ -264,11 +264,7 @@ exports[`renders PrintPage with votes 1`] = `
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 
@@ -681,11 +677,7 @@ exports[`renders PrintPage without votes 1`] = `
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 
@@ -1098,11 +1090,7 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 
@@ -1515,11 +1503,7 @@ exports[`renders PrintPage without votes and no seal 1`] = `
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 

@@ -264,11 +264,7 @@ exports[`renders PreReviewPage 1`] = `
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 

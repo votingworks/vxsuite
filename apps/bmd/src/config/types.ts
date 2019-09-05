@@ -1,3 +1,5 @@
+import { Printer } from '../utils/printer'
+
 // Generic
 export type VoidFunction = () => void
 export interface Dictionary<T> {
@@ -115,6 +117,7 @@ export interface BallotContextInterface {
   isLiveMode: boolean
   markVoterCardUsed: MarkVoterCardUsedFunction
   precinctId: string
+  printer: Printer
   resetBallot: (path?: string) => void
   setUserSettings: (partial: PartialUserSettings) => void
   updateVote: UpdateVoteFunction

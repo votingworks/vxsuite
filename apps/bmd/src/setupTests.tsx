@@ -17,14 +17,13 @@ Object.defineProperty(global, 'crypto', {
 // react-gamepad calls this function which does not exist in JSDOM
 window.navigator.getGamepads = jest.fn(() => [])
 
-// Capture Event Listeners
-const eventListenerCallbacksDictionary: any = {} // eslint-disable-line @typescript-eslint/no-explicit-any
-window.addEventListener = jest.fn((event, cb) => {
-  eventListenerCallbacksDictionary[event] = cb
-})
 window.print = jest.fn(() => {
-  eventListenerCallbacksDictionary.afterprint &&
-    eventListenerCallbacksDictionary.afterprint()
+  throw new Error('window.print() should never be called')
 })
-// TODO: add callback for window.resize like above
-// TODO: add callback for window.keydown like above
+
+const printMock = window.print as jest.MockedFunction<typeof window.print>
+
+afterEach(() => {
+  fetchMock.restore()
+  printMock.mockClear()
+})
