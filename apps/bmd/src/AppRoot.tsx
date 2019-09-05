@@ -546,6 +546,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     } else if (election && isPollWorkerCardPresent) {
       return (
         <PollWorkerScreen
+          appMode={appMode}
           ballotsPrintedCount={ballotsPrintedCount}
           election={election}
           isLiveMode={isLiveMode}

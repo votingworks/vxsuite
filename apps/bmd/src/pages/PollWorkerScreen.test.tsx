@@ -23,6 +23,7 @@ fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 it('renders PollWorkerScreen', async () => {
   const { getByText } = render(
     <PollWorkerScreen
+      appMode="mark"
       ballotsPrintedCount={0}
       election={electionSampleWithSeal as Election}
       isPollsOpen
