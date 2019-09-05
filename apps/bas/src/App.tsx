@@ -192,7 +192,13 @@ const App = () => {
     if (precinctId && ballotStyleId) {
       setIsProgrammingCard(true)
 
-      const code = { t: 'voter', pr: `${precinctId}`, bs: `${ballotStyleId}` }
+      const createAtSeconds = Date.now() / 1000
+      const code = {
+        c: createAtSeconds,
+        t: 'voter',
+        pr: precinctId,
+        bs: ballotStyleId,
+      }
       fetch('/card/write', {
         method: 'post',
         body: JSON.stringify(code),
@@ -300,12 +306,10 @@ const App = () => {
               Lock
             </Button>
           </MainNav>
-          {!isProgrammingCard && (
+          {!isProgrammingCard && voterCardData && (
             <CurrentVoterCard
-              ballotStyleId={voterCardData && voterCardData.bs}
-              precinctName={
-                voterCardData && getPrecinctNameByPrecinctId(voterCardData.pr)
-              }
+              ballotStyleId={voterCardData.bs}
+              precinctName={getPrecinctNameByPrecinctId(voterCardData.pr)}
             />
           )}
         </Screen>

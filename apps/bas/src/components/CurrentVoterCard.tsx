@@ -14,7 +14,7 @@ interface Props {
   precinctName?: string
 }
 
-const CurrentCard = ({ ballotStyleId, precinctName }: Props) => (
+const CurrentVoterCard = ({ ballotStyleId, precinctName }: Props) => (
   <ButtonBar secondary>
     {precinctName || ballotStyleId ? (
       <CardContainer>
@@ -31,4 +31,4 @@ const CurrentCard = ({ ballotStyleId, precinctName }: Props) => (
   </ButtonBar>
 )
 
-export default CurrentCard
+export default CurrentVoterCard
