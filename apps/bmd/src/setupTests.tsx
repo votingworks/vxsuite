@@ -3,6 +3,7 @@
 import 'jest-styled-components'
 import crypto from 'crypto'
 import fetchMock from 'fetch-mock'
+import { mockOf } from '../test/testUtils'
 
 fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
 
@@ -21,7 +22,7 @@ window.print = jest.fn(() => {
   throw new Error('window.print() should never be called')
 })
 
-const printMock = window.print as jest.MockedFunction<typeof window.print>
+const printMock = mockOf(window.print)
 
 afterEach(() => {
   fetchMock.restore()

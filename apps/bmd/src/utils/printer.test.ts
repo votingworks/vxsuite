@@ -8,11 +8,9 @@ import makePrinter, {
   NullPrinter,
 } from './printer'
 import fakePrinter from '../../test/helpers/fakePrinter'
+import { mockOf } from '../../test/testUtils'
 
-const printMock = window.print as jest.Mock<
-  ReturnType<typeof window.print>,
-  Parameters<typeof window.print>
->
+const printMock = mockOf(window.print)
 
 test('`makePrinter` can make a `LocalPrinter`', () => {
   expect(makePrinter(PrintMethod.LocalOnly)).toBeInstanceOf(LocalPrinter)
