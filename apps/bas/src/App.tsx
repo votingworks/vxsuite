@@ -192,7 +192,7 @@ const App = () => {
     if (precinctId && ballotStyleId) {
       setIsProgrammingCard(true)
 
-      const createAtSeconds = Date.now() / 1000
+      const createAtSeconds = Math.round(Date.now() / 1000)
       const code = {
         c: createAtSeconds,
         t: 'voter',
