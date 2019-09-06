@@ -13,6 +13,7 @@ import ReviewPage from '../pages/ReviewPage'
 import SettingsPage from '../pages/SettingsPage'
 import StartPage from '../pages/StartPage'
 import InstructionsPage from '../pages/InstructionsPage'
+import RemoveCardScreen from '../pages/RemoveCardScreen'
 
 const Ballot = () => {
   const [isIdle, setIsIdle] = useState(false)
@@ -48,6 +49,7 @@ const Ballot = () => {
           <Route path="/contests/:contestNumber" component={ContestPage} />
           <Route path="/pre-review" component={PreReviewPage} />
           <Route path="/review" component={ReviewPage} />
+          <Route path="/remove" component={RemoveCardScreen} />
           <Route path="/print" component={PrintPage} />
           {showSettingsPage && (
             <Route path="/settings" component={SettingsPage} />

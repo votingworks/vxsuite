@@ -6,6 +6,7 @@ import { NullPrinter } from '../utils/printer'
 
 const ballot: BallotContextInterface = {
   activateBallot: () => undefined,
+  appMode: 'mark',
   ballotStyleId: '',
   contests: [],
   election: undefined,

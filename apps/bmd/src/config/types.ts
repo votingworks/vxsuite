@@ -6,6 +6,9 @@ export interface Dictionary<T> {
   [key: string]: T | undefined
 }
 
+// App
+export type AppMode = 'mark' | 'print' | 'mark+print'
+
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
 export type InputEventFunction = (event: InputEvent) => void
@@ -112,6 +115,7 @@ export type MarkVoterCardUsedFunction = (props?: {
 }) => Promise<boolean>
 export interface BallotContextInterface {
   activateBallot: (activationData: ActivationData) => void
+  appMode: AppMode
   ballotStyleId: string
   contests: Contests
   readonly election: Election | undefined
@@ -163,7 +167,6 @@ export interface MachineIdAPI {
 }
 
 // User Interface
-export type AppMode = 'mark' | 'print' | 'mark+print'
 export type ScrollDirections = 'up' | 'down'
 export interface ScrollShadows {
   showBottomShadow: boolean

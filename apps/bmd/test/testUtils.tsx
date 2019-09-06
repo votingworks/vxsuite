@@ -10,7 +10,12 @@ import * as GLOBALS from '../src/config/globals'
 // typescript concludes that sealURL is required.
 import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
-import { Contests, Election, TextSizeSetting } from '../src/config/types'
+import {
+  AppMode,
+  Contests,
+  Election,
+  TextSizeSetting,
+} from '../src/config/types'
 
 import { mergeWithDefaults } from '../src/AppRoot'
 import BallotContext from '../src/contexts/ballotContext'
@@ -21,6 +26,7 @@ export function render(
   {
     route = '/',
     activateBallot = jest.fn(),
+    appMode = 'mark' as AppMode,
     ballotStyleId = '',
     contests = electionSampleNoSeal.contests as Contests,
     markVoterCardUsed = jest.fn(),
@@ -42,6 +48,7 @@ export function render(
       <BallotContext.Provider
         value={{
           activateBallot,
+          appMode,
           ballotStyleId,
           contests,
           election: mergeWithDefaults(election as Election),
