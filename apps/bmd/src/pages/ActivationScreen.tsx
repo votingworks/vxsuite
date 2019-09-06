@@ -16,6 +16,7 @@ const InsertCardImage = styled.img`
 interface Props {
   election: Election
   isLiveMode: boolean
+  isVoterCardExpired: boolean
   isVoterCardInvalid: boolean
 }
 

@@ -16,11 +16,12 @@ import {
 import {
   ActivationData,
   AppMode,
-  CardData,
+  CardAPI,
   Contests,
   Election,
   ElectionDefaults,
   InputEvent,
+  MachineIdAPI,
   OptionalElection,
   OptionalVote,
   PartialUserSettings,
@@ -28,6 +29,8 @@ import {
   VoterCardData,
   VotesDict,
 } from './config/types'
+
+import utcTimestamp from './utils/utcTimestamp'
 
 import { getBallotStyle, getContests } from './utils/election'
 
@@ -51,6 +54,7 @@ export const mergeWithDefaults = (
 ) => ({ ...defaults, ...election })
 
 interface UserState {
+  ballotCreatedAt: number
   ballotStyleId: string
   contests: Contests
   precinctId: string
@@ -60,18 +64,19 @@ interface UserState {
 
 interface State extends UserState {
   appMode: AppMode
-  cardData?: CardData
+  ballotsPrintedCount: number
   election: OptionalElection
   isClerkCardPresent: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
   isPollWorkerCardPresent: boolean
+  isVoterCardExpired: boolean
   isVoterCardPresent: boolean
   isVoterCardInvalid: boolean
   isRecentVoterPrint: boolean
   isFetchingElection: boolean
   machineId: string
-  ballotsPrintedCount: number
+  shortValue: string
 }
 
 export const electionStorageKey = 'election'
@@ -83,12 +88,14 @@ const removeElectionShortcuts = ['mod+k']
 const initialCardPresentState = {
   isClerkCardPresent: false,
   isPollWorkerCardPresent: false,
+  isVoterCardExpired: false,
   isVoterCardPresent: false,
   isVoterCardInvalid: false,
   isRecentVoterPrint: false,
 }
 
 const initialUserState: UserState = {
+  ballotCreatedAt: 0,
   ballotStyleId: '',
   contests: [],
   precinctId: '',
@@ -106,11 +113,7 @@ const initialState: State = {
   isPollsOpen: false,
   isFetchingElection: false,
   machineId: '---',
-}
-
-interface CompleteCardData {
-  cardData: CardData
-  longValueExists: boolean
+  shortValue: '{}',
 }
 
 let checkCardInterval = 0
@@ -127,6 +130,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     })
     const precinct = election.precincts.find(pr => pr.id === voterCardData.pr)!
     this.activateBallot({
+      ballotCreatedAt: voterCardData.c,
       ballotStyle,
       precinct,
     })
@@ -143,11 +147,20 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  public processCardData = (completeCardData: CompleteCardData) => {
-    const { cardData, longValueExists } = completeCardData
+  public isVoterCardExpired = (createdAt: number): boolean => {
+    const expirationMinutes = 10
+    return createdAt + expirationMinutes * 60 < utcTimestamp()
+  }
+
+  public processCard = ({ longValueExists, shortValue }: CardAPI) => {
+    if (!shortValue) {
+      return
+    }
+    const cardData = JSON.parse(shortValue)
     switch (cardData.t) {
       case 'voter': {
-        const voterCardData = cardData as VoterCardData
+        const voterCardData: VoterCardData = cardData
+        const isVoterCardExpired = this.isVoterCardExpired(voterCardData.c)
         const isBallotPrinted = Boolean(voterCardData.bp)
         const ballotUsedTime = Number(voterCardData.uz) || 0
         const isVoterCardInvalid = Boolean(ballotUsedTime)
@@ -157,17 +170,18 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           ballotUsedTime + expirationGracePeriod > new Date().getTime()
         this.setState({
           ...initialCardPresentState,
+          shortValue,
+          isVoterCardExpired,
           isVoterCardPresent: true,
           isVoterCardInvalid,
           isRecentVoterPrint,
         })
-        if (!isVoterCardInvalid) {
+        if (!isVoterCardInvalid && !isVoterCardExpired) {
           this.processVoterCardData(voterCardData)
         }
         break
       }
       case 'pollworker': {
-        // poll worker admin screen goes here
         this.setState({
           ...initialCardPresentState,
           isPollWorkerCardPresent: true,
@@ -189,33 +203,27 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     if (checkCardInterval === 0) {
       let lastCardDataString = ''
 
-      checkCardInterval = window.setInterval(() => {
-        fetch('/card/read')
-          .then(result => result.json())
-          .then(card => {
-            const currentCardDataString = JSON.stringify(card)
-            if (currentCardDataString === lastCardDataString) {
-              return
-            }
-            lastCardDataString = currentCardDataString
+      checkCardInterval = window.setInterval(async () => {
+        try {
+          const card = await this.readCard()
+          const currentCardDataString = JSON.stringify(card)
+          if (currentCardDataString === lastCardDataString) {
+            return
+          }
+          lastCardDataString = currentCardDataString
 
-            if (!card.present || !card.shortValue) {
-              this.resetBallot()
-              return
-            }
-
-            const cardData = JSON.parse(card.shortValue) as CardData
-            this.processCardData({
-              cardData: cardData,
-              longValueExists: card.longValueExists,
-            })
-          })
-          .catch(() => {
+          if (!card.present || !card.shortValue) {
             this.resetBallot()
-            lastCardDataString = ''
-            // if it's an error, aggressively assume there's no backend and stop hammering
-            this.stopPolling()
-          })
+            return
+          }
+
+          this.processCard(card)
+        } catch (error) {
+          this.resetBallot()
+          lastCardDataString = ''
+          // if it's an error, aggressively assume there's no backend and stop hammering
+          this.stopPolling()
+        }
       }, GLOBALS.CARD_POLLING_INTERVAL)
     }
   }
@@ -230,28 +238,20 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   ) => {
     this.stopPolling()
 
-    const { ballotStyleId, precinctId } = this.getBallotActivation()
+    const currentVoterCardData: VoterCardData = JSON.parse(
+      this.state.shortValue
+    )
 
-    const newCardData: VoterCardData = {
-      bs: ballotStyleId,
-      pr: precinctId,
-      t: 'voter',
+    const usedVoterCardData: VoterCardData = {
+      ...currentVoterCardData,
       uz: new Date().getTime(),
       bp: ballotPrinted ? 1 : 0,
     }
+    await this.writeCard(usedVoterCardData)
 
-    const newCardDataSerialized = JSON.stringify(newCardData)
+    const updatedCard = await this.readCard()
 
-    await fetch('/card/write', {
-      method: 'post',
-      body: newCardDataSerialized,
-      headers: { 'Content-Type': 'application/json' },
-    })
-
-    const readCheck = await fetch('/card/read')
-    const readCheckObj = await readCheck.json()
-
-    if (readCheckObj.shortValue !== newCardDataSerialized) {
+    if (updatedCard.shortValue !== JSON.stringify(usedVoterCardData)) {
       this.resetBallot()
       return false
     }
@@ -267,21 +267,33 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           ballotsPrintedCount: 0,
           isLiveMode: true,
           isPollsOpen: true,
+          ballotCreatedAt: utcTimestamp(),
           ballotStyleId: '12',
           precinctId: '23',
         },
         () => {
-          const { ballotStyleId, precinctId, election } = this.state
-          this.setBallotActivation({ ballotStyleId, precinctId })
+          const {
+            ballotCreatedAt,
+            ballotStyleId,
+            precinctId,
+            election,
+          } = this.state
+          this.setBallotActivation({
+            ballotCreatedAt,
+            ballotStyleId,
+            precinctId,
+          })
           this.setElection(election as Election)
           this.setStoredState()
-          const cardData: VoterCardData = {
+          const voterCardData: VoterCardData = {
+            c: utcTimestamp(),
             t: 'voter',
             bs: ballotStyleId,
             pr: precinctId,
           }
-          this.processCardData({
-            cardData,
+          this.processCard({
+            present: true,
+            shortValue: JSON.stringify(voterCardData),
             longValueExists: false,
           })
         }
@@ -322,22 +334,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
-
-    const { signal } = this.machineIdAbortController
-    fetch('/machine-id', { signal })
-      .then(response => response.json())
-      .then(response => {
-        const { machineId } = response
-        if (machineId) {
-          this.setState({
-            machineId,
-          })
-        }
-      })
-      .catch(() => {
-        // TODO: what should happen if `machineId` is not returned?
-      })
-
+    this.setMachineId()
     this.startPolling()
   }
 
@@ -346,6 +343,35 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     Mousetrap.unbind(removeElectionShortcuts)
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
     this.stopPolling()
+  }
+
+  public setMachineId = async () => {
+    const { signal } = this.machineIdAbortController
+    try {
+      const response = await fetch('/machine-id', { signal })
+      const { machineId }: MachineIdAPI = await response.json()
+      machineId && this.setState({ machineId })
+    } catch (error) {
+      // TODO: what should happen if `machineId` is not returned?
+    }
+  }
+
+  public readCard = async (): Promise<CardAPI> => {
+    const response = await fetch('/card/read')
+    const card = await response.json()
+    return card
+  }
+
+  public writeCard = async (cardData: VoterCardData) => {
+    const newCardData: VoterCardData = {
+      ...cardData,
+      u: utcTimestamp(),
+    }
+    await fetch('/card/write', {
+      method: 'post',
+      body: JSON.stringify(newCardData),
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   public getElection = (): OptionalElection => {
@@ -360,11 +386,12 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public getBallotActivation = () => {
-    const voterData = window.localStorage.getItem(activationStorageKey)
-    return voterData ? JSON.parse(voterData) : {}
+    const activationData = window.localStorage.getItem(activationStorageKey)
+    return activationData ? JSON.parse(activationData) : {}
   }
 
   public setBallotActivation = (data: {
+    ballotCreatedAt: number
     ballotStyleId: string
     precinctId: string
   }) => {
@@ -379,11 +406,21 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     return votesData ? JSON.parse(votesData) : {}
   }
 
-  public setVotes = (votes: VotesDict) => {
+  public setVotes = async (votes: VotesDict) => {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       window.localStorage.setItem(votesStorageKey, JSON.stringify(votes))
     }
+    const currentVoterCardData: VoterCardData = JSON.parse(
+      this.state.shortValue
+    )
+
+    const newVoterCardData: VoterCardData = {
+      ...currentVoterCardData,
+      m: this.state.machineId,
+      v: votes,
+    }
+    await this.writeCard(newVoterCardData)
   }
 
   public resetVoterData = () => {
@@ -441,12 +478,18 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     this.startPolling()
   }
 
-  public activateBallot = ({ ballotStyle, precinct }: ActivationData) => {
+  public activateBallot = ({
+    ballotCreatedAt,
+    ballotStyle,
+    precinct,
+  }: ActivationData) => {
     this.setBallotActivation({
+      ballotCreatedAt,
       ballotStyleId: ballotStyle.id,
       precinctId: precinct.id,
     })
     this.setState(prevState => ({
+      ballotCreatedAt,
       ballotStyleId: ballotStyle.id,
       contests: getContests({ ballotStyle, election: prevState.election! }),
       precinctId: precinct.id,
@@ -522,6 +565,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       isPollsOpen,
       isPollWorkerCardPresent,
       isVoterCardPresent,
+      isVoterCardExpired,
       isVoterCardInvalid,
       isRecentVoterPrint,
       machineId,
@@ -595,6 +639,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           <ActivationScreen
             election={election}
             isLiveMode={isLiveMode}
+            isVoterCardExpired={isVoterCardExpired}
             isVoterCardInvalid={isVoterCardInvalid}
           />
         )
