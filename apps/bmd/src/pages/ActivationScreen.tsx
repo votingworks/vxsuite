@@ -23,30 +23,40 @@ interface Props {
 const ActivationScreen = ({
   election,
   isLiveMode,
+  isVoterCardExpired,
   isVoterCardInvalid,
 }: Props) => {
   const { title, state, county, date, seal, sealURL } = election
+  const showInvalid = isVoterCardInvalid
+  const showExpired = !showInvalid && isVoterCardExpired
+  const showDefault = !showInvalid && !showExpired
   return (
     <Main>
       <MainChild center>
         <Prose textCenter>
           <TestMode isLiveMode={isLiveMode} />
-          <Seal seal={seal} sealURL={sealURL} />
-          <h1 aria-label={`${title}.`}>{title}</h1>
-          <p aria-hidden="true">
-            {date}
-            <br />
-            {county.name}, {state}
-          </p>
-          <hr />
-          {isVoterCardInvalid ? (
+          {showInvalid && (
             <React.Fragment>
               <h1>Inactive Card</h1>
-              <p>This card is no longer active.</p>
-              <p>Please return card to poll worker.</p>
+              <p>Please return this card to a poll worker.</p>
             </React.Fragment>
-          ) : (
+          )}
+          {showExpired && (
             <React.Fragment>
+              <h1>Expired Card</h1>
+              <p>Please return this card to a poll worker for assistance.</p>
+            </React.Fragment>
+          )}
+          {showDefault && (
+            <React.Fragment>
+              <Seal seal={seal} sealURL={sealURL} />
+              <h1 aria-label={`${title}.`}>{title}</h1>
+              <p aria-hidden="true">
+                {date}
+                <br />
+                {county.name}, {state}
+              </p>
+              <hr />
               <p>
                 <InsertCardImage
                   src="/insert-card.svg"
