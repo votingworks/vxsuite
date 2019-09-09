@@ -3,6 +3,7 @@
 import 'jest-styled-components'
 import crypto from 'crypto'
 import fetchMock from 'fetch-mock'
+import { mockOf } from '../test/testUtils'
 
 fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
 
@@ -17,14 +18,13 @@ Object.defineProperty(global, 'crypto', {
 // react-gamepad calls this function which does not exist in JSDOM
 window.navigator.getGamepads = jest.fn(() => [])
 
-// Capture Event Listeners
-const eventListenerCallbacksDictionary: any = {} // eslint-disable-line @typescript-eslint/no-explicit-any
-window.addEventListener = jest.fn((event, cb) => {
-  eventListenerCallbacksDictionary[event] = cb
-})
 window.print = jest.fn(() => {
-  eventListenerCallbacksDictionary.afterprint &&
-    eventListenerCallbacksDictionary.afterprint()
+  throw new Error('window.print() should never be called')
 })
-// TODO: add callback for window.resize like above
-// TODO: add callback for window.keydown like above
+
+const printMock = mockOf(window.print)
+
+afterEach(() => {
+  fetchMock.restore()
+  printMock.mockClear()
+})

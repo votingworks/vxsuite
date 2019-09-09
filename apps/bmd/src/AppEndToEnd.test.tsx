@@ -40,6 +40,14 @@ fetchMock.get('/card/read_long', () =>
   JSON.stringify({ longValue: electionAsString })
 )
 
+fetchMock.get('/printer/status', () => ({
+  ok: true,
+}))
+
+fetchMock.post('/printer/jobs/new', () => ({
+  id: 'printer-job-id',
+}))
+
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
@@ -87,11 +95,11 @@ it('basic end-to-end flow', async () => {
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Open Polls')))
   getByText('Open polls -- Print report 1 of 3?')
-  fireEvent.click(getByText('Yes'))
+  await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Open polls -- Print report 2 of 3?')
-  fireEvent.click(getByText('Yes'))
+  await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Open polls -- Print report 3 of 3?')
-  fireEvent.click(getByText('Yes'))
+  await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Close Polls')
 
   // Remove card
@@ -266,8 +274,8 @@ it('basic end-to-end flow', async () => {
   fireEvent.click(getByText('No, go back.'))
   fireEvent.click(getByText('Print Ballot'))
   fireEvent.click(getByText('Yes, print my ballot.'))
+  await wait() // wait for print
   advanceTimers()
-  await wait(() => expect(window.print).toBeCalled())
 
   // Wait for printing setTimeout
   advanceTimers(printingModalDisplaySeconds * 1000)
@@ -295,11 +303,11 @@ it('basic end-to-end flow', async () => {
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Close Polls')))
   getByText('Close Polls -- Print report 1 of 3?')
-  fireEvent.click(getByText('Yes'))
+  await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Close Polls -- Print report 2 of 3?')
-  fireEvent.click(getByText('Yes'))
+  await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Close Polls -- Print report 3 of 3?')
-  fireEvent.click(getByText('Yes'))
+  await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Open Polls')
 
   // Remove card

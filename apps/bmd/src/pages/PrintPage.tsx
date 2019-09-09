@@ -28,12 +28,6 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
     showConfirmModal: false,
     showPrintingModal: false,
   }
-  public componentDidMount = () => {
-    window.addEventListener('afterprint', this.afterPrint)
-  }
-  public componentWillUnmount = () => {
-    window.removeEventListener('afterprint', this.afterPrint)
-  }
   public afterPrint = () => {
     // setTimeout to prevent a React infinite recursion issue
     window.setTimeout(() => {
@@ -58,13 +52,13 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
           showConfirmModal: false,
           showPrintingModal: true,
         },
-        () => {
-          this.context.markVoterCardUsed().then((success: boolean) => {
-            /* istanbul ignore else */
-            if (success) {
-              window.print()
-            }
-          })
+        async () => {
+          const success = await this.context.markVoterCardUsed()
+          /* istanbul ignore else */
+          if (success) {
+            await this.context.printer.print()
+            this.afterPrint()
+          }
         }
       )
     }

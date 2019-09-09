@@ -233,11 +233,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 
@@ -569,11 +565,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 
@@ -953,11 +945,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 
@@ -1289,11 +1277,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 
 @media print {
   .c0 {
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 }
 

@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom'
 
 import { CandidateContest } from '../config/types'
 
-import { render } from '../../test/testUtils'
+import { render, mockOf } from '../../test/testUtils'
 
 import electionSample from '../data/electionSample.json'
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
@@ -15,7 +15,7 @@ import { randomBase64 } from '../utils/random'
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random')
-const randomBase64Mock = randomBase64 as jest.Mock
+const randomBase64Mock = mockOf(randomBase64)
 randomBase64Mock.mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w')
 
 const contest0 = electionSample.contests[0] as CandidateContest

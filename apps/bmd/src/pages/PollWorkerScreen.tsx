@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import styled from 'styled-components'
 
 import { OptionalElection } from '../config/types'
@@ -9,6 +9,7 @@ import MainNav from '../components/MainNav'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
+import BallotContext from '../contexts/ballotContext'
 
 const Report = styled.div`
   margin: 0;
@@ -90,12 +91,13 @@ const PollWorkerScreen = ({
   const [reportId, setReportId] = useState(1)
   const showModal = () => setIsModalOpen(true)
   const hideModal = () => setIsModalOpen(false)
+  const { printer } = useContext(BallotContext)
 
   const currentDateTime = new Date().toLocaleString()
   const numReports = 3
 
-  const doPrint = (currentReportId: number) => {
-    window.print()
+  const doPrint = async (currentReportId: number) => {
+    await printer.print()
 
     if (currentReportId >= numReports) {
       togglePollsOpen()
@@ -215,8 +217,8 @@ const PollWorkerScreen = ({
           <>
             <Button
               primary
-              onPress={() => {
-                doPrint(reportId)
+              onPress={async () => {
+                await doPrint(reportId)
               }}
             >
               Yes

@@ -23,6 +23,14 @@ fetchMock.post('/card/write', (url, options) => {
   return ''
 })
 
+fetchMock.get('/printer/status', () => ({
+  ok: true,
+}))
+
+fetchMock.post('/printer/jobs/new', () => ({
+  id: 'printer-job-id',
+}))
+
 jest.useFakeTimers()
 
 beforeEach(() => {
@@ -129,5 +137,5 @@ it('Single Seat Contest', async () => {
   fireEvent.click(getByText('Print Ballot'))
   fireEvent.click(getByText('Yes, print my ballot.'))
   advanceTimers()
-  await wait(() => expect(window.print).toBeCalled())
+  await wait(() => expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1))
 })

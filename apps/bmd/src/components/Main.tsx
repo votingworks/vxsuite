@@ -17,8 +17,7 @@ const Main = styled('main')<Props>`
       noPadding ? undefined : '1rem 1rem 2rem'};
   }
   @media print {
-    justify-content: flex-start;
-    padding: 0;
+    display: none;
   }
 `
 

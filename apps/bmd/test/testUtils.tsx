@@ -14,6 +14,7 @@ import { Contests, Election, TextSizeSetting } from '../src/config/types'
 
 import { mergeWithDefaults } from '../src/AppRoot'
 import BallotContext from '../src/contexts/ballotContext'
+import fakePrinter from './helpers/fakePrinter'
 
 export function render(
   component: React.ReactNode,
@@ -28,6 +29,7 @@ export function render(
     incrementBallotsPrintedCount = jest.fn(),
     isLiveMode = false,
     precinctId = '',
+    printer = fakePrinter(),
     resetBallot = jest.fn(),
     setUserSettings = jest.fn(),
     updateVote = jest.fn(),
@@ -47,6 +49,7 @@ export function render(
           isLiveMode,
           markVoterCardUsed,
           precinctId,
+          printer,
           resetBallot,
           setUserSettings,
           updateVote,
@@ -61,4 +64,20 @@ export function render(
   }
 }
 
-export default undefined
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Returns a properly-typed mock for an already-mocked function.
+ *
+ * @example
+ *
+ * import * as fs from 'fs'
+ * jest.mock('fs')
+ * const readFileMock = mockOf(fs.readFile)
+ * readFileMock.mockImplementation(…)
+ */
+export function mockOf<T extends (...args: any[]) => any>(
+  fn: T
+): jest.MockedFunction<T> {
+  return fn as jest.MockedFunction<T>
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
