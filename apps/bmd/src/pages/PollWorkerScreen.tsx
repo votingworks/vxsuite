@@ -95,13 +95,11 @@ const PollWorkerScreen = ({
   const hideModal = () => setIsModalOpen(false)
   const { printer } = useContext(BallotContext)
 
-  const isVxPrint = appMode === 'print'
-  const isVxMarkAndPrint = appMode === 'mark+print'
   const currentDateTime = new Date().toLocaleString()
   const numReports = 3
 
   const togglePollsOpen = () => {
-    if (isVxPrint || isVxMarkAndPrint) {
+    if (appMode.isVxPrint) {
       showModal()
     } else {
       appTogglePollsOpen()

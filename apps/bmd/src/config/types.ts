@@ -7,7 +7,32 @@ export interface Dictionary<T> {
 }
 
 // App
-export type AppMode = 'mark' | 'print' | 'mark+print'
+export type AppModeNames = 'mark' | 'print' | 'mark+print'
+export interface AppMode {
+  readonly name: AppModeNames
+  readonly isVxPrint?: boolean
+  readonly isVxMark?: boolean
+}
+export const VxPrintOnly: AppMode = { name: 'print', isVxPrint: true }
+export const VxMarkOnly: AppMode = { name: 'mark', isVxMark: true }
+export const VxMarkPlusVxPrint: AppMode = {
+  name: 'mark+print',
+  isVxPrint: true,
+  isVxMark: true,
+}
+
+export function getAppMode(name: string): AppMode {
+  switch (name) {
+    case VxPrintOnly.name:
+      return VxPrintOnly
+    case VxMarkOnly.name:
+      return VxMarkOnly
+    case VxMarkPlusVxPrint.name:
+      return VxMarkPlusVxPrint
+    default:
+      throw new Error(`unknown app mode: ${name}`)
+  }
+}
 
 // Events
 export type InputEvent = React.FormEvent<EventTarget>

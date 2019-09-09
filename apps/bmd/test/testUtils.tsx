@@ -11,10 +11,10 @@ import * as GLOBALS from '../src/config/globals'
 import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
 import {
-  AppMode,
   Contests,
   Election,
   TextSizeSetting,
+  VxMarkOnly,
 } from '../src/config/types'
 
 import { mergeWithDefaults } from '../src/AppRoot'
@@ -26,7 +26,7 @@ export function render(
   {
     route = '/',
     activateBallot = jest.fn(),
-    appMode = 'mark' as AppMode,
+    appMode = VxMarkOnly,
     ballotStyleId = '',
     contests = electionSampleNoSeal.contests as Contests,
     markVoterCardUsed = jest.fn(),

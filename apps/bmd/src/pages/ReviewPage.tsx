@@ -360,7 +360,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
           </ContentFooter>
         </Main>
         <ButtonBar>
-          <LinkButton to={appMode === 'mark' ? '/remove' : '/print'} id="next">
+          <LinkButton to={appMode.isVxPrint ? '/print' : '/remove'} id="next">
             Next
           </LinkButton>
           <div />

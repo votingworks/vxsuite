@@ -9,6 +9,7 @@ import { election } from '../../test/helpers/election'
 import { noCard, adminCard, advanceTimers } from '../../test/helpers/smartcards'
 
 import ClerkScreen from './ClerkScreen'
+import { VxMarkOnly } from '../config/types'
 
 jest.useFakeTimers()
 
@@ -18,7 +19,7 @@ fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 it('renders ClerkScreen', async () => {
   const { getByText } = render(
     <ClerkScreen
-      appMode="mark"
+      appMode={VxMarkOnly}
       ballotsPrintedCount={0}
       election={election}
       fetchElection={jest.fn()}
