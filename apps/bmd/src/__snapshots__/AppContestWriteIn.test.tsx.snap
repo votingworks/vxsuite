@@ -1,21 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Single Seat Contest 1`] = `
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  height: 100%;
-}
-
-.c0:focus {
-  outline: none;
-}
-
 .c11 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -281,6 +266,21 @@ exports[`Single Seat Contest 1`] = `
   -webkit-flex: 2;
   -ms-flex: 2;
   flex: 2;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  height: 100%;
+}
+
+.c0:focus {
+  outline: none;
 }
 
 @media (min-width:480px) {
