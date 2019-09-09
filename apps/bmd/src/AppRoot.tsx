@@ -244,6 +244,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
     const usedVoterCardData: VoterCardData = {
       ...currentVoterCardData,
+      v: undefined,
       uz: new Date().getTime(),
       bp: ballotPrinted ? 1 : 0,
     }
