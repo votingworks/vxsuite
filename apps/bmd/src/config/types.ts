@@ -21,7 +21,7 @@ export const VxMarkPlusVxPrint: AppMode = {
   isVxMark: true,
 }
 
-export function getAppMode(name: string): AppMode {
+export function getAppMode(name: AppModeNames): AppMode {
   switch (name) {
     case VxPrintOnly.name:
       return VxPrintOnly
