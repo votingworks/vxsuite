@@ -8,18 +8,13 @@ import { ballotImagesPath, doZero, sampleBallotImagesPath } from './scanner'
 // we need longer to make chokidar work
 jest.setTimeout(10000)
 
-jest.mock('./exec', () => ({
-  __esModule: true,
-  default: jest.fn((_file, _args, callback) => {
-    callback()
-  }),
-}))
+jest.mock('./exec')
 
-beforeAll(done => {
-  doZero().then(() => done())
+beforeAll(async () => {
+  await doZero()
 })
 
-test('going through the whole process works', async done => {
+test('going through the whole process works', async () => {
   // try export before configure
   const response = await request(app)
     .post('/scan/export')
@@ -108,11 +103,10 @@ test('going through the whole process works', async done => {
   // response is a few lines, each JSON.
   // can't predict the order so can't compare
   // to expected outcome as a string directly.
-  // @ts-ignore
-  const CVRs = exportResponse.text.split('\n').map(JSON.parse)
-  const serialNumbers = CVRs.map(
-    (cvr: { _serialNumber: string }) => cvr._serialNumber
-  )
+  const CVRs: { _serialNumber: string }[] = exportResponse.text
+    .split('\n')
+    .map(line => JSON.parse(line))
+  const serialNumbers = CVRs.map(cvr => cvr._serialNumber)
   serialNumbers.sort()
   expect(JSON.stringify(serialNumbers)).toBe(
     JSON.stringify([
@@ -124,9 +118,5 @@ test('going through the whole process works', async done => {
   )
 
   // clean up
-  request(app)
-    .post('/scan/unconfigure')
-    .then(() => {
-      done()
-    })
+  await request(app).post('/scan/unconfigure')
 })

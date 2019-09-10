@@ -120,40 +120,33 @@ function dateStamp(date: Date = new Date()): string {
   )}${zeroPad(date.getSeconds())}`
 }
 
-export function doScan() {
-  return new Promise((resolve, reject) => {
-    if (!election) {
-      reject(new Error('no election configuration'))
-    } else {
-      addBatch().then((batchId: number) => {
-        // trigger a scan
-        execFile(
-          'scanimage',
-          [
-            '-d',
-            'fujitsu',
-            '--resolution',
-            '300',
-            '--format=jpeg',
-            '--source="ADF Duplex"',
-            `--batch=${ballotImagesPath}${dateStamp()}-batch-${batchId}-ballot-%04d.jpg`,
-          ],
-          err => {
-            if (err) {
-              // node couldn't execute the command
-              return reject(new Error('problem scanning'))
-            }
+export async function doScan() {
+  if (!election) {
+    throw new Error('no election configuration')
+  }
 
-            // mark the batch done in a few seconds
-            setTimeout(() => {
-              finishBatch(batchId)
-            }, 5000)
-            resolve()
-          }
-        )
-      })
-    }
-  })
+  const batchId = await addBatch()
+
+  try {
+    // trigger a scan
+    await execFile('scanimage', [
+      '-d',
+      'fujitsu',
+      '--resolution',
+      '300',
+      '--format=jpeg',
+      '--source="ADF Duplex"',
+      `--batch=${ballotImagesPath}${dateStamp()}-batch-${batchId}-ballot-%04d.jpg`,
+    ])
+  } catch {
+    // node couldn't execute the command
+    throw new Error('problem scanning')
+  }
+
+  // mark the batch done in a few seconds
+  setTimeout(() => {
+    finishBatch(batchId)
+  }, 5000)
 }
 
 export async function addManualBallot(ballotString: string) {

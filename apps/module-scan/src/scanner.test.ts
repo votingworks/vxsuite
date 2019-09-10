@@ -9,16 +9,12 @@ import { init } from './store'
 jest.mock('chokidar')
 const mockChokidar = chokidar as jest.Mocked<typeof chokidar>
 
-let execErrorMessage: string | undefined = undefined
-jest.mock('./exec', () => ({
-  __esModule: true,
-  default: jest.fn((_file, _args, callback) => {
-    callback(execErrorMessage)
-  }),
-}))
+jest.mock('./exec')
 
-beforeAll(done => {
-  init(true).then(() => done())
+const execMock = exec as jest.MockedFunction<typeof exec>
+
+beforeAll(async () => {
+  await init(true)
 })
 
 test('doScan calls exec with scanimage', async () => {
@@ -36,16 +32,15 @@ test('doScan calls exec with scanimage', async () => {
   expect(mockWatcherOn).toHaveBeenCalled()
 
   // failed scan
-  execErrorMessage = 'problem scanning'
-  await expect(scanner.doScan()).rejects.toThrow(execErrorMessage)
+  execMock.mockRejectedValueOnce(new Error())
+  await expect(scanner.doScan()).rejects.toThrow('problem scanning')
 
   // successful scan
-  execErrorMessage = undefined
+  execMock.mockResolvedValueOnce({ stdout: '', stderr: '' })
   await scanner.doScan()
 
   scanner.unconfigure()
 
-  // @ts-ignore
   await waitForExpect(() => {
     expect(mockWatcherClose).toHaveBeenCalled()
     expect(exec).toHaveBeenCalled()
