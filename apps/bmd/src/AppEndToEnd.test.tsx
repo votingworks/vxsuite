@@ -53,7 +53,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it('basic end-to-end flow', async () => {
+it('VxMark+Print end-to-end flow', async () => {
   jest.useFakeTimers()
 
   const { getByText, queryByText } = render(<App />)
@@ -73,6 +73,9 @@ it('basic end-to-end flow', async () => {
 
   advanceTimers()
   await wait(() => getByText('Election definition is loaded.'))
+
+  fireEvent.click(getByText('VxMark+Print'))
+  expect((getByText('VxMark+Print') as HTMLButtonElement).disabled).toBeTruthy()
 
   fireEvent.click(getByText('Live Election Mode'))
   getByText('Switch to Live Election Mode and zero Printed Ballots count?')
