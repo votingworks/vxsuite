@@ -7,16 +7,16 @@ export interface Dictionary<T> {
 }
 
 // App
-export type AppModeNames = 'mark' | 'print' | 'mark+print'
+export type AppModeNames = 'VxMark' | 'VxPrint' | 'VxMark + VxPrint'
 export interface AppMode {
   readonly name: AppModeNames
   readonly isVxPrint?: boolean
   readonly isVxMark?: boolean
 }
-export const VxPrintOnly: AppMode = { name: 'print', isVxPrint: true }
-export const VxMarkOnly: AppMode = { name: 'mark', isVxMark: true }
+export const VxPrintOnly: AppMode = { name: 'VxPrint', isVxPrint: true }
+export const VxMarkOnly: AppMode = { name: 'VxMark', isVxMark: true }
 export const VxMarkPlusVxPrint: AppMode = {
-  name: 'mark+print',
+  name: 'VxMark + VxPrint',
   isVxPrint: true,
   isVxMark: true,
 }

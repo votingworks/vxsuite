@@ -210,7 +210,7 @@ const PollWorkerScreen = ({
           </Report>
         </MainChild>
       </Main>
-      <MainNav aria-hidden="true" title="Poll Worker" />
+      <MainNav appName={appMode.name} aria-hidden="true" title="Poll Worker" />
       <Modal
         isOpen={isModalOpen}
         centerContent

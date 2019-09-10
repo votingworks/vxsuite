@@ -1,6 +1,11 @@
 import React, { PointerEventHandler, useState } from 'react'
 
-import { CandidateContest, Election, VotesDict } from '../config/types'
+import {
+  AppModeNames,
+  CandidateContest,
+  Election,
+  VotesDict,
+} from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
@@ -83,6 +88,7 @@ interface Precinct {
 }
 
 interface Props {
+  appName: AppModeNames
   election: Election
   hideTestDeck: () => void
   isLiveMode: boolean
@@ -91,6 +97,7 @@ interface Props {
 const initialPrecinct: Precinct = { id: '', name: '' }
 
 const TestBallotDeckScreen = ({
+  appName,
   election,
   hideTestDeck,
   isLiveMode,
@@ -183,7 +190,7 @@ const TestBallotDeckScreen = ({
           )}
         </MainChild>
       </Main>
-      <MainNav title="Clerk Actions">
+      <MainNav appName={appName} title="Clerk Actions">
         <Button small onPress={hideTestDeck}>
           Dashboard
         </Button>

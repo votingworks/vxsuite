@@ -58,6 +58,7 @@ const ClerkScreen = ({
   if (isTestDeck && election) {
     return (
       <TestBallotDeckScreen
+        appName={appMode.name}
         election={election}
         hideTestDeck={hideTestDeck}
         isLiveMode={false} // always false for Test Mode
@@ -78,23 +79,23 @@ const ClerkScreen = ({
                 <SegmentedButton>
                   <Button
                     onPress={setAppMode}
-                    data-app-mode="mark"
+                    data-app-mode="VxMark"
                     primary={appMode === VxMarkOnly}
                     disabled={appMode === VxMarkOnly}
                   >
-                    VxMark
+                    VxMark Only
                   </Button>
                   <Button
                     onPress={setAppMode}
-                    data-app-mode="print"
+                    data-app-mode="VxPrint"
                     primary={appMode === VxPrintOnly}
                     disabled={appMode === VxPrintOnly}
                   >
-                    VxPrint
+                    VxPrint Only
                   </Button>
                   <Button
                     onPress={setAppMode}
-                    data-app-mode="mark+print"
+                    data-app-mode="VxMark + VxPrint"
                     primary={appMode === VxMarkPlusVxPrint}
                     disabled={appMode === VxMarkPlusVxPrint}
                   >
@@ -175,7 +176,7 @@ const ClerkScreen = ({
           </Prose>
         </MainChild>
       </Main>
-      <MainNav title="Clerk Actions" />
+      <MainNav appName={appMode.name} title="Clerk Actions" />
       <Modal
         isOpen={isModalOpen}
         centerContent
