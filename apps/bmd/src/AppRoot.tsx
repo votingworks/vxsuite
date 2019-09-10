@@ -1,4 +1,3 @@
-import Mousetrap from 'mousetrap'
 import React from 'react'
 import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
@@ -86,7 +85,6 @@ export const electionStorageKey = 'election'
 export const stateStorageKey = 'state'
 export const activationStorageKey = 'activation'
 const votesStorageKey = 'votes'
-const removeElectionShortcuts = ['mod+k']
 
 const initialCardPresentState = {
   isClerkCardPresent: false,
@@ -339,7 +337,6 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         votes: this.getVotes(),
       })
     }
-    Mousetrap.bind(removeElectionShortcuts, this.unconfigure)
     document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
@@ -349,7 +346,6 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     this.machineIdAbortController.abort()
-    Mousetrap.unbind(removeElectionShortcuts)
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
     this.stopPolling()
   }

@@ -93,7 +93,6 @@
     "history": "^4.10.1",
     "http-proxy-middleware": "^0.20.0",
     "lodash.camelcase": "^4.3.0",
-    "mousetrap": "^1.6.3",
     "normalize.css": "^8.0.1",
     "pluralize": "^8.0.0",
     "qrcode.react": "^0.9.3",
