@@ -115,7 +115,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // Insert used Voter card
   currentCard = invalidatedVoterCard
   advanceTimers()
-  await wait(() => getByText('This card is no longer active.'))
+  await wait(() => getByText('Inactive Card'))
 
   // Remove card
   currentCard = noCard
