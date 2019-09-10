@@ -12,6 +12,7 @@ import {
   pollWorkerCard,
   voterCard,
   altVoterCard,
+  expiredVoterCard,
   invalidatedVoterCard,
   getPrintedVoterCard,
   advanceTimers,
@@ -116,6 +117,18 @@ it('VxMark+Print end-to-end flow', async () => {
   currentCard = invalidatedVoterCard
   advanceTimers()
   await wait(() => getByText('Inactive Card'))
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Insert expired Voter card
+  currentCard = expiredVoterCard
+  advanceTimers()
+  await wait(() => getByText('Expired Card'))
 
   // Remove card
   currentCard = noCard

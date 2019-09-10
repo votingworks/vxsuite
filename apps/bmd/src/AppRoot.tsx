@@ -150,10 +150,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  public isVoterCardExpired = (createdAt: number): boolean => {
-    const expirationMinutes = 10
-    return createdAt + expirationMinutes * 60 < utcTimestamp()
-  }
+  public isVoterCardExpired = (createdAt: number): boolean =>
+    createdAt + GLOBALS.CARD_EXPIRATION_SECONDS < utcTimestamp()
 
   public processCard = ({ longValueExists, shortValue }: CardAPI) => {
     if (!shortValue) {
