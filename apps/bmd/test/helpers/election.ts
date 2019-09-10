@@ -50,10 +50,22 @@ export const setElectionInLocalStorage = () => {
   window.localStorage.setItem(electionStorageKey, electionAsString)
 }
 
-export const setStateInLocalStorage = () => {
+export const setStateInLocalStorage = (state = {}) => {
+  const defaultLiveState = {
+    appMode: {
+      name: 'mark',
+      isVxMark: true,
+    },
+    ballotsPrintedCount: 0,
+    isLiveMode: true,
+    isPollsOpen: true,
+  }
   window.localStorage.setItem(
     stateStorageKey,
-    '{"ballotsPrintedCount":0,"isLiveMode":true,"isPollsOpen":true}'
+    JSON.stringify({
+      ...defaultLiveState,
+      ...state,
+    })
   )
 }
 

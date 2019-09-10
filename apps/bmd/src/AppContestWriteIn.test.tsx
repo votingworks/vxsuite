@@ -11,10 +11,10 @@ import {
   setElectionInLocalStorage,
   setStateInLocalStorage,
 } from '../test/helpers/election'
+import { VxMarkPlusVxPrint } from './config/types'
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-
 fetchMock.post('/card/write', (url, options) => {
   currentCard = {
     present: true,
@@ -38,11 +38,13 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it('Single Seat Contest', async () => {
+it('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   setElectionInLocalStorage()
-  setStateInLocalStorage()
+  setStateInLocalStorage({
+    appMode: VxMarkPlusVxPrint,
+  })
 
   const { container, getByText, queryByText } = render(<App />)
 

@@ -252,8 +252,15 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     await this.writeCard(usedVoterCardData)
 
     const updatedCard = await this.readCard()
+    const updatedShortValue: VoterCardData = updatedCard.shortValue
+      ? JSON.parse(updatedCard.shortValue)
+      : {}
 
-    if (updatedCard.shortValue !== JSON.stringify(usedVoterCardData)) {
+    if (
+      usedVoterCardData.v !== updatedShortValue.v ||
+      usedVoterCardData.bp !== updatedShortValue.bp ||
+      usedVoterCardData.uz !== updatedShortValue.uz
+    ) {
       this.resetBallot()
       return false
     }

@@ -14,6 +14,13 @@ import {
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+fetchMock.post('/card/write', (url, options) => {
+  currentCard = {
+    present: true,
+    shortValue: options.body as string,
+  }
+  return ''
+})
 
 jest.useFakeTimers()
 
