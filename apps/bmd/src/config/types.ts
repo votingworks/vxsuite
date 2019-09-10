@@ -182,7 +182,7 @@ export interface ClerkCardData extends CardData {
 }
 export interface CardAPI {
   present: boolean
-  shortValue?: string
+  shortValue: string
   longValueExists?: boolean
 }
 

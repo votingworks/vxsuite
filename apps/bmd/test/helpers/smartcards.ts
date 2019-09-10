@@ -6,7 +6,7 @@ import utcTimestamp from '../../src/utils/utcTimestamp'
 
 const election = electionSample as Election
 
-export const noCard: CardAPI = {
+export const noCard: Partial<CardAPI> = {
   present: false,
 }
 

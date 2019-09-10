@@ -30,6 +30,7 @@ import {
   VotesDict,
   VxMarkOnly,
   getAppMode,
+  CardData,
 } from './config/types'
 
 import utcTimestamp from './utils/utcTimestamp'
@@ -152,13 +153,10 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     createdAt + GLOBALS.CARD_EXPIRATION_SECONDS < utcTimestamp()
 
   public processCard = ({ longValueExists, shortValue }: CardAPI) => {
-    if (!shortValue) {
-      return
-    }
-    const cardData = JSON.parse(shortValue)
+    const cardData: CardData = JSON.parse(shortValue)
     switch (cardData.t) {
       case 'voter': {
-        const voterCardData: VoterCardData = cardData
+        const voterCardData = cardData as VoterCardData
         const isVoterCardExpired = this.isVoterCardExpired(voterCardData.c)
         const isBallotPrinted = Boolean(voterCardData.bp)
         const ballotUsedTime = Number(voterCardData.uz) || 0
