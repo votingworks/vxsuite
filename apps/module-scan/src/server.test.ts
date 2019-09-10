@@ -6,120 +6,93 @@ import election from '../election.json'
 jest.mock('./scanner')
 const mockScanner = scanner as jest.Mocked<typeof scanner>
 
-test('GET /scan/status', done => {
+test('GET /scan/status', async () => {
   const status = {
     batches: [],
   }
   mockScanner.getStatus.mockResolvedValue(status)
-  request(app)
+  await request(app)
     .get('/scan/status')
     .set('Accept', 'application/json')
     .expect(200, status)
-    .then(() => {
-      expect(scanner.getStatus).toBeCalled()
-      done()
-    })
+  expect(scanner.getStatus).toBeCalled()
 })
 
-test('POST /scan/configure', done => {
-  request(app)
+test('POST /scan/configure', async () => {
+  await request(app)
     .post('/scan/configure')
     .send(election)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
-    .then(() => {
-      expect(scanner.configure).toBeCalledWith(
-        expect.objectContaining({
-          title: '2020 General Election',
-        })
-      )
-      done()
+  expect(scanner.configure).toBeCalledWith(
+    expect.objectContaining({
+      title: '2020 General Election',
     })
+  )
 })
 
-test('POST /scan/scanBatch', done => {
-  mockScanner.doScan.mockResolvedValue('')
-  request(app)
+test('POST /scan/scanBatch', async () => {
+  mockScanner.doScan.mockResolvedValue(undefined)
+  await request(app)
     .post('/scan/scanBatch')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
-    .then(() => {
-      expect(scanner.doScan).toBeCalled()
-      done()
-    })
+  expect(scanner.doScan).toBeCalled()
 })
 
-test('POST /scan/addManualBallot', done => {
+test('POST /scan/addManualBallot', async () => {
   mockScanner.addManualBallot.mockResolvedValue(undefined)
-  request(app)
+  await request(app)
     .post('/scan/addManualBallot')
     .send({
       ballotString: '12.23.1|0|0|0||||||||||||||||.r6UYR4t7hEFMz8ZlMWf1Sw',
     })
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
-    .then(() => {
-      expect(scanner.addManualBallot).toBeCalled()
-      done()
-    })
+  expect(scanner.addManualBallot).toBeCalled()
 })
 
-test('POST /scan/invalidateBatch', done => {
-  request(app)
+test('POST /scan/invalidateBatch', async () => {
+  await request(app)
     .post('/scan/invalidateBatch')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
-    .then(() => {
-      done()
-    })
 })
 
-test('POST /scan/export', done => {
+test('POST /scan/export', async () => {
   mockScanner.doExport.mockResolvedValue('')
 
-  request(app)
+  await request(app)
     .post('/scan/export')
     .set('Accept', 'application/json')
     .expect(200, '')
-    .then(() => {
-      expect(scanner.doExport).toBeCalled()
-      done()
-    })
+  expect(scanner.doExport).toBeCalled()
 })
 
-test('POST /scan/zero', done => {
+test('POST /scan/zero', async () => {
   mockScanner.doZero.mockResolvedValue()
 
-  request(app)
+  await request(app)
     .post('/scan/zero')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
-    .then(() => {
-      expect(scanner.doZero).toBeCalled()
-      done()
-    })
+  expect(scanner.doZero).toBeCalled()
 })
 
-test('POST /scan/unconfigure', done => {
+test('POST /scan/unconfigure', async () => {
   mockScanner.unconfigure.mockResolvedValue()
 
-  request(app)
+  await request(app)
     .post('/scan/unconfigure')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
-    .then(() => {
-      expect(scanner.unconfigure).toBeCalled()
-      done()
-    })
+  expect(scanner.unconfigure).toBeCalled()
 })
 
-test('GET /', done => {
-  request(app)
+test('GET /', async () => {
+  const response = await request(app)
     .get('/')
     .expect(200)
-    .then(response => {
-      expect(response.text).toContain('Test Page for Scan')
-      done()
-    })
+  expect(response.text).toContain('Test Page for Scan')
 })

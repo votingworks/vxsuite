@@ -31,61 +31,54 @@ app.post('/scan/configure', (request: Request, response: Response) => {
   response.json({ status: 'ok' })
 })
 
-app.post('/scan/scanBatch', (_request: Request, response: Response) => {
-  doScan()
-    .then(() => {
-      response.json({ status: 'ok' })
-    })
-    .catch(err => {
-      response.json({ status: `could not scan ${err}` })
-    })
+app.post('/scan/scanBatch', async (_request, response) => {
+  try {
+    await doScan()
+    response.json({ status: 'ok' })
+  } catch (err) {
+    response.json({ status: `could not scan ${err}` })
+  }
 })
 
-app.post('/scan/invalidateBatch', (_request: Request, response: Response) => {
+app.post('/scan/invalidateBatch', (_request, response) => {
   response.json({ status: 'ok' })
 })
 
-app.post('/scan/addManualBallot', (request: Request, response: Response) => {
+app.post('/scan/addManualBallot', async (request, response) => {
   const { ballotString } = request.body
-  addManualBallot(ballotString).then(() => {
-    response.json({ status: 'ok' })
-  })
+  await addManualBallot(ballotString)
+  response.json({ status: 'ok' })
 })
 
-app.post('/scan/export', (_request: Request, response: Response) => {
-  doExport().then(cvrs => {
-    response.set('Content-Type', 'text/plain')
-    response.send(cvrs)
-  })
+app.post('/scan/export', async (_request, response) => {
+  const cvrs = await doExport()
+  response.set('Content-Type', 'text/plain')
+  response.send(cvrs)
 })
 
-app.get('/scan/status', (_request: Request, response: Response) => {
-  getStatus().then(status => {
-    response.json(status)
-  })
+app.get('/scan/status', async (_request, response) => {
+  const status = await getStatus()
+  response.json(status)
 })
 
-app.post('/scan/zero', (_request: Request, response: Response) => {
-  doZero().then(() => {
-    response.json({ status: 'ok' })
-  })
+app.post('/scan/zero', async (_request, response) => {
+  await doZero()
+  response.json({ status: 'ok' })
 })
 
-app.post('/scan/unconfigure', (_request: Request, response: Response) => {
-  unconfigure().then(() => {
-    response.json({ status: 'ok' })
-  })
+app.post('/scan/unconfigure', async (_request, response) => {
+  await unconfigure()
+  response.json({ status: 'ok' })
 })
 
-app.get('/', (_request: Request, response: Response) => {
+app.get('/', (_request, response) => {
   response.sendFile(path.join(__dirname, '..', 'index.html'))
 })
 
-export function start() {
-  store.init().then(() => {
-    app.listen(port, () => {
-      // eslint-disable-next-line no-console
-      console.log(`Listening at http://localhost:${port}/`)
-    })
+export async function start() {
+  await store.init()
+  app.listen(port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Listening at http://localhost:${port}/`)
   })
 }
