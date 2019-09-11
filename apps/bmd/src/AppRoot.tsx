@@ -150,7 +150,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public isVoterCardExpired = (createdAt: number): boolean =>
-    createdAt + GLOBALS.CARD_EXPIRATION_SECONDS < utcTimestamp()
+    utcTimestamp() >= createdAt + GLOBALS.CARD_EXPIRATION_SECONDS
 
   public processCard = ({ longValueExists, shortValue }: CardAPI) => {
     const cardData: CardData = JSON.parse(shortValue)
