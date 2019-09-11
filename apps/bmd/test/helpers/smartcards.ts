@@ -52,7 +52,7 @@ export const invalidatedVoterCard: CardAPI = {
   present: true,
   shortValue: JSON.stringify({
     ...voterCardShortValue,
-    uz: new Date().getTime(),
+    uz: utcTimestamp(),
   }),
 }
 
@@ -69,7 +69,7 @@ export const getPrintedVoterCard = (): CardAPI => ({
   shortValue: JSON.stringify({
     ...voterCardShortValue,
     bp: 1,
-    uz: new Date().getTime(),
+    uz: utcTimestamp(),
   }),
 })
 

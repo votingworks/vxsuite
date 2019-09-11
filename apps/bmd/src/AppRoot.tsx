@@ -161,10 +161,10 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         const isBallotPrinted = Boolean(voterCardData.bp)
         const ballotUsedTime = Number(voterCardData.uz) || 0
         const isVoterCardInvalid = Boolean(ballotUsedTime)
-        const expirationGracePeriod = 60 * 1000 // 1 minute
+        const recentPrintExpirationSeconds = 60
         const isRecentVoterPrint =
           isBallotPrinted &&
-          ballotUsedTime + expirationGracePeriod > new Date().getTime()
+          utcTimestamp() <= ballotUsedTime + recentPrintExpirationSeconds
         this.setState({
           ...initialCardPresentState,
           shortValue,
@@ -242,7 +242,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     const usedVoterCardData: VoterCardData = {
       ...currentVoterCardData,
       v: undefined,
-      uz: new Date().getTime(),
+      uz: utcTimestamp(),
       bp: ballotPrinted ? 1 : 0,
     }
     await this.writeCard(usedVoterCardData)
