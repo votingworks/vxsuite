@@ -17,6 +17,7 @@ import {
   AppMode,
   AppModeNames,
   CardAPI,
+  CardData,
   Contests,
   Election,
   ElectionDefaults,
@@ -29,8 +30,8 @@ import {
   VoterCardData,
   VotesDict,
   VxMarkOnly,
+  VxMarkPlusVxPrint,
   getAppMode,
-  CardData,
 } from './config/types'
 
 import utcTimestamp from './utils/utcTimestamp'
@@ -42,11 +43,11 @@ import BallotContext from './contexts/ballotContext'
 
 import ClerkScreen from './pages/ClerkScreen'
 import PollWorkerScreen from './pages/PollWorkerScreen'
-import PollsClosedScreen from './pages/PollsClosedScreen'
-import ActivationScreen from './pages/ActivationScreen'
+import InsertCardScreen from './pages/InsertCardScreen'
 import CastBallotPage from './pages/CastBallotPage'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'
-
+import ExpiredCardScreen from './pages/ExpiredCardScreen'
+import UsedCardScreen from './pages/UsedCardScreen'
 import electionDefaults from './data/electionDefaults.json'
 import electionSample from './data/electionSample.json'
 import makePrinter, { PrintMethod } from './utils/printer'
@@ -75,7 +76,7 @@ interface State extends UserState {
   isPollWorkerCardPresent: boolean
   isVoterCardExpired: boolean
   isVoterCardPresent: boolean
-  isVoterCardInvalid: boolean
+  isVoterCardUsed: boolean
   isRecentVoterPrint: boolean
   isFetchingElection: boolean
   machineId: string
@@ -92,7 +93,7 @@ const initialCardPresentState = {
   isPollWorkerCardPresent: false,
   isVoterCardExpired: false,
   isVoterCardPresent: false,
-  isVoterCardInvalid: false,
+  isVoterCardUsed: false,
   isRecentVoterPrint: false,
 }
 
@@ -160,7 +161,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         const isVoterCardExpired = this.isVoterCardExpired(voterCardData.c)
         const isBallotPrinted = Boolean(voterCardData.bp)
         const ballotUsedTime = Number(voterCardData.uz) || 0
-        const isVoterCardInvalid = Boolean(ballotUsedTime)
+        const isVoterCardUsed = Boolean(ballotUsedTime)
         const recentPrintExpirationSeconds = 60
         const isRecentVoterPrint =
           isBallotPrinted &&
@@ -170,10 +171,10 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           shortValue,
           isVoterCardExpired,
           isVoterCardPresent: true,
-          isVoterCardInvalid,
+          isVoterCardUsed,
           isRecentVoterPrint,
         })
-        if (!isVoterCardInvalid && !isVoterCardExpired) {
+        if (!isVoterCardUsed && !isVoterCardExpired) {
           this.processVoterCardData(voterCardData)
         }
         break
@@ -581,7 +582,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       isPollWorkerCardPresent,
       isVoterCardPresent,
       isVoterCardExpired,
-      isVoterCardInvalid,
+      isVoterCardUsed,
       isRecentVoterPrint,
       machineId,
       precinctId,
@@ -602,61 +603,64 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           unconfigure={this.unconfigure}
         />
       )
-    } else if (election && isPollWorkerCardPresent) {
-      return (
-        <PollWorkerScreen
-          appMode={appMode}
-          ballotsPrintedCount={ballotsPrintedCount}
-          election={election}
-          isLiveMode={isLiveMode}
-          isPollsOpen={isPollsOpen}
-          machineId={machineId}
-          togglePollsOpen={this.togglePollsOpen}
-        />
-      )
-    } else if (election && !isPollsOpen) {
-      return <PollsClosedScreen election={election} isLiveMode={isLiveMode} />
     } else if (election) {
-      if (isRecentVoterPrint && isVoterCardInvalid) {
-        return <CastBallotPage />
-      } else if (
-        !isVoterCardInvalid &&
-        isVoterCardPresent &&
-        ballotStyleId &&
-        precinctId
-      ) {
+      if (isPollWorkerCardPresent) {
         return (
-          <Gamepad onButtonDown={handleGamepadButtonDown}>
-            <BallotContext.Provider
-              value={{
-                activateBallot: this.activateBallot,
-                appMode,
-                ballotStyleId,
-                contests,
-                election,
-                incrementBallotsPrintedCount: this.incrementBallotsPrintedCount,
-                isLiveMode,
-                markVoterCardUsed: this.markVoterCardUsed,
-                precinctId,
-                printer: makePrinter(PrintMethod.RemoteWithLocalFallback),
-                resetBallot: this.resetBallot,
-                setUserSettings: this.setUserSettings,
-                updateVote: this.updateVote,
-                userSettings,
-                votes,
-              }}
-            >
-              <Ballot />
-            </BallotContext.Provider>
-          </Gamepad>
-        )
-      } else {
-        return (
-          <ActivationScreen
+          <PollWorkerScreen
+            appMode={appMode}
+            ballotsPrintedCount={ballotsPrintedCount}
             election={election}
             isLiveMode={isLiveMode}
-            isVoterCardExpired={isVoterCardExpired}
-            isVoterCardInvalid={isVoterCardInvalid}
+            isPollsOpen={isPollsOpen}
+            machineId={machineId}
+            togglePollsOpen={this.togglePollsOpen}
+          />
+        )
+      }
+      if (isVoterCardExpired) {
+        return <ExpiredCardScreen />
+      }
+      if (isVoterCardUsed) {
+        if (isRecentVoterPrint && appMode === VxMarkPlusVxPrint) {
+          return <CastBallotPage />
+        } else {
+          return <UsedCardScreen />
+        }
+      }
+      if (appMode.isVxMark) {
+        if (isVoterCardPresent && ballotStyleId && precinctId) {
+          return (
+            <Gamepad onButtonDown={handleGamepadButtonDown}>
+              <BallotContext.Provider
+                value={{
+                  activateBallot: this.activateBallot,
+                  appMode,
+                  ballotStyleId,
+                  contests,
+                  election,
+                  incrementBallotsPrintedCount: this
+                    .incrementBallotsPrintedCount,
+                  isLiveMode,
+                  markVoterCardUsed: this.markVoterCardUsed,
+                  precinctId,
+                  printer: makePrinter(PrintMethod.RemoteWithLocalFallback),
+                  resetBallot: this.resetBallot,
+                  setUserSettings: this.setUserSettings,
+                  updateVote: this.updateVote,
+                  userSettings,
+                  votes,
+                }}
+              >
+                <Ballot />
+              </BallotContext.Provider>
+            </Gamepad>
+          )
+        }
+        return (
+          <InsertCardScreen
+            election={election}
+            isLiveMode={isLiveMode}
+            isPollsOpen={isPollsOpen}
           />
         )
       }
