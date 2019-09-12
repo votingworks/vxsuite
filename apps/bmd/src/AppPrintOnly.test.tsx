@@ -8,16 +8,11 @@ import {
   noCard,
   adminCard,
   pollWorkerCard,
-  voterCard,
+  VoterCardWithVotes,
   advanceTimers,
 } from '../test/helpers/smartcards'
 
-import {
-  electionAsString,
-  presidentContest,
-  measure102Contest,
-  voterContests,
-} from '../test/helpers/election'
+import { electionAsString } from '../test/helpers/election'
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
@@ -33,6 +28,14 @@ fetchMock.post('/card/write', (url, options) => {
 fetchMock.get('/card/read_long', () =>
   JSON.stringify({ longValue: electionAsString })
 )
+
+fetchMock.get('/printer/status', () => ({
+  ok: true,
+}))
+
+fetchMock.post('/printer/jobs/new', () => ({
+  id: 'printer-job-id',
+}))
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -83,12 +86,18 @@ it('VxMarkOnly flow', async () => {
   currentCard = pollWorkerCard
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Open Polls')))
+  getByText('Open polls -- Print report 1 of 3?')
+  await wait(() => fireEvent.click(getByText('Yes')))
+  getByText('Open polls -- Print report 2 of 3?')
+  await wait(() => fireEvent.click(getByText('Yes')))
+  getByText('Open polls -- Print report 3 of 3?')
+  await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Close Polls')
 
   // Remove card
   currentCard = noCard
   advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await wait(() => getByText('Insert Card'))
 
   // ---------------
 
@@ -100,57 +109,38 @@ it('VxMarkOnly flow', async () => {
 
   // Complete VxPrint Voter Happy Path
 
-  // // Insert Voter card
-  // currentCard = voterCard
-  // advanceTimers()
-  // await wait(() => getByText(/Precinct: Center Springfield/))
-  // getByText(/Ballot Style: 12/)
-  // fireEvent.click(getByText('Get Started'))
+  // Default state
+  getByText('Insert Card')
 
-  // advanceTimers()
-  // getByText('This ballot has 20 contests.')
-  // fireEvent.click(getByText('Start Voting'))
+  // Insert Voter card
+  currentCard = VoterCardWithVotes
+  advanceTimers()
+  await wait(() => getByText('Printing ballot'))
+  advanceTimers(5000 + 1000)
+  await wait(() => getByText('Official Ballot Printed'))
+  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 
-  // // Advance through every contest
-  // for (let i = 0; i < voterContests.length; i++) {
-  //   const title = voterContests[i].title
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert Card'))
 
-  //   advanceTimers()
-  //   getByText(title)
+  // Insert Pollworker Card
+  currentCard = pollWorkerCard
+  advanceTimers()
+  await wait(() => fireEvent.click(getByText('Close Polls')))
+  getByText('Close Polls -- Print report 1 of 3?')
+  await wait(() => fireEvent.click(getByText('Yes')))
+  getByText('Close Polls -- Print report 2 of 3?')
+  await wait(() => fireEvent.click(getByText('Yes')))
+  getByText('Close Polls -- Print report 3 of 3?')
+  await wait(() => fireEvent.click(getByText('Yes')))
+  getByText('Open Polls')
 
-  //   // Vote for candidate contest
-  //   if (title === presidentContest.title) {
-  //     fireEvent.click(getByText(presidentContest.candidates[0].name))
-  //   }
-  //   // Vote for yesno contest
-  //   else if (title === measure102Contest.title) {
-  //     fireEvent.click(getByText('Yes'))
-  //   }
-
-  //   fireEvent.click(getByText('Next'))
-  // }
-
-  // // Pre-Review screen
-  // fireEvent.click(getByText('Next'))
-  // advanceTimers()
-  // getByText('Review Your Selections')
-  // fireEvent.click(getByText('Review Selections'))
-
-  // // Review Screen
-  // advanceTimers()
-  // getByText('Review Your Ballot Selections')
-  // getByText(presidentContest.candidates[0].name)
-  // getByText(`Yes on ${measure102Contest.shortTitle}`)
-
-  // // Print Screen
-  // fireEvent.click(getByText('Next'))
-  // advanceTimers()
-  // getByText('Take card to the Ballot Printer')
-
-  // // Remove card
-  // currentCard = noCard
-  // advanceTimers()
-  // await wait(() => getByText('Insert voter card to load ballot.'))
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert Poll Worker card to open.'))
 
   // Unconfigure with Admin Card
   currentCard = adminCard

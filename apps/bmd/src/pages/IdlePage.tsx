@@ -31,7 +31,7 @@ const IdlePage = () => {
   useEffect(() => {
     const reset = () => {
       setIsLoading(true)
-      markVoterCardUsed({ ballotPrinted: false }).then(() => {
+      markVoterCardUsed({ markBallotPrinted: false }).then(() => {
         resetBallot()
       })
     }
