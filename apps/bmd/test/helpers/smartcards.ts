@@ -16,7 +16,7 @@ const sampleVotes = {
   senator: [contest1candidate0],
 }
 
-export const noCard: Partial<CardAPI> = {
+export const noCard: CardAPI = {
   present: false,
 }
 

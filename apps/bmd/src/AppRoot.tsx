@@ -17,6 +17,7 @@ import {
   AppMode,
   AppModeNames,
   CardAPI,
+  CardPresentAPI,
   CardData,
   Contests,
   Election,
@@ -173,7 +174,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public isVoterCardExpired = (createdAt: number): boolean =>
     utcTimestamp() >= createdAt + GLOBALS.CARD_EXPIRATION_SECONDS
 
-  public processCard = ({ longValueExists, shortValue }: CardAPI) => {
+  public processCard = ({ longValueExists, shortValue }: CardPresentAPI) => {
     const cardData: CardData = JSON.parse(shortValue)
     switch (cardData.t) {
       case 'voter': {
@@ -281,7 +282,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     await this.writeCard(usedVoterCardData)
 
     const updatedCard = await this.readCard()
-    const updatedShortValue: VoterCardData = updatedCard.shortValue
+    const updatedShortValue: VoterCardData = updatedCard.present
       ? JSON.parse(updatedCard.shortValue)
       : {}
 
