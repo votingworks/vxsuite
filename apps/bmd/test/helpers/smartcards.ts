@@ -9,6 +9,12 @@ const contest0 = electionSample.contests[0] as CandidateContest
 const contest1 = electionSample.contests[1] as CandidateContest
 const contest0candidate0 = contest0.candidates[0]
 const contest1candidate0 = contest1.candidates[0]
+const sampleVotes = {
+  president: [contest0candidate0],
+  'question-a': 'no',
+  'question-b': 'yes',
+  senator: [contest1candidate0],
+}
 
 export const noCard: Partial<CardAPI> = {
   present: false,
@@ -31,61 +37,56 @@ export const pollWorkerCard: CardAPI = {
   }),
 }
 
-const voterCardShortValue = {
+const getNewVoterShortValue = () => ({
   t: 'voter',
   c: utcTimestamp(),
   pr: election.precincts[0].id,
   bs: election.ballotStyles[0].id,
-}
+})
 
-export const voterCard: CardAPI = {
+export const getNewVoterCard = (): CardAPI => ({
   present: true,
-  shortValue: JSON.stringify(voterCardShortValue),
-}
+  shortValue: JSON.stringify(getNewVoterShortValue()),
+})
 
-export const altVoterCard: CardAPI = {
+export const getAlternateNewVoterCard = (): CardAPI => ({
   present: true,
   shortValue: JSON.stringify({
-    ...voterCardShortValue,
+    ...getNewVoterShortValue(),
     pr: election.precincts[1].id,
     bs: election.ballotStyles[1].id,
   }),
-}
+})
 
-export const invalidatedVoterCard: CardAPI = {
+export const getInvalidatedVoterCard = (): CardAPI => ({
   present: true,
   shortValue: JSON.stringify({
-    ...voterCardShortValue,
+    ...getNewVoterShortValue(),
     uz: utcTimestamp(),
   }),
-}
+})
 
-export const expiredVoterCard: CardAPI = {
+export const getExpiredVoterCard = (): CardAPI => ({
   present: true,
   shortValue: JSON.stringify({
-    ...voterCardShortValue,
+    ...getNewVoterShortValue(),
     c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
   }),
-}
+})
 
-export const VoterCardWithVotes: CardAPI = {
+export const getVoterCardWithVotes = (): CardAPI => ({
   present: true,
   shortValue: JSON.stringify({
-    ...voterCardShortValue,
-    v: {
-      president: [contest0candidate0],
-      'question-a': 'no',
-      'question-b': 'yes',
-      senator: [contest1candidate0],
-    },
+    ...getNewVoterShortValue(),
+    v: sampleVotes,
     u: utcTimestamp(),
   }),
-}
+})
 
-export const getPrintedVoterCard = (): CardAPI => ({
+export const getUsedVoterCard = (): CardAPI => ({
   present: true,
   shortValue: JSON.stringify({
-    ...voterCardShortValue,
+    ...getNewVoterShortValue(),
     bp: 1,
     uz: utcTimestamp(),
   }),

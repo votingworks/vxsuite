@@ -4,7 +4,11 @@ import fetchMock from 'fetch-mock'
 
 import App from './App'
 
-import { noCard, voterCard, advanceTimers } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  getNewVoterCard,
+  noCard,
+} from '../test/helpers/smartcards'
 
 import {
   countyCommissionersContest,
@@ -38,7 +42,7 @@ it('Single Seat Contest', async () => {
   const { container, getByText, queryByText } = render(<App />)
 
   // Insert Voter Card
-  currentCard = voterCard
+  currentCard = getNewVoterCard()
   advanceTimers()
 
   // Go to Voting Instructions

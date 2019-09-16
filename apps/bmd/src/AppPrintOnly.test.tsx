@@ -5,11 +5,11 @@ import fetchMock from 'fetch-mock'
 import App from './App'
 
 import {
-  noCard,
   adminCard,
-  pollWorkerCard,
-  VoterCardWithVotes,
   advanceTimers,
+  getVoterCardWithVotes,
+  noCard,
+  pollWorkerCard,
 } from '../test/helpers/smartcards'
 
 import { electionAsString } from '../test/helpers/election'
@@ -113,7 +113,7 @@ it('VxMarkOnly flow', async () => {
   getByText('Insert Card')
 
   // Insert Voter card
-  currentCard = VoterCardWithVotes
+  currentCard = getVoterCardWithVotes()
   advanceTimers()
   await wait(() => getByText('Printing ballot'))
   advanceTimers(5000 + 1000)

@@ -4,7 +4,11 @@ import fetchMock from 'fetch-mock'
 
 import App from '../App'
 
-import { noCard, voterCard, advanceTimers } from '../../test/helpers/smartcards'
+import {
+  advanceTimers,
+  getNewVoterCard,
+  noCard,
+} from '../../test/helpers/smartcards'
 
 import {
   contest0,
@@ -40,7 +44,7 @@ it('gamepad controls work', async () => {
   setStateInLocalStorage()
   const { getByText } = render(<App />)
 
-  currentCard = voterCard
+  currentCard = getNewVoterCard()
   advanceTimers()
   await wait(() => getByText(/Precinct: Center Springfield/))
 

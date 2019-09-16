@@ -8,9 +8,9 @@ import { render } from '../../test/testUtils'
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 
 import {
+  advanceTimers,
   noCard,
   pollWorkerCard,
-  advanceTimers,
 } from '../../test/helpers/smartcards'
 
 import PollWorkerScreen from './PollWorkerScreen'

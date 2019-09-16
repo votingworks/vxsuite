@@ -6,7 +6,7 @@ import { render } from '../../test/testUtils'
 
 import { election } from '../../test/helpers/election'
 
-import { noCard, adminCard, advanceTimers } from '../../test/helpers/smartcards'
+import { adminCard, advanceTimers, noCard } from '../../test/helpers/smartcards'
 
 import ClerkScreen from './ClerkScreen'
 import { VxMarkOnly } from '../config/types'

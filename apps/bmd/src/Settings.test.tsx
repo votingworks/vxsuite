@@ -9,7 +9,11 @@ import {
   setStateInLocalStorage,
 } from '../test/helpers/election'
 
-import { noCard, voterCard, advanceTimers } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  getNewVoterCard,
+  noCard,
+} from '../test/helpers/smartcards'
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
@@ -28,7 +32,7 @@ describe('Can update settings', () => {
     const { getByText, getByTestId, getByLabelText } = render(<App />)
 
     // Insert Voter Card
-    currentCard = voterCard
+    currentCard = getNewVoterCard()
     advanceTimers()
     await wait(() => getByText(/Precinct: Center Springfield/))
 

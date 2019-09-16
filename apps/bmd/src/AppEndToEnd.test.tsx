@@ -7,15 +7,15 @@ import { printingModalDisplaySeconds } from './pages/PrintPage'
 import App from './App'
 
 import {
-  noCard,
   adminCard,
-  pollWorkerCard,
-  voterCard,
-  altVoterCard,
-  expiredVoterCard,
-  invalidatedVoterCard,
-  getPrintedVoterCard,
   advanceTimers,
+  getAlternateNewVoterCard,
+  getExpiredVoterCard,
+  getInvalidatedVoterCard,
+  getNewVoterCard,
+  getUsedVoterCard,
+  noCard,
+  pollWorkerCard,
 } from '../test/helpers/smartcards'
 
 import {
@@ -114,7 +114,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Insert used Voter card
-  currentCard = invalidatedVoterCard
+  currentCard = getInvalidatedVoterCard()
   advanceTimers()
   await wait(() => getByText('Used Card'))
 
@@ -126,7 +126,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Insert expired Voter card
-  currentCard = expiredVoterCard
+  currentCard = getExpiredVoterCard()
   advanceTimers()
   await wait(() => getByText('Expired Card'))
 
@@ -139,7 +139,7 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Insert Voter card, go to first contest, then remove card, expect to be on
   // insert card screen.
-  currentCard = voterCard
+  currentCard = getNewVoterCard()
   advanceTimers()
   await wait(() => getByText(/Precinct: Center Springfield/))
   getByText(/Ballot Style: 12/)
@@ -152,7 +152,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Alternate Ballot Style
-  currentCard = altVoterCard
+  currentCard = getAlternateNewVoterCard()
   advanceTimers()
   await wait(() => getByText(/Precinct: North Springfield/))
   getByText(/Ballot Style: 5/)
@@ -173,7 +173,7 @@ it('VxMark+Print end-to-end flow', async () => {
     'This voting station has been inactive for more than one minute.'
 
   // Insert Voter card
-  currentCard = voterCard
+  currentCard = getNewVoterCard()
   advanceTimers()
   await wait(() => getByText(/Precinct: Center Springfield/))
 
@@ -218,7 +218,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // Complete Voter Happy Path
 
   // Insert Voter card
-  currentCard = voterCard
+  currentCard = getNewVoterCard()
   advanceTimers()
   await wait(() => getByText(/Precinct: Center Springfield/))
   getByText(/Ballot Style: 12/)
@@ -305,7 +305,7 @@ it('VxMark+Print end-to-end flow', async () => {
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // Insert Voter card which has just printed.
-  currentCard = getPrintedVoterCard()
+  currentCard = getUsedVoterCard()
   advanceTimers()
   await wait(() => getByText('You’re Almost Done…'))
 
