@@ -7,6 +7,8 @@ import App from './App'
 import {
   adminCard,
   advanceTimers,
+  getExpiredVoterCard,
+  getExpiredVoterCardWithVotes,
   getNewVoterCard,
   noCard,
   pollWorkerCard,
@@ -88,6 +90,30 @@ it('VxMarkOnly flow', async () => {
   currentCard = noCard
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Insert Expired Voter Card
+  currentCard = getExpiredVoterCard()
+  advanceTimers()
+  await wait(() => getByText('Expired Card'))
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert Card'))
+
+  // // ---------------
+
+  // Insert Expired Voter Card With Votes
+  currentCard = getExpiredVoterCardWithVotes()
+  advanceTimers()
+  await wait(() => getByText('Expired Card'))
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert Card'))
 
   // ---------------
 

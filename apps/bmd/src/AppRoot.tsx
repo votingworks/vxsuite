@@ -38,6 +38,7 @@ import {
 } from './config/types'
 
 import utcTimestamp from './utils/utcTimestamp'
+import isEmptyObject from './utils/isEmptyObject'
 
 import { getBallotStyle, getContests } from './utils/election'
 
@@ -655,6 +656,20 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           />
         )
       }
+      if (isPollsOpen && isVoterCardPresent && isVoterCardUsed) {
+        if (isRecentVoterPrint && appMode === VxMarkPlusVxPrint) {
+          return <CastBallotPage />
+        } else {
+          return <UsedCardScreen />
+        }
+      }
+      if (
+        isPollsOpen &&
+        isVoterCardExpired &&
+        (isEmptyObject(votes) || appMode.isVxMark)
+      ) {
+        return <ExpiredCardScreen />
+      }
       if (isPollsOpen && appMode === VxPrintOnly) {
         return (
           <PrintOnlyScreen
@@ -670,16 +685,6 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         )
       }
       if (isPollsOpen && appMode.isVxMark) {
-        if (isVoterCardUsed) {
-          if (isRecentVoterPrint && appMode === VxMarkPlusVxPrint) {
-            return <CastBallotPage />
-          } else {
-            return <UsedCardScreen />
-          }
-        }
-        if (isVoterCardExpired) {
-          return <ExpiredCardScreen />
-        }
         if (isVoterCardPresent && ballotStyleId && precinctId) {
           return (
             <Gamepad onButtonDown={handleGamepadButtonDown}>

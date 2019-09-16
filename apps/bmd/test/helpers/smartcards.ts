@@ -74,6 +74,16 @@ export const getExpiredVoterCard = (): CardAPI => ({
   }),
 })
 
+export const getExpiredVoterCardWithVotes = (): CardAPI => ({
+  present: true,
+  shortValue: JSON.stringify({
+    ...getNewVoterShortValue(),
+    c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
+    v: sampleVotes,
+    u: utcTimestamp(),
+  }),
+})
+
 export const getVoterCardWithVotes = (): CardAPI => ({
   present: true,
   shortValue: JSON.stringify({

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Election, MarkVoterCardUsedFunction, VotesDict } from '../config/types'
 import { NullPrinter } from '../utils/printer'
+import isEmptyObject from '../utils/isEmptyObject'
 
 import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
@@ -36,8 +37,9 @@ const PrintAppScreen = ({
   const localVotes = JSON.parse(
     window.localStorage.getItem(lastVotesKey) || '{}'
   )
-  const [votes, setVotes] = useState(localVotes)
+  const isLocalVotes = !isEmptyObject(localVotes)
   const [isPrinted, updateIsPrinted] = useState(false)
+  const isCardVotesEmpty = isEmptyObject(cardVotes)
 
   const printBallot = useCallback(async () => {
     const isUsed = await markVoterCardUsed({
@@ -53,41 +55,64 @@ const PrintAppScreen = ({
   }, [markVoterCardUsed, printer])
 
   useEffect(() => {
-    if (Object.entries(cardVotes).length !== 0) {
+    if (!isEmptyObject(cardVotes)) {
       window.localStorage.setItem(lastVotesKey, JSON.stringify(cardVotes))
-      setVotes(cardVotes)
       printBallot()
     }
   }, [cardVotes, printBallot])
+
+  useEffect(() => {
+    if (!isVoterCardPresent) {
+      updateIsPrinted(false)
+    }
+  }, [isVoterCardPresent])
 
   useEffect(() => {
     return () => clearTimeout(printerTimer.current)
   }, [])
 
   const isReadyToPrint =
-    isVoterCardPresent && election && ballotStyleId && precinctId && votes
+    election &&
+    ballotStyleId &&
+    precinctId &&
+    isLocalVotes &&
+    isVoterCardPresent &&
+    !isCardVotesEmpty &&
+    !isPrinted
+
+  const renderContent = () => {
+    if (isVoterCardPresent && isCardVotesEmpty) {
+      return (
+        <React.Fragment>
+          <h1>Empty Card</h1>
+          <p>This card does not contain any votes.</p>
+        </React.Fragment>
+      )
+    }
+    if (isPrinted) {
+      return (
+        <React.Fragment>
+          <h1>Official Ballot Printed</h1>
+          <p>Review that your official ballot is correct.</p>
+          <p>Cast your ballot in the ballot box.</p>
+        </React.Fragment>
+      )
+    }
+    if (isReadyToPrint) {
+      return (
+        <h1>
+          <Loading>Printing ballot</Loading>
+        </h1>
+      )
+    }
+    return <h1>Insert Card</h1>
+  }
 
   return (
     <React.Fragment>
       <Main>
         <MainChild center>
-          <Prose textCenter>
-            {isReadyToPrint ? (
-              isPrinted ? (
-                <React.Fragment>
-                  <h1>Official Ballot Printed</h1>
-                  <p>Review that your official ballot is correct.</p>
-                  <p>Cast your ballot in the ballot box.</p>
-                </React.Fragment>
-              ) : (
-                <h1>
-                  <Loading>Printing ballot</Loading>
-                </h1>
-              )
-            ) : (
-              <h1>Insert Card</h1>
-            )}
-          </Prose>
+          <Prose textCenter>{renderContent()}</Prose>
         </MainChild>
       </Main>
       {isReadyToPrint && (
@@ -97,7 +122,7 @@ const PrintAppScreen = ({
           election={election}
           isLiveMode={isLiveMode}
           precinctId={precinctId}
-          votes={votes}
+          votes={localVotes}
         />
       )}
     </React.Fragment>
