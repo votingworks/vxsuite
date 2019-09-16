@@ -229,7 +229,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             if (card.present) {
               return
             }
-            this.togglePauseProcessingUntilNoCardPresent(false)
+            this.setPauseProcessingUntilNoCardPresent(false)
           }
           const currentCardDataString = JSON.stringify(card)
           if (currentCardDataString === lastCardDataString) {
@@ -257,11 +257,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     checkCardInterval = 0 // To indicate setInterval is not running.
   }
 
-  public togglePauseProcessingUntilNoCardPresent = (b?: boolean) => {
-    this.setState(prevState => ({
-      pauseProcessingUntilNoCardPresent:
-        b || !prevState.pauseProcessingUntilNoCardPresent,
-    }))
+  public setPauseProcessingUntilNoCardPresent = (b: boolean) => {
+    this.setState({ pauseProcessingUntilNoCardPresent: b })
   }
 
   public markVoterCardUsed: MarkVoterCardUsedFunction = async ({
@@ -288,7 +285,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       : {}
 
     if (pauseProcessingUntilNoCardPresent) {
-      this.togglePauseProcessingUntilNoCardPresent(true)
+      this.setPauseProcessingUntilNoCardPresent(true)
     }
 
     this.startPolling()
