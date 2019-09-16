@@ -39,6 +39,7 @@ import {
 
 import utcTimestamp from './utils/utcTimestamp'
 import isEmptyObject from './utils/isEmptyObject'
+import fetchJSON from './utils/fetchJSON'
 
 import { getBallotStyle, getContests } from './utils/election'
 
@@ -389,8 +390,9 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public setMachineId = async () => {
     const { signal } = this.machineIdAbortController
     try {
-      const response = await fetch('/machine-id', { signal })
-      const { machineId }: MachineIdAPI = await response.json()
+      const { machineId } = await fetchJSON<MachineIdAPI>('/machine-id', {
+        signal,
+      })
       machineId && this.setState({ machineId })
     } catch (error) {
       // TODO: what should happen if `machineId` is not returned?
@@ -398,9 +400,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public readCard = async (): Promise<CardAPI> => {
-    const response = await fetch('/card/read')
-    const card = await response.json()
-    return card
+    return await fetchJSON<CardAPI>('/card/read')
   }
 
   public writeCard = async (cardData: VoterCardData) => {
