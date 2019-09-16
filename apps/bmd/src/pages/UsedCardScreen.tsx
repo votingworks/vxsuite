@@ -2,7 +2,7 @@ import React from 'react'
 import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
 
-const ExpiredCardScreen = () => (
+const UsedCardScreen = () => (
   <Main>
     <MainChild center>
       <Prose textCenter>
@@ -13,4 +13,4 @@ const ExpiredCardScreen = () => (
   </Main>
 )
 
-export default ExpiredCardScreen
+export default UsedCardScreen
