@@ -124,7 +124,7 @@ const ClerkScreen = ({
                 <p>
                   <Button
                     small
-                    disabled={isTestDecksAvailable}
+                    disabled={!isTestDecksAvailable}
                     onPress={showTestDeck}
                   >
                     View Test Ballot Decks
