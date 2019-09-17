@@ -45,7 +45,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it('VxMarkOnly flow', async () => {
+it('VxPrintOnly flow', async () => {
   jest.useFakeTimers()
 
   const { getByText } = render(<App />)
