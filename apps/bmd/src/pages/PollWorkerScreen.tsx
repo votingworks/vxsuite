@@ -126,7 +126,9 @@ const PollWorkerScreen = ({
             <Text as="h2" warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
               {isPollsOpen ? 'Polls are open.' : 'Polls are closed.'}
             </Text>
-            <p>A summary will be printed when toggling open/closed.</p>
+            {appMode.isVxPrint && (
+              <p>A summary will be printed when toggling open/closed.</p>
+            )}
             <p>
               <Button onPress={togglePollsOpen}>
                 {isPollsOpen ? 'Close Polls' : 'Open Polls'}
