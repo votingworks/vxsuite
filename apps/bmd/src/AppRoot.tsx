@@ -308,7 +308,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
     this.startPolling()
 
-    /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edige case. */
+    /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edge case. */
     if (
       !!updatedShortValue.v ||
       usedVoterCardData.bp !== updatedShortValue.bp
