@@ -23,14 +23,14 @@
     "stylelint": "^10.0.1",
     "stylelint-config-palantir": "^4.0.0",
     "stylelint-config-prettier": "^5.2.0",
-    "ts-node": "^8.1.0",
+    "ts-node": "^8.4.1",
     "typescript": "^3.4.5",
     "wait-for-expect": "^1.2.0"
   },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "start": "ts-node ./src/index.ts",
+    "start": "ts-node --files ./src/index.ts",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
