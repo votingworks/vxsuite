@@ -3,7 +3,9 @@
 // and process/interpret them into a cast-vote record.
 //
 
-import { execFile, ExecException } from 'child_process'
+import { decode } from 'node-quirc'
+import { readFile as readFileCallback } from 'fs'
+import { promisify } from 'util'
 
 import {
   BallotStyle,
@@ -15,6 +17,8 @@ import {
   Dictionary,
   Election,
 } from './types'
+
+const readFile = promisify(readFileCallback)
 
 const yesNoValues: Dictionary<string> = { '0': 'no', '1': 'yes' }
 
@@ -89,24 +93,33 @@ export interface InterpretFileParams {
   readonly cvrCallback: CVRCallbackFunction
 }
 
-export default function interpretFile(
+export async function readQRCodesFromImageFile(
+  path: string
+): Promise<Buffer[]> {
+  const jpegData = await readFile(path)
+  const qrCodes = await decode(jpegData)
+
+  return qrCodes.map(({ data }) => data)
+}
+
+export default async function interpretFile(
   interpretFileParams: InterpretFileParams
 ) {
   const { election, ballotImagePath, cvrCallback } = interpretFileParams
+  let ballotString: string
 
-  execFile(
-    'zbarimg',
-    ['-q', '--raw', ballotImagePath],
-    (exc: ExecException | null, stdout: string) => {
-      if (exc) {
-        return cvrCallback({ ballotImagePath })
-      }
+  try {
+    const qrCodes = await readQRCodesFromImageFile(ballotImagePath)
 
-      const ballotString: string = stdout.trim()
-
-      const cvr = interpretBallotString({ election, ballotString })
-
-      cvrCallback({ ballotImagePath, cvr })
+    if (qrCodes.length === 0) {
+      throw new Error(`no QR codes found in ballot image: ${ballotImagePath}`)
     }
-  )
+
+    ballotString = String.fromCharCode(...Array.from(qrCodes[0]))
+  } catch {
+    return cvrCallback({ ballotImagePath })
+  }
+
+  const cvr = interpretBallotString({ election, ballotString })
+  cvrCallback({ ballotImagePath, cvr })
 }
