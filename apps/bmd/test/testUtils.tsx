@@ -10,7 +10,12 @@ import * as GLOBALS from '../src/config/globals'
 // typescript concludes that sealURL is required.
 import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
-import { Contests, Election, TextSizeSetting } from '../src/config/types'
+import {
+  Contests,
+  Election,
+  TextSizeSetting,
+  VxMarkOnly,
+} from '../src/config/types'
 
 import { mergeWithDefaults } from '../src/AppRoot'
 import BallotContext from '../src/contexts/ballotContext'
@@ -21,9 +26,11 @@ export function render(
   {
     route = '/',
     activateBallot = jest.fn(),
+    appMode = VxMarkOnly,
     ballotStyleId = '',
     contests = electionSampleNoSeal.contests as Contests,
-    markVoterCardUsed = jest.fn(),
+    markVoterCardVoided = jest.fn(),
+    markVoterCardPrinted = jest.fn(),
     election = electionSampleNoSeal,
     history = createMemoryHistory({ initialEntries: [route] }),
     incrementBallotsPrintedCount = jest.fn(),
@@ -42,12 +49,14 @@ export function render(
       <BallotContext.Provider
         value={{
           activateBallot,
+          appMode,
           ballotStyleId,
           contests,
           election: mergeWithDefaults(election as Election),
           incrementBallotsPrintedCount,
           isLiveMode,
-          markVoterCardUsed,
+          markVoterCardVoided,
+          markVoterCardPrinted,
           precinctId,
           printer,
           resetBallot,

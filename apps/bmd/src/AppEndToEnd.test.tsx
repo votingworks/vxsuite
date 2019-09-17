@@ -7,14 +7,15 @@ import { printingModalDisplaySeconds } from './pages/PrintPage'
 import App from './App'
 
 import {
-  noCard,
   adminCard,
-  pollWorkerCard,
-  voterCard,
-  altVoterCard,
-  invalidatedVoterCard,
-  getPrintedVoterCard,
   advanceTimers,
+  getAlternateNewVoterCard,
+  getExpiredVoterCard,
+  getVoidedVoterCard,
+  getNewVoterCard,
+  getUsedVoterCard,
+  noCard,
+  pollWorkerCard,
 } from '../test/helpers/smartcards'
 
 import {
@@ -53,10 +54,10 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it('basic end-to-end flow', async () => {
+it('VxMark+Print end-to-end flow', async () => {
   jest.useFakeTimers()
 
-  const { getByText, queryByText } = render(<App />)
+  const { getByText } = render(<App />)
 
   currentCard = noCard
   advanceTimers()
@@ -73,6 +74,9 @@ it('basic end-to-end flow', async () => {
 
   advanceTimers()
   await wait(() => getByText('Election definition is loaded.'))
+
+  fireEvent.click(getByText('VxMark+Print'))
+  expect((getByText('VxMark+Print') as HTMLButtonElement).disabled).toBeTruthy()
 
   fireEvent.click(getByText('Live Election Mode'))
   getByText('Switch to Live Election Mode and zero Printed Ballots count?')
@@ -110,9 +114,21 @@ it('basic end-to-end flow', async () => {
   // ---------------
 
   // Insert used Voter card
-  currentCard = invalidatedVoterCard
+  currentCard = getVoidedVoterCard()
   advanceTimers()
-  await wait(() => getByText('This card is no longer active.'))
+  await wait(() => getByText('Expired Card'))
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Insert expired Voter card
+  currentCard = getExpiredVoterCard()
+  advanceTimers()
+  await wait(() => getByText('Expired Card'))
 
   // Remove card
   currentCard = noCard
@@ -123,7 +139,7 @@ it('basic end-to-end flow', async () => {
 
   // Insert Voter card, go to first contest, then remove card, expect to be on
   // insert card screen.
-  currentCard = voterCard
+  currentCard = getNewVoterCard()
   advanceTimers()
   await wait(() => getByText(/Precinct: Center Springfield/))
   getByText(/Ballot Style: 12/)
@@ -136,7 +152,7 @@ it('basic end-to-end flow', async () => {
   // ---------------
 
   // Alternate Ballot Style
-  currentCard = altVoterCard
+  currentCard = getAlternateNewVoterCard()
   advanceTimers()
   await wait(() => getByText(/Precinct: North Springfield/))
   getByText(/Ballot Style: 5/)
@@ -152,57 +168,10 @@ it('basic end-to-end flow', async () => {
 
   // ---------------
 
-  // Test the Idle Screen
-  const idleScreenCopy =
-    'This voting station has been inactive for more than one minute.'
-
-  // Insert Voter card
-  currentCard = voterCard
-  advanceTimers()
-  await wait(() => getByText(/Precinct: Center Springfield/))
-
-  // Elapse 60 seconds
-  advanceTimers(60 * 1000)
-
-  // Idle Screen is displayed
-  getByText(idleScreenCopy)
-
-  // User action removes Idle Screen
-  fireEvent.click(getByText('Touch the screen to go back to the ballot.'))
-  fireEvent.mouseDown(document)
-  advanceTimers()
-  expect(queryByText(idleScreenCopy)).toBeFalsy()
-
-  // Elapse 60 seconds
-  advanceTimers(60 * 1000)
-
-  // Idle Screen is displayed
-  getByText(idleScreenCopy)
-
-  // Countdown works
-  advanceTimers(1000)
-  getByText('29 seconds')
-
-  advanceTimers(29000)
-  advanceTimers()
-  getByText('Clearing ballot')
-
-  advanceTimers()
-
-  // 30 seconds passes, Expect Invalid card
-  // await wait(() => getByText('Inactive Card'))
-
-  // Remove card
-  currentCard = noCard
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
-
-  // ---------------
-
   // Complete Voter Happy Path
 
   // Insert Voter card
-  currentCard = voterCard
+  currentCard = getNewVoterCard()
   advanceTimers()
   await wait(() => getByText(/Precinct: Center Springfield/))
   getByText(/Ballot Style: 12/)
@@ -288,8 +257,8 @@ it('basic end-to-end flow', async () => {
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
-  // Insert Voter card which has just printed.
-  currentCard = getPrintedVoterCard()
+  // Insert Voter card which has just printed to see "cast" instructions again.
+  currentCard = getUsedVoterCard()
   advanceTimers()
   await wait(() => getByText('You’re Almost Done…'))
 

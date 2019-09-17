@@ -1,17 +1,23 @@
 import { createContext } from 'react'
 import * as GLOBALS from '../config/globals'
 
-import { BallotContextInterface, TextSizeSetting } from '../config/types'
 import { NullPrinter } from '../utils/printer'
+import {
+  BallotContextInterface,
+  TextSizeSetting,
+  VxMarkOnly,
+} from '../config/types'
 
 const ballot: BallotContextInterface = {
   activateBallot: () => undefined,
+  appMode: VxMarkOnly,
   ballotStyleId: '',
   contests: [],
   election: undefined,
   incrementBallotsPrintedCount: () => undefined,
   isLiveMode: false,
-  markVoterCardUsed: async () => false,
+  markVoterCardVoided: async () => false,
+  markVoterCardPrinted: async () => false,
   precinctId: '',
   printer: new NullPrinter(),
   resetBallot: () => undefined,

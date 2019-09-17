@@ -1,3 +1,4 @@
+export const CARD_EXPIRATION_SECONDS = 10 * 60 // 10 minutes
 export const CARD_POLLING_INTERVAL = 200
 export const CHECK_ICON = '✓'
 export const FONT_SIZES = [18, 24, 28, 32]

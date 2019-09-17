@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react'
 import styled from 'styled-components'
 
-import { OptionalElection } from '../config/types'
+import { AppMode, OptionalElection } from '../config/types'
 
 import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
@@ -70,6 +70,7 @@ const SignatureLine = styled.div`
 `
 
 interface Props {
+  appMode: AppMode
   ballotsPrintedCount: number
   election: OptionalElection
   isPollsOpen: boolean
@@ -79,12 +80,13 @@ interface Props {
 }
 
 const PollWorkerScreen = ({
+  appMode,
   ballotsPrintedCount,
   election,
   isPollsOpen,
   isLiveMode,
   machineId,
-  togglePollsOpen,
+  togglePollsOpen: appTogglePollsOpen,
 }: Props) => {
   const { title, date, county, state, seal, sealURL } = election!
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -96,14 +98,22 @@ const PollWorkerScreen = ({
   const currentDateTime = new Date().toLocaleString()
   const numReports = 3
 
-  const doPrint = async (currentReportId: number) => {
+  const togglePollsOpen = () => {
+    if (appMode.isVxPrint) {
+      showModal()
+    } else {
+      appTogglePollsOpen()
+    }
+  }
+
+  const printReportById = async (id: number) => {
     await printer.print()
 
-    if (currentReportId >= numReports) {
-      togglePollsOpen()
+    if (id >= numReports) {
+      appTogglePollsOpen()
       hideModal()
     } else {
-      setReportId(currentReportId + 1)
+      setReportId(id + 1)
     }
   }
 
@@ -116,9 +126,11 @@ const PollWorkerScreen = ({
             <Text as="h2" warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
               {isPollsOpen ? 'Polls are open.' : 'Polls are closed.'}
             </Text>
-            <p>A summary will be printed when toggling open/closed.</p>
+            {appMode.isVxPrint && (
+              <p>A summary will be printed when toggling open/closed.</p>
+            )}
             <p>
-              <Button onPress={showModal}>
+              <Button onPress={togglePollsOpen}>
                 {isPollsOpen ? 'Close Polls' : 'Open Polls'}
               </Button>
             </p>
@@ -129,7 +141,8 @@ const PollWorkerScreen = ({
                 <div
                   className="seal"
                   // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
-                  dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+                  // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{ __html: seal }}
                 />
               ) : (
                 <React.Fragment />
@@ -199,7 +212,7 @@ const PollWorkerScreen = ({
           </Report>
         </MainChild>
       </Main>
-      <MainNav aria-hidden="true" title="Poll Worker" />
+      <MainNav appName={appMode.name} aria-hidden="true" title="Poll Worker" />
       <Modal
         isOpen={isModalOpen}
         centerContent
@@ -218,7 +231,7 @@ const PollWorkerScreen = ({
             <Button
               primary
               onPress={async () => {
-                await doPrint(reportId)
+                await printReportById(reportId)
               }}
             >
               Yes

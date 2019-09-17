@@ -4,7 +4,11 @@ import fetchMock from 'fetch-mock'
 
 import App from './App'
 
-import { noCard, voterCard, advanceTimers } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  getNewVoterCard,
+  noCard,
+} from '../test/helpers/smartcards'
 
 import {
   countyCommissionersContest,
@@ -14,6 +18,13 @@ import {
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+fetchMock.post('/card/write', (url, options) => {
+  currentCard = {
+    present: true,
+    shortValue: options.body as string,
+  }
+  return ''
+})
 
 jest.useFakeTimers()
 
@@ -31,7 +42,7 @@ it('Single Seat Contest', async () => {
   const { container, getByText, queryByText } = render(<App />)
 
   // Insert Voter Card
-  currentCard = voterCard
+  currentCard = getNewVoterCard()
   advanceTimers()
 
   // Go to Voting Instructions

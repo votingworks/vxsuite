@@ -281,7 +281,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
   }
 
   public render() {
-    const { contests, election, votes } = this.context
+    const { appMode, contests, election, votes } = this.context
     const { bmdConfig, parties } = election!
     const { showSettingsPage } = bmdConfig!
     const { isScrollable, isScrollAtBottom, isScrollAtTop } = this.state
@@ -360,7 +360,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
           </ContentFooter>
         </Main>
         <ButtonBar>
-          <LinkButton to="/print" id="next">
+          <LinkButton to={appMode.isVxPrint ? '/print' : '/remove'} id="next">
             Next
           </LinkButton>
           <div />

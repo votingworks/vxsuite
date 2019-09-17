@@ -1,16 +1,16 @@
 import React from 'react'
 import fetchMock from 'fetch-mock'
 
-import { Election } from '../config/types'
+import { Election, VxMarkOnly } from '../config/types'
 
 import { render } from '../../test/testUtils'
 
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 
 import {
+  advanceTimers,
   noCard,
   pollWorkerCard,
-  advanceTimers,
 } from '../../test/helpers/smartcards'
 
 import PollWorkerScreen from './PollWorkerScreen'
@@ -23,6 +23,7 @@ fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 it('renders PollWorkerScreen', async () => {
   const { getByText } = render(
     <PollWorkerScreen
+      appMode={VxMarkOnly}
       ballotsPrintedCount={0}
       election={electionSampleWithSeal as Election}
       isPollsOpen

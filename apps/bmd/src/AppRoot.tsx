@@ -1,4 +1,3 @@
-import Mousetrap from 'mousetrap'
 import React from 'react'
 import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
@@ -15,30 +14,46 @@ import {
 
 import {
   ActivationData,
+  AppMode,
+  AppModeNames,
+  CardAPI,
+  CardPresentAPI,
   CardData,
   Contests,
   Election,
   ElectionDefaults,
+  InputEvent,
+  MachineIdAPI,
+  MarkVoterCardFunction,
   OptionalElection,
   OptionalVote,
   PartialUserSettings,
   UserSettings,
   VoterCardData,
   VotesDict,
+  VxMarkOnly,
+  VxMarkPlusVxPrint,
+  VxPrintOnly,
+  getAppMode,
 } from './config/types'
+
+import utcTimestamp from './utils/utcTimestamp'
+import isEmptyObject from './utils/isEmptyObject'
+import fetchJSON from './utils/fetchJSON'
 
 import { getBallotStyle, getContests } from './utils/election'
 
 import Ballot from './components/Ballot'
 import BallotContext from './contexts/ballotContext'
 
+import PrintOnlyScreen from './pages/PrintOnlyScreen'
 import ClerkScreen from './pages/ClerkScreen'
 import PollWorkerScreen from './pages/PollWorkerScreen'
-import PollsClosedScreen from './pages/PollsClosedScreen'
-import ActivationScreen from './pages/ActivationScreen'
+import InsertCardScreen from './pages/InsertCardScreen'
 import CastBallotPage from './pages/CastBallotPage'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'
-
+import ExpiredCardScreen from './pages/ExpiredCardScreen'
+import UsedCardScreen from './pages/UsedCardScreen'
 import electionDefaults from './data/electionDefaults.json'
 import electionSample from './data/electionSample.json'
 import makePrinter, { PrintMethod } from './utils/printer'
@@ -48,7 +63,19 @@ export const mergeWithDefaults = (
   defaults: ElectionDefaults = electionDefaults
 ) => ({ ...defaults, ...election })
 
+interface CardState {
+  isClerkCardPresent: boolean
+  isPollWorkerCardPresent: boolean
+  isRecentVoterPrint: boolean
+  isVoterCardExpired: boolean
+  isVoterCardVoided: boolean
+  isVoterCardPresent: boolean
+  isVoterCardPrinted: boolean
+  pauseProcessingUntilNoCardPresent: boolean
+}
+
 interface UserState {
+  ballotCreatedAt: number
   ballotStyleId: string
   contests: Contests
   precinctId: string
@@ -56,36 +83,35 @@ interface UserState {
   votes: VotesDict
 }
 
-interface State extends UserState {
-  cardData?: CardData
+interface State extends CardState, UserState {
+  appMode: AppMode
+  ballotsPrintedCount: number
   election: OptionalElection
-  isClerkCardPresent: boolean
+  isFetchingElection: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
-  isPollWorkerCardPresent: boolean
-  isVoterCardPresent: boolean
-  isVoterCardInvalid: boolean
-  isRecentVoterPrint: boolean
-  isFetchingElection: boolean
   machineId: string
-  ballotsPrintedCount: number
+  shortValue: string
 }
 
 export const electionStorageKey = 'election'
 export const stateStorageKey = 'state'
 export const activationStorageKey = 'activation'
 const votesStorageKey = 'votes'
-const removeElectionShortcuts = ['mod+k']
 
-const initialCardPresentState = {
+const initialCardPresentState: CardState = {
   isClerkCardPresent: false,
   isPollWorkerCardPresent: false,
-  isVoterCardPresent: false,
-  isVoterCardInvalid: false,
   isRecentVoterPrint: false,
+  isVoterCardExpired: false,
+  isVoterCardVoided: false,
+  isVoterCardPresent: false,
+  isVoterCardPrinted: false,
+  pauseProcessingUntilNoCardPresent: false,
 }
 
 const initialUserState: UserState = {
+  ballotCreatedAt: 0,
   ballotStyleId: '',
   contests: [],
   precinctId: '',
@@ -96,20 +122,19 @@ const initialUserState: UserState = {
 const initialState: State = {
   ...initialUserState,
   ...initialCardPresentState,
+  appMode: VxMarkOnly,
   ballotsPrintedCount: 0,
   election: undefined,
+  isFetchingElection: false,
   isLiveMode: false,
   isPollsOpen: false,
-  isFetchingElection: false,
   machineId: '---',
-}
-
-interface CompleteCardData {
-  cardData: CardData
-  longValueExists: boolean
+  shortValue: '{}',
 }
 
 let checkCardInterval = 0
+
+const printer = makePrinter(PrintMethod.RemoteWithLocalFallback)
 
 class AppRoot extends React.Component<RouteComponentProps, State> {
   public state = initialState
@@ -123,6 +148,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     })
     const precinct = election.precincts.find(pr => pr.id === voterCardData.pr)!
     this.activateBallot({
+      ballotCreatedAt: voterCardData.c,
       ballotStyle,
       precinct,
     })
@@ -139,31 +165,39 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  public processCardData = (completeCardData: CompleteCardData) => {
-    const { cardData, longValueExists } = completeCardData
+  public isVoterCardExpired = (createdAt: number): boolean =>
+    utcTimestamp() >= createdAt + GLOBALS.CARD_EXPIRATION_SECONDS
+
+  public processCard = ({ longValueExists, shortValue }: CardPresentAPI) => {
+    const cardData: CardData = JSON.parse(shortValue)
     switch (cardData.t) {
       case 'voter': {
         const voterCardData = cardData as VoterCardData
-        const isBallotPrinted = Boolean(voterCardData.bp)
-        const ballotUsedTime = Number(voterCardData.uz) || 0
-        const isVoterCardInvalid = Boolean(ballotUsedTime)
-        const expirationGracePeriod = 60 * 1000 // 1 minute
+        const isVoterCardExpired = this.isVoterCardExpired(voterCardData.c)
+        const isVoterCardVoided = Boolean(voterCardData.uz)
+        const ballotPrintedTime = Number(voterCardData.bp) || 0
+        const isVoterCardPrinted = Boolean(ballotPrintedTime)
+        const votes: VotesDict = voterCardData.v || {}
+        const recentPrintExpirationSeconds = 60
         const isRecentVoterPrint =
-          isBallotPrinted &&
-          ballotUsedTime + expirationGracePeriod > new Date().getTime()
+          isVoterCardPrinted &&
+          utcTimestamp() <= ballotPrintedTime + recentPrintExpirationSeconds
         this.setState({
           ...initialCardPresentState,
+          shortValue,
+          isVoterCardExpired,
+          isVoterCardVoided,
           isVoterCardPresent: true,
-          isVoterCardInvalid,
+          isVoterCardPrinted,
           isRecentVoterPrint,
+          votes,
         })
-        if (!isVoterCardInvalid) {
+        if (!isVoterCardExpired && !isVoterCardVoided && !isVoterCardPrinted) {
           this.processVoterCardData(voterCardData)
         }
         break
       }
       case 'pollworker': {
-        // poll worker admin screen goes here
         this.setState({
           ...initialCardPresentState,
           isPollWorkerCardPresent: true,
@@ -185,33 +219,32 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     if (checkCardInterval === 0) {
       let lastCardDataString = ''
 
-      checkCardInterval = window.setInterval(() => {
-        fetch('/card/read')
-          .then(result => result.json())
-          .then(card => {
-            const currentCardDataString = JSON.stringify(card)
-            if (currentCardDataString === lastCardDataString) {
+      checkCardInterval = window.setInterval(async () => {
+        try {
+          const card = await this.readCard()
+          if (this.state.pauseProcessingUntilNoCardPresent) {
+            if (card.present) {
               return
             }
-            lastCardDataString = currentCardDataString
+            this.setPauseProcessingUntilNoCardPresent(false)
+          }
+          const currentCardDataString = JSON.stringify(card)
+          if (currentCardDataString === lastCardDataString) {
+            return
+          }
+          lastCardDataString = currentCardDataString
 
-            if (!card.present || !card.shortValue) {
-              this.resetBallot()
-              return
-            }
-
-            const cardData = JSON.parse(card.shortValue) as CardData
-            this.processCardData({
-              cardData: cardData,
-              longValueExists: card.longValueExists,
-            })
-          })
-          .catch(() => {
+          if (!card.present || !card.shortValue) {
             this.resetBallot()
-            lastCardDataString = ''
-            // if it's an error, aggressively assume there's no backend and stop hammering
-            this.stopPolling()
-          })
+            return
+          }
+
+          this.processCard(card)
+        } catch (error) {
+          this.resetBallot()
+          lastCardDataString = ''
+          this.stopPolling() // Assume backend is unavailable.
+        }
       }, GLOBALS.CARD_POLLING_INTERVAL)
     }
   }
@@ -221,33 +254,65 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     checkCardInterval = 0 // To indicate setInterval is not running.
   }
 
-  public markVoterCardUsed = async (
-    { ballotPrinted } = { ballotPrinted: true }
-  ) => {
+  public setPauseProcessingUntilNoCardPresent = (b: boolean) => {
+    this.setState({ pauseProcessingUntilNoCardPresent: b })
+  }
+
+  public markVoterCardVoided: MarkVoterCardFunction = async () => {
     this.stopPolling()
 
-    const { ballotStyleId, precinctId } = this.getBallotActivation()
-
-    const newCardData: VoterCardData = {
-      bs: ballotStyleId,
-      pr: precinctId,
-      t: 'voter',
-      uz: new Date().getTime(),
-      bp: ballotPrinted ? 1 : 0,
+    const currentVoterCardData: VoterCardData = JSON.parse(
+      this.state.shortValue
+    )
+    const voidedVoterCardData: VoterCardData = {
+      ...currentVoterCardData,
+      v: undefined,
+      uz: utcTimestamp(),
     }
+    await this.writeCard(voidedVoterCardData)
 
-    const newCardDataSerialized = JSON.stringify(newCardData)
+    const updatedCard = await this.readCard()
+    const updatedShortValue: VoterCardData =
+      updatedCard.present && JSON.parse(updatedCard.shortValue)
 
-    await fetch('/card/write', {
-      method: 'post',
-      body: newCardDataSerialized,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    this.startPolling()
 
-    const readCheck = await fetch('/card/read')
-    const readCheckObj = await readCheck.json()
+    if (
+      !!updatedShortValue.v ||
+      voidedVoterCardData.uz !== updatedShortValue.uz
+    ) {
+      this.resetBallot()
+      return false
+    }
+    return true
+  }
 
-    if (readCheckObj.shortValue !== newCardDataSerialized) {
+  public markVoterCardPrinted: MarkVoterCardFunction = async () => {
+    this.stopPolling()
+    this.setPauseProcessingUntilNoCardPresent(true)
+
+    const currentVoterCardData: VoterCardData = JSON.parse(
+      this.state.shortValue
+    )
+
+    const usedVoterCardData: VoterCardData = {
+      ...currentVoterCardData,
+      v: undefined,
+      bp: utcTimestamp(),
+    }
+    await this.writeCard(usedVoterCardData)
+
+    const updatedCard = await this.readCard()
+    const updatedShortValue: VoterCardData =
+      updatedCard.present && JSON.parse(updatedCard.shortValue)
+
+    this.startPolling()
+
+    /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edge case. */
+    if (
+      !!updatedShortValue.v ||
+      usedVoterCardData.bp !== updatedShortValue.bp
+    ) {
       this.resetBallot()
       return false
     }
@@ -263,21 +328,33 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           ballotsPrintedCount: 0,
           isLiveMode: true,
           isPollsOpen: true,
+          ballotCreatedAt: utcTimestamp(),
           ballotStyleId: '12',
           precinctId: '23',
         },
         () => {
-          const { ballotStyleId, precinctId, election } = this.state
-          this.setBallotActivation({ ballotStyleId, precinctId })
+          const {
+            ballotCreatedAt,
+            ballotStyleId,
+            precinctId,
+            election,
+          } = this.state
+          this.setBallotActivation({
+            ballotCreatedAt,
+            ballotStyleId,
+            precinctId,
+          })
           this.setElection(election as Election)
           this.setStoredState()
-          const cardData: VoterCardData = {
+          const voterCardData: VoterCardData = {
+            c: utcTimestamp(),
             t: 'voter',
             bs: ballotStyleId,
             pr: precinctId,
           }
-          this.processCardData({
-            cardData,
+          this.processCard({
+            present: true,
+            shortValue: JSON.stringify(voterCardData),
             longValueExists: false,
           })
         }
@@ -286,6 +363,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       const election = this.getElection()
       const { ballotStyleId, precinctId } = this.getBallotActivation()
       const {
+        appMode = initialState.appMode,
         ballotsPrintedCount = initialState.ballotsPrintedCount,
         isLiveMode = initialState.isLiveMode,
         isPollsOpen = initialState.isPollsOpen,
@@ -302,6 +380,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           ? getContests({ ballotStyle, election })
           : initialState.contests
       this.setState({
+        appMode,
         ballotsPrintedCount,
         ballotStyleId,
         contests,
@@ -312,34 +391,45 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         votes: this.getVotes(),
       })
     }
-    Mousetrap.bind(removeElectionShortcuts, this.unconfigure)
     document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
-
-    const { signal } = this.machineIdAbortController
-    fetch('/machine-id', { signal })
-      .then(response => response.json())
-      .then(response => {
-        const { machineId } = response
-        if (machineId) {
-          this.setState({
-            machineId,
-          })
-        }
-      })
-      .catch(() => {
-        // TODO: what should happen if `machineId` is not returned?
-      })
-
+    this.setMachineId()
     this.startPolling()
   }
 
   public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     this.machineIdAbortController.abort()
-    Mousetrap.unbind(removeElectionShortcuts)
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
     this.stopPolling()
+  }
+
+  public setMachineId = async () => {
+    const { signal } = this.machineIdAbortController
+    try {
+      const { machineId } = await fetchJSON<MachineIdAPI>('/machine-id', {
+        signal,
+      })
+      machineId && this.setState({ machineId })
+    } catch (error) {
+      // TODO: what should happen if `machineId` is not returned?
+    }
+  }
+
+  public readCard = async (): Promise<CardAPI> => {
+    return await fetchJSON<CardAPI>('/card/read')
+  }
+
+  public writeCard = async (cardData: VoterCardData) => {
+    const newCardData: VoterCardData = {
+      ...cardData,
+      u: utcTimestamp(),
+    }
+    await fetch('/card/write', {
+      method: 'post',
+      body: JSON.stringify(newCardData),
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   public getElection = (): OptionalElection => {
@@ -354,11 +444,12 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public getBallotActivation = () => {
-    const voterData = window.localStorage.getItem(activationStorageKey)
-    return voterData ? JSON.parse(voterData) : {}
+    const activationData = window.localStorage.getItem(activationStorageKey)
+    return activationData ? JSON.parse(activationData) : {}
   }
 
   public setBallotActivation = (data: {
+    ballotCreatedAt: number
     ballotStyleId: string
     precinctId: string
   }) => {
@@ -373,11 +464,21 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     return votesData ? JSON.parse(votesData) : {}
   }
 
-  public setVotes = (votes: VotesDict) => {
+  public setVotes = async (votes: VotesDict) => {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       window.localStorage.setItem(votesStorageKey, JSON.stringify(votes))
     }
+    const currentVoterCardData: VoterCardData = JSON.parse(
+      this.state.shortValue
+    )
+
+    const newVoterCardData: VoterCardData = {
+      ...currentVoterCardData,
+      m: this.state.machineId,
+      v: votes,
+    }
+    await this.writeCard(newVoterCardData)
   }
 
   public resetVoterData = () => {
@@ -392,10 +493,11 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public setStoredState = () => {
-    const { ballotsPrintedCount, isLiveMode, isPollsOpen } = this.state
+    const { appMode, ballotsPrintedCount, isLiveMode, isPollsOpen } = this.state
     window.localStorage.setItem(
       stateStorageKey,
       JSON.stringify({
+        appMode,
         ballotsPrintedCount,
         isLiveMode,
         isPollsOpen,
@@ -403,9 +505,21 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     )
   }
 
-  public getStoredState = () => {
-    const storedState = window.localStorage.getItem(stateStorageKey)
-    return storedState ? JSON.parse(storedState) : {}
+  public getStoredState = (): Partial<State> => {
+    const storedStateJSON = window.localStorage.getItem(stateStorageKey)
+    const storedState: Partial<State> = storedStateJSON
+      ? JSON.parse(storedStateJSON)
+      : {}
+
+    if (storedState.appMode) {
+      try {
+        storedState.appMode = getAppMode(storedState.appMode.name)
+      } catch {
+        delete storedState.appMode
+      }
+    }
+
+    return storedState
   }
 
   public updateVote = (contestId: string, vote: OptionalVote) => {
@@ -431,15 +545,20 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         this.props.history.push(path)
       }
     )
-    this.startPolling()
   }
 
-  public activateBallot = ({ ballotStyle, precinct }: ActivationData) => {
+  public activateBallot = ({
+    ballotCreatedAt,
+    ballotStyle,
+    precinct,
+  }: ActivationData) => {
     this.setBallotActivation({
+      ballotCreatedAt,
       ballotStyleId: ballotStyle.id,
       precinctId: precinct.id,
     })
     this.setState(prevState => ({
+      ballotCreatedAt,
       ballotStyleId: ballotStyle.id,
       contests: getContests({ ballotStyle, election: prevState.election! }),
       precinctId: precinct.id,
@@ -468,6 +587,12 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public setDocumentFontSize = (textSize: number = GLOBALS.TEXT_SIZE) => {
     document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[textSize]}px`
+  }
+
+  public setAppMode = (event: InputEvent) => {
+    const currentTarget = event.currentTarget as HTMLInputElement
+    const appMode = getAppMode(currentTarget.dataset.appMode as AppModeNames)
+    this.setState({ appMode }, this.setStoredState)
   }
 
   public toggleLiveMode = () => {
@@ -499,6 +624,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public render() {
     const {
+      appMode,
       ballotsPrintedCount,
       ballotStyleId,
       contests,
@@ -508,7 +634,9 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       isPollsOpen,
       isPollWorkerCardPresent,
       isVoterCardPresent,
-      isVoterCardInvalid,
+      isVoterCardExpired,
+      isVoterCardVoided,
+      isVoterCardPrinted,
       isRecentVoterPrint,
       machineId,
       precinctId,
@@ -518,70 +646,100 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     if (isClerkCardPresent) {
       return (
         <ClerkScreen
+          appMode={appMode}
           ballotsPrintedCount={ballotsPrintedCount}
           election={election}
           fetchElection={this.fetchElection}
           isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
+          setAppMode={this.setAppMode}
           toggleLiveMode={this.toggleLiveMode}
           unconfigure={this.unconfigure}
         />
       )
-    } else if (election && isPollWorkerCardPresent) {
-      return (
-        <PollWorkerScreen
-          ballotsPrintedCount={ballotsPrintedCount}
-          election={election}
-          isLiveMode={isLiveMode}
-          isPollsOpen={isPollsOpen}
-          machineId={machineId}
-          togglePollsOpen={this.togglePollsOpen}
-        />
-      )
-    } else if (election && !isPollsOpen) {
-      return <PollsClosedScreen election={election} isLiveMode={isLiveMode} />
     } else if (election) {
-      if (isRecentVoterPrint && isVoterCardInvalid) {
-        return <CastBallotPage />
-      } else if (
-        !isVoterCardInvalid &&
-        isVoterCardPresent &&
-        ballotStyleId &&
-        precinctId
-      ) {
+      if (isPollWorkerCardPresent) {
         return (
-          <Gamepad onButtonDown={handleGamepadButtonDown}>
-            <BallotContext.Provider
-              value={{
-                activateBallot: this.activateBallot,
-                ballotStyleId,
-                contests,
-                election,
-                incrementBallotsPrintedCount: this.incrementBallotsPrintedCount,
-                isLiveMode,
-                markVoterCardUsed: this.markVoterCardUsed,
-                precinctId,
-                printer: makePrinter(PrintMethod.RemoteWithLocalFallback),
-                resetBallot: this.resetBallot,
-                setUserSettings: this.setUserSettings,
-                updateVote: this.updateVote,
-                userSettings,
-                votes,
-              }}
-            >
-              <Ballot />
-            </BallotContext.Provider>
-          </Gamepad>
-        )
-      } else {
-        return (
-          <ActivationScreen
+          <PollWorkerScreen
+            appMode={appMode}
+            ballotsPrintedCount={ballotsPrintedCount}
             election={election}
             isLiveMode={isLiveMode}
-            isVoterCardInvalid={isVoterCardInvalid}
+            isPollsOpen={isPollsOpen}
+            machineId={machineId}
+            togglePollsOpen={this.togglePollsOpen}
           />
         )
       }
+      if (isPollsOpen && isVoterCardVoided) {
+        return <ExpiredCardScreen />
+      }
+      if (isPollsOpen && isVoterCardPrinted) {
+        if (isRecentVoterPrint && appMode === VxMarkPlusVxPrint) {
+          return <CastBallotPage />
+        } else {
+          return <UsedCardScreen />
+        }
+      }
+      if (
+        isPollsOpen &&
+        isVoterCardExpired &&
+        (isEmptyObject(votes) || appMode.isVxMark)
+      ) {
+        return <ExpiredCardScreen />
+      }
+      if (isPollsOpen && appMode === VxPrintOnly) {
+        return (
+          <PrintOnlyScreen
+            ballotStyleId={ballotStyleId}
+            election={election}
+            isLiveMode={isLiveMode}
+            isVoterCardPresent={isVoterCardPresent}
+            markVoterCardPrinted={this.markVoterCardPrinted}
+            precinctId={precinctId}
+            printer={printer}
+            votes={votes}
+          />
+        )
+      }
+      if (isPollsOpen && appMode.isVxMark) {
+        if (isVoterCardPresent && ballotStyleId && precinctId) {
+          return (
+            <Gamepad onButtonDown={handleGamepadButtonDown}>
+              <BallotContext.Provider
+                value={{
+                  activateBallot: this.activateBallot,
+                  appMode,
+                  ballotStyleId,
+                  contests,
+                  election,
+                  incrementBallotsPrintedCount: this
+                    .incrementBallotsPrintedCount,
+                  isLiveMode,
+                  markVoterCardPrinted: this.markVoterCardPrinted,
+                  markVoterCardVoided: this.markVoterCardVoided,
+                  precinctId,
+                  printer,
+                  resetBallot: this.resetBallot,
+                  setUserSettings: this.setUserSettings,
+                  updateVote: this.updateVote,
+                  userSettings,
+                  votes,
+                }}
+              >
+                <Ballot />
+              </BallotContext.Provider>
+            </Gamepad>
+          )
+        }
+      }
+      return (
+        <InsertCardScreen
+          election={election}
+          isLiveMode={isLiveMode}
+          isPollsOpen={isPollsOpen}
+        />
+      )
     } else {
       return <UnconfiguredScreen />
     }

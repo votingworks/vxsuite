@@ -12,15 +12,15 @@ const Brand = styled.div`
   }
 `
 interface Props {
-  app?: string
+  appName?: string
   children?: React.ReactNode
   title?: string
 }
 
-const MainNav = ({ app = 'VxMark', children, title }: Props) => (
+const MainNav = ({ appName = 'Unconfigured', children, title }: Props) => (
   <ButtonBar secondary naturalOrder>
     <Brand>
-      {app}
+      {appName}
       {title && <span> / {title}</span>}
     </Brand>
     {children || <div />}

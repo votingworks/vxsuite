@@ -4,7 +4,11 @@ import fetchMock from 'fetch-mock'
 
 import App from './App'
 
-import { noCard, voterCard, advanceTimers } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  getNewVoterCard,
+  noCard,
+} from '../test/helpers/smartcards'
 
 import {
   presidentContest,
@@ -14,6 +18,13 @@ import {
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+fetchMock.post('/card/write', (url, options) => {
+  currentCard = {
+    present: true,
+    shortValue: options.body as string,
+  }
+  return ''
+})
 
 jest.useFakeTimers()
 
@@ -33,7 +44,7 @@ it('Refresh window and expect to be on same contest', async () => {
   let unmount = app.unmount
 
   // Insert Voter Card
-  currentCard = voterCard
+  currentCard = getNewVoterCard()
   advanceTimers()
 
   // Go to Voting Instructions
@@ -53,6 +64,7 @@ it('Refresh window and expect to be on same contest', async () => {
   // Select first candiate
   fireEvent.click(getByText(candidate0))
   advanceTimers()
+  expect(getByText(candidate0).closest('button')!.dataset.selected).toBe('true')
 
   unmount()
 
@@ -61,6 +73,8 @@ it('Refresh window and expect to be on same contest', async () => {
 
   advanceTimers()
 
-  // Select second candidate
-  await wait(() => fireEvent.click(getByText(candidate0)))
+  // App is on first contest
+  await wait(() => getByText(presidentContest.title))
+  // First candidate selected
+  expect(getByText(candidate0).closest('button')!.dataset.selected).toBe('true')
 })

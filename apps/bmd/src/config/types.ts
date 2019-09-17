@@ -6,8 +6,37 @@ export interface Dictionary<T> {
   [key: string]: T | undefined
 }
 
+// App
+export type AppModeNames = 'VxMark' | 'VxPrint' | 'VxMark + VxPrint'
+export interface AppMode {
+  readonly name: AppModeNames
+  readonly isVxPrint?: boolean
+  readonly isVxMark?: boolean
+}
+export const VxPrintOnly: AppMode = { name: 'VxPrint', isVxPrint: true }
+export const VxMarkOnly: AppMode = { name: 'VxMark', isVxMark: true }
+export const VxMarkPlusVxPrint: AppMode = {
+  name: 'VxMark + VxPrint',
+  isVxPrint: true,
+  isVxMark: true,
+}
+
+export function getAppMode(name: AppModeNames): AppMode {
+  switch (name) {
+    case VxPrintOnly.name:
+      return VxPrintOnly
+    case VxMarkOnly.name:
+      return VxMarkOnly
+    case VxMarkPlusVxPrint.name:
+      return VxMarkPlusVxPrint
+    default:
+      throw new Error(`unknown app mode: ${name}`)
+  }
+}
+
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
+export type InputEventFunction = (event: InputEvent) => void
 
 // Candidates
 export interface Candidate {
@@ -91,6 +120,7 @@ export interface Election {
 export type OptionalElection = Election | undefined
 
 export interface ActivationData {
+  ballotCreatedAt: number
   ballotStyle: BallotStyle
   precinct: Precinct
 }
@@ -105,17 +135,17 @@ export type VotesDict = Dictionary<Vote>
 
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
-export type MarkVoterCardUsedFunction = (props?: {
-  ballotPrinted: boolean
-}) => Promise<boolean>
+export type MarkVoterCardFunction = () => Promise<boolean>
 export interface BallotContextInterface {
   activateBallot: (activationData: ActivationData) => void
+  appMode: AppMode
   ballotStyleId: string
   contests: Contests
   readonly election: Election | undefined
   incrementBallotsPrintedCount: () => void
   isLiveMode: boolean
-  markVoterCardUsed: MarkVoterCardUsedFunction
+  markVoterCardPrinted: MarkVoterCardFunction
+  markVoterCardVoided: MarkVoterCardFunction
   precinctId: string
   printer: Printer
   resetBallot: (path?: string) => void
@@ -132,10 +162,14 @@ export interface CardData {
 }
 export interface VoterCardData extends CardData {
   readonly t: 'voter'
-  readonly bs: string
-  readonly pr: string
-  readonly uz?: number
-  readonly bp?: number
+  readonly c: number // created date
+  readonly bs: string // ballot style id
+  readonly pr: string // precinct id
+  readonly uz?: number // used (voided)
+  readonly bp?: number // ballot printed date
+  readonly v?: VotesDict // votes object
+  readonly u?: number // updated date
+  readonly m?: string // mark machine id
 }
 export interface PollworkerCardData extends CardData {
   readonly t: 'pollworker'
@@ -145,10 +179,20 @@ export interface ClerkCardData extends CardData {
   readonly t: 'clerk'
   readonly h: string
 }
-export interface CardAPI {
-  present: boolean
-  shortValue?: string
+
+export interface CardAbsentAPI {
+  present: false
+}
+export interface CardPresentAPI {
+  present: true
+  shortValue: string
   longValueExists?: boolean
+}
+export type CardAPI = CardAbsentAPI | CardPresentAPI
+
+// Machine ID API
+export interface MachineIdAPI {
+  machineId: string
 }
 
 // User Interface

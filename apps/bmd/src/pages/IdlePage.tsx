@@ -18,7 +18,7 @@ import Loading from '../components/Loading'
 const timeoutSeconds = 30
 
 const IdlePage = () => {
-  const { election: e, markVoterCardUsed, resetBallot } = useContext(
+  const { election: e, markVoterCardVoided, resetBallot } = useContext(
     BallotContext
   )
   const election = e!
@@ -29,14 +29,13 @@ const IdlePage = () => {
   const onPress: PointerEventHandler = () => {}
 
   useEffect(() => {
-    const reset = () => {
+    const reset = async () => {
       setIsLoading(true)
-      markVoterCardUsed({ ballotPrinted: false }).then(() => {
-        resetBallot()
-      })
+      await markVoterCardVoided()
+      resetBallot()
     }
     countdown === 0 && reset()
-  }, [countdown, markVoterCardUsed, resetBallot])
+  }, [countdown, markVoterCardVoided, resetBallot])
 
   useInterval(() => {
     setCountdown(t => (t > 0 ? t - 1 : 0))
