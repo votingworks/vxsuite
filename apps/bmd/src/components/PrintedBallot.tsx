@@ -234,6 +234,10 @@ const PrintBallot = ({
                 <div>Ballot Style</div>
                 <strong>{ballotStyleId}</strong>
               </div>
+              <div>
+                <div>Ballot ID</div>
+                <strong>{ballotId}</strong>
+              </div>
             </div>
           </div>
         </QRCodeContainer>
