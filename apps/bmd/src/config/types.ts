@@ -135,13 +135,7 @@ export type VotesDict = Dictionary<Vote>
 
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
-export interface MarkVoterCardUsedFunctionArgs {
-  markBallotPrinted?: boolean
-  pauseProcessingUntilNoCardPresent?: boolean
-}
-export type MarkVoterCardUsedFunction = (
-  props?: MarkVoterCardUsedFunctionArgs
-) => Promise<boolean>
+export type MarkVoterCardFunction = () => Promise<boolean>
 export interface BallotContextInterface {
   activateBallot: (activationData: ActivationData) => void
   appMode: AppMode
@@ -150,7 +144,8 @@ export interface BallotContextInterface {
   readonly election: Election | undefined
   incrementBallotsPrintedCount: () => void
   isLiveMode: boolean
-  markVoterCardUsed: MarkVoterCardUsedFunction
+  markVoterCardPrinted: MarkVoterCardFunction
+  markVoterCardVoided: MarkVoterCardFunction
   precinctId: string
   printer: Printer
   resetBallot: (path?: string) => void

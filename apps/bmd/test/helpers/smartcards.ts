@@ -1,6 +1,11 @@
 import { act } from '@testing-library/react'
 import * as GLOBALS from '../../src/config/globals'
-import { CandidateContest, CardAPI, Election } from '../../src/config/types'
+import {
+  CandidateContest,
+  CardAPI,
+  CardPresentAPI,
+  Election,
+} from '../../src/config/types'
 import electionSample from '../../src/data/electionSample.json'
 import utcTimestamp from '../../src/utils/utcTimestamp'
 
@@ -20,7 +25,7 @@ export const noCard: CardAPI = {
   present: false,
 }
 
-export const adminCard: CardAPI = {
+export const adminCard: CardPresentAPI = {
   present: true,
   longValueExists: true,
   shortValue: JSON.stringify({
@@ -29,7 +34,7 @@ export const adminCard: CardAPI = {
   }),
 }
 
-export const pollWorkerCard: CardAPI = {
+export const pollWorkerCard: CardPresentAPI = {
   present: true,
   shortValue: JSON.stringify({
     t: 'pollworker',
@@ -44,12 +49,12 @@ const getNewVoterShortValue = () => ({
   bs: election.ballotStyles[0].id,
 })
 
-export const getNewVoterCard = (): CardAPI => ({
+export const getNewVoterCard = (): CardPresentAPI => ({
   present: true,
   shortValue: JSON.stringify(getNewVoterShortValue()),
 })
 
-export const getAlternateNewVoterCard = (): CardAPI => ({
+export const getAlternateNewVoterCard = (): CardPresentAPI => ({
   present: true,
   shortValue: JSON.stringify({
     ...getNewVoterShortValue(),
@@ -58,7 +63,7 @@ export const getAlternateNewVoterCard = (): CardAPI => ({
   }),
 })
 
-export const getInvalidatedVoterCard = (): CardAPI => ({
+export const getVoidedVoterCard = (): CardPresentAPI => ({
   present: true,
   shortValue: JSON.stringify({
     ...getNewVoterShortValue(),
@@ -66,7 +71,7 @@ export const getInvalidatedVoterCard = (): CardAPI => ({
   }),
 })
 
-export const getExpiredVoterCard = (): CardAPI => ({
+export const getExpiredVoterCard = (): CardPresentAPI => ({
   present: true,
   shortValue: JSON.stringify({
     ...getNewVoterShortValue(),
@@ -74,7 +79,7 @@ export const getExpiredVoterCard = (): CardAPI => ({
   }),
 })
 
-export const getExpiredVoterCardWithVotes = (): CardAPI => ({
+export const getExpiredVoterCardWithVotes = (): CardPresentAPI => ({
   present: true,
   shortValue: JSON.stringify({
     ...getNewVoterShortValue(),
@@ -84,7 +89,7 @@ export const getExpiredVoterCardWithVotes = (): CardAPI => ({
   }),
 })
 
-export const getVoterCardWithVotes = (): CardAPI => ({
+export const getVoterCardWithVotes = (): CardPresentAPI => ({
   present: true,
   shortValue: JSON.stringify({
     ...getNewVoterShortValue(),
@@ -93,12 +98,11 @@ export const getVoterCardWithVotes = (): CardAPI => ({
   }),
 })
 
-export const getUsedVoterCard = (): CardAPI => ({
+export const getUsedVoterCard = (): CardPresentAPI => ({
   present: true,
   shortValue: JSON.stringify({
     ...getNewVoterShortValue(),
-    bp: 1,
-    uz: utcTimestamp(),
+    bp: utcTimestamp(),
   }),
 })
 

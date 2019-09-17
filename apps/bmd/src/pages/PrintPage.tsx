@@ -53,7 +53,7 @@ class PrintPage extends React.Component<RouteComponentProps, State> {
           showPrintingModal: true,
         },
         async () => {
-          const success = await this.context.markVoterCardUsed()
+          const success = await this.context.markVoterCardPrinted()
           /* istanbul ignore else */
           if (success) {
             await this.context.printer.print()

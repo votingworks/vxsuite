@@ -24,8 +24,7 @@ import {
   ElectionDefaults,
   InputEvent,
   MachineIdAPI,
-  MarkVoterCardUsedFunction,
-  MarkVoterCardUsedFunctionArgs,
+  MarkVoterCardFunction,
   OptionalElection,
   OptionalVote,
   PartialUserSettings,
@@ -69,8 +68,9 @@ interface CardState {
   isPollWorkerCardPresent: boolean
   isRecentVoterPrint: boolean
   isVoterCardExpired: boolean
+  isVoterCardVoided: boolean
   isVoterCardPresent: boolean
-  isVoterCardUsed: boolean
+  isVoterCardPrinted: boolean
   pauseProcessingUntilNoCardPresent: boolean
 }
 
@@ -87,17 +87,10 @@ interface State extends CardState, UserState {
   appMode: AppMode
   ballotsPrintedCount: number
   election: OptionalElection
-  isClerkCardPresent: boolean
   isFetchingElection: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
-  isPollWorkerCardPresent: boolean
-  isRecentVoterPrint: boolean
-  isVoterCardExpired: boolean
-  isVoterCardPresent: boolean
-  isVoterCardUsed: boolean
   machineId: string
-  pauseProcessingUntilNoCardPresent: boolean
   shortValue: string
 }
 
@@ -111,8 +104,9 @@ const initialCardPresentState: CardState = {
   isPollWorkerCardPresent: false,
   isRecentVoterPrint: false,
   isVoterCardExpired: false,
+  isVoterCardVoided: false,
   isVoterCardPresent: false,
-  isVoterCardUsed: false,
+  isVoterCardPrinted: false,
   pauseProcessingUntilNoCardPresent: false,
 }
 
@@ -180,24 +174,25 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       case 'voter': {
         const voterCardData = cardData as VoterCardData
         const isVoterCardExpired = this.isVoterCardExpired(voterCardData.c)
-        const isBallotPrinted = Boolean(voterCardData.bp)
-        const ballotUsedTime = Number(voterCardData.uz) || 0
-        const isVoterCardUsed = Boolean(ballotUsedTime)
+        const isVoterCardVoided = Boolean(voterCardData.uz)
+        const ballotPrintedTime = Number(voterCardData.bp) || 0
+        const isVoterCardPrinted = Boolean(ballotPrintedTime)
         const votes: VotesDict = voterCardData.v || {}
         const recentPrintExpirationSeconds = 60
         const isRecentVoterPrint =
-          isBallotPrinted &&
-          utcTimestamp() <= ballotUsedTime + recentPrintExpirationSeconds
+          isVoterCardPrinted &&
+          utcTimestamp() <= ballotPrintedTime + recentPrintExpirationSeconds
         this.setState({
           ...initialCardPresentState,
           shortValue,
           isVoterCardExpired,
+          isVoterCardVoided,
           isVoterCardPresent: true,
-          isVoterCardUsed,
+          isVoterCardPrinted,
           isRecentVoterPrint,
           votes,
         })
-        if (!isVoterCardUsed && !isVoterCardExpired) {
+        if (!isVoterCardExpired && !isVoterCardVoided && !isVoterCardPrinted) {
           this.processVoterCardData(voterCardData)
         }
         break
@@ -263,11 +258,38 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     this.setState({ pauseProcessingUntilNoCardPresent: b })
   }
 
-  public markVoterCardUsed: MarkVoterCardUsedFunction = async ({
-    markBallotPrinted = true,
-    pauseProcessingUntilNoCardPresent = false,
-  }: MarkVoterCardUsedFunctionArgs = {}) => {
+  public markVoterCardVoided: MarkVoterCardFunction = async () => {
     this.stopPolling()
+
+    const currentVoterCardData: VoterCardData = JSON.parse(
+      this.state.shortValue
+    )
+    const voidedVoterCardData: VoterCardData = {
+      ...currentVoterCardData,
+      v: undefined,
+      uz: utcTimestamp(),
+    }
+    await this.writeCard(voidedVoterCardData)
+
+    const updatedCard = await this.readCard()
+    const updatedShortValue: VoterCardData =
+      updatedCard.present && JSON.parse(updatedCard.shortValue)
+
+    this.startPolling()
+
+    if (
+      !!updatedShortValue.v ||
+      voidedVoterCardData.uz !== updatedShortValue.uz
+    ) {
+      this.resetBallot()
+      return false
+    }
+    return true
+  }
+
+  public markVoterCardPrinted: MarkVoterCardFunction = async () => {
+    this.stopPolling()
+    this.setPauseProcessingUntilNoCardPresent(true)
 
     const currentVoterCardData: VoterCardData = JSON.parse(
       this.state.shortValue
@@ -276,26 +298,20 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     const usedVoterCardData: VoterCardData = {
       ...currentVoterCardData,
       v: undefined,
-      uz: utcTimestamp(),
-      bp: markBallotPrinted ? 1 : 0,
+      bp: utcTimestamp(),
     }
     await this.writeCard(usedVoterCardData)
 
     const updatedCard = await this.readCard()
-    const updatedShortValue: VoterCardData = updatedCard.present
-      ? JSON.parse(updatedCard.shortValue)
-      : {}
-
-    if (pauseProcessingUntilNoCardPresent) {
-      this.setPauseProcessingUntilNoCardPresent(true)
-    }
+    const updatedShortValue: VoterCardData =
+      updatedCard.present && JSON.parse(updatedCard.shortValue)
 
     this.startPolling()
 
+    /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edige case. */
     if (
-      usedVoterCardData.v !== updatedShortValue.v ||
-      usedVoterCardData.bp !== updatedShortValue.bp ||
-      usedVoterCardData.uz !== updatedShortValue.uz
+      !!updatedShortValue.v ||
+      usedVoterCardData.bp !== updatedShortValue.bp
     ) {
       this.resetBallot()
       return false
@@ -619,7 +635,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       isPollWorkerCardPresent,
       isVoterCardPresent,
       isVoterCardExpired,
-      isVoterCardUsed,
+      isVoterCardVoided,
+      isVoterCardPrinted,
       isRecentVoterPrint,
       machineId,
       precinctId,
@@ -654,7 +671,10 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           />
         )
       }
-      if (isPollsOpen && isVoterCardPresent && isVoterCardUsed) {
+      if (isPollsOpen && isVoterCardVoided) {
+        return <ExpiredCardScreen />
+      }
+      if (isPollsOpen && isVoterCardPrinted) {
         if (isRecentVoterPrint && appMode === VxMarkPlusVxPrint) {
           return <CastBallotPage />
         } else {
@@ -675,7 +695,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             election={election}
             isLiveMode={isLiveMode}
             isVoterCardPresent={isVoterCardPresent}
-            markVoterCardUsed={this.markVoterCardUsed}
+            markVoterCardPrinted={this.markVoterCardPrinted}
             precinctId={precinctId}
             printer={printer}
             votes={votes}
@@ -696,7 +716,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
                   incrementBallotsPrintedCount: this
                     .incrementBallotsPrintedCount,
                   isLiveMode,
-                  markVoterCardUsed: this.markVoterCardUsed,
+                  markVoterCardPrinted: this.markVoterCardPrinted,
+                  markVoterCardVoided: this.markVoterCardVoided,
                   precinctId,
                   printer,
                   resetBallot: this.resetBallot,

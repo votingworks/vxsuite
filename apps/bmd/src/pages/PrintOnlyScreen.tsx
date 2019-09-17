@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import { Election, MarkVoterCardUsedFunction, VotesDict } from '../config/types'
+import { Election, MarkVoterCardFunction, VotesDict } from '../config/types'
 import { NullPrinter } from '../utils/printer'
 import isEmptyObject from '../utils/isEmptyObject'
 
@@ -14,7 +14,7 @@ interface Props {
   election: Election
   isLiveMode: boolean
   isVoterCardPresent: boolean
-  markVoterCardUsed: MarkVoterCardUsedFunction
+  markVoterCardPrinted: MarkVoterCardFunction
   precinctId: string
   printer: NullPrinter
   votes: VotesDict
@@ -28,7 +28,7 @@ const PrintAppScreen = ({
   election,
   isLiveMode,
   isVoterCardPresent,
-  markVoterCardUsed,
+  markVoterCardPrinted,
   precinctId,
   printer,
   votes: cardVotes,
@@ -42,9 +42,7 @@ const PrintAppScreen = ({
   const isCardVotesEmpty = isEmptyObject(cardVotes)
 
   const printBallot = useCallback(async () => {
-    const isUsed = await markVoterCardUsed({
-      pauseProcessingUntilNoCardPresent: true,
-    })
+    const isUsed = await markVoterCardPrinted()
     /* istanbul ignore else */
     if (isUsed) {
       await printer.print()
@@ -52,7 +50,7 @@ const PrintAppScreen = ({
         updateIsPrinted(true) // add timeout here
       }, printerTimerTimeoutSeconds * 1000)
     }
-  }, [markVoterCardUsed, printer])
+  }, [markVoterCardPrinted, printer])
 
   useEffect(() => {
     if (!isEmptyObject(cardVotes)) {
