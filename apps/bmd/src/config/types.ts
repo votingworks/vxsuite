@@ -162,14 +162,14 @@ export interface CardData {
 }
 export interface VoterCardData extends CardData {
   readonly t: 'voter'
-  readonly c: number
-  readonly bs: string
-  readonly pr: string
-  readonly uz?: number
-  readonly bp?: number
-  readonly v?: VotesDict
-  readonly u?: number
-  readonly m?: string
+  readonly c: number // created date
+  readonly bs: string // ballot style id
+  readonly pr: string // precinct id
+  readonly uz?: number // used (voided)
+  readonly bp?: number // ballot printed date
+  readonly v?: VotesDict // votes object
+  readonly u?: number // updated date
+  readonly m?: string // mark machine id
 }
 export interface PollworkerCardData extends CardData {
   readonly t: 'pollworker'
