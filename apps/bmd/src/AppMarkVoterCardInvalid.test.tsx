@@ -87,6 +87,10 @@ describe('Mark Card Void when voter is idle too long', () => {
   })
 
   it('Reset ballot when card write does not match card read.', async () => {
+    // TODO: This is required due to `fetchMock.restore()` in `setupTests.tsx`.
+    // https://github.com/votingworks/bmd/issues/714
+    fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
+
     let currentCard = noCard
     fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
