@@ -1,7 +1,9 @@
-import React, { MouseEventHandler, useState } from 'react'
+import React, { MouseEventHandler } from 'react'
 import styled from 'styled-components'
 
 import * as GLOBALS from '../config/globals'
+
+import Button from './Button'
 
 interface Attrs extends HTMLButtonElement {
   readonly type: string
@@ -54,28 +56,16 @@ const StyledChoiceButton = styled('button').attrs((props: Attrs) => ({
 
 interface ChoiceButtonProps extends StyledChoiceButtonProps {
   onPress: MouseEventHandler
+  dataSelected?: boolean
 }
 
 const ChoiceButton = ({ onPress, ...rest }: ChoiceButtonProps) => {
-  const [readyForEvents, setReadyForEvents] = useState(true)
-
-  const onPointerUp = () => setReadyForEvents(false)
-
-  const onClick = (event: React.MouseEvent) => {
-    if (readyForEvents) {
-      onPress(event)
-    } else {
-      setReadyForEvents(true)
-    }
-  }
-
   return (
-    <StyledChoiceButton
+    <Button
       {...rest}
+      component={StyledChoiceButton}
       data-selected={rest.isSelected}
-      onPointerDown={onPress}
-      onPointerUp={onPointerUp}
-      onClick={onClick}
+      onPress={onPress}
     />
   )
 }

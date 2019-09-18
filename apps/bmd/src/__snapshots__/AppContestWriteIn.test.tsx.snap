@@ -72,6 +72,18 @@ exports[`Single Seat Contest with Write In 1`] = `
   margin: 0.25rem;
 }
 
+.c12 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
 .c9 {
   position: relative;
   border-radius: 0.125rem;
@@ -111,18 +123,6 @@ exports[`Single Seat Contest with Write In 1`] = `
   font-size: 2rem;
   font-weight: 700;
   content: '';
-}
-
-.c12 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
 }
 
 .c1 {

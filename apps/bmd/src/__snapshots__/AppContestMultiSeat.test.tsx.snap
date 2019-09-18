@@ -72,6 +72,30 @@ exports[`Single Seat Contest 1`] = `
   margin: 0.25rem;
 }
 
+.c13 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  touch-action: manipulation;
+}
+
+.c14 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
 .c11 {
   position: relative;
   border-radius: 0.125rem;
@@ -153,30 +177,6 @@ exports[`Single Seat Contest 1`] = `
   font-size: 2rem;
   font-weight: 700;
   content: '✓';
-}
-
-.c13 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  touch-action: manipulation;
-}
-
-.c14 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
 }
 
 .c1 {

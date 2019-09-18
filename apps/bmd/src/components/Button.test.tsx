@@ -72,6 +72,7 @@ it('works properly with clicks and touches', () => {
   // so this ends up calling the event handler twice
   fireEvent.pointerDown(button)
   fireEvent.pointerCancel(button)
+  expect(onPress).toHaveBeenCalledTimes(4)
   fireEvent.click(button)
   expect(onPress).toHaveBeenCalledTimes(5)
 })

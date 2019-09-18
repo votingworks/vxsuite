@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, useState } from 'react'
-import styled, { css } from 'styled-components'
+import styled, { css, StyledComponent } from 'styled-components'
 
 interface Attrs extends HTMLButtonElement {
   readonly type: string
@@ -50,10 +50,15 @@ const StyledButton = styled('button').attrs((props: Attrs) => ({
 `
 
 interface PointerButtonProps extends Props {
+  component?: StyledComponent<'button', never, Props, never>
   onPress: MouseEventHandler
 }
 
-const Button = ({ onPress, ...rest }: PointerButtonProps) => {
+const Button = ({
+  component: Component = StyledButton,
+  onPress,
+  ...rest
+}: PointerButtonProps) => {
   const [readyForEvents, setReadyForEvents] = useState(true)
 
   const onPointerUp = () => setReadyForEvents(false)
@@ -67,7 +72,7 @@ const Button = ({ onPress, ...rest }: PointerButtonProps) => {
   }
 
   return (
-    <StyledButton
+    <Component
       {...rest}
       onPointerDown={onPress}
       onPointerUp={onPointerUp}
