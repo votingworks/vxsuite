@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders ChoiceButton 1`] = `
+.c0 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c0::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #FFFFFF;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
+@media (min-width:480px) {
+  .c0 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+<button
+  class="c0"
+  data-selected="false"
+  role="option"
+  type="button"
+>
+  foo
+</button>
+`;
