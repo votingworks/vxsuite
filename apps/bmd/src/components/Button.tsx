@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react'
+import React, { MouseEventHandler, useState } from 'react'
 import styled, { css } from 'styled-components'
 
 interface Attrs extends HTMLButtonElement {
@@ -53,9 +53,28 @@ interface PointerButtonProps extends Props {
   onPress: MouseEventHandler
 }
 
-const Button = ({ onPress, ...rest }: PointerButtonProps) => (
-  <StyledButton {...rest} onClick={onPress} />
-)
+const Button = ({ onPress, ...rest }: PointerButtonProps) => {
+  const [readyForEvents, setReadyForEvents] = useState(true)
+
+  const onPointerUp = () => setReadyForEvents(false)
+
+  const onClick = (event: React.MouseEvent) => {
+    if (readyForEvents) {
+      onPress(event)
+    } else {
+      setReadyForEvents(true)
+    }
+  }
+
+  return (
+    <StyledButton
+      {...rest}
+      onPointerDown={onPress}
+      onPointerUp={onPointerUp}
+      onClick={onClick}
+    />
+  )
+}
 
 export const SegmentedButton = styled.span`
   display: inline-block;

@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react'
+import React, { MouseEventHandler, useState } from 'react'
 import styled from 'styled-components'
 
 import * as GLOBALS from '../config/globals'
@@ -56,12 +56,28 @@ interface ChoiceButtonProps extends StyledChoiceButtonProps {
   onPress: MouseEventHandler
 }
 
-const ChoiceButton = ({ onPress, ...rest }: ChoiceButtonProps) => (
-  <StyledChoiceButton
-    {...rest}
-    data-selected={rest.isSelected}
-    onClick={onPress}
-  />
-)
+const ChoiceButton = ({ onPress, ...rest }: ChoiceButtonProps) => {
+  const [readyForEvents, setReadyForEvents] = useState(true)
+
+  const onPointerUp = () => setReadyForEvents(false)
+
+  const onClick = (event: React.MouseEvent) => {
+    if (readyForEvents) {
+      onPress(event)
+    } else {
+      setReadyForEvents(true)
+    }
+  }
+
+  return (
+    <StyledChoiceButton
+      {...rest}
+      data-selected={rest.isSelected}
+      onPointerDown={onPress}
+      onPointerUp={onPointerUp}
+      onClick={onClick}
+    />
+  )
+}
 
 export default ChoiceButton
