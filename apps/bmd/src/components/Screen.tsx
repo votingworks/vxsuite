@@ -3,9 +3,12 @@ import { RouteComponentProps, withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 
 const StyledScreen = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  /* Media query used to avoid having to undo these styles for print. */
+  @media screen {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
   &:focus {
     outline: none;
   }
