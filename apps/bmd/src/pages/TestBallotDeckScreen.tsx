@@ -144,7 +144,6 @@ const TestBallotDeckScreen = ({
                 return (
                   <PrintedBallot
                     key={ballotId}
-                    ballotId={undefined} // TODO: add ballotId here: https://github.com/votingworks/bmd/issues/424
                     ballotStyleId={ballot.ballotStyleId}
                     election={election}
                     isLiveMode={isLiveMode}
