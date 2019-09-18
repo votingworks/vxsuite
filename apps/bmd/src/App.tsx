@@ -8,6 +8,11 @@ import Screen from './components/Screen'
 
 import AppRoot from './AppRoot'
 
+/* istanbul ignore next - unsure how to test */
+window.oncontextmenu = (e: MouseEvent): void => {
+  e.preventDefault()
+}
+
 const App = () => (
   <BrowserRouter>
     <Screen>
