@@ -62,17 +62,24 @@ it('works properly with clicks and touches', () => {
   fireEvent.pointerDown(button)
   expect(onPress).toHaveBeenCalledTimes(2)
 
-  // this is the behavior when a proper touch becomes a click
+  // when a tap is not smudged and doesn't last too long
+  // we get pointerDown, pointerUp, and finally a click event.
+  // in this case, we only want onPress to fire once.
   fireEvent.pointerDown(button)
   fireEvent.pointerUp(button)
   fireEvent.click(button)
   expect(onPress).toHaveBeenCalledTimes(3)
 
-  // this is the behavior on a bad touch, followed by a separate click
-  // so this ends up calling the event handler twice
+  // when a tap is smudged or lasts too long,
+  // we get pointerDown, pointerCancel, and no click event.
+  // we still want onPress to fire exactly once.
   fireEvent.pointerDown(button)
   fireEvent.pointerCancel(button)
   expect(onPress).toHaveBeenCalledTimes(4)
+
+  // on use of accessible controller / keyboard
+  // we get just a click event.
+  // this should trigger onPress exactly once.
   fireEvent.click(button)
   expect(onPress).toHaveBeenCalledTimes(5)
 })
