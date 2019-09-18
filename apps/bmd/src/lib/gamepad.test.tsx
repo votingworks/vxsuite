@@ -68,29 +68,29 @@ it('gamepad controls work', async () => {
 
   // Test navigation by gamepad
   handleGamepadButtonDown('DPadDown')
-  expect(getActiveElement().dataset.id).toEqual(contest0candidate0.id)
+  expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id)
   handleGamepadButtonDown('DPadDown')
-  expect(getActiveElement().dataset.id).toEqual(contest0candidate1.id)
+  expect(getActiveElement().dataset.choice).toEqual(contest0candidate1.id)
   handleGamepadButtonDown('DPadUp')
-  expect(getActiveElement().dataset.id).toEqual(contest0candidate0.id)
+  expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id)
 
   // test the edge case of rolling over
   handleGamepadButtonDown('DPadUp')
   expect(document.activeElement!.textContent).toEqual('Settings')
   handleGamepadButtonDown('DPadDown')
-  expect(getActiveElement().dataset.id).toEqual(contest0candidate0.id)
+  expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id)
 
   handleGamepadButtonDown('DPadRight')
   advanceTimers()
   // go up first without focus, then down once, should be same as down once.
   handleGamepadButtonDown('DPadUp')
   handleGamepadButtonDown('DPadDown')
-  expect(getActiveElement().dataset.id).toEqual(contest1candidate0.id)
+  expect(getActiveElement().dataset.choice).toEqual(contest1candidate0.id)
   handleGamepadButtonDown('DPadLeft')
   advanceTimers()
   // B is same as down
   handleGamepadButtonDown('B')
-  expect(getActiveElement().dataset.id).toEqual(contest0candidate0.id)
+  expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id)
 
   // select and unselect
   handleGamepadButtonDown('A')

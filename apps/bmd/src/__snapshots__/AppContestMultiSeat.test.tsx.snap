@@ -481,7 +481,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Camille Argent, Federalist."
               class="c9"
-              data-id="argent"
+              data-choice="argent"
               data-selected="true"
               role="option"
               type="button"
@@ -503,7 +503,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Chloe Witherspoon-Smithson, Federalist."
               class="c9"
-              data-id="witherspoonsmithson"
+              data-choice="witherspoonsmithson"
               data-selected="true"
               role="option"
               type="button"
@@ -525,7 +525,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Clayton Bainbridge, Federalist."
               class="c9"
-              data-id="bainbridge"
+              data-choice="bainbridge"
               data-selected="true"
               role="option"
               type="button"
@@ -547,7 +547,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Charlene Hennessey, People's."
               class="c9"
-              data-id="hennessey"
+              data-choice="hennessey"
               data-selected="true"
               role="option"
               type="button"
@@ -569,7 +569,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Eric Savoy, People's."
               class="c11"
-              data-id="savoy"
+              data-choice="savoy"
               data-selected="false"
               role="option"
               type="button"
@@ -591,7 +591,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Susan Tawa, People's."
               class="c11"
-              data-id="tawa"
+              data-choice="tawa"
               data-selected="false"
               role="option"
               type="button"
@@ -613,7 +613,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Mary Tawa, People's."
               class="c11"
-              data-id="tawa-mary"
+              data-choice="tawa-mary"
               data-selected="false"
               role="option"
               type="button"
@@ -635,7 +635,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Damian Rangel, Liberty."
               class="c11"
-              data-id="rangel"
+              data-choice="rangel"
               data-selected="false"
               role="option"
               type="button"
@@ -657,7 +657,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Valarie Altman, Constitution."
               class="c11"
-              data-id="altman"
+              data-choice="altman"
               data-selected="false"
               role="option"
               type="button"
@@ -679,7 +679,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Helen Moore, Constitution."
               class="c11"
-              data-id="moore"
+              data-choice="moore"
               data-selected="false"
               role="option"
               type="button"
@@ -701,7 +701,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="John White, Whig."
               class="c11"
-              data-id="white"
+              data-choice="white"
               data-selected="false"
               role="option"
               type="button"
@@ -723,7 +723,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Joe Schmidt, Whig."
               class="c11"
-              data-id="schmidt"
+              data-choice="schmidt"
               data-selected="false"
               role="option"
               type="button"
@@ -745,7 +745,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Joe Smith, Whig."
               class="c11"
-              data-id="smith"
+              data-choice="smith"
               data-selected="false"
               role="option"
               type="button"
@@ -767,7 +767,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Amanda Marracini, Labor."
               class="c11"
-              data-id="marracini"
+              data-choice="marracini"
               data-selected="false"
               role="option"
               type="button"
@@ -789,7 +789,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Martin Schreiner, Independent."
               class="c11"
-              data-id="schreiner"
+              data-choice="schreiner"
               data-selected="false"
               role="option"
               type="button"

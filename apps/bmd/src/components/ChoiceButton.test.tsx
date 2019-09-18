@@ -7,7 +7,7 @@ const onPress = jest.fn()
 
 it('renders ChoiceButton', () => {
   const { container } = render(
-    <ChoiceButton isSelected={false} onPress={onPress}>
+    <ChoiceButton choice="foo" isSelected={false} onPress={onPress}>
       foo
     </ChoiceButton>
   )

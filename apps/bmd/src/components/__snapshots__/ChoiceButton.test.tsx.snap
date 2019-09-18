@@ -50,6 +50,7 @@ exports[`renders ChoiceButton 1`] = `
 
 <button
   class="c0"
+  data-choice="foo"
   data-selected="false"
   role="option"
   type="button"

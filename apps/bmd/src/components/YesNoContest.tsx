@@ -185,7 +185,7 @@ export default class YesNoContest extends React.Component<Props> {
   public handleUpdateSelection = (event: InputEvent) => {
     const { vote } = this.props
     const newVote = (event.currentTarget as HTMLInputElement).dataset
-      .vote as YesNoVote
+      .choice as YesNoVote
     if (vote === newVote) {
       this.props.updateVote(this.props.contest.id, undefined)
     } else {
@@ -322,7 +322,7 @@ export default class YesNoContest extends React.Component<Props> {
                 return (
                   <ChoiceButton
                     key={answer}
-                    data-vote={answerLowerCase}
+                    choice={answerLowerCase}
                     isSelected={isChecked}
                     onPress={
                       isDisabled

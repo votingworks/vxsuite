@@ -224,7 +224,7 @@ class CandidateContest extends React.Component<Props, State> {
 
   public handleUpdateSelection = (event: InputEvent) => {
     const { vote } = this.props
-    const candidateId = (event.currentTarget as HTMLInputElement).dataset.id
+    const candidateId = (event.currentTarget as HTMLInputElement).dataset.choice
     /* istanbul ignore else */
     if (candidateId) {
       const candidate = this.findCandidateById(vote, candidateId)
@@ -440,7 +440,7 @@ class CandidateContest extends React.Component<Props, State> {
                             ? handleDisabledClick
                             : this.handleUpdateSelection
                         }
-                        data-id={candidate.id}
+                        choice={candidate.id}
                         aria-label={`${stripQuotes(
                           candidate.name
                         )}, ${partyName}.`}
@@ -463,7 +463,7 @@ class CandidateContest extends React.Component<Props, State> {
                           <ChoiceButton
                             key={candidate.id}
                             isSelected
-                            data-id={candidate.id}
+                            choice={candidate.id}
                             onPress={this.handleUpdateSelection}
                           >
                             <Prose>
@@ -476,6 +476,7 @@ class CandidateContest extends React.Component<Props, State> {
                       })}
                   {contest.allowWriteIns && !hasReachedMaxSelections && (
                     <ChoiceButton
+                      choice="write-in"
                       isSelected={false}
                       onPress={this.initWriteInCandidate}
                     >
