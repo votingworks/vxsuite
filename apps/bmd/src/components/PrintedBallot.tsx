@@ -181,7 +181,7 @@ const PrintBallot = ({
   precinctId,
   votes,
 }: Props) => {
-  const ballotId = randomBase64(16)
+  const ballotId = randomBase64()
   const { county, date, seal, sealURL, state, parties, title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     ballotStyleId,
