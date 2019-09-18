@@ -14,4 +14,4 @@ const port = 3000
 proxy(app)
 app.use('/', express.static('../build'))
 
-app.listen(port, () => console.log(`BMD listening on port ${port}!`))
+app.listen(port, () => console.log(`BSD listening on port ${port}!`))
