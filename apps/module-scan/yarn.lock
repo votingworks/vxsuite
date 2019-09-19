@@ -4704,9 +4704,9 @@ node-pre-gyp@^0.12.0:
     semver "^5.3.0"
     tar "^4"
 
-"node-quirc@https://github.com/eventualbuddha/node-quirc.git#jpeg-support":
+"node-quirc@https://github.com/votingworks/node-quirc.git#jpeg-support":
   version "2.0.0"
-  resolved "https://github.com/eventualbuddha/node-quirc.git#acd01bb5002674f50ee17096311fdf8e30945fca"
+  resolved "https://github.com/votingworks/node-quirc.git#acd01bb5002674f50ee17096311fdf8e30945fca"
   dependencies:
     bindings "^1.5.0"
     nan "^2.14.0"
