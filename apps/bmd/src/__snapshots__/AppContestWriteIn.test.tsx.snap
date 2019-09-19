@@ -268,17 +268,6 @@ exports[`Single Seat Contest with Write In 1`] = `
   flex: 2;
 }
 
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  height: 100%;
-}
-
 .c0:focus {
   outline: none;
 }
@@ -363,6 +352,19 @@ exports[`Single Seat Contest with Write In 1`] = `
 @media print {
   .c13 {
     color: #FFFFFF;
+  }
+}
+
+@media screen {
+  .c0 {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    height: 100%;
   }
 }
 
