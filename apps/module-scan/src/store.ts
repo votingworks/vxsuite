@@ -57,10 +57,13 @@ export default class Store {
     })
   }
 
-  public dbGetAsync<T>(sql: string): Promise<T> {
+  public dbGetAsync<T, P extends unknown[] = []>(
+    sql: string,
+    ...params: P
+  ): Promise<T> {
     return new Promise<T>(async (resolve, reject) => {
       const db = await this.getDb()
-      db.get(sql, (err, row: T) => {
+      db.get(sql, params, (err, row: T) => {
         if (err) {
           return reject(err)
         }
@@ -149,6 +152,16 @@ export default class Store {
       // this might happen on duplicate insert, which happens
       // when chokidar sometimes notices a file twice.
     }
+  }
+
+  public async deleteBatch(batchId: number) {
+    const { count }: { count: number } = await this.dbGetAsync(
+      'select count(*) as count from batches where id = ?',
+      batchId
+    )
+    await this.dbRunAsync('delete from CVRs where batch_id = ?', batchId)
+    await this.dbRunAsync('delete from batches where id = ?', batchId)
+    return count > 0
   }
 
   public async batchStatus() {
