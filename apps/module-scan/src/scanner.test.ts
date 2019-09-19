@@ -1,10 +1,9 @@
 import * as chokidar from 'chokidar'
-import waitForExpect from 'wait-for-expect'
-import * as scanner from './scanner'
+import SystemScanner from './scanner'
 import election from '../election.json'
 import { Election } from './types'
 import exec from './exec'
-import { init } from './store'
+import Store from './store'
 
 jest.mock('chokidar')
 const mockChokidar = chokidar as jest.Mocked<typeof chokidar>
@@ -13,11 +12,8 @@ jest.mock('./exec')
 
 const execMock = exec as jest.MockedFunction<typeof exec>
 
-beforeAll(async () => {
-  await init(true)
-})
-
 test('doScan calls exec with scanimage', async () => {
+  const scanner = new SystemScanner({ store: await Store.memoryStore() })
   await expect(scanner.doScan()).rejects.toThrow('no election configuration')
 
   const mockWatcherOn = jest.fn()
@@ -39,14 +35,16 @@ test('doScan calls exec with scanimage', async () => {
   execMock.mockResolvedValueOnce({ stdout: '', stderr: '' })
   await scanner.doScan()
 
-  scanner.unconfigure()
+  await scanner.unconfigure()
 
-  await waitForExpect(() => {
-    expect(mockWatcherClose).toHaveBeenCalled()
-    expect(exec).toHaveBeenCalled()
-  })
+  // await waitForExpect(() => {
+  expect(mockWatcherClose).toHaveBeenCalled()
+  expect(exec).toHaveBeenCalled()
+  // })
 })
 
-test('configure starts watching files', () => {
-  scanner.configure(election as Election)
+test('configure starts watching files', async () => {
+  new SystemScanner({ store: await Store.memoryStore() }).configure(
+    election as Election
+  )
 })

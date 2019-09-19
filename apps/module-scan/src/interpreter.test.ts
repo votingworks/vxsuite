@@ -1,6 +1,7 @@
 import { join } from 'path'
 import { readQRCodesFromImageFile } from './interpreter'
-import { sampleBallotImagesPath } from './scanner'
+
+const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
 test('reads QR codes from ballot images #1', async () => {
   const qrCodes = await readQRCodesFromImageFile(

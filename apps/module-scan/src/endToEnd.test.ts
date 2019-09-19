@@ -1,20 +1,58 @@
+import { Application } from 'express'
 import request from 'supertest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { app } from './server'
+import { buildApp } from './server'
 import election from '../election.json'
-import { ballotImagesPath, doZero, sampleBallotImagesPath } from './scanner'
+import SystemScanner from './scanner'
+import Store from './store'
+
+const sampleBallotImagesPath = path.join(
+  __dirname,
+  '..',
+  'sample-ballot-images/'
+)
 
 // we need longer to make chokidar work
 jest.setTimeout(10000)
 
 jest.mock('./exec')
 
-beforeAll(async () => {
-  await doZero()
+let app: Application
+let scanner: SystemScanner
+
+beforeEach(async () => {
+  scanner = new SystemScanner({ store: await Store.memoryStore() })
+  app = buildApp(scanner)
 })
 
+function getScannerCVRCountWaiter() {
+  let cvrCount = 0
+
+  scanner.addAddCVRCallback(() => {
+    cvrCount += 1
+  })
+
+  return {
+    waitForCount(count: number): Promise<void> {
+      return new Promise(resolve => {
+        function checkCVRCount() {
+          if (count <= cvrCount) {
+            resolve()
+          } else {
+            setTimeout(checkCVRCount, 10)
+          }
+        }
+
+        checkCVRCount()
+      })
+    },
+  }
+}
+
 test('going through the whole process works', async () => {
+  const waiter = getScannerCVRCountWaiter()
+
   // try export before configure
   const response = await request(app)
     .post('/scan/export')
@@ -37,12 +75,14 @@ test('going through the whole process works', async () => {
   const sampleBallots = fs.readdirSync(sampleBallotImagesPath)
   for (const ballot of sampleBallots) {
     const oldPath = path.join(sampleBallotImagesPath, ballot)
-    const newPath = path.join(ballotImagesPath, ballot)
+    const newPath = path.join(scanner.ballotImagesPath, ballot)
     fs.copyFileSync(oldPath, newPath)
   }
 
-  // wait for the processing (takes more than 4 seconds cause chokidar)
-  await new Promise(resolve => setTimeout(resolve, 4000))
+  // wait for the processing
+  await waiter.waitForCount(
+    sampleBallots.filter(ballot => ballot.startsWith('sample-batch-')).length
+  )
 
   // check the status
   let status = await request(app)

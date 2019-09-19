@@ -1,16 +1,38 @@
+import { Application } from 'express'
 import request from 'supertest'
-import { app } from './server'
-import * as scanner from './scanner'
+import { buildApp } from './server'
+import { Scanner } from './scanner'
 import election from '../election.json'
 
 jest.mock('./scanner')
-const mockScanner = scanner as jest.Mocked<typeof scanner>
+
+let app: Application
+let scanner: Scanner
+let scannerMock: jest.Mocked<Scanner>
+
+function makeMockScanner(): Scanner {
+  return {
+    addManualBallot: jest.fn(),
+    configure: jest.fn(),
+    doExport: jest.fn(),
+    doScan: jest.fn(),
+    doZero: jest.fn(),
+    getStatus: jest.fn(),
+    unconfigure: jest.fn(),
+  }
+}
+
+beforeEach(async () => {
+  scanner = makeMockScanner()
+  scannerMock = scanner as jest.Mocked<Scanner>
+  app = buildApp(scanner)
+})
 
 test('GET /scan/status', async () => {
   const status = {
     batches: [],
   }
-  mockScanner.getStatus.mockResolvedValue(status)
+  scannerMock.getStatus.mockResolvedValue(status)
   await request(app)
     .get('/scan/status')
     .set('Accept', 'application/json')
@@ -33,7 +55,7 @@ test('POST /scan/configure', async () => {
 })
 
 test('POST /scan/scanBatch', async () => {
-  mockScanner.doScan.mockResolvedValue(undefined)
+  scannerMock.doScan.mockResolvedValue(undefined)
   await request(app)
     .post('/scan/scanBatch')
     .set('Accept', 'application/json')
@@ -42,7 +64,7 @@ test('POST /scan/scanBatch', async () => {
 })
 
 test('POST /scan/addManualBallot', async () => {
-  mockScanner.addManualBallot.mockResolvedValue(undefined)
+  scannerMock.addManualBallot.mockResolvedValue(undefined)
   await request(app)
     .post('/scan/addManualBallot')
     .send({
@@ -61,7 +83,7 @@ test('POST /scan/invalidateBatch', async () => {
 })
 
 test('POST /scan/export', async () => {
-  mockScanner.doExport.mockResolvedValue('')
+  scannerMock.doExport.mockResolvedValue('')
 
   await request(app)
     .post('/scan/export')
@@ -71,7 +93,7 @@ test('POST /scan/export', async () => {
 })
 
 test('POST /scan/zero', async () => {
-  mockScanner.doZero.mockResolvedValue()
+  scannerMock.doZero.mockResolvedValue()
 
   await request(app)
     .post('/scan/zero')
@@ -81,7 +103,7 @@ test('POST /scan/zero', async () => {
 })
 
 test('POST /scan/unconfigure', async () => {
-  mockScanner.unconfigure.mockResolvedValue()
+  scannerMock.unconfigure.mockResolvedValue()
 
   await request(app)
     .post('/scan/unconfigure')

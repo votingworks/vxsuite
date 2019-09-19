@@ -9,103 +9,13 @@ import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
 
-import { CVRCallbackParams, Election } from './types'
-import {
-  addBatch,
-  addCVR,
-  batchStatus,
-  exportCVRs,
-  init,
-  finishBatch,
-} from './store'
+import { CVRCallbackParams, Election, CastVoteRecord } from './types'
+import Store, { BatchInfo } from './store'
 import interpretFile, { interpretBallotString } from './interpreter'
-
 import execFile from './exec'
-
-let manualBatchId: number | undefined
-
-export const ballotImagesPath = path.join(__dirname, '..', 'ballot-images/')
-export const scannedBallotImagesPath = path.join(
-  __dirname,
-  '..',
-  'scanned-ballot-images/'
-)
-export const sampleBallotImagesPath = path.join(
-  __dirname,
-  '..',
-  'sample-ballot-images/'
-)
-
-// make sure those directories exist
-const allPaths = [ballotImagesPath, scannedBallotImagesPath]
-allPaths.forEach(path => {
-  if (!fs.existsSync(path)) {
-    fs.mkdirSync(path)
-  }
-})
-
-// keeping track of election
-let watcher: chokidar.FSWatcher, election: Election | null
 
 interface CVRCallbackWithBatchIDParams extends CVRCallbackParams {
   batchId: number
-}
-
-function cvrCallbackWithBatchId({
-  batchId,
-  ballotImagePath,
-  cvr,
-}: CVRCallbackWithBatchIDParams) {
-  if (cvr) {
-    addCVR(batchId, ballotImagePath, cvr)
-  }
-
-  // whether or not there is a CVR in that image, we move it to scanned
-  const newBallotImagePath = path.join(
-    scannedBallotImagesPath,
-    path.basename(ballotImagePath)
-  )
-  if (fs.existsSync(ballotImagePath)) {
-    fs.renameSync(ballotImagePath, newBallotImagePath)
-  }
-}
-
-export function fileAdded(ballotImagePath: string) {
-  if (!election) {
-    return
-  }
-
-  // get the batch ID from the path
-  const filename = path.basename(ballotImagePath)
-  const batchIdMatch = filename.match(/-batch-([^-]*)-/)
-
-  if (!batchIdMatch) {
-    return
-  }
-
-  const batchId = parseInt(batchIdMatch[1])
-
-  interpretFile({
-    election,
-    ballotImagePath,
-    cvrCallback: ({ ballotImagePath, cvr }: CVRCallbackParams) => {
-      cvrCallbackWithBatchId({ batchId, ballotImagePath, cvr })
-    },
-  })
-}
-
-export function configure(newElection: Election) {
-  election = newElection
-
-  // start watching the ballots
-  watcher = chokidar.watch(ballotImagesPath, {
-    persistent: true,
-    awaitWriteFinish: {
-      stabilityThreshold: 2000,
-      pollInterval: 200,
-    },
-  })
-  watcher.on('add', fileAdded)
 }
 
 function zeroPad(number: number, maxLength: number = 2): string {
@@ -120,85 +30,217 @@ function dateStamp(date: Date = new Date()): string {
   )}${zeroPad(date.getSeconds())}`
 }
 
-export async function doScan() {
-  if (!election) {
-    throw new Error('no election configuration')
-  }
+export const DefaultBallotImagesPath = path.join(
+  __dirname,
+  '..',
+  'ballot-images/'
+)
+export const DefaultScannedBallotImagesPath = path.join(
+  __dirname,
+  '..',
+  'scanned-ballot-images/'
+)
 
-  const batchId = await addBatch()
-
-  try {
-    // trigger a scan
-    await execFile('scanimage', [
-      '-d',
-      'fujitsu',
-      '--resolution',
-      '300',
-      '--format=jpeg',
-      '--source="ADF Duplex"',
-      `--batch=${ballotImagesPath}${dateStamp()}-batch-${batchId}-ballot-%04d.jpg`,
-    ])
-  } catch {
-    // node couldn't execute the command
-    throw new Error('problem scanning')
-  }
-
-  // mark the batch done in a few seconds
-  setTimeout(() => {
-    finishBatch(batchId)
-  }, 5000)
+export interface Options {
+  store: Store
+  ballotImagesPath: string
+  scannedBallotImagesPath: string
 }
 
-export async function addManualBallot(ballotString: string) {
-  if (!election) {
-    return
-  }
-
-  if (!manualBatchId) {
-    manualBatchId = await addBatch()
-  }
-
-  const cvr = interpretBallotString({
-    election,
-    ballotString,
-  })
-
-  if (cvr) {
-    addCVR(manualBatchId!, 'manual-' + cvr['_serialNumber'], cvr)
-  }
+export interface Scanner {
+  addManualBallot(ballotString: string): Promise<void>
+  configure(newElection: Election): void
+  doExport(): Promise<string>
+  doScan(): Promise<void>
+  doZero(): Promise<void>
+  getStatus(): Promise<{ batches: BatchInfo[]; electionHash?: string }>
+  unconfigure(): Promise<void>
 }
 
-export async function doExport() {
-  if (!election) {
-    return ''
+export default class SystemScanner implements Scanner {
+  private election?: Election
+  private watcher?: chokidar.FSWatcher
+  private store: Store
+  private manualBatchId?: number
+  private onCVRAddedCallbacks: ((cvr: CastVoteRecord) => void)[] = []
+
+  public readonly ballotImagesPath: string
+  public readonly scannedBallotImagesPath: string
+
+  public constructor({
+    store,
+    ballotImagesPath = DefaultBallotImagesPath,
+    scannedBallotImagesPath = DefaultScannedBallotImagesPath,
+  }: Partial<Exclude<Options, 'store'>> & { store: Store }) {
+    this.store = store
+    this.ballotImagesPath = ballotImagesPath
+    this.scannedBallotImagesPath = scannedBallotImagesPath
+
+    // make sure those directories exist
+    for (const path of [ballotImagesPath, scannedBallotImagesPath]) {
+      if (!fs.existsSync(path)) {
+        fs.mkdirSync(path)
+      }
+    }
   }
 
-  const outputStream = new streams.WritableStream()
-  await exportCVRs(outputStream)
-  return outputStream.toString()
-}
+  public async addManualBallot(ballotString: string) {
+    if (!this.election) {
+      return
+    }
 
-export async function doZero() {
-  await init(true)
-  fsExtra.emptyDirSync(ballotImagesPath)
-  fsExtra.emptyDirSync(scannedBallotImagesPath)
-  manualBatchId = undefined
-}
+    if (!this.manualBatchId) {
+      this.manualBatchId = await this.store.addBatch()
+    }
 
-export async function getStatus() {
-  const batches = await batchStatus()
-  if (election) {
-    return { electionHash: 'hashgoeshere', batches }
-  } else {
-    return { batches }
+    const cvr = interpretBallotString({
+      election: this.election,
+      ballotString,
+    })
+
+    if (cvr) {
+      this.addCVR(this.manualBatchId!, 'manual-' + cvr['_serialNumber'], cvr)
+    }
   }
-}
 
-export async function unconfigure() {
-  await doZero()
-  // eslint-disable-next-line no-null/no-null
-  election = null
-  if (watcher) {
-    watcher.close()
+  public configure(newElection: Election) {
+    this.election = newElection
+
+    // start watching the ballots
+    this.watcher = chokidar.watch(this.ballotImagesPath, {
+      persistent: true,
+      awaitWriteFinish: {
+        stabilityThreshold: 2000,
+        pollInterval: 200,
+      },
+    })
+    this.watcher.on('add', path => this.fileAdded(path))
+  }
+
+  private fileAdded(ballotImagePath: string) {
+    if (!this.election) {
+      return
+    }
+
+    // get the batch ID from the path
+    const filename = path.basename(ballotImagePath)
+    const batchIdMatch = filename.match(/-batch-([^-]*)-/)
+
+    if (!batchIdMatch) {
+      return
+    }
+
+    const batchId = parseInt(batchIdMatch[1])
+
+    interpretFile({
+      election: this.election,
+      ballotImagePath,
+      cvrCallback: ({ ballotImagePath, cvr }: CVRCallbackParams) => {
+        this.cvrCallbackWithBatchId({ batchId, ballotImagePath, cvr })
+      },
+    })
+  }
+
+  private cvrCallbackWithBatchId({
+    batchId,
+    ballotImagePath,
+    cvr,
+  }: CVRCallbackWithBatchIDParams) {
+    if (cvr) {
+      this.addCVR(batchId, ballotImagePath, cvr)
+    }
+
+    // whether or not there is a CVR in that image, we move it to scanned
+    const newBallotImagePath = path.join(
+      this.scannedBallotImagesPath,
+      path.basename(ballotImagePath)
+    )
+    if (fs.existsSync(ballotImagePath)) {
+      fs.renameSync(ballotImagePath, newBallotImagePath)
+    }
+  }
+
+  public addAddCVRCallback(callback: (cvr: CastVoteRecord) => void): void {
+    this.onCVRAddedCallbacks.push(callback)
+  }
+
+  private addCVR(
+    batchId: number,
+    ballotImagePath: string,
+    cvr: CastVoteRecord
+  ): void {
+    this.store.addCVR(batchId, ballotImagePath, cvr)
+    for (const callback of this.onCVRAddedCallbacks) {
+      try {
+        callback(cvr)
+      } catch {
+        // ignore failed callbacks
+      }
+    }
+  }
+
+  public async doScan() {
+    if (!this.election) {
+      throw new Error('no election configuration')
+    }
+
+    const batchId = await this.store.addBatch()
+
+    try {
+      // trigger a scan
+      await execFile('scanimage', [
+        '-d',
+        'fujitsu',
+        '--resolution',
+        '300',
+        '--format=jpeg',
+        '--source="ADF Duplex"',
+        `--batch=${
+          this.ballotImagesPath
+        }${dateStamp()}-batch-${batchId}-ballot-%04d.jpg`,
+      ])
+    } catch {
+      // node couldn't execute the command
+      throw new Error('problem scanning')
+    }
+
+    // mark the batch done in a few seconds
+    setTimeout(() => {
+      this.store.finishBatch(batchId)
+    }, 5000)
+  }
+
+  public async doExport() {
+    if (!this.election) {
+      return ''
+    }
+
+    const outputStream = new streams.WritableStream()
+    await this.store.exportCVRs(outputStream)
+    return outputStream.toString()
+  }
+
+  public async doZero() {
+    await this.store.init(true)
+    fsExtra.emptyDirSync(this.ballotImagesPath)
+    fsExtra.emptyDirSync(this.scannedBallotImagesPath)
+    this.manualBatchId = undefined
+  }
+
+  public async getStatus() {
+    const batches = await this.store.batchStatus()
+    if (this.election) {
+      return { electionHash: 'hashgoeshere', batches }
+    } else {
+      return { batches }
+    }
+  }
+
+  public async unconfigure() {
+    await this.doZero()
+    this.election = undefined
+    if (this.watcher) {
+      this.watcher.close()
+    }
   }
 }

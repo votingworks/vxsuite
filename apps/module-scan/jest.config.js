@@ -9,5 +9,4 @@ module.exports = {
     '!src/index.ts',
     '!src/types.ts',
   ],
-  setupFiles: ['<rootDir>/src/setupTests.ts'],
 }
