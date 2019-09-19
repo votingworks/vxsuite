@@ -6,6 +6,7 @@ import { ButtonEventFunction, ScannerStatus } from '../config/types'
 
 import Prose from '../components/Prose'
 import Table, { TD } from '../components/Table'
+import Button from '../components/Button'
 
 const Scanning = styled.em`
   color: rgb(71, 167, 75);
@@ -21,9 +22,10 @@ interface Props {
   invalidateBranch: ButtonEventFunction
   isScanning: boolean
   status: ScannerStatus
+  deleteBatch(batchId: number): void
 }
 
-const PrecinctsScreen = ({ isScanning, status }: Props) => {
+const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
   const { batches } = status
   const batchCount = (batches && batches.length) || 0
   const ballotCount =
@@ -50,7 +52,7 @@ const PrecinctsScreen = ({ isScanning, status }: Props) => {
                   <th>Batch ID</th>
                   <th>Ballot Count</th>
                   <th>Started At</th>
-                  <th>Finished At</th>
+                  <th colSpan={2}>Finished At</th>
                 </tr>
               </thead>
               <tbody>
@@ -68,6 +70,24 @@ const PrecinctsScreen = ({ isScanning, status }: Props) => {
                         <small>{shortDateTime(batch.endedAt)}</small>
                       )}
                     </TD>
+                    <td>
+                      <Button
+                        onClick={() => {
+                          if (
+                            // eslint-disable-next-line no-restricted-globals
+                            confirm(
+                              `Are you sure you want to delete batch ${
+                                batch.id
+                              }? This action cannot be undone.`
+                            )
+                          ) {
+                            deleteBatch(batch.id)
+                          }
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -81,4 +101,4 @@ const PrecinctsScreen = ({ isScanning, status }: Props) => {
   )
 }
 
-export default PrecinctsScreen
+export default DashboardScreen

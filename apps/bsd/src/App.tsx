@@ -30,6 +30,10 @@ const App: React.FC = () => {
   const [election, setElection] = useStateWithLocalStorage<OptionalElection>(
     'election'
   )
+  // used to hide batches while they're being deleted
+  const [pendingDeleteBatchIds, setPendingDeleteBatchIds] = useState<number[]>(
+    []
+  )
   const [status, setStatus] = useState<ScannerStatus>({ batches: [] })
   const { batches } = status
   const isScanning = batches && batches[0] && !batches[0].endedAt
@@ -181,6 +185,18 @@ const App: React.FC = () => {
       })
   }
 
+  const deleteBatch = async (id: number) => {
+    setPendingDeleteBatchIds(previousIds => [...previousIds, id])
+
+    try {
+      await fetch(`/scan/batch/${id}`, { method: 'DELETE' })
+    } finally {
+      setPendingDeleteBatchIds(previousIds =>
+        previousIds.filter(previousId => previousId !== id)
+      )
+    }
+  }
+
   useInterval(() => {
     election && updateStatus()
     cardServerAvailable && !election && readCard()
@@ -200,7 +216,13 @@ const App: React.FC = () => {
             <DashboardScreen
               invalidateBranch={invalidateBranch}
               isScanning={isScanning}
-              status={status}
+              status={{
+                ...status,
+                batches: status.batches.filter(
+                  batch => !pendingDeleteBatchIds.includes(batch.id)
+                ),
+              }}
+              deleteBatch={deleteBatch}
             />
             <form onSubmit={addBallot} className="visually-hidden">
               <input
