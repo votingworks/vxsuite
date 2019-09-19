@@ -1,5 +1,5 @@
-import React, { MouseEventHandler } from 'react'
-import styled, { css } from 'styled-components'
+import React, { MouseEventHandler, useState } from 'react'
+import styled, { css, StyledComponent } from 'styled-components'
 
 interface Attrs extends HTMLButtonElement {
   readonly type: string
@@ -13,11 +13,11 @@ export interface ButtonInterface {
   readonly big?: boolean
 }
 
-interface Props
+interface StyledButtonProps
   extends ButtonInterface,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 
-const buttonStyles = css<Props>`
+const buttonStyles = css<StyledButtonProps>`
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
@@ -49,13 +49,37 @@ const StyledButton = styled('button').attrs((props: Attrs) => ({
   ${buttonStyles} /* stylelint-disable-line value-keyword-case */
 `
 
-interface PointerButtonProps extends Props {
+export interface Props extends StyledButtonProps {
+  component?: StyledComponent<'button', never, StyledButtonProps, never>
   onPress: MouseEventHandler
 }
 
-const Button = ({ onPress, ...rest }: PointerButtonProps) => (
-  <StyledButton {...rest} onClick={onPress} />
-)
+const Button = ({
+  component: Component = StyledButton,
+  onPress,
+  ...rest
+}: Props) => {
+  const [readyForEvents, setReadyForEvents] = useState(true)
+
+  const onPointerUp = () => setReadyForEvents(false)
+
+  const onClick = (event: React.MouseEvent) => {
+    if (readyForEvents) {
+      onPress(event)
+    } else {
+      setReadyForEvents(true)
+    }
+  }
+
+  return (
+    <Component
+      {...rest}
+      onPointerDown={onPress}
+      onPointerUp={onPointerUp}
+      onClick={onClick}
+    />
+  )
+}
 
 export const SegmentedButton = styled.span`
   display: inline-block;

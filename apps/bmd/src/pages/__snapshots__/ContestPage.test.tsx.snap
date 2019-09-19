@@ -72,6 +72,18 @@ exports[`Renders ContestPage 1`] = `
   margin: 0.25rem;
 }
 
+.c11 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
 .c8 {
   position: relative;
   border-radius: 0.125rem;
@@ -111,18 +123,6 @@ exports[`Renders ContestPage 1`] = `
   font-size: 2rem;
   font-weight: 700;
   content: '';
-}
-
-.c11 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
 }
 
 .c0 {
@@ -403,7 +403,7 @@ exports[`Renders ContestPage 1`] = `
             <button
               aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
               class="c8"
-              data-id="barchi-hallaren"
+              data-choice="barchi-hallaren"
               data-selected="false"
               role="option"
               type="button"
@@ -425,7 +425,7 @@ exports[`Renders ContestPage 1`] = `
             <button
               aria-label="Adam Cramer and Greg Vuocolo, People's."
               class="c8"
-              data-id="cramer-vuocolo"
+              data-choice="cramer-vuocolo"
               data-selected="false"
               role="option"
               type="button"
@@ -447,7 +447,7 @@ exports[`Renders ContestPage 1`] = `
             <button
               aria-label="Daniel Court and Amy Blumhardt, Liberty."
               class="c8"
-              data-id="court-blumhardt"
+              data-choice="court-blumhardt"
               data-selected="false"
               role="option"
               type="button"
@@ -469,7 +469,7 @@ exports[`Renders ContestPage 1`] = `
             <button
               aria-label="Alvin Boone and James Lian, Constitution."
               class="c8"
-              data-id="boone-lian"
+              data-choice="boone-lian"
               data-selected="false"
               role="option"
               type="button"
@@ -491,7 +491,7 @@ exports[`Renders ContestPage 1`] = `
             <button
               aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
               class="c8"
-              data-id="hildebrand-garritty"
+              data-choice="hildebrand-garritty"
               data-selected="false"
               role="option"
               type="button"
@@ -513,7 +513,7 @@ exports[`Renders ContestPage 1`] = `
             <button
               aria-label="Martin Patterson and Clay Lariviere, Labor."
               class="c8"
-              data-id="patterson-lariviere"
+              data-choice="patterson-lariviere"
               data-selected="false"
               role="option"
               type="button"

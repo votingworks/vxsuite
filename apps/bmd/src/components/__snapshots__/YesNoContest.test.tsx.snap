@@ -296,8 +296,8 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
       >
         <button
           class="c10"
+          data-choice="yes"
           data-selected="false"
-          data-vote="yes"
           role="option"
           type="button"
         >
@@ -314,8 +314,8 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
         </button>
         <button
           class="c10"
+          data-choice="no"
           data-selected="false"
-          data-vote="no"
           role="option"
           type="button"
         >
@@ -680,8 +680,8 @@ exports[`supports yes/no contest displays warning when attempting to change vote
       >
         <button
           class="c10"
+          data-choice="yes"
           data-selected="true"
-          data-vote="yes"
           role="option"
           type="button"
         >
@@ -698,8 +698,8 @@ exports[`supports yes/no contest displays warning when attempting to change vote
         </button>
         <button
           class="c12"
+          data-choice="no"
           data-selected="false"
-          data-vote="no"
           role="option"
           type="button"
         >

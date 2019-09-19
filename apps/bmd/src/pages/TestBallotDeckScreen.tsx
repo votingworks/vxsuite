@@ -122,10 +122,10 @@ const TestBallotDeckScreen = ({
 
   return (
     <React.Fragment>
-      <Main>
-        <MainChild maxWidth={false}>
-          {ballots.length ? (
-            <React.Fragment>
+      {ballots.length ? (
+        <React.Fragment>
+          <Main>
+            <MainChild maxWidth={false}>
               <Prose className="no-print">
                 <h1>Test Ballots Deck for {precinct.name}</h1>
                 <p>
@@ -139,22 +139,26 @@ const TestBallotDeckScreen = ({
                   </Button>
                 </p>
               </Prose>
-              {ballots.map((ballot, i) => {
-                const ballotId = `temp-ballot-id-${i}`
-                return (
-                  <PrintedBallot
-                    key={ballotId}
-                    ballotStyleId={ballot.ballotStyleId}
-                    election={election}
-                    isLiveMode={isLiveMode}
-                    precinctId={ballot.precinctId}
-                    votes={ballot.votes}
-                  />
-                )
-              })}
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
+            </MainChild>
+          </Main>
+          {ballots.map((ballot, i) => {
+            const ballotId = `temp-ballot-id-${i}`
+            return (
+              <PrintedBallot
+                key={ballotId}
+                ballotStyleId={ballot.ballotStyleId}
+                election={election}
+                isLiveMode={isLiveMode}
+                precinctId={ballot.precinctId}
+                votes={ballot.votes}
+              />
+            )
+          })}
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <Main>
+            <MainChild maxWidth={false}>
               <Prose>
                 <h1>Test Ballot Decks</h1>
                 <p>
@@ -185,10 +189,10 @@ const TestBallotDeckScreen = ({
                   </Button>
                 ))}
               </ButtonList>
-            </React.Fragment>
-          )}
-        </MainChild>
-      </Main>
+            </MainChild>
+          </Main>
+        </React.Fragment>
+      )}
       <MainNav appName={appName} title="Clerk Actions">
         <Button small onPress={hideTestDeck}>
           Dashboard

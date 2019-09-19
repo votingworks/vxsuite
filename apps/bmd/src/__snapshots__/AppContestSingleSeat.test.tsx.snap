@@ -72,6 +72,30 @@ exports[`Single Seat Contest 1`] = `
   margin: 0.25rem;
 }
 
+.c13 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  touch-action: manipulation;
+}
+
+.c14 {
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
 .c11 {
   position: relative;
   border-radius: 0.125rem;
@@ -153,30 +177,6 @@ exports[`Single Seat Contest 1`] = `
   font-size: 2rem;
   font-weight: 700;
   content: '✓';
-}
-
-.c13 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  touch-action: manipulation;
-}
-
-.c14 {
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
 }
 
 .c1 {
@@ -322,17 +322,6 @@ exports[`Single Seat Contest 1`] = `
   flex: 2;
 }
 
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  height: 100%;
-}
-
 .c0:focus {
   outline: none;
 }
@@ -426,6 +415,19 @@ exports[`Single Seat Contest 1`] = `
   }
 }
 
+@media screen {
+  .c0 {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    height: 100%;
+  }
+}
+
 <div
   class="c0"
   tabindex="-1"
@@ -481,7 +483,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
               class="c9"
-              data-id="barchi-hallaren"
+              data-choice="barchi-hallaren"
               data-selected="true"
               role="option"
               type="button"
@@ -503,7 +505,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Adam Cramer and Greg Vuocolo, People's."
               class="c11"
-              data-id="cramer-vuocolo"
+              data-choice="cramer-vuocolo"
               data-selected="false"
               role="option"
               type="button"
@@ -525,7 +527,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Daniel Court and Amy Blumhardt, Liberty."
               class="c11"
-              data-id="court-blumhardt"
+              data-choice="court-blumhardt"
               data-selected="false"
               role="option"
               type="button"
@@ -547,7 +549,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Alvin Boone and James Lian, Constitution."
               class="c11"
-              data-id="boone-lian"
+              data-choice="boone-lian"
               data-selected="false"
               role="option"
               type="button"
@@ -569,7 +571,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
               class="c11"
-              data-id="hildebrand-garritty"
+              data-choice="hildebrand-garritty"
               data-selected="false"
               role="option"
               type="button"
@@ -591,7 +593,7 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Martin Patterson and Clay Lariviere, Labor."
               class="c11"
-              data-id="patterson-lariviere"
+              data-choice="patterson-lariviere"
               data-selected="false"
               role="option"
               type="button"

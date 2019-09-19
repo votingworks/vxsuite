@@ -309,7 +309,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
             <button
               aria-label="Name 0, Party 0."
               class="c8"
-              data-id="name-0"
+              data-choice="name-0"
               data-selected="true"
               role="option"
               type="button"
@@ -331,7 +331,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
             <button
               aria-label="Name 1, Party 1."
               class="c10"
-              data-id="name-1"
+              data-choice="name-1"
               data-selected="false"
               role="option"
               type="button"
@@ -353,7 +353,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
             <button
               aria-label="Name 2, Party 0."
               class="c10"
-              data-id="name-2"
+              data-choice="name-2"
               data-selected="false"
               role="option"
               type="button"
@@ -641,7 +641,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
             <button
               aria-label="Name 0, Party 0."
               class="c8"
-              data-id="name-0"
+              data-choice="name-0"
               data-selected="false"
               role="option"
               type="button"
@@ -663,7 +663,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
             <button
               aria-label="Name 1, Party 1."
               class="c8"
-              data-id="name-1"
+              data-choice="name-1"
               data-selected="false"
               role="option"
               type="button"
@@ -685,7 +685,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
             <button
               aria-label="Name 2, Party 0."
               class="c8"
-              data-id="name-2"
+              data-choice="name-2"
               data-selected="false"
               role="option"
               type="button"
@@ -1021,7 +1021,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
             <button
               aria-label="Name 0, Party 0."
               class="c8"
-              data-id="name-0"
+              data-choice="name-0"
               data-selected="true"
               role="option"
               type="button"
@@ -1043,7 +1043,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
             <button
               aria-label="Name 1, Party 1."
               class="c10"
-              data-id="name-1"
+              data-choice="name-1"
               data-selected="false"
               role="option"
               type="button"
@@ -1065,7 +1065,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
             <button
               aria-label="Name 2, Party 0."
               class="c10"
-              data-id="name-2"
+              data-choice="name-2"
               data-selected="false"
               role="option"
               type="button"
@@ -1355,7 +1355,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
             <button
               aria-label="Name 0, Party 0."
               class="c8"
-              data-id="name-0"
+              data-choice="name-0"
               data-selected="false"
               role="option"
               type="button"
@@ -1377,7 +1377,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
             <button
               aria-label="Name 1, Party 1."
               class="c8"
-              data-id="name-1"
+              data-choice="name-1"
               data-selected="false"
               role="option"
               type="button"
@@ -1399,7 +1399,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
             <button
               aria-label="Name 2, Party 0."
               class="c8"
-              data-id="name-2"
+              data-choice="name-2"
               data-selected="false"
               role="option"
               type="button"
@@ -1420,6 +1420,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
             </button>
             <button
               class="c8"
+              data-choice="write-in"
               data-selected="false"
               role="option"
               type="button"

@@ -1,21 +1,25 @@
-import React, { MouseEventHandler } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import * as GLOBALS from '../config/globals'
+
+import Button, { Props as ButtonProps } from './Button'
 
 interface Attrs extends HTMLButtonElement {
   readonly type: string
 }
 
-interface StyledChoiceButtonProps
-  extends React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
+interface Props
+  extends ButtonProps,
+    React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
+  choice: string
   isSelected: boolean
 }
 
 const StyledChoiceButton = styled('button').attrs((props: Attrs) => ({
   role: 'option',
   type: props.type || 'button',
-}))<StyledChoiceButtonProps>`
+}))<Props>`
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
@@ -52,16 +56,15 @@ const StyledChoiceButton = styled('button').attrs((props: Attrs) => ({
   }
 `
 
-interface ChoiceButtonProps extends StyledChoiceButtonProps {
-  onPress: MouseEventHandler
+const ChoiceButton = ({ choice, ...rest }: Props) => {
+  return (
+    <Button
+      {...rest}
+      component={StyledChoiceButton}
+      data-choice={choice}
+      data-selected={rest.isSelected}
+    />
+  )
 }
-
-const ChoiceButton = ({ onPress, ...rest }: ChoiceButtonProps) => (
-  <StyledChoiceButton
-    {...rest}
-    data-selected={rest.isSelected}
-    onClick={onPress}
-  />
-)
 
 export default ChoiceButton
