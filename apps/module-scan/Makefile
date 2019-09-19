@@ -5,11 +5,11 @@ FORCE:
 
 install:
 ifeq ($(PLATFORM),Darwin)
-	brew install zbar
+	brew install libjpeg libpng
 else ifeq ($(PLATFORM),Linux)
-	apt install zbar-tools
+	apt install libjpeg-dev libpng-dev
 else
-	@echo "zbar cannot be installed on unknown platform: $(PLATFORM)"
+	@echo "I don't know how to install libjpeg and libpng on your platform: $(PLATFORM)"
 endif
 
 build: FORCE
