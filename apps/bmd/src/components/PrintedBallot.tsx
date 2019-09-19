@@ -167,7 +167,6 @@ const YesNoContestResult = (props: {
   )
 
 interface Props {
-  ballotId?: string
   ballotStyleId: string
   election: Election
   isLiveMode: boolean
@@ -176,13 +175,13 @@ interface Props {
 }
 
 const PrintBallot = ({
-  ballotId = randomBase64(16),
   ballotStyleId,
   election,
   isLiveMode,
   precinctId,
   votes,
 }: Props) => {
+  const ballotId = randomBase64()
   const { county, date, seal, sealURL, state, parties, title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     ballotStyleId,
@@ -233,6 +232,10 @@ const PrintBallot = ({
               <div>
                 <div>Ballot Style</div>
                 <strong>{ballotStyleId}</strong>
+              </div>
+              <div>
+                <div>Ballot ID</div>
+                <strong>{ballotId}</strong>
               </div>
             </div>
           </div>
