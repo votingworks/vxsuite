@@ -88,8 +88,8 @@ def card_write_short_and_long():
 
 @app.route('/card/write_long', methods=["POST"])
 def card_write_long():
-    long_value = request.form["long_value"]
-    rv = _write_long(base64.b64decode(long_value))
+    long_value = request.data
+    rv = _write_long(long_value)
     return json.dumps({"success": rv})
 
 @app.route('/card/write_protect_override', methods=["POST"])

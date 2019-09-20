@@ -67,7 +67,8 @@ def test_card_write(MockCardInterfaceWrite, client):
 @patch('smartcards.card.CardInterface.write_long', return_value=True)
 def test_card_write_long(MockCardInterfaceWrite, client):
     random_bytes = secrets.token_bytes(1000)
-    rv = json.loads(client.post("/card/write_long",data=random_bytes).data)
+    stuff = client.post("/card/write_long",data=random_bytes).data
+    rv = json.loads(stuff)
     assert rv['success']
     
 @patch('smartcards.card.CardInterface.write', return_value=True)
