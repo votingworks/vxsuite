@@ -1,20 +1,66 @@
+import { Application } from 'express'
 import request from 'supertest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { app } from './server'
+import { buildApp } from './server'
 import election from '../election.json'
-import { ballotImagesPath, doZero, sampleBallotImagesPath } from './scanner'
+import SystemImporter from './importer'
+import Store from './store'
+import { FujitsuScanner, Scanner } from './scanner'
+
+const sampleBallotImagesPath = path.join(
+  __dirname,
+  '..',
+  'sample-ballot-images/'
+)
 
 // we need longer to make chokidar work
 jest.setTimeout(10000)
 
 jest.mock('./exec')
 
-beforeAll(async () => {
-  await doZero()
+let app: Application
+let importer: SystemImporter
+let store: Store
+let scanner: Scanner
+
+beforeEach(async () => {
+  store = await Store.memoryStore()
+  scanner = new FujitsuScanner()
+  importer = new SystemImporter({
+    store,
+    scanner,
+  })
+  app = buildApp({ importer, store })
 })
 
+function getScannerCVRCountWaiter() {
+  let cvrCount = 0
+
+  importer.addAddCVRCallback(() => {
+    cvrCount += 1
+  })
+
+  return {
+    waitForCount(count: number): Promise<void> {
+      return new Promise(resolve => {
+        function checkCVRCount() {
+          if (count <= cvrCount) {
+            resolve()
+          } else {
+            setTimeout(checkCVRCount, 10)
+          }
+        }
+
+        checkCVRCount()
+      })
+    },
+  }
+}
+
 test('going through the whole process works', async () => {
+  const waiter = getScannerCVRCountWaiter()
+
   // try export before configure
   const response = await request(app)
     .post('/scan/export')
@@ -34,15 +80,16 @@ test('going through the whole process works', async () => {
     .expect(200, { status: 'ok' })
 
   // move some sample ballots into the ballots directory
+  const expectedBallotCount = 2
   const sampleBallots = fs.readdirSync(sampleBallotImagesPath)
   for (const ballot of sampleBallots) {
     const oldPath = path.join(sampleBallotImagesPath, ballot)
-    const newPath = path.join(ballotImagesPath, ballot)
+    const newPath = path.join(importer.ballotImagesPath, ballot)
     fs.copyFileSync(oldPath, newPath)
   }
 
-  // wait for the processing (takes more than 4 seconds cause chokidar)
-  await new Promise(resolve => setTimeout(resolve, 4000))
+  // wait for the processing
+  await waiter.waitForCount(expectedBallotCount)
 
   // check the status
   let status = await request(app)
@@ -50,7 +97,7 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(200)
 
-  expect(JSON.parse(status.text).batches[0].count).toBe(2)
+  expect(JSON.parse(status.text).batches[0].count).toBe(expectedBallotCount)
 
   // a manual ballot
   await request(app)
@@ -116,6 +163,26 @@ test('going through the whole process works', async () => {
       'r6UYR4t7hEFMz8QlMWf1Sw',
     ])
   )
+
+  // delete a batch
+  const id = JSON.parse(status.text).batches[0].id
+  await request(app)
+    .delete(`/scan/batch/${id}`)
+    .set('Accept', 'application/json')
+    .expect(200)
+
+  // expect that we lost the first batch
+  status = await request(app)
+    .get('/scan/status')
+    .set('Accept', 'application/json')
+    .expect(200)
+  expect(JSON.parse(status.text).batches.length).toBe(1)
+
+  // can't delete it again
+  await request(app)
+    .delete(`/scan/batch/${id}`)
+    .set('Accept', 'application/json')
+    .expect(404)
 
   // clean up
   await request(app).post('/scan/unconfigure')

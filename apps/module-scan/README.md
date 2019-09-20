@@ -21,7 +21,11 @@ yarn test
 ## Start the Server
 
 ```sh
+# real scanner
 yarn start
+
+# mock scanner
+MOCK_SCANNER=1 yarn start
 ```
 
 ## API Documentation
@@ -53,6 +57,8 @@ This scanner module provides the following API:
   scanner's database
 
 - `POST /scan/export` return all the CVRs as an attachment
+
+- `DELETE /scan/batch/:batchId` delete a batch by ID
 
 - `POST /scan/zero` zero's all data but not the election config
 

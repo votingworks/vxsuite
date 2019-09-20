@@ -76,3 +76,10 @@ export interface Election {
   readonly state: string
   readonly title: string
 }
+
+export interface BatchInfo {
+  id: number
+  startedAt: Date
+  endedAt: Date
+  count: number
+}
