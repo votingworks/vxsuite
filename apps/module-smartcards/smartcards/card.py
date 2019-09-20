@@ -292,4 +292,3 @@ class VXCardObserver(CardObserver):
         if len(removedcards) > 0:
             self.card = None
 
-CardInterface = VXCardObserver()
