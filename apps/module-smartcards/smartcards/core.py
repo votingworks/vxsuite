@@ -1,5 +1,5 @@
 
-import json, os, base64
+import json, os
 
 from flask import Flask, send_from_directory, request
 
