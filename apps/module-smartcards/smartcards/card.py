@@ -62,6 +62,10 @@ class Card:
         self.write_chunk(0, full_bytes)
         time.sleep(1)
 
+    def write_long_value(self, long_value_bytes):
+        # For now, do this inefficiently, let's get the APIs right and then we'll optimize.
+        return self.write_short_and_long_values(self.short_value, long_value_bytes)
+
     def write_short_and_long_values(self, short_value_bytes, long_value_bytes):
         if not self.write_enabled:
             return
@@ -97,7 +101,7 @@ class Card:
         self.write_enabled = ([data[4]] == WRITABLE)
         self.short_value_length = data[5]
         self.long_value_length = data[6]*256 + data[7]
-        self.short_value = bytes(data[8:8+self.short_value_length])
+        self.short_value = data[8:8+self.short_value_length]
 
         return bytes(data)
         
@@ -244,6 +248,13 @@ class VXCardObserver(CardObserver):
         self._read_from_card()
 
         return self.card_value == data
+
+    def write_long(self, data):
+        if not self.card:
+            return False
+
+        self.card.write_long_value(data)
+        return True
 
     def read_long(self):
         if self.card:

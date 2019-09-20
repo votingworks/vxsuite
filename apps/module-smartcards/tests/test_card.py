@@ -5,7 +5,7 @@ from smartcard.util import toHexString, toASCIIBytes, toASCIIString
 
 from unittest.mock import patch, MagicMock, Mock
 
-import pytest, json, os
+import pytest, json, os, secrets
 
 # data on card mocked
 CONTENT_BYTES = b'hello1234'
@@ -185,6 +185,10 @@ def test_long_value():
     test_long_value = vxco.read_long().decode('utf-8')
     assert test_long_value == long_content
 
+    random_bytes = secrets.token_bytes(1000)
+    vxco.override_protection()
+    vxco.write_long(random_bytes)
+    assert vxco.read_long() == random_bytes
     
 def test_short_value_too_long():
     c = MockCard()

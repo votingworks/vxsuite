@@ -4,7 +4,7 @@ import smartcards.core
 
 from unittest.mock import patch
 
-import pytest, json
+import pytest, json, secrets
 
 @pytest.fixture
 def client():
@@ -64,6 +64,12 @@ def test_card_write(MockCardInterfaceWrite, client):
     rv = json.loads(client.post("/card/write",data=json.dumps({"code":"test"}),content_type='application/json').data)
     assert rv['success']
 
+@patch('smartcards.card.CardInterface.write_long', return_value=True)
+def test_card_write_long(MockCardInterfaceWrite, client):
+    random_bytes = secrets.token_bytes(1000)
+    rv = json.loads(client.post("/card/write_long",data=random_bytes).data)
+    assert rv['success']
+    
 @patch('smartcards.card.CardInterface.write', return_value=True)
 def test_card_write_and_protect(MockCardInterfaceWrite, client):
     rv = json.loads(client.post("/card/write_and_protect",data=json.dumps({"code":"test"}),content_type='application/json').data)
