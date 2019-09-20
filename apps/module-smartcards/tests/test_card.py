@@ -29,8 +29,13 @@ def test_read_no_card():
 
 def test_write_no_card():
     vxco = VXCardObserver()
+
     rv = vxco.write(CONTENT_BYTES)
     assert rv is False
+
+    rv = vxco.write_long(CONTENT_BYTES)
+    assert rv is False
+    
     
 def test_read():
     vxco = VXCardObserver()
