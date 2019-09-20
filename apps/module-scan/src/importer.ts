@@ -4,8 +4,8 @@ import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
 
-import { CVRCallbackParams, Election, CastVoteRecord } from './types'
-import Store, { BatchInfo } from './store'
+import { CVRCallbackParams, Election, CastVoteRecord, BatchInfo } from './types'
+import Store from './store'
 import interpretFile, { interpretBallotString } from './interpreter'
 import { Scanner } from './scanner'
 
@@ -18,17 +18,17 @@ export const DefaultBallotImagesPath = path.join(
   '..',
   'ballot-images/'
 )
-export const DefaultScannedBallotImagesPath = path.join(
+export const DefaultImportedBallotImagesPath = path.join(
   __dirname,
   '..',
-  'scanned-ballot-images/'
+  'imported-ballot-images/'
 )
 
 export interface Options {
   store: Store
   scanner: Scanner
   ballotImagesPath: string
-  scannedBallotImagesPath: string
+  importedBallotImagesPath: string
 }
 
 export interface Importer {
@@ -41,6 +41,9 @@ export interface Importer {
   unconfigure(): Promise<void>
 }
 
+/**
+ * Imports ballot images from a `Scanner` and stores them in a `Store`.
+ */
 export default class SystemImporter implements Importer {
   private election?: Election
   private watcher?: chokidar.FSWatcher
@@ -50,13 +53,20 @@ export default class SystemImporter implements Importer {
   private onCVRAddedCallbacks: ((cvr: CastVoteRecord) => void)[] = []
 
   public readonly ballotImagesPath: string
-  public readonly scannedBallotImagesPath: string
+  public readonly importedBallotImagesPath: string
 
+  /**
+   * @param param0 options for this importer
+   * @param param0.store a data store to track scanned ballot images
+   * @param param0.scanner a source of ballot images
+   * @param param0.ballotImagesPath a directory to scan ballot images into
+   * @param param0.scannedBallotImagesPath a directory to keep imported ballot images
+   */
   public constructor({
     store,
     scanner,
     ballotImagesPath = DefaultBallotImagesPath,
-    scannedBallotImagesPath = DefaultScannedBallotImagesPath,
+    importedBallotImagesPath = DefaultImportedBallotImagesPath,
   }: Partial<Exclude<Options, 'store' | 'scanner'>> & {
     store: Store
     scanner: Scanner
@@ -64,16 +74,20 @@ export default class SystemImporter implements Importer {
     this.store = store
     this.scanner = scanner
     this.ballotImagesPath = ballotImagesPath
-    this.scannedBallotImagesPath = scannedBallotImagesPath
+    this.importedBallotImagesPath = importedBallotImagesPath
 
     // make sure those directories exist
-    for (const path of [ballotImagesPath, scannedBallotImagesPath]) {
+    for (const path of [ballotImagesPath, importedBallotImagesPath]) {
       if (!fs.existsSync(path)) {
         fs.mkdirSync(path)
       }
     }
   }
 
+  /**
+   * Adds a ballot using the data that would have been read from a scan, i.e.
+   * the data encoded by the QR code.
+   */
   public async addManualBallot(ballotString: string) {
     if (!this.election) {
       return
@@ -93,7 +107,11 @@ export default class SystemImporter implements Importer {
     }
   }
 
-  public configure(newElection: Election) {
+  /**
+   * Sets the election information used to encode and decode ballots and begins
+   * watching for scanned images to import.
+   */
+  public async configure(newElection: Election) {
     this.election = newElection
 
     // start watching the ballots
@@ -107,6 +125,9 @@ export default class SystemImporter implements Importer {
     this.watcher.on('add', path => this.fileAdded(path))
   }
 
+  /**
+   * Callback for chokidar to inform us that a new file was seen.
+   */
   private fileAdded(ballotImagePath: string) {
     if (!this.election) {
       return
@@ -142,7 +163,7 @@ export default class SystemImporter implements Importer {
 
     // whether or not there is a CVR in that image, we move it to scanned
     const newBallotImagePath = path.join(
-      this.scannedBallotImagesPath,
+      this.importedBallotImagesPath,
       path.basename(ballotImagePath)
     )
     if (fs.existsSync(ballotImagePath)) {
@@ -150,10 +171,16 @@ export default class SystemImporter implements Importer {
     }
   }
 
+  /**
+   * Register a callback to be called when a CVR entry is added.
+   */
   public addAddCVRCallback(callback: (cvr: CastVoteRecord) => void): void {
     this.onCVRAddedCallbacks.push(callback)
   }
 
+  /**
+   * Add a CVR entry to the internal store.
+   */
   private addCVR(
     batchId: number,
     ballotImagePath: string,
@@ -169,6 +196,9 @@ export default class SystemImporter implements Importer {
     }
   }
 
+  /**
+   * Create a new batch and scan as many images as we can into it.
+   */
   public async doImport() {
     if (!this.election) {
       throw new Error('no election configuration')
@@ -190,6 +220,9 @@ export default class SystemImporter implements Importer {
     }, 5000)
   }
 
+  /**
+   * Export the current CVRs to a string.
+   */
   public async doExport() {
     if (!this.election) {
       return ''
@@ -200,13 +233,19 @@ export default class SystemImporter implements Importer {
     return outputStream.toString()
   }
 
+  /**
+   * Reset all the data, both in the store and the ballot images.
+   */
   public async doZero() {
     await this.store.init(true)
     fsExtra.emptyDirSync(this.ballotImagesPath)
-    fsExtra.emptyDirSync(this.scannedBallotImagesPath)
+    fsExtra.emptyDirSync(this.importedBallotImagesPath)
     this.manualBatchId = undefined
   }
 
+  /**
+   * Get the imported batches and current election info, if any.
+   */
   public async getStatus() {
     const batches = await this.store.batchStatus()
     if (this.election) {
@@ -216,6 +255,9 @@ export default class SystemImporter implements Importer {
     }
   }
 
+  /**
+   * Resets all data like `doZero`, removes election info, and stops importing.
+   */
   public async unconfigure() {
     await this.doZero()
     this.election = undefined

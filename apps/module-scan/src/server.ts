@@ -16,6 +16,10 @@ export interface AppOptions {
   importer: Importer
 }
 
+/**
+ * Builds an express application, using `store` and `importer` to do the heavy
+ * lifting.
+ */
 export function buildApp({ store, importer }: AppOptions): Application {
   const app: Application = express()
 
@@ -91,6 +95,9 @@ export interface StartOptions {
   app: Application
 }
 
+/**
+ * Starts the server with all the default options.
+ */
 export async function start({
   port = process.env.PORT || 3002,
   store = new Store(path.join(__dirname, '..', 'cvrs.db')),

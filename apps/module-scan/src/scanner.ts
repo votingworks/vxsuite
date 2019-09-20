@@ -17,6 +17,9 @@ function dateStamp(date: Date = new Date()): string {
   )}${zeroPad(date.getSeconds())}`
 }
 
+/**
+ * Scans duplex images in batch mode from a Fujitsu scanner.
+ */
 export class FujitsuScanner implements Scanner {
   public async scanInto(directory: string, prefix = ''): Promise<void> {
     await execFile('scanimage', [
