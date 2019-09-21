@@ -4,7 +4,7 @@ import smartcards.core
 
 from unittest.mock import patch
 
-import pytest, json, secrets
+import pytest, json, secrets, base64
 
 @pytest.fixture
 def client():
@@ -65,11 +65,17 @@ def test_card_write(MockCardInterfaceWrite, client):
     assert rv['success']
 
 @patch('smartcards.card.CardInterface.write_long', return_value=True)
-def test_card_write_long(MockCardInterfaceWrite, client):
+def test_card_write_long_b64(MockCardInterfaceWrite, client):
     random_bytes = secrets.token_bytes(1000)
-    stuff = client.post("/card/write_long",data=random_bytes).data
+    stuff = client.post("/card/write_long_b64",data={"long_value": base64.b64encode(random_bytes).decode('ascii')}).data
     rv = json.loads(stuff)
     assert rv['success']
+
+@patch('smartcards.card.CardInterface.read_long', return_value=secrets.token_bytes(1000))
+def test_card_read_long_b64(MockCardInterfaceWrite, client):
+    stuff = client.get("/card/read_long_b64").data
+    rv = json.loads(stuff)
+    assert rv['longValue']
     
 @patch('smartcards.card.CardInterface.write', return_value=True)
 def test_card_write_and_protect(MockCardInterfaceWrite, client):

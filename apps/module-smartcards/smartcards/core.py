@@ -1,5 +1,5 @@
 
-import json, os
+import json, os, base64
 
 from flask import Flask, send_from_directory, request
 
@@ -86,10 +86,18 @@ def card_write_short_and_long():
     rv = _write_short_and_long(short_value.encode('utf-8'), long_value.encode('utf-8'))
     return json.dumps({"success": rv})
 
-@app.route('/card/write_long', methods=["POST"])
-def card_write_long():
-    long_value = request.data
-    rv = _write_long(long_value)
+@app.route('/card/read_long_b64', methods=["GET"])
+def card_read_long_b64():
+    long_bytes = _read_long()
+    if long_bytes:
+        return json.dumps({"longValue": base64.b64encode(long_bytes).decode('ascii')})
+    else:
+        return json.dumps({})
+
+@app.route('/card/write_long_b64', methods=["POST"])
+def card_write_long_b64():
+    long_value = request.form["long_value"]
+    rv = _write_long(base64.b64decode(long_value))
     return json.dumps({"success": rv})
 
 @app.route('/card/write_protect_override', methods=["POST"])
