@@ -18,10 +18,9 @@ import Loading from '../components/Loading'
 const timeoutSeconds = 30
 
 const IdlePage = () => {
-  const { election: e, markVoterCardVoided, resetBallot } = useContext(
+  const { election, markVoterCardVoided, resetBallot } = useContext(
     BallotContext
   )
-  const election = e!
   const [countdown, setCountdown] = useState(timeoutSeconds)
   const [isLoading, setIsLoading] = useState(false)
   const { title } = election

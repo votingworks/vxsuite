@@ -42,6 +42,7 @@ function handleArrowDown() {
 
 function handleArrowLeft() {
   const prevButton = document.getElementById('previous') as HTMLButtonElement
+  /* istanbul ignore else */
   if (prevButton) {
     prevButton.click()
   }

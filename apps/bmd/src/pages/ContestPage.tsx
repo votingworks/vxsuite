@@ -1,20 +1,21 @@
 import React, { useContext } from 'react'
 import { Redirect, RouteComponentProps } from 'react-router-dom'
-import styled from 'styled-components'
+
+import ordinal from '../utils/ordinal'
 
 import { CandidateVote, OptionalYesNoVote } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
 
-import ButtonBar from '../components/ButtonBar'
 import CandidateContest from '../components/CandidateContest'
+import ElectionInfo from '../components/ElectionInfo'
 import LinkButton from '../components/LinkButton'
+import Prose from '../components/Prose'
+import Screen from '../components/Screen'
+import Sidebar from '../components/Sidebar'
 import Text from '../components/Text'
 import YesNoContest from '../components/YesNoContest'
-
-const Progress = styled(Text)`
-  flex: 2;
-`
+import SettingsTextSize from '../components/SettingsTextSize'
 
 interface ContestParams {
   contestNumber: string
@@ -22,12 +23,18 @@ interface ContestParams {
 
 const ContestPage = (props: RouteComponentProps<ContestParams>) => {
   const { contestNumber } = props.match.params
-  const { election, updateVote, votes, contests, resetBallot } = useContext(
-    BallotContext
-  )
+  const {
+    ballotStyleId,
+    contests,
+    election,
+    precinctId,
+    resetBallot,
+    setUserSettings,
+    updateVote,
+    userSettings,
+    votes,
+  } = useContext(BallotContext)
 
-  const { bmdConfig } = election!
-  const { showSettingsPage } = bmdConfig!
   const currentContestIndex = parseInt(contestNumber, 10)
   const contest = contests[currentContestIndex]
 
@@ -51,13 +58,13 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
   // - confirm intent when navigating away without selecting a candidate
 
   return (
-    <React.Fragment>
+    <Screen>
       {contest.type === 'candidate' && (
         <CandidateContest
           aria-live="assertive"
           key={contest.id}
           contest={contest}
-          parties={election!.parties}
+          parties={election.parties}
           vote={(vote || []) as CandidateVote}
           updateVote={updateVote}
         />
@@ -70,49 +77,68 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
           updateVote={updateVote}
         />
       )}
-      <ButtonBar>
-        {isReviewMode ? (
+      <Sidebar
+        footer={
           <React.Fragment>
-            <LinkButton
-              primary={isVoteComplete}
-              to={`/review#contest-${contest.id}`}
-              id="next"
-            >
-              Review Ballot
-            </LinkButton>
+            <SettingsTextSize
+              userSettings={userSettings}
+              setUserSettings={setUserSettings}
+            />
+            <ElectionInfo
+              election={election}
+              ballotStyleId={ballotStyleId}
+              precinctId={precinctId}
+              horizontal
+            />
           </React.Fragment>
-        ) : (
-          <React.Fragment>
-            <LinkButton
-              id="next"
-              primary={isVoteComplete}
-              to={nextContest ? `/contests/${nextContestIndex}` : '/pre-review'}
-            >
-              Next
-            </LinkButton>
-            <LinkButton
-              id="previous"
-              to={
-                prevContest ? `/contests/${prevContestIndex}` : '/instructions'
-              }
-            >
-              Back
-            </LinkButton>
-            <Progress center white>
-              {currentContestIndex + 1} of {contests.length}
-            </Progress>
-          </React.Fragment>
-        )}
-      </ButtonBar>
-      <ButtonBar
-        secondary
-        separatePrimaryButton
-        centerOnlyChild={!showSettingsPage}
+        }
       >
-        <div />
-        {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
-      </ButtonBar>
-    </React.Fragment>
+        {isReviewMode ? (
+          <Prose>
+            <Text center>
+              This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
+              {contests.length} contests.
+            </Text>
+            <p>
+              <LinkButton
+                big
+                primary={isVoteComplete}
+                to={`/review#contest-${contest.id}`}
+                id="next"
+              >
+                Review →
+              </LinkButton>
+            </p>
+          </Prose>
+        ) : (
+          <Prose>
+            <Text center>
+              This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
+              {contests.length} contests.
+            </Text>
+            <p>
+              <LinkButton
+                big
+                id="next"
+                primary={isVoteComplete}
+                to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
+              >
+                {nextContest ? 'Next →' : 'Review →'}
+              </LinkButton>
+            </p>
+            <p>
+              <LinkButton
+                small
+                id="previous"
+                to={prevContest ? `/contests/${prevContestIndex}` : '/'}
+              >
+                ← Back
+              </LinkButton>
+            </p>
+          </Prose>
+        )}
+      </Sidebar>
+    </Screen>
   )
 }
 

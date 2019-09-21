@@ -1,0 +1,155 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders SettingsTextSize 1`] = `
+.c5 {
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
+.c6 {
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  touch-action: manipulation;
+}
+
+.c4 {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+.c4 > button {
+  box-shadow: inset 1px 0 0 rgb(190,190,190);
+}
+
+.c4 > button:first-child {
+  box-shadow: none;
+}
+
+.c4 > button:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.c4 > button:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.c4 > button:disabled {
+  background: #028099;
+  color: #ffffff;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  border: 1px solid #808080;
+  border-width: 1px 0;
+  padding: 1rem 0;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.c3 button {
+  min-width: 104px;
+}
+
+.c3 button[data-size='0'] {
+  font-size: 18px !important;
+}
+
+.c3 button[data-size='1'] {
+  font-size: 26px !important;
+}
+
+.c3 button[data-size='2'] {
+  font-size: 32px !important;
+}
+
+.c2 {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+<div
+  class="c0"
+>
+  <div
+    class="c1"
+  >
+    <div>
+      <div
+        class="c2"
+      >
+        Change Text Size
+      </div>
+      <div
+        class="c3"
+      >
+        <span
+          class="c4"
+          data-testid="change-text-size-buttons"
+        >
+          <button
+            class="c5"
+            data-size="0"
+            type="button"
+            value="0"
+          >
+            A
+          </button>
+          <button
+            class="c6"
+            data-size="1"
+            type="button"
+            value="1"
+          >
+            A
+          </button>
+          <button
+            class="c5"
+            data-size="2"
+            type="button"
+            value="2"
+          >
+            A
+          </button>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -4,6 +4,7 @@ exports[`renders Button 1`] = `
 .c0 {
   border: none;
   border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
@@ -25,6 +26,7 @@ exports[`renders DecoyButton 1`] = `
 .c0 {
   border: none;
   border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
@@ -45,6 +47,7 @@ exports[`renders big Button 1`] = `
 .c0 {
   border: none;
   border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
@@ -67,6 +70,7 @@ exports[`renders danger Button 1`] = `
 .c0 {
   border: none;
   border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
   box-sizing: border-box;
   background: red;
   cursor: pointer;
@@ -88,6 +92,7 @@ exports[`renders primary Button 1`] = `
 .c0 {
   border: none;
   border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
   box-sizing: border-box;
   background: rgb(71,167,75);
   cursor: pointer;
@@ -109,6 +114,7 @@ exports[`renders small Button 1`] = `
 .c0 {
   border: none;
   border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;

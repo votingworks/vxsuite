@@ -42,22 +42,20 @@ it('gamepad controls work', async () => {
   // load election from localStorage
   setElectionInLocalStorage()
   setStateInLocalStorage()
-  const { getByText } = render(<App />)
+  const { getByText, getAllByText } = render(<App />)
 
   currentCard = getNewVoterCard()
   advanceTimers()
-  await wait(() => getByText(/Precinct: Center Springfield/))
+  await wait(() => getByText(/Center Springfield/))
 
-  // for test coverage, we test pressing left and right on gamepad here, should do nothing
-  handleGamepadButtonDown('DPadLeft')
-  handleGamepadButtonDown('DPadRight')
-
-  // Go to Voting Instructions
-  fireEvent.click(getByText('Get Started'))
+  // // for test coverage, we test pressing left and right on gamepad here, should do nothing
+  // handleGamepadButtonDown('DPadLeft')
+  // handleGamepadButtonDown('DPadRight')
 
   // Go to First Contest
-  advanceTimers()
-  fireEvent.click(getByText('Start Voting'))
+  handleGamepadButtonDown('DPadRight')
+  // advanceTimers()
+  fireEvent.click(getAllByText('Start Voting')[1])
 
   advanceTimers()
   // First Contest Page
@@ -76,7 +74,7 @@ it('gamepad controls work', async () => {
 
   // test the edge case of rolling over
   handleGamepadButtonDown('DPadUp')
-  expect(document.activeElement!.textContent).toEqual('Settings')
+  expect(document.activeElement!.textContent).toEqual('A') // Text Size Settings
   handleGamepadButtonDown('DPadDown')
   expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id)
 

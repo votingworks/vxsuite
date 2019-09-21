@@ -6,78 +6,82 @@ exports[`renders CastBallotPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
   overflow: auto;
-  padding: 1rem 0.5rem 2rem;
 }
 
 .c2 {
-  margin: auto 0;
+  margin: auto auto;
 }
 
-.c10 {
+.c3 {
   margin: auto;
-  width: 100%;
   max-width: 66ch;
   text-align: center;
   line-height: 1.2;
 }
 
-.c10 h1 {
+.c3 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c10 h2 {
+.c3 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c10 h3,
-.c10 p {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+.c3 h3 {
+  font-size: 1.17rem;
+}
+
+.c3 h4 {
   font-size: 1rem;
 }
 
-.c10 h1 + h2 {
+.c3 h5 {
+  font-size: 0.9rem;
+}
+
+.c3 h3,
+.c3 h4,
+.c3 h5,
+.c3 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c10 h1 + p,
-.c10 h2 + p {
+.c3 h1 + p,
+.c3 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c10 h3 + p {
+.c3 h3 + p,
+.c3 h4 + p,
+.c3 h5 + p {
   margin-top: -1rem;
 }
 
-.c10 > :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c10 > :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c10 dl {
+.c3 dl {
   margin: 1rem 0;
 }
 
-.c3 {
-  margin: 0 auto 2rem;
-  max-width: 600px;
-  padding-bottom: 2rem;
-}
-
-.c4 {
+.c0 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -85,142 +89,28 @@ exports[`renders CastBallotPage 1`] = `
   -webkit-flex-direction: row;
   -ms-flex-direction: row;
   flex-direction: row;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  position: relative;
+  height: 100%;
 }
 
-.c4::before {
-  position: absolute;
-  top: 45%;
-  right: 12%;
-  left: 12%;
-  z-index: -1;
-  background-color: #c7d7df;
-  height: 10%;
-  content: '';
-}
-
-.c5 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
+.c0 > nav {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  position: relative;
-  padding: 0 4%;
 }
 
-.c6 {
-  position: relative;
-  border-radius: 50%;
-  background: #ffffff;
-  width: 100%;
-  height: 0;
-  padding-top: 100%;
+.c0 > main {
+  -webkit-flex: 2;
+  -ms-flex: 2;
+  flex: 2;
 }
 
-.c6 > span {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  color: #35809c;
-  font-size: 7vw;
-  font-weight: 700;
-}
-
-.c8 {
-  position: relative;
-  border-radius: 50%;
-  background: #35809c;
-  width: 100%;
-  height: 0;
-  padding-top: 100%;
-}
-
-.c8 > span {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  color: #ffffff;
-  font-size: 7vw;
-  font-weight: 700;
-}
-
-.c7 {
-  position: absolute;
-  margin: 0.25rem -1rem 0;
-  width: calc(100% + 2rem);
-  text-align: center;
-  color: #c7d7df;
-}
-
-.c9 {
-  position: absolute;
-  margin: 0.25rem -1rem 0;
-  width: calc(100% + 2rem);
-  text-align: center;
-  font-weight: 600;
-}
-
-.c0:focus {
-  outline: none;
-}
-
-.c11 {
+.c4 {
   display: inline-block;
   margin: auto;
   border-top: 1px solid #9a9a9a;
   border-bottom: 1px solid #9a9a9a;
   padding: 1rem 1rem 1rem 2rem;
   text-align: left;
-}
-
-@media (min-width:480px) {
-  .c1 {
-    padding: 1rem 1rem 2rem;
-  }
 }
 
 @media print {
@@ -237,45 +127,19 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 @media (min-width:480px) {
-  .c10 {
+  .c3 {
     line-height: 1.3;
   }
 }
 
 @media print {
-  .c3 {
-    display: none;
-  }
-}
-
-@media (min-width:686px) {
-  .c6 > span {
-    font-size: 2rem;
-  }
-}
-
-@media (min-width:686px) {
-  .c8 > span {
-    font-size: 2rem;
-  }
-}
-
-@media screen {
   .c0 {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    height: 100%;
+    display: block;
   }
 }
 
 <div
   class="c0"
-  tabindex="-1"
 >
   <main
     class="c1"
@@ -284,80 +148,7 @@ exports[`renders CastBallotPage 1`] = `
       class="c2"
     >
       <div
-        aria-label="Step 4 of 4."
         class="c3"
-      >
-        <div
-          class="c4"
-        >
-          <div
-            class="c5"
-          >
-            <div
-              class="c6"
-            >
-              <span>
-                ✓
-              </span>
-              <div
-                class="c7"
-              >
-                Mark
-              </div>
-            </div>
-          </div>
-          <div
-            class="c5"
-          >
-            <div
-              class="c6"
-            >
-              <span>
-                ✓
-              </span>
-              <div
-                class="c7"
-              >
-                Review
-              </div>
-            </div>
-          </div>
-          <div
-            class="c5"
-          >
-            <div
-              class="c6"
-            >
-              <span>
-                ✓
-              </span>
-              <div
-                class="c7"
-              >
-                Print
-              </div>
-            </div>
-          </div>
-          <div
-            class="c5"
-          >
-            <div
-              class="c8"
-            >
-              <span>
-                4
-              </span>
-              <div
-                class="c9"
-              >
-                Vote
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="c10"
         id="audiofocus"
       >
         <h1
@@ -369,7 +160,7 @@ exports[`renders CastBallotPage 1`] = `
           Your official paper ballot is printing. To finish voting:
         </p>
         <ol
-          class="c11"
+          class="c4"
         >
           <li>
             Review the votes on your printed ballot.

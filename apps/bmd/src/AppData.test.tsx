@@ -21,10 +21,10 @@ describe('loads election', () => {
 
   it('#sample url hash loads elecation and activates ballot', () => {
     window.location.href = '/#sample'
-    const { getByText } = render(<App />)
-    getByText(election.title)
-    getByText(/Precinct: Center Springfield/)
-    getByText(/Ballot Style: 12/)
+    const { getAllByText, getByText } = render(<App />)
+    expect(getAllByText(election.title).length).toBeGreaterThan(1)
+    getByText(/Center Springfield/)
+    getByText(/ballot style 12/)
     expect(window.localStorage.getItem(electionStorageKey)).toBeTruthy()
     expect(window.localStorage.getItem(activationStorageKey)).toBeTruthy()
   })

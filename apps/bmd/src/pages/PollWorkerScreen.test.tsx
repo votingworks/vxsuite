@@ -37,5 +37,5 @@ it('renders PollWorkerScreen', async () => {
   currentCard = pollWorkerCard
   advanceTimers()
 
-  getByText('Polls are open.')
+  getByText('Polls are currently open.')
 })

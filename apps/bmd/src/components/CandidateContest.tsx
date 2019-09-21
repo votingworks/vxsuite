@@ -390,7 +390,7 @@ class CandidateContest extends React.Component<Props, State> {
     const maxWriteInCandidateLength = 40
     return (
       <React.Fragment>
-        <Main noPadding>
+        <Main>
           <ContentHeader id="contest-header">
             <Prose id="audiofocus">
               <h1 aria-label={`${contest.title}.`}>
@@ -522,7 +522,7 @@ class CandidateContest extends React.Component<Props, State> {
                 {contest.seats === 1 ? 'candidate' : 'candidates'} in this
                 contest. To vote for{' '}
                 {attemptedOvervoteCandidate && attemptedOvervoteCandidate.name},
-                you must first unselect selected{' '}
+                you must first unselect the selected{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'}.
                 <span aria-label="Use the select button to continue." />
               </Text>
@@ -550,7 +550,7 @@ class CandidateContest extends React.Component<Props, State> {
             </Prose>
           }
           actions={
-            <>
+            <React.Fragment>
               <Button
                 danger
                 onPress={this.confirmRemovePendingWriteInCandidate}
@@ -560,7 +560,7 @@ class CandidateContest extends React.Component<Props, State> {
               <Button onPress={this.clearCandidateIdPendingRemoval}>
                 Cancel
               </Button>
-            </>
+            </React.Fragment>
           }
         />
         <Modal
@@ -605,7 +605,7 @@ class CandidateContest extends React.Component<Props, State> {
             </div>
           }
           actions={
-            <>
+            <React.Fragment>
               <Button
                 primary={this.normalizeName(writeInCandidateName).length > 0}
                 onPress={this.addWriteInCandidate}
@@ -614,7 +614,7 @@ class CandidateContest extends React.Component<Props, State> {
                 Accept
               </Button>
               <Button onPress={this.cancelWriteInCandidateModal}>Cancel</Button>
-            </>
+            </React.Fragment>
           }
         />
       </React.Fragment>

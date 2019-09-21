@@ -1,90 +1,78 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Renders ContestPage 1`] = `
-.c10 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  border-bottom: 1px solid rgb(169,169,169);
-  background: #455a64;
-  padding: 0.25rem;
-}
-
-.c10 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c10 > * {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  margin: 0.25rem;
-}
-
-.c13 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-order: -1;
-  -ms-flex-order: -1;
-  order: -1;
-  border-bottom: 1px solid rgb(169,169,169);
-  background: #455a64;
-  padding: 0.25rem;
-}
-
-.c13 > *:first-child {
-  -webkit-order: 2;
-  -ms-flex-order: 2;
-  order: 2;
-}
-
-.c13 > * {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  margin: 0.25rem;
-}
-
-.c11 {
+.c14 {
   border: none;
   border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
   box-sizing: border-box;
   background: rgb(211,211,211);
   cursor: pointer;
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.75rem;
+  line-height: 1.25;
+  color: black;
+  font-size: 1.25rem;
+  touch-action: manipulation;
+}
+
+.c15 {
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
   line-height: 1.25;
   color: black;
   touch-action: manipulation;
 }
 
-.c8 {
+.c22 {
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  touch-action: manipulation;
+}
+
+.c21 {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+.c21 > button {
+  box-shadow: inset 1px 0 0 rgb(190,190,190);
+}
+
+.c21 > button:first-child {
+  box-shadow: none;
+}
+
+.c21 > button:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.c21 > button:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.c21 > button:disabled {
+  background: #028099;
+  color: #ffffff;
+}
+
+.c9 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -96,7 +84,7 @@ exports[`Renders ContestPage 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c8::before {
+.c9::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -125,87 +113,173 @@ exports[`Renders ContestPage 1`] = `
   content: '';
 }
 
-.c0 {
+.c1 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
   overflow: auto;
 }
 
-.c2 {
-  width: 100%;
+.c3 {
   max-width: 66ch;
   line-height: 1.2;
 }
 
-.c2 h1 {
+.c3 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c2 h2 {
+.c3 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c2 h3,
-.c2 p {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+.c3 h3 {
+  font-size: 1.17rem;
+}
+
+.c3 h4 {
   font-size: 1rem;
 }
 
-.c2 h1 + h2 {
+.c3 h5 {
+  font-size: 0.9rem;
+}
+
+.c3 h3,
+.c3 h4,
+.c3 h5,
+.c3 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.c3 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c2 h1 + p,
-.c2 h2 + p {
+.c3 h1 + p,
+.c3 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c3 h3 + p,
+.c3 h4 + p,
+.c3 h5 + p {
   margin-top: -1rem;
 }
 
-.c2 > :first-child {
+.c3 > :first-child {
   margin-top: 0;
 }
 
-.c2 > :last-child {
+.c3 > :last-child {
   margin-bottom: 0;
 }
 
-.c2 dl {
+.c3 dl {
   margin: 1rem 0;
 }
 
-.c9 {
+.c26 {
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c26 h1 {
+  margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
+}
+
+.c26 h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.c26 h3 {
+  font-size: 1.17rem;
+}
+
+.c26 h4 {
+  font-size: 1rem;
+}
+
+.c26 h5 {
+  font-size: 0.9rem;
+}
+
+.c26 h3,
+.c26 h4,
+.c26 h5,
+.c26 p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c26 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c26 h1 + p,
+.c26 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c26 h3 + p,
+.c26 h4 + p,
+.c26 h5 + p {
+  margin-top: 0;
+}
+
+.c26 > :first-child {
+  margin-top: 0;
+}
+
+.c26 > :last-child {
+  margin-bottom: 0;
+}
+
+.c26 dl {
+  margin: 1rem 0;
+}
+
+.c10 {
   word-break: break-word;
 }
 
-.c1 {
+.c13 {
+  text-align: center;
+}
+
+.c27 {
+  font-size: 0.8rem;
+}
+
+.c28 {
+  white-space: nowrap;
+}
+
+.c2 {
   margin: 0 auto;
   width: 100%;
   max-width: 35rem;
   padding: 1rem 0.75rem 0.5rem;
 }
 
-.c3 {
+.c4 {
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.c4 {
+.c5 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -217,8 +291,8 @@ exports[`Renders ContestPage 1`] = `
   overflow: auto;
 }
 
-.c4::before,
-.c4::after {
+.c5::before,
+.c5::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -228,169 +302,263 @@ exports[`Renders ContestPage 1`] = `
   transition: opacity 0.25s ease;
 }
 
-.c4::before {
+.c5::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4::after {
+.c5::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c5 {
+.c6 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c6 {
+.c7 {
   margin: 0 auto;
   width: 100%;
   max-width: 35rem;
   padding: 0.5rem 0.5rem 1rem;
 }
 
-.c7 {
+.c8 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 1.25rem;
 }
 
-.c12 {
-  text-align: center;
-  color: #FFFFFF;
+.c25 {
+  max-width: 250px;
+}
+
+.c23 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 2rem 1rem 0;
+}
+
+.c24 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin: auto;
+}
+
+.c24 div:first-child {
+  margin-right: 1rem;
+  width: 125px;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  height: 100%;
+}
+
+.c0 > nav {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c0 > main {
   -webkit-flex: 2;
   -ms-flex: 2;
   flex: 2;
 }
 
+.c11 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  background-color: #333333;
+  color: #ffffff;
+}
+
+.c12 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  margin: 1rem;
+}
+
+.c12 p > button {
+  width: 100%;
+}
+
+.c16 {
+  margin: 1rem 1rem 2rem;
+}
+
+.c17 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  border: 1px solid #808080;
+  border-width: 1px 0;
+  padding: 1rem 0;
+}
+
+.c18 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.c20 button {
+  min-width: 104px;
+}
+
+.c20 button[data-size='0'] {
+  font-size: 18px !important;
+}
+
+.c20 button[data-size='1'] {
+  font-size: 26px !important;
+}
+
+.c20 button[data-size='2'] {
+  font-size: 32px !important;
+}
+
+.c19 {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
 @media (min-width:480px) {
-  .c10 > *:only-child {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-    margin: auto;
-    min-width: 33.333%;
-  }
-}
-
-@media print {
-  .c10 {
-    display: none;
-  }
-}
-
-@media (min-width:480px) {
-  .c13 > *:first-child {
-    margin-left: auto;
-  }
-}
-
-@media (min-width:480px) {
-  .c13 > * {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-  }
-}
-
-@media (min-width:480px) {
-  .c13 > *:only-child {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-    min-width: 33.333%;
-  }
-}
-
-@media print {
-  .c13 {
-    display: none;
-  }
-}
-
-@media (min-width:480px) {
-  .c8 {
+  .c9 {
     padding: 1rem 1rem 1rem 4rem;
   }
 }
 
 @media print {
-  .c0 {
+  .c1 {
     display: none;
   }
 }
 
 @media (min-width:480px) {
-  .c2 {
+  .c3 {
+    line-height: 1.3;
+  }
+}
+
+@media (min-width:480px) {
+  .c26 {
     line-height: 1.3;
   }
 }
 
 @media (min-width:720px) {
-  .c1 {
+  .c2 {
     padding: 1rem 1.5rem 0.5rem;
     padding-left: 5rem;
   }
 }
 
 @media (min-width:720px) {
-  .c6 {
+  .c7 {
     padding-right: 1rem;
     padding-left: 1rem;
   }
 }
 
 @media print {
-  .c12 {
-    color: #FFFFFF;
+  .c0 {
+    display: block;
+  }
+}
+
+@media print {
+  .c11 {
+    display: none;
   }
 }
 
 <div>
-  <main
+  <div
     class="c0"
   >
-    <div
+    <main
       class="c1"
-      id="contest-header"
     >
       <div
         class="c2"
-        id="audiofocus"
+        id="contest-header"
       >
-        <h1
-          aria-label="President and Vice-President."
+        <div
+          class="c3"
+          id="audiofocus"
         >
-          <div
-            class="c3"
+          <h1
+            aria-label="President and Vice-President."
           >
-            United States
-          </div>
-          President and Vice-President
-        </h1>
-        <p
-          aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
-        >
-          <strong>
-            Vote for 
-            1
+            <div
+              class="c4"
+            >
+              United States
+            </div>
+            President and Vice-President
+          </h1>
+          <p
+            aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
+          >
+            <strong>
+              Vote for 
+              1
+              .
+            </strong>
+             You have selected
+             
+            0
             .
-          </strong>
-           You have selected
-           
-          0
-          .
-        </p>
+          </p>
+        </div>
       </div>
-    </div>
-    <div
-      class="c4"
-    >
       <div
         class="c5"
       >
@@ -400,181 +568,282 @@ exports[`Renders ContestPage 1`] = `
           <div
             class="c7"
           >
-            <button
-              aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+            <div
               class="c8"
-              data-choice="barchi-hallaren"
-              data-selected="false"
-              role="option"
-              type="button"
             >
-              <div
-                class="c2"
+              <button
+                aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                class="c9"
+                data-choice="barchi-hallaren"
+                data-selected="false"
+                role="option"
+                type="button"
               >
-                <p
-                  class="c9"
+                <div
+                  class="c3"
                 >
-                  <strong>
-                    Joseph Barchi and Joseph Hallaren
-                  </strong>
-                  <br />
-                  Federalist
-                </p>
-              </div>
-            </button>
-            <button
-              aria-label="Adam Cramer and Greg Vuocolo, People's."
-              class="c8"
-              data-choice="cramer-vuocolo"
-              data-selected="false"
-              role="option"
-              type="button"
-            >
-              <div
-                class="c2"
+                  <p
+                    class="c10"
+                  >
+                    <strong>
+                      Joseph Barchi and Joseph Hallaren
+                    </strong>
+                    <br />
+                    Federalist
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label="Adam Cramer and Greg Vuocolo, People's."
+                class="c9"
+                data-choice="cramer-vuocolo"
+                data-selected="false"
+                role="option"
+                type="button"
               >
-                <p
-                  class="c9"
+                <div
+                  class="c3"
                 >
-                  <strong>
-                    Adam Cramer and Greg Vuocolo
-                  </strong>
-                  <br />
-                  People's
-                </p>
-              </div>
-            </button>
-            <button
-              aria-label="Daniel Court and Amy Blumhardt, Liberty."
-              class="c8"
-              data-choice="court-blumhardt"
-              data-selected="false"
-              role="option"
-              type="button"
-            >
-              <div
-                class="c2"
+                  <p
+                    class="c10"
+                  >
+                    <strong>
+                      Adam Cramer and Greg Vuocolo
+                    </strong>
+                    <br />
+                    People's
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label="Daniel Court and Amy Blumhardt, Liberty."
+                class="c9"
+                data-choice="court-blumhardt"
+                data-selected="false"
+                role="option"
+                type="button"
               >
-                <p
-                  class="c9"
+                <div
+                  class="c3"
                 >
-                  <strong>
-                    Daniel Court and Amy Blumhardt
-                  </strong>
-                  <br />
-                  Liberty
-                </p>
-              </div>
-            </button>
-            <button
-              aria-label="Alvin Boone and James Lian, Constitution."
-              class="c8"
-              data-choice="boone-lian"
-              data-selected="false"
-              role="option"
-              type="button"
-            >
-              <div
-                class="c2"
+                  <p
+                    class="c10"
+                  >
+                    <strong>
+                      Daniel Court and Amy Blumhardt
+                    </strong>
+                    <br />
+                    Liberty
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label="Alvin Boone and James Lian, Constitution."
+                class="c9"
+                data-choice="boone-lian"
+                data-selected="false"
+                role="option"
+                type="button"
               >
-                <p
-                  class="c9"
+                <div
+                  class="c3"
                 >
-                  <strong>
-                    Alvin Boone and James Lian
-                  </strong>
-                  <br />
-                  Constitution
-                </p>
-              </div>
-            </button>
-            <button
-              aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
-              class="c8"
-              data-choice="hildebrand-garritty"
-              data-selected="false"
-              role="option"
-              type="button"
-            >
-              <div
-                class="c2"
+                  <p
+                    class="c10"
+                  >
+                    <strong>
+                      Alvin Boone and James Lian
+                    </strong>
+                    <br />
+                    Constitution
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
+                class="c9"
+                data-choice="hildebrand-garritty"
+                data-selected="false"
+                role="option"
+                type="button"
               >
-                <p
-                  class="c9"
+                <div
+                  class="c3"
                 >
-                  <strong>
-                    Ashley Hildebrand-McDougall and James Garritty
-                  </strong>
-                  <br />
-                  Whig
-                </p>
-              </div>
-            </button>
-            <button
-              aria-label="Martin Patterson and Clay Lariviere, Labor."
-              class="c8"
-              data-choice="patterson-lariviere"
-              data-selected="false"
-              role="option"
-              type="button"
-            >
-              <div
-                class="c2"
+                  <p
+                    class="c10"
+                  >
+                    <strong>
+                      Ashley Hildebrand-McDougall and James Garritty
+                    </strong>
+                    <br />
+                    Whig
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label="Martin Patterson and Clay Lariviere, Labor."
+                class="c9"
+                data-choice="patterson-lariviere"
+                data-selected="false"
+                role="option"
+                type="button"
               >
-                <p
-                  class="c9"
+                <div
+                  class="c3"
                 >
-                  <strong>
-                    Martin Patterson and Clay Lariviere
-                  </strong>
-                  <br />
-                  Labor
-                </p>
-              </div>
-            </button>
+                  <p
+                    class="c10"
+                  >
+                    <strong>
+                      Martin Patterson and Clay Lariviere
+                    </strong>
+                    <br />
+                    Labor
+                  </p>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </main>
-  <nav
-    class="c10"
-  >
-    <button
+    </main>
+    <nav
       class="c11"
-      id="next"
-      role="option"
-      type="button"
     >
-      Next
-    </button>
-    <button
-      class="c11"
-      id="previous"
-      role="option"
-      type="button"
-    >
-      Back
-    </button>
-    <p
-      class="c12"
-    >
-      1
-       of 
-      22
-    </p>
-  </nav>
-  <nav
-    class="c13"
-  >
-    <div />
-    <button
-      class="c11"
-      role="option"
-      type="button"
-    >
-      Settings
-    </button>
-  </nav>
+      <div
+        class="c12"
+      >
+        <div
+          class="c3"
+        >
+          <p
+            class="c13"
+          >
+            This is the 
+            <strong>
+              1st
+            </strong>
+             of
+             
+            22
+             contests.
+          </p>
+          <p>
+            <button
+              class="c14"
+              id="next"
+              role="option"
+              type="button"
+            >
+              Next →
+            </button>
+          </p>
+          <p>
+            <button
+              class="c15"
+              id="previous"
+              role="option"
+              type="button"
+            >
+              ← Back
+            </button>
+          </p>
+        </div>
+      </div>
+      <div
+        class="c16"
+      >
+        <div
+          class="c17"
+        >
+          <div
+            class="c18"
+          >
+            <div>
+              <div
+                class="c19"
+              >
+                Change Text Size
+              </div>
+              <div
+                class="c20"
+              >
+                <span
+                  class="c21"
+                  data-testid="change-text-size-buttons"
+                >
+                  <button
+                    class="c15"
+                    data-size="0"
+                    type="button"
+                    value="0"
+                  >
+                    A
+                  </button>
+                  <button
+                    class="c22"
+                    data-size="1"
+                    type="button"
+                    value="1"
+                  >
+                    A
+                  </button>
+                  <button
+                    class="c15"
+                    data-size="2"
+                    type="button"
+                    value="2"
+                  >
+                    A
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          aria-hidden="true"
+          class="c23"
+        >
+          <div
+            class="c24"
+          >
+            <div
+              aria-hidden="true"
+              class="c25"
+            />
+            <div
+              class="c26"
+            >
+              <h5
+                aria-label=" General Election."
+              >
+                 General Election
+              </h5>
+              <p
+                class="c27"
+              >
+                November 3, 2020
+                <br />
+                <span
+                  class="c28"
+                >
+                  Franklin County
+                  ,
+                </span>
+                 
+                <span
+                  class="c28"
+                >
+                  State of Hamilton
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
 </div>
 `;

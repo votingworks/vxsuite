@@ -48,6 +48,20 @@ exports[`displays muted style 1`] = `
 </p>
 `;
 
+exports[`narrow style 1`] = `
+.c0 {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 33ch;
+}
+
+<p
+  class="c0"
+>
+  Narrow Wrapper
+</p>
+`;
+
 exports[`outputs "span" tag specified by "as" prop 1`] = `
 <span
   class=""

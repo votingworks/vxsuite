@@ -6,11 +6,7 @@ import {
 } from '../../src/config/types'
 import { getBallotStyle, getContests } from '../../src/utils/election'
 
-import {
-  electionStorageKey,
-  stateStorageKey,
-  mergeWithDefaults,
-} from '../../src/AppRoot'
+import { electionStorageKey, stateStorageKey } from '../../src/AppRoot'
 
 export const election = electionSample as Election
 export const contest0 = election.contests[0] as CandidateContest
@@ -44,7 +40,7 @@ export const voterContests = getContests({
   election,
 })
 
-export const electionAsString = JSON.stringify(mergeWithDefaults(election))
+export const electionAsString = JSON.stringify(election)
 
 export const setElectionInLocalStorage = () => {
   window.localStorage.setItem(electionStorageKey, electionAsString)

@@ -21,7 +21,6 @@ import {
   CardData,
   Contests,
   Election,
-  ElectionDefaults,
   InputEvent,
   MachineIdAPI,
   MarkVoterCardFunction,
@@ -54,14 +53,8 @@ import CastBallotPage from './pages/CastBallotPage'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import ExpiredCardScreen from './pages/ExpiredCardScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
-import electionDefaults from './data/electionDefaults.json'
 import electionSample from './data/electionSample.json'
 import makePrinter, { PrintMethod } from './utils/printer'
-
-export const mergeWithDefaults = (
-  election: Election,
-  defaults: ElectionDefaults = electionDefaults
-) => ({ ...defaults, ...election })
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -324,7 +317,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       checkCardInterval = 1 // don't poll for card data.
       this.setState(
         {
-          election: mergeWithDefaults(electionSample as Election),
+          election: electionSample as Election,
           ballotsPrintedCount: 0,
           isLiveMode: true,
           isPollsOpen: true,
@@ -438,7 +431,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public setElection = (electionConfigFile: Election) => {
-    const election = mergeWithDefaults(electionConfigFile)
+    const election = electionConfigFile
     this.setState({ election })
     window.localStorage.setItem(electionStorageKey, JSON.stringify(election))
   }
@@ -628,7 +621,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       ballotsPrintedCount,
       ballotStyleId,
       contests,
-      election,
+      election: optionalElection,
       isClerkCardPresent,
       isLiveMode,
       isPollsOpen,
@@ -648,7 +641,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         <ClerkScreen
           appMode={appMode}
           ballotsPrintedCount={ballotsPrintedCount}
-          election={election}
+          election={optionalElection}
           fetchElection={this.fetchElection}
           isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
@@ -657,7 +650,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           unconfigure={this.unconfigure}
         />
       )
-    } else if (election) {
+    } else if (optionalElection) {
+      const election = optionalElection as Election
       if (isPollWorkerCardPresent) {
         return (
           <PollWorkerScreen

@@ -4,7 +4,7 @@ import { BrowserRouter, Route } from 'react-router-dom'
 import 'normalize.css'
 import './App.css'
 
-import Screen from './components/Screen'
+import FocusManager from './components/FocusManager'
 
 import AppRoot from './AppRoot'
 
@@ -15,9 +15,9 @@ window.oncontextmenu = (e: MouseEvent): void => {
 
 const App = () => (
   <BrowserRouter>
-    <Screen>
+    <FocusManager>
       <Route path="/" component={AppRoot} />
-    </Screen>
+    </FocusManager>
   </BrowserRouter>
 )
 

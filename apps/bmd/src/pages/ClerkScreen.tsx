@@ -14,10 +14,12 @@ import TestBallotDeckScreen from './TestBallotDeckScreen'
 
 import Button, { SegmentedButton } from '../components/Button'
 import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
+import Sidebar from '../components/Sidebar'
+import ElectionInfo from '../components/ElectionInfo'
+import Screen from '../components/Screen'
 
 interface Props {
   appMode: AppMode
@@ -67,8 +69,8 @@ const ClerkScreen = ({
   }
   const isTestDecksAvailable = isLiveMode || (!isLiveMode && appMode.isVxPrint)
   return (
-    <React.Fragment>
-      <Main>
+    <Screen flexDirection="row-reverse" voterMode={false}>
+      <Main padded>
         <MainChild maxWidth={false}>
           <Prose>
             <p>Remove card when finished making changes.</p>
@@ -176,7 +178,11 @@ const ClerkScreen = ({
           </Prose>
         </MainChild>
       </Main>
-      <MainNav appName={appMode.name} title="Clerk Actions" />
+      <Sidebar
+        appName={appMode.name}
+        title="Election Admin Actions"
+        footer={election && <ElectionInfo election={election} horizontal />}
+      />
       <Modal
         isOpen={isModalOpen}
         centerContent
@@ -190,15 +196,15 @@ const ClerkScreen = ({
           </Prose>
         }
         actions={
-          <>
+          <React.Fragment>
             <Button primary onPress={handleToggleLiveMode}>
               Yes
             </Button>
             <Button onPress={hideModal}>Cancel</Button>
-          </>
+          </React.Fragment>
         }
       />
-    </React.Fragment>
+    </Screen>
   )
 }
 

@@ -6,11 +6,11 @@ interface Attrs extends HTMLButtonElement {
 }
 
 export interface ButtonInterface {
-  readonly danger?: boolean
-  readonly primary?: boolean
-  readonly fullWidth?: boolean
-  readonly small?: boolean
   readonly big?: boolean
+  readonly danger?: boolean
+  readonly fullWidth?: boolean
+  readonly primary?: boolean
+  readonly small?: boolean
 }
 
 interface StyledButtonProps
@@ -20,6 +20,7 @@ interface StyledButtonProps
 const buttonStyles = css<StyledButtonProps>`
   border: none;
   border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71, 167, 75, 1);
   box-sizing: border-box;
   background: ${({ danger = false, primary = false }) =>
     (danger && 'red') ||
@@ -42,7 +43,6 @@ const buttonStyles = css<StyledButtonProps>`
 export const DecoyButton = styled.div`
   ${buttonStyles} /* stylelint-disable-line value-keyword-case */
 `
-
 const StyledButton = styled('button').attrs((props: Attrs) => ({
   type: props.type || 'button',
 }))`
@@ -82,7 +82,7 @@ const Button = ({
 }
 
 export const SegmentedButton = styled.span`
-  display: inline-block;
+  display: inline-flex;
   white-space: nowrap;
   & > button {
     box-shadow: inset 1px 0 0 rgb(190, 190, 190);

@@ -71,13 +71,6 @@ export interface YesNoContest extends Contest {
 export type Contests = (CandidateContest | YesNoContest)[]
 
 // Election
-export interface BMDConfig {
-  readonly requireActivation?: boolean
-  readonly showSettingsPage?: boolean
-}
-export interface ElectionDefaults {
-  readonly bmdConfig: BMDConfig
-}
 export interface BallotStyle {
   readonly id: string
   readonly precincts: string[]
@@ -115,7 +108,6 @@ export interface Election {
   readonly sealURL?: string
   readonly state: string
   readonly title: string
-  readonly bmdConfig?: BMDConfig
 }
 export type OptionalElection = Election | undefined
 
@@ -141,7 +133,7 @@ export interface BallotContextInterface {
   appMode: AppMode
   ballotStyleId: string
   contests: Contests
-  readonly election: Election | undefined
+  readonly election: Election
   incrementBallotsPrintedCount: () => void
   isLiveMode: boolean
   markVoterCardPrinted: MarkVoterCardFunction
@@ -149,7 +141,7 @@ export interface BallotContextInterface {
   precinctId: string
   printer: Printer
   resetBallot: (path?: string) => void
-  setUserSettings: (partial: PartialUserSettings) => void
+  setUserSettings: SetUserSettings
   updateVote: UpdateVoteFunction
   userSettings: UserSettings
   votes: VotesDict
@@ -205,11 +197,12 @@ export interface Scrollable {
   isScrollable: boolean
 }
 
-export type TextSizeSetting = 0 | 1 | 2 | 3
+export type TextSizeSetting = 0 | 1 | 2
 
 export interface UserSettings {
   textSize: TextSizeSetting
 }
+export type SetUserSettings = (partial: PartialUserSettings) => void
 export type PartialUserSettings = Partial<UserSettings>
 
 export default {}
