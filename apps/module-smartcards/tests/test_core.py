@@ -76,6 +76,13 @@ def test_card_read_long_b64(MockCardInterfaceWrite, client):
     stuff = client.get("/card/read_long_b64").data
     rv = json.loads(stuff)
     assert rv['longValue']
+
+@patch('smartcards.card.CardInterface.read_long', return_value=None)
+def test_card_read_long_b64_empty(MockCardInterfaceWrite, client):
+    stuff = client.get("/card/read_long_b64").data
+    rv = json.loads(stuff)
+    assert 'longValue' in rv
+    assert not rv['longValue']
     
 @patch('smartcards.card.CardInterface.write', return_value=True)
 def test_card_write_and_protect(MockCardInterfaceWrite, client):

@@ -92,7 +92,7 @@ def card_read_long_b64():
     if long_bytes:
         return json.dumps({"longValue": base64.b64encode(long_bytes).decode('ascii')})
     else:
-        return json.dumps({})
+        return json.dumps({"longValue": None})
 
 @app.route('/card/write_long_b64', methods=["POST"])
 def card_write_long_b64():
