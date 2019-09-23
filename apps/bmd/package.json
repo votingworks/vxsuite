@@ -102,7 +102,7 @@
     "react-modal": "^3.10.1",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.0.1",
-    "styled-components": "^4.3.2",
+    "styled-components": "^4.4.0",
     "typescript": "3.6.3",
     "use-interval": "^1.1.0"
   },

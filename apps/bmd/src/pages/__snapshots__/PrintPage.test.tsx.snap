@@ -385,7 +385,7 @@ exports[`renders PrintPage with votes 1`] = `
       </div>
     </div>
     <div
-      class="no-print c10"
+      class="c10 no-print"
       id="audiofocus"
     >
       <h1
@@ -798,7 +798,7 @@ exports[`renders PrintPage without votes 1`] = `
       </div>
     </div>
     <div
-      class="no-print c10"
+      class="c10 no-print"
       id="audiofocus"
     >
       <h1
@@ -1211,7 +1211,7 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
       </div>
     </div>
     <div
-      class="no-print c10"
+      class="c10 no-print"
       id="audiofocus"
     >
       <h1
@@ -1624,7 +1624,7 @@ exports[`renders PrintPage without votes and no seal 1`] = `
       </div>
     </div>
     <div
-      class="no-print c10"
+      class="c10 no-print"
       id="audiofocus"
     >
       <h1
