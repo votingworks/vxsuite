@@ -131,7 +131,7 @@
     "start-server-and-test": "^1.10.2",
     "stylelint": "^10.1.0",
     "stylelint-config-palantir": "^4.0.0",
-    "stylelint-config-prettier": "^5.2.0",
+    "stylelint-config-prettier": "^6.0.0",
     "stylelint-config-styled-components": "^0.1.1",
     "stylelint-processor-styled-components": "^1.8.0"
   }
