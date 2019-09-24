@@ -65,6 +65,7 @@ interface CardState {
   isVoterCardPresent: boolean
   isVoterCardPrinted: boolean
   pauseProcessingUntilNoCardPresent: boolean
+  voterCardCreatedAt: number
 }
 
 interface UserState {
@@ -101,6 +102,7 @@ const initialCardPresentState: CardState = {
   isVoterCardPresent: false,
   isVoterCardPrinted: false,
   pauseProcessingUntilNoCardPresent: false,
+  voterCardCreatedAt: 0,
 }
 
 const initialUserState: UserState = {
@@ -166,28 +168,47 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     switch (cardData.t) {
       case 'voter': {
         const voterCardData = cardData as VoterCardData
-        const isVoterCardExpired = this.isVoterCardExpired(voterCardData.c)
+        const voterCardCreatedAt = voterCardData.c
         const isVoterCardVoided = Boolean(voterCardData.uz)
         const ballotPrintedTime = Number(voterCardData.bp) || 0
         const isVoterCardPrinted = Boolean(ballotPrintedTime)
-        const votes: VotesDict = voterCardData.v || {}
-        const recentPrintExpirationSeconds = 60
         const isRecentVoterPrint =
           isVoterCardPrinted &&
-          utcTimestamp() <= ballotPrintedTime + recentPrintExpirationSeconds
-        this.setState({
-          ...initialCardPresentState,
-          shortValue,
-          isVoterCardExpired,
-          isVoterCardVoided,
-          isVoterCardPresent: true,
-          isVoterCardPrinted,
-          isRecentVoterPrint,
-          votes,
-        })
-        if (!isVoterCardExpired && !isVoterCardVoided && !isVoterCardPrinted) {
-          this.processVoterCardData(voterCardData)
-        }
+          utcTimestamp() <=
+            ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
+        const votes: VotesDict = voterCardData.v || {}
+        this.setState(
+          prevState => {
+            const isVoterCardExpired =
+              prevState.voterCardCreatedAt === 0 &&
+              this.isVoterCardExpired(voterCardCreatedAt)
+            return {
+              ...initialCardPresentState,
+              shortValue,
+              isVoterCardExpired,
+              isVoterCardVoided,
+              isVoterCardPresent: true,
+              isVoterCardPrinted,
+              isRecentVoterPrint,
+              voterCardCreatedAt,
+              votes,
+            }
+          },
+          () => {
+            const {
+              isVoterCardExpired,
+              isVoterCardVoided,
+              isVoterCardPrinted,
+            } = this.state
+            if (
+              !isVoterCardExpired &&
+              !isVoterCardVoided &&
+              !isVoterCardPrinted
+            ) {
+              this.processVoterCardData(voterCardData)
+            }
+          }
+        )
         break
       }
       case 'pollworker': {

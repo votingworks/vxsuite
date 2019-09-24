@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, wait } from '@testing-library/react'
+import { render, wait, fireEvent } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
 import App from './App'
@@ -10,12 +10,14 @@ import {
   getExpiredVoterCard,
   getVoidedVoterCard,
   noCard,
+  createVoterCard,
 } from '../test/helpers/smartcards'
 
 import {
   setElectionInLocalStorage,
   setStateInLocalStorage,
 } from '../test/helpers/election'
+import utcTimestamp from './utils/utcTimestamp'
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
@@ -48,7 +50,7 @@ it('VxMark+Print end-to-end flow', async () => {
   setElectionInLocalStorage()
   setStateInLocalStorage()
 
-  const { getByText } = render(<App />)
+  const { getAllByText, getByText } = render(<App />)
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -70,6 +72,53 @@ it('VxMark+Print end-to-end flow', async () => {
   await wait(() => getByText('Expired Card'))
 
   // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Voter Card which eventually expires
+  const expiringCard = createVoterCard({
+    c: utcTimestamp() - 5 * 60, // Created 5 minutes ago
+  })
+
+  // First Insert is Good
+  currentCard = expiringCard
+  advanceTimers()
+  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
+
+  // Slow voter clicks around, expiration Time passes, card still works.
+  advanceTimers(1 * 1000)
+  await wait(() => fireEvent.click(getByText('Next →')))
+  advanceTimers(1 * 1000)
+  await wait(() => fireEvent.click(getByText('Next →')))
+  advanceTimers(1 * 1000)
+  await wait(() => fireEvent.click(getByText('Next →')))
+  advanceTimers(1 * 1000)
+  await wait(() => fireEvent.click(getByText('Next →')))
+  advanceTimers(1 * 1000)
+  await wait(() => fireEvent.click(getByText('Next →')))
+  advanceTimers(1 * 1000)
+  await wait(() => fireEvent.click(getByText('Next →')))
+
+  // 10 minutes passes since card created. Card still works.
+  advanceTimers(1 * 1000)
+  await wait(() => fireEvent.click(getByText('Next →')))
+  advanceTimers(1 * 1000)
+  await wait(() => fireEvent.click(getByText('Next →')))
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // Reinsert expired card
+  currentCard = getExpiredVoterCard()
+  advanceTimers()
+  await wait(() => getByText('Expired Card'))
+
+  // Remove Card
   currentCard = noCard
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
