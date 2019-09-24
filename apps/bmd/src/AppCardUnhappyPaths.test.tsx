@@ -4,7 +4,7 @@ import fetchMock from 'fetch-mock'
 
 import App from './App'
 
-// import { CARD_EXPIRATION_SECONDS } from './config/globals'
+import { CARD_EXPIRATION_SECONDS } from './config/globals'
 import {
   advanceTimers,
   getExpiredVoterCard,
@@ -80,7 +80,7 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Voter Card which eventually expires
   const expiringCard = createVoterCard({
-    c: utcTimestamp() - 5 * 60, // Created 5 minutes ago
+    c: utcTimestamp() - CARD_EXPIRATION_SECONDS + 5 * 60, // 5 minutes until expiration
   })
 
   // First Insert is Good
@@ -90,22 +90,30 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Slow voter clicks around, expiration Time passes, card still works.
   advanceTimers(60)
+  fireEvent.mouseDown(document) // reset Idle Timer
   await wait(() => fireEvent.click(getByText('Next →')))
   advanceTimers(60)
+  fireEvent.mouseDown(document) // reset Idle Timer
   await wait(() => fireEvent.click(getByText('Next →')))
   advanceTimers(60)
+  fireEvent.mouseDown(document) // reset Idle Timer
   await wait(() => fireEvent.click(getByText('Next →')))
   advanceTimers(60)
+  fireEvent.mouseDown(document) // reset Idle Timer
   await wait(() => fireEvent.click(getByText('Next →')))
   advanceTimers(60)
+  fireEvent.mouseDown(document) // reset Idle Timer
   await wait(() => fireEvent.click(getByText('Next →')))
   advanceTimers(60)
+  fireEvent.mouseDown(document) // reset Idle Timer
   await wait(() => fireEvent.click(getByText('Next →')))
 
-  // 10 minutes passes since card created. Card still works.
+  // Card expires, but card still works as expected.
   advanceTimers(60)
+  fireEvent.mouseDown(document) // reset Idle Timer
   await wait(() => fireEvent.click(getByText('Next →')))
   advanceTimers(60)
+  fireEvent.mouseDown(document) // reset Idle Timer
   await wait(() => fireEvent.click(getByText('Next →')))
 
   // Remove card

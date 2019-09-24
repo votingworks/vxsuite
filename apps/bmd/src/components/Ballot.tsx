@@ -10,6 +10,7 @@ import ReviewPage from '../pages/ReviewPage'
 import StartPage from '../pages/StartPage'
 import RemoveCardScreen from '../pages/RemoveCardScreen'
 import CastBallotPage from '../pages/CastBallotPage'
+import { IDLE_TIMEOUT_SECONDS } from '../config/globals'
 
 const Ballot = () => {
   const [isIdle, setIsIdle] = useState(false)
@@ -31,7 +32,7 @@ const Ballot = () => {
       onActive={onActive}
       onIdle={onIdle}
       debounce={250}
-      timeout={60 * 1000}
+      timeout={IDLE_TIMEOUT_SECONDS * 1000}
     >
       {isIdle ? (
         <IdlePage />

@@ -94,8 +94,9 @@ export const getUsedVoterCard = () =>
   })
 
 export const advanceTimers = (seconds: number = 0) => {
-  if (seconds > 60) {
-    throw new Error('60 seconds is max')
+  const maxSeconds = GLOBALS.IDLE_TIMEOUT_SECONDS
+  if (seconds > maxSeconds) {
+    throw new Error(`Seconds value should not be greater than ${maxSeconds}`)
   }
   act(() => {
     jest.advanceTimersByTime(
