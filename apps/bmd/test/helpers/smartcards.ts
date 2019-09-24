@@ -16,7 +16,7 @@ const contest0 = electionSample.contests[0] as CandidateContest
 const contest1 = electionSample.contests[1] as CandidateContest
 const contest0candidate0 = contest0.candidates[0]
 const contest1candidate0 = contest1.candidates[0]
-const sampleVotes: VotesDict = {
+export const sampleVotes: VotesDict = {
   president: [contest0candidate0],
   'question-a': 'no',
   'question-b': 'yes',
@@ -45,9 +45,11 @@ export const pollWorkerCard: CardPresentAPI = {
 }
 
 export const createVoterCard = (
-  config?: Partial<VoterCardData>
+  config?: Partial<VoterCardData>,
+  longValueExists?: boolean
 ): CardPresentAPI => ({
   present: true,
+  longValueExists,
   shortValue: JSON.stringify({
     t: 'voter',
     c: utcTimestamp(),
@@ -76,17 +78,21 @@ export const getExpiredVoterCard = () =>
   })
 
 export const getExpiredVoterCardWithVotes = () =>
-  createVoterCard({
-    c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
-    v: sampleVotes,
-    u: utcTimestamp(),
-  })
+  createVoterCard(
+    {
+      c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
+      u: utcTimestamp(),
+    },
+    true
+  )
 
 export const getVoterCardWithVotes = () =>
-  createVoterCard({
-    v: sampleVotes,
-    u: utcTimestamp(),
-  })
+  createVoterCard(
+    {
+      u: utcTimestamp(),
+    },
+    true
+  )
 
 export const getUsedVoterCard = () =>
   createVoterCard({

@@ -42,6 +42,10 @@ describe('Mark Card Void when voter is idle too long', () => {
       return ''
     })
 
+    fetchMock.post('/card/write_long_b64', () =>
+      JSON.stringify({ status: 'ok' })
+    )
+
     setElectionInLocalStorage()
     setStateInLocalStorage()
 
@@ -106,6 +110,10 @@ describe('Mark Card Void when voter is idle too long', () => {
       }
       return ''
     })
+
+    fetchMock.post('/card/write_long_b64', () =>
+      JSON.stringify({ status: 'ok' })
+    )
 
     setElectionInLocalStorage()
     setStateInLocalStorage()

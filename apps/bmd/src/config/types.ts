@@ -159,7 +159,6 @@ export interface VoterCardData extends CardData {
   readonly pr: string // precinct id
   readonly uz?: number // used (voided)
   readonly bp?: number // ballot printed date
-  readonly v?: VotesDict // votes object
   readonly u?: number // updated date
   readonly m?: string // mark machine id
 }

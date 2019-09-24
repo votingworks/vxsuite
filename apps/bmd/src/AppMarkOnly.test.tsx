@@ -12,6 +12,7 @@ import {
   getNewVoterCard,
   noCard,
   pollWorkerCard,
+  sampleVotes,
 } from '../test/helpers/smartcards'
 
 import {
@@ -34,6 +35,10 @@ fetchMock.post('/card/write', (url, options) => {
 
 fetchMock.get('/card/read_long', () =>
   JSON.stringify({ longValue: electionAsString })
+)
+
+fetchMock.get('/card/read_long_b64', () =>
+  JSON.stringify({ longValue: btoa(JSON.stringify(sampleVotes)) })
 )
 
 beforeEach(() => {

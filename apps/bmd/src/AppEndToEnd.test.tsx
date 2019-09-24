@@ -39,6 +39,8 @@ fetchMock.get('/card/read_long', () =>
   JSON.stringify({ longValue: electionAsString })
 )
 
+fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
+
 fetchMock.get('/printer/status', () => ({
   ok: true,
 }))

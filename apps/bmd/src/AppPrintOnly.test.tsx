@@ -13,6 +13,7 @@ import {
   getVoterCardWithVotes,
   noCard,
   pollWorkerCard,
+  sampleVotes,
 } from '../test/helpers/smartcards'
 
 import { electionAsString } from '../test/helpers/election'
@@ -33,6 +34,12 @@ fetchMock.post('/card/write', (url, options) => {
 fetchMock.get('/card/read_long', () =>
   JSON.stringify({ longValue: electionAsString })
 )
+
+fetchMock.get('/card/read_long_b64', () =>
+  JSON.stringify({ longValue: btoa(JSON.stringify(sampleVotes)) })
+)
+
+fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
 
 fetchMock.get('/printer/status', () => ({
   ok: true,
@@ -149,6 +156,7 @@ it('VxPrintOnly flow', async () => {
 
   // Show Printing Ballot screen
   advanceTimers()
+  await wait()
   await wait(() => getByText('Printing your official ballot'))
 
   // After timeout, show Verify and Cast Instructions
