@@ -49,7 +49,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     await wait(() => getByText(/Center Springfield/))
 
     // Elapse 60 seconds
-    advanceTimers(60 * 1000)
+    advanceTimers(60)
 
     // Idle Screen is displayed
     getByText(idleScreenCopy)
@@ -61,16 +61,16 @@ describe('Mark Card Void when voter is idle too long', () => {
     expect(queryByText(idleScreenCopy)).toBeFalsy()
 
     // Elapse 60 seconds
-    advanceTimers(60 * 1000)
+    advanceTimers(60)
 
     // Idle Screen is displayed
     getByText(idleScreenCopy)
 
     // Countdown works
-    advanceTimers(1000)
+    advanceTimers(1)
     getByText('29 seconds')
 
-    advanceTimers(29000)
+    advanceTimers(29)
     advanceTimers()
     getByText('Clearing ballot')
 
@@ -113,13 +113,13 @@ describe('Mark Card Void when voter is idle too long', () => {
     await wait(() => getByText(/Center Springfield/))
 
     // Elapse 60 seconds
-    advanceTimers(60 * 1000)
+    advanceTimers(60)
 
     // Idle Screen is displayed
     getByText(idleScreenCopy)
 
     // Countdown works
-    advanceTimers(30000)
+    advanceTimers(30)
     advanceTimers()
     getByText('Clearing ballot')
 

@@ -89,23 +89,23 @@ it('VxMark+Print end-to-end flow', async () => {
   await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
 
   // Slow voter clicks around, expiration Time passes, card still works.
-  advanceTimers(1 * 1000)
+  advanceTimers(60)
   await wait(() => fireEvent.click(getByText('Next →')))
-  advanceTimers(1 * 1000)
+  advanceTimers(60)
   await wait(() => fireEvent.click(getByText('Next →')))
-  advanceTimers(1 * 1000)
+  advanceTimers(60)
   await wait(() => fireEvent.click(getByText('Next →')))
-  advanceTimers(1 * 1000)
+  advanceTimers(60)
   await wait(() => fireEvent.click(getByText('Next →')))
-  advanceTimers(1 * 1000)
+  advanceTimers(60)
   await wait(() => fireEvent.click(getByText('Next →')))
-  advanceTimers(1 * 1000)
+  advanceTimers(60)
   await wait(() => fireEvent.click(getByText('Next →')))
 
   // 10 minutes passes since card created. Card still works.
-  advanceTimers(1 * 1000)
+  advanceTimers(60)
   await wait(() => fireEvent.click(getByText('Next →')))
-  advanceTimers(1 * 1000)
+  advanceTimers(60)
   await wait(() => fireEvent.click(getByText('Next →')))
 
   // Remove card

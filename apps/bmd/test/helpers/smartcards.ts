@@ -93,8 +93,13 @@ export const getUsedVoterCard = () =>
     bp: utcTimestamp(),
   })
 
-export const advanceTimers = (ms: number = 0) => {
+export const advanceTimers = (seconds: number = 0) => {
+  if (seconds > 60) {
+    throw new Error('60 seconds is max')
+  }
   act(() => {
-    jest.advanceTimersByTime(ms + GLOBALS.CARD_POLLING_INTERVAL)
+    jest.advanceTimersByTime(
+      seconds ? seconds * 1000 : GLOBALS.CARD_POLLING_INTERVAL
+    )
   })
 }
