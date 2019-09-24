@@ -17,7 +17,6 @@ import {
   VxMarkOnly,
 } from '../src/config/types'
 
-import { mergeWithDefaults } from '../src/AppRoot'
 import BallotContext from '../src/contexts/ballotContext'
 import fakePrinter from './helpers/fakePrinter'
 
@@ -52,7 +51,7 @@ export function render(
           appMode,
           ballotStyleId,
           contests,
-          election: mergeWithDefaults(election as Election),
+          election: election as Election,
           incrementBallotsPrintedCount,
           isLiveMode,
           markVoterCardVoided,

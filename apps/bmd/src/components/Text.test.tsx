@@ -34,6 +34,11 @@ it('displays error style', async () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
+it('narrow style', async () => {
+  const { container } = render(<Text narrow>Narrow Wrapper</Text>)
+  expect(container.firstChild).toMatchSnapshot()
+})
+
 it('converts line-breaks into <p> and <br/> tags', () => {
   const { container } = render(
     <TextWithLineBreaks

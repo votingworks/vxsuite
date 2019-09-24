@@ -21,7 +21,6 @@ import {
   CardData,
   Contests,
   Election,
-  ElectionDefaults,
   InputEvent,
   MachineIdAPI,
   MarkVoterCardFunction,
@@ -54,14 +53,8 @@ import CastBallotPage from './pages/CastBallotPage'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import ExpiredCardScreen from './pages/ExpiredCardScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
-import electionDefaults from './data/electionDefaults.json'
 import electionSample from './data/electionSample.json'
 import makePrinter, { PrintMethod } from './utils/printer'
-
-export const mergeWithDefaults = (
-  election: Election,
-  defaults: ElectionDefaults = electionDefaults
-) => ({ ...defaults, ...election })
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -72,6 +65,7 @@ interface CardState {
   isVoterCardPresent: boolean
   isVoterCardPrinted: boolean
   pauseProcessingUntilNoCardPresent: boolean
+  voterCardCreatedAt: number
 }
 
 interface UserState {
@@ -108,6 +102,7 @@ const initialCardPresentState: CardState = {
   isVoterCardPresent: false,
   isVoterCardPrinted: false,
   pauseProcessingUntilNoCardPresent: false,
+  voterCardCreatedAt: 0,
 }
 
 const initialUserState: UserState = {
@@ -173,28 +168,47 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     switch (cardData.t) {
       case 'voter': {
         const voterCardData = cardData as VoterCardData
-        const isVoterCardExpired = this.isVoterCardExpired(voterCardData.c)
+        const voterCardCreatedAt = voterCardData.c
         const isVoterCardVoided = Boolean(voterCardData.uz)
         const ballotPrintedTime = Number(voterCardData.bp) || 0
         const isVoterCardPrinted = Boolean(ballotPrintedTime)
-        const votes: VotesDict = voterCardData.v || {}
-        const recentPrintExpirationSeconds = 60
         const isRecentVoterPrint =
           isVoterCardPrinted &&
-          utcTimestamp() <= ballotPrintedTime + recentPrintExpirationSeconds
-        this.setState({
-          ...initialCardPresentState,
-          shortValue,
-          isVoterCardExpired,
-          isVoterCardVoided,
-          isVoterCardPresent: true,
-          isVoterCardPrinted,
-          isRecentVoterPrint,
-          votes,
-        })
-        if (!isVoterCardExpired && !isVoterCardVoided && !isVoterCardPrinted) {
-          this.processVoterCardData(voterCardData)
-        }
+          utcTimestamp() <=
+            ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
+        const votes: VotesDict = voterCardData.v || {}
+        this.setState(
+          prevState => {
+            const isVoterCardExpired =
+              prevState.voterCardCreatedAt === 0 &&
+              this.isVoterCardExpired(voterCardCreatedAt)
+            return {
+              ...initialCardPresentState,
+              shortValue,
+              isVoterCardExpired,
+              isVoterCardVoided,
+              isVoterCardPresent: true,
+              isVoterCardPrinted,
+              isRecentVoterPrint,
+              voterCardCreatedAt,
+              votes,
+            }
+          },
+          () => {
+            const {
+              isVoterCardExpired,
+              isVoterCardVoided,
+              isVoterCardPrinted,
+            } = this.state
+            if (
+              !isVoterCardExpired &&
+              !isVoterCardVoided &&
+              !isVoterCardPrinted
+            ) {
+              this.processVoterCardData(voterCardData)
+            }
+          }
+        )
         break
       }
       case 'pollworker': {
@@ -324,7 +338,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       checkCardInterval = 1 // don't poll for card data.
       this.setState(
         {
-          election: mergeWithDefaults(electionSample as Election),
+          election: electionSample as Election,
           ballotsPrintedCount: 0,
           isLiveMode: true,
           isPollsOpen: true,
@@ -438,7 +452,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public setElection = (electionConfigFile: Election) => {
-    const election = mergeWithDefaults(electionConfigFile)
+    const election = electionConfigFile
     this.setState({ election })
     window.localStorage.setItem(electionStorageKey, JSON.stringify(election))
   }
@@ -628,7 +642,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       ballotsPrintedCount,
       ballotStyleId,
       contests,
-      election,
+      election: optionalElection,
       isClerkCardPresent,
       isLiveMode,
       isPollsOpen,
@@ -648,7 +662,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         <ClerkScreen
           appMode={appMode}
           ballotsPrintedCount={ballotsPrintedCount}
-          election={election}
+          election={optionalElection}
           fetchElection={this.fetchElection}
           isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
@@ -657,7 +671,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           unconfigure={this.unconfigure}
         />
       )
-    } else if (election) {
+    } else if (optionalElection) {
+      const election = optionalElection as Election
       if (isPollWorkerCardPresent) {
         return (
           <PollWorkerScreen

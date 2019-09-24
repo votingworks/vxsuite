@@ -17,6 +17,8 @@ import {
 
 import { electionAsString } from '../test/helpers/election'
 
+import { printerMessageTimeoutSeconds } from './pages/PrintOnlyScreen'
+
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
@@ -147,10 +149,14 @@ it('VxPrintOnly flow', async () => {
 
   // Insert Voter card
   currentCard = getVoterCardWithVotes()
+
+  // Show Printing Ballot screen
   advanceTimers()
-  await wait(() => getByText('Printing ballot'))
-  advanceTimers(5000 + 1000)
-  await wait(() => getByText('Official Ballot Printed'))
+  await wait(() => getByText('Printing your official ballot'))
+
+  // After timeout, show Verify and Cast Instructions
+  advanceTimers(printerMessageTimeoutSeconds * 1000)
+  await wait(() => getByText('Verify and Cast Printed Ballot'))
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 
   // Remove card

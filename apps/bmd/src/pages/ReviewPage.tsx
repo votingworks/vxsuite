@@ -19,13 +19,16 @@ import {
 } from '../config/types'
 
 import Button, { DecoyButton } from '../components/Button'
-import ButtonBar from '../components/ButtonBar'
 import LinkButton from '../components/LinkButton'
 import Main from '../components/Main'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
 import * as GLOBALS from '../config/globals'
 import BallotContext from '../contexts/ballotContext'
+import Screen from '../components/Screen'
+import Sidebar from '../components/Sidebar'
+import ElectionInfo from '../components/ElectionInfo'
+import SettingsTextSize from '../components/SettingsTextSize'
 
 const tabletMinWidth = 768
 
@@ -137,13 +140,13 @@ const ContestActions = styled.div`
 `
 const NoSelection = () => (
   <Text
-    aria-label="No selection was made for this contest."
+    aria-label="You may still vote in this contest."
     bold
     warning
     warningIcon
     wordBreak
   >
-    No selection was made for this contest.
+    You may still vote in this contest.
   </Text>
 )
 
@@ -180,7 +183,7 @@ const CandidateContestResult = ({
       })}
       {!!remainingChoices && (
         <Text bold warning warningIcon wordBreak>
-          You may select {remainingChoices} more{' '}
+          You may still vote for {remainingChoices} more{' '}
           {pluralize('candidate', remainingChoices)}.
         </Text>
       )}
@@ -201,6 +204,11 @@ const YesNoContestResult = (props: {
     <NoSelection />
   )
 
+const SidebarSpacer = styled.div`
+  @media (min-width: 480px) {
+    height: 3rem;
+  }
+`
 interface State {
   isScrollAtBottom: boolean
   isScrollAtTop: boolean
@@ -281,18 +289,24 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
   }
 
   public render() {
-    const { appMode, contests, election, votes } = this.context
-    const { bmdConfig, parties } = election!
-    const { showSettingsPage } = bmdConfig!
+    const {
+      appMode,
+      contests,
+      election,
+      votes,
+      userSettings,
+      setUserSettings,
+    } = this.context
+    const { parties } = election
     const { isScrollable, isScrollAtBottom, isScrollAtTop } = this.state
 
     return (
-      <React.Fragment>
-        <Main noPadding>
+      <Screen>
+        <Main>
           <ContentHeader>
             <Prose id="audiofocus">
               <h1 aria-label="Review your ballot selections. Use the down arrow to go through all contests. Use the select button to change a particular contest. When you are done reviewing, use the right arrow to continue.">
-                Review Your Ballot Selections
+                All Your Votes
               </h1>
               <Button
                 aria-hidden
@@ -340,7 +354,9 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                       )}
                     </ContestProse>
                     <ContestActions aria-label="press enter to change your answer for this contest.">
-                      <DecoyButton aria-hidden="true">Change</DecoyButton>
+                      <DecoyButton primary aria-hidden="true">
+                        Change
+                      </DecoyButton>
                     </ContestActions>
                   </Contest>
                 ))}
@@ -359,19 +375,34 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
             </Button>
           </ContentFooter>
         </Main>
-        <ButtonBar>
-          <LinkButton to={appMode.isVxPrint ? '/print' : '/remove'} id="next">
-            Next
-          </LinkButton>
-          <div />
-          <div />
-          <div />
-        </ButtonBar>
-        <ButtonBar secondary separatePrimaryButton>
-          <div />
-          {showSettingsPage && <LinkButton to="/settings">Settings</LinkButton>}
-        </ButtonBar>
-      </React.Fragment>
+        <Sidebar
+          footer={
+            <React.Fragment>
+              <SettingsTextSize
+                userSettings={userSettings}
+                setUserSettings={setUserSettings}
+              />
+              <ElectionInfo election={election} horizontal />
+            </React.Fragment>
+          }
+        >
+          <SidebarSpacer />
+          <Prose>
+            <h2 aria-hidden>Review Votes</h2>
+            <p>Confirm your votes are correct.</p>
+            <p>
+              <LinkButton
+                big
+                primary
+                to={appMode.isVxPrint ? '/print' : '/remove'}
+                id="next"
+              >
+                I’m Ready to Print My Ballot
+              </LinkButton>
+            </p>
+          </Prose>
+        </Sidebar>
+      </Screen>
     )
   }
 }

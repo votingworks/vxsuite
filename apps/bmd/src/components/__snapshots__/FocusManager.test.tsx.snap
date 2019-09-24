@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders FocusManager 1`] = `
+.c0 {
+  height: 100%;
+}
+
+.c0:focus {
+  outline: none;
+}
+
+<div
+  class="c0"
+  tabindex="-1"
+>
+  foo
+</div>
+`;

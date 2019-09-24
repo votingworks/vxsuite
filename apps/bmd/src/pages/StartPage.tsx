@@ -1,65 +1,84 @@
 import React, { useContext } from 'react'
 
-import { Election, Precinct } from '../config/types'
-
 import BallotContext from '../contexts/ballotContext'
 
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '../utils/election'
 
+import { Wobble } from '../components/Animations'
+import ElectionInfo from '../components/ElectionInfo'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
-import Seal from '../components/Seal'
+import Sidebar from '../components/Sidebar'
+import Screen from '../components/Screen'
+import SettingsTextSize from '../components/SettingsTextSize'
 import Text from '../components/Text'
 
 const StartPage = () => {
-  const { ballotStyleId, election: e, precinctId } = useContext(BallotContext)
-  const election = e as Election
-  const { title, state, county, date, seal, sealURL } = election
-  const precinct = election.precincts.find(p => p.id === precinctId) as Precinct
+  const {
+    ballotStyleId,
+    contests,
+    election,
+    precinctId,
+    setUserSettings,
+    userSettings,
+  } = useContext(BallotContext)
+  const { title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     election,
     ballotStyleId,
   })
 
   return (
-    <Main>
-      <MainChild center>
-        <Seal seal={seal} sealURL={sealURL} />
-        <Prose textCenter>
-          <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
-            {partyPrimaryAdjective} {title}
-          </h1>
-          <p aria-hidden="true">
-            {date}
-            <br />
-            {county.name}, {state}
-          </p>
-          <hr />
-          <h2>
-            Precinct: {precinct.name}
-            <br />
-            Ballot Style: {ballotStyleId}
-          </h2>
-          <Text narrow>
-            <br />
-            Do not remove card until
-            <br /> official ballot is printed.
+    <Screen>
+      <Main>
+        <MainChild center>
+          <Prose textCenter>
+            <h1>
+              {partyPrimaryAdjective} {title}
+            </h1>
+            <hr />
+            <p>
+              Click the <strong>Start Voting</strong> button at the top right to
+              view the first contest.
+            </p>
+          </Prose>
+        </MainChild>
+      </Main>
+      <Sidebar
+        footer={
+          <React.Fragment>
+            <SettingsTextSize
+              userSettings={userSettings}
+              setUserSettings={setUserSettings}
+            />
+            <ElectionInfo
+              election={election}
+              ballotStyleId={ballotStyleId}
+              precinctId={precinctId}
+              horizontal
+            />
+          </React.Fragment>
+        }
+      >
+        <Prose>
+          <Text center>
+            This ballot has <strong>{contests.length} contests</strong>.
           </Text>
-          <p>
-            <br />
+          <Wobble as="p">
             <LinkButton
+              big
               primary
-              to="/instructions/"
+              to="/contests/0"
               id="next"
-              aria-label="Select Next to Get Started."
+              aria-label="Select next to start voting."
             >
-              Get Started
+              Start Voting
             </LinkButton>
-          </p>
+          </Wobble>
         </Prose>
-      </MainChild>
-    </Main>
+      </Sidebar>
+    </Screen>
   )
 }
 

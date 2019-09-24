@@ -39,18 +39,14 @@ it('Single Seat Contest', async () => {
   setElectionInLocalStorage()
   setStateInLocalStorage()
 
-  const { container, getByText, queryByText } = render(<App />)
+  const { container, getAllByText, getByText, queryByText } = render(<App />)
 
   // Insert Voter Card
   currentCard = getNewVoterCard()
   advanceTimers()
 
-  // Go to Voting Instructions
-  await wait(() => fireEvent.click(getByText('Get Started')))
-  advanceTimers()
-
   // Go to First Contest
-  fireEvent.click(getByText('Start Voting'))
+  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //
@@ -63,7 +59,7 @@ it('Single Seat Contest', async () => {
 
   // Advance to multi-seat contest
   while (!queryByText(countyCommissionersContest.title)) {
-    fireEvent.click(getByText('Next'))
+    fireEvent.click(getByText('Next →'))
     advanceTimers()
   }
 
@@ -76,19 +72,17 @@ it('Single Seat Contest', async () => {
 
   // Overvote modal is displayed
   getByText(
-    `You may only select ${countyCommissionersContest.seats} candidates in this contest. To vote for ${candidate4.name}, you must first unselect selected candidates.`
+    `You may only select ${countyCommissionersContest.seats} candidates in this contest. To vote for ${candidate4.name}, you must first unselect the selected candidates.`
   )
 
   // Capture styles of Single Candidate Contest
   expect(container.firstChild).toMatchSnapshot()
 
   // Go to Review Screen
-  while (!queryByText('Review Your Selections')) {
-    fireEvent.click(getByText('Next'))
+  while (!queryByText('All Your Votes')) {
+    fireEvent.click(getByText('Next →'))
     advanceTimers()
   }
-  fireEvent.click(getByText('Review Selections'))
-  advanceTimers()
 
   // Expect to see the first four selected candidates
   expect(getByText(candidate0.name)).toBeTruthy()

@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import Breadcrumbs from '../components/Breadcrumbs'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
@@ -18,8 +17,7 @@ const Instructions = styled.ol`
 const CastBallotPage = () => (
   <Screen>
     <Main>
-      <MainChild centerVertical maxWidth={false}>
-        <Breadcrumbs step={4} />
+      <MainChild center maxWidth={false}>
         <Prose textCenter id="audiofocus">
           <h1 aria-label="You’re almost done.">You’re Almost Done…</h1>
           <p>Your official paper ballot is printing. To finish voting:</p>

@@ -1,20 +1,19 @@
 import React from 'react'
 import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
+import Screen from '../components/Screen'
 
 const UnconfiguredScreen = () => (
-  <React.Fragment>
+  <Screen>
     <Main>
       <MainChild center>
         <Prose textCenter>
           <h1>Device Not Configured</h1>
-          <p>Insert Election Clerk card.</p>
+          <p>Insert Election Admin card.</p>
         </Prose>
       </MainChild>
     </Main>
-    <MainNav />
-  </React.Fragment>
+  </Screen>
 )
 
 export default UnconfiguredScreen

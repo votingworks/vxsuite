@@ -9,7 +9,7 @@ import electionPrimarySample from '../data/electionPrimarySample.json'
 import StartPage from './StartPage'
 
 it('renders StartPage', async () => {
-  const { container, getByText } = render(
+  const { container, getAllByText, getByText } = render(
     <Route path="/" component={StartPage} />,
     {
       ballotStyleId: '12D',
@@ -18,8 +18,10 @@ it('renders StartPage', async () => {
       route: '/',
     }
   )
-  getByText('Democratic 2020 Primary Election')
-  getByText(/Ballot Style: 12D/)
+  expect(
+    getAllByText('Democratic 2020 Primary Election').length
+  ).toBeGreaterThan(1)
+  getByText(/ballot style 12D/)
   expect(container.firstChild).toMatchSnapshot()
 })
 

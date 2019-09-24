@@ -39,18 +39,14 @@ it('Single Seat Contest', async () => {
   setElectionInLocalStorage()
   setStateInLocalStorage()
 
-  const { getByText, queryByText, getByTestId } = render(<App />)
+  const { getAllByText, getByText, queryByText, getByTestId } = render(<App />)
 
   // Insert Voter Card
   currentCard = getNewVoterCard()
   advanceTimers()
 
-  // Go to Voting Instructions
-  await wait(() => fireEvent.click(getByText('Get Started')))
-  advanceTimers()
-
   // Go to First Contest
-  fireEvent.click(getByText('Start Voting'))
+  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //
@@ -68,7 +64,7 @@ it('Single Seat Contest', async () => {
 
   // Advance to multi-seat contest
   while (!queryByText(measure102Contest.title)) {
-    fireEvent.click(getByText('Next'))
+    fireEvent.click(getByText('Next →'))
     advanceTimers()
   }
 
@@ -100,12 +96,10 @@ it('Single Seat Contest', async () => {
   advanceTimers() // For 200ms Delay in closing modal
 
   // Go to review page and confirm write in exists
-  while (!queryByText('Review Your Selections')) {
-    fireEvent.click(getByText('Next'))
+  while (!queryByText('All Your Votes')) {
+    fireEvent.click(getByText('Next →'))
     advanceTimers()
   }
-  fireEvent.click(getByText('Review Selections'))
-  advanceTimers()
 
   const reviewTitle = getByText(
     `${measure102Contest.section}, ${measure102Contest.title}`

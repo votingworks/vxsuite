@@ -9,10 +9,11 @@ import {
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
+import ElectionInfo from '../components/ElectionInfo'
 import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
-import Prose from '../components/Prose'
 import PrintedBallot from '../components/PrintedBallot'
+import Prose from '../components/Prose'
+import Sidebar from '../components/Sidebar'
 
 interface Ballot {
   ballotId?: string
@@ -193,11 +194,15 @@ const TestBallotDeckScreen = ({
           </Main>
         </React.Fragment>
       )}
-      <MainNav appName={appName} title="Clerk Actions">
+      <Sidebar
+        appName={appName}
+        title="Election Admin Actions"
+        footer={election && <ElectionInfo election={election} horizontal />}
+      >
         <Button small onPress={hideTestDeck}>
           Dashboard
         </Button>
-      </MainNav>
+      </Sidebar>
     </React.Fragment>
   )
 }

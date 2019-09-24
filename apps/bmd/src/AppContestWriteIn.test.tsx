@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render, wait, within } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
 import App from './App'
@@ -50,25 +50,30 @@ it('Single Seat Contest with Write In', async () => {
     appMode: VxMarkPlusVxPrint,
   })
 
-  const { container, getByText, queryByText } = render(<App />)
+  const {
+    container,
+    getAllByText,
+    getByText,
+    queryByText,
+    getByTestId,
+  } = render(<App />)
+
+  const getWithinKeyboard = (text: string) =>
+    within(getByTestId('virtual-keyboard')).getByText(text)
 
   // Insert Voter Card
   currentCard = getNewVoterCard()
   advanceTimers()
 
-  // Go to Voting Instructions
-  await wait(() => fireEvent.click(getByText('Get Started')))
-  advanceTimers()
-
   // Go to First Contest
-  fireEvent.click(getByText('Start Voting'))
+  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //
 
   // Advance to Single-Seat Contest with Write-In
   while (!queryByText(singleSeatContestWithWriteIn.title)) {
-    fireEvent.click(getByText('Next'))
+    fireEvent.click(getByText('Next →'))
     advanceTimers()
   }
 
@@ -83,11 +88,11 @@ it('Single Seat Contest with Write In', async () => {
   expect(container.firstChild).toMatchSnapshot()
 
   // Enter Write-in Candidate Name
-  fireEvent.click(getByText('B'))
-  fireEvent.click(getByText('O'))
-  fireEvent.click(getByText('V'))
-  fireEvent.click(getByText('⌫ delete'))
-  fireEvent.click(getByText('B'))
+  fireEvent.click(getWithinKeyboard('B'))
+  fireEvent.click(getWithinKeyboard('O'))
+  fireEvent.click(getWithinKeyboard('V'))
+  fireEvent.click(getWithinKeyboard('⌫ delete'))
+  fireEvent.click(getWithinKeyboard('B'))
   fireEvent.click(getByText('Accept'))
   advanceTimers()
 
@@ -99,9 +104,9 @@ it('Single Seat Contest with Write In', async () => {
 
   // Add Different Write-In Candidate
   fireEvent.click(getByText('add write-in candidate').closest('button')!)
-  fireEvent.click(getByText('S').closest('button')!)
-  fireEvent.click(getByText('A').closest('button')!)
-  fireEvent.click(getByText('L').closest('button')!)
+  fireEvent.click(getWithinKeyboard('S').closest('button')!)
+  fireEvent.click(getWithinKeyboard('A').closest('button')!)
+  fireEvent.click(getWithinKeyboard('L').closest('button')!)
   fireEvent.click(getByText('Accept'))
   expect(getByText('SAL').closest('button')!.dataset.selected).toBe('true')
 
@@ -112,36 +117,30 @@ it('Single Seat Contest with Write In', async () => {
     )!
   )
   getByText(
-    `You may only select ${singleSeatContestWithWriteIn.seats} candidate in this contest. To vote for ${singleSeatContestWithWriteIn.candidates[0].name}, you must first unselect selected candidate.`
+    `You may only select ${singleSeatContestWithWriteIn.seats} candidate in this contest. To vote for ${singleSeatContestWithWriteIn.candidates[0].name}, you must first unselect the selected candidate.`
   )
   fireEvent.click(getByText('Okay'))
   advanceTimers() // For 200ms Delay in closing modal
 
   // Go to review page and confirm write in exists
-  while (!queryByText('Review Your Selections')) {
-    fireEvent.click(getByText('Next'))
+  while (!queryByText('All Your Votes')) {
+    fireEvent.click(getByText('Next →'))
     advanceTimers()
   }
 
-  // Pre-Review Screen
-  fireEvent.click(getByText('Review Selections'))
-  advanceTimers()
-
   // Review Screen
-  getByText('Review Your Ballot Selections')
+  await wait(() => getByText('All Your Votes'))
   expect(getByText('SAL')).toBeTruthy()
   expect(getByText('(write-in)')).toBeTruthy()
 
   // Print Screen
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(getByText('I’m Ready to Print My Ballot'))
   advanceTimers()
   expect(getByText('Official Ballot')).toBeTruthy()
   expect(getByText('(write-in)')).toBeTruthy()
-  getByText('Print your official ballot')
+  getByText('Printing Official Ballot')
 
-  // Test Print Ballot Modal
-  fireEvent.click(getByText('Print Ballot'))
-  fireEvent.click(getByText('Yes, print my ballot.'))
+  // Printer has new job
   advanceTimers()
   await wait(() => expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1))
 })

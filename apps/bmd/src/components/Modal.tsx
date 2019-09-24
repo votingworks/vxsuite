@@ -62,11 +62,7 @@ const Modal: React.FC<Props> = ({
     onAfterOpen={onAfterOpen}
   >
     <ModalContent centerContent={centerContent}>{content}</ModalContent>
-    {actions && (
-      <ButtonBar as="div" dark={false}>
-        {actions}
-      </ButtonBar>
-    )}
+    {actions && <ButtonBar as="div">{actions}</ButtonBar>}
   </ReactModal>
 )
 

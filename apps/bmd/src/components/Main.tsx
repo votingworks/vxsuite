@@ -1,20 +1,23 @@
 import styled from 'styled-components'
 
+//  RootScreen
+//    Main
+//      MainContent
+//    Sidebar
+//      SidebarContent
+
 interface Props {
-  noPadding?: boolean
+  padded?: boolean
   noOverflow?: boolean
 }
 
 const Main = styled('main')<Props>`
   display: flex;
-  flex: 1;
   flex-direction: column;
   overflow: ${({ noOverflow = false }) => (noOverflow ? undefined : 'auto')};
-  padding: ${({ noPadding = false }) =>
-    noPadding ? undefined : '1rem 0.5rem 2rem'};
+  padding: ${({ padded = false }) => (padded ? '1rem 0.5rem 2rem' : undefined)};
   @media (min-width: 480px) {
-    padding: ${({ noPadding = false }) =>
-      noPadding ? undefined : '1rem 1rem 2rem'};
+    padding: ${({ padded = false }) => (padded ? '2rem' : undefined)};
   }
   @media print {
     display: none;

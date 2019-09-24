@@ -5,6 +5,8 @@ import {
   CardAPI,
   CardPresentAPI,
   Election,
+  VoterCardData,
+  VotesDict,
 } from '../../src/config/types'
 import electionSample from '../../src/data/electionSample.json'
 import utcTimestamp from '../../src/utils/utcTimestamp'
@@ -14,7 +16,7 @@ const contest0 = electionSample.contests[0] as CandidateContest
 const contest1 = electionSample.contests[1] as CandidateContest
 const contest0candidate0 = contest0.candidates[0]
 const contest1candidate0 = contest1.candidates[0]
-const sampleVotes = {
+const sampleVotes: VotesDict = {
   president: [contest0candidate0],
   'question-a': 'no',
   'question-b': 'yes',
@@ -42,69 +44,54 @@ export const pollWorkerCard: CardPresentAPI = {
   }),
 }
 
-const getNewVoterShortValue = () => ({
-  t: 'voter',
-  c: utcTimestamp(),
-  pr: election.precincts[0].id,
-  bs: election.ballotStyles[0].id,
-})
-
-export const getNewVoterCard = (): CardPresentAPI => ({
-  present: true,
-  shortValue: JSON.stringify(getNewVoterShortValue()),
-})
-
-export const getAlternateNewVoterCard = (): CardPresentAPI => ({
+export const createVoterCard = (
+  config?: Partial<VoterCardData>
+): CardPresentAPI => ({
   present: true,
   shortValue: JSON.stringify({
-    ...getNewVoterShortValue(),
+    t: 'voter',
+    c: utcTimestamp(),
+    pr: election.precincts[0].id,
+    bs: election.ballotStyles[0].id,
+    ...config,
+  }),
+})
+
+export const getNewVoterCard = () => createVoterCard()
+
+export const getAlternateNewVoterCard = () =>
+  createVoterCard({
     pr: election.precincts[1].id,
     bs: election.ballotStyles[1].id,
-  }),
-})
+  })
 
-export const getVoidedVoterCard = (): CardPresentAPI => ({
-  present: true,
-  shortValue: JSON.stringify({
-    ...getNewVoterShortValue(),
+export const getVoidedVoterCard = () =>
+  createVoterCard({
     uz: utcTimestamp(),
-  }),
-})
+  })
 
-export const getExpiredVoterCard = (): CardPresentAPI => ({
-  present: true,
-  shortValue: JSON.stringify({
-    ...getNewVoterShortValue(),
+export const getExpiredVoterCard = () =>
+  createVoterCard({
     c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
-  }),
-})
+  })
 
-export const getExpiredVoterCardWithVotes = (): CardPresentAPI => ({
-  present: true,
-  shortValue: JSON.stringify({
-    ...getNewVoterShortValue(),
+export const getExpiredVoterCardWithVotes = () =>
+  createVoterCard({
     c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
     v: sampleVotes,
     u: utcTimestamp(),
-  }),
-})
+  })
 
-export const getVoterCardWithVotes = (): CardPresentAPI => ({
-  present: true,
-  shortValue: JSON.stringify({
-    ...getNewVoterShortValue(),
+export const getVoterCardWithVotes = () =>
+  createVoterCard({
     v: sampleVotes,
     u: utcTimestamp(),
-  }),
-})
+  })
 
-export const getUsedVoterCard = (): CardPresentAPI => ({
-  present: true,
-  shortValue: JSON.stringify({
-    ...getNewVoterShortValue(),
+export const getUsedVoterCard = () =>
+  createVoterCard({
     bp: utcTimestamp(),
-  }),
-})
+  })
 
 export const advanceTimers = (ms: number = 0) => {
   act(() => {

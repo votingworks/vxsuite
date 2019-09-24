@@ -1,8 +1,8 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render, wait, within } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
-import { printingModalDisplaySeconds } from './pages/PrintPage'
+import { printerMessageTimeoutSeconds } from './pages/PrintPage'
 
 import App from './App'
 
@@ -10,8 +10,6 @@ import {
   adminCard,
   advanceTimers,
   getAlternateNewVoterCard,
-  getExpiredVoterCard,
-  getVoidedVoterCard,
   getNewVoterCard,
   getUsedVoterCard,
   noCard,
@@ -57,7 +55,9 @@ beforeEach(() => {
 it('VxMark+Print end-to-end flow', async () => {
   jest.useFakeTimers()
 
-  const { getByText } = render(<App />)
+  const { getAllByText, getByText, getByTestId } = render(<App />)
+  const getByTextWithMarkup = (text: string) =>
+    getByText((_, node) => node.textContent === text)
 
   currentCard = noCard
   advanceTimers()
@@ -113,36 +113,12 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // ---------------
 
-  // Insert used Voter card
-  currentCard = getVoidedVoterCard()
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
-
-  // Remove card
-  currentCard = noCard
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
-
-  // ---------------
-
-  // Insert expired Voter card
-  currentCard = getExpiredVoterCard()
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
-
-  // Remove card
-  currentCard = noCard
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
-
-  // ---------------
-
-  // Insert Voter card, go to first contest, then remove card, expect to be on
-  // insert card screen.
+  // Voter partially votes, remove card, and is on insert card screen.
   currentCard = getNewVoterCard()
   advanceTimers()
-  await wait(() => getByText(/Precinct: Center Springfield/))
-  getByText(/Ballot Style: 12/)
+  await wait(() => getByText(/Center Springfield/))
+  getByText(/ballot style 12/)
+  getByTextWithMarkup('This ballot has 20 contests.')
 
   // Remove card
   currentCard = noCard
@@ -154,12 +130,9 @@ it('VxMark+Print end-to-end flow', async () => {
   // Alternate Ballot Style
   currentCard = getAlternateNewVoterCard()
   advanceTimers()
-  await wait(() => getByText(/Precinct: North Springfield/))
-  getByText(/Ballot Style: 5/)
-  fireEvent.click(getByText('Get Started'))
-
-  advanceTimers()
-  getByText('This ballot has 11 contests.')
+  await wait(() => getByText(/North Springfield/))
+  getByText(/ballot style 5/)
+  getByTextWithMarkup('This ballot has 11 contests.')
 
   // Remove card
   currentCard = noCard
@@ -173,13 +146,19 @@ it('VxMark+Print end-to-end flow', async () => {
   // Insert Voter card
   currentCard = getNewVoterCard()
   advanceTimers()
-  await wait(() => getByText(/Precinct: Center Springfield/))
-  getByText(/Ballot Style: 12/)
-  fireEvent.click(getByText('Get Started'))
+  await wait(() => getByText(/Center Springfield/))
+  getByText(/ballot style 12/)
+  getByTextWithMarkup('This ballot has 20 contests.')
 
-  advanceTimers()
-  getByText('This ballot has 20 contests.')
-  fireEvent.click(getByText('Start Voting'))
+  // Adjust Text Size
+  const changeTextSize = within(getByTestId('change-text-size-buttons'))
+  const textSizeButtons = changeTextSize.getAllByText('A')
+  expect(textSizeButtons.length).toBe(3)
+  fireEvent.click(textSizeButtons[0]) // html element has new font size
+  fireEvent.click(textSizeButtons[1]) // html element has default font size
+
+  // Start Voting
+  fireEvent.click(getAllByText('Start Voting')[1])
 
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i++) {
@@ -197,18 +176,12 @@ it('VxMark+Print end-to-end flow', async () => {
       fireEvent.click(getByText('Yes'))
     }
 
-    fireEvent.click(getByText('Next'))
+    fireEvent.click(getByText('Next →'))
   }
-
-  // Pre-Review screen
-  fireEvent.click(getByText('Next'))
-  advanceTimers()
-  getByText('Review Your Selections')
-  fireEvent.click(getByText('Review Selections'))
 
   // Review Screen
   advanceTimers()
-  getByText('Review Your Ballot Selections')
+  getByText('Review Votes')
   getByText(presidentContest.candidates[0].name)
   getByText(`Yes on ${measure102Contest.shortTitle}`)
 
@@ -226,31 +199,23 @@ it('VxMark+Print end-to-end flow', async () => {
   fireEvent.click(getByText(countyCommissionersContest.candidates[1].name))
 
   // Back to Review screen
-  fireEvent.click(getByText('Review Ballot'))
+  fireEvent.click(getByText('Review →'))
   advanceTimers()
-  getByText('Review Your Ballot Selections')
+  getByText('All Your Votes')
   getByText(countyCommissionersContest.candidates[0].name)
   getByText(countyCommissionersContest.candidates[1].name)
-  getByText('You may select 2 more candidates.')
+  getByText('You may still vote for 2 more candidates.')
 
   // Print Screen
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(getByText('I’m Ready to Print My Ballot'))
   advanceTimers()
-  getByText('Print your official ballot')
+  getByText('Printing Official Ballot')
 
-  // Test Print Ballot Modal
-  fireEvent.click(getByText('Print Ballot'))
-  fireEvent.click(getByText('No, go back.'))
-  fireEvent.click(getByText('Print Ballot'))
-  fireEvent.click(getByText('Yes, print my ballot.'))
-  await wait() // wait for print
-  advanceTimers()
-
-  // Wait for printing setTimeout
-  advanceTimers(printingModalDisplaySeconds * 1000)
-
-  // Review and Cast Instructions
+  // After timeout, show Verify and Cast Instructions
+  await wait() // TODO: unsure why this `wait` is needed, but it is.
+  advanceTimers(printerMessageTimeoutSeconds * 1000)
   await wait(() => getByText('You’re Almost Done…'))
+  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 
   // Remove card
   currentCard = noCard

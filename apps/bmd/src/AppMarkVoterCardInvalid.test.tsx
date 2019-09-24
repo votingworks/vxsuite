@@ -46,7 +46,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     // Insert Voter card
     currentCard = getNewVoterCard()
     advanceTimers()
-    await wait(() => getByText(/Precinct: Center Springfield/))
+    await wait(() => getByText(/Center Springfield/))
 
     // Elapse 60 seconds
     advanceTimers(60 * 1000)
@@ -110,7 +110,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     // Insert Voter card
     currentCard = getNewVoterCard()
     advanceTimers()
-    await wait(() => getByText(/Precinct: Center Springfield/))
+    await wait(() => getByText(/Center Springfield/))
 
     // Elapse 60 seconds
     advanceTimers(60 * 1000)

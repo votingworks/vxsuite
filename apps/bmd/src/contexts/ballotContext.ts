@@ -4,6 +4,7 @@ import * as GLOBALS from '../config/globals'
 import { NullPrinter } from '../utils/printer'
 import {
   BallotContextInterface,
+  Election,
   TextSizeSetting,
   VxMarkOnly,
 } from '../config/types'
@@ -13,7 +14,7 @@ const ballot: BallotContextInterface = {
   appMode: VxMarkOnly,
   ballotStyleId: '',
   contests: [],
-  election: undefined,
+  election: (undefined as unknown) as Election,
   incrementBallotsPrintedCount: () => undefined,
   isLiveMode: false,
   markVoterCardVoided: async () => false,

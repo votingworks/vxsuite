@@ -1,13 +1,14 @@
 import React from 'react'
 import styled from 'styled-components'
 
-const SealContainer = styled.p`
-  margin: 0 auto 1rem;
-  max-width: 320px;
+const sealMaxWidth = '250px'
+
+const SealContainer = styled.div`
+  max-width: ${sealMaxWidth};
 `
 
 const SealImage = styled.img`
-  max-width: 320px;
+  max-width: ${sealMaxWidth};
 `
 
 interface Props {

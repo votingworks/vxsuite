@@ -18,7 +18,7 @@ exports[`renders ButtonBar 1`] = `
   -ms-flex-pack: justify;
   justify-content: space-between;
   border-bottom: 1px solid rgb(169,169,169);
-  background: #455a64;
+  background: rgba(0,0,0,0.05);
   padding: 0.25rem;
 }
 
@@ -55,79 +55,5 @@ exports[`renders ButtonBar 1`] = `
   class="c0"
 >
   foo
-</nav>
-`;
-
-exports[`renders ButtonBar with natural order and primary button separated 1`] = `
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  -ms-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  border-bottom: 1px solid rgb(169,169,169);
-  background: #455a64;
-  padding: 0.25rem;
-}
-
-.c0 > * {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  margin: 0.25rem;
-}
-
-@media (min-width:480px) {
-  .c0 > *:first-child {
-    margin-right: auto;
-  }
-}
-
-@media (min-width:480px) {
-  .c0 > * {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-  }
-}
-
-@media (min-width:480px) {
-  .c0 > *:only-child {
-    -webkit-flex: 0;
-    -ms-flex: 0;
-    flex: 0;
-    margin: auto;
-    min-width: 33.333%;
-  }
-}
-
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-<nav
-  class="c0"
->
-  <div>
-    one
-  </div>
-  <div>
-    two
-  </div>
-  <div>
-    three
-  </div>
 </nav>
 `;

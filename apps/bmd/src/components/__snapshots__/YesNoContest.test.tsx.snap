@@ -47,9 +47,6 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
@@ -57,7 +54,6 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 }
 
 .c2 {
-  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -73,11 +69,24 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   font-size: 1.25rem;
 }
 
+.c2 h3 {
+  font-size: 1.17rem;
+}
+
+.c2 h4 {
+  font-size: 1rem;
+}
+
+.c2 h5 {
+  font-size: 0.9rem;
+}
+
 .c2 h3,
+.c2 h4,
+.c2 h5,
 .c2 p {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -89,7 +98,9 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p {
   margin-top: -1rem;
 }
 
@@ -425,9 +436,6 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
@@ -435,7 +443,6 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 }
 
 .c2 {
-  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -451,11 +458,24 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   font-size: 1.25rem;
 }
 
+.c2 h3 {
+  font-size: 1.17rem;
+}
+
+.c2 h4 {
+  font-size: 1rem;
+}
+
+.c2 h5 {
+  font-size: 0.9rem;
+}
+
 .c2 h3,
+.c2 h4,
+.c2 h5,
 .c2 p {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -467,7 +487,9 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p {
   margin-top: -1rem;
 }
 

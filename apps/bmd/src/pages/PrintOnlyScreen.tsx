@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
+import styled from 'styled-components'
 import { Election, MarkVoterCardFunction, VotesDict } from '../config/types'
 import { NullPrinter } from '../utils/printer'
 import isEmptyObject from '../utils/isEmptyObject'
@@ -8,6 +9,16 @@ import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
 import Loading from '../components/Loading'
+import Screen from '../components/Screen'
+
+const GraphicNeeded = styled.div`
+  margin: 2rem auto;
+  border: 6px solid #ff0000;
+  width: 30%;
+  padding: 2rem 1rem;
+  color: #ff0000;
+  font-weight: 900;
+`
 
 interface Props {
   ballotStyleId: string
@@ -20,7 +31,7 @@ interface Props {
   votes: VotesDict
 }
 
-const printerTimerTimeoutSeconds = 5
+export const printerMessageTimeoutSeconds = 5
 const lastVotesKey = 'lastVotes'
 
 const PrintAppScreen = ({
@@ -47,8 +58,8 @@ const PrintAppScreen = ({
     if (isUsed) {
       await printer.print()
       printerTimer.current = window.setTimeout(() => {
-        updateIsPrinted(true) // add timeout here
-      }, printerTimerTimeoutSeconds * 1000)
+        updateIsPrinted(true)
+      }, printerMessageTimeoutSeconds * 1000)
     }
   }, [markVoterCardPrinted, printer])
 
@@ -90,29 +101,43 @@ const PrintAppScreen = ({
     if (isPrinted) {
       return (
         <React.Fragment>
-          <h1>Official Ballot Printed</h1>
-          <p>Review that your official ballot is correct.</p>
-          <p>Cast your ballot in the ballot box.</p>
+          <GraphicNeeded>
+            “Verify and Cast Printed Ballot” graphic here
+          </GraphicNeeded>
+          <h1>Verify and Cast Printed Ballot</h1>
+          <p>Verify that your votes on printed ballot are correct.</p>
+          <p>Cast your official ballot in the ballot box.</p>
         </React.Fragment>
       )
     }
     if (isReadyToPrint) {
       return (
-        <h1>
-          <Loading>Printing ballot</Loading>
-        </h1>
+        <React.Fragment>
+          <GraphicNeeded>“Printing Ballot” graphic here</GraphicNeeded>
+          <h1>
+            <Loading>Printing your official ballot</Loading>
+          </h1>
+        </React.Fragment>
       )
     }
-    return <h1>Insert Card</h1>
+    return (
+      <React.Fragment>
+        <GraphicNeeded>“Insert Card” graphic here</GraphicNeeded>
+        <h1>Insert Card</h1>
+        <p>Insert Card to print your official ballot.</p>
+      </React.Fragment>
+    )
   }
 
   return (
     <React.Fragment>
-      <Main>
-        <MainChild center>
-          <Prose textCenter>{renderContent()}</Prose>
-        </MainChild>
-      </Main>
+      <Screen>
+        <Main>
+          <MainChild centerVertical maxWidth={false}>
+            <Prose textCenter>{renderContent()}</Prose>
+          </MainChild>
+        </Main>
+      </Screen>
       {isReadyToPrint && (
         <PrintedBallot
           ballotStyleId={ballotStyleId}

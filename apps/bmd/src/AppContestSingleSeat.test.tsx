@@ -39,18 +39,14 @@ it('Single Seat Contest', async () => {
   setElectionInLocalStorage()
   setStateInLocalStorage()
 
-  const { container, getByText } = render(<App />)
+  const { container, getAllByText, getByText } = render(<App />)
 
   // Insert Voter Card
   currentCard = getNewVoterCard()
   advanceTimers()
 
-  // Go to Voting Instructions
-  await wait(() => fireEvent.click(getByText('Get Started')))
-  advanceTimers()
-
   // Go to First Contest
-  fireEvent.click(getByText('Start Voting'))
+  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //
@@ -68,7 +64,7 @@ it('Single Seat Contest', async () => {
 
   // Overvote modal is displayed
   getByText(
-    `You may only select ${presidentContest.seats} candidate in this contest. To vote for ${candidate1}, you must first unselect selected candidate.`
+    `You may only select ${presidentContest.seats} candidate in this contest. To vote for ${candidate1}, you must first unselect the selected candidate.`
   )
 
   // Capture styles of Single Candidate Contest

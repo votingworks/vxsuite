@@ -89,9 +89,6 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
@@ -99,7 +96,6 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 }
 
 .c2 {
-  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -115,11 +111,24 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   font-size: 1.25rem;
 }
 
+.c2 h3 {
+  font-size: 1.17rem;
+}
+
+.c2 h4 {
+  font-size: 1rem;
+}
+
+.c2 h5 {
+  font-size: 0.9rem;
+}
+
 .c2 h3,
+.c2 h4,
+.c2 h5,
 .c2 p {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -131,7 +140,9 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p {
   margin-top: -1rem;
 }
 
@@ -427,9 +438,6 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
@@ -437,7 +445,6 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 }
 
 .c2 {
-  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -453,11 +460,24 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   font-size: 1.25rem;
 }
 
+.c2 h3 {
+  font-size: 1.17rem;
+}
+
+.c2 h4 {
+  font-size: 1rem;
+}
+
+.c2 h5 {
+  font-size: 0.9rem;
+}
+
 .c2 h3,
+.c2 h4,
+.c2 h5,
 .c2 p {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -469,7 +489,9 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p {
   margin-top: -1rem;
 }
 
@@ -801,9 +823,6 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
@@ -811,7 +830,6 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 }
 
 .c2 {
-  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -827,11 +845,24 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   font-size: 1.25rem;
 }
 
+.c2 h3 {
+  font-size: 1.17rem;
+}
+
+.c2 h4 {
+  font-size: 1rem;
+}
+
+.c2 h5 {
+  font-size: 0.9rem;
+}
+
 .c2 h3,
+.c2 h4,
+.c2 h5,
 .c2 p {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -843,7 +874,9 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p {
   margin-top: -1rem;
 }
 
@@ -1139,9 +1172,6 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
@@ -1149,7 +1179,6 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 }
 
 .c2 {
-  width: 100%;
   max-width: 66ch;
   line-height: 1.2;
 }
@@ -1165,11 +1194,24 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   font-size: 1.25rem;
 }
 
+.c2 h3 {
+  font-size: 1.17rem;
+}
+
+.c2 h4 {
+  font-size: 1rem;
+}
+
+.c2 h5 {
+  font-size: 0.9rem;
+}
+
 .c2 h3,
+.c2 h4,
+.c2 h5,
 .c2 p {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  font-size: 1rem;
 }
 
 .c2 h1 + h2 {
@@ -1181,7 +1223,9 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
   margin-top: -0.75rem;
 }
 
-.c2 h3 + p {
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p {
   margin-top: -1rem;
 }
 

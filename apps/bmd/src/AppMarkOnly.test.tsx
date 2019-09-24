@@ -44,7 +44,9 @@ beforeEach(() => {
 it('VxMarkOnly flow', async () => {
   jest.useFakeTimers()
 
-  const { getByText } = render(<App />)
+  const { getByText, getAllByText } = render(<App />)
+  const getByTextWithMarkup = (text: string) =>
+    getByText((_, node) => node.textContent === text)
 
   currentCard = noCard
   advanceTimers()
@@ -122,13 +124,10 @@ it('VxMarkOnly flow', async () => {
   // Insert Voter card
   currentCard = getNewVoterCard()
   advanceTimers()
-  await wait(() => getByText(/Precinct: Center Springfield/))
-  getByText(/Ballot Style: 12/)
-  fireEvent.click(getByText('Get Started'))
-
-  advanceTimers()
-  getByText('This ballot has 20 contests.')
-  fireEvent.click(getByText('Start Voting'))
+  await wait(() => getByText(/Center Springfield/))
+  getByText(/ballot style 12/)
+  getByTextWithMarkup('This ballot has 20 contests.')
+  fireEvent.click(getAllByText('Start Voting')[1])
 
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i++) {
@@ -146,25 +145,21 @@ it('VxMarkOnly flow', async () => {
       fireEvent.click(getByText('Yes'))
     }
 
-    fireEvent.click(getByText('Next'))
+    fireEvent.click(getByText('Next →'))
   }
-
-  // Pre-Review screen
-  fireEvent.click(getByText('Next'))
-  advanceTimers()
-  getByText('Review Your Selections')
-  fireEvent.click(getByText('Review Selections'))
 
   // Review Screen
   advanceTimers()
-  getByText('Review Your Ballot Selections')
+  getByText('All Your Votes')
   getByText(presidentContest.candidates[0].name)
   getByText(`Yes on ${measure102Contest.shortTitle}`)
 
   // Print Screen
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(getByText('I’m Ready to Print My Ballot'))
   advanceTimers()
-  getByText('Take card to the Ballot Printer')
+
+  // Review and Cast Instructions
+  getByText('Take your card to the Ballot Printer.')
 
   // Remove card
   currentCard = noCard
