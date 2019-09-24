@@ -82,7 +82,7 @@
     "@types/node": "12.7.7",
     "@types/pluralize": "^0.0.29",
     "@types/qrcode.react": "^0.8.2",
-    "@types/react": "^16.9.2",
+    "@types/react": "^16.9.3",
     "@types/react-dom": "^16.9.0",
     "@types/react-modal": "^3.8.3",
     "@types/react-router-dom": "^4.3.5",
