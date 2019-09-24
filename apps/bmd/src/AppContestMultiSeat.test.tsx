@@ -79,12 +79,10 @@ it('Single Seat Contest', async () => {
   expect(container.firstChild).toMatchSnapshot()
 
   // Go to Review Screen
-  while (!queryByText('Review →')) {
+  while (!queryByText('All Your Votes')) {
     fireEvent.click(getByText('Next →'))
     advanceTimers()
   }
-  fireEvent.click(getByText('Review →'))
-  advanceTimers()
 
   // Expect to see the first four selected candidates
   expect(getByText(candidate0.name)).toBeTruthy()

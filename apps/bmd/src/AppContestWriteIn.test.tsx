@@ -123,14 +123,12 @@ it('Single Seat Contest with Write In', async () => {
   advanceTimers() // For 200ms Delay in closing modal
 
   // Go to review page and confirm write in exists
-  while (!queryByText('Review →')) {
+  while (!queryByText('All Your Votes')) {
     fireEvent.click(getByText('Next →'))
     advanceTimers()
   }
-  fireEvent.click(getByText('Review →'))
 
   // Review Screen
-  advanceTimers()
   await wait(() => getByText('All Your Votes'))
   expect(getByText('SAL')).toBeTruthy()
   expect(getByText('(write-in)')).toBeTruthy()
