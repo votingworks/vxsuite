@@ -12,7 +12,7 @@ import Screen from '../components/Screen'
 
 export const printerMessageTimeoutSeconds = 5
 
-export const PrintPage = () => {
+const PrintPage = () => {
   const {
     ballotStyleId,
     election,
