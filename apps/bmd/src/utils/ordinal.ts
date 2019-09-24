@@ -2,9 +2,11 @@
  * Returns number param as ordinal.
  * Source: https://stackoverflow.com/a/31615643/101290
  *
- * @param n number
+ * @example
  *
- * @return ordinal string
+ *   ordinal(1)  // '1st'
+ *   ordinal(42) // '42nd'
+ *   ordinal(99) // '99th'
  *
  */
 
