@@ -176,10 +176,6 @@ it('VxMark+Print end-to-end flow', async () => {
       fireEvent.click(getByText('Yes'))
     }
 
-    if (i === voterContests.length - 1) {
-      fireEvent.click(getByText('Review →'))
-      continue
-    }
     fireEvent.click(getByText('Next →'))
   }
 
@@ -205,7 +201,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // Back to Review screen
   fireEvent.click(getByText('Review →'))
   advanceTimers()
-  getByText('Review Votes')
+  getByText('All Your Votes')
   getByText(countyCommissionersContest.candidates[0].name)
   getByText(countyCommissionersContest.candidates[1].name)
   getByText('You may still vote for 2 more candidates.')
