@@ -1,3 +1,4 @@
+export const RECENT_PRINT_EXPIRATION_SECONDS = 60
 export const CARD_EXPIRATION_SECONDS = 10 * 60 // 10 minutes
 export const CARD_POLLING_INTERVAL = 200
 export const CHECK_ICON = '✓'

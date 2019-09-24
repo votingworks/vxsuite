@@ -10,8 +10,6 @@ import {
   adminCard,
   advanceTimers,
   getAlternateNewVoterCard,
-  getExpiredVoterCard,
-  getVoidedVoterCard,
   getNewVoterCard,
   getUsedVoterCard,
   noCard,
@@ -115,32 +113,7 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // ---------------
 
-  // Insert used Voter card
-  currentCard = getVoidedVoterCard()
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
-
-  // Remove card
-  currentCard = noCard
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
-
-  // ---------------
-
-  // Insert expired Voter card
-  currentCard = getExpiredVoterCard()
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
-
-  // Remove card
-  currentCard = noCard
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
-
-  // ---------------
-
-  // Insert Voter card, go to first contest, then remove card, expect to be on
-  // insert card screen.
+  // Voter partially votes, remove card, and is on insert card screen.
   currentCard = getNewVoterCard()
   advanceTimers()
   await wait(() => getByText(/Center Springfield/))
@@ -203,10 +176,6 @@ it('VxMark+Print end-to-end flow', async () => {
       fireEvent.click(getByText('Yes'))
     }
 
-    if (i === voterContests.length - 1) {
-      fireEvent.click(getByText('Review →'))
-      continue
-    }
     fireEvent.click(getByText('Next →'))
   }
 
@@ -232,7 +201,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // Back to Review screen
   fireEvent.click(getByText('Review →'))
   advanceTimers()
-  getByText('Review Votes')
+  getByText('All Your Votes')
   getByText(countyCommissionersContest.candidates[0].name)
   getByText(countyCommissionersContest.candidates[1].name)
   getByText('You may still vote for 2 more candidates.')

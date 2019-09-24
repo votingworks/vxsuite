@@ -123,7 +123,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
                 primary={isVoteComplete}
                 to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
               >
-                {nextContest ? 'Next →' : 'Review →'}
+                Next →
               </LinkButton>
             </p>
             <p>

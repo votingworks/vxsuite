@@ -145,10 +145,6 @@ it('VxMarkOnly flow', async () => {
       fireEvent.click(getByText('Yes'))
     }
 
-    if (i === voterContests.length - 1) {
-      fireEvent.click(getByText('Review →'))
-      continue
-    }
     fireEvent.click(getByText('Next →'))
   }
 

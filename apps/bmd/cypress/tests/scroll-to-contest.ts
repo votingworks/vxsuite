@@ -8,10 +8,8 @@ describe('Review Page', () => {
     cy.get('nav')
       .contains('Start Voting')
       .click()
-    cy.wrap(clickThoughPages).each((_, index) => {
-      const label =
-        index + 1 === clickThoughPages.length ? 'Review →' : 'Next →'
-      cy.contains(label).click()
+    cy.wrap(clickThoughPages).each(() => {
+      cy.contains('Next →').click()
       cy.wait(waitTime)
     })
     cy.get('#contest-county-commissioners').click()
