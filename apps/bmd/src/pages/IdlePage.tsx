@@ -38,7 +38,7 @@ const IdlePage = () => {
   }, [countdown, markVoterCardVoided, resetBallot])
 
   useInterval(() => {
-    setCountdown(t => (t > 0 ? t - 1 : 0))
+    setCountdown(countdown => countdown - 1)
   }, 1000)
 
   return (
