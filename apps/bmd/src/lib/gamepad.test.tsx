@@ -48,13 +48,8 @@ it('gamepad controls work', async () => {
   advanceTimers()
   await wait(() => getByText(/Center Springfield/))
 
-  // // for test coverage, we test pressing left and right on gamepad here, should do nothing
-  // handleGamepadButtonDown('DPadLeft')
-  // handleGamepadButtonDown('DPadRight')
-
   // Go to First Contest
   handleGamepadButtonDown('DPadRight')
-  // advanceTimers()
   fireEvent.click(getAllByText('Start Voting')[1])
 
   advanceTimers()
