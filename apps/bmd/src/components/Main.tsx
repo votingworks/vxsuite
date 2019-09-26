@@ -29,7 +29,6 @@ interface ChildProps {
   centerVertical?: boolean
   centerHorizontal?: boolean
   maxWidth?: boolean
-  padded?: boolean
 }
 
 export const MainChild = styled('div')<ChildProps>`
