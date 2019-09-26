@@ -24,9 +24,6 @@ const ButtonBar = styled('nav')`
       min-width: 33.333%;
     }
   }
-  @media print {
-    display: none;
-  }
 `
 
 export default ButtonBar

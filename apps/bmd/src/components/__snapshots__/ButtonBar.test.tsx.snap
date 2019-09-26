@@ -45,12 +45,6 @@ exports[`renders ButtonBar 1`] = `
   }
 }
 
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
 <nav
   class="c0"
 >

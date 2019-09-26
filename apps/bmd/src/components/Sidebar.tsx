@@ -15,9 +15,6 @@ const StyledSidebar = styled.nav`
   flex-direction: column;
   background-color: #333333;
   color: #ffffff;
-  @media print {
-    display: none;
-  }
 `
 
 const Header = styled.div`

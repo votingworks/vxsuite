@@ -459,27 +459,8 @@ exports[`renders StartPage 1`] = `
 }
 
 @media print {
-  .c1 {
-    display: none;
-  }
-}
-
-@media print {
-  .c2 {
-    margin: 0;
-    max-width: 100%;
-  }
-}
-
-@media print {
-  .c4 {
-    display: none;
-  }
-}
-
-@media print {
   .c0 {
-    display: block;
+    display: none;
   }
 }
 
@@ -1113,27 +1094,8 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 @media print {
-  .c1 {
-    display: none;
-  }
-}
-
-@media print {
-  .c2 {
-    margin: 0;
-    max-width: 100%;
-  }
-}
-
-@media print {
-  .c4 {
-    display: none;
-  }
-}
-
-@media print {
   .c0 {
-    display: block;
+    display: none;
   }
 }
 
@@ -1910,27 +1872,8 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 @media print {
-  .c1 {
-    display: none;
-  }
-}
-
-@media print {
-  .c2 {
-    margin: 0;
-    max-width: 100%;
-  }
-}
-
-@media print {
-  .c4 {
-    display: none;
-  }
-}
-
-@media print {
   .c0 {
-    display: block;
+    display: none;
   }
 }
 

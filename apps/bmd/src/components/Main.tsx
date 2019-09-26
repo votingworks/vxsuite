@@ -19,9 +19,6 @@ const Main = styled('main')<Props>`
   @media (min-width: 480px) {
     padding: ${({ padded = false }) => (padded ? '2rem' : undefined)};
   }
-  @media print {
-    display: none;
-  }
 `
 
 interface ChildProps {
@@ -38,10 +35,6 @@ export const MainChild = styled('div')<ChildProps>`
     centerHorizontal = center,
   }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
   max-width: ${({ maxWidth = true }) => (maxWidth ? '35rem' : undefined)};
-  @media print {
-    margin: 0;
-    max-width: 100%;
-  }
 `
 
 export default Main
