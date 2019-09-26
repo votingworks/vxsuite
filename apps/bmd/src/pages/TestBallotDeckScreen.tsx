@@ -1,4 +1,5 @@
 import React, { PointerEventHandler, useState } from 'react'
+import pluralize from 'pluralize'
 
 import {
   AppModeNames,
@@ -14,6 +15,7 @@ import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'
 import Sidebar from '../components/Sidebar'
+import Screen from '../components/Screen'
 
 interface Ballot {
   ballotId?: string
@@ -123,86 +125,84 @@ const TestBallotDeckScreen = ({
 
   return (
     <React.Fragment>
-      {ballots.length ? (
-        <React.Fragment>
-          <Main>
-            <MainChild maxWidth={false}>
+      <Screen flexDirection="row-reverse" voterMode={false}>
+        <Main padded>
+          <MainChild maxWidth={false}>
+            {ballots.length ? (
               <Prose className="no-print">
-                <h1>Test Ballots Deck for {precinct.name}</h1>
+                <h1>Test Ballot Decks</h1>
                 <p>
-                  <Button primary onPress={window.print}>
+                  Deck containing{' '}
+                  <strong>{pluralize('ballot', ballots.length, true)}</strong>{' '}
+                  for {precinct.name}.
+                </p>
+                <p>
+                  <Button big primary onPress={window.print}>
                     Print {ballots.length} ballots
                   </Button>
                 </p>
                 <p>
                   <Button small onPress={resetDeck}>
-                    Back to All Decks
+                    Back to Precincts List
                   </Button>
                 </p>
               </Prose>
-            </MainChild>
-          </Main>
-          {ballots.map((ballot, i) => {
-            const ballotId = `temp-ballot-id-${i}`
-            return (
-              <PrintedBallot
-                key={ballotId}
-                ballotStyleId={ballot.ballotStyleId}
-                election={election}
-                isLiveMode={isLiveMode}
-                precinctId={ballot.precinctId}
-                votes={ballot.votes}
-              />
-            )
-          })}
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <Main>
-            <MainChild maxWidth={false}>
-              <Prose>
-                <h1>Test Ballot Decks</h1>
+            ) : (
+              <React.Fragment>
+                <Prose>
+                  <h1>Test Ballot Decks</h1>
+                  <p>Select desired precinct.</p>
+                </Prose>
                 <p>
-                  Select desired precinct for <strong>{election.title}</strong>.
-                </p>
-              </Prose>
-              <p>
-                <Button
-                  data-id=""
-                  data-name="All Precincts"
-                  fullWidth
-                  key="all-precincts"
-                  onPress={selectPrecinct}
-                >
-                  <strong>All Precincts</strong>
-                </Button>
-              </p>
-              <ButtonList>
-                {election.precincts.map(p => (
                   <Button
-                    data-id={p.id}
-                    data-name={p.name}
+                    data-id=""
+                    data-name="All Precincts"
                     fullWidth
-                    key={p.id}
+                    key="all-precincts"
                     onPress={selectPrecinct}
                   >
-                    {p.name}
+                    <strong>All Precincts</strong>
                   </Button>
-                ))}
-              </ButtonList>
-            </MainChild>
-          </Main>
-        </React.Fragment>
-      )}
-      <Sidebar
-        appName={appName}
-        title="Election Admin Actions"
-        footer={election && <ElectionInfo election={election} horizontal />}
-      >
-        <Button small onPress={hideTestDeck}>
-          Dashboard
-        </Button>
-      </Sidebar>
+                </p>
+                <ButtonList>
+                  {election.precincts.map(p => (
+                    <Button
+                      data-id={p.id}
+                      data-name={p.name}
+                      fullWidth
+                      key={p.id}
+                      onPress={selectPrecinct}
+                    >
+                      {p.name}
+                    </Button>
+                  ))}
+                </ButtonList>
+              </React.Fragment>
+            )}
+          </MainChild>
+        </Main>
+        <Sidebar
+          appName={appName}
+          title="Election Admin Actions"
+          footer={election && <ElectionInfo election={election} horizontal />}
+        >
+          <Button small onPress={hideTestDeck}>
+            Back to Admin Dashboard
+          </Button>
+        </Sidebar>
+      </Screen>
+      {ballots.length &&
+        ballots.map((ballot, i) => (
+          <PrintedBallot
+            // eslint-disable-next-line react/no-array-index-key
+            key={`ballot-${i}`}
+            ballotStyleId={ballot.ballotStyleId}
+            election={election}
+            isLiveMode={isLiveMode}
+            precinctId={ballot.precinctId}
+            votes={ballot.votes}
+          />
+        ))}
     </React.Fragment>
   )
 }
