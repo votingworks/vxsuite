@@ -51,8 +51,8 @@ it('gamepad controls work', async () => {
   // Go to First Contest
   handleGamepadButtonDown('DPadRight')
   fireEvent.click(getAllByText('Start Voting')[1])
-
   advanceTimers()
+
   // First Contest Page
   getByText(contest0.title)
 

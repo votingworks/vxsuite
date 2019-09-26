@@ -14,6 +14,10 @@ import {
   setElectionInLocalStorage,
   setStateInLocalStorage,
 } from '../test/helpers/election'
+import {
+  IDLE_TIMEOUT_SECONDS,
+  IDLE_RESET_TIMEOUT_SECONDS,
+} from './config/globals'
 
 jest.useFakeTimers()
 
@@ -48,8 +52,8 @@ describe('Mark Card Void when voter is idle too long', () => {
     advanceTimers()
     await wait(() => getByText(/Center Springfield/))
 
-    // Elapse 60 seconds
-    advanceTimers(60 * 1000)
+    // Elapse idle timeout
+    advanceTimers(IDLE_TIMEOUT_SECONDS)
 
     // Idle Screen is displayed
     getByText(idleScreenCopy)
@@ -60,21 +64,21 @@ describe('Mark Card Void when voter is idle too long', () => {
     advanceTimers()
     expect(queryByText(idleScreenCopy)).toBeFalsy()
 
-    // Elapse 60 seconds
-    advanceTimers(60 * 1000)
+    // Elapse idle timeout
+    advanceTimers(IDLE_TIMEOUT_SECONDS)
 
     // Idle Screen is displayed
     getByText(idleScreenCopy)
 
     // Countdown works
-    advanceTimers(1000)
-    getByText('29 seconds')
+    advanceTimers(1)
+    getByText(`${IDLE_RESET_TIMEOUT_SECONDS - 1} seconds`)
 
-    advanceTimers(29000)
+    advanceTimers(IDLE_RESET_TIMEOUT_SECONDS - 1)
     advanceTimers()
     getByText('Clearing ballot')
 
-    // 30 seconds passes, Expect voided card
+    // Idle reset timeout passes, Expect voided card
     advanceTimers()
     await wait() // because flash of "insert card" screen
     advanceTimers()
@@ -112,14 +116,14 @@ describe('Mark Card Void when voter is idle too long', () => {
     advanceTimers()
     await wait(() => getByText(/Center Springfield/))
 
-    // Elapse 60 seconds
-    advanceTimers(60 * 1000)
+    // Elapse idle timeout
+    advanceTimers(IDLE_TIMEOUT_SECONDS)
 
     // Idle Screen is displayed
     getByText(idleScreenCopy)
 
     // Countdown works
-    advanceTimers(30000)
+    advanceTimers(IDLE_RESET_TIMEOUT_SECONDS)
     advanceTimers()
     getByText('Clearing ballot')
 

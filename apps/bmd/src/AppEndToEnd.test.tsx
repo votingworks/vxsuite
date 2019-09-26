@@ -213,7 +213,7 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // After timeout, show Verify and Cast Instructions
   await wait() // TODO: unsure why this `wait` is needed, but it is.
-  advanceTimers(printerMessageTimeoutSeconds * 1000)
+  advanceTimers(printerMessageTimeoutSeconds)
   await wait(() => getByText('You’re Almost Done…'))
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 

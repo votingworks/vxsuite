@@ -155,7 +155,7 @@ it('VxPrintOnly flow', async () => {
   await wait(() => getByText('Printing your official ballot'))
 
   // After timeout, show Verify and Cast Instructions
-  advanceTimers(printerMessageTimeoutSeconds * 1000)
+  advanceTimers(printerMessageTimeoutSeconds)
   await wait(() => getByText('Verify and Cast Printed Ballot'))
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 

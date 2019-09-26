@@ -160,8 +160,16 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  public isVoterCardExpired = (createdAt: number): boolean =>
+  public isVoterCardExpired = (
+    prevCreatedAt: number,
+    createdAt: number
+  ): boolean =>
+    prevCreatedAt === 0 &&
     utcTimestamp() >= createdAt + GLOBALS.CARD_EXPIRATION_SECONDS
+
+  public isRecentVoterPrint = (isPrinted: boolean, printedTime: number) =>
+    isPrinted &&
+    utcTimestamp() <= printedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
 
   public processCard = ({ longValueExists, shortValue }: CardPresentAPI) => {
     const cardData: CardData = JSON.parse(shortValue)
@@ -172,16 +180,17 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         const isVoterCardVoided = Boolean(voterCardData.uz)
         const ballotPrintedTime = Number(voterCardData.bp) || 0
         const isVoterCardPrinted = Boolean(ballotPrintedTime)
-        const isRecentVoterPrint =
-          isVoterCardPrinted &&
-          utcTimestamp() <=
-            ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
+        const isRecentVoterPrint = this.isRecentVoterPrint(
+          isVoterCardPrinted,
+          ballotPrintedTime
+        )
         const votes: VotesDict = voterCardData.v || {}
         this.setState(
           prevState => {
-            const isVoterCardExpired =
-              prevState.voterCardCreatedAt === 0 &&
-              this.isVoterCardExpired(voterCardCreatedAt)
+            const isVoterCardExpired = this.isVoterCardExpired(
+              prevState.voterCardCreatedAt,
+              voterCardCreatedAt
+            )
             return {
               ...initialCardPresentState,
               shortValue,

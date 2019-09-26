@@ -14,8 +14,9 @@ import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Loading from '../components/Loading'
+import { IDLE_RESET_TIMEOUT_SECONDS } from '../config/globals'
 
-const timeoutSeconds = 30
+const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS
 
 const IdlePage = () => {
   const { election, markVoterCardVoided, resetBallot } = useContext(
@@ -37,7 +38,7 @@ const IdlePage = () => {
   }, [countdown, markVoterCardVoided, resetBallot])
 
   useInterval(() => {
-    setCountdown(t => (t > 0 ? t - 1 : 0))
+    setCountdown(countdown => countdown - 1)
   }, 1000)
 
   return (
