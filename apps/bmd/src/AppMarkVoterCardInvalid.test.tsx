@@ -27,7 +27,7 @@ beforeEach(() => {
 })
 
 const idleScreenCopy =
-  'This voting station has been inactive for more than one minute.'
+  'This voting station has been inactive for more than 5 minutes.'
 
 describe('Mark Card Void when voter is idle too long', () => {
   it('Display expired card if card marked as voided', async () => {
@@ -59,7 +59,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     getByText(idleScreenCopy)
 
     // User action removes Idle Screen
-    fireEvent.click(getByText('Touch the screen to go back to the ballot.'))
+    fireEvent.click(getByText('Yes, I’m still voting.'))
     fireEvent.mouseDown(document)
     advanceTimers()
     expect(queryByText(idleScreenCopy)).toBeFalsy()
@@ -71,10 +71,11 @@ describe('Mark Card Void when voter is idle too long', () => {
     getByText(idleScreenCopy)
 
     // Countdown works
-    advanceTimers(1)
-    getByText(`${IDLE_RESET_TIMEOUT_SECONDS - 1} seconds`)
+    const secondsRemaining = 20
+    advanceTimers(IDLE_RESET_TIMEOUT_SECONDS - secondsRemaining)
+    getByText(`${secondsRemaining} seconds`)
 
-    advanceTimers(IDLE_RESET_TIMEOUT_SECONDS - 1)
+    advanceTimers(secondsRemaining)
     advanceTimers()
     getByText('Clearing ballot')
 
