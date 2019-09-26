@@ -14,6 +14,7 @@ import {
 } from '../../test/helpers/smartcards'
 
 import PollWorkerScreen from './PollWorkerScreen'
+import { NullPrinter } from '../utils/printer'
 
 jest.useFakeTimers()
 
@@ -29,6 +30,7 @@ it('renders PollWorkerScreen', async () => {
       isPollsOpen
       isLiveMode={false}
       machineId="1"
+      printer={new NullPrinter()}
       togglePollsOpen={jest.fn()}
     />
   )

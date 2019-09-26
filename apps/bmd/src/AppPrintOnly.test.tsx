@@ -91,13 +91,10 @@ it('VxPrintOnly flow', async () => {
   currentCard = pollWorkerCard
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Open Polls')))
-  getByText('Open polls -- Print report 1 of 3?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Open polls -- Print report 2 of 3?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Open polls -- Print report 3 of 3?')
+  getByText('Open polls and print Polls Opened report?')
   await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Close Polls')
+  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 
   // Remove card
   currentCard = noCard
@@ -157,7 +154,7 @@ it('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   advanceTimers(printerMessageTimeoutSeconds)
   await wait(() => getByText('Verify and Cast Printed Ballot'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
+  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(2)
 
   // Remove card
   currentCard = noCard
@@ -168,13 +165,10 @@ it('VxPrintOnly flow', async () => {
   currentCard = pollWorkerCard
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Close Polls')))
-  getByText('Close Polls -- Print report 1 of 3?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Close Polls -- Print report 2 of 3?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Close Polls -- Print report 3 of 3?')
+  getByText('Close Polls and print Polls Closed report?')
   await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Open Polls')
+  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(3)
 
   // Remove card
   currentCard = noCard

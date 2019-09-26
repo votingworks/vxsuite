@@ -32,6 +32,9 @@ import {
 
 const Ballot = styled.div`
   page-break-after: always;
+  @media screen {
+    display: none;
+  }
 `
 
 const SealImage = styled.img`
@@ -192,7 +195,7 @@ const PrintBallot = ({
   const precinctName: string = getPrecinctById({ election, precinctId })!.name
 
   return (
-    <Ballot aria-hidden="true" className="print-only">
+    <Ballot aria-hidden="true">
       <Header>
         {seal ? (
           <div

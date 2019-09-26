@@ -49,7 +49,7 @@ export const setElectionInLocalStorage = () => {
 export const setStateInLocalStorage = (state = {}) => {
   const defaultLiveState = {
     appMode: {
-      name: 'mark',
+      name: 'VxMark',
       isVxMark: true,
     },
     ballotsPrintedCount: 0,

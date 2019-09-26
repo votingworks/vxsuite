@@ -98,13 +98,10 @@ it('VxMark+Print end-to-end flow', async () => {
   currentCard = pollWorkerCard
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Open Polls')))
-  getByText('Open polls -- Print report 1 of 3?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Open polls -- Print report 2 of 3?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Open polls -- Print report 3 of 3?')
+  getByText('Open polls and print Polls Opened report?')
   await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Close Polls')
+  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 
   // Remove card
   currentCard = noCard
@@ -215,7 +212,7 @@ it('VxMark+Print end-to-end flow', async () => {
   await wait() // TODO: unsure why this `wait` is needed, but it is.
   advanceTimers(printerMessageTimeoutSeconds)
   await wait(() => getByText('You’re Almost Done…'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
+  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(2)
 
   // Remove card
   currentCard = noCard
@@ -236,13 +233,10 @@ it('VxMark+Print end-to-end flow', async () => {
   currentCard = pollWorkerCard
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Close Polls')))
-  getByText('Close Polls -- Print report 1 of 3?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Close Polls -- Print report 2 of 3?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Close Polls -- Print report 3 of 3?')
+  getByText('Close Polls and print Polls Closed report?')
   await wait(() => fireEvent.click(getByText('Yes')))
   getByText('Open Polls')
+  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(3)
 
   // Remove card
   currentCard = noCard

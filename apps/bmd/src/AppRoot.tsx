@@ -691,6 +691,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             isLiveMode={isLiveMode}
             isPollsOpen={isPollsOpen}
             machineId={machineId}
+            printer={printer}
             togglePollsOpen={this.togglePollsOpen}
           />
         )
