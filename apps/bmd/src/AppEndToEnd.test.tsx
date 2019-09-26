@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, wait, within } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
+import { advanceBy } from 'jest-date-mock'
 
 import { printerMessageTimeoutSeconds } from './pages/PrintPage'
 
@@ -169,7 +170,14 @@ it('VxMark+Print end-to-end flow', async () => {
     // Vote for candidate contest
     if (title === presidentContest.title) {
       fireEvent.click(getByText(presidentContest.candidates[0].name))
+
+      // advance time by a second, run timers, and see if things get saved
+      advanceBy(1100)
+      advanceTimers()
+
+      expect(fetchMock.calls('/card/write_long_b64')).toHaveLength(1)
     }
+
     // Vote for yesno contest
     else if (title === measure102Contest.title) {
       fireEvent.click(getByText('Yes'))
