@@ -1,3 +1,5 @@
+import electionSampleUntyped from './data/electionSample.json'
+
 // Generic
 export type VoidFunction = () => void
 export interface Dictionary<T> {
@@ -123,3 +125,5 @@ export const getContests = ({
       ballotStyle.districts.includes(c.districtId) &&
       ballotStyle.partyId === c.partyId
   )
+
+export const electionSample = electionSampleUntyped as Election

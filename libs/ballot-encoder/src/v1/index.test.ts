@@ -1,9 +1,6 @@
-import { Election, VotesDict } from '../election'
+import { VotesDict, electionSample } from '../election'
 import { encodeVotes, decodeVotes } from './index'
-import electionSample from '../data/electionSample.json'
 import { Uint8Size, toUint8, Uint8 } from '../bits'
-
-const election = electionSample as Election
 
 function uint8ArrayFromBitArray(
   ...bits: (string | number | number[])[]
@@ -36,9 +33,9 @@ function uint8ArrayFromBitArray(
 
 it('encodes empty votes correctly', () => {
   const votes: VotesDict = {}
-  const votesPresent = '0'.repeat(election.contests.length)
+  const votesPresent = '0'.repeat(electionSample.contests.length)
 
-  expect(encodeVotes(election.contests, votes)).toEqual(
+  expect(encodeVotes(electionSample.contests, votes)).toEqual(
     uint8ArrayFromBitArray(votesPresent)
   )
 })
@@ -56,7 +53,7 @@ it('encodes yesno votes correctly', () => {
     'measure-666': 'yes',
   }
 
-  expect(encodeVotes(election.contests, votes)).toEqual(
+  expect(encodeVotes(electionSample.contests, votes)).toEqual(
     uint8ArrayFromBitArray(
       /** ROLL CALL * */
       '0000000000001111111110',
@@ -107,7 +104,7 @@ it('encodes candidate choice votes correctly', () => {
     ],
   }
 
-  expect(encodeVotes(election.contests, votes)).toEqual(
+  expect(encodeVotes(electionSample.contests, votes)).toEqual(
     uint8ArrayFromBitArray(
       /** ROLL CALL * */
       '1111111111110000000001',
@@ -188,7 +185,7 @@ it('encodes a ballot with mixed vote types correctly', () => {
     ],
   }
 
-  expect(encodeVotes(election.contests, votes)).toEqual(
+  expect(encodeVotes(electionSample.contests, votes)).toEqual(
     uint8ArrayFromBitArray(
       /** ROLL CALL * */
       '1111111111111111111111',
@@ -262,7 +259,7 @@ it('encodes write-in votes correctly', () => {
     ],
   }
 
-  expect(encodeVotes(election.contests, votes)).toEqual(
+  expect(encodeVotes(electionSample.contests, votes)).toEqual(
     uint8ArrayFromBitArray(
       /** ROLL CALL * */
       '0000000001000000000000',
@@ -307,7 +304,10 @@ it('round-trips empty votes correctly', () => {
   const votes: VotesDict = {}
 
   expect(
-    decodeVotes(election.contests, encodeVotes(election.contests, votes))
+    decodeVotes(
+      electionSample.contests,
+      encodeVotes(electionSample.contests, votes)
+    )
   ).toEqual(votes)
 })
 
@@ -325,7 +325,10 @@ it('round-trips yesno votes correctly', () => {
   }
 
   expect(
-    decodeVotes(election.contests, encodeVotes(election.contests, votes))
+    decodeVotes(
+      electionSample.contests,
+      encodeVotes(electionSample.contests, votes)
+    )
   ).toEqual(votes)
 })
 
@@ -369,7 +372,10 @@ it('round-trips candidate votes correctly', () => {
   }
 
   expect(
-    decodeVotes(election.contests, encodeVotes(election.contests, votes))
+    decodeVotes(
+      electionSample.contests,
+      encodeVotes(electionSample.contests, votes)
+    )
   ).toEqual(votes)
 })
 
@@ -381,6 +387,9 @@ it('round-trips write-ins correctly', () => {
   }
 
   expect(
-    decodeVotes(election.contests, encodeVotes(election.contests, votes))
+    decodeVotes(
+      electionSample.contests,
+      encodeVotes(electionSample.contests, votes)
+    )
   ).toEqual(votes)
 })
