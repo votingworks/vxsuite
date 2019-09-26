@@ -65,9 +65,9 @@ class Card:
     def write_long_value(self, long_value_bytes):
         # For now, do this inefficiently, let's get the APIs right and then we'll optimize.
         self.override_protection()
-        return self.write_short_and_long_values(self.short_value, long_value_bytes)
+        return self.write_short_and_long_values(self.short_value, long_value_bytes, WRITABLE)
 
-    def write_short_and_long_values(self, short_value_bytes, long_value_bytes):
+    def write_short_and_long_values(self, short_value_bytes, long_value_bytes, write_protect = WRITE_PROTECTED):
         if not self.write_enabled:
             return
 
@@ -77,7 +77,7 @@ class Card:
             return
         
         # by default, we write protect the cards with short-and-long values
-        full_bytes = self.__initial_bytes(WRITE_PROTECTED, len(short_value_bytes), len(long_value_compressed))
+        full_bytes = self.__initial_bytes(write_protect, len(short_value_bytes), len(long_value_compressed))
         full_bytes += short_value_bytes
         full_bytes += long_value_compressed
 
