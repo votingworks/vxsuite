@@ -16,7 +16,7 @@ const Screen = styled.div<Props>`
     flex: ${({ voterMode = true }) => (voterMode ? '2' : '3')};
   }
   @media print {
-    display: block;
+    display: none;
   }
 `
 

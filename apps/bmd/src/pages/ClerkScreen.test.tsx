@@ -40,14 +40,14 @@ it('renders ClerkScreen', async () => {
   fireEvent.click(getByText('Center Springfield'))
 
   // Back All Decks
-  fireEvent.click(getByText('Back to All Decks'))
+  fireEvent.click(getByText('Back to Precincts List'))
 
   // Single Precinct
   fireEvent.click(getByText('North Springfield'))
-  fireEvent.click(getByText('Dashboard'))
+  fireEvent.click(getByText('Back to Admin Dashboard'))
 
   // All Precincts
   fireEvent.click(getByText('View Test Ballot Decks'))
   fireEvent.click(getByText('All Precincts'))
-  fireEvent.click(getByText('Dashboard'))
+  fireEvent.click(getByText('Back to Admin Dashboard'))
 })

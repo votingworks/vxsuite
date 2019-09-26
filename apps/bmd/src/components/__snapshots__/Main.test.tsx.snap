@@ -17,19 +17,6 @@ exports[`renders Main with centered content 1`] = `
   max-width: 35rem;
 }
 
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-@media print {
-  .c1 {
-    margin: 0;
-    max-width: 100%;
-  }
-}
-
 <main
   class="c0"
 >
@@ -58,19 +45,6 @@ exports[`renders Main with child 1`] = `
   max-width: 35rem;
 }
 
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-@media print {
-  .c1 {
-    margin: 0;
-    max-width: 100%;
-  }
-}
-
 <main
   class="c0"
 >
@@ -96,19 +70,6 @@ exports[`renders Main with not centered content 1`] = `
 .c1 {
   margin: 0 0;
   max-width: 35rem;
-}
-
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-@media print {
-  .c1 {
-    margin: 0;
-    max-width: 100%;
-  }
 }
 
 <main
@@ -143,19 +104,6 @@ exports[`renders Main with padding 1`] = `
 @media (min-width:480px) {
   .c0 {
     padding: 2rem;
-  }
-}
-
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-@media print {
-  .c1 {
-    margin: 0;
-    max-width: 100%;
   }
 }
 
