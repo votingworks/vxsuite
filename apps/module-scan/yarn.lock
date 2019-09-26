@@ -4161,9 +4161,10 @@ node-pre-gyp@^0.12.0:
     semver "^5.3.0"
     tar "^4"
 
-"node-quirc@https://github.com/votingworks/node-quirc.git#jpeg-support":
-  version "2.0.0"
-  resolved "https://github.com/votingworks/node-quirc.git#acd01bb5002674f50ee17096311fdf8e30945fca"
+node-quirc@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/node-quirc/-/node-quirc-2.1.0.tgz#b5c83deb0cabf6cd16d20e84a668927edac364ab"
+  integrity sha512-7S0ICpsXjumKUuVi1NalqEAkaI3FjBtrpwQ+2HVoVWKUoDrSQFRrS30n5rAe1QMMClqz2o92Mk3V96nfq5am3g==
   dependencies:
     bindings "^1.5.0"
     nan "^2.14.0"
