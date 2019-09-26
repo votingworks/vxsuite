@@ -12,15 +12,13 @@ import {
 } from '../election'
 import BitWriter from '../bits/BitWriter'
 
-function* collect<T>(
+function* join<T>(
   objects: T[],
   delimiter: string,
   builder: (object: T) => Iterable<string>
 ): Iterable<string> {
   for (let i = 0; i < objects.length; i += 1) {
-    for (const part of builder(objects[i])) {
-      yield part
-    }
+    yield* builder(objects[i])
 
     const isLast = i === objects.length - 1
 
@@ -31,6 +29,7 @@ function* collect<T>(
 }
 
 export function encodeBallotInto(
+  writer: BitWriter,
   {
     election,
     ballotStyle,
@@ -43,8 +42,7 @@ export function encodeBallotInto(
     precinct: Precinct
     votes: VotesDict
     ballotId: string
-  },
-  writer: BitWriter
+  }
 ): void {
   const append = (...values: string[]): void =>
     values.forEach(value => writer.writeString(value, { includeLength: false }))
@@ -65,7 +63,7 @@ function* encodeVotes(
   contests: Contests,
   votes: VotesDict
 ): IterableIterator<string> {
-  yield* collect(contests, '|', function* collectContest(
+  yield* join(contests, '|', function* encodeContest(
     contest: YesNoContest | CandidateContest
   ) {
     const contestVote = votes[contest.id]
@@ -75,10 +73,10 @@ function* encodeVotes(
         yield contestVote === 'yes' ? '1' : '0'
       } else {
         const candidateIDs = contest.candidates.map(c => c.id)
-        yield* collect(
+        yield* join(
           contestVote as CandidateVote,
           ',',
-          function* collectCandidateVote(c: Candidate) {
+          function* encodeCandidate(c: Candidate) {
             yield c.isWriteIn ? 'W' : `${candidateIDs.indexOf(c.id)}`
           }
         )
@@ -101,7 +99,7 @@ export function encodeBallotAsString({
   ballotId: string
 }): string {
   const writer = new BitWriter()
-  encodeBallotInto({ election, ballotStyle, precinct, votes, ballotId }, writer)
+  encodeBallotInto(writer, { election, ballotStyle, precinct, votes, ballotId })
   return new TextDecoder().decode(writer.toUint8Array())
 }
 
