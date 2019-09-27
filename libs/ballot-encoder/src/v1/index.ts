@@ -1,13 +1,44 @@
-import { CandidateVote, Contests, VotesDict } from '../election'
-import { BitReader, BitWriter, CustomEncoding } from '../bits'
+import {
+  CandidateVote,
+  Contests,
+  VotesDict,
+  Ballot,
+  getContests,
+  validateVotes,
+  Election,
+  getBallotStyle,
+  getPrecinctById,
+} from '../election'
+import { BitReader, BitWriter, CustomEncoding, Uint8Size } from '../bits'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 
 // TODO: include "magic number" and encoding version
 
-const WriteInEncoding = new CustomEncoding('ABCDEFGHIJKLMNOPQRSTUVWXYZ \'"-.,')
+export const WriteInEncoding = new CustomEncoding(
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ \'"-.,'
+)
 
-export function encodeVotesInto(
+export function encodeBallot(ballot: Ballot): Uint8Array {
+  const bits = new BitWriter()
+  encodeBallotInto(ballot, bits)
+  return bits.toUint8Array()
+}
+
+export function encodeBallotInto(
+  { election, ballotStyle, precinct, votes, ballotId }: Ballot,
+  bits: BitWriter
+): void {
+  validateVotes({ election, ballotStyle, votes })
+
+  const contests = getContests({ ballotStyle, election })
+
+  bits.writeString(ballotStyle.id).writeString(precinct.id)
+  encodeBallotVotesInto(contests, votes, bits)
+  bits.writeString(ballotId)
+}
+
+function encodeBallotVotesInto(
   contests: Contests,
   votes: VotesDict,
   bits: BitWriter
@@ -43,14 +74,16 @@ export function encodeVotesInto(
           const nonWriteInCount = choices.length - writeInCount
           const maximumWriteIns = Math.max(0, contest.seats - nonWriteInCount)
 
-          bits.writeUint(writeInCount, { max: maximumWriteIns })
+          if (maximumWriteIns > 0) {
+            bits.writeUint(writeInCount, { max: maximumWriteIns })
 
-          for (const choice of choices) {
-            if (choice.isWriteIn) {
-              bits.writeString(choice.name, {
-                encoding: WriteInEncoding,
-                maxLength: MAXIMUM_WRITE_IN_LENGTH,
-              })
+            for (const choice of choices) {
+              if (choice.isWriteIn) {
+                bits.writeString(choice.name, {
+                  encoding: WriteInEncoding,
+                  maxLength: MAXIMUM_WRITE_IN_LENGTH,
+                })
+              }
             }
           }
         }
@@ -59,16 +92,74 @@ export function encodeVotesInto(
   }
 }
 
-export function encodeVotes(contests: Contests, votes: VotesDict): Uint8Array {
-  const bits = new BitWriter()
-  encodeVotesInto(contests, votes, bits)
-  return bits.toUint8Array()
+export function decodeBallot(election: Election, data: Uint8Array): Ballot {
+  return decodeBallotFromReader(election, new BitReader(data))
 }
 
-export function decodeVotesFrom(
-  contests: Contests,
+export function decodeBallotFromReader(
+  election: Election,
   bits: BitReader
-): VotesDict {
+): Ballot {
+  const ballotStyleId = bits.readString()
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+
+  if (!ballotStyle) {
+    throw new Error(
+      `ballot style with id ${JSON.stringify(
+        ballotStyleId
+      )} could not be found, expected one of: ${election.ballotStyles
+        .map(bs => bs.id)
+        .join(', ')}`
+    )
+  }
+
+  const precinctId = bits.readString()
+  const precinct = getPrecinctById({ precinctId, election })
+
+  if (!precinct) {
+    throw new Error(
+      `precinct with id ${JSON.stringify(
+        precinctId
+      )} could not be found, expected one of: ${election.precincts
+        .map(p => p.id)
+        .join(', ')}`
+    )
+  }
+
+  const contests = getContests({ ballotStyle, election })
+  const votes = decodeBallotVotes(contests, bits)
+  const ballotId = bits.readString()
+
+  readPaddingToEnd(bits)
+
+  return {
+    ballotId,
+    ballotStyle,
+    election,
+    precinct,
+    votes,
+  }
+}
+
+function readPaddingToEnd(bits: BitReader): void {
+  let padding = 0
+
+  while (bits.canRead()) {
+    if (bits.readUint1() !== 0) {
+      throw new Error(
+        'unexpected data found while reading padding, expected EOF'
+      )
+    }
+
+    padding += 1
+  }
+
+  if (padding >= Uint8Size) {
+    throw new Error('unexpected data found while reading padding, expected EOF')
+  }
+}
+
+function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   const votes: VotesDict = {}
 
   // read roll call
@@ -92,19 +183,22 @@ export function decodeVotesFrom(
       if (contest.allowWriteIns) {
         // read write-in data
         const maximumWriteIns = Math.max(0, contest.seats - contestVote.length)
-        const writeInCount = bits.readUint({ max: maximumWriteIns })
 
-        for (let i = 0; i < writeInCount; i += 1) {
-          const name = bits.readString({
-            encoding: WriteInEncoding,
-            maxLength: MAXIMUM_WRITE_IN_LENGTH,
-          })
+        if (maximumWriteIns > 0) {
+          const writeInCount = bits.readUint({ max: maximumWriteIns })
 
-          contestVote.push({
-            id: `write-in__${name}`,
-            name,
-            isWriteIn: true,
-          })
+          for (let i = 0; i < writeInCount; i += 1) {
+            const name = bits.readString({
+              encoding: WriteInEncoding,
+              maxLength: MAXIMUM_WRITE_IN_LENGTH,
+            })
+
+            contestVote.push({
+              id: `write-in__${name}`,
+              name,
+              isWriteIn: true,
+            })
+          }
         }
       }
 
@@ -113,8 +207,4 @@ export function decodeVotesFrom(
   }
 
   return votes
-}
-
-export function decodeVotes(contests: Contests, data: Uint8Array): VotesDict {
-  return decodeVotesFrom(contests, new BitReader(data))
 }

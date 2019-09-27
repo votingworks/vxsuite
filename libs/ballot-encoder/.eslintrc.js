@@ -52,6 +52,7 @@ module.exports = {
     ],
     'import/prefer-default-export': 'off',
     'no-dupe-class-members': 'off',
+    'no-restricted-globals': 'off',
     'no-restricted-syntax': 'off',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
     '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
@@ -74,7 +75,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['src/**/*.test.ts'],
+      files: ['src/**/*.test.ts', 'test/**/*.ts'],
       env: {
         'jest/globals': true,
       },

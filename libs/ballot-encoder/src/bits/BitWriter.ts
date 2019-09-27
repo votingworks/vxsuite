@@ -13,16 +13,18 @@ export default class BitWriter {
   private nextByte: Uint8 = 0b00000000
 
   /**
-   * Writes a single bit.
+   * Writes bits.
    */
-  public writeUint1(uint1: Uint1): this {
-    const mask = this.cursor.mask(uint1)
-    this.nextByte |= mask
-    this.cursor.next()
+  public writeUint1(...uint1s: Uint1[]): this {
+    for (const uint1 of uint1s) {
+      const mask = this.cursor.mask(uint1)
+      this.nextByte |= mask
+      this.cursor.next()
 
-    if (this.cursor.isByteStart) {
-      this.data = Uint8Array.of(...Array.from(this.data), this.nextByte)
-      this.nextByte = 0b00000000
+      if (this.cursor.isByteStart) {
+        this.data = Uint8Array.of(...Array.from(this.data), this.nextByte)
+        this.nextByte = 0b00000000
+      }
     }
 
     return this
@@ -31,8 +33,12 @@ export default class BitWriter {
   /**
    * Writes `1` if given `true`, `0` otherwise.
    */
-  public writeBoolean(boolean: boolean): this {
-    return this.writeUint1(boolean ? 1 : 0)
+  public writeBoolean(...booleans: boolean[]): this {
+    for (const boolean of booleans) {
+      this.writeUint1(boolean ? 1 : 0)
+    }
+
+    return this
   }
 
   /**
@@ -82,6 +88,7 @@ export default class BitWriter {
 
     if (size === Uint8Size && this.cursor.isByteStart) {
       this.data = Uint8Array.of(...Array.from(this.data), number)
+      this.cursor.advance(Uint8Size)
     } else {
       for (const mask of makeMasks(size)) {
         this.writeUint1((number & mask) === 0 ? 0 : 1)
@@ -157,4 +164,36 @@ export default class BitWriter {
     }
     return this.nextByte
   }
+
+  public debug(label = 'bits'): this {
+    // eslint-disable-next-line no-console
+    console.log(label)
+    // eslint-disable-next-line no-console
+    console.log(
+      inGroupsOf(
+        8,
+        inGroupsOf(
+          Uint8Size,
+          Array.from(this.toUint8Array())
+            .map(n => n.toString(2).padStart(Uint8Size, '0'))
+            .join('')
+            .slice(0, this.cursor.combinedBitOffset)
+            .split('')
+        )
+      )
+        .map(row => row.map(cell => cell.join('')).join(' '))
+        .join('\n')
+    )
+    return this
+  }
+}
+
+function inGroupsOf<T>(count: number, array: T[]): T[][] {
+  const result: T[][] = []
+
+  for (let i = 0; i < array.length; i += count) {
+    result.push(array.slice(i, i + count))
+  }
+
+  return result
 }

@@ -88,6 +88,15 @@ export type Vote = CandidateVote | YesNoVote
 export type OptionalVote = Optional<Vote>
 export type VotesDict = Dictionary<Vote>
 
+// TODO: what should we call a ballot that has been filled out by a voter?
+export interface Ballot {
+  election: Election
+  ballotStyle: BallotStyle
+  precinct: Precinct
+  votes: VotesDict
+  ballotId: string
+}
+
 // Smart Card Content
 export type CardDataTypes = 'voter' | 'pollworker' | 'clerk'
 export interface CardData {
@@ -126,4 +135,89 @@ export const getContests = ({
       ballotStyle.partyId === c.partyId
   )
 
+export const getPrecinctById = ({
+  election,
+  precinctId,
+}: {
+  election: Election
+  precinctId: string
+}): Precinct | undefined => election.precincts.find(p => p.id === precinctId)
+
+export const getBallotStyle = ({
+  ballotStyleId,
+  election,
+}: {
+  ballotStyleId: string
+  election: Election
+}): BallotStyle | undefined =>
+  election.ballotStyles.find(bs => bs.id === ballotStyleId)
+
+export const validateVotes = ({
+  votes,
+  ballotStyle,
+  election,
+}: {
+  votes: VotesDict
+  ballotStyle: BallotStyle
+  election: Election
+}): void => {
+  const contests = getContests({ election, ballotStyle })
+
+  for (const contestId of Object.getOwnPropertyNames(votes)) {
+    const contest = contests.find(c => c.id === contestId)
+
+    if (!contest) {
+      throw new Error(
+        `found a vote with contest id ${JSON.stringify(
+          contestId
+        )}, but no such contest exists in ballot style ${
+          ballotStyle.id
+        } (expected one of ${contests.map(c => c.id).join(', ')})`
+      )
+    }
+  }
+}
+
 export const electionSample = electionSampleUntyped as Election
+
+export function vote(
+  contests: Contests,
+  shorthand: {
+    [key: string]: YesNoVote | string | string[] | Candidate | CandidateVote
+  }
+): VotesDict {
+  return Object.getOwnPropertyNames(shorthand).reduce((result, contestId) => {
+    const contest = contests.find(c => c.id === contestId)
+
+    if (!contest) {
+      throw new Error(`unknown contest ${contestId}`)
+    }
+
+    const choice = shorthand[contestId]
+
+    if (contest.type === 'yesno') {
+      return { ...result, [contestId]: choice }
+    }
+
+    if (Array.isArray(choice) && typeof choice[0] === 'string') {
+      return {
+        ...result,
+        [contestId]: contest.candidates.filter(c =>
+          (choice as string[]).includes(c.id)
+        ),
+      }
+    }
+
+    if (typeof choice === 'string') {
+      return {
+        ...result,
+        [contestId]: [contest.candidates.find(c => c.id === choice)],
+      }
+    }
+
+    return {
+      ...result,
+      [contestId]: Array.isArray(choice) ? choice : [choice],
+    }
+  }, {})
+}

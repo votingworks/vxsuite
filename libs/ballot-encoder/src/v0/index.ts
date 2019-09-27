@@ -1,162 +1,227 @@
 import {
   Election,
-  BallotStyle,
   Contests,
   VotesDict,
   CandidateContest,
   CandidateVote,
   getContests,
-  Precinct,
-  YesNoContest,
   Candidate,
+  Ballot,
+  getBallotStyle,
+  getPrecinctById,
+  YesNoVote,
+  YesNoContest,
+  Vote,
 } from '../election'
-import BitWriter from '../bits/BitWriter'
 
-function* join<T>(
-  objects: T[],
-  delimiter: string,
-  builder: (object: T) => Iterable<string>
-): Iterable<string> {
-  for (let i = 0; i < objects.length; i += 1) {
-    yield* builder(objects[i])
+export const MAXIMUM_WRITE_IN_LENGTH = 40
 
-    const isLast = i === objects.length - 1
+const BallotSections = [
+  'ballot id',
+  'precinct id',
+  'encoded votes',
+  'ballot id',
+]
+const BallotSectionSeparator = '.'
+const VoteSeparator = '|'
+const CandidateSeparator = ','
+const EmptyVoteValue = ''
 
-    if (!isLast) {
-      yield delimiter
-    }
-  }
+/**
+ * Encodes a ballot for transport or storage.
+ */
+export function encodeBallot(ballot: Ballot): Uint8Array {
+  return new TextEncoder().encode(encodeBallotAsString(ballot))
 }
 
-export function encodeBallotInto(
-  writer: BitWriter,
-  {
-    election,
-    ballotStyle,
-    precinct,
-    votes,
-    ballotId,
-  }: {
-    election: Election
-    ballotStyle: BallotStyle
-    precinct: Precinct
-    votes: VotesDict
-    ballotId: string
-  }
-): void {
-  const append = (...values: string[]): void =>
-    values.forEach(value => writer.writeString(value, { includeLength: false }))
-
-  append(ballotStyle.id, '.', precinct.id, '.')
-
-  for (const chunk of encodeVotes(
-    getContests({ ballotStyle, election }),
-    votes
-  )) {
-    append(chunk)
-  }
-
-  append('.', ballotId)
-}
-
-function* encodeVotes(
-  contests: Contests,
-  votes: VotesDict
-): IterableIterator<string> {
-  yield* join(contests, '|', function* encodeContest(
-    contest: YesNoContest | CandidateContest
-  ) {
-    const contestVote = votes[contest.id]
-
-    if (contestVote) {
-      if (contest.type === 'yesno') {
-        yield contestVote === 'yes' ? '1' : '0'
-      } else {
-        const candidateIDs = contest.candidates.map(c => c.id)
-        yield* join(
-          contestVote as CandidateVote,
-          ',',
-          function* encodeCandidate(c: Candidate) {
-            yield c.isWriteIn ? 'W' : `${candidateIDs.indexOf(c.id)}`
-          }
-        )
-      }
-    }
-  })
-}
-
+/**
+ * Convenience function for encoding ballot data as a string, for testing.
+ */
 export function encodeBallotAsString({
   election,
   ballotStyle,
   precinct,
   votes,
   ballotId,
-}: {
-  election: Election
-  ballotStyle: BallotStyle
-  precinct: Precinct
-  votes: VotesDict
-  ballotId: string
-}): string {
-  const writer = new BitWriter()
-  encodeBallotInto(writer, { election, ballotStyle, precinct, votes, ballotId })
-  return new TextDecoder().decode(writer.toUint8Array())
+}: Ballot): string {
+  const contests = getContests({ ballotStyle, election })
+
+  return [
+    ballotStyle.id,
+    precinct.id,
+    encodeBallotVotes(contests, votes),
+    ballotId,
+  ].join(BallotSectionSeparator)
 }
 
-// export function decodeVotesFrom(election: Election, data: Uint8Array) {
-//   const ballotString = String.fromCharCode(...Array.from(data))
+function encodeBallotVotes(contests: Contests, votes: VotesDict): string {
+  return contests
+    .map(contest => {
+      const contestVote = votes[contest.id]
+      if (!contestVote) {
+        return EmptyVoteValue
+      }
 
-//   const [
-//     ballotStyleId,
-//     precinctId,
-//     allSelections,
-//     serialNumber,
-//   ] = ballotString.split('.')
+      if (contest.type === 'yesno') {
+        return encodeYesNoVote(contest, contestVote as YesNoVote)
+      }
 
-//   // figure out the contests
-//   const ballotStyle = election.ballotStyles.find(
-//     (b: BallotStyle) => b.id === ballotStyleId
-//   )
+      return encodeCandidateVote(contest, contestVote as CandidateVote)
+    })
+    .join(VoteSeparator)
+}
 
-//   if (!ballotStyle) {
-//     return
-//   }
+function encodeYesNoVote(
+  _contest: YesNoContest,
+  contestVote: YesNoVote
+): string {
+  switch (contestVote) {
+    case 'no':
+      return '0'
+    case 'yes':
+      return '1'
+    default:
+      throw new Error(
+        `cannot encode yesno vote, expected "no" or "yes" but got ${JSON.stringify(
+          contestVote
+        )}`
+      )
+  }
+}
 
-//   const contests: Contests = election.contests.filter(
-//     c =>
-//       ballotStyle.districts.includes(c.districtId) &&
-//       ballotStyle.partyId === c.partyId
-//   )
+function encodeCandidateVote(
+  contest: CandidateContest,
+  contestVote: CandidateVote
+): string {
+  const candidateIDs = contest.candidates.map(c => c.id)
+  return (contestVote as CandidateVote)
+    .map(c => (c.isWriteIn ? 'W' : candidateIDs.indexOf(c.id)))
+    .join(CandidateSeparator)
+}
 
-//   // prepare the CVR
-//   let cvr: CastVoteRecord = {}
+export function decodeBallot(election: Election, data: Uint8Array): Ballot {
+  return decodeBallotFromString(election, new TextDecoder().decode(data))
+}
 
-//   const allSelectionsList = allSelections.split('|')
-//   contests.forEach((contest: Contest, contestNum: number) => {
-//     // no answer for a particular contest is recorded in our final dictionary as an empty string
-//     // not the same thing as undefined.
+/**
+ * Convenience function for decoding ballot data from a string, for testing.
+ */
+export function decodeBallotFromString(
+  election: Election,
+  encodedBallot: string
+): Ballot {
+  const encodedBallotSections = encodedBallot.split(BallotSectionSeparator)
 
-//     if (contest.type === 'yesno') {
-//       cvr[contest.id] = yesNoValues[allSelectionsList[contestNum]] || ''
-//     } else {
-//       if (contest.type === 'candidate') {
-//         // selections for this question
-//         const selections = allSelectionsList[contestNum].split(',')
-//         if (selections.length > 1 || selections[0] !== '') {
-//           cvr[contest.id] = selections.map(selection =>
-//             selection === 'W'
-//               ? 'writein'
-//               : (contest as CandidateContest).candidates[parseInt(selection)].id
-//           )
-//         } else {
-//           cvr[contest.id] = ''
-//         }
-//       }
-//     }
-//   })
+  if (encodedBallotSections.length !== BallotSections.length) {
+    throw new Error(
+      `ballot data is malformed, expected data in this format: ${BallotSections.map(
+        section => `«${section}»`
+      ).join(BallotSectionSeparator)}`
+    )
+  }
+  const [
+    ballotStyleId,
+    precinctId,
+    encodedVotes,
+    ballotId,
+  ] = encodedBallot.split(BallotSectionSeparator)
 
-//   cvr['_precinctId'] = precinctId
-//   cvr['_serialNumber'] = serialNumber
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  const precinct = getPrecinctById({ precinctId, election })
 
-//   return cvr
-// }
+  if (!ballotStyle) {
+    throw new Error(`unable to find ballot style by id: ${ballotStyleId}`)
+  }
+
+  if (!precinct) {
+    throw new Error(`unable to find precinct by id: ${precinctId}`)
+  }
+
+  const votes = decodeBallotVotes(
+    getContests({ ballotStyle, election }),
+    encodedVotes
+  )
+
+  return {
+    ballotId,
+    ballotStyle,
+    election,
+    precinct,
+    votes,
+  }
+}
+
+function decodeBallotVotes(
+  contests: Contests,
+  encodedVotes: string
+): VotesDict {
+  const encodedVoteList = encodedVotes.split(VoteSeparator)
+
+  if (contests.length !== encodedVoteList.length) {
+    throw new Error(
+      `found ${encodedVoteList.length} vote(s), but expected ${contests.length} (one per contest)`
+    )
+  }
+
+  return encodedVoteList.reduce((dict, encodedVote, contestIndex) => {
+    if (!encodedVote) {
+      return dict
+    }
+
+    const contest = contests[contestIndex]
+    let contestVote: Vote
+
+    if (contest.type === 'yesno') {
+      contestVote = decodeYesNoVote(contest, encodedVote)
+    } else {
+      contestVote = decodeCandidateVote(contest, encodedVote)
+    }
+
+    return { ...dict, [contest.id]: contestVote }
+  }, {})
+}
+
+function decodeYesNoVote(
+  _contest: YesNoContest,
+  contestVote: string
+): YesNoVote {
+  switch (contestVote) {
+    case '0':
+      return 'no'
+    case '1':
+      return 'yes'
+    default:
+      throw new Error(
+        `cannot decode yesno vote, expected "0" or "1" but got ${JSON.stringify(
+          contestVote
+        )}`
+      )
+  }
+}
+
+function decodeCandidateVote(
+  contest: CandidateContest,
+  contestVote: string
+): CandidateVote {
+  const { candidates } = contest
+
+  return contestVote.split(CandidateSeparator).map(
+    (encodedCandidateVote): Candidate => {
+      if (encodedCandidateVote === 'W') {
+        return { isWriteIn: true, id: 'write-in__NOT RECORDED', name: '' }
+      }
+
+      const index = Number(encodedCandidateVote)
+
+      if (isNaN(index) || index < 0 || index >= candidates.length) {
+        throw new Error(
+          `expected candidate index in [0, ${
+            candidates.length
+          }) but got: ${JSON.stringify(encodedCandidateVote)}`
+        )
+      }
+
+      return candidates[index]
+    }
+  )
+}

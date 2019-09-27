@@ -21,6 +21,10 @@ export default class BitCursor {
     return this.offset % Uint8Size === 0
   }
 
+  public get combinedBitOffset(): number {
+    return this.offset
+  }
+
   public get bitOffset(): Uint8Index {
     if (this.offset < 0) {
       return (Uint8Size - (-this.offset % Uint8Size)) as Uint8Index
