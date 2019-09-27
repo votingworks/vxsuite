@@ -1,15 +1,32 @@
+import { BitWriter } from '../bits'
 import { electionSample as election, getContests, vote } from '../election'
 import {
-  encodeBallot,
-  WriteInEncoding,
-  MAXIMUM_WRITE_IN_LENGTH,
   decodeBallot,
+  encodeBallot,
+  MAXIMUM_WRITE_IN_LENGTH,
+  WriteInEncoding,
 } from './index'
-import { BitWriter } from '../bits'
 
 function falses(count: number): boolean[] {
   return new Array(count).fill(false)
 }
+
+test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts[0]
+  const contests = getContests({ election, ballotStyle })
+  const votes = vote(contests, {})
+  const ballotId = 'abcde'
+  const ballot = {
+    election,
+    ballotId,
+    ballotStyle,
+    precinct,
+    votes,
+  }
+
+  expect(decodeBallot(election, encodeBallot(ballot))).toEqual(ballot)
+})
 
 it('encodes & decodes empty votes correctly', () => {
   const ballotStyle = election.ballotStyles[0]
