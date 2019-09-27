@@ -179,7 +179,7 @@ it('VxMark+Print end-to-end flow', async () => {
       advanceTimers()
       expect(fetchMock.calls('/card/write_long_b64')).toHaveLength(1)
 
-      // If we wait another second and avance timers, without any change made to the card,
+      // If we wait another second and advance timers, without any change made to the card,
       // we should not see another call to save the card data
       advanceBy(1100)
       advanceTimers()
