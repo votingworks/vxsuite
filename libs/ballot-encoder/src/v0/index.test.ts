@@ -176,6 +176,6 @@ test('cannot decode a ballot that is missing a ballot id', () => {
   expect(() => {
     decodeBallotFromString(election, '12.23.|||||||||||||||||||')
   }).toThrowError(
-    'ballot data is malformed, expected data in this format: «ballot id».«precinct id».«encoded votes».«ballot id»'
+    'ballot data is malformed, expected data in this format: «ballot style id».«precinct id».«encoded votes».«ballot id»'
   )
 })

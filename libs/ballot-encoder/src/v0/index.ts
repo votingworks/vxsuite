@@ -1,3 +1,7 @@
+/**
+ * v0 ballot encoding format. See README.md in this directory for more information.
+ */
+
 import {
   Election,
   Contests,
@@ -17,7 +21,7 @@ import {
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 
 const BallotSections = [
-  'ballot id',
+  'ballot style id',
   'precinct id',
   'encoded votes',
   'ballot id',
@@ -164,7 +168,7 @@ function decodeBallotVotes(
   }
 
   return encodedVoteList.reduce((dict, encodedVote, contestIndex) => {
-    if (!encodedVote) {
+    if (encodedVote === EmptyVoteValue) {
       return dict
     }
 
