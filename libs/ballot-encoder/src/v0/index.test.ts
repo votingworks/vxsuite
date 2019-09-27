@@ -151,19 +151,25 @@ test('cannot decode a ballot with an unexpected number of votes', () => {
 test('cannot decode a yesno vote that is not "0" or "1"', () => {
   expect(() => {
     decodeBallotFromString(election, '12.23.|||||||||||||W||||||.abcde')
-  }).toThrowError('cannot decode yesno vote, expected "0" or "1" but got "W"')
+  }).toThrowError(
+    'cannot decode yesno vote in contest "judicial-elmer-hull", expected "0" or "1" but got "W"'
+  )
 })
 
 test('cannot decode a ballot with a negative candidate index', () => {
   expect(() => {
     decodeBallotFromString(election, '12.23.|-1||||||||||||||||||.abcde')
-  }).toThrowError('expected candidate index in [0, 7) but got: "-1"')
+  }).toThrowError(
+    'expected candidate index in contest "senator" to be in range [0, 7) but got "-1"'
+  )
 })
 
 test('cannot decode a ballot with a candidate index out of bounds', () => {
   expect(() => {
     decodeBallotFromString(election, '12.23.|7||||||||||||||||||.abcde')
-  }).toThrowError('expected candidate index in [0, 7) but got: "7"')
+  }).toThrowError(
+    'expected candidate index in contest "senator" to be in range [0, 7) but got "7"'
+  )
 })
 
 test('cannot decode a ballot that is missing a ballot id', () => {

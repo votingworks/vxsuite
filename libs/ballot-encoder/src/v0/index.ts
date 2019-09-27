@@ -182,7 +182,7 @@ function decodeBallotVotes(
 }
 
 function decodeYesNoVote(
-  _contest: YesNoContest,
+  contest: YesNoContest,
   contestVote: string
 ): YesNoVote {
   switch (contestVote) {
@@ -192,9 +192,9 @@ function decodeYesNoVote(
       return 'yes'
     default:
       throw new Error(
-        `cannot decode yesno vote, expected "0" or "1" but got ${JSON.stringify(
-          contestVote
-        )}`
+        `cannot decode yesno vote in contest ${JSON.stringify(
+          contest.id
+        )}, expected "0" or "1" but got ${JSON.stringify(contestVote)}`
       )
   }
 }
@@ -215,9 +215,11 @@ function decodeCandidateVote(
 
       if (isNaN(index) || index < 0 || index >= candidates.length) {
         throw new Error(
-          `expected candidate index in [0, ${
-            candidates.length
-          }) but got: ${JSON.stringify(encodedCandidateVote)}`
+          `expected candidate index in contest ${JSON.stringify(
+            contest.id
+          )} to be in range [0, ${candidates.length}) but got ${JSON.stringify(
+            encodedCandidateVote
+          )}`
         )
       }
 
