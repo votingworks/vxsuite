@@ -44,8 +44,11 @@ export default class BitWriter {
   /**
    * Writes data from a `Uint8` by writing 8 bits.
    */
-  public writeUint8(uint8: Uint8): this {
-    return this.writeUint(uint8, { size: Uint8Size })
+  public writeUint8(...uint8s: Uint8[]): this {
+    for (const uint8 of uint8s) {
+      this.writeUint(uint8, { size: Uint8Size })
+    }
+    return this
   }
 
   /**
