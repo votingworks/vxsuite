@@ -129,16 +129,16 @@ const initialState: State = {
 
 let checkCardInterval = 0
 
-let lastVoteUpdate = 0
-let lastVoteSaveToCard = 0
-let cardWriteInterval = 0
-let writingVoteToCard = false
-
 const printer = makePrinter(PrintMethod.RemoteWithLocalFallback)
 
 class AppRoot extends React.Component<RouteComponentProps, State> {
   public state = initialState
   private machineIdAbortController = new AbortController()
+
+  private lastVoteUpdateAt = 0
+  private lastVoteSaveToCardAt = 0
+  private cardWriteInterval = 0
+  private writingVoteToCard = false
 
   public processVoterCardData = (voterCardData: VoterCardData) => {
     const election = this.state.election!
@@ -255,7 +255,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  public startPolling = () => {
+  public startShortValueReadPolling = () => {
     if (checkCardInterval === 0) {
       let lastCardDataString = ''
 
@@ -294,7 +294,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     checkCardInterval = 0 // To indicate setInterval is not running.
   }
 
-  public storeLongValueOnCard = async (longValueBase64: string) => {
+  public saveLongValue = async (longValueBase64: string) => {
     const formData = new FormData()
     formData.append('long_value', longValueBase64)
 
@@ -304,33 +304,36 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     })
   }
 
-  public clearLongValueOnCard = async () => {
-    writingVoteToCard = true
-    await this.storeLongValueOnCard('')
-    writingVoteToCard = false
+  public clearLongValue = async () => {
+    this.writingVoteToCard = true
+    await this.saveLongValue('')
+    this.writingVoteToCard = false
   }
 
-  public startCardWritePolling = () => {
-    if (cardWriteInterval === 0) {
-      cardWriteInterval = window.setInterval(async () => {
+  public startLongValueWritePolling = () => {
+    /* istanbul ignore else */
+
+    if (this.cardWriteInterval === 0) {
+      this.cardWriteInterval = window.setInterval(async () => {
         if (
-          lastVoteSaveToCard < lastVoteUpdate &&
-          lastVoteUpdate < Date.now() - GLOBALS.CARD_WRITE_DELAY &&
-          !writingVoteToCard
+          this.lastVoteSaveToCardAt < this.lastVoteUpdateAt &&
+          this.lastVoteUpdateAt <
+            Date.now() - GLOBALS.CARD_LONG_VALUE_WRITE_DELAY &&
+          !this.writingVoteToCard
         ) {
-          lastVoteSaveToCard = Date.now()
+          this.lastVoteSaveToCardAt = Date.now()
 
           const longValue = btoa(JSON.stringify(this.state.votes))
 
-          writingVoteToCard = true
+          this.writingVoteToCard = true
           try {
-            await this.storeLongValueOnCard(longValue)
+            await this.saveLongValue(longValue)
           } catch (error) {
             // eslint-disable-next-line no-empty
           }
-          writingVoteToCard = false
+          this.writingVoteToCard = false
         }
-      }, GLOBALS.CARD_WRITE_POLLING_INTERVAL)
+      }, GLOBALS.CARD_POLLING_INTERVAL)
     }
   }
 
@@ -341,7 +344,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public markVoterCardVoided: MarkVoterCardFunction = async () => {
     this.stopPolling()
 
-    await this.clearLongValueOnCard()
+    await this.clearLongValue()
 
     const currentVoterCardData: VoterCardData = JSON.parse(
       this.state.shortValue
@@ -356,7 +359,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     const updatedShortValue: VoterCardData =
       updatedCard.present && JSON.parse(updatedCard.shortValue)
 
-    this.startPolling()
+    this.startShortValueReadPolling()
 
     if (voidedVoterCardData.uz !== updatedShortValue.uz) {
       this.resetBallot()
@@ -369,7 +372,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     this.stopPolling()
     this.setPauseProcessingUntilNoCardPresent(true)
 
-    await this.clearLongValueOnCard()
+    await this.clearLongValue()
 
     const currentVoterCardData: VoterCardData = JSON.parse(
       this.state.shortValue
@@ -385,7 +388,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     const updatedShortValue: VoterCardData =
       updatedCard.present && JSON.parse(updatedCard.shortValue)
 
-    this.startPolling()
+    this.startShortValueReadPolling()
 
     /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edge case. */
     if (usedVoterCardData.bp !== updatedShortValue.bp) {
@@ -471,8 +474,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
     this.setMachineId()
-    this.startPolling()
-    this.startCardWritePolling()
+    this.startShortValueReadPolling()
+    this.startLongValueWritePolling()
   }
 
   public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
@@ -547,7 +550,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       window.localStorage.setItem(votesStorageKey, JSON.stringify(votes))
     }
 
-    lastVoteUpdate = Date.now()
+    this.lastVoteUpdateAt = Date.now()
   }
 
   public resetVoterData = () => {

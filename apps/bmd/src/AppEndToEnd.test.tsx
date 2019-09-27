@@ -171,10 +171,18 @@ it('VxMark+Print end-to-end flow', async () => {
     if (title === presidentContest.title) {
       fireEvent.click(getByText(presidentContest.candidates[0].name))
 
-      // advance time by a second, run timers, and see if things get saved
+      // We write to the card when no changes to the ballot state have happened for a second.
+      // To test that this is happening, we advance time by a bit more than a second
+      // We also need to advance timers so the interval will run, see that time has passed,
+      // and finally write to the card.
       advanceBy(1100)
       advanceTimers()
+      expect(fetchMock.calls('/card/write_long_b64')).toHaveLength(1)
 
+      // If we wait another second and avance timers, without any change made to the card,
+      // we should not see another call to save the card data
+      advanceBy(1100)
+      advanceTimers()
       expect(fetchMock.calls('/card/write_long_b64')).toHaveLength(1)
     }
 
