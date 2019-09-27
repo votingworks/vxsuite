@@ -15,7 +15,7 @@ import {
 import encodeVotes from '../encodeVotes'
 import QRCode from './QRCode'
 import Prose from './Prose'
-import Text from './Text'
+import Text, { NoWrap } from './Text'
 
 import {
   Candidate,
@@ -235,7 +235,7 @@ const PrintBallot = ({
               </div>
               <div>
                 <div>Ballot ID</div>
-                <strong>{ballotId}</strong>
+                <NoWrap as="strong">{ballotId}</NoWrap>
               </div>
             </div>
           </div>
