@@ -1,20 +1,21 @@
 import {
-  encodeBallotAsString,
-  decodeBallotFromString,
-  encodeBallot,
-  decodeBallot,
-} from './index'
-import {
-  VotesDict,
-  getContests,
   CandidateContest,
   electionSample as election,
+  getContests,
+  vote,
 } from '../election'
+import {
+  decodeBallot,
+  decodeBallotFromString,
+  encodeBallot,
+  encodeBallotAsString,
+} from './index'
 
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
   const ballotStyle = election.ballotStyles[0]
   const precinct = election.precincts[0]
-  const votes: VotesDict = {}
+  const contests = getContests({ election, ballotStyle })
+  const votes = vote(contests, {})
   const ballotId = 'abcde'
   const ballot = {
     election,
@@ -30,7 +31,8 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
 test('encodes & decodes empty votes', () => {
   const ballotStyle = election.ballotStyles[0]
   const precinct = election.precincts[0]
-  const votes: VotesDict = {}
+  const contests = getContests({ election, ballotStyle })
+  const votes = vote(contests, {})
   const ballotId = 'abcde'
   const ballot = {
     election,
@@ -50,10 +52,10 @@ test('encodes & decodes yesno votes', () => {
   const contests = getContests({ ballotStyle, election })
   const precinct = election.precincts[0]
   const yesnos = contests.filter(contest => contest.type === 'yesno')!
-  const votes: VotesDict = {
+  const votes = vote(contests, {
     [yesnos[0].id]: 'yes',
     [yesnos[1].id]: 'no',
-  }
+  })
   const ballotId = 'abcde'
   const ballot = {
     election,
@@ -73,9 +75,9 @@ test('encodes & decodes candidate votes', () => {
   const contests = getContests({ ballotStyle, election })
   const precinct = election.precincts[0]
   const contest = contests.find(c => c.type === 'candidate') as CandidateContest
-  const votes: VotesDict = {
+  const votes = vote(contests, {
     [contest.id]: contest.candidates.slice(0, 2),
-  }
+  })
   const ballotId = 'abcde'
   const ballot = {
     election,
@@ -95,11 +97,11 @@ test('encodes write-ins as `W`', () => {
   const contests = getContests({ ballotStyle, election })
   const precinct = election.precincts[0]
   const contest = contests.find(c => c.type === 'candidate') as CandidateContest
-  const votes: VotesDict = {
+  const votes = vote(contests, {
     [contest.id]: [
       { name: 'MICKEY MOUSE', isWriteIn: true, id: 'write-in__MICKEY MOUSE' },
     ],
-  }
+  })
   const ballotId = 'abcde'
   const ballot = {
     election,
