@@ -44,20 +44,26 @@ export const pollWorkerCard: CardPresentAPI = {
   }),
 }
 
-export const createVoterCard = (
-  config?: Partial<VoterCardData>,
+type CreateVoterCardConfig = Partial<VoterCardData> & {
   longValueExists?: boolean
-): CardPresentAPI => ({
-  present: true,
-  longValueExists,
-  shortValue: JSON.stringify({
-    t: 'voter',
-    c: utcTimestamp(),
-    pr: election.precincts[0].id,
-    bs: election.ballotStyles[0].id,
-    ...config,
-  }),
-})
+}
+
+export const createVoterCard = (
+  config: CreateVoterCardConfig = {}
+): CardPresentAPI => {
+  const { longValueExists, ...cardData } = config
+  return {
+    present: true,
+    longValueExists,
+    shortValue: JSON.stringify({
+      t: 'voter',
+      c: utcTimestamp(),
+      pr: election.precincts[0].id,
+      bs: election.ballotStyles[0].id,
+      ...cardData,
+    }),
+  }
+}
 
 export const getNewVoterCard = () => createVoterCard()
 
@@ -78,21 +84,17 @@ export const getExpiredVoterCard = () =>
   })
 
 export const getExpiredVoterCardWithVotes = () =>
-  createVoterCard(
-    {
-      c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
-      u: utcTimestamp(),
-    },
-    true
-  )
+  createVoterCard({
+    c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
+    u: utcTimestamp(),
+    longValueExists: true,
+  })
 
 export const getVoterCardWithVotes = () =>
-  createVoterCard(
-    {
-      u: utcTimestamp(),
-    },
-    true
-  )
+  createVoterCard({
+    u: utcTimestamp(),
+    longValueExists: true,
+  })
 
 export const getUsedVoterCard = () =>
   createVoterCard({
