@@ -2,7 +2,7 @@ import {
   CandidateVote,
   Contests,
   VotesDict,
-  Ballot,
+  CompletedBallot,
   getContests,
   validateVotes,
   Election,
@@ -37,14 +37,14 @@ export function detect(data: Uint8Array): boolean {
   )
 }
 
-export function encodeBallot(ballot: Ballot): Uint8Array {
+export function encodeBallot(ballot: CompletedBallot): Uint8Array {
   const bits = new BitWriter()
   encodeBallotInto(ballot, bits)
   return bits.toUint8Array()
 }
 
 export function encodeBallotInto(
-  { election, ballotStyle, precinct, votes, ballotId }: Ballot,
+  { election, ballotStyle, precinct, votes, ballotId }: CompletedBallot,
   bits: BitWriter
 ): void {
   validateVotes({ election, ballotStyle, votes })
@@ -113,14 +113,17 @@ function encodeBallotVotesInto(
   }
 }
 
-export function decodeBallot(election: Election, data: Uint8Array): Ballot {
+export function decodeBallot(
+  election: Election,
+  data: Uint8Array
+): CompletedBallot {
   return decodeBallotFromReader(election, new BitReader(data))
 }
 
 export function decodeBallotFromReader(
   election: Election,
   bits: BitReader
-): Ballot {
+): CompletedBallot {
   if (!bits.skipUint8(...Prelude)) {
     throw new Error(
       "expected leading prelude 'V' 'X' 0b00000001 but it was not found"

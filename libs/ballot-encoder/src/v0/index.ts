@@ -10,7 +10,7 @@ import {
   CandidateVote,
   getContests,
   Candidate,
-  Ballot,
+  CompletedBallot,
   getBallotStyle,
   getPrecinctById,
   YesNoVote,
@@ -55,7 +55,7 @@ export function detectString(data: string): boolean {
 /**
  * Encodes a ballot for transport or storage.
  */
-export function encodeBallot(ballot: Ballot): Uint8Array {
+export function encodeBallot(ballot: CompletedBallot): Uint8Array {
   return new TextEncoder().encode(encodeBallotAsString(ballot))
 }
 
@@ -68,7 +68,7 @@ export function encodeBallotAsString({
   precinct,
   votes,
   ballotId,
-}: Ballot): string {
+}: CompletedBallot): string {
   const contests = getContests({ ballotStyle, election })
 
   return [
@@ -124,7 +124,10 @@ function encodeCandidateVote(
     .join(CandidateSeparator)
 }
 
-export function decodeBallot(election: Election, data: Uint8Array): Ballot {
+export function decodeBallot(
+  election: Election,
+  data: Uint8Array
+): CompletedBallot {
   return decodeBallotFromString(election, new TextDecoder().decode(data))
 }
 
@@ -134,7 +137,7 @@ export function decodeBallot(election: Election, data: Uint8Array): Ballot {
 export function decodeBallotFromString(
   election: Election,
   encodedBallot: string
-): Ballot {
+): CompletedBallot {
   const encodedBallotSections = encodedBallot.split(BallotSectionSeparator)
 
   if (encodedBallotSections.length !== BallotSections.length) {

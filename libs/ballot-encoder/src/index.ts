@@ -1,6 +1,6 @@
 import * as v0 from './v0'
 import * as v1 from './v1'
-import { Ballot, Election } from './election'
+import { CompletedBallot, Election } from './election'
 
 export * from './election'
 export { v0, v1 }
@@ -16,7 +16,7 @@ export enum EncoderVersion {
  * Encodes a ballot using the specified encoder version.
  */
 export function encodeBallot(
-  ballot: Ballot,
+  ballot: CompletedBallot,
   version: EncoderVersion = EncoderVersion.v1
 ): Uint8Array {
   switch (version) {
@@ -33,7 +33,7 @@ export function encodeBallot(
 
 export interface BallotDecodeResult {
   version: EncoderVersion
-  ballot: Ballot
+  ballot: CompletedBallot
 }
 
 /**

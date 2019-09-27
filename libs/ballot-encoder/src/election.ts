@@ -88,8 +88,7 @@ export type Vote = CandidateVote | YesNoVote
 export type OptionalVote = Optional<Vote>
 export type VotesDict = Dictionary<Vote>
 
-// TODO: what should we call a ballot that has been filled out by a voter?
-export interface Ballot {
+export interface CompletedBallot {
   election: Election
   ballotStyle: BallotStyle
   precinct: Precinct

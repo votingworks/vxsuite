@@ -2,7 +2,7 @@ import {
   electionSample as election,
   getContests,
   vote,
-  Ballot,
+  CompletedBallot,
 } from './election'
 import { v0, v1, EncoderVersion, detect, encodeBallot, decodeBallot } from '.'
 
@@ -42,9 +42,9 @@ test('can encode by version number', () => {
 })
 
 test('encoding with an invalid encoder version is an error', () => {
-  expect(() => encodeBallot({} as Ballot, 99 as EncoderVersion)).toThrowError(
-    'unexpected encoder version: 99'
-  )
+  expect(() =>
+    encodeBallot({} as CompletedBallot, 99 as EncoderVersion)
+  ).toThrowError('unexpected encoder version: 99')
 })
 
 test('can decode specifying v0', () => {

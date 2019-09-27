@@ -6,9 +6,9 @@ is to be simple to implement and debug, sacrificing compactness to that end.
 
 ## Structure
 
-See `Ballot` in [election.ts](../election.ts) for the data structures used to
-represent a completed ballot in memory. Below is how the ballots are represented
-in encoded form:
+See `CompletedBallot` in [election.ts](../election.ts) for the data structures
+used to represent a completed ballot in memory. Below is how the ballots are
+represented in encoded form:
 
 ```bnf
 ; Full ballot

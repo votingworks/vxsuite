@@ -27,9 +27,9 @@ are encoded as that data is shared by both the encoder and decoder.
 
 ## Structure
 
-See `Ballot` in [election.ts](../election.ts) for the data structures used to
-represent a completed ballot in memory. Given `E` (an `Election`) and `V` (a
-`Votes`) corresponding to `E`, `V` is encoded as follows:
+See `CompletedBallot` in [election.ts](../election.ts) for the data structures
+used to represent a completed ballot in memory. Given `E` (an `Election`) and
+`V` (a `Votes`) corresponding to `E`, `V` is encoded as follows:
 
 - **Roll Call**: Encodes which contests have votes using one bit per contest,
   where a bit at offset `i` from the start of this section is set if and only if
