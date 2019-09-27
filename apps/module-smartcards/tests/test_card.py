@@ -171,6 +171,11 @@ def test_long_value():
     vxco.override_protection()
     vxco.write_long(random_bytes)
     assert vxco.read_long() == random_bytes
+
+    # can write another time since write_long should not have overridden bytes
+    random_bytes_2 = secrets.token_bytes(1000)
+    vxco.write_long(random_bytes_2)
+    assert vxco.read_long() == random_bytes_2
     
 def test_short_value_too_long():
     c = MockCard()
