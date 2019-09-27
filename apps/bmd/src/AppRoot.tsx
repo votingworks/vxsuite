@@ -538,6 +538,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       try {
         storedState.appMode = getAppMode(storedState.appMode.name)
       } catch {
+        /* istanbul ignore next */
+
         delete storedState.appMode
       }
     }

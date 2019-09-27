@@ -176,7 +176,8 @@ const PollWorkerScreen = ({
         reportIds.map(reportId => (
           <Report key={reportId}>
             <Header>
-              {seal && !sealURL ? (
+              {/* istanbul ignore next */
+              seal && !sealURL ? (
                 <div
                   className="seal"
                   // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
@@ -186,7 +187,8 @@ const PollWorkerScreen = ({
               ) : (
                 <React.Fragment />
               )}
-              {sealURL && !seal ? (
+              {/* istanbul ignore next */
+              sealURL && !seal ? (
                 <div className="seal">
                   <SealImage src={sealURL} alt="" />
                 </div>
@@ -195,7 +197,8 @@ const PollWorkerScreen = ({
               )}
               <Prose className="ballot-header-content">
                 <h2>
-                  {!isLiveMode ? 'Unofficial TEST' : 'Official'}{' '}
+                  {/* istanbul ignore next */
+                  !isLiveMode ? 'Unofficial TEST' : 'Official'}{' '}
                   {isPollsOpen ? 'Polls Closed Report' : 'Polls Opened Report'}
                 </h2>
                 <h3>{title}</h3>
