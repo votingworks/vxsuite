@@ -105,7 +105,7 @@ const ScrollControls = styled.div`
   }
   @media (min-width: 840px) {
     left: 50%;
-    margin-left: -420px;
+    margin-left: -400px;
     padding-left: calc(840px - 7rem);
     html[data-useragent*='Windows'] & {
       margin-left: calc(-420px + -17px); /* Windows Chrome scrollbar width */

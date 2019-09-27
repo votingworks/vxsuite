@@ -1,6 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 describe('Scroll Buttons', () => {
-  const waitTime = 250
+  const waitTime = 500
 
   it('Scroll buttons appear and function correctly', () => {
     cy.visit('/#sample')
