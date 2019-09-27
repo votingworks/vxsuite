@@ -122,6 +122,9 @@ export interface ClerkCardData extends CardData {
   readonly h: string
 }
 
+/**
+ * Gets contests which belong to a ballot style in an election.
+ */
 export const getContests = ({
   ballotStyle,
   election,
@@ -135,6 +138,9 @@ export const getContests = ({
       ballotStyle.partyId === c.partyId
   )
 
+/**
+ * Retrieves a precinct by id.
+ */
 export const getPrecinctById = ({
   election,
   precinctId,
@@ -143,6 +149,9 @@ export const getPrecinctById = ({
   precinctId: string
 }): Precinct | undefined => election.precincts.find(p => p.id === precinctId)
 
+/**
+ * Retrieves a ballot style by id.
+ */
 export const getBallotStyle = ({
   ballotStyleId,
   election,
@@ -152,6 +161,11 @@ export const getBallotStyle = ({
 }): BallotStyle | undefined =>
   election.ballotStyles.find(bs => bs.id === ballotStyleId)
 
+/**
+ * Validates the votes for a given ballot style in a given election.
+ *
+ * @throws When an inconsistency is found.
+ */
 export const validateVotes = ({
   votes,
   ballotStyle,
@@ -180,10 +194,55 @@ export const validateVotes = ({
 
 export const electionSample = electionSampleUntyped as Election
 
+/**
+ * Gets the adjective used to describe the political party for a primary
+ * election, e.g. "Republican" or "Democratic".
+ */
+export const getPartyPrimaryAdjectiveFromBallotStyle = ({
+  ballotStyleId,
+  election,
+}: {
+  ballotStyleId: string
+  election: Election
+}): string => {
+  const parts = ballotStyleId && ballotStyleId.match(/(\d+)(\w+)/i)
+  const abbrev = parts && parts[2]
+  const party = abbrev && election.parties.find(p => p.abbrev === abbrev)
+  const name = party && party.name
+  return (name === 'Democrat' && 'Democratic') || name || ''
+}
+
+/**
+ * Helper function to build a `VotesDict` more easily, primarily for testing.
+ *
+ * @param contests The contests the voter voted in, probably from `getContests`.
+ * @param shorthand A mapping of contest id to "vote", where a vote can be a
+ * `Vote`, the string id of a candidate, multiple string ids for candidates, or
+ * just a `Candidate` by itself.
+ *
+ * @example
+ *
+ * // Vote by candidate id.
+ * votes(contests, { president: 'boone-lian' })
+ *
+ * // Vote by yesno contest.
+ * votes(contests, { 'question-a': 'yes' })
+ *
+ * // Multiple votes.
+ * votes(contests, {
+ *   president: 'boone-lian',
+ *   'question-a': 'yes'
+ * })
+ *
+ * // Multiple candidate selections.
+ * votes(contests, {
+ *   'city-council': ['rupp', 'davis']
+ * })
+ */
 export function vote(
   contests: Contests,
   shorthand: {
-    [key: string]: YesNoVote | string | string[] | Candidate | CandidateVote
+    [key: string]: Vote | string | string[] | Candidate
   }
 ): VotesDict {
   return Object.getOwnPropertyNames(shorthand).reduce((result, contestId) => {
