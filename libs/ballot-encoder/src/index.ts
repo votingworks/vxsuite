@@ -17,7 +17,7 @@ export enum EncoderVersion {
  */
 export function encodeBallot(
   ballot: Ballot,
-  version: EncoderVersion
+  version: EncoderVersion = EncoderVersion.v1
 ): Uint8Array {
   switch (version) {
     case EncoderVersion.v0:
