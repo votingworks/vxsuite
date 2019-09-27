@@ -2,14 +2,41 @@ import { BitWriter } from '../bits'
 import { electionSample as election, getContests, vote } from '../election'
 import {
   decodeBallot,
+  detect,
   encodeBallot,
   MAXIMUM_WRITE_IN_LENGTH,
   WriteInEncoding,
+  Prelude,
 } from './index'
+import * as v0 from '../v0'
 
 function falses(count: number): boolean[] {
   return new Array(count).fill(false)
 }
+
+test('can detect an encoded v1 buffer', () => {
+  expect(detect(Uint8Array.of(...Prelude))).toBe(true)
+  expect(detect(Uint8Array.of())).toBe(false)
+  expect(detect(Uint8Array.of(0, ...Prelude))).toBe(false)
+  expect(detect(Uint8Array.of(...Prelude.slice(0, -2)))).toBe(false)
+})
+
+test('does not detect a v0 buffer as v1', () => {
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts[0]
+  const contests = getContests({ election, ballotStyle })
+  const votes = vote(contests, {})
+  const ballotId = 'abcde'
+  const ballot = {
+    election,
+    ballotId,
+    ballotStyle,
+    precinct,
+    votes,
+  }
+
+  expect(detect(v0.encodeBallot(ballot))).toBe(false)
+})
 
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
   const ballotStyle = election.ballotStyles[0]
@@ -42,6 +69,9 @@ it('encodes & decodes empty votes correctly', () => {
     votes,
   }
   const encodedBallot = new BitWriter()
+    // prelude + version number
+    .writeString('VX', { includeLength: false })
+    .writeUint8(1)
     // ballot style id
     .writeString('12')
     // precinct id
@@ -79,6 +109,9 @@ it('encodes & decodes yesno votes correctly', () => {
     votes,
   }
   const encodedBallot = new BitWriter()
+    // prelude + version number
+    .writeString('VX', { includeLength: false })
+    .writeUint8(1)
     // ballot style id
     .writeString('12')
     // precinct id
@@ -129,6 +162,9 @@ it('encodes & decodes candidate choice votes correctly', () => {
     votes,
   }
   const encodedBallot = new BitWriter()
+    // prelude + version number
+    .writeString('VX', { includeLength: false })
+    .writeUint8(1)
     // ballot style id
     .writeString('12')
     // precinct id
@@ -190,6 +226,9 @@ it('encodes & decodes write-in votes correctly', () => {
     votes,
   }
   const encodedBallot = new BitWriter()
+    // prelude + version number
+    .writeString('VX', { includeLength: false })
+    .writeUint8(1)
     // ballot style id
     .writeString('12')
     // precinct id

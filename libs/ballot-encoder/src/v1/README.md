@@ -27,43 +27,9 @@ are encoded as that data is shared by both the encoder and decoder.
 
 ## Structure
 
-Here's the memory structures we'll be working with (as pseudocode):
-
-```
-struct Election {
-  contests: Contest[]
-}
-
-struct Contest {
-  id: string
-  type: ContestType
-  candidates: Candidate[]?
-}
-
-enum ContestType {
-  yesno,
-  candidate,
-}
-
-struct Candidate {
-  id: string
-  name: string
-}
-
-map Votes {
-  key: string
-  value: CandidateVote[] | "yes" | "no"
-}
-
-struct CandidateVote {
-  id: string
-  name: string
-  isWriteIn: boolean
-}
-```
-
-Given `E` (an `Election`) and `V` (a `Votes`) corresponding to `E`, `V` is
-encoded as follows:
+See `Ballot` in [election.ts](../election.ts) for the data structures used to
+represent a completed ballot in memory. Given `E` (an `Election`) and `V` (a
+`Votes`) corresponding to `E`, `V` is encoded as follows:
 
 - **Roll Call**: Encodes which contests have votes using one bit per contest,
   where a bit at offset `i` from the start of this section is set if and only if
@@ -73,7 +39,7 @@ encoded as follows:
 - **Vote Data**: Encodes `V[k]` for all keys `k` in `V` ordered by `E.contests`
   they appear in `E.contests`, encoding data for a vote only if its
   corresponding bit was set in _Roll Call_. Encoding votes for a contest depends
-  on its `ContestType`
+  on its `ContestType`.
   - **`yesno` contests**: Uses a single bit to represent `"yes"` (bit set) or
     `"no"` (bit unset).
     - Size: 1 bit.
@@ -96,25 +62,48 @@ encoded as follows:
 
 ## Examples
 
-### An empty ballot, i.e. no election contests
+All of these assume a ballot style ID `12`, a precinct ID `23`, and a ballot ID
+of `abcde`. The first example will show all the metadata, but the subsequent
+ones will omit it for brevity.
+
+### An empty ballot, i.e. no contests
+
+As we know there are no contests, we spend no bits on the vote data at all.
+Normally the vote data would go after "Precinct ID" and before "Ballot ID".
 
 ```
-(no data)
+Magic identifier "VX"      Ballot style ID length     Precinct ID length
+|||||||| ||||||||          ||||||||                   ||||||||
+vvvvvvvv vvvvvvvv          vvvvvvvv                   vvvvvvvv
+01010110 01011000 00000001 00000010 00110001 00110010 00000010 00110010 00110011
+                  ^^^^^^^^          ^^^^^^^^ ^^^^^^^^          ^^^^^^^^ ^^^^^^^^
+                  ||||||||          |||||||| ||||||||          |||||||| ||||||||
+                  Encoding v1         '1'      '2'               '2'      '3'
+
+Ballot ID length
+||||||||
+vvvvvvvv
+00000101 01100001 01100010 01100011 01100100 01100101
+         ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
+         |||||||| |||||||| |||||||| |||||||| ||||||||
+           'a'      'b'      'c'      'd'      'e'
 ```
+
+> Size: 0 vote bits (0 bytes)
 
 ### A single yesno contest with a "yes" vote
 
 ```
 Roll Call is one set bit for the one contest
 |
-| Padding is six bits to round out the byte
-| ||||||
-v vvvvvv
-11000000
+v
+11
  ^
  |
  Vote Data is one set bit for the "yes" vote
 ```
+
+> Size: 2 vote bits (1 byte)
 
 ### A single candidate contest with two candidates, one seat, and no write-ins, voting for the second
 
@@ -124,13 +113,13 @@ Roll Call is one set bit for the one contest
 | Second candidate was selected
 | |
 v v
-10100000
- ^ ^^^^^
- | |||||
- | Padding is five bits to round out the byte
+101
+ ^
  |
  First candidate was not selected
 ```
+
+> Size: 3 vote bits (1 byte)
 
 ### A single candidate contest with one candidate, one seat, writing in a name
 
@@ -141,13 +130,15 @@ Roll Call is one set bit for the one contest
 | |
 | |        'M'  'I'   'C'   'K'  'E'   'Y'   ' '  'M'   'O'   'U'  'S'   'E'
 v v       <---><----><----><---><----><----><---><----><---> <---><----><--->
-10100110 0011000 10000001 0010100 01001100 01101001 10001110 10100100 10001000
- ^ ^^^^^ ^                                                                   ^
- | ||||| |                            Padding is one bit to round out the byte
+10100110 0011000 10000001 0010100 01001100 01101001 10001110 10100100 1000100
+ ^ ^^^^^ ^
+ | ||||| |
  | Length of write-in name in six bits (max length 40)
  |
  Only candidate was not selected
 ```
+
+> Size: 71 vote bits (9 bytes)
 
 ### Two contests, "yes" in first and 3rd of 8 candidates in second, no write-ins
 
@@ -157,12 +148,90 @@ Roll Call is two bits, one for each contest, both set
 || Unset bits for each candidate not selected in second contest
 || || || |||
 vv vv vv vvv
-11100100 00000000
-  ^  ^      ^^^^^
-  |  |      |||||
-  |  |      Padding is five bits to round out the byte
+11100100 000
+  ^  ^
+  |  |
+  |  |
   |  |
   |  Set bit for the 3rd candidate in second contest
   |
   Vote Data for first contest is one set bit for the "yes" vote
 ```
+
+> Size: 11 vote bits (2 bytes)
+
+### A single candidate contest selecting 1st and 3rd of 5 candidates, no write-ins
+
+```
+Roll Call is one set bit for the one contest
+|
+| Unset bits for each candidate not selected (2nd, 4th, and 5th)
+| | ||
+v v vv
+110100
+ ^ ^
+ | |
+ Set bits for selected candidates (1st and 3rd)
+```
+
+> Size: 6 vote bits (1 byte)
+
+### A non-trivial number of contests with votes for all of them
+
+```
+Roll Call is one bit for each contest
+|||||||| |||||||| ||||
+|||||||| |||||||| ||||       #2, 3rd candidate
+|||||||| |||||||| ||||       |||||| |     #4, 3rd candidate
+|||||||| |||||||| ||||       |||||| |     || |||||||| |||||||| ||||||||
+vvvvvvvv vvvvvvvv vvvv       vvvvvv v     vv vvvvvvvv vvvvvvvv vvvvvvvv
+11111111 11011111 11111000 00001000 00001000 10000000 00000000 00000000
+                      ^^^^ ^^        ^^^^^
+                      |||| ||        |||||
+                      |||| ||        #3, 4th candidate
+                      #1, 1st candidate
+
+#5, 5th candidate
+|||||||| |
+|||||||| |  #7, 1st candidate
+|||||||| |  |
+|||||||| |  |   #9, 1st, 4th, 6th, and 7th candidates
+|||||||| |  |   | |||||||| ||||||
+|||||||| |  |   | |||||||| ||||||   Write-in name length
+|||||||| |  |   | |||||||| ||||||   ||||||
+|||||||| |  |   | |||||||| ||||||   ||||||
+|||||||| |  |   | |||||||| ||||||   ||||||       'H'        'R'
+vvvvvvvv v  v   v vvvvvvvv vvvvvv   vvvvvv      vvvvv      vvv vv
+00001000 00110011 00101100 00000001 00010010 01100111 01110100 01101000
+          ^^ ^^^                 ^^       ^^ ^^^      ^^^^^      ^^^^^^
+          || |||                 ||       || |||      |||||      ||||||
+          || |||                 ||        'T'         'O'       #12, 1st, 3rd, and write-in candidates
+          || |||                 ||
+          || |||                 #10, 1 write-in candidate
+          || |||
+          || #8, 3rd candidate
+          ||
+          #6, 2nd candidate
+
+                              # 13, "yes" vote
+                              |
+                              | #15 "no" vote
+                              | |
+Write-in count                | | #17, "yes" vote
+|                             | | |
+|       'O'         'I'       | | |  #19, "yes" vote
+|      | ||||      |||||      | | |  |
+v      v vvvv      vvvvv      v v v  v
+10001000 11100001 10100001 10111011 011
+ ^^^^^^      ^^^^ ^     ^^ ^^^ ^ ^  ^ ^
+ ||||||      |||| |     || ||| | |  | |
+ ||||||       'D'        'N'   | |  | #20, "yes" vote
+ ||||||                        | |  |
+  Write-in name length         | |  #18 "no" vote
+                               | |
+                               | #16, "yes" vote
+                               |
+                               #14, "yes" vote
+```
+
+> Size: 99 vote bits (13 bytes)

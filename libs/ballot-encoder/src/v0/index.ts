@@ -32,6 +32,27 @@ const CandidateSeparator = ','
 const EmptyVoteValue = ''
 
 /**
+ * Detects whether `data` is a v0-encoded ballot.
+ */
+export function detect(data: Uint8Array): boolean {
+  try {
+    return (
+      new TextDecoder().decode(data).split(BallotSectionSeparator).length ===
+      BallotSections.length
+    )
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Detects whether `data` is a v0-encoded ballot.
+ */
+export function detectString(data: string): boolean {
+  return data.split(BallotSectionSeparator).length === BallotSections.length
+}
+
+/**
  * Encodes a ballot for transport or storage.
  */
 export function encodeBallot(ballot: Ballot): Uint8Array {

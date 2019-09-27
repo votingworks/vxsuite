@@ -9,7 +9,40 @@ import {
   decodeBallotFromString,
   encodeBallot,
   encodeBallotAsString,
+  detect,
+  detectString,
 } from './index'
+import * as v1 from '../v1'
+
+test('can detect an encoded v0 ballot', () => {
+  expect(
+    detectString(
+      '12.23.0|2|3|2|4|1|0|2|5,3,6,0|W||2,0,W|1|1|0|1|1|0|1|1.Ei5PXq7xbSJWHrF1dNRsjg'
+    )
+  ).toBe(true)
+  expect(detectString('a.b.c.d')).toBe(true)
+  expect(detectString('a..c.d')).toBe(true)
+  expect(detectString('a.c.d')).toBe(false)
+  expect(detectString('')).toBe(false)
+  expect(detectString('a.b.c.d.e')).toBe(false)
+})
+
+test('does not detect a v1 buffer as v0', () => {
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts[0]
+  const contests = getContests({ election, ballotStyle })
+  const votes = vote(contests, {})
+  const ballotId = 'abcde'
+  const ballot = {
+    election,
+    ballotId,
+    ballotStyle,
+    precinct,
+    votes,
+  }
+
+  expect(detect(v1.encodeBallot(ballot))).toBe(false)
+})
 
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
   const ballotStyle = election.ballotStyles[0]

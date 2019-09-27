@@ -9,7 +9,7 @@ import {
   getBallotStyle,
   getPrecinctById,
 } from '../election'
-import { BitReader, BitWriter, CustomEncoding, Uint8Size } from '../bits'
+import { BitReader, BitWriter, CustomEncoding, Uint8Size, Uint8 } from '../bits'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 
@@ -18,6 +18,24 @@ export const MAXIMUM_WRITE_IN_LENGTH = 40
 export const WriteInEncoding = new CustomEncoding(
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ \'"-.,'
 )
+
+export const Prelude: readonly Uint8[] = [
+  /* V */ 86,
+  /* X */ 88,
+  /* version = */ 1,
+]
+
+/**
+ * Detects whether `data` is a v1-encoded ballot.
+ */
+export function detect(data: Uint8Array): boolean {
+  const prelude = data.slice(0, Prelude.length)
+
+  return (
+    prelude.length === Prelude.length &&
+    prelude.every((byte, i) => byte === Prelude[i])
+  )
+}
 
 export function encodeBallot(ballot: Ballot): Uint8Array {
   const bits = new BitWriter()
@@ -33,7 +51,10 @@ export function encodeBallotInto(
 
   const contests = getContests({ ballotStyle, election })
 
-  bits.writeString(ballotStyle.id).writeString(precinct.id)
+  bits
+    .writeUint8(...Prelude)
+    .writeString(ballotStyle.id)
+    .writeString(precinct.id)
   encodeBallotVotesInto(contests, votes, bits)
   bits.writeString(ballotId)
 }
@@ -100,6 +121,12 @@ export function decodeBallotFromReader(
   election: Election,
   bits: BitReader
 ): Ballot {
+  if (!bits.skipUint8(...Prelude)) {
+    throw new Error(
+      "expected leading prelude 'V' 'X' 0b00000001 but it was not found"
+    )
+  }
+
   const ballotStyleId = bits.readString()
   const ballotStyle = getBallotStyle({ ballotStyleId, election })
 
