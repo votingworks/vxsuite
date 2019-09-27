@@ -80,7 +80,7 @@ test('going through the whole process works', async () => {
     .expect(200, { status: 'ok' })
 
   // move some sample ballots into the ballots directory
-  const expectedBallotCount = 2
+  const expectedBallotCount = 3
   const sampleBallots = fs.readdirSync(sampleBallotImagesPath)
   for (const ballot of sampleBallots) {
     const oldPath = path.join(sampleBallotImagesPath, ballot)
@@ -158,6 +158,7 @@ test('going through the whole process works', async () => {
   expect(JSON.stringify(serialNumbers)).toBe(
     JSON.stringify([
       '85lnPkvfNEytP3Z8gMoEcA',
+      'JARWye56eA/C3emmbPyyvA', // v1 encoding
       'manual-test-serial-number',
       'manual-test-serial-number-2',
       'r6UYR4t7hEFMz8QlMWf1Sw',

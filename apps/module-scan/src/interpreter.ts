@@ -6,17 +6,19 @@
 import { decode } from 'node-quirc'
 import { readFile as readFileCallback } from 'fs'
 import { promisify } from 'util'
-
 import {
+  decodeBallot,
   BallotStyle,
   CandidateContest,
-  CastVoteRecord,
   Contest,
   Contests,
-  CVRCallbackFunction,
   Dictionary,
   Election,
-} from './types'
+  encodeBallot,
+  EncoderVersion,
+} from 'ballot-encoder'
+
+import { CastVoteRecord, CVRCallbackFunction } from './types'
 
 const readFile = promisify(readFileCallback)
 
@@ -24,20 +26,24 @@ const yesNoValues: Dictionary<string> = { '0': 'no', '1': 'yes' }
 
 export interface InterpretBallotStringParams {
   readonly election: Election
-  readonly ballotString: string
+  readonly encodedBallot: Uint8Array
 }
 
 export function interpretBallotString(
   interpretBallotStringParams: InterpretBallotStringParams
 ): CastVoteRecord | undefined {
-  const { election, ballotString } = interpretBallotStringParams
+  const { election, encodedBallot } = interpretBallotStringParams
+  const { ballot } = decodeBallot(election, encodedBallot)
 
+  // TODO: Replace all this with a `CompletedBallot` -> `CastVoteRecord` mapper.
   const [
     ballotStyleId,
     precinctId,
     allSelections,
     serialNumber,
-  ] = ballotString.split('.')
+  ] = new TextDecoder()
+    .decode(encodeBallot(ballot, EncoderVersion.v0))
+    .split('.')
 
   // figure out the contests
   const ballotStyle = election.ballotStyles.find(
@@ -106,7 +112,7 @@ export default async function interpretFile(
   interpretFileParams: InterpretFileParams
 ) {
   const { election, ballotImagePath, cvrCallback } = interpretFileParams
-  let ballotString: string
+  let encodedBallot: Uint8Array
 
   try {
     const qrCodes = await readQRCodesFromImageFile(ballotImagePath)
@@ -115,11 +121,11 @@ export default async function interpretFile(
       throw new Error(`no QR codes found in ballot image: ${ballotImagePath}`)
     }
 
-    ballotString = String.fromCharCode(...Array.from(qrCodes[0]))
+    encodedBallot = qrCodes[0]
   } catch {
     return cvrCallback({ ballotImagePath })
   }
 
-  const cvr = interpretBallotString({ election, ballotString })
+  const cvr = interpretBallotString({ election, encodedBallot })
   cvrCallback({ ballotImagePath, cvr })
 }

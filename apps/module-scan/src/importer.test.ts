@@ -1,7 +1,6 @@
 import * as chokidar from 'chokidar'
+import { electionSample as election } from 'ballot-encoder'
 import SystemImporter from './importer'
-import election from '../election.json'
-import { Election } from './types'
 import Store from './store'
 import { Scanner } from './scanner'
 
@@ -24,7 +23,7 @@ test('doImport calls scanner.scanInto', async () => {
     close: mockWatcherClose,
   } as unknown) as chokidar.FSWatcher)
 
-  importer.configure(election as Election)
+  importer.configure(election)
 
   expect(mockWatcherOn).toHaveBeenCalled()
 
@@ -49,5 +48,5 @@ test('configure starts watching files', async () => {
     store: await Store.memoryStore(),
     scanner,
   })
-  importer.configure(election as Election)
+  importer.configure(election)
 })
