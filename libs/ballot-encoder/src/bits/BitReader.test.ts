@@ -58,3 +58,22 @@ test('cannot read a uint with both `max` and `size` options undefined', () => {
     new BitReader(Uint8Array.of()).readUint(options)
   }).toThrowError()
 })
+
+test('can skip given bits', () => {
+  const bits = new BitReader(Uint8Array.of(0b10101010))
+
+  expect(bits.skipUint1(1, 0)).toBe(true)
+  expect(bits.skipUint1(1, 1)).toBe(false)
+  expect(bits.skipUint1(1, 0)).toBe(true)
+  expect(bits.skipUint1(0, 1)).toBe(false)
+  expect(bits.skipUint1(1, 0, 1, 0, 0)).toBe(false)
+})
+
+test('can skip given bytes', () => {
+  const bits = new BitReader(Uint8Array.of(1, 2, 3))
+
+  expect(bits.skipUint8(1, 2)).toBe(true)
+  expect(bits.skipUint8(4)).toBe(false)
+  expect(bits.skipUint8(3)).toBe(true)
+  expect(bits.canRead()).toBe(false)
+})

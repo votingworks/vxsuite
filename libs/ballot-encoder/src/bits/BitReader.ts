@@ -133,6 +133,51 @@ export default class BitReader {
   }
 
   /**
+   * Skips uint values if they match the next values to be read.
+   *
+   * @returns true if the uints matched and were skipped, false otherwise
+   */
+  public skipUint(expected: number, { max }: { max: number }): boolean
+  public skipUint(expected: number, { size }: { size: number }): boolean
+  public skipUint(expected: number[], { max }: { max: number }): boolean
+  public skipUint(expected: number[], { size }: { size: number }): boolean
+  public skipUint(
+    expected: number | number[],
+    { max, size }: { max?: number; size?: number }
+  ): boolean {
+    const originalCursor = this.cursor.copy()
+    const uints = Array.isArray(expected) ? expected : [expected]
+    const options = { max, size } as { size: number } & { max: number }
+
+    for (const uint of uints) {
+      if (!this.canRead() || uint !== this.readUint(options)) {
+        this.cursor = originalCursor
+        return false
+      }
+    }
+
+    return true
+  }
+
+  /**
+   * Skips N bits if they match the next N bits that would be read.
+   *
+   * @returns true if the bits matched and were skipped, false otherwise
+   */
+  public skipUint1(...uint1s: number[]): boolean {
+    return this.skipUint(uint1s, { size: 1 })
+  }
+
+  /**
+   * Skips N bytes if they match the next N bytes that would be read.
+   *
+   * @returns true if the bytes matched and were skipped, false otherwise
+   */
+  public skipUint8(...uint8s: number[]): boolean {
+    return this.skipUint(uint8s, { size: Uint8Size })
+  }
+
+  /**
    * Determines whether there is any more data to read. If the result is
    * `false`, then any call to read data will throw an exception.
    */

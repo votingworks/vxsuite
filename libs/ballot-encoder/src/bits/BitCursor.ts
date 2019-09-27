@@ -17,6 +17,11 @@ export default class BitCursor {
     return this
   }
 
+  public set(offset: number): this {
+    this.offset = offset
+    return this
+  }
+
   public get isByteStart(): boolean {
     return this.offset % Uint8Size === 0
   }
@@ -38,6 +43,10 @@ export default class BitCursor {
 
   public mask(bit: Uint1 = 1): Uint8 {
     return bit ? BitCursor.uint8Masks[this.bitOffset] : 0
+  }
+
+  public copy(): BitCursor {
+    return new BitCursor().set(this.combinedBitOffset)
   }
 
   public static uint8Masks: readonly Uint8[] = makeMasks(Uint8Size)
