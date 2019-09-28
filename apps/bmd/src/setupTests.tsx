@@ -3,6 +3,7 @@
 import 'jest-styled-components'
 import crypto from 'crypto'
 import fetchMock from 'fetch-mock'
+import { TextDecoder, TextEncoder } from 'util'
 import { mockOf } from '../test/testUtils'
 
 fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
@@ -28,3 +29,8 @@ afterEach(() => {
   fetchMock.restore()
   printMock.mockClear()
 })
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+;(global as any).TextDecoder = TextDecoder
+;(global as any).TextEncoder = TextEncoder
+/* eslint-enable @typescript-eslint/no-explicit-any */

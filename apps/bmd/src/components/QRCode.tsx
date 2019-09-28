@@ -1,4 +1,4 @@
-import QRCodeReact from 'qrcode.react'
+import QRCodeReact from '@votingworks/qrcode.react'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -11,7 +11,7 @@ const ResponsiveSvgWrapper = styled.div`
 `
 
 interface Props {
-  value: string
+  value: string | Uint8Array
 }
 
 const QRCode = ({ value }: Props) => (
