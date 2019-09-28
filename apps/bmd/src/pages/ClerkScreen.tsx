@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import {
   AppMode,
-  InputEventFunction,
+  EventTargetFunction,
   OptionalElection,
   VoidFunction,
   VxMarkOnly,
@@ -28,7 +28,7 @@ interface Props {
   isLiveMode: boolean
   fetchElection: VoidFunction
   isFetchingElection: boolean
-  setAppMode: InputEventFunction
+  setAppMode: EventTargetFunction
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
 }

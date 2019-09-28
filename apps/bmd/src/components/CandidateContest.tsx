@@ -9,7 +9,7 @@ import {
   Candidate,
   CandidateContest as CandidateContestInterface,
   CandidateVote,
-  InputEvent,
+  EventTargetFunction,
   OptionalCandidate,
   Parties,
   Scrollable,
@@ -222,7 +222,7 @@ class CandidateContest extends React.Component<Props, State> {
     this.props.updateVote(contest.id, newVote)
   }
 
-  public handleUpdateSelection = (event: InputEvent) => {
+  public handleUpdateSelection: EventTargetFunction = event => {
     const { vote } = this.props
     const candidateId = (event.currentTarget as HTMLInputElement).dataset.choice
     /* istanbul ignore else */

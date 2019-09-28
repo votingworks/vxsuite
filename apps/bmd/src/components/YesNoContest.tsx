@@ -2,7 +2,7 @@ import React, { PointerEventHandler } from 'react'
 import styled from 'styled-components'
 
 import {
-  InputEvent,
+  EventTargetFunction,
   OptionalYesNoVote,
   Scrollable,
   ScrollDirections,
@@ -182,7 +182,7 @@ export default class YesNoContest extends React.Component<Props> {
     }
   }
 
-  public handleUpdateSelection = (event: InputEvent) => {
+  public handleUpdateSelection: EventTargetFunction = event => {
     const { vote } = this.props
     const newVote = (event.currentTarget as HTMLInputElement).dataset
       .choice as YesNoVote

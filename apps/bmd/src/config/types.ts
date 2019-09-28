@@ -35,8 +35,7 @@ export function getAppMode(name: AppModeNames): AppMode {
 }
 
 // Events
-export type InputEvent = React.FormEvent<EventTarget>
-export type InputEventFunction = (event: InputEvent) => void
+export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 
 // Candidates
 export interface Candidate {
