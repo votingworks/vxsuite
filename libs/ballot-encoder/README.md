@@ -11,7 +11,7 @@ import {
   encodeBallot,
   getContests,
   vote,
-} from 'ballot-encoder'
+} from '@votingworks/ballot-encoder'
 
 const ballotStyle = election.ballotStyles[0]
 const precinct = election.precincts[0]
@@ -71,7 +71,7 @@ encoding. To specify the version, pass the `EncoderVersion` as the second
 parameter to `encodeBallot`:
 
 ```ts
-import { encodeBallot, EncoderVersion } from 'ballot-encoder'
+import { encodeBallot, EncoderVersion } from '@votingworks/ballot-encoder'
 
 const encodedBallot = encodeBallot(ballot, EncoderVersion.v1)
 ```
@@ -80,7 +80,7 @@ When decoding, you may pass an `EncoderVersion` or you may allow `decodeBallot`
 to detect the encoder version:
 
 ```ts
-import { decodeBallot, EncoderVersion } from 'ballot-encoder'
+import { decodeBallot, EncoderVersion } from '@votingworks/ballot-encoder'
 
 // automatically detect version
 const result = decodeBallot(election, encodedBallot)
@@ -96,7 +96,7 @@ console.log('Ballot:', result.ballot)
 If you only want to detect the version, you can simply use `detect`:
 
 ```ts
-import { detect } from 'ballot-encoder'
+import { detect } from '@votingworks/ballot-encoder'
 
 const version = detect(encodedBallot)
 console.log('Ballot version:', version)
