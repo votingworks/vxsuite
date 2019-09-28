@@ -283,13 +283,13 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         } catch (error) {
           this.resetBallot()
           lastCardDataString = ''
-          this.stopPolling() // Assume backend is unavailable.
+          this.stopShortValueReadPolling() // Assume backend is unavailable.
         }
       }, GLOBALS.CARD_POLLING_INTERVAL)
     }
   }
 
-  public stopPolling = () => {
+  public stopShortValueReadPolling = () => {
     window.clearInterval(checkCardInterval)
     checkCardInterval = 0 // To indicate setInterval is not running.
   }
@@ -342,7 +342,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public markVoterCardVoided: MarkVoterCardFunction = async () => {
-    this.stopPolling()
+    this.stopShortValueReadPolling()
 
     await this.clearLongValue()
 
@@ -369,7 +369,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public markVoterCardPrinted: MarkVoterCardFunction = async () => {
-    this.stopPolling()
+    this.stopShortValueReadPolling()
     this.setPauseProcessingUntilNoCardPresent(true)
 
     await this.clearLongValue()
@@ -481,7 +481,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     this.machineIdAbortController.abort()
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
-    this.stopPolling()
+    this.stopShortValueReadPolling()
   }
 
   public setMachineId = async () => {
