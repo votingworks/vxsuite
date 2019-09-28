@@ -1727,6 +1727,15 @@
   resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-1.0.2.tgz#b00b73f2df64ccf5a0d34517efb47a7701181be3"
   integrity sha512-qFBiEEzdjP6fK1tOUdUeCLgDZF0wYwuAxUNYOmlsRScj1xVsv3HNFMANeUgkkNUkZ4QhJNIPXecYB3oPBz+GDg==
 
+"@votingworks/qrcode.react@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@votingworks/qrcode.react/-/qrcode.react-1.0.0.tgz#4084776c900df8e9ba7694268f7532378b79eef1"
+  integrity sha512-IGq6HDO6zdWA6bnvLQsFUP8JJLdCz3QYFJFPa6GKEoHijgCMgxFJVMzcWJ27ILboESJjRlqqwbaW4AmAdAAb+A==
+  dependencies:
+    loose-envify "^1.4.0"
+    prop-types "^15.6.0"
+    qr.js "0.0.0"
+
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.8.5.tgz#51b1c5fe6576a34953bf4b253df9f0d490d9e359"
@@ -9715,14 +9724,6 @@ qr.js@0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/qr.js/-/qr.js-0.0.0.tgz#cace86386f59a0db8050fa90d9b6b0e88a1e364f"
   integrity sha1-ys6GOG9ZoNuAUPqQ2baw6IoeNk8=
-
-"qrcode.react@https://github.com/votingworks/qrcode.react.git#vx-master":
-  version "0.9.3"
-  resolved "https://github.com/votingworks/qrcode.react.git#fc9db29a026e2526550d1d4b8e6910612a7ff7c1"
-  dependencies:
-    loose-envify "^1.4.0"
-    prop-types "^15.6.0"
-    qr.js "0.0.0"
 
 qs@6.5.2, qs@~6.5.2:
   version "6.5.2"

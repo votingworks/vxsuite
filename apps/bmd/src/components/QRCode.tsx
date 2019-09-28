@@ -1,4 +1,4 @@
-import QRCodeReact from 'qrcode.react'
+import QRCodeReact from '@votingworks/qrcode.react'
 import React from 'react'
 import styled from 'styled-components'
 
