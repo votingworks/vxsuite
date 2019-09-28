@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { encodeBallot } from 'ballot-encoder'
+import { encodeBallot } from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../config/globals'
 

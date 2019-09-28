@@ -6,7 +6,7 @@ import {
   electionSample,
   getContests,
   getBallotStyle,
-} from 'ballot-encoder'
+} from '@votingworks/ballot-encoder'
 
 import { render, mockOf } from '../../test/testUtils'
 
