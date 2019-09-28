@@ -3,8 +3,9 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
+import { Election } from 'ballot-encoder'
 
-import { CVRCallbackParams, Election, CastVoteRecord, BatchInfo } from './types'
+import { CVRCallbackParams, CastVoteRecord, BatchInfo } from './types'
 import Store from './store'
 import interpretFile, { interpretBallotString } from './interpreter'
 import { Scanner } from './scanner'
@@ -32,7 +33,7 @@ export interface Options {
 }
 
 export interface Importer {
-  addManualBallot(ballotString: string): Promise<void>
+  addManualBallot(encodedBallot: Uint8Array): Promise<void>
   configure(newElection: Election): void
   doExport(): Promise<string>
   doImport(): Promise<void>
@@ -88,7 +89,7 @@ export default class SystemImporter implements Importer {
    * Adds a ballot using the data that would have been read from a scan, i.e.
    * the data encoded by the QR code.
    */
-  public async addManualBallot(ballotString: string) {
+  public async addManualBallot(encodedBallot: Uint8Array) {
     if (!this.election) {
       return
     }
@@ -99,7 +100,7 @@ export default class SystemImporter implements Importer {
 
     const cvr = interpretBallotString({
       election: this.election,
-      ballotString,
+      encodedBallot,
     })
 
     if (cvr) {

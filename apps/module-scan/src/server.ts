@@ -5,10 +5,10 @@
 
 import express, { Application, Request, Response } from 'express'
 import * as path from 'path'
+import { Election } from 'ballot-encoder'
 
 import SystemImporter, { Importer } from './importer'
 import Store from './store'
-import { Election } from './types'
 import { FujitsuScanner, Scanner } from './scanner'
 
 export interface AppOptions {
@@ -47,7 +47,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.post('/scan/addManualBallot', async (request, response) => {
     const { ballotString } = request.body
-    await importer.addManualBallot(ballotString)
+    await importer.addManualBallot(new TextEncoder().encode(ballotString))
     response.json({ status: 'ok' })
   })
 
