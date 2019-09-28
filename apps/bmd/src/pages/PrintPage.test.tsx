@@ -1,11 +1,15 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
 
-import { CandidateContest } from '../config/types'
+import {
+  vote,
+  electionSample,
+  getContests,
+  getBallotStyle,
+} from 'ballot-encoder'
 
 import { render, mockOf } from '../../test/testUtils'
 
-import electionSample from '../data/electionSample.json'
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 import electionSampleNoSeal from '../data/electionSampleNoSeal.json'
 
@@ -17,11 +21,6 @@ import { randomBase64 } from '../utils/random'
 jest.mock('../utils/random')
 const randomBase64Mock = mockOf(randomBase64)
 randomBase64Mock.mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w')
-
-const contest0 = electionSample.contests[0] as CandidateContest
-const contest1 = electionSample.contests[1] as CandidateContest
-const contest0candidate0 = contest0.candidates[0]
-const contest1candidate0 = contest1.candidates[0]
 
 it('renders PrintPage without votes', () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
@@ -37,14 +36,23 @@ it('renders PrintPage with votes', () => {
     ballotStyleId: '5',
     precinctId: '21',
     route: '/print',
-    votes: {
-      president: [contest0candidate0],
-      'question-a': 'no',
-      'question-b': 'yes',
-      senator: [contest1candidate0],
-    },
+    votes: vote(
+      getContests({
+        ballotStyle: getBallotStyle({
+          election: electionSample,
+          ballotStyleId: '5',
+        })!,
+        election: electionSample,
+      }),
+      {
+        president: 'barchi-hallaren',
+        'question-a': 'no',
+        'question-b': 'yes',
+        'lieutenant-governor': 'norberg',
+      }
+    ),
   })
-  expect(container.firstChild).toMatchSnapshot()
+  expect(container.childNodes[1]).toMatchSnapshot()
 })
 
 it('renders PrintPage without votes and inline seal', () => {
@@ -54,7 +62,7 @@ it('renders PrintPage without votes and inline seal', () => {
     precinctId: '21',
     route: '/print',
   })
-  expect(container.firstChild).toMatchSnapshot()
+  expect(container.childNodes[1]).toMatchSnapshot()
 })
 
 it('renders PrintPage without votes and no seal', () => {
@@ -64,5 +72,5 @@ it('renders PrintPage without votes and no seal', () => {
     precinctId: '21',
     route: '/print',
   })
-  expect(container.firstChild).toMatchSnapshot()
+  expect(container.childNodes[1]).toMatchSnapshot()
 })

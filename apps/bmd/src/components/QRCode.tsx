@@ -11,7 +11,7 @@ const ResponsiveSvgWrapper = styled.div`
 `
 
 interface Props {
-  value: string
+  value: string | Uint8Array
 }
 
 const QRCode = ({ value }: Props) => (

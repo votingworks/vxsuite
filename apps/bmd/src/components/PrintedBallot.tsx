@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { encodeBallot } from 'ballot-encoder'
 
 import * as GLOBALS from '../config/globals'
 
@@ -12,7 +13,6 @@ import {
   getPrecinctById,
 } from '../utils/election'
 
-import encodeVotes from '../encodeVotes'
 import QRCode from './QRCode'
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
@@ -191,8 +191,14 @@ const PrintBallot = ({
   })
   const ballotStyle = getBallotStyle({ ballotStyleId, election })
   const contests = getContests({ ballotStyle, election })
-  const encodedVotes: string = encodeVotes(contests, votes)
-  const precinctName: string = getPrecinctById({ election, precinctId })!.name
+  const precinct = getPrecinctById({ election, precinctId })!
+  const encodedBallot = encodeBallot({
+    election,
+    precinct,
+    ballotId,
+    ballotStyle,
+    votes,
+  })
 
   return (
     <Ballot aria-hidden="true">
@@ -222,14 +228,12 @@ const PrintBallot = ({
           </p>
         </Prose>
         <QRCodeContainer>
-          <QRCode
-            value={`${ballotStyleId}.${precinctId}.${encodedVotes}.${ballotId}`}
-          />
+          <QRCode value={encodedBallot} />
           <div>
             <div>
               <div>
                 <div>Precinct</div>
-                <strong>{precinctName}</strong>
+                <strong>{precinct.name}</strong>
               </div>
               <div>
                 <div>Ballot Style</div>
