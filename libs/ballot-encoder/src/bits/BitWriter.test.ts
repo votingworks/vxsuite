@@ -131,3 +131,24 @@ test('fails to write a string that is longer than the maximum length', () => {
     'overflow: cannot write a string longer than max length: 1 > 0'
   )
 })
+
+test('has a debug method to help understanding the contents', () => {
+  jest.spyOn(console, 'log').mockImplementation()
+
+  new BitWriter()
+    .writeBoolean(true)
+    .debug('wrote true')
+    .writeBoolean(false)
+    .debug('wrote false')
+    .writeUint8(1, 2, 3)
+    .debug()
+
+  expect(console.log).toHaveBeenNthCalledWith(1, 'wrote true')
+  expect(console.log).toHaveBeenNthCalledWith(2, '1')
+  expect(console.log).toHaveBeenNthCalledWith(3, 'wrote false')
+  expect(console.log).toHaveBeenNthCalledWith(4, '10')
+  expect(console.log).toHaveBeenNthCalledWith(
+    5,
+    '10000000 01000000 10000000 11'
+  )
+})

@@ -18,6 +18,23 @@ test('exports v1 encoding', () => {
   expect(typeof v1.detect).toBe('function')
 })
 
+test('encodes with v1 by default', () => {
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts[0]
+  const contests = getContests({ election, ballotStyle })
+  const votes = vote(contests, {})
+  const ballotId = 'abcde'
+  const ballot = {
+    election,
+    ballotId,
+    ballotStyle,
+    precinct,
+    votes,
+  }
+
+  expect(detect(encodeBallot(ballot))).toEqual(EncoderVersion.v1)
+})
+
 test('can encode by version number', () => {
   const ballotStyle = election.ballotStyles[0]
   const precinct = election.precincts[0]

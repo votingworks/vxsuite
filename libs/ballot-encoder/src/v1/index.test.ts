@@ -1,14 +1,15 @@
 import { BitWriter } from '../bits'
 import { electionSample as election, getContests, vote } from '../election'
+import * as v0 from '../v0'
 import {
   decodeBallot,
   detect,
   encodeBallot,
+  encodeBallotInto,
   MAXIMUM_WRITE_IN_LENGTH,
-  WriteInEncoding,
   Prelude,
+  WriteInEncoding,
 } from './index'
-import * as v0 from '../v0'
 
 function falses(count: number): boolean[] {
   return new Array(count).fill(false)
@@ -250,4 +251,102 @@ it('encodes & decodes write-in votes correctly', () => {
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
   expect(decodeBallot(election, encodedBallot)).toEqual(ballot)
+})
+
+test('cannot decode a ballot without the prelude', () => {
+  const encodedBallot = new BitWriter()
+    // prelude + version number
+    .writeString('XV', { includeLength: false })
+    .writeUint8(1)
+    .toUint8Array()
+
+  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
+    "expected leading prelude 'V' 'X' 0b00000001 but it was not found"
+  )
+})
+
+test('cannot decode a ballot with a ballot style ID not in the election', () => {
+  const encodedBallot = new BitWriter()
+    // prelude + version number
+    .writeString('VX', { includeLength: false })
+    .writeUint8(1)
+    // ballot style id
+    .writeString('ZZZ')
+    // precinct id
+    .writeString('23')
+    // ballot Id
+    .writeString('abcde')
+    .toUint8Array()
+
+  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
+    'ballot style with id "ZZZ" could not be found, expected one of: 12, 5, 7C'
+  )
+})
+
+test('cannot decode a ballot with a precinct ID not in the election', () => {
+  const encodedBallot = new BitWriter()
+    // prelude + version number
+    .writeString('VX', { includeLength: false })
+    .writeUint8(1)
+    // ballot style id
+    .writeString('12')
+    // precinct id
+    .writeString('ZZZ')
+    // ballot Id
+    .writeString('abcde')
+    .toUint8Array()
+
+  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
+    'precinct with id "ZZZ" could not be found, expected one of: 23, 21, 20'
+  )
+})
+
+test('cannot decode a ballot that includes data after the ballot ID', () => {
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts[0]
+  const contests = getContests({ election, ballotStyle })
+  const votes = vote(contests, {})
+  const ballotId = 'abcde'
+  const ballot = {
+    election,
+    ballotId,
+    ballotStyle,
+    precinct,
+    votes,
+  }
+
+  const writer = new BitWriter()
+
+  encodeBallotInto(ballot, writer)
+
+  const corruptedBallot = writer.writeBoolean(true).toUint8Array()
+
+  expect(() => decodeBallot(election, corruptedBallot)).toThrowError(
+    'unexpected data found while reading padding, expected EOF'
+  )
+})
+
+test('cannot decode a ballot that includes too much padding after the ballot ID', () => {
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts[0]
+  const contests = getContests({ election, ballotStyle })
+  const votes = vote(contests, {})
+  const ballotId = 'abcde'
+  const ballot = {
+    election,
+    ballotId,
+    ballotStyle,
+    precinct,
+    votes,
+  }
+
+  const writer = new BitWriter()
+
+  encodeBallotInto(ballot, writer)
+
+  const corruptedBallot = writer.writeUint8(0).toUint8Array()
+
+  expect(() => decodeBallot(election, corruptedBallot)).toThrowError(
+    'unexpected data found while reading padding, expected EOF'
+  )
 })

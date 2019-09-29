@@ -46,7 +46,7 @@ export function encodeBallot(ballot: CompletedBallot): Uint8Array {
 export function encodeBallotInto(
   { election, ballotStyle, precinct, votes, ballotId }: CompletedBallot,
   bits: BitWriter
-): void {
+): BitWriter {
   validateVotes({ election, ballotStyle, votes })
 
   const contests = getContests({ ballotStyle, election })
@@ -55,15 +55,14 @@ export function encodeBallotInto(
     .writeUint8(...Prelude)
     .writeString(ballotStyle.id)
     .writeString(precinct.id)
-  encodeBallotVotesInto(contests, votes, bits)
-  bits.writeString(ballotId)
+  return encodeBallotVotesInto(contests, votes, bits).writeString(ballotId)
 }
 
 function encodeBallotVotesInto(
   contests: Contests,
   votes: VotesDict,
   bits: BitWriter
-): void {
+): BitWriter {
   // write roll call
   for (const contest of contests) {
     const contestVote = votes[contest.id]
@@ -111,6 +110,8 @@ function encodeBallotVotesInto(
       }
     }
   }
+
+  return bits
 }
 
 export function decodeBallot(

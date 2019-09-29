@@ -63,20 +63,10 @@ export default class BitReader {
   public readUint({ max }: { max: number }): number
   public readUint({ size }: { size: number }): number
   public readUint({ max, size }: { max?: number; size?: number }): number {
-    if (typeof max !== 'undefined' && typeof size !== 'undefined') {
-      throw new Error("cannot specify both 'max' and 'size' options")
-    }
-
-    if (typeof max !== 'undefined') {
-      return this.readUint({ size: sizeof(max) })
-    }
-
-    if (typeof size === 'undefined') {
-      throw new Error('size cannot be undefined')
-    }
+    const sizeofUint = this.sizeofUint({ max, size })
 
     // Optimize for the case of reading a byte straight from the underlying buffer.
-    if (size === Uint8Size && this.cursor.isByteStart) {
+    if (sizeofUint === Uint8Size && this.cursor.isByteStart) {
       const result = this.getCurrentByte()
       this.cursor.advance(Uint8Size)
       return result
@@ -85,7 +75,7 @@ export default class BitReader {
     // Fall back to reading bits individually.
     let result = 0
 
-    for (const mask of makeMasks(size)) {
+    for (const mask of makeMasks(sizeofUint)) {
       const bit = this.readUint1()
       if (bit) {
         result |= mask
@@ -148,15 +138,35 @@ export default class BitReader {
     const originalCursor = this.cursor.copy()
     const uints = Array.isArray(expected) ? expected : [expected]
     const options = { max, size } as { size: number } & { max: number }
+    const sizeofUint = this.sizeofUint(options)
 
     for (const uint of uints) {
-      if (!this.canRead() || uint !== this.readUint(options)) {
+      if (!this.canRead(sizeofUint) || uint !== this.readUint(options)) {
         this.cursor = originalCursor
         return false
       }
     }
 
     return true
+  }
+
+  private sizeofUint({ max }: { max: number }): number
+  private sizeofUint({ size }: { size: number }): number
+  private sizeofUint({ max, size }: { max?: number; size?: number }): number
+  private sizeofUint({ max, size }: { max?: number; size?: number }): number {
+    if (typeof max !== 'undefined' && typeof size !== 'undefined') {
+      throw new Error("cannot specify both 'max' and 'size' options")
+    }
+
+    if (typeof max !== 'undefined') {
+      return sizeof(max)
+    }
+
+    if (typeof size === 'undefined') {
+      throw new Error('size cannot be undefined')
+    }
+
+    return size
   }
 
   /**
@@ -181,8 +191,10 @@ export default class BitReader {
    * Determines whether there is any more data to read. If the result is
    * `false`, then any call to read data will throw an exception.
    */
-  public canRead(): boolean {
-    return this.cursor.byteOffset < this.data.length
+  public canRead(size = 1): boolean {
+    const totalBits = this.data.length * Uint8Size
+    const readBits = this.cursor.combinedBitOffset
+    return readBits + size <= totalBits
   }
 
   private getCurrentByte(): Uint8 {

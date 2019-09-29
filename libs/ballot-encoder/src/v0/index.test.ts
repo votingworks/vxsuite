@@ -44,6 +44,20 @@ test('does not detect a v1 buffer as v0', () => {
   expect(detect(v1.encodeBallot(ballot))).toBe(false)
 })
 
+test('does not detect if the check throws', () => {
+  const decode = jest
+    .spyOn(TextDecoder.prototype, 'decode')
+    .mockImplementation(() => {
+      throw new Error()
+    })
+
+  try {
+    expect(detect(Uint8Array.of())).toBe(false)
+  } finally {
+    decode.mockRestore()
+  }
+})
+
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
   const ballotStyle = election.ballotStyles[0]
   const precinct = election.precincts[0]
@@ -161,6 +175,28 @@ test('encodes write-ins as `W`', () => {
       ],
     },
   })
+})
+
+test('cannot encode a yesno contest with an invalid value', () => {
+  const ballotStyle = election.ballotStyles[0]
+  const contests = getContests({ ballotStyle, election })
+  const precinct = election.precincts[0]
+  const yesnos = contests.filter(contest => contest.type === 'yesno')!
+  const votes = vote(contests, {
+    [yesnos[0].id]: 'YEP',
+  })
+  const ballotId = 'abcde'
+  const ballot = {
+    election,
+    ballotId,
+    ballotStyle,
+    precinct,
+    votes,
+  }
+
+  expect(() => encodeBallot(ballot)).toThrowError(
+    'cannot encode yesno vote, expected "no" or "yes" but got "YEP"'
+  )
 })
 
 test('cannot decode a ballot with a ballot style id that does not exist', () => {

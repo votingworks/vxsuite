@@ -168,9 +168,11 @@ export default class BitWriter {
     return this.nextByte
   }
 
-  public debug(label = 'bits'): this {
-    // eslint-disable-next-line no-console
-    console.log(label)
+  public debug(label?: string): this {
+    if (label) {
+      // eslint-disable-next-line no-console
+      console.log(label)
+    }
     // eslint-disable-next-line no-console
     console.log(
       inGroupsOf(

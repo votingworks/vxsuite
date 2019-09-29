@@ -77,3 +77,13 @@ test('can skip given bytes', () => {
   expect(bits.skipUint8(3)).toBe(true)
   expect(bits.canRead()).toBe(false)
 })
+
+test('can skip uints of arbitrary size', () => {
+  const bits = new BitReader(Uint8Array.of(0b11001100))
+
+  expect(bits.skipUint(0b11, { size: 2 })).toBe(true)
+  expect(bits.skipUint(0b11, { size: 2 })).toBe(false)
+  expect(bits.skipUint(0b0011, { size: 4 })).toBe(true)
+  expect(bits.skipUint(0b001, { size: 3 })).toBe(false)
+  expect(bits.skipUint([0b0, 0b0], { size: 1 })).toBe(true)
+})
