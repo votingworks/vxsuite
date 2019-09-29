@@ -151,8 +151,6 @@ vv vv vv vvv
 11100100 000
   ^  ^
   |  |
-  |  |
-  |  |
   |  Set bit for the 3rd candidate in second contest
   |
   Vote Data for first contest is one set bit for the "yes" vote
@@ -176,7 +174,7 @@ v v vv
 
 > Size: 6 vote bits (1 byte)
 
-### A non-trivial number of contests with votes for all of them
+### A non-trivial number of contests, skipping one vote
 
 ```
 Roll Call is one bit for each contest
