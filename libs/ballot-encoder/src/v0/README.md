@@ -117,7 +117,7 @@ vv     vvvvv
 
 > Size: 3 vote bytes
 
-### A non-trivial number of contests with votes for all of them
+### A non-trivial number of contests, skipping one vote
 
 ```
       #1, 1st candidate
