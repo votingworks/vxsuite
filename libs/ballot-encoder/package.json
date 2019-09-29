@@ -8,7 +8,7 @@
   "types": "src/index.d.ts",
   "scripts": {
     "lint": "eslint 'src/**/*.{ts,js}' --report-unused-disable-directives",
-    "prepare": "tsc",
+    "prepare": "in-publish && tsc || not-in-publish",
     "test": "jest",
     "test:ci": "jest --ci --collectCoverage",
     "test:coverage": "jest --collectCoverage",
@@ -47,6 +47,7 @@
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-prettier": "^3.1.1",
     "husky": "^3.0.5",
+    "in-publish": "^2.0.0",
     "jest": "^24.9.0",
     "lint-staged": "^9.3.0",
     "prettier": "^1.18.2",
