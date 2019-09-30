@@ -55,7 +55,8 @@ export function encodeBallotInto(
     .writeUint8(...Prelude)
     .writeString(ballotStyle.id)
     .writeString(precinct.id)
-  return encodeBallotVotesInto(contests, votes, bits).writeString(ballotId)
+    .writeString(ballotId)
+  return encodeBallotVotesInto(contests, votes, bits)
 }
 
 function encodeBallotVotesInto(
@@ -157,9 +158,9 @@ export function decodeBallotFromReader(
     )
   }
 
+  const ballotId = bits.readString()
   const contests = getContests({ ballotStyle, election })
   const votes = decodeBallotVotes(contests, bits)
-  const ballotId = bits.readString()
 
   readPaddingToEnd(bits)
 

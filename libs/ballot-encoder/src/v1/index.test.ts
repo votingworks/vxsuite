@@ -77,10 +77,10 @@ it('encodes & decodes empty votes correctly', () => {
     .writeString('12')
     // precinct id
     .writeString('23')
-    // vote roll call only, no vote data
-    .writeBoolean(...contests.map(() => false))
     // ballot Id
     .writeString('abcde')
+    // vote roll call only, no vote data
+    .writeBoolean(...contests.map(() => false))
     .toUint8Array()
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
@@ -117,6 +117,8 @@ it('encodes & decodes yesno votes correctly', () => {
     .writeString('12')
     // precinct id
     .writeString('23')
+    // ballot Id
+    .writeString('abcde')
     // vote roll call
     .writeBoolean(...contests.map(contest => contest.id in votes))
     // vote data
@@ -128,8 +130,6 @@ it('encodes & decodes yesno votes correctly', () => {
     .writeBoolean(true)
     .writeBoolean(false)
     .writeBoolean(true)
-    // ballot Id
-    .writeString('abcde')
     .toUint8Array()
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
@@ -170,6 +170,8 @@ it('encodes & decodes candidate choice votes correctly', () => {
     .writeString('12')
     // precinct id
     .writeString('23')
+    // ballot Id
+    .writeString('abcde')
     // vote roll call
     .writeBoolean(...contests.map(contest => contest.id in votes))
     // vote data
@@ -201,8 +203,6 @@ it('encodes & decodes candidate choice votes correctly', () => {
     .writeBoolean(true, ...falses(5))
     // --- write-ins
     .writeUint(0, { max: 2 }) // 3 seats - 1 selection = 2 write-ins max
-    // ballot Id
-    .writeString('abcde')
     .toUint8Array()
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
@@ -234,6 +234,8 @@ it('encodes & decodes write-in votes correctly', () => {
     .writeString('12')
     // precinct id
     .writeString('23')
+    // ballot Id
+    .writeString('abcde')
     // vote roll call
     .writeBoolean(...contests.map(contest => contest.id in votes))
     // vote data
@@ -245,8 +247,6 @@ it('encodes & decodes write-in votes correctly', () => {
       encoding: WriteInEncoding,
       maxLength: MAXIMUM_WRITE_IN_LENGTH,
     })
-    // ballot Id
-    .writeString('abcde')
     .toUint8Array()
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
