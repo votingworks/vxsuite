@@ -39,6 +39,7 @@ test('does not detect a v1 buffer as v0', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
 
   expect(detect(v1.encodeBallot(ballot))).toBe(false)
@@ -70,6 +71,7 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
 
   expect(decodeBallot(election, encodeBallot(ballot))).toEqual(ballot)
@@ -87,6 +89,7 @@ test('encodes & decodes empty votes', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
   const encodedBallot = '12.23.|||||||||||||||||||.abcde'
 
@@ -110,6 +113,7 @@ test('encodes & decodes yesno votes', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
   const encodedBallot = '12.23.||||||||||||1|0||||||.abcde'
 
@@ -132,6 +136,7 @@ test('encodes & decodes candidate votes', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
   const encodedBallot = '12.23.0,1|||||||||||||||||||.abcde'
 
@@ -156,14 +161,15 @@ test('encodes write-ins as `W`', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
   const encodedBallot = '12.23.W|||||||||||||||||||.abcde'
 
   expect(encodeBallotAsString(ballot)).toEqual(encodedBallot)
 
-  // v0 can't fully round-trip write-ins: we lose the actual name
   expect(decodeBallotFromString(election, encodedBallot)).toEqual({
     ...ballot,
+    // v0 can't fully round-trip write-ins: we lose the actual name
     votes: {
       ...votes,
       [contest.id]: [
@@ -174,6 +180,8 @@ test('encodes write-ins as `W`', () => {
         },
       ],
     },
+    // v0 does not encode whether a ballot is a test ballot
+    isTestBallot: false,
   })
 })
 
@@ -192,6 +200,7 @@ test('cannot encode a yesno contest with an invalid value', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
 
   expect(() => encodeBallot(ballot)).toThrowError(

@@ -21,7 +21,7 @@ are encoded as that data is shared by both the encoder and decoder.
 - **write-in encoding**: a character encoding for write-in names that requires 5
   bits per character. Here is the full character set:
   `ABCDEFGHIJKLMNOPQRSTUVWXYZ '"-.,`.
-- **dynamic-width string**: a UTF-8 string with maximum length `M`, prefixed
+- **dynamic-length string**: a UTF-8 string with maximum length `M`, prefixed
   with a _dynamic-width number_ (max `M`) which is the length of the string in
   bytes.
 
@@ -31,6 +31,20 @@ See `CompletedBallot` in [election.ts](../election.ts) for the data structures
 used to represent a completed ballot in memory. Given `E` (an `Election`) and
 `V` (a `Votes`) corresponding to `E`, `V` is encoded as follows:
 
+- **Prelude:** This is the literal string `VX` encoded as UTF-8 bytes, followed
+  by the integer 1 encoded as a byte. In binary, this is
+  `01010110 01011000 00000001`. This must be at the start of the encoded data,
+  or the data does not represent a valid v1-encoded ballot.
+  - Size: 24 bits.
+- **Ballot Style ID:** This is a dynamic-length string whose maximum length is
+  255 bytes.
+  - Size: `(1 + bytes(ballotStyleID)) * 8` bits.
+- **Precinct ID:** This is a dynamic-length string whose maximum length is 255
+  bytes.
+  - Size: `(1 + bytes(precinctID)) * 8` bits.
+- **Ballot ID:** This is a dynamic-length string whose maximum length is 255
+  bytes.
+  - Size: `(1 + bytes(ballotId)) * 8` bits.
 - **Roll Call**: Encodes which contests have votes using one bit per contest,
   where a bit at offset `i` from the start of this section is set if and only if
   there is a vote record for `E.contests[i]`, i.e. `V[E.contests[i].id]` has a
@@ -57,8 +71,11 @@ used to represent a completed ballot in memory. Given `E` (an `Election`) and
       - Size:
         `sizeof(W) + W * 8 + ∑(CV : V[E.contests[i].id], CV.isWriteIn ? sizeof(CV.name) : 0)`
         bits.
+- **Test Ballot Flag:** This is a single bit that is set if the ballot is a test
+  ballot, unset otherwise.
+  - Size: 1 bit.
 - **Padding**: To ensure the encoded data is composed of whole bytes, 0 bits
-  will be added to the end if necessary.
+  will be added to the end until the number of bits is a multiple of 8.
 
 ## Examples
 

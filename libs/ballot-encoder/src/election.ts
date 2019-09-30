@@ -92,8 +92,9 @@ export interface CompletedBallot {
   election: Election
   ballotStyle: BallotStyle
   precinct: Precinct
-  votes: VotesDict
   ballotId: string
+  votes: VotesDict
+  isTestBallot: boolean
 }
 
 // Smart Card Content

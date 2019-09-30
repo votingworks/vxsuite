@@ -30,6 +30,7 @@ test('encodes with v1 by default', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
 
   expect(detect(encodeBallot(ballot))).toEqual(EncoderVersion.v1)
@@ -47,6 +48,7 @@ test('can encode by version number', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
 
   expect(encodeBallot(ballot, EncoderVersion.v0)).toEqual(
@@ -76,11 +78,15 @@ test('can decode specifying v0', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
 
   expect(
     decodeBallot(election, v0.encodeBallot(ballot), EncoderVersion.v0)
-  ).toEqual({ version: EncoderVersion.v0, ballot })
+  ).toEqual({
+    version: EncoderVersion.v0,
+    ballot,
+  })
 })
 
 test('can decode specifying v1', () => {
@@ -95,6 +101,7 @@ test('can decode specifying v1', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
 
   expect(
@@ -114,6 +121,7 @@ test('can decode and automatically detect the right version', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
 
   expect(decodeBallot(election, v0.encodeBallot(ballot))).toEqual({
@@ -144,6 +152,7 @@ test('can detect v0 encoding', () => {
     ballotStyle,
     precinct,
     votes,
+    isTestBallot: false,
   }
 
   expect(detect(v0.encodeBallot(ballot))).toEqual(EncoderVersion.v0)

@@ -176,6 +176,7 @@ export function decodeBallotFromString(
     election,
     precinct,
     votes,
+    isTestBallot: false,
   }
 }
 
