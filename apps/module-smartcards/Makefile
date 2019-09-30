@@ -1,9 +1,9 @@
 
 install-python:
-	apt install python3.7 python3.7-dev python3-pip
+	apt install -y python3.7 python3.7-dev python3-pip
 
 install-smartcard:
-	apt install libusb-1.0-0-dev libpcsclite-dev pcscd pcsc-tools swig
+	apt install -y libusb-1.0-0-dev libpcsclite-dev pcscd pcsc-tools swig
 
 install: install-python install-smartcard
 
