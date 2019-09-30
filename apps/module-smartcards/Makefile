@@ -24,6 +24,3 @@ coverage:
 
 run:
 	FLASK_APP=smartcards.core python3 -m pipenv run python -m flask run --port 3001
-
-mock:
-	FLASK_APP=smartcards.core MOCK_SHORT_VALUE="{\"t\":\"clerk\",\"h\":\"blah\"}" MOCK_LONG_VALUE_FILE="tests/electionSample.json" pipenv run python -m flask run --port 3001
