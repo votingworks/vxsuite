@@ -22,7 +22,6 @@ import {
   Contests,
   Election,
   getAppMode,
-  EventTargetFunction,
   MachineIdAPI,
   MarkVoterCardFunction,
   OptionalElection,
@@ -687,9 +686,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[textSize]}px`
   }
 
-  public setAppMode: EventTargetFunction = event => {
-    const currentTarget = event.currentTarget as HTMLInputElement
-    const appMode = getAppMode(currentTarget.dataset.appMode as AppModeNames)
+  public setAppMode = (appModeName: AppModeNames) => {
+    const appMode = getAppMode(appModeName)
     this.setState({ appMode }, this.setStoredState)
   }
 

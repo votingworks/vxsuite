@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 import {
   AppMode,
+  AppModeNames,
   EventTargetFunction,
   OptionalElection,
   VoidFunction,
@@ -28,7 +29,7 @@ interface Props {
   isLiveMode: boolean
   fetchElection: VoidFunction
   isFetchingElection: boolean
-  setAppMode: EventTargetFunction
+  setAppMode: (appModeName: AppModeNames) => void
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
 }
@@ -51,6 +52,13 @@ const ClerkScreen = ({
     hideModal()
     toggleLiveMode()
   }
+
+  const changeAppMode: EventTargetFunction = event => {
+    const currentTarget = event.currentTarget as HTMLInputElement
+    const appModeName = currentTarget.dataset.appMode as AppModeNames
+    setAppMode(appModeName)
+  }
+
   const loadElection = () => {
     fetchElection()
   }
@@ -80,7 +88,7 @@ const ClerkScreen = ({
                 <p>This device can operate as multiple apps.</p>
                 <SegmentedButton>
                   <Button
-                    onPress={setAppMode}
+                    onPress={changeAppMode}
                     data-app-mode="VxMark"
                     primary={appMode === VxMarkOnly}
                     disabled={appMode === VxMarkOnly}
@@ -88,7 +96,7 @@ const ClerkScreen = ({
                     VxMark Only
                   </Button>
                   <Button
-                    onPress={setAppMode}
+                    onPress={changeAppMode}
                     data-app-mode="VxPrint"
                     primary={appMode === VxPrintOnly}
                     disabled={appMode === VxPrintOnly}
@@ -96,7 +104,7 @@ const ClerkScreen = ({
                     VxPrint Only
                   </Button>
                   <Button
-                    onPress={setAppMode}
+                    onPress={changeAppMode}
                     data-app-mode="VxMark + VxPrint"
                     primary={appMode === VxMarkPlusVxPrint}
                     disabled={appMode === VxMarkPlusVxPrint}
