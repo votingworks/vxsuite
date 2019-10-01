@@ -10,7 +10,7 @@
 # can be used for the long value.)
 #
 # The long value is not fetched by default, as that takes a while.
-# 
+#
 # Data Format on a card is:
 #
 # "VX." - 3 ascii byte identifier
@@ -23,11 +23,13 @@
 
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
-import gzip, time
+import gzip
+import time
 
 WRITABLE = [0x00]
 WRITE_PROTECTED = [0x01]
 VERSION = [0x01]
+
 
 class Card:
     def __init__(self, pyscard_card, pyscard_connection):
@@ -41,23 +43,24 @@ class Card:
         self.read_raw_first_chunk()
 
     def __initial_bytes(self, writable, short_length, long_length):
-        initial_bytes = b'VX.'+ bytes(VERSION) + bytes(writable)
-        initial_bytes += bytes([short_length]) + long_length.to_bytes(2,'big')
+        initial_bytes = b'VX.' + bytes(VERSION) + bytes(writable)
+        initial_bytes += bytes([short_length]) + long_length.to_bytes(2, 'big')
         return initial_bytes
 
     # override the write protection bit. Typically used
     # right before a call to write_short_value or write_short_and_long_values
     def override_protection(self):
-        self.write_enabled=True
-        
+        self.write_enabled = True
+
     def write_short_value(self, short_value_bytes, write_protect=False):
         if not self.write_enabled:
             return
 
         if len(short_value_bytes) > 250:
             return
-        
-        full_bytes = self.__initial_bytes(WRITE_PROTECTED if write_protect else WRITABLE, len(short_value_bytes), 0)
+
+        full_bytes = self.__initial_bytes(
+            WRITE_PROTECTED if write_protect else WRITABLE, len(short_value_bytes), 0)
         full_bytes += short_value_bytes
         self.write_chunk(0, full_bytes)
         time.sleep(1)
@@ -67,7 +70,7 @@ class Card:
         self.override_protection()
         return self.write_short_and_long_values(self.short_value, long_value_bytes, WRITABLE)
 
-    def write_short_and_long_values(self, short_value_bytes, long_value_bytes, write_protect = WRITE_PROTECTED):
+    def write_short_and_long_values(self, short_value_bytes, long_value_bytes, write_protect=WRITE_PROTECTED):
         if not self.write_enabled:
             return
 
@@ -75,9 +78,10 @@ class Card:
 
         if len(long_value_compressed) > self.MAX_LENGTH:
             return
-        
+
         # by default, we write protect the cards with short-and-long values
-        full_bytes = self.__initial_bytes(write_protect, len(short_value_bytes), len(long_value_compressed))
+        full_bytes = self.__initial_bytes(write_protect, len(
+            short_value_bytes), len(long_value_compressed))
         full_bytes += short_value_bytes
         full_bytes += long_value_compressed
 
@@ -85,7 +89,8 @@ class Card:
         chunk_num = 0
 
         while offset_into_bytes < len(full_bytes):
-            result = self.write_chunk(chunk_num, full_bytes[offset_into_bytes:offset_into_bytes+self.CHUNK_SIZE])
+            result = self.write_chunk(
+                chunk_num, full_bytes[offset_into_bytes:offset_into_bytes+self.CHUNK_SIZE])
             chunk_num += 1
             offset_into_bytes += self.CHUNK_SIZE
 
@@ -105,7 +110,7 @@ class Card:
         self.short_value = bytes(data[8:8+self.short_value_length])
 
         return bytes(data)
-        
+
     def read_short_value(self):
         self.read_raw_first_chunk()
         if self.short_value:
@@ -115,7 +120,7 @@ class Card:
 
     def read_long_value(self):
         full_bytes = self.read_raw_first_chunk()
-        
+
         total_expected_length = 8 + self.short_value_length + self.long_value_length
 
         read_so_far = len(full_bytes)
@@ -125,18 +130,20 @@ class Card:
             read_so_far += self.CHUNK_SIZE
             chunk_num += 1
 
-        compressed_content = full_bytes[8+self.short_value_length:total_expected_length]
+        compressed_content = full_bytes[8 +
+                                        self.short_value_length:total_expected_length]
         return gzip.decompress(compressed_content)
 
     # to implement in subclass
     # returns a bytes structure
-    def read_chunk(self, chunk_number): # pragma: no cover
+    def read_chunk(self, chunk_number):  # pragma: no cover
         pass
 
     # to implement in subclass
     # expects a bytes structure
-    def write_chunk(self, chunk_number, chunk_bytes): # pragma: no cover
+    def write_chunk(self, chunk_number, chunk_bytes):  # pragma: no cover
         pass
+
 
 class Card4442(Card):
     UNLOCK_APDU = [0xFF, 0x20, 0x00, 0x00, 0x02, 0xFF, 0xFF]
@@ -154,16 +161,19 @@ class Card4442(Card):
         self.connection.transmit(self.UNLOCK_APDU)
 
         offset = self.CHUNK_SIZE * chunk_number
-        apdu = self.WRITE_APDU + [self.INITIAL_OFFSET + offset, len(chunk_bytes)] + list(bytearray(chunk_bytes))
+        apdu = self.WRITE_APDU + \
+            [self.INITIAL_OFFSET + offset,
+                len(chunk_bytes)] + list(bytearray(chunk_bytes))
         response, sw1, sw2 = self.connection.transmit(apdu)
 
-        return [sw1, sw2] == [0x90,0x00]
+        return [sw1, sw2] == [0x90, 0x00]
 
     def read_chunk(self, chunk_number):
         offset = self.CHUNK_SIZE * chunk_number
         apdu = self.READ_APDU + [self.INITIAL_OFFSET + offset, self.CHUNK_SIZE]
         response, sw1, sw2 = self.connection.transmit(apdu)
         return response
+
 
 class CardAT24C(Card):
     # This is the identifier for the card
@@ -172,10 +182,11 @@ class CardAT24C(Card):
     # we're using a generic protocol (i2c) which needs metadata about the card
     # card type (1 byte), page size (1byte), address size (1byte), and capacity (4 bytes)
     CARD_IDENTITY = [0x18, 64, 2, 0x00, 0x00, 0x80, 0x00]
-    INIT_APDU = [0xFF, 0x30, 0x00, 0x04] + [1 + len(CARD_IDENTITY)] + [0x01] + CARD_IDENTITY
+    INIT_APDU = [0xFF, 0x30, 0x00, 0x04] + \
+        [1 + len(CARD_IDENTITY)] + [0x01] + CARD_IDENTITY
 
     VERSION = 0x01
-    
+
     PREFIX = [0xFF, 0x30, 0x00]
     READ_PREFIX = PREFIX + [0x05]
     WRITE_PREFIX = PREFIX + [0x06]
@@ -194,23 +205,25 @@ class CardAT24C(Card):
     def compute_offset(self, chunk_number):
         offset = (chunk_number * self.CHUNK_SIZE) + self.INITIAL_OFFSET
         return offset.to_bytes(4, 'big')
-        
+
     def write_chunk(self, chunk_number, chunk_bytes):
         apdu = self.WRITE_PREFIX + [5 + len(chunk_bytes)] + [self.VERSION]
         apdu += self.compute_offset(chunk_number) + chunk_bytes
         result, sw1, sw2 = self.connection.transmit(apdu)
 
-        return [sw1, sw2] == [0x90,0x00]
-        
+        return [sw1, sw2] == [0x90, 0x00]
+
     def read_chunk(self, chunk_number):
         apdu = self.READ_PREFIX + [9] + [self.VERSION]
         apdu += self.compute_offset(chunk_number)
-        apdu += self.CHUNK_SIZE.to_bytes(4,'big')
+        apdu += self.CHUNK_SIZE.to_bytes(4, 'big')
 
         result, sw1, sw2 = self.connection.transmit(apdu)
         return result
 
+
 CARD_TYPES = [Card4442, CardAT24C]
+
 
 def find_card_by_atr(atr_bytes):
     for card_type in CARD_TYPES:
@@ -218,6 +231,7 @@ def find_card_by_atr(atr_bytes):
             return card_type
 
     return None
+
 
 class VXCardObserver(CardObserver):
     def __init__(self):
@@ -231,7 +245,7 @@ class VXCardObserver(CardObserver):
     def override_protection(self):
         if self.card:
             self.card.override_protection()
-            
+
     def read(self):
         if self.card:
             second_value = None
@@ -282,14 +296,13 @@ class VXCardObserver(CardObserver):
             pyscard_obj = addedcards[0]
             connection = pyscard_obj.createConnection()
             connection.connect()
-            
+
             atr_bytes = bytes(connection.getATR())
+            print(atr_bytes)
             card_type = find_card_by_atr(atr_bytes)
             self.card = card_type(pyscard_obj, connection)
-            
+
             self._read_from_card()
 
         if len(removedcards) > 0:
             self.card = None
-
-CardInterface = VXCardObserver()
