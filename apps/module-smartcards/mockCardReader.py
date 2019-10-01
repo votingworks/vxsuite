@@ -42,10 +42,10 @@ def set_mock(request_data):
 
 
 def enable(card: bool, fixture_path: Optional[str]):
-    if fixture_path is not None:
+    if card and fixture_path is not None:
         enable_fixture(fixture_path)
     else:
-        set_mock({'enabled': True})
+        set_mock({'enabled': True, 'hasCard': card})
 
 
 def enable_fixture(fixture_path: str):
@@ -94,7 +94,8 @@ if command == 'enable':
     card = True
     fixture_path = None
 
-    for i in range(2, len(sys.argv) - 1):
+    i = 2
+    while i < len(sys.argv):
         arg = sys.argv[i]
 
         if arg == '--card' or arg == '--no-card':
@@ -104,6 +105,8 @@ if command == 'enable':
             fixture_path = sys.argv[i]
         else:
             fatal('unexpected option: %s' % arg)
+
+        i += 1
 
     enable(card, fixture_path)
 elif command == 'disable':
