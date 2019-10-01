@@ -42,8 +42,17 @@ const PrintOnlyScreen = ({
   votes: cardVotes,
 }: Props) => {
   let printerTimer = useRef(0)
+  const [okToPrint, setOkToPrint] = useState(true)
   const [isPrinted, updateIsPrinted] = useState(false)
   const isCardVotesEmpty = isEmptyObject(cardVotes)
+
+  const isReadyToPrint =
+    election &&
+    ballotStyleId &&
+    precinctId &&
+    isVoterCardPresent &&
+    !isCardVotesEmpty &&
+    !isPrinted
 
   const printBallot = useCallback(async () => {
     const isUsed = await markVoterCardPrinted()
@@ -58,28 +67,27 @@ const PrintOnlyScreen = ({
   }, [markVoterCardPrinted, printer, updateTally])
 
   useEffect(() => {
-    if (!isEmptyObject(cardVotes)) {
+    if (isReadyToPrint && okToPrint) {
+      setOkToPrint(false)
+
       printBallot()
     }
-  }, [cardVotes, printBallot])
+  }, [cardVotes, printBallot, isReadyToPrint, okToPrint, setOkToPrint])
 
   useEffect(() => {
     if (!isVoterCardPresent) {
       updateIsPrinted(false)
+
+      // once card is taken out, ok to print again
+      if (!okToPrint) {
+        setOkToPrint(true)
+      }
     }
-  }, [isVoterCardPresent])
+  }, [isVoterCardPresent, okToPrint, setOkToPrint])
 
   useEffect(() => {
     return () => clearTimeout(printerTimer.current)
   }, [])
-
-  const isReadyToPrint =
-    election &&
-    ballotStyleId &&
-    precinctId &&
-    isVoterCardPresent &&
-    !isCardVotesEmpty &&
-    !isPrinted
 
   const renderContent = () => {
     if (isVoterCardPresent && isCardVotesEmpty) {
