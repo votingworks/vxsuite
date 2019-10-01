@@ -74,7 +74,7 @@ const ClerkScreen = ({
       />
     )
   }
-  const isTestDecksAvailable = isLiveMode || (!isLiveMode && appMode.isVxPrint)
+  const isTestDecksAvailable = !isLiveMode && appMode.isVxPrint
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
       <Main padded>

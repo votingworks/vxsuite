@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import pluralize from 'pluralize'
 
-import { AppMode, Election, Tally } from '../config/types'
+import { AppMode, Election, Precinct, Tally } from '../config/types'
 
 import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
@@ -13,6 +13,7 @@ import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import { NullPrinter } from '../utils/printer'
 import PollsReport from '../components/PollsReport'
+import PrecinctTallyReport from '../components/PrecinctTallyReport'
 
 interface Props {
   appMode: AppMode
@@ -36,9 +37,12 @@ const PollWorkerScreen = ({
   isLiveMode,
   machineId,
   printer,
-  // tally,
+  tally,
   togglePollsOpen,
 }: Props) => {
+  const precinct = election.precincts.find(
+    p => p.id === appPrecinctId
+  ) as Precinct
   const [isModalOpen, setIsModalOpen] = useState(false)
   const showModal = () => setIsModalOpen(true)
   const hideModal = () => setIsModalOpen(false)
@@ -59,7 +63,7 @@ const PollWorkerScreen = ({
   }
 
   const currentDateTime = new Date().toLocaleString()
-  const reportIds = [1, 2, 3]
+  const reportPurposes = ['Publicly Posted', 'Officially Filed']
   return (
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
@@ -75,12 +79,14 @@ const PollWorkerScreen = ({
               {isPrintMode && (
                 <p>
                   When opening and closing polls,{' '}
-                  {pluralize('report', reportIds.length, true)} will be printed.
+                  {pluralize('report', reportPurposes.length, true)} will be
+                  printed.
                 </p>
               )}
               <p>
                 <Button onPress={toggle}>
-                  {isPollsOpen ? 'Close Polls' : 'Open Polls'}
+                  {isPollsOpen ? 'Close Polls' : 'Open Polls'} for{' '}
+                  {precinct.name}
                 </Button>
               </p>
             </Prose>
@@ -125,18 +131,31 @@ const PollWorkerScreen = ({
         />
       </Screen>
       {isPrintMode &&
-        reportIds.map(reportId => (
-          <PollsReport
-            key={reportId}
-            ballotsPrintedCount={ballotsPrintedCount}
-            currentDateTime={currentDateTime}
-            election={election}
-            isLiveMode={isLiveMode}
-            isPollsOpen={isPollsOpen}
-            machineId={machineId}
-            reportId={reportId}
-            reportsLength={reportIds.length}
-          />
+        reportPurposes.map(reportPurpose => (
+          <React.Fragment key={reportPurpose}>
+            <PollsReport
+              key={`polls-report-${reportPurpose}`}
+              appName={appMode.name}
+              ballotsPrintedCount={ballotsPrintedCount}
+              currentDateTime={currentDateTime}
+              election={election}
+              isLiveMode={isLiveMode}
+              isPollsOpen={isPollsOpen}
+              machineId={machineId}
+              precinctId={appPrecinctId}
+              reportPurpose={reportPurpose}
+            />
+            <PrecinctTallyReport
+              key={`tally-report-${reportPurpose}`}
+              ballotsPrintedCount={ballotsPrintedCount}
+              currentDateTime={currentDateTime}
+              election={election}
+              isPollsOpen={isPollsOpen}
+              tally={tally}
+              precinctId={appPrecinctId}
+              reportPurpose={reportPurpose}
+            />
+          </React.Fragment>
         ))}
     </React.Fragment>
   )

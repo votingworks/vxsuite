@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election } from '../config/types'
+import { AppModeNames, Election, Precinct } from '../config/types'
 import Prose from './Prose'
 
 const Report = styled.div`
@@ -65,29 +65,32 @@ const SignatureLine = styled.div`
 `
 
 interface Props {
+  appName: AppModeNames
   ballotsPrintedCount: number
   currentDateTime: string
   election: Election
   isLiveMode: boolean
   isPollsOpen: boolean
   machineId: string
-  reportId: number
-  reportsLength: number
+  precinctId: string
+  reportPurpose: string
 }
 
 const PollsReport = ({
+  appName,
   ballotsPrintedCount,
   currentDateTime,
   election,
   isLiveMode,
   isPollsOpen,
   machineId,
-  reportId,
-  reportsLength,
+  precinctId,
+  reportPurpose,
 }: Props) => {
-  const { title, date, county, state, seal, sealURL } = election
+  const { title, date, county, precincts, state, seal, sealURL } = election
+  const precinct = precincts.find(p => p.id === precinctId) as Precinct
   return (
-    <Report key={reportId}>
+    <Report key={reportPurpose}>
       <Header>
         {/* istanbul ignore next */
         seal && !sealURL ? (
@@ -110,6 +113,7 @@ const PollsReport = ({
         )}
         <Prose className="ballot-header-content">
           <h2>
+            {precinct.name}{' '}
             {/* istanbul ignore next */
             !isLiveMode ? 'Unofficial TEST' : 'Official'}{' '}
             {isPollsOpen ? 'Polls Closed Report' : 'Polls Opened Report'}
@@ -125,12 +129,14 @@ const PollsReport = ({
       <Content>
         <Prose maxWidth={false}>
           <p>
-            Report <strong>#{reportId}</strong> of {reportsLength} printed.
+            This report should be <strong>{reportPurpose}</strong>.
           </p>
           <dl>
-            <dt>Voting Machine ID</dt>
+            <dt>Machine ID</dt>
             <dd>
-              <span>VxMark #{machineId}</span>
+              <span>
+                {appName} #{machineId}
+              </span>
             </dd>
             <dt>Status</dt>
             <dd>
