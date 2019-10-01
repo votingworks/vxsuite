@@ -298,7 +298,6 @@ class VXCardObserver(CardObserver):
             connection.connect()
 
             atr_bytes = bytes(connection.getATR())
-            print(atr_bytes)
             card_type = find_card_by_atr(atr_bytes)
             self.card = card_type(pyscard_obj, connection)
 
