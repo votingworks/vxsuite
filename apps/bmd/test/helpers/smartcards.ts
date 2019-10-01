@@ -26,6 +26,7 @@ export const sampleBallot: CompletedBallot = {
   election,
   precinct: election.precincts[0],
   votes: sampleVotes,
+  isTestBallot: true,
 }
 
 export const noCard: CardAPI = {

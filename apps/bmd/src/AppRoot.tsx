@@ -345,6 +345,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
               precinctId: this.state.precinctId,
             })!,
             votes: this.state.votes,
+            isTestBallot: !this.state.isLiveMode,
           }
           const longValue = fromByteArray(encodeBallot(ballot))
 
