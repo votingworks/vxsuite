@@ -81,7 +81,7 @@ interface UserState {
   votes: VotesDict
 }
 
-interface State extends CardState, UserState {
+interface SharedState {
   appMode: AppMode
   appPrecinctId: string
   ballotsPrintedCount: number
@@ -94,59 +94,65 @@ interface State extends CardState, UserState {
   tally: Tally
 }
 
+interface State extends CardState, UserState, SharedState {}
+
 export const electionStorageKey = 'election'
 export const stateStorageKey = 'state'
 export const activationStorageKey = 'activation'
 const votesStorageKey = 'votes'
 
-const initialCardPresentState: CardState = {
-  isClerkCardPresent: false,
-  isPollWorkerCardPresent: false,
-  isRecentVoterPrint: false,
-  isVoterCardExpired: false,
-  isVoterCardVoided: false,
-  isVoterCardPresent: false,
-  isVoterCardPrinted: false,
-  pauseProcessingUntilNoCardPresent: false,
-  voterCardCreatedAt: 0,
-}
-
-const initialUserState: UserState = {
-  ballotCreatedAt: 0,
-  ballotStyleId: '',
-  contests: [],
-  precinctId: '',
-  userSettings: { textSize: GLOBALS.TEXT_SIZE },
-  votes: {},
-}
-
-const initialState: State = {
-  ...initialUserState,
-  ...initialCardPresentState,
-  appMode: VxMarkOnly,
-  appPrecinctId: '',
-  ballotsPrintedCount: 0,
-  election: undefined,
-  isFetchingElection: false,
-  isLiveMode: false,
-  isPollsOpen: false,
-  machineId: '---',
-  shortValue: '{}',
-  tally: [],
-}
-
-let checkCardInterval = 0
-
 const printer = makePrinter(PrintMethod.RemoteWithLocalFallback)
 
 class AppRoot extends React.Component<RouteComponentProps, State> {
-  public state = initialState
   private machineIdAbortController = new AbortController()
 
+  private checkCardInterval = 0
   private lastVoteUpdateAt = 0
   private lastVoteSaveToCardAt = 0
   private cardWriteInterval = 0
   private writingVoteToCard = false
+
+  private initialCardPresentState: CardState = {
+    isClerkCardPresent: false,
+    isPollWorkerCardPresent: false,
+    isRecentVoterPrint: false,
+    isVoterCardExpired: false,
+    isVoterCardVoided: false,
+    isVoterCardPresent: false,
+    isVoterCardPrinted: false,
+    pauseProcessingUntilNoCardPresent: false,
+    voterCardCreatedAt: 0,
+  }
+
+  private initialUserState: UserState = {
+    ballotCreatedAt: 0,
+    ballotStyleId: '',
+    contests: [],
+    precinctId: '',
+    userSettings: { textSize: GLOBALS.TEXT_SIZE },
+    votes: {},
+  }
+
+  private sharedState: SharedState = {
+    appMode: VxMarkOnly,
+    appPrecinctId: '',
+    ballotsPrintedCount: 0,
+    election: undefined,
+    isFetchingElection: false,
+    isLiveMode: false,
+    isPollsOpen: false,
+    machineId: '---',
+    shortValue: '{}',
+    tally: [],
+  }
+
+  private initialState: State = {
+    ...this.initialUserState,
+    ...this.initialCardPresentState,
+    ...this.sharedState,
+  }
+
+  public state = this.initialState
 
   public processVoterCardData = (voterCardData: VoterCardData) => {
     const election = this.state.election!
@@ -223,7 +229,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
               voterCardCreatedAt
             )
             return {
-              ...initialCardPresentState,
+              ...this.initialCardPresentState,
               shortValue,
               isVoterCardExpired,
               isVoterCardVoided,
@@ -257,7 +263,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       }
       case 'pollworker': {
         this.setState({
-          ...initialCardPresentState,
+          ...this.initialCardPresentState,
           isPollWorkerCardPresent: true,
         })
         break
@@ -265,7 +271,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       case 'clerk': {
         longValueExists &&
           this.setState({
-            ...initialCardPresentState,
+            ...this.initialCardPresentState,
             isClerkCardPresent: true,
           })
         break
@@ -274,10 +280,10 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public startShortValueReadPolling = () => {
-    if (checkCardInterval === 0) {
+    if (this.checkCardInterval === 0) {
       let lastCardDataString = ''
 
-      checkCardInterval = window.setInterval(async () => {
+      this.checkCardInterval = window.setInterval(async () => {
         try {
           const card = await this.readCard()
           if (this.state.pauseProcessingUntilNoCardPresent) {
@@ -308,8 +314,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public stopShortValueReadPolling = () => {
-    window.clearInterval(checkCardInterval)
-    checkCardInterval = 0 // To indicate setInterval is not running.
+    window.clearInterval(this.checkCardInterval)
+    this.checkCardInterval = 0 // To indicate setInterval is not running.
   }
 
   public saveLongValue = async (longValueBase64: string) => {
@@ -433,7 +439,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public componentDidMount = () => {
     if (window.location.hash === '#sample') {
-      checkCardInterval = 1 // don't poll for card data.
+      this.checkCardInterval = 1 // don't poll for card data.
       this.setState(
         {
           election: electionSample as Election,
@@ -474,12 +480,12 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       const election = this.getElection()
       const { ballotStyleId, precinctId } = this.getBallotActivation()
       const {
-        appMode = initialState.appMode,
-        appPrecinctId = initialState.appPrecinctId,
-        ballotsPrintedCount = initialState.ballotsPrintedCount,
-        isLiveMode = initialState.isLiveMode,
-        isPollsOpen = initialState.isPollsOpen,
-        tally = initialState.tally,
+        appMode = this.initialState.appMode,
+        appPrecinctId = this.initialState.appPrecinctId,
+        ballotsPrintedCount = this.initialState.ballotsPrintedCount,
+        isLiveMode = this.initialState.isLiveMode,
+        isPollsOpen = this.initialState.isPollsOpen,
+        tally = this.initialState.tally,
       } = this.getStoredState()
       const ballotStyle =
         ballotStyleId &&
@@ -491,7 +497,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       const contests =
         ballotStyle && election
           ? getContests({ ballotStyle, election })
-          : initialState.contests
+          : this.initialState.contests
       this.setState({
         appMode,
         appPrecinctId,
@@ -595,7 +601,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public unconfigure = () => {
-    this.setState(initialState)
+    this.setState(this.initialState)
     window.localStorage.clear()
     this.props.history.push('/')
   }
@@ -656,8 +662,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     this.resetVoterData()
     this.setState(
       {
-        ...initialCardPresentState,
-        ...initialUserState,
+        ...this.initialCardPresentState,
+        ...this.initialUserState,
       },
       () => {
         this.setStoredState()
@@ -721,8 +727,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     this.setState(
       prevState => ({
         isLiveMode: !prevState.isLiveMode,
-        ballotsPrintedCount: initialState.ballotsPrintedCount,
-        isPollsOpen: initialState.isPollsOpen,
+        ballotsPrintedCount: this.initialState.ballotsPrintedCount,
+        isPollsOpen: this.initialState.isPollsOpen,
       }),
       this.resetTally
     )
