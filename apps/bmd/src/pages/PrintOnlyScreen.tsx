@@ -11,13 +11,9 @@ import PrintedBallot from '../components/PrintedBallot'
 import Loading from '../components/Loading'
 import Screen from '../components/Screen'
 
-const GraphicNeeded = styled.div`
-  margin: 2rem auto;
-  border: 6px solid #ff0000;
-  width: 30%;
-  padding: 2rem 1rem;
-  color: #ff0000;
-  font-weight: 900;
+const Graphic = styled.img`
+  margin: 0 auto -1rem;
+  height: 300px;
 `
 
 interface Props {
@@ -101,11 +97,15 @@ const PrintAppScreen = ({
     if (isPrinted) {
       return (
         <React.Fragment>
-          <GraphicNeeded>
-            “Verify and Cast Printed Ballot” graphic here
-          </GraphicNeeded>
-          <h1>Verify and Cast Printed Ballot</h1>
-          <p>Verify that your votes on printed ballot are correct.</p>
+          <p>
+            <Graphic
+              src="/images/verify-and-cast.svg"
+              alt="Printing Ballot"
+              aria-hidden
+            />
+          </p>
+          <h1>Verify and Cast Your Printed Ballot</h1>
+          <p>Verify your votes on printed ballot are correct.</p>
           <p>Cast your official ballot in the ballot box.</p>
         </React.Fragment>
       )
@@ -113,7 +113,13 @@ const PrintAppScreen = ({
     if (isReadyToPrint) {
       return (
         <React.Fragment>
-          <GraphicNeeded>“Printing Ballot” graphic here</GraphicNeeded>
+          <p>
+            <Graphic
+              src="/images/printing-ballot.svg"
+              alt="Printing Ballot"
+              aria-hidden
+            />
+          </p>
           <h1>
             <Loading>Printing your official ballot</Loading>
           </h1>
@@ -122,7 +128,13 @@ const PrintAppScreen = ({
     }
     return (
       <React.Fragment>
-        <GraphicNeeded>“Insert Card” graphic here</GraphicNeeded>
+        <p>
+          <Graphic
+            src="/images/insert-card.svg"
+            alt="Insert Card"
+            aria-hidden
+          />
+        </p>
         <h1>Insert Card</h1>
         <p>Insert Card to print your official ballot.</p>
       </React.Fragment>
@@ -131,7 +143,7 @@ const PrintAppScreen = ({
 
   return (
     <React.Fragment>
-      <Screen>
+      <Screen white>
         <Main>
           <MainChild centerVertical maxWidth={false}>
             <Prose textCenter>{renderContent()}</Prose>

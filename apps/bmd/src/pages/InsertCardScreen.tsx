@@ -11,8 +11,8 @@ import TestMode from '../components/TestMode'
 import ElectionInfo from '../components/ElectionInfo'
 
 const InsertCardImage = styled.img`
-  margin: 1rem auto -1rem;
-  max-width: 150px;
+  margin: 0 auto -1rem;
+  height: 300px;
 `
 
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
 
 const ActivationScreen = ({ election, isLiveMode, isPollsOpen }: Props) => {
   return (
-    <Screen flexDirection="row-reverse">
+    <Screen flexDirection="row-reverse" white>
       <Sidebar>
         <ElectionInfo election={election} />
       </Sidebar>
@@ -33,7 +33,7 @@ const ActivationScreen = ({ election, isLiveMode, isPollsOpen }: Props) => {
             <TestMode isLiveMode={isLiveMode} />
             <p>
               <InsertCardImage
-                src="/insert-card.svg"
+                src="/images/insert-card.svg"
                 alt="Insert Card Diagram"
               />
             </p>
