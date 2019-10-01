@@ -3,25 +3,26 @@ import React from 'react'
 import styled from 'styled-components'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
-import Text from '../components/Text'
 import Screen from '../components/Screen'
 
-const GraphicNeeded = styled.div`
-  margin: 2rem auto;
-  border: 6px solid #ff0000;
-  width: 30%;
-  padding: 2rem 1rem;
-  color: #ff0000;
-  font-weight: 900;
+const Graphic = styled.img`
+  margin: 0 auto -1rem;
+  height: 300px;
 `
 
 const RemoveCardScreen = () => (
-  <Screen>
+  <Screen white>
     <Main>
       <MainChild centerVertical maxWidth={false}>
         <Prose textCenter id="audiofocus">
-          <Text voteIcon>Your votes have been saved to the card.</Text>
-          <GraphicNeeded>“Remove Card” graphic here</GraphicNeeded>
+          <p>Your votes have been saved to the card.</p>
+          <p>
+            <Graphic
+              src="/images/take-card-to-printer.svg"
+              alt="Take Card to Printer"
+              aria-hidden
+            />
+          </p>
           <h1 aria-label="Take card to the Ballot Printer.">
             Take your card to the Ballot Printer.
           </h1>
