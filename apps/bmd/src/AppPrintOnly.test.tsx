@@ -1,7 +1,9 @@
 import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
+import { fromByteArray } from 'base64-js'
 
+import { encodeBallot } from '@votingworks/ballot-encoder'
 import App from './App'
 
 import {
@@ -13,7 +15,7 @@ import {
   getVoterCardWithVotes,
   noCard,
   pollWorkerCard,
-  sampleVotes,
+  sampleBallot,
 } from '../test/helpers/smartcards'
 
 import { electionAsString } from '../test/helpers/election'
@@ -36,7 +38,7 @@ fetchMock.get('/card/read_long', () =>
 )
 
 fetchMock.get('/card/read_long_b64', () =>
-  JSON.stringify({ longValue: btoa(JSON.stringify(sampleVotes)) })
+  JSON.stringify({ longValue: fromByteArray(encodeBallot(sampleBallot)) })
 )
 
 fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
