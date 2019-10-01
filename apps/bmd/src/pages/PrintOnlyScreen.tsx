@@ -29,7 +29,6 @@ interface Props {
 }
 
 export const printerMessageTimeoutSeconds = 5
-const lastVotesKey = 'lastVotes'
 
 const PrintOnlyScreen = ({
   ballotStyleId,
@@ -43,10 +42,6 @@ const PrintOnlyScreen = ({
   votes: cardVotes,
 }: Props) => {
   let printerTimer = useRef(0)
-  const localVotes = JSON.parse(
-    window.localStorage.getItem(lastVotesKey) || '{}'
-  )
-  const isLocalVotes = !isEmptyObject(localVotes)
   const [isPrinted, updateIsPrinted] = useState(false)
   const isCardVotesEmpty = isEmptyObject(cardVotes)
 
@@ -64,7 +59,6 @@ const PrintOnlyScreen = ({
 
   useEffect(() => {
     if (!isEmptyObject(cardVotes)) {
-      window.localStorage.setItem(lastVotesKey, JSON.stringify(cardVotes))
       printBallot()
     }
   }, [cardVotes, printBallot])
@@ -83,7 +77,6 @@ const PrintOnlyScreen = ({
     election &&
     ballotStyleId &&
     precinctId &&
-    isLocalVotes &&
     isVoterCardPresent &&
     !isCardVotesEmpty &&
     !isPrinted
@@ -159,7 +152,7 @@ const PrintOnlyScreen = ({
           election={election}
           isLiveMode={isLiveMode}
           precinctId={precinctId}
-          votes={localVotes}
+          votes={cardVotes}
         />
       )}
     </React.Fragment>
