@@ -101,7 +101,7 @@
     "react-gamepad": "^1.0.3",
     "react-idle-timer": "^4.2.9",
     "react-modal": "^3.10.1",
-    "react-router-dom": "^5.1.1",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "3.0.1",
     "styled-components": "^4.4.0",
     "typescript": "3.6.3",
