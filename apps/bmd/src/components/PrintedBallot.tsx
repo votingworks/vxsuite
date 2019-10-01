@@ -198,6 +198,7 @@ const PrintBallot = ({
     ballotId,
     ballotStyle,
     votes,
+    isTestBallot: !isLiveMode,
   })
 
   return (

@@ -1,26 +1,27 @@
+import {
+  CompletedBallot,
+  decodeBallot,
+  encodeBallot,
+  getPrecinctById,
+} from '@votingworks/ballot-encoder'
+import { fromByteArray, toByteArray } from 'base64-js'
+import 'normalize.css'
 import React from 'react'
 import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
-
-import * as GLOBALS from './config/globals'
-
-import 'normalize.css'
 import './App.css'
-
-import {
-  handleGamepadButtonDown,
-  handleGamepadKeyboardEvent,
-} from './lib/gamepad'
-
+import Ballot from './components/Ballot'
+import * as GLOBALS from './config/globals'
 import {
   ActivationData,
   AppMode,
   AppModeNames,
   CardAPI,
-  CardPresentAPI,
   CardData,
+  CardPresentAPI,
   Contests,
   Election,
+  getAppMode,
   InputEvent,
   MachineIdAPI,
   MarkVoterCardFunction,
@@ -33,28 +34,26 @@ import {
   VxMarkOnly,
   VxMarkPlusVxPrint,
   VxPrintOnly,
-  getAppMode,
 } from './config/types'
-
-import utcTimestamp from './utils/utcTimestamp'
-import isEmptyObject from './utils/isEmptyObject'
-import fetchJSON from './utils/fetchJSON'
-
-import { getBallotStyle, getContests } from './utils/election'
-
-import Ballot from './components/Ballot'
 import BallotContext from './contexts/ballotContext'
-
-import PrintOnlyScreen from './pages/PrintOnlyScreen'
-import ClerkScreen from './pages/ClerkScreen'
-import PollWorkerScreen from './pages/PollWorkerScreen'
-import InsertCardScreen from './pages/InsertCardScreen'
-import CastBallotPage from './pages/CastBallotPage'
-import UnconfiguredScreen from './pages/UnconfiguredScreen'
-import ExpiredCardScreen from './pages/ExpiredCardScreen'
-import UsedCardScreen from './pages/UsedCardScreen'
 import electionSample from './data/electionSample.json'
+import {
+  handleGamepadButtonDown,
+  handleGamepadKeyboardEvent,
+} from './lib/gamepad'
+import CastBallotPage from './pages/CastBallotPage'
+import ClerkScreen from './pages/ClerkScreen'
+import ExpiredCardScreen from './pages/ExpiredCardScreen'
+import InsertCardScreen from './pages/InsertCardScreen'
+import PollWorkerScreen from './pages/PollWorkerScreen'
+import PrintOnlyScreen from './pages/PrintOnlyScreen'
+import UnconfiguredScreen from './pages/UnconfiguredScreen'
+import UsedCardScreen from './pages/UsedCardScreen'
+import { getBallotStyle, getContests } from './utils/election'
+import fetchJSON from './utils/fetchJSON'
+import isEmptyObject from './utils/isEmptyObject'
 import makePrinter, { PrintMethod } from './utils/printer'
+import utcTimestamp from './utils/utcTimestamp'
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -168,22 +167,32 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public fetchVotes = async () => {
     const response = await fetch('/card/read_long_b64')
     const returnValue = await response.json()
-    const votes = JSON.parse(atob(returnValue.longValue))
+    const election = this.state.election!
+    const { ballot } = decodeBallot(
+      election,
+      toByteArray(returnValue.longValue)
+    )
     this.setState({
-      votes,
+      votes: ballot.votes,
     })
   }
 
   public isVoterCardExpired = (
     prevCreatedAt: number,
     createdAt: number
-  ): boolean =>
-    prevCreatedAt === 0 &&
-    utcTimestamp() >= createdAt + GLOBALS.CARD_EXPIRATION_SECONDS
+  ): boolean => {
+    return (
+      prevCreatedAt === 0 &&
+      utcTimestamp() >= createdAt + GLOBALS.CARD_EXPIRATION_SECONDS
+    )
+  }
 
-  public isRecentVoterPrint = (isPrinted: boolean, printedTime: number) =>
-    isPrinted &&
-    utcTimestamp() <= printedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
+  public isRecentVoterPrint = (isPrinted: boolean, printedTime: number) => {
+    return (
+      isPrinted &&
+      utcTimestamp() <= printedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
+    )
+  }
 
   public processCard = ({ longValueExists, shortValue }: CardPresentAPI) => {
     const cardData: CardData = JSON.parse(shortValue)
@@ -323,7 +332,22 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         ) {
           this.lastVoteSaveToCardAt = Date.now()
 
-          const longValue = btoa(JSON.stringify(this.state.votes))
+          const election = this.state.election!
+          const ballot: CompletedBallot = {
+            election,
+            ballotId: '',
+            ballotStyle: getBallotStyle({
+              election,
+              ballotStyleId: this.state.ballotStyleId,
+            })!,
+            precinct: getPrecinctById({
+              election,
+              precinctId: this.state.precinctId,
+            })!,
+            votes: this.state.votes,
+            isTestBallot: !this.state.isLiveMode,
+          }
+          const longValue = fromByteArray(encodeBallot(ballot))
 
           this.writingVoteToCard = true
           try {
