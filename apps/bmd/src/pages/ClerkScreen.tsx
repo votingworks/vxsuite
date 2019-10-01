@@ -9,6 +9,7 @@ import {
   VxMarkOnly,
   VxPrintOnly,
   VxMarkPlusVxPrint,
+  Tally,
 } from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
@@ -30,6 +31,7 @@ interface Props {
   fetchElection: VoidFunction
   isFetchingElection: boolean
   setAppMode: (appModeName: AppModeNames) => void
+  tally: Tally
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
 }
@@ -42,13 +44,14 @@ const ClerkScreen = ({
   fetchElection,
   isFetchingElection,
   setAppMode,
+  // tally,
   toggleLiveMode,
   unconfigure,
 }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const showModal = () => setIsModalOpen(true)
   const hideModal = () => setIsModalOpen(false)
-  const handleToggleLiveMode = () => {
+  const changeLiveMode = () => {
     hideModal()
     toggleLiveMode()
   }
@@ -197,15 +200,14 @@ const ClerkScreen = ({
         content={
           <Prose textCenter>
             <p>
-              {isLiveMode
-                ? 'Switch to Testing Mode and zero Printed Ballots count?'
-                : 'Switch to Live Election Mode and zero Printed Ballots count?'}
+              Switching modes will zero Printed Ballots count and reset Vote
+              Tally. Continue?
             </p>
           </Prose>
         }
         actions={
           <React.Fragment>
-            <Button primary onPress={handleToggleLiveMode}>
+            <Button primary onPress={changeLiveMode}>
               Yes
             </Button>
             <Button onPress={hideModal}>Cancel</Button>

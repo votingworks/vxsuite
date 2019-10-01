@@ -24,13 +24,14 @@ interface Props {
   markVoterCardPrinted: MarkVoterCardFunction
   precinctId: string
   printer: NullPrinter
+  updateTally: () => void
   votes: VotesDict
 }
 
 export const printerMessageTimeoutSeconds = 5
 const lastVotesKey = 'lastVotes'
 
-const PrintAppScreen = ({
+const PrintOnlyScreen = ({
   ballotStyleId,
   election,
   isLiveMode,
@@ -38,6 +39,7 @@ const PrintAppScreen = ({
   markVoterCardPrinted,
   precinctId,
   printer,
+  updateTally,
   votes: cardVotes,
 }: Props) => {
   let printerTimer = useRef(0)
@@ -53,11 +55,12 @@ const PrintAppScreen = ({
     /* istanbul ignore else */
     if (isUsed) {
       await printer.print()
+      updateTally()
       printerTimer.current = window.setTimeout(() => {
         updateIsPrinted(true)
       }, printerMessageTimeoutSeconds * 1000)
     }
-  }, [markVoterCardPrinted, printer])
+  }, [markVoterCardPrinted, printer, updateTally])
 
   useEffect(() => {
     if (!isEmptyObject(cardVotes)) {
@@ -163,4 +166,4 @@ const PrintAppScreen = ({
   )
 }
 
-export default PrintAppScreen
+export default PrintOnlyScreen

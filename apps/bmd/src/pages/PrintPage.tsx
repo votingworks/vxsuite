@@ -16,12 +16,12 @@ const PrintPage = () => {
   const {
     ballotStyleId,
     election,
-    incrementBallotsPrintedCount,
     isLiveMode,
     markVoterCardPrinted,
     precinctId,
     printer,
     resetBallot,
+    updateTally,
     votes,
   } = useContext(BallotContext)
   let printerTimer = useRef(0)
@@ -31,12 +31,12 @@ const PrintPage = () => {
     /* istanbul ignore else */
     if (isUsed) {
       await printer.print()
-      incrementBallotsPrintedCount()
+      updateTally()
       printerTimer.current = window.setTimeout(() => {
         resetBallot()
       }, printerMessageTimeoutSeconds * 1000)
     }
-  }, [incrementBallotsPrintedCount, markVoterCardPrinted, printer, resetBallot])
+  }, [markVoterCardPrinted, printer, resetBallot, updateTally])
 
   useEffect(() => {
     if (!isEmptyObject(votes)) {

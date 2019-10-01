@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import pluralize from 'pluralize'
 
-import { AppMode, Election } from '../config/types'
+import { AppMode, Election, Tally } from '../config/types'
 
 import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
@@ -22,6 +22,7 @@ interface Props {
   isLiveMode: boolean
   machineId: string
   printer: NullPrinter
+  tally: Tally
   togglePollsOpen: () => void
 }
 
@@ -33,6 +34,7 @@ const PollWorkerScreen = ({
   isLiveMode,
   machineId,
   printer,
+  // tally,
   togglePollsOpen,
 }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false)

@@ -31,6 +31,7 @@ it('renders PollWorkerScreen', async () => {
       isLiveMode={false}
       machineId="1"
       printer={new NullPrinter()}
+      tally={[]}
       togglePollsOpen={jest.fn()}
     />
   )

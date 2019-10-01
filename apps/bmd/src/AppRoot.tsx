@@ -21,7 +21,6 @@ import {
   CardPresentAPI,
   Contests,
   Election,
-  getAppMode,
   MachineIdAPI,
   MarkVoterCardFunction,
   OptionalElection,
@@ -33,6 +32,13 @@ import {
   VxMarkOnly,
   VxMarkPlusVxPrint,
   VxPrintOnly,
+  Tally,
+  YesNoVote,
+  TallyCount,
+  CandidateVote,
+  CandidateVoteTally,
+  WriteInCandidateTally,
+  getAppMode,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import electionSample from './data/electionSample.json'
@@ -84,6 +90,7 @@ interface State extends CardState, UserState {
   isPollsOpen: boolean
   machineId: string
   shortValue: string
+  tally: Tally
 }
 
 export const electionStorageKey = 'election'
@@ -123,6 +130,7 @@ const initialState: State = {
   isPollsOpen: false,
   machineId: '---',
   shortValue: '{}',
+  tally: [],
 }
 
 let checkCardInterval = 0
@@ -447,7 +455,6 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             precinctId,
           })
           this.setElection(election as Election)
-          this.setStoredState()
           const voterCardData: VoterCardData = {
             c: utcTimestamp(),
             t: 'voter',
@@ -469,6 +476,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         ballotsPrintedCount = initialState.ballotsPrintedCount,
         isLiveMode = initialState.isLiveMode,
         isPollsOpen = initialState.isPollsOpen,
+        tally = initialState.tally,
       } = this.getStoredState()
       const ballotStyle =
         ballotStyleId &&
@@ -490,6 +498,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         isLiveMode,
         isPollsOpen,
         precinctId,
+        tally,
         votes: this.getVotes(),
       })
     }
@@ -542,7 +551,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public setElection = (electionConfigFile: Election) => {
     const election = electionConfigFile
-    this.setState({ election })
+    this.setState({ election }, this.resetTally)
     window.localStorage.setItem(electionStorageKey, JSON.stringify(election))
   }
 
@@ -588,7 +597,13 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public setStoredState = () => {
-    const { appMode, ballotsPrintedCount, isLiveMode, isPollsOpen } = this.state
+    const {
+      appMode,
+      ballotsPrintedCount,
+      isLiveMode,
+      isPollsOpen,
+      tally,
+    } = this.state
     window.localStorage.setItem(
       stateStorageKey,
       JSON.stringify({
@@ -596,6 +611,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         ballotsPrintedCount,
         isLiveMode,
         isPollsOpen,
+        tally,
       })
     )
   }
@@ -688,7 +704,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public setAppMode = (appModeName: AppModeNames) => {
     const appMode = getAppMode(appModeName)
-    this.setState({ appMode }, this.setStoredState)
+    this.setState({ appMode }, this.resetTally)
   }
 
   public toggleLiveMode = () => {
@@ -698,7 +714,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         ballotsPrintedCount: initialState.ballotsPrintedCount,
         isPollsOpen: initialState.isPollsOpen,
       }),
-      this.setStoredState
+      this.resetTally
     )
   }
 
@@ -709,11 +725,82 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     )
   }
 
-  public incrementBallotsPrintedCount = () => {
+  public resetTally = () => {
+    this.setState(({ election, tally }) => {
+      if (election) {
+        const newTally = election.contests.map(contest => {
+          if (contest.type === 'yesno') {
+            return [0, 0]
+          } else if (contest.type === 'candidate') {
+            return contest.candidates.map(() => 0)
+          } else {
+            return []
+          }
+        })
+        return {
+          tally: newTally,
+        }
+      }
+      return {
+        tally,
+      }
+    }, this.setStoredState)
+  }
+
+  public updateTally = () => {
     this.setState(
-      prevState => ({
-        ballotsPrintedCount: prevState.ballotsPrintedCount + 1,
-      }),
+      ({ ballotsPrintedCount, election: e, tally: prevTally, votes }) => {
+        const tally = prevTally
+        const election = e!
+        for (let contestId in votes) {
+          const contestIndex = election.contests.findIndex(
+            c => c.id === contestId
+          )
+          // throw error if `contestIndex < 0` ?
+          const contest = election.contests[contestIndex]
+          if (contest.type === 'yesno') {
+            const vote = votes[contestId] as YesNoVote
+            const yesNoVoteIndex = {
+              yes: 0,
+              no: 1,
+            }
+            ;(tally[contestIndex][yesNoVoteIndex[vote]] as TallyCount)++
+          } else if (contest.type === 'candidate') {
+            const vote = votes[contestId] as CandidateVote
+            vote.forEach(candidate => {
+              if (candidate.isWriteIn) {
+                const tallyContestWriteIns = (tally[
+                  contestIndex
+                ] as CandidateVoteTally).filter(
+                  c => typeof c !== 'number'
+                ) as WriteInCandidateTally[]
+                const writeInIndex = tallyContestWriteIns.findIndex(
+                  c => c.name === candidate.name
+                )
+                if (writeInIndex === -1) {
+                  const newWriteIn: WriteInCandidateTally = {
+                    name: candidate.name,
+                    tally: 1,
+                  }
+                  ;(tally[contestIndex] as CandidateVoteTally).push(newWriteIn)
+                } else {
+                  ;(tally[contestIndex][writeInIndex] as WriteInCandidateTally)
+                    .tally++
+                }
+              } else {
+                const candidateIndex = contest.candidates.findIndex(
+                  c => c.id === candidate.id
+                )
+                ;(tally[contestIndex][candidateIndex] as TallyCount)++
+              }
+            })
+          }
+        }
+        return {
+          ballotsPrintedCount: ballotsPrintedCount + 1,
+          tally,
+        }
+      },
       this.setStoredState
     )
   }
@@ -736,6 +823,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       isRecentVoterPrint,
       machineId,
       precinctId,
+      tally,
       userSettings,
       votes,
     } = this.state
@@ -749,6 +837,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
           setAppMode={this.setAppMode}
+          tally={tally}
           toggleLiveMode={this.toggleLiveMode}
           unconfigure={this.unconfigure}
         />
@@ -765,6 +854,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             isPollsOpen={isPollsOpen}
             machineId={machineId}
             printer={printer}
+            tally={tally}
             togglePollsOpen={this.togglePollsOpen}
           />
         )
@@ -796,6 +886,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             markVoterCardPrinted={this.markVoterCardPrinted}
             precinctId={precinctId}
             printer={printer}
+            updateTally={this.updateTally}
             votes={votes}
           />
         )
@@ -811,8 +902,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
                   ballotStyleId,
                   contests,
                   election,
-                  incrementBallotsPrintedCount: this
-                    .incrementBallotsPrintedCount,
+                  updateTally: this.updateTally,
                   isLiveMode,
                   markVoterCardPrinted: this.markVoterCardPrinted,
                   markVoterCardVoided: this.markVoterCardVoided,
