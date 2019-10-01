@@ -92,6 +92,7 @@ interface Precinct {
 
 interface Props {
   appName: AppModeNames
+  appPrecinctId: string
   election: Election
   hideTestDeck: () => void
   isLiveMode: boolean
@@ -101,6 +102,7 @@ const initialPrecinct: Precinct = { id: '', name: '' }
 
 const TestBallotDeckScreen = ({
   appName,
+  appPrecinctId,
   election,
   hideTestDeck,
   isLiveMode,
@@ -183,8 +185,17 @@ const TestBallotDeckScreen = ({
         </Main>
         <Sidebar
           appName={appName}
+          centerContent
           title="Election Admin Actions"
-          footer={election && <ElectionInfo election={election} horizontal />}
+          footer={
+            election && (
+              <ElectionInfo
+                election={election}
+                precinctId={appPrecinctId}
+                horizontal
+              />
+            )
+          }
         >
           <Button small onPress={hideTestDeck}>
             Back to Admin Dashboard

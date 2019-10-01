@@ -6,6 +6,7 @@ import { Election, VxMarkOnly } from '../config/types'
 import { render } from '../../test/testUtils'
 
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
+import { defaultPrecinctId } from '../../test/helpers/election'
 
 import {
   advanceTimers,
@@ -25,6 +26,7 @@ it('renders PollWorkerScreen', async () => {
   const { getByText } = render(
     <PollWorkerScreen
       appMode={VxMarkOnly}
+      appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       election={electionSampleWithSeal as Election}
       isPollsOpen

@@ -4,7 +4,7 @@ import fetchMock from 'fetch-mock'
 
 import { render } from '../../test/testUtils'
 
-import { election } from '../../test/helpers/election'
+import { election, defaultPrecinctId } from '../../test/helpers/election'
 
 import { adminCard, advanceTimers, noCard } from '../../test/helpers/smartcards'
 
@@ -20,13 +20,14 @@ it('renders ClerkScreen', async () => {
   const { getByText } = render(
     <ClerkScreen
       appMode={VxPrintOnly}
+      appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       election={election}
       fetchElection={jest.fn()}
       isFetchingElection={false}
       isLiveMode={false}
       setAppMode={jest.fn()}
-      tally={[]}
+      setAppPrecinctId={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
     />

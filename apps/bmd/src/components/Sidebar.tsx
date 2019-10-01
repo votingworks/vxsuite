@@ -5,6 +5,7 @@ import Text from './Text'
 
 interface Props {
   appName?: string
+  centerContent?: boolean
   children?: React.ReactNode
   footer?: React.ReactNode
   title?: string
@@ -21,11 +22,13 @@ const Header = styled.div`
   margin: 2rem 1rem 1rem;
 `
 
-const Content = styled.div`
+const Content = styled.div<Props>`
   display: flex;
   flex: 1;
   flex-direction: column;
-  margin: 1rem;
+  margin: ${({ centerContent }) => (centerContent ? '0 auto' : undefined)};
+  max-width: ${({ centerContent }) => (centerContent ? '20rem' : undefined)};
+  padding: 1rem;
   p > button {
     width: 100%;
   }
@@ -35,7 +38,13 @@ const Footer = styled.div`
   margin: 1rem 1rem 2rem;
 `
 
-const Sidebar = ({ appName, footer, children, title }: Props) => {
+const Sidebar = ({
+  appName,
+  centerContent,
+  footer,
+  children,
+  title,
+}: Props) => {
   return (
     <StyledSidebar>
       {title && (
@@ -44,13 +53,14 @@ const Sidebar = ({ appName, footer, children, title }: Props) => {
             <Text as="h1" center>
               {appName}
               <Text as="span" light noWrap>
-                {` / ${title}`}
+                {appName && ' / '}
+                {title}
               </Text>
             </Text>
           </Prose>
         </Header>
       )}
-      <Content>{children}</Content>
+      <Content centerContent={centerContent}>{children}</Content>
       {footer && <Footer>{footer}</Footer>}
     </StyledSidebar>
   )

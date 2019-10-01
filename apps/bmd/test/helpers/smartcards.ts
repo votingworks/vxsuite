@@ -13,6 +13,9 @@ const contest0 = election.contests[0] as CandidateContest
 const contest1 = election.contests[1] as CandidateContest
 const contest0candidate0 = contest0.candidates[0]
 const contest1candidate0 = contest1.candidates[0]
+const defaultBallotStyleId = election.precincts[1].id
+const defaultPrecinctId = election.ballotStyles[1].id
+
 export const sampleVotes = vote(election.contests, {
   president: [contest0candidate0],
   'question-a': 'no',
@@ -75,8 +78,8 @@ export const getNewVoterCard = () => createVoterCard()
 
 export const getAlternateNewVoterCard = () =>
   createVoterCard({
-    pr: election.precincts[1].id,
-    bs: election.ballotStyles[1].id,
+    pr: defaultPrecinctId,
+    bs: defaultBallotStyleId,
   })
 
 export const getVoidedVoterCard = () =>

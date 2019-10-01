@@ -15,6 +15,9 @@ export const contest0candidate0 = contest0.candidates[0]
 export const contest0candidate1 = contest0.candidates[1]
 export const contest1candidate0 = contest1.candidates[0]
 
+export const defaultPrecinctId = election.precincts[1].id
+export const defaultBallotStyleId = election.ballotStyles[1].id
+
 export const presidentContest = electionSample.contests.find(
   c => c.title === 'President and Vice-President' && c.seats === 1
 ) as CandidateContest

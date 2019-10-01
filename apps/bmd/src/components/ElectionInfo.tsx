@@ -33,17 +33,17 @@ const HorizontalContainer = styled.div`
 `
 
 interface Props {
+  precinctId: string
   ballotStyleId?: string
   election: Election
   horizontal?: boolean
-  precinctId?: string
 }
 
 const ElectionInfo = ({
+  precinctId,
   ballotStyleId,
   election,
   horizontal = false,
-  precinctId,
 }: Props) => {
   const { title: t, state, county, date, seal, sealURL } = election
   const precinct = election.precincts.find(p => p.id === precinctId) as Precinct
@@ -66,12 +66,15 @@ const ElectionInfo = ({
               <br />
               <NoWrap>{county.name},</NoWrap> <NoWrap>{state}</NoWrap>
             </Text>
-            {precinct && ballotStyleId && (
-              <Text small light>
-                {precinct && <NoWrap>{precinct.name}, </NoWrap>}
-                {ballotStyleId && <NoWrap>ballot style {ballotStyleId}</NoWrap>}
-              </Text>
-            )}
+            <Text small light>
+              {precinct && (
+                <NoWrap>
+                  {precinct.name}
+                  {ballotStyleId && ', '}
+                </NoWrap>
+              )}
+              {ballotStyleId && <NoWrap>ballot style {ballotStyleId}</NoWrap>}
+            </Text>
           </Prose>
         </HorizontalContainer>
       </CenterinBlock>
@@ -89,6 +92,7 @@ const ElectionInfo = ({
           <br />
           {state}
         </p>
+        <Text light>{precinct.name}</Text>
       </Prose>
     </VerticalContainer>
   )

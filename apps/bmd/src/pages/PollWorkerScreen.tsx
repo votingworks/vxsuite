@@ -16,6 +16,7 @@ import PollsReport from '../components/PollsReport'
 
 interface Props {
   appMode: AppMode
+  appPrecinctId: string
   ballotsPrintedCount: number
   election: Election
   isPollsOpen: boolean
@@ -28,6 +29,7 @@ interface Props {
 
 const PollWorkerScreen = ({
   appMode,
+  appPrecinctId,
   ballotsPrintedCount,
   election,
   isPollsOpen,
@@ -64,7 +66,6 @@ const PollWorkerScreen = ({
         <Main padded>
           <MainChild>
             <Prose>
-              <p>Remove card when finished making changes.</p>
               <h1>Open/Close Polls</h1>
               <Text warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
                 {isPollsOpen
@@ -87,9 +88,20 @@ const PollWorkerScreen = ({
         </Main>
         <Sidebar
           appName={appMode.name}
+          centerContent
           title="Poll Worker Actions"
-          footer={<ElectionInfo election={election} horizontal />}
-        />
+          footer={
+            <ElectionInfo
+              election={election}
+              precinctId={appPrecinctId}
+              horizontal
+            />
+          }
+        >
+          <Prose>
+            <Text center>Remove card when finished.</Text>
+          </Prose>
+        </Sidebar>
         <Modal
           isOpen={isModalOpen}
           centerContent

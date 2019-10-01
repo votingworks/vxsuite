@@ -83,6 +83,7 @@ interface UserState {
 
 interface State extends CardState, UserState {
   appMode: AppMode
+  appPrecinctId: string
   ballotsPrintedCount: number
   election: OptionalElection
   isFetchingElection: boolean
@@ -123,6 +124,7 @@ const initialState: State = {
   ...initialUserState,
   ...initialCardPresentState,
   appMode: VxMarkOnly,
+  appPrecinctId: '',
   ballotsPrintedCount: 0,
   election: undefined,
   isFetchingElection: false,
@@ -473,6 +475,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       const { ballotStyleId, precinctId } = this.getBallotActivation()
       const {
         appMode = initialState.appMode,
+        appPrecinctId = initialState.appPrecinctId,
         ballotsPrintedCount = initialState.ballotsPrintedCount,
         isLiveMode = initialState.isLiveMode,
         isPollsOpen = initialState.isPollsOpen,
@@ -491,6 +494,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           : initialState.contests
       this.setState({
         appMode,
+        appPrecinctId,
         ballotsPrintedCount,
         ballotStyleId,
         contests,
@@ -599,6 +603,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public setStoredState = () => {
     const {
       appMode,
+      appPrecinctId,
       ballotsPrintedCount,
       isLiveMode,
       isPollsOpen,
@@ -608,6 +613,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       stateStorageKey,
       JSON.stringify({
         appMode,
+        appPrecinctId,
         ballotsPrintedCount,
         isLiveMode,
         isPollsOpen,
@@ -705,6 +711,10 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public setAppMode = (appModeName: AppModeNames) => {
     const appMode = getAppMode(appModeName)
     this.setState({ appMode }, this.resetTally)
+  }
+
+  public setAppPrecinctId = (appPrecinctId: string) => {
+    this.setState({ appPrecinctId }, this.resetTally)
   }
 
   public toggleLiveMode = () => {
@@ -808,6 +818,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public render() {
     const {
       appMode,
+      appPrecinctId,
       ballotsPrintedCount,
       ballotStyleId,
       contests,
@@ -831,23 +842,25 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       return (
         <ClerkScreen
           appMode={appMode}
+          appPrecinctId={appPrecinctId}
           ballotsPrintedCount={ballotsPrintedCount}
           election={optionalElection}
           fetchElection={this.fetchElection}
           isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
           setAppMode={this.setAppMode}
-          tally={tally}
+          setAppPrecinctId={this.setAppPrecinctId}
           toggleLiveMode={this.toggleLiveMode}
           unconfigure={this.unconfigure}
         />
       )
-    } else if (optionalElection) {
+    } else if (optionalElection && !!appPrecinctId) {
       const election = optionalElection as Election
       if (isPollWorkerCardPresent) {
         return (
           <PollWorkerScreen
             appMode={appMode}
+            appPrecinctId={appPrecinctId}
             ballotsPrintedCount={ballotsPrintedCount}
             election={election}
             isLiveMode={isLiveMode}
@@ -923,6 +936,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       }
       return (
         <InsertCardScreen
+          appPrecinctId={appPrecinctId}
           election={election}
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
