@@ -223,19 +223,19 @@ export const getPartyPrimaryAdjectiveFromBallotStyle = ({
  * @example
  *
  * // Vote by candidate id.
- * votes(contests, { president: 'boone-lian' })
+ * vote(contests, { president: 'boone-lian' })
  *
  * // Vote by yesno contest.
- * votes(contests, { 'question-a': 'yes' })
+ * vote(contests, { 'question-a': 'yes' })
  *
  * // Multiple votes.
- * votes(contests, {
+ * vote(contests, {
  *   president: 'boone-lian',
  *   'question-a': 'yes'
  * })
  *
  * // Multiple candidate selections.
- * votes(contests, {
+ * vote(contests, {
  *   'city-council': ['rupp', 'davis']
  * })
  */
