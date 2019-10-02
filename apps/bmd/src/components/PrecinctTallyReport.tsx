@@ -6,6 +6,14 @@ import Table, { TD } from './Table'
 import Prose from './Prose'
 import { NoWrap } from './Text'
 
+const Report = styled.div`
+  margin: 0;
+  page-break-after: always;
+  @media screen {
+    display: none;
+  }
+`
+
 const Contest = styled.div`
   margin: 2rem 0 4rem;
   page-break-inside: avoid;
@@ -42,7 +50,7 @@ const PrecinctTallyReport = ({
     .filter(c => precinctDistrictIds.includes(c.districtId))
     .map(c => c.id)
   return (
-    <div>
+    <Report>
       <h1>
         <NoWrap>{precinct.name}</NoWrap> <NoWrap>{election.title}</NoWrap>{' '}
         <NoWrap>Tally Report</NoWrap>
@@ -104,7 +112,7 @@ const PrecinctTallyReport = ({
           </Contest>
         )
       })}
-    </div>
+    </Report>
   )
 }
 

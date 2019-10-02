@@ -90,7 +90,7 @@ const PollsReport = ({
   const { title, date, county, precincts, state, seal, sealURL } = election
   const precinct = precincts.find(p => p.id === precinctId) as Precinct
   return (
-    <Report key={reportPurpose}>
+    <Report>
       <Header>
         {/* istanbul ignore next */
         seal && !sealURL ? (
