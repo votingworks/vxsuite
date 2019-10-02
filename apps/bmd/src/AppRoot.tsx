@@ -188,9 +188,9 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       const {
         ballot: { votes },
       } = decodeBallot(election, toByteArray(longValue))
-      this.setState({
-        votes,
-      })
+      return votes
+    } else {
+      return {}
     }
   }
 
@@ -211,7 +211,10 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     )
   }
 
-  public processCard = ({ longValueExists, shortValue }: CardPresentAPI) => {
+  public processCard = async ({
+    longValueExists,
+    shortValue,
+  }: CardPresentAPI) => {
     const cardData: CardData = JSON.parse(shortValue)
     switch (cardData.t) {
       case 'voter': {
@@ -224,6 +227,13 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           isVoterCardPrinted,
           ballotPrintedTime
         )
+
+        const votes = (
+          longValueExists &&
+          !this.state.isVoterCardExpired &&
+          !this.state.isVoterCardVoided
+        ) ? await this.fetchVotes() : {}
+
         this.setState(
           prevState => {
             const isVoterCardExpired = this.isVoterCardExpired(
@@ -239,6 +249,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
               isVoterCardPrinted,
               isRecentVoterPrint,
               voterCardCreatedAt,
+              votes,
             }
           },
           () => {
@@ -256,14 +267,6 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             }
           }
         )
-
-        if (
-          longValueExists &&
-          !this.state.isVoterCardExpired &&
-          !this.state.isVoterCardVoided
-        ) {
-          this.fetchVotes()
-        }
 
         break
       }
