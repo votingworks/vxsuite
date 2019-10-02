@@ -181,15 +181,14 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
   public fetchVotes = async () => {
     const response = await fetch('/card/read_long_b64')
-    const returnValue = await response.json()
-    const election = this.state.election!
-    const { ballot } = decodeBallot(
-      election,
-      toByteArray(returnValue.longValue)
-    )
-    this.setState({
-      votes: ballot.votes,
-    })
+    const { longValue } = await response.json()
+    if (longValue) {
+      const election = this.state.election!
+      const { ballot } = decodeBallot(election, toByteArray(longValue))
+      this.setState({
+        votes: ballot.votes,
+      })
+    }
   }
 
   public isVoterCardExpired = (
