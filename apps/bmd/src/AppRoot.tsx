@@ -255,7 +255,11 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           }
         )
 
-        if (longValueExists) {
+        if (
+          longValueExists &&
+          !this.state.isVoterCardExpired &&
+          !this.state.isVoterCardVoided
+        ) {
           this.fetchVotes()
         }
 
