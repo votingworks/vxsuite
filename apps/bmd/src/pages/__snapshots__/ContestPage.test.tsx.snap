@@ -262,6 +262,11 @@ exports[`Renders ContestPage 1`] = `
   font-size: 0.8rem;
 }
 
+.c29 {
+  font-size: 0.8rem;
+  font-weight: 200;
+}
+
 .c28 {
   white-space: nowrap;
 }
@@ -412,7 +417,7 @@ exports[`Renders ContestPage 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  margin: 1rem;
+  padding: 1rem;
 }
 
 .c12 p > button {
@@ -793,6 +798,7 @@ exports[`Renders ContestPage 1`] = `
         <div
           aria-hidden="true"
           class="c23"
+          data-testid="election-info"
         >
           <div
             class="c24"
@@ -826,6 +832,11 @@ exports[`Renders ContestPage 1`] = `
                 >
                   State of Hamilton
                 </span>
+              </p>
+              <p
+                class="c29"
+              >
+                
               </p>
             </div>
           </div>

@@ -4,7 +4,11 @@ import { render } from '@testing-library/react'
 import App from './App'
 import { activationStorageKey, electionStorageKey } from './AppRoot'
 
-import { election, setElectionInLocalStorage } from '../test/helpers/election'
+import {
+  election,
+  setElectionInLocalStorage,
+  setStateInLocalStorage,
+} from '../test/helpers/election'
 
 jest.useFakeTimers()
 
@@ -31,6 +35,7 @@ describe('loads election', () => {
 
   it('from localStorage', () => {
     setElectionInLocalStorage()
+    setStateInLocalStorage()
     const { getByText } = render(<App />)
     getByText(election.title)
     expect(window.localStorage.getItem(electionStorageKey)).toBeTruthy()

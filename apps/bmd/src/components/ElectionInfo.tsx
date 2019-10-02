@@ -56,7 +56,7 @@ const ElectionInfo = ({
   const title = `${partyPrimaryAdjective} ${t}`
   if (horizontal) {
     return (
-      <CenterinBlock aria-hidden="true">
+      <CenterinBlock aria-hidden="true" data-testid="election-info">
         <HorizontalContainer>
           <Seal seal={seal} sealURL={sealURL} />
           <Prose compact>

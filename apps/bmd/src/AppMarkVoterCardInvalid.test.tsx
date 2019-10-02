@@ -146,7 +146,7 @@ describe('Mark Card Void when voter is idle too long', () => {
 
     // 30 seconds passes, Expect voided card
     advanceTimers()
-    await wait()
+    await wait() // TODO: unsure why this `wait` is needed, but it is.
     getByText('Insert Card')
   })
 })

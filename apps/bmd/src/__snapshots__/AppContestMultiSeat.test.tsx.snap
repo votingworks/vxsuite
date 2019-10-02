@@ -471,7 +471,7 @@ exports[`Single Seat Contest 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  margin: 1rem;
+  padding: 1rem;
 }
 
 .c14 p > button {
@@ -1059,6 +1059,7 @@ exports[`Single Seat Contest 1`] = `
         <div
           aria-hidden="true"
           class="c25"
+          data-testid="election-info"
         >
           <div
             class="c26"

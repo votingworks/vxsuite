@@ -1,10 +1,6 @@
 import styled from 'styled-components'
 
-interface Props {
-  striped?: boolean
-}
-
-const Table = styled.table<Props>`
+const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
   text-align: left;
@@ -16,12 +12,6 @@ const Table = styled.table<Props>`
   & th {
     border-top: 1px solid rgb(194, 200, 203);
     font-size: 0.75rem;
-  }
-  & tr:nth-child(2n - 1) {
-    td {
-      background-color: ${({ striped }) =>
-        striped ? 'rgb(222, 225, 227)' : undefined};
-    }
   }
   @media print {
     border-top: 1px solid rgb(194, 200, 203);
@@ -35,9 +25,8 @@ interface TableDataProps {
 }
 
 export const TD = styled.td<TableDataProps>`
-  width: ${({ narrow = false }) => (narrow ? '1%' : undefined)};
+  width: 1%;
   text-align: ${({ textAlign }) => textAlign};
-  white-space: ${({ nowrap = false }) => (nowrap ? 'nowrap' : undefined)};
 `
 
 export default Table

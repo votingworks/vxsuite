@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent } from '@testing-library/react'
+import { fireEvent, within } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
 import { render } from '../../test/testUtils'
@@ -17,7 +17,7 @@ let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
 it('renders ClerkScreen', async () => {
-  const { getByText } = render(
+  const { getByText, getByTestId } = render(
     <ClerkScreen
       appMode={VxPrintOnly}
       appPrecinctId={defaultPrecinctId}
@@ -39,7 +39,9 @@ it('renders ClerkScreen', async () => {
 
   // View Test Ballot Decks
   fireEvent.click(getByText('View Test Ballot Decks'))
-  fireEvent.click(getByText('Center Springfield'))
+  fireEvent.click(
+    within(getByTestId('precincts')).getByText('Center Springfield')
+  )
 
   // Back All Decks
   fireEvent.click(getByText('Back to Precincts List'))

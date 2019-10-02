@@ -43,9 +43,22 @@ export const getPartyPrimaryAdjectiveFromBallotStyle = ({
   return (name === 'Democrat' && 'Democratic') || name || ''
 }
 
+export const getZeroTally = (election: Election) =>
+  election.contests.map(contest => {
+    /* istanbul ignore else */
+    if (contest.type === 'yesno') {
+      return [0, 0]
+    } else if (contest.type === 'candidate') {
+      return contest.candidates.map(() => 0)
+    } else {
+      return []
+    }
+  })
+
 export default {
   getBallotStyle,
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
+  getZeroTally,
 }

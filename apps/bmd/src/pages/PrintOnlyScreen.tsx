@@ -65,6 +65,7 @@ const PrintOnlyScreen = ({
   useEffect(() => {
     if (!isEmptyObject(cardVotes)) {
       window.localStorage.setItem(lastVotesKey, JSON.stringify(cardVotes))
+      // console.log(JSON.stringify(cardVotes))
       printBallot()
     }
   }, [cardVotes, printBallot])

@@ -49,14 +49,14 @@ import {
 import CastBallotPage from './pages/CastBallotPage'
 import ClerkScreen from './pages/ClerkScreen'
 import ExpiredCardScreen from './pages/ExpiredCardScreen'
+import InvalidCardScreen from './pages/InvalidCardScreen'
 import InsertCardScreen from './pages/InsertCardScreen'
 import PollWorkerScreen from './pages/PollWorkerScreen'
 import PrintOnlyScreen from './pages/PrintOnlyScreen'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
-import { getBallotStyle, getContests } from './utils/election'
+import { getBallotStyle, getContests, getZeroTally } from './utils/election'
 import fetchJSON from './utils/fetchJSON'
-import isEmptyObject from './utils/isEmptyObject'
 import makePrinter, { PrintMethod } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
 
@@ -182,11 +182,14 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public fetchVotes = async () => {
     const response = await fetch('/card/read_long_b64')
     const { longValue } = await response.json()
+    /* istanbul ignore else */
     if (longValue) {
       const election = this.state.election!
-      const { ballot } = decodeBallot(election, toByteArray(longValue))
+      const {
+        ballot: { votes },
+      } = decodeBallot(election, toByteArray(longValue))
       this.setState({
-        votes: ballot.votes,
+        votes,
       })
     }
   }
@@ -446,6 +449,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       this.setState(
         {
           election: electionSample as Election,
+          appPrecinctId: '23',
           ballotsPrintedCount: 0,
           isLiveMode: true,
           isPollsOpen: true,
@@ -730,7 +734,6 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     this.setState(
       prevState => ({
         isLiveMode: !prevState.isLiveMode,
-        ballotsPrintedCount: this.initialState.ballotsPrintedCount,
         isPollsOpen: this.initialState.isPollsOpen,
       }),
       this.resetTally
@@ -745,25 +748,13 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public resetTally = () => {
-    this.setState(({ election, tally }) => {
-      if (election) {
-        const newTally = election.contests.map(contest => {
-          if (contest.type === 'yesno') {
-            return [0, 0]
-          } else if (contest.type === 'candidate') {
-            return contest.candidates.map(() => 0)
-          } else {
-            return []
-          }
-        })
-        return {
-          tally: newTally,
-        }
-      }
-      return {
-        tally,
-      }
-    }, this.setStoredState)
+    this.setState(
+      ({ election }) => ({
+        ballotsPrintedCount: this.initialState.ballotsPrintedCount,
+        tally: getZeroTally(election!),
+      }),
+      this.setStoredState
+    )
   }
 
   public updateTally = () => {
@@ -777,6 +768,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           )
           // throw error if `contestIndex < 0` ?
           const contest = election.contests[contestIndex]
+          /* istanbul ignore else */
           if (contest.type === 'yesno') {
             const vote = votes[contestId] as YesNoVote
             const yesNoVoteIndex = {
@@ -803,8 +795,9 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
                   }
                   ;(tally[contestIndex] as CandidateVoteTally).push(newWriteIn)
                 } else {
-                  ;(tally[contestIndex][writeInIndex] as WriteInCandidateTally)
-                    .tally++
+                  ;(tally[contestIndex][
+                    contest.candidates.length + writeInIndex
+                  ] as WriteInCandidateTally).tally++
                 }
               } else {
                 const candidateIndex = contest.candidates.findIndex(
@@ -891,11 +884,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           return <UsedCardScreen />
         }
       }
-      if (
-        isPollsOpen &&
-        isVoterCardExpired &&
-        (isEmptyObject(votes) || appMode.isVxMark)
-      ) {
+      if (isPollsOpen && isVoterCardExpired) {
         return <ExpiredCardScreen />
       }
       if (isPollsOpen && appMode === VxPrintOnly) {
@@ -915,6 +904,9 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       }
       if (isPollsOpen && appMode.isVxMark) {
         if (isVoterCardPresent && ballotStyleId && precinctId) {
+          if (appPrecinctId !== precinctId) {
+            return <InvalidCardScreen />
+          }
           return (
             <Gamepad onButtonDown={handleGamepadButtonDown}>
               <BallotContext.Provider

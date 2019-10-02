@@ -82,8 +82,11 @@ const ClerkScreen = ({
           <Prose>
             {election && (
               <React.Fragment>
-                <h1>Precinct</h1>
+                <h1>
+                  <label htmlFor="selectPrecinct">Precinct</label>
+                </h1>
                 <select
+                  id="selectPrecinct"
                   value={appPrecinctId}
                   onBlur={changeAppPrecinctId}
                   onChange={changeAppPrecinctId}

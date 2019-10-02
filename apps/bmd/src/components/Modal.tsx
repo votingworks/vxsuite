@@ -60,9 +60,12 @@ const Modal: React.FC<Props> = ({
     className="modal-content"
     overlayClassName="modal-overlay"
     onAfterOpen={onAfterOpen}
+    data-testid="modal"
   >
-    <ModalContent centerContent={centerContent}>{content}</ModalContent>
-    {actions && <ButtonBar as="div">{actions}</ButtonBar>}
+    <div data-testid="modal">
+      <ModalContent centerContent={centerContent}>{content}</ModalContent>
+      {actions && <ButtonBar as="div">{actions}</ButtonBar>}
+    </div>
   </ReactModal>
 )
 

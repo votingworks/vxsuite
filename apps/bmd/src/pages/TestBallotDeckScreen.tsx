@@ -166,7 +166,7 @@ const TestBallotDeckScreen = ({
                     <strong>All Precincts</strong>
                   </Button>
                 </p>
-                <ButtonList>
+                <ButtonList data-testid="precincts">
                   {election.precincts.map(p => (
                     <Button
                       data-id={p.id}
