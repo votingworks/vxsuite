@@ -85,6 +85,7 @@ const App = () => {
       case 'clerk':
         if (longValueExists) {
           setIsClerkCardPresent(true)
+          setIsLocked(true)
         }
         break
       default:
