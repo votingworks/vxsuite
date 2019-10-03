@@ -129,8 +129,14 @@ export interface WriteInCandidateTally {
   tally: number
 }
 export type TallyCount = number
-export type CandidateVoteTally = (TallyCount | WriteInCandidateTally)[]
-export type YesNoVoteTally = TallyCount[]
+export interface CandidateVoteTally {
+  candidates: TallyCount[]
+  writeIns: WriteInCandidateTally[]
+}
+export interface YesNoVoteTally {
+  yes: TallyCount
+  no: TallyCount
+}
 export type Tally = (CandidateVoteTally | YesNoVoteTally)[]
 
 // Ballot

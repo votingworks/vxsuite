@@ -1,6 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election, Tally, Precinct } from '../config/types'
+import {
+  Election,
+  Tally,
+  Precinct,
+  CandidateVoteTally,
+  YesNoVoteTally,
+} from '../config/types'
 
 import numberWithCommas from '../utils/numberWithCommas'
 
@@ -56,14 +62,14 @@ const PrecinctTallyReport = ({
   return (
     <Report>
       <h1>
-        <NoWrap>{precinct.name}</NoWrap> <NoWrap>{election.title}</NoWrap>{' '}
+        <NoWrap>{precinct.name}</NoWrap> <NoWrap>{election.title}</NoWrap>
         <NoWrap>Tally Report</NoWrap>
       </h1>
       <p>
         This report should be <strong>{reportPurpose}</strong>.
       </p>
       <p>
-        {isPollsOpen ? 'Polls Closed' : 'Polls Opened'} and report printed at:{' '}
+        {isPollsOpen ? 'Polls Closed' : 'Polls Opened'} and report printed at:
         <strong>{currentDateTime}</strong>
       </p>
       <p>
@@ -88,9 +94,10 @@ const PrecinctTallyReport = ({
                           <td>{candidate.name}</td>
                           <TD narrow textAlign="right">
                             {isContestInPrecinct
-                              ? numberWithCommas(tally[contestIndex][
-                                  candidateIndex
-                                ] as number)
+                              ? numberWithCommas(
+                                  (tally[contestIndex] as CandidateVoteTally)
+                                    .candidates[candidateIndex]
+                                )
                               : 'X'}
                           </TD>
                         </tr>
@@ -102,7 +109,9 @@ const PrecinctTallyReport = ({
                         <td>Yes</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
-                            ? numberWithCommas(tally[contestIndex][0] as number)
+                            ? numberWithCommas(
+                                (tally[contestIndex] as YesNoVoteTally).yes
+                              )
                             : 'X'}
                         </TD>
                       </tr>
@@ -110,7 +119,9 @@ const PrecinctTallyReport = ({
                         <td>No</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
-                            ? numberWithCommas(tally[contestIndex][1] as number)
+                            ? numberWithCommas(
+                                (tally[contestIndex] as YesNoVoteTally).no
+                              )
                             : 'X'}
                         </TD>
                       </tr>

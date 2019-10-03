@@ -34,11 +34,10 @@ import {
   VxPrintOnly,
   Tally,
   YesNoVote,
-  TallyCount,
   CandidateVote,
   CandidateVoteTally,
-  WriteInCandidateTally,
   getAppMode,
+  YesNoVoteTally,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import electionSample from './data/electionSample.json'
@@ -770,43 +769,43 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           if (contestIndex < 0) {
             throw new Error(`No contest found for contestId: ${contestId}`)
           }
+          const contestTally = tally[contestIndex]
           const contest = election.contests[contestIndex]
           /* istanbul ignore else */
           if (contest.type === 'yesno') {
+            const yesnoContestTally = contestTally as YesNoVoteTally
             const vote = votes[contestId] as YesNoVote
-            const yesNoVoteIndex = {
-              yes: 0,
-              no: 1,
-            }
-            ;(tally[contestIndex][yesNoVoteIndex[vote]] as TallyCount)++
+            yesnoContestTally[vote]++
           } else if (contest.type === 'candidate') {
+            const candidateContestTally = contestTally as CandidateVoteTally
             const vote = votes[contestId] as CandidateVote
             vote.forEach(candidate => {
               if (candidate.isWriteIn) {
-                const tallyContestWriteIns = (tally[
-                  contestIndex
-                ] as CandidateVoteTally).filter(
-                  c => typeof c !== 'number'
-                ) as WriteInCandidateTally[]
-                const writeInIndex = tallyContestWriteIns.findIndex(
+                const tallyContestWriteIns = candidateContestTally.writeIns
+                const writeIn = tallyContestWriteIns.find(
                   c => c.name === candidate.name
                 )
-                if (writeInIndex === -1) {
-                  const newWriteIn: WriteInCandidateTally = {
+                if (typeof writeIn === 'undefined') {
+                  tallyContestWriteIns.push({
                     name: candidate.name,
                     tally: 1,
-                  }
-                  ;(tally[contestIndex] as CandidateVoteTally).push(newWriteIn)
+                  })
                 } else {
-                  ;(tally[contestIndex][
-                    contest.candidates.length + writeInIndex
-                  ] as WriteInCandidateTally).tally++
+                  writeIn.tally++
                 }
               } else {
                 const candidateIndex = contest.candidates.findIndex(
                   c => c.id === candidate.id
                 )
-                ;(tally[contestIndex][candidateIndex] as TallyCount)++
+                if (
+                  candidateIndex < 0 ||
+                  candidateIndex >= candidateContestTally.candidates.length
+                ) {
+                  throw new Error(
+                    `unable to find a candidate with id: ${candidate.id}`
+                  )
+                }
+                candidateContestTally.candidates[candidateIndex]++
               }
             })
           }

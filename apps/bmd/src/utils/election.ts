@@ -1,3 +1,4 @@
+import { Contest } from '@votingworks/ballot-encoder'
 import { BallotStyle, Election, Tally } from '../config/types'
 
 export const getContests = ({
@@ -47,11 +48,17 @@ export const getZeroTally = (election: Election): Tally =>
   election.contests.map(contest => {
     /* istanbul ignore else */
     if (contest.type === 'yesno') {
-      return [0, 0]
+      return { yes: 0, no: 0 }
     } else if (contest.type === 'candidate') {
-      return contest.candidates.map(() => 0)
+      return {
+        candidates: contest.candidates.map(() => 0),
+        writeIns: [],
+      }
     } else {
-      return []
+      // `as Contest` is needed because TS knows 'yesno' and 'candidate' are the
+      // only valid values and so infers `contest` is type `never`, and we want
+      // to fail loudly in this situation.
+      throw new Error(`unexpected contest type: ${(contest as Contest).type}`)
     }
   })
 
