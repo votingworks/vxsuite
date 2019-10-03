@@ -48,7 +48,7 @@ test('can build votes from a candidate object', () => {
 test('can build votes from a candidates array', () => {
   const contests = election.contests.filter(c => c.id === 'president')
   const president = contests[0] as CandidateContest
-  const candidates = president.candidates
+  const { candidates } = president
 
   expect(vote(contests, { president: candidates })).toEqual({
     president: candidates,
