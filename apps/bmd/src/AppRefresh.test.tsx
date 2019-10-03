@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
+import { advanceBy } from 'jest-date-mock'
 
 import App from './App'
 
@@ -16,7 +17,10 @@ import {
   setStateInLocalStorage,
 } from '../test/helpers/election'
 
+import { CardPresentAPI } from './config/types'
+
 let currentCard = noCard
+let longValueB64: string
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 fetchMock.post('/card/write', (url, options) => {
   currentCard = {
@@ -25,6 +29,15 @@ fetchMock.post('/card/write', (url, options) => {
   }
   return ''
 })
+fetchMock.post('/card/write_long_b64', (url, options) => {
+  longValueB64 = (options.body! as FormData).get('long_value') as string
+  ;(currentCard as CardPresentAPI).longValueExists = true
+})
+fetchMock.get('/card/read_long_b64', () =>
+  JSON.stringify({
+    longValue: longValueB64,
+  })
+)
 
 jest.useFakeTimers()
 
@@ -62,6 +75,10 @@ it('Refresh window and expect to be on same contest', async () => {
   fireEvent.click(getByText(candidate0))
   advanceTimers()
   expect(getByText(candidate0).closest('button')!.dataset.selected).toBe('true')
+
+  // advance time to give opportunity for background interval to write to card
+  advanceBy(1100)
+  advanceTimers()
 
   unmount()
 
