@@ -19,6 +19,9 @@ jobs:
       - run:
           name: Run Tests and Coverage
           command: yarn test:ci
+      - run:
+          name: Run Linter
+          command: yarn lint
 
 workflows:
   version: 2
