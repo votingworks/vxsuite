@@ -16,6 +16,7 @@ import {
 
 import PollWorkerScreen from './PollWorkerScreen'
 import { NullPrinter } from '../utils/printer'
+import { getZeroTally } from '../utils/election'
 
 jest.useFakeTimers()
 
@@ -23,17 +24,18 @@ let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
 it('renders PollWorkerScreen', async () => {
+  const election = electionSampleWithSeal as Election
   const { getByText } = render(
     <PollWorkerScreen
       appMode={VxMarkOnly}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
-      election={electionSampleWithSeal as Election}
+      election={election}
       isPollsOpen
       isLiveMode={false}
       machineId="1"
       printer={new NullPrinter()}
-      tally={[]}
+      tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
     />
   )

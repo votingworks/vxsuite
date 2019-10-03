@@ -1,4 +1,4 @@
-import { BallotStyle, Election } from '../config/types'
+import { BallotStyle, Election, Tally } from '../config/types'
 
 export const getContests = ({
   ballotStyle,
@@ -43,7 +43,7 @@ export const getPartyPrimaryAdjectiveFromBallotStyle = ({
   return (name === 'Democrat' && 'Democratic') || name || ''
 }
 
-export const getZeroTally = (election: Election) =>
+export const getZeroTally = (election: Election): Tally =>
   election.contests.map(contest => {
     /* istanbul ignore else */
     if (contest.type === 'yesno') {
