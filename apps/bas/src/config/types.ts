@@ -111,3 +111,13 @@ export interface ClerkCardData extends CardData {
   readonly t: 'clerk'
   readonly h: string
 }
+
+export interface CardAbsentAPI {
+  present: false
+}
+export interface CardPresentAPI {
+  present: true
+  shortValue: string
+  longValueExists?: boolean
+}
+export type CardAPI = CardAbsentAPI | CardPresentAPI
