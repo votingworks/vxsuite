@@ -304,7 +304,7 @@ const App = () => {
       )
     }
   } else {
-    return <LoadElectionScreen setElection={setElection} />
+    return <LoadElectionScreen />
   }
 }
 
