@@ -762,11 +762,14 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       ({ ballotsPrintedCount, election: e, tally: prevTally, votes }) => {
         const tally = prevTally
         const election = e!
-        for (let contestId in votes) {
+        for (const contestId in votes) {
           const contestIndex = election.contests.findIndex(
             c => c.id === contestId
           )
-          // throw error if `contestIndex < 0` ?
+          /* istanbul ignore next */
+          if (contestIndex < 0) {
+            throw new Error(`No contest found for contestId: ${contestId}`)
+          }
           const contest = election.contests[contestIndex]
           /* istanbul ignore else */
           if (contest.type === 'yesno') {

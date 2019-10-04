@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import { Election, Tally, Precinct } from '../config/types'
 
+import numberWithCommas from '../utils/numberWithCommas'
+
 import Table, { TD } from './Table'
 import Prose from './Prose'
 import { NoWrap } from './Text'
@@ -86,7 +88,9 @@ const PrecinctTallyReport = ({
                           <td>{candidate.name}</td>
                           <TD narrow textAlign="right">
                             {isContestInPrecinct
-                              ? tally[contestIndex][candidateIndex]
+                              ? numberWithCommas(tally[contestIndex][
+                                  candidateIndex
+                                ] as number)
                               : 'X'}
                           </TD>
                         </tr>
@@ -97,13 +101,17 @@ const PrecinctTallyReport = ({
                       <tr>
                         <td>Yes</td>
                         <TD narrow textAlign="right">
-                          {isContestInPrecinct ? tally[contestIndex][0] : 'X'}
+                          {isContestInPrecinct
+                            ? numberWithCommas(tally[contestIndex][0] as number)
+                            : 'X'}
                         </TD>
                       </tr>
                       <tr>
                         <td>No</td>
                         <TD narrow textAlign="right">
-                          {isContestInPrecinct ? tally[contestIndex][1] : 'X'}
+                          {isContestInPrecinct
+                            ? numberWithCommas(tally[contestIndex][1] as number)
+                            : 'X'}
                         </TD>
                       </tr>
                     </React.Fragment>

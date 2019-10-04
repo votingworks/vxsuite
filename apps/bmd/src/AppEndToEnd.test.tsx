@@ -61,6 +61,8 @@ it('VxMark+Print end-to-end flow', async () => {
   const { getByLabelText, getAllByText, getByText, getByTestId } = render(
     <App />
   )
+  // Query by text which includes markup.
+  // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
   const getByTextWithMarkup = (text: string) =>
     getByText((_, node) => node.textContent === text)
 

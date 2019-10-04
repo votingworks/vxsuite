@@ -5,7 +5,6 @@ import {
   electionSample as election,
   vote,
   getContests,
-  VotesDict,
 } from '@votingworks/ballot-encoder'
 import * as GLOBALS from '../../src/config/globals'
 import { CardAPI, CardPresentAPI, VoterCardData } from '../../src/config/types'
@@ -18,7 +17,7 @@ const contest1candidate0 = contest1.candidates[0]
 const altBallotStyleId = election.ballotStyles[1].id
 const altPrecinctId = election.precincts[1].id
 
-export const sampleVotes0: VotesDict = vote(
+export const sampleVotes0 = vote(
   getContests({
     ballotStyle: election.ballotStyles[0],
     election: election,
@@ -31,45 +30,25 @@ export const sampleVotes0: VotesDict = vote(
   }
 )
 
-export const sampleVotes1: VotesDict = vote(
+export const sampleVotes1 = vote(
   getContests({
     ballotStyle: election.ballotStyles[0],
     election: election,
   }),
   {
     '102': 'yes',
-    president: [
-      {
-        id: 'barchi-hallaren',
-        name: 'Joseph Barchi and Joseph Hallaren',
-        partyId: '0',
-      },
-    ],
-    senator: [{ id: 'weiford', name: 'Dennis Weiford', partyId: '0' }],
-    'representative-district-6': [
-      { id: 'plunkard', name: 'Brad Plunkard', partyId: '0' },
-    ],
-    governor: [{ id: 'franz', name: 'Charlene Franz', partyId: '0' }],
-    'lieutenant-governor': [
-      { id: 'norberg', name: 'Chris Norberg', partyId: '0' },
-    ],
-    'secretary-of-state': [
-      { id: 'shamsi', name: 'Laila Shamsi', partyId: '0' },
-    ],
-    'state-senator-district-31': [
-      { id: 'shiplett', name: 'Edward Shiplett', partyId: '3' },
-    ],
-    'state-assembly-district-54': [
-      { id: 'solis', name: 'Andrea Solis', partyId: '0' },
-    ],
-    'county-commissioners': [
-      { id: 'argent', name: 'Camille Argent', partyId: '0' },
-    ],
-    'county-registrar-of-wills': [
-      { id: 'ramachandrani', name: 'Rhadka Ramachandrani', partyId: '6' },
-    ],
-    'city-mayor': [{ id: 'white', name: 'Orville White', partyId: '1' }],
-    'city-council': [{ id: 'eagle', name: 'Harvey Eagle', partyId: '0' }],
+    president: 'barchi-hallaren',
+    senator: 'weiford',
+    'representative-district-6': 'plunkard',
+    governor: 'franz',
+    'lieutenant-governor': 'norberg',
+    'secretary-of-state': 'shamsi',
+    'state-senator-district-31': 'shiplett',
+    'state-assembly-district-54': 'solis',
+    'county-commissioners': ['argent'],
+    'county-registrar-of-wills': 'ramachandrani',
+    'city-mayor': 'white',
+    'city-council': ['eagle'],
     'judicial-robert-demergue': 'yes',
     'judicial-elmer-hull': 'yes',
     'question-a': 'yes',
@@ -80,49 +59,27 @@ export const sampleVotes1: VotesDict = vote(
   }
 )
 
-export const sampleVotes2: VotesDict = vote(
+export const sampleVotes2 = vote(
   getContests({
     ballotStyle: election.ballotStyles[0],
     election: election,
   }),
   {
     '102': 'no',
-    president: [
-      {
-        id: 'cramer-vuocolo',
-        name: 'Adam Cramer and Greg Vuocolo',
-        partyId: '1',
-      },
-    ],
-    senator: [{ id: 'garriss', name: 'Lloyd Garriss', partyId: '1' }],
-    'representative-district-6': [
-      { id: 'reeder', name: 'Bruce Reeder', partyId: '1' },
-    ],
-    governor: [{ id: 'harris', name: 'Gerald Harris', partyId: '1' }],
-    'lieutenant-governor': [
-      { id: 'parks', name: 'Anthony Parks', partyId: '1' },
-    ],
-    'secretary-of-state': [
-      { id: 'talarico', name: 'Marty Talarico', partyId: '1' },
-    ],
-    'state-senator-district-31': [
-      { id: 'shiplett', name: 'Edward Shiplett', partyId: '3' },
-    ],
-    'state-assembly-district-54': [
-      { id: 'keller', name: 'Amos Keller', partyId: '1' },
-    ],
-    'county-commissioners': [
-      {
-        id: 'witherspoonsmithson',
-        name: 'Chloe Witherspoon-Smithson',
-        partyId: '0',
-      },
-    ],
+    president: 'cramer-vuocolo',
+    senator: 'garriss',
+    'representative-district-6': 'reeder',
+    governor: 'harris',
+    'lieutenant-governor': 'parks',
+    'secretary-of-state': 'talarico',
+    'state-senator-district-31': 'shiplett',
+    'state-assembly-district-54': 'keller',
+    'county-commissioners': ['witherspoonsmithson'],
     'county-registrar-of-wills': [
       { id: 'write-in__HOT DOG', name: 'HOT DOG', isWriteIn: true },
     ],
-    'city-mayor': [{ id: 'seldon', name: 'Gregory Seldon', partyId: '2' }],
-    'city-council': [{ id: 'rupp', name: 'Randall Rupp', partyId: '0' }],
+    'city-mayor': 'seldon',
+    'city-council': ['rupp'],
     'judicial-robert-demergue': 'no',
     'judicial-elmer-hull': 'no',
     'question-a': 'no',
@@ -133,51 +90,27 @@ export const sampleVotes2: VotesDict = vote(
   }
 )
 
-export const sampleVotes3: VotesDict = vote(
+export const sampleVotes3 = vote(
   getContests({
     ballotStyle: election.ballotStyles[0],
     election: election,
   }),
   {
     '102': 'yes',
-    president: [
-      {
-        id: 'court-blumhardt',
-        name: 'Daniel Court and Amy Blumhardt',
-        partyId: '2',
-      },
-    ],
-    senator: [
-      {
-        id: 'wentworthfarthington',
-        name: 'Sylvia Wentworth-Farthington',
-        partyId: '2',
-      },
-    ],
-    'representative-district-6': [
-      { id: 'schott', name: 'Brad Schott', partyId: '2' },
-    ],
-    governor: [{ id: 'bargmann', name: 'Linda Bargmann', partyId: '2' }],
-    'lieutenant-governor': [
-      { id: 'garcia', name: 'Luis Jorges Garcia', partyId: '2' },
-    ],
-    'secretary-of-state': [
-      { id: 'shamsi', name: 'Laila Shamsi', partyId: '0' },
-    ],
-    'state-senator-district-31': [
-      { id: 'shiplett', name: 'Edward Shiplett', partyId: '3' },
-    ],
-    'state-assembly-district-54': [
-      { id: 'rangel', name: 'Davitra Rangel', partyId: '2' },
-    ],
-    'county-commissioners': [
-      { id: 'bainbridge', name: 'Clayton Bainbridge', partyId: '0' },
-    ],
+    president: 'court-blumhardt',
+    senator: 'wentworthfarthington',
+    'representative-district-6': 'schott',
+    governor: 'bargmann',
+    'lieutenant-governor': 'garcia',
+    'secretary-of-state': 'shamsi',
+    'state-senator-district-31': 'shiplett',
+    'state-assembly-district-54': 'rangel',
+    'county-commissioners': ['bainbridge'],
     'county-registrar-of-wills': [
       { id: 'write-in__HOT DOG', name: 'HOT DOG', isWriteIn: true },
     ],
-    'city-mayor': [{ id: 'white', name: 'Orville White', partyId: '1' }],
-    'city-council': [{ id: 'shry', name: 'Carroll Shry', partyId: '0' }],
+    'city-mayor': 'white',
+    'city-council': ['shry'],
     'judicial-robert-demergue': 'yes',
     'judicial-elmer-hull': 'yes',
     'question-a': 'yes',

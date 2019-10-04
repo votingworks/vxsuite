@@ -3,13 +3,10 @@ import { fireEvent, render, wait, within } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 import * as b64 from 'base64-js'
 import {
-  // electionSample, // until ballot-encoder is updated
+  electionSample,
   encodeBallot,
   VotesDict,
 } from '@votingworks/ballot-encoder'
-
-import untypedElectionSample from './data/electionSample.json'
-import { Election } from './config/types'
 
 import App from './App'
 
@@ -31,9 +28,6 @@ import {
 import { electionAsString } from '../test/helpers/election'
 
 import { printerMessageTimeoutSeconds } from './pages/PrintOnlyScreen'
-
-// Temporary electionSample until ballot-encoder is updated.
-const electionSample = untypedElectionSample as Election
 
 let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
@@ -88,6 +82,8 @@ it('VxPrintOnly flow', async () => {
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
     <App />
   )
+  // Query by text which includes markup.
+  // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
   const getAllByTextWithMarkup = (text: string) =>
     getAllByText((content, node) => {
       const hasText = (node: HTMLElement) => node.textContent === text
