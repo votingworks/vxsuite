@@ -11,7 +11,7 @@ import Screen from '../components/Screen'
 import Text from '../components/Text'
 import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
-import { NullPrinter } from '../utils/printer'
+import { NullPrinter, PrintType } from '../utils/printer'
 import PollsReport from '../components/PollsReport'
 import PrecinctTallyReport from '../components/PrecinctTallyReport'
 
@@ -49,7 +49,7 @@ const PollWorkerScreen = ({
   const isPrintMode = !!appMode.isVxPrint
 
   const printReport = async () => {
-    await printer.print()
+    await printer.print({ type: PrintType.CurrentPage })
     togglePollsOpen()
     hideModal()
   }

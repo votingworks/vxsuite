@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import styled from 'styled-components'
 import { Election, MarkVoterCardFunction, VotesDict } from '../config/types'
-import { NullPrinter } from '../utils/printer'
+import { NullPrinter, PrintType } from '../utils/printer'
 import isEmptyObject from '../utils/isEmptyObject'
 
 import Prose from '../components/Prose'
@@ -54,7 +54,7 @@ const PrintOnlyScreen = ({
     const isUsed = await markVoterCardPrinted()
     /* istanbul ignore else */
     if (isUsed) {
-      await printer.print()
+      await printer.print({ type: PrintType.CurrentPage })
       updateTally()
       printerTimer.current = window.setTimeout(() => {
         updateIsPrinted(true)

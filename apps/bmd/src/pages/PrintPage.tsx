@@ -9,6 +9,7 @@ import Prose from '../components/Prose'
 
 import BallotContext from '../contexts/ballotContext'
 import Screen from '../components/Screen'
+import { PrintType } from '../utils/printer'
 
 export const printerMessageTimeoutSeconds = 5
 
@@ -30,7 +31,7 @@ const PrintPage = () => {
     const isUsed = await markVoterCardPrinted()
     /* istanbul ignore else */
     if (isUsed) {
-      await printer.print()
+      await printer.print({ type: PrintType.CurrentPage })
       updateTally()
       printerTimer.current = window.setTimeout(() => {
         resetBallot()
