@@ -293,6 +293,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
       appMode,
       contests,
       election,
+      precinctId,
       votes,
       userSettings,
       setUserSettings,
@@ -382,7 +383,11 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                 userSettings={userSettings}
                 setUserSettings={setUserSettings}
               />
-              <ElectionInfo election={election} horizontal />
+              <ElectionInfo
+                election={election}
+                precinctId={precinctId}
+                horizontal
+              />
             </React.Fragment>
           }
         >

@@ -1,10 +1,10 @@
 import React from 'react'
-import { fireEvent } from '@testing-library/react'
+import { fireEvent, within } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
 import { render } from '../../test/testUtils'
 
-import { election } from '../../test/helpers/election'
+import { election, defaultPrecinctId } from '../../test/helpers/election'
 
 import { adminCard, advanceTimers, noCard } from '../../test/helpers/smartcards'
 
@@ -17,15 +17,17 @@ let currentCard = noCard
 fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
 it('renders ClerkScreen', async () => {
-  const { getByText } = render(
+  const { getByText, getByTestId } = render(
     <ClerkScreen
       appMode={VxPrintOnly}
+      appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       election={election}
       fetchElection={jest.fn()}
       isFetchingElection={false}
       isLiveMode={false}
       setAppMode={jest.fn()}
+      setAppPrecinctId={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
     />
@@ -37,7 +39,9 @@ it('renders ClerkScreen', async () => {
 
   // View Test Ballot Decks
   fireEvent.click(getByText('View Test Ballot Decks'))
-  fireEvent.click(getByText('Center Springfield'))
+  fireEvent.click(
+    within(getByTestId('precincts')).getByText('Center Springfield')
+  )
 
   // Back All Decks
   fireEvent.click(getByText('Back to Precincts List'))

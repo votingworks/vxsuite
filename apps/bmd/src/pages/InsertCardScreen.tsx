@@ -16,16 +16,22 @@ const InsertCardImage = styled.img`
 `
 
 interface Props {
+  appPrecinctId: string
   election: Election
   isLiveMode: boolean
   isPollsOpen: boolean
 }
 
-const ActivationScreen = ({ election, isLiveMode, isPollsOpen }: Props) => {
+const ActivationScreen = ({
+  appPrecinctId,
+  election,
+  isLiveMode,
+  isPollsOpen,
+}: Props) => {
   return (
     <Screen flexDirection="row-reverse" white>
       <Sidebar>
-        <ElectionInfo election={election} />
+        <ElectionInfo election={election} precinctId={appPrecinctId} />
       </Sidebar>
       <Main>
         <MainChild center>

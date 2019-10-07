@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 
 import {
   AppMode,
-  InputEventFunction,
+  AppModeNames,
+  EventTargetFunction,
   OptionalElection,
   VoidFunction,
   VxMarkOnly,
@@ -14,7 +15,6 @@ import TestBallotDeckScreen from './TestBallotDeckScreen'
 
 import Button, { SegmentedButton } from '../components/Button'
 import Main, { MainChild } from '../components/Main'
-import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
 import Sidebar from '../components/Sidebar'
@@ -23,37 +23,43 @@ import Screen from '../components/Screen'
 
 interface Props {
   appMode: AppMode
+  appPrecinctId: string
   ballotsPrintedCount: number
   election: OptionalElection
   isLiveMode: boolean
   fetchElection: VoidFunction
   isFetchingElection: boolean
-  setAppMode: InputEventFunction
+  setAppMode: (appModeName: AppModeNames) => void
+  setAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
 }
 
 const ClerkScreen = ({
   appMode,
+  appPrecinctId,
   ballotsPrintedCount,
   election,
   isLiveMode,
   fetchElection,
   isFetchingElection,
   setAppMode,
+  setAppPrecinctId,
   toggleLiveMode,
   unconfigure,
 }: Props) => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const showModal = () => setIsModalOpen(true)
-  const hideModal = () => setIsModalOpen(false)
-  const handleToggleLiveMode = () => {
-    hideModal()
-    toggleLiveMode()
+  const changeAppMode: EventTargetFunction = event => {
+    const currentTarget = event.currentTarget as HTMLInputElement
+    const appModeName = currentTarget.dataset.appMode as AppModeNames
+    setAppMode(appModeName)
   }
-  const loadElection = () => {
-    fetchElection()
+
+  const changeAppPrecinctId: EventTargetFunction = event => {
+    const currentTarget = event.currentTarget as HTMLInputElement
+    const appPrecinctId = currentTarget.value
+    setAppPrecinctId(appPrecinctId)
   }
+
   const [isTestDeck, setIsTestDeck] = useState(false)
   const showTestDeck = () => setIsTestDeck(true)
   const hideTestDeck = () => setIsTestDeck(false)
@@ -61,26 +67,43 @@ const ClerkScreen = ({
     return (
       <TestBallotDeckScreen
         appName={appMode.name}
+        appPrecinctId={appPrecinctId}
         election={election}
         hideTestDeck={hideTestDeck}
         isLiveMode={false} // always false for Test Mode
       />
     )
   }
-  const isTestDecksAvailable = isLiveMode || (!isLiveMode && appMode.isVxPrint)
+  const isTestDecksAvailable = !isLiveMode && appMode.isVxPrint
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
       <Main padded>
         <MainChild maxWidth={false}>
           <Prose>
-            <p>Remove card when finished making changes.</p>
             {election && (
               <React.Fragment>
+                <h1>
+                  <label htmlFor="selectPrecinct">Precinct</label>
+                </h1>
+                <select
+                  id="selectPrecinct"
+                  value={appPrecinctId}
+                  onBlur={changeAppPrecinctId}
+                  onChange={changeAppPrecinctId}
+                >
+                  <option value="" disabled>
+                    Select a precinct for this device…
+                  </option>
+                  {election.precincts.map(precinct => (
+                    <option key={precinct.id} value={precinct.id}>
+                      {precinct.name}
+                    </option>
+                  ))}
+                </select>
                 <h1>App Mode</h1>
-                <p>This device can operate as multiple apps.</p>
                 <SegmentedButton>
                   <Button
-                    onPress={setAppMode}
+                    onPress={changeAppMode}
                     data-app-mode="VxMark"
                     primary={appMode === VxMarkOnly}
                     disabled={appMode === VxMarkOnly}
@@ -88,7 +111,7 @@ const ClerkScreen = ({
                     VxMark Only
                   </Button>
                   <Button
-                    onPress={setAppMode}
+                    onPress={changeAppMode}
                     data-app-mode="VxPrint"
                     primary={appMode === VxPrintOnly}
                     disabled={appMode === VxPrintOnly}
@@ -96,7 +119,7 @@ const ClerkScreen = ({
                     VxPrint Only
                   </Button>
                   <Button
-                    onPress={setAppMode}
+                    onPress={changeAppMode}
                     data-app-mode="VxMark + VxPrint"
                     primary={appMode === VxMarkPlusVxPrint}
                     disabled={appMode === VxMarkPlusVxPrint}
@@ -108,14 +131,14 @@ const ClerkScreen = ({
                 <p>
                   <SegmentedButton>
                     <Button
-                      onPress={showModal}
+                      onPress={toggleLiveMode}
                       primary={!isLiveMode}
                       disabled={!isLiveMode}
                     >
                       Testing Mode
                     </Button>
                     <Button
-                      onPress={showModal}
+                      onPress={toggleLiveMode}
                       primary={isLiveMode}
                       disabled={isLiveMode}
                     >
@@ -146,7 +169,8 @@ const ClerkScreen = ({
                   Stats
                 </Text>
                 <Text muted={!appMode.isVxPrint}>
-                  Printed Ballots: <strong>{ballotsPrintedCount}</strong>{' '}
+                  Printed and Tallied Ballots:{' '}
+                  <strong>{ballotsPrintedCount}</strong>{' '}
                   {!appMode.isVxPrint && (
                     <small>(Available with VxPrint or VxMark+Print)</small>
                   )}
@@ -169,7 +193,7 @@ const ClerkScreen = ({
               <React.Fragment>
                 <Text warningIcon>Election definition is not Loaded.</Text>
                 <p>
-                  <Button onPress={loadElection}>
+                  <Button onPress={fetchElection}>
                     Load Election Definition
                   </Button>
                 </p>
@@ -179,31 +203,30 @@ const ClerkScreen = ({
         </MainChild>
       </Main>
       <Sidebar
-        appName={appMode.name}
-        title="Election Admin Actions"
-        footer={election && <ElectionInfo election={election} horizontal />}
-      />
-      <Modal
-        isOpen={isModalOpen}
+        appName={election ? appMode.name : ''}
         centerContent
-        content={
-          <Prose textCenter>
+        title="Election Admin Actions"
+        footer={
+          election && (
+            <ElectionInfo
+              election={election}
+              precinctId={appPrecinctId}
+              horizontal
+            />
+          )
+        }
+      >
+        {election && (
+          <Prose>
+            <h2>Instructions</h2>
             <p>
-              {isLiveMode
-                ? 'Switch to Testing Mode and zero Printed Ballots count?'
-                : 'Switch to Live Election Mode and zero Printed Ballots count?'}
+              Switching Precinct, App Mode, or Live Mode will reset tally and
+              printed ballots count.
             </p>
+            <p>Remove card when finished.</p>
           </Prose>
-        }
-        actions={
-          <React.Fragment>
-            <Button primary onPress={handleToggleLiveMode}>
-              Yes
-            </Button>
-            <Button onPress={hideModal}>Cancel</Button>
-          </React.Fragment>
-        }
-      />
+        )}
+      </Sidebar>
     </Screen>
   )
 }

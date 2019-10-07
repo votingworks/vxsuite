@@ -52,6 +52,7 @@ it('Single Seat Contest', async () => {
   // ====================== END CONTEST SETUP ====================== //
 
   // Query by text which includes markup.
+  // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
   const getByTextWithMarkup = (text: string) => {
     getByText((content, node) => {
       const hasText = (node: HTMLElement) => node.textContent === text

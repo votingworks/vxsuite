@@ -35,8 +35,7 @@ export function getAppMode(name: AppModeNames): AppMode {
 }
 
 // Events
-export type InputEvent = React.FormEvent<EventTarget>
-export type InputEventFunction = (event: InputEvent) => void
+export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 
 // Candidates
 export interface Candidate {
@@ -125,6 +124,21 @@ export type Vote = CandidateVote | YesNoVote
 export type OptionalVote = Vote | undefined
 export type VotesDict = Dictionary<Vote>
 
+export interface WriteInCandidateTally {
+  name: string
+  tally: number
+}
+export type TallyCount = number
+export interface CandidateVoteTally {
+  candidates: TallyCount[]
+  writeIns: WriteInCandidateTally[]
+}
+export interface YesNoVoteTally {
+  yes: TallyCount
+  no: TallyCount
+}
+export type Tally = (CandidateVoteTally | YesNoVoteTally)[]
+
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
 export type MarkVoterCardFunction = () => Promise<boolean>
@@ -134,7 +148,6 @@ export interface BallotContextInterface {
   ballotStyleId: string
   contests: Contests
   readonly election: Election
-  incrementBallotsPrintedCount: () => void
   isLiveMode: boolean
   markVoterCardPrinted: MarkVoterCardFunction
   markVoterCardVoided: MarkVoterCardFunction
@@ -142,6 +155,7 @@ export interface BallotContextInterface {
   printer: Printer
   resetBallot: (path?: string) => void
   setUserSettings: SetUserSettings
+  updateTally: () => void
   updateVote: UpdateVoteFunction
   userSettings: UserSettings
   votes: VotesDict

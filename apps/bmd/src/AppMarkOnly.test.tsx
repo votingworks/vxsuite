@@ -1,9 +1,9 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render, wait, within } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
-
 import { fromByteArray } from 'base64-js'
 import { encodeBallot } from '@votingworks/ballot-encoder'
+
 import App from './App'
 
 import {
@@ -51,7 +51,11 @@ beforeEach(() => {
 it('VxMarkOnly flow', async () => {
   jest.useFakeTimers()
 
-  const { getByText, getAllByText } = render(<App />)
+  const { getByTestId, getByLabelText, getByText, getAllByText } = render(
+    <App />
+  )
+  // Query by text which includes markup.
+  // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
   const getByTextWithMarkup = (text: string) =>
     getByText((_, node) => node.textContent === text)
 
@@ -63,7 +67,7 @@ it('VxMarkOnly flow', async () => {
 
   // ---------------
 
-  // Configure with Admin Card
+  // Configure election with Admin Card
   currentCard = adminCard
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Load Election Definition')))
@@ -71,12 +75,30 @@ it('VxMarkOnly flow', async () => {
   advanceTimers()
   await wait(() => getByText('Election definition is loaded.'))
 
+  // Remove card and expect not configured because precinct not selected
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Device Not Configured'))
+
+  // ---------------
+
+  // Configure election with Admin Card
+  currentCard = adminCard
+  advanceTimers()
+  await wait(() => getByLabelText('Precinct'))
+
+  // select precinct
+  getByText('State of Hamilton')
+  const precinctSelect = getByLabelText('Precinct')
+  const precinctId = (within(precinctSelect).getByText(
+    'Center Springfield'
+  ) as HTMLOptionElement).value
+  fireEvent.change(precinctSelect, { target: { value: precinctId } })
+  within(getByTestId('election-info')).getByText('Center Springfield')
+
   expect((getByText('VxMark Only') as HTMLButtonElement).disabled).toBeTruthy()
 
   fireEvent.click(getByText('Live Election Mode'))
-  getByText('Switch to Live Election Mode and zero Printed Ballots count?')
-  fireEvent.click(getByText('Yes'))
-
   expect(
     (getByText('Live Election Mode') as HTMLButtonElement).disabled
   ).toBeTruthy()
@@ -92,8 +114,10 @@ it('VxMarkOnly flow', async () => {
   // Open Polls with Poll Worker Card
   currentCard = pollWorkerCard
   advanceTimers()
-  await wait(() => fireEvent.click(getByText('Open Polls')))
-  getByText('Close Polls')
+  await wait(() =>
+    fireEvent.click(getByText('Open Polls for Center Springfield'))
+  )
+  getByText('Close Polls for Center Springfield')
 
   // Remove card
   currentCard = noCard
@@ -172,6 +196,23 @@ it('VxMarkOnly flow', async () => {
   currentCard = noCard
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
+
+  // ---------------
+
+  // Close Polls with Poll Worker Card
+  currentCard = pollWorkerCard
+  advanceTimers()
+  await wait(() =>
+    fireEvent.click(getByText('Close Polls for Center Springfield'))
+  )
+  getByText('Open Polls for Center Springfield')
+
+  // Remove card
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Insert Poll Worker card to open.'))
+
+  // ---------------
 
   // Unconfigure with Admin Card
   currentCard = adminCard

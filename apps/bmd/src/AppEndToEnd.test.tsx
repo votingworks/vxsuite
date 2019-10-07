@@ -58,7 +58,11 @@ beforeEach(() => {
 it('VxMark+Print end-to-end flow', async () => {
   jest.useFakeTimers()
 
-  const { getAllByText, getByText, getByTestId } = render(<App />)
+  const { getByLabelText, getAllByText, getByText, getByTestId } = render(
+    <App />
+  )
+  // Query by text which includes markup.
+  // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
   const getByTextWithMarkup = (text: string) =>
     getByText((_, node) => node.textContent === text)
 
@@ -78,13 +82,31 @@ it('VxMark+Print end-to-end flow', async () => {
   advanceTimers()
   await wait(() => getByText('Election definition is loaded.'))
 
+  // Remove card and expect not configured because precinct not selected
+  currentCard = noCard
+  advanceTimers()
+  await wait(() => getByText('Device Not Configured'))
+
+  // ---------------
+
+  // Configure election with Admin Card
+  currentCard = adminCard
+  advanceTimers()
+  await wait(() => getByLabelText('Precinct'))
+
+  // Select precinct
+  getByText('State of Hamilton')
+  const precinctSelect = getByLabelText('Precinct')
+  const precinctId = (within(precinctSelect).getByText(
+    'Center Springfield'
+  ) as HTMLOptionElement).value
+  fireEvent.change(precinctSelect, { target: { value: precinctId } })
+  within(getByTestId('election-info')).getByText('Center Springfield')
+
   fireEvent.click(getByText('VxMark+Print'))
   expect((getByText('VxMark+Print') as HTMLButtonElement).disabled).toBeTruthy()
 
   fireEvent.click(getByText('Live Election Mode'))
-  getByText('Switch to Live Election Mode and zero Printed Ballots count?')
-  fireEvent.click(getByText('Yes'))
-
   expect(
     (getByText('Live Election Mode') as HTMLButtonElement).disabled
   ).toBeTruthy()
@@ -100,10 +122,12 @@ it('VxMark+Print end-to-end flow', async () => {
   // Open Polls with Poll Worker Card
   currentCard = pollWorkerCard
   advanceTimers()
-  await wait(() => fireEvent.click(getByText('Open Polls')))
+  await wait(() =>
+    fireEvent.click(getByText('Open Polls for Center Springfield'))
+  )
   getByText('Open polls and print Polls Opened report?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Close Polls')
+  fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+  await wait(() => getByText('Close Polls for Center Springfield'))
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 
   // Remove card
@@ -127,12 +151,11 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // ---------------
 
-  // Alternate Ballot Style
+  // Alternate Precinct
   currentCard = getAlternateNewVoterCard()
   advanceTimers()
-  await wait(() => getByText(/North Springfield/))
-  getByText(/ballot style 5/)
-  getByTextWithMarkup('This ballot has 11 contests.')
+  await wait(() => getByText('Invalid Card'))
+  getByText('Card is not configured for this precinct.')
 
   // Remove card
   currentCard = noCard
@@ -247,19 +270,25 @@ it('VxMark+Print end-to-end flow', async () => {
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
-  // Insert Pollworker Card
+  // ---------------
+
+  // Close Polls with Poll Worker Card
   currentCard = pollWorkerCard
   advanceTimers()
-  await wait(() => fireEvent.click(getByText('Close Polls')))
+  await wait(() =>
+    fireEvent.click(getByText('Close Polls for Center Springfield'))
+  )
   getByText('Close Polls and print Polls Closed report?')
-  await wait(() => fireEvent.click(getByText('Yes')))
-  getByText('Open Polls')
+  fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+  await wait(() => getByText('Open Polls for Center Springfield'))
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(3)
 
   // Remove card
   currentCard = noCard
   advanceTimers()
   await wait(() => getByText('Insert Poll Worker card to open.'))
+
+  // ---------------
 
   // Unconfigure with Admin Card
   currentCard = adminCard

@@ -4,7 +4,11 @@ import {
   Election,
   YesNoContest,
 } from '../../src/config/types'
-import { getBallotStyle, getContests } from '../../src/utils/election'
+import {
+  getBallotStyle,
+  getContests,
+  getZeroTally,
+} from '../../src/utils/election'
 
 import { electionStorageKey, stateStorageKey } from '../../src/AppRoot'
 
@@ -14,6 +18,12 @@ export const contest1 = election.contests[1] as CandidateContest
 export const contest0candidate0 = contest0.candidates[0]
 export const contest0candidate1 = contest0.candidates[1]
 export const contest1candidate0 = contest1.candidates[0]
+
+export const defaultPrecinctId = election.precincts[0].id
+export const defaultBallotStyleId = election.ballotStyles[0].id
+
+export const altPrecinctId = election.precincts[1].id
+export const altBallotStyleId = election.ballotStyles[1].id
 
 export const presidentContest = electionSample.contests.find(
   c => c.title === 'President and Vice-President' && c.seats === 1
@@ -52,9 +62,11 @@ export const setStateInLocalStorage = (state = {}) => {
       name: 'VxMark',
       isVxMark: true,
     },
+    appPrecinctId: defaultPrecinctId,
     ballotsPrintedCount: 0,
     isLiveMode: true,
     isPollsOpen: true,
+    tally: getZeroTally(election),
   }
   window.localStorage.setItem(
     stateStorageKey,

@@ -62,6 +62,9 @@ module.exports = {
     },
   },
   rules: {
+    "jsx-a11y/label-has-associated-control": [2, {
+      "assert": "htmlFor",
+    }],
     camelcase: 'error',
     'import/no-extraneous-dependencies': [
       'error',

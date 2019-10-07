@@ -18,9 +18,7 @@ it('renders StartPage', async () => {
       route: '/',
     }
   )
-  expect(
-    getAllByText('Democratic 2020 Primary Election').length
-  ).toBeGreaterThan(1)
+  expect(getAllByText('Democratic Primary Election').length).toBeGreaterThan(1)
   getByText(/ballot style 12D/)
   expect(container.firstChild).toMatchSnapshot()
 })
