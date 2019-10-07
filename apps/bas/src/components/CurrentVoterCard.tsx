@@ -10,18 +10,18 @@ const CardContainer = styled.div`
 `
 
 interface Props {
-  ballotStyleId?: string
-  precinctName?: string
+  cardBallotStyleId?: string
+  cardPrecinctName?: string
 }
 
-const CurrentVoterCard = ({ ballotStyleId, precinctName }: Props) => (
+const CurrentVoterCard = ({ cardBallotStyleId, cardPrecinctName }: Props) => (
   <ButtonBar secondary>
-    {precinctName || ballotStyleId ? (
+    {cardPrecinctName || cardBallotStyleId ? (
       <CardContainer>
         Current Card:{' '}
         <strong>
-          {precinctName && ballotStyleId
-            ? `${precinctName}, ${ballotStyleId}`
+          {cardPrecinctName && cardBallotStyleId
+            ? `${cardPrecinctName}, ${cardBallotStyleId}`
             : 'no data'}
         </strong>
       </CardContainer>

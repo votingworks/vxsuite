@@ -3,7 +3,7 @@ import pluralize from 'pluralize'
 
 import { BallotStyle, OptionalElection } from '../config/types'
 
-import { compareName } from '../lib/sort'
+import { compareName } from '../utils/sort'
 import Button from '../components/Button'
 import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'

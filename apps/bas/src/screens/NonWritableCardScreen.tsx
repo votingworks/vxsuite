@@ -10,14 +10,13 @@ interface Props {
   lockScreen: () => void
 }
 
-const PollWorkerScreen = ({ lockScreen }: Props) => {
+const NonWritableCardScreen = ({ lockScreen }: Props) => {
   return (
     <Screen>
       <Main>
         <MainChild center>
           <Prose textCenter>
-            <h1>Screen Unlocked</h1>
-            <p>Remove Poll Worker card to continue.</p>
+            <h1>Non-Writable Card</h1>
           </Prose>
         </MainChild>
       </Main>
@@ -28,4 +27,4 @@ const PollWorkerScreen = ({ lockScreen }: Props) => {
   )
 }
 
-export default PollWorkerScreen
+export default NonWritableCardScreen
