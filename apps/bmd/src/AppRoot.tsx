@@ -3,6 +3,7 @@ import {
   decodeBallot,
   encodeBallot,
   getPrecinctById,
+  BallotType,
 } from '@votingworks/ballot-encoder'
 import { fromByteArray, toByteArray } from 'base64-js'
 import 'normalize.css'
@@ -366,6 +367,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             })!,
             votes: this.state.votes,
             isTestBallot: !this.state.isLiveMode,
+            ballotType: BallotType.Standard,
           }
           const longValue = fromByteArray(encodeBallot(ballot))
 

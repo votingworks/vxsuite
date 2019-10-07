@@ -6,6 +6,7 @@ import {
   electionSample,
   encodeBallot,
   VotesDict,
+  BallotType,
 } from '@votingworks/ballot-encoder'
 
 import App from './App'
@@ -56,6 +57,7 @@ fetchMock.get('/card/read_long_b64', () =>
         precinct: electionSample.precincts[0],
         votes: currentVotes,
         isTestBallot: true,
+        ballotType: BallotType.Standard,
       })
     ),
   })

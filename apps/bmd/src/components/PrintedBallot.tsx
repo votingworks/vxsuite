@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { encodeBallot } from '@votingworks/ballot-encoder'
+import { encodeBallot, BallotType } from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../config/globals'
 
@@ -199,6 +199,7 @@ const PrintBallot = ({
     ballotStyle,
     votes,
     isTestBallot: !isLiveMode,
+    ballotType: BallotType.Standard,
   })
 
   return (

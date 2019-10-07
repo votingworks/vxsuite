@@ -1734,10 +1734,10 @@
     lodash.unescape "4.0.1"
     semver "5.5.0"
 
-"@votingworks/ballot-encoder@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-1.1.0.tgz#bd91937eafad330c50904efa9b9bae4550c1f744"
-  integrity sha512-wZiV51t15BsvbMZ3RHyl55NT7t+lgFcXqXrJ6UGrLVyypy0igtZEwEz9WjodTMDFcUXorLZqLd5f1F+epQSjKA==
+"@votingworks/ballot-encoder@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-1.2.0.tgz#e2721f2f009d5f5d333baf9d7e162960623f7157"
+  integrity sha512-TlCfcO2agFz9qS1vg3JqLGuTuxG46qD5HSMiLs3PooQ6mOMifEXOzEYkY/cv71xaSCxSy621DKfB/ilYX6TNwA==
 
 "@votingworks/qrcode.react@^1.0.0":
   version "1.0.0"
