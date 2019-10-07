@@ -10,7 +10,6 @@ import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
-import CurrentVoterCard from '../components/CurrentVoterCard'
 
 const ButtonContainer = styled.div`
   float: right;
@@ -29,8 +28,8 @@ interface Props {
 }
 
 const PrecinctBallotStylesScreen = ({
-  cardBallotStyleId,
-  cardPrecinctName,
+  // cardBallotStyleId,
+  // cardPrecinctName,
   isSinglePrecinctMode,
   lockScreen,
   partyId,
@@ -74,10 +73,6 @@ const PrecinctBallotStylesScreen = ({
       <MainNav>
         <Button onClick={lockScreen}>Lock</Button>
       </MainNav>
-      <CurrentVoterCard
-        cardBallotStyleId={cardBallotStyleId}
-        cardPrecinctName={cardPrecinctName}
-      />
     </Screen>
   )
 }

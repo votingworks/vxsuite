@@ -13,7 +13,6 @@ import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
-import CurrentVoterCard from '../components/CurrentVoterCard'
 
 interface Props {
   cardBallotStyleId: string
@@ -25,8 +24,8 @@ interface Props {
 }
 
 const PrecinctsScreen = ({
-  cardBallotStyleId,
-  cardPrecinctName,
+  // cardBallotStyleId,
+  // cardPrecinctName,
   lockScreen,
   precincts,
   updatePrecinct,
@@ -57,10 +56,6 @@ const PrecinctsScreen = ({
       <MainNav>
         <Button onClick={lockScreen}>Lock</Button>
       </MainNav>
-      <CurrentVoterCard
-        cardBallotStyleId={cardBallotStyleId}
-        cardPrecinctName={cardPrecinctName}
-      />
     </Screen>
   )
 }
