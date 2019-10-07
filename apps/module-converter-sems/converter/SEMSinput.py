@@ -149,14 +149,19 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "id": r[0],
         "section": r[8],
         "districtId": r[3],
-        "partyId": r[7],
         "type": "candidate" if r[2] == "0" else "yesno",
+        "partyId": None if r[7] == "0" else r[7],
         "official_label": r[1],
         "title": r[9].split("\\n")[1],
         "seats": int(r[4]),
         "allowWriteIns": int(r[5]) > 0
     } for r in c.execute(sql).fetchall()]
 
+    # remove null partyIds
+    for contest in contests:
+        if not contest["partyId"]:
+            del contest["partyId"]
+    
     # candidates
     sql = """
     select
@@ -218,4 +223,4 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
 if __name__ == "__main__": # pragma: no cover this is the main
     vx_election = process_election_files(sys.argv[1], sys.argv[2])
-    print(json.dumps(vx_election))
+    print(json.dumps(vx_election, indent=2))
