@@ -72,7 +72,7 @@
 # - find all the contests for those districts
 
 
-import csv, json, sqlite3
+import csv, json, sqlite3, sys, re
 from .counties import COUNTIES
 
 ELECTION_TABLES = {
@@ -180,7 +180,15 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     precincts = [{"id": r[0], "name": r[1]} for r in c.execute(sql)]
         
     sql = "select distinct(ballot_style) from splits"
-    ballot_styles = [{"id": r[0], "partyId": parties_by_abbrev[r[0][-1]]} for r in c.execute(sql)]
+    ballot_styles = [{"id": r[0]} for r in c.execute(sql)]
+    
+    # if there is a party abbreviation tacked on to the numerical ballot style, extract it, e.g. "12D"
+    for ballot_style in ballot_styles:
+        match_result = re.match("[0-9]+(.+)", ballot_style["id"])
+        if match_result:
+            possible_party_abbrev = match_result.groups()[0]
+            if possible_party_abbrev in parties_by_abbrev:
+                ballot_style["partyId"] = parties_by_abbrev[possible_party_abbrev]
 
     sql_precincts = "select distinct(precinct_id) from splits where ballot_style = ?"
     sql_districts = "select distinct(district_id) from splits, split_districts where ballot_style = ? and splits.split_id = split_districts.split_id"
@@ -208,3 +216,6 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     return(vx_election)
 
 
+if __name__ == "__main__": # pragma: no cover this is the main
+    vx_election = process_election_files(sys.argv[1], sys.argv[2])
+    print(json.dumps(vx_election))
