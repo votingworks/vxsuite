@@ -59,24 +59,30 @@ const Button = ({
   onPress,
   ...rest
 }: Props) => {
-  const [readyForEvents, setReadyForEvents] = useState(true)
+  const [startCoordinates, setStartCoordinates] = useState([0, 0])
 
-  const onPointerUp = () => setReadyForEvents(false)
+  const onTouchStart = (event: React.TouchEvent) => {
+    const touch = event.touches[0]
+    setStartCoordinates([touch.clientX, touch.clientY])
+  }
 
-  const onClick = (event: React.MouseEvent) => {
-    if (readyForEvents) {
-      onPress(event)
-    } else {
-      setReadyForEvents(true)
+  const onTouchEnd = (event: React.TouchEvent) => {
+    const touch = event.changedTouches[0]
+    if (
+      Math.abs(startCoordinates[0] - touch.clientX) < 30 &&
+      Math.abs(startCoordinates[1] - touch.clientY) < 30
+    ) {
+      onPress(event as any)
+      event.preventDefault()
     }
   }
 
   return (
     <Component
       {...rest}
-      onPointerDown={onPress}
-      onPointerUp={onPointerUp}
-      onClick={onClick}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onClick={onPress}
     />
   )
 }

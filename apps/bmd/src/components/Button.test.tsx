@@ -3,6 +3,14 @@ import { fireEvent, render } from '@testing-library/react'
 
 import Button, { DecoyButton } from './Button'
 
+const createTouchStartEventProperties = (x: number, y: number) => {
+  return { touches: [{ clientX: x, clientY: y }] }
+}
+
+const createTouchEndEventProperties = (x: number, y: number) => {
+  return { changedTouches: [{ clientX: x, clientY: y }] }
+}
+
 const onPress = jest.fn()
 
 it('renders Button', () => {
@@ -59,27 +67,25 @@ it('works properly with clicks and touches', () => {
   fireEvent.click(button)
   expect(onPress).toHaveBeenCalledTimes(1)
 
-  fireEvent.pointerDown(button)
+  // touchStart and touchEnd are close together
+  fireEvent.touchStart(button, createTouchStartEventProperties(100, 100))
+  fireEvent.touchEnd(button, createTouchEndEventProperties(110, 95))
   expect(onPress).toHaveBeenCalledTimes(2)
 
-  // when a tap is not smudged and doesn't last too long
-  // we get pointerDown, pointerUp, and finally a click event.
-  // in this case, we only want onPress to fire once.
-  fireEvent.pointerDown(button)
-  fireEvent.pointerUp(button)
-  fireEvent.click(button)
-  expect(onPress).toHaveBeenCalledTimes(3)
+  // we now preventDefault() inside the events
+  // so no need to test the click de-duping
 
-  // when a tap is smudged or lasts too long,
-  // we get pointerDown, pointerCancel, and no click event.
-  // we still want onPress to fire exactly once.
-  fireEvent.pointerDown(button)
-  fireEvent.pointerCancel(button)
-  expect(onPress).toHaveBeenCalledTimes(4)
+  // only touch start is not enough
+  fireEvent.touchStart(button, createTouchStartEventProperties(100, 100))
+  expect(onPress).toHaveBeenCalledTimes(2)
+
+  // a touch end too far away won't trigger either
+  fireEvent.touchEnd(button, createTouchEndEventProperties(131, 95))
+  expect(onPress).toHaveBeenCalledTimes(2)
 
   // on use of accessible controller / keyboard
   // we get just a click event.
   // this should trigger onPress exactly once.
   fireEvent.click(button)
-  expect(onPress).toHaveBeenCalledTimes(5)
+  expect(onPress).toHaveBeenCalledTimes(3)
 })
