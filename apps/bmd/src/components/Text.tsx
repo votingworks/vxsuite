@@ -60,7 +60,7 @@ const Text = styled('p')<Props>`
   }
   font-size: ${({ small }) => (small ? '0.8rem' : undefined)};
   font-weight: ${({ bold, light }) =>
-    (bold && '600') || (light && '200') || undefined};
+    (bold && '600') || (light && '300') || undefined};
   font-style: ${({ italic }) => (italic ? 'italic' : undefined)};
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
   /* stylelint-disable-next-line value-keyword-case, order/properties-order */
