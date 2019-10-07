@@ -1,13 +1,14 @@
 import styled from 'styled-components'
 
 interface Props {
-  textCenter?: boolean
   compact?: boolean
+  maxWidth?: boolean
+  textCenter?: boolean
 }
 
 const Prose = styled('div')<Props>`
   margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
-  max-width: 66ch;
+  max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
   text-align: ${({ textCenter }) => (textCenter ? 'center' : undefined)};
   line-height: 1.2;
   @media (min-width: 480px) {
@@ -22,10 +23,21 @@ const Prose = styled('div')<Props>`
     margin: 1.5rem 0 0.75rem;
     font-size: 1.25rem;
   }
-  & h3,
-  & p {
-    margin: ${({ compact }) => (compact ? 0 : '1rem 0')};
+  & h3 {
+    font-size: 1.17rem;
+  }
+  & h4 {
     font-size: 1rem;
+  }
+  & h5 {
+    font-size: 0.9rem;
+  }
+  & h3,
+  & h4,
+  & h5,
+  & p {
+    margin-top: ${({ compact }) => (compact ? '0' : '1rem')};
+    margin-bottom: ${({ compact }) => (compact ? '0' : '1rem')};
   }
   & h1 + h2 {
     margin-top: -0.75rem;
@@ -34,14 +46,22 @@ const Prose = styled('div')<Props>`
   & h2 + p {
     margin-top: -0.75rem;
   }
-  & h3 + p {
+  & h3 + p,
+  & h4 + p,
+  & h5 + p {
     margin-top: ${({ compact }) => (compact ? 0 : '-1rem')};
   }
-  & :first-child {
+  & p + h1 {
+    margin-top: ${({ compact }) => (compact ? '0.5rem' : undefined)};
+  }
+  & > :first-child {
     margin-top: 0;
   }
-  & :last-child {
+  & > :last-child {
     margin-bottom: 0;
+  }
+  & dl {
+    margin: 1rem 0;
   }
 `
 

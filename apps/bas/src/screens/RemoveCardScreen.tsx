@@ -1,10 +1,16 @@
 import React from 'react'
+import styled from 'styled-components'
 
 import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Screen from '../components/Screen'
 import Button from '../components/Button'
+
+const RemoveCardImage = styled.img`
+  margin: 0 auto -1.75rem;
+  height: 40vw;
+`
 
 interface Props {
   ballotStyleId: string
@@ -22,18 +28,21 @@ const RemoveCardScreen = ({
       <Main>
         <MainChild center>
           <Prose textCenter>
+            <RemoveCardImage
+              src="/images/remove-card.svg"
+              alt="Remove Card Diagram"
+            />
+            <h1>Hand Card to Voter</h1>
             <p>
-              Card programmed with:{' '}
-              <strong>
-                {precinctName} / {ballotStyleId}
-              </strong>
+              {precinctName} / {ballotStyleId}
             </p>
-            <h1>Remove and Hand Card to Voter</h1>
           </Prose>
         </MainChild>
       </Main>
       <MainNav>
-        <Button onClick={lockScreen}>Lock</Button>
+        <Button small onClick={lockScreen}>
+          Lock
+        </Button>
       </MainNav>
     </Screen>
   )

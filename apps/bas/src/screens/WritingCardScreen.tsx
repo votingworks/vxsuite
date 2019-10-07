@@ -14,8 +14,8 @@ const WritingCardScreen = ({ ballotStyleId, precinctName }: Props) => {
     <Screen>
       <Main>
         <MainChild center>
-          <Prose textCenter>
-            <p>Programming card with…</p>
+          <Prose textCenter compact>
+            <p>Programming card with:</p>
             <h1>
               {precinctName} / {ballotStyleId}
             </h1>
