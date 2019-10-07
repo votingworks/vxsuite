@@ -39,7 +39,7 @@ const PrecinctsScreen = ({
               <h1>Precincts</h1>
             </Prose>
           </Heading>
-          <ButtonList>
+          <ButtonList columns={2}>
             {precincts.map(p => (
               <Button
                 data-id={p.id}
@@ -54,7 +54,9 @@ const PrecinctsScreen = ({
         </MainChild>
       </Main>
       <MainNav>
-        <Button onClick={lockScreen}>Lock</Button>
+        <Button small onClick={lockScreen}>
+          Lock
+        </Button>
       </MainNav>
     </Screen>
   )

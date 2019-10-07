@@ -10,6 +10,7 @@ import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
+import Text from '../components/Text'
 
 const ButtonContainer = styled.div`
   float: right;
@@ -41,6 +42,7 @@ const PrecinctBallotStylesScreen = ({
   const ballotStyles = partyId
     ? precinctBallotStyles.filter(bs => bs.partyId === partyId)
     : precinctBallotStyles
+  const ballotStylesColumns = ballotStyles.length > 4 ? 3 : 2
   return (
     <Screen>
       <Main>
@@ -48,15 +50,21 @@ const PrecinctBallotStylesScreen = ({
           <Heading>
             {!isSinglePrecinctMode && (
               <ButtonContainer>
-                <Button onClick={showPrecincts}>All Precincts</Button>
+                <Button small onClick={showPrecincts}>
+                  All Precincts
+                </Button>
               </ButtonContainer>
             )}
             <Prose>
-              <p>{precinctName}</p>
-              <h1>Ballot Styles</h1>
+              <h1>
+                Ballot Styles{' '}
+                <Text as="span" light>
+                  for {precinctName}
+                </Text>
+              </h1>
             </Prose>
           </Heading>
-          <ButtonList>
+          <ButtonList columns={ballotStylesColumns}>
             {ballotStyles.map(ballotStyle => (
               <Button
                 fullWidth
@@ -71,7 +79,9 @@ const PrecinctBallotStylesScreen = ({
         </MainChild>
       </Main>
       <MainNav>
-        <Button onClick={lockScreen}>Lock</Button>
+        <Button small onClick={lockScreen}>
+          Lock
+        </Button>
       </MainNav>
     </Screen>
   )

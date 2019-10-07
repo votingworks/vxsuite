@@ -31,7 +31,7 @@ const ButtonBar = styled('nav')<Props>`
 
   & > * {
     flex: 1;
-    margin: 0.25rem;
+    margin: 0;
     @media (min-width: 480px) {
       flex: ${({ separatePrimaryButton }) =>
         separatePrimaryButton ? '0' : undefined};
