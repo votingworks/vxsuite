@@ -7,16 +7,28 @@ import Screen from '../components/Screen'
 import Button from '../components/Button'
 
 interface Props {
+  ballotStyleId: string
   lockScreen: () => void
+  precinctName: string
 }
 
-const RemoveCardScreen = ({ lockScreen }: Props) => {
+const RemoveCardScreen = ({
+  ballotStyleId,
+  lockScreen,
+  precinctName,
+}: Props) => {
   return (
     <Screen>
       <Main>
         <MainChild center>
           <Prose textCenter>
-            <h1>Remove Card</h1>
+            <p>
+              Card programmed with:{' '}
+              <strong>
+                {precinctName} / {ballotStyleId}
+              </strong>
+            </p>
+            <h1>Remove and Hand Card to Voter</h1>
           </Prose>
         </MainChild>
       </Main>

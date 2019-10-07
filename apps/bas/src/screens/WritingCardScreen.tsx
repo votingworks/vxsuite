@@ -4,13 +4,21 @@ import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
 import Screen from '../components/Screen'
 
-const WritingCardScreen = () => {
+interface Props {
+  precinctName: string
+  ballotStyleId: string
+}
+
+const WritingCardScreen = ({ ballotStyleId, precinctName }: Props) => {
   return (
     <Screen>
       <Main>
         <MainChild center>
           <Prose textCenter>
-            <h1>Programming Card…</h1>
+            <p>Programming card with…</p>
+            <h1>
+              {precinctName} / {ballotStyleId}
+            </h1>
           </Prose>
         </MainChild>
       </Main>

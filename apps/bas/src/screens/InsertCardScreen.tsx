@@ -16,7 +16,7 @@ const InsertCardScreen = ({ lockScreen }: Props) => {
       <Main>
         <MainChild center>
           <Prose textCenter>
-            <h1>Insert Card</h1>
+            <h1>Insert Voter Card</h1>
           </Prose>
         </MainChild>
       </Main>

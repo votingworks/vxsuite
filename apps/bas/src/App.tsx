@@ -49,6 +49,7 @@ const App = () => {
   const [precinctId, setPrecinctId] = useStateAndLocalStorage<string>(
     'precinctId'
   )
+  const [ballotStyleId, setBallotStyleId] = useState<string>('')
   const [partyId, setPartyId] = useStateAndLocalStorage<string>('partyId')
   const [voterCardData, setVoterCardData] = useState<OptionalVoterCardData>(
     undefined
@@ -56,87 +57,19 @@ const App = () => {
 
   const unconfigure = () => {
     setElection(undefined)
+    setBallotStyleId('')
     setPrecinctId('')
     setPartyId('')
     setIsSinglePrecinctMode(false)
     window.localStorage.clear()
   }
 
-  const fetchElection = async () => {
-    setIsLoadingElection(true)
-    const { longValue } = await fetchJSON('/card/read_long')
-    const election = JSON.parse(longValue)
-    setElection(election)
-    setIsLoadingElection(false)
-  }
-
-  const processCardData = (
-    shortValue: CardData,
-    longValueExists: boolean = false
-  ) => {
-    setIsClerkCardPresent(false)
-    setIsPollWorkerCardPresent(false)
-    let isWritableCard = false
-    switch (shortValue.t) {
-      case 'voter':
-        isWritableCard = true
-        setVoterCardData(shortValue as VoterCardData)
-        break
-      case 'pollworker':
-        setIsPollWorkerCardPresent(true)
-        setIsLocked(false)
-        break
-      case 'clerk':
-        if (longValueExists) {
-          setIsClerkCardPresent(true)
-          setIsLocked(true)
-        }
-        break
-      default:
-        isWritableCard = true
-        break
+  const reset = useCallback(() => {
+    if (!isSinglePrecinctMode) {
+      setPrecinctId('')
     }
-
-    setIsWritableCard(isWritableCard)
-  }
-
-  // TODO: this needs a major refactor to remove duplication.
-  if (!checkCardInterval) {
-    let lastCardDataString = ''
-
-    checkCardInterval = window.setInterval(async () => {
-      try {
-        const card = await fetchJSON<CardAPI>('/card/read')
-        const currentCardDataString = JSON.stringify(card)
-        if (currentCardDataString === lastCardDataString) {
-          return
-        }
-        lastCardDataString = currentCardDataString
-
-        setIsCardPresent(false)
-        setIsClerkCardPresent(false)
-        setIsPollWorkerCardPresent(false)
-        setVoterCardData(undefined)
-
-        if (card.present) {
-          setIsCardPresent(true)
-          if (card.shortValue) {
-            const shortValue = JSON.parse(card.shortValue) as CardData
-            processCardData(shortValue, card.longValueExists)
-          } else {
-            setIsWritableCard(true)
-          }
-        } else {
-          setIsWritableCard(false)
-          setIsReadyToRemove(false)
-        }
-      } catch (error) {
-        // if it's an error, aggressively assume there's no backend and stop hammering
-        lastCardDataString = ''
-        window.clearInterval(checkCardInterval)
-      }
-    }, 1000)
-  }
+    setBallotStyleId('')
+  }, [setBallotStyleId, setPrecinctId, isSinglePrecinctMode])
 
   const setPrecinct = (id: string) => {
     setPrecinctId(id)
@@ -173,15 +106,92 @@ const App = () => {
       election.ballotStyles.filter(b => b.precincts.find(p => p === id))) ||
     []
 
-  const reset = useCallback(() => {
-    if (!isSinglePrecinctMode) {
-      setPrecinctId('')
+  const fetchElection = async () => {
+    setIsLoadingElection(true)
+    const { longValue } = await fetchJSON('/card/read_long')
+    const election = JSON.parse(longValue)
+    setElection(election)
+    setIsLoadingElection(false)
+  }
+
+  const lockScreen = () => {
+    setIsLocked(true)
+  }
+
+  const processCardData = (
+    shortValue: CardData,
+    longValueExists: boolean = false
+  ) => {
+    setIsClerkCardPresent(false)
+    setIsPollWorkerCardPresent(false)
+    let isWritableCard = false
+    switch (shortValue.t) {
+      case 'voter':
+        isWritableCard = true
+        setVoterCardData(shortValue as VoterCardData)
+        break
+      case 'pollworker':
+        setIsPollWorkerCardPresent(true)
+        setIsLocked(false)
+        break
+      case 'clerk':
+        if (longValueExists) {
+          setIsClerkCardPresent(true)
+          setIsLocked(true)
+        }
+        break
+      default:
+        isWritableCard = true
+        break
     }
-  }, [setPrecinctId, isSinglePrecinctMode])
+
+    setIsWritableCard(isWritableCard)
+  }
+
+  if (!checkCardInterval) {
+    let lastCardDataString = ''
+
+    checkCardInterval = window.setInterval(async () => {
+      try {
+        const card = await fetchJSON<CardAPI>('/card/read')
+        const currentCardDataString = JSON.stringify(card)
+        if (currentCardDataString === lastCardDataString) {
+          return
+        }
+        lastCardDataString = currentCardDataString
+
+        setIsCardPresent(false)
+        setIsClerkCardPresent(false)
+        setIsPollWorkerCardPresent(false)
+        setVoterCardData(undefined)
+
+        if (card.present) {
+          setIsCardPresent(true)
+          if (card.shortValue) {
+            const shortValue = JSON.parse(card.shortValue) as CardData
+            processCardData(shortValue, card.longValueExists)
+          } else {
+            setIsWritableCard(true)
+          }
+        } else {
+          reset()
+          setIsWritableCard(false)
+          setIsReadyToRemove(false)
+        }
+      } catch (error) {
+        // if it's an error, aggressively assume there's no backend and stop hammering
+        lastCardDataString = ''
+        window.clearInterval(checkCardInterval)
+      }
+    }, 1000)
+  }
 
   const programCard = (event: ButtonEvent) => {
-    const ballotStyleId = (event.target as HTMLElement).dataset.ballotStyleId
-    if (precinctId && ballotStyleId) {
+    const {
+      ballotStyleId: localBallotStyleId,
+    } = (event.target as HTMLElement).dataset
+    if (precinctId && localBallotStyleId) {
+      setBallotStyleId(localBallotStyleId)
       setIsProgrammingCard(true)
 
       const createAtSeconds = Math.round(Date.now() / 1000)
@@ -189,7 +199,7 @@ const App = () => {
         c: createAtSeconds,
         t: 'voter',
         pr: precinctId,
-        bs: ballotStyleId,
+        bs: localBallotStyleId,
       }
       fetch('/card/write', {
         method: 'post',
@@ -199,11 +209,6 @@ const App = () => {
         .then(res => res.json())
         .then(response => {
           if (response.success) {
-            // TODO: better notification of success
-            // https://github.com/votingworks/bas/issues/7
-            reset()
-
-            // show some delay here for UI purposes
             window.setTimeout(() => {
               setIsProgrammingCard(false)
               setIsReadyToRemove(true)
@@ -221,10 +226,6 @@ const App = () => {
           }, 500)
         })
     }
-  }
-
-  const lockScreen = () => {
-    setIsLocked(true)
   }
 
   const { bs = '', pr = '' } = voterCardData || {}
@@ -260,9 +261,20 @@ const App = () => {
     } else if (!isWritableCard) {
       return <NonWritableCardScreen lockScreen={lockScreen} />
     } else if (isReadyToRemove) {
-      return <RemoveCardScreen lockScreen={lockScreen} />
+      return (
+        <RemoveCardScreen
+          ballotStyleId={ballotStyleId}
+          lockScreen={lockScreen}
+          precinctName={getPrecinctNameByPrecinctId(precinctId)}
+        />
+      )
     } else if (isProgrammingCard) {
-      return <WritingCardScreen />
+      return (
+        <WritingCardScreen
+          ballotStyleId={ballotStyleId}
+          precinctName={getPrecinctNameByPrecinctId(precinctId)}
+        />
+      )
     } else if (precinctId) {
       return (
         <PrecinctBallotStylesScreen
