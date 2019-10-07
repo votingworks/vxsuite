@@ -5,6 +5,7 @@ import {
   electionSample as election,
   vote,
   getContests,
+  BallotType,
 } from '@votingworks/ballot-encoder'
 import * as GLOBALS from '../../src/config/globals'
 import { CardAPI, CardPresentAPI, VoterCardData } from '../../src/config/types'
@@ -128,6 +129,7 @@ export const sampleBallot: CompletedBallot = {
   precinct: election.precincts[0],
   votes: sampleVotes0,
   isTestBallot: true,
+  ballotType: BallotType.Standard,
 }
 
 export const noCard: CardAPI = {
