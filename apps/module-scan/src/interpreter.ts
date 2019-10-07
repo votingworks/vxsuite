@@ -16,7 +16,7 @@ import {
   Election,
   encodeBallot,
   EncoderVersion,
-} from 'ballot-encoder'
+} from '@votingworks/ballot-encoder'
 
 import { CastVoteRecord, CVRCallbackFunction } from './types'
 

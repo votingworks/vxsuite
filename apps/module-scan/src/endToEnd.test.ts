@@ -158,7 +158,7 @@ test('going through the whole process works', async () => {
   expect(JSON.stringify(serialNumbers)).toBe(
     JSON.stringify([
       '85lnPkvfNEytP3Z8gMoEcA',
-      'JARWye56eA/C3emmbPyyvA', // v1 encoding
+      'QZZeZdTBy8/RwGnoH6/mkw', // v1 encoding
       'manual-test-serial-number',
       'manual-test-serial-number-2',
       'r6UYR4t7hEFMz8QlMWf1Sw',

@@ -5,7 +5,7 @@
 
 import express, { Application, Request, Response } from 'express'
 import * as path from 'path'
-import { Election } from 'ballot-encoder'
+import { Election } from '@votingworks/ballot-encoder'
 
 import SystemImporter, { Importer } from './importer'
 import Store from './store'

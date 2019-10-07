@@ -1,5 +1,5 @@
 import * as chokidar from 'chokidar'
-import { electionSample as election } from 'ballot-encoder'
+import { electionSample as election } from '@votingworks/ballot-encoder'
 import SystemImporter from './importer'
 import Store from './store'
 import { Scanner } from './scanner'
