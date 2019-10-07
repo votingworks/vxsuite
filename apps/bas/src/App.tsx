@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import fetchJSON from './utils/fetchJSON'
 
@@ -222,20 +222,6 @@ const App = () => {
         })
     }
   }
-
-  const handleUserKeyPress = useCallback(
-    event => {
-      event.keyCode === 27 && reset()
-    },
-    [reset]
-  )
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleUserKeyPress)
-    return () => {
-      window.removeEventListener('keydown', handleUserKeyPress)
-    }
-  }, [handleUserKeyPress])
 
   const lockScreen = () => {
     setIsLocked(true)
