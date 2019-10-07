@@ -13,10 +13,12 @@ import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
+import Text from '../components/Text'
 
 interface Props {
   cardBallotStyleId: string
   cardPrecinctName: string
+  countyName: string
   lockScreen: () => void
   precincts: Precinct[]
   updatePrecinct: ButtonEventFunction
@@ -26,6 +28,7 @@ interface Props {
 const PrecinctsScreen = ({
   // cardBallotStyleId,
   // cardPrecinctName,
+  countyName,
   lockScreen,
   precincts,
   updatePrecinct,
@@ -36,7 +39,12 @@ const PrecinctsScreen = ({
         <MainChild maxWidth={false}>
           <Heading>
             <Prose>
-              <h1>Precincts</h1>
+              <h1>
+                Precincts{' '}
+                <Text as="span" light>
+                  for {countyName}
+                </Text>
+              </h1>
             </Prose>
           </Heading>
           <ButtonList columns={2}>

@@ -294,6 +294,7 @@ const App = () => {
         <PrecinctsScreen
           cardBallotStyleId={cardBallotStyleId}
           cardPrecinctName={cardPrecinctName}
+          countyName={election.county.name}
           lockScreen={lockScreen}
           precincts={election.precincts}
           updatePrecinct={updatePrecinct}
