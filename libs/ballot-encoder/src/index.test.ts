@@ -1,10 +1,11 @@
+import { decodeBallot, detect, encodeBallot, EncoderVersion, v0, v1 } from '.'
 import {
+  BallotType,
+  CompletedBallot,
   electionSample as election,
   getContests,
   vote,
-  CompletedBallot,
 } from './election'
-import { v0, v1, EncoderVersion, detect, encodeBallot, decodeBallot } from '.'
 
 test('exports v0 encoding', () => {
   expect(typeof v0.encodeBallot).toBe('function')
@@ -31,6 +32,7 @@ test('encodes with v1 by default', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(detect(encodeBallot(ballot))).toEqual(EncoderVersion.v1)
@@ -49,6 +51,7 @@ test('can encode by version number', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(encodeBallot(ballot, EncoderVersion.v0)).toEqual(
@@ -79,6 +82,7 @@ test('can decode specifying v0', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(
@@ -102,6 +106,7 @@ test('can decode specifying v1', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(
@@ -122,6 +127,7 @@ test('can decode and automatically detect the right version', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(decodeBallot(election, v0.encodeBallot(ballot))).toEqual({
@@ -153,6 +159,7 @@ test('can detect v0 encoding', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(detect(v0.encodeBallot(ballot))).toEqual(EncoderVersion.v0)

@@ -88,6 +88,16 @@ export type Vote = CandidateVote | YesNoVote
 export type OptionalVote = Optional<Vote>
 export type VotesDict = Dictionary<Vote>
 
+export enum BallotType {
+  Standard = 0,
+  Absentee = 1,
+  Provisional = 2,
+}
+
+// Updating this value is a breaking change.
+// eslint-disable-next-line no-bitwise
+export const BallotTypeMaximumValue = (1 << 4) - 1
+
 export interface CompletedBallot {
   election: Election
   ballotStyle: BallotStyle
@@ -95,6 +105,7 @@ export interface CompletedBallot {
   ballotId: string
   votes: VotesDict
   isTestBallot: boolean
+  ballotType: BallotType
 }
 
 // Smart Card Content

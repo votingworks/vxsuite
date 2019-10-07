@@ -148,6 +148,21 @@ export default class BitWriter {
   }
 
   /**
+   * Calls back with this `BitWriter` to make chaining easier.
+   *
+   * @example
+   *
+   * return new BitWriter()
+   *   .writeBoolean(true)
+   *   .with(writer => encodeSomething(writer))
+   *   .writeBoolean(false)
+   */
+  public with(callback: (writer: this) => void): this {
+    callback(this)
+    return this
+  }
+
+  /**
    * Converts the data written to this `BitWriter` to a `Uint8Array`.
    */
   public toUint8Array(): Uint8Array {

@@ -1,5 +1,11 @@
 import { BitWriter } from '../bits'
-import { electionSample as election, getContests, vote } from '../election'
+import {
+  BallotType,
+  BallotTypeMaximumValue,
+  electionSample as election,
+  getContests,
+  vote,
+} from '../election'
 import * as v0 from '../v0'
 import {
   decodeBallot,
@@ -35,6 +41,7 @@ test('does not detect a v0 buffer as v1', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(detect(v0.encodeBallot(ballot))).toBe(false)
@@ -53,6 +60,7 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(decodeBallot(election, encodeBallot(ballot))).toEqual(ballot)
@@ -71,6 +79,7 @@ it('encodes & decodes empty votes correctly', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -84,6 +93,10 @@ it('encodes & decodes empty votes correctly', () => {
     .writeString('abcde')
     // vote roll call only, no vote data
     .writeBoolean(...contests.map(() => false))
+    // test ballot?
+    .writeBoolean(false)
+    // ballot type
+    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
@@ -103,6 +116,7 @@ it('encodes & decodes whether it is a test ballot', () => {
     precinct,
     votes,
     isTestBallot: true,
+    ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -118,6 +132,45 @@ it('encodes & decodes whether it is a test ballot', () => {
     .writeBoolean(...contests.map(() => false))
     // test ballot?
     .writeBoolean(true)
+    // ballot type
+    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .toUint8Array()
+
+  expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
+  expect(decodeBallot(election, encodedBallot)).toEqual(ballot)
+})
+
+it('encodes & decodes the ballot type', () => {
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts[0]
+  const contests = getContests({ ballotStyle, election })
+  const votes = vote(contests, {})
+  const ballotId = 'abcde'
+  const ballot = {
+    election,
+    ballotId,
+    ballotStyle,
+    precinct,
+    votes,
+    isTestBallot: true,
+    ballotType: BallotType.Absentee,
+  }
+  const encodedBallot = new BitWriter()
+    // prelude + version number
+    .writeString('VX', { includeLength: false })
+    .writeUint8(1)
+    // ballot style id
+    .writeString('12')
+    // precinct id
+    .writeString('23')
+    // ballot Id
+    .writeString('abcde')
+    // vote roll call only, no vote data
+    .writeBoolean(...contests.map(() => false))
+    // test ballot?
+    .writeBoolean(true)
+    // ballot type
+    .writeUint(BallotType.Absentee, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
@@ -146,6 +199,7 @@ it('encodes & decodes yesno votes correctly', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -168,6 +222,10 @@ it('encodes & decodes yesno votes correctly', () => {
     .writeBoolean(true)
     .writeBoolean(false)
     .writeBoolean(true)
+    // test ballot?
+    .writeBoolean(false)
+    // ballot type
+    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
@@ -200,6 +258,7 @@ it('encodes & decodes candidate choice votes correctly', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -242,6 +301,10 @@ it('encodes & decodes candidate choice votes correctly', () => {
     .writeBoolean(true, ...falses(5))
     // --- write-ins
     .writeUint(0, { max: 2 }) // 3 seats - 1 selection = 2 write-ins max
+    // test ballot?
+    .writeBoolean(false)
+    // ballot type
+    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
@@ -265,6 +328,7 @@ it('encodes & decodes write-in votes correctly', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -289,6 +353,8 @@ it('encodes & decodes write-in votes correctly', () => {
     })
     // test ballot?
     .writeBoolean(false)
+    // ballot type
+    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
   expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
@@ -356,6 +422,7 @@ test('cannot decode a ballot that includes extra data at the end', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   const writer = new BitWriter()
@@ -382,6 +449,7 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   const writer = new BitWriter()

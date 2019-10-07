@@ -1,18 +1,19 @@
 import {
+  BallotType,
   CandidateContest,
   electionSample as election,
   getContests,
   vote,
 } from '../election'
+import * as v1 from '../v1'
 import {
   decodeBallot,
   decodeBallotFromString,
-  encodeBallot,
-  encodeBallotAsString,
   detect,
   detectString,
+  encodeBallot,
+  encodeBallotAsString,
 } from './index'
-import * as v1 from '../v1'
 
 test('can detect an encoded v0 ballot', () => {
   expect(
@@ -40,6 +41,7 @@ test('does not detect a v1 buffer as v0', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(detect(v1.encodeBallot(ballot))).toBe(false)
@@ -72,6 +74,7 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(decodeBallot(election, encodeBallot(ballot))).toEqual(ballot)
@@ -90,6 +93,7 @@ test('encodes & decodes empty votes', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
   const encodedBallot = '12.23.|||||||||||||||||||.abcde'
 
@@ -114,6 +118,7 @@ test('encodes & decodes yesno votes', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
   const encodedBallot = '12.23.||||||||||||1|0||||||.abcde'
 
@@ -137,6 +142,7 @@ test('encodes & decodes candidate votes', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
   const encodedBallot = '12.23.0,1|||||||||||||||||||.abcde'
 
@@ -162,6 +168,7 @@ test('encodes write-ins as `W`', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
   const encodedBallot = '12.23.W|||||||||||||||||||.abcde'
 
@@ -182,6 +189,8 @@ test('encodes write-ins as `W`', () => {
     },
     // v0 does not encode whether a ballot is a test ballot
     isTestBallot: false,
+    // v0 does not encode ballot type
+    ballotType: BallotType.Standard,
   })
 })
 
@@ -201,6 +210,7 @@ test('cannot encode a yesno contest with an invalid value', () => {
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 
   expect(() => encodeBallot(ballot)).toThrowError(

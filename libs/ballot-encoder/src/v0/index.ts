@@ -3,19 +3,20 @@
  */
 
 import {
-  Election,
-  Contests,
-  VotesDict,
+  BallotType,
+  Candidate,
   CandidateContest,
   CandidateVote,
-  getContests,
-  Candidate,
   CompletedBallot,
+  Contests,
+  Election,
   getBallotStyle,
+  getContests,
   getPrecinctById,
-  YesNoVote,
-  YesNoContest,
   Vote,
+  VotesDict,
+  YesNoContest,
+  YesNoVote,
 } from '../election'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
@@ -177,6 +178,7 @@ export function decodeBallotFromString(
     precinct,
     votes,
     isTestBallot: false,
+    ballotType: BallotType.Standard,
   }
 }
 

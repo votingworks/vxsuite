@@ -1,15 +1,16 @@
+import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from '../bits'
 import {
+  BallotTypeMaximumValue,
   CandidateVote,
-  Contests,
-  VotesDict,
   CompletedBallot,
-  getContests,
-  validateVotes,
+  Contests,
   Election,
   getBallotStyle,
+  getContests,
   getPrecinctById,
+  validateVotes,
+  VotesDict,
 } from '../election'
-import { BitReader, BitWriter, CustomEncoding, Uint8Size, Uint8 } from '../bits'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 
@@ -51,6 +52,7 @@ export function encodeBallotInto(
     votes,
     ballotId,
     isTestBallot,
+    ballotType,
   }: CompletedBallot,
   bits: BitWriter
 ): BitWriter {
@@ -58,12 +60,14 @@ export function encodeBallotInto(
 
   const contests = getContests({ ballotStyle, election })
 
-  bits
+  return bits
     .writeUint8(...Prelude)
     .writeString(ballotStyle.id)
     .writeString(precinct.id)
     .writeString(ballotId)
-  return encodeBallotVotesInto(contests, votes, bits).writeBoolean(isTestBallot)
+    .with(() => encodeBallotVotesInto(contests, votes, bits))
+    .writeBoolean(isTestBallot)
+    .writeUint(ballotType, { max: BallotTypeMaximumValue })
 }
 
 function encodeBallotVotesInto(
@@ -169,6 +173,7 @@ export function decodeBallotFromReader(
   const contests = getContests({ ballotStyle, election })
   const votes = decodeBallotVotes(contests, bits)
   const isTestBallot = bits.readBoolean()
+  const ballotType = bits.readUint({ max: BallotTypeMaximumValue })
 
   readPaddingToEnd(bits)
 
@@ -179,6 +184,7 @@ export function decodeBallotFromReader(
     precinct,
     votes,
     isTestBallot,
+    ballotType,
   }
 }
 
