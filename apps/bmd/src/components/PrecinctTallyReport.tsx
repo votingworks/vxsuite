@@ -62,14 +62,14 @@ const PrecinctTallyReport = ({
   return (
     <Report>
       <h1>
-        <NoWrap>{precinct.name}</NoWrap> <NoWrap>{election.title}</NoWrap>
+        <NoWrap>{precinct.name}</NoWrap> <NoWrap>{election.title}</NoWrap>{' '}
         <NoWrap>Tally Report</NoWrap>
       </h1>
       <p>
         This report should be <strong>{reportPurpose}</strong>.
       </p>
       <p>
-        {isPollsOpen ? 'Polls Closed' : 'Polls Opened'} and report printed at:
+        {isPollsOpen ? 'Polls Closed' : 'Polls Opened'} and report printed at:{' '}
         <strong>{currentDateTime}</strong>
       </p>
       <p>
