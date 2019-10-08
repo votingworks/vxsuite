@@ -20,7 +20,7 @@ import {
 
 import BallotContext from '../contexts/ballotContext'
 
-import * as GLOBALS from '../config/globals'
+import { FONT_SIZES } from '../config/globals'
 import ChoiceButton from './ChoiceButton'
 import Button from './Button'
 import Main from './Main'
@@ -29,17 +29,10 @@ import Prose from './Prose'
 import Text from './Text'
 import VirtualKeyboard from './VirtualKeyboard'
 
-const tabletMinWidth = 720
-
 const ContentHeader = styled.div`
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 1rem 0.75rem 0.5rem;
-  @media (min-width: ${tabletMinWidth}px) {
-    padding: 1rem 1.5rem 0.5rem;
-    padding-left: 5rem;
-  }
+  padding: 1rem 5rem 0.5rem 9rem;
 `
 const ContestSection = styled.div`
   text-transform: uppercase;
@@ -82,33 +75,59 @@ const VariableContentContainer = styled.div<ScrollShadows>`
   }
 `
 const ScrollControls = styled.div`
-  display: none;
-  flex-direction: column;
-  justify-content: space-between;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  padding-left: calc(100% - 7rem);
-  pointer-events: none;
-  & > * {
-    pointer-events: auto;
-  }
-  html[data-useragent*='Windows'] & {
-    margin-left: -17px; /* Windows Chrome scrollbar width */
-  }
-  @media (min-width: ${tabletMinWidth}px) {
-    display: flex;
-  }
-  @media (min-width: 840px) {
-    left: 50%;
-    margin-left: -400px;
-    padding-left: calc(840px - 7rem);
-    html[data-useragent*='Windows'] & {
-      margin-left: calc(-420px + -17px); /* Windows Chrome scrollbar width */
+  z-index: 2;
+  & > button {
+    position: absolute;
+    right: 1.5rem;
+    transform: opacity 1s linear;
+    visibility: visible;
+    opacity: 1;
+    outline: none;
+    box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.3);
+    width: 8rem;
+    height: 5rem;
+    padding: 0;
+    font-weight: 700;
+    transition: visibility 0s linear 0s, opacity 500ms;
+    &[disabled] {
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s linear 500ms, opacity 500ms;
+      pointer-events: none;
+    }
+    & > span {
+      position: relative;
+      pointer-events: none;
+    }
+    &::before {
+      position: absolute;
+      left: 50%;
+      margin-left: -1rem;
+      width: 2rem;
+      height: 2rem;
+      content: '';
+    }
+    &:first-child {
+      top: 0;
+      border-radius: 0 0 4rem 4rem;
+      & > span {
+        top: -1.25rem;
+      }
+      &::before {
+        bottom: 0.75rem;
+        background: url('/images/arrow-up.svg') no-repeat;
+      }
+    }
+    &:last-child {
+      bottom: 0;
+      border-radius: 4rem 4rem 0 0;
+      & > span {
+        top: 1.25rem;
+      }
+      &::before {
+        top: 0.75rem;
+        background: url('/images/arrow-down.svg') no-repeat;
+      }
     }
   }
 `
@@ -119,20 +138,16 @@ const ScrollContainer = styled.div`
 const ScrollableContentWrapper = styled.div<Scrollable>`
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem 1rem;
-  @media (min-width: ${tabletMinWidth}px) {
-    padding-right: ${({ isScrollable }) =>
-      isScrollable
-        ? /* istanbul ignore next: Tested by Cypress */ '8rem'
-        : '1rem'};
-    padding-left: 1rem;
-  }
+  padding: 0.5rem 5rem 2rem;
+  padding-right: ${({ isScrollable }) =>
+    isScrollable
+      ? /* istanbul ignore next: Tested by Cypress */ '11rem'
+      : undefined};
 `
 const ChoicesGrid = styled.div`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 1.25rem;
+  grid-gap: 1rem;
 `
 
 const WriteInCandidateForm = styled.div`
@@ -185,7 +200,6 @@ const initialState = {
 }
 
 class CandidateContest extends React.Component<Props, State> {
-  public static contextType = BallotContext
   public context!: React.ContextType<typeof BallotContext>
   public state: State = initialState
   private scrollContainer = React.createRef<HTMLDivElement>()
@@ -332,14 +346,11 @@ class CandidateContest extends React.Component<Props, State> {
     if (!target) {
       return
     }
-    const isTabletMinWidth = target.offsetWidth >= tabletMinWidth
-    const targetMinHeight =
-      GLOBALS.FONT_SIZES[this.context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
+    const targetMinHeight = FONT_SIZES[this.context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
     this.setState({
       isScrollable:
-        isTabletMinWidth &&
         /* istanbul ignore next: Tested by Cypress */
         target.scrollHeight > target.offsetHeight &&
         /* istanbul ignore next: Tested by Cypress */
@@ -374,6 +385,8 @@ class CandidateContest extends React.Component<Props, State> {
     const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
     scrollContainer.scrollTo({ behavior: 'smooth', left: 0, top })
   }
+
+  public static contextType = BallotContext
 
   public render() {
     const { contest, parties, vote } = this.props
@@ -493,20 +506,26 @@ class CandidateContest extends React.Component<Props, State> {
             {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
               <ScrollControls aria-hidden="true">
                 <Button
+                  className="scroll-up"
+                  big
+                  primary
                   aria-hidden
                   data-direction="up"
                   disabled={isScrollAtTop}
                   onPress={this.scrollContestChoices}
                 >
-                  ↑ See More
+                  <span>See More</span>
                 </Button>
                 <Button
+                  className="scroll-down"
+                  big
+                  primary
                   aria-hidden
                   data-direction="down"
                   disabled={isScrollAtBottom}
                   onPress={this.scrollContestChoices}
                 >
-                  ↓ See More
+                  <span>See More</span>
                 </Button>
               </ScrollControls>
             )}

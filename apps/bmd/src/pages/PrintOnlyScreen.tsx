@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import styled from 'styled-components'
-import { Election, MarkVoterCardFunction, PartialUserSettings, VotesDict } from '../config/types'
+import {
+  Election,
+  MarkVoterCardFunction,
+  PartialUserSettings,
+  VotesDict,
+} from '../config/types'
 import { NullPrinter, PrintType } from '../utils/printer'
 import isEmptyObject from '../utils/isEmptyObject'
 
