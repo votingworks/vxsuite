@@ -215,7 +215,7 @@ exports[`renders StartPage 1`] = `
 
 .c25 {
   font-size: 0.8rem;
-  font-weight: 200;
+  font-weight: 300;
 }
 
 .c24 {
@@ -856,7 +856,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 
 .c24 {
   font-size: 0.8rem;
-  font-weight: 200;
+  font-weight: 300;
 }
 
 .c23 {
@@ -1650,7 +1650,7 @@ exports[`renders StartPage with no seal 1`] = `
 
 .c24 {
   font-size: 0.8rem;
-  font-weight: 200;
+  font-weight: 300;
 }
 
 .c23 {

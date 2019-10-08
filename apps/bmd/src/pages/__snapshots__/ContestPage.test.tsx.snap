@@ -264,7 +264,7 @@ exports[`Renders ContestPage 1`] = `
 
 .c29 {
   font-size: 0.8rem;
-  font-weight: 200;
+  font-weight: 300;
 }
 
 .c28 {
