@@ -84,7 +84,7 @@ const PollWorkerScreen = ({
                 </p>
               )}
               <p>
-                <Button onPress={toggle}>
+                <Button big onPress={toggle}>
                   {isPollsOpen ? 'Close Polls' : 'Open Polls'} for{' '}
                   {precinct.name}
                 </Button>
