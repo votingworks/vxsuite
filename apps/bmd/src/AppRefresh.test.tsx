@@ -76,8 +76,8 @@ it('Refresh window and expect to be on same contest', async () => {
   advanceTimers()
   expect(getByText(candidate0).closest('button')!.dataset.selected).toBe('true')
 
-  // advance time to give opportunity for background interval to write to card
-  advanceBy(1100)
+  // advance time by CARD_LONG_VALUE_WRITE_DELAY to let background interval write to card
+  advanceBy(1000)
   advanceTimers()
 
   unmount()
