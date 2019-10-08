@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import styled from 'styled-components'
 
 import BallotContext from '../contexts/ballotContext'
 
@@ -12,7 +13,10 @@ import Prose from '../components/Prose'
 import Sidebar from '../components/Sidebar'
 import Screen from '../components/Screen'
 import SettingsTextSize from '../components/SettingsTextSize'
-import Text from '../components/Text'
+
+const SidebarSpacer = styled.div`
+  height: 90px;
+`
 
 const StartPage = () => {
   const {
@@ -39,8 +43,7 @@ const StartPage = () => {
             </h1>
             <hr />
             <p>
-              Click the <strong>Start Voting</strong> button at the top right to
-              view the first contest.
+              Your ballot has <strong>{contests.length} contests</strong>.
             </p>
           </Prose>
         </MainChild>
@@ -62,9 +65,7 @@ const StartPage = () => {
         }
       >
         <Prose>
-          <Text center>
-            This ballot has <strong>{contests.length} contests</strong>.
-          </Text>
+          <SidebarSpacer />
           <Wobble as="p">
             <LinkButton
               big
