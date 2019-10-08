@@ -12,7 +12,7 @@ import ElectionInfo from '../components/ElectionInfo'
 
 const InsertCardImage = styled.img`
   margin: 0 auto -1rem;
-  height: 300px;
+  height: 30vw;
 `
 
 interface Props {
