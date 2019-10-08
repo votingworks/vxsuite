@@ -220,7 +220,9 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
     return(vx_election)
 
+def main(main_file, cand_map_file):
+    vx_election = process_election_files(main_file, cand_map_file)
+    return json.dumps(vx_election, indent=2)
 
 if __name__ == "__main__": # pragma: no cover this is the main
-    vx_election = process_election_files(sys.argv[1], sys.argv[2])
-    print(json.dumps(vx_election, indent=2))
+    print(main(sys.argv[1], sys.argv[2]))

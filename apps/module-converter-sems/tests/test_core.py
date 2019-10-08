@@ -10,7 +10,7 @@ FILES_DIR = os.path.join(PARENT_DIR, 'election_files')
 SAMPLE_FILES = os.path.join(PARENT_DIR, 'sample_files')
 SAMPLE_MAIN_FILE = os.path.join(SAMPLE_FILES, '53_5-2-2019.txt')
 SAMPLE_CANDIDATE_MAPPING_FILE = os.path.join(SAMPLE_FILES, '53_CANDMAP_5-2-2019.txt')
-EXPECTED_ELECTION_FILE = os.path.join(SAMPLE_FILES, 'expected-election.json')
+EXPECTED_ELECTION_FILE = os.path.join(SAMPLE_FILES, '53_expected-election.json')
 
 SAMPLE_CVRS_FILE = os.path.join(SAMPLE_FILES, "CVRs.txt")
 EXPECTED_RESULTS_FILE = os.path.join(SAMPLE_FILES, '53_Results.txt')
