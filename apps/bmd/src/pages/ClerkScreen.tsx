@@ -13,6 +13,8 @@ import {
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
+import alphaSort from '../utils/alphaSort'
+
 import Button, { SegmentedButton } from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
@@ -75,6 +77,7 @@ const ClerkScreen = ({
       />
     )
   }
+
   const isTestDecksAvailable = !isLiveMode && appMode.isVxPrint
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
@@ -96,11 +99,15 @@ const ClerkScreen = ({
                     <option value="" disabled>
                       Select a precinct for this device…
                     </option>
-                    {election.precincts.map(precinct => (
-                      <option key={precinct.id} value={precinct.id}>
-                        {precinct.name}
-                      </option>
-                    ))}
+                    {election.precincts
+                      .sort((a, b) =>
+                        alphaSort(a.name.toLowerCase(), b.name.toLowerCase())
+                      )
+                      .map(precinct => (
+                        <option key={precinct.id} value={precinct.id}>
+                          {precinct.name}
+                        </option>
+                      ))}
                   </Select>
                 </p>
                 <h1>App Mode</h1>
