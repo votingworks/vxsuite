@@ -310,7 +310,7 @@ exports[`Single Seat Contest 1`] = `
 
 .c32 {
   font-size: 0.8rem;
-  font-weight: 200;
+  font-weight: 300;
 }
 
 .c11 {

@@ -20,6 +20,7 @@ import Text from '../components/Text'
 import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import Screen from '../components/Screen'
+import Select from '../components/Select'
 
 interface Props {
   appMode: AppMode
@@ -85,48 +86,52 @@ const ClerkScreen = ({
                 <h1>
                   <label htmlFor="selectPrecinct">Precinct</label>
                 </h1>
-                <select
-                  id="selectPrecinct"
-                  value={appPrecinctId}
-                  onBlur={changeAppPrecinctId}
-                  onChange={changeAppPrecinctId}
-                >
-                  <option value="" disabled>
-                    Select a precinct for this device…
-                  </option>
-                  {election.precincts.map(precinct => (
-                    <option key={precinct.id} value={precinct.id}>
-                      {precinct.name}
+                <p>
+                  <Select
+                    id="selectPrecinct"
+                    value={appPrecinctId}
+                    onBlur={changeAppPrecinctId}
+                    onChange={changeAppPrecinctId}
+                  >
+                    <option value="" disabled>
+                      Select a precinct for this device…
                     </option>
-                  ))}
-                </select>
+                    {election.precincts.map(precinct => (
+                      <option key={precinct.id} value={precinct.id}>
+                        {precinct.name}
+                      </option>
+                    ))}
+                  </Select>
+                </p>
                 <h1>App Mode</h1>
-                <SegmentedButton>
-                  <Button
-                    onPress={changeAppMode}
-                    data-app-mode="VxMark"
-                    primary={appMode === VxMarkOnly}
-                    disabled={appMode === VxMarkOnly}
-                  >
-                    VxMark Only
-                  </Button>
-                  <Button
-                    onPress={changeAppMode}
-                    data-app-mode="VxPrint"
-                    primary={appMode === VxPrintOnly}
-                    disabled={appMode === VxPrintOnly}
-                  >
-                    VxPrint Only
-                  </Button>
-                  <Button
-                    onPress={changeAppMode}
-                    data-app-mode="VxMark + VxPrint"
-                    primary={appMode === VxMarkPlusVxPrint}
-                    disabled={appMode === VxMarkPlusVxPrint}
-                  >
-                    VxMark+Print
-                  </Button>
-                </SegmentedButton>
+                <p>
+                  <SegmentedButton>
+                    <Button
+                      onPress={changeAppMode}
+                      data-app-mode="VxMark"
+                      primary={appMode === VxMarkOnly}
+                      disabled={appMode === VxMarkOnly}
+                    >
+                      VxMark Only
+                    </Button>
+                    <Button
+                      onPress={changeAppMode}
+                      data-app-mode="VxPrint"
+                      primary={appMode === VxPrintOnly}
+                      disabled={appMode === VxPrintOnly}
+                    >
+                      VxPrint Only
+                    </Button>
+                    <Button
+                      onPress={changeAppMode}
+                      data-app-mode="VxMark + VxPrint"
+                      primary={appMode === VxMarkPlusVxPrint}
+                      disabled={appMode === VxMarkPlusVxPrint}
+                    >
+                      VxMark+Print
+                    </Button>
+                  </SegmentedButton>
+                </p>
                 <h1>Testing Mode</h1>
                 <p>
                   <SegmentedButton>
