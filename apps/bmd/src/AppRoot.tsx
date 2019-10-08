@@ -228,11 +228,12 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           ballotPrintedTime
         )
 
-        const votes = (
+        const votes =
           longValueExists &&
           !this.state.isVoterCardExpired &&
           !this.state.isVoterCardVoided
-        ) ? await this.fetchVotes() : {}
+            ? await this.fetchVotes()
+            : {}
 
         this.setState(
           prevState => {
@@ -554,13 +555,9 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public writeCard = async (cardData: VoterCardData) => {
-    const newCardData: VoterCardData = {
-      ...cardData,
-      u: utcTimestamp(),
-    }
     await fetch('/card/write', {
       method: 'post',
-      body: JSON.stringify(newCardData),
+      body: JSON.stringify(cardData),
       headers: { 'Content-Type': 'application/json' },
     })
   }
