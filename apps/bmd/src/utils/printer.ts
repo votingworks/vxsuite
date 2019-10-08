@@ -1,3 +1,6 @@
+// We only import pdfmake for its types, so we don't need pdfmake installed.
+// eslint-disable-next-line import/no-unresolved
+import * as pdfMake from 'pdfmake/build/pdfmake'
 import fetchJSON from './fetchJSON'
 
 interface StatusResponse {
@@ -27,18 +30,63 @@ export enum PrintStatus {
   Unknown = 'Unknown',
 }
 
+export enum PrintType {
+  /**
+   * Print the current page as-is.
+   */
+  CurrentPage = 'CurrentPage',
+
+  /**
+   * Print an HTML document.
+   */
+  HTMLDocument = 'HTMLDocument',
+
+  /**
+   * Print a fully-rendered PDF document.
+   */
+  PDFDocument = 'PDFDocument',
+
+  /**
+   * Print a PDF specified by a pdfmake document definition.
+   */
+  PDFMakeDocument = 'PDFMakeDocument',
+}
+
+export type PrintPayload =
+  | {
+      type: PrintType.CurrentPage
+    }
+  | {
+      type: PrintType.HTMLDocument
+      html: string
+    }
+  | {
+      type: PrintType.PDFDocument
+      pdf: Uint8Array
+    }
+  | {
+      type: PrintType.PDFMakeDocument
+      pdf: pdfMake.TDocumentDefinitions
+    }
+
 export interface Printer {
-  isReady(): Promise<boolean>
-  print(): Promise<PrintJob>
+  canPrint(type: PrintType): Promise<boolean>
+  print(payload: PrintPayload): Promise<PrintJob>
   getStatus(job: PrintJob): Promise<PrintStatus>
 }
 
 export class LocalPrinter implements Printer {
-  public async isReady(): Promise<boolean> {
-    return true
+  public async canPrint(type: PrintType): Promise<boolean> {
+    return type === PrintType.CurrentPage
   }
 
-  public async print(): Promise<PrintJob> {
+  public async print(payload: PrintPayload): Promise<PrintJob> {
+    if (!(await this.canPrint(payload.type))) {
+      throw new Error(
+        `${this.constructor.name} cannot handle print payload with type: ${payload.type}`
+      )
+    }
+
     window.print()
     return { id: '__local', owner: this }
   }
@@ -50,11 +98,13 @@ export class LocalPrinter implements Printer {
 }
 
 export class NullPrinter implements Printer {
-  public async isReady(): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async canPrint(type: PrintType): Promise<boolean> {
     return true
   }
 
-  public async print(): Promise<PrintJob> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async print(payload: PrintPayload): Promise<PrintJob> {
     return { id: '__nothing', owner: this }
   }
 
@@ -65,7 +115,8 @@ export class NullPrinter implements Printer {
 }
 
 export class RemotePrinter implements Printer {
-  public async isReady(): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async canPrint(type: PrintType): Promise<boolean> {
     try {
       const status = await fetchJSON<StatusResponse>('/printer/status')
 
@@ -75,17 +126,65 @@ export class RemotePrinter implements Printer {
     }
   }
 
-  public async print(): Promise<PrintJob> {
-    if (!(await this.isReady())) {
-      throw new Error('unable to print: remote printer is not ready')
+  public async print(payload: PrintPayload): Promise<PrintJob> {
+    if (!(await this.canPrint(payload.type))) {
+      throw new Error(
+        `unable to print: remote printer is not ready or cannot print type: ${payload.type}`
+      )
     }
 
+    if (payload.type === PrintType.CurrentPage) {
+      return await this.printCurrentPage()
+    }
+
+    if (payload.type === PrintType.HTMLDocument) {
+      return await this.printHTMLDocument(payload.html)
+    }
+
+    if (payload.type === PrintType.PDFDocument) {
+      return await this.printPDFDocument(payload.pdf)
+    }
+
+    // istanbul ignore else
+    if (payload.type === PrintType.PDFMakeDocument) {
+      return await this.printPDFMakeDocument(payload.pdf)
+    }
+
+    // istanbul ignore next
+    throw new Error(`unknown payload type: ${(payload as PrintPayload).type}`)
+  }
+
+  private async printCurrentPage(): Promise<PrintJob> {
+    return await this.printHTMLDocument(document.documentElement.outerHTML)
+  }
+
+  private async printHTMLDocument(html: string): Promise<PrintJob> {
+    return await this.createPrintJob(html, 'text/html')
+  }
+
+  private async printPDFDocument(pdf: Uint8Array): Promise<PrintJob> {
+    return await this.createPrintJob(pdf, 'application/pdf')
+  }
+
+  private async printPDFMakeDocument(
+    pdf: pdfMake.TDocumentDefinitions
+  ): Promise<PrintJob> {
+    return await this.createPrintJob(
+      JSON.stringify(pdf),
+      'x-application/pdfmake'
+    )
+  }
+
+  private async createPrintJob(
+    body: RequestInit['body'],
+    contentType: string
+  ): Promise<PrintJob> {
     const newJob = await fetchJSON<NewJobResponse>('/printer/jobs/new', {
       method: 'POST',
       headers: {
-        'Content-Type': 'text/html',
+        'Content-Type': contentType,
       },
-      body: document.documentElement.outerHTML,
+      body,
     })
 
     return { id: newJob.id, owner: this }
@@ -111,9 +210,9 @@ export class FallbackPrinters implements Printer {
     this.printers = printers
   }
 
-  public async isReady(): Promise<boolean> {
+  public async canPrint(type: PrintType): Promise<boolean> {
     for (const printer of this.printers) {
-      if (await printer.isReady()) {
+      if (await printer.canPrint(type)) {
         return true
       }
     }
@@ -121,10 +220,10 @@ export class FallbackPrinters implements Printer {
     return false
   }
 
-  public async print(): Promise<PrintJob> {
+  public async print(payload: PrintPayload): Promise<PrintJob> {
     for (const printer of this.printers) {
-      if (await printer.isReady()) {
-        return printer.print()
+      if (await printer.canPrint(payload.type)) {
+        return printer.print(payload)
       }
     }
 
