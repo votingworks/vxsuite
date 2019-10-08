@@ -18,7 +18,7 @@ const VerticalContainer = styled.div`
 
 const CenterinBlock = styled.div`
   display: flex;
-  margin: 2rem 1rem 0;
+  margin: 1.5rem 1rem 0;
 `
 
 const HorizontalContainer = styled.div`
@@ -28,7 +28,7 @@ const HorizontalContainer = styled.div`
   margin: auto;
   div:first-child {
     margin-right: 1rem;
-    width: 125px;
+    min-width: 5rem;
   }
 `
 
@@ -72,7 +72,7 @@ const ElectionInfo = ({
                   {precinct.name}
                   {ballotStyleId && ', '}
                 </NoWrap>
-              )}
+              )}{' '}
               {ballotStyleId && <NoWrap>ballot style {ballotStyleId}</NoWrap>}
             </Text>
           </Prose>
