@@ -58,13 +58,17 @@ beforeEach(() => {
 it('VxMark+Print end-to-end flow', async () => {
   jest.useFakeTimers()
 
-  const { getByLabelText, getAllByText, getByText, getByTestId } = render(
-    <App />
-  )
+  const { getByLabelText, getByText, getByTestId } = render(<App />)
   // Query by text which includes markup.
   // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
-  const getByTextWithMarkup = (text: string) =>
-    getByText((_, node) => node.textContent === text)
+  const getByTextWithMarkup = (text: string): HTMLElement =>
+    getByText((content, node) => {
+      const hasText = (node: HTMLElement) => node.textContent === text
+      const childrenDontHaveText = Array.from(node.children).every(
+        child => !hasText(child as HTMLElement)
+      )
+      return hasText(node) && childrenDontHaveText
+    })
 
   currentCard = noCard
   advanceTimers()
@@ -142,7 +146,7 @@ it('VxMark+Print end-to-end flow', async () => {
   advanceTimers()
   await wait(() => getByText(/Center Springfield/))
   getByText(/ballot style 12/)
-  getByTextWithMarkup('This ballot has 20 contests.')
+  getByTextWithMarkup('Your ballot has 20 contests.')
 
   // Remove card
   currentCard = noCard
@@ -171,7 +175,7 @@ it('VxMark+Print end-to-end flow', async () => {
   advanceTimers()
   await wait(() => getByText(/Center Springfield/))
   getByText(/ballot style 12/)
-  getByTextWithMarkup('This ballot has 20 contests.')
+  getByTextWithMarkup('Your ballot has 20 contests.')
 
   // Adjust Text Size
   const changeTextSize = within(getByTestId('change-text-size-buttons'))
@@ -181,7 +185,7 @@ it('VxMark+Print end-to-end flow', async () => {
   fireEvent.click(textSizeButtons[1]) // html element has default font size
 
   // Start Voting
-  fireEvent.click(getAllByText('Start Voting')[1])
+  fireEvent.click(getByText('Start Voting'))
 
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i++) {
@@ -225,8 +229,8 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Change "County Commissioners" Contest
   fireEvent.click(
-    getByText(
-      `${countyCommissionersContest.section}, ${countyCommissionersContest.title}`
+    getByTextWithMarkup(
+      `${countyCommissionersContest.section}${countyCommissionersContest.title}`
     )
   )
   advanceTimers()
@@ -245,7 +249,7 @@ it('VxMark+Print end-to-end flow', async () => {
   getByText('You may still vote for 2 more candidates.')
 
   // Print Screen
-  fireEvent.click(getByText('I’m Ready to Print My Ballot'))
+  fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'))
   advanceTimers()
   getByText('Printing Official Ballot')
 

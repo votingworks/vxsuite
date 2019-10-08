@@ -51,13 +51,17 @@ beforeEach(() => {
 it('VxMarkOnly flow', async () => {
   jest.useFakeTimers()
 
-  const { getByTestId, getByLabelText, getByText, getAllByText } = render(
-    <App />
-  )
+  const { getByTestId, getByLabelText, getByText } = render(<App />)
   // Query by text which includes markup.
   // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
-  const getByTextWithMarkup = (text: string) =>
-    getByText((_, node) => node.textContent === text)
+  const getByTextWithMarkup = (text: string): HTMLElement =>
+    getByText((content, node) => {
+      const hasText = (node: HTMLElement) => node.textContent === text
+      const childrenDontHaveText = Array.from(node.children).every(
+        child => !hasText(child as HTMLElement)
+      )
+      return hasText(node) && childrenDontHaveText
+    })
 
   currentCard = noCard
   advanceTimers()
@@ -157,8 +161,8 @@ it('VxMarkOnly flow', async () => {
   advanceTimers()
   await wait(() => getByText(/Center Springfield/))
   getByText(/ballot style 12/)
-  getByTextWithMarkup('This ballot has 20 contests.')
-  fireEvent.click(getAllByText('Start Voting')[1])
+  getByTextWithMarkup('Your ballot has 20 contests.')
+  fireEvent.click(getByText('Start Voting'))
 
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i++) {
@@ -186,7 +190,7 @@ it('VxMarkOnly flow', async () => {
   getByText(`Yes on ${measure102Contest.shortTitle}`)
 
   // Print Screen
-  fireEvent.click(getByText('I’m Ready to Print My Ballot'))
+  fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'))
   advanceTimers()
 
   // Review and Cast Instructions

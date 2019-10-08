@@ -42,7 +42,7 @@ it('gamepad controls work', async () => {
   // load election from localStorage
   setElectionInLocalStorage()
   setStateInLocalStorage()
-  const { getByText, getAllByText } = render(<App />)
+  const { getByText } = render(<App />)
 
   currentCard = getNewVoterCard()
   advanceTimers()
@@ -50,7 +50,7 @@ it('gamepad controls work', async () => {
 
   // Go to First Contest
   handleGamepadButtonDown('DPadRight')
-  fireEvent.click(getAllByText('Start Voting')[1])
+  fireEvent.click(getByText('Start Voting'))
   advanceTimers()
 
   // First Contest Page

@@ -54,7 +54,6 @@ it('Refresh window and expect to be on same contest', async () => {
 
   let app = render(<App />)
   let getByText = app.getByText
-  let getAllByText = app.getAllByText
   let unmount = app.unmount
 
   // Insert Voter Card
@@ -62,7 +61,7 @@ it('Refresh window and expect to be on same contest', async () => {
   advanceTimers()
 
   // Go to First Contest
-  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
+  await wait(() => fireEvent.click(getByText('Start Voting')))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //
