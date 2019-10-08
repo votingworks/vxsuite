@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
-import { Election } from 'ballot-encoder'
+import { Election } from '@votingworks/ballot-encoder'
 
 import { CVRCallbackParams, CastVoteRecord, BatchInfo } from './types'
 import Store from './store'
