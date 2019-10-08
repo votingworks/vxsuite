@@ -713,6 +713,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         /* istanbul ignore else */
         if (isValidTextSize) {
           this.setDocumentFontSize(textSize!)
+          // Trigger application of “See More” buttons based upon scroll-port.
+          window.dispatchEvent(new Event('resize'))
         }
       }
     )
