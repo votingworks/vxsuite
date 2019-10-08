@@ -130,7 +130,7 @@
     "jest-date-mock": "^1.0.7",
     "jest-fetch-mock": "^2.1.2",
     "jest-styled-components": "^6.3.3",
-    "lint-staged": "^9.4.1",
+    "lint-staged": "^9.4.2",
     "prettier": "^1.18.2",
     "start-server-and-test": "^1.10.4",
     "stylelint": "^11.0.0",
