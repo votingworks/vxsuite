@@ -89,6 +89,7 @@ exports[`renders CastBallotPage 1`] = `
   -webkit-flex-direction: row;
   -ms-flex-direction: row;
   flex-direction: row;
+  background-color: white;
   height: 100%;
 }
 

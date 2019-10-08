@@ -15,7 +15,7 @@ const Instructions = styled.ol`
 `
 
 const CastBallotPage = () => (
-  <Screen>
+  <Screen white>
     <Main>
       <MainChild center maxWidth={false}>
         <Prose textCenter id="audiofocus">

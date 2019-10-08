@@ -882,17 +882,17 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         )
       }
       if (isPollsOpen && isVoterCardVoided) {
-        return <ExpiredCardScreen />
+        return <ExpiredCardScreen setUserSettings={this.setUserSettings} />
       }
       if (isPollsOpen && isVoterCardPrinted) {
         if (isRecentVoterPrint && appMode === VxMarkPlusVxPrint) {
           return <CastBallotPage />
         } else {
-          return <UsedCardScreen />
+          return <UsedCardScreen setUserSettings={this.setUserSettings} />
         }
       }
       if (isPollsOpen && isVoterCardExpired) {
-        return <ExpiredCardScreen />
+        return <ExpiredCardScreen setUserSettings={this.setUserSettings} />
       }
       if (isPollsOpen && appMode === VxPrintOnly) {
         return (
@@ -904,6 +904,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             markVoterCardPrinted={this.markVoterCardPrinted}
             precinctId={precinctId}
             printer={printer}
+            setUserSettings={this.setUserSettings}
             updateTally={this.updateTally}
             votes={votes}
           />

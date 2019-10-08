@@ -4,7 +4,7 @@ import Main, { MainChild } from '../components/Main'
 import Screen from '../components/Screen'
 
 const InvalidCardScreen = () => (
-  <Screen>
+  <Screen white>
     <Main>
       <MainChild center>
         <Prose textCenter>

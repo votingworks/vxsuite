@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import styled from 'styled-components'
-import { Election, MarkVoterCardFunction, VotesDict } from '../config/types'
+import { Election, MarkVoterCardFunction, PartialUserSettings, VotesDict } from '../config/types'
 import { NullPrinter, PrintType } from '../utils/printer'
 import isEmptyObject from '../utils/isEmptyObject'
 
@@ -13,7 +13,7 @@ import Screen from '../components/Screen'
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
-  height: 300px;
+  height: 40vw;
 `
 
 interface Props {
@@ -24,6 +24,7 @@ interface Props {
   markVoterCardPrinted: MarkVoterCardFunction
   precinctId: string
   printer: NullPrinter
+  setUserSettings: (partial: PartialUserSettings) => void
   updateTally: () => void
   votes: VotesDict
 }
@@ -38,6 +39,7 @@ const PrintOnlyScreen = ({
   markVoterCardPrinted,
   precinctId,
   printer,
+  setUserSettings,
   updateTally,
   votes: cardVotes,
 }: Props) => {
@@ -86,8 +88,12 @@ const PrintOnlyScreen = ({
   }, [isVoterCardPresent, okToPrint, setOkToPrint])
 
   useEffect(() => {
-    return () => clearTimeout(printerTimer.current)
-  }, [])
+    setUserSettings({ textSize: 3 })
+    return () => {
+      setUserSettings({ textSize: 1 })
+      clearTimeout(printerTimer.current)
+    }
+  }, [setUserSettings])
 
   const renderContent = () => {
     if (isVoterCardPresent && isCardVotesEmpty) {
@@ -109,8 +115,10 @@ const PrintOnlyScreen = ({
             />
           </p>
           <h1>Verify and Cast Your Printed Ballot</h1>
-          <p>Verify your votes on printed ballot are correct.</p>
-          <p>Cast your official ballot in the ballot box.</p>
+          <p>
+            Verify your votes on printed ballot are correct. <br />
+            Cast your official ballot in the ballot box.
+          </p>
         </React.Fragment>
       )
     }
