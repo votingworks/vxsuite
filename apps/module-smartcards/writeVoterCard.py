@@ -1,6 +1,6 @@
 
 import json, hashlib
-from smartcards.card import CardInterface
+from smartcards.core import CardInterface
 
 import time
 time.sleep(2)

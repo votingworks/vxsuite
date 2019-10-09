@@ -1,6 +1,6 @@
 
 import json, hashlib, sys
-from smartcards.card import CardInterface
+from smartcards.core import CardInterface
 
 # wait for the reader to wake up and notice the card
 import time
