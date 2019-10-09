@@ -463,9 +463,9 @@ class CandidateContest extends React.Component<Props, State> {
                             : this.handleUpdateSelection
                         }
                         choice={candidate.id}
-                        aria-label={`${stripQuotes(
-                          candidate.name
-                        )}, ${partyName}.`}
+                        aria-label={`${
+                          isChecked ? 'Selected, ' : ''
+                        } ${stripQuotes(candidate.name)}, ${partyName}.`}
                       >
                         <Prose>
                           <Text wordBreak>
@@ -489,7 +489,9 @@ class CandidateContest extends React.Component<Props, State> {
                             onPress={this.handleUpdateSelection}
                           >
                             <Prose>
-                              <p aria-label={`${candidate.name}.`}>
+                              <p
+                                aria-label={`Selected, write-in: ${candidate.name}.`}
+                              >
                                 <strong>{candidate.name}</strong>
                               </p>
                             </Prose>
@@ -513,7 +515,7 @@ class CandidateContest extends React.Component<Props, State> {
               </ScrollableContentWrapper>
             </ScrollContainer>
             {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
-              <ScrollControls aria-hidden="true">
+              <ScrollControls aria-hidden>
                 <Button
                   className="scroll-up"
                   big

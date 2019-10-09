@@ -272,7 +272,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             class="c2"
           >
             <p
-              aria-label="Yes on Prop 1"
+              aria-label=" Yes on Prop 1"
               class="c10"
             >
               Yes
@@ -290,7 +290,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             class="c2"
           >
             <p
-              aria-label="No on Prop 1"
+              aria-label=" No on Prop 1"
               class="c10"
             >
               No
@@ -623,7 +623,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             class="c2"
           >
             <p
-              aria-label="Yes on Prop 1"
+              aria-label="Selected,  Yes on Prop 1"
               class="c10"
             >
               Yes
@@ -641,7 +641,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             class="c2"
           >
             <p
-              aria-label="No on Prop 1"
+              aria-label=" No on Prop 1"
               class="c10"
             >
               No

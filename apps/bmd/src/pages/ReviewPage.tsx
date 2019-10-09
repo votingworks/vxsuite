@@ -348,7 +348,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
         <Main>
           <ContentHeader>
             <Prose id="audiofocus">
-              <h1 aria-label="Review your ballot selections. Use the down arrow to go through all contests. Use the select button to change a particular contest. When you are done reviewing, use the right arrow to continue.">
+              <h1 aria-label="Review your votes. Use the down arrow to advance through and review your vote in each contest. Use the select button to change your vote in a contest. When you are ready to print your ballot, use the right arrow to continue.">
                 All Your Votes
               </h1>
             </Prose>
@@ -389,7 +389,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                       )}
                     </ContestProse>
                     <ContestActions aria-label="press enter to change your answer for this contest.">
-                      <DecoyButton primary aria-hidden="true">
+                      <DecoyButton primary aria-hidden>
                         Change
                       </DecoyButton>
                     </ContestActions>
@@ -398,7 +398,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
               </ScrollableContentWrapper>
             </ScrollContainer>
             {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
-              <ScrollControls aria-hidden="true">
+              <ScrollControls aria-hidden>
                 <Button
                   className="scroll-up"
                   big

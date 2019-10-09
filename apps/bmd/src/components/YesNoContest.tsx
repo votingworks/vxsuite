@@ -291,7 +291,7 @@ export default class YesNoContest extends React.Component<Props> {
               </ScrollableContentWrapper>
             </ScrollContainer>
             {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
-              <ScrollControls aria-hidden="true">
+              <ScrollControls aria-hidden>
                 <Button
                   className="scroll-up"
                   big
@@ -339,8 +339,9 @@ export default class YesNoContest extends React.Component<Props> {
                   >
                     <Prose>
                       <Text
-                        aria-label={`${answer} on ${contest.shortTitle ||
-                          contest.title}`}
+                        aria-label={`${
+                          isChecked ? 'Selected, ' : ''
+                        } ${answer} on ${contest.shortTitle || contest.title}`}
                         wordBreak
                       >
                         {answer}

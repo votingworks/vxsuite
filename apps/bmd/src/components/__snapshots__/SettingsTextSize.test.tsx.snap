@@ -105,6 +105,7 @@ exports[`renders SettingsTextSize 1`] = `
 }
 
 <div
+  aria-hidden="true"
   class="c0"
 >
   <div

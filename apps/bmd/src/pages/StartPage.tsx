@@ -38,7 +38,7 @@ const StartPage = () => {
       <Main>
         <MainChild center>
           <Prose textCenter>
-            <h1>
+            <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
               {partyPrimaryAdjective} {title}
             </h1>
             <hr />

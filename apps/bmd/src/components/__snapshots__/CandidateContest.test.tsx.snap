@@ -306,7 +306,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
             class="c8"
           >
             <button
-              aria-label="Name 0, Party 0."
+              aria-label="Selected,  Name 0, Party 0."
               class="c9"
               data-choice="name-0"
               data-selected="true"
@@ -328,7 +328,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
               </div>
             </button>
             <button
-              aria-label="Name 1, Party 1."
+              aria-label=" Name 1, Party 1."
               class="c11"
               data-choice="name-1"
               data-selected="false"
@@ -350,7 +350,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
               </div>
             </button>
             <button
-              aria-label="Name 2, Party 0."
+              aria-label=" Name 2, Party 0."
               class="c11"
               data-choice="name-2"
               data-selected="false"
@@ -626,7 +626,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
             class="c7"
           >
             <button
-              aria-label="Name 0, Party 0."
+              aria-label=" Name 0, Party 0."
               class="c8"
               data-choice="name-0"
               data-selected="false"
@@ -648,7 +648,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
               </div>
             </button>
             <button
-              aria-label="Name 1, Party 1."
+              aria-label=" Name 1, Party 1."
               class="c8"
               data-choice="name-1"
               data-selected="false"
@@ -670,7 +670,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
               </div>
             </button>
             <button
-              aria-label="Name 2, Party 0."
+              aria-label=" Name 2, Party 0."
               class="c8"
               data-choice="name-2"
               data-selected="false"
@@ -1005,7 +1005,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
             class="c8"
           >
             <button
-              aria-label="Name 0, Party 0."
+              aria-label="Selected,  Name 0, Party 0."
               class="c9"
               data-choice="name-0"
               data-selected="true"
@@ -1027,7 +1027,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
               </div>
             </button>
             <button
-              aria-label="Name 1, Party 1."
+              aria-label=" Name 1, Party 1."
               class="c11"
               data-choice="name-1"
               data-selected="false"
@@ -1049,7 +1049,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
               </div>
             </button>
             <button
-              aria-label="Name 2, Party 0."
+              aria-label=" Name 2, Party 0."
               class="c11"
               data-choice="name-2"
               data-selected="false"
@@ -1327,7 +1327,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
             class="c7"
           >
             <button
-              aria-label="Name 0, Party 0."
+              aria-label=" Name 0, Party 0."
               class="c8"
               data-choice="name-0"
               data-selected="false"
@@ -1349,7 +1349,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
               </div>
             </button>
             <button
-              aria-label="Name 1, Party 1."
+              aria-label=" Name 1, Party 1."
               class="c8"
               data-choice="name-1"
               data-selected="false"
@@ -1371,7 +1371,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
               </div>
             </button>
             <button
-              aria-label="Name 2, Party 0."
+              aria-label=" Name 2, Party 0."
               class="c8"
               data-choice="name-2"
               data-selected="false"

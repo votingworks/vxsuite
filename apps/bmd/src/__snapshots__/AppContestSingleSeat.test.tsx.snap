@@ -642,7 +642,7 @@ exports[`Single Seat Contest 1`] = `
               class="c10"
             >
               <button
-                aria-label="Joseph Barchi and Joseph Hallaren, Federalist."
+                aria-label="Selected,  Joseph Barchi and Joseph Hallaren, Federalist."
                 class="c11"
                 data-choice="barchi-hallaren"
                 data-selected="true"
@@ -664,7 +664,7 @@ exports[`Single Seat Contest 1`] = `
                 </div>
               </button>
               <button
-                aria-label="Adam Cramer and Greg Vuocolo, People's."
+                aria-label=" Adam Cramer and Greg Vuocolo, People's."
                 class="c13"
                 data-choice="cramer-vuocolo"
                 data-selected="false"
@@ -686,7 +686,7 @@ exports[`Single Seat Contest 1`] = `
                 </div>
               </button>
               <button
-                aria-label="Daniel Court and Amy Blumhardt, Liberty."
+                aria-label=" Daniel Court and Amy Blumhardt, Liberty."
                 class="c13"
                 data-choice="court-blumhardt"
                 data-selected="false"
@@ -708,7 +708,7 @@ exports[`Single Seat Contest 1`] = `
                 </div>
               </button>
               <button
-                aria-label="Alvin Boone and James Lian, Constitution."
+                aria-label=" Alvin Boone and James Lian, Constitution."
                 class="c13"
                 data-choice="boone-lian"
                 data-selected="false"
@@ -730,7 +730,7 @@ exports[`Single Seat Contest 1`] = `
                 </div>
               </button>
               <button
-                aria-label="Ashley Hildebrand-McDougall and James Garritty, Whig."
+                aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
                 class="c13"
                 data-choice="hildebrand-garritty"
                 data-selected="false"
@@ -752,7 +752,7 @@ exports[`Single Seat Contest 1`] = `
                 </div>
               </button>
               <button
-                aria-label="Martin Patterson and Clay Lariviere, Labor."
+                aria-label=" Martin Patterson and Clay Lariviere, Labor."
                 class="c13"
                 data-choice="patterson-lariviere"
                 data-selected="false"
@@ -833,6 +833,7 @@ exports[`Single Seat Contest 1`] = `
         class="c21"
       >
         <div
+          aria-hidden="true"
           class="c22"
         >
           <div

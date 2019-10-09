@@ -39,13 +39,14 @@ const ActivationScreen = ({
             <TestMode isLiveMode={isLiveMode} />
             <p>
               <InsertCardImage
+                aria-hidden
                 src="/images/insert-card.svg"
                 alt="Insert Card Diagram"
               />
             </p>
             {isPollsOpen ? (
               <React.Fragment>
-                <h1>Insert Card</h1>
+                <h1 aria-hidden>Insert Card</h1>
                 <p>Insert voter card to load ballot.</p>
               </React.Fragment>
             ) : (

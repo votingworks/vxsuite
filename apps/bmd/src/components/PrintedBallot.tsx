@@ -203,7 +203,7 @@ const PrintBallot = ({
   })
 
   return (
-    <Ballot aria-hidden="true">
+    <Ballot aria-hidden>
       <Header>
         {seal ? (
           <div
