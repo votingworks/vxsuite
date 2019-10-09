@@ -22,33 +22,23 @@ import Button, { DecoyButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Main from '../components/Main'
 import Prose from '../components/Prose'
-import Text from '../components/Text'
-import * as GLOBALS from '../config/globals'
+import Text, { NoWrap } from '../components/Text'
+import { FONT_SIZES, YES_NO_VOTES } from '../config/globals'
 import BallotContext from '../contexts/ballotContext'
 import Screen from '../components/Screen'
 import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import SettingsTextSize from '../components/SettingsTextSize'
 
-const tabletMinWidth = 768
-
 const ContentHeader = styled.div`
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem;
-  @media (min-width: ${tabletMinWidth}px) {
-    padding: 0.5rem 1rem;
-  }
+  padding: 1rem 5rem 0.5rem 3rem;
 `
-const ContentFooter = styled.div`
-  margin: 0 auto;
-  width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem;
-  @media (min-width: ${tabletMinWidth}px) {
-    padding: 0.5rem 1rem;
-  }
+const ContestSection = styled.div`
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  font-weight: 600;
 `
 const VariableContentContainer = styled.div<ScrollShadows>`
   display: flex;
@@ -85,6 +75,63 @@ const VariableContentContainer = styled.div<ScrollShadows>`
     );
   }
 `
+const ScrollControls = styled.div`
+  z-index: 2;
+  & > button {
+    position: absolute;
+    right: 1.5rem;
+    transform: opacity 1s linear;
+    visibility: visible;
+    opacity: 1;
+    outline: none;
+    box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.3);
+    width: 8rem;
+    height: 5rem;
+    padding: 0;
+    font-weight: 700;
+    transition: visibility 0s linear 0s, opacity 500ms;
+    &[disabled] {
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s linear 500ms, opacity 500ms;
+      pointer-events: none;
+    }
+    & > span {
+      position: relative;
+      pointer-events: none;
+    }
+    &::before {
+      position: absolute;
+      left: 50%;
+      margin-left: -1rem;
+      width: 2rem;
+      height: 2rem;
+      content: '';
+    }
+    &:first-child {
+      top: 0;
+      border-radius: 0 0 4rem 4rem;
+      & > span {
+        top: -1.25rem;
+      }
+      &::before {
+        bottom: 0.75rem;
+        background: url('/images/arrow-up.svg') no-repeat;
+      }
+    }
+    &:last-child {
+      bottom: 0;
+      border-radius: 4rem 4rem 0 0;
+      & > span {
+        top: 1.25rem;
+      }
+      &::before {
+        top: 0.75rem;
+        background: url('/images/arrow-down.svg') no-repeat;
+      }
+    }
+  }
+`
 const ScrollContainer = styled.div`
   flex: 1;
   overflow: auto;
@@ -92,12 +139,11 @@ const ScrollContainer = styled.div`
 const ScrollableContentWrapper = styled.div<Scrollable>`
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem 1rem;
-  @media (min-width: ${tabletMinWidth}px) {
-    padding-right: 1rem;
-    padding-left: 1rem;
-  }
+  padding: 0.5rem 5rem 2rem 3rem;
+  padding-right: ${({ isScrollable }) =>
+    isScrollable
+      ? /* istanbul ignore next: Tested by Cypress */ '11rem'
+      : undefined};
 `
 
 const Contest = styled(LinkButton)`
@@ -133,7 +179,7 @@ const ContestProse = styled(Prose)`
 `
 const ContestActions = styled.div`
   display: none;
-  padding-left: 2rem;
+  padding-left: 1rem;
   @media (min-width: 480px) {
     display: block;
   }
@@ -197,7 +243,7 @@ const YesNoContestResult = (props: {
 }) =>
   props.vote ? (
     <Text bold wordBreak voteIcon>
-      {GLOBALS.YES_NO_VOTES[props.vote]}{' '}
+      {YES_NO_VOTES[props.vote]}{' '}
       {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
     </Text>
   ) : (
@@ -205,9 +251,7 @@ const YesNoContestResult = (props: {
   )
 
 const SidebarSpacer = styled.div`
-  @media (min-width: 480px) {
-    height: 3rem;
-  }
+  height: 90px;
 `
 interface State {
   isScrollAtBottom: boolean
@@ -222,7 +266,6 @@ const initialState: State = {
 }
 
 class ReviewPage extends React.Component<RouteComponentProps, State> {
-  public static contextType = BallotContext
   public context!: React.ContextType<typeof BallotContext>
   public state: State = initialState
   private scrollContainer = React.createRef<HTMLDivElement>()
@@ -245,14 +288,11 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
     if (!target) {
       return
     }
-    const isTabletMinWidth = target.offsetWidth >= tabletMinWidth
-    const targetMinHeight =
-      GLOBALS.FONT_SIZES[this.context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
+    const targetMinHeight = FONT_SIZES[this.context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
     this.setState({
       isScrollable:
-        isTabletMinWidth &&
         /* istanbul ignore next: Tested by Cypress */
         target.scrollHeight > target.offsetHeight &&
         /* istanbul ignore next: Tested by Cypress */
@@ -288,6 +328,8 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
     scrollContainer.scrollTo({ behavior: 'smooth', left: 0, top })
   }
 
+  public static contextType = BallotContext
+
   public render() {
     const {
       appMode,
@@ -309,15 +351,6 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
               <h1 aria-label="Review your ballot selections. Use the down arrow to go through all contests. Use the select button to change a particular contest. When you are done reviewing, use the right arrow to continue.">
                 All Your Votes
               </h1>
-              <Button
-                aria-hidden
-                data-direction="up"
-                disabled={isScrollAtTop}
-                fullWidth
-                onPress={this.scrollContestChoices}
-              >
-                ↑ See More
-              </Button>
             </Prose>
           </ContentHeader>
           <VariableContentContainer
@@ -336,9 +369,10 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                     to={`/contests/${i}#review`}
                   >
                     <ContestProse compact>
-                      <h3 aria-label={`${contest.title.replace(',', '')},`}>
-                        {contest.section}, {contest.title}
-                      </h3>
+                      <h2 aria-label={`${contest.title.replace(',', '')},`}>
+                        <ContestSection>{contest.section}</ContestSection>
+                        {contest.title}
+                      </h2>
 
                       {contest.type === 'candidate' && (
                         <CandidateContestResult
@@ -363,18 +397,33 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                 ))}
               </ScrollableContentWrapper>
             </ScrollContainer>
+            {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
+              <ScrollControls aria-hidden="true">
+                <Button
+                  className="scroll-up"
+                  big
+                  primary
+                  aria-hidden
+                  data-direction="up"
+                  disabled={isScrollAtTop}
+                  onPress={this.scrollContestChoices}
+                >
+                  <span>See More</span>
+                </Button>
+                <Button
+                  className="scroll-down"
+                  big
+                  primary
+                  aria-hidden
+                  data-direction="down"
+                  disabled={isScrollAtBottom}
+                  onPress={this.scrollContestChoices}
+                >
+                  <span>See More</span>
+                </Button>
+              </ScrollControls>
+            )}
           </VariableContentContainer>
-          <ContentFooter>
-            <Button
-              aria-hidden
-              data-direction="down"
-              disabled={isScrollAtBottom}
-              fullWidth
-              onPress={this.scrollContestChoices}
-            >
-              ↓ See More
-            </Button>
-          </ContentFooter>
         </Main>
         <Sidebar
           footer={
@@ -402,7 +451,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                 to={appMode.isVxPrint ? '/print' : '/remove'}
                 id="next"
               >
-                I’m Ready to Print My Ballot
+                I’m Ready to <NoWrap>Print My Ballot</NoWrap>
               </LinkButton>
             </p>
           </Prose>

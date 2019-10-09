@@ -13,7 +13,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1;
+  z-index: 999; /* Should be above all default UI */
   background: rgba(0, 0, 0, 0.75);
 }
 @media (min-width: 480px) {

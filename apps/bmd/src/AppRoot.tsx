@@ -228,11 +228,12 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           ballotPrintedTime
         )
 
-        const votes = (
+        const votes =
           longValueExists &&
           !this.state.isVoterCardExpired &&
           !this.state.isVoterCardVoided
-        ) ? await this.fetchVotes() : {}
+            ? await this.fetchVotes()
+            : {}
 
         this.setState(
           prevState => {
@@ -554,13 +555,9 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public writeCard = async (cardData: VoterCardData) => {
-    const newCardData: VoterCardData = {
-      ...cardData,
-      u: utcTimestamp(),
-    }
     await fetch('/card/write', {
       method: 'post',
-      body: JSON.stringify(newCardData),
+      body: JSON.stringify(cardData),
       headers: { 'Content-Type': 'application/json' },
     })
   }
@@ -716,6 +713,8 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         /* istanbul ignore else */
         if (isValidTextSize) {
           this.setDocumentFontSize(textSize!)
+          // Trigger application of “See More” buttons based upon scroll-port.
+          window.dispatchEvent(new Event('resize'))
         }
       }
     )
@@ -882,17 +881,17 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         )
       }
       if (isPollsOpen && isVoterCardVoided) {
-        return <ExpiredCardScreen />
+        return <ExpiredCardScreen setUserSettings={this.setUserSettings} />
       }
       if (isPollsOpen && isVoterCardPrinted) {
         if (isRecentVoterPrint && appMode === VxMarkPlusVxPrint) {
           return <CastBallotPage />
         } else {
-          return <UsedCardScreen />
+          return <UsedCardScreen setUserSettings={this.setUserSettings} />
         }
       }
       if (isPollsOpen && isVoterCardExpired) {
-        return <ExpiredCardScreen />
+        return <ExpiredCardScreen setUserSettings={this.setUserSettings} />
       }
       if (isPollsOpen && appMode === VxPrintOnly) {
         return (
@@ -904,6 +903,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             markVoterCardPrinted={this.markVoterCardPrinted}
             precinctId={precinctId}
             printer={printer}
+            setUserSettings={this.setUserSettings}
             updateTally={this.updateTally}
             votes={votes}
           />

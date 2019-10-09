@@ -4,6 +4,8 @@ import fetchMock from 'fetch-mock'
 
 import App from './App'
 
+import withMarkup from '../test/helpers/withMarkup'
+
 import {
   advanceTimers,
   getNewVoterCard,
@@ -39,29 +41,19 @@ it('Single Seat Contest', async () => {
   setElectionInLocalStorage()
   setStateInLocalStorage()
 
-  const { getAllByText, getByText, queryByText, getByTestId } = render(<App />)
+  const { getByText, queryByText, getByTestId } = render(<App />)
 
   // Insert Voter Card
   currentCard = getNewVoterCard()
   advanceTimers()
 
   // Go to First Contest
-  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
+  await wait(() => fireEvent.click(getByText('Start Voting')))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //
 
-  // Query by text which includes markup.
-  // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
-  const getByTextWithMarkup = (text: string) => {
-    getByText((content, node) => {
-      const hasText = (node: HTMLElement) => node.textContent === text
-      const childrenDontHaveText = Array.from(node.children).every(
-        child => !hasText(child as HTMLElement)
-      )
-      return hasText(node) && childrenDontHaveText
-    })
-  }
+  const getByTextWithMarkup = withMarkup(getByText)
 
   // Advance to multi-seat contest
   while (!queryByText(measure102Contest.title)) {
@@ -102,8 +94,8 @@ it('Single Seat Contest', async () => {
     advanceTimers()
   }
 
-  const reviewTitle = getByText(
-    `${measure102Contest.section}, ${measure102Contest.title}`
+  const reviewTitle = getByTextWithMarkup(
+    `${measure102Contest.section}${measure102Contest.title}`
   )
   const siblingTextContent =
     (reviewTitle.nextSibling && reviewTitle.nextSibling.textContent) || ''

@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import styled from 'styled-components'
-import { Election, MarkVoterCardFunction, VotesDict } from '../config/types'
+import {
+  Election,
+  MarkVoterCardFunction,
+  PartialUserSettings,
+  VotesDict,
+} from '../config/types'
 import { NullPrinter, PrintType } from '../utils/printer'
 import isEmptyObject from '../utils/isEmptyObject'
 
@@ -10,10 +15,11 @@ import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
 import Loading from '../components/Loading'
 import Screen from '../components/Screen'
+import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
-  height: 300px;
+  height: 40vw;
 `
 
 interface Props {
@@ -24,6 +30,7 @@ interface Props {
   markVoterCardPrinted: MarkVoterCardFunction
   precinctId: string
   printer: NullPrinter
+  setUserSettings: (partial: PartialUserSettings) => void
   updateTally: () => void
   votes: VotesDict
 }
@@ -38,6 +45,7 @@ const PrintOnlyScreen = ({
   markVoterCardPrinted,
   precinctId,
   printer,
+  setUserSettings,
   updateTally,
   votes: cardVotes,
 }: Props) => {
@@ -86,8 +94,12 @@ const PrintOnlyScreen = ({
   }, [isVoterCardPresent, okToPrint, setOkToPrint])
 
   useEffect(() => {
-    return () => clearTimeout(printerTimer.current)
-  }, [])
+    setUserSettings({ textSize: LARGE_DISPLAY_FONT_SIZE })
+    return () => {
+      setUserSettings({ textSize: DEFAULT_FONT_SIZE })
+      clearTimeout(printerTimer.current)
+    }
+  }, [setUserSettings])
 
   const renderContent = () => {
     if (isVoterCardPresent && isCardVotesEmpty) {
@@ -109,8 +121,10 @@ const PrintOnlyScreen = ({
             />
           </p>
           <h1>Verify and Cast Your Printed Ballot</h1>
-          <p>Verify your votes on printed ballot are correct.</p>
-          <p>Cast your official ballot in the ballot box.</p>
+          <p>
+            Verify your votes on printed ballot are correct. <br />
+            Cast your official ballot in the ballot box.
+          </p>
         </React.Fragment>
       )
     }

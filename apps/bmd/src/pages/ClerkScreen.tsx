@@ -75,6 +75,7 @@ const ClerkScreen = ({
       />
     )
   }
+
   const isTestDecksAvailable = !isLiveMode && appMode.isVxPrint
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
@@ -96,11 +97,17 @@ const ClerkScreen = ({
                     <option value="" disabled>
                       Select a precinct for this device…
                     </option>
-                    {election.precincts.map(precinct => (
-                      <option key={precinct.id} value={precinct.id}>
-                        {precinct.name}
-                      </option>
-                    ))}
+                    {election.precincts
+                      .sort((a, b) =>
+                        a.name.localeCompare(b.name, undefined, {
+                          ignorePunctuation: true,
+                        })
+                      )
+                      .map(precinct => (
+                        <option key={precinct.id} value={precinct.id}>
+                          {precinct.name}
+                        </option>
+                      ))}
                   </Select>
                 </p>
                 <h1>App Mode</h1>

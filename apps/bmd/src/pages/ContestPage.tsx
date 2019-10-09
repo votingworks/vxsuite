@@ -93,50 +93,48 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
           </React.Fragment>
         }
       >
-        {isReviewMode ? (
-          <Prose>
-            <Text center>
-              This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
-              {contests.length} contests.
-            </Text>
-            <p>
-              <LinkButton
-                big
-                primary={isVoteComplete}
-                to={`/review#contest-${contest.id}`}
-                id="next"
-              >
-                Review →
-              </LinkButton>
-            </p>
-          </Prose>
-        ) : (
-          <Prose>
-            <Text center>
-              This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
-              {contests.length} contests.
-            </Text>
-            <p>
-              <LinkButton
-                big
-                id="next"
-                primary={isVoteComplete}
-                to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
-              >
-                Next →
-              </LinkButton>
-            </p>
-            <p>
-              <LinkButton
-                small
-                id="previous"
-                to={prevContest ? `/contests/${prevContestIndex}` : '/'}
-              >
-                ← Back
-              </LinkButton>
-            </p>
-          </Prose>
-        )}
+        <Prose>
+          <Text center>
+            This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
+            {contests.length} contests.
+          </Text>
+          {isReviewMode ? (
+            <React.Fragment>
+              <p>
+                <LinkButton
+                  big
+                  primary={isVoteComplete}
+                  to={`/review#contest-${contest.id}`}
+                  id="next"
+                >
+                  Review →
+                </LinkButton>
+              </p>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <p>
+                <LinkButton
+                  big
+                  id="next"
+                  primary={isVoteComplete}
+                  to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
+                >
+                  Next →
+                </LinkButton>
+              </p>
+              <p>
+                <LinkButton
+                  small
+                  id="previous"
+                  to={prevContest ? `/contests/${prevContestIndex}` : '/'}
+                >
+                  ← Back
+                </LinkButton>
+              </p>
+            </React.Fragment>
+          )}
+        </Prose>
       </Sidebar>
     </Screen>
   )

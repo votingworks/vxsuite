@@ -210,7 +210,7 @@ export interface Scrollable {
   isScrollable: boolean
 }
 
-export type TextSizeSetting = 0 | 1 | 2
+export type TextSizeSetting = 0 | 1 | 2 | 3
 
 export interface UserSettings {
   textSize: TextSizeSetting

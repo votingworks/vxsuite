@@ -274,8 +274,7 @@ exports[`Renders ContestPage 1`] = `
 .c2 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 1rem 0.75rem 0.5rem;
+  padding: 1rem 5rem 0.5rem 9rem;
 }
 
 .c4 {
@@ -329,14 +328,13 @@ exports[`Renders ContestPage 1`] = `
 .c7 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem 1rem;
+  padding: 0.5rem 5rem 2rem;
 }
 
 .c8 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 1.25rem;
+  grid-gap: 1rem;
 }
 
 .c25 {
@@ -348,7 +346,7 @@ exports[`Renders ContestPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin: 2rem 1rem 0;
+  margin: 1.5rem 1rem 0;
 }
 
 .c24 {
@@ -368,7 +366,7 @@ exports[`Renders ContestPage 1`] = `
 
 .c24 div:first-child {
   margin-right: 1rem;
-  width: 125px;
+  min-width: 5rem;
 }
 
 .c0 {
@@ -425,7 +423,7 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c16 {
-  margin: 1rem 1rem 2rem;
+  margin: 1rem 1rem 1.5rem;
 }
 
 .c17 {
@@ -454,19 +452,19 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c20 button {
-  min-width: 104px;
+  min-width: 120px;
 }
 
 .c20 button[data-size='0'] {
-  font-size: 18px !important;
+  font-size: 22px !important;
 }
 
 .c20 button[data-size='1'] {
-  font-size: 26px !important;
+  font-size: 30px !important;
 }
 
 .c20 button[data-size='2'] {
-  font-size: 32px !important;
+  font-size: 36px !important;
 }
 
 .c19 {
@@ -489,20 +487,6 @@ exports[`Renders ContestPage 1`] = `
 @media (min-width:480px) {
   .c26 {
     line-height: 1.3;
-  }
-}
-
-@media (min-width:720px) {
-  .c2 {
-    padding: 1rem 1.5rem 0.5rem;
-    padding-left: 5rem;
-  }
-}
-
-@media (min-width:720px) {
-  .c7 {
-    padding-right: 1rem;
-    padding-left: 1rem;
   }
 }
 
@@ -836,6 +820,7 @@ exports[`Renders ContestPage 1`] = `
               <p
                 class="c29"
               >
+                 
                 
               </p>
             </div>

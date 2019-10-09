@@ -4,6 +4,8 @@ import fetchMock from 'fetch-mock'
 
 import App from './App'
 
+import withMarkup from '../test/helpers/withMarkup'
+
 import {
   advanceTimers,
   getNewVoterCard,
@@ -52,13 +54,8 @@ it('Single Seat Contest with Write In', async () => {
     appMode: VxMarkPlusVxPrint,
   })
 
-  const {
-    container,
-    getAllByText,
-    getByText,
-    queryByText,
-    getByTestId,
-  } = render(<App />)
+  const { container, getByText, queryByText, getByTestId } = render(<App />)
+  const getByTextWithMarkup = withMarkup(getByText)
 
   const getWithinKeyboard = (text: string) =>
     within(getByTestId('virtual-keyboard')).getByText(text)
@@ -68,7 +65,7 @@ it('Single Seat Contest with Write In', async () => {
   advanceTimers()
 
   // Go to First Contest
-  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
+  await wait(() => fireEvent.click(getByText('Start Voting')))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //
@@ -136,7 +133,7 @@ it('Single Seat Contest with Write In', async () => {
   expect(getByText('(write-in)')).toBeTruthy()
 
   // Print Screen
-  fireEvent.click(getByText('I’m Ready to Print My Ballot'))
+  fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'))
   advanceTimers()
   expect(getByText('Official Ballot')).toBeTruthy()
   expect(getByText('(write-in)')).toBeTruthy()

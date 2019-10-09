@@ -7,7 +7,7 @@ import Screen from '../components/Screen'
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
-  height: 300px;
+  height: 30vw;
 `
 
 const RemoveCardScreen = () => (

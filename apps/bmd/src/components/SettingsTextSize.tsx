@@ -55,7 +55,7 @@ const SettingsTextSize = ({ userSettings, setUserSettings }: Props) => {
           <Label>Change Text Size</Label>
           <FontSizeButtons>
             <SegmentedButton data-testid="change-text-size-buttons">
-              {FONT_SIZES.map((v: number, i: number) => (
+              {FONT_SIZES.slice(0, 3).map((v: number, i: number) => (
                 <Button
                   key={v}
                   data-size={i}

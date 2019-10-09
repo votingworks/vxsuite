@@ -50,7 +50,7 @@ it('VxMark+Print end-to-end flow', async () => {
   setElectionInLocalStorage()
   setStateInLocalStorage()
 
-  const { getAllByText, getByText } = render(<App />)
+  const { getByText } = render(<App />)
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -86,7 +86,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // First Insert is Good
   currentCard = expiringCard
   advanceTimers()
-  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
+  await wait(() => fireEvent.click(getByText('Start Voting')))
 
   // Slow voter clicks around, expiration Time passes, card still works.
   advanceTimers(60)

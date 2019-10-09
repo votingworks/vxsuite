@@ -205,10 +205,6 @@ exports[`renders StartPage 1`] = `
   margin: 1rem 0;
 }
 
-.c7 {
-  text-align: center;
-}
-
 .c23 {
   font-size: 0.8rem;
 }
@@ -227,7 +223,7 @@ exports[`renders StartPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin: 2rem 1rem 0;
+  margin: 1.5rem 1rem 0;
 }
 
 .c19 {
@@ -247,7 +243,7 @@ exports[`renders StartPage 1`] = `
 
 .c19 div:first-child {
   margin-right: 1rem;
-  width: 125px;
+  min-width: 5rem;
 }
 
 .c9 {
@@ -368,7 +364,7 @@ exports[`renders StartPage 1`] = `
 }
 
 .c10 {
-  margin: 1rem 1rem 2rem;
+  margin: 1rem 1rem 1.5rem;
 }
 
 .c0 {
@@ -420,24 +416,28 @@ exports[`renders StartPage 1`] = `
 }
 
 .c14 button {
-  min-width: 104px;
+  min-width: 120px;
 }
 
 .c14 button[data-size='0'] {
-  font-size: 18px !important;
+  font-size: 22px !important;
 }
 
 .c14 button[data-size='1'] {
-  font-size: 26px !important;
+  font-size: 30px !important;
 }
 
 .c14 button[data-size='2'] {
-  font-size: 32px !important;
+  font-size: 36px !important;
 }
 
 .c13 {
   display: block;
   margin-bottom: 0.4rem;
+}
+
+.c7 {
+  height: 90px;
 }
 
 @media (min-width:480px) {
@@ -483,11 +483,12 @@ exports[`renders StartPage 1`] = `
         </h1>
         <hr />
         <p>
-          Click the 
+          Your ballot has 
           <strong>
-            Start Voting
+            22
+             contests
           </strong>
-           button at the top right to view the first contest.
+          .
         </p>
       </div>
     </div>
@@ -501,16 +502,9 @@ exports[`renders StartPage 1`] = `
       <div
         class="c6"
       >
-        <p
+        <div
           class="c7"
-        >
-          This ballot has 
-          <strong>
-            22
-             contests
-          </strong>
-          .
-        </p>
+        />
         <p
           class="c8"
         >
@@ -630,6 +624,7 @@ exports[`renders StartPage 1`] = `
                 Center Springfield
                 , 
               </span>
+               
               <span
                 class="c24"
               >
@@ -846,10 +841,6 @@ exports[`renders StartPage with inline SVG 1`] = `
   margin: 1rem 0;
 }
 
-.c7 {
-  text-align: center;
-}
-
 .c22 {
   font-size: 0.8rem;
 }
@@ -868,7 +859,7 @@ exports[`renders StartPage with inline SVG 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin: 2rem 1rem 0;
+  margin: 1.5rem 1rem 0;
 }
 
 .c19 {
@@ -888,7 +879,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 
 .c19 div:first-child {
   margin-right: 1rem;
-  width: 125px;
+  min-width: 5rem;
 }
 
 .c9 {
@@ -1009,7 +1000,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 .c10 {
-  margin: 1rem 1rem 2rem;
+  margin: 1rem 1rem 1.5rem;
 }
 
 .c0 {
@@ -1061,24 +1052,28 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 .c14 button {
-  min-width: 104px;
+  min-width: 120px;
 }
 
 .c14 button[data-size='0'] {
-  font-size: 18px !important;
+  font-size: 22px !important;
 }
 
 .c14 button[data-size='1'] {
-  font-size: 26px !important;
+  font-size: 30px !important;
 }
 
 .c14 button[data-size='2'] {
-  font-size: 32px !important;
+  font-size: 36px !important;
 }
 
 .c13 {
   display: block;
   margin-bottom: 0.4rem;
+}
+
+.c7 {
+  height: 90px;
 }
 
 @media (min-width:480px) {
@@ -1124,11 +1119,12 @@ exports[`renders StartPage with inline SVG 1`] = `
         </h1>
         <hr />
         <p>
-          Click the 
+          Your ballot has 
           <strong>
-            Start Voting
+            22
+             contests
           </strong>
-           button at the top right to view the first contest.
+          .
         </p>
       </div>
     </div>
@@ -1142,16 +1138,9 @@ exports[`renders StartPage with inline SVG 1`] = `
       <div
         class="c6"
       >
-        <p
+        <div
           class="c7"
-        >
-          This ballot has 
-          <strong>
-            22
-             contests
-          </strong>
-          .
-        </p>
+        />
         <p
           class="c8"
         >
@@ -1429,6 +1418,7 @@ exports[`renders StartPage with inline SVG 1`] = `
                 Center Springfield
                 
               </span>
+               
               
             </p>
           </div>
@@ -1640,10 +1630,6 @@ exports[`renders StartPage with no seal 1`] = `
   margin: 1rem 0;
 }
 
-.c7 {
-  text-align: center;
-}
-
 .c22 {
   font-size: 0.8rem;
 }
@@ -1662,7 +1648,7 @@ exports[`renders StartPage with no seal 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin: 2rem 1rem 0;
+  margin: 1.5rem 1rem 0;
 }
 
 .c19 {
@@ -1682,7 +1668,7 @@ exports[`renders StartPage with no seal 1`] = `
 
 .c19 div:first-child {
   margin-right: 1rem;
-  width: 125px;
+  min-width: 5rem;
 }
 
 .c9 {
@@ -1803,7 +1789,7 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 .c10 {
-  margin: 1rem 1rem 2rem;
+  margin: 1rem 1rem 1.5rem;
 }
 
 .c0 {
@@ -1855,24 +1841,28 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 .c14 button {
-  min-width: 104px;
+  min-width: 120px;
 }
 
 .c14 button[data-size='0'] {
-  font-size: 18px !important;
+  font-size: 22px !important;
 }
 
 .c14 button[data-size='1'] {
-  font-size: 26px !important;
+  font-size: 30px !important;
 }
 
 .c14 button[data-size='2'] {
-  font-size: 32px !important;
+  font-size: 36px !important;
 }
 
 .c13 {
   display: block;
   margin-bottom: 0.4rem;
+}
+
+.c7 {
+  height: 90px;
 }
 
 @media (min-width:480px) {
@@ -1918,11 +1908,12 @@ exports[`renders StartPage with no seal 1`] = `
         </h1>
         <hr />
         <p>
-          Click the 
+          Your ballot has 
           <strong>
-            Start Voting
+            22
+             contests
           </strong>
-           button at the top right to view the first contest.
+          .
         </p>
       </div>
     </div>
@@ -1936,16 +1927,9 @@ exports[`renders StartPage with no seal 1`] = `
       <div
         class="c6"
       >
-        <p
+        <div
           class="c7"
-        >
-          This ballot has 
-          <strong>
-            22
-             contests
-          </strong>
-          .
-        </p>
+        />
         <p
           class="c8"
         >
@@ -2059,6 +2043,7 @@ exports[`renders StartPage with no seal 1`] = `
                 Center Springfield
                 
               </span>
+               
               
             </p>
           </div>

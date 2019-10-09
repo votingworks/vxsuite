@@ -39,14 +39,14 @@ it('Single Seat Contest', async () => {
   setElectionInLocalStorage()
   setStateInLocalStorage()
 
-  const { container, getAllByText, getByText } = render(<App />)
+  const { container, getByText } = render(<App />)
 
   // Insert Voter Card
   currentCard = getNewVoterCard()
   advanceTimers()
 
   // Go to First Contest
-  await wait(() => fireEvent.click(getAllByText('Start Voting')[1]))
+  await wait(() => fireEvent.click(getByText('Start Voting')))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //

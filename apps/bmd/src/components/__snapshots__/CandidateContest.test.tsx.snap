@@ -165,8 +165,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 .c1 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 1rem 0.75rem 0.5rem;
+  padding: 1rem 5rem 0.5rem 9rem;
 }
 
 .c3 {
@@ -220,14 +219,13 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 .c6 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem 1rem;
+  padding: 0.5rem 5rem 2rem;
 }
 
 .c7 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 1.25rem;
+  grid-gap: 1rem;
 }
 
 @media (min-width:480px) {
@@ -245,20 +243,6 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 @media (min-width:480px) {
   .c2 {
     line-height: 1.3;
-  }
-}
-
-@media (min-width:720px) {
-  .c1 {
-    padding: 1rem 1.5rem 0.5rem;
-    padding-left: 5rem;
-  }
-}
-
-@media (min-width:720px) {
-  .c6 {
-    padding-right: 1rem;
-    padding-left: 1rem;
   }
 }
 
@@ -508,8 +492,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 .c1 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 1rem 0.75rem 0.5rem;
+  padding: 1rem 5rem 0.5rem 9rem;
 }
 
 .c3 {
@@ -563,14 +546,13 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 .c6 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem 1rem;
+  padding: 0.5rem 5rem 2rem;
 }
 
 .c7 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 1.25rem;
+  grid-gap: 1rem;
 }
 
 @media (min-width:480px) {
@@ -582,20 +564,6 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 @media (min-width:480px) {
   .c2 {
     line-height: 1.3;
-  }
-}
-
-@media (min-width:720px) {
-  .c1 {
-    padding: 1rem 1.5rem 0.5rem;
-    padding-left: 5rem;
-  }
-}
-
-@media (min-width:720px) {
-  .c6 {
-    padding-right: 1rem;
-    padding-left: 1rem;
   }
 }
 
@@ -887,8 +855,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 .c1 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 1rem 0.75rem 0.5rem;
+  padding: 1rem 5rem 0.5rem 9rem;
 }
 
 .c3 {
@@ -942,14 +909,13 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 .c6 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem 1rem;
+  padding: 0.5rem 5rem 2rem;
 }
 
 .c7 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 1.25rem;
+  grid-gap: 1rem;
 }
 
 @media (min-width:480px) {
@@ -967,20 +933,6 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 @media (min-width:480px) {
   .c2 {
     line-height: 1.3;
-  }
-}
-
-@media (min-width:720px) {
-  .c1 {
-    padding: 1rem 1.5rem 0.5rem;
-    padding-left: 5rem;
-  }
-}
-
-@media (min-width:720px) {
-  .c6 {
-    padding-right: 1rem;
-    padding-left: 1rem;
   }
 }
 
@@ -1230,8 +1182,7 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 .c1 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 1rem 0.75rem 0.5rem;
+  padding: 1rem 5rem 0.5rem 9rem;
 }
 
 .c3 {
@@ -1285,14 +1236,13 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 .c6 {
   margin: 0 auto;
   width: 100%;
-  max-width: 35rem;
-  padding: 0.5rem 0.5rem 1rem;
+  padding: 0.5rem 5rem 2rem;
 }
 
 .c7 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 1.25rem;
+  grid-gap: 1rem;
 }
 
 @media (min-width:480px) {
@@ -1304,20 +1254,6 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
 @media (min-width:480px) {
   .c2 {
     line-height: 1.3;
-  }
-}
-
-@media (min-width:720px) {
-  .c1 {
-    padding: 1rem 1.5rem 0.5rem;
-    padding-left: 5rem;
-  }
-}
-
-@media (min-width:720px) {
-  .c6 {
-    padding-right: 1rem;
-    padding-left: 1rem;
   }
 }
 

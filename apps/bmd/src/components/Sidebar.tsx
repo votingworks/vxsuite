@@ -35,7 +35,7 @@ const Content = styled.div<Props>`
 `
 
 const Footer = styled.div`
-  margin: 1rem 1rem 2rem;
+  margin: 1rem 1rem 1.5rem;
 `
 
 const Sidebar = ({
