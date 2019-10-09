@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
+    "@types/random-js": "^1.0.31",
     "@types/text-encoding": "^0.0.35",
     "@typescript-eslint/eslint-plugin": "^2.3.1",
     "@typescript-eslint/parser": "^2.3.1",
@@ -52,6 +53,7 @@
     "jest-watch-typeahead": "^0.4.0",
     "lint-staged": "^9.3.0",
     "prettier": "^1.18.2",
+    "random-js": "^2.1.0",
     "sort-package-json": "^1.22.1",
     "ts-jest": "^24.1.0",
     "typescript": "^3.6.3"
