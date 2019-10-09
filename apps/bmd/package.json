@@ -133,7 +133,7 @@
     "jest-styled-components": "^6.3.3",
     "lint-staged": "^9.4.2",
     "prettier": "^1.18.2",
-    "start-server-and-test": "^1.10.4",
+    "start-server-and-test": "^1.10.5",
     "stylelint": "^11.0.0",
     "stylelint-config-palantir": "^4.0.0",
     "stylelint-config-prettier": "^6.0.0",
