@@ -13,8 +13,6 @@ import {
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
-import alphaSort from '../utils/alphaSort'
-
 import Button, { SegmentedButton } from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
@@ -101,7 +99,9 @@ const ClerkScreen = ({
                     </option>
                     {election.precincts
                       .sort((a, b) =>
-                        alphaSort(a.name.toLowerCase(), b.name.toLowerCase())
+                        a.name.localeCompare(b.name, undefined, {
+                          ignorePunctuation: true,
+                        })
                       )
                       .map(precinct => (
                         <option key={precinct.id} value={precinct.id}>
