@@ -15,6 +15,7 @@ import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
 import Loading from '../components/Loading'
 import Screen from '../components/Screen'
+import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
@@ -93,9 +94,9 @@ const PrintOnlyScreen = ({
   }, [isVoterCardPresent, okToPrint, setOkToPrint])
 
   useEffect(() => {
-    setUserSettings({ textSize: 3 })
+    setUserSettings({ textSize: LARGE_DISPLAY_FONT_SIZE })
     return () => {
-      setUserSettings({ textSize: 1 })
+      setUserSettings({ textSize: DEFAULT_FONT_SIZE })
       clearTimeout(printerTimer.current)
     }
   }, [setUserSettings])

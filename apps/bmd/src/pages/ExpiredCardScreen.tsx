@@ -3,6 +3,7 @@ import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
 import Screen from '../components/Screen'
 import { PartialUserSettings } from '../config/types'
+import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
 
 interface Props {
   setUserSettings: (partial: PartialUserSettings) => void
@@ -10,9 +11,9 @@ interface Props {
 
 const ExpiredCardScreen = ({ setUserSettings }: Props) => {
   useEffect(() => {
-    setUserSettings({ textSize: 3 })
+    setUserSettings({ textSize: LARGE_DISPLAY_FONT_SIZE })
     return () => {
-      setUserSettings({ textSize: 1 })
+      setUserSettings({ textSize: DEFAULT_FONT_SIZE })
     }
   }, [setUserSettings])
 
