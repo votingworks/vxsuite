@@ -211,7 +211,7 @@ it('VxMark+Print end-to-end flow', async () => {
       fireEvent.click(getByText('Yes'))
     }
 
-    fireEvent.click(getByText('Next →'))
+    fireEvent.click(getByText('Next'))
   }
 
   // Review Screen

@@ -15,7 +15,7 @@ exports[`Renders ContestPage 1`] = `
   touch-action: manipulation;
 }
 
-.c15 {
+.c16 {
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -28,7 +28,7 @@ exports[`Renders ContestPage 1`] = `
   touch-action: manipulation;
 }
 
-.c22 {
+.c24 {
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -41,7 +41,7 @@ exports[`Renders ContestPage 1`] = `
   touch-action: manipulation;
 }
 
-.c21 {
+.c23 {
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
@@ -49,25 +49,25 @@ exports[`Renders ContestPage 1`] = `
   white-space: nowrap;
 }
 
-.c21 > button {
+.c23 > button {
   box-shadow: inset 1px 0 0 rgb(190,190,190);
 }
 
-.c21 > button:first-child {
+.c23 > button:first-child {
   box-shadow: none;
 }
 
-.c21 > button:not(:last-child) {
+.c23 > button:not(:last-child) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.c21 > button:not(:first-child) {
+.c23 > button:not(:first-child) {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 
-.c21 > button:disabled {
+.c23 > button:disabled {
   background: #028099;
   color: #ffffff;
 }
@@ -187,66 +187,66 @@ exports[`Renders ContestPage 1`] = `
   margin: 1rem 0;
 }
 
-.c26 {
+.c28 {
   max-width: 66ch;
   line-height: 1.2;
 }
 
-.c26 h1 {
+.c28 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c26 h2 {
+.c28 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c26 h3 {
+.c28 h3 {
   font-size: 1.17rem;
 }
 
-.c26 h4 {
+.c28 h4 {
   font-size: 1rem;
 }
 
-.c26 h5 {
+.c28 h5 {
   font-size: 0.9rem;
 }
 
-.c26 h3,
-.c26 h4,
-.c26 h5,
-.c26 p {
+.c28 h3,
+.c28 h4,
+.c28 h5,
+.c28 p {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-.c26 h1 + h2 {
+.c28 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c26 h1 + p,
-.c26 h2 + p {
+.c28 h1 + p,
+.c28 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c26 h3 + p,
-.c26 h4 + p,
-.c26 h5 + p {
+.c28 h3 + p,
+.c28 h4 + p,
+.c28 h5 + p {
   margin-top: 0;
 }
 
-.c26 > :first-child {
+.c28 > :first-child {
   margin-top: 0;
 }
 
-.c26 > :last-child {
+.c28 > :last-child {
   margin-bottom: 0;
 }
 
-.c26 dl {
+.c28 dl {
   margin: 1rem 0;
 }
 
@@ -258,16 +258,16 @@ exports[`Renders ContestPage 1`] = `
   text-align: center;
 }
 
-.c27 {
+.c29 {
   font-size: 0.8rem;
 }
 
-.c29 {
+.c31 {
   font-size: 0.8rem;
   font-weight: 300;
 }
 
-.c28 {
+.c30 {
   white-space: nowrap;
 }
 
@@ -337,11 +337,11 @@ exports[`Renders ContestPage 1`] = `
   grid-gap: 1rem;
 }
 
-.c25 {
+.c27 {
   max-width: 250px;
 }
 
-.c23 {
+.c25 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -349,7 +349,7 @@ exports[`Renders ContestPage 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c24 {
+.c26 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -364,7 +364,7 @@ exports[`Renders ContestPage 1`] = `
   margin: auto;
 }
 
-.c24 div:first-child {
+.c26 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
 }
@@ -422,11 +422,11 @@ exports[`Renders ContestPage 1`] = `
   width: 100%;
 }
 
-.c16 {
+.c18 {
   margin: 1rem 1rem 1.5rem;
 }
 
-.c17 {
+.c19 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -440,7 +440,7 @@ exports[`Renders ContestPage 1`] = `
   padding: 1rem 0;
 }
 
-.c18 {
+.c20 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -451,25 +451,45 @@ exports[`Renders ContestPage 1`] = `
   justify-content: center;
 }
 
-.c20 button {
+.c22 button {
   min-width: 120px;
 }
 
-.c20 button[data-size='0'] {
+.c22 button[data-size='0'] {
   font-size: 22px !important;
 }
 
-.c20 button[data-size='1'] {
+.c22 button[data-size='1'] {
   font-size: 30px !important;
 }
 
-.c20 button[data-size='2'] {
+.c22 button[data-size='2'] {
   font-size: 36px !important;
 }
 
-.c19 {
+.c21 {
   display: block;
   margin-bottom: 0.4rem;
+}
+
+.c15::after {
+  display: inline-block;
+  margin-left: 0.5rem;
+  background: url('/images/arrow-right-open-black.svg') no-repeat;
+  width: 1.375rem;
+  height: 1.375rem;
+  vertical-align: text-bottom;
+  content: '';
+}
+
+.c17::before {
+  display: inline-block;
+  margin-right: 0.5rem;
+  background: url('/images/arrow-left-open-black.svg') no-repeat;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  content: '';
 }
 
 @media (min-width:480px) {
@@ -485,7 +505,7 @@ exports[`Renders ContestPage 1`] = `
 }
 
 @media (min-width:480px) {
-  .c26 {
+  .c28 {
     line-height: 1.3;
   }
 }
@@ -712,45 +732,53 @@ exports[`Renders ContestPage 1`] = `
               role="option"
               type="button"
             >
-              Next →
+              <span
+                class="c15"
+              >
+                Next
+              </span>
             </button>
           </p>
           <p>
             <button
-              class="c15"
+              class="c16"
               id="previous"
               role="option"
               type="button"
             >
-              ← Back
+              <span
+                class="c17"
+              >
+                Back
+              </span>
             </button>
           </p>
         </div>
       </div>
       <div
-        class="c16"
+        class="c18"
       >
         <div
-          class="c17"
+          class="c19"
         >
           <div
-            class="c18"
+            class="c20"
           >
             <div>
               <div
-                class="c19"
+                class="c21"
               >
                 Change Text Size
               </div>
               <div
-                class="c20"
+                class="c22"
               >
                 <span
-                  class="c21"
+                  class="c23"
                   data-testid="change-text-size-buttons"
                 >
                   <button
-                    class="c15"
+                    class="c16"
                     data-size="0"
                     type="button"
                     value="0"
@@ -758,7 +786,7 @@ exports[`Renders ContestPage 1`] = `
                     A
                   </button>
                   <button
-                    class="c22"
+                    class="c24"
                     data-size="1"
                     type="button"
                     value="1"
@@ -766,7 +794,7 @@ exports[`Renders ContestPage 1`] = `
                     A
                   </button>
                   <button
-                    class="c15"
+                    class="c16"
                     data-size="2"
                     type="button"
                     value="2"
@@ -780,18 +808,18 @@ exports[`Renders ContestPage 1`] = `
         </div>
         <div
           aria-hidden="true"
-          class="c23"
+          class="c25"
           data-testid="election-info"
         >
           <div
-            class="c24"
+            class="c26"
           >
             <div
               aria-hidden="true"
-              class="c25"
+              class="c27"
             />
             <div
-              class="c26"
+              class="c28"
             >
               <h5
                 aria-label=" General Election."
@@ -799,25 +827,25 @@ exports[`Renders ContestPage 1`] = `
                  General Election
               </h5>
               <p
-                class="c27"
+                class="c29"
               >
                 November 3, 2020
                 <br />
                 <span
-                  class="c28"
+                  class="c30"
                 >
                   Franklin County
                   ,
                 </span>
                  
                 <span
-                  class="c28"
+                  class="c30"
                 >
                   State of Hamilton
                 </span>
               </p>
               <p
-                class="c29"
+                class="c31"
               >
                  
                 

@@ -16,6 +16,7 @@ import Sidebar from '../components/Sidebar'
 import Text from '../components/Text'
 import YesNoContest from '../components/YesNoContest'
 import SettingsTextSize from '../components/SettingsTextSize'
+import TextIcon from '../components/TextIcon'
 
 interface ContestParams {
   contestNumber: string
@@ -120,7 +121,9 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
                   primary={isVoteComplete}
                   to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
                 >
-                  Next →
+                  <TextIcon arrowRight white={isVoteComplete}>
+                    Next
+                  </TextIcon>
                 </LinkButton>
               </p>
               <p>
@@ -129,7 +132,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
                   id="previous"
                   to={prevContest ? `/contests/${prevContestIndex}` : '/'}
                 >
-                  ← Back
+                  <TextIcon arrowLeft>Back</TextIcon>
                 </LinkButton>
               </p>
             </React.Fragment>

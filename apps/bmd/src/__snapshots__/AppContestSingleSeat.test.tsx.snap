@@ -23,7 +23,7 @@ exports[`Single Seat Contest 1`] = `
   touch-action: manipulation;
 }
 
-.c18 {
+.c19 {
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -36,7 +36,7 @@ exports[`Single Seat Contest 1`] = `
   touch-action: manipulation;
 }
 
-.c25 {
+.c27 {
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -49,7 +49,7 @@ exports[`Single Seat Contest 1`] = `
   touch-action: manipulation;
 }
 
-.c24 {
+.c26 {
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
@@ -57,25 +57,25 @@ exports[`Single Seat Contest 1`] = `
   white-space: nowrap;
 }
 
-.c24 > button {
+.c26 > button {
   box-shadow: inset 1px 0 0 rgb(190,190,190);
 }
 
-.c24 > button:first-child {
+.c26 > button:first-child {
   box-shadow: none;
 }
 
-.c24 > button:not(:last-child) {
+.c26 > button:not(:last-child) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.c24 > button:not(:first-child) {
+.c26 > button:not(:first-child) {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 
-.c24 > button:disabled {
+.c26 > button:disabled {
   background: #028099;
   color: #ffffff;
 }
@@ -237,74 +237,74 @@ exports[`Single Seat Contest 1`] = `
   margin: 1rem 0;
 }
 
-.c30 {
+.c32 {
   max-width: 66ch;
   line-height: 1.2;
 }
 
-.c30 h1 {
+.c32 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c30 h2 {
+.c32 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c30 h3 {
+.c32 h3 {
   font-size: 1.17rem;
 }
 
-.c30 h4 {
+.c32 h4 {
   font-size: 1rem;
 }
 
-.c30 h5 {
+.c32 h5 {
   font-size: 0.9rem;
 }
 
-.c30 h3,
-.c30 h4,
-.c30 h5,
-.c30 p {
+.c32 h3,
+.c32 h4,
+.c32 h5,
+.c32 p {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-.c30 h1 + h2 {
+.c32 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c30 h1 + p,
-.c30 h2 + p {
+.c32 h1 + p,
+.c32 h2 + p {
   margin-top: -0.75rem;
 }
 
-.c30 h3 + p,
-.c30 h4 + p,
-.c30 h5 + p {
+.c32 h3 + p,
+.c32 h4 + p,
+.c32 h5 + p {
   margin-top: 0;
 }
 
-.c30 > :first-child {
+.c32 > :first-child {
   margin-top: 0;
 }
 
-.c30 > :last-child {
+.c32 > :last-child {
   margin-bottom: 0;
 }
 
-.c30 dl {
+.c32 dl {
   margin: 1rem 0;
 }
 
-.c31 {
+.c33 {
   font-size: 0.8rem;
 }
 
-.c33 {
+.c35 {
   font-size: 0.8rem;
   font-weight: 300;
 }
@@ -321,7 +321,7 @@ exports[`Single Seat Contest 1`] = `
   font-weight: 600;
 }
 
-.c32 {
+.c34 {
   white-space: nowrap;
 }
 
@@ -391,15 +391,15 @@ exports[`Single Seat Contest 1`] = `
   grid-gap: 1rem;
 }
 
+.c30 {
+  max-width: 250px;
+}
+
+.c31 {
+  max-width: 250px;
+}
+
 .c28 {
-  max-width: 250px;
-}
-
-.c29 {
-  max-width: 250px;
-}
-
-.c26 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -407,7 +407,7 @@ exports[`Single Seat Contest 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c27 {
+.c29 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -422,7 +422,7 @@ exports[`Single Seat Contest 1`] = `
   margin: auto;
 }
 
-.c27 div:first-child {
+.c29 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
 }
@@ -480,11 +480,11 @@ exports[`Single Seat Contest 1`] = `
   width: 100%;
 }
 
-.c19 {
+.c21 {
   margin: 1rem 1rem 1.5rem;
 }
 
-.c20 {
+.c22 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -498,7 +498,7 @@ exports[`Single Seat Contest 1`] = `
   padding: 1rem 0;
 }
 
-.c21 {
+.c23 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -509,25 +509,45 @@ exports[`Single Seat Contest 1`] = `
   justify-content: center;
 }
 
-.c23 button {
+.c25 button {
   min-width: 120px;
 }
 
-.c23 button[data-size='0'] {
+.c25 button[data-size='0'] {
   font-size: 22px !important;
 }
 
-.c23 button[data-size='1'] {
+.c25 button[data-size='1'] {
   font-size: 30px !important;
 }
 
-.c23 button[data-size='2'] {
+.c25 button[data-size='2'] {
   font-size: 36px !important;
 }
 
-.c22 {
+.c24 {
   display: block;
   margin-bottom: 0.4rem;
+}
+
+.c20::before {
+  display: inline-block;
+  margin-right: 0.5rem;
+  background: url('/images/arrow-left-open-black.svg') no-repeat;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  content: '';
+}
+
+.c18::after {
+  display: inline-block;
+  margin-left: 0.5rem;
+  background: url('/images/arrow-right-open-white.svg') no-repeat;
+  width: 1.375rem;
+  height: 1.375rem;
+  vertical-align: text-bottom;
+  content: '';
 }
 
 @media (min-width:480px) {
@@ -549,7 +569,7 @@ exports[`Single Seat Contest 1`] = `
 }
 
 @media (min-width:480px) {
-  .c30 {
+  .c32 {
     line-height: 1.3;
   }
 }
@@ -786,45 +806,53 @@ exports[`Single Seat Contest 1`] = `
               role="option"
               type="button"
             >
-              Next →
+              <span
+                class="c18"
+              >
+                Next
+              </span>
             </button>
           </p>
           <p>
             <button
-              class="c18"
+              class="c19"
               id="previous"
               role="option"
               type="button"
             >
-              ← Back
+              <span
+                class="c20"
+              >
+                Back
+              </span>
             </button>
           </p>
         </div>
       </div>
       <div
-        class="c19"
+        class="c21"
       >
         <div
-          class="c20"
+          class="c22"
         >
           <div
-            class="c21"
+            class="c23"
           >
             <div>
               <div
-                class="c22"
+                class="c24"
               >
                 Change Text Size
               </div>
               <div
-                class="c23"
+                class="c25"
               >
                 <span
-                  class="c24"
+                  class="c26"
                   data-testid="change-text-size-buttons"
                 >
                   <button
-                    class="c18"
+                    class="c19"
                     data-size="0"
                     type="button"
                     value="0"
@@ -832,7 +860,7 @@ exports[`Single Seat Contest 1`] = `
                     A
                   </button>
                   <button
-                    class="c25"
+                    class="c27"
                     data-size="1"
                     type="button"
                     value="1"
@@ -840,7 +868,7 @@ exports[`Single Seat Contest 1`] = `
                     A
                   </button>
                   <button
-                    class="c18"
+                    class="c19"
                     data-size="2"
                     type="button"
                     value="2"
@@ -854,24 +882,24 @@ exports[`Single Seat Contest 1`] = `
         </div>
         <div
           aria-hidden="true"
-          class="c26"
+          class="c28"
           data-testid="election-info"
         >
           <div
-            class="c27"
+            class="c29"
           >
             <div
               aria-hidden="true"
-              class="c28"
+              class="c30"
             >
               <img
                 alt="state seal"
-                class="c29"
+                class="c31"
                 src="/seals/Sample-Seal.svg"
               />
             </div>
             <div
-              class="c30"
+              class="c32"
             >
               <h5
                 aria-label=" General Election."
@@ -879,35 +907,35 @@ exports[`Single Seat Contest 1`] = `
                  General Election
               </h5>
               <p
-                class="c31"
+                class="c33"
               >
                 November 3, 2020
                 <br />
                 <span
-                  class="c32"
+                  class="c34"
                 >
                   Franklin County
                   ,
                 </span>
                  
                 <span
-                  class="c32"
+                  class="c34"
                 >
                   State of Hamilton
                 </span>
               </p>
               <p
-                class="c33"
+                class="c35"
               >
                 <span
-                  class="c32"
+                  class="c34"
                 >
                   Center Springfield
                   , 
                 </span>
                  
                 <span
-                  class="c32"
+                  class="c34"
                 >
                   ballot style 
                   12

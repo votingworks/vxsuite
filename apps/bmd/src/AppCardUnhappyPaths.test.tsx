@@ -91,30 +91,30 @@ it('VxMark+Print end-to-end flow', async () => {
   // Slow voter clicks around, expiration Time passes, card still works.
   advanceTimers(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next →')))
+  await wait(() => fireEvent.click(getByText('Next')))
   advanceTimers(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next →')))
+  await wait(() => fireEvent.click(getByText('Next')))
   advanceTimers(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next →')))
+  await wait(() => fireEvent.click(getByText('Next')))
   advanceTimers(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next →')))
+  await wait(() => fireEvent.click(getByText('Next')))
   advanceTimers(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next →')))
+  await wait(() => fireEvent.click(getByText('Next')))
   advanceTimers(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next →')))
+  await wait(() => fireEvent.click(getByText('Next')))
 
   // Card expires, but card still works as expected.
   advanceTimers(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next →')))
+  await wait(() => fireEvent.click(getByText('Next')))
   advanceTimers(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next →')))
+  await wait(() => fireEvent.click(getByText('Next')))
 
   // Remove card
   currentCard = noCard
