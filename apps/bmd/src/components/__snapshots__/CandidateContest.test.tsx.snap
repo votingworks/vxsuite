@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports multi-seat contests allows a second candidate to be selected when one is selected 1`] = `
-.c10 {
+.c11 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -13,7 +13,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   transition: background 0.25s,color 0.25s;
 }
 
-.c10::before {
+.c11::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -42,7 +42,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   content: '';
 }
 
-.c8 {
+.c9 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -55,7 +55,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   transition: background 0.25s,color 0.25s;
 }
 
-.c8::before {
+.c9::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -158,8 +158,12 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   margin: 1rem 0;
 }
 
-.c9 {
+.c10 {
   word-break: break-word;
+}
+
+.c4 {
+  font-weight: 600;
 }
 
 .c1 {
@@ -174,7 +178,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   font-weight: 600;
 }
 
-.c4 {
+.c5 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -186,8 +190,8 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   overflow: auto;
 }
 
-.c4::before,
-.c4::after {
+.c5::before,
+.c5::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -197,45 +201,45 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   transition: opacity 0.25s ease;
 }
 
-.c4::before {
+.c5::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4::after {
+.c5::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c5 {
+.c6 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c6 {
+.c7 {
   margin: 0 auto;
   width: 100%;
   padding: 0.5rem 5rem 2rem;
 }
 
-.c7 {
+.c8 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 1rem;
 }
 
 @media (min-width:480px) {
-  .c10 {
+  .c11 {
     padding: 1rem 1rem 1rem 4rem;
   }
 }
 
 @media (min-width:480px) {
-  .c8 {
+  .c9 {
     padding: 1rem 1rem 1rem 4rem;
   }
 }
@@ -271,33 +275,39 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
         <p
           aria-label="Vote for 2. You have selected 1. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
         >
-          <strong>
+          <span
+            class=""
+          >
             Vote for 
             2
             .
-          </strong>
-           You have selected
+          </span>
            
-          1
-          .
+          <span
+            class="c4"
+          >
+            You may select 
+            1
+             more.
+          </span>
         </p>
       </div>
     </div>
     <div
-      class="c4"
+      class="c5"
     >
       <div
-        class="c5"
+        class="c6"
       >
         <div
-          class="c6"
+          class="c7"
         >
           <div
-            class="c7"
+            class="c8"
           >
             <button
               aria-label="Name 0, Party 0."
-              class="c8"
+              class="c9"
               data-choice="name-0"
               data-selected="true"
               role="option"
@@ -307,7 +317,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
                 class="c2"
               >
                 <p
-                  class="c9"
+                  class="c10"
                 >
                   <strong>
                     Name 0
@@ -319,7 +329,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
             </button>
             <button
               aria-label="Name 1, Party 1."
-              class="c10"
+              class="c11"
               data-choice="name-1"
               data-selected="false"
               role="option"
@@ -329,7 +339,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
                 class="c2"
               >
                 <p
-                  class="c9"
+                  class="c10"
                 >
                   <strong>
                     Name 1
@@ -341,7 +351,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
             </button>
             <button
               aria-label="Name 2, Party 0."
-              class="c10"
+              class="c11"
               data-choice="name-2"
               data-selected="false"
               role="option"
@@ -351,7 +361,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
                 class="c2"
               >
                 <p
-                  class="c9"
+                  class="c10"
                 >
                   <strong>
                     Name 2
@@ -592,15 +602,14 @@ exports[`supports single-seat contest allows any candidate to be selected when n
         <p
           aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
         >
-          <strong>
+          <span
+            class=""
+          >
             Vote for 
             1
             .
-          </strong>
-           You have selected
+          </span>
            
-          0
-          .
         </p>
       </div>
     </div>
@@ -691,7 +700,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 `;
 
 exports[`supports single-seat contest doesn't allow other candidates to be selected when a candidate is selected 1`] = `
-.c10 {
+.c11 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -703,7 +712,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   transition: background 0.25s,color 0.25s;
 }
 
-.c10::before {
+.c11::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -732,7 +741,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   content: '';
 }
 
-.c8 {
+.c9 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -745,7 +754,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   transition: background 0.25s,color 0.25s;
 }
 
-.c8::before {
+.c9::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -848,8 +857,12 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   margin: 1rem 0;
 }
 
-.c9 {
+.c10 {
   word-break: break-word;
+}
+
+.c4 {
+  font-weight: 600;
 }
 
 .c1 {
@@ -864,7 +877,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   font-weight: 600;
 }
 
-.c4 {
+.c5 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -876,8 +889,8 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   overflow: auto;
 }
 
-.c4::before,
-.c4::after {
+.c5::before,
+.c5::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -887,45 +900,45 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   transition: opacity 0.25s ease;
 }
 
-.c4::before {
+.c5::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4::after {
+.c5::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c5 {
+.c6 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c6 {
+.c7 {
   margin: 0 auto;
   width: 100%;
   padding: 0.5rem 5rem 2rem;
 }
 
-.c7 {
+.c8 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 1rem;
 }
 
 @media (min-width:480px) {
-  .c10 {
+  .c11 {
     padding: 1rem 1rem 1rem 4rem;
   }
 }
 
 @media (min-width:480px) {
-  .c8 {
+  .c9 {
     padding: 1rem 1rem 1rem 4rem;
   }
 }
@@ -961,33 +974,39 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
         <p
           aria-label="Vote for 1. You have selected 1. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
         >
-          <strong>
+          <span
+            class=""
+          >
             Vote for 
             1
             .
-          </strong>
-           You have selected
+          </span>
            
-          1
-          .
+          <span
+            class="c4"
+          >
+            You have selected 
+            1
+            .
+          </span>
         </p>
       </div>
     </div>
     <div
-      class="c4"
+      class="c5"
     >
       <div
-        class="c5"
+        class="c6"
       >
         <div
-          class="c6"
+          class="c7"
         >
           <div
-            class="c7"
+            class="c8"
           >
             <button
               aria-label="Name 0, Party 0."
-              class="c8"
+              class="c9"
               data-choice="name-0"
               data-selected="true"
               role="option"
@@ -997,7 +1016,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
                 class="c2"
               >
                 <p
-                  class="c9"
+                  class="c10"
                 >
                   <strong>
                     Name 0
@@ -1009,7 +1028,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
             </button>
             <button
               aria-label="Name 1, Party 1."
-              class="c10"
+              class="c11"
               data-choice="name-1"
               data-selected="false"
               role="option"
@@ -1019,7 +1038,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
                 class="c2"
               >
                 <p
-                  class="c9"
+                  class="c10"
                 >
                   <strong>
                     Name 1
@@ -1031,7 +1050,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
             </button>
             <button
               aria-label="Name 2, Party 0."
-              class="c10"
+              class="c11"
               data-choice="name-2"
               data-selected="false"
               role="option"
@@ -1041,7 +1060,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
                 class="c2"
               >
                 <p
-                  class="c9"
+                  class="c10"
                 >
                   <strong>
                     Name 2
@@ -1284,15 +1303,14 @@ exports[`supports write-in candidates displays warning if write-in candidate nam
         <p
           aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
         >
-          <strong>
+          <span
+            class=""
+          >
             Vote for 
             1
             .
-          </strong>
-           You have selected
+          </span>
            
-          0
-          .
         </p>
       </div>
     </div>
