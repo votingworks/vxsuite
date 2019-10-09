@@ -19,7 +19,7 @@ interface Props {
 const Seal = ({ seal, sealURL }: Props) => {
   return (
     <SealContainer
-      aria-hidden="true"
+      aria-hidden
       dangerouslySetInnerHTML={seal ? { __html: seal } : undefined}
     >
       {(!seal && sealURL && <SealImage alt="state seal" src={sealURL} />) ||

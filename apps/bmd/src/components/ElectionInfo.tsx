@@ -56,7 +56,7 @@ const ElectionInfo = ({
   const title = `${partyPrimaryAdjective} ${t}`
   if (horizontal) {
     return (
-      <CenterinBlock aria-hidden="true" data-testid="election-info">
+      <CenterinBlock aria-hidden data-testid="election-info">
         <HorizontalContainer>
           <Seal seal={seal} sealURL={sealURL} />
           <Prose compact>
@@ -81,11 +81,11 @@ const ElectionInfo = ({
     )
   }
   return (
-    <VerticalContainer>
+    <VerticalContainer aria-hidden>
       <Seal seal={seal} sealURL={sealURL} />
       <Prose textCenter>
         <h1 aria-label={`${title}.`}>{title}</h1>
-        <p aria-hidden="true">
+        <p>
           {date}
           <br />
           {county.name}

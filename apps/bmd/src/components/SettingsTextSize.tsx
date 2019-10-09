@@ -49,7 +49,7 @@ const SettingsTextSize = ({ userSettings, setUserSettings }: Props) => {
     setUserSettings({ textSize })
   }
   return (
-    <Container>
+    <Container aria-hidden>
       <Center>
         <div>
           <Label>Change Text Size</Label>

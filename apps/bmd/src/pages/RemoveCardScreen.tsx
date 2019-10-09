@@ -18,12 +18,12 @@ const RemoveCardScreen = () => (
           <p>Your votes have been saved to the card.</p>
           <p>
             <Graphic
+              aria-hidden
               src="/images/take-card-to-printer.svg"
               alt="Take Card to Printer"
-              aria-hidden
             />
           </p>
-          <h1 aria-label="Take card to the Ballot Printer.">
+          <h1 aria-label="Remove card. Take card to the Ballot Printer to print your official ballot.">
             Take your card to the Ballot Printer.
           </h1>
         </Prose>
