@@ -43,6 +43,8 @@ fetchMock.get('/card/read_long_b64', () =>
   JSON.stringify({ longValue: fromByteArray(encodeBallot(sampleBallot)) })
 )
 
+fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
+
 beforeEach(() => {
   window.localStorage.clear()
   window.location.href = '/'
