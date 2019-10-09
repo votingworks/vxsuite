@@ -67,25 +67,22 @@ it('works properly with clicks and touches', () => {
   fireEvent.click(button)
   expect(onPress).toHaveBeenCalledTimes(1)
 
-  // touchStart and touchEnd are close together
+  // TouchEnd close to TouchStart calls onPress.
   fireEvent.touchStart(button, createTouchStartEventProperties(100, 100))
   fireEvent.touchEnd(button, createTouchEndEventProperties(110, 95))
   expect(onPress).toHaveBeenCalledTimes(2)
 
-  // we now preventDefault() inside the events
-  // so no need to test the click de-duping
+  // Using preventDefault() with touch prevents the click, so no need to test click de-duping.
 
-  // only touch start is not enough
+  // TouchStart w/o TouchEnd does not call onPress.
   fireEvent.touchStart(button, createTouchStartEventProperties(100, 100))
   expect(onPress).toHaveBeenCalledTimes(2)
 
-  // a touch end too far away won't trigger either
+  // TouchEnd too far from TouchStart does not call onPress.
   fireEvent.touchEnd(button, createTouchEndEventProperties(131, 95))
   expect(onPress).toHaveBeenCalledTimes(2)
 
-  // on use of accessible controller / keyboard
-  // we get just a click event.
-  // this should trigger onPress exactly once.
+  // Keyboard (also Accessible Controller) fire click event which calls onPress.
   fireEvent.click(button)
   expect(onPress).toHaveBeenCalledTimes(3)
 })
