@@ -4,6 +4,8 @@ import fetchMock from 'fetch-mock'
 
 import App from './App'
 
+import withMarkup from '../test/helpers/withMarkup'
+
 import {
   advanceTimers,
   getNewVoterCard,
@@ -53,16 +55,7 @@ it('Single Seat Contest with Write In', async () => {
   })
 
   const { container, getByText, queryByText, getByTestId } = render(<App />)
-  // Query by text which includes markup.
-  // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
-  const getByTextWithMarkup = (text: string): HTMLElement =>
-    getByText((content, node) => {
-      const hasText = (node: HTMLElement) => node.textContent === text
-      const childrenDontHaveText = Array.from(node.children).every(
-        child => !hasText(child as HTMLElement)
-      )
-      return hasText(node) && childrenDontHaveText
-    })
+  const getByTextWithMarkup = withMarkup(getByText)
 
   const getWithinKeyboard = (text: string) =>
     within(getByTestId('virtual-keyboard')).getByText(text)

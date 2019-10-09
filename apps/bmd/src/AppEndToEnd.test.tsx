@@ -7,6 +7,8 @@ import { printerMessageTimeoutSeconds } from './pages/PrintPage'
 
 import App from './App'
 
+import withMarkup from '../test/helpers/withMarkup'
+
 import {
   adminCard,
   advanceTimers,
@@ -59,16 +61,7 @@ it('VxMark+Print end-to-end flow', async () => {
   jest.useFakeTimers()
 
   const { getByLabelText, getByText, getByTestId } = render(<App />)
-  // Query by text which includes markup.
-  // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
-  const getByTextWithMarkup = (text: string): HTMLElement =>
-    getByText((content, node) => {
-      const hasText = (node: HTMLElement) => node.textContent === text
-      const childrenDontHaveText = Array.from(node.children).every(
-        child => !hasText(child as HTMLElement)
-      )
-      return hasText(node) && childrenDontHaveText
-    })
+  const getByTextWithMarkup = withMarkup(getByText)
 
   currentCard = noCard
   advanceTimers()
