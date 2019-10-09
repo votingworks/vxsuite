@@ -62,15 +62,16 @@ const Button = ({
   const [startCoordinates, setStartCoordinates] = useState([0, 0])
 
   const onTouchStart = (event: React.TouchEvent) => {
-    const touch = event.touches[0]
-    setStartCoordinates([touch.clientX, touch.clientY])
+    const { clientX, clientY } = event.touches[0]
+    setStartCoordinates([clientX, clientY])
   }
 
   const onTouchEnd = (event: React.TouchEvent) => {
-    const touch = event.changedTouches[0]
+    const maxMove = 30
+    const { clientX, clientY } = event.changedTouches[0]
     if (
-      Math.abs(startCoordinates[0] - touch.clientX) < 30 &&
-      Math.abs(startCoordinates[1] - touch.clientY) < 30
+      Math.abs(startCoordinates[0] - clientX) < maxMove &&
+      Math.abs(startCoordinates[1] - clientY) < maxMove
     ) {
       onPress(event as any)
       event.preventDefault()
