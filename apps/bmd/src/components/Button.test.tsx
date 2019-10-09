@@ -3,6 +3,14 @@ import { fireEvent, render } from '@testing-library/react'
 
 import Button, { DecoyButton } from './Button'
 
+const createTouchStartEventProperties = (x: number, y: number) => {
+  return { touches: [{ clientX: x, clientY: y }] }
+}
+
+const createTouchEndEventProperties = (x: number, y: number) => {
+  return { changedTouches: [{ clientX: x, clientY: y }] }
+}
+
 const onPress = jest.fn()
 
 it('renders Button', () => {
@@ -59,27 +67,22 @@ it('works properly with clicks and touches', () => {
   fireEvent.click(button)
   expect(onPress).toHaveBeenCalledTimes(1)
 
-  fireEvent.pointerDown(button)
+  // TouchEnd close to TouchStart calls onPress.
+  fireEvent.touchStart(button, createTouchStartEventProperties(100, 100))
+  fireEvent.touchEnd(button, createTouchEndEventProperties(110, 95))
   expect(onPress).toHaveBeenCalledTimes(2)
 
-  // when a tap is not smudged and doesn't last too long
-  // we get pointerDown, pointerUp, and finally a click event.
-  // in this case, we only want onPress to fire once.
-  fireEvent.pointerDown(button)
-  fireEvent.pointerUp(button)
+  // Using preventDefault() with touch prevents the click, so no need to test click de-duping.
+
+  // TouchStart w/o TouchEnd does not call onPress.
+  fireEvent.touchStart(button, createTouchStartEventProperties(100, 100))
+  expect(onPress).toHaveBeenCalledTimes(2)
+
+  // TouchEnd too far from TouchStart does not call onPress.
+  fireEvent.touchEnd(button, createTouchEndEventProperties(131, 95))
+  expect(onPress).toHaveBeenCalledTimes(2)
+
+  // Keyboard (also Accessible Controller) fire click event which calls onPress.
   fireEvent.click(button)
   expect(onPress).toHaveBeenCalledTimes(3)
-
-  // when a tap is smudged or lasts too long,
-  // we get pointerDown, pointerCancel, and no click event.
-  // we still want onPress to fire exactly once.
-  fireEvent.pointerDown(button)
-  fireEvent.pointerCancel(button)
-  expect(onPress).toHaveBeenCalledTimes(4)
-
-  // on use of accessible controller / keyboard
-  // we get just a click event.
-  // this should trigger onPress exactly once.
-  fireEvent.click(button)
-  expect(onPress).toHaveBeenCalledTimes(5)
 })
