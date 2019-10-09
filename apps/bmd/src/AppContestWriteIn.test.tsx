@@ -72,7 +72,7 @@ it('Single Seat Contest with Write In', async () => {
 
   // Advance to Single-Seat Contest with Write-In
   while (!queryByText(singleSeatContestWithWriteIn.title)) {
-    fireEvent.click(getByText('Next →'))
+    fireEvent.click(getByText('Next'))
     advanceTimers()
   }
 
@@ -123,7 +123,7 @@ it('Single Seat Contest with Write In', async () => {
 
   // Go to review page and confirm write in exists
   while (!queryByText('All Your Votes')) {
-    fireEvent.click(getByText('Next →'))
+    fireEvent.click(getByText('Next'))
     advanceTimers()
   }
 

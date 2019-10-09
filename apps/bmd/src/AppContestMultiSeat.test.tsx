@@ -59,7 +59,7 @@ it('Single Seat Contest', async () => {
 
   // Advance to multi-seat contest
   while (!queryByText(countyCommissionersContest.title)) {
-    fireEvent.click(getByText('Next →'))
+    fireEvent.click(getByText('Next'))
     advanceTimers()
   }
 
@@ -80,7 +80,7 @@ it('Single Seat Contest', async () => {
 
   // Go to Review Screen
   while (!queryByText('All Your Votes')) {
-    fireEvent.click(getByText('Next →'))
+    fireEvent.click(getByText('Next'))
     advanceTimers()
   }
 

@@ -9,7 +9,7 @@ describe('Review Page', () => {
       .contains('Start Voting')
       .click()
     cy.wrap(clickThoughPages).each(() => {
-      cy.contains('Next →').click()
+      cy.contains('Next').click()
       cy.wait(waitTime)
     })
     cy.get('#contest-county-commissioners').click()

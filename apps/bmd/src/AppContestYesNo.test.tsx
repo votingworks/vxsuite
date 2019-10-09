@@ -57,7 +57,7 @@ it('Single Seat Contest', async () => {
 
   // Advance to multi-seat contest
   while (!queryByText(measure102Contest.title)) {
-    fireEvent.click(getByText('Next →'))
+    fireEvent.click(getByText('Next'))
     advanceTimers()
   }
 
@@ -90,7 +90,7 @@ it('Single Seat Contest', async () => {
 
   // Go to review page and confirm write in exists
   while (!queryByText('All Your Votes')) {
-    fireEvent.click(getByText('Next →'))
+    fireEvent.click(getByText('Next'))
     advanceTimers()
   }
 
