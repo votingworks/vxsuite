@@ -108,7 +108,9 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
                   to={`/review#contest-${contest.id}`}
                   id="next"
                 >
-                  Review →
+                  <TextIcon arrowRight white={isVoteComplete}>
+                    Review
+                  </TextIcon>
                 </LinkButton>
               </p>
             </React.Fragment>

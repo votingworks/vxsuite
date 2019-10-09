@@ -234,7 +234,7 @@ it('VxMark+Print end-to-end flow', async () => {
   fireEvent.click(getByText(countyCommissionersContest.candidates[1].name))
 
   // Back to Review screen
-  fireEvent.click(getByText('Review →'))
+  fireEvent.click(getByText('Review'))
   advanceTimers()
   getByText('All Your Votes')
   getByText(countyCommissionersContest.candidates[0].name)
