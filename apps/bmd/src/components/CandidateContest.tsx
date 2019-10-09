@@ -413,8 +413,17 @@ class CandidateContest extends React.Component<Props, State> {
               <p
                 aria-label={`Vote for ${contest.seats}. You have selected ${vote.length}. Use the down arrow to hear your options. Use the right arrow to move to the next contest.`}
               >
-                <strong>Vote for {contest.seats}.</strong> You have selected{' '}
-                {vote.length}.
+                <Text as="span">Vote for {contest.seats}.</Text>{' '}
+                {vote.length === contest.seats && (
+                  <Text as="span" bold>
+                    You have selected {contest.seats}.
+                  </Text>
+                )}
+                {vote.length < contest.seats && vote.length !== 0 && (
+                  <Text as="span" bold>
+                    You may select {contest.seats - vote.length} more.
+                  </Text>
+                )}
               </p>
             </Prose>
           </ContentHeader>

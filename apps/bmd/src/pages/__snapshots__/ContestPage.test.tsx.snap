@@ -524,15 +524,14 @@ exports[`Renders ContestPage 1`] = `
           <p
             aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
           >
-            <strong>
+            <span
+              class=""
+            >
               Vote for 
               1
               .
-            </strong>
-             You have selected
+            </span>
              
-            0
-            .
           </p>
         </div>
       </div>
