@@ -78,7 +78,9 @@ const App = () => {
 
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
-    setPrecinctId(id)
+    if (!isSinglePrecinctMode) {
+      setPrecinctId(id)
+    }
   }
 
   const setParty = (id: string) => {
