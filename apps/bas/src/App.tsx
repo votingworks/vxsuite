@@ -214,7 +214,7 @@ const App = () => {
             window.setTimeout(() => {
               setIsProgrammingCard(false)
               setIsReadyToRemove(true)
-            }, 1000)
+            }, 1500)
           }
         })
         .catch(() => {
