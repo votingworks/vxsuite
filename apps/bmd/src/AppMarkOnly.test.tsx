@@ -188,6 +188,10 @@ it('VxMarkOnly flow', async () => {
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'))
   advanceTimers()
 
+  // Saving votes
+  getByText('Saving your votes to the card…')
+  advanceTimers(2.5) // redirect after 2.5 seconds
+
   // Review and Cast Instructions
   getByText('Take your card to the Ballot Printer.')
 
