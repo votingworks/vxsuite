@@ -22,5 +22,8 @@ test:
 coverage:
 	python3 -m pytest --cov=smartcards --cov-report term-missing --cov-fail-under=100 tests/
 
+typecheck:
+	python3 -m mypy smartcards tests
+
 run:
 	FLASK_APP=smartcards.core python3 -m pipenv run python -m flask run --port 3001
