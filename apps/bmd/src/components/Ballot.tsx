@@ -7,6 +7,7 @@ import IdlePage from '../pages/IdlePage'
 import NotFoundPage from '../pages/NotFoundPage'
 import PrintPage from '../pages/PrintPage'
 import ReviewPage from '../pages/ReviewPage'
+import SaveCardScreen from '../pages/SaveCardScreen'
 import StartPage from '../pages/StartPage'
 import RemoveCardScreen from '../pages/RemoveCardScreen'
 import CastBallotPage from '../pages/CastBallotPage'
@@ -41,6 +42,7 @@ const Ballot = () => {
           <Route path="/" exact component={StartPage} />
           <Route path="/contests/:contestNumber" component={ContestPage} />
           <Route path="/review" component={ReviewPage} />
+          <Route path="/save" component={SaveCardScreen} />
           <Route path="/remove" component={RemoveCardScreen} />
           <Route path="/print" component={PrintPage} />
           <Route path="/cast" component={CastBallotPage} />
