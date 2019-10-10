@@ -2,7 +2,7 @@
 
 exports[`renders default 1`] = `
 .c1 {
-  margin-left: -1em;
+  margin-left: -1.4em;
   text-align: center;
   white-space: nowrap;
 }
@@ -106,7 +106,7 @@ exports[`renders default 1`] = `
 
 exports[`renders fullscreen with tag and label 1`] = `
 .c2 {
-  margin-left: -1em;
+  margin-left: -1.4em;
   text-align: center;
   white-space: nowrap;
 }

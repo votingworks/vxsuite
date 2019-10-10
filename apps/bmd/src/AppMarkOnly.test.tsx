@@ -189,7 +189,7 @@ it('VxMarkOnly flow', async () => {
   advanceTimers()
 
   // Saving votes
-  getByText('Saving your votes to the card…')
+  getByText('Saving your votes to the card')
   advanceTimers(2.5) // redirect after 2.5 seconds
 
   // Review and Cast Instructions

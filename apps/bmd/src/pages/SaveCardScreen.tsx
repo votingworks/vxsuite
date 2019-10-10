@@ -5,6 +5,7 @@ import Main, { MainChild } from '../components/Main'
 import ProgressBar from '../components/ProgressBar'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
+import Loading from '../components/Loading'
 
 const SaveCardScreen = () => {
   const saveDelay = 2500
@@ -29,7 +30,9 @@ const SaveCardScreen = () => {
         <MainChild centerVertical maxWidth={false}>
           <Prose textCenter id="audiofocus">
             <ProgressBar progress={progress} duration={saveDelay} />
-            <h1>Saving your votes to the card…</h1>
+            <h1>
+              <Loading>Saving your votes to the card</Loading>
+            </h1>
           </Prose>
         </MainChild>
       </Main>
