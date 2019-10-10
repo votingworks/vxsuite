@@ -50,7 +50,7 @@ const PrecinctBallotStylesScreen = ({
           <Heading>
             {!isSinglePrecinctMode && (
               <ButtonContainer>
-                <Button small onClick={showPrecincts}>
+                <Button small onPress={showPrecincts}>
                   All Precincts
                 </Button>
               </ButtonContainer>
@@ -70,7 +70,7 @@ const PrecinctBallotStylesScreen = ({
                 fullWidth
                 data-ballot-style-id={ballotStyle.id}
                 key={ballotStyle.id}
-                onClick={programCard}
+                onPress={programCard}
               >
                 {ballotStyle.id}
               </Button>
@@ -79,7 +79,7 @@ const PrecinctBallotStylesScreen = ({
         </MainChild>
       </Main>
       <MainNav>
-        <Button small onClick={lockScreen}>
+        <Button small onPress={lockScreen}>
           Lock
         </Button>
       </MainNav>

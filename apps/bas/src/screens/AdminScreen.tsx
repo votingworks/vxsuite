@@ -109,7 +109,7 @@ const AdminScreen = ({
                     )
                   })}
                 </Select>{' '}
-                <Button small disabled={!precinctId} onClick={reset}>
+                <Button small disabled={!precinctId} onPress={reset}>
                   Reset
                 </Button>
                 {isSinglePrecinctMode ? (
@@ -135,7 +135,7 @@ const AdminScreen = ({
                 <Text as="span" voteIcon>
                   Election definition is loaded.
                 </Text>{' '}
-                <Button small onClick={unconfigure}>
+                <Button small onPress={unconfigure}>
                   Remove
                 </Button>
               </p>
@@ -143,7 +143,7 @@ const AdminScreen = ({
               <React.Fragment>
                 <Text warningIcon>Election definition is not Loaded.</Text>
                 <p>
-                  <Button onClick={fetchElection}>
+                  <Button onPress={fetchElection}>
                     Load Election Definition
                   </Button>
                 </p>

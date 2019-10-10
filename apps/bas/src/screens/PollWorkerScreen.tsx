@@ -22,7 +22,7 @@ const PollWorkerScreen = ({ lockScreen }: Props) => {
         </MainChild>
       </Main>
       <MainNav>
-        <Button small onClick={lockScreen}>
+        <Button small onPress={lockScreen}>
           Lock
         </Button>
       </MainNav>
