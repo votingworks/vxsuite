@@ -7,6 +7,10 @@ verify_ssl = true
 coverage = "*"
 pytest = "*"
 pytest-cov = "*"
+rope = "*"
+pylint = "*"
+autopep8 = "*"
+mypy = "*"
 
 [packages]
 flask = "*"

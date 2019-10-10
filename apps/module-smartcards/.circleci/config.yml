@@ -15,6 +15,10 @@ jobs:
           name: Run Python Tests and Coverage
           command: |
             pipenv run make coverage
+      - run:
+          name: Run Mypy Type Checking
+          command: |
+            pipenv run make typecheck
 
 workflows:
   version: 2

@@ -1,1 +1,5 @@
 *.pyc
+.pytest_cache
+.vscode
+.coverage
+.mypy_cache
