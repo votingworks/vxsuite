@@ -53,7 +53,7 @@ const PrecinctsScreen = ({
                 data-id={p.id}
                 fullWidth
                 key={p.id}
-                onClick={updatePrecinct}
+                onPress={updatePrecinct}
               >
                 {p.name}
               </Button>
@@ -62,7 +62,7 @@ const PrecinctsScreen = ({
         </MainChild>
       </Main>
       <MainNav>
-        <Button small onClick={lockScreen}>
+        <Button small onPress={lockScreen}>
           Lock
         </Button>
       </MainNav>
