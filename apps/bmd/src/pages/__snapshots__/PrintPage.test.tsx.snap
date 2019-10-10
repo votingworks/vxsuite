@@ -730,7 +730,7 @@ exports[`renders PrintPage without votes 1`] = `
 }
 
 .c5 {
-  margin-left: -1em;
+  margin-left: -1.4em;
   text-align: center;
   white-space: nowrap;
 }
