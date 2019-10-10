@@ -47,6 +47,9 @@ class Card:
         initial_bytes += bytes([short_length]) + long_length.to_bytes(2, 'big')
         return initial_bytes
 
+    def _sleep(self, seconds: int):  # pragma: no cover
+        time.sleep(seconds)
+
     # override the write protection bit. Typically used
     # right before a call to write_short_value or write_short_and_long_values
     def override_protection(self):
@@ -63,7 +66,7 @@ class Card:
             WRITE_PROTECTED if write_protect else WRITABLE, len(short_value_bytes), 0)
         full_bytes += short_value_bytes
         self.write_chunk(0, full_bytes)
-        time.sleep(1)
+        self._sleep(1)
 
     def write_long_value(self, long_value_bytes):
         # For now, do this inefficiently, let's get the APIs right and then we'll optimize.
@@ -95,7 +98,7 @@ class Card:
             offset_into_bytes += self.CHUNK_SIZE
 
         # wait a little bit
-        time.sleep(2)
+        self._sleep(2)
 
     def read_raw_first_chunk(self):
         data = self.read_chunk(0)
