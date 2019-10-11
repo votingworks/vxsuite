@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 
 import fetchJSON from './utils/fetchJSON'
 
@@ -64,12 +64,12 @@ const App = () => {
     window.localStorage.clear()
   }
 
-  const reset = useCallback(() => {
+  const reset = () => {
     if (!isSinglePrecinctMode) {
       setPrecinctId('')
     }
     setBallotStyleId('')
-  }, [setBallotStyleId, setPrecinctId, isSinglePrecinctMode])
+  }
 
   const setPrecinct = (id: string) => {
     setPrecinctId(id)
@@ -78,9 +78,7 @@ const App = () => {
 
   const updatePrecinct = (event: ButtonEvent) => {
     const { id = '' } = (event.target as HTMLElement).dataset
-    if (!isSinglePrecinctMode) {
-      setPrecinctId(id)
-    }
+    setPrecinctId(id)
   }
 
   const setParty = (id: string) => {
@@ -176,7 +174,6 @@ const App = () => {
             setIsWritableCard(true)
           }
         } else {
-          reset()
           setIsWritableCard(false)
           setIsReadyToRemove(false)
         }
