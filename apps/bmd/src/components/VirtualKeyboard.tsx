@@ -25,7 +25,7 @@ const Keyboard = styled.div`
   }
   & button {
     flex: 1;
-    margin: 3px;
+    margin: 4px;
     box-sizing: content-box;
     background: #ffffff;
     padding: 2vw 0;

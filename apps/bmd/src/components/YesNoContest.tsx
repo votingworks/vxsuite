@@ -355,6 +355,7 @@ export default class YesNoContest extends React.Component<Props> {
         </Main>
         <Modal
           isOpen={!!overvoteSelection}
+          centerContent
           content={
             <Prose>
               {overvoteSelection && (

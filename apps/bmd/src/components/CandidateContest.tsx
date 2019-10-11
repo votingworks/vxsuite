@@ -20,6 +20,7 @@ import {
 
 import BallotContext from '../contexts/ballotContext'
 
+import { Blink } from './Animations'
 import { FONT_SIZES } from '../config/globals'
 import ChoiceButton from './ChoiceButton'
 import Button from './Button'
@@ -150,26 +151,37 @@ const ChoicesGrid = styled.div`
   grid-gap: 1rem;
 `
 
+const WriteInModalContent = styled.div`
+  margin: -0.5rem;
+`
+
 const WriteInCandidateForm = styled.div`
-  margin: 1rem 0 -1rem;
+  margin-top: 1rem;
   border-radius: 0.25rem;
   background-color: rgb(211, 211, 211);
   padding: 0.25rem;
 `
 
-const WriteInCandidateFieldSet = styled.fieldset`
-  margin: 0.5rem 0.5rem 1rem;
+const WriteInCandidateFieldSet = styled.div`
+  margin: 0 0.5rem 0.5rem;
 `
 
-const WriteInCandidateInput = styled.input.attrs({
-  readOnly: true,
-  type: 'text',
-})`
-  outline: none;
+const WriteInCandidateName = styled.div`
   border: 1px solid rgb(169, 169, 169);
   box-shadow: 0 0 3px -1px rgba(0, 0, 0, 0.3);
+  background: #ffffff;
   width: 100%;
-  padding: 0.25rem 0.35rem;
+  padding: 1rem;
+  font-size: 1.5rem;
+`
+
+const WriteInCandidateCursor = styled(Blink)`
+  display: inline-block;
+  position: relative;
+  top: 3px;
+  margin-left: 0.1rem;
+  border-left: 0.15rem solid #000000;
+  height: 1.3rem;
 `
 
 interface Props {
@@ -545,6 +557,7 @@ class CandidateContest extends React.Component<Props, State> {
         <Modal
           isOpen={!!attemptedOvervoteCandidate}
           ariaLabel=""
+          centerContent
           content={
             <Prose>
               <Text id="modalaudiofocus">
@@ -571,6 +584,7 @@ class CandidateContest extends React.Component<Props, State> {
         />
         <Modal
           isOpen={!!candidatePendingRemoval}
+          centerContent
           content={
             <Prose>
               <Text>
@@ -596,13 +610,14 @@ class CandidateContest extends React.Component<Props, State> {
         <Modal
           ariaLabel=""
           isOpen={writeInCandateModalIsOpen}
+          className="writein-modal-content"
           content={
-            <div>
-              <Prose id="modalaudiofocus">
-                <h2 aria-label="Write-In Candidate.">Write-In Candidate</h2>
+            <WriteInModalContent>
+              <Prose id="modalaudiofocus" maxWidth={false}>
+                <h1 aria-label="Write-In Candidate.">Write-In Candidate</h1>
                 <Text aria-label="Enter the name of a person who is not on the ballot. Use the up and down arrows to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
                   Enter the name of a person who is <strong>not</strong> on the
-                  ballot using the on-screen keyboard.
+                  ballot.
                 </Text>
                 {writeInCandidateName.length > 35 && (
                   <Text error>
@@ -614,25 +629,17 @@ class CandidateContest extends React.Component<Props, State> {
               </Prose>
               <WriteInCandidateForm>
                 <WriteInCandidateFieldSet>
-                  <legend>
-                    <label htmlFor="WriteInCandidateName">
-                      <Prose>
-                        <Text bold small>
-                          {contest.title} (write-in)
-                        </Text>
-                      </Prose>
-                    </label>
-                  </legend>
-                  <WriteInCandidateInput
-                    id="WriteInCandidateName"
-                    aria-label="Name of Write-in Candidate."
-                    value={writeInCandidateName}
-                    placeholder="candidate name"
-                  />
+                  <Prose>
+                    <h3>{contest.title} (write-in)</h3>
+                  </Prose>
+                  <WriteInCandidateName>
+                    {writeInCandidateName}
+                    <WriteInCandidateCursor />
+                  </WriteInCandidateName>
                 </WriteInCandidateFieldSet>
                 <VirtualKeyboard onKeyPress={this.onKeyboardInput} />
               </WriteInCandidateForm>
-            </div>
+            </WriteInModalContent>
           }
           actions={
             <React.Fragment>

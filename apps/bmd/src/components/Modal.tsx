@@ -13,19 +13,19 @@ interface ModalContentInterface {
 const ModalContent = styled('div')<ModalContentInterface>`
   display: flex;
   flex: 1;
-  align-items: center;
+  flex-direction: column;
+  align-items: ${({ centerContent = false }) =>
+    centerContent ? 'center' : undefined};
   justify-content: ${({ centerContent = false }) =>
     centerContent ? 'center' : undefined};
   overflow: auto;
-  padding: 1rem 0.5rem;
-  @media (min-width: 480px) {
-    padding: 2rem 1rem;
-  }
+  padding: 2rem;
 `
 
 interface Props {
   isOpen: boolean
   ariaLabel?: string
+  className?: string
   content?: ReactNode
   centerContent?: boolean
   actions?: ReactNode
@@ -34,9 +34,10 @@ interface Props {
 
 const Modal: React.FC<Props> = ({
   actions,
-  content,
-  centerContent,
   ariaLabel = 'Alert Modal',
+  centerContent,
+  className = '',
+  content,
   isOpen,
   onAfterOpen = () => {
     window.setTimeout(() => {
@@ -57,15 +58,13 @@ const Modal: React.FC<Props> = ({
     isOpen={isOpen}
     contentLabel={ariaLabel}
     portalClassName="modal-portal"
-    className="modal-content"
+    className={`modal-content ${className}`}
     overlayClassName="modal-overlay"
     onAfterOpen={onAfterOpen}
-    data-testid="modal"
+    testId="modal"
   >
-    <div data-testid="modal">
-      <ModalContent centerContent={centerContent}>{content}</ModalContent>
-      {actions && <ButtonBar as="div">{actions}</ButtonBar>}
-    </div>
+    <ModalContent centerContent={centerContent}>{content}</ModalContent>
+    {actions && <ButtonBar as="div">{actions}</ButtonBar>}
   </ReactModal>
 )
 
