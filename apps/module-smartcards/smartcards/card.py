@@ -19,16 +19,19 @@
 # <short_value_length> - 1 byte
 # <long_value_length> - 2 bytes
 # <short_value> - up to 63 bytes
-# <long_value> - up to 16,500 bytes
+# <long_value_hash> - 32 bytes
+# <long_value> - up to 16,468 bytes
 
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
 import gzip
 import time
+import hashlib
+import logging
 
 WRITABLE = [0x00]
 WRITE_PROTECTED = [0x01]
-VERSION = [0x01]
+VERSION = [0x02]
 
 
 class Card:
@@ -77,16 +80,21 @@ class Card:
         if not self.write_enabled:
             return
 
-        long_value_compressed = gzip.compress(long_value_bytes)
+        long_value = long_value_bytes
+        long_value_compressed = gzip.compress(long_value)
 
-        if len(long_value_compressed) > self.MAX_LENGTH:
+        if len(long_value_compressed) < len(long_value):
+            long_value = long_value_compressed
+
+        if len(long_value) > self.MAX_LENGTH:
             return
 
         # by default, we write protect the cards with short-and-long values
         full_bytes = self.__initial_bytes(write_protect, len(
-            short_value_bytes), len(long_value_compressed))
+            short_value_bytes), len(long_value))
         full_bytes += short_value_bytes
-        full_bytes += long_value_compressed
+        full_bytes += hashlib.sha256(long_value).digest()
+        full_bytes += long_value
 
         offset_into_bytes = 0
         chunk_num = 0
@@ -111,6 +119,8 @@ class Card:
         self.short_value_length = data[5]
         self.long_value_length = data[6]*256 + data[7]
         self.short_value = bytes(data[8:8+self.short_value_length])
+        self.long_value_hash = data[8 +
+                                    self.short_value_length:8+self.short_value_length+32]
 
         return bytes(data)
 
@@ -124,7 +134,10 @@ class Card:
     def read_long_value(self):
         full_bytes = self.read_raw_first_chunk()
 
-        total_expected_length = 8 + self.short_value_length + self.long_value_length
+        if self.long_value_length == 0:
+            return b''
+
+        total_expected_length = 8 + self.short_value_length + 32 + self.long_value_length
 
         read_so_far = len(full_bytes)
         chunk_num = 1
@@ -133,9 +146,22 @@ class Card:
             read_so_far += self.CHUNK_SIZE
             chunk_num += 1
 
-        compressed_content = full_bytes[8 +
-                                        self.short_value_length:total_expected_length]
-        return gzip.decompress(compressed_content)
+        raw_content = full_bytes[8 +
+                                 self.short_value_length + 32:total_expected_length]
+        actual_long_value_hash = hashlib.sha256(raw_content).digest()
+
+        if actual_long_value_hash != self.long_value_hash:
+            logging.error(
+                'mismatched hash while reading long value\nexpected: %s\nfound: %s',
+                self.long_value_hash,
+                actual_long_value_hash
+            )
+            return b''
+
+        try:
+            return gzip.decompress(raw_content)
+        except:
+            return raw_content
 
     # to implement in subclass
     # returns a bytes structure
