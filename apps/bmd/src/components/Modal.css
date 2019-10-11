@@ -44,3 +44,7 @@
     max-width: 30rem;
   }
 }
+
+.writein-modal-content {
+  max-width: 80vw;
+}
