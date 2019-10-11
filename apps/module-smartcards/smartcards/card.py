@@ -119,8 +119,8 @@ class Card:
         self.short_value_length = data[5]
         self.long_value_length = data[6]*256 + data[7]
         self.short_value = bytes(data[8:8+self.short_value_length])
-        self.long_value_hash = data[8 +
-                                    self.short_value_length:8+self.short_value_length+32]
+        self.long_value_hash = bytes(data[8 +
+                                    self.short_value_length:8+self.short_value_length+32])
 
         return bytes(data)
 
