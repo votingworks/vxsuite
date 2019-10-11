@@ -26,6 +26,8 @@ fetchMock.post('/card/write', (url, options) => {
   return ''
 })
 
+fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
+
 jest.useFakeTimers()
 
 beforeEach(() => {
