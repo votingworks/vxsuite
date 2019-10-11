@@ -214,11 +214,11 @@ def test_corrupt_long_value(logging_error):
     chunk = c.read_chunk(0)
 
     # ensure we've got the right part of the chunk
-    long_value_hash = chunk[8 + len(CONTENT_BYTES):8 + len(CONTENT_BYTES) + 32]
+    long_value_hash = bytes(chunk[8 + len(CONTENT_BYTES):8 + len(CONTENT_BYTES) + 32])
     assert hashlib.sha256(long_value).digest() == long_value_hash
 
     # corrupt the long value by flipping a single bit
-    corrupted_chunk = flip_bit(chunk, 8 + len(CONTENT_BYTES) + 32, 0)
+    corrupted_chunk = flip_bit(bytes(chunk), 8 + len(CONTENT_BYTES) + 32, 0)
     c.write_chunk(0, corrupted_chunk)
 
     assert c.read_long_value() is b''

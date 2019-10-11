@@ -21,7 +21,7 @@ class MockCard(Card):
             # if the chunk is too short, add a bunch of bogus values at the end
             while len(chunk) < self.CHUNK_SIZE:
                 chunk += b'V'
-            return chunk
+            return list(bytearray(chunk))
         else:
             return [0x00] * self.CHUNK_SIZE
 
