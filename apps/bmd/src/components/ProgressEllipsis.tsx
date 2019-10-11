@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const ellipsisWidth = '1em'
+const ellipsisWidth = '1.4em'
 const ProgressEllipsis = styled.span`
   margin-left: -${ellipsisWidth};
   text-align: center;

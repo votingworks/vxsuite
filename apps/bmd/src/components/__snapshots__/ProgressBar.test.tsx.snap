@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders ProgressBar with defaults 1`] = `
+.c0 {
+  display: block;
+  margin: 0 auto;
+  border: 0.4rem solid #000000;
+  border-radius: 10rem;
+  width: 30vw;
+}
+
+.c0::before {
+  display: block;
+  border: 0.35rem solid #ffffff;
+  border-radius: 10rem;
+  background: #9958a4;
+  width: 50%;
+  min-width: 3rem;
+  height: 2.4rem;
+  content: '';
+  -webkit-transition: width 1500ms ease-out;
+  transition: width 1500ms ease-out;
+}
+
+<span
+  class="c0"
+/>
+`;
