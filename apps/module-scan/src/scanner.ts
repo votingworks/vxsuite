@@ -28,7 +28,7 @@ export class FujitsuScanner implements Scanner {
       '--resolution',
       '300',
       '--format=jpeg',
-      '--source="ADF Duplex"',
+      '--source=ADF Duplex',
       `--batch=${join(directory, `${prefix}${dateStamp()}-ballot-%04d.jpg`)}`,
     ])
   }
