@@ -266,7 +266,7 @@ class VXCardObserver(CardObserver):
     def __init__(self):
         self.card = None
         self.card_value = None
-        self.card_type = None
+        self.card_ready = False
 
         cardmonitor = CardMonitor()
         cardmonitor.addObserver(self)
@@ -276,7 +276,7 @@ class VXCardObserver(CardObserver):
             self.card.override_protection()
 
     def read(self):
-        if self.card:
+        if self.card and self.card_ready:
             second_value = None
             if self.card_value:
                 second_value = self.card.long_value_length > 0
@@ -285,7 +285,7 @@ class VXCardObserver(CardObserver):
             return None, None
 
     def write(self, data, write_protect=False):
-        if not self.card:
+        if not (self.card and self.card_ready):
             return False
 
         self.card.write_short_value(data, write_protect)
@@ -294,20 +294,20 @@ class VXCardObserver(CardObserver):
         return self.card_value == data
 
     def write_long(self, data):
-        if not self.card:
+        if not (self.card and self.card_ready):
             return False
 
         self.card.write_long_value(data)
         return True
 
     def read_long(self):
-        if self.card:
+        if self.card and self.card_ready:
             return self.card.read_long_value()
         else:
             return None
 
     def write_short_and_long(self, short_bytes, long_bytes):
-        if not self.card:
+        if not (self.card and self.card_ready):
             return False
 
         self.card.write_short_and_long_values(short_bytes, long_bytes)
@@ -331,6 +331,9 @@ class VXCardObserver(CardObserver):
             self.card = card_type(pyscard_obj, connection)
 
             self._read_from_card()
+            self.card_ready = True
 
         if len(removedcards) > 0:
+            self.card_ready = False
+            self.card_value = None
             self.card = None

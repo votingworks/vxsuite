@@ -58,11 +58,24 @@ def test_read():
 
     # force a read from card, as it is usually cached
     vxco._read_from_card()
+    vxco.card_ready=True
     test_value = vxco.read()
 
     assert test_value == (CONTENT_BYTES, False)
     vxco.card.read_chunk.assert_called_with(0)
 
+def test_read_before_card_ready():
+    vxco = VXCardObserver()
+    vxco.card = MockCard()
+
+    vxco.card.read_chunk = Mock(return_value=CARD_BYTES)
+
+    # do a read, which should not succeed because card is not ready.
+    test_value = vxco.read()
+
+    assert test_value == (None, None)
+    vxco.card.read_chunk.assert_not_called()
+    
 
 def test_read_bad_data_on_card():
     vxco = VXCardObserver()
@@ -72,6 +85,7 @@ def test_read_bad_data_on_card():
 
     # force a read from card, as it is usually cached
     vxco._read_from_card()
+    vxco.card_ready = True
     test_value = vxco.read()
 
     # since the reading is still returning the bad bytes, this should look like an empty card
@@ -85,6 +99,8 @@ def test_write():
     vxco.card.write_chunk = Mock()
     vxco.card.read_chunk = Mock(return_value=CARD_BYTES)
 
+    vxco.card_ready = True
+    
     rv = vxco.write(CONTENT_BYTES)
 
     assert vxco.card.write_enabled
@@ -100,6 +116,8 @@ def test_write_card_protected():
 
     vxco.card.write_chunk = Mock()
 
+    vxco.card_ready = True
+        
     rv = vxco.write(CONTENT_BYTES)
     rv = vxco.write_short_and_long(CONTENT_BYTES, CONTENT_BYTES)
 
@@ -181,6 +199,7 @@ def test_long_value():
 
     # now we put in a card
     vxco.card = c
+    vxco.card_ready = True        
     vxco.write_short_and_long(CONTENT_BYTES, long_content.encode('utf-8'))
 
     test_short_value, long_value_present = vxco.read()
