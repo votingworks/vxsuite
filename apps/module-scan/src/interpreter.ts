@@ -3,94 +3,73 @@
 // and process/interpret them into a cast-vote record.
 //
 
-import { decode } from 'node-quirc'
-import { readFile as readFileCallback } from 'fs'
-import { promisify } from 'util'
 import {
+  CandidateVote,
+  CompletedBallot,
   decodeBallot,
-  BallotStyle,
-  CandidateContest,
-  Contest,
-  Contests,
-  Dictionary,
   Election,
-  encodeBallot,
-  EncoderVersion,
+  getContests,
+  Optional,
+  OptionalYesNoVote,
 } from '@votingworks/ballot-encoder'
-
+import { readFile as readFileCallback } from 'fs'
+import { decode } from 'node-quirc'
+import { promisify } from 'util'
 import { CastVoteRecord, CVRCallbackFunction } from './types'
 
 const readFile = promisify(readFileCallback)
-
-const yesNoValues: Dictionary<string> = { '0': 'no', '1': 'yes' }
 
 export interface InterpretBallotStringParams {
   readonly election: Election
   readonly encodedBallot: Uint8Array
 }
 
-export function interpretBallotString(
-  interpretBallotStringParams: InterpretBallotStringParams
+export function ballotToCastVoteRecord(
+  ballot: CompletedBallot
 ): CastVoteRecord | undefined {
-  const { election, encodedBallot } = interpretBallotStringParams
-  const { ballot } = decodeBallot(election, encodedBallot)
-
   // TODO: Replace all this with a `CompletedBallot` -> `CastVoteRecord` mapper.
-  const [
-    ballotStyleId,
-    precinctId,
-    allSelections,
-    serialNumber,
-  ] = new TextDecoder()
-    .decode(encodeBallot(ballot, EncoderVersion.v0))
-    .split('.')
+  const { election, ballotStyle, precinct, ballotId } = ballot
 
   // figure out the contests
-  const ballotStyle = election.ballotStyles.find(
-    (b: BallotStyle) => b.id === ballotStyleId
-  )
-
-  if (!ballotStyle) {
-    return
-  }
-
-  const contests: Contests = election.contests.filter(
-    (c: Contest) =>
-      ballotStyle.districts.includes(c.districtId) &&
-      ballotStyle.partyId === c.partyId
-  )
+  const contests = getContests({ ballotStyle, election })
 
   // prepare the CVR
-  let cvr: CastVoteRecord = {}
+  const cvr: CastVoteRecord = {}
 
-  const allSelectionsList = allSelections.split('|')
-  contests.forEach((contest: Contest, contestNum: number) => {
+  for (const contest of contests) {
     // no answer for a particular contest is recorded in our final dictionary as an empty string
     // not the same thing as undefined.
+    let cvrForContest: string | string[] = ''
+    const vote = ballot.votes[contest.id]
 
     if (contest.type === 'yesno') {
-      cvr[contest.id] = yesNoValues[allSelectionsList[contestNum]] || ''
-    } else {
-      if (contest.type === 'candidate') {
-        // selections for this question
-        const selections = allSelectionsList[contestNum].split(',')
-        if (selections.length > 1 || selections[0] !== '') {
-          cvr[contest.id] = selections.map(selection =>
-            selection === 'W'
-              ? 'writein'
-              : (contest as CandidateContest).candidates[parseInt(selection)].id
-          )
-        } else {
-          cvr[contest.id] = ''
-        }
+      cvrForContest = (vote as OptionalYesNoVote) || ''
+    } else if (contest.type === 'candidate') {
+      // selections for this question
+      const candidates = vote as Optional<CandidateVote>
+
+      if (candidates && candidates.length > 0) {
+        cvrForContest = candidates.map(candidate =>
+          candidate.isWriteIn ? 'writein' : candidate.id
+        )
       }
     }
-  })
 
-  cvr['_precinctId'] = precinctId
-  cvr['_serialNumber'] = serialNumber
+    cvr[contest.id] = cvrForContest
+  }
+
+  cvr['_precinctId'] = precinct.id
+  cvr['_serialNumber'] = ballotId
 
   return cvr
+}
+
+export function interpretBallotData({
+  election,
+  encodedBallot,
+}: InterpretBallotStringParams): CastVoteRecord | undefined {
+  const { ballot } = decodeBallot(election, encodedBallot)
+  return ballotToCastVoteRecord(ballot)
 }
 
 export interface InterpretFileParams {
@@ -126,6 +105,6 @@ export default async function interpretFile(
     return cvrCallback({ ballotImagePath })
   }
 
-  const cvr = interpretBallotString({ election, encodedBallot })
+  const cvr = interpretBallotData({ election, encodedBallot })
   cvrCallback({ ballotImagePath, cvr })
 }
