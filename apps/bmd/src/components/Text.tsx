@@ -74,7 +74,7 @@ export const TextWithLineBreaks = ({ text }: { text: string }) => (
         {x.split(/[\n\r]/g).map((y, i, arr) => (
           <React.Fragment key={y}>
             {y}
-            {arr.length > 1 && i !== arr.length - 1 && <br />}
+            {i !== arr.length - 1 && <br />}
           </React.Fragment>
         ))}
       </p>
