@@ -7,7 +7,7 @@ import { Election } from '@votingworks/ballot-encoder'
 
 import { CVRCallbackParams, CastVoteRecord, BatchInfo } from './types'
 import Store from './store'
-import interpretFile, { interpretBallotString } from './interpreter'
+import interpretFile, { interpretBallotData } from './interpreter'
 import { Scanner } from './scanner'
 
 interface CVRCallbackWithBatchIDParams extends CVRCallbackParams {
@@ -98,13 +98,13 @@ export default class SystemImporter implements Importer {
       this.manualBatchId = await this.store.addBatch()
     }
 
-    const cvr = interpretBallotString({
+    const cvr = interpretBallotData({
       election: this.election,
       encodedBallot,
     })
 
     if (cvr) {
-      this.addCVR(this.manualBatchId!, 'manual-' + cvr['_serialNumber'], cvr)
+      this.addCVR(this.manualBatchId!, 'manual-' + cvr['_ballotId'], cvr)
     }
   }
 
