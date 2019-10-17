@@ -9918,10 +9918,10 @@ react-gamepad@^1.0.3:
   resolved "https://registry.yarnpkg.com/react-gamepad/-/react-gamepad-1.0.3.tgz#c50606992c34589bd19f8bb09914084f5c92f4a2"
   integrity sha512-gMwITmfoHtCaMFpDaEshcjeibHAgynXD28NnS2pa+dG+stwNoN66YDVizN7GfyIrYiW5Ft1ubRxs6/2xW9sRhQ==
 
-react-idle-timer@^4.2.9:
-  version "4.2.9"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.2.9.tgz#9054dc508953521e76fd5255f692ec8a816c304c"
-  integrity sha512-Bj1SaHdCS+YiWgASgmZtr5MEWfsyIg9AWGdpSKbrzlsjpEXYuCe1dsuAetY0ES81w3sz98oUBBj25T4Hl7JXqg==
+react-idle-timer@^4.2.10:
+  version "4.2.10"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.2.10.tgz#4477b6b0ddf8e35c8de2c491abcf66174051ef39"
+  integrity sha512-N7iJoq8BWdpcS7H3oHesWg+Hz7DrO+rSq160hdZpk9iduHg9A/WgQLgBpobQJ83BAa+dFrKIbCNw7ldRbD6Uyg==
 
 react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1, react-is@^16.8.4:
   version "16.9.0"
