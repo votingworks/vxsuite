@@ -104,7 +104,7 @@ export default class SystemImporter implements Importer {
     })
 
     if (cvr) {
-      this.addCVR(this.manualBatchId!, 'manual-' + cvr['_serialNumber'], cvr)
+      this.addCVR(this.manualBatchId!, 'manual-' + cvr['_ballotId'], cvr)
     }
   }
 

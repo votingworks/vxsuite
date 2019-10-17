@@ -2,7 +2,11 @@ export interface Dictionary<T> {
   [key: string]: T | undefined
 }
 
-export type CastVoteRecord = Dictionary<string | string[]>
+export interface CastVoteRecord extends Dictionary<string | string[]> {
+  _precinctId: string
+  _ballotId: string
+  _ballotStyleId: string
+}
 
 export interface CVRCallbackParams {
   ballotImagePath: string

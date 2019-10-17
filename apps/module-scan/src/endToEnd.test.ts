@@ -7,6 +7,7 @@ import election from '../election.json'
 import SystemImporter from './importer'
 import Store from './store'
 import { FujitsuScanner, Scanner } from './scanner'
+import { CastVoteRecord } from './types'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -150,12 +151,12 @@ test('going through the whole process works', async () => {
   // response is a few lines, each JSON.
   // can't predict the order so can't compare
   // to expected outcome as a string directly.
-  const CVRs: { _serialNumber: string }[] = exportResponse.text
+  const CVRs: CastVoteRecord[] = exportResponse.text
     .split('\n')
     .map(line => JSON.parse(line))
-  const serialNumbers = CVRs.map(cvr => cvr._serialNumber)
-  serialNumbers.sort()
-  expect(JSON.stringify(serialNumbers)).toBe(
+  const ballotIds = CVRs.map(cvr => cvr._ballotId)
+  ballotIds.sort()
+  expect(JSON.stringify(ballotIds)).toBe(
     JSON.stringify([
       '85lnPkvfNEytP3Z8gMoEcA',
       'QZZeZdTBy8/RwGnoH6/mkw', // v1 encoding

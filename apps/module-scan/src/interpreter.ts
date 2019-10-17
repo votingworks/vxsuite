@@ -34,7 +34,11 @@ export function ballotToCastVoteRecord(
   const contests = getContests({ ballotStyle, election })
 
   // prepare the CVR
-  const cvr: CastVoteRecord = {}
+  const cvr: CastVoteRecord = {
+    _precinctId: precinct.id,
+    _ballotId: ballotId,
+    _ballotStyleId: ballotStyle.id,
+  }
 
   for (const contest of contests) {
     // no answer for a particular contest is recorded in our final dictionary as an empty string
@@ -57,9 +61,6 @@ export function ballotToCastVoteRecord(
 
     cvr[contest.id] = cvrForContest
   }
-
-  cvr['_precinctId'] = precinct.id
-  cvr['_serialNumber'] = ballotId
 
   return cvr
 }
