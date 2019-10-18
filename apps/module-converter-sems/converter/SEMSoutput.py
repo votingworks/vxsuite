@@ -186,9 +186,12 @@ def process_results_file(election_file_path, vx_results_file_path):
         precinct_id, contest_id, candidate_id, CVR_candidate_id, count = row
         
         contest = [c for c in contests if c["id"] == contest_id][0]
-        contest_party = [p for p in parties if p["id"] == contest["partyId"]][0]
+        contest_party_id = contest["partyId"] if "partyId" in contest else None
         candidate = [cand for cand in contest["candidates"] if cand["id"] == candidate_id][0]
-        candidate_party = [p for p in parties if p["id"] == candidate["partyId"]][0]
+        candidate_party_id = candidate["partyId"] if "partyId" in candidate else None
+
+        contest_party = [p for p in parties if p["id"] == contest_party_id][0] if contest_party_id is not None else None
+        candidate_party = [p for p in parties if p["id"] == candidate_party_id][0] if candidate_party_id is not None else None
         
         # this is the placeholder row
         if not CVR_candidate_id:
@@ -197,7 +200,19 @@ def process_results_file(election_file_path, vx_results_file_path):
         # a whole rigamarole because SEMS needs a trailing comma
         row_bytesio = io.StringIO()
         sems_row_writer = csv.writer(row_bytesio, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-        sems_row_writer.writerow([county_id, precinct_id, contest_id, contest["official_label"], contest["partyId"], contest_party["abbrev"], candidate_id, candidate["name"], candidate["partyId"], candidate_party["abbrev"], count])
+        sems_row_writer.writerow([
+            county_id,
+            precinct_id,
+            contest_id,
+            contest["official_label"],
+            contest_party_id or "",
+            contest_party["abbrev"] if contest_party is not None else "",
+            candidate_id,
+            candidate["name"],
+            candidate_party_id or "",
+            candidate_party["abbrev"] if candidate_party is not None else "",
+            count
+        ])
         
         sems_io.write(row_bytesio.getvalue().strip('\r\n'))
         sems_io.write(",\r\n")
