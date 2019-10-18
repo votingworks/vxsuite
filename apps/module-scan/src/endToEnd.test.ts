@@ -7,7 +7,7 @@ import election from '../election.json'
 import SystemImporter from './importer'
 import Store from './store'
 import { FujitsuScanner, Scanner } from './scanner'
-import { CastVoteRecord } from './types'
+import { CastVoteRecord, BatchInfo } from './types'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -62,12 +62,14 @@ function getScannerCVRCountWaiter() {
 test('going through the whole process works', async () => {
   const waiter = getScannerCVRCountWaiter()
 
-  // try export before configure
-  const response = await request(app)
-    .post('/scan/export')
-    .set('Accept', 'application/json')
-    .expect(200)
-  expect(response.text).toBe('')
+  {
+    // try export before configure
+    const response = await request(app)
+      .post('/scan/export')
+      .set('Accept', 'application/json')
+      .expect(200)
+    expect(response.text).toBe('')
+  }
 
   await request(app)
     .post('/scan/configure')
@@ -80,25 +82,27 @@ test('going through the whole process works', async () => {
     .post('/scan/scanBatch')
     .expect(200, { status: 'ok' })
 
-  // move some sample ballots into the ballots directory
-  const expectedBallotCount = 3
-  const sampleBallots = fs.readdirSync(sampleBallotImagesPath)
-  for (const ballot of sampleBallots) {
-    const oldPath = path.join(sampleBallotImagesPath, ballot)
-    const newPath = path.join(importer.ballotImagesPath, ballot)
-    fs.copyFileSync(oldPath, newPath)
+  {
+    // move some sample ballots into the ballots directory
+    const expectedBallotCount = 3
+    const sampleBallots = fs.readdirSync(sampleBallotImagesPath)
+    for (const ballot of sampleBallots) {
+      const oldPath = path.join(sampleBallotImagesPath, ballot)
+      const newPath = path.join(importer.ballotImagesPath, ballot)
+      fs.copyFileSync(oldPath, newPath)
+    }
+
+    // wait for the processing
+    await waiter.waitForCount(expectedBallotCount)
+
+    // check the status
+    const status = await request(app)
+      .get('/scan/status')
+      .set('Accept', 'application/json')
+      .expect(200)
+
+    expect(JSON.parse(status.text).batches[0].count).toBe(expectedBallotCount)
   }
-
-  // wait for the processing
-  await waiter.waitForCount(expectedBallotCount)
-
-  // check the status
-  let status = await request(app)
-    .get('/scan/status')
-    .set('Accept', 'application/json')
-    .expect(200)
-
-  expect(JSON.parse(status.text).batches[0].count).toBe(expectedBallotCount)
 
   // a manual ballot
   await request(app)
@@ -118,13 +122,15 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(200)
 
-  // check the latest batch has one ballot in it (the one we just made)
-  status = await request(app)
-    .get('/scan/status')
-    .set('Accept', 'application/json')
-    .expect(200)
-  expect(JSON.parse(status.text).batches[0].count).toBe(1)
-  expect(JSON.parse(status.text).batches.length).toBe(2)
+  {
+    // check the latest batch has one ballot in it (the one we just made)
+    const status = await request(app)
+      .get('/scan/status')
+      .set('Accept', 'application/json')
+      .expect(200)
+    expect(JSON.parse(status.text).batches[0].count).toBe(1)
+    expect(JSON.parse(status.text).batches.length).toBe(2)
+  }
 
   // a second distinct manual ballot
   await request(app)
@@ -135,56 +141,93 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(200)
 
-  // check the latest batch has two manual ballots in it
-  status = await request(app)
-    .get('/scan/status')
-    .set('Accept', 'application/json')
-    .expect(200)
-  expect(JSON.parse(status.text).batches[0].count).toBe(2)
-  expect(JSON.parse(status.text).batches.length).toBe(2)
+  {
+    // check the latest batch has two manual ballots in it
+    const status = await request(app)
+      .get('/scan/status')
+      .set('Accept', 'application/json')
+      .expect(200)
+    expect(JSON.parse(status.text).batches[0].count).toBe(2)
+    expect(JSON.parse(status.text).batches.length).toBe(2)
+  }
 
-  const exportResponse = await request(app)
-    .post('/scan/export')
-    .set('Accept', 'application/json')
-    .expect(200)
+  {
+    const exportResponse = await request(app)
+      .post('/scan/export')
+      .set('Accept', 'application/json')
+      .expect(200)
 
-  // response is a few lines, each JSON.
-  // can't predict the order so can't compare
-  // to expected outcome as a string directly.
-  const CVRs: CastVoteRecord[] = exportResponse.text
-    .split('\n')
-    .map(line => JSON.parse(line))
-  const ballotIds = CVRs.map(cvr => cvr._ballotId)
-  ballotIds.sort()
-  expect(JSON.stringify(ballotIds)).toBe(
-    JSON.stringify([
-      '85lnPkvfNEytP3Z8gMoEcA',
-      'QZZeZdTBy8/RwGnoH6/mkw', // v1 encoding
-      'manual-test-serial-number',
-      'manual-test-serial-number-2',
-      'r6UYR4t7hEFMz8QlMWf1Sw',
-    ])
-  )
+    // response is a few lines, each JSON.
+    // can't predict the order so can't compare
+    // to expected outcome as a string directly.
+    const CVRs: CastVoteRecord[] = exportResponse.text
+      .split('\n')
+      .map(line => JSON.parse(line))
+    const ballotIds = CVRs.map(cvr => cvr._ballotId)
+    ballotIds.sort()
+    expect(JSON.stringify(ballotIds)).toBe(
+      JSON.stringify([
+        '85lnPkvfNEytP3Z8gMoEcA',
+        'QZZeZdTBy8/RwGnoH6/mkw', // v1 encoding
+        'manual-test-serial-number',
+        'manual-test-serial-number-2',
+        'r6UYR4t7hEFMz8QlMWf1Sw',
+      ])
+    )
+  }
 
-  // delete a batch
-  const id = JSON.parse(status.text).batches[0].id
-  await request(app)
-    .delete(`/scan/batch/${id}`)
-    .set('Accept', 'application/json')
-    .expect(200)
+  let batchIdToDelete: number
+  let cvrCountToDelete: number
+  {
+    // delete a batch
+    const status = await request(app)
+      .get('/scan/status')
+      .set('Accept', 'application/json')
+      .expect(200)
+    ;({ id: batchIdToDelete, count: cvrCountToDelete } = JSON.parse(
+      status.text
+    ).batches[0])
+    await request(app)
+      .delete(`/scan/batch/${batchIdToDelete}`)
+      .set('Accept', 'application/json')
+      .expect(200)
+  }
 
-  // expect that we lost the first batch
-  status = await request(app)
-    .get('/scan/status')
-    .set('Accept', 'application/json')
-    .expect(200)
-  expect(JSON.parse(status.text).batches.length).toBe(1)
+  {
+    // expect that we lost the first batch
+    const status = await request(app)
+      .get('/scan/status')
+      .set('Accept', 'application/json')
+      .expect(200)
+    expect(
+      JSON.parse(status.text).batches.every(
+        (batch: BatchInfo) => batch.id !== batchIdToDelete
+      )
+    ).toBe(true)
+  }
 
   // can't delete it again
   await request(app)
-    .delete(`/scan/batch/${id}`)
+    .delete(`/scan/batch/${batchIdToDelete}`)
     .set('Accept', 'application/json')
     .expect(404)
+
+  {
+    const exportResponse = await request(app)
+      .post('/scan/export')
+      .set('Accept', 'application/json')
+      .expect(200)
+
+    // response is a few lines, each JSON.
+    // can't predict the order so can't compare
+    // to expected outcome as a string directly.
+    const CVRs: CastVoteRecord[] = exportResponse.text
+      .split('\n')
+      .map(line => JSON.parse(line))
+    const ballotIds = CVRs.map(cvr => cvr._ballotId)
+    ballotIds.sort()
+    expect(CVRs.length).toBe(5 - cvrCountToDelete)
+  }
 
   // clean up
   await request(app).post('/scan/unconfigure')
