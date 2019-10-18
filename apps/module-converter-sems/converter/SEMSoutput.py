@@ -205,11 +205,11 @@ def process_results_file(election_file_path, vx_results_file_path):
             precinct_id,
             contest_id,
             contest["official_label"],
-            contest_party_id or "",
+            contest_party_id or "0",
             contest_party["abbrev"] if contest_party is not None else "",
             candidate_id,
             candidate["name"],
-            candidate_party_id or "",
+            candidate_party_id or "0",
             candidate_party["abbrev"] if candidate_party is not None else "",
             count
         ])
