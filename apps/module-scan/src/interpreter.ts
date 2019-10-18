@@ -17,6 +17,11 @@ import { decode } from 'node-quirc'
 import { promisify } from 'util'
 import { CastVoteRecord, CVRCallbackFunction } from './types'
 
+// TODO: do dependency-injection here instead
+import { RealZBarImage } from './zbarimg'
+
+const zbarimg = new RealZBarImage()
+
 const readFile = promisify(readFileCallback)
 
 export interface InterpretBallotStringParams {
@@ -79,33 +84,39 @@ export interface InterpretFileParams {
   readonly cvrCallback: CVRCallbackFunction
 }
 
-export async function readQRCodesFromImageFile(
-  path: string
-): Promise<Buffer[]> {
-  const jpegData = await readFile(path)
-  const qrCodes = await decode(jpegData)
+async function readQRCodeFromImageData(
+  imageData: Buffer
+): Promise<Buffer | undefined> {
+  const qrCodes = await decode(imageData)
 
-  return qrCodes.map(({ data }) => data)
+  return qrCodes.length > 0 ? qrCodes[0].data : undefined
+}
+
+export async function readQRCodeFromImageFile(
+  path: string
+): Promise<Buffer | undefined> {
+  const imageData = await readFile(path)
+  return (
+    (await readQRCodeFromImageData(imageData)) ||
+    (await zbarimg.readQRCodeFromImage(path))
+  )
 }
 
 export default async function interpretFile(
   interpretFileParams: InterpretFileParams
 ) {
   const { election, ballotImagePath, cvrCallback } = interpretFileParams
-  let encodedBallot: Uint8Array
 
   try {
-    const qrCodes = await readQRCodesFromImageFile(ballotImagePath)
+    const encodedBallot = await readQRCodeFromImageFile(ballotImagePath)
 
-    if (qrCodes.length === 0) {
+    if (!encodedBallot) {
       throw new Error(`no QR codes found in ballot image: ${ballotImagePath}`)
     }
 
-    encodedBallot = qrCodes[0]
+    const cvr = interpretBallotData({ election, encodedBallot })
+    cvrCallback({ ballotImagePath, cvr })
   } catch {
     return cvrCallback({ ballotImagePath })
   }
-
-  const cvr = interpretBallotData({ election, encodedBallot })
-  cvrCallback({ ballotImagePath, cvr })
 }

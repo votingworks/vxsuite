@@ -53,6 +53,8 @@ export default class SystemImporter implements Importer {
   private manualBatchId?: number
   private onCVRAddedCallbacks: ((cvr: CastVoteRecord) => void)[] = []
 
+  private seenBallotImagePaths: any = {}
+
   public readonly ballotImagesPath: string
   public readonly importedBallotImagesPath: string
 
@@ -142,6 +144,12 @@ export default class SystemImporter implements Importer {
       return
     }
 
+    // de-dupe because chokidar can't do it apparently
+    if (this.seenBallotImagePaths[ballotImagePath]) {
+      return
+    }
+    this.seenBallotImagePaths[ballotImagePath] = true
+
     // get the batch ID from the path
     const filename = path.basename(ballotImagePath)
     const batchIdMatch = filename.match(/batch-([^-]*)/)
@@ -168,16 +176,18 @@ export default class SystemImporter implements Importer {
   }: CVRCallbackWithBatchIDParams) {
     if (cvr) {
       this.addCVR(batchId, ballotImagePath, cvr)
-    }
 
-    // whether or not there is a CVR in that image, we move it to scanned
-    const newBallotImagePath = path.join(
-      this.importedBallotImagesPath,
-      path.basename(ballotImagePath)
-    )
-    if (fs.existsSync(ballotImagePath)) {
-      fs.renameSync(ballotImagePath, newBallotImagePath)
-    }
+      // move the file only if there was a CVR
+      if (fs.existsSync(ballotImagePath)) {
+        fs.renameSync(
+          ballotImagePath,
+          path.join(
+            this.importedBallotImagesPath,
+            path.basename(ballotImagePath)
+          )
+        )
+      }
+    } // eventually do something with files that don't have a CVR in them?
   }
 
   /**
