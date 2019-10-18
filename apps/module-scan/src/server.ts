@@ -63,7 +63,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   })
 
   app.delete('/scan/batch/:batchId', async (request, response) => {
-    if (await store.deleteBatch(request.params.batchId)) {
+    if (await store.deleteBatch(parseInt(request.params.batchId))) {
       response.json({ status: 'ok' })
     } else {
       response.status(404).end()

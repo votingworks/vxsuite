@@ -140,7 +140,7 @@ export default class Store {
       'create table if not exists batches (id integer primary key autoincrement, startedAt datetime, endedAt datetime)'
     )
     await this.dbRunAsync(
-      'create table if not exists CVRs (id integer primary key autoincrement, batch_id, filename text unique, cvr_json text)'
+      'create table if not exists CVRs (id integer primary key autoincrement, batch_id integer references batches, filename text unique, cvr_json text)'
     )
 
     return this.db
