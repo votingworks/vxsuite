@@ -17,11 +17,9 @@ export class RealZBarImage implements ZBarImage {
 
       if (stdout) {
         return Buffer.from(stdout, 'hex')
-      } else {
-        return
       }
     } catch {
-      return
+      // ignore errors
     }
   }
 }

@@ -53,7 +53,7 @@ export default class SystemImporter implements Importer {
   private manualBatchId?: number
   private onCVRAddedCallbacks: ((cvr: CastVoteRecord) => void)[] = []
 
-  private seenBallotImagePaths: any = {}
+  private seenBallotImagePaths = new Set<string>()
 
   public readonly ballotImagesPath: string
   public readonly importedBallotImagesPath: string
@@ -145,10 +145,10 @@ export default class SystemImporter implements Importer {
     }
 
     // de-dupe because chokidar can't do it apparently
-    if (this.seenBallotImagePaths[ballotImagePath]) {
+    if (this.seenBallotImagePaths.has(ballotImagePath)) {
       return
     }
-    this.seenBallotImagePaths[ballotImagePath] = true
+    this.seenBallotImagePaths.add(ballotImagePath)
 
     // get the batch ID from the path
     const filename = path.basename(ballotImagePath)
