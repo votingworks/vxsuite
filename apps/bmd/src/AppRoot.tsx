@@ -7,6 +7,7 @@ import {
   CandidateVote,
   YesNoVote,
   OptionalVote,
+  VotesDict,
 } from '@votingworks/ballot-encoder'
 import { fromByteArray, toByteArray } from 'base64-js'
 import 'normalize.css'
@@ -31,7 +32,6 @@ import {
   PartialUserSettings,
   UserSettings,
   VoterCardData,
-  VotesDict,
   VxMarkOnly,
   VxMarkPlusVxPrint,
   VxPrintOnly,

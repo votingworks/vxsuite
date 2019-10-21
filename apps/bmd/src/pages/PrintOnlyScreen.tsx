@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
+import { VotesDict } from '@votingworks/ballot-encoder'
+
 import Loading from '../components/Loading'
 import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
@@ -10,7 +12,6 @@ import {
   Election,
   MarkVoterCardFunction,
   PartialUserSettings,
-  VotesDict,
 } from '../config/types'
 import buildBallot from '../utils/buildBallot'
 import isEmptyObject from '../utils/isEmptyObject'

@@ -1,8 +1,8 @@
 import {
   Candidate,
   Contest,
-  Vote,
   OptionalVote,
+  VotesDict,
 } from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
@@ -105,8 +105,6 @@ export interface ActivationData {
 }
 
 // Votes
-export type VotesDict = Dictionary<Vote>
-
 export interface WriteInCandidateTally {
   name: string
   tally: number
