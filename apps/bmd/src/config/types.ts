@@ -1,3 +1,4 @@
+import { ContestTypes } from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
 // Generic
@@ -47,7 +48,6 @@ export interface Candidate {
 export type OptionalCandidate = Candidate | undefined
 
 // Contests
-export type ContestTypes = 'candidate' | 'yesno'
 export interface Contest {
   readonly id: string
   readonly districtId: string
