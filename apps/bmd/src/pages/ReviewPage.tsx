@@ -2,7 +2,7 @@ import pluralize from 'pluralize'
 import React, { PointerEventHandler } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
-import { CandidateVote } from '@votingworks/ballot-encoder'
+import { CandidateVote, YesNoVote } from '@votingworks/ballot-encoder'
 import { findPartyById } from '../utils/find'
 
 import {
@@ -14,7 +14,6 @@ import {
   ScrollDirections,
   ScrollShadows,
   YesNoContest,
-  YesNoVote,
 } from '../config/types'
 
 import Button, { DecoyButton } from '../components/Button'

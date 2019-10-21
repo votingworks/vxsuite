@@ -1,4 +1,9 @@
-import { Candidate, Contest, CandidateVote } from '@votingworks/ballot-encoder'
+import {
+  Candidate,
+  Contest,
+  CandidateVote,
+  YesNoVote,
+} from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
 // Generic
@@ -100,7 +105,6 @@ export interface ActivationData {
 }
 
 // Votes
-export type YesNoVote = 'yes' | 'no'
 export type OptionalYesNoVote = YesNoVote | undefined
 export type Vote = CandidateVote | YesNoVote
 export type OptionalVote = Vote | undefined

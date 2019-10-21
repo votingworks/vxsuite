@@ -4,6 +4,7 @@ import {
   encodeBallot,
   BallotType,
   CandidateVote,
+  YesNoVote,
 } from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../config/globals'
@@ -29,7 +30,6 @@ import {
   Parties,
   VotesDict,
   YesNoContest,
-  YesNoVote,
 } from '../config/types'
 
 const Ballot = styled.div`

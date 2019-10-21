@@ -5,6 +5,7 @@ import {
   getPrecinctById,
   BallotType,
   CandidateVote,
+  YesNoVote,
 } from '@votingworks/ballot-encoder'
 import { fromByteArray, toByteArray } from 'base64-js'
 import 'normalize.css'
@@ -35,7 +36,6 @@ import {
   VxMarkPlusVxPrint,
   VxPrintOnly,
   Tally,
-  YesNoVote,
   CandidateVoteTally,
   getAppMode,
   YesNoVoteTally,
