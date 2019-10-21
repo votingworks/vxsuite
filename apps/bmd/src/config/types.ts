@@ -38,9 +38,6 @@ export function getAppMode(name: AppModeNames): AppMode {
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 
-// Candidates
-export type OptionalCandidate = Candidate | undefined
-
 // Contests
 export interface Contest {
   readonly id: string
