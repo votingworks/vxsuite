@@ -87,6 +87,7 @@
     "@types/react-router-dom": "^5.1.0",
     "@types/styled-components": "^4.1.19",
     "@votingworks/ballot-encoder": "^1.2.0",
+    "@votingworks/ballot-renderer": "^1.0.1",
     "@votingworks/qrcode.react": "^1.0.0",
     "abortcontroller-polyfill": "^1.3.0",
     "base64-js": "^1.3.1",

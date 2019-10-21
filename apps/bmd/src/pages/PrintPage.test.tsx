@@ -1,21 +1,16 @@
+import {
+  electionSample,
+  getBallotStyle,
+  getContests,
+  vote,
+} from '@votingworks/ballot-encoder'
 import React from 'react'
 import { Route } from 'react-router-dom'
-
-import {
-  vote,
-  electionSample,
-  getContests,
-  getBallotStyle,
-} from '@votingworks/ballot-encoder'
-
-import { render, mockOf } from '../../test/testUtils'
-
-import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
+import { mockOf, render } from '../../test/testUtils'
 import electionSampleNoSeal from '../data/electionSampleNoSeal.json'
-
-import PrintPage from './PrintPage'
-
+import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 import { randomBase64 } from '../utils/random'
+import PrintPage from './PrintPage'
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random')

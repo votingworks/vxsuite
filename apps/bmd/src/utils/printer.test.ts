@@ -77,11 +77,31 @@ describe('a local printer', () => {
 })
 
 describe('a remote printer', () => {
-  it('can print anything if it responds to a status check', async () => {
-    fetchMock.get('/printer/status', { ok: true })
+  it('can print anything that is listed as available', async () => {
+    fetchMock.get('/printer/status', {
+      ok: true,
+      available: [{ contentType: 'text/html' }],
+    })
     expect(
       await makePrinter(PrintMethod.RemoteOnly).canPrint(PrintType.CurrentPage)
     ).toBe(true)
+  })
+
+  it('cannot print anything that is not listed as available', async () => {
+    fetchMock.get('/printer/status', {
+      ok: true,
+      available: [],
+    })
+    expect(
+      await makePrinter(PrintMethod.RemoteOnly).canPrint(PrintType.CurrentPage)
+    ).toBe(false)
+  })
+
+  it('cannot print anything if no availability is advertised', async () => {
+    fetchMock.get('/printer/status', { ok: true })
+    expect(
+      await makePrinter(PrintMethod.RemoteOnly).canPrint(PrintType.CurrentPage)
+    ).toBe(false)
   })
 
   it('cannot print anything if it fails to respond', async () => {
@@ -99,7 +119,10 @@ describe('a remote printer', () => {
   })
 
   it('does not call `window.print` when printing the current page', async () => {
-    fetchMock.get('/printer/status', { ok: true })
+    fetchMock.get('/printer/status', {
+      ok: true,
+      available: [{ contentType: 'text/html' }],
+    })
     fetchMock.post('/printer/jobs/new', {
       body: JSON.stringify({ id: 'job-id' }),
       status: 201,
@@ -112,7 +135,10 @@ describe('a remote printer', () => {
   })
 
   it('prints HTML documents', async () => {
-    fetchMock.get('/printer/status', { ok: true })
+    fetchMock.get('/printer/status', {
+      ok: true,
+      available: [{ contentType: 'text/html' }],
+    })
     fetchMock.post('/printer/jobs/new', {
       body: JSON.stringify({ id: 'job-id' }),
       status: 201,
@@ -127,7 +153,10 @@ describe('a remote printer', () => {
   })
 
   it('prints PDF documents', async () => {
-    fetchMock.get('/printer/status', { ok: true })
+    fetchMock.get('/printer/status', {
+      ok: true,
+      available: [{ contentType: 'application/pdf' }],
+    })
     fetchMock.post('/printer/jobs/new', {
       body: JSON.stringify({ id: 'job-id' }),
       status: 201,
@@ -142,7 +171,10 @@ describe('a remote printer', () => {
   })
 
   it('prints pdfmake documents', async () => {
-    fetchMock.get('/printer/status', { ok: true })
+    fetchMock.get('/printer/status', {
+      ok: true,
+      available: [{ contentType: 'x-application/pdfmake' }],
+    })
     fetchMock.post('/printer/jobs/new', {
       body: JSON.stringify({ id: 'job-id' }),
       status: 201,
@@ -165,7 +197,10 @@ describe('a remote printer', () => {
   })
 
   it('cannot get status of print (https://github.com/votingworks/module-print/issues/6)', async () => {
-    fetchMock.get('/printer/status', { ok: true })
+    fetchMock.get('/printer/status', {
+      ok: true,
+      available: [{ contentType: 'text/html' }],
+    })
     fetchMock.post('/printer/jobs/new', {
       body: JSON.stringify({ id: 'job-id' }),
       status: 201,

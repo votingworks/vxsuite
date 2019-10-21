@@ -1,12 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders PrintPage with votes 1`] = `
-.c4 > svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 .c2 {
   max-width: 66ch;
   line-height: 1.2;
@@ -68,6 +62,12 @@ exports[`renders PrintPage with votes 1`] = `
 
 .c2 dl {
   margin: 1rem 0;
+}
+
+.c4 > svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .c11 {
@@ -586,19 +586,26 @@ exports[`renders PrintPage with votes 1`] = `
 `;
 
 exports[`renders PrintPage without votes 1`] = `
-.c1 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  overflow: auto;
+.c5 {
+  margin-left: -1.4em;
+  text-align: center;
+  white-space: nowrap;
 }
 
-.c2 {
-  margin: auto 0;
+.c5::before,
+.c5::after {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  text-align: left;
+  content: '…';
+  -webkit-animation: loadingEllipsis steps(4,end) 2s infinite;
+  animation: loadingEllipsis steps(4,end) 2s infinite;
+}
+
+.c5::before {
+  color: transparent;
 }
 
 .c3 {
@@ -729,26 +736,19 @@ exports[`renders PrintPage without votes 1`] = `
   margin: 1rem 0;
 }
 
-.c5 {
-  margin-left: -1.4em;
-  text-align: center;
-  white-space: nowrap;
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
 }
 
-.c5::before,
-.c5::after {
-  display: inline-block;
-  width: 0;
-  overflow: hidden;
-  vertical-align: bottom;
-  text-align: left;
-  content: '…';
-  -webkit-animation: loadingEllipsis steps(4,end) 2s infinite;
-  animation: loadingEllipsis steps(4,end) 2s infinite;
-}
-
-.c5::before {
-  color: transparent;
+.c2 {
+  margin: auto 0;
 }
 
 .c0 {
@@ -826,12 +826,6 @@ exports[`renders PrintPage without votes 1`] = `
 `;
 
 exports[`renders PrintPage without votes and inline seal 1`] = `
-.c4 > svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 .c2 {
   max-width: 66ch;
   line-height: 1.2;
@@ -893,6 +887,12 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 
 .c2 dl {
   margin: 1rem 0;
+}
+
+.c4 > svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .c10 {
@@ -1557,12 +1557,6 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 `;
 
 exports[`renders PrintPage without votes and no seal 1`] = `
-.c4 > svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 .c2 {
   max-width: 66ch;
   line-height: 1.2;
@@ -1624,6 +1618,12 @@ exports[`renders PrintPage without votes and no seal 1`] = `
 
 .c2 dl {
   margin: 1rem 0;
+}
+
+.c4 > svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .c10 {

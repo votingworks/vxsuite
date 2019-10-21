@@ -1,21 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-
 import styled from 'styled-components'
+import Loading from '../components/Loading'
+import Main, { MainChild } from '../components/Main'
+import PrintedBallot from '../components/PrintedBallot'
+import Prose from '../components/Prose'
+import Screen from '../components/Screen'
+import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
 import {
   Election,
   MarkVoterCardFunction,
   PartialUserSettings,
   VotesDict,
 } from '../config/types'
-import { NullPrinter, PrintType } from '../utils/printer'
+import buildBallot from '../utils/buildBallot'
 import isEmptyObject from '../utils/isEmptyObject'
-
-import Prose from '../components/Prose'
-import Main, { MainChild } from '../components/Main'
-import PrintedBallot from '../components/PrintedBallot'
-import Loading from '../components/Loading'
-import Screen from '../components/Screen'
-import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
+import printBallotOrCurrentPage from '../utils/printBallotOrCurrentPage'
+import { Printer } from '../utils/printer'
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
@@ -29,7 +29,7 @@ interface Props {
   isVoterCardPresent: boolean
   markVoterCardPrinted: MarkVoterCardFunction
   precinctId: string
-  printer: NullPrinter
+  printer: Printer
   setUserSettings: (partial: PartialUserSettings) => void
   updateTally: () => void
   votes: VotesDict
@@ -47,12 +47,12 @@ const PrintOnlyScreen = ({
   printer,
   setUserSettings,
   updateTally,
-  votes: cardVotes,
+  votes,
 }: Props) => {
   let printerTimer = useRef(0)
   const [okToPrint, setOkToPrint] = useState(true)
   const [isPrinted, updateIsPrinted] = useState(false)
-  const isCardVotesEmpty = isEmptyObject(cardVotes)
+  const isCardVotesEmpty = isEmptyObject(votes)
 
   const isReadyToPrint =
     election &&
@@ -66,13 +66,31 @@ const PrintOnlyScreen = ({
     const isUsed = await markVoterCardPrinted()
     /* istanbul ignore else */
     if (isUsed) {
-      await printer.print({ type: PrintType.CurrentPage })
+      await printBallotOrCurrentPage(
+        printer,
+        buildBallot({
+          ballotStyleId,
+          election,
+          isTestBallot: !isLiveMode,
+          precinctId,
+          votes,
+        })
+      )
       updateTally()
       printerTimer.current = window.setTimeout(() => {
         updateIsPrinted(true)
       }, printerMessageTimeoutSeconds * 1000)
     }
-  }, [markVoterCardPrinted, printer, updateTally])
+  }, [
+    markVoterCardPrinted,
+    printer,
+    updateTally,
+    ballotStyleId,
+    votes,
+    election,
+    isLiveMode,
+    precinctId,
+  ])
 
   useEffect(() => {
     if (isReadyToPrint && okToPrint) {
@@ -80,7 +98,7 @@ const PrintOnlyScreen = ({
 
       printBallot()
     }
-  }, [cardVotes, printBallot, isReadyToPrint, okToPrint, setOkToPrint])
+  }, [votes, printBallot, isReadyToPrint, okToPrint, setOkToPrint])
 
   useEffect(() => {
     if (!isVoterCardPresent) {
@@ -174,7 +192,7 @@ const PrintOnlyScreen = ({
           election={election}
           isLiveMode={isLiveMode}
           precinctId={precinctId}
-          votes={cardVotes}
+          votes={votes}
         />
       )}
     </React.Fragment>
