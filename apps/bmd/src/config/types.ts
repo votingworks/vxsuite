@@ -1,4 +1,4 @@
-import { ContestTypes, Candidate } from '@votingworks/ballot-encoder'
+import { Candidate, Contest } from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
 // Generic
@@ -39,14 +39,6 @@ export function getAppMode(name: AppModeNames): AppMode {
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 
 // Contests
-export interface Contest {
-  readonly id: string
-  readonly districtId: string
-  readonly partyId?: string
-  readonly section: string
-  readonly title: string
-  readonly type: ContestTypes
-}
 export interface CandidateContest extends Contest {
   readonly type: 'candidate'
   readonly seats: number
