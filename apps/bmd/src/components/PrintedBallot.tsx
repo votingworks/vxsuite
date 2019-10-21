@@ -18,7 +18,6 @@ import Prose from './Prose'
 import Text, { NoWrap } from './Text'
 
 import {
-  Candidate,
   CandidateContest,
   CandidateVote,
   Contests,
@@ -136,7 +135,7 @@ const CandidateContestResult = ({
     <NoSelection />
   ) : (
     <React.Fragment>
-      {vote.map((candidate: Candidate) => (
+      {vote.map(candidate => (
         <Text bold key={candidate.id} wordBreak>
           <strong>{candidate.name}</strong>{' '}
           {candidate.partyId &&

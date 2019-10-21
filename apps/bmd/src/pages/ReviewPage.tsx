@@ -5,7 +5,6 @@ import styled from 'styled-components'
 import { findPartyById } from '../utils/find'
 
 import {
-  Candidate,
   CandidateContest,
   CandidateVote,
   Contests,
@@ -210,7 +209,7 @@ const CandidateContestResult = ({
     <NoSelection />
   ) : (
     <React.Fragment>
-      {vote.map((candidate: Candidate, index: number, array: CandidateVote) => {
+      {vote.map((candidate, index, array) => {
         const party =
           candidate.partyId && findPartyById(parties, candidate.partyId)
         return (
