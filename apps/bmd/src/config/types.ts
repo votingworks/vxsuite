@@ -1,9 +1,4 @@
-import {
-  OptionalVote,
-  VotesDict,
-  CandidateContest,
-  YesNoContest,
-} from '@votingworks/ballot-encoder'
+import { OptionalVote, VotesDict, Contests } from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
 // Generic
@@ -42,9 +37,6 @@ export function getAppMode(name: AppModeNames): AppMode {
 
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
-
-// Contests
-export type Contests = (CandidateContest | YesNoContest)[]
 
 // Election
 export interface BallotStyle {
