@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Precinct } from '@votingworks/ballot-encoder'
 import {
   Election,
   Tally,
-  Precinct,
   CandidateVoteTally,
   YesNoVoteTally,
 } from '../config/types'

@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import { AppModeNames, Election, Precinct } from '../config/types'
+import { Precinct } from '@votingworks/ballot-encoder'
+import { AppModeNames, Election } from '../config/types'
 import Prose from './Prose'
 
 const Report = styled.div`
