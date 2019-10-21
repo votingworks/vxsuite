@@ -6,6 +6,7 @@ import {
   OptionalCandidate,
   CandidateVote,
   CandidateContest as CandidateContestInterface,
+  Parties,
 } from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
@@ -13,7 +14,6 @@ import stripQuotes from '../utils/stripQuotes'
 
 import {
   EventTargetFunction,
-  Parties,
   Scrollable,
   ScrollDirections,
   ScrollShadows,

@@ -9,15 +9,11 @@ import {
   CandidateContest,
   YesNoContest,
   Contests,
+  Parties,
 } from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
-import {
-  Parties,
-  Scrollable,
-  ScrollDirections,
-  ScrollShadows,
-} from '../config/types'
+import { Scrollable, ScrollDirections, ScrollShadows } from '../config/types'
 
 import Button, { DecoyButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
