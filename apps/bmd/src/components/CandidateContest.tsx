@@ -5,13 +5,13 @@ import {
   Candidate,
   OptionalCandidate,
   CandidateVote,
+  CandidateContest as CandidateContestInterface,
 } from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
 import stripQuotes from '../utils/stripQuotes'
 
 import {
-  CandidateContest as CandidateContestInterface,
   EventTargetFunction,
   Parties,
   Scrollable,

@@ -1,8 +1,8 @@
 import {
-  Candidate,
   Contest,
   OptionalVote,
   VotesDict,
+  CandidateContest,
 } from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
@@ -44,12 +44,6 @@ export function getAppMode(name: AppModeNames): AppMode {
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 
 // Contests
-export interface CandidateContest extends Contest {
-  readonly type: 'candidate'
-  readonly seats: number
-  readonly candidates: Candidate[]
-  readonly allowWriteIns: boolean
-}
 export interface YesNoContest extends Contest {
   readonly type: 'yesno'
   readonly description: string

@@ -6,11 +6,11 @@ import {
   CandidateVote,
   YesNoVote,
   OptionalYesNoVote,
+  CandidateContest,
 } from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
 import {
-  CandidateContest,
   Contests,
   Parties,
   Scrollable,
