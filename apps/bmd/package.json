@@ -99,7 +99,7 @@
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-gamepad": "^1.0.3",
-    "react-idle-timer": "^4.2.10",
+    "react-idle-timer": "^4.2.11",
     "react-modal": "^3.10.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.0.1",
