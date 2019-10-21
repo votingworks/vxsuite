@@ -10,9 +10,6 @@ import { Printer } from '../utils/printer'
 
 // Generic
 export type VoidFunction = () => void
-export interface Dictionary<T> {
-  [key: string]: T | undefined
-}
 
 // App
 export type AppModeNames = 'VxMark' | 'VxPrint' | 'VxMark + VxPrint'
