@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import pluralize from 'pluralize'
-import { Precinct } from '@votingworks/ballot-encoder'
+import { Precinct, Election } from '@votingworks/ballot-encoder'
 
-import { AppMode, Election, Tally } from '../config/types'
+import { AppMode, Tally } from '../config/types'
 
 import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'

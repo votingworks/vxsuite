@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { VotesDict } from '@votingworks/ballot-encoder'
+import { VotesDict, Election } from '@votingworks/ballot-encoder'
 
 import Loading from '../components/Loading'
 import Main, { MainChild } from '../components/Main'
@@ -8,15 +8,11 @@ import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
-import {
-  Election,
-  MarkVoterCardFunction,
-  PartialUserSettings,
-} from '../config/types'
+import { MarkVoterCardFunction, PartialUserSettings } from '../config/types'
 import buildBallot from '../utils/buildBallot'
+import { Printer } from '../utils/printer'
 import isEmptyObject from '../utils/isEmptyObject'
 import printBallotOrCurrentPage from '../utils/printBallotOrCurrentPage'
-import { Printer } from '../utils/printer'
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;

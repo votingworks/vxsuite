@@ -3,10 +3,8 @@ import {
   VotesDict,
   Contests,
   BallotStyle,
-  Parties,
   Precinct,
-  District,
-  County,
+  Election,
 } from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
@@ -48,19 +46,6 @@ export function getAppMode(name: AppModeNames): AppMode {
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 
 // Election
-export interface Election {
-  readonly ballotStyles: BallotStyle[]
-  readonly county: County
-  readonly parties: Parties
-  readonly precincts: Precinct[]
-  readonly districts: District[]
-  readonly contests: Contests
-  readonly date: string
-  readonly seal?: string
-  readonly sealURL?: string
-  readonly state: string
-  readonly title: string
-}
 export type OptionalElection = Election | undefined
 
 export interface ActivationData {

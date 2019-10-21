@@ -1,7 +1,8 @@
 import React from 'react'
 import fetchMock from 'fetch-mock'
+import { Election } from '@votingworks/ballot-encoder'
 
-import { Election, VxMarkOnly } from '../config/types'
+import { VxMarkOnly } from '../config/types'
 
 import { render } from '../../test/testUtils'
 
