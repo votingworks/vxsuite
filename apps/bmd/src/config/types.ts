@@ -5,6 +5,7 @@ import {
   BallotStyle,
   Parties,
   Precinct,
+  District,
 } from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
@@ -46,10 +47,6 @@ export function getAppMode(name: AppModeNames): AppMode {
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 
 // Election
-export interface District {
-  readonly id: string
-  readonly name: string
-}
 export interface County {
   readonly id: string
   readonly name: string
