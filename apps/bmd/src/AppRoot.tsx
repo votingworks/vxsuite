@@ -10,6 +10,7 @@ import {
   VotesDict,
   Contests,
   Election,
+  OptionalElection,
 } from '@votingworks/ballot-encoder'
 import { fromByteArray, toByteArray } from 'base64-js'
 import 'normalize.css'
@@ -28,7 +29,6 @@ import {
   CardPresentAPI,
   MachineIdAPI,
   MarkVoterCardFunction,
-  OptionalElection,
   PartialUserSettings,
   UserSettings,
   VoterCardData,

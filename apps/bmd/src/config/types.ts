@@ -46,8 +46,6 @@ export function getAppMode(name: AppModeNames): AppMode {
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 
 // Election
-export type OptionalElection = Election | undefined
-
 export interface ActivationData {
   ballotCreatedAt: number
   ballotStyle: BallotStyle
