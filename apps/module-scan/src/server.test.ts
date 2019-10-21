@@ -1,8 +1,8 @@
 import { Application } from 'express'
 import request from 'supertest'
+import { electionSample as election } from '@votingworks/ballot-encoder'
 import { buildApp } from './server'
 import { Importer } from './importer'
-import election from '../election.json'
 import Store from './store'
 
 jest.mock('./importer')
@@ -50,7 +50,7 @@ test('POST /scan/configure', async () => {
     .expect(200, { status: 'ok' })
   expect(importer.configure).toBeCalledWith(
     expect.objectContaining({
-      title: '2020 General Election',
+      title: 'General Election',
     })
   )
 })
