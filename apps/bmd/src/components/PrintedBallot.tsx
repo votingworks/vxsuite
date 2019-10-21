@@ -1,6 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import { encodeBallot, BallotType } from '@votingworks/ballot-encoder'
+import {
+  encodeBallot,
+  BallotType,
+  CandidateVote,
+} from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../config/globals'
 
@@ -19,7 +23,6 @@ import Text, { NoWrap } from './Text'
 
 import {
   CandidateContest,
-  CandidateVote,
   Contests,
   Election,
   OptionalYesNoVote,
