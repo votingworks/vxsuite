@@ -1,4 +1,9 @@
-import { Candidate, Contest, Vote } from '@votingworks/ballot-encoder'
+import {
+  Candidate,
+  Contest,
+  Vote,
+  OptionalVote,
+} from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
 // Generic
@@ -100,7 +105,6 @@ export interface ActivationData {
 }
 
 // Votes
-export type OptionalVote = Vote | undefined
 export type VotesDict = Dictionary<Vote>
 
 export interface WriteInCandidateTally {

@@ -6,6 +6,7 @@ import {
   BallotType,
   CandidateVote,
   YesNoVote,
+  OptionalVote,
 } from '@votingworks/ballot-encoder'
 import { fromByteArray, toByteArray } from 'base64-js'
 import 'normalize.css'
@@ -27,7 +28,6 @@ import {
   MachineIdAPI,
   MarkVoterCardFunction,
   OptionalElection,
-  OptionalVote,
   PartialUserSettings,
   UserSettings,
   VoterCardData,
