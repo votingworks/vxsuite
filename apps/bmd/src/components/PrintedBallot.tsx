@@ -8,6 +8,7 @@ import {
   OptionalYesNoVote,
   VotesDict,
   CandidateContest,
+  YesNoContest,
 } from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../config/globals'
@@ -25,7 +26,7 @@ import QRCode from './QRCode'
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
 
-import { Contests, Election, Parties, YesNoContest } from '../config/types'
+import { Contests, Election, Parties } from '../config/types'
 
 const Ballot = styled.div`
   page-break-after: always;

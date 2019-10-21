@@ -7,6 +7,7 @@ import {
   YesNoVote,
   OptionalYesNoVote,
   CandidateContest,
+  YesNoContest,
 } from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
@@ -16,7 +17,6 @@ import {
   Scrollable,
   ScrollDirections,
   ScrollShadows,
-  YesNoContest,
 } from '../config/types'
 
 import Button, { DecoyButton } from '../components/Button'

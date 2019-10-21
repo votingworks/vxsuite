@@ -1,6 +1,10 @@
 import React, { PointerEventHandler } from 'react'
 import styled from 'styled-components'
-import { YesNoVote, OptionalYesNoVote } from '@votingworks/ballot-encoder'
+import {
+  YesNoVote,
+  OptionalYesNoVote,
+  YesNoContest as YesNoContestInterface,
+} from '@votingworks/ballot-encoder'
 
 import {
   EventTargetFunction,
@@ -8,7 +12,6 @@ import {
   ScrollDirections,
   ScrollShadows,
   UpdateVoteFunction,
-  YesNoContest as YesNoContestInterface,
 } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
