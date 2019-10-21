@@ -2,13 +2,16 @@ import pluralize from 'pluralize'
 import React, { PointerEventHandler } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
-import { CandidateVote, YesNoVote } from '@votingworks/ballot-encoder'
-import { findPartyById } from '../utils/find'
+import {
+  CandidateVote,
+  YesNoVote,
+  OptionalYesNoVote,
+} from '@votingworks/ballot-encoder'
 
+import { findPartyById } from '../utils/find'
 import {
   CandidateContest,
   Contests,
-  OptionalYesNoVote,
   Parties,
   Scrollable,
   ScrollDirections,

@@ -105,7 +105,6 @@ export interface ActivationData {
 }
 
 // Votes
-export type OptionalYesNoVote = YesNoVote | undefined
 export type Vote = CandidateVote | YesNoVote
 export type OptionalVote = Vote | undefined
 export type VotesDict = Dictionary<Vote>

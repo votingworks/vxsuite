@@ -1,10 +1,9 @@
 import React, { PointerEventHandler } from 'react'
 import styled from 'styled-components'
+import { YesNoVote, OptionalYesNoVote } from '@votingworks/ballot-encoder'
 
-import { YesNoVote } from '@votingworks/ballot-encoder'
 import {
   EventTargetFunction,
-  OptionalYesNoVote,
   Scrollable,
   ScrollDirections,
   ScrollShadows,

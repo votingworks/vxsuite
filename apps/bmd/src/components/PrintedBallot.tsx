@@ -5,6 +5,7 @@ import {
   BallotType,
   CandidateVote,
   YesNoVote,
+  OptionalYesNoVote,
 } from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../config/globals'
@@ -26,7 +27,6 @@ import {
   CandidateContest,
   Contests,
   Election,
-  OptionalYesNoVote,
   Parties,
   VotesDict,
   YesNoContest,

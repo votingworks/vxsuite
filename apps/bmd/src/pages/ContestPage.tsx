@@ -1,10 +1,8 @@
 import React, { useContext } from 'react'
 import { Redirect, RouteComponentProps } from 'react-router-dom'
+import { CandidateVote, OptionalYesNoVote } from '@votingworks/ballot-encoder'
 
-import { CandidateVote } from '@votingworks/ballot-encoder'
 import ordinal from '../utils/ordinal'
-
-import { OptionalYesNoVote } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
 
