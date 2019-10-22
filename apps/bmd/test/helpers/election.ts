@@ -1,9 +1,9 @@
-import electionSample from '../../src/data/electionSample.json'
 import {
   CandidateContest,
-  Election,
   YesNoContest,
-} from '../../src/config/types'
+  Election,
+} from '@votingworks/ballot-encoder'
+import electionSample from '../../src/data/electionSample.json'
 import {
   getBallotStyle,
   getContests,

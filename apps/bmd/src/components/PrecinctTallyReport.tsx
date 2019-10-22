@@ -1,12 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import {
-  Election,
-  Tally,
-  Precinct,
-  CandidateVoteTally,
-  YesNoVoteTally,
-} from '../config/types'
+import { Precinct, Election } from '@votingworks/ballot-encoder'
+import { Tally, CandidateVoteTally, YesNoVoteTally } from '../config/types'
 
 import numberWithCommas from '../utils/numberWithCommas'
 

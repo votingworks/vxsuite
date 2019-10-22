@@ -1,7 +1,7 @@
 import React from 'react'
 import { fireEvent, render } from '@testing-library/react'
 
-import { CandidateContest as CandidateContestInterface } from '../config/types'
+import { CandidateContest as CandidateContestInterface } from '@votingworks/ballot-encoder'
 
 import CandidateContest from './CandidateContest'
 

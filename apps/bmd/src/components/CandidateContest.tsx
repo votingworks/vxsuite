@@ -1,17 +1,19 @@
 import camelCase from 'lodash.camelcase'
 import React, { PointerEventHandler } from 'react'
 import styled from 'styled-components'
+import {
+  Candidate,
+  OptionalCandidate,
+  CandidateVote,
+  CandidateContest as CandidateContestInterface,
+  Parties,
+} from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
 import stripQuotes from '../utils/stripQuotes'
 
 import {
-  Candidate,
-  CandidateContest as CandidateContestInterface,
-  CandidateVote,
   EventTargetFunction,
-  OptionalCandidate,
-  Parties,
   Scrollable,
   ScrollDirections,
   ScrollShadows,

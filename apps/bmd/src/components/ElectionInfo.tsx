@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Election, Precinct } from '../config/types'
+import { Precinct, Election } from '@votingworks/ballot-encoder'
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '../utils/election'
 
 import Seal from './Seal'

@@ -2,21 +2,18 @@ import pluralize from 'pluralize'
 import React, { PointerEventHandler } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import styled from 'styled-components'
-import { findPartyById } from '../utils/find'
-
 import {
-  Candidate,
-  CandidateContest,
   CandidateVote,
-  Contests,
-  OptionalYesNoVote,
-  Parties,
-  Scrollable,
-  ScrollDirections,
-  ScrollShadows,
-  YesNoContest,
   YesNoVote,
-} from '../config/types'
+  OptionalYesNoVote,
+  CandidateContest,
+  YesNoContest,
+  Contests,
+  Parties,
+} from '@votingworks/ballot-encoder'
+
+import { findPartyById } from '../utils/find'
+import { Scrollable, ScrollDirections, ScrollShadows } from '../config/types'
 
 import Button, { DecoyButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
@@ -210,7 +207,7 @@ const CandidateContestResult = ({
     <NoSelection />
   ) : (
     <React.Fragment>
-      {vote.map((candidate: Candidate, index: number, array: CandidateVote) => {
+      {vote.map((candidate, index, array) => {
         const party =
           candidate.partyId && findPartyById(parties, candidate.partyId)
         return (

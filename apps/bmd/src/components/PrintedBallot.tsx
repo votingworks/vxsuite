@@ -1,6 +1,18 @@
 import React from 'react'
 import styled from 'styled-components'
-import { encodeBallot, BallotType } from '@votingworks/ballot-encoder'
+import {
+  encodeBallot,
+  BallotType,
+  CandidateVote,
+  YesNoVote,
+  OptionalYesNoVote,
+  VotesDict,
+  CandidateContest,
+  YesNoContest,
+  Contests,
+  Parties,
+  Election,
+} from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../config/globals'
 
@@ -16,19 +28,6 @@ import {
 import QRCode from './QRCode'
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
-
-import {
-  Candidate,
-  CandidateContest,
-  CandidateVote,
-  Contests,
-  Election,
-  OptionalYesNoVote,
-  Parties,
-  VotesDict,
-  YesNoContest,
-  YesNoVote,
-} from '../config/types'
 
 const Ballot = styled.div`
   page-break-after: always;
@@ -136,7 +135,7 @@ const CandidateContestResult = ({
     <NoSelection />
   ) : (
     <React.Fragment>
-      {vote.map((candidate: Candidate) => (
+      {vote.map(candidate => (
         <Text bold key={candidate.id} wordBreak>
           <strong>{candidate.name}</strong>{' '}
           {candidate.partyId &&

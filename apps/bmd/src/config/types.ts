@@ -1,10 +1,15 @@
+import {
+  OptionalVote,
+  VotesDict,
+  Contests,
+  BallotStyle,
+  Precinct,
+  Election,
+} from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
 // Generic
 export type VoidFunction = () => void
-export interface Dictionary<T> {
-  [key: string]: T | undefined
-}
 
 // App
 export type AppModeNames = 'VxMark' | 'VxPrint' | 'VxMark + VxPrint'
@@ -37,79 +42,7 @@ export function getAppMode(name: AppModeNames): AppMode {
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 
-// Candidates
-export interface Candidate {
-  readonly id: string
-  readonly name: string
-  readonly partyId?: string
-  isWriteIn?: boolean
-}
-export type OptionalCandidate = Candidate | undefined
-
-// Contests
-export type ContestTypes = 'candidate' | 'yesno'
-export interface Contest {
-  readonly id: string
-  readonly districtId: string
-  readonly partyId?: string
-  readonly section: string
-  readonly title: string
-  readonly type: ContestTypes
-}
-export interface CandidateContest extends Contest {
-  readonly type: 'candidate'
-  readonly seats: number
-  readonly candidates: Candidate[]
-  readonly allowWriteIns: boolean
-}
-export interface YesNoContest extends Contest {
-  readonly type: 'yesno'
-  readonly description: string
-  readonly shortTitle: string
-}
-export type Contests = (CandidateContest | YesNoContest)[]
-
 // Election
-export interface BallotStyle {
-  readonly id: string
-  readonly precincts: string[]
-  readonly districts: string[]
-  readonly partyId?: string
-}
-export interface Party {
-  readonly id: string
-  readonly name: string
-  readonly abbrev: string
-}
-export type Parties = Party[]
-export interface Precinct {
-  readonly id: string
-  readonly name: string
-}
-export interface District {
-  readonly id: string
-  readonly name: string
-}
-export interface County {
-  readonly id: string
-  readonly name: string
-}
-
-export interface Election {
-  readonly ballotStyles: BallotStyle[]
-  readonly county: County
-  readonly parties: Parties
-  readonly precincts: Precinct[]
-  readonly districts: District[]
-  readonly contests: Contests
-  readonly date: string
-  readonly seal?: string
-  readonly sealURL?: string
-  readonly state: string
-  readonly title: string
-}
-export type OptionalElection = Election | undefined
-
 export interface ActivationData {
   ballotCreatedAt: number
   ballotStyle: BallotStyle
@@ -117,13 +50,6 @@ export interface ActivationData {
 }
 
 // Votes
-export type CandidateVote = Candidate[]
-export type YesNoVote = 'yes' | 'no'
-export type OptionalYesNoVote = YesNoVote | undefined
-export type Vote = CandidateVote | YesNoVote
-export type OptionalVote = Vote | undefined
-export type VotesDict = Dictionary<Vote>
-
 export interface WriteInCandidateTally {
   name: string
   tally: number

@@ -1,12 +1,12 @@
 import React, { PointerEventHandler, useState } from 'react'
 import pluralize from 'pluralize'
-
 import {
-  AppModeNames,
+  VotesDict,
   CandidateContest,
   Election,
-  VotesDict,
-} from '../config/types'
+} from '@votingworks/ballot-encoder'
+
+import { AppModeNames } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'

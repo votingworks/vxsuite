@@ -1,5 +1,5 @@
-import { Contest } from '@votingworks/ballot-encoder'
-import { BallotStyle, Election, Tally } from '../config/types'
+import { Election, Contest, BallotStyle } from '@votingworks/ballot-encoder'
+import { Tally } from '../config/types'
 
 export const getContests = ({
   ballotStyle,

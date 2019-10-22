@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
+import { OptionalElection } from '@votingworks/ballot-encoder'
 
 import {
   AppMode,
   AppModeNames,
   EventTargetFunction,
-  OptionalElection,
   VoidFunction,
   VxMarkOnly,
   VxPrintOnly,
