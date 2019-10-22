@@ -46,6 +46,11 @@ fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
 
 fetchMock.get('/printer/status', () => ({
   ok: true,
+  available: [
+    { contentType: 'text/html' },
+    { contentType: 'application/pdf' },
+    { contentType: 'x-application/pdfmake' },
+  ],
 }))
 
 fetchMock.post('/printer/jobs/new', () => ({

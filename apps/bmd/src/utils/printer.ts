@@ -1,10 +1,11 @@
 // We only import pdfmake for its types, so we don't need pdfmake installed.
-// eslint-disable-next-line import/no-unresolved
+// eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies
 import * as pdfMake from 'pdfmake/build/pdfmake'
 import fetchJSON from './fetchJSON'
 
 interface StatusResponse {
   ok: boolean
+  available: { contentType: string }[]
 }
 
 interface NewJobResponse {
@@ -75,6 +76,20 @@ export interface Printer {
   getStatus(job: PrintJob): Promise<PrintStatus>
 }
 
+function contentTypeForPrintType(type: PrintType): string {
+  switch (type) {
+    case PrintType.CurrentPage:
+    case PrintType.HTMLDocument:
+      return 'text/html'
+
+    case PrintType.PDFDocument:
+      return 'application/pdf'
+
+    case PrintType.PDFMakeDocument:
+      return 'x-application/pdfmake'
+  }
+}
+
 export class LocalPrinter implements Printer {
   public async canPrint(type: PrintType): Promise<boolean> {
     return type === PrintType.CurrentPage
@@ -115,12 +130,23 @@ export class NullPrinter implements Printer {
 }
 
 export class RemotePrinter implements Printer {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async canPrint(type: PrintType): Promise<boolean> {
     try {
       const status = await fetchJSON<StatusResponse>('/printer/status')
 
-      return status.ok
+      if (!status.ok) {
+        return false
+      }
+
+      const contentType = contentTypeForPrintType(type)
+
+      if (status.available) {
+        return status.available.some(
+          availableType => availableType.contentType === contentType
+        )
+      }
+
+      return false
     } catch {
       return false
     }

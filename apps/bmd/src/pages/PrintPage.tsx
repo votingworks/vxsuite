@@ -1,15 +1,13 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react'
-
-import isEmptyObject from '../utils/isEmptyObject'
-
+import Loading from '../components/Loading'
 import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
-import Loading from '../components/Loading'
 import Prose from '../components/Prose'
-
-import BallotContext from '../contexts/ballotContext'
 import Screen from '../components/Screen'
-import { PrintType } from '../utils/printer'
+import BallotContext from '../contexts/ballotContext'
+import buildBallot from '../utils/buildBallot'
+import isEmptyObject from '../utils/isEmptyObject'
+import printBallotOrCurrentPage from '../utils/printBallotOrCurrentPage'
 
 export const printerMessageTimeoutSeconds = 5
 
@@ -31,13 +29,32 @@ const PrintPage = () => {
     const isUsed = await markVoterCardPrinted()
     /* istanbul ignore else */
     if (isUsed) {
-      await printer.print({ type: PrintType.CurrentPage })
+      await printBallotOrCurrentPage(
+        printer,
+        buildBallot({
+          ballotStyleId,
+          election,
+          isTestBallot: !isLiveMode,
+          precinctId,
+          votes,
+        })
+      )
       updateTally()
       printerTimer.current = window.setTimeout(() => {
         resetBallot()
       }, printerMessageTimeoutSeconds * 1000)
     }
-  }, [markVoterCardPrinted, printer, resetBallot, updateTally])
+  }, [
+    markVoterCardPrinted,
+    printer,
+    resetBallot,
+    updateTally,
+    ballotStyleId,
+    election,
+    isLiveMode,
+    precinctId,
+    votes,
+  ])
 
   useEffect(() => {
     if (!isEmptyObject(votes)) {

@@ -179,18 +179,16 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  public fetchVotes = async () => {
+  public fetchBallotData = async () => {
     const response = await fetch('/card/read_long_b64')
     const { longValue } = await response.json()
     /* istanbul ignore else */
     if (longValue) {
       const election = this.state.election!
-      const {
-        ballot: { votes },
-      } = decodeBallot(election, toByteArray(longValue))
-      return votes
+      const { ballot } = decodeBallot(election, toByteArray(longValue))
+      return ballot
     } else {
-      return {}
+      return undefined
     }
   }
 
@@ -228,12 +226,12 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
           ballotPrintedTime
         )
 
-        const votes =
-          longValueExists &&
-          !this.state.isVoterCardExpired &&
-          !this.state.isVoterCardVoided
-            ? await this.fetchVotes()
-            : {}
+        const ballot: Partial<CompletedBallot> =
+          (longValueExists &&
+            !this.state.isVoterCardExpired &&
+            !this.state.isVoterCardVoided &&
+            (await this.fetchBallotData())) ||
+          {}
 
         this.setState(
           prevState => {
@@ -250,7 +248,10 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
               isVoterCardPrinted,
               isRecentVoterPrint,
               voterCardCreatedAt,
-              votes,
+              ballotStyleId: ballot.ballotStyle
+                ? ballot.ballotStyle.id
+                : this.initialState.ballotStyleId,
+              votes: ballot.votes || {},
             }
           },
           () => {
