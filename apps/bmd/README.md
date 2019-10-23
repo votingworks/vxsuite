@@ -133,3 +133,8 @@ lint modern css. [Jest](https://jestjs.io/),
 [react-testing-library](https://github.com/kentcdodds/react-testing-library),
 and [Cypress](https://www.cypress.io/) are used to test components and
 end-to-end user flows.
+
+## Credits
+
+Center for Civic Design and Oxide Design consulted on the initial design of this
+project. Thanks CCD and Oxide!
