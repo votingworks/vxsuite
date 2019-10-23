@@ -2,38 +2,16 @@
   "name": "module-scan",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@types/express": "^4.16.1",
-    "@types/fs-extra": "^7.0.0",
-    "@types/node": "^12.0.0",
-    "@types/sqlite3": "^3.1.5",
-    "@types/supertest": "^2.0.7",
-    "@votingworks/ballot-encoder": "^1.2.0",
-    "chokidar": "^2.1.6",
-    "express": "^4.16.4",
-    "fs-extra": "^8.0.1",
-    "husky": "^2.3.0",
-    "lint-staged": "^8.1.7",
-    "memory-streams": "^0.1.3",
-    "node-quirc": "^2.1.0",
-    "prettier": "^1.17.1",
-    "sqlite3": "^4.0.8",
-    "stylelint": "^10.0.1",
-    "stylelint-config-palantir": "^4.0.0",
-    "stylelint-config-prettier": "^5.2.0",
-    "ts-node": "^8.4.1",
-    "typescript": "^3.4.5"
-  },
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w",
+    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
     "start": "ts-node --files ./src/index.ts",
     "test": "jest",
-    "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
-    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
-    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
+    "test:watch": "jest --watch",
+    "watch": "tsc -w"
   },
   "husky": {
     "hooks": {
@@ -41,27 +19,43 @@
     }
   },
   "lint-staged": {
-    "linters": {
-      "*.+(js|jsx|ts|tsx)": [
-        "stylelint",
-        "eslint --quiet --fix",
-        "git add"
-      ],
-      "*.css": [
-        "stylelint --config .stylelintrc-css.js --fix",
-        "git add"
-      ],
-      "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-        "prettier --write",
-        "git add"
-      ]
-    }
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "stylelint",
+      "eslint --quiet --fix",
+      "git add"
+    ],
+    "*.css": [
+      "stylelint --config .stylelintrc-css.js --fix",
+      "git add"
+    ],
+    "package.json": [
+      "sort-package-json",
+      "git add"
+    ]
   },
   "eslintConfig": {
     "extends": "react-app"
   },
+  "dependencies": {
+    "@votingworks/ballot-encoder": "^1.2.0",
+    "chokidar": "^2.1.6",
+    "express": "^4.16.4",
+    "fs-extra": "^8.0.1",
+    "memory-streams": "^0.1.3",
+    "node-quirc": "^2.1.0",
+    "sqlite3": "^4.0.8"
+  },
   "devDependencies": {
+    "@types/express": "^4.16.1",
+    "@types/fs-extra": "^7.0.0",
     "@types/jest": "^24.0.18",
+    "@types/node": "^12.0.0",
+    "@types/sqlite3": "^3.1.5",
+    "@types/supertest": "^2.0.7",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
     "eslint": "^5.16.0",
@@ -74,9 +68,18 @@
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.13.0",
+    "husky": "^3.0.9",
     "jest": "^24.9.0",
+    "lint-staged": "^9.4.2",
+    "prettier": "^1.18.2",
+    "sort-package-json": "^1.22.1",
+    "stylelint": "^11.1.1",
+    "stylelint-config-palantir": "^4.0.0",
+    "stylelint-config-prettier": "^6.0.0",
     "supertest": "^4.0.2",
-    "ts-jest": "^24.1.0"
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.4"
   },
   "engines": {
     "node": ">= 12"
