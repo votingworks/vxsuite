@@ -97,7 +97,7 @@
     "lodash.camelcase": "^4.3.0",
     "normalize.css": "^8.0.1",
     "pluralize": "^8.0.0",
-    "react": "^16.10.2",
+    "react": "^16.11.0",
     "react-dom": "^16.10.2",
     "react-gamepad": "^1.0.3",
     "react-idle-timer": "^4.2.11",
