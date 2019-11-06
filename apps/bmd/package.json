@@ -77,7 +77,7 @@
   },
   "dependencies": {
     "@types/fetch-mock": "^7.3.1",
-    "@types/jest": "24.0.21",
+    "@types/jest": "24.0.22",
     "@types/lodash.camelcase": "^4.3.6",
     "@types/node": "12.12.5",
     "@types/pluralize": "^0.0.29",
