@@ -85,7 +85,7 @@
     "@types/react-dom": "^16.9.4",
     "@types/react-modal": "^3.10.0",
     "@types/react-router-dom": "^5.1.2",
-    "@types/styled-components": "^4.1.21",
+    "@types/styled-components": "^4.1.22",
     "@votingworks/ballot-encoder": "^1.2.0",
     "@votingworks/ballot-renderer": "^1.0.1",
     "@votingworks/qrcode.react": "^1.0.0",
