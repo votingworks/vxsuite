@@ -131,7 +131,7 @@
     "is-ci-cli": "^2.0.0",
     "jest-date-mock": "^1.0.7",
     "jest-fetch-mock": "^2.1.2",
-    "jest-styled-components": "^6.3.3",
+    "jest-styled-components": "^6.3.4",
     "lint-staged": "^9.4.2",
     "prettier": "^1.19.1",
     "start-server-and-test": "^1.10.6",
