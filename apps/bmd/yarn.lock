@@ -11884,10 +11884,10 @@ stylehacks@^4.0.0:
     postcss "^7.0.0"
     postcss-selector-parser "^3.0.0"
 
-stylelint-config-palantir@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/stylelint-config-palantir/-/stylelint-config-palantir-4.0.0.tgz#ae84ace2099c7a29a46b1ce1cfcc9bd0d9a30a98"
-  integrity sha512-Gm9GnhKLFQlmf9LHGgrgzj4zfjzduk2/tXXrwm3YFGAHzCxsmKL4tesTJbk7Keyy6ONwf+N7ylQO3oePM/ESLw==
+stylelint-config-palantir@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/stylelint-config-palantir/-/stylelint-config-palantir-4.0.1.tgz#6c4168019e40e30502a655ed92fa3db044a8de60"
+  integrity sha512-FzG2MeMfiQEFUz6hqU8P2AdkdZ6a0UetkBMDXK9h0Sm4VZwOdjVrfnwt/X6AADBxsnMsXeDaSolPcDgbPrgaIQ==
   dependencies:
     stylelint-config-standard "^18.2.0"
     stylelint-order "^2.0.0"
