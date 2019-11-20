@@ -76,9 +76,7 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                           if (
                             // eslint-disable-next-line no-restricted-globals
                             confirm(
-                              `Are you sure you want to delete batch ${
-                                batch.id
-                              }? This action cannot be undone.`
+                              `Are you sure you want to delete batch ${batch.id}? This action cannot be undone.`
                             )
                           ) {
                             deleteBatch(batch.id)
