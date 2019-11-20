@@ -224,17 +224,6 @@ const App: React.FC = () => {
               }}
               deleteBatch={deleteBatch}
             />
-            <form onSubmit={addBallot} className="visually-hidden">
-              <input
-                type="text"
-                id="ballotString"
-                name="ballotString"
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck={false}
-              />
-            </form>
           </MainChild>
         </Main>
         <ButtonBar secondary naturalOrder separatePrimaryButton>
@@ -246,6 +235,17 @@ const App: React.FC = () => {
           <Button disabled={isScanning} primary onClick={scanBatch}>
             Scan New Batch
           </Button>
+          <form onSubmit={addBallot} className="visually-hidden">
+            <input
+              type="text"
+              id="ballotString"
+              name="ballotString"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+            />
+          </form>
         </ButtonBar>
       </Screen>
     )
