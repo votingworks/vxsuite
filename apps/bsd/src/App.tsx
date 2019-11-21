@@ -212,44 +212,46 @@ const App: React.FC = () => {
       configureServer(election)
     }
     return (
-      <Screen>
-        <Main>
-          <MainChild maxWidth={false}>
-            <DashboardScreen
-              invalidateBranch={invalidateBranch}
-              isScanning={isScanning}
-              status={{
-                ...status,
-                batches: status.batches.filter(
-                  batch => !pendingDeleteBatchIds.includes(batch.id)
-                ),
-              }}
-              deleteBatch={deleteBatch}
-            />
-          </MainChild>
-        </Main>
-        <ButtonBar secondary naturalOrder separatePrimaryButton>
-          <Brand>VxScan</Brand>
-          <Button onClick={unconfigureServer}>Factory Reset</Button>
-          <Button onClick={zeroData}>Zero</Button>
-          <Button onClick={ejectUSB}>Eject USB</Button>
-          <Button onClick={exportResults}>Export</Button>
-          <Button disabled={isScanning} primary onClick={scanBatch}>
-            Scan New Batch
-          </Button>
-          <form onSubmit={addBallot} className="visually-hidden">
-            <input
-              type="text"
-              id="ballotString"
-              name="ballotString"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-            />
-          </form>
-        </ButtonBar>
-      </Screen>
+      <React.Fragment>
+        <form onSubmit={addBallot} className="visually-hidden">
+          <input
+            type="text"
+            id="ballotString"
+            name="ballotString"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+          />
+        </form>
+        <Screen>
+          <Main>
+            <MainChild maxWidth={false}>
+              <DashboardScreen
+                invalidateBranch={invalidateBranch}
+                isScanning={isScanning}
+                status={{
+                  ...status,
+                  batches: status.batches.filter(
+                    batch => !pendingDeleteBatchIds.includes(batch.id)
+                  ),
+                }}
+                deleteBatch={deleteBatch}
+              />
+            </MainChild>
+          </Main>
+          <ButtonBar secondary naturalOrder separatePrimaryButton>
+            <Brand>VxScan</Brand>
+            <Button onClick={unconfigureServer}>Factory Reset</Button>
+            <Button onClick={zeroData}>Zero</Button>
+            <Button onClick={ejectUSB}>Eject USB</Button>
+            <Button onClick={exportResults}>Export</Button>
+            <Button disabled={isScanning} primary onClick={scanBatch}>
+              Scan New Batch
+            </Button>
+          </ButtonBar>
+        </Screen>
+      </React.Fragment>
     )
   }
 
