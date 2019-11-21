@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import fileDownload from 'js-file-download'
 
 import {
@@ -37,6 +37,7 @@ const App: React.FC = () => {
   const [status, setStatus] = useState<ScannerStatus>({ batches: [] })
   const { batches } = status
   const isScanning = batches && batches[0] && !batches[0].endedAt
+  const ballotScannerInput = useRef<HTMLInputElement>(null) // eslint-disable-line no-null/no-null
 
   const unconfigure = () => {
     setElection(undefined)
@@ -119,16 +120,18 @@ const App: React.FC = () => {
 
   const addBallot = async (event: React.FormEvent) => {
     event.preventDefault()
-    const input = document.getElementById('ballotString')! as HTMLInputElement
-    const ballotString = input.value
-    input.value = ''
-    fetch('/scan/addManualBallot', {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ballotString }),
-    })
+    const { current: input } = ballotScannerInput
+    if (input) {
+      const ballotString = input.value
+      input.value = ''
+      fetch('/scan/addManualBallot', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ballotString }),
+      })
+    }
   }
 
   const scanBatch = () => {
@@ -200,9 +203,14 @@ const App: React.FC = () => {
   }
 
   useInterval(() => {
-    election && updateStatus()
-    cardServerAvailable && !election && readCard()
-    document.getElementById('ballotString')!.focus()
+    if (election) {
+      updateStatus()
+      ballotScannerInput &&
+        ballotScannerInput.current &&
+        ballotScannerInput.current.focus()
+    } else {
+      cardServerAvailable && readCard()
+    }
   }, 1000)
 
   useEffect(updateStatus, [])
@@ -215,6 +223,7 @@ const App: React.FC = () => {
       <React.Fragment>
         <form onSubmit={addBallot} className="visually-hidden">
           <input
+            ref={ballotScannerInput}
             type="text"
             id="ballotString"
             name="ballotString"
