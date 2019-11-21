@@ -189,7 +189,9 @@ const App: React.FC = () => {
     setPendingDeleteBatchIds(previousIds => [...previousIds, id])
 
     try {
-      await fetch(`/scan/batch/${id}`, { method: 'DELETE' })
+      await fetch(`/scan/batch/${id}`, {
+        method: 'DELETE',
+      })
     } finally {
       setPendingDeleteBatchIds(previousIds =>
         previousIds.filter(previousId => previousId !== id)
