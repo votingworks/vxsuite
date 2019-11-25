@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import fileDownload from 'js-file-download'
 
 import {
@@ -37,7 +37,6 @@ const App: React.FC = () => {
   const [status, setStatus] = useState<ScannerStatus>({ batches: [] })
   const { batches } = status
   const isScanning = batches && batches[0] && !batches[0].endedAt
-  const ballotScannerInput = useRef<HTMLInputElement>(null) // eslint-disable-line no-null/no-null
 
   const unconfigure = () => {
     setElection(undefined)
@@ -118,22 +117,6 @@ const App: React.FC = () => {
       })
   }
 
-  const addBallot = async (event: React.FormEvent) => {
-    event.preventDefault()
-    const { current: input } = ballotScannerInput
-    if (input) {
-      const ballotString = input.value
-      input.value = ''
-      fetch('/scan/addManualBallot', {
-        method: 'post',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ballotString }),
-      })
-    }
-  }
-
   const scanBatch = () => {
     fetch('/scan/scanBatch', {
       method: 'post',
@@ -205,9 +188,6 @@ const App: React.FC = () => {
   useInterval(() => {
     if (election) {
       updateStatus()
-      ballotScannerInput &&
-        ballotScannerInput.current &&
-        ballotScannerInput.current.focus()
     } else {
       cardServerAvailable && readCard()
     }
@@ -220,47 +200,33 @@ const App: React.FC = () => {
       configureServer(election)
     }
     return (
-      <React.Fragment>
-        <form onSubmit={addBallot} className="visually-hidden">
-          <input
-            ref={ballotScannerInput}
-            type="text"
-            id="ballotString"
-            name="ballotString"
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
-          />
-        </form>
-        <Screen>
-          <Main>
-            <MainChild maxWidth={false}>
-              <DashboardScreen
-                invalidateBranch={invalidateBranch}
-                isScanning={isScanning}
-                status={{
-                  ...status,
-                  batches: status.batches.filter(
-                    batch => !pendingDeleteBatchIds.includes(batch.id)
-                  ),
-                }}
-                deleteBatch={deleteBatch}
-              />
-            </MainChild>
-          </Main>
-          <ButtonBar secondary naturalOrder separatePrimaryButton>
-            <Brand>VxScan</Brand>
-            <Button onClick={unconfigureServer}>Factory Reset</Button>
-            <Button onClick={zeroData}>Zero</Button>
-            <Button onClick={ejectUSB}>Eject USB</Button>
-            <Button onClick={exportResults}>Export</Button>
-            <Button disabled={isScanning} primary onClick={scanBatch}>
-              Scan New Batch
-            </Button>
-          </ButtonBar>
-        </Screen>
-      </React.Fragment>
+      <Screen>
+        <Main>
+          <MainChild maxWidth={false}>
+            <DashboardScreen
+              invalidateBranch={invalidateBranch}
+              isScanning={isScanning}
+              status={{
+                ...status,
+                batches: status.batches.filter(
+                  batch => !pendingDeleteBatchIds.includes(batch.id)
+                ),
+              }}
+              deleteBatch={deleteBatch}
+            />
+          </MainChild>
+        </Main>
+        <ButtonBar secondary naturalOrder separatePrimaryButton>
+          <Brand>VxScan</Brand>
+          <Button onClick={unconfigureServer}>Factory Reset</Button>
+          <Button onClick={zeroData}>Zero</Button>
+          <Button onClick={ejectUSB}>Eject USB</Button>
+          <Button onClick={exportResults}>Export</Button>
+          <Button disabled={isScanning} primary onClick={scanBatch}>
+            Scan New Batch
+          </Button>
+        </ButtonBar>
+      </Screen>
     )
   }
 
