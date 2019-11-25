@@ -36,7 +36,7 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
     }, 0)
   return (
     <React.Fragment>
-      <Prose>
+      <Prose maxWidth={false}>
         <h1>Scanned Ballot Batches</h1>
         {batchCount ? (
           <React.Fragment>
@@ -52,7 +52,8 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                   <th>Batch ID</th>
                   <th>Ballot Count</th>
                   <th>Started At</th>
-                  <th colSpan={2}>Finished At</th>
+                  <th>Finished At</th>
+                  <th>&nbsp;</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,15 +71,14 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                         <small>{shortDateTime(batch.endedAt)}</small>
                       )}
                     </TD>
-                    <td>
+                    <TD narrow>
                       <Button
+                        small
                         onClick={() => {
                           if (
                             // eslint-disable-next-line no-restricted-globals
                             confirm(
-                              `Are you sure you want to delete batch ${
-                                batch.id
-                              }? This action cannot be undone.`
+                              `Are you sure you want to delete batch ${batch.id}? This action cannot be undone.`
                             )
                           ) {
                             deleteBatch(batch.id)
@@ -87,7 +87,7 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                       >
                         Delete
                       </Button>
-                    </td>
+                    </TD>
                   </tr>
                 ))}
               </tbody>
