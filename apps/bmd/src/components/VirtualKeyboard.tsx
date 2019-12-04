@@ -37,14 +37,19 @@ const Keyboard = styled.div`
     @media (min-width: 850px) {
       padding: 0.75rem 0;
     }
+
+    &:disabled {
+      color: #999999;
+    }
   }
 `
 
 interface Props {
   onKeyPress: PointerEventHandler
+  keyDisabled?(key: string): boolean
 }
 
-const VirtualKeyboard = ({ onKeyPress }: Props) => (
+const VirtualKeyboard = ({ onKeyPress, keyDisabled }: Props) => (
   <Keyboard data-testid="virtual-keyboard">
     {[
       ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -60,6 +65,7 @@ const VirtualKeyboard = ({ onKeyPress }: Props) => (
               data-key={key}
               aria-label={key.toLowerCase()}
               onPress={onKeyPress}
+              disabled={keyDisabled && keyDisabled(key)}
             >
               {key}
             </Button>

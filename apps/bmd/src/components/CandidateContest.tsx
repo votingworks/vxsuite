@@ -23,7 +23,7 @@ import {
 import BallotContext from '../contexts/ballotContext'
 
 import { Blink } from './Animations'
-import { FONT_SIZES } from '../config/globals'
+import { FONT_SIZES, MAX_WRITE_IN_CANDIDATE_LENGTH } from '../config/globals'
 import ChoiceButton from './ChoiceButton'
 import Button from './Button'
 import Main from './Main'
@@ -350,8 +350,21 @@ class CandidateContest extends React.Component<Props, State> {
       } else {
         writeInCandidateName += key
       }
-      return { writeInCandidateName }
+      return {
+        writeInCandidateName: writeInCandidateName.slice(
+          0,
+          MAX_WRITE_IN_CANDIDATE_LENGTH
+        ),
+      }
     })
+  }
+
+  private keyDisabled = (key: string) => {
+    const { writeInCandidateName } = this.state
+    return (
+      writeInCandidateName.length >= MAX_WRITE_IN_CANDIDATE_LENGTH &&
+      key !== '⌫ delete'
+    )
   }
 
   public updateContestChoicesScrollStates = () => {
@@ -414,7 +427,6 @@ class CandidateContest extends React.Component<Props, State> {
       writeInCandidateName,
       writeInCandateModalIsOpen,
     } = this.state
-    const maxWriteInCandidateLength = 40
     return (
       <React.Fragment>
         <Main>
@@ -621,11 +633,12 @@ class CandidateContest extends React.Component<Props, State> {
                   Enter the name of a person who is <strong>not</strong> on the
                   ballot.
                 </Text>
-                {writeInCandidateName.length > 35 && (
+                {writeInCandidateName.length >
+                  MAX_WRITE_IN_CANDIDATE_LENGTH - 5 && (
                   <Text error>
                     <strong>Note:</strong> You have entered{' '}
                     {writeInCandidateName.length} of maximum{' '}
-                    {maxWriteInCandidateLength} characters.
+                    {MAX_WRITE_IN_CANDIDATE_LENGTH} characters.
                   </Text>
                 )}
               </Prose>
@@ -639,7 +652,10 @@ class CandidateContest extends React.Component<Props, State> {
                     <WriteInCandidateCursor />
                   </WriteInCandidateName>
                 </WriteInCandidateFieldSet>
-                <VirtualKeyboard onKeyPress={this.onKeyboardInput} />
+                <VirtualKeyboard
+                  onKeyPress={this.onKeyboardInput}
+                  keyDisabled={this.keyDisabled}
+                />
               </WriteInCandidateForm>
             </WriteInModalContent>
           }

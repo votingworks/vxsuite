@@ -13,3 +13,4 @@ export enum YES_NO_VOTES {
   no = 'No',
   yes = 'Yes',
 }
+export const MAX_WRITE_IN_CANDIDATE_LENGTH = 40
