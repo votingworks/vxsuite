@@ -106,7 +106,7 @@
     "react-scripts": "3.0.1",
     "styled-components": "^4.4.1",
     "typescript": "3.6.4",
-    "use-interval": "^1.1.0"
+    "use-interval": "^1.2.1"
   },
   "devDependencies": {
     "@testing-library/cypress": "^5.0.2",
