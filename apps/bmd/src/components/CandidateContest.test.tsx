@@ -114,10 +114,10 @@ describe('supports multi-seat contests', () => {
 })
 
 describe('supports write-in candidates', () => {
-  it('displays warning if write-in candidate name is too long', () => {
+  it('updates votes when a write-in candidate is selected', () => {
     jest.useFakeTimers()
     const updateVote = jest.fn()
-    const { container, getByText, queryByText } = render(
+    const { getByText, queryByText } = render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
         parties={parties}
@@ -127,14 +127,82 @@ describe('supports write-in candidates', () => {
     )
     fireEvent.click(getByText('add write-in candidate').closest('button')!)
     getByText('Write-In Candidate')
-    Array.from('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT').forEach(i => {
-      const key = i === ' ' ? 'space' : i
-      fireEvent.click(getByText(key).closest('button')!)
-    })
+    typeKeysInVirtualKeyboard(getByText, 'LIZARD PEOPLE')
+    fireEvent.click(getByText('Accept'))
+    jest.runOnlyPendingTimers() // Handle Delay when clicking "Accept"
+    expect(queryByText('Write-In Candidate')).toBeFalsy()
+
+    expect(updateVote).toHaveBeenCalledWith(contest.id, [
+      { id: 'write-in__lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
+    ])
+  })
+
+  it('displays warning if write-in candidate name is too long', () => {
+    jest.useFakeTimers()
+    const updateVote = jest.fn()
+    const { getByText, queryByText } = render(
+      <CandidateContest
+        contest={{ ...contest, allowWriteIns: true }}
+        parties={parties}
+        vote={[]}
+        updateVote={updateVote}
+      />
+    )
+    fireEvent.click(getByText('add write-in candidate').closest('button')!)
+    getByText('Write-In Candidate')
+    typeKeysInVirtualKeyboard(
+      getByText,
+      'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT'
+    )
     getByText('You have entered 37 of maximum 40 characters.')
-    expect(container).toMatchSnapshot()
     fireEvent.click(getByText('Cancel'))
     jest.runOnlyPendingTimers() // Handle Delay when clicking "Cancel"
     expect(queryByText('Write-In Candidate')).toBeFalsy()
   })
+
+  it('prevents writing more than the allowed number of characters', () => {
+    jest.useFakeTimers()
+    const updateVote = jest.fn()
+    const { getByText, queryByText } = render(
+      <CandidateContest
+        contest={{ ...contest, allowWriteIns: true }}
+        parties={parties}
+        vote={[]}
+        updateVote={updateVote}
+      />
+    )
+    fireEvent.click(getByText('add write-in candidate').closest('button')!)
+    getByText('Write-In Candidate')
+    const writeInCandidate =
+      "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO"
+    typeKeysInVirtualKeyboard(getByText, writeInCandidate)
+    getByText('You have entered 40 of maximum 40 characters.')
+
+    expect(
+      getByText('space')
+        .closest('button')!
+        .hasAttribute('disabled')
+    ).toBe(true)
+    fireEvent.click(getByText('Accept'))
+    jest.runOnlyPendingTimers() // Handle Delay when clicking "Accept"
+    expect(queryByText('Write-In Candidate')).toBeFalsy()
+
+    expect(updateVote).toHaveBeenCalledWith(contest.id, [
+      {
+        id: 'write-in__jacobJohansonJingleheimmerSchmidttT',
+        isWriteIn: true,
+        name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
+      },
+    ])
+  })
+
+  function typeKeysInVirtualKeyboard(
+    getByText: (text: string) => HTMLElement,
+    chars: string
+  ): void {
+    Array.from(chars).forEach(i => {
+      const key = i === ' ' ? 'space' : i
+      fireEvent.click(getByText(key).closest('button')!)
+    })
+  }
 })
