@@ -117,7 +117,7 @@ describe('supports write-in candidates', () => {
   it('updates votes when a write-in candidate is selected', () => {
     jest.useFakeTimers()
     const updateVote = jest.fn()
-    const { container, getByText, queryByText } = render(
+    const { getByText, queryByText } = render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
         parties={parties}
@@ -140,7 +140,7 @@ describe('supports write-in candidates', () => {
   it('displays warning if write-in candidate name is too long', () => {
     jest.useFakeTimers()
     const updateVote = jest.fn()
-    const { container, getByText, queryByText } = render(
+    const { getByText, queryByText } = render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
         parties={parties}
@@ -155,7 +155,6 @@ describe('supports write-in candidates', () => {
       'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT'
     )
     getByText('You have entered 37 of maximum 40 characters.')
-    expect(container).toMatchSnapshot()
     fireEvent.click(getByText('Cancel'))
     jest.runOnlyPendingTimers() // Handle Delay when clicking "Cancel"
     expect(queryByText('Write-In Candidate')).toBeFalsy()
@@ -164,7 +163,7 @@ describe('supports write-in candidates', () => {
   it('prevents writing more than the allowed number of characters', () => {
     jest.useFakeTimers()
     const updateVote = jest.fn()
-    const { container, getByText, queryByText } = render(
+    const { getByText, queryByText } = render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
         parties={parties}
@@ -184,7 +183,6 @@ describe('supports write-in candidates', () => {
         .closest('button')!
         .hasAttribute('disabled')
     ).toBe(true)
-    expect(container).toMatchSnapshot()
     fireEvent.click(getByText('Accept'))
     jest.runOnlyPendingTimers() // Handle Delay when clicking "Accept"
     expect(queryByText('Write-In Candidate')).toBeFalsy()
