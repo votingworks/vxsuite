@@ -23,7 +23,7 @@ import {
 import BallotContext from '../contexts/ballotContext'
 
 import { Blink } from './Animations'
-import { FONT_SIZES, MAX_WRITE_IN_CANDIDATE_LENGTH } from '../config/globals'
+import { FONT_SIZES, WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals'
 import ChoiceButton from './ChoiceButton'
 import Button from './Button'
 import Main from './Main'
@@ -353,7 +353,7 @@ class CandidateContest extends React.Component<Props, State> {
       return {
         writeInCandidateName: writeInCandidateName.slice(
           0,
-          MAX_WRITE_IN_CANDIDATE_LENGTH
+          WRITE_IN_CANDIDATE_MAX_LENGTH
         ),
       }
     })
@@ -362,7 +362,7 @@ class CandidateContest extends React.Component<Props, State> {
   private keyDisabled = (key: string) => {
     const { writeInCandidateName } = this.state
     return (
-      writeInCandidateName.length >= MAX_WRITE_IN_CANDIDATE_LENGTH &&
+      writeInCandidateName.length >= WRITE_IN_CANDIDATE_MAX_LENGTH &&
       key !== '⌫ delete'
     )
   }
@@ -634,11 +634,11 @@ class CandidateContest extends React.Component<Props, State> {
                   ballot.
                 </Text>
                 {writeInCandidateName.length >
-                  MAX_WRITE_IN_CANDIDATE_LENGTH - 5 && (
+                  WRITE_IN_CANDIDATE_MAX_LENGTH - 5 && (
                   <Text error>
                     <strong>Note:</strong> You have entered{' '}
                     {writeInCandidateName.length} of maximum{' '}
-                    {MAX_WRITE_IN_CANDIDATE_LENGTH} characters.
+                    {WRITE_IN_CANDIDATE_MAX_LENGTH} characters.
                   </Text>
                 )}
               </Prose>
