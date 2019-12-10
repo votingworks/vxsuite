@@ -127,11 +127,7 @@ describe('supports write-in candidates', () => {
     )
     fireEvent.click(getByText('add write-in candidate').closest('button')!)
     getByText('Write-In Candidate')
-    Array.from('LIZARD PEOPLE').forEach(i => {
-      const key = i === ' ' ? 'space' : i
-      fireEvent.click(getByText(key).closest('button')!)
-    })
-    expect(container).toMatchSnapshot()
+    typeKeysInVirtualKeyboard(getByText, 'LIZARD PEOPLE')
     fireEvent.click(getByText('Accept'))
     jest.runOnlyPendingTimers() // Handle Delay when clicking "Accept"
     expect(queryByText('Write-In Candidate')).toBeFalsy()
@@ -154,10 +150,10 @@ describe('supports write-in candidates', () => {
     )
     fireEvent.click(getByText('add write-in candidate').closest('button')!)
     getByText('Write-In Candidate')
-    Array.from('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT').forEach(i => {
-      const key = i === ' ' ? 'space' : i
-      fireEvent.click(getByText(key).closest('button')!)
-    })
+    typeKeysInVirtualKeyboard(
+      getByText,
+      'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT'
+    )
     getByText('You have entered 37 of maximum 40 characters.')
     expect(container).toMatchSnapshot()
     fireEvent.click(getByText('Cancel'))
@@ -180,10 +176,7 @@ describe('supports write-in candidates', () => {
     getByText('Write-In Candidate')
     const writeInCandidate =
       "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO"
-    Array.from(writeInCandidate).forEach(i => {
-      const key = i === ' ' ? 'space' : i
-      fireEvent.click(getByText(key).closest('button')!)
-    })
+    typeKeysInVirtualKeyboard(getByText, writeInCandidate)
     getByText('You have entered 40 of maximum 40 characters.')
 
     expect(
@@ -204,4 +197,14 @@ describe('supports write-in candidates', () => {
       },
     ])
   })
+
+  function typeKeysInVirtualKeyboard(
+    getByText: (text: string) => HTMLElement,
+    chars: string
+  ): void {
+    Array.from(chars).forEach(i => {
+      const key = i === ' ' ? 'space' : i
+      fireEvent.click(getByText(key).closest('button')!)
+    })
+  }
 })
