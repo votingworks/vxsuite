@@ -54,7 +54,8 @@ const Modal: React.FC<Props> = ({
       document.getElementById('root')! || document.body.firstElementChild
     }
     ariaHideApp
-    role="none"
+    aria-modal
+    role="alertdialog"
     isOpen={isOpen}
     contentLabel={ariaLabel}
     portalClassName="modal-portal"

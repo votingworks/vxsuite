@@ -361,7 +361,7 @@ export default class YesNoContest extends React.Component<Props> {
           content={
             <Prose>
               {overvoteSelection && (
-                <p>
+                <p id="modalaudiofocus">
                   Do you want to change your vote to{' '}
                   <strong>{YES_NO_VOTES[overvoteSelection]}</strong>? To change
                   your vote, first unselect your vote for{' '}

@@ -1,8 +1,7 @@
 import { Button } from 'react-gamepad'
 import mod from '../utils/mod'
 
-export const getActiveElement = () =>
-  document.activeElement! as HTMLInputElement
+export const getActiveElement = () => document.activeElement! as HTMLElement
 
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(
@@ -41,7 +40,7 @@ function handleArrowDown() {
 }
 
 function handleArrowLeft() {
-  const prevButton = document.getElementById('previous') as HTMLButtonElement
+  const prevButton = document.getElementById('previous')
   /* istanbul ignore else */
   if (prevButton) {
     prevButton.click()
@@ -49,7 +48,7 @@ function handleArrowLeft() {
 }
 
 function handleArrowRight() {
-  const nextButton = document.getElementById('next') as HTMLButtonElement
+  const nextButton = document.getElementById('next')
   /* istanbul ignore else */
   if (nextButton) {
     nextButton.click()

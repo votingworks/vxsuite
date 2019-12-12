@@ -32,15 +32,9 @@ const LinkButton = (props: Props) => {
     if (onPress) {
       onPress(event)
     } else if (goBack && !to) {
-      // Delay to avoid passing tap to next screen
-      window.setTimeout(() => {
-        history.goBack()
-      }, 100)
+      history.goBack()
     } else if (to && !goBack) {
-      // Delay to avoid passing tap to next screen
-      window.setTimeout(() => {
-        history.push(to)
-      }, 100)
+      history.push(to)
     }
   }
   return (
