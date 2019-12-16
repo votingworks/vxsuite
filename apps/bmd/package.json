@@ -110,7 +110,7 @@
   },
   "devDependencies": {
     "@testing-library/cypress": "^5.0.2",
-    "@testing-library/react": "^9.3.3",
+    "@testing-library/react": "^9.4.0",
     "@types/base64-js": "^1.2.5",
     "@types/pdfmake": "^0.1.8",
     "@types/react-gamepad": "^1.0.0",
