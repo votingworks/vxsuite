@@ -2,11 +2,15 @@
 
 This web server component provides a web interface to a connected smartcard.
 
+## Prerequisites
+
+The instructions below show how to run this web server either directly or via Docker. If you wish to use Docker, make sure both [`docker`](https://docs.docker.com/install/) and [`docker-compose`](https://docs.docker.com/compose/install/) are installed. Otherwise the instructions assume you're running in [Ubuntu](http://ubuntu.com), though other systems such as macOS work with appropriate changes.
+
 ## Install Requisite Software
 
-```
+```sh
+# without docker only -- docker handles this for you
 sudo add-apt-repository ppa:deadsnakes/ppa
-
 sudo make install
 make build
 ```
@@ -15,26 +19,41 @@ make build
 
 Install dependencies you need
 
-```
+```sh
+# without docker only -- docker handles this for you
 make install-dev-dependencies
 ```
 
 and then run the tests
 
-```
+```sh
+# without docker
 make test
+
+# with docker
+docker-compose run server-tests make test
 ```
 
 With code coverage
 
-```
+```sh
+# without docker
 make coverage
+
+# with docker
+docker-compose run server-tests make coverage
 ```
 
 ## Start the Development Server
 
-```
+The server will be available at http://localhost:3001/.
+
+```sh
+# without docker
 make run
+
+# with docker
+docker-compose up
 ```
 
 ## Mock a Smart Card
