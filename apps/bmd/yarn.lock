@@ -1536,10 +1536,10 @@
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
 
-"@types/pdfmake@^0.1.8":
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/@types/pdfmake/-/pdfmake-0.1.8.tgz#ea01d912203381bc658757b33363390fa0d07cf0"
-  integrity sha512-Pbi9K99VfM3LLiKYSIe5JTM5f5KEZr+CslZcuDYzOsjq/6NOejoLoXcp+9C9um1c+2RpcgQymUHvFUEDPTAgig==
+"@types/pdfmake@^0.1.9":
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/@types/pdfmake/-/pdfmake-0.1.9.tgz#7bafb8b2f5bc7843c03ca7fbb5de91d4180d5845"
+  integrity sha512-Svf7zMp5WvitWpBFGnuNuIKYSzdt0OcddRLF9wVirZFd9zZ+UsY0tiLmWsS5p4KgTuDA9aspGYik3J88jWmDYw==
 
 "@types/pluralize@^0.0.29":
   version "0.0.29"
