@@ -75,14 +75,14 @@ export class AriaScreenReader implements ScreenReader {
   /**
    * Call this with an event target when a focus event occurs. Resolves when speaking is done.
    */
-  public onFocus = async (target?: EventTarget) => {
+  public async onFocus(target?: EventTarget) {
     await this.speakEventTarget(target)
   }
 
   /**
    * Call this with an event target when a click event occurs. Resolves when speaking is done.
    */
-  public onClick = async (target?: EventTarget) => {
+  public async onClick(target?: EventTarget) {
     await this.speakEventTarget(target)
   }
 
