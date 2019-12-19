@@ -1,50 +1,6 @@
 import { AriaScreenReader, SpeechSynthesisTextToSpeech } from './ScreenReader'
-import { fakeTTS } from '../../test/testUtils'
-
-function text(data: string): Text {
-  return document.createTextNode(data)
-}
-
-type CreatableElementType = Parameters<typeof document['createElement']>[0]
-interface Attributes {
-  [key: string]: string
-}
-
-function h(
-  type: CreatableElementType,
-  ...children: Node[]
-): ReturnType<typeof document['createElement']>
-function h(
-  type: CreatableElementType,
-  attributes?: { [key: string]: string },
-  ...children: Node[]
-): ReturnType<typeof document['createElement']>
-function h(
-  type: CreatableElementType,
-  ...rest: unknown[]
-): ReturnType<typeof document['createElement']> {
-  const element = document.createElement(type)
-  let attributes: Attributes
-  let children: Node[]
-
-  if (rest[0] instanceof Node) {
-    attributes = {}
-    children = rest as Node[]
-  } else {
-    attributes = rest[0] as Attributes
-    children = rest.slice(1) as Node[]
-  }
-
-  for (const key in attributes) {
-    if (Object.prototype.hasOwnProperty.call(attributes, key)) {
-      element.setAttribute(key, attributes[key])
-    }
-  }
-
-  element.append(...children)
-
-  return element
-}
+import { text, element as h } from '../../test/helpers/domBuilders'
+import fakeTTS from '../../test/helpers/fakeTTS'
 
 describe('AriaScreenReader', () => {
   it('requires a text-to-speech engine', () => {
