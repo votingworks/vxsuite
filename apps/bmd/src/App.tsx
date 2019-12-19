@@ -72,8 +72,11 @@ const App = ({
 
         setImmediate(() => {
           // Only send `onClick` to the screen reader if the click didn't
-          // trigger navigation.
-          if (window.location.pathname === currentPath) {
+          // trigger navigation and the clicked element is still here.
+          if (
+            window.location.pathname === currentPath &&
+            document.body.contains(target as Node)
+          ) {
             screenReader.onClick(target)
           }
         })
@@ -90,8 +93,11 @@ const App = ({
 
         setImmediate(() => {
           // Only send `onFocus` to the screen reader if the focus didn't
-          // trigger navigation.
-          if (window.location.pathname === currentPath) {
+          // trigger navigation and the focused element is still here.
+          if (
+            window.location.pathname === currentPath &&
+            document.body.contains(target as Node)
+          ) {
             screenReader.onFocus(target)
           }
         })

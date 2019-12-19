@@ -275,25 +275,16 @@ class CandidateContest extends React.Component<Props, State> {
   }
 
   public closeAttemptedVoteAlert = () => {
-    // Delay to avoid passing tap to next screen
-    window.setTimeout(() => {
-      this.setState({ attemptedOvervoteCandidate: undefined })
-    }, 200)
+    this.setState({ attemptedOvervoteCandidate: undefined })
   }
 
   public confirmRemovePendingWriteInCandidate = () => {
-    // Delay to avoid passing tap to next screen
-    window.setTimeout(() => {
-      this.removeCandidateFromVote(this.state.candidatePendingRemoval!.id)
-    }, 200)
+    this.removeCandidateFromVote(this.state.candidatePendingRemoval!.id)
     this.clearCandidateIdPendingRemoval()
   }
 
   public clearCandidateIdPendingRemoval = () => {
-    // Delay to avoid passing tap to next screen
-    window.setTimeout(() => {
-      this.setState({ candidatePendingRemoval: undefined })
-    }, 200)
+    this.setState({ candidatePendingRemoval: undefined })
   }
 
   public initWriteInCandidate = () => {
