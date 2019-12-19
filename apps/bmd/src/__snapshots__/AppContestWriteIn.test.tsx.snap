@@ -556,9 +556,7 @@ exports[`Single Seat Contest with Write In 1`] = `
             </div>
             Registrar of Wills
           </h1>
-          <p
-            aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
-          >
+          <p>
             <span
               class=""
             >
@@ -567,6 +565,11 @@ exports[`Single Seat Contest with Write In 1`] = `
               .
             </span>
              
+            <span
+              class="screen-reader-only"
+            >
+              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+            </span>
           </p>
         </div>
       </div>

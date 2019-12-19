@@ -23,7 +23,7 @@ const RemoveCardScreen = () => (
               alt="Take Card to Printer"
             />
           </p>
-          <h1 aria-label="Remove card. Take card to the Ballot Printer to print your official ballot.">
+          <h1 aria-label="Remove your card. Take card to the Ballot Printer to print your official ballot.">
             Take your card to the Ballot Printer.
           </h1>
         </Prose>

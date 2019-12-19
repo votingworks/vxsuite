@@ -226,12 +226,15 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           </div>
           Prop 1: Garbage Collection Program
         </h1>
-        <p
-          aria-label="Vote Yes or No. Use the down arrow to select your preference. Use the right arrow to move to the next contest."
-        >
+        <p>
           <strong>
             Vote Yes or No.
           </strong>
+          <span
+            class="screen-reader-only"
+          >
+            To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+          </span>
         </p>
       </div>
     </div>
@@ -577,12 +580,15 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           </div>
           Prop 1: Garbage Collection Program
         </h1>
-        <p
-          aria-label="Vote Yes or No. Use the down arrow to select your preference. Use the right arrow to move to the next contest."
-        >
+        <p>
           <strong>
             Vote Yes or No.
           </strong>
+          <span
+            class="screen-reader-only"
+          >
+            To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+          </span>
         </p>
       </div>
     </div>

@@ -81,7 +81,7 @@ it('Single Seat Contest', async () => {
   expect(container.firstChild).toMatchSnapshot()
 
   // Go to Review Screen
-  while (!queryByText('All Your Votes')) {
+  while (!queryByText('Review Your Votes')) {
     fireEvent.click(getByText('Next'))
     advanceTimers()
   }

@@ -180,7 +180,7 @@ it('VxMarkOnly flow', async () => {
 
   // Review Screen
   advanceTimers()
-  getByText('All Your Votes')
+  getByText('Review Your Votes')
   getByText(presidentContest.candidates[0].name)
   getByText(`Yes on ${measure102Contest.shortTitle}`)
 

@@ -345,8 +345,15 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
         <Main>
           <ContentHeader>
             <Prose id="audiofocus">
-              <h1 aria-label="Review your votes. Use the down arrow to advance through and review your vote in each contest. Use the select button to change your vote in a contest. When you are ready to print your ballot, use the right arrow to continue.">
-                All Your Votes
+              <h1>
+                <span aria-label="Review Your Votes.">Review Your Votes</span>
+                <span className="screen-reader-only">
+                  To review your votes, advance through the ballot contests
+                  using the up and down buttons. To change your vote in any
+                  contest, use the select button to navigate to that contest.
+                  When you are finished making your ballot selections and ready
+                  to print your ballot, use the right button to continue.
+                </span>
               </h1>
             </Prose>
           </ContentHeader>

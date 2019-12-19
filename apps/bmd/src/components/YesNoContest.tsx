@@ -273,8 +273,12 @@ export default class YesNoContest extends React.Component<Props> {
                 <ContestSection>{contest.section}</ContestSection>
                 {contest.title}
               </h1>
-              <p aria-label="Vote Yes or No. Use the down arrow to select your preference. Use the right arrow to move to the next contest.">
+              <p>
                 <strong>Vote Yes or No.</strong>
+                <span className="screen-reader-only">
+                  To navigate through the contest choices, use the down button.
+                  To move to the next contest, use the right button.
+                </span>
               </p>
             </Prose>
           </ContentHeader>

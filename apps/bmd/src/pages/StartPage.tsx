@@ -43,7 +43,16 @@ const StartPage = () => {
             </h1>
             <hr />
             <p>
-              Your ballot has <strong>{contests.length} contests</strong>.
+              <span>
+                Your ballot has <strong>{contests.length} contests</strong>.
+              </span>
+              <span className="screen-reader-only">
+                When voting with the text-to-speech audio, use the accessible
+                controller to navigate your ballot. To navigate through the
+                contests, use the left and right buttons. To navigate through
+                contest choices, use the up and down buttons. To select or
+                unselect a contest choice as your vote, use the select button.
+              </span>
             </p>
           </Prose>
         </MainChild>
@@ -72,7 +81,7 @@ const StartPage = () => {
               primary
               to="/contests/0"
               id="next"
-              aria-label="Select next to start voting."
+              aria-label="Press the right button to advance to the first contest."
             >
               Start Voting
             </LinkButton>
