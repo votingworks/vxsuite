@@ -213,7 +213,7 @@ export class AriaScreenReader implements ScreenReader {
   }
 
   /**
-   * Determines wheether `element` is a block or inline element.
+   * Determines whether `element` is a block or inline element.
    */
   private isBlockElement(element: Element): boolean {
     return getComputedStyle(element).display === 'block'
