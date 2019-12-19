@@ -25,6 +25,39 @@ window.print = jest.fn(() => {
 
 const printMock = mockOf(window.print)
 
+function mockSpeechSynthesis() {
+  const w = window as {
+    speechSynthesis: typeof speechSynthesis
+    SpeechSynthesisUtterance: typeof SpeechSynthesisUtterance
+    SpeechSynthesisEvent: typeof SpeechSynthesisEvent
+  }
+
+  w.speechSynthesis = makeSpeechSynthesisDouble()
+  w.SpeechSynthesisUtterance = jest.fn().mockImplementation(text => ({ text }))
+  w.SpeechSynthesisEvent = jest.fn()
+}
+
+function makeSpeechSynthesisDouble(): typeof speechSynthesis {
+  return {
+    addEventListener: jest.fn(),
+    cancel: jest.fn(),
+    dispatchEvent: jest.fn(),
+    getVoices: jest.fn(),
+    onvoiceschanged: jest.fn(),
+    pause: jest.fn(),
+    paused: false,
+    pending: false,
+    removeEventListener: jest.fn(),
+    resume: jest.fn(),
+    speak: jest.fn(),
+    speaking: false,
+  }
+}
+
+beforeEach(() => {
+  mockSpeechSynthesis()
+})
+
 afterEach(() => {
   fetchMock.restore()
   printMock.mockClear()

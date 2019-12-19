@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useRef } from 'react'
 import { Redirect, RouteComponentProps } from 'react-router-dom'
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/ballot-encoder'
 
@@ -35,6 +35,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
     votes,
   } = useContext(BallotContext)
 
+  const rootRef = useRef<HTMLElement>()
   const currentContestIndex = parseInt(contestNumber, 10)
   const contest = contests[currentContestIndex]
 
@@ -58,7 +59,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
   // - confirm intent when navigating away without selecting a candidate
 
   return (
-    <Screen>
+    <Screen ref={rootRef as any}>
       {contest.type === 'candidate' && (
         <CandidateContest
           aria-live="assertive"

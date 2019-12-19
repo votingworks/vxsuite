@@ -15,6 +15,7 @@ import { TextSizeSetting, VxMarkOnly } from '../src/config/types'
 
 import BallotContext from '../src/contexts/ballotContext'
 import fakePrinter from './helpers/fakePrinter'
+import { TextToSpeech } from '../src/utils/ScreenReader'
 
 export function render(
   component: React.ReactNode,
@@ -85,3 +86,10 @@ export function mockOf<T extends (...args: any[]) => any>(
   return fn as jest.MockedFunction<T>
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+export function fakeTTS(): jest.Mocked<TextToSpeech> {
+  return {
+    speak: jest.fn(),
+    stop: jest.fn(),
+  }
+}
