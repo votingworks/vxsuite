@@ -142,18 +142,23 @@ export class AriaScreenReader implements ScreenReader {
   }
 
   /**
-   * Generates a text string to be spoken for an element.
+   * Generates a clean text string to be spoken for an element.
    */
   public describe(node: Node): string | undefined {
+    return this.cleanDescription(this.describeNode(node))
+  }
+
+  /**
+   * Assembles all text to be spoken for a node but does not clean it up yet.
+   */
+  private describeNode(node: Node): string | undefined {
     if (!(node instanceof Text) && !(node instanceof Element)) {
       return
     }
 
-    return this.cleanDescription(
-      node instanceof Text
-        ? this.describeText(node)
-        : this.describeElement(node)
-    )
+    return node instanceof Text
+      ? this.describeText(node)
+      : this.describeElement(node)
   }
 
   private cleanDescription(
@@ -163,7 +168,7 @@ export class AriaScreenReader implements ScreenReader {
       return
     }
     return description
-      .replace(/ {2}/g, ' ')
+      .replace(/ +/g, ' ')
       .replace(/^[. ]+/g, '')
       .replace(/\. +\./g, '.')
       .replace(/,\./g, '.')
@@ -196,7 +201,7 @@ export class AriaScreenReader implements ScreenReader {
       const element = document.getElementById(ariaLabeledBy)
 
       if (element) {
-        const description = this.describe(element)
+        const description = this.describeNode(element)
 
         if (description) {
           return description + terminator
@@ -206,7 +211,7 @@ export class AriaScreenReader implements ScreenReader {
 
     return (
       Array.from(node.childNodes)
-        .map(child => this.describe(child))
+        .map(child => this.describeNode(child))
         .filter(Boolean)
         .join(' ') + terminator
     )

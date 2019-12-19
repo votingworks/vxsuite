@@ -108,6 +108,33 @@ describe('AriaScreenReader', () => {
     )
   })
 
+  it('describes text broken into multiple text nodes correctly', () => {
+    const tts = fakeTTS()
+    const asr = new AriaScreenReader(tts)
+
+    asr.speakNode(
+      h(
+        'span',
+        text('You may only select '),
+        text('1'),
+        text(' '),
+        text('candidate'),
+        text(' in this contest. To vote for'),
+        text(' '),
+        text('Adam Cramer and Greg Vuocolo'),
+        text(', you must first unselect the selected'),
+        text(' '),
+        text('candidate'),
+        text('.'),
+        h('span', text('Use the select button to continue.'))
+      )
+    )
+    expect(tts.speak).toHaveBeenCalledWith(
+      'You may only select 1 candidate in this contest. To vote for Adam Cramer and Greg Vuocolo, you must first unselect the selected candidate. Use the select button to continue.',
+      expect.anything()
+    )
+  })
+
   it('terminates block elements with a period', () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
