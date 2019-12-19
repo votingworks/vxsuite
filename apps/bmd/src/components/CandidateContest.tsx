@@ -427,9 +427,7 @@ class CandidateContest extends React.Component<Props, State> {
                 <ContestSection>{contest.section}</ContestSection>
                 {contest.title}
               </h1>
-              <p
-                aria-label={`Vote for ${contest.seats}. You have selected ${vote.length}. Use the down arrow to hear your options. Use the right arrow to move to the next contest.`}
-              >
+              <p>
                 <Text as="span">Vote for {contest.seats}.</Text>{' '}
                 {vote.length === contest.seats && (
                   <Text as="span" bold>
@@ -441,6 +439,10 @@ class CandidateContest extends React.Component<Props, State> {
                     You may select {contest.seats - vote.length} more.
                   </Text>
                 )}
+                <span className="screen-reader-only">
+                  To navigate through the contest choices, use the down button.
+                  To move to the next contest, use the right button.
+                </span>
               </p>
             </Prose>
           </ContentHeader>
@@ -620,7 +622,7 @@ class CandidateContest extends React.Component<Props, State> {
             <WriteInModalContent>
               <Prose id="modalaudiofocus" maxWidth={false}>
                 <h1 aria-label="Write-In Candidate.">Write-In Candidate</h1>
-                <Text aria-label="Enter the name of a person who is not on the ballot. Use the up and down arrows to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
+                <Text aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
                   Enter the name of a person who is <strong>not</strong> on the
                   ballot.
                 </Text>

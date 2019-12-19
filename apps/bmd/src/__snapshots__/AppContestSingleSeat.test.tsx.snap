@@ -608,9 +608,7 @@ exports[`Single Seat Contest 1`] = `
             </div>
             President and Vice-President
           </h1>
-          <p
-            aria-label="Vote for 1. You have selected 1. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
-          >
+          <p>
             <span
               class=""
             >
@@ -625,6 +623,11 @@ exports[`Single Seat Contest 1`] = `
               You have selected 
               1
               .
+            </span>
+            <span
+              class="screen-reader-only"
+            >
+              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
             </span>
           </p>
         </div>

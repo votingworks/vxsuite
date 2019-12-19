@@ -89,7 +89,7 @@ it('Single Seat Contest', async () => {
   advanceTimers() // For 200ms Delay in closing modal
 
   // Go to review page and confirm write in exists
-  while (!queryByText('All Your Votes')) {
+  while (!queryByText('Review Your Votes')) {
     fireEvent.click(getByText('Next'))
     advanceTimers()
   }

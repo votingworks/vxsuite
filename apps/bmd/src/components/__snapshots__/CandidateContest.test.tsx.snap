@@ -272,9 +272,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
           </div>
           Mayor
         </h1>
-        <p
-          aria-label="Vote for 2. You have selected 1. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
-        >
+        <p>
           <span
             class=""
           >
@@ -289,6 +287,11 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
             You may select 
             1
              more.
+          </span>
+          <span
+            class="screen-reader-only"
+          >
+            To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
           </span>
         </p>
       </div>
@@ -599,9 +602,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
           </div>
           Mayor
         </h1>
-        <p
-          aria-label="Vote for 1. You have selected 0. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
-        >
+        <p>
           <span
             class=""
           >
@@ -610,6 +611,11 @@ exports[`supports single-seat contest allows any candidate to be selected when n
             .
           </span>
            
+          <span
+            class="screen-reader-only"
+          >
+            To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+          </span>
         </p>
       </div>
     </div>
@@ -971,9 +977,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
           </div>
           Mayor
         </h1>
-        <p
-          aria-label="Vote for 1. You have selected 1. Use the down arrow to hear your options. Use the right arrow to move to the next contest."
-        >
+        <p>
           <span
             class=""
           >
@@ -988,6 +992,11 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
             You have selected 
             1
             .
+          </span>
+          <span
+            class="screen-reader-only"
+          >
+            To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
           </span>
         </p>
       </div>

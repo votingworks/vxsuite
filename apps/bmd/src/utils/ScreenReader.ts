@@ -169,7 +169,6 @@ export class AriaScreenReader implements ScreenReader {
     }
     return description
       .replace(/ +/g, ' ')
-      .replace(/^[. ]+/g, '')
       .replace(/\. +\./g, '.')
       .replace(/,\./g, '.')
       .replace(/ +\./g, '.')
