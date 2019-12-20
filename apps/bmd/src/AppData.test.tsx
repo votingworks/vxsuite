@@ -1,7 +1,8 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render, wait } from '@testing-library/react'
 
 import App from './App'
+import SampleApp, { getSampleStorage } from './SampleApp'
 import { activationStorageKey, electionStorageKey } from './AppRoot'
 
 import {
@@ -9,6 +10,7 @@ import {
   setElectionInLocalStorage,
   setStateInLocalStorage,
 } from '../test/helpers/election'
+import { advanceTimers } from '../test/helpers/smartcards'
 
 jest.useFakeTimers()
 
@@ -23,14 +25,17 @@ describe('loads election', () => {
     getByText('Device Not Configured')
   })
 
-  it('#sample url hash loads elecation and activates ballot', () => {
-    window.location.href = '/#sample'
-    const { getAllByText, getByText } = render(<App />)
-    expect(getAllByText(election.title).length).toBeGreaterThan(1)
-    getByText(/Center Springfield/)
-    getByText(/ballot style 12/)
-    expect(window.localStorage.getItem(electionStorageKey)).toBeTruthy()
-    expect(window.localStorage.getItem(activationStorageKey)).toBeTruthy()
+  it('sample app loads election and activates ballot', async () => {
+    const storage = getSampleStorage()
+    const { getAllByText, getByText } = render(<SampleApp storage={storage} />)
+    advanceTimers()
+    await wait(() => {
+      expect(getAllByText(election.title).length).toBeGreaterThan(1)
+      getByText(/Center Springfield/)
+      getByText(/ballot style 12/)
+    })
+    expect(storage.get(electionStorageKey)).toBeTruthy()
+    expect(storage.get(activationStorageKey)).toBeTruthy()
   })
 
   it('from localStorage', () => {

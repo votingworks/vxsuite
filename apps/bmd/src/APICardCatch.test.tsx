@@ -19,7 +19,9 @@ beforeEach(() => {
 })
 
 it('Cause "/card/read" API to catch', async () => {
-  const failureResponse = jest.fn(() => undefined)
+  const failureResponse = jest.fn(() => {
+    throw new Error('NOPE')
+  })
   // Configure Machine
   setElectionInLocalStorage()
   setStateInLocalStorage()

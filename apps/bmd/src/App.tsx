@@ -6,7 +6,7 @@ import './App.css'
 
 import FocusManager from './components/FocusManager'
 
-import AppRoot from './AppRoot'
+import AppRoot, { Props as AppRootProps, AppStorage } from './AppRoot'
 import {
   ScreenReader,
   AriaScreenReader,
@@ -14,6 +14,8 @@ import {
   NullTextToSpeech,
   TextToSpeech,
 } from './utils/ScreenReader'
+import { WebServiceCard } from './utils/Card'
+import { LocalStorage } from './utils/Storage'
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault()
@@ -24,6 +26,8 @@ export interface Props {
     enabled: TextToSpeech
     disabled: TextToSpeech
   }
+  card?: AppRootProps['card']
+  storage?: AppRootProps['storage']
 }
 
 const App = ({
@@ -31,6 +35,8 @@ const App = ({
     enabled: new SpeechSynthesisTextToSpeech(),
     disabled: new NullTextToSpeech(),
   },
+  card = new WebServiceCard(),
+  storage = new LocalStorage<AppStorage>(),
 }: Props) => {
   const [screenReaderEnabled, setScreenReaderEnabled] = useState(false)
   const [screenReader, setScreenReader] = useState<ScreenReader>(
@@ -113,7 +119,10 @@ const App = ({
         onClickCapture={onClick}
         onFocusCapture={onFocus}
       >
-        <Route path="/" component={AppRoot} />
+        <Route
+          path="/"
+          render={props => <AppRoot card={card} storage={storage} {...props} />}
+        />
       </FocusManager>
     </BrowserRouter>
   )

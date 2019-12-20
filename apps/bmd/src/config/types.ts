@@ -49,6 +49,12 @@ export interface ActivationData {
   precinct: Precinct
 }
 
+export interface SerializableActivationData {
+  ballotCreatedAt: number
+  ballotStyleId: string
+  precinctId: string
+}
+
 // Votes
 export interface WriteInCandidateTally {
   name: string
@@ -116,7 +122,7 @@ export interface CardAbsentAPI {
 }
 export interface CardPresentAPI {
   present: true
-  shortValue: string
+  shortValue?: string
   longValueExists?: boolean
 }
 export type CardAPI = CardAbsentAPI | CardPresentAPI
