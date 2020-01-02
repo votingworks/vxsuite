@@ -4,25 +4,23 @@ import fetchMock from 'fetch-mock'
 
 import App from './App'
 
-import {
-  advanceTimers,
-  getNewVoterCard,
-  noCard,
-} from '../test/helpers/smartcards'
+import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
 
 import {
-  setElectionInLocalStorage,
-  setStateInLocalStorage,
+  setElectionInStorage,
+  setStateInStorage,
 } from '../test/helpers/election'
 import {
   IDLE_TIMEOUT_SECONDS,
   IDLE_RESET_TIMEOUT_SECONDS,
 } from './config/globals'
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage } from './AppRoot'
+import { MemoryCard } from './utils/Card'
 
 jest.useFakeTimers()
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
@@ -31,28 +29,18 @@ const idleScreenCopy =
 
 describe('Mark Card Void when voter is idle too long', () => {
   it('Display expired card if card marked as voided', async () => {
-    let currentCard = noCard
-    fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+    const storage = new MemoryStorage<AppStorage>()
+    const card = new MemoryCard()
 
-    fetchMock.post('/card/write', (url, options) => {
-      currentCard = {
-        present: true,
-        shortValue: options.body as string,
-      }
-      return ''
-    })
+    setElectionInStorage(storage)
+    setStateInStorage(storage)
 
-    fetchMock.post('/card/write_long_b64', () =>
-      JSON.stringify({ status: 'ok' })
+    const { getByText, queryByText } = render(
+      <App storage={storage} card={card} />
     )
 
-    setElectionInLocalStorage()
-    setStateInLocalStorage()
-
-    const { getByText, queryByText } = render(<App />)
-
     // Insert Voter card
-    currentCard = getNewVoterCard()
+    card.insertCard(getNewVoterCard())
     advanceTimers()
     await wait(() => getByText(/Center Springfield/))
 
@@ -90,7 +78,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     await wait(() => getByText('Expired Card'))
 
     // Remove card
-    currentCard = noCard
+    card.removeCard()
     advanceTimers()
     await wait(() => getByText('Insert voter card to load ballot.'))
   })
@@ -100,28 +88,16 @@ describe('Mark Card Void when voter is idle too long', () => {
     // https://github.com/votingworks/bmd/issues/714
     fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
 
-    let currentCard = noCard
-    fetchMock.get('/card/read', () => JSON.stringify(currentCard))
+    const storage = new MemoryStorage<AppStorage>()
+    const card = new MemoryCard()
 
-    fetchMock.post('/card/write', (url, options) => {
-      currentCard = {
-        present: true,
-        shortValue: options.body as string,
-      }
-      return ''
-    })
+    setElectionInStorage(storage)
+    setStateInStorage(storage)
 
-    fetchMock.post('/card/write_long_b64', () =>
-      JSON.stringify({ status: 'ok' })
-    )
-
-    setElectionInLocalStorage()
-    setStateInLocalStorage()
-
-    const { getByText } = render(<App />)
+    const { getByText } = render(<App storage={storage} card={card} />)
 
     // Insert Voter card
-    currentCard = getNewVoterCard()
+    card.insertCard(getNewVoterCard())
     advanceTimers()
     await wait(() => getByText(/Center Springfield/))
 
@@ -136,13 +112,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     advanceTimers()
     getByText('Clearing ballot')
 
-    const unmatchedCardData = {
-      ...currentCard,
-      shortValue: JSON.stringify('all your base are belong to us'),
-    }
-    fetchMock.get('/card/read', () => JSON.stringify(unmatchedCardData), {
-      overwriteRoutes: true,
-    })
+    card.insertCard('all your base are belong to us')
 
     // 30 seconds passes, Expect voided card
     advanceTimers()

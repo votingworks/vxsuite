@@ -1,11 +1,9 @@
 import React from 'react'
 import { fireEvent, render, wait, within } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
-import * as b64 from 'base64-js'
 import {
   electionSample,
   encodeBallot,
-  VotesDict,
   BallotType,
 } from '@votingworks/ballot-encoder'
 
@@ -17,53 +15,17 @@ import {
   getExpiredVoterCard,
   getNewVoterCard,
   getUsedVoterCard,
-  getVoterCardWithVotes,
-  noCard,
   pollWorkerCard,
-  sampleVotes0,
   sampleVotes1,
   sampleVotes2,
   sampleVotes3,
+  createVoterCard,
 } from '../test/helpers/smartcards'
 
-import { electionAsString } from '../test/helpers/election'
-
 import { printerMessageTimeoutSeconds } from './pages/PrintOnlyScreen'
-
-let currentCard = noCard
-fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-
-fetchMock.post('/card/write', (url, options) => {
-  currentCard = {
-    present: true,
-    shortValue: options.body as string,
-  }
-  return ''
-})
-
-fetchMock.get('/card/read_long', () =>
-  JSON.stringify({ longValue: electionAsString })
-)
-
-let currentVotes: VotesDict = sampleVotes0
-
-fetchMock.get('/card/read_long_b64', () =>
-  JSON.stringify({
-    longValue: b64.fromByteArray(
-      encodeBallot({
-        election: electionSample,
-        ballotId: 'test-ballot-id',
-        ballotStyle: electionSample.ballotStyles[0],
-        precinct: electionSample.precincts[0],
-        votes: currentVotes,
-        isTestBallot: true,
-        ballotType: BallotType.Standard,
-      })
-    ),
-  })
-)
-
-fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage } from './AppRoot'
+import { MemoryCard } from './utils/Card'
 
 fetchMock.get('/printer/status', () => ({
   ok: true,
@@ -79,15 +41,16 @@ fetchMock.post('/printer/jobs/new', () => ({
 }))
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
 it('VxPrintOnly flow', async () => {
   jest.useFakeTimers()
 
+  const storage = new MemoryStorage<AppStorage>()
+  const card = new MemoryCard()
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
-    <App />
+    <App storage={storage} card={card} />
   )
   // Query by text which includes markup.
   // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
@@ -100,7 +63,7 @@ it('VxPrintOnly flow', async () => {
       return hasText(node) && childrenDontHaveText
     })
 
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
 
   // Default Unconfigured
@@ -109,7 +72,7 @@ it('VxPrintOnly flow', async () => {
   // ---------------
 
   // Configure with Admin Card
-  currentCard = adminCard
+  card.insertCard(adminCard, electionSample)
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Load Election Definition')))
 
@@ -125,14 +88,14 @@ it('VxPrintOnly flow', async () => {
   ).toBeTruthy()
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Device Not Configured'))
 
   // ---------------
 
   // Configure election with Admin Card
-  currentCard = adminCard
+  card.insertCard(adminCard, electionSample)
   advanceTimers()
   await wait(() => getByLabelText('Precinct'))
 
@@ -146,7 +109,7 @@ it('VxPrintOnly flow', async () => {
   within(getByTestId('election-info')).getByText('Center Springfield')
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Polls Closed'))
   getByText('Insert Poll Worker card to open.')
@@ -154,7 +117,7 @@ it('VxPrintOnly flow', async () => {
   // ---------------
 
   // Open Polls with Poll Worker Card
-  currentCard = pollWorkerCard
+  card.insertCard(pollWorkerCard)
   advanceTimers()
   await wait(() =>
     fireEvent.click(getByText('Open Polls for Center Springfield'))
@@ -165,51 +128,61 @@ it('VxPrintOnly flow', async () => {
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Card'))
 
   // ---------------
 
   // Insert Expired Voter Card
-  currentCard = getExpiredVoterCard()
+  card.insertCard(getExpiredVoterCard())
   advanceTimers()
   await wait(() => getByText('Expired Card'))
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Card'))
 
   // ---------------
 
   // Insert Used Voter Card
-  currentCard = getUsedVoterCard()
+  card.insertCard(getUsedVoterCard())
   advanceTimers()
   await wait(() => getByText('Used Card'))
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Card'))
 
   // ---------------
 
   // Insert Voter Card with No Votes
-  currentCard = getNewVoterCard()
+  card.insertCard(getNewVoterCard())
   advanceTimers()
   await wait(() => getByText('Empty Card'))
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Card'))
 
   // ---------------
 
   // Voter 1 Prints Ballot
-  currentVotes = sampleVotes1
-  currentCard = getVoterCardWithVotes()
+  card.insertCard(
+    createVoterCard(),
+    encodeBallot({
+      election: electionSample,
+      ballotId: 'test-ballot-id',
+      ballotStyle: electionSample.ballotStyles[0],
+      precinct: electionSample.precincts[0],
+      votes: sampleVotes1,
+      isTestBallot: true,
+      ballotType: BallotType.Standard,
+    })
+  )
 
   // Show Printing Ballot screen
   advanceTimers()
@@ -222,15 +195,25 @@ it('VxPrintOnly flow', async () => {
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(2)
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Card'))
 
   // ---------------
 
   // Voter 2 Prints Ballot
-  currentVotes = sampleVotes2
-  currentCard = getVoterCardWithVotes()
+  card.insertCard(
+    createVoterCard(),
+    encodeBallot({
+      election: electionSample,
+      ballotId: 'test-ballot-id',
+      ballotStyle: electionSample.ballotStyles[0],
+      precinct: electionSample.precincts[0],
+      votes: sampleVotes2,
+      isTestBallot: true,
+      ballotType: BallotType.Standard,
+    })
+  )
 
   // Show Printing Ballot screen
   advanceTimers()
@@ -243,15 +226,25 @@ it('VxPrintOnly flow', async () => {
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(3)
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Card'))
 
   // ---------------
 
   // Voter 3 Prints Ballot
-  currentVotes = sampleVotes3
-  currentCard = getVoterCardWithVotes()
+  card.insertCard(
+    createVoterCard(),
+    encodeBallot({
+      election: electionSample,
+      ballotId: 'test-ballot-id',
+      ballotStyle: electionSample.ballotStyles[0],
+      precinct: electionSample.precincts[0],
+      votes: sampleVotes3,
+      isTestBallot: true,
+      ballotType: BallotType.Standard,
+    })
+  )
 
   // Show Printing Ballot screen
   advanceTimers()
@@ -264,14 +257,14 @@ it('VxPrintOnly flow', async () => {
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(4)
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Card'))
 
   // ---------------
 
   // Pollworker Closes Polls
-  currentCard = pollWorkerCard
+  card.insertCard(pollWorkerCard)
   advanceTimers()
   await wait(() => getByText('Close Polls for Center Springfield'))
 
@@ -312,14 +305,14 @@ it('VxPrintOnly flow', async () => {
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(5)
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Poll Worker card to open.'))
 
   // ---------------
 
   // Unconfigure with Admin Card
-  currentCard = adminCard
+  card.insertCard(adminCard, electionSample)
   advanceTimers()
   await wait(() => getByText('Election definition is loaded.'))
   fireEvent.click(getByText('Remove'))

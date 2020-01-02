@@ -3,19 +3,19 @@ import { render, wait } from '@testing-library/react'
 
 import App from './App'
 import SampleApp, { getSampleStorage } from './SampleApp'
-import { activationStorageKey, electionStorageKey } from './AppRoot'
+import { activationStorageKey, electionStorageKey, AppStorage } from './AppRoot'
 
 import {
   election,
-  setElectionInLocalStorage,
-  setStateInLocalStorage,
+  setElectionInStorage,
+  setStateInStorage,
 } from '../test/helpers/election'
 import { advanceTimers } from '../test/helpers/smartcards'
+import { MemoryStorage } from './utils/Storage'
 
 jest.useFakeTimers()
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
@@ -38,11 +38,12 @@ describe('loads election', () => {
     expect(storage.get(activationStorageKey)).toBeTruthy()
   })
 
-  it('from localStorage', () => {
-    setElectionInLocalStorage()
-    setStateInLocalStorage()
-    const { getByText } = render(<App />)
+  it('from storage', () => {
+    const storage = new MemoryStorage<AppStorage>()
+    setElectionInStorage(storage)
+    setStateInStorage(storage)
+    const { getByText } = render(<App storage={storage} />)
     getByText(election.title)
-    expect(window.localStorage.getItem(electionStorageKey)).toBeTruthy()
+    expect(storage.get(electionStorageKey)).toBeTruthy()
   })
 })

@@ -1,20 +1,16 @@
 import React from 'react'
 import { fireEvent, within } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
 
 import { render } from '../../test/testUtils'
 
 import { election, defaultPrecinctId } from '../../test/helpers/election'
 
-import { adminCard, advanceTimers, noCard } from '../../test/helpers/smartcards'
+import { advanceTimers } from '../../test/helpers/smartcards'
 
 import ClerkScreen from './ClerkScreen'
 import { VxPrintOnly } from '../config/types'
 
 jest.useFakeTimers()
-
-let currentCard = noCard
-fetchMock.get('/card/read', () => JSON.stringify(currentCard))
 
 it('renders ClerkScreen', async () => {
   const { getByText, getByTestId } = render(
@@ -34,7 +30,6 @@ it('renders ClerkScreen', async () => {
   )
 
   // Configure with Admin Card
-  currentCard = adminCard
   advanceTimers()
 
   // View Test Ballot Decks

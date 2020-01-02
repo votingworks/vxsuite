@@ -96,7 +96,7 @@ interface SharedState {
   tally: Tally
 }
 
-interface State extends CardState, UserState, SharedState {}
+export interface State extends CardState, UserState, SharedState {}
 
 export interface AppStorage {
   election?: Election

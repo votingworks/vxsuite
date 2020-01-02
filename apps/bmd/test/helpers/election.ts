@@ -10,7 +10,13 @@ import {
   getZeroTally,
 } from '../../src/utils/election'
 
-import { electionStorageKey, stateStorageKey } from '../../src/AppRoot'
+import {
+  electionStorageKey,
+  stateStorageKey,
+  AppStorage,
+  State,
+} from '../../src/AppRoot'
+import { Storage } from '../../src/utils/Storage'
 
 export const election = electionSample as Election
 export const contest0 = election.contests[0] as CandidateContest
@@ -58,12 +64,15 @@ export const voterContests = getContests({
 
 export const electionAsString = JSON.stringify(election)
 
-export const setElectionInLocalStorage = () => {
-  window.localStorage.setItem(electionStorageKey, electionAsString)
+export const setElectionInStorage = (storage: Storage<AppStorage>) => {
+  storage.set(electionStorageKey, election)
 }
 
-export const setStateInLocalStorage = (state = {}) => {
-  const defaultLiveState = {
+export const setStateInStorage = (
+  storage: Storage<AppStorage>,
+  state: Partial<State> = {}
+) => {
+  storage.set(stateStorageKey, {
     appMode: {
       name: 'VxMark',
       isVxMark: true,
@@ -73,14 +82,6 @@ export const setStateInLocalStorage = (state = {}) => {
     isLiveMode: true,
     isPollsOpen: true,
     tally: getZeroTally(election),
-  }
-  window.localStorage.setItem(
-    stateStorageKey,
-    JSON.stringify({
-      ...defaultLiveState,
-      ...state,
-    })
-  )
+    ...state,
+  })
 }
-
-export default {}

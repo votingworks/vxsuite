@@ -6,9 +6,10 @@ import {
   vote,
   getContests,
   BallotType,
+  VotesDict,
 } from '@votingworks/ballot-encoder'
 import * as GLOBALS from '../../src/config/globals'
-import { CardAPI, CardPresentAPI, VoterCardData } from '../../src/config/types'
+import { VoterCardData } from '../../src/config/types'
 import utcTimestamp from '../../src/utils/utcTimestamp'
 
 const contest0 = election.contests[0] as CandidateContest
@@ -18,7 +19,7 @@ const contest1candidate0 = contest1.candidates[0]
 const altBallotStyleId = election.ballotStyles[1].id
 const altPrecinctId = election.precincts[1].id
 
-export const sampleVotes0 = vote(
+export const sampleVotes0: Readonly<VotesDict> = vote(
   getContests({
     ballotStyle: election.ballotStyles[0],
     election: election,
@@ -31,7 +32,7 @@ export const sampleVotes0 = vote(
   }
 )
 
-export const sampleVotes1 = vote(
+export const sampleVotes1: Readonly<VotesDict> = vote(
   getContests({
     ballotStyle: election.ballotStyles[0],
     election: election,
@@ -60,7 +61,7 @@ export const sampleVotes1 = vote(
   }
 )
 
-export const sampleVotes2 = vote(
+export const sampleVotes2: Readonly<VotesDict> = vote(
   getContests({
     ballotStyle: election.ballotStyles[0],
     election: election,
@@ -91,7 +92,7 @@ export const sampleVotes2 = vote(
   }
 )
 
-export const sampleVotes3 = vote(
+export const sampleVotes3: Readonly<VotesDict> = vote(
   getContests({
     ballotStyle: election.ballotStyles[0],
     election: election,
@@ -122,7 +123,7 @@ export const sampleVotes3 = vote(
   }
 )
 
-export const sampleBallot: CompletedBallot = {
+export const sampleBallot: Readonly<CompletedBallot> = {
   ballotId: 'test-ballot-id',
   ballotStyle: election.ballotStyles[0],
   election,
@@ -132,46 +133,24 @@ export const sampleBallot: CompletedBallot = {
   ballotType: BallotType.Standard,
 }
 
-export const noCard: CardAPI = {
-  present: false,
-}
+export const adminCard = JSON.stringify({
+  t: 'clerk',
+  h: 'abcd',
+})
 
-export const adminCard: CardPresentAPI = {
-  present: true,
-  longValueExists: true,
-  shortValue: JSON.stringify({
-    t: 'clerk',
-    h: 'abcd',
-  }),
-}
+export const pollWorkerCard = JSON.stringify({
+  t: 'pollworker',
+  h: 'abcd',
+})
 
-export const pollWorkerCard: CardPresentAPI = {
-  present: true,
-  shortValue: JSON.stringify({
-    t: 'pollworker',
-    h: 'abcd',
-  }),
-}
-
-type CreateVoterCardConfig = Partial<VoterCardData> & {
-  longValueExists?: boolean
-}
-
-export const createVoterCard = (
-  config: CreateVoterCardConfig = {}
-): CardPresentAPI => {
-  const { longValueExists, ...cardData } = config
-  return {
-    present: true,
-    longValueExists,
-    shortValue: JSON.stringify({
-      t: 'voter',
-      c: utcTimestamp(),
-      pr: election.precincts[0].id,
-      bs: election.ballotStyles[0].id,
-      ...cardData,
-    }),
-  }
+export const createVoterCard = (cardData: Partial<VoterCardData> = {}) => {
+  return JSON.stringify({
+    t: 'voter',
+    c: utcTimestamp(),
+    pr: election.precincts[0].id,
+    bs: election.ballotStyles[0].id,
+    ...cardData,
+  })
 }
 
 export const getNewVoterCard = () => createVoterCard()
@@ -190,17 +169,6 @@ export const getVoidedVoterCard = () =>
 export const getExpiredVoterCard = () =>
   createVoterCard({
     c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
-  })
-
-export const getExpiredVoterCardWithVotes = () =>
-  createVoterCard({
-    c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
-    longValueExists: true,
-  })
-
-export const getVoterCardWithVotes = () =>
-  createVoterCard({
-    longValueExists: true,
   })
 
 export const getUsedVoterCard = () =>
