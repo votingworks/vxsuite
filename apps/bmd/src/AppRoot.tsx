@@ -418,6 +418,7 @@ class AppRoot extends React.Component<Props, State> {
 
     this.startShortValueReadPolling()
 
+    /* istanbul ignore next - this should never happen */
     if (voidedVoterCardData.uz !== updatedShortValue.uz) {
       this.resetBallot()
       return false
