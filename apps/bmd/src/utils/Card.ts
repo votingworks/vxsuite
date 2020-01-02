@@ -125,7 +125,8 @@ export class MemoryCard implements Card {
     const { present, shortValue } = this
 
     if (present) {
-      const longValueExists = typeof this.longValue !== 'undefined'
+      const longValueExists =
+        typeof this.longValue !== 'undefined' && this.longValue.length > 0
 
       return {
         present,
