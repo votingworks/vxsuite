@@ -62,8 +62,6 @@ export const voterContests = getContests({
   election,
 })
 
-export const electionAsString = JSON.stringify(election)
-
 export const setElectionInStorage = (storage: Storage<AppStorage>) => {
   storage.set(electionStorageKey, election)
 }
