@@ -25,21 +25,27 @@ export const defaultBallotStyleId = election.ballotStyles[0].id
 export const altPrecinctId = election.precincts[1].id
 export const altBallotStyleId = election.ballotStyles[1].id
 
-export const presidentContest = electionSample.contests.find(
-  c => c.title === 'President and Vice-President' && c.seats === 1
+export const presidentContest = election.contests.find(
+  c =>
+    c.type === 'candidate' &&
+    c.title === 'President and Vice-President' &&
+    c.seats === 1
 ) as CandidateContest
 
-export const countyCommissionersContest = electionSample.contests.find(
-  c => c.title === 'County Commissioners' && c.seats === 4
+export const countyCommissionersContest = election.contests.find(
+  c =>
+    c.type === 'candidate' &&
+    c.title === 'County Commissioners' &&
+    c.seats === 4
 ) as CandidateContest
 
-export const measure102Contest = electionSample.contests.find(
+export const measure102Contest = election.contests.find(
   c =>
     c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'yesno'
 ) as YesNoContest
 
-export const singleSeatContestWithWriteIn = electionSample.contests.find(
-  c => !!c.allowWriteIns && c.seats === 1
+export const singleSeatContestWithWriteIn = election.contests.find(
+  c => c.type === 'candidate' && !!c.allowWriteIns && c.seats === 1
 ) as CandidateContest
 
 export const voterContests = getContests({
