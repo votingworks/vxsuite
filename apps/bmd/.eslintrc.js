@@ -42,7 +42,6 @@ module.exports = {
   plugins: [
     '@typescript-eslint',
     'jest',
-    'no-null',
     'react',
     'cypress',
     'jsx-a11y',
@@ -76,7 +75,6 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', {
       'vars': 'all'
     }],
-    'no-null/no-null': 2, // TypeScript with strictNullChecks
     'quotes': ["error", "single", { "avoidEscape": true }],
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],
