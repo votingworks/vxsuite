@@ -26,9 +26,12 @@ export default function buildBallot({
   votes: VotesDict
 }): CompletedBallot {
   const ballotId = randomBase64()
-  const ballotStyle = assertDefined(getBallotStyle({ ballotStyleId, election }))
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
   const ballotType = BallotType.Standard
-  const precinct = assertDefined(getPrecinctById({ precinctId, election }))
+  const precinct = getPrecinctById({ precinctId, election })
+
+  assertDefined(ballotStyle)
+  assertDefined(precinct)
 
   return {
     ballotId,

@@ -1,11 +1,9 @@
-export default function assertDefined<T>(
-  value: T | null | undefined,
+export default function assertDefined(
+  value: unknown,
   message = 'value expected to be defined but was not'
-): T {
+): asserts value {
   // eslint-disable-next-line no-restricted-syntax
   if (value === null || value === undefined) {
     throw new Error(message)
   }
-
-  return value
 }
