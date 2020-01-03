@@ -24,7 +24,9 @@ const Loading: React.FC<Props> = ({
 }: Props) => {
   const content = (
     <Prose>
-      <ProgressEllipsis as={as} aria-label={`${children}.`}>
+      {/* FIXME: Workaround for https://github.com/jamesmfriedman/rmwc/issues/501 */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <ProgressEllipsis as={as as any} aria-label={`${children}.`}>
         {children}
       </ProgressEllipsis>
     </Prose>

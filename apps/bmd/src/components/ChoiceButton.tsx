@@ -18,7 +18,7 @@ interface Props
 
 const StyledChoiceButton = styled('button').attrs((props: Attrs) => ({
   role: 'option',
-  type: props.type || 'button',
+  type: props.type ?? 'button',
 }))<Props>`
   position: relative;
   border-radius: 0.125rem;

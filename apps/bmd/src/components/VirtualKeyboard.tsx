@@ -65,7 +65,7 @@ const VirtualKeyboard = ({ onKeyPress, keyDisabled }: Props) => (
               data-key={key}
               aria-label={key.toLowerCase()}
               onPress={onKeyPress}
-              disabled={keyDisabled && keyDisabled(key)}
+              disabled={keyDisabled?.(key)}
             >
               {key}
             </Button>

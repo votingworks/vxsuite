@@ -51,7 +51,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
   const vote = votes[contest.id]
   let isVoteComplete = !!vote
   if (contest.type === 'candidate') {
-    isVoteComplete = contest.seats === ((vote as CandidateVote) || []).length
+    isVoteComplete = contest.seats === ((vote as CandidateVote) ?? []).length
   }
   const isReviewMode = window.location.hash === '#review'
   // TODO:
@@ -65,7 +65,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
           key={contest.id}
           contest={contest}
           parties={election.parties}
-          vote={(vote || []) as CandidateVote}
+          vote={(vote ?? []) as CandidateVote}
           updateVote={updateVote}
         />
       )}
