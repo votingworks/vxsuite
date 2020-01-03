@@ -37,7 +37,7 @@ const generateTestDeckBallots = ({
     ? [precinctId]
     : election.precincts.map(p => p.id)
 
-  let ballots: Ballot[] = []
+  const ballots: Ballot[] = []
 
   precincts.forEach(precinctId => {
     const precinct = election.precincts.find(p => p.id === precinctId)!
@@ -59,7 +59,7 @@ const generateTestDeckBallots = ({
       )
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
-        let votes: VotesDict = {}
+        const votes: VotesDict = {}
         contests.forEach(contest => {
           /* istanbul ignore else */
           if (contest.type === 'yesno') {

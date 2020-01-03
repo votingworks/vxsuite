@@ -54,7 +54,7 @@ it('Refresh window and expect to be on same contest', async () => {
 
   let app = render(<App />)
   let getByText = app.getByText
-  let unmount = app.unmount
+  const unmount = app.unmount
 
   // Insert Voter Card
   currentCard = getNewVoterCard()

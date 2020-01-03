@@ -92,4 +92,12 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
     'import/extensions': 'off'
   },
+  overrides: [
+    {
+      files: 'cypress/**/*',
+      parserOptions: {
+        project: './cypress/tsconfig.json'
+      }
+    }
+  ]
 }

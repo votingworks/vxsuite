@@ -667,7 +667,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     )
   }
 
-  public resetBallot = (path: string = '/') => {
+  public resetBallot = (path = '/') => {
     this.resetVoterData()
     this.setState(
       {

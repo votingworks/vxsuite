@@ -27,7 +27,9 @@ const IdlePage = () => {
   const [countdown, setCountdown] = useState(timeoutSeconds)
   const [isLoading, setIsLoading] = useState(false)
 
-  const onPress: PointerEventHandler = () => {}
+  const onPress: PointerEventHandler = () => {
+    // do nothing
+  }
 
   useEffect(() => {
     const reset = async () => {

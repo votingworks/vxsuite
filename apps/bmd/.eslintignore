@@ -1,3 +1,7 @@
 /build
+/coverage
 /cypress/plugins
 /cypress/integration/examples
+/cypress/support
+/prodserver/**/*.js
+/src/**/*.js

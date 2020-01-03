@@ -208,7 +208,7 @@ export const getUsedVoterCard = () =>
     bp: utcTimestamp(),
   })
 
-export const advanceTimers = (seconds: number = 0) => {
+export const advanceTimers = (seconds = 0) => {
   const maxSeconds = GLOBALS.IDLE_TIMEOUT_SECONDS
   if (seconds > maxSeconds) {
     throw new Error(`Seconds value should not be greater than ${maxSeconds}`)

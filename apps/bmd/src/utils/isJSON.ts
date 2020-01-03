@@ -9,7 +9,7 @@ function isObject(obj: unknown): obj is object {
   return Object.prototype.toString.call(obj) === '[object Object]'
 }
 
-function isJSON(value: unknown, passObject: boolean = false): boolean {
+function isJSON(value: unknown, passObject = false): boolean {
   if (passObject && isObject(value)) {
     return true
   }
