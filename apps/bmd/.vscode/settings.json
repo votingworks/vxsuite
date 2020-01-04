@@ -25,5 +25,12 @@
   "scss.validate": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
-  }
+  },
+  "remote.SSH.defaultForwardedPorts": [
+    {
+      "localPort": 3000,
+      "name": "BMD Web",
+      "remotePort": 3000
+    }
+  ]
 }
