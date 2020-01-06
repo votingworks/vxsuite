@@ -9,6 +9,6 @@
 
 const isEmptyObject = (obj: object) => {
   const keys = Object.keys(obj)
-  return keys && keys.length === 0
+  return keys.length === 0
 }
 export default isEmptyObject

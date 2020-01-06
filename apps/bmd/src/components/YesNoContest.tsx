@@ -347,7 +347,7 @@ export default class YesNoContest extends React.Component<Props> {
                       <Text
                         aria-label={`${
                           isChecked ? 'Selected, ' : ''
-                        } ${answer} on ${contest.shortTitle || contest.title}`}
+                        } ${answer} on ${contest.shortTitle ?? contest.title}`}
                         wordBreak
                       >
                         {answer}

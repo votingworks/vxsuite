@@ -43,9 +43,9 @@ class FocusManager extends React.Component<Props> {
     // stays highlighted, which is a bummer. We need to figure out a better solution.
     window.setTimeout(() => {
       const elementToFocus =
-        document.getElementById('audiofocus') || this.screen.current!
-      elementToFocus && elementToFocus.focus()
-      elementToFocus && elementToFocus.click()
+        document.getElementById('audiofocus') ?? this.screen.current!
+      elementToFocus?.focus()
+      elementToFocus?.click()
     }, 150)
   }
 

@@ -179,7 +179,7 @@ export class AriaScreenReader implements ScreenReader {
   }
 
   private describeText(node: Text): string | undefined {
-    return node.textContent || undefined
+    return node.textContent ?? undefined
   }
 
   private describeElement(node: Element): string | undefined {

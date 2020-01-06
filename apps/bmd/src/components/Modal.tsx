@@ -51,7 +51,7 @@ const Modal: React.FC<Props> = ({
 }: Props) => (
   <ReactModal
     appElement={
-      document.getElementById('root')! || document.body.firstElementChild
+      (document.getElementById('root') ?? document.body.firstElementChild)!
     }
     ariaHideApp
     aria-modal

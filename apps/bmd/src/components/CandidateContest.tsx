@@ -570,9 +570,8 @@ class CandidateContest extends React.Component<Props, State> {
               <Text id="modalaudiofocus">
                 You may only select {contest.seats}{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'} in this
-                contest. To vote for{' '}
-                {attemptedOvervoteCandidate && attemptedOvervoteCandidate.name},
-                you must first unselect the selected{' '}
+                contest. To vote for {attemptedOvervoteCandidate?.name}, you
+                must first unselect the selected{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'}.
                 <span aria-label="Use the select button to continue." />
               </Text>
@@ -596,7 +595,7 @@ class CandidateContest extends React.Component<Props, State> {
             <Prose>
               <Text>
                 Do you want to unselect and remove{' '}
-                {candidatePendingRemoval && candidatePendingRemoval.name}?
+                {candidatePendingRemoval?.name}?
               </Text>
             </Prose>
           }

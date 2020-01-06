@@ -219,7 +219,9 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
         const voterCardData = cardData as VoterCardData
         const voterCardCreatedAt = voterCardData.c
         const isVoterCardVoided = Boolean(voterCardData.uz)
-        const ballotPrintedTime = Number(voterCardData.bp) || 0
+        const ballotPrintedTime = voterCardData.bp
+          ? Number(voterCardData.bp)
+          : 0
         const isVoterCardPrinted = Boolean(ballotPrintedTime)
         const isRecentVoterPrint = this.isRecentVoterPrint(
           isVoterCardPrinted,
@@ -248,10 +250,9 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
               isVoterCardPrinted,
               isRecentVoterPrint,
               voterCardCreatedAt,
-              ballotStyleId: ballot.ballotStyle
-                ? ballot.ballotStyle.id
-                : this.initialState.ballotStyleId,
-              votes: ballot.votes || {},
+              ballotStyleId:
+                ballot.ballotStyle?.id ?? this.initialState.ballotStyleId,
+              votes: ballot.votes ?? {},
             }
           },
           () => {
