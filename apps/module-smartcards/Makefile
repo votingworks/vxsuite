@@ -14,7 +14,7 @@ install-dependencies:
 install-dev-dependencies:
 	python3 -m pipenv install --dev
 
-build: install-dependencies
+build: install install-dependencies
 
 test:
 	python3 -m pytest
