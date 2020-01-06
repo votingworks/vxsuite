@@ -8,6 +8,7 @@ import { AppStorage } from './AppRoot'
 
 const ballotStyleId = '12'
 const precinctId = '23'
+const appPrecinctId = '23'
 
 export function getSampleCard(): Card {
   const voterCardData: VoterCardData = {
@@ -23,9 +24,6 @@ export function getSampleCard(): Card {
 export function getSampleStorage(): Storage<AppStorage> {
   const election = electionSample
   const ballotCreatedAt = utcTimestamp()
-  const ballotStyleId = '12'
-  const precinctId = '23'
-  const appPrecinctId = '23'
 
   return new MemoryStorage<AppStorage>({
     state: {
