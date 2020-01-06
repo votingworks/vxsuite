@@ -60,7 +60,12 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
    * Removes an object in storage by key.
    */
   public remove<K extends keyof M>(key: K): void {
-    window.localStorage.removeItem(key as string)
+    /* istanbul ignore next - turn this into type assertion with TypeScript 3.7 */
+    if (typeof key !== 'string') {
+      throw new Error(`localStorage keys must be strings, but was given ${key}`)
+    }
+
+    window.localStorage.removeItem(key)
   }
 
   /**
