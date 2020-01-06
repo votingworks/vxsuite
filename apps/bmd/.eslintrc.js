@@ -88,7 +88,14 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
-    'import/extensions': 'off'
+    'import/extensions': 'off',
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector: 'Literal[value=null]',
+        message: '`null` is generally not what you want outside of React classes, use `undefined` instead'
+      }
+    ],
   },
   overrides: [
     {
