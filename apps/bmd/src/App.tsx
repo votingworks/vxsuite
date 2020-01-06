@@ -15,7 +15,6 @@ import {
   TextToSpeech,
 } from './utils/ScreenReader'
 
-/* istanbul ignore next - unsure how to test */
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault()
 }

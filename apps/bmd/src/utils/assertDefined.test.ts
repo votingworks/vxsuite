@@ -10,7 +10,6 @@ test('returns an object argument', () => {
 })
 
 test('throws when given null', () => {
-  // eslint-disable-next-line no-null/no-null
   expect(() => assertDefined(null)).toThrowError()
 })
 
@@ -20,19 +19,15 @@ test('throws when given undefined', () => {
 
 test('refines the type of the argument by removing null', () => {
   // This isn't a runtime check, really. It just ensures TypeScript is happy.
-  let original: string | null = 'a string'
-  let refined: string
-
-  refined = assertDefined(original)
+  const original: string | null = 'a string'
+  const refined: string = assertDefined(original)
   expect(refined).toBe(original)
 })
 
 test('refines the type of the argument by removing undefined', () => {
   // This isn't a runtime check, really. It just ensures TypeScript is happy.
-  let original: string | undefined = 'a string'
-  let refined: string
-
-  refined = assertDefined(original)
+  const original: string | undefined = 'a string'
+  const refined: string = assertDefined(original)
   expect(refined).toBe(original)
 })
 

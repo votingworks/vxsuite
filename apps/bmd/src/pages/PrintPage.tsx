@@ -23,7 +23,7 @@ const PrintPage = () => {
     updateTally,
     votes,
   } = useContext(BallotContext)
-  let printerTimer = useRef(0)
+  const printerTimer = useRef(0)
 
   const printBallot = useCallback(async () => {
     const isUsed = await markVoterCardPrinted()

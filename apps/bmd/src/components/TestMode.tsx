@@ -13,7 +13,7 @@ interface Props {
 }
 
 const TestMode = ({ isLiveMode }: Props) =>
-  isLiveMode ? null : ( // eslint-disable-line no-null/no-null
+  isLiveMode ? null : (
     <TestingModeContainer warning bold warningIcon center>
       Testing Mode
     </TestingModeContainer>

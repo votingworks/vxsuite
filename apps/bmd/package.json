@@ -103,7 +103,7 @@
     "react-idle-timer": "^4.2.12",
     "react-modal": "^3.11.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.0.1",
+    "react-scripts": "3.1.0",
     "styled-components": "^4.4.1",
     "typescript": "3.6.4",
     "use-interval": "^1.2.1"
@@ -114,8 +114,8 @@
     "@types/base64-js": "^1.2.5",
     "@types/pdfmake": "^0.1.9",
     "@types/react-gamepad": "^1.0.0",
-    "@typescript-eslint/eslint-plugin": "1.13.0",
-    "@typescript-eslint/parser": "^1.13.0",
+    "@typescript-eslint/eslint-plugin": "2.14.0",
+    "@typescript-eslint/parser": "^2.14.0",
     "cypress": "^3.8.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.1",
@@ -124,7 +124,6 @@
     "eslint-plugin-import": "^2.19.1",
     "eslint-plugin-jest": "^23.3.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-react": "^7.17.0",
     "husky": "^3.1.0",
@@ -143,5 +142,9 @@
   },
   "engines": {
     "node": ">= 12"
+  },
+  "resolutions": {
+    "**/@typescript-eslint/eslint-plugin": "2.14.0",
+    "**/@typescript-eslint/parser": "2.14.0"
   }
 }

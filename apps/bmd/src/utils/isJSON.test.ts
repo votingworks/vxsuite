@@ -5,7 +5,7 @@ import isJSON, { isJSONStrict } from './isJSON'
 
 it('perform isJSON verifications', () => {
   expect(isJSON('asdada[]asdadada sd asdasda das das')).toBeFalsy()
-  expect(isJSON(null)).toBeFalsy() // eslint-disable-line no-null/no-null
+  expect(isJSON(null)).toBeFalsy()
   expect(isJSON(false)).toBeFalsy()
   expect(isJSON('')).toBeFalsy()
   expect(isJSON('normal string')).toBeFalsy()

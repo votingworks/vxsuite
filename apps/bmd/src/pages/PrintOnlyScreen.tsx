@@ -46,7 +46,7 @@ const PrintOnlyScreen = ({
   updateTally,
   votes,
 }: Props) => {
-  let printerTimer = useRef(0)
+  const printerTimer = useRef(0)
   const [okToPrint, setOkToPrint] = useState(true)
   const [isPrinted, updateIsPrinted] = useState(false)
   const isCardVotesEmpty = isEmptyObject(votes)

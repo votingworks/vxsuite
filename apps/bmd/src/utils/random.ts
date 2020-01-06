@@ -9,7 +9,7 @@
  *
  */
 
-export function randomBase64(numBytes: number = 16) {
+export function randomBase64(numBytes = 16) {
   return window
     .btoa(
       String.fromCharCode(
