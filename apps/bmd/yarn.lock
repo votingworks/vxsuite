@@ -5013,7 +5013,7 @@ eslint-config-prettier@^6.9.0:
   dependencies:
     get-stdin "^6.0.0"
 
-eslint-config-react-app@^5.0.0:
+eslint-config-react-app@^5.0.1:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/eslint-config-react-app/-/eslint-config-react-app-5.1.0.tgz#a37b3f2d4f56f856f93277281ef52bd791273e63"
   integrity sha512-hBaxisHC6HXRVvxX+/t1n8mOdmCVIKgkXsf2WoUkJi7upHJTwYTsdCmx01QPOjKNT34QMQQ9sL0tVBlbiMFjxA==
@@ -10992,7 +10992,7 @@ react-app-polyfill@^1.0.2:
     regenerator-runtime "^0.13.3"
     whatwg-fetch "^3.0.0"
 
-react-dev-utils@^9.0.2:
+react-dev-utils@^9.0.3:
   version "9.1.0"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-9.1.0.tgz#3ad2bb8848a32319d760d0a84c56c14bdaae5e81"
   integrity sha512-X2KYF/lIGyGwP/F/oXgGDF24nxDA2KC4b7AFto+eqzc/t838gpSGiaU8trTqHXOohuLxxc5qi1eDzsl9ucPDpg==
@@ -11097,10 +11097,10 @@ react-router@5.1.2:
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
 
-react-scripts@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/react-scripts/-/react-scripts-3.1.0.tgz#f4c4133072908e709a23864ccb49076ccbeb766b"
-  integrity sha512-JuccnZ+mKYhufZSxNoikMMX7KKvpq4dhiyR4jzsKDMJIu0fcdcXvjnBWKNMzRKmeXnmbeCjo1K9N/I57ZYpp4w==
+react-scripts@3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/react-scripts/-/react-scripts-3.1.1.tgz#1796bc92447f3a2d3072c3b71ca99f88d099c48d"
+  integrity sha512-dbjTG9vJC61OI62hIswQYg5xHvwlxDTH6QXz6ICEuA5AqkFQWk1LKl76sk8fVL2WsyumbBc4FErALwKcEV2vNA==
   dependencies:
     "@babel/core" "7.5.5"
     "@svgr/webpack" "4.3.2"
@@ -11117,7 +11117,7 @@ react-scripts@3.1.0:
     dotenv "6.2.0"
     dotenv-expand "4.2.0"
     eslint "^6.1.0"
-    eslint-config-react-app "^5.0.0"
+    eslint-config-react-app "^5.0.1"
     eslint-loader "2.2.1"
     eslint-plugin-flowtype "3.13.0"
     eslint-plugin-import "2.18.2"
@@ -11142,7 +11142,7 @@ react-scripts@3.1.0:
     postcss-preset-env "6.7.0"
     postcss-safe-parser "4.0.1"
     react-app-polyfill "^1.0.2"
-    react-dev-utils "^9.0.2"
+    react-dev-utils "^9.0.3"
     resolve "1.12.0"
     resolve-url-loader "3.1.0"
     sass-loader "7.2.0"
