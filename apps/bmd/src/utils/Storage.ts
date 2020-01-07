@@ -1,3 +1,5 @@
+import assert from './assert'
+
 // TODO: define a type that's actually serializable
 export type Serializable = object
 
@@ -35,11 +37,7 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
    * Gets an object from storage by key.
    */
   public get<K extends keyof M>(key: K): M[K] | undefined {
-    /* istanbul ignore next - turn this into type assertion with TypeScript 3.7 */
-    if (typeof key !== 'string') {
-      throw new Error(`localStorage keys must be strings, but was given ${key}`)
-    }
-
+    assert(typeof key === 'string')
     const value = window.localStorage.getItem(key)
     return value ? JSON.parse(value) : undefined
   }
@@ -48,11 +46,7 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
    * Sets an object in storage by key.
    */
   public set<K extends keyof M>(key: K, value: M[K]): void {
-    /* istanbul ignore next - turn this into type assertion with TypeScript 3.7 */
-    if (typeof key !== 'string') {
-      throw new Error(`localStorage keys must be strings, but was given ${key}`)
-    }
-
+    assert(typeof key === 'string')
     window.localStorage.setItem(key, JSON.stringify(value))
   }
 
@@ -60,11 +54,7 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
    * Removes an object in storage by key.
    */
   public remove<K extends keyof M>(key: K): void {
-    /* istanbul ignore next - turn this into type assertion with TypeScript 3.7 */
-    if (typeof key !== 'string') {
-      throw new Error(`localStorage keys must be strings, but was given ${key}`)
-    }
-
+    assert(typeof key === 'string')
     window.localStorage.removeItem(key)
   }
 
