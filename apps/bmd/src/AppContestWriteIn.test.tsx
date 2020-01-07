@@ -6,30 +6,17 @@ import App from './App'
 
 import withMarkup from '../test/helpers/withMarkup'
 
-import {
-  advanceTimers,
-  getNewVoterCard,
-  noCard,
-} from '../test/helpers/smartcards'
+import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
 
 import {
   singleSeatContestWithWriteIn,
-  setElectionInLocalStorage,
-  setStateInLocalStorage,
+  setElectionInStorage,
+  setStateInStorage,
 } from '../test/helpers/election'
 import { VxMarkPlusVxPrint } from './config/types'
-
-let currentCard = noCard
-fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-fetchMock.post('/card/write', (url, options) => {
-  currentCard = {
-    present: true,
-    shortValue: options.body as string,
-  }
-  return ''
-})
-
-fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
+import { MemoryCard } from './utils/Card'
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage } from './AppRoot'
 
 fetchMock.get('/printer/status', () => ({
   ok: true,
@@ -47,26 +34,30 @@ fetchMock.post('/printer/jobs/new', () => ({
 jest.useFakeTimers()
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
 it('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  setElectionInLocalStorage()
-  setStateInLocalStorage({
+  const storage = new MemoryStorage<AppStorage>()
+  const card = new MemoryCard()
+
+  setElectionInStorage(storage)
+  setStateInStorage(storage, {
     appMode: VxMarkPlusVxPrint,
   })
 
-  const { container, getByText, queryByText, getByTestId } = render(<App />)
+  const { container, getByText, queryByText, getByTestId } = render(
+    <App storage={storage} card={card} />
+  )
   const getByTextWithMarkup = withMarkup(getByText)
 
   const getWithinKeyboard = (text: string) =>
     within(getByTestId('virtual-keyboard')).getByText(text)
 
   // Insert Voter Card
-  currentCard = getNewVoterCard()
+  card.insertCard(getNewVoterCard())
   advanceTimers()
 
   // Go to First Contest

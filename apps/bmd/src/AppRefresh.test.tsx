@@ -1,63 +1,40 @@
 import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
 import { advanceBy } from 'jest-date-mock'
 
 import App from './App'
 
-import {
-  advanceTimers,
-  getNewVoterCard,
-  noCard,
-} from '../test/helpers/smartcards'
+import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
 
 import {
   presidentContest,
-  setElectionInLocalStorage,
-  setStateInLocalStorage,
+  setElectionInStorage,
+  setStateInStorage,
 } from '../test/helpers/election'
 
-import { CardPresentAPI } from './config/types'
-
-let currentCard = noCard
-let longValueB64: string
-fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-fetchMock.post('/card/write', (url, options) => {
-  currentCard = {
-    present: true,
-    shortValue: options.body as string,
-  }
-  return ''
-})
-fetchMock.post('/card/write_long_b64', (url, options) => {
-  longValueB64 = (options.body! as FormData).get('long_value') as string
-  ;(currentCard as CardPresentAPI).longValueExists = true
-})
-fetchMock.get('/card/read_long_b64', () =>
-  JSON.stringify({
-    longValue: longValueB64,
-  })
-)
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage } from './AppRoot'
+import { MemoryCard } from './utils/Card'
 
 jest.useFakeTimers()
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
 it('Refresh window and expect to be on same contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  setElectionInLocalStorage()
-  setStateInLocalStorage()
+  const storage = new MemoryStorage<AppStorage>()
+  const card = new MemoryCard()
 
-  let app = render(<App />)
-  let getByText = app.getByText
-  const unmount = app.unmount
+  setElectionInStorage(storage)
+  setStateInStorage(storage)
+
+  let { getByText, unmount } = render(<App storage={storage} card={card} />)
 
   // Insert Voter Card
-  currentCard = getNewVoterCard()
+  card.insertCard(getNewVoterCard())
   advanceTimers()
 
   // Go to First Contest
@@ -80,9 +57,7 @@ it('Refresh window and expect to be on same contest', async () => {
   advanceTimers()
 
   unmount()
-
-  app = render(<App />)
-  getByText = app.getByText
+  ;({ getByText, unmount } = render(<App storage={storage} card={card} />))
 
   advanceTimers()
 

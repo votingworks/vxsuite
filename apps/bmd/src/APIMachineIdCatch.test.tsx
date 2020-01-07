@@ -3,9 +3,10 @@ import { render } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
 import App from './App'
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage } from './AppRoot'
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
@@ -18,7 +19,7 @@ it('Cause "/machine-id" API to catch', async () => {
   )
 
   // Render app which calls machineId api in componentDidMount
-  render(<App />)
+  render(<App storage={new MemoryStorage<AppStorage>()} />)
 
   // No expect?
   // Unfortunately, the only thing this test does is provide code-coverage
@@ -32,7 +33,7 @@ it('/machine-id fails with bad gateway response', async () => {
   })
 
   // Render app which calls machineId api in componentDidMount
-  render(<App />)
+  render(<App storage={new MemoryStorage<AppStorage>()} />)
 
   // No expect?
   // Unfortunately, the only thing this test does is provide code-coverage

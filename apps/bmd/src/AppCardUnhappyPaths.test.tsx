@@ -9,25 +9,17 @@ import {
   advanceTimers,
   getExpiredVoterCard,
   getVoidedVoterCard,
-  noCard,
   createVoterCard,
 } from '../test/helpers/smartcards'
 
 import {
-  setElectionInLocalStorage,
-  setStateInLocalStorage,
+  setElectionInStorage,
+  setStateInStorage,
 } from '../test/helpers/election'
 import utcTimestamp from './utils/utcTimestamp'
-
-let currentCard = noCard
-fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-fetchMock.post('/card/write', (url, options) => {
-  currentCard = {
-    present: true,
-    shortValue: options.body as string,
-  }
-  return ''
-})
+import { MemoryCard } from './utils/Card'
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage } from './AppRoot'
 
 fetchMock.get('/printer/status', () => ({
   ok: true,
@@ -40,39 +32,43 @@ fetchMock.post('/printer/jobs/new', () => ({
 jest.useFakeTimers()
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
 it('VxMark+Print end-to-end flow', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  setElectionInLocalStorage()
-  setStateInLocalStorage()
+  const storage = new MemoryStorage<AppStorage>()
+  const card = new MemoryCard()
 
-  const { getByText } = render(<App />)
+  card.removeCard()
+
+  setElectionInStorage(storage)
+  setStateInStorage(storage)
+
+  const { getByText } = render(<App storage={storage} card={card} />)
 
   // ====================== END CONTEST SETUP ====================== //
 
   // Insert used Voter card
-  currentCard = getVoidedVoterCard()
+  card.insertCard(getVoidedVoterCard())
   advanceTimers()
   await wait(() => getByText('Expired Card'))
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 
   // Insert expired Voter card
-  currentCard = getExpiredVoterCard()
+  card.insertCard(getExpiredVoterCard())
   advanceTimers()
   await wait(() => getByText('Expired Card'))
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
@@ -84,7 +80,7 @@ it('VxMark+Print end-to-end flow', async () => {
   })
 
   // First Insert is Good
-  currentCard = expiringCard
+  card.insertCard(expiringCard)
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Start Voting')))
 
@@ -117,17 +113,17 @@ it('VxMark+Print end-to-end flow', async () => {
   await wait(() => fireEvent.click(getByText('Next')))
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // Reinsert expired card
-  currentCard = getExpiredVoterCard()
+  card.insertCard(getExpiredVoterCard())
   advanceTimers()
   await wait(() => getByText('Expired Card'))
 
   // Remove Card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 

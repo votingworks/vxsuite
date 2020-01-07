@@ -1,50 +1,42 @@
 import React from 'react'
 import { fireEvent, render, wait, within } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
 
 import App from './App'
 
 import withMarkup from '../test/helpers/withMarkup'
 
-import {
-  advanceTimers,
-  getNewVoterCard,
-  noCard,
-} from '../test/helpers/smartcards'
+import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
 
 import {
   measure102Contest,
-  setElectionInLocalStorage,
-  setStateInLocalStorage,
+  setElectionInStorage,
+  setStateInStorage,
 } from '../test/helpers/election'
-
-let currentCard = noCard
-fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-fetchMock.post('/card/write', (url, options) => {
-  currentCard = {
-    present: true,
-    shortValue: options.body as string,
-  }
-  return ''
-})
+import { MemoryCard } from './utils/Card'
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage } from './AppRoot'
 
 jest.useFakeTimers()
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
 it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  setElectionInLocalStorage()
-  setStateInLocalStorage()
+  const storage = new MemoryStorage<AppStorage>()
+  const card = new MemoryCard()
 
-  const { getByText, queryByText, getByTestId } = render(<App />)
+  setElectionInStorage(storage)
+  setStateInStorage(storage)
+
+  const { getByText, queryByText, getByTestId } = render(
+    <App storage={storage} card={card} />
+  )
 
   // Insert Voter Card
-  currentCard = getNewVoterCard()
+  card.insertCard(getNewVoterCard())
   advanceTimers()
 
   // Go to First Contest

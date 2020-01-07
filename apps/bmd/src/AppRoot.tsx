@@ -12,7 +12,6 @@ import {
   Election,
   OptionalElection,
 } from '@votingworks/ballot-encoder'
-import { fromByteArray, toByteArray } from 'base64-js'
 import 'normalize.css'
 import React from 'react'
 import Gamepad from 'react-gamepad'
@@ -39,9 +38,9 @@ import {
   CandidateVoteTally,
   getAppMode,
   YesNoVoteTally,
+  SerializableActivationData,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
-import electionSample from './data/electionSample.json'
 import {
   handleGamepadButtonDown,
   handleGamepadKeyboardEvent,
@@ -59,6 +58,9 @@ import { getBallotStyle, getContests, getZeroTally } from './utils/election'
 import fetchJSON from './utils/fetchJSON'
 import makePrinter, { PrintMethod } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
+import { Card } from './utils/Card'
+import { Poller, IntervalPoller } from './utils/polling'
+import { Storage } from './utils/Storage'
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -90,23 +92,35 @@ interface SharedState {
   isLiveMode: boolean
   isPollsOpen: boolean
   machineId: string
-  shortValue: string
+  shortValue?: string
   tally: Tally
 }
 
-interface State extends CardState, UserState, SharedState {}
+export interface State extends CardState, UserState, SharedState {}
+
+export interface AppStorage {
+  election?: Election
+  state?: Partial<State>
+  activation?: SerializableActivationData
+  votes?: VotesDict
+}
+
+export interface Props extends RouteComponentProps {
+  card: Card
+  storage: Storage<AppStorage>
+}
 
 export const electionStorageKey = 'election'
 export const stateStorageKey = 'state'
 export const activationStorageKey = 'activation'
-const votesStorageKey = 'votes'
+export const votesStorageKey = 'votes'
 
 const printer = makePrinter(PrintMethod.RemoteWithLocalFallback)
 
-class AppRoot extends React.Component<RouteComponentProps, State> {
+class AppRoot extends React.Component<Props, State> {
   private machineIdAbortController = new AbortController()
 
-  private checkCardInterval = 0
+  private cardPoller?: Poller
   private lastVoteUpdateAt = 0
   private lastVoteSaveToCardAt = 0
   private cardWriteInterval = 0
@@ -171,21 +185,18 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   public fetchElection = async () => {
     this.setState({ isFetchingElection: true })
     try {
-      const response = await fetch('/card/read_long')
-      const election = await response.json()
-      this.setElection(JSON.parse(election.longValue))
+      this.setElection((await this.props.card.readLongObject<Election>())!)
     } finally {
       this.setState({ isFetchingElection: false })
     }
   }
 
   public fetchBallotData = async () => {
-    const response = await fetch('/card/read_long_b64')
-    const { longValue } = await response.json()
+    const longValue = (await this.props.card.readLongUint8Array())!
     /* istanbul ignore else */
     if (longValue) {
       const election = this.state.election!
-      const { ballot } = decodeBallot(election, toByteArray(longValue))
+      const { ballot } = decodeBallot(election, longValue)
       return ballot
     } else {
       return undefined
@@ -213,7 +224,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     longValueExists,
     shortValue,
   }: CardPresentAPI) => {
-    const cardData: CardData = JSON.parse(shortValue)
+    const cardData: CardData = JSON.parse(shortValue!)
     switch (cardData.t) {
       case 'voter': {
         const voterCardData = cardData as VoterCardData
@@ -292,57 +303,51 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public startShortValueReadPolling = () => {
-    if (this.checkCardInterval === 0) {
+    /* istanbul ignore else */
+    if (!this.cardPoller) {
       let lastCardDataString = ''
 
-      this.checkCardInterval = window.setInterval(async () => {
-        try {
-          const card = await this.readCard()
-          if (this.state.pauseProcessingUntilNoCardPresent) {
-            if (card.present) {
+      this.cardPoller = IntervalPoller.start(
+        GLOBALS.CARD_POLLING_INTERVAL,
+        async () => {
+          try {
+            const card = await this.props.card.readStatus()
+            if (this.state.pauseProcessingUntilNoCardPresent) {
+              if (card.present) {
+                return
+              }
+              this.setPauseProcessingUntilNoCardPresent(false)
+            }
+            const currentCardDataString = JSON.stringify(card)
+            if (currentCardDataString === lastCardDataString) {
               return
             }
-            this.setPauseProcessingUntilNoCardPresent(false)
-          }
-          const currentCardDataString = JSON.stringify(card)
-          if (currentCardDataString === lastCardDataString) {
-            return
-          }
-          lastCardDataString = currentCardDataString
+            lastCardDataString = currentCardDataString
 
-          if (!card.present || !card.shortValue) {
+            if (!card.present || !card.shortValue) {
+              this.resetBallot()
+              return
+            }
+
+            this.processCard(card)
+          } catch (error) {
             this.resetBallot()
-            return
+            lastCardDataString = ''
+            this.stopShortValueReadPolling() // Assume backend is unavailable.
           }
-
-          this.processCard(card)
-        } catch (error) {
-          this.resetBallot()
-          lastCardDataString = ''
-          this.stopShortValueReadPolling() // Assume backend is unavailable.
         }
-      }, GLOBALS.CARD_POLLING_INTERVAL)
+      )
     }
   }
 
   public stopShortValueReadPolling = () => {
-    window.clearInterval(this.checkCardInterval)
-    this.checkCardInterval = 0 // To indicate setInterval is not running.
-  }
-
-  public saveLongValue = async (longValueBase64: string) => {
-    const formData = new FormData()
-    formData.append('long_value', longValueBase64)
-
-    await fetch('/card/write_long_b64', {
-      method: 'post',
-      body: formData,
-    })
+    this.cardPoller && this.cardPoller.stop()
+    this.cardPoller = undefined
   }
 
   public clearLongValue = async () => {
     this.writingVoteToCard = true
-    await this.saveLongValue('')
+    await this.props.card.writeLongUint8Array(Uint8Array.of())
     this.writingVoteToCard = false
   }
 
@@ -375,11 +380,11 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
             isTestBallot: !this.state.isLiveMode,
             ballotType: BallotType.Standard,
           }
-          const longValue = fromByteArray(encodeBallot(ballot))
+          const longValue = encodeBallot(ballot)
 
           this.writingVoteToCard = true
           try {
-            await this.saveLongValue(longValue)
+            await this.props.card.writeLongUint8Array(longValue)
           } catch (error) {
             // eslint-disable-next-line no-empty
           }
@@ -399,7 +404,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     await this.clearLongValue()
 
     const currentVoterCardData: VoterCardData = JSON.parse(
-      this.state.shortValue
+      this.state.shortValue!
     )
     const voidedVoterCardData: VoterCardData = {
       ...currentVoterCardData,
@@ -409,10 +414,11 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
     const updatedCard = await this.readCard()
     const updatedShortValue: VoterCardData =
-      updatedCard.present && JSON.parse(updatedCard.shortValue)
+      updatedCard.present && JSON.parse(updatedCard.shortValue!)
 
     this.startShortValueReadPolling()
 
+    /* istanbul ignore next - this should never happen */
     if (voidedVoterCardData.uz !== updatedShortValue.uz) {
       this.resetBallot()
       return false
@@ -427,7 +433,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
     await this.clearLongValue()
 
     const currentVoterCardData: VoterCardData = JSON.parse(
-      this.state.shortValue
+      this.state.shortValue!
     )
 
     const usedVoterCardData: VoterCardData = {
@@ -438,7 +444,7 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
 
     const updatedCard = await this.readCard()
     const updatedShortValue: VoterCardData =
-      updatedCard.present && JSON.parse(updatedCard.shortValue)
+      updatedCard.present && JSON.parse(updatedCard.shortValue!)
 
     this.startShortValueReadPolling()
 
@@ -451,81 +457,40 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public componentDidMount = () => {
-    if (window.location.hash === '#sample') {
-      this.checkCardInterval = 1 // don't poll for card data.
-      this.setState(
-        {
-          election: electionSample as Election,
-          appPrecinctId: '23',
-          ballotsPrintedCount: 0,
-          isLiveMode: true,
-          isPollsOpen: true,
-          ballotCreatedAt: utcTimestamp(),
-          ballotStyleId: '12',
-          precinctId: '23',
-        },
-        () => {
-          const {
-            ballotCreatedAt,
-            ballotStyleId,
-            precinctId,
-            election,
-          } = this.state
-          this.setBallotActivation({
-            ballotCreatedAt,
-            ballotStyleId,
-            precinctId,
-          })
-          this.setElection(election as Election)
-          const voterCardData: VoterCardData = {
-            c: utcTimestamp(),
-            t: 'voter',
-            bs: ballotStyleId,
-            pr: precinctId,
-          }
-          this.processCard({
-            present: true,
-            shortValue: JSON.stringify(voterCardData),
-            longValueExists: false,
-          })
-        }
-      )
-    } else {
-      const election = this.getElection()
-      const { ballotStyleId, precinctId } = this.getBallotActivation()
-      const {
-        appMode = this.initialState.appMode,
-        appPrecinctId = this.initialState.appPrecinctId,
-        ballotsPrintedCount = this.initialState.ballotsPrintedCount,
-        isLiveMode = this.initialState.isLiveMode,
-        isPollsOpen = this.initialState.isPollsOpen,
-        tally = this.initialState.tally,
-      } = this.getStoredState()
-      const ballotStyle =
-        ballotStyleId &&
-        election &&
-        getBallotStyle({
-          ballotStyleId,
-          election,
-        })
-      const contests =
-        ballotStyle && election
-          ? getContests({ ballotStyle, election })
-          : this.initialState.contests
-      this.setState({
-        appMode,
-        appPrecinctId,
-        ballotsPrintedCount,
+    const election = this.getElection()
+    const { ballotStyleId, precinctId } = this.getBallotActivation()
+    const {
+      appMode = this.initialState.appMode,
+      appPrecinctId = this.initialState.appPrecinctId,
+      ballotsPrintedCount = this.initialState.ballotsPrintedCount,
+      isLiveMode = this.initialState.isLiveMode,
+      isPollsOpen = this.initialState.isPollsOpen,
+      tally = this.initialState.tally,
+    } = this.getStoredState()
+    const ballotStyle =
+      ballotStyleId &&
+      election &&
+      getBallotStyle({
         ballotStyleId,
-        contests,
         election,
-        isLiveMode,
-        isPollsOpen,
-        precinctId,
-        tally,
-        votes: this.getVotes(),
       })
-    }
+    const contests =
+      ballotStyle && election
+        ? getContests({ ballotStyle, election })
+        : this.initialState.contests
+    this.setState({
+      appMode,
+      appPrecinctId,
+      ballotsPrintedCount,
+      ballotStyleId,
+      contests,
+      election,
+      isLiveMode,
+      isPollsOpen,
+      precinctId,
+      tally,
+      votes: this.getVotes(),
+    })
     document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
@@ -553,66 +518,58 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
   }
 
   public readCard = async (): Promise<CardAPI> => {
-    return await fetchJSON<CardAPI>('/card/read')
+    return await this.props.card.readStatus()
   }
 
   public writeCard = async (cardData: VoterCardData) => {
-    await fetch('/card/write', {
-      method: 'post',
-      body: JSON.stringify(cardData),
-      headers: { 'Content-Type': 'application/json' },
-    })
+    await this.props.card.writeShortValue(JSON.stringify(cardData))
   }
 
   public getElection = (): OptionalElection => {
-    const election = window.localStorage.getItem(electionStorageKey)
-    return election ? JSON.parse(election) : undefined
+    return this.props.storage.get(electionStorageKey)
   }
 
   public setElection = (electionConfigFile: Election) => {
     const election = electionConfigFile
     this.setState({ election }, this.resetTally)
-    window.localStorage.setItem(electionStorageKey, JSON.stringify(election))
+    this.props.storage.set(electionStorageKey, election)
   }
 
-  public getBallotActivation = () => {
-    const activationData = window.localStorage.getItem(activationStorageKey)
-    return activationData ? JSON.parse(activationData) : {}
+  public getBallotActivation = (): SerializableActivationData => {
+    return (
+      this.props.storage.get(activationStorageKey) ||
+      (({} as unknown) as SerializableActivationData)
+    )
   }
 
-  public setBallotActivation = (data: {
-    ballotCreatedAt: number
-    ballotStyleId: string
-    precinctId: string
-  }) => {
+  public setBallotActivation = (data: SerializableActivationData) => {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
-      window.localStorage.setItem(activationStorageKey, JSON.stringify(data))
+      this.props.storage.set(activationStorageKey, data)
     }
   }
 
   public getVotes = () => {
-    const votesData = window.localStorage.getItem(votesStorageKey)
-    return votesData ? JSON.parse(votesData) : {}
+    return this.props.storage.get(votesStorageKey) || {}
   }
 
   public setVotes = async (votes: VotesDict) => {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
-      window.localStorage.setItem(votesStorageKey, JSON.stringify(votes))
+      this.props.storage.set(votesStorageKey, votes)
     }
 
     this.lastVoteUpdateAt = Date.now()
   }
 
   public resetVoterData = () => {
-    window.localStorage.removeItem(activationStorageKey)
-    window.localStorage.removeItem(votesStorageKey)
+    this.props.storage.remove(activationStorageKey)
+    this.props.storage.remove(votesStorageKey)
   }
 
   public unconfigure = () => {
     this.setState(this.initialState)
-    window.localStorage.clear()
+    this.props.storage.clear()
     this.props.history.push('/')
   }
 
@@ -625,24 +582,18 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       isPollsOpen,
       tally,
     } = this.state
-    window.localStorage.setItem(
-      stateStorageKey,
-      JSON.stringify({
-        appMode,
-        appPrecinctId,
-        ballotsPrintedCount,
-        isLiveMode,
-        isPollsOpen,
-        tally,
-      })
-    )
+    this.props.storage.set(stateStorageKey, {
+      appMode,
+      appPrecinctId,
+      ballotsPrintedCount,
+      isLiveMode,
+      isPollsOpen,
+      tally,
+    })
   }
 
   public getStoredState = (): Partial<State> => {
-    const storedStateJSON = window.localStorage.getItem(stateStorageKey)
-    const storedState: Partial<State> = storedStateJSON
-      ? JSON.parse(storedStateJSON)
-      : {}
+    const storedState = this.props.storage.get(stateStorageKey) || {}
 
     if (storedState.appMode) {
       try {
@@ -693,7 +644,6 @@ class AppRoot extends React.Component<RouteComponentProps, State> {
       precinctId: precinct.id,
     })
     this.setState(prevState => ({
-      ballotCreatedAt,
       ballotStyleId: ballotStyle.id,
       contests: getContests({ ballotStyle, election: prevState.election! }),
       precinctId: precinct.id,

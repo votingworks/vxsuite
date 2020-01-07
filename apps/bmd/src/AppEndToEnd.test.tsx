@@ -3,6 +3,7 @@ import { fireEvent, render, wait, within } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 import { advanceBy } from 'jest-date-mock'
 
+import { electionSample } from '@votingworks/ballot-encoder'
 import { printerMessageTimeoutSeconds } from './pages/PrintPage'
 
 import App from './App'
@@ -15,34 +16,18 @@ import {
   getAlternateNewVoterCard,
   getNewVoterCard,
   getUsedVoterCard,
-  noCard,
   pollWorkerCard,
 } from '../test/helpers/smartcards'
 
 import {
-  electionAsString,
   presidentContest,
   countyCommissionersContest,
   measure102Contest,
   voterContests,
 } from '../test/helpers/election'
-
-let currentCard = noCard
-fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-
-fetchMock.post('/card/write', (url, options) => {
-  currentCard = {
-    present: true,
-    shortValue: options.body as string,
-  }
-  return ''
-})
-
-fetchMock.get('/card/read_long', () =>
-  JSON.stringify({ longValue: electionAsString })
-)
-
-fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage } from './AppRoot'
+import { MemoryCard } from './utils/Card'
 
 fetchMock.get('/printer/status', () => ({
   ok: true,
@@ -58,17 +43,21 @@ fetchMock.post('/printer/jobs/new', () => ({
 }))
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
 it('VxMark+Print end-to-end flow', async () => {
   jest.useFakeTimers()
 
-  const { getByLabelText, getByText, getByTestId } = render(<App />)
+  const storage = new MemoryStorage<AppStorage>()
+  const card = new MemoryCard()
+  const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array')
+  const { getByLabelText, getByText, getByTestId } = render(
+    <App storage={storage} card={card} />
+  )
   const getByTextWithMarkup = withMarkup(getByText)
 
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
 
   // Default Unconfigured
@@ -77,7 +66,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Configure with Admin Card
-  currentCard = adminCard
+  card.insertCard(adminCard, electionSample)
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Load Election Definition')))
 
@@ -85,14 +74,14 @@ it('VxMark+Print end-to-end flow', async () => {
   await wait(() => getByText('Election definition is loaded.'))
 
   // Remove card and expect not configured because precinct not selected
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Device Not Configured'))
 
   // ---------------
 
   // Configure election with Admin Card
-  currentCard = adminCard
+  card.insertCard(adminCard, electionSample)
   advanceTimers()
   await wait(() => getByLabelText('Precinct'))
 
@@ -114,7 +103,7 @@ it('VxMark+Print end-to-end flow', async () => {
   ).toBeTruthy()
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Polls Closed'))
   getByText('Insert Poll Worker card to open.')
@@ -122,7 +111,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Open Polls with Poll Worker Card
-  currentCard = pollWorkerCard
+  card.insertCard(pollWorkerCard)
   advanceTimers()
   await wait(() =>
     fireEvent.click(getByText('Open Polls for Center Springfield'))
@@ -133,34 +122,34 @@ it('VxMark+Print end-to-end flow', async () => {
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 
   // Voter partially votes, remove card, and is on insert card screen.
-  currentCard = getNewVoterCard()
+  card.insertCard(getNewVoterCard())
   advanceTimers()
   await wait(() => getByText(/Center Springfield/))
   getByText(/ballot style 12/)
   getByTextWithMarkup('Your ballot has 20 contests.')
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 
   // Alternate Precinct
-  currentCard = getAlternateNewVoterCard()
+  card.insertCard(getAlternateNewVoterCard())
   advanceTimers()
   await wait(() => getByText('Invalid Card'))
   getByText('Card is not configured for this precinct.')
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
@@ -169,7 +158,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // Complete Voter Happy Path
 
   // Insert Voter card
-  currentCard = getNewVoterCard()
+  card.insertCard(getNewVoterCard())
   advanceTimers()
   await wait(() => getByText(/Center Springfield/))
   getByText(/ballot style 12/)
@@ -202,13 +191,13 @@ it('VxMark+Print end-to-end flow', async () => {
       // and finally write to the card.
       advanceBy(1100)
       advanceTimers()
-      expect(fetchMock.calls('/card/write_long_b64')).toHaveLength(1)
+      expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1)
 
       // If we wait another second and advance timers, without any change made to the card,
       // we should not see another call to save the card data
       advanceBy(1100)
       advanceTimers()
-      expect(fetchMock.calls('/card/write_long_b64')).toHaveLength(1)
+      expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1)
     }
 
     // Vote for yesno contest
@@ -258,24 +247,24 @@ it('VxMark+Print end-to-end flow', async () => {
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(2)
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // Insert Voter card which has just printed to see "cast" instructions again.
-  currentCard = getUsedVoterCard()
+  card.insertCard(getUsedVoterCard())
   advanceTimers()
   await wait(() => getByText('You’re Almost Done…'))
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 
   // Close Polls with Poll Worker Card
-  currentCard = pollWorkerCard
+  card.insertCard(pollWorkerCard)
   advanceTimers()
   await wait(() =>
     fireEvent.click(getByText('Close Polls for Center Springfield'))
@@ -286,14 +275,14 @@ it('VxMark+Print end-to-end flow', async () => {
   expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(3)
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Poll Worker card to open.'))
 
   // ---------------
 
   // Unconfigure with Admin Card
-  currentCard = adminCard
+  card.insertCard(adminCard, electionSample)
   advanceTimers()
   await wait(() => getByText('Election definition is loaded.'))
   fireEvent.click(getByText('Remove'))

@@ -1,50 +1,38 @@
 import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
 
 import App from '../App'
 
-import {
-  advanceTimers,
-  getNewVoterCard,
-  noCard,
-} from '../../test/helpers/smartcards'
+import { advanceTimers, getNewVoterCard } from '../../test/helpers/smartcards'
 
 import {
   contest0,
   contest0candidate0,
   contest0candidate1,
   contest1candidate0,
-  setElectionInLocalStorage,
-  setStateInLocalStorage,
+  setElectionInStorage,
+  setStateInStorage,
 } from '../../test/helpers/election'
 
 import { getActiveElement, handleGamepadButtonDown } from './gamepad'
-
-let currentCard = noCard
-fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-fetchMock.post('/card/write', (url, options) => {
-  currentCard = {
-    present: true,
-    shortValue: options.body as string,
-  }
-  return ''
-})
+import { MemoryStorage } from '../utils/Storage'
+import { AppStorage } from '../AppRoot'
+import { MemoryCard } from '../utils/Card'
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
 it('gamepad controls work', async () => {
   jest.useFakeTimers()
 
-  // load election from localStorage
-  setElectionInLocalStorage()
-  setStateInLocalStorage()
-  const { getByText } = render(<App />)
+  const storage = new MemoryStorage<AppStorage>()
+  const card = new MemoryCard()
+  setElectionInStorage(storage)
+  setStateInStorage(storage)
+  const { getByText } = render(<App storage={storage} card={card} />)
 
-  currentCard = getNewVoterCard()
+  card.insertCard(getNewVoterCard())
   advanceTimers()
   await wait(() => getByText(/Center Springfield/))
 

@@ -1,8 +1,6 @@
 import React from 'react'
 import { fireEvent, render, wait, within } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
-import { fromByteArray } from 'base64-js'
-import { encodeBallot } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/ballot-encoder'
 
 import App from './App'
 
@@ -12,53 +10,34 @@ import {
   adminCard,
   advanceTimers,
   getExpiredVoterCard,
-  getExpiredVoterCardWithVotes,
   getNewVoterCard,
-  noCard,
   pollWorkerCard,
-  sampleBallot,
 } from '../test/helpers/smartcards'
 
 import {
-  electionAsString,
   presidentContest,
   measure102Contest,
   voterContests,
 } from '../test/helpers/election'
-
-let currentCard = noCard
-fetchMock.get('/card/read', () => JSON.stringify(currentCard))
-
-fetchMock.post('/card/write', (url, options) => {
-  currentCard = {
-    present: true,
-    shortValue: options.body as string,
-  }
-  return ''
-})
-
-fetchMock.get('/card/read_long', () =>
-  JSON.stringify({ longValue: electionAsString })
-)
-
-fetchMock.get('/card/read_long_b64', () =>
-  JSON.stringify({ longValue: fromByteArray(encodeBallot(sampleBallot)) })
-)
-
-fetchMock.post('/card/write_long_b64', () => JSON.stringify({ status: 'ok' }))
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage } from './AppRoot'
+import { MemoryCard } from './utils/Card'
 
 beforeEach(() => {
-  window.localStorage.clear()
   window.location.href = '/'
 })
 
 it('VxMarkOnly flow', async () => {
   jest.useFakeTimers()
 
-  const { getByTestId, getByLabelText, getByText } = render(<App />)
+  const storage = new MemoryStorage<AppStorage>()
+  const card = new MemoryCard()
+  const { getByTestId, getByLabelText, getByText } = render(
+    <App storage={storage} card={card} />
+  )
   const getByTextWithMarkup = withMarkup(getByText)
 
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
 
   // Default Unconfigured
@@ -67,7 +46,7 @@ it('VxMarkOnly flow', async () => {
   // ---------------
 
   // Configure election with Admin Card
-  currentCard = adminCard
+  card.insertCard(adminCard, electionSample)
   advanceTimers()
   await wait(() => fireEvent.click(getByText('Load Election Definition')))
 
@@ -75,14 +54,14 @@ it('VxMarkOnly flow', async () => {
   await wait(() => getByText('Election definition is loaded.'))
 
   // Remove card and expect not configured because precinct not selected
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Device Not Configured'))
 
   // ---------------
 
   // Configure election with Admin Card
-  currentCard = adminCard
+  card.insertCard(adminCard, electionSample)
   advanceTimers()
   await wait(() => getByLabelText('Precinct'))
 
@@ -103,7 +82,7 @@ it('VxMarkOnly flow', async () => {
   ).toBeTruthy()
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Polls Closed'))
   getByText('Insert Poll Worker card to open.')
@@ -111,7 +90,7 @@ it('VxMarkOnly flow', async () => {
   // ---------------
 
   // Open Polls with Poll Worker Card
-  currentCard = pollWorkerCard
+  card.insertCard(pollWorkerCard)
   advanceTimers()
   await wait(() =>
     fireEvent.click(getByText('Open Polls for Center Springfield'))
@@ -119,31 +98,31 @@ it('VxMarkOnly flow', async () => {
   getByText('Close Polls for Center Springfield')
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 
   // Insert Expired Voter Card
-  currentCard = getExpiredVoterCard()
+  card.insertCard(getExpiredVoterCard())
   advanceTimers()
   await wait(() => getByText('Expired Card'))
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Card'))
 
   // // ---------------
 
   // Insert Expired Voter Card With Votes
-  currentCard = getExpiredVoterCardWithVotes()
+  card.insertCard(getExpiredVoterCard())
   advanceTimers()
   await wait(() => getByText('Expired Card'))
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Card'))
 
@@ -152,7 +131,7 @@ it('VxMarkOnly flow', async () => {
   // Complete VxMark Voter Happy Path
 
   // Insert Voter card
-  currentCard = getNewVoterCard()
+  card.insertCard(getNewVoterCard())
   advanceTimers()
   await wait(() => getByText(/Center Springfield/))
   getByText(/ballot style 12/)
@@ -196,14 +175,14 @@ it('VxMarkOnly flow', async () => {
   getByText('Take your card to the Ballot Printer.')
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 
   // Close Polls with Poll Worker Card
-  currentCard = pollWorkerCard
+  card.insertCard(pollWorkerCard)
   advanceTimers()
   await wait(() =>
     fireEvent.click(getByText('Close Polls for Center Springfield'))
@@ -211,14 +190,14 @@ it('VxMarkOnly flow', async () => {
   getByText('Open Polls for Center Springfield')
 
   // Remove card
-  currentCard = noCard
+  card.removeCard()
   advanceTimers()
   await wait(() => getByText('Insert Poll Worker card to open.'))
 
   // ---------------
 
   // Unconfigure with Admin Card
-  currentCard = adminCard
+  card.insertCard(adminCard, electionSample)
   advanceTimers()
   await wait(() => getByText('Election definition is loaded.'))
   fireEvent.click(getByText('Remove'))
