@@ -115,7 +115,7 @@
     "@types/base64-js": "^1.2.5",
     "@types/pdfmake": "^0.1.9",
     "@types/react-gamepad": "^1.0.0",
-    "@typescript-eslint/eslint-plugin": "2.15.0",
+    "@typescript-eslint/eslint-plugin": "^2.15.0",
     "@typescript-eslint/parser": "^2.15.0",
     "cypress": "^3.8.1",
     "eslint": "^5.16.0",
@@ -145,8 +145,8 @@
     "node": ">= 12"
   },
   "resolutions": {
-    "**/@typescript-eslint/eslint-plugin": "2.14.0",
-    "**/@typescript-eslint/parser": "2.14.0",
+    "**/@typescript-eslint/eslint-plugin": "2.15.0",
+    "**/@typescript-eslint/parser": "2.15.0",
     "**/@babel/parser": "7.7.7"
   }
 }
