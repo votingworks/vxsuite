@@ -13,6 +13,7 @@ interface Props {
 }
 
 const TestMode = ({ isLiveMode }: Props) =>
+  // eslint-disable-next-line no-restricted-syntax
   isLiveMode ? null : (
     <TestingModeContainer warning bold warningIcon center>
       Testing Mode

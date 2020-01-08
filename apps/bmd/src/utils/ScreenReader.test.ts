@@ -38,6 +38,7 @@ describe('AriaScreenReader', () => {
 
     // Can't do `node.textContent = null` because it gets coerced to "null".
     Object.defineProperty(node, 'textContent', {
+      // eslint-disable-next-line no-restricted-syntax
       value: null,
     })
 

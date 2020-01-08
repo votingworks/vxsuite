@@ -10,6 +10,7 @@ test('returns an object argument', () => {
 })
 
 test('throws when given null', () => {
+  // eslint-disable-next-line no-restricted-syntax
   expect(() => assertDefined(null)).toThrowError()
 })
 
