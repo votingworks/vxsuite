@@ -17,13 +17,13 @@ install-dev-dependencies:
 build: install install-dependencies
 
 test:
-	python3 -m pytest
+	python3 -m pipenv run python -m pytest
 
 coverage:
-	python3 -m pytest --cov=smartcards --cov-report term-missing --cov-fail-under=100 tests/
+	python3 -m pipenv run python -m pytest --cov=smartcards --cov-report term-missing --cov-fail-under=100 tests/
 
 typecheck:
-	python3 -m mypy smartcards tests
+	python3 -m pipenv run python -m mypy smartcards tests
 
 run:
-	FLASK_APP=smartcards.core python3 -m pipenv run python -m flask run --port 3001
+	FLASK_APP=smartcards.core python3 -m pipenv run python -m flask run --port 3001 --host 0.0.0.0
