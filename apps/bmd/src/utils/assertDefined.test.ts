@@ -1,12 +1,11 @@
 import assertDefined from './assertDefined'
 
-test('returns a falsy argument when it is not null or undefined', () => {
-  expect(assertDefined(0)).toBe(0)
+test('does not throw when given 0', () => {
+  expect(() => assertDefined(0)).not.toThrowError()
 })
 
-test('returns an object argument', () => {
-  const obj = {}
-  expect(assertDefined(obj)).toBe(obj)
+test('does not throw when given an empty object', () => {
+  expect(() => assertDefined({})).not.toThrowError()
 })
 
 test('throws when given null', () => {
@@ -18,18 +17,28 @@ test('throws when given undefined', () => {
   expect(() => assertDefined(undefined)).toThrowError()
 })
 
+// This isn't a runtime check, really. It just ensures TypeScript is happy.
 test('refines the type of the argument by removing null', () => {
-  // This isn't a runtime check, really. It just ensures TypeScript is happy.
-  const original: string | null = 'a string'
-  const refined: string = assertDefined(original)
-  expect(refined).toBe(original)
+  // Declare that `value` might be `null`.
+  const value: string | null = 'a string'
+
+  // Assert that it isn't `null`.
+  assertDefined(value)
+
+  // Use it as though it isn't `null`.
+  value.toUpperCase()
 })
 
+// This isn't a runtime check, really. It just ensures TypeScript is happy.
 test('refines the type of the argument by removing undefined', () => {
-  // This isn't a runtime check, really. It just ensures TypeScript is happy.
-  const original: string | undefined = 'a string'
-  const refined: string = assertDefined(original)
-  expect(refined).toBe(original)
+  // Declare that `value` might be `undefined`.
+  const value: string | undefined = 'a string'
+
+  // Assert that it isn't `undefined`.
+  assertDefined(value)
+
+  // Use it as though it isn't `undefined`.
+  value.toUpperCase()
 })
 
 test('can throw with a custom message', () => {
