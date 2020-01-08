@@ -6,6 +6,8 @@ This web server component provides a web interface to a connected smartcard.
 
 The instructions below show how to run this web server either directly or via Docker. If you wish to use Docker, make sure both [`docker`](https://docs.docker.com/install/) and [`docker-compose`](https://docs.docker.com/compose/install/) are installed. Otherwise the instructions assume you're running in [Ubuntu](http://ubuntu.com), though other systems such as macOS work with appropriate changes.
 
+> **Note:** While using Docker is a great way to get this running with mock data for developing BMD, it's not straightforward to use Docker with real hardware. You can use both development approaches interchangeably, so pick the one that is most appropriate to the task at hand.
+
 ## Install Requisite Software
 
 ```sh
