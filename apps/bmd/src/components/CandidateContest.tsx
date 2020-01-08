@@ -311,19 +311,12 @@ class CandidateContest extends React.Component<Props, State> {
       },
     ])
     this.setState({ writeInCandidateName: '' })
-
-    // Delay to avoid passing tap to next screen
-    window.setTimeout(() => {
-      this.toggleWriteInCandidateModal(false)
-    }, 200)
+    this.toggleWriteInCandidateModal(false)
   }
 
   public cancelWriteInCandidateModal = () => {
     this.setState({ writeInCandidateName: '' })
-    // Delay to avoid passing tap to next screen
-    window.setTimeout(() => {
-      this.toggleWriteInCandidateModal(false)
-    }, 200)
+    this.toggleWriteInCandidateModal(false)
   }
 
   public toggleWriteInCandidateModal = (writeInCandateModalIsOpen: boolean) => {

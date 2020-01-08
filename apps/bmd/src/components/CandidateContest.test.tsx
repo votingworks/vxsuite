@@ -129,7 +129,6 @@ describe('supports write-in candidates', () => {
     getByText('Write-In Candidate')
     typeKeysInVirtualKeyboard(getByText, 'LIZARD PEOPLE')
     fireEvent.click(getByText('Accept'))
-    jest.runOnlyPendingTimers() // Handle Delay when clicking "Accept"
     expect(queryByText('Write-In Candidate')).toBeFalsy()
 
     expect(updateVote).toHaveBeenCalledWith(contest.id, [
@@ -156,7 +155,6 @@ describe('supports write-in candidates', () => {
     )
     getByText('You have entered 37 of maximum 40 characters.')
     fireEvent.click(getByText('Cancel'))
-    jest.runOnlyPendingTimers() // Handle Delay when clicking "Cancel"
     expect(queryByText('Write-In Candidate')).toBeFalsy()
   })
 
@@ -184,7 +182,6 @@ describe('supports write-in candidates', () => {
         .hasAttribute('disabled')
     ).toBe(true)
     fireEvent.click(getByText('Accept'))
-    jest.runOnlyPendingTimers() // Handle Delay when clicking "Accept"
     expect(queryByText('Write-In Candidate')).toBeFalsy()
 
     expect(updateVote).toHaveBeenCalledWith(contest.id, [
