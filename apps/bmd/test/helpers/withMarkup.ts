@@ -2,15 +2,16 @@
 
 import { MatcherFunction } from '@testing-library/react'
 
-type Query = (f: MatcherFunction) => HTMLElement
+type Query<T> = (f: MatcherFunction) => T
 
-const withMarkup = (query: Query) => (text: string): HTMLElement =>
+const hasText = (text: string, node: HTMLElement) => node.textContent === text
+
+const withMarkup = <T>(query: Query<T>) => (text: string): T =>
   query((content: string, node: HTMLElement) => {
-    const hasText = (node: HTMLElement) => node.textContent === text
     const childrenDontHaveText = Array.from(node.children).every(
-      child => !hasText(child as HTMLElement)
+      child => !hasText(text, child as HTMLElement)
     )
-    return hasText(node) && childrenDontHaveText
+    return hasText(text, node) && childrenDontHaveText
   })
 
 export default withMarkup
