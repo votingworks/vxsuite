@@ -22,6 +22,8 @@ import {
   createVoterCard,
 } from '../test/helpers/smartcards'
 
+import withMarkup from '../test/helpers/withMarkup'
+
 import { printerMessageTimeoutSeconds } from './pages/PrintOnlyScreen'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
@@ -52,16 +54,8 @@ it('VxPrintOnly flow', async () => {
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
     <App storage={storage} card={card} />
   )
-  // Query by text which includes markup.
-  // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
-  const getAllByTextWithMarkup = (text: string) =>
-    getAllByText((content, node) => {
-      const hasText = (node: HTMLElement) => node.textContent === text
-      const childrenDontHaveText = Array.from(node.children).every(
-        child => !hasText(child as HTMLElement)
-      )
-      return hasText(node) && childrenDontHaveText
-    })
+
+  const getAllByTextWithMarkup = withMarkup(getAllByText)
 
   card.removeCard()
   advanceTimers()
