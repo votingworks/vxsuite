@@ -47,27 +47,79 @@ const Keyboard = styled.div`
 interface Props {
   onKeyPress: PointerEventHandler
   keyDisabled?(key: string): boolean
+  keyMap?: KeyMap
 }
 
-const VirtualKeyboard = ({ onKeyPress, keyDisabled }: Props) => (
+interface Key {
+  label: string
+  ariaLabel?: string
+}
+
+interface KeyMap {
+  rows: Key[][]
+}
+
+const US_ENGLISH_KEYMAP: KeyMap = {
+  rows: [
+    [
+      { label: 'Q' },
+      { label: 'W' },
+      { label: 'E' },
+      { label: 'R' },
+      { label: 'T' },
+      { label: 'Y' },
+      { label: 'U' },
+      { label: 'I' },
+      { label: 'O' },
+      { label: 'P' },
+    ],
+    [
+      { label: 'A' },
+      { label: 'S' },
+      { label: 'D' },
+      { label: 'F' },
+      { label: 'G' },
+      { label: 'H' },
+      { label: 'J' },
+      { label: 'K' },
+      { label: 'L' },
+      { label: "'", ariaLabel: 'single-quote' },
+      { label: '"', ariaLabel: 'double-quote' },
+    ],
+    [
+      { label: 'Z' },
+      { label: 'X' },
+      { label: 'C' },
+      { label: 'V' },
+      { label: 'B' },
+      { label: 'N' },
+      { label: 'M' },
+      { label: ',', ariaLabel: 'comma' },
+      { label: '.', ariaLabel: 'period' },
+      { label: '-', ariaLabel: 'dash' },
+    ],
+    [{ label: 'space' }, { label: '⌫ delete', ariaLabel: 'delete' }],
+  ],
+}
+
+const VirtualKeyboard = ({
+  onKeyPress,
+  keyDisabled,
+  keyMap = US_ENGLISH_KEYMAP,
+}: Props) => (
   <Keyboard data-testid="virtual-keyboard">
-    {[
-      ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-      ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', "'", '"'],
-      ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '-'],
-      ['space', '⌫ delete'],
-    ].map(row => {
+    {keyMap.rows.map(row => {
       return (
         <div key={`row-${row.join()}`}>
-          {row.map(key => (
+          {row.map(({ label, ariaLabel }) => (
             <Button
-              key={key}
-              data-key={key}
-              aria-label={key.toLowerCase()}
+              key={label}
+              data-key={label}
+              aria-label={ariaLabel ?? label.toLowerCase()}
               onPress={onKeyPress}
-              disabled={keyDisabled?.(key)}
+              disabled={keyDisabled?.(label)}
             >
-              {key}
+              {label}
             </Button>
           ))}
         </div>
