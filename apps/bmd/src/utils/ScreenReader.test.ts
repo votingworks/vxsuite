@@ -1,6 +1,7 @@
 import { AriaScreenReader, SpeechSynthesisTextToSpeech } from './ScreenReader'
 import { text, element as h } from '../../test/helpers/domBuilders'
 import fakeTTS from '../../test/helpers/fakeTTS'
+import fakeVoice from '../../test/helpers/fakeVoice'
 
 describe('AriaScreenReader', () => {
   it('requires a text-to-speech engine', () => {
@@ -332,5 +333,16 @@ describe('SpeechSynthesisTextToSpeech', () => {
     expect(speechSynthesis.cancel).not.toHaveBeenCalled()
     tts.stop()
     expect(speechSynthesis.cancel).toHaveBeenCalledTimes(1)
+  })
+
+  it('accepts a voice getter', () => {
+    const voice = fakeVoice({ name: 'Alex' })
+    const tts = new SpeechSynthesisTextToSpeech(() => voice)
+
+    tts.speak('hello')
+
+    expect(speechSynthesis.speak).toHaveBeenCalledWith(
+      expect.objectContaining({ voice })
+    )
   })
 })
