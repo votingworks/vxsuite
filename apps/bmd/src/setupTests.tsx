@@ -42,7 +42,7 @@ function makeSpeechSynthesisDouble(): typeof speechSynthesis {
     addEventListener: jest.fn(),
     cancel: jest.fn(),
     dispatchEvent: jest.fn(),
-    getVoices: jest.fn(),
+    getVoices: jest.fn().mockImplementation(() => []),
     onvoiceschanged: jest.fn(),
     pause: jest.fn(),
     paused: false,

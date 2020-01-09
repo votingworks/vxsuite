@@ -245,7 +245,17 @@ export class AriaScreenReader implements ScreenReader {
   }
 }
 
+export interface VoiceSelector {
+  (): SpeechSynthesisVoice | undefined
+}
+
 export class SpeechSynthesisTextToSpeech implements TextToSpeech {
+  private getVoice?: VoiceSelector
+
+  public constructor(getVoice?: VoiceSelector) {
+    this.getVoice = getVoice
+  }
+
   /**
    * Directly triggers speech of text. Resolves when speaking is done.
    */
@@ -255,7 +265,14 @@ export class SpeechSynthesisTextToSpeech implements TextToSpeech {
   ): Promise<void> {
     return new Promise(resolve => {
       const utterance = new SpeechSynthesisUtterance(text)
+      const { getVoice } = this
+      const voice = getVoice?.()
+
       utterance.onend = () => resolve()
+
+      if (voice) {
+        utterance.voice = voice
+      }
 
       if (now) {
         speechSynthesis.cancel()
