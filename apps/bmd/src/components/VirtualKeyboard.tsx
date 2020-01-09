@@ -110,7 +110,7 @@ const VirtualKeyboard = ({
   <Keyboard data-testid="virtual-keyboard">
     {keyMap.rows.map(row => {
       return (
-        <div key={`row-${row.join()}`}>
+        <div key={`row-${row.map(key => key.label).join()}`}>
           {row.map(({ label, ariaLabel }) => (
             <Button
               key={label}
