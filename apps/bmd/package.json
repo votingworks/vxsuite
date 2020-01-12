@@ -129,7 +129,7 @@
     "eslint-plugin-react": "^7.17.0",
     "husky": "^4.0.7",
     "is-ci-cli": "^2.0.0",
-    "jest-date-mock": "^1.0.7",
+    "jest-date-mock": "^1.0.8",
     "jest-fetch-mock": "^3.0.1",
     "jest-styled-components": "^6.3.4",
     "lint-staged": "^9.5.0",
