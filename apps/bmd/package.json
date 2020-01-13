@@ -109,7 +109,7 @@
     "use-interval": "^1.2.1"
   },
   "devDependencies": {
-    "@codemod/parser": "^1.0.5",
+    "@codemod/parser": "^1.0.6",
     "@testing-library/cypress": "^5.0.2",
     "@testing-library/react": "^9.4.0",
     "@types/base64-js": "^1.2.5",
