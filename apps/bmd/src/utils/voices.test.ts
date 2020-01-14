@@ -17,7 +17,10 @@ describe('getUSEnglishVoice', () => {
     expect(getUSEnglishVoice()).toBeUndefined()
   })
 
-  it('prefers the specific CMU voice', () => {
+  it.each([
+    'cmu_us_slt_arctic_hts festival',
+    'cmu_us_slt_arctic_clunits festival',
+  ])('prefers the CMU voice "%s"', name => {
     mockOf(speechSynthesis.getVoices).mockReturnValue([
       // Preferred over default
       fakeVoice({ default: true }),
@@ -27,12 +30,10 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ name: 'English' }),
       // Preferred over lang matches
       fakeVoice({ lang: 'en-US' }),
-      fakeVoice({
-        name: 'English_(America) espeak-ng',
-      }),
+      fakeVoice({ name }),
     ])
 
-    expect(getUSEnglishVoice()?.name).toBe('English_(America) espeak-ng')
+    expect(getUSEnglishVoice()?.name).toBe(name)
   })
 
   it('prefers US English to UK English', () => {

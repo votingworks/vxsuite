@@ -11,8 +11,9 @@ export const getUSEnglishVoice: VoiceSelector = () => {
 
   // Find voices in ranked order.
   return (
-    // Prefer the CMU voice present on VxMark.
-    voices.find(voice => voice.name === 'English_(America) espeak-ng') ??
+    // Prefer the CMU voices present on VxMark.
+    voices.find(voice => voice.name === 'cmu_us_slt_arctic_hts festival') ??
+    voices.find(voice => voice.name === 'cmu_us_slt_arctic_clunits festival') ??
     voices.find(
       voice =>
         /\bEnglish\b/i.test(voice.name) && /\b(US|America)\b/i.test(voice.name)
