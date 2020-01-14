@@ -254,6 +254,10 @@ export class SpeechSynthesisTextToSpeech implements TextToSpeech {
 
   public constructor(getVoice?: VoiceSelector) {
     this.getVoice = getVoice
+
+    // Prime the speech synthesis engine. This call will likely return an empty
+    // array, but future ones should work properly.
+    speechSynthesis.getVoices()
   }
 
   /**
