@@ -11,8 +11,8 @@ import { defaultPrecinctId } from '../../test/helpers/election'
 import { advanceTimers } from '../../test/helpers/smartcards'
 
 import PollWorkerScreen from './PollWorkerScreen'
-import { NullPrinter } from '../utils/printer'
 import { getZeroTally } from '../utils/election'
+import fakePrinter from '../../test/helpers/fakePrinter'
 
 jest.useFakeTimers()
 
@@ -27,7 +27,7 @@ it('renders PollWorkerScreen', async () => {
       isPollsOpen
       isLiveMode={false}
       machineId="1"
-      printer={new NullPrinter()}
+      printer={fakePrinter()}
       tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
     />

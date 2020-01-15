@@ -18,6 +18,7 @@ import { WebServiceCard } from './utils/Card'
 import { LocalStorage } from './utils/Storage'
 import { getUSEnglishVoice } from './utils/voices'
 import memoize from './utils/memoize'
+import getPrinter from './utils/printer'
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault()
@@ -30,6 +31,7 @@ export interface Props {
   }
   card?: AppRootProps['card']
   storage?: AppRootProps['storage']
+  printer?: AppRootProps['printer']
 }
 
 const App = ({
@@ -39,6 +41,7 @@ const App = ({
   },
   card = new WebServiceCard(),
   storage = new LocalStorage<AppStorage>(),
+  printer = getPrinter(),
 }: Props) => {
   const [screenReaderEnabled, setScreenReaderEnabled] = useState(false)
   const [screenReader, setScreenReader] = useState<ScreenReader>(
@@ -123,7 +126,14 @@ const App = ({
       >
         <Route
           path="/"
-          render={props => <AppRoot card={card} storage={storage} {...props} />}
+          render={props => (
+            <AppRoot
+              card={card}
+              storage={storage}
+              printer={printer}
+              {...props}
+            />
+          )}
         />
       </FocusManager>
     </BrowserRouter>

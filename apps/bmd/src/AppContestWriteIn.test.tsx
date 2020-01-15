@@ -17,19 +17,7 @@ import { VxMarkPlusVxPrint } from './config/types'
 import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
-
-fetchMock.get('/printer/status', () => ({
-  ok: true,
-  available: [
-    { contentType: 'text/html' },
-    { contentType: 'application/pdf' },
-    { contentType: 'x-application/pdfmake' },
-  ],
-}))
-
-fetchMock.post('/printer/jobs/new', () => ({
-  id: 'printer-job-id',
-}))
+import fakePrinter from '../test/helpers/fakePrinter'
 
 jest.useFakeTimers()
 
@@ -42,6 +30,7 @@ it('Single Seat Contest with Write In', async () => {
 
   const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const printer = fakePrinter()
 
   setElectionInStorage(storage)
   setStateInStorage(storage, {
@@ -49,7 +38,7 @@ it('Single Seat Contest with Write In', async () => {
   })
 
   const { container, getByText, queryByText, getByTestId } = render(
-    <App storage={storage} card={card} />
+    <App storage={storage} card={card} printer={printer} />
   )
   const getByTextWithMarkup = withMarkup(getByText)
 
@@ -137,5 +126,5 @@ it('Single Seat Contest with Write In', async () => {
 
   // Printer has new job
   advanceTimers()
-  await wait(() => expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1))
+  await wait(() => expect(printer.print).toHaveBeenCalledTimes(1))
 })
