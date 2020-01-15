@@ -1,0 +1,84 @@
+<em>loading speech synthesis…</em>
+
+<script type="module">
+  const secondsToWaitForVoices = 10
+  const oneSecond = 1000
+
+  /**
+   * Manages a timeout after which we just give up and go to the app.
+   */
+  function doTimeoutCheck() {
+    const search = location.search.slice(1)
+
+    if (/^\d+/.test(search)) {
+      const timeout = Number(search)
+      const now = Date.now()
+
+      if (timeout <= now) {
+        console.log('timeout exceeded waiting for voices, continuing anyway')
+        setTimeout(goToApp, oneSecond)
+        return true
+      } else {
+        const seconds = Math.floor((timeout - now) / oneSecond)
+        console.log(`timeout not yet reached, still waiting for voices for ${seconds}s`)
+      }
+    } else {
+      const timeout = Date.now() + secondsToWaitForVoices * oneSecond
+
+      console.log(`waiting up to ${secondsToWaitForVoices}s from now`)
+      history.pushState(undefined, '', `${location.pathname}?${timeout}`)
+    }
+
+    return false
+  }
+
+  function goToApp() {
+    location.href = '/'
+  }
+
+  /**
+   * Performs the initial check for a page load. This one will typically fail
+   * with `getVoices` returning `[]` for one of these reasons:
+   *
+   * - chromium hasn't loaded libspeechd2.so yet
+   * - chromium hasn't initialized a speech-dispatcher session yet
+   * - chromium hasn't cached at the page level the voice list yet
+   *
+   * @see https://github.com/chromium/chromium/blob/cdd1d6e36b4f451df06125d6f6e3aa03d4b63251/content/browser/speech/tts_linux.cc#L121-L148
+   */
+  function doVoiceCheck() {
+    if (doTimeoutCheck()) {
+      return
+    }
+
+    speechSynthesis.getVoices()
+    setTimeout(doSecondVoiceCheck, oneSecond)
+  }
+
+  /**
+   * At this point Chromium may be ready to actually return something from `getVoices`.
+   */
+  function doSecondVoiceCheck() {
+    const voices = speechSynthesis.getVoices()
+
+    if (voices.length === 0) {
+      console.log('second check failed, reloading…')
+      setTimeout(tryAgain, oneSecond / 2)
+    } else {
+      console.log(`second check succeeded! found ${voices.length} voice(s)`)
+      setTimeout(goToApp, oneSecond / 2)
+    }
+  }
+
+  /**
+   * There seems to be a per-page voice cache that needs to be cleared by
+   * reloading the page. I haven't found anything in chromium's source code
+   * showing this for sure, but it fits the behavior that the _first_ page
+   * load that tries to access `getVoices` will _never_ get a result.
+   */
+  function tryAgain() {
+    location.reload()
+  }
+
+  window.addEventListener('DOMContentLoaded', doVoiceCheck)
+</script>
