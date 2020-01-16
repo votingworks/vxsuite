@@ -15,5 +15,5 @@ export class NullPrinter implements Printer {
 }
 
 export default function getPrinter(): Printer {
-  return new LocalPrinter()
+  return window.kiosk ?? new LocalPrinter()
 }
