@@ -4,8 +4,20 @@ declare module 'kiosk-browser' {
     level: number // Number between 0–1
   }
 
+  export interface PrinterInfo {
+    // Docs: http://electronjs.org/docs/api/structures/printer-info
+    description: string
+    isDefault: boolean
+    name: string
+    status: number
+    // Added via kiosk-browser
+    connected: boolean
+    options?: { [key: string]: string }
+  }
+
   export interface Kiosk {
     print(): Promise<void>
+    getPrinterInfo(): Promise<PrinterInfo[]>
     getBatteryInfo(): Promise<BatteryInfo>
   }
 }
