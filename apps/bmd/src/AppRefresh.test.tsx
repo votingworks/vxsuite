@@ -15,6 +15,7 @@ import {
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
+import { MemoryHardware } from './utils/Hardware'
 
 jest.useFakeTimers()
 
@@ -25,13 +26,16 @@ beforeEach(() => {
 it('Refresh window and expect to be on same contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const hardware = new MemoryHardware()
+  const storage = new MemoryStorage<AppStorage>()
 
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  let { getByText, unmount } = render(<App storage={storage} card={card} />)
+  let { getByText, unmount } = render(
+    <App card={card} hardware={hardware} storage={storage} />
+  )
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())
@@ -57,7 +61,9 @@ it('Refresh window and expect to be on same contest', async () => {
   advanceTimers()
 
   unmount()
-  ;({ getByText, unmount } = render(<App storage={storage} card={card} />))
+  ;({ getByText, unmount } = render(
+    <App card={card} hardware={hardware} storage={storage} />
+  ))
 
   advanceTimers()
 

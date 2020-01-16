@@ -14,3 +14,4 @@ export enum YES_NO_VOTES {
   yes = 'Yes',
 }
 export const WRITE_IN_CANDIDATE_MAX_LENGTH = 40
+export const LOW_BATTERY_THRESHOLD = 0.25

@@ -4,9 +4,7 @@ import { BrowserRouter, Route } from 'react-router-dom'
 import 'normalize.css'
 import './App.css'
 
-import FocusManager from './components/FocusManager'
-
-import AppRoot, { Props as AppRootProps, AppStorage } from './AppRoot'
+import memoize from './utils/memoize'
 import {
   ScreenReader,
   AriaScreenReader,
@@ -17,21 +15,25 @@ import {
 import { WebServiceCard } from './utils/Card'
 import { LocalStorage } from './utils/Storage'
 import { getUSEnglishVoice } from './utils/voices'
-import memoize from './utils/memoize'
 import getPrinter from './utils/printer'
+import { getHardware } from './utils/Hardware'
+
+import AppRoot, { Props as AppRootProps, AppStorage } from './AppRoot'
+import FocusManager from './components/FocusManager'
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault()
 }
 
 export interface Props {
+  hardware?: AppRootProps['hardware']
+  card?: AppRootProps['card']
+  storage?: AppRootProps['storage']
+  printer?: AppRootProps['printer']
   tts?: {
     enabled: TextToSpeech
     disabled: TextToSpeech
   }
-  card?: AppRootProps['card']
-  storage?: AppRootProps['storage']
-  printer?: AppRootProps['printer']
 }
 
 const App = ({
@@ -42,6 +44,7 @@ const App = ({
   card = new WebServiceCard(),
   storage = new LocalStorage<AppStorage>(),
   printer = getPrinter(),
+  hardware = getHardware(),
 }: Props) => {
   const [screenReaderEnabled, setScreenReaderEnabled] = useState(false)
   const [screenReader, setScreenReader] = useState<ScreenReader>(
@@ -115,7 +118,6 @@ const App = ({
     },
     [screenReader]
   )
-
   return (
     <BrowserRouter>
       <FocusManager
@@ -129,8 +131,9 @@ const App = ({
           render={props => (
             <AppRoot
               card={card}
-              storage={storage}
               printer={printer}
+              hardware={hardware}
+              storage={storage}
               {...props}
             />
           )}

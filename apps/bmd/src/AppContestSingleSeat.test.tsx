@@ -13,6 +13,7 @@ import {
 import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
+import { MemoryHardware } from './utils/Hardware'
 
 jest.useFakeTimers()
 
@@ -23,13 +24,16 @@ beforeEach(() => {
 it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const hardware = new MemoryHardware()
+  const storage = new MemoryStorage<AppStorage>()
 
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  const { container, getByText } = render(<App storage={storage} card={card} />)
+  const { container, getByText } = render(
+    <App card={card} hardware={hardware} storage={storage} />
+  )
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())

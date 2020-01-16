@@ -20,25 +20,30 @@ import utcTimestamp from './utils/utcTimestamp'
 import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
+import { MemoryHardware } from './utils/Hardware'
 
 jest.useFakeTimers()
+jest.setTimeout(20000) // TODO: Added after hardware polling added. Why?
 
 beforeEach(() => {
   window.location.href = '/'
 })
 
-it('VxMark+Print end-to-end flow', async () => {
+it('Display App Card Unhappy Paths', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const hardware = new MemoryHardware()
+  const storage = new MemoryStorage<AppStorage>()
 
   card.removeCard()
 
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  const { getByText } = render(<App storage={storage} card={card} />)
+  const { getByText } = render(
+    <App card={card} hardware={hardware} storage={storage} />
+  )
 
   // ====================== END CONTEST SETUP ====================== //
 

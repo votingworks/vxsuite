@@ -12,6 +12,7 @@ import {
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
+import { MemoryHardware } from './utils/Hardware'
 
 jest.useFakeTimers()
 
@@ -21,8 +22,9 @@ beforeEach(() => {
 
 it('Cause "/card/read" API to catch', async () => {
   // Configure Machine
-  const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const hardware = new MemoryHardware()
+  const storage = new MemoryStorage<AppStorage>()
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
@@ -32,7 +34,9 @@ it('Cause "/card/read" API to catch', async () => {
     .mockImplementation(() => {
       throw new Error('NOPE')
     })
-  const { getByText } = render(<App storage={storage} card={card} />)
+  const { getByText } = render(
+    <App card={card} hardware={hardware} storage={storage} />
+  )
 
   // Ensure card polling interval time is passed
   advanceTimers()
