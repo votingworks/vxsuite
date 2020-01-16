@@ -43,7 +43,6 @@ it('Refresh window and expect to be on same contest', async () => {
 
   // Go to First Contest
   await wait(() => fireEvent.click(getByText('Start Voting')))
-  advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -58,7 +57,7 @@ it('Refresh window and expect to be on same contest', async () => {
 
   // advance time by CARD_LONG_VALUE_WRITE_DELAY to let background interval write to card
   advanceBy(1000)
-  advanceTimers()
+  await wait()
 
   unmount()
   ;({ getByText, unmount } = render(
@@ -69,6 +68,7 @@ it('Refresh window and expect to be on same contest', async () => {
 
   // App is on first contest
   await wait(() => getByText(presidentContest.title))
+
   // First candidate selected
   expect(getByText(candidate0).closest('button')!.dataset.selected).toBe('true')
 })
