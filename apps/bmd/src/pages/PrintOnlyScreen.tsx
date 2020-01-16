@@ -9,10 +9,8 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
 import { MarkVoterCardFunction, PartialUserSettings } from '../config/types'
-import buildBallot from '../utils/buildBallot'
 import { Printer } from '../utils/printer'
 import isEmptyObject from '../utils/isEmptyObject'
-import printBallotOrCurrentPage from '../utils/printBallotOrCurrentPage'
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
@@ -63,31 +61,13 @@ const PrintOnlyScreen = ({
     const isUsed = await markVoterCardPrinted()
     /* istanbul ignore else */
     if (isUsed) {
-      await printBallotOrCurrentPage(
-        printer,
-        buildBallot({
-          ballotStyleId,
-          election,
-          isTestBallot: !isLiveMode,
-          precinctId,
-          votes,
-        })
-      )
+      await printer.print()
       updateTally()
       printerTimer.current = window.setTimeout(() => {
         updateIsPrinted(true)
       }, printerMessageTimeoutSeconds * 1000)
     }
-  }, [
-    markVoterCardPrinted,
-    printer,
-    updateTally,
-    ballotStyleId,
-    votes,
-    election,
-    isLiveMode,
-    precinctId,
-  ])
+  }, [markVoterCardPrinted, printer, updateTally])
 
   useEffect(() => {
     if (isReadyToPrint && okToPrint) {

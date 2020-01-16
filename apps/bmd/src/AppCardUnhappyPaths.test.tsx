@@ -21,14 +21,6 @@ import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 
-fetchMock.get('/printer/status', () => ({
-  ok: true,
-}))
-
-fetchMock.post('/printer/jobs/new', () => ({
-  id: 'printer-job-id',
-}))
-
 jest.useFakeTimers()
 
 beforeEach(() => {

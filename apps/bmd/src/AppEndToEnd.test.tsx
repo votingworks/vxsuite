@@ -28,19 +28,7 @@ import {
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
-
-fetchMock.get('/printer/status', () => ({
-  ok: true,
-  available: [
-    { contentType: 'text/html' },
-    { contentType: 'application/pdf' },
-    { contentType: 'x-application/pdfmake' },
-  ],
-}))
-
-fetchMock.post('/printer/jobs/new', () => ({
-  id: 'printer-job-id',
-}))
+import fakePrinter from '../test/helpers/fakePrinter'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -51,9 +39,10 @@ it('VxMark+Print end-to-end flow', async () => {
 
   const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const printer = fakePrinter()
   const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array')
   const { getByLabelText, getByText, getByTestId } = render(
-    <App storage={storage} card={card} />
+    <App storage={storage} card={card} printer={printer} />
   )
   const getByTextWithMarkup = withMarkup(getByText)
 
@@ -119,7 +108,7 @@ it('VxMark+Print end-to-end flow', async () => {
   getByText('Open polls and print Polls Opened report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
   await wait(() => getByText('Close Polls for Center Springfield'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
+  expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
@@ -244,7 +233,7 @@ it('VxMark+Print end-to-end flow', async () => {
   await wait() // TODO: unsure why this `wait` is needed, but it is.
   advanceTimers(printerMessageTimeoutSeconds)
   await wait(() => getByText('You’re Almost Done…'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(2)
+  expect(printer.print).toHaveBeenCalledTimes(2)
 
   // Remove card
   card.removeCard()
@@ -272,7 +261,7 @@ it('VxMark+Print end-to-end flow', async () => {
   getByText('Close Polls and print Polls Closed report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
   await wait(() => getByText('Open Polls for Center Springfield'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(3)
+  expect(printer.print).toHaveBeenCalledTimes(3)
 
   // Remove card
   card.removeCard()

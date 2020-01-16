@@ -56,7 +56,7 @@ import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
 import { getBallotStyle, getContests, getZeroTally } from './utils/election'
 import fetchJSON from './utils/fetchJSON'
-import makePrinter, { PrintMethod } from './utils/printer'
+import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
 import { Card } from './utils/Card'
 import { Poller, IntervalPoller } from './utils/polling'
@@ -108,14 +108,13 @@ export interface AppStorage {
 export interface Props extends RouteComponentProps {
   card: Card
   storage: Storage<AppStorage>
+  printer: Printer
 }
 
 export const electionStorageKey = 'election'
 export const stateStorageKey = 'state'
 export const activationStorageKey = 'activation'
 export const votesStorageKey = 'votes'
-
-const printer = makePrinter(PrintMethod.RemoteWithLocalFallback)
 
 class AppRoot extends React.Component<Props, State> {
   private machineIdAbortController = new AbortController()
@@ -826,7 +825,7 @@ class AppRoot extends React.Component<Props, State> {
             isLiveMode={isLiveMode}
             isPollsOpen={isPollsOpen}
             machineId={machineId}
-            printer={printer}
+            printer={this.props.printer}
             tally={tally}
             togglePollsOpen={this.togglePollsOpen}
           />
@@ -854,7 +853,7 @@ class AppRoot extends React.Component<Props, State> {
             isVoterCardPresent={isVoterCardPresent}
             markVoterCardPrinted={this.markVoterCardPrinted}
             precinctId={precinctId}
-            printer={printer}
+            printer={this.props.printer}
             setUserSettings={this.setUserSettings}
             updateTally={this.updateTally}
             votes={votes}
@@ -880,7 +879,7 @@ class AppRoot extends React.Component<Props, State> {
                   markVoterCardPrinted: this.markVoterCardPrinted,
                   markVoterCardVoided: this.markVoterCardVoided,
                   precinctId,
-                  printer,
+                  printer: this.props.printer,
                   resetBallot: this.resetBallot,
                   setUserSettings: this.setUserSettings,
                   updateVote: this.updateVote,

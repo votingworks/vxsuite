@@ -5,9 +5,7 @@ import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import BallotContext from '../contexts/ballotContext'
-import buildBallot from '../utils/buildBallot'
 import isEmptyObject from '../utils/isEmptyObject'
-import printBallotOrCurrentPage from '../utils/printBallotOrCurrentPage'
 
 export const printerMessageTimeoutSeconds = 5
 
@@ -29,32 +27,13 @@ const PrintPage = () => {
     const isUsed = await markVoterCardPrinted()
     /* istanbul ignore else */
     if (isUsed) {
-      await printBallotOrCurrentPage(
-        printer,
-        buildBallot({
-          ballotStyleId,
-          election,
-          isTestBallot: !isLiveMode,
-          precinctId,
-          votes,
-        })
-      )
+      await printer.print()
       updateTally()
       printerTimer.current = window.setTimeout(() => {
         resetBallot()
       }, printerMessageTimeoutSeconds * 1000)
     }
-  }, [
-    markVoterCardPrinted,
-    printer,
-    resetBallot,
-    updateTally,
-    ballotStyleId,
-    election,
-    isLiveMode,
-    precinctId,
-    votes,
-  ])
+  }, [markVoterCardPrinted, printer, resetBallot, updateTally])
 
   useEffect(() => {
     if (!isEmptyObject(votes)) {

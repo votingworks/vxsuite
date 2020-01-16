@@ -28,19 +28,7 @@ import { printerMessageTimeoutSeconds } from './pages/PrintOnlyScreen'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
-
-fetchMock.get('/printer/status', () => ({
-  ok: true,
-  available: [
-    { contentType: 'text/html' },
-    { contentType: 'application/pdf' },
-    { contentType: 'x-application/pdfmake' },
-  ],
-}))
-
-fetchMock.post('/printer/jobs/new', () => ({
-  id: 'printer-job-id',
-}))
+import fakePrinter from '../test/helpers/fakePrinter'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -51,8 +39,9 @@ it('VxPrintOnly flow', async () => {
 
   const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const printer = fakePrinter()
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
-    <App storage={storage} card={card} />
+    <App storage={storage} card={card} printer={printer} />
   )
 
   const getAllByTextWithMarkup = withMarkup(getAllByText)
@@ -119,7 +108,7 @@ it('VxPrintOnly flow', async () => {
   getByText('Open polls and print Polls Opened report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
   await wait(() => getByText('Close Polls for Center Springfield'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(1)
+  expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
@@ -186,7 +175,7 @@ it('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   advanceTimers(printerMessageTimeoutSeconds)
   await wait(() => getByText('Verify and Cast Your Printed Ballot'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(2)
+  expect(printer.print).toHaveBeenCalledTimes(2)
 
   // Remove card
   card.removeCard()
@@ -217,7 +206,7 @@ it('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   advanceTimers(printerMessageTimeoutSeconds)
   await wait(() => getByText('Verify and Cast Your Printed Ballot'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(3)
+  expect(printer.print).toHaveBeenCalledTimes(3)
 
   // Remove card
   card.removeCard()
@@ -248,7 +237,7 @@ it('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   advanceTimers(printerMessageTimeoutSeconds)
   await wait(() => getByText('Verify and Cast Your Printed Ballot'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(4)
+  expect(printer.print).toHaveBeenCalledTimes(4)
 
   // Remove card
   card.removeCard()
@@ -296,7 +285,7 @@ it('VxPrintOnly flow', async () => {
   getByText('Close Polls and print Polls Closed report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
   await wait(() => getByText('Open Polls for Center Springfield'))
-  expect(fetchMock.calls('/printer/jobs/new')).toHaveLength(5)
+  expect(printer.print).toHaveBeenCalledTimes(5)
 
   // Remove card
   card.removeCard()
