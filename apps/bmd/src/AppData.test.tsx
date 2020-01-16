@@ -25,6 +25,15 @@ describe('loads election', () => {
     getByText('Device Not Configured')
   })
 
+  it('from storage', () => {
+    const storage = new MemoryStorage<AppStorage>()
+    setElectionInStorage(storage)
+    setStateInStorage(storage)
+    const { getByText } = render(<App storage={storage} />)
+    getByText(election.title)
+    expect(storage.get(electionStorageKey)).toBeTruthy()
+  })
+
   it('sample app loads election and activates ballot', async () => {
     const storage = getSampleStorage()
     const { getAllByText, getByText } = render(<SampleApp storage={storage} />)
@@ -36,14 +45,5 @@ describe('loads election', () => {
     })
     expect(storage.get(electionStorageKey)).toBeTruthy()
     expect(storage.get(activationStorageKey)).toBeTruthy()
-  })
-
-  it('from storage', () => {
-    const storage = new MemoryStorage<AppStorage>()
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
-    const { getByText } = render(<App storage={storage} />)
-    getByText(election.title)
-    expect(storage.get(electionStorageKey)).toBeTruthy()
   })
 })

@@ -1,6 +1,5 @@
 import React from 'react'
 import { fireEvent, render, wait, within } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
 
 import App from './App'
 
@@ -18,6 +17,7 @@ import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import fakePrinter from '../test/helpers/fakePrinter'
+import { MemoryHardware } from './utils/Hardware'
 
 jest.useFakeTimers()
 
@@ -28,9 +28,10 @@ beforeEach(() => {
 it('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
   const printer = fakePrinter()
+  const hardware = new MemoryHardware()
+  const storage = new MemoryStorage<AppStorage>()
 
   setElectionInStorage(storage)
   setStateInStorage(storage, {
@@ -38,7 +39,7 @@ it('Single Seat Contest with Write In', async () => {
   })
 
   const { container, getByText, queryByText, getByTestId } = render(
-    <App storage={storage} card={card} printer={printer} />
+    <App card={card} hardware={hardware} printer={printer} storage={storage} />
   )
   const getByTextWithMarkup = withMarkup(getByText)
 

@@ -7,6 +7,7 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import Sidebar from '../components/Sidebar'
 import TestMode from '../components/TestMode'
+import Text from '../components/Text'
 import ElectionInfo from '../components/ElectionInfo'
 
 const InsertCardImage = styled.img`
@@ -17,15 +18,19 @@ const InsertCardImage = styled.img`
 interface Props {
   appPrecinctId: string
   election: Election
+  showNoChargerAttachedWarning: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
+  showNoAccessibleControllerWarning: boolean
 }
 
 const ActivationScreen = ({
   appPrecinctId,
   election,
+  showNoChargerAttachedWarning,
   isLiveMode,
   isPollsOpen,
+  showNoAccessibleControllerWarning,
 }: Props) => {
   return (
     <Screen flexDirection="row-reverse" white>
@@ -36,6 +41,12 @@ const ActivationScreen = ({
         <MainChild center>
           <Prose textCenter>
             <TestMode isLiveMode={isLiveMode} />
+            {showNoChargerAttachedWarning && (
+              <Text warning small>
+                <strong>No Power Detected.</strong> Please ask a poll worker to
+                plug in the power cord for this machine.
+              </Text>
+            )}
             <p>
               <InsertCardImage
                 aria-hidden
@@ -53,6 +64,11 @@ const ActivationScreen = ({
                 <h1>Polls Closed</h1>
                 <p>Insert Poll Worker card to open.</p>
               </React.Fragment>
+            )}
+            {showNoAccessibleControllerWarning && (
+              <Text muted small>
+                Voting with an accessible controller is not currently available.
+              </Text>
             )}
           </Prose>
         </MainChild>

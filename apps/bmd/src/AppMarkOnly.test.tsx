@@ -22,6 +22,7 @@ import {
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
+import { MemoryHardware } from './utils/Hardware'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -30,10 +31,11 @@ beforeEach(() => {
 it('VxMarkOnly flow', async () => {
   jest.useFakeTimers()
 
-  const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const hardware = new MemoryHardware()
+  const storage = new MemoryStorage<AppStorage>()
   const { getByTestId, getByLabelText, getByText } = render(
-    <App storage={storage} card={card} />
+    <App card={card} hardware={hardware} storage={storage} />
   )
   const getByTextWithMarkup = withMarkup(getByText)
 

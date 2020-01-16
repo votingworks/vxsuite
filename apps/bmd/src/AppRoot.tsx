@@ -52,6 +52,9 @@ import InvalidCardScreen from './pages/InvalidCardScreen'
 import InsertCardScreen from './pages/InsertCardScreen'
 import PollWorkerScreen from './pages/PollWorkerScreen'
 import PrintOnlyScreen from './pages/PrintOnlyScreen'
+import SetupCardReaderPage from './pages/SetupCardReaderPage'
+import SetupPrinterPage from './pages/SetupPrinterPage'
+import SetupPowerPage from './pages/SetupPowerPage'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
 import { getBallotStyle, getContests, getZeroTally } from './utils/election'
@@ -61,6 +64,7 @@ import utcTimestamp from './utils/utcTimestamp'
 import { Card } from './utils/Card'
 import { Poller, IntervalPoller } from './utils/polling'
 import { Storage } from './utils/Storage'
+import { Hardware } from './utils/Hardware'
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -88,6 +92,11 @@ interface SharedState {
   appPrecinctId: string
   ballotsPrintedCount: number
   election: OptionalElection
+  hasAccessibleControllerAttached: boolean
+  hasCardReaderAttached: boolean
+  hasChargerAttached: boolean
+  hasLowBattery: boolean
+  hasPrinterAttached: boolean
   isFetchingElection: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
@@ -106,6 +115,7 @@ export interface AppStorage {
 }
 
 export interface Props extends RouteComponentProps {
+  hardware: Hardware
   card: Card
   storage: Storage<AppStorage>
   printer: Printer
@@ -120,6 +130,7 @@ class AppRoot extends React.Component<Props, State> {
   private machineIdAbortController = new AbortController()
 
   private cardPoller?: Poller
+  private statusPoller?: Poller
   private lastVoteUpdateAt = 0
   private lastVoteSaveToCardAt = 0
   private cardWriteInterval = 0
@@ -151,6 +162,11 @@ class AppRoot extends React.Component<Props, State> {
     appPrecinctId: '',
     ballotsPrintedCount: 0,
     election: undefined,
+    hasAccessibleControllerAttached: true,
+    hasCardReaderAttached: true,
+    hasChargerAttached: true,
+    hasLowBattery: false,
+    hasPrinterAttached: true,
     isFetchingElection: false,
     isLiveMode: false,
     isPollsOpen: false,
@@ -455,6 +471,39 @@ class AppRoot extends React.Component<Props, State> {
     return true
   }
 
+  public startHardwareStatusPolling = () => {
+    /* istanbul ignore else */
+    if (!this.statusPoller) {
+      this.statusPoller = IntervalPoller.start(
+        GLOBALS.CARD_POLLING_INTERVAL,
+        async () => {
+          try {
+            // Possible implementation
+            const { hardware } = this.props
+            const accesssibleController = await hardware.readAccesssibleControllerStatus()
+            const battery = await hardware.readBatteryStatus()
+            const cardReader = await hardware.readCardReaderStatus()
+            const printer = await hardware.readPrinterStatus()
+            this.setState({
+              hasAccessibleControllerAttached: accesssibleController.connected,
+              hasCardReaderAttached: cardReader.connected,
+              hasChargerAttached: !battery.discharging,
+              hasLowBattery: battery.level < GLOBALS.LOW_BATTERY_THRESHOLD,
+              hasPrinterAttached: printer.connected,
+            })
+          } catch (error) {
+            this.stopHardwareStatusPolling() // Assume backend is unavailable.
+          }
+        }
+      )
+    }
+  }
+
+  public stopHardwareStatusPolling = () => {
+    this.statusPoller?.stop()
+    this.statusPoller = undefined
+  }
+
   public componentDidMount = () => {
     const election = this.getElection()
     const { ballotStyleId, precinctId } = this.getBallotActivation()
@@ -496,12 +545,14 @@ class AppRoot extends React.Component<Props, State> {
     this.setMachineId()
     this.startShortValueReadPolling()
     this.startLongValueWritePolling()
+    this.startHardwareStatusPolling()
   }
 
   public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
     this.machineIdAbortController.abort()
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
     this.stopShortValueReadPolling()
+    this.stopHardwareStatusPolling()
   }
 
   public setMachineId = async () => {
@@ -792,11 +843,27 @@ class AppRoot extends React.Component<Props, State> {
       isVoterCardPrinted,
       isRecentVoterPrint,
       machineId,
+      hasAccessibleControllerAttached,
+      hasCardReaderAttached,
+      hasChargerAttached,
+      hasLowBattery,
+      hasPrinterAttached,
       precinctId,
       tally,
       userSettings,
       votes,
     } = this.state
+    if (hasLowBattery && !hasChargerAttached) {
+      return <SetupPowerPage setUserSettings={this.setUserSettings} />
+    }
+    if (!hasCardReaderAttached) {
+      return <SetupCardReaderPage setUserSettings={this.setUserSettings} />
+    }
+    if (appMode.isVxPrint) {
+      if (!hasPrinterAttached) {
+        return <SetupPrinterPage setUserSettings={this.setUserSettings} />
+      }
+    }
     if (isClerkCardPresent) {
       return (
         <ClerkScreen
@@ -897,6 +964,10 @@ class AppRoot extends React.Component<Props, State> {
         <InsertCardScreen
           appPrecinctId={appPrecinctId}
           election={election}
+          showNoAccessibleControllerWarning={
+            !!appMode.isVxMark && !hasAccessibleControllerAttached
+          }
+          showNoChargerAttachedWarning={!hasChargerAttached}
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
         />

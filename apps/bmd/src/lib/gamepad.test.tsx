@@ -18,6 +18,7 @@ import { getActiveElement, handleGamepadButtonDown } from './gamepad'
 import { MemoryStorage } from '../utils/Storage'
 import { AppStorage } from '../AppRoot'
 import { MemoryCard } from '../utils/Card'
+import { MemoryHardware } from '../utils/Hardware'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -26,11 +27,14 @@ beforeEach(() => {
 it('gamepad controls work', async () => {
   jest.useFakeTimers()
 
-  const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const hardware = new MemoryHardware()
+  const storage = new MemoryStorage<AppStorage>()
   setElectionInStorage(storage)
   setStateInStorage(storage)
-  const { getByText } = render(<App storage={storage} card={card} />)
+  const { getByText } = render(
+    <App card={card} hardware={hardware} storage={storage} />
+  )
 
   card.insertCard(getNewVoterCard())
   advanceTimers()

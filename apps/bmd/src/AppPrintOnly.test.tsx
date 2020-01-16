@@ -1,6 +1,5 @@
 import React from 'react'
 import { fireEvent, render, wait, within } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
 import {
   electionSample,
   encodeBallot,
@@ -29,19 +28,22 @@ import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
+import { MemoryHardware } from './utils/Hardware'
 
 beforeEach(() => {
   window.location.href = '/'
 })
 
-it('VxPrintOnly flow', async () => {
-  jest.useFakeTimers()
+jest.useFakeTimers()
+jest.setTimeout(20000) // TODO: Added after hardware polling added. Why?
 
-  const storage = new MemoryStorage<AppStorage>()
+it('VxPrintOnly flow', async () => {
   const card = new MemoryCard()
   const printer = fakePrinter()
+  const hardware = new MemoryHardware()
+  const storage = new MemoryStorage<AppStorage>()
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
-    <App storage={storage} card={card} printer={printer} />
+    <App card={card} hardware={hardware} storage={storage} printer={printer} />
   )
 
   const getAllByTextWithMarkup = withMarkup(getAllByText)

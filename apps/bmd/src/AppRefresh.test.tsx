@@ -15,6 +15,7 @@ import {
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
+import { MemoryHardware } from './utils/Hardware'
 
 jest.useFakeTimers()
 
@@ -25,13 +26,16 @@ beforeEach(() => {
 it('Refresh window and expect to be on same contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const storage = new MemoryStorage<AppStorage>()
   const card = new MemoryCard()
+  const hardware = new MemoryHardware()
+  const storage = new MemoryStorage<AppStorage>()
 
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  let { getByText, unmount } = render(<App storage={storage} card={card} />)
+  let { getByText, unmount } = render(
+    <App card={card} hardware={hardware} storage={storage} />
+  )
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())
@@ -39,7 +43,6 @@ it('Refresh window and expect to be on same contest', async () => {
 
   // Go to First Contest
   await wait(() => fireEvent.click(getByText('Start Voting')))
-  advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -54,15 +57,18 @@ it('Refresh window and expect to be on same contest', async () => {
 
   // advance time by CARD_LONG_VALUE_WRITE_DELAY to let background interval write to card
   advanceBy(1000)
-  advanceTimers()
+  await wait()
 
   unmount()
-  ;({ getByText, unmount } = render(<App storage={storage} card={card} />))
+  ;({ getByText, unmount } = render(
+    <App card={card} hardware={hardware} storage={storage} />
+  ))
 
   advanceTimers()
 
   // App is on first contest
   await wait(() => getByText(presidentContest.title))
+
   // First candidate selected
   expect(getByText(candidate0).closest('button')!.dataset.selected).toBe('true')
 })

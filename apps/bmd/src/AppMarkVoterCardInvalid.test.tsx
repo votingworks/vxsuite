@@ -17,26 +17,29 @@ import {
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
-
-jest.useFakeTimers()
+import { MemoryHardware } from './utils/Hardware'
 
 beforeEach(() => {
   window.location.href = '/'
 })
+
+jest.useFakeTimers()
+jest.setTimeout(20000) // TODO: Added after hardware polling added. Why?
 
 const idleScreenCopy =
   'This voting station has been inactive for more than 5 minutes.'
 
 describe('Mark Card Void when voter is idle too long', () => {
   it('Display expired card if card marked as voided', async () => {
-    const storage = new MemoryStorage<AppStorage>()
     const card = new MemoryCard()
+    const hardware = new MemoryHardware()
+    const storage = new MemoryStorage<AppStorage>()
 
     setElectionInStorage(storage)
     setStateInStorage(storage)
 
     const { getByText, queryByText } = render(
-      <App storage={storage} card={card} />
+      <App card={card} hardware={hardware} storage={storage} />
     )
 
     // Insert Voter card
@@ -88,13 +91,16 @@ describe('Mark Card Void when voter is idle too long', () => {
     // https://github.com/votingworks/bmd/issues/714
     fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
 
-    const storage = new MemoryStorage<AppStorage>()
     const card = new MemoryCard()
+    const hardware = new MemoryHardware()
+    const storage = new MemoryStorage<AppStorage>()
 
     setElectionInStorage(storage)
     setStateInStorage(storage)
 
-    const { getByText } = render(<App storage={storage} card={card} />)
+    const { getByText } = render(
+      <App card={card} hardware={hardware} storage={storage} />
+    )
 
     // Insert Voter card
     card.insertCard(getNewVoterCard())
