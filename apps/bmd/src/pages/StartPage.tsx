@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components'
+import { RouteComponentProps, withRouter } from 'react-router-dom'
 
 import BallotContext from '../contexts/ballotContext'
 
@@ -18,7 +19,11 @@ const SidebarSpacer = styled.div`
   height: 90px;
 `
 
-const StartPage = () => {
+type Props = RouteComponentProps<{}>
+
+const StartPage = (props: Props) => {
+  const { history } = props
+
   const {
     ballotStyleId,
     contests,
@@ -26,12 +31,18 @@ const StartPage = () => {
     precinctId,
     setUserSettings,
     userSettings,
+    forceSaveVote,
   } = useContext(BallotContext)
   const { title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     election,
     ballotStyleId,
   })
+
+  const onStart = () => {
+    forceSaveVote()
+    history.push('/contests/0')
+  }
 
   return (
     <Screen>
@@ -79,7 +90,7 @@ const StartPage = () => {
             <LinkButton
               big
               primary
-              to="/contests/0"
+              onPress={onStart}
               id="next"
               aria-label="Press the right button to advance to the first contest."
             >
@@ -92,4 +103,4 @@ const StartPage = () => {
   )
 }
 
-export default StartPage
+export default withRouter(StartPage)

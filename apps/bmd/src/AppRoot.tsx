@@ -133,6 +133,7 @@ class AppRoot extends React.Component<Props, State> {
   private statusPoller?: Poller
   private lastVoteUpdateAt = 0
   private lastVoteSaveToCardAt = 0
+  private forceSaveVoteFlag = false
   private cardWriteInterval = 0
   private writingVoteToCard = false
 
@@ -333,7 +334,20 @@ class AppRoot extends React.Component<Props, State> {
               }
               this.setPauseProcessingUntilNoCardPresent(false)
             }
-            const currentCardDataString = JSON.stringify(card)
+
+            // we compare last card and current card without the longValuePresent flag
+            // otherwise when we first write the ballot to the card, it reprocesses it
+            // and may cause a race condition where an old ballot on the card
+            // overwrites a newer one in memory.
+            //
+            // TODO: embed a card dip UUID in the card data string so even an unlikely
+            // identical card swap within 200ms is always detected.
+            // https://github.com/votingworks/module-smartcards/issues/59
+            //
+            // Also: added a default value for `longValueExists` to make typescript happy about delete.
+            const cardCopy = { longValueExists: undefined, ...card }
+            cardCopy.longValueExists = undefined
+            const currentCardDataString = JSON.stringify(cardCopy)
             if (currentCardDataString === lastCardDataString) {
               return
             }
@@ -372,12 +386,17 @@ class AppRoot extends React.Component<Props, State> {
     if (this.cardWriteInterval === 0) {
       this.cardWriteInterval = window.setInterval(async () => {
         if (
-          this.lastVoteSaveToCardAt < this.lastVoteUpdateAt &&
-          this.lastVoteUpdateAt <
-            Date.now() - GLOBALS.CARD_LONG_VALUE_WRITE_DELAY &&
+          this.state.isVoterCardPresent &&
+          this.state.ballotStyleId &&
+          this.state.precinctId &&
+          ((this.lastVoteSaveToCardAt < this.lastVoteUpdateAt &&
+            this.lastVoteUpdateAt <
+              Date.now() - GLOBALS.CARD_LONG_VALUE_WRITE_DELAY) ||
+            this.forceSaveVoteFlag) &&
           !this.writingVoteToCard
         ) {
           this.lastVoteSaveToCardAt = Date.now()
+          this.forceSaveVoteFlag = false
 
           const election = this.state.election!
           const ballot: CompletedBallot = {
@@ -669,6 +688,10 @@ class AppRoot extends React.Component<Props, State> {
     )
   }
 
+  public forceSaveVote = () => {
+    this.forceSaveVoteFlag = true
+  }
+
   public resetBallot = (path = '/') => {
     this.resetVoterData()
     this.setState(
@@ -950,6 +973,7 @@ class AppRoot extends React.Component<Props, State> {
                   resetBallot: this.resetBallot,
                   setUserSettings: this.setUserSettings,
                   updateVote: this.updateVote,
+                  forceSaveVote: this.forceSaveVote,
                   userSettings,
                   votes,
                 }}

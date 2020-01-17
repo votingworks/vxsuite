@@ -24,6 +24,7 @@ const ballot: BallotContextInterface = {
   setUserSettings: () => undefined,
   updateTally: () => undefined,
   updateVote: () => undefined,
+  forceSaveVote: () => undefined,
   userSettings: { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
   votes: {},
 }

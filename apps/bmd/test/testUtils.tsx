@@ -35,6 +35,7 @@ export function render(
     setUserSettings = jest.fn(),
     updateTally = jest.fn(),
     updateVote = jest.fn(),
+    forceSaveVote = jest.fn(),
     userSettings = { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
     votes = {},
   } = {}
@@ -57,6 +58,7 @@ export function render(
           setUserSettings,
           updateTally,
           updateVote,
+          forceSaveVote,
           userSettings,
           votes,
         }}

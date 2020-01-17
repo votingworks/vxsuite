@@ -92,6 +92,7 @@ export interface BallotContextInterface {
   setUserSettings: SetUserSettings
   updateTally: () => void
   updateVote: UpdateVoteFunction
+  forceSaveVote: () => void
   userSettings: UserSettings
   votes: VotesDict
 }
