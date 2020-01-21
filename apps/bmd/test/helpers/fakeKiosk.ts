@@ -1,6 +1,30 @@
 // Disable `import/no-unresolved` because this module only exists for TypeScript.
 // eslint-disable-next-line import/no-unresolved
-import { Kiosk, BatteryInfo, PrinterInfo } from 'kiosk-browser'
+import { Kiosk, BatteryInfo, PrinterInfo, Device } from 'kiosk-browser'
+
+export function fakeDevice(props: Partial<Device> = {}): Device {
+  return {
+    deviceName: 'fake device',
+    deviceAddress: 0,
+    locationId: 0,
+    manufacturer: 'Acme Inc.',
+    productId: 0,
+    serialNumber: '12345',
+    vendorId: 0,
+    ...props,
+  }
+}
+
+export function fakePrinterInfo(props: Partial<PrinterInfo> = {}): PrinterInfo {
+  return {
+    connected: false,
+    description: props.name ?? 'Fake Printer',
+    isDefault: false,
+    name: 'Fake Printer',
+    status: 3, // idle
+    ...props,
+  }
+}
 
 /**
  * Builds a `Kiosk` instance with mock methods.
@@ -16,17 +40,16 @@ export default function fakeKiosk({
     printers = [{}]
   }
 
-  printers = printers.map(printer => ({
-    connected: true,
-    description: 'Fake Printer',
-    isDefault: true,
-    name: 'Fake Printer',
-    ...printer,
-  }))
+  printers = printers.map(fakePrinterInfo)
 
   return {
     print: jest.fn().mockResolvedValue(undefined),
     getBatteryInfo: jest.fn().mockResolvedValue({ level, discharging }),
     getPrinterInfo: jest.fn().mockResolvedValue(printers),
+    getDeviceList: jest.fn().mockResolvedValue([]),
+    onDeviceChange: {
+      add: jest.fn(),
+      remove: jest.fn(),
+    },
   }
 }

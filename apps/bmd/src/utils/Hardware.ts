@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-unresolved
-import { Kiosk, BatteryInfo } from 'kiosk-browser'
+import { Kiosk, BatteryInfo, Device } from 'kiosk-browser'
 
 interface AccessibleControllerStatus {
   connected: boolean
@@ -132,10 +132,16 @@ export class MemoryHardware implements Hardware {
  * Implements the `Hardware` API by accessing it through the kiosk.
  */
 export class KioskHardware extends MemoryHardware {
-  private kiosk: Kiosk
-  public constructor(kiosk: Kiosk) {
+  public constructor(private kiosk: Kiosk) {
     super()
     this.kiosk = kiosk
+  }
+
+  /**
+   * Determines whether a device is the accessible controller.
+   */
+  private isAccessibleController(device: Device): boolean {
+    return device.vendorId === 0x0d8c && device.productId === 0x0170
   }
 
   /**
@@ -143,6 +149,29 @@ export class KioskHardware extends MemoryHardware {
    */
   public async readBatteryStatus(): Promise<BatteryInfo> {
     return this.kiosk.getBatteryInfo()
+  }
+
+  /**
+   * Reads accessible controller status by checking the connected devices.
+   */
+  public async readAccesssibleControllerStatus(): Promise<
+    AccessibleControllerStatus
+  > {
+    for (const device of await this.kiosk.getDeviceList()) {
+      if (this.isAccessibleController(device)) {
+        return { connected: true }
+      }
+    }
+
+    return { connected: false }
+  }
+
+  /**
+   * Determines whether there is a configured & connected printer.
+   */
+  public async readPrinterStatus(): Promise<PrinterStatus> {
+    const printers = await this.kiosk.getPrinterInfo()
+    return { connected: printers.some(printer => printer.connected) }
   }
 }
 
