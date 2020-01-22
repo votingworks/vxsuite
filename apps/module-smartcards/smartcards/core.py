@@ -18,6 +18,11 @@ CardInterface = MockInstance if MockInstance.has_card else RealInstance
 app = Flask(__name__)
 
 
+@app.route('/card/reader')
+def card_reader():
+    is_connected = CardInterface.is_reader_connected()
+    return json.dumps({"connected": is_connected})
+
 @app.route('/card/read')
 def card_read():
     card_bytes, long_value_exists = CardInterface.read()

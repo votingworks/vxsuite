@@ -22,6 +22,7 @@
 # <long_value_hash> - 32 bytes
 # <long_value> - up to 16,468 bytes
 
+import smartcard.System
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
 import gzip
@@ -271,6 +272,9 @@ class VXCardObserver(CardObserver):
         cardmonitor = CardMonitor()
         cardmonitor.addObserver(self)
 
+    def is_reader_connected(self):
+        return len(smartcard.System.readers()) > 0
+    
     def override_protection(self):
         if self.card:
             self.card.override_protection()

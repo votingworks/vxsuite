@@ -33,7 +33,12 @@ def flip_bit(data, byte_index: int, bit_index: int):
 def test_constructor(mock_card_monitor):
     vxco = VXCardObserver()
 
-
+@patch('smartcard.System.readers')
+def test_reader(pyscard_readers):
+    pyscard_readers.return_value = ['Fake Reader']
+    vxco = VXCardObserver()
+    assert vxco.is_reader_connected()
+    
 def test_read_no_card():
     vxco = VXCardObserver()
     test_value = vxco.read()

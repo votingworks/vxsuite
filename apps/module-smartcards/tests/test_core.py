@@ -26,6 +26,10 @@ def client():
     # any cleanup goes here
 
 
+def test_card_reader(client):
+    rv = json.loads(client.get('/card/reader').data)
+    assert 'connected' in rv
+    
 def test_card_read(client):
     client.put('/mock', data=json.dumps({'shortValue': 'XYZ'}))
 
