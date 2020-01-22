@@ -1,6 +1,5 @@
 import React from 'react'
 import { render, wait, fireEvent } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
 
 import App from './App'
 
