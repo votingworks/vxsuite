@@ -49,7 +49,9 @@ function makeSpeechSynthesisDouble(): typeof speechSynthesis {
     pending: false,
     removeEventListener: jest.fn(),
     resume: jest.fn(),
-    speak: jest.fn(),
+    speak: jest.fn(async utterance =>
+      utterance.onend?.(new SpeechSynthesisEvent())
+    ),
     speaking: false,
   }
 }

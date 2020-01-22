@@ -12,6 +12,21 @@ export interface TextToSpeech {
    * Stops any speaking that is currently happening.
    */
   stop(): void
+
+  /**
+   * Prevents any sound from being made but otherwise functions normally.
+   */
+  mute(): void
+
+  /**
+   * Allows sounds to be made.
+   */
+  unmute(): void
+
+  /**
+   * Checks whether this TTS is muted.
+   */
+  isMuted(): boolean
 }
 
 /**
@@ -34,14 +49,22 @@ export interface ScreenReader {
   onPageLoad(): Promise<void>
 
   /**
-   * Call this when the screen reader is enabled. Resolves when speaking is done.
+   * Enables the screen reader and announces the change. Resolves when speaking
+   * is done.
    */
-  onScreenReaderEnabled(): Promise<void>
+  enable(): Promise<void>
 
   /**
-   * Call this when the screen reader is disabled. Resolves when speaking is done.
+   * Disables the screen reader and announces the change. Resolves when speaking
+   * is done.
    */
-  onScreenReaderDisabled(): Promise<void>
+  disable(): Promise<void>
+
+  /**
+   * Toggles the screen reader being enabled and announces the change. Resolves
+   * when speaking is done.
+   */
+  toggle(): Promise<void>
 
   /**
    * Directly triggers speech of text. Resolves when speaking is done.
@@ -94,17 +117,33 @@ export class AriaScreenReader implements ScreenReader {
   }
 
   /**
-   * Call this when the screen reader is enabled. Resolves when speaking is done.
+   * Enables the screen reader and announces the change. Resolves when speaking
+   * is done.
    */
-  public async onScreenReaderEnabled(): Promise<void> {
+  public async enable(): Promise<void> {
     await this.speak('Screen reader enabled', { now: true })
+    this.tts.unmute()
   }
 
   /**
-   * Call this when the screen reader is disabled. Resolves when speaking is done.
+   * Disables the screen reader and announces the change. Resolves when speaking
+   * is done.
    */
-  public async onScreenReaderDisabled(): Promise<void> {
+  public async disable(): Promise<void> {
     await this.speak('Screen reader disabled', { now: true })
+    this.tts.mute()
+  }
+
+  /**
+   * Toggles the screen reader being enabled and announces the change. Resolves
+   * when speaking is done.
+   */
+  public async toggle(): Promise<void> {
+    if (this.tts.isMuted()) {
+      await this.enable()
+    } else {
+      await this.disable()
+    }
   }
 
   /**
@@ -251,6 +290,7 @@ export interface VoiceSelector {
 
 export class SpeechSynthesisTextToSpeech implements TextToSpeech {
   private getVoice?: VoiceSelector
+  private volume = 1
 
   public constructor(getVoice?: VoiceSelector) {
     this.getVoice = getVoice
@@ -282,6 +322,7 @@ export class SpeechSynthesisTextToSpeech implements TextToSpeech {
         speechSynthesis.cancel()
       }
 
+      utterance.volume = this.volume
       speechSynthesis.speak(utterance)
     })
   }
@@ -292,15 +333,26 @@ export class SpeechSynthesisTextToSpeech implements TextToSpeech {
   public stop(): void {
     speechSynthesis.cancel()
   }
-}
 
-export class NullTextToSpeech implements TextToSpeech {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async speak(text: string, options?: SpeakOptions): Promise<void> {
-    // nothing to do
+  /**
+   * Prevents any sound from being made but otherwise functions normally.
+   */
+  public mute(): void {
+    speechSynthesis.cancel()
+    this.volume = 0
   }
 
-  public async stop(): Promise<void> {
-    // nothing to do
+  /**
+   * Allows sounds to be made.
+   */
+  public unmute(): void {
+    this.volume = 1
+  }
+
+  /**
+   * Checks whether this TTS is muted.
+   */
+  public isMuted(): boolean {
+    return this.volume === 0
   }
 }

@@ -16,11 +16,13 @@
 
       if (timeout <= now) {
         console.log('timeout exceeded waiting for voices, continuing anyway')
-        setTimeout(goToApp, oneSecond)
+        setTimeout(() => goToApp('reader=off'), oneSecond)
         return true
       } else {
         const seconds = Math.floor((timeout - now) / oneSecond)
-        console.log(`timeout not yet reached, still waiting for voices for ${seconds}s`)
+        console.log(
+          `timeout not yet reached, still waiting for voices for ${seconds}s`
+        )
       }
     } else {
       const timeout = Date.now() + secondsToWaitForVoices * oneSecond
@@ -32,8 +34,8 @@
     return false
   }
 
-  function goToApp() {
-    location.href = '/'
+  function goToApp(query = undefined) {
+    location.href = query ? `/?${query}` : '/'
   }
 
   /**
@@ -66,7 +68,7 @@
       setTimeout(tryAgain, oneSecond / 2)
     } else {
       console.log(`second check succeeded! found ${voices.length} voice(s)`)
-      setTimeout(goToApp, oneSecond / 2)
+      setTimeout(() => goToApp('reader=on'), oneSecond / 2)
     }
   }
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { BrowserRouter, Route } from 'react-router-dom'
 
 import 'normalize.css'
@@ -9,8 +9,6 @@ import {
   ScreenReader,
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
-  NullTextToSpeech,
-  TextToSpeech,
 } from './utils/ScreenReader'
 import { WebServiceCard } from './utils/Card'
 import { LocalStorage } from './utils/Storage'
@@ -30,51 +28,26 @@ export interface Props {
   card?: AppRootProps['card']
   storage?: AppRootProps['storage']
   printer?: AppRootProps['printer']
-  tts?: {
-    enabled: TextToSpeech
-    disabled: TextToSpeech
-  }
+  screenReader?: ScreenReader
 }
 
 const App = ({
-  tts = {
-    enabled: new SpeechSynthesisTextToSpeech(memoize(getUSEnglishVoice)),
-    disabled: new NullTextToSpeech(),
-  },
+  screenReader = new AriaScreenReader(
+    new SpeechSynthesisTextToSpeech(memoize(getUSEnglishVoice))
+  ),
   card = new WebServiceCard(),
   storage = new LocalStorage<AppStorage>(),
   printer = getPrinter(),
   hardware = getHardware(),
 }: Props) => {
-  const [screenReaderEnabled, setScreenReaderEnabled] = useState(false)
-  const [screenReader, setScreenReader] = useState<ScreenReader>(
-    new AriaScreenReader(tts.disabled)
-  )
-
   /* istanbul ignore next - need to figure out how to test this */
   const onKeyPress = useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === 'r') {
-        if (screenReaderEnabled) {
-          screenReader.onScreenReaderDisabled()
-          setScreenReader(new AriaScreenReader(tts.disabled))
-          setScreenReaderEnabled(false)
-        } else {
-          const newScreenReader = new AriaScreenReader(tts.enabled)
-          setScreenReader(newScreenReader)
-          setScreenReaderEnabled(true)
-          newScreenReader.onScreenReaderEnabled()
-        }
+        screenReader.toggle()
       }
     },
-    [
-      screenReader,
-      setScreenReader,
-      screenReaderEnabled,
-      setScreenReaderEnabled,
-      tts.disabled,
-      tts.enabled,
-    ]
+    [screenReader]
   )
 
   /* istanbul ignore next - need to figure out how to test this */
