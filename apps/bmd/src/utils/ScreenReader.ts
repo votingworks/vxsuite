@@ -312,6 +312,7 @@ export class SpeechSynthesisTextToSpeech implements TextToSpeech {
       const { getVoice } = this
       const voice = getVoice?.()
 
+      utterance.volume = this.volume
       utterance.onend = () => resolve()
 
       if (voice) {
@@ -322,7 +323,15 @@ export class SpeechSynthesisTextToSpeech implements TextToSpeech {
         speechSynthesis.cancel()
       }
 
-      utterance.volume = this.volume
+      // NOTE: This fixes a "next utterance is not spoken after cancel" issue.
+      //
+      // On Linux, when a call to `speechSynthesis.speak(utterance)` is
+      // immediately preceded by `speechSynthesis.cancel()`, then `utterance`
+      // will not be spoken out loud. To work around that, we issue an empty
+      // utterance to be sacrificed at the altar of Linux + speech-dispatcher +
+      // Chromium so that we all may live… I mean, so `utterance` will be
+      // spoken properly.
+      speechSynthesis.speak(new SpeechSynthesisUtterance(''))
       speechSynthesis.speak(utterance)
     })
   }
