@@ -8,31 +8,31 @@ describe('AriaScreenReader', () => {
     new AriaScreenReader(fakeTTS())
   })
 
-  it('can speak specified text', () => {
+  it('can speak specified text', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speak('Hello world.')
+    await asr.speak('Hello world.')
     expect(tts.speak).toHaveBeenCalledWith('Hello world.', {})
   })
 
-  it('passes options through from #speak', () => {
+  it('passes options through from #speak', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speak('Hello world.', { now: true })
+    await asr.speak('Hello world.', { now: true })
     expect(tts.speak).toHaveBeenCalledWith('Hello world.', { now: true })
   })
 
-  it('speaks text nodes by reading their content', () => {
+  it('speaks text nodes by reading their content', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakNode(text('hello'))
+    await asr.speakNode(text('hello'))
     expect(tts.speak).toHaveBeenCalledWith('hello', expect.anything())
   })
 
-  it('does not speak empty text nodes', () => {
+  it('does not speak empty text nodes', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
     const node = text('')
@@ -43,15 +43,15 @@ describe('AriaScreenReader', () => {
       value: null,
     })
 
-    asr.speakNode(node)
+    await asr.speakNode(node)
     expect(tts.speak).not.toHaveBeenCalled()
   })
 
-  it('speaks inline elements by joining their children together', () => {
+  it('speaks inline elements by joining their children together', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakNode(
+    await asr.speakNode(
       h(
         'span',
         text('Welcome '),
@@ -65,11 +65,11 @@ describe('AriaScreenReader', () => {
     )
   })
 
-  it('describes text broken into multiple text nodes correctly', () => {
+  it('describes text broken into multiple text nodes correctly', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakNode(
+    await asr.speakNode(
       h(
         'span',
         text('You may only select '),
@@ -92,11 +92,11 @@ describe('AriaScreenReader', () => {
     )
   })
 
-  it('terminates block elements with a period', () => {
+  it('terminates block elements with a period', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakNode(h('div', text('General Election')))
+    await asr.speakNode(h('div', text('General Election')))
     expect(tts.speak).toHaveBeenCalledWith(
       'General Election.',
       expect.anything()
@@ -111,11 +111,11 @@ describe('AriaScreenReader', () => {
     expect(tts.speak).not.toHaveBeenCalled()
   })
 
-  it('speaks aria-label instead of text content if present', () => {
+  it('speaks aria-label instead of text content if present', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakNode(
+    await asr.speakNode(
       h('span', { 'aria-label': 'Read this instead' }, text('Do not read this'))
     )
     expect(tts.speak).toHaveBeenCalledWith(
@@ -124,7 +124,7 @@ describe('AriaScreenReader', () => {
     )
   })
 
-  it('speaks a description of an aria-labeledby element if present', () => {
+  it('speaks a description of an aria-labeledby element if present', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
     const field = h(
@@ -136,14 +136,14 @@ describe('AriaScreenReader', () => {
     document.body.append(field)
 
     try {
-      asr.speakNode(field.querySelector('input')!)
+      await asr.speakNode(field.querySelector('input')!)
       expect(tts.speak).toHaveBeenCalledWith('Name', expect.anything())
     } finally {
       document.body.removeChild(field)
     }
   })
 
-  it('ignores an aria-labeledby attribute if the element exists but has no description', () => {
+  it('ignores an aria-labeledby attribute if the element exists but has no description', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
     const field = h(
@@ -155,18 +155,18 @@ describe('AriaScreenReader', () => {
     document.body.append(field)
 
     try {
-      asr.speakNode(field.querySelector('input')!)
+      await asr.speakNode(field.querySelector('input')!)
       expect(tts.speak).not.toHaveBeenCalled()
     } finally {
       document.body.removeChild(field)
     }
   })
 
-  it('ignores an aria-labeledby attribute if no such element exists', () => {
+  it('ignores an aria-labeledby attribute if no such element exists', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakNode(
+    await asr.speakNode(
       h(
         'span',
         { 'aria-labeledby': 'name-label' },
@@ -179,26 +179,43 @@ describe('AriaScreenReader', () => {
     )
   })
 
-  it('speaks on screen reader enabled', () => {
+  it('enabling the screen reader announces it and unmutes the tts', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.onScreenReaderEnabled()
+    await asr.enable()
     expect(tts.speak).toHaveBeenCalledWith(
       'Screen reader enabled',
       expect.anything()
     )
+    expect(tts.unmute).toHaveBeenCalledTimes(1)
   })
 
-  it('speaks on screen reader disabled', () => {
+  it('disabling the screen reader announces it and mutes the tts', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.onScreenReaderDisabled()
+    await asr.disable()
     expect(tts.speak).toHaveBeenCalledWith(
       'Screen reader disabled',
       expect.anything()
     )
+    expect(tts.mute).toHaveBeenCalledTimes(1)
+  })
+
+  it('toggling enabled/disabled mutes or unmutes the tts', async () => {
+    const tts = fakeTTS()
+    const asr = new AriaScreenReader(tts)
+
+    await asr.toggle()
+    expect(tts.mute).toHaveBeenCalledTimes(1)
+    expect(tts.unmute).toHaveBeenCalledTimes(0)
+    await asr.toggle()
+    expect(tts.mute).toHaveBeenCalledTimes(1)
+    expect(tts.unmute).toHaveBeenCalledTimes(1)
+    await asr.toggle()
+    expect(tts.mute).toHaveBeenCalledTimes(2)
+    expect(tts.unmute).toHaveBeenCalledTimes(1)
   })
 
   it('does not describe elements hidden by aria-hidden', () => {
@@ -241,90 +258,66 @@ describe('AriaScreenReader', () => {
     expect(asr.describe(document.createDocumentFragment())).toBe(undefined)
   })
 
-  it('describes event targets if present', () => {
+  it('describes event targets if present', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakEventTarget(h('button', text('Next')))
+    await asr.speakEventTarget(h('button', text('Next')))
     expect(tts.speak).toHaveBeenCalledWith('Next', expect.anything())
   })
 
-  it('speaks event targets immediately rather than queueing speech', () => {
+  it('speaks event targets immediately rather than queueing speech', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakEventTarget(h('button', text('Next')))
+    await asr.speakEventTarget(h('button', text('Next')))
     expect(tts.speak).toHaveBeenCalledWith(expect.anything(), { now: true })
   })
 
-  it('does nothing if there is no event target', () => {
+  it('does nothing if there is no event target', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakEventTarget(undefined)
+    await asr.speakEventTarget(undefined)
     expect(tts.speak).not.toHaveBeenCalled()
   })
 
-  it('speaks focus event targets immediately', () => {
+  it('speaks focus event targets immediately', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.onFocus(h('button', text('Next')))
+    await asr.onFocus(h('button', text('Next')))
     expect(tts.speak).toHaveBeenCalledWith('Next', { now: true })
   })
 
-  it('speaks click event targets immediately', () => {
+  it('speaks click event targets immediately', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.onClick(h('button', text('Next')))
+    await asr.onClick(h('button', text('Next')))
     expect(tts.speak).toHaveBeenCalledWith('Next', { now: true })
   })
 })
 
 describe('SpeechSynthesisTextToSpeech', () => {
-  it('speaks an utterance when given text to speak', () => {
+  it('speaks an utterance when given text to speak', async () => {
     const tts = new SpeechSynthesisTextToSpeech()
 
-    tts.speak('hello queued')
+    await tts.speak('hello queued')
     expect(speechSynthesis.cancel).not.toHaveBeenCalled()
     expect(speechSynthesis.speak).toHaveBeenCalledWith(
       expect.objectContaining({ text: 'hello queued' })
     )
   })
 
-  it('cancels speech before speaking an utterance if `now` is true', () => {
+  it('cancels speech before speaking an utterance if `now` is true', async () => {
     const tts = new SpeechSynthesisTextToSpeech()
 
-    tts.speak('hello right now!', { now: true })
+    await tts.speak('hello right now!', { now: true })
     expect(speechSynthesis.cancel).toHaveBeenCalled()
     expect(speechSynthesis.speak).toHaveBeenCalledWith(
       expect.objectContaining({ text: 'hello right now!' })
     )
-  })
-
-  it('resolves when onend is called', async () => {
-    const tts = new SpeechSynthesisTextToSpeech()
-    const utterance = new SpeechSynthesisUtterance()
-    ;(SpeechSynthesisUtterance as jest.MockedClass<
-      typeof SpeechSynthesisUtterance
-    >).mockImplementation(() => utterance)
-
-    let resolved = false
-    const speakPromise = tts.speak('hello')
-
-    speakPromise.then(() => {
-      resolved = true
-    })
-
-    setImmediate(() => {
-      expect(resolved).toBe(false)
-      expect(utterance.onend).toBeDefined()
-      utterance.onend!(new SpeechSynthesisEvent())
-    })
-
-    await speakPromise
-    expect(resolved).toBe(true)
   })
 
   it('delegates `stop` to `SpeechSynthesis#cancel`', () => {
@@ -335,14 +328,51 @@ describe('SpeechSynthesisTextToSpeech', () => {
     expect(speechSynthesis.cancel).toHaveBeenCalledTimes(1)
   })
 
-  it('accepts a voice getter', () => {
+  it('accepts a voice getter', async () => {
     const voice = fakeVoice({ name: 'Alex' })
     const tts = new SpeechSynthesisTextToSpeech(() => voice)
 
-    tts.speak('hello')
+    await tts.speak('hello')
 
     expect(speechSynthesis.speak).toHaveBeenCalledWith(
       expect.objectContaining({ voice })
     )
+  })
+
+  it('is unmuted by default, which sets the volume to 1', async () => {
+    const tts = new SpeechSynthesisTextToSpeech()
+    const utterance = new SpeechSynthesisUtterance()
+    ;(SpeechSynthesisUtterance as jest.MockedClass<
+      typeof SpeechSynthesisUtterance
+    >).mockImplementation(() => utterance)
+
+    expect(tts.isMuted()).toBe(false)
+    await tts.speak('hello')
+    expect(utterance.volume).toBe(1)
+  })
+
+  it('can be muted, which sets the volume to 0', async () => {
+    const tts = new SpeechSynthesisTextToSpeech()
+    const utterance = new SpeechSynthesisUtterance()
+    ;(SpeechSynthesisUtterance as jest.MockedClass<
+      typeof SpeechSynthesisUtterance
+    >).mockImplementation(() => utterance)
+
+    tts.mute()
+    await tts.speak('hello')
+    expect(utterance.volume).toBe(0)
+  })
+
+  it('can be muted and then unmuted, which sets the volume to 1', async () => {
+    const tts = new SpeechSynthesisTextToSpeech()
+    const utterance = new SpeechSynthesisUtterance()
+    ;(SpeechSynthesisUtterance as jest.MockedClass<
+      typeof SpeechSynthesisUtterance
+    >).mockImplementation(() => utterance)
+
+    tts.mute()
+    tts.unmute()
+    await tts.speak('hello')
+    expect(utterance.volume).toBe(1)
   })
 })
