@@ -15,10 +15,47 @@ declare module 'kiosk-browser' {
     options?: { [key: string]: string }
   }
 
+  export enum ChangeType {
+    Add,
+    Remove,
+  }
+
+  export interface Device {
+    locationId: number
+    vendorId: number
+    productId: number
+    deviceName: string
+    manufacturer: string
+    serialNumber: string
+    deviceAddress: number
+  }
+
+  export type DeviceChangeListener = (
+    changeType: ChangeType,
+    device: Device
+  ) => void
+
+  export interface Listener<
+    A extends unknown[],
+    C extends Function = (...args: A) => void
+  > {
+    remove(): void
+  }
+
+  export interface Listeners<
+    A extends unknown[],
+    C extends Function = (...args: A) => void
+  > {
+    add(callback: C): Listener<A, C>
+    remove(callback: C): void
+  }
+
   export interface Kiosk {
     print(): Promise<void>
     getPrinterInfo(): Promise<PrinterInfo[]>
     getBatteryInfo(): Promise<BatteryInfo>
+    getDeviceList(): Promise<Device[]>
+    onDeviceChange: Listeners<[ChangeType, Device]>
   }
 }
 
