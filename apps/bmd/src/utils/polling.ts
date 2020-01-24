@@ -3,37 +3,45 @@ export interface Poller {
 }
 
 export class IntervalPoller implements Poller {
-  private duration: number
+  private interval: number
   private callback: () => Promise<void> | void
-  private interval?: ReturnType<typeof setTimeout>
+  private timeout?: ReturnType<typeof setTimeout>
 
   public constructor(duration: number, callback: () => Promise<void> | void) {
-    this.duration = duration
+    this.interval = duration
     this.callback = callback
   }
 
   public start(): this {
-    if (!this.interval) {
-      this.pollForever()
+    if (!this.timeout) {
+      this.scheduleNextTick()
     }
 
     return this
   }
 
   public stop(): this {
-    window.clearInterval(this.interval)
-    this.interval = undefined
+    window.clearTimeout(this.timeout)
+    this.timeout = undefined
     return this
   }
 
-  private pollForever(): void {
-    this.interval = window.setInterval(async () => {
+  public isRunning(): boolean {
+    return typeof this.timeout !== 'undefined'
+  }
+
+  private scheduleNextTick(): void {
+    this.timeout = window.setTimeout(async () => {
       try {
         await this.callback()
       } catch (error) {
         // ignore errors for now
+      } finally {
+        if (this.isRunning()) {
+          this.scheduleNextTick()
+        }
       }
-    }, this.duration)
+    }, this.interval)
   }
 
   public static start(

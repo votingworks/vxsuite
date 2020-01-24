@@ -1,4 +1,4 @@
-import { act } from '@testing-library/react'
+import { act, wait } from '@testing-library/react'
 import {
   CandidateContest,
   CompletedBallot,
@@ -186,4 +186,9 @@ export const advanceTimers = (seconds = 0) => {
       seconds ? seconds * 1000 : GLOBALS.CARD_POLLING_INTERVAL
     )
   })
+}
+
+export const advanceTimersAndPromises = async (seconds = 0) => {
+  advanceTimers(seconds)
+  await wait()
 }

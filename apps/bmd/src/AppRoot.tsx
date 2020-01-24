@@ -356,7 +356,7 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public stopShortValueReadPolling = () => {
-    this.cardPoller && this.cardPoller.stop()
+    this.cardPoller?.stop()
     this.cardPoller = undefined
   }
 

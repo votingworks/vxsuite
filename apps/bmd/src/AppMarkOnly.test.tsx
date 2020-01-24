@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait, within } from '@testing-library/react'
+import { fireEvent, render, within } from '@testing-library/react'
 import { electionSample } from '@votingworks/ballot-encoder'
 
 import App from './App'
@@ -8,7 +8,7 @@ import withMarkup from '../test/helpers/withMarkup'
 
 import {
   adminCard,
-  advanceTimers,
+  advanceTimersAndPromises,
   getExpiredVoterCard,
   getNewVoterCard,
   pollWorkerCard,
@@ -40,7 +40,7 @@ it('VxMarkOnly flow', async () => {
   const getByTextWithMarkup = withMarkup(getByText)
 
   card.removeCard()
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Default Unconfigured
   getByText('Device Not Configured')
@@ -49,23 +49,23 @@ it('VxMarkOnly flow', async () => {
 
   // Configure election with Admin Card
   card.insertCard(adminCard, electionSample)
-  advanceTimers()
-  await wait(() => fireEvent.click(getByText('Load Election Definition')))
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Load Election Definition'))
 
-  advanceTimers()
-  await wait(() => getByText('Election definition is loaded.'))
+  await advanceTimersAndPromises()
+  getByText('Election definition is loaded.')
 
   // Remove card and expect not configured because precinct not selected
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Device Not Configured'))
+  await advanceTimersAndPromises()
+  getByText('Device Not Configured')
 
   // ---------------
 
   // Configure election with Admin Card
   card.insertCard(adminCard, electionSample)
-  advanceTimers()
-  await wait(() => getByLabelText('Precinct'))
+  await advanceTimersAndPromises()
+  getByLabelText('Precinct')
 
   // select precinct
   getByText('State of Hamilton')
@@ -85,48 +85,46 @@ it('VxMarkOnly flow', async () => {
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Polls Closed'))
+  await advanceTimersAndPromises()
+  getByText('Polls Closed')
   getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Open Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
-  advanceTimers()
-  await wait(() =>
-    fireEvent.click(getByText('Open Polls for Center Springfield'))
-  )
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Open Polls for Center Springfield'))
   getByText('Close Polls for Center Springfield')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
 
   // ---------------
 
   // Insert Expired Voter Card
   card.insertCard(getExpiredVoterCard())
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
+  await advanceTimersAndPromises()
+  getByText('Expired Card')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Card'))
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
 
   // // ---------------
 
   // Insert Expired Voter Card With Votes
   card.insertCard(getExpiredVoterCard())
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
+  await advanceTimersAndPromises()
+  getByText('Expired Card')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Card'))
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
 
   // ---------------
 
@@ -134,8 +132,8 @@ it('VxMarkOnly flow', async () => {
 
   // Insert Voter card
   card.insertCard(getNewVoterCard())
-  advanceTimers()
-  await wait(() => getByText(/Center Springfield/))
+  await advanceTimersAndPromises()
+  getByText(/Center Springfield/)
   getByText(/ballot style 12/)
   getByTextWithMarkup('Your ballot has 20 contests.')
   fireEvent.click(getByText('Start Voting'))
@@ -144,7 +142,7 @@ it('VxMarkOnly flow', async () => {
   for (let i = 0; i < voterContests.length; i++) {
     const title = voterContests[i].title
 
-    advanceTimers()
+    await advanceTimersAndPromises()
     getByText(title)
 
     // Vote for candidate contest
@@ -160,50 +158,48 @@ it('VxMarkOnly flow', async () => {
   }
 
   // Review Screen
-  advanceTimers()
+  await advanceTimersAndPromises()
   getByText('Review Your Votes')
   getByText(presidentContest.candidates[0].name)
   getByText(`Yes on ${measure102Contest.shortTitle}`)
 
   // Print Screen
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'))
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Saving votes
   getByText('Saving your votes to the card')
-  advanceTimers(2.5) // redirect after 2.5 seconds
+  await advanceTimersAndPromises(2.5) // redirect after 2.5 seconds
 
   // Review and Cast Instructions
   getByText('Take your card to the Ballot Printer.')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
 
   // ---------------
 
   // Close Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
-  advanceTimers()
-  await wait(() =>
-    fireEvent.click(getByText('Close Polls for Center Springfield'))
-  )
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Close Polls for Center Springfield'))
   getByText('Open Polls for Center Springfield')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Poll Worker card to open.'))
+  await advanceTimersAndPromises()
+  getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Unconfigure with Admin Card
   card.insertCard(adminCard, electionSample)
-  advanceTimers()
-  await wait(() => getByText('Election definition is loaded.'))
+  await advanceTimersAndPromises()
+  getByText('Election definition is loaded.')
   fireEvent.click(getByText('Remove'))
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Default Unconfigured
   getByText('Device Not Configured')
