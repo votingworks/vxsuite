@@ -1,9 +1,9 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 
 import App from './App'
 
-import { advanceTimers } from '../test/helpers/smartcards'
+import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 
 import {
   setElectionInStorage,
@@ -39,16 +39,16 @@ it('Cause "/card/read" API to catch', async () => {
   )
 
   // Ensure card polling interval time is passed
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Wait for component to render
-  await wait(() => fireEvent.click(getByText('Insert Card')))
+  fireEvent.click(getByText('Insert Card'))
 
   // Expect that card API was called once
   expect(readStatusMock).toHaveBeenCalledTimes(1)
 
   // Ensure card polling interval time is passed again
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Expect that card API has not been called again
   expect(readStatusMock).toHaveBeenCalledTimes(1)

@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait, within } from '@testing-library/react'
+import { fireEvent, render, within } from '@testing-library/react'
 import {
   electionSample,
   encodeBallot,
@@ -10,7 +10,7 @@ import App from './App'
 
 import {
   adminCard,
-  advanceTimers,
+  advanceTimersAndPromises,
   getExpiredVoterCard,
   getNewVoterCard,
   getUsedVoterCard,
@@ -35,7 +35,6 @@ beforeEach(() => {
 })
 
 jest.useFakeTimers()
-jest.setTimeout(20000) // TODO: Added after hardware polling added. Why?
 
 it('VxPrintOnly flow', async () => {
   const card = new MemoryCard()
@@ -49,7 +48,7 @@ it('VxPrintOnly flow', async () => {
   const getAllByTextWithMarkup = withMarkup(getAllByText)
 
   card.removeCard()
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Default Unconfigured
   getByText('Device Not Configured')
@@ -58,11 +57,11 @@ it('VxPrintOnly flow', async () => {
 
   // Configure with Admin Card
   card.insertCard(adminCard, electionSample)
-  advanceTimers()
-  await wait(() => fireEvent.click(getByText('Load Election Definition')))
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Load Election Definition'))
 
-  advanceTimers()
-  await wait(() => getByText('Election definition is loaded.'))
+  await advanceTimersAndPromises()
+  getByText('Election definition is loaded.')
 
   fireEvent.click(getByText('VxPrint Only'))
   expect((getByText('VxPrint Only') as HTMLButtonElement).disabled).toBeTruthy()
@@ -74,15 +73,15 @@ it('VxPrintOnly flow', async () => {
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Device Not Configured'))
+  await advanceTimersAndPromises()
+  getByText('Device Not Configured')
 
   // ---------------
 
   // Configure election with Admin Card
   card.insertCard(adminCard, electionSample)
-  advanceTimers()
-  await wait(() => getByLabelText('Precinct'))
+  await advanceTimersAndPromises()
+  getByLabelText('Precinct')
 
   // Select precinct
   getByText('State of Hamilton')
@@ -95,63 +94,62 @@ it('VxPrintOnly flow', async () => {
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Polls Closed'))
+  await advanceTimersAndPromises()
+  getByText('Polls Closed')
   getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Open Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
-  advanceTimers()
-  await wait(() =>
-    fireEvent.click(getByText('Open Polls for Center Springfield'))
-  )
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Open Polls for Center Springfield'))
   getByText('Open polls and print Polls Opened report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
-  await wait(() => getByText('Close Polls for Center Springfield'))
+  await advanceTimersAndPromises()
+  getByText('Close Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Card'))
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
 
   // ---------------
 
   // Insert Expired Voter Card
   card.insertCard(getExpiredVoterCard())
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
+  await advanceTimersAndPromises()
+  getByText('Expired Card')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Card'))
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
 
   // ---------------
 
   // Insert Used Voter Card
   card.insertCard(getUsedVoterCard())
-  advanceTimers()
-  await wait(() => getByText('Used Card'))
+  await advanceTimersAndPromises()
+  getByText('Used Card')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Card'))
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
 
   // ---------------
 
   // Insert Voter Card with No Votes
   card.insertCard(getNewVoterCard())
-  advanceTimers()
-  await wait(() => getByText('Empty Card'))
+  await advanceTimersAndPromises()
+  getByText('Empty Card')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Card'))
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
 
   // ---------------
 
@@ -170,19 +168,18 @@ it('VxPrintOnly flow', async () => {
   )
 
   // Show Printing Ballot screen
-  advanceTimers()
-  await wait() // TODO: unsure why this `wait` is needed, but it is.
+  await advanceTimersAndPromises()
   getByText('Printing your official ballot')
 
   // After timeout, show Verify and Cast Instructions
-  advanceTimers(printerMessageTimeoutSeconds)
-  await wait(() => getByText('Verify and Cast Your Printed Ballot'))
+  await advanceTimersAndPromises(printerMessageTimeoutSeconds)
+  getByText('Verify and Cast Your Printed Ballot')
   expect(printer.print).toHaveBeenCalledTimes(2)
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Card'))
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
 
   // ---------------
 
@@ -201,19 +198,18 @@ it('VxPrintOnly flow', async () => {
   )
 
   // Show Printing Ballot screen
-  advanceTimers()
-  await wait() // TODO: unsure why this `wait` is needed, but it is.
+  await advanceTimersAndPromises()
   getByText('Printing your official ballot')
 
   // After timeout, show Verify and Cast Instructions
-  advanceTimers(printerMessageTimeoutSeconds)
-  await wait(() => getByText('Verify and Cast Your Printed Ballot'))
+  await advanceTimersAndPromises(printerMessageTimeoutSeconds)
+  getByText('Verify and Cast Your Printed Ballot')
   expect(printer.print).toHaveBeenCalledTimes(3)
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Card'))
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
 
   // ---------------
 
@@ -232,26 +228,25 @@ it('VxPrintOnly flow', async () => {
   )
 
   // Show Printing Ballot screen
-  advanceTimers()
-  await wait() // TODO: unsure why this `wait` is needed, but it is.
+  await advanceTimersAndPromises()
   getByText('Printing your official ballot')
 
   // After timeout, show Verify and Cast Instructions
-  advanceTimers(printerMessageTimeoutSeconds)
-  await wait(() => getByText('Verify and Cast Your Printed Ballot'))
+  await advanceTimersAndPromises(printerMessageTimeoutSeconds)
+  getByText('Verify and Cast Your Printed Ballot')
   expect(printer.print).toHaveBeenCalledTimes(4)
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Card'))
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
 
   // ---------------
 
   // Pollworker Closes Polls
   card.insertCard(pollWorkerCard)
-  advanceTimers()
-  await wait(() => getByText('Close Polls for Center Springfield'))
+  await advanceTimersAndPromises()
+  getByText('Close Polls for Center Springfield')
 
   // Check for Report Details
   expect(getAllByTextWithMarkup('Ballots printed count: 3').length).toBe(2)
@@ -286,22 +281,23 @@ it('VxPrintOnly flow', async () => {
   fireEvent.click(getByText('Close Polls for Center Springfield'))
   getByText('Close Polls and print Polls Closed report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
-  await wait(() => getByText('Open Polls for Center Springfield'))
+  await advanceTimersAndPromises()
+  getByText('Open Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(5)
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Poll Worker card to open.'))
+  await advanceTimersAndPromises()
+  getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Unconfigure with Admin Card
   card.insertCard(adminCard, electionSample)
-  advanceTimers()
-  await wait(() => getByText('Election definition is loaded.'))
+  await advanceTimersAndPromises()
+  getByText('Election definition is loaded.')
   fireEvent.click(getByText('Remove'))
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Default Unconfigured
   getByText('Device Not Configured')

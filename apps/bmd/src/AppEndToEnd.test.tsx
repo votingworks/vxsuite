@@ -11,7 +11,7 @@ import withMarkup from '../test/helpers/withMarkup'
 
 import {
   adminCard,
-  advanceTimers,
+  advanceTimersAndPromises,
   getAlternateNewVoterCard,
   getNewVoterCard,
   getUsedVoterCard,
@@ -35,7 +35,6 @@ beforeEach(() => {
 })
 
 jest.useFakeTimers()
-jest.setTimeout(20000) // TODO: Added after hardware polling added. Why?
 
 it('VxMark+Print end-to-end flow', async () => {
   const card = new MemoryCard()
@@ -49,7 +48,7 @@ it('VxMark+Print end-to-end flow', async () => {
   const getByTextWithMarkup = withMarkup(getByText)
 
   card.removeCard()
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Default Unconfigured
   getByText('Device Not Configured')
@@ -58,23 +57,23 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Configure with Admin Card
   card.insertCard(adminCard, electionSample)
-  advanceTimers()
-  await wait(() => fireEvent.click(getByText('Load Election Definition')))
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Load Election Definition'))
 
-  advanceTimers()
-  await wait(() => getByText('Election definition is loaded.'))
+  await advanceTimersAndPromises()
+  getByText('Election definition is loaded.')
 
   // Remove card and expect not configured because precinct not selected
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Device Not Configured'))
+  await advanceTimersAndPromises()
+  getByText('Device Not Configured')
 
   // ---------------
 
   // Configure election with Admin Card
   card.insertCard(adminCard, electionSample)
-  advanceTimers()
-  await wait(() => getByLabelText('Precinct'))
+  await advanceTimersAndPromises()
+  getByLabelText('Precinct')
 
   // Select precinct
   getByText('State of Hamilton')
@@ -95,54 +94,53 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Polls Closed'))
+  await advanceTimersAndPromises()
+  getByText('Polls Closed')
   getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Open Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
-  advanceTimers()
-  await wait(() =>
-    fireEvent.click(getByText('Open Polls for Center Springfield'))
-  )
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Open Polls for Center Springfield'))
   getByText('Open polls and print Polls Opened report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
-  await wait(() => getByText('Close Polls for Center Springfield'))
+  await advanceTimersAndPromises()
+  getByText('Close Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
-  advanceTimers()
+  await advanceTimersAndPromises()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 
   // Voter partially votes, remove card, and is on insert card screen.
   card.insertCard(getNewVoterCard())
-  advanceTimers()
+  await advanceTimersAndPromises()
   await wait(() => getByText(/Center Springfield/))
   getByText(/ballot style 12/)
   getByTextWithMarkup('Your ballot has 20 contests.')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
+  await advanceTimersAndPromises()
   await wait(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 
   // Alternate Precinct
   card.insertCard(getAlternateNewVoterCard())
-  advanceTimers()
-  await wait(() => getByText('Invalid Card'))
+  await advanceTimersAndPromises()
+  getByText('Invalid Card')
   getByText('Card is not configured for this precinct.')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
 
   // ---------------
 
@@ -150,8 +148,8 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Insert Voter card
   card.insertCard(getNewVoterCard())
-  advanceTimers()
-  await wait(() => getByText(/Center Springfield/))
+  await advanceTimersAndPromises()
+  getByText(/Center Springfield/)
   getByText(/ballot style 12/)
   getByTextWithMarkup('Your ballot has 20 contests.')
 
@@ -169,7 +167,7 @@ it('VxMark+Print end-to-end flow', async () => {
   for (let i = 0; i < voterContests.length; i++) {
     const title = voterContests[i].title
 
-    advanceTimers()
+    await advanceTimersAndPromises()
     getByText(title)
 
     // Vote for candidate contest
@@ -181,13 +179,13 @@ it('VxMark+Print end-to-end flow', async () => {
       // We also need to advance timers so the interval will run, see that time has passed,
       // and finally write to the card.
       advanceBy(1100)
-      advanceTimers()
+      await advanceTimersAndPromises()
       expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1)
 
       // If we wait another second and advance timers, without any change made to the card,
       // we should not see another call to save the card data
       advanceBy(1100)
-      advanceTimers()
+      await advanceTimersAndPromises()
       expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1)
     }
 
@@ -200,7 +198,7 @@ it('VxMark+Print end-to-end flow', async () => {
   }
 
   // Review Screen
-  advanceTimers()
+  await advanceTimersAndPromises()
   getByText('Review Votes')
   getByText(presidentContest.candidates[0].name)
   getByText(`Yes on ${measure102Contest.shortTitle}`)
@@ -211,7 +209,7 @@ it('VxMark+Print end-to-end flow', async () => {
       `${countyCommissionersContest.section}${countyCommissionersContest.title}`
     )
   )
-  advanceTimers()
+  await advanceTimersAndPromises()
   getByText(/Vote for 4/i)
 
   // Select first candidate
@@ -220,7 +218,7 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Back to Review screen
   fireEvent.click(getByText('Review'))
-  advanceTimers()
+  await advanceTimersAndPromises()
   getByText('Review Your Votes')
   getByText(countyCommissionersContest.candidates[0].name)
   getByText(countyCommissionersContest.candidates[1].name)
@@ -228,56 +226,54 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Print Screen
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'))
-  advanceTimers()
+  await advanceTimersAndPromises()
   getByText('Printing Official Ballot')
 
   // After timeout, show Verify and Cast Instructions
-  await wait() // TODO: unsure why this `wait` is needed, but it is.
-  advanceTimers(printerMessageTimeoutSeconds)
-  await wait(() => getByText('You’re Almost Done…'))
+  await advanceTimersAndPromises(printerMessageTimeoutSeconds)
+  getByText('You’re Almost Done…')
   expect(printer.print).toHaveBeenCalledTimes(2)
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
 
   // Insert Voter card which has just printed to see "cast" instructions again.
   card.insertCard(getUsedVoterCard())
-  advanceTimers()
-  await wait(() => getByText('You’re Almost Done…'))
+  await advanceTimersAndPromises()
+  getByText('You’re Almost Done…')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
 
   // ---------------
 
   // Close Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
-  advanceTimers()
-  await wait(() =>
-    fireEvent.click(getByText('Close Polls for Center Springfield'))
-  )
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Close Polls for Center Springfield'))
   getByText('Close Polls and print Polls Closed report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
-  await wait(() => getByText('Open Polls for Center Springfield'))
+  await advanceTimersAndPromises()
+  getByText('Open Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(3)
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert Poll Worker card to open.'))
+  await advanceTimersAndPromises()
+  getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Unconfigure with Admin Card
   card.insertCard(adminCard, electionSample)
-  advanceTimers()
-  await wait(() => getByText('Election definition is loaded.'))
+  await advanceTimersAndPromises()
+  getByText('Election definition is loaded.')
   fireEvent.click(getByText('Remove'))
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Default Unconfigured
   getByText('Device Not Configured')
