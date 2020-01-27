@@ -20,15 +20,23 @@ interface PrinterStatus {
   connected: boolean
 }
 
+export const AccessibleControllerVendorId = 0x0d8c
+export const AccessibleControllerProductId = 0x0170
+
+/**
+ * Determines whether a device is the accessible controller.
+ */
+export function isAccessibleController(device: Device): boolean {
+  return (
+    device.vendorId === AccessibleControllerVendorId &&
+    device.productId === AccessibleControllerProductId
+  )
+}
+
 /**
  * Defines the API for accessing hardware status.
  */
 export interface Hardware {
-  /**
-   * Reads Accessible Controller status
-   */
-  readAccesssibleControllerStatus(): Promise<AccessibleControllerStatus>
-
   /**
    * Reads Battery status
    */
@@ -54,9 +62,6 @@ export interface Hardware {
  * Implements the `Hardware` API with an in-memory implementation.
  */
 export class MemoryHardware implements Hardware {
-  private accessibleControllerStatus: AccessibleControllerStatus = {
-    connected: true,
-  }
   private batteryStatus: BatteryInfo = {
     discharging: false,
     level: 0.8,
@@ -69,13 +74,14 @@ export class MemoryHardware implements Hardware {
   }
   private devices = new Set<Device>()
 
-  /**
-   * Reads Accessible Controller status
-   */
-  public async readAccesssibleControllerStatus(): Promise<
-    AccessibleControllerStatus
-  > {
-    return this.accessibleControllerStatus
+  private accessibleController: Readonly<Device> = {
+    deviceAddress: 0,
+    deviceName: 'USB Advanced Audio Device',
+    locationId: 0,
+    manufacturer: 'C-Media Electronics Inc.',
+    productId: AccessibleControllerProductId,
+    vendorId: AccessibleControllerVendorId,
+    serialNumber: '',
   }
 
   /**
@@ -84,7 +90,7 @@ export class MemoryHardware implements Hardware {
   public async setAccesssibleControllerConnected(
     connected: boolean
   ): Promise<void> {
-    this.accessibleControllerStatus = { connected }
+    this.setDeviceConnected(this.accessibleController, connected)
   }
 
   /**
@@ -146,7 +152,7 @@ export class MemoryHardware implements Hardware {
    * Manage notifications for device changes.
    */
   public onDeviceChange: Listeners<[ChangeType, Device]> = (() => {
-    const listeners = new Set<
+    const callbacks = new Set<
       (changeType: ChangeType, device: Device) => void
     >()
 
@@ -154,11 +160,15 @@ export class MemoryHardware implements Hardware {
       add: (
         callback: (changeType: ChangeType, device: Device) => void
       ): Listener<[ChangeType, Device]> => {
-        listeners.add(callback)
+        callbacks.add(callback)
+
+        for (const device of this.devices) {
+          callback(0 /* ChangeType.Add */, device)
+        }
 
         return {
           remove() {
-            listeners.delete(callback)
+            callbacks.delete(callback)
           },
         }
       },
@@ -166,16 +176,43 @@ export class MemoryHardware implements Hardware {
       remove: (
         callback: (changeType: ChangeType, device: Device) => void
       ): void => {
-        listeners.delete(callback)
+        callbacks.delete(callback)
       },
 
       trigger: (changeType: ChangeType, device: Device): void => {
-        for (const callback of listeners) {
+        for (const callback of callbacks) {
           callback(changeType, device)
         }
       },
     }
   })()
+
+  /**
+   * Gets a list of connected devices.
+   */
+  public getDeviceList(): Device[] {
+    return Array.from(this.devices)
+  }
+
+  /**
+   * Determines whether a device is in the list of connected devices.
+   */
+  public hasDevice(device: Device): boolean {
+    return this.devices.has(device)
+  }
+
+  /**
+   * Sets the connection status for a device by adding or removing it as needed.
+   */
+  public setDeviceConnected(device: Device, connected: boolean): void {
+    if (connected !== this.hasDevice(device)) {
+      if (connected) {
+        this.addDevice(device)
+      } else {
+        this.removeDevice(device)
+      }
+    }
+  }
 
   /**
    * Adds a device to the set of connected devices.
@@ -225,14 +262,6 @@ export class WebBrowserHardware extends MemoryHardware {
 export class KioskHardware extends WebBrowserHardware {
   public constructor(private kiosk: Kiosk) {
     super()
-    this.kiosk = kiosk
-  }
-
-  /**
-   * Determines whether a device is the accessible controller.
-   */
-  private isAccessibleController(device: Device): boolean {
-    return device.vendorId === 0x0d8c && device.productId === 0x0170
   }
 
   /**
@@ -243,18 +272,11 @@ export class KioskHardware extends WebBrowserHardware {
   }
 
   /**
-   * Reads accessible controller status by checking the connected devices.
+   * Reads Card Reader status
    */
-  public async readAccesssibleControllerStatus(): Promise<
-    AccessibleControllerStatus
-  > {
-    for (const device of await this.kiosk.getDeviceList()) {
-      if (this.isAccessibleController(device)) {
-        return { connected: true }
-      }
-    }
-
-    return { connected: false }
+  public async readCardReaderStatus(): Promise<CardReaderStatus> {
+    // TODO: replace this with a real implementation
+    return { connected: true }
   }
 
   /**
@@ -264,6 +286,8 @@ export class KioskHardware extends WebBrowserHardware {
     const printers = await this.kiosk.getPrinterInfo()
     return { connected: printers.some(printer => printer.connected) }
   }
+
+  onDeviceChange = this.kiosk.onDeviceChange
 }
 
 /**
