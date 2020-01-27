@@ -1,10 +1,14 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 
 import App from './App'
 
-import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  advanceTimersAndPromises,
+  getNewVoterCard,
+} from '../test/helpers/smartcards'
 
 import {
   setElectionInStorage,
@@ -24,7 +28,6 @@ beforeEach(() => {
 })
 
 jest.useFakeTimers()
-jest.setTimeout(20000) // TODO: Added after hardware polling added. Why?
 
 const idleScreenCopy =
   'This voting station has been inactive for more than 5 minutes.'
@@ -44,11 +47,11 @@ describe('Mark Card Void when voter is idle too long', () => {
 
     // Insert Voter card
     card.insertCard(getNewVoterCard())
-    advanceTimers()
-    await wait(() => getByText(/Center Springfield/))
+    await advanceTimersAndPromises()
+    getByText(/Center Springfield/)
 
     // Elapse idle timeout
-    advanceTimers(IDLE_TIMEOUT_SECONDS)
+    await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS)
 
     // Idle Screen is displayed
     getByText(idleScreenCopy)
@@ -56,11 +59,11 @@ describe('Mark Card Void when voter is idle too long', () => {
     // User action removes Idle Screen
     fireEvent.click(getByText('Yes, I’m still voting.'))
     fireEvent.mouseDown(document)
-    advanceTimers()
+    await advanceTimersAndPromises()
     expect(queryByText(idleScreenCopy)).toBeFalsy()
 
     // Elapse idle timeout
-    advanceTimers(IDLE_TIMEOUT_SECONDS)
+    await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS)
 
     // Idle Screen is displayed
     getByText(idleScreenCopy)
@@ -75,15 +78,14 @@ describe('Mark Card Void when voter is idle too long', () => {
     getByText('Clearing ballot')
 
     // Idle reset timeout passes, Expect voided card
-    advanceTimers()
-    await wait() // because flash of "insert card" screen
-    advanceTimers()
-    await wait(() => getByText('Expired Card'))
+    await advanceTimersAndPromises() // because flash of "insert card" screen
+    await advanceTimersAndPromises()
+    getByText('Expired Card')
 
     // Remove card
     card.removeCard()
-    advanceTimers()
-    await wait(() => getByText('Insert voter card to load ballot.'))
+    await advanceTimersAndPromises()
+    getByText('Insert voter card to load ballot.')
   })
 
   it('Reset ballot when card write does not match card read.', async () => {
@@ -104,25 +106,23 @@ describe('Mark Card Void when voter is idle too long', () => {
 
     // Insert Voter card
     card.insertCard(getNewVoterCard())
-    advanceTimers()
-    await wait(() => getByText(/Center Springfield/))
+    await advanceTimersAndPromises()
+    getByText(/Center Springfield/)
 
     // Elapse idle timeout
-    advanceTimers(IDLE_TIMEOUT_SECONDS)
+    await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS)
 
     // Idle Screen is displayed
     getByText(idleScreenCopy)
 
     // Countdown works
     advanceTimers(IDLE_RESET_TIMEOUT_SECONDS)
-    advanceTimers()
     getByText('Clearing ballot')
 
     card.insertCard('all your base are belong to us')
 
     // 30 seconds passes, Expect voided card
-    advanceTimers()
-    await wait() // TODO: unsure why this `wait` is needed, but it is.
+    await advanceTimersAndPromises()
     getByText('Insert Card')
   })
 })

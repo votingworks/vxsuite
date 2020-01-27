@@ -1,11 +1,11 @@
 import React from 'react'
-import { render, wait, fireEvent } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 
 import App from './App'
 
 import { CARD_EXPIRATION_SECONDS } from './config/globals'
 import {
-  advanceTimers,
+  advanceTimersAndPromises,
   getExpiredVoterCard,
   getVoidedVoterCard,
   createVoterCard,
@@ -22,7 +22,6 @@ import { AppStorage } from './AppRoot'
 import { MemoryHardware } from './utils/Hardware'
 
 jest.useFakeTimers()
-jest.setTimeout(20000) // TODO: Added after hardware polling added. Why?
 
 beforeEach(() => {
   window.location.href = '/'
@@ -48,25 +47,25 @@ it('Display App Card Unhappy Paths', async () => {
 
   // Insert used Voter card
   card.insertCard(getVoidedVoterCard())
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
+  await advanceTimersAndPromises()
+  getByText('Expired Card')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
 
   // ---------------
 
   // Insert expired Voter card
   card.insertCard(getExpiredVoterCard())
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
+  await advanceTimersAndPromises()
+  getByText('Expired Card')
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
 
   // ---------------
 
@@ -77,51 +76,51 @@ it('Display App Card Unhappy Paths', async () => {
 
   // First Insert is Good
   card.insertCard(expiringCard)
-  advanceTimers()
-  await wait(() => fireEvent.click(getByText('Start Voting')))
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Start Voting'))
 
   // Slow voter clicks around, expiration Time passes, card still works.
-  advanceTimers(60)
+  await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next')))
-  advanceTimers(60)
+  fireEvent.click(getByText('Next'))
+  await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next')))
-  advanceTimers(60)
+  fireEvent.click(getByText('Next'))
+  await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next')))
-  advanceTimers(60)
+  fireEvent.click(getByText('Next'))
+  await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next')))
-  advanceTimers(60)
+  fireEvent.click(getByText('Next'))
+  await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next')))
-  advanceTimers(60)
+  fireEvent.click(getByText('Next'))
+  await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next')))
+  fireEvent.click(getByText('Next'))
 
   // Card expires, but card still works as expected.
-  advanceTimers(60)
+  await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next')))
-  advanceTimers(60)
+  fireEvent.click(getByText('Next'))
+  await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  await wait(() => fireEvent.click(getByText('Next')))
+  fireEvent.click(getByText('Next'))
 
   // Remove card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
 
   // Reinsert expired card
   card.insertCard(getExpiredVoterCard())
-  advanceTimers()
-  await wait(() => getByText('Expired Card'))
+  await advanceTimersAndPromises()
+  getByText('Expired Card')
 
   // Remove Card
   card.removeCard()
-  advanceTimers()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
 
   // ---------------
 })
