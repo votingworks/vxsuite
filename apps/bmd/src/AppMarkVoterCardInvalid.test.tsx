@@ -1,6 +1,5 @@
 import React from 'react'
 import { fireEvent, render } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
 
 import App from './App'
 
@@ -22,6 +21,7 @@ import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
+import fakeMachineId from '../test/helpers/fakeMachineId'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -37,12 +37,18 @@ describe('Mark Card Void when voter is idle too long', () => {
     const card = new MemoryCard()
     const hardware = new MemoryHardware()
     const storage = new MemoryStorage<AppStorage>()
+    const machineId = fakeMachineId()
 
     setElectionInStorage(storage)
     setStateInStorage(storage)
 
     const { getByText, queryByText } = render(
-      <App card={card} hardware={hardware} storage={storage} />
+      <App
+        card={card}
+        hardware={hardware}
+        storage={storage}
+        machineId={machineId}
+      />
     )
 
     // Insert Voter card
@@ -89,19 +95,21 @@ describe('Mark Card Void when voter is idle too long', () => {
   })
 
   it('Reset ballot when card write does not match card read.', async () => {
-    // TODO: This is required due to `fetchMock.restore()` in `setupTests.tsx`.
-    // https://github.com/votingworks/bmd/issues/714
-    fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
-
     const card = new MemoryCard()
     const hardware = new MemoryHardware()
     const storage = new MemoryStorage<AppStorage>()
+    const machineId = fakeMachineId()
 
     setElectionInStorage(storage)
     setStateInStorage(storage)
 
     const { getByText } = render(
-      <App card={card} hardware={hardware} storage={storage} />
+      <App
+        card={card}
+        hardware={hardware}
+        storage={storage}
+        machineId={machineId}
+      />
     )
 
     // Insert Voter card

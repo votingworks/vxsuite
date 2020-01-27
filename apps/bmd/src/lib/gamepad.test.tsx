@@ -19,6 +19,7 @@ import { MemoryStorage } from '../utils/Storage'
 import { AppStorage } from '../AppRoot'
 import { MemoryCard } from '../utils/Card'
 import { MemoryHardware } from '../utils/Hardware'
+import fakeMachineId from '../../test/helpers/fakeMachineId'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -30,10 +31,18 @@ it('gamepad controls work', async () => {
   const card = new MemoryCard()
   const hardware = new MemoryHardware()
   const storage = new MemoryStorage<AppStorage>()
+  const machineId = fakeMachineId()
+
   setElectionInStorage(storage)
   setStateInStorage(storage)
+
   const { getByText } = render(
-    <App card={card} hardware={hardware} storage={storage} />
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      machineId={machineId}
+    />
   )
 
   card.insertCard(getNewVoterCard())

@@ -12,6 +12,7 @@ import {
 } from '../test/helpers/election'
 import { advanceTimers } from '../test/helpers/smartcards'
 import { MemoryStorage } from './utils/Storage'
+import fakeMachineId from '../test/helpers/fakeMachineId'
 
 jest.useFakeTimers()
 
@@ -21,15 +22,18 @@ beforeEach(() => {
 
 describe('loads election', () => {
   it('Machine is not configured by default', () => {
-    const { getByText } = render(<App />)
+    const { getByText } = render(<App machineId={fakeMachineId()} />)
     getByText('Device Not Configured')
   })
 
   it('from storage', () => {
     const storage = new MemoryStorage<AppStorage>()
+    const machineId = fakeMachineId()
     setElectionInStorage(storage)
     setStateInStorage(storage)
-    const { getByText } = render(<App storage={storage} />)
+    const { getByText } = render(
+      <App storage={storage} machineId={machineId} />
+    )
     getByText(election.title)
     expect(storage.get(electionStorageKey)).toBeTruthy()
   })

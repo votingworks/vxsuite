@@ -15,6 +15,7 @@ import {
 import withMarkup from '../test/helpers/withMarkup'
 import { VxPrintOnly } from './config/types'
 import { MemoryCard } from './utils/Card'
+import fakeMachineId from '../test/helpers/fakeMachineId'
 
 jest.useFakeTimers()
 
@@ -24,6 +25,7 @@ beforeEach(() => {
 
 const card = new MemoryCard()
 const storage = new MemoryStorage<AppStorage>()
+const machineId = fakeMachineId()
 
 const insertCardScreenText = 'Insert voter card to load ballot.'
 const lowBatteryErrorScreenText = 'No Power Detected and Battery is Low'
@@ -35,7 +37,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
     setElectionInStorage(storage)
     setStateInStorage(storage)
     const { getByText, queryByText } = render(
-      <App card={card} hardware={hardware} storage={storage} />
+      <App
+        card={card}
+        hardware={hardware}
+        storage={storage}
+        machineId={machineId}
+      />
     )
     const accessibleControllerWarningText =
       'Voting with an accessible controller is not currently available.'
@@ -62,7 +69,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
     setElectionInStorage(storage)
     setStateInStorage(storage)
     const { getByText } = render(
-      <App card={card} hardware={hardware} storage={storage} />
+      <App
+        card={card}
+        hardware={hardware}
+        storage={storage}
+        machineId={machineId}
+      />
     )
 
     // Start on VxMark Insert Card screen
@@ -86,7 +98,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
       appMode: VxPrintOnly,
     })
     const { getByText } = render(
-      <App card={card} hardware={hardware} storage={storage} />
+      <App
+        card={card}
+        hardware={hardware}
+        storage={storage}
+        machineId={machineId}
+      />
     )
 
     // Start on VxPrint Insert Card screen
@@ -110,7 +127,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
     setElectionInStorage(storage)
     setStateInStorage(storage)
     const { getByText, queryByText } = render(
-      <App card={card} hardware={hardware} storage={storage} />
+      <App
+        card={card}
+        hardware={hardware}
+        storage={storage}
+        machineId={machineId}
+      />
     )
     const getByTextWithMarkup = withMarkup(getByText)
 
@@ -141,7 +163,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
     setElectionInStorage(storage)
     setStateInStorage(storage)
     const { getByText } = render(
-      <App card={card} hardware={hardware} storage={storage} />
+      <App
+        card={card}
+        hardware={hardware}
+        storage={storage}
+        machineId={machineId}
+      />
     )
 
     // Mock failed card reader response

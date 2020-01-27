@@ -18,6 +18,7 @@ import { getHardware } from './utils/Hardware'
 
 import AppRoot, { Props as AppRootProps, AppStorage } from './AppRoot'
 import FocusManager from './components/FocusManager'
+import machineIdProvider from './utils/machineId'
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault()
@@ -28,6 +29,7 @@ export interface Props {
   card?: AppRootProps['card']
   storage?: AppRootProps['storage']
   printer?: AppRootProps['printer']
+  machineId?: AppRootProps['machineId']
   screenReader?: ScreenReader
 }
 
@@ -39,6 +41,7 @@ const App = ({
   storage = new LocalStorage<AppStorage>(),
   printer = getPrinter(),
   hardware = getHardware(),
+  machineId = machineIdProvider,
 }: Props) => {
   /* istanbul ignore next - need to figure out how to test this */
   const onKeyPress = useCallback(
@@ -107,6 +110,7 @@ const App = ({
               printer={printer}
               hardware={hardware}
               storage={storage}
+              machineId={machineId}
               {...props}
             />
           )}

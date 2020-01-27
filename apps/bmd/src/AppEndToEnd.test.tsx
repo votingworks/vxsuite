@@ -29,6 +29,7 @@ import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
+import fakeMachineId from '../test/helpers/fakeMachineId'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -41,9 +42,16 @@ it('VxMark+Print end-to-end flow', async () => {
   const hardware = new MemoryHardware()
   const printer = fakePrinter()
   const storage = new MemoryStorage<AppStorage>()
+  const machineId = fakeMachineId()
   const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array')
   const { getByLabelText, getByText, getByTestId } = render(
-    <App card={card} hardware={hardware} storage={storage} printer={printer} />
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      printer={printer}
+      machineId={machineId}
+    />
   )
   const getByTextWithMarkup = withMarkup(getByText)
 

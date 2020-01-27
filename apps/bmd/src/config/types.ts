@@ -10,6 +10,9 @@ import { Printer } from '../utils/printer'
 
 // Generic
 export type VoidFunction = () => void
+export interface Provider<T> {
+  get(): Promise<T>
+}
 
 // App
 export type AppModeNames = 'VxMark' | 'VxPrint' | 'VxMark + VxPrint'
@@ -126,11 +129,6 @@ export interface CardPresentAPI {
   longValueExists?: boolean
 }
 export type CardAPI = CardAbsentAPI | CardPresentAPI
-
-// Machine ID API
-export interface MachineIdAPI {
-  machineId: string
-}
 
 // User Interface
 export type ScrollDirections = 'up' | 'down'

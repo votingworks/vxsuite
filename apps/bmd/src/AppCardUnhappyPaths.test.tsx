@@ -20,6 +20,7 @@ import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryHardware } from './utils/Hardware'
+import fakeMachineId from '../test/helpers/fakeMachineId'
 
 jest.useFakeTimers()
 
@@ -33,6 +34,7 @@ it('Display App Card Unhappy Paths', async () => {
   const card = new MemoryCard()
   const hardware = new MemoryHardware()
   const storage = new MemoryStorage<AppStorage>()
+  const machineId = fakeMachineId()
 
   card.removeCard()
 
@@ -40,7 +42,12 @@ it('Display App Card Unhappy Paths', async () => {
   setStateInStorage(storage)
 
   const { getByText } = render(
-    <App card={card} hardware={hardware} storage={storage} />
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      machineId={machineId}
+    />
   )
 
   // ====================== END CONTEST SETUP ====================== //
