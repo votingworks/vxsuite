@@ -29,6 +29,7 @@ import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
+import fakeMachineId from '../test/helpers/fakeMachineId'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -41,8 +42,15 @@ it('VxPrintOnly flow', async () => {
   const printer = fakePrinter()
   const hardware = new MemoryHardware()
   const storage = new MemoryStorage<AppStorage>()
+  const machineId = fakeMachineId()
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
-    <App card={card} hardware={hardware} storage={storage} printer={printer} />
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      printer={printer}
+      machineId={machineId}
+    />
   )
 
   const getAllByTextWithMarkup = withMarkup(getAllByText)

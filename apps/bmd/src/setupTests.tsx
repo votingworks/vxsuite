@@ -6,8 +6,6 @@ import fetchMock from 'fetch-mock'
 import { TextDecoder, TextEncoder } from 'util'
 import { mockOf } from '../test/testUtils'
 
-fetchMock.get('/machine-id', () => JSON.stringify({ machineId: '1' }))
-
 // window.crypto is not defined in JSDOM
 // TODO: consider https://github.com/jsdom/jsdom/issues/1612#issuecomment-454040272
 Object.defineProperty(global, 'crypto', {
@@ -58,6 +56,7 @@ function makeSpeechSynthesisDouble(): typeof speechSynthesis {
 
 beforeEach(() => {
   mockSpeechSynthesis()
+  fetchMock.mock()
 })
 
 afterEach(() => {

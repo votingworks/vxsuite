@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { render } from '../test/testUtils'
 import App from './App'
+import fakeMachineId from '../test/helpers/fakeMachineId'
 
 it('prevents context menus from appearing', () => {
-  render(<App />)
+  render(<App machineId={fakeMachineId()} />)
 
   const { oncontextmenu } = window
 

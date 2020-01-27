@@ -18,6 +18,7 @@ import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
+import fakeMachineId from '../test/helpers/fakeMachineId'
 
 jest.useFakeTimers()
 
@@ -32,6 +33,7 @@ it('Single Seat Contest with Write In', async () => {
   const printer = fakePrinter()
   const hardware = new MemoryHardware()
   const storage = new MemoryStorage<AppStorage>()
+  const machineId = fakeMachineId()
 
   setElectionInStorage(storage)
   setStateInStorage(storage, {
@@ -39,7 +41,13 @@ it('Single Seat Contest with Write In', async () => {
   })
 
   const { container, getByText, queryByText, getByTestId } = render(
-    <App card={card} hardware={hardware} printer={printer} storage={storage} />
+    <App
+      card={card}
+      hardware={hardware}
+      printer={printer}
+      storage={storage}
+      machineId={machineId}
+    />
   )
   const getByTextWithMarkup = withMarkup(getByText)
 

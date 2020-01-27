@@ -26,7 +26,6 @@ import {
   CardAPI,
   CardData,
   CardPresentAPI,
-  MachineIdAPI,
   MarkVoterCardFunction,
   PartialUserSettings,
   UserSettings,
@@ -39,6 +38,7 @@ import {
   getAppMode,
   YesNoVoteTally,
   SerializableActivationData,
+  Provider,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import {
@@ -58,7 +58,6 @@ import SetupPowerPage from './pages/SetupPowerPage'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
 import { getBallotStyle, getContests, getZeroTally } from './utils/election'
-import fetchJSON from './utils/fetchJSON'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
 import { Card } from './utils/Card'
@@ -119,6 +118,7 @@ export interface Props extends RouteComponentProps {
   card: Card
   storage: Storage<AppStorage>
   printer: Printer
+  machineId: Provider<string>
 }
 
 export const electionStorageKey = 'election'
@@ -556,13 +556,13 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public setMachineId = async () => {
-    const { signal } = this.machineIdAbortController
     try {
-      const { machineId } = await fetchJSON<MachineIdAPI>('/machine-id', {
-        signal,
-      })
-      machineId && this.setState({ machineId })
-    } catch (error) {
+      const machineId = await this.props.machineId.get()
+
+      if (machineId) {
+        this.setState({ machineId })
+      }
+    } catch {
       // TODO: what should happen if `machineId` is not returned?
     }
   }
