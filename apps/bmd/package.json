@@ -115,7 +115,7 @@
     "@types/react-gamepad": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^2.17.0",
     "@typescript-eslint/parser": "^2.17.0",
-    "cypress": "^3.8.2",
+    "cypress": "^3.8.3",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.1",
     "eslint-config-prettier": "^6.9.0",
