@@ -1,5 +1,12 @@
-// eslint-disable-next-line import/no-unresolved
-import { Kiosk, BatteryInfo, Device } from 'kiosk-browser'
+import {
+  Kiosk,
+  BatteryInfo,
+  Device,
+  Listeners,
+  ChangeType,
+  Listener,
+  // eslint-disable-next-line import/no-unresolved
+} from 'kiosk-browser'
 
 import fetchJSON from './fetchJSON'
 
@@ -36,6 +43,11 @@ export interface Hardware {
    * Reads Printer status
    */
   readPrinterStatus(): Promise<PrinterStatus>
+
+  /**
+   * Manage notifications for device changes.
+   */
+  onDeviceChange: Listeners<[ChangeType, Device]>
 }
 
 /**
@@ -55,6 +67,7 @@ export class MemoryHardware implements Hardware {
   private printerStatus: PrinterStatus = {
     connected: true,
   }
+  private devices = new Set<Device>()
 
   /**
    * Reads Accessible Controller status
@@ -127,6 +140,70 @@ export class MemoryHardware implements Hardware {
    */
   public async setPrinterConnected(connected: boolean): Promise<void> {
     this.printerStatus = { connected }
+  }
+
+  /**
+   * Manage notifications for device changes.
+   */
+  public onDeviceChange: Listeners<[ChangeType, Device]> = (() => {
+    const listeners = new Set<
+      (changeType: ChangeType, device: Device) => void
+    >()
+
+    return {
+      add: (
+        callback: (changeType: ChangeType, device: Device) => void
+      ): Listener<[ChangeType, Device]> => {
+        listeners.add(callback)
+
+        return {
+          remove() {
+            listeners.delete(callback)
+          },
+        }
+      },
+
+      remove: (
+        callback: (changeType: ChangeType, device: Device) => void
+      ): void => {
+        listeners.delete(callback)
+      },
+
+      trigger: (changeType: ChangeType, device: Device): void => {
+        for (const callback of listeners) {
+          callback(changeType, device)
+        }
+      },
+    }
+  })()
+
+  /**
+   * Adds a device to the set of connected devices.
+   */
+  public addDevice(device: Device): void {
+    if (this.devices.has(device)) {
+      throw new Error(
+        `cannot add device that was already added: ${device.deviceName}`
+      )
+    }
+
+    this.devices.add(device)
+    this.onDeviceChange.trigger(0 /* ChangeType.Add */, device)
+  }
+
+  /**
+   * Removes a previously-added device from the set of connected devices.
+   */
+  public removeDevice(device: Device): void {
+    const hadDevice = this.devices.delete(device)
+
+    if (!hadDevice) {
+      throw new Error(
+        `cannot remove device that was never added: ${device.deviceName}`
+      )
+    }
+
+    this.onDeviceChange.trigger(1 /* ChangeType.Remove */, device)
   }
 }
 

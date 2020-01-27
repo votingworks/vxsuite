@@ -50,6 +50,7 @@ export default function fakeKiosk({
     onDeviceChange: {
       add: jest.fn(),
       remove: jest.fn(),
+      trigger: jest.fn(),
     },
   }
 }

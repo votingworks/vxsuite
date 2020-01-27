@@ -3,7 +3,12 @@ import fakeKiosk, {
   fakeDevice,
   fakePrinterInfo,
 } from '../../test/helpers/fakeKiosk'
-import { getHardware, KioskHardware, WebBrowserHardware } from './Hardware'
+import {
+  getHardware,
+  KioskHardware,
+  WebBrowserHardware,
+  MemoryHardware,
+} from './Hardware'
 
 describe('KioskHardware', () => {
   it('is used by getHardware when window.kiosk is set', () => {
@@ -89,5 +94,71 @@ describe('WebBrowserHardware', () => {
     fetchMock.get('/card/reader', () => JSON.stringify({ connected: true }))
 
     expect(await hardware.readCardReaderStatus()).toEqual({ connected: true })
+  })
+})
+
+describe('MemoryHardware', () => {
+  it('triggers callbacks when adding devices', () => {
+    const hardware = new MemoryHardware()
+    const callback = jest.fn()
+    const device = fakeDevice()
+
+    hardware.onDeviceChange.add(callback)
+    expect(callback).not.toHaveBeenCalled()
+
+    hardware.addDevice(device)
+    expect(callback).toHaveBeenCalledWith(0 /* ChangeType.Add */, device)
+  })
+
+  it('triggers callbacks when removing devices', () => {
+    const hardware = new MemoryHardware()
+    const callback = jest.fn()
+    const device = fakeDevice()
+
+    hardware.addDevice(device)
+
+    hardware.onDeviceChange.add(callback)
+    expect(callback).not.toHaveBeenCalled()
+
+    hardware.removeDevice(device)
+    expect(callback).toHaveBeenCalledWith(1 /* ChangeType.Remove */, device)
+  })
+
+  it('throws when adding the same device twice', () => {
+    const hardware = new MemoryHardware()
+    const device = fakeDevice()
+
+    hardware.addDevice(device)
+    expect(() => hardware.addDevice(device)).toThrowError(/already added/)
+  })
+
+  it('throws when removing a device that was never added', () => {
+    const hardware = new MemoryHardware()
+    const device = fakeDevice()
+
+    expect(() => hardware.removeDevice(device)).toThrowError(/never added/)
+  })
+
+  it('allows removing callbacks by passing them to remove', () => {
+    const hardware = new MemoryHardware()
+    const callback = jest.fn()
+    const device = fakeDevice()
+
+    hardware.onDeviceChange.add(callback)
+    hardware.onDeviceChange.remove(callback)
+
+    hardware.addDevice(device)
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  it('allows removing callbacks by calling remove on the returned listener', () => {
+    const hardware = new MemoryHardware()
+    const callback = jest.fn()
+    const device = fakeDevice()
+
+    hardware.onDeviceChange.add(callback).remove()
+
+    hardware.addDevice(device)
+    expect(callback).not.toHaveBeenCalled()
   })
 })
