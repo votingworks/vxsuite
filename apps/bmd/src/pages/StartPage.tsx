@@ -21,9 +21,7 @@ const SidebarSpacer = styled.div`
 
 type Props = RouteComponentProps<{}>
 
-const StartPage = (props: Props) => {
-  const { history } = props
-
+const StartPage = ({ history }: Props) => {
   const {
     ballotStyleId,
     contests,

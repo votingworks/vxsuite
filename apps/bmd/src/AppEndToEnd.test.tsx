@@ -171,6 +171,10 @@ it('VxMark+Print end-to-end flow', async () => {
   // Start Voting
   fireEvent.click(getByText('Start Voting'))
 
+  // Initial empty votes written to the card after tapping "Start Voting".
+  await advanceTimersAndPromises()
+  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1)
+
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i++) {
     const title = voterContests[i].title
@@ -188,13 +192,13 @@ it('VxMark+Print end-to-end flow', async () => {
       // and finally write to the card.
       advanceBy(1100)
       await advanceTimersAndPromises()
-      expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1)
+      expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(2)
 
       // If we wait another second and advance timers, without any change made to the card,
       // we should not see another call to save the card data
       advanceBy(1100)
       await advanceTimersAndPromises()
-      expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1)
+      expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(2)
     }
 
     // Vote for yesno contest

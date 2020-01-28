@@ -343,10 +343,7 @@ class AppRoot extends React.Component<Props, State> {
             // TODO: embed a card dip UUID in the card data string so even an unlikely
             // identical card swap within 200ms is always detected.
             // https://github.com/votingworks/module-smartcards/issues/59
-            //
-            // Also: added a default value for `longValueExists` to make typescript happy about delete.
-            const cardCopy = { longValueExists: undefined, ...card }
-            cardCopy.longValueExists = undefined
+            const cardCopy = { ...card, longValueExists: undefined }
             const currentCardDataString = JSON.stringify(cardCopy)
             if (currentCardDataString === lastCardDataString) {
               return
