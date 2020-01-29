@@ -30,16 +30,13 @@
   "lint-staged": {
     "*.+(js|jsx|ts|tsx)": [
       "stylelint",
-      "eslint --quiet --fix",
-      "git add"
+      "eslint --quiet --fix"
     ],
     "*.css": [
-      "stylelint --config .stylelintrc-css.js --fix",
-      "git add"
+      "stylelint --config .stylelintrc-css.js --fix"
     ],
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "eslintConfig": {
