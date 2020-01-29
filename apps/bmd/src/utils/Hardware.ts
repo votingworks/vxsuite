@@ -1,6 +1,8 @@
 // eslint-disable-next-line import/no-unresolved
 import { Kiosk, BatteryInfo, Device } from 'kiosk-browser'
 
+import fetchJSON from './fetchJSON'
+
 interface AccessibleControllerStatus {
   connected: boolean
 }
@@ -129,9 +131,21 @@ export class MemoryHardware implements Hardware {
 }
 
 /**
+ * Implements the `Hardware` API with just a web browser
+ */
+export class WebBrowserHardware extends MemoryHardware {
+  /**
+   * Reads Card Reader status
+   */
+  public async readCardReaderStatus(): Promise<CardReaderStatus> {
+    return await fetchJSON<CardReaderStatus>('/card/reader')
+  }
+}
+
+/**
  * Implements the `Hardware` API by accessing it through the kiosk.
  */
-export class KioskHardware extends MemoryHardware {
+export class KioskHardware extends WebBrowserHardware {
   public constructor(private kiosk: Kiosk) {
     super()
     this.kiosk = kiosk
@@ -179,4 +193,4 @@ export class KioskHardware extends MemoryHardware {
  * Get Hardware based upon environment.
  */
 export const getHardware = () =>
-  window.kiosk ? new KioskHardware(window.kiosk) : new MemoryHardware()
+  window.kiosk ? new KioskHardware(window.kiosk) : new WebBrowserHardware()
