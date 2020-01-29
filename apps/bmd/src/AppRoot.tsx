@@ -16,6 +16,8 @@ import 'normalize.css'
 import React from 'react'
 import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
+// eslint-disable-next-line import/no-unresolved
+import { Listener, ChangeType, Device } from 'kiosk-browser'
 import './App.css'
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
@@ -63,7 +65,7 @@ import utcTimestamp from './utils/utcTimestamp'
 import { Card } from './utils/Card'
 import { Poller, IntervalPoller } from './utils/polling'
 import { Storage } from './utils/Storage'
-import { Hardware } from './utils/Hardware'
+import { Hardware, isAccessibleController } from './utils/Hardware'
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -131,6 +133,7 @@ class AppRoot extends React.Component<Props, State> {
 
   private cardPoller?: Poller
   private statusPoller?: Poller
+  private onDeviceChangeListener?: Listener<[ChangeType, Device]>
   private lastVoteUpdateAt = 0
   private lastVoteSaveToCardAt = 0
   private forceSaveVoteFlag = false
@@ -163,7 +166,7 @@ class AppRoot extends React.Component<Props, State> {
     appPrecinctId: '',
     ballotsPrintedCount: 0,
     election: undefined,
-    hasAccessibleControllerAttached: true,
+    hasAccessibleControllerAttached: false,
     hasCardReaderAttached: true,
     hasChargerAttached: true,
     hasLowBattery: false,
@@ -494,14 +497,11 @@ class AppRoot extends React.Component<Props, State> {
         GLOBALS.HARDWARE_POLLING_INTERVAL,
         async () => {
           try {
-            // Possible implementation
             const { hardware } = this.props
-            const accesssibleController = await hardware.readAccesssibleControllerStatus()
             const battery = await hardware.readBatteryStatus()
             const cardReader = await hardware.readCardReaderStatus()
             const printer = await hardware.readPrinterStatus()
             this.setState({
-              hasAccessibleControllerAttached: accesssibleController.connected,
               hasCardReaderAttached: cardReader.connected,
               hasChargerAttached: !battery.discharging,
               hasLowBattery: battery.level < GLOBALS.LOW_BATTERY_THRESHOLD,
@@ -513,11 +513,32 @@ class AppRoot extends React.Component<Props, State> {
         }
       )
     }
+
+    /* istanbul ignore else */
+    if (!this.onDeviceChangeListener) {
+      const { hardware } = this.props
+
+      // watch for changes
+      this.onDeviceChangeListener = hardware.onDeviceChange.add(
+        (changeType, device) => {
+          /* istanbul ignore else */
+          if (isAccessibleController(device)) {
+            this.setState({
+              hasAccessibleControllerAttached:
+                changeType === 0 /* ChangeType.Add */,
+            })
+          }
+        }
+      )
+    }
   }
 
   public stopHardwareStatusPolling = () => {
     this.statusPoller?.stop()
     this.statusPoller = undefined
+
+    this.onDeviceChangeListener?.remove()
+    this.onDeviceChangeListener = undefined
   }
 
   public componentDidMount = () => {

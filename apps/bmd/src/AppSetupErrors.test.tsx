@@ -35,8 +35,11 @@ const noPowerDetectedWarningText = 'No Power Detected.'
 describe('Displays setup warning messages and errors scrrens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
     const hardware = new MemoryHardware()
+    hardware.setAccesssibleControllerConnected(true)
+
     setElectionInStorage(storage)
     setStateInStorage(storage)
+
     const { getByText, queryByText } = render(
       <App
         card={card}

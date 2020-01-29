@@ -48,6 +48,7 @@ declare module 'kiosk-browser' {
   > {
     add(callback: C): Listener<A, C>
     remove(callback: C): void
+    trigger(...args: A): void
   }
 
   export interface Kiosk {

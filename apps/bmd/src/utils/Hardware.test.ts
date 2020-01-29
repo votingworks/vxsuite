@@ -3,7 +3,12 @@ import fakeKiosk, {
   fakeDevice,
   fakePrinterInfo,
 } from '../../test/helpers/fakeKiosk'
-import { getHardware, KioskHardware, WebBrowserHardware } from './Hardware'
+import {
+  getHardware,
+  KioskHardware,
+  WebBrowserHardware,
+  MemoryHardware,
+} from './Hardware'
 
 describe('KioskHardware', () => {
   it('is used by getHardware when window.kiosk is set', () => {
@@ -29,35 +34,6 @@ describe('KioskHardware', () => {
     expect(kiosk.getBatteryInfo).toHaveBeenCalledTimes(1)
   })
 
-  it('sees an accessible controller if a device with the right vendor id & product id is present', async () => {
-    const kiosk = fakeKiosk()
-    const hardware = new KioskHardware(kiosk)
-
-    kiosk.getDeviceList.mockResolvedValueOnce([
-      fakeDevice({
-        vendorId: 0x0d8c,
-        productId: 0x0170,
-      }),
-    ])
-
-    expect(await hardware.readAccesssibleControllerStatus()).toEqual({
-      connected: true,
-    })
-  })
-
-  it('does not see an accessible controller if no device with the right vendor id & product id is present', async () => {
-    const kiosk = fakeKiosk()
-    const hardware = new KioskHardware(kiosk)
-
-    kiosk.getDeviceList.mockResolvedValueOnce([
-      fakeDevice({ vendorId: 0x0001, productId: 0x0001 }),
-    ])
-
-    expect(await hardware.readAccesssibleControllerStatus()).toEqual({
-      connected: false,
-    })
-  })
-
   it('reports printer status as connected if there are any connected printers', async () => {
     const kiosk = fakeKiosk()
     const hardware = new KioskHardware(kiosk)
@@ -80,6 +56,13 @@ describe('KioskHardware', () => {
 
     expect(await hardware.readPrinterStatus()).toEqual({ connected: false })
   })
+
+  it('has a stub implementation of readCardReaderStatus for now', async () => {
+    const kiosk = fakeKiosk()
+    const hardware = new KioskHardware(kiosk)
+
+    expect(await hardware.readCardReaderStatus()).toEqual({ connected: true })
+  })
 })
 
 describe('WebBrowserHardware', () => {
@@ -89,5 +72,137 @@ describe('WebBrowserHardware', () => {
     fetchMock.get('/card/reader', () => JSON.stringify({ connected: true }))
 
     expect(await hardware.readCardReaderStatus()).toEqual({ connected: true })
+  })
+})
+
+describe('MemoryHardware', () => {
+  it('has no connected devices by default', () => {
+    const hardware = new MemoryHardware()
+    expect(hardware.getDeviceList()).toEqual([])
+  })
+
+  it('does not have devices that have not been added', () => {
+    const hardware = new MemoryHardware()
+    expect(hardware.hasDevice(fakeDevice())).toBe(false)
+  })
+
+  it('has devices that have been added', () => {
+    const hardware = new MemoryHardware()
+    const device = fakeDevice()
+
+    hardware.addDevice(device)
+    expect(hardware.hasDevice(device)).toBe(true)
+  })
+
+  it('sets connected to true by adding a missing device', () => {
+    const hardware = new MemoryHardware()
+    const device = fakeDevice()
+
+    jest.spyOn(hardware, 'addDevice')
+    hardware.setDeviceConnected(device, true)
+    expect(hardware.hasDevice(device)).toBe(true)
+    expect(hardware.addDevice).toHaveBeenCalledWith(device)
+  })
+
+  it('does nothing when setting connected to true for an already added device', () => {
+    const hardware = new MemoryHardware()
+    const device = fakeDevice()
+
+    hardware.addDevice(device)
+    jest.spyOn(hardware, 'addDevice')
+    hardware.setDeviceConnected(device, true)
+    expect(hardware.hasDevice(device)).toBe(true)
+    expect(hardware.addDevice).not.toHaveBeenCalled()
+  })
+
+  it('sets connected to false by removing a connected device', () => {
+    const hardware = new MemoryHardware()
+    const device = fakeDevice()
+
+    hardware.addDevice(device)
+    jest.spyOn(hardware, 'removeDevice')
+    hardware.setDeviceConnected(device, false)
+    expect(hardware.hasDevice(device)).toBe(false)
+    expect(hardware.removeDevice).toHaveBeenCalledWith(device)
+  })
+
+  it('does nothing when setting connected to false for an already missing device', () => {
+    const hardware = new MemoryHardware()
+    const device = fakeDevice()
+
+    jest.spyOn(hardware, 'removeDevice')
+    hardware.setDeviceConnected(device, false)
+    expect(hardware.hasDevice(device)).toBe(false)
+    expect(hardware.removeDevice).not.toHaveBeenCalled()
+  })
+
+  it('triggers callbacks when adding devices', () => {
+    const hardware = new MemoryHardware()
+    const callback = jest.fn()
+    const device = fakeDevice()
+
+    hardware.onDeviceChange.add(callback)
+    expect(callback).not.toHaveBeenCalled()
+
+    hardware.addDevice(device)
+    expect(callback).toHaveBeenCalledWith(0 /* ChangeType.Add */, device)
+    expect(hardware.getDeviceList()).toEqual([device])
+  })
+
+  it('triggers callbacks when removing devices', () => {
+    const hardware = new MemoryHardware()
+    const callback = jest.fn()
+    const device = fakeDevice()
+
+    hardware.addDevice(device)
+
+    hardware.onDeviceChange.add(callback)
+    expect(callback).toHaveBeenNthCalledWith(1, 0 /* ChangeType.Add */, device)
+
+    hardware.removeDevice(device)
+    expect(callback).toHaveBeenNthCalledWith(
+      2,
+      1 /* ChangeType.Remove */,
+      device
+    )
+    expect(hardware.getDeviceList()).toEqual([])
+  })
+
+  it('throws when adding the same device twice', () => {
+    const hardware = new MemoryHardware()
+    const device = fakeDevice()
+
+    hardware.addDevice(device)
+    expect(() => hardware.addDevice(device)).toThrowError(/already added/)
+  })
+
+  it('throws when removing a device that was never added', () => {
+    const hardware = new MemoryHardware()
+    const device = fakeDevice()
+
+    expect(() => hardware.removeDevice(device)).toThrowError(/never added/)
+  })
+
+  it('allows removing callbacks by passing them to remove', () => {
+    const hardware = new MemoryHardware()
+    const callback = jest.fn()
+    const device = fakeDevice()
+
+    hardware.onDeviceChange.add(callback)
+    hardware.onDeviceChange.remove(callback)
+
+    hardware.addDevice(device)
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  it('allows removing callbacks by calling remove on the returned listener', () => {
+    const hardware = new MemoryHardware()
+    const callback = jest.fn()
+    const device = fakeDevice()
+
+    hardware.onDeviceChange.add(callback).remove()
+
+    hardware.addDevice(device)
+    expect(callback).not.toHaveBeenCalled()
   })
 })
