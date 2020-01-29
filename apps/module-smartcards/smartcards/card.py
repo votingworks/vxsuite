@@ -24,6 +24,7 @@
 
 import smartcard.System
 from smartcard.CardMonitoring import CardMonitor, CardObserver
+from smartcard.ReaderMonitoring import ReaderMonitor, ReaderObserver
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
 import gzip
 import time
@@ -263,6 +264,28 @@ def find_card_by_atr(atr_bytes):
     return None
 
 
+class VXReaderObserver(ReaderObserver):
+    def __init__(self):
+        super(VXReaderObserver, self).__init__()
+        self._readers = set()
+
+        readermonitor = ReaderMonitor()
+        readermonitor.addObserver(self)
+
+    def update(self, observable, actions):
+        (addedreaders, removedreaders) = actions
+        for reader in addedreaders:
+            self._readers.add(reader)
+        for reader in removedreaders:
+            self._readers.discard(reader)
+
+    def get_readers(self):
+        return list(self._readers)
+
+# We use a singleton because if this is instantiated more than once, specifically in tests,
+# we get an error about a readermonitor thread being started twice.
+SingletonReaderObserver = VXReaderObserver()
+
 class VXCardObserver(CardObserver):
     def __init__(self):
         self.card = None
@@ -271,9 +294,12 @@ class VXCardObserver(CardObserver):
 
         cardmonitor = CardMonitor()
         cardmonitor.addObserver(self)
+        
+        # keep a handle on this singleton to make testing easier without assuming a singleton
+        self.readerobserver = SingletonReaderObserver
 
     def is_reader_connected(self):
-        return len(smartcard.System.readers()) > 0
+        return len(self.readerobserver.get_readers()) > 0
     
     def override_protection(self):
         if self.card:
