@@ -491,7 +491,7 @@ class AppRoot extends React.Component<Props, State> {
     /* istanbul ignore else */
     if (!this.statusPoller) {
       this.statusPoller = IntervalPoller.start(
-        GLOBALS.CARD_POLLING_INTERVAL,
+        GLOBALS.HARDWARE_POLLING_INTERVAL,
         async () => {
           try {
             // Possible implementation
