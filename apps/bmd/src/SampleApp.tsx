@@ -6,6 +6,7 @@ import utcTimestamp from './utils/utcTimestamp'
 import { Storage, MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { Provider } from './config/types'
+import { MemoryHardware } from './utils/Hardware'
 
 const ballotStyleId = '12'
 const precinctId = '23'
@@ -60,9 +61,16 @@ const SampleApp = ({
   card = getSampleCard(),
   storage = getSampleStorage(),
   machineId = getSampleMachineId(),
+  hardware = new MemoryHardware(),
   ...rest
 }: Props) => (
-  <App card={card} storage={storage} machineId={machineId} {...rest} />
+  <App
+    card={card}
+    storage={storage}
+    machineId={machineId}
+    hardware={hardware}
+    {...rest}
+  />
 )
 
 export default SampleApp

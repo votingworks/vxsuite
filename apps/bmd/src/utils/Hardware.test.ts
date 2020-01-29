@@ -1,8 +1,9 @@
+import fetchMock from 'fetch-mock'
 import fakeKiosk, {
   fakeDevice,
   fakePrinterInfo,
 } from '../../test/helpers/fakeKiosk'
-import { getHardware, KioskHardware } from './Hardware'
+import { getHardware, KioskHardware, WebBrowserHardware } from './Hardware'
 
 describe('KioskHardware', () => {
   it('is used by getHardware when window.kiosk is set', () => {
@@ -78,5 +79,15 @@ describe('KioskHardware', () => {
     ])
 
     expect(await hardware.readPrinterStatus()).toEqual({ connected: false })
+  })
+})
+
+describe('WebBrowserHardware', () => {
+  it('gets card reader status by checking /card/reader', async () => {
+    const hardware = new WebBrowserHardware()
+
+    fetchMock.get('/card/reader', () => JSON.stringify({ connected: true }))
+
+    expect(await hardware.readCardReaderStatus()).toEqual({ connected: true })
   })
 })
