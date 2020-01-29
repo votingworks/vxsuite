@@ -16,6 +16,7 @@ import withMarkup from '../test/helpers/withMarkup'
 import { VxPrintOnly } from './config/types'
 import { MemoryCard } from './utils/Card'
 import fakeMachineId from '../test/helpers/fakeMachineId'
+import { HARDWARE_POLLING_INTERVAL } from './config/globals'
 
 jest.useFakeTimers()
 
@@ -53,13 +54,13 @@ describe('Displays setup warning messages and errors scrrens', () => {
 
     // Disconnect Accessible Controller
     hardware.setAccesssibleControllerConnected(false)
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => getByText(accessibleControllerWarningText))
     getByText(insertCardScreenText)
 
     // Reconnect Accessible Controller
     hardware.setAccesssibleControllerConnected(true)
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => !queryByText(accessibleControllerWarningText))
     getByText(insertCardScreenText)
   })
@@ -82,12 +83,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
 
     // Disconnect Card Reader
     hardware.setCardReaderConnected(false)
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => getByText('Card Reader Not Detected'))
 
     // Reconnect Card Reader
     hardware.setCardReaderConnected(true)
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => getByText(insertCardScreenText))
   })
 
@@ -113,12 +114,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
 
     // Disconnect Printer
     hardware.setPrinterConnected(false)
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => getByText('No Printer Detected'))
 
     // Reconnect Printer
     hardware.setPrinterConnected(true)
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => getByText(vxPrintInsertCardScreenText))
   })
 
@@ -142,18 +143,18 @@ describe('Displays setup warning messages and errors scrrens', () => {
     // Remove charger and reduce battery level slightly
     hardware.setBatteryDischarging(true)
     hardware.setBatteryLevel(0.6)
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => getByText(noPowerDetectedWarningText))
     getByText(insertCardScreenText)
 
     // Battery level drains below GLOBALS.LOW_BATTERY_THRESHOLD
     hardware.setBatteryLevel(0.24)
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => getByTextWithMarkup(lowBatteryErrorScreenText))
 
     // Attach charger and back on Insert Card screen
     hardware.setBatteryDischarging(false)
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => !queryByText(noPowerDetectedWarningText))
     getByText(insertCardScreenText)
   })
@@ -177,7 +178,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
       .mockRejectedValue(new Error('NOPE'))
 
     // Ensure polling interval time is passed
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
 
     // Wait for component to render
     await wait(() => getByText(insertCardScreenText))
@@ -186,7 +187,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
     expect(readReaderStatusMock).toHaveBeenCalledTimes(1)
 
     // Ensure hardware status interval time is passed again
-    advanceTimers()
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
 
     // Expect that hardware status has not been called again
     expect(readReaderStatusMock).toHaveBeenCalledTimes(1)
