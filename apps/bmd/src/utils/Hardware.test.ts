@@ -57,10 +57,11 @@ describe('KioskHardware', () => {
     expect(await hardware.readPrinterStatus()).toEqual({ connected: false })
   })
 
-  it('has a stub implementation of readCardReaderStatus for now', async () => {
+  it('gets card reader status by checking /card/reader', async () => {
     const kiosk = fakeKiosk()
     const hardware = new KioskHardware(kiosk)
 
+    fetchMock.get('/card/reader', () => JSON.stringify({ connected: true }))
     expect(await hardware.readCardReaderStatus()).toEqual({ connected: true })
   })
 })

@@ -272,14 +272,6 @@ export class KioskHardware extends WebBrowserHardware {
   }
 
   /**
-   * Reads Card Reader status
-   */
-  public async readCardReaderStatus(): Promise<CardReaderStatus> {
-    // TODO: replace this with a real implementation
-    return { connected: true }
-  }
-
-  /**
    * Determines whether there is a configured & connected printer.
    */
   public async readPrinterStatus(): Promise<PrinterStatus> {
