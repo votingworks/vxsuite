@@ -23,7 +23,7 @@ const ExpiredCardScreen = ({ setUserSettings }: Props) => {
         <MainChild center>
           <Prose textCenter>
             <h1>Expired Card</h1>
-            <p>Please see poll worker for assistance.</p>
+            <p>Please ask poll worker for assistance.</p>
           </Prose>
         </MainChild>
       </Main>
