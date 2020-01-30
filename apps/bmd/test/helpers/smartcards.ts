@@ -161,6 +161,12 @@ export const getAlternateNewVoterCard = () =>
     bs: altBallotStyleId,
   })
 
+export const getOtherElectionVoterCard = () =>
+  createVoterCard({
+    pr: '999999999',
+    bs: '999999999',
+  })
+
 export const getVoidedVoterCard = () =>
   createVoterCard({
     uz: utcTimestamp(),

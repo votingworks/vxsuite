@@ -7,6 +7,7 @@ import { CARD_EXPIRATION_SECONDS } from './config/globals'
 import {
   advanceTimersAndPromises,
   getExpiredVoterCard,
+  getOtherElectionVoterCard,
   getVoidedVoterCard,
   createVoterCard,
 } from '../test/helpers/smartcards'
@@ -51,6 +52,18 @@ it('Display App Card Unhappy Paths', async () => {
   )
 
   // ====================== END CONTEST SETUP ====================== //
+
+  // Insert used Voter card
+  card.insertCard(getOtherElectionVoterCard())
+  await advanceTimersAndPromises()
+  getByText('Card is not configured for this election.')
+
+  // Remove card
+  card.removeCard()
+  await advanceTimersAndPromises()
+  getByText('Insert voter card to load ballot.')
+
+  // ---------------
 
   // Insert used Voter card
   card.insertCard(getVoidedVoterCard())
