@@ -50,7 +50,6 @@ import {
 import CastBallotPage from './pages/CastBallotPage'
 import ClerkScreen from './pages/ClerkScreen'
 import ExpiredCardScreen from './pages/ExpiredCardScreen'
-import InvalidCardScreen from './pages/InvalidCardScreen'
 import InsertCardScreen from './pages/InsertCardScreen'
 import PollWorkerScreen from './pages/PollWorkerScreen'
 import PrintOnlyScreen from './pages/PrintOnlyScreen'
@@ -59,6 +58,7 @@ import SetupPrinterPage from './pages/SetupPrinterPage'
 import SetupPowerPage from './pages/SetupPowerPage'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
+import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
 import { getBallotStyle, getContests, getZeroTally } from './utils/election'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
@@ -971,7 +971,7 @@ class AppRoot extends React.Component<Props, State> {
       if (isPollsOpen && appMode.isVxMark) {
         if (isVoterCardPresent && ballotStyleId && precinctId) {
           if (appPrecinctId !== precinctId) {
-            return <InvalidCardScreen />
+            return <WrongPrecinctScreen />
           }
           return (
             <Gamepad onButtonDown={handleGamepadButtonDown}>

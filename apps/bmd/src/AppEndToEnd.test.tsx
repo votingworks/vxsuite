@@ -142,7 +142,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // Alternate Precinct
   card.insertCard(getAlternateNewVoterCard())
   await advanceTimersAndPromises()
-  getByText('Invalid Card')
+  getByText('Invalid Card Data')
   getByText('Card is not configured for this precinct.')
 
   // Remove card
