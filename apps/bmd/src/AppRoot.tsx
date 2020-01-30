@@ -58,6 +58,7 @@ import SetupPrinterPage from './pages/SetupPrinterPage'
 import SetupPowerPage from './pages/SetupPowerPage'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
+import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
 import { getBallotStyle, getContests, getZeroTally } from './utils/election'
 import { Printer } from './utils/printer'
@@ -75,6 +76,7 @@ interface CardState {
   isVoterCardVoided: boolean
   isVoterCardPresent: boolean
   isVoterCardPrinted: boolean
+  isVoterCardValid: boolean
   pauseProcessingUntilNoCardPresent: boolean
   voterCardCreatedAt: number
 }
@@ -148,6 +150,7 @@ class AppRoot extends React.Component<Props, State> {
     isVoterCardVoided: false,
     isVoterCardPresent: false,
     isVoterCardPrinted: false,
+    isVoterCardValid: true,
     pauseProcessingUntilNoCardPresent: false,
     voterCardCreatedAt: 0,
   }
@@ -243,6 +246,7 @@ class AppRoot extends React.Component<Props, State> {
     longValueExists,
     shortValue,
   }: CardPresentAPI) => {
+    const { election } = this.state
     const cardData: CardData = JSON.parse(shortValue!)
     switch (cardData.t) {
       case 'voter': {
@@ -257,9 +261,23 @@ class AppRoot extends React.Component<Props, State> {
           isVoterCardPrinted,
           ballotPrintedTime
         )
+        const hasValidBallotStyle = Boolean(
+          getBallotStyle({
+            election: election!,
+            ballotStyleId: voterCardData.bs,
+          })
+        )
+        const hasValidPrecinct = Boolean(
+          getPrecinctById({
+            election: election!,
+            precinctId: voterCardData.pr,
+          })
+        )
+        const isVoterCardValid = hasValidBallotStyle && hasValidPrecinct
 
         const ballot: Partial<CompletedBallot> =
           (longValueExists &&
+            this.state.isVoterCardValid &&
             !this.state.isVoterCardExpired &&
             !this.state.isVoterCardVoided &&
             (await this.fetchBallotData())) ||
@@ -279,6 +297,7 @@ class AppRoot extends React.Component<Props, State> {
               isVoterCardPresent: true,
               isVoterCardPrinted,
               isRecentVoterPrint,
+              isVoterCardValid,
               voterCardCreatedAt,
               ballotStyleId:
                 ballot.ballotStyle?.id ?? this.initialState.ballotStyleId,
@@ -286,15 +305,11 @@ class AppRoot extends React.Component<Props, State> {
             }
           },
           () => {
-            const {
-              isVoterCardExpired,
-              isVoterCardVoided,
-              isVoterCardPrinted,
-            } = this.state
             if (
-              !isVoterCardExpired &&
-              !isVoterCardVoided &&
-              !isVoterCardPrinted
+              this.state.isVoterCardValid &&
+              !this.state.isVoterCardExpired &&
+              !this.state.isVoterCardVoided &&
+              !this.state.isVoterCardPrinted
             ) {
               this.processVoterCardData(voterCardData)
             }
@@ -882,6 +897,7 @@ class AppRoot extends React.Component<Props, State> {
       isVoterCardExpired,
       isVoterCardVoided,
       isVoterCardPrinted,
+      isVoterCardValid,
       isRecentVoterPrint,
       machineId,
       hasAccessibleControllerAttached,
@@ -938,6 +954,9 @@ class AppRoot extends React.Component<Props, State> {
             togglePollsOpen={this.togglePollsOpen}
           />
         )
+      }
+      if (!isVoterCardValid) {
+        return <WrongElectionScreen />
       }
       if (isPollsOpen && isVoterCardVoided) {
         return <ExpiredCardScreen setUserSettings={this.setUserSettings} />
