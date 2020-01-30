@@ -9,7 +9,7 @@ interface Props {
   setUserSettings: (partial: PartialUserSettings) => void
 }
 
-const ExpiredCardScreen = ({ setUserSettings }: Props) => {
+const SetupCardReaderPage = ({ setUserSettings }: Props) => {
   useEffect(() => {
     setUserSettings({ textSize: LARGE_DISPLAY_FONT_SIZE })
     return () => {
@@ -31,4 +31,4 @@ const ExpiredCardScreen = ({ setUserSettings }: Props) => {
   )
 }
 
-export default ExpiredCardScreen
+export default SetupCardReaderPage
