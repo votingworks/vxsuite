@@ -64,7 +64,7 @@ import { getBallotStyle, getContests, getZeroTally } from './utils/election'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
 import { Card } from './utils/Card'
-import { Poller, IntervalPoller } from './utils/polling'
+import IntervalPoller from './utils/IntervalPoller'
 import { Storage } from './utils/Storage'
 import { Hardware, isAccessibleController } from './utils/Hardware'
 
@@ -133,8 +133,8 @@ export const votesStorageKey = 'votes'
 class AppRoot extends React.Component<Props, State> {
   private machineIdAbortController = new AbortController()
 
-  private cardPoller?: Poller
-  private statusPoller?: Poller
+  private cardPoller?: IntervalPoller
+  private statusPoller?: IntervalPoller
   private onDeviceChangeListener?: Listener<[ChangeType, Device]>
   private lastVoteUpdateAt = 0
   private lastVoteSaveToCardAt = 0
@@ -170,7 +170,7 @@ class AppRoot extends React.Component<Props, State> {
     ballotsPrintedCount: 0,
     election: undefined,
     hasAccessibleControllerAttached: false,
-    hasCardReaderAttached: true,
+    hasCardReaderAttached: false,
     hasChargerAttached: true,
     hasLowBattery: false,
     hasPrinterAttached: true,
@@ -514,9 +514,7 @@ class AppRoot extends React.Component<Props, State> {
           try {
             const { hardware } = this.props
             const battery = await hardware.readBatteryStatus()
-            const cardReader = await hardware.readCardReaderStatus()
             this.setState({
-              hasCardReaderAttached: cardReader.connected,
               hasChargerAttached: !battery.discharging,
               hasLowBattery: battery.level < GLOBALS.LOW_BATTERY_THRESHOLD,
             })
@@ -541,9 +539,13 @@ class AppRoot extends React.Component<Props, State> {
                 changeType === 0 /* ChangeType.Add */,
             })
           } else {
-            const printer = await hardware.readPrinterStatus()
+            const [printer, cardReader] = await Promise.all([
+              hardware.readPrinterStatus(),
+              hardware.readCardReaderStatus(),
+            ])
             this.setState({
               hasPrinterAttached: printer.connected,
+              hasCardReaderAttached: cardReader.connected,
             })
           }
         }
@@ -673,7 +675,19 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public unconfigure = () => {
-    this.setState(this.initialState)
+    // Preserve hardware state after unconfigure.
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    const {
+      hasAccessibleControllerAttached,
+      hasCardReaderAttached,
+      hasChargerAttached,
+      hasPrinterAttached,
+      hasLowBattery,
+      ...rest
+    } = this.initialState
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+
+    this.setState(rest)
     this.props.storage.clear()
     this.props.history.push('/')
   }

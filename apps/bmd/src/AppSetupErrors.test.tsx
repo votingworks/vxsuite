@@ -6,7 +6,10 @@ import { AppStorage } from './AppRoot'
 import { MemoryHardware } from './utils/Hardware'
 import { MemoryStorage } from './utils/Storage'
 
-import { advanceTimers } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  advanceTimersAndPromises,
+} from '../test/helpers/smartcards'
 
 import {
   setElectionInStorage,
@@ -51,6 +54,9 @@ describe('Displays setup warning messages and errors scrrens', () => {
     const accessibleControllerWarningText =
       'Voting with an accessible controller is not currently available.'
 
+    // Let the initial hardware detection run.
+    await advanceTimersAndPromises()
+
     // Start on VxMark Insert Card screen
     getByText(insertCardScreenText)
     expect(queryByText(accessibleControllerWarningText)).toBeFalsy()
@@ -72,6 +78,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
     setStateInStorage(storage)
+
     const { getByText } = render(
       <App
         card={card}
@@ -81,17 +88,20 @@ describe('Displays setup warning messages and errors scrrens', () => {
       />
     )
 
+    // Let the initial hardware detection run.
+    await advanceTimersAndPromises()
+
     // Start on VxMark Insert Card screen
     getByText(insertCardScreenText)
 
     // Disconnect Card Reader
     hardware.setCardReaderConnected(false)
-    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
+    advanceTimers()
     await wait(() => getByText('Card Reader Not Detected'))
 
     // Reconnect Card Reader
     hardware.setCardReaderConnected(true)
-    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
+    advanceTimers()
     await wait(() => getByText(insertCardScreenText))
   })
 
@@ -109,6 +119,9 @@ describe('Displays setup warning messages and errors scrrens', () => {
         machineId={machineId}
       />
     )
+
+    // Let the initial hardware detection run.
+    await advanceTimersAndPromises()
 
     // Start on VxPrint Insert Card screen
     const vxPrintInsertCardScreenText =
@@ -140,6 +153,9 @@ describe('Displays setup warning messages and errors scrrens', () => {
     )
     const getByTextWithMarkup = withMarkup(getByText)
 
+    // Let the initial hardware detection run.
+    await advanceTimersAndPromises()
+
     // Start on VxMark Insert Card screen
     getByText(insertCardScreenText)
 
@@ -166,7 +182,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
     setStateInStorage(storage)
-    const { getByText } = render(
+    render(
       <App
         card={card}
         hardware={hardware}
@@ -175,24 +191,21 @@ describe('Displays setup warning messages and errors scrrens', () => {
       />
     )
 
-    // Mock failed card reader response
-    const readReaderStatusMock = jest
-      .spyOn(hardware, 'readCardReaderStatus')
+    // Mock failed battery check
+    const readBatteryStatusMock = jest
+      .spyOn(hardware, 'readBatteryStatus')
       .mockRejectedValue(new Error('NOPE'))
 
     // Ensure polling interval time is passed
-    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-
-    // Wait for component to render
-    await wait(() => getByText(insertCardScreenText))
+    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
 
     // Expect that hardware status was called once
-    expect(readReaderStatusMock).toHaveBeenCalledTimes(1)
+    expect(readBatteryStatusMock).toHaveBeenCalledTimes(1)
 
     // Ensure hardware status interval time is passed again
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
 
     // Expect that hardware status has not been called again
-    expect(readReaderStatusMock).toHaveBeenCalledTimes(1)
+    expect(readBatteryStatusMock).toHaveBeenCalledTimes(1)
   })
 })
