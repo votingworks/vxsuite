@@ -24,7 +24,7 @@ beforeEach(() => {
 it('Cause "/card/read" API to catch', async () => {
   // Configure Machine
   const card = new MemoryCard()
-  const hardware = new MemoryHardware()
+  const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
   const machineId = fakeMachineId()
   setElectionInStorage(storage)

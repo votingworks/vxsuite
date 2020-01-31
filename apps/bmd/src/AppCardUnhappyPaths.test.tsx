@@ -33,7 +33,7 @@ it('Display App Card Unhappy Paths', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
-  const hardware = new MemoryHardware()
+  const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
   const machineId = fakeMachineId()
 

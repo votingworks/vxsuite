@@ -515,12 +515,10 @@ class AppRoot extends React.Component<Props, State> {
             const { hardware } = this.props
             const battery = await hardware.readBatteryStatus()
             const cardReader = await hardware.readCardReaderStatus()
-            const printer = await hardware.readPrinterStatus()
             this.setState({
               hasCardReaderAttached: cardReader.connected,
               hasChargerAttached: !battery.discharging,
               hasLowBattery: battery.level < GLOBALS.LOW_BATTERY_THRESHOLD,
-              hasPrinterAttached: printer.connected,
             })
           } catch (error) {
             this.stopHardwareStatusPolling() // Assume backend is unavailable.
@@ -535,12 +533,17 @@ class AppRoot extends React.Component<Props, State> {
 
       // watch for changes
       this.onDeviceChangeListener = hardware.onDeviceChange.add(
-        (changeType, device) => {
+        async (changeType, device) => {
           /* istanbul ignore else */
           if (isAccessibleController(device)) {
             this.setState({
               hasAccessibleControllerAttached:
                 changeType === 0 /* ChangeType.Add */,
+            })
+          } else {
+            const printer = await hardware.readPrinterStatus()
+            this.setState({
+              hasPrinterAttached: printer.connected,
             })
           }
         }

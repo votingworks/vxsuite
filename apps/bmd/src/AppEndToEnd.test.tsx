@@ -39,7 +39,7 @@ jest.useFakeTimers()
 
 it('VxMark+Print end-to-end flow', async () => {
   const card = new MemoryCard()
-  const hardware = new MemoryHardware()
+  const hardware = MemoryHardware.standard
   const printer = fakePrinter()
   const storage = new MemoryStorage<AppStorage>()
   const machineId = fakeMachineId()

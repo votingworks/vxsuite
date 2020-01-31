@@ -33,7 +33,7 @@ it('VxMarkOnly flow', async () => {
   jest.useFakeTimers()
 
   const card = new MemoryCard()
-  const hardware = new MemoryHardware()
+  const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
   const machineId = fakeMachineId()
   const { getByTestId, getByLabelText, getByText } = render(

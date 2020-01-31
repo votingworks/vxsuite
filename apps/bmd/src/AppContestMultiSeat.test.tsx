@@ -26,7 +26,7 @@ it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
-  const hardware = new MemoryHardware()
+  const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
   const machineId = fakeMachineId()
 
