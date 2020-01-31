@@ -931,17 +931,6 @@ class AppRoot extends React.Component<Props, State> {
       userSettings,
       votes,
     } = this.state
-    if (hasLowBattery && !hasChargerAttached) {
-      return <SetupPowerPage setUserSettings={this.setUserSettings} />
-    }
-    if (!hasCardReaderAttached) {
-      return <SetupCardReaderPage setUserSettings={this.setUserSettings} />
-    }
-    if (appMode.isVxPrint) {
-      if (!hasPrinterAttached) {
-        return <SetupPrinterPage setUserSettings={this.setUserSettings} />
-      }
-    }
     if (isClerkCardPresent) {
       return (
         <ClerkScreen
@@ -960,6 +949,17 @@ class AppRoot extends React.Component<Props, State> {
       )
     } else if (optionalElection && !!appPrecinctId) {
       const election = optionalElection as Election
+      if (hasLowBattery && !hasChargerAttached) {
+        return <SetupPowerPage setUserSettings={this.setUserSettings} />
+      }
+      if (!hasCardReaderAttached) {
+        return <SetupCardReaderPage setUserSettings={this.setUserSettings} />
+      }
+      if (appMode.isVxPrint) {
+        if (!hasPrinterAttached) {
+          return <SetupPrinterPage setUserSettings={this.setUserSettings} />
+        }
+      }
       if (isPollWorkerCardPresent) {
         return (
           <PollWorkerScreen
