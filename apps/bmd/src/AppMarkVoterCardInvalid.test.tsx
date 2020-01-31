@@ -35,7 +35,7 @@ const idleScreenCopy =
 describe('Mark Card Void when voter is idle too long', () => {
   it('Display expired card if card marked as voided', async () => {
     const card = new MemoryCard()
-    const hardware = new MemoryHardware()
+    const hardware = MemoryHardware.standard
     const storage = new MemoryStorage<AppStorage>()
     const machineId = fakeMachineId()
 
@@ -96,7 +96,7 @@ describe('Mark Card Void when voter is idle too long', () => {
 
   it('Reset ballot when card write does not match card read.', async () => {
     const card = new MemoryCard()
-    const hardware = new MemoryHardware()
+    const hardware = MemoryHardware.standard
     const storage = new MemoryStorage<AppStorage>()
     const machineId = fakeMachineId()
 

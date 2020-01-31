@@ -24,7 +24,7 @@ beforeEach(() => {
 describe('loads election', () => {
   it('Machine is not configured by default', () => {
     const { getByText } = render(
-      <App machineId={fakeMachineId()} hardware={new MemoryHardware()} />
+      <App machineId={fakeMachineId()} hardware={MemoryHardware.standard} />
     )
     getByText('Device Not Configured')
   })
@@ -38,7 +38,7 @@ describe('loads election', () => {
       <App
         storage={storage}
         machineId={machineId}
-        hardware={new MemoryHardware()}
+        hardware={MemoryHardware.standard}
       />
     )
     getByText(election.title)

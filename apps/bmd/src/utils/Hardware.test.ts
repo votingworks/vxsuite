@@ -77,6 +77,11 @@ describe('WebBrowserHardware', () => {
 })
 
 describe('MemoryHardware', () => {
+  it('has a standard config with an accessible controller and printer', () => {
+    const hardware = MemoryHardware.standard
+    expect(hardware.getDeviceList()).toHaveLength(2)
+  })
+
   it('has no connected devices by default', () => {
     const hardware = new MemoryHardware()
     expect(hardware.getDeviceList()).toEqual([])

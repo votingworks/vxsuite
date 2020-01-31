@@ -23,6 +23,9 @@ interface PrinterStatus {
 export const AccessibleControllerVendorId = 0x0d8c
 export const AccessibleControllerProductId = 0x0170
 
+export const BrotherHLL5100DNVendorId = 0x04f9
+export const BrotherHLL5100DNProductId = 0x007f
+
 /**
  * Determines whether a device is the accessible controller.
  */
@@ -30,6 +33,16 @@ export function isAccessibleController(device: Device): boolean {
   return (
     device.vendorId === AccessibleControllerVendorId &&
     device.productId === AccessibleControllerProductId
+  )
+}
+
+/**
+ * Determines whether a device is a supported printer.
+ */
+export function isSupportedPrinter(device: Device): boolean {
+  return (
+    device.vendorId === BrotherHLL5100DNVendorId &&
+    device.productId === BrotherHLL5100DNProductId
   )
 }
 
@@ -69,9 +82,6 @@ export class MemoryHardware implements Hardware {
   private cardReaderStatus: CardReaderStatus = {
     connected: true,
   }
-  private printerStatus: PrinterStatus = {
-    connected: true,
-  }
   private devices = new Set<Device>()
 
   private accessibleController: Readonly<Device> = {
@@ -82,6 +92,31 @@ export class MemoryHardware implements Hardware {
     productId: AccessibleControllerProductId,
     vendorId: AccessibleControllerVendorId,
     serialNumber: '',
+  }
+
+  private printer: Readonly<Device> = {
+    deviceAddress: 0,
+    deviceName: 'HL-L5100DN_series',
+    locationId: 0,
+    manufacturer: 'Brother',
+    productId: BrotherHLL5100DNProductId,
+    vendorId: BrotherHLL5100DNVendorId,
+    serialNumber: '',
+  }
+
+  public constructor({
+    connectPrinter = false,
+    connectAccessibleController = false,
+  }: { connectPrinter?: boolean; connectAccessibleController?: boolean } = {}) {
+    this.setPrinterConnected(connectPrinter)
+    this.setAccesssibleControllerConnected(connectAccessibleController)
+  }
+
+  public static get standard(): MemoryHardware {
+    return new MemoryHardware({
+      connectPrinter: true,
+      connectAccessibleController: true,
+    })
   }
 
   /**
@@ -138,14 +173,16 @@ export class MemoryHardware implements Hardware {
    * Reads Printer status
    */
   public async readPrinterStatus(): Promise<PrinterStatus> {
-    return this.printerStatus
+    return {
+      connected: Array.from(this.devices).some(isSupportedPrinter),
+    }
   }
 
   /**
    * Sets Printer connected
    */
   public async setPrinterConnected(connected: boolean): Promise<void> {
-    this.printerStatus = { connected }
+    this.setDeviceConnected(this.printer, connected)
   }
 
   /**

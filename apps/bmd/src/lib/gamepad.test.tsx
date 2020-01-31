@@ -29,7 +29,7 @@ it('gamepad controls work', async () => {
   jest.useFakeTimers()
 
   const card = new MemoryCard()
-  const hardware = new MemoryHardware()
+  const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
   const machineId = fakeMachineId()
 

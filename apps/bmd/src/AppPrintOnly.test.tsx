@@ -40,7 +40,7 @@ jest.useFakeTimers()
 it('VxPrintOnly flow', async () => {
   const card = new MemoryCard()
   const printer = fakePrinter()
-  const hardware = new MemoryHardware()
+  const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
   const machineId = fakeMachineId()
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
