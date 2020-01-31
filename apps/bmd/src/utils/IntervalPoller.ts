@@ -1,8 +1,4 @@
-export interface Poller {
-  stop(): void
-}
-
-export class IntervalPoller implements Poller {
+export default class IntervalPoller {
   private interval: number
   private callback: () => Promise<void> | void
   private timeout?: ReturnType<typeof setTimeout>

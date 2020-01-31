@@ -3,12 +3,7 @@ import fakeKiosk, {
   fakeDevice,
   fakePrinterInfo,
 } from '../../test/helpers/fakeKiosk'
-import {
-  getHardware,
-  KioskHardware,
-  WebBrowserHardware,
-  MemoryHardware,
-} from './Hardware'
+import { getHardware, KioskHardware, MemoryHardware } from './Hardware'
 
 describe('KioskHardware', () => {
   it('is used by getHardware when window.kiosk is set', () => {
@@ -66,20 +61,14 @@ describe('KioskHardware', () => {
   })
 })
 
-describe('WebBrowserHardware', () => {
-  it('gets card reader status by checking /card/reader', async () => {
-    const hardware = new WebBrowserHardware()
-
-    fetchMock.get('/card/reader', () => JSON.stringify({ connected: true }))
-
-    expect(await hardware.readCardReaderStatus()).toEqual({ connected: true })
-  })
-})
-
 describe('MemoryHardware', () => {
-  it('has a standard config with an accessible controller and printer', () => {
+  it('has a standard config with all the typical hardware', () => {
     const hardware = MemoryHardware.standard
-    expect(hardware.getDeviceList()).toHaveLength(2)
+    expect(hardware.getDeviceList()).toHaveLength(
+      1 + // accessible controller
+      1 + // printer
+        1 // card reader
+    )
   })
 
   it('has no connected devices by default', () => {

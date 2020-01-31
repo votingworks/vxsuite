@@ -10,9 +10,6 @@ import {
 
 import fetchJSON from './fetchJSON'
 
-interface AccessibleControllerStatus {
-  connected: boolean
-}
 interface CardReaderStatus {
   connected: boolean
 }
@@ -36,10 +33,23 @@ export function isAccessibleController(device: Device): boolean {
   )
 }
 
+export const OmniKeyCardReaderVendorId = 0x076b
+export const OmniKeyCardReaderProductId = 0x3031
+
+/**
+ * Determines whether a device is the card reader.
+ */
+export function isCardReader(device: Device): boolean {
+  return (
+    device.vendorId === OmniKeyCardReaderVendorId &&
+    device.productId === OmniKeyCardReaderProductId
+  )
+}
+
 /**
  * Determines whether a device is a supported printer.
  */
-export function isSupportedPrinter(device: Device): boolean {
+export function isPrinter(device: Device): boolean {
   return (
     device.vendorId === BrotherHLL5100DNVendorId &&
     device.productId === BrotherHLL5100DNProductId
@@ -79,9 +89,6 @@ export class MemoryHardware implements Hardware {
     discharging: false,
     level: 0.8,
   }
-  private cardReaderStatus: CardReaderStatus = {
-    connected: true,
-  }
   private devices = new Set<Device>()
 
   private accessibleController: Readonly<Device> = {
@@ -104,18 +111,35 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   }
 
+  private cardReader: Readonly<Device> = {
+    deviceAddress: 0,
+    deviceName: 'OMNIKEY_3x21_Smart_Card_Reader',
+    locationId: 0,
+    manufacturer: 'HID_Global',
+    productId: OmniKeyCardReaderProductId,
+    vendorId: OmniKeyCardReaderVendorId,
+    serialNumber: '',
+  }
+
   public constructor({
     connectPrinter = false,
     connectAccessibleController = false,
-  }: { connectPrinter?: boolean; connectAccessibleController?: boolean } = {}) {
+    connectCardReader = false,
+  }: {
+    connectPrinter?: boolean
+    connectAccessibleController?: boolean
+    connectCardReader?: boolean
+  } = {}) {
     this.setPrinterConnected(connectPrinter)
     this.setAccesssibleControllerConnected(connectAccessibleController)
+    this.setCardReaderConnected(connectCardReader)
   }
 
   public static get standard(): MemoryHardware {
     return new MemoryHardware({
       connectPrinter: true,
       connectAccessibleController: true,
+      connectCardReader: true,
     })
   }
 
@@ -159,14 +183,16 @@ export class MemoryHardware implements Hardware {
    * Reads Card Reader status
    */
   public async readCardReaderStatus(): Promise<CardReaderStatus> {
-    return this.cardReaderStatus
+    return {
+      connected: Array.from(this.devices).some(isCardReader),
+    }
   }
 
   /**
    * Sets Card Reader connected
    */
   public async setCardReaderConnected(connected: boolean): Promise<void> {
-    this.cardReaderStatus = { connected }
+    this.setDeviceConnected(this.cardReader, connected)
   }
 
   /**
@@ -174,7 +200,7 @@ export class MemoryHardware implements Hardware {
    */
   public async readPrinterStatus(): Promise<PrinterStatus> {
     return {
-      connected: Array.from(this.devices).some(isSupportedPrinter),
+      connected: Array.from(this.devices).some(isPrinter),
     }
   }
 
@@ -282,21 +308,9 @@ export class MemoryHardware implements Hardware {
 }
 
 /**
- * Implements the `Hardware` API with just a web browser
- */
-export class WebBrowserHardware extends MemoryHardware {
-  /**
-   * Reads Card Reader status
-   */
-  public async readCardReaderStatus(): Promise<CardReaderStatus> {
-    return await fetchJSON<CardReaderStatus>('/card/reader')
-  }
-}
-
-/**
  * Implements the `Hardware` API by accessing it through the kiosk.
  */
-export class KioskHardware extends WebBrowserHardware {
+export class KioskHardware extends MemoryHardware {
   public constructor(private kiosk: Kiosk) {
     super()
   }
@@ -306,6 +320,13 @@ export class KioskHardware extends WebBrowserHardware {
    */
   public async readBatteryStatus(): Promise<BatteryInfo> {
     return this.kiosk.getBatteryInfo()
+  }
+
+  /**
+   * Reads Card Reader status
+   */
+  public async readCardReaderStatus(): Promise<CardReaderStatus> {
+    return await fetchJSON<CardReaderStatus>('/card/reader')
   }
 
   /**
@@ -323,4 +344,4 @@ export class KioskHardware extends WebBrowserHardware {
  * Get Hardware based upon environment.
  */
 export const getHardware = () =>
-  window.kiosk ? new KioskHardware(window.kiosk) : new WebBrowserHardware()
+  window.kiosk ? new KioskHardware(window.kiosk) : new MemoryHardware()

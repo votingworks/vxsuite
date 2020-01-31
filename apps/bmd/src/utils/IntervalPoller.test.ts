@@ -1,5 +1,5 @@
 import { wait } from '@testing-library/react'
-import { IntervalPoller } from './polling'
+import IntervalPoller from './IntervalPoller'
 
 describe('IntervalPoller', () => {
   beforeEach(() => {
