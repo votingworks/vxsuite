@@ -27,16 +27,15 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-const card = new MemoryCard()
-const storage = new MemoryStorage<AppStorage>()
-const machineId = fakeMachineId()
-
 const insertCardScreenText = 'Insert voter card to load ballot.'
 const lowBatteryErrorScreenText = 'No Power Detected and Battery is Low'
 const noPowerDetectedWarningText = 'No Power Detected.'
 
 describe('Displays setup warning messages and errors scrrens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
+    const card = new MemoryCard()
+    const storage = new MemoryStorage<AppStorage>()
+    const machineId = fakeMachineId()
     const hardware = MemoryHardware.standard
     hardware.setAccesssibleControllerConnected(true)
 
@@ -75,6 +74,9 @@ describe('Displays setup warning messages and errors scrrens', () => {
   })
 
   it('Displays error screen if Card Reader connection is lost', async () => {
+    const card = new MemoryCard()
+    const storage = new MemoryStorage<AppStorage>()
+    const machineId = fakeMachineId()
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
     setStateInStorage(storage)
@@ -106,6 +108,9 @@ describe('Displays setup warning messages and errors scrrens', () => {
   })
 
   it('Displays error screen if Printer connection is lost', async () => {
+    const card = new MemoryCard()
+    const storage = new MemoryStorage<AppStorage>()
+    const machineId = fakeMachineId()
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
     setStateInStorage(storage, {
@@ -140,6 +145,9 @@ describe('Displays setup warning messages and errors scrrens', () => {
   })
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
+    const card = new MemoryCard()
+    const storage = new MemoryStorage<AppStorage>()
+    const machineId = fakeMachineId()
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
     setStateInStorage(storage)
@@ -179,6 +187,9 @@ describe('Displays setup warning messages and errors scrrens', () => {
   })
 
   it('Cause hardware status polling to catch', async () => {
+    const card = new MemoryCard()
+    const storage = new MemoryStorage<AppStorage>()
+    const machineId = fakeMachineId()
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
     setStateInStorage(storage)
