@@ -19,7 +19,10 @@ import withMarkup from '../test/helpers/withMarkup'
 import { VxPrintOnly } from './config/types'
 import { MemoryCard } from './utils/Card'
 import fakeMachineId from '../test/helpers/fakeMachineId'
-import { HARDWARE_POLLING_INTERVAL } from './config/globals'
+import {
+  HARDWARE_POLLING_INTERVAL,
+  LOW_BATTERY_THRESHOLD,
+} from './config/globals'
 
 jest.useFakeTimers()
 
@@ -174,8 +177,8 @@ describe('Displays setup warning messages and errors scrrens', () => {
     await wait(() => getByText(noPowerDetectedWarningText))
     getByText(insertCardScreenText)
 
-    // Battery level drains below GLOBALS.LOW_BATTERY_THRESHOLD
-    hardware.setBatteryLevel(0.24)
+    // Battery level drains below low threshold
+    hardware.setBatteryLevel(LOW_BATTERY_THRESHOLD / 2)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => getByTextWithMarkup(lowBatteryErrorScreenText))
 
