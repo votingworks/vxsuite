@@ -8,11 +8,6 @@ import {
   // eslint-disable-next-line import/no-unresolved
 } from 'kiosk-browser'
 
-import fetchJSON from './fetchJSON'
-
-interface CardReaderStatus {
-  connected: boolean
-}
 interface PrinterStatus {
   connected: boolean
 }
@@ -33,16 +28,16 @@ export function isAccessibleController(device: Device): boolean {
   )
 }
 
-export const OmniKeyCardReaderVendorId = 0x076b
-export const OmniKeyCardReaderProductId = 0x3031
+export const OmniKeyCardReaderDeviceName = 'OMNIKEY_3x21_Smart_Card_Reader'
+export const OmniKeyCardReaderManufacturer = 'HID_Global'
 
 /**
  * Determines whether a device is the card reader.
  */
 export function isCardReader(device: Device): boolean {
   return (
-    device.vendorId === OmniKeyCardReaderVendorId &&
-    device.productId === OmniKeyCardReaderProductId
+    device.manufacturer === OmniKeyCardReaderManufacturer &&
+    device.deviceName === OmniKeyCardReaderDeviceName
   )
 }
 
@@ -64,11 +59,6 @@ export interface Hardware {
    * Reads Battery status
    */
   readBatteryStatus(): Promise<BatteryInfo>
-
-  /**
-   * Reads Card Reader status
-   */
-  readCardReaderStatus(): Promise<CardReaderStatus>
 
   /**
    * Reads Printer status
@@ -113,11 +103,11 @@ export class MemoryHardware implements Hardware {
 
   private cardReader: Readonly<Device> = {
     deviceAddress: 0,
-    deviceName: 'OMNIKEY_3x21_Smart_Card_Reader',
+    deviceName: OmniKeyCardReaderDeviceName,
     locationId: 0,
-    manufacturer: 'HID_Global',
-    productId: OmniKeyCardReaderProductId,
-    vendorId: OmniKeyCardReaderVendorId,
+    manufacturer: OmniKeyCardReaderManufacturer,
+    vendorId: 0x076b,
+    productId: 0x3031,
     serialNumber: '',
   }
 
@@ -176,15 +166,6 @@ export class MemoryHardware implements Hardware {
     this.batteryStatus = {
       ...this.batteryStatus,
       level,
-    }
-  }
-
-  /**
-   * Reads Card Reader status
-   */
-  public async readCardReaderStatus(): Promise<CardReaderStatus> {
-    return {
-      connected: Array.from(this.devices).some(isCardReader),
     }
   }
 
@@ -320,13 +301,6 @@ export class KioskHardware extends MemoryHardware {
    */
   public async readBatteryStatus(): Promise<BatteryInfo> {
     return this.kiosk.getBatteryInfo()
-  }
-
-  /**
-   * Reads Card Reader status
-   */
-  public async readCardReaderStatus(): Promise<CardReaderStatus> {
-    return await fetchJSON<CardReaderStatus>('/card/reader')
   }
 
   /**

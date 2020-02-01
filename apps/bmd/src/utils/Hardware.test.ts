@@ -1,4 +1,3 @@
-import fetchMock from 'fetch-mock'
 import fakeKiosk, {
   fakeDevice,
   fakePrinterInfo,
@@ -50,14 +49,6 @@ describe('KioskHardware', () => {
     ])
 
     expect(await hardware.readPrinterStatus()).toEqual({ connected: false })
-  })
-
-  it('gets card reader status by checking /card/reader', async () => {
-    const kiosk = fakeKiosk()
-    const hardware = new KioskHardware(kiosk)
-
-    fetchMock.get('/card/reader', () => JSON.stringify({ connected: true }))
-    expect(await hardware.readCardReaderStatus()).toEqual({ connected: true })
   })
 })
 

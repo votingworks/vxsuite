@@ -66,7 +66,11 @@ import utcTimestamp from './utils/utcTimestamp'
 import { Card } from './utils/Card'
 import IntervalPoller from './utils/IntervalPoller'
 import { Storage } from './utils/Storage'
-import { Hardware, isAccessibleController } from './utils/Hardware'
+import {
+  Hardware,
+  isAccessibleController,
+  isCardReader,
+} from './utils/Hardware'
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -538,14 +542,14 @@ class AppRoot extends React.Component<Props, State> {
               hasAccessibleControllerAttached:
                 changeType === 0 /* ChangeType.Add */,
             })
+          } else if (isCardReader(device)) {
+            this.setState({
+              hasCardReaderAttached: changeType === 0 /* ChangeType.Add */,
+            })
           } else {
-            const [printer, cardReader] = await Promise.all([
-              hardware.readPrinterStatus(),
-              hardware.readCardReaderStatus(),
-            ])
+            const printer = await hardware.readPrinterStatus()
             this.setState({
               hasPrinterAttached: printer.connected,
-              hasCardReaderAttached: cardReader.connected,
             })
           }
         }
