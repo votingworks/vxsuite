@@ -318,4 +318,4 @@ export class KioskHardware extends MemoryHardware {
  * Get Hardware based upon environment.
  */
 export const getHardware = () =>
-  window.kiosk ? new KioskHardware(window.kiosk) : new MemoryHardware()
+  window.kiosk ? new KioskHardware(window.kiosk) : MemoryHardware.standard
