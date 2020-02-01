@@ -2,7 +2,16 @@ import fakeKiosk, {
   fakeDevice,
   fakePrinterInfo,
 } from '../../test/helpers/fakeKiosk'
-import { getHardware, KioskHardware, MemoryHardware } from './Hardware'
+import {
+  getHardware,
+  KioskHardware,
+  MemoryHardware,
+  isCardReader,
+  OmniKeyCardReaderVendorId,
+  OmniKeyCardReaderProductId,
+  OmniKeyCardReaderDeviceName,
+  OmniKeyCardReaderManufacturer,
+} from './Hardware'
 
 describe('KioskHardware', () => {
   it('is used by getHardware when window.kiosk is set', () => {
@@ -190,5 +199,44 @@ describe('MemoryHardware', () => {
 
     hardware.addDevice(device)
     expect(callback).not.toHaveBeenCalled()
+  })
+})
+
+describe('isCardReader', () => {
+  it('does not match just any device', () => {
+    expect(isCardReader(fakeDevice())).toBe(false)
+  })
+
+  it('matches a device with the right vendor ID and product ID', () => {
+    expect(
+      isCardReader(
+        fakeDevice({
+          vendorId: OmniKeyCardReaderVendorId,
+          productId: OmniKeyCardReaderProductId,
+        })
+      )
+    ).toBe(true)
+  })
+
+  it('matches a device with the right product name and manufacturer (using spaces)', () => {
+    expect(
+      isCardReader(
+        fakeDevice({
+          deviceName: OmniKeyCardReaderDeviceName,
+          manufacturer: OmniKeyCardReaderManufacturer,
+        })
+      )
+    ).toBe(true)
+  })
+
+  it('matches a device with the right product name and manufacturer (using underscores)', () => {
+    expect(
+      isCardReader(
+        fakeDevice({
+          deviceName: OmniKeyCardReaderDeviceName.replace(/ /g, '_'),
+          manufacturer: OmniKeyCardReaderManufacturer.replace(/ /g, '_'),
+        })
+      )
+    ).toBe(true)
   })
 })

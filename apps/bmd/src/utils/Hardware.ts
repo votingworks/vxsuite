@@ -28,16 +28,20 @@ export function isAccessibleController(device: Device): boolean {
   )
 }
 
-export const OmniKeyCardReaderDeviceName = 'OMNIKEY_3x21_Smart_Card_Reader'
-export const OmniKeyCardReaderManufacturer = 'HID_Global'
+export const OmniKeyCardReaderDeviceName = 'OMNIKEY 3x21 Smart Card Reader'
+export const OmniKeyCardReaderManufacturer = 'HID Global'
+export const OmniKeyCardReaderVendorId = 0x076b
+export const OmniKeyCardReaderProductId = 0x3031
 
 /**
  * Determines whether a device is the card reader.
  */
 export function isCardReader(device: Device): boolean {
   return (
-    device.manufacturer === OmniKeyCardReaderManufacturer &&
-    device.deviceName === OmniKeyCardReaderDeviceName
+    (device.manufacturer.replace(/_/g, ' ') === OmniKeyCardReaderManufacturer &&
+      device.deviceName.replace(/_/g, ' ') === OmniKeyCardReaderDeviceName) ||
+    (device.vendorId === OmniKeyCardReaderVendorId &&
+      device.productId === OmniKeyCardReaderProductId)
   )
 }
 
@@ -106,8 +110,8 @@ export class MemoryHardware implements Hardware {
     deviceName: OmniKeyCardReaderDeviceName,
     locationId: 0,
     manufacturer: OmniKeyCardReaderManufacturer,
-    vendorId: 0x076b,
-    productId: 0x3031,
+    vendorId: OmniKeyCardReaderVendorId,
+    productId: OmniKeyCardReaderProductId,
     serialNumber: '',
   }
 
