@@ -461,10 +461,9 @@ class CandidateContest extends React.Component<Props, State> {
                         this.handleChangeVoteAlert(candidate)
                       }
                     }
-                    const partyName = findPartyById(
-                      parties,
-                      candidate.partyId!
-                    )!.name
+                    const party =
+                      candidate.partyId &&
+                      findPartyById(parties, candidate.partyId)
                     return (
                       <ChoiceButton
                         key={candidate.id}
@@ -477,13 +476,19 @@ class CandidateContest extends React.Component<Props, State> {
                         choice={candidate.id}
                         aria-label={`${
                           isChecked ? 'Selected, ' : ''
-                        } ${stripQuotes(candidate.name)}, ${partyName}.`}
+                        } ${stripQuotes(candidate.name)}${
+                          party ? `, ${party.name}` : ''
+                        }.`}
                       >
                         <Prose>
                           <Text wordBreak>
                             <strong>{candidate.name}</strong>
-                            <br />
-                            {partyName}
+                            {party && (
+                              <React.Fragment>
+                                <br />
+                                {party.name}
+                              </React.Fragment>
+                            )}
                           </Text>
                         </Prose>
                       </ChoiceButton>
