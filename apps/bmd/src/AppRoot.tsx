@@ -549,10 +549,10 @@ class AppRoot extends React.Component<Props, State> {
           } else {
             const printer = await hardware.readPrinterStatus()
 
-            // if printer is disconnected, resetBallot, so we don't end up in a dangerous state on printer reconnect
-            // also reset the short value polling to force a read from the card and not use the cached version
             if (!printer.connected) {
               this.resetBallot()
+
+              // stop+start forces a last-card-value cache flush
               this.stopShortValueReadPolling()
               this.startShortValueReadPolling()
             }
