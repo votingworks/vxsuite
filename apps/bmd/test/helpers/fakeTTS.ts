@@ -4,7 +4,7 @@ import { TextToSpeech } from '../../src/utils/ScreenReader'
  * Builds a fake `TextToSpeech` instance with mock functions.
  */
 export default function fakeTTS(): jest.Mocked<TextToSpeech> {
-  let isMuted = false
+  let isMuted = true
 
   return {
     speak: jest.fn().mockResolvedValue(undefined),
@@ -16,5 +16,8 @@ export default function fakeTTS(): jest.Mocked<TextToSpeech> {
       isMuted = false
     }),
     isMuted: jest.fn(() => isMuted),
+    toggleMuted: jest.fn((muted = !isMuted) => {
+      isMuted = muted
+    }),
   }
 }

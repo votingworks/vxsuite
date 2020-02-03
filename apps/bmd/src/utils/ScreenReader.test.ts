@@ -179,7 +179,7 @@ describe('AriaScreenReader', () => {
     )
   })
 
-  it('enabling the screen reader announces it and unmutes the tts', async () => {
+  it('enabling the screen reader unmutes and then announces it', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
@@ -189,9 +189,13 @@ describe('AriaScreenReader', () => {
       expect.anything()
     )
     expect(tts.unmute).toHaveBeenCalledTimes(1)
+
+    expect(tts.unmute.mock.invocationCallOrder[0]).toBeLessThan(
+      tts.speak.mock.invocationCallOrder[0]
+    )
   })
 
-  it('disabling the screen reader announces it and mutes the tts', async () => {
+  it('disabling the screen reader announces it and then mutes the tts', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
@@ -201,21 +205,40 @@ describe('AriaScreenReader', () => {
       expect.anything()
     )
     expect(tts.mute).toHaveBeenCalledTimes(1)
+
+    expect(tts.speak.mock.invocationCallOrder[0]).toBeLessThan(
+      tts.mute.mock.invocationCallOrder[0]
+    )
   })
 
   it('toggling enabled/disabled mutes or unmutes the tts', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
+    expect(tts.isMuted()).toBe(true)
+
     await asr.toggle()
-    expect(tts.mute).toHaveBeenCalledTimes(1)
-    expect(tts.unmute).toHaveBeenCalledTimes(0)
+    expect(tts.isMuted()).toBe(false)
+
     await asr.toggle()
-    expect(tts.mute).toHaveBeenCalledTimes(1)
-    expect(tts.unmute).toHaveBeenCalledTimes(1)
+    expect(tts.isMuted()).toBe(true)
+
     await asr.toggle()
-    expect(tts.mute).toHaveBeenCalledTimes(2)
-    expect(tts.unmute).toHaveBeenCalledTimes(1)
+    expect(tts.isMuted()).toBe(false)
+  })
+
+  it('toggle can explicitly set enabled/disabled', async () => {
+    const tts = fakeTTS()
+    const asr = new AriaScreenReader(tts)
+
+    await asr.toggle(false)
+    expect(tts.isMuted()).toBe(true)
+
+    await asr.toggle(true)
+    expect(tts.isMuted()).toBe(false)
+
+    await asr.toggle(false)
+    expect(tts.isMuted()).toBe(true)
   })
 
   it('does not describe elements hidden by aria-hidden', () => {
@@ -339,40 +362,53 @@ describe('SpeechSynthesisTextToSpeech', () => {
     )
   })
 
-  it('is unmuted by default, which sets the volume to 1', async () => {
+  it('is unmuted by default, which means utterances are spoken', async () => {
     const tts = new SpeechSynthesisTextToSpeech()
-    const utterance = new SpeechSynthesisUtterance()
-    ;(SpeechSynthesisUtterance as jest.MockedClass<
-      typeof SpeechSynthesisUtterance
-    >).mockImplementation(() => utterance)
 
     expect(tts.isMuted()).toBe(false)
     await tts.speak('hello')
-    expect(utterance.volume).toBe(1)
+    expect(speechSynthesis.speak).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'hello' })
+    )
   })
 
-  it('can be muted, which sets the volume to 0', async () => {
+  it('can be muted, which means no utterances are spoken', async () => {
     const tts = new SpeechSynthesisTextToSpeech()
-    const utterance = new SpeechSynthesisUtterance()
-    ;(SpeechSynthesisUtterance as jest.MockedClass<
-      typeof SpeechSynthesisUtterance
-    >).mockImplementation(() => utterance)
 
     tts.mute()
+    expect(tts.isMuted()).toBe(true)
     await tts.speak('hello')
-    expect(utterance.volume).toBe(0)
+    expect(speechSynthesis.speak).not.toHaveBeenCalled()
   })
 
-  it('can be muted and then unmuted, which sets the volume to 1', async () => {
+  it('can be muted and then unmuted, which means utterances are spoken', async () => {
     const tts = new SpeechSynthesisTextToSpeech()
-    const utterance = new SpeechSynthesisUtterance()
-    ;(SpeechSynthesisUtterance as jest.MockedClass<
-      typeof SpeechSynthesisUtterance
-    >).mockImplementation(() => utterance)
 
     tts.mute()
     tts.unmute()
     await tts.speak('hello')
-    expect(utterance.volume).toBe(1)
+    expect(speechSynthesis.speak).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'hello' })
+    )
+  })
+
+  it('can toggle muting', () => {
+    const tts = new SpeechSynthesisTextToSpeech()
+
+    tts.toggleMuted()
+    expect(tts.isMuted()).toBe(true)
+
+    tts.toggleMuted()
+    expect(tts.isMuted()).toBe(false)
+  })
+
+  it('can set muted by calling toggle with an argument', () => {
+    const tts = new SpeechSynthesisTextToSpeech()
+
+    tts.toggleMuted(false)
+    expect(tts.isMuted()).toBe(false)
+
+    tts.toggleMuted(true)
+    expect(tts.isMuted()).toBe(true)
   })
 })

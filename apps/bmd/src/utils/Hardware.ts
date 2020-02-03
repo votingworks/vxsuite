@@ -137,6 +137,14 @@ export class MemoryHardware implements Hardware {
     })
   }
 
+  public static get demo(): MemoryHardware {
+    return new MemoryHardware({
+      connectPrinter: true,
+      connectAccessibleController: false,
+      connectCardReader: true,
+    })
+  }
+
   /**
    * Sets Accessible Controller connected
    */
@@ -322,4 +330,8 @@ export class KioskHardware extends MemoryHardware {
  * Get Hardware based upon environment.
  */
 export const getHardware = () =>
-  window.kiosk ? new KioskHardware(window.kiosk) : MemoryHardware.standard
+  window.kiosk
+    ? // Running in kiosk-browser, so use that to access real hardware.
+      new KioskHardware(window.kiosk)
+    : // Running in normal browser, so emulate hardware.
+      MemoryHardware.demo

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { BrowserRouter, Route } from 'react-router-dom'
 
 import 'normalize.css'
@@ -14,7 +14,7 @@ import { WebServiceCard } from './utils/Card'
 import { LocalStorage } from './utils/Storage'
 import { getUSEnglishVoice } from './utils/voices'
 import getPrinter from './utils/printer'
-import { getHardware } from './utils/Hardware'
+import { getHardware, isAccessibleController } from './utils/Hardware'
 
 import AppRoot, { Props as AppRootProps, AppStorage } from './AppRoot'
 import FocusManager from './components/FocusManager'
@@ -43,6 +43,19 @@ const App = ({
   hardware = getHardware(),
   machineId = machineIdProvider,
 }: Props) => {
+  screenReader.mute()
+
+  /* istanbul ignore next - need to figure out how to test this */
+  useEffect(() => {
+    const listener = hardware.onDeviceChange.add((changeType, device) => {
+      if (isAccessibleController(device)) {
+        screenReader.toggleMuted(changeType === 1 /* ChangeType.Remove */)
+      }
+    })
+
+    return () => listener.remove()
+  }, [hardware, screenReader])
+
   /* istanbul ignore next - need to figure out how to test this */
   const onKeyPress = useCallback(
     (event: React.KeyboardEvent) => {
