@@ -150,38 +150,6 @@ describe('Displays setup warning messages and errors scrrens', () => {
     await wait(() => getByText(vxPrintInsertCardScreenText))
   })
 
-  it('Admin screen trumps "Card Reader Not Detected" error', async () => {
-    const card = new MemoryCard()
-    const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
-    const hardware = MemoryHardware.standard
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
-    const { getByText } = render(
-      <App
-        card={card}
-        hardware={hardware}
-        storage={storage}
-        machineId={machineId}
-      />
-    )
-
-    // Start on VxMark Insert Card screen
-    getByText(insertCardScreenText)
-
-    // Disconnect Card Reader
-    hardware.setCardReaderConnected(false)
-    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => getByText('Card Reader Not Detected'))
-
-    // Insert admin card
-    card.insertCard(adminCard, electionSample)
-    await advanceTimersAndPromises()
-
-    // expect to see admin screen
-    getByText('/ Election Admin Actions')
-  })
-
   it('Admin screen trumps "No Printer Detected" error', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
@@ -210,40 +178,6 @@ describe('Displays setup warning messages and errors scrrens', () => {
     hardware.setPrinterConnected(false)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await wait(() => getByText('No Printer Detected'))
-
-    // Insert admin card
-    card.insertCard(adminCard, electionSample)
-    await advanceTimersAndPromises()
-
-    // expect to see admin screen
-    getByText('/ Election Admin Actions')
-  })
-
-  it('Admin screen trumps "No Power Detected and Battery is Low" error', async () => {
-    const card = new MemoryCard()
-    const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
-    const hardware = MemoryHardware.standard
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
-    const { getByText } = render(
-      <App
-        card={card}
-        hardware={hardware}
-        storage={storage}
-        machineId={machineId}
-      />
-    )
-    const getByTextWithMarkup = withMarkup(getByText)
-
-    // Start on VxMark Insert Card screen
-    getByText(insertCardScreenText)
-
-    // Remove charger and reduce battery below low threshold
-    hardware.setBatteryDischarging(true)
-    hardware.setBatteryLevel(LOW_BATTERY_THRESHOLD / 2)
-    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => getByTextWithMarkup(lowBatteryErrorScreenText))
 
     // Insert admin card
     card.insertCard(adminCard, electionSample)
