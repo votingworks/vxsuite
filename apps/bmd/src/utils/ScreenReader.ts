@@ -27,6 +27,11 @@ export interface TextToSpeech {
    * Checks whether this TTS is muted.
    */
   isMuted(): boolean
+
+  /**
+   * Toggles muted state, or sets it according to the argument.
+   */
+  toggleMuted(muted?: boolean): void
 }
 
 /**
@@ -64,7 +69,27 @@ export interface ScreenReader {
    * Toggles the screen reader being enabled and announces the change. Resolves
    * when speaking is done.
    */
-  toggle(): Promise<void>
+  toggle(enabled?: boolean): Promise<void>
+
+  /**
+   * Prevents any sound from being made but otherwise functions normally.
+   */
+  mute(): void
+
+  /**
+   * Allows sounds to be made.
+   */
+  unmute(): void
+
+  /**
+   * Checks whether this TTS is muted.
+   */
+  isMuted(): boolean
+
+  /**
+   * Toggles muted state, or sets it according to the argument.
+   */
+  toggleMuted(muted?: boolean): void
 
   /**
    * Directly triggers speech of text. Resolves when speaking is done.
@@ -121,8 +146,8 @@ export class AriaScreenReader implements ScreenReader {
    * is done.
    */
   public async enable(): Promise<void> {
+    this.unmute()
     await this.speak('Screen reader enabled', { now: true })
-    this.tts.unmute()
   }
 
   /**
@@ -131,19 +156,47 @@ export class AriaScreenReader implements ScreenReader {
    */
   public async disable(): Promise<void> {
     await this.speak('Screen reader disabled', { now: true })
-    this.tts.mute()
+    this.mute()
   }
 
   /**
    * Toggles the screen reader being enabled and announces the change. Resolves
    * when speaking is done.
    */
-  public async toggle(): Promise<void> {
-    if (this.tts.isMuted()) {
+  public async toggle(enabled = this.isMuted()): Promise<void> {
+    if (enabled) {
       await this.enable()
     } else {
       await this.disable()
     }
+  }
+
+  /**
+   * Prevents any sound from being made but otherwise functions normally.
+   */
+  public mute(): void {
+    return this.tts.mute()
+  }
+
+  /**
+   * Allows sounds to be made.
+   */
+  public unmute(): void {
+    return this.tts.unmute()
+  }
+
+  /**
+   * Checks whether this TTS is muted.
+   */
+  public isMuted(): boolean {
+    return this.tts.isMuted()
+  }
+
+  /**
+   * Toggles muted state, or sets it according to the argument.
+   */
+  public toggleMuted(muted?: boolean): void {
+    this.tts.toggleMuted(muted)
   }
 
   /**
@@ -290,7 +343,7 @@ export interface VoiceSelector {
 
 export class SpeechSynthesisTextToSpeech implements TextToSpeech {
   private getVoice?: VoiceSelector
-  private volume = 1
+  private muted = false
 
   public constructor(getVoice?: VoiceSelector) {
     this.getVoice = getVoice
@@ -307,12 +360,15 @@ export class SpeechSynthesisTextToSpeech implements TextToSpeech {
     text: string,
     { now = false }: SpeakOptions = {}
   ): Promise<void> {
+    if (this.isMuted()) {
+      return
+    }
+
     return new Promise(resolve => {
       const utterance = new SpeechSynthesisUtterance(text)
       const { getVoice } = this
       const voice = getVoice?.()
 
-      utterance.volume = this.volume
       utterance.onend = () => resolve()
 
       if (voice) {
@@ -348,20 +404,31 @@ export class SpeechSynthesisTextToSpeech implements TextToSpeech {
    */
   public mute(): void {
     speechSynthesis.cancel()
-    this.volume = 0
+    this.muted = true
   }
 
   /**
    * Allows sounds to be made.
    */
   public unmute(): void {
-    this.volume = 1
+    this.muted = false
   }
 
   /**
    * Checks whether this TTS is muted.
    */
   public isMuted(): boolean {
-    return this.volume === 0
+    return this.muted
+  }
+
+  /**
+   * Toggles muted state, or sets it according to the argument.
+   */
+  public toggleMuted(muted = !this.isMuted()): void {
+    if (muted) {
+      this.mute()
+    } else {
+      this.unmute()
+    }
   }
 }

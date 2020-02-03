@@ -61,7 +61,7 @@ const SampleApp = ({
   card = getSampleCard(),
   storage = getSampleStorage(),
   machineId = getSampleMachineId(),
-  hardware = MemoryHardware.standard,
+  hardware = MemoryHardware.demo,
   ...rest
 }: Props) => (
   <App
