@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import pluralize from 'pluralize'
 import { Precinct, Election } from '@votingworks/ballot-encoder'
 
@@ -15,6 +15,8 @@ import ElectionInfo from '../components/ElectionInfo'
 import { Printer } from '../utils/printer'
 import PollsReport from '../components/PollsReport'
 import PrecinctTallyReport from '../components/PrecinctTallyReport'
+import Loading from '../components/Loading'
+import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 
 interface Props {
   appMode: AppMode
@@ -44,24 +46,40 @@ const PollWorkerScreen = ({
   const precinct = election.precincts.find(
     p => p.id === appPrecinctId
   ) as Precinct
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const showModal = () => setIsModalOpen(true)
-  const hideModal = () => setIsModalOpen(false)
+  const [isConfirmingPrintReport, setIsConfirmingPrintReport] = useState(false)
+  const [isPrintingReport, setIsPrintingReport] = useState(false)
+  const cancelConfirmPrint = () => setIsConfirmingPrintReport(false)
   const isPrintMode = !!appMode.isVxPrint
 
-  const printReport = async () => {
-    await printer.print()
-    togglePollsOpen()
-    hideModal()
+  const requestPrintReport = () => {
+    setIsPrintingReport(true)
+    setIsConfirmingPrintReport(false)
   }
 
-  const toggle = () => {
+  const togglePolls = () => {
     if (isPrintMode) {
-      showModal()
+      setIsConfirmingPrintReport(true)
     } else {
       togglePollsOpen()
     }
   }
+
+  useEffect(() => {
+    let isPrinting = false
+    async function printReport() {
+      if (!isPrinting && isPrintingReport) {
+        await printer.print()
+        window.setTimeout(() => {
+          togglePollsOpen()
+          setIsPrintingReport(false)
+        }, REPORT_PRINTING_TIMEOUT_SECONDS * 1000)
+      }
+    }
+    printReport()
+    return () => {
+      isPrinting = true
+    }
+  }, [isPrintingReport, printer, togglePollsOpen])
 
   const currentDateTime = new Date().toLocaleString()
   const reportPurposes = ['Publicly Posted', 'Officially Filed']
@@ -85,9 +103,10 @@ const PollWorkerScreen = ({
                 </p>
               )}
               <p>
-                <Button big onPress={toggle}>
-                  {isPollsOpen ? 'Close Polls' : 'Open Polls'} for{' '}
-                  {precinct.name}
+                <Button big onPress={togglePolls}>
+                  {isPollsOpen
+                    ? `Close Polls for ${precinct.name}`
+                    : `Open Polls for ${precinct.name}`}
                 </Button>
               </p>
             </Prose>
@@ -110,7 +129,7 @@ const PollWorkerScreen = ({
           </Prose>
         </Sidebar>
         <Modal
-          isOpen={isModalOpen}
+          isOpen={isConfirmingPrintReport}
           centerContent
           content={
             <Prose textCenter>
@@ -123,11 +142,24 @@ const PollWorkerScreen = ({
           }
           actions={
             <React.Fragment>
-              <Button primary onPress={printReport}>
+              <Button primary onPress={requestPrintReport}>
                 Yes
               </Button>
-              <Button onPress={hideModal}>Cancel</Button>
+              <Button onPress={cancelConfirmPrint}>Cancel</Button>
             </React.Fragment>
+          }
+        />
+        <Modal
+          isOpen={isPrintingReport}
+          centerContent
+          content={
+            <Prose textCenter>
+              <Loading as="p">
+                {isPollsOpen
+                  ? `Printing Polls Closed report for ${precinct.name}`
+                  : `Printing Polls Opened report for ${precinct.name}`}
+              </Loading>
+            </Prose>
           }
         />
       </Screen>

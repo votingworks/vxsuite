@@ -30,6 +30,7 @@ import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
 import fakeMachineId from '../test/helpers/fakeMachineId'
+import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -115,6 +116,8 @@ it('VxPrintOnly flow', async () => {
   getByText('Open polls and print Polls Opened report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
   await advanceTimersAndPromises()
+  getByText('Printing Polls Opened report for Center Springfield')
+  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   getByText('Close Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(1)
 
@@ -290,6 +293,8 @@ it('VxPrintOnly flow', async () => {
   getByText('Close Polls and print Polls Closed report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
   await advanceTimersAndPromises()
+  getByText('Printing Polls Closed report for Center Springfield')
+  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   getByText('Open Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(5)
 

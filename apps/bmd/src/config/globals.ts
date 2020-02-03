@@ -5,6 +5,7 @@ export const CARD_EXPIRATION_SECONDS = 60 * 60 // 1 hour
 export const CARD_POLLING_INTERVAL = 200
 export const CARD_LONG_VALUE_WRITE_DELAY = 1000
 export const HARDWARE_POLLING_INTERVAL = 3000
+export const REPORT_PRINTING_TIMEOUT_SECONDS = 4
 export const CHECK_ICON = '✓'
 export const FONT_SIZES = [22, 30, 36, 48]
 export const DEFAULT_FONT_SIZE = 1
