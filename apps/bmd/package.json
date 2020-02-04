@@ -111,7 +111,7 @@
     "@types/base64-js": "^1.2.5",
     "@types/react-gamepad": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^2.19.0",
-    "@typescript-eslint/parser": "^2.18.0",
+    "@typescript-eslint/parser": "^2.19.0",
     "cypress": "^3.8.3",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.1",
