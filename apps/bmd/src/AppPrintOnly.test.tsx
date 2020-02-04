@@ -75,11 +75,6 @@ it('VxPrintOnly flow', async () => {
   fireEvent.click(getByText('VxPrint Only'))
   expect((getByText('VxPrint Only') as HTMLButtonElement).disabled).toBeTruthy()
 
-  fireEvent.click(getByText('Live Election Mode'))
-  expect(
-    (getByText('Live Election Mode') as HTMLButtonElement).disabled
-  ).toBeTruthy()
-
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
@@ -109,7 +104,7 @@ it('VxPrintOnly flow', async () => {
 
   // ---------------
 
-  // Open Polls with Poll Worker Card
+  // Open Polls in Testing Mode with Poll Worker Card
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
   fireEvent.click(getByText('Open Polls for Center Springfield'))
@@ -120,6 +115,47 @@ it('VxPrintOnly flow', async () => {
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   getByText('Close Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(1)
+
+  // Remove card
+  card.removeCard()
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
+
+  // ---------------
+
+  // Test for Testing Mode
+  getByText('Testing Mode')
+
+  // ---------------
+
+  // Set to Live Mode
+  card.insertCard(adminCard, electionSample)
+  await advanceTimersAndPromises()
+
+  fireEvent.click(getByText('Live Election Mode'))
+  expect(
+    (getByText('Live Election Mode') as HTMLButtonElement).disabled
+  ).toBeTruthy()
+
+  // Remove card
+  card.removeCard()
+  await advanceTimersAndPromises()
+  getByText('Polls Closed')
+  getByText('Insert Poll Worker card to open.')
+
+  // ---------------
+
+  // Open Polls with Poll Worker Card
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Open Polls for Center Springfield'))
+  getByText('Open polls and print Polls Opened report?')
+  fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+  await advanceTimersAndPromises()
+  getByText('Printing Polls Opened report for Center Springfield')
+  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
+  getByText('Close Polls for Center Springfield')
+  expect(printer.print).toHaveBeenCalledTimes(2)
 
   // Remove card
   card.removeCard()
@@ -188,7 +224,7 @@ it('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(printerMessageTimeoutSeconds)
   getByText('Verify and Cast Your Printed Ballot')
-  expect(printer.print).toHaveBeenCalledTimes(2)
+  expect(printer.print).toHaveBeenCalledTimes(3)
 
   // Remove card
   card.removeCard()
@@ -221,7 +257,7 @@ it('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(printerMessageTimeoutSeconds)
   getByText('Verify and Cast Your Printed Ballot')
-  expect(printer.print).toHaveBeenCalledTimes(3)
+  expect(printer.print).toHaveBeenCalledTimes(4)
 
   // Remove card
   card.removeCard()
@@ -254,7 +290,7 @@ it('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(printerMessageTimeoutSeconds)
   getByText('Verify and Cast Your Printed Ballot')
-  expect(printer.print).toHaveBeenCalledTimes(4)
+  expect(printer.print).toHaveBeenCalledTimes(5)
 
   // Remove card
   card.removeCard()
@@ -308,7 +344,7 @@ it('VxPrintOnly flow', async () => {
   getByText('Printing Polls Closed report for Center Springfield')
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   getByText('Open Polls for Center Springfield')
-  expect(printer.print).toHaveBeenCalledTimes(5)
+  expect(printer.print).toHaveBeenCalledTimes(6)
 
   // Remove card
   card.removeCard()
