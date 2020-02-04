@@ -126,6 +126,9 @@ it('VxPrintOnly flow', async () => {
   await advanceTimersAndPromises()
   getByText('Insert Card')
 
+  // Check Printed Ballots Count
+  getAllByTextWithMarkup('Ballots Printed: 0')
+
   // ---------------
 
   // Insert Expired Voter Card
@@ -192,6 +195,9 @@ it('VxPrintOnly flow', async () => {
   await advanceTimersAndPromises()
   getByText('Insert Card')
 
+  // Check Printed Ballots Count
+  getAllByTextWithMarkup('Ballots Printed: 1')
+
   // ---------------
 
   // Voter 2 Prints Ballot
@@ -222,6 +228,9 @@ it('VxPrintOnly flow', async () => {
   await advanceTimersAndPromises()
   getByText('Insert Card')
 
+  // Check Printed Ballots Count
+  getAllByTextWithMarkup('Ballots Printed: 2')
+
   // ---------------
 
   // Voter 3 Prints Ballot
@@ -251,6 +260,9 @@ it('VxPrintOnly flow', async () => {
   card.removeCard()
   await advanceTimersAndPromises()
   getByText('Insert Card')
+
+  // Check Printed Ballots Count
+  getAllByTextWithMarkup('Ballots Printed: 3')
 
   // ---------------
 

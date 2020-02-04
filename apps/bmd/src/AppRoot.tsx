@@ -1005,6 +1005,7 @@ class AppRoot extends React.Component<Props, State> {
         return (
           <PrintOnlyScreen
             ballotStyleId={ballotStyleId}
+            ballotsPrintedCount={ballotsPrintedCount}
             election={election}
             isLiveMode={isLiveMode}
             isVoterCardPresent={isVoterCardPresent}
