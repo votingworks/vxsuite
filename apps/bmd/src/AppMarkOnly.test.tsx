@@ -23,7 +23,7 @@ import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
-import fakeMachineId from '../test/helpers/fakeMachineId'
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -35,13 +35,13 @@ it('VxMarkOnly flow', async () => {
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
-  const machineId = fakeMachineId()
+  const machineConfig = fakeMachineConfigProvider()
   const { getByTestId, getByLabelText, getByText } = render(
     <App
       card={card}
       hardware={hardware}
       storage={storage}
-      machineId={machineId}
+      machineConfig={machineConfig}
     />
   )
   const getByTextWithMarkup = withMarkup(getByText)
@@ -82,8 +82,6 @@ it('VxMarkOnly flow', async () => {
   ) as HTMLOptionElement).value
   fireEvent.change(precinctSelect, { target: { value: precinctId } })
   within(getByTestId('election-info')).getByText('Center Springfield')
-
-  expect((getByText('VxMark Only') as HTMLButtonElement).disabled).toBeTruthy()
 
   fireEvent.click(getByText('Live Election Mode'))
   expect(

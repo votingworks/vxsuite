@@ -29,8 +29,9 @@ import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
-import fakeMachineId from '../test/helpers/fakeMachineId'
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
+import { VxMarkPlusVxPrint } from './config/types'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -44,7 +45,9 @@ it('VxMark+Print end-to-end flow', async () => {
   const hardware = MemoryHardware.standard
   const printer = fakePrinter()
   const storage = new MemoryStorage<AppStorage>()
-  const machineId = fakeMachineId()
+  const machineConfig = fakeMachineConfigProvider({
+    appMode: VxMarkPlusVxPrint,
+  })
   const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array')
   const { getByLabelText, getByText, getByTestId } = render(
     <App
@@ -52,7 +55,7 @@ it('VxMark+Print end-to-end flow', async () => {
       hardware={hardware}
       storage={storage}
       printer={printer}
-      machineId={machineId}
+      machineConfig={machineConfig}
     />
   )
   const getByTextWithMarkup = withMarkup(getByText)
@@ -93,9 +96,6 @@ it('VxMark+Print end-to-end flow', async () => {
   ) as HTMLOptionElement).value
   fireEvent.change(precinctSelect, { target: { value: precinctId } })
   within(getByTestId('election-info')).getByText('Center Springfield')
-
-  fireEvent.click(getByText('VxMark+Print'))
-  expect((getByText('VxMark+Print') as HTMLButtonElement).disabled).toBeTruthy()
 
   fireEvent.click(getByText('Live Election Mode'))
   expect(

@@ -71,10 +71,6 @@ export const setStateInStorage = (
   state: Partial<State> = {}
 ) => {
   storage.set(stateStorageKey, {
-    appMode: {
-      name: 'VxMark',
-      isVxMark: true,
-    },
     appPrecinctId: defaultPrecinctId,
     ballotsPrintedCount: 0,
     isLiveMode: true,

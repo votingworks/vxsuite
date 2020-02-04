@@ -329,9 +329,9 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
 
   public render() {
     const {
-      appMode,
       contests,
       election,
+      machineConfig,
       precinctId,
       votes,
       userSettings,
@@ -452,7 +452,7 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
               <LinkButton
                 big
                 primary
-                to={appMode.isVxPrint ? '/print' : '/save'}
+                to={machineConfig.appMode.isVxPrint ? '/print' : '/save'}
                 id="next"
               >
                 I’m Ready to <NoWrap>Print My Ballot</NoWrap>

@@ -1,15 +1,7 @@
 import React, { useState } from 'react'
 import { OptionalElection } from '@votingworks/ballot-encoder'
 
-import {
-  AppMode,
-  AppModeNames,
-  EventTargetFunction,
-  VoidFunction,
-  VxMarkOnly,
-  VxPrintOnly,
-  VxMarkPlusVxPrint,
-} from '../config/types'
+import { AppMode, EventTargetFunction, VoidFunction } from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
@@ -30,7 +22,6 @@ interface Props {
   isLiveMode: boolean
   fetchElection: VoidFunction
   isFetchingElection: boolean
-  setAppMode: (appModeName: AppModeNames) => void
   setAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
@@ -44,17 +35,10 @@ const ClerkScreen = ({
   isLiveMode,
   fetchElection,
   isFetchingElection,
-  setAppMode,
   setAppPrecinctId,
   toggleLiveMode,
   unconfigure,
 }: Props) => {
-  const changeAppMode: EventTargetFunction = event => {
-    const currentTarget = event.currentTarget as HTMLInputElement
-    const appModeName = currentTarget.dataset.appMode as AppModeNames
-    setAppMode(appModeName)
-  }
-
   const changeAppPrecinctId: EventTargetFunction = event => {
     const currentTarget = event.currentTarget as HTMLInputElement
     const appPrecinctId = currentTarget.value
@@ -110,35 +94,6 @@ const ClerkScreen = ({
                       ))}
                   </Select>
                 </p>
-                <h1>App Mode</h1>
-                <p>
-                  <SegmentedButton>
-                    <Button
-                      onPress={changeAppMode}
-                      data-app-mode="VxMark"
-                      primary={appMode === VxMarkOnly}
-                      disabled={appMode === VxMarkOnly}
-                    >
-                      VxMark Only
-                    </Button>
-                    <Button
-                      onPress={changeAppMode}
-                      data-app-mode="VxPrint"
-                      primary={appMode === VxPrintOnly}
-                      disabled={appMode === VxPrintOnly}
-                    >
-                      VxPrint Only
-                    </Button>
-                    <Button
-                      onPress={changeAppMode}
-                      data-app-mode="VxMark + VxPrint"
-                      primary={appMode === VxMarkPlusVxPrint}
-                      disabled={appMode === VxMarkPlusVxPrint}
-                    >
-                      VxMark+Print
-                    </Button>
-                  </SegmentedButton>
-                </p>
                 <h1>Testing Mode</h1>
                 <p>
                   <SegmentedButton>
@@ -158,35 +113,29 @@ const ClerkScreen = ({
                     </Button>
                   </SegmentedButton>
                 </p>
-                <p>
-                  <Button
-                    small
-                    disabled={!isTestDecksAvailable}
-                    onPress={showTestDeck}
-                  >
-                    View Test Ballot Decks
-                  </Button>{' '}
-                  {isLiveMode && (
-                    <Text as="small" muted>
-                      (Available in testing mode)
+                {appMode.isVxPrint && (
+                  <React.Fragment>
+                    <p>
+                      <Button
+                        small
+                        disabled={!isTestDecksAvailable}
+                        onPress={showTestDeck}
+                      >
+                        View Test Ballot Decks
+                      </Button>{' '}
+                      {isLiveMode && (
+                        <Text as="small" muted>
+                          (Available in testing mode)
+                        </Text>
+                      )}
+                    </p>
+                    <Text as="h1">Stats</Text>
+                    <Text>
+                      Printed and Tallied Ballots:{' '}
+                      <strong>{ballotsPrintedCount}</strong>{' '}
                     </Text>
-                  )}
-                  {!isLiveMode && !appMode.isVxPrint && (
-                    <Text as="small" muted>
-                      (Available with VxPrint or VxMark+Print)
-                    </Text>
-                  )}
-                </p>
-                <Text as="h1" muted={!appMode.isVxPrint}>
-                  Stats
-                </Text>
-                <Text muted={!appMode.isVxPrint}>
-                  Printed and Tallied Ballots:{' '}
-                  <strong>{ballotsPrintedCount}</strong>{' '}
-                  {!appMode.isVxPrint && (
-                    <small>(Available with VxPrint or VxMark+Print)</small>
-                  )}
-                </Text>
+                  </React.Fragment>
+                )}
               </React.Fragment>
             )}
             <h1>Configuration</h1>
@@ -232,8 +181,8 @@ const ClerkScreen = ({
           <Prose>
             <h2>Instructions</h2>
             <p>
-              Switching Precinct, App Mode, or Live Mode will reset tally and
-              printed ballots count.
+              Switching Precinct or Live Mode will reset tally and printed
+              ballots count.
             </p>
             <p>Remove card when finished.</p>
           </Prose>

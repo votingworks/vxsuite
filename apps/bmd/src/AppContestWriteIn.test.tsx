@@ -5,7 +5,11 @@ import App from './App'
 
 import withMarkup from '../test/helpers/withMarkup'
 
-import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  getNewVoterCard,
+  advanceTimersAndPromises,
+} from '../test/helpers/smartcards'
 
 import {
   singleSeatContestWithWriteIn,
@@ -18,7 +22,7 @@ import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
-import fakeMachineId from '../test/helpers/fakeMachineId'
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 jest.useFakeTimers()
 
@@ -33,12 +37,12 @@ it('Single Seat Contest with Write In', async () => {
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
-  const machineId = fakeMachineId()
-
-  setElectionInStorage(storage)
-  setStateInStorage(storage, {
+  const machineConfig = fakeMachineConfigProvider({
     appMode: VxMarkPlusVxPrint,
   })
+
+  setElectionInStorage(storage)
+  setStateInStorage(storage)
 
   const { container, getByText, queryByText, getByTestId } = render(
     <App
@@ -46,7 +50,7 @@ it('Single Seat Contest with Write In', async () => {
       hardware={hardware}
       printer={printer}
       storage={storage}
-      machineId={machineId}
+      machineConfig={machineConfig}
     />
   )
   const getByTextWithMarkup = withMarkup(getByText)
@@ -56,10 +60,10 @@ it('Single Seat Contest with Write In', async () => {
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Go to First Contest
-  await wait(() => fireEvent.click(getByText('Start Voting')))
+  fireEvent.click(getByText('Start Voting'))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //

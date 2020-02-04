@@ -21,7 +21,7 @@ import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryHardware } from './utils/Hardware'
-import fakeMachineId from '../test/helpers/fakeMachineId'
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 jest.useFakeTimers()
 
@@ -35,7 +35,7 @@ it('Display App Card Unhappy Paths', async () => {
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
-  const machineId = fakeMachineId()
+  const machineConfig = fakeMachineConfigProvider()
 
   card.removeCard()
 
@@ -47,7 +47,7 @@ it('Display App Card Unhappy Paths', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      machineId={machineId}
+      machineConfig={machineConfig}
     />
   )
 

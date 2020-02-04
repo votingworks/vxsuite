@@ -11,7 +11,7 @@ import {
 
 const ballot: BallotContextInterface = {
   activateBallot: () => undefined,
-  appMode: VxMarkOnly,
+  machineConfig: { machineId: '000', appMode: VxMarkOnly },
   ballotStyleId: '',
   contests: [],
   election: (undefined as unknown) as Election,

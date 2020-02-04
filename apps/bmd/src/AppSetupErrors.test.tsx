@@ -19,13 +19,13 @@ import {
   setStateInStorage,
 } from '../test/helpers/election'
 import withMarkup from '../test/helpers/withMarkup'
-import { VxPrintOnly } from './config/types'
 import { MemoryCard } from './utils/Card'
-import fakeMachineId from '../test/helpers/fakeMachineId'
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import {
   HARDWARE_POLLING_INTERVAL,
   LOW_BATTERY_THRESHOLD,
 } from './config/globals'
+import { VxPrintOnly } from './config/types'
 
 jest.useFakeTimers()
 
@@ -41,7 +41,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
+    const machineConfig = fakeMachineConfigProvider()
     const hardware = MemoryHardware.standard
     hardware.setAccesssibleControllerConnected(true)
 
@@ -53,7 +53,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineId={machineId}
+        machineConfig={machineConfig}
       />
     )
     const accessibleControllerWarningText =
@@ -82,7 +82,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
   it('Displays error screen if Card Reader connection is lost', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
+    const machineConfig = fakeMachineConfigProvider()
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
     setStateInStorage(storage)
@@ -92,7 +92,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineId={machineId}
+        machineConfig={machineConfig}
       />
     )
 
@@ -116,18 +116,16 @@ describe('Displays setup warning messages and errors scrrens', () => {
   it('Displays error screen if Printer connection is lost', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
+    const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
-    setStateInStorage(storage, {
-      appMode: VxPrintOnly,
-    })
+    setStateInStorage(storage)
     const { getByText } = render(
       <App
         card={card}
         hardware={hardware}
         storage={storage}
-        machineId={machineId}
+        machineConfig={machineConfig}
       />
     )
 
@@ -153,20 +151,22 @@ describe('Displays setup warning messages and errors scrrens', () => {
   it('Admin screen trumps "No Printer Detected" error', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
-    const hardware = MemoryHardware.standard
-    setElectionInStorage(storage)
-    setStateInStorage(storage, {
+    const machineConfig = fakeMachineConfigProvider({
       appMode: VxPrintOnly,
     })
+    const hardware = MemoryHardware.standard
+    setElectionInStorage(storage)
+    setStateInStorage(storage)
     const { getByText } = render(
       <App
         card={card}
         hardware={hardware}
         storage={storage}
-        machineId={machineId}
+        machineConfig={machineConfig}
       />
     )
+
+    await advanceTimersAndPromises()
 
     // no printer
     // Start on VxPrint Insert Card screen
@@ -176,8 +176,8 @@ describe('Displays setup warning messages and errors scrrens', () => {
 
     // Disconnect Printer
     hardware.setPrinterConnected(false)
-    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => getByText('No Printer Detected'))
+    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
+    getByText('No Printer Detected')
 
     // Insert admin card
     card.insertCard(adminCard, electionSample)
@@ -190,7 +190,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
+    const machineConfig = fakeMachineConfigProvider()
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
     setStateInStorage(storage)
@@ -199,7 +199,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineId={machineId}
+        machineConfig={machineConfig}
       />
     )
     const getByTextWithMarkup = withMarkup(getByText)
@@ -232,7 +232,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
   it('Cause hardware status polling to catch', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
+    const machineConfig = fakeMachineConfigProvider()
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
     setStateInStorage(storage)
@@ -241,7 +241,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineId={machineId}
+        machineConfig={machineConfig}
       />
     )
 
