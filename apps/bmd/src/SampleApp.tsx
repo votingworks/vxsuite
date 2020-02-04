@@ -5,7 +5,7 @@ import { Card, MemoryCard } from './utils/Card'
 import utcTimestamp from './utils/utcTimestamp'
 import { Storage, MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
-import { Provider } from './config/types'
+import { Provider, MachineConfig, VxMarkPlusVxPrint } from './config/types'
 import { MemoryHardware } from './utils/Hardware'
 
 const ballotStyleId = '12'
@@ -48,10 +48,10 @@ export function getSampleStorage(): Storage<AppStorage> {
   })
 }
 
-export function getSampleMachineId(): Provider<string> {
+export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
   return {
     async get() {
-      return '012'
+      return { appMode: VxMarkPlusVxPrint, machineId: '012' }
     },
   }
 }
@@ -60,14 +60,14 @@ export function getSampleMachineId(): Provider<string> {
 const SampleApp = ({
   card = getSampleCard(),
   storage = getSampleStorage(),
-  machineId = getSampleMachineId(),
+  machineConfig = getSampleMachineConfigProvider(),
   hardware = MemoryHardware.demo,
   ...rest
 }: Props) => (
   <App
     card={card}
     storage={storage}
-    machineId={machineId}
+    machineConfig={machineConfig}
     hardware={hardware}
     {...rest}
   />

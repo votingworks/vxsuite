@@ -29,8 +29,9 @@ import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
-import fakeMachineId from '../test/helpers/fakeMachineId'
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
+import { VxPrintOnly } from './config/types'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -43,14 +44,14 @@ it('VxPrintOnly flow', async () => {
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
-  const machineId = fakeMachineId()
+  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
     <App
       card={card}
       hardware={hardware}
       storage={storage}
       printer={printer}
-      machineId={machineId}
+      machineConfig={machineConfig}
     />
   )
 
@@ -71,9 +72,6 @@ it('VxPrintOnly flow', async () => {
 
   await advanceTimersAndPromises()
   getByText('Election definition is loaded.')
-
-  fireEvent.click(getByText('VxPrint Only'))
-  expect((getByText('VxPrint Only') as HTMLButtonElement).disabled).toBeTruthy()
 
   // Remove card
   card.removeCard()

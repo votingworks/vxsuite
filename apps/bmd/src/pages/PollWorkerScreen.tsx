@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import pluralize from 'pluralize'
 import { Precinct, Election } from '@votingworks/ballot-encoder'
 
-import { AppMode, Tally } from '../config/types'
+import { Tally, MachineConfig } from '../config/types'
 
 import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
@@ -19,26 +19,24 @@ import Loading from '../components/Loading'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 
 interface Props {
-  appMode: AppMode
   appPrecinctId: string
   ballotsPrintedCount: number
   election: Election
   isPollsOpen: boolean
   isLiveMode: boolean
-  machineId: string
+  machineConfig: MachineConfig
   printer: Printer
   tally: Tally
   togglePollsOpen: () => void
 }
 
 const PollWorkerScreen = ({
-  appMode,
   appPrecinctId,
   ballotsPrintedCount,
   election,
   isPollsOpen,
   isLiveMode,
-  machineId,
+  machineConfig,
   printer,
   tally,
   togglePollsOpen,
@@ -49,7 +47,7 @@ const PollWorkerScreen = ({
   const [isConfirmingPrintReport, setIsConfirmingPrintReport] = useState(false)
   const [isPrintingReport, setIsPrintingReport] = useState(false)
   const cancelConfirmPrint = () => setIsConfirmingPrintReport(false)
-  const isPrintMode = !!appMode.isVxPrint
+  const isPrintMode = !!machineConfig.appMode.isVxPrint
 
   const requestPrintReport = () => {
     setIsPrintingReport(true)
@@ -113,7 +111,7 @@ const PollWorkerScreen = ({
           </MainChild>
         </Main>
         <Sidebar
-          appName={appMode.name}
+          appName={machineConfig.appMode.name}
           centerContent
           title="Poll Worker Actions"
           footer={
@@ -168,13 +166,13 @@ const PollWorkerScreen = ({
           <React.Fragment key={reportPurpose}>
             <PollsReport
               key={`polls-report-${reportPurpose}`}
-              appName={appMode.name}
+              appName={machineConfig.appMode.name}
               ballotsPrintedCount={ballotsPrintedCount}
               currentDateTime={currentDateTime}
               election={election}
               isLiveMode={isLiveMode}
               isPollsOpen={isPollsOpen}
-              machineId={machineId}
+              machineConfig={machineConfig}
               precinctId={appPrecinctId}
               reportPurpose={reportPurpose}
             />

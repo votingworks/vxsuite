@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Precinct, Election } from '@votingworks/ballot-encoder'
-import { AppModeNames } from '../config/types'
+import { AppModeNames, MachineConfig } from '../config/types'
 import Prose from './Prose'
 
 const Report = styled.div`
@@ -72,7 +72,7 @@ interface Props {
   election: Election
   isLiveMode: boolean
   isPollsOpen: boolean
-  machineId: string
+  machineConfig: MachineConfig
   precinctId: string
   reportPurpose: string
 }
@@ -84,7 +84,7 @@ const PollsReport = ({
   election,
   isLiveMode,
   isPollsOpen,
-  machineId,
+  machineConfig,
   precinctId,
   reportPurpose,
 }: Props) => {
@@ -136,7 +136,7 @@ const PollsReport = ({
             <dt>Machine ID</dt>
             <dd>
               <span>
-                {appName} #{machineId}
+                {appName} #{machineConfig.machineId}
               </span>
             </dd>
             <dt>Status</dt>

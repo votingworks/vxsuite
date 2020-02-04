@@ -15,18 +15,30 @@ export interface Provider<T> {
 }
 
 // App
-export type AppModeNames = 'VxMark' | 'VxPrint' | 'VxMark + VxPrint'
-export interface AppMode {
-  readonly name: AppModeNames
-  readonly isVxPrint?: boolean
-  readonly isVxMark?: boolean
-}
-export const VxPrintOnly: AppMode = { name: 'VxPrint', isVxPrint: true }
-export const VxMarkOnly: AppMode = { name: 'VxMark', isVxMark: true }
-export const VxMarkPlusVxPrint: AppMode = {
+export const VxPrintOnly = {
+  name: 'VxPrint',
+  isVxMark: false,
+  isVxPrint: true,
+} as const
+export const VxMarkOnly = {
+  name: 'VxMark',
+  isVxMark: true,
+  isVxPrint: false,
+} as const
+export const VxMarkPlusVxPrint = {
   name: 'VxMark + VxPrint',
   isVxPrint: true,
   isVxMark: true,
+} as const
+export type AppMode =
+  | typeof VxMarkOnly
+  | typeof VxPrintOnly
+  | typeof VxMarkPlusVxPrint
+export type AppModeNames = AppMode['name']
+
+export interface MachineConfig {
+  machineId: string
+  appMode: AppMode
 }
 
 export function getAppMode(name: AppModeNames): AppMode {
@@ -79,7 +91,7 @@ export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
 export type MarkVoterCardFunction = () => Promise<boolean>
 export interface BallotContextInterface {
   activateBallot: (activationData: ActivationData) => void
-  appMode: AppMode
+  machineConfig: MachineConfig
   ballotStyleId: string
   contests: Contests
   readonly election: Election

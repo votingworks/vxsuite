@@ -15,13 +15,13 @@ import { TextSizeSetting, VxMarkOnly } from '../src/config/types'
 
 import BallotContext from '../src/contexts/ballotContext'
 import fakePrinter from './helpers/fakePrinter'
+import fakeMachineConfig from './helpers/fakeMachineConfig'
 
 export function render(
   component: React.ReactNode,
   {
     route = '/',
     activateBallot = jest.fn(),
-    appMode = VxMarkOnly,
     ballotStyleId = '',
     contests = electionSampleNoSeal.contests as Contests,
     markVoterCardVoided = jest.fn(),
@@ -29,6 +29,7 @@ export function render(
     election = electionSampleNoSeal,
     history = createMemoryHistory({ initialEntries: [route] }),
     isLiveMode = false,
+    machineConfig = fakeMachineConfig({ appMode: VxMarkOnly }),
     precinctId = '',
     printer = fakePrinter(),
     resetBallot = jest.fn(),
@@ -45,11 +46,11 @@ export function render(
       <BallotContext.Provider
         value={{
           activateBallot,
-          appMode,
           ballotStyleId,
           contests,
           election: election as Election,
           isLiveMode,
+          machineConfig,
           markVoterCardVoided,
           markVoterCardPrinted,
           precinctId,

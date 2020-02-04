@@ -15,20 +15,24 @@ This assumes you have `git` and `yarn` installed.
 
 1. Clone the repo:
 
-   ```
+   ```sh
    git clone https://github.com/votingworks/bmd.git
    ```
 
 2. Install dependencies:
 
-   ```
+   ```sh
    yarn install
    ```
 
 3. Run the app in your local browser:
 
-   ```
+   ```sh
+   # Run VxMark by default
    yarn start
+
+   # Or run VxPrint
+   VX_APP_MODE=VxPrint yarn start
    ```
 
 ## Contributing

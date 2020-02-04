@@ -13,6 +13,7 @@ import { advanceTimers } from '../../test/helpers/smartcards'
 import PollWorkerScreen from './PollWorkerScreen'
 import { getZeroTally } from '../utils/election'
 import fakePrinter from '../../test/helpers/fakePrinter'
+import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 
 jest.useFakeTimers()
 
@@ -20,13 +21,12 @@ it('renders PollWorkerScreen', async () => {
   const election = electionSampleWithSeal as Election
   const { getByText } = render(
     <PollWorkerScreen
-      appMode={VxMarkOnly}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       election={election}
       isPollsOpen
       isLiveMode={false}
-      machineId="1"
+      machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}

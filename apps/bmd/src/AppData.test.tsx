@@ -12,7 +12,7 @@ import {
 } from '../test/helpers/election'
 import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 import { MemoryStorage } from './utils/Storage'
-import fakeMachineId from '../test/helpers/fakeMachineId'
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { MemoryHardware } from './utils/Hardware'
 import { MemoryCard } from './utils/Card'
 
@@ -26,7 +26,7 @@ describe('loads election', () => {
   it('Machine is not configured by default', async () => {
     const { getByText } = render(
       <App
-        machineId={fakeMachineId()}
+        machineConfig={fakeMachineConfigProvider()}
         card={new MemoryCard()}
         hardware={MemoryHardware.standard}
       />
@@ -41,14 +41,14 @@ describe('loads election', () => {
   it('from storage', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
+    const machineConfig = fakeMachineConfigProvider()
     setElectionInStorage(storage)
     setStateInStorage(storage)
     const { getByText } = render(
       <App
         card={card}
         storage={storage}
-        machineId={machineId}
+        machineConfig={machineConfig}
         hardware={MemoryHardware.standard}
       />
     )

@@ -18,7 +18,7 @@ import { getHardware, isAccessibleController } from './utils/Hardware'
 
 import AppRoot, { Props as AppRootProps, AppStorage } from './AppRoot'
 import FocusManager from './components/FocusManager'
-import machineIdProvider from './utils/machineId'
+import machineConfigProvider from './utils/machineConfig'
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault()
@@ -29,7 +29,7 @@ export interface Props {
   card?: AppRootProps['card']
   storage?: AppRootProps['storage']
   printer?: AppRootProps['printer']
-  machineId?: AppRootProps['machineId']
+  machineConfig?: AppRootProps['machineConfig']
   screenReader?: ScreenReader
 }
 
@@ -41,7 +41,7 @@ const App = ({
   storage = new LocalStorage<AppStorage>(),
   printer = getPrinter(),
   hardware = getHardware(),
-  machineId = machineIdProvider,
+  machineConfig = machineConfigProvider,
 }: Props) => {
   screenReader.mute()
 
@@ -123,7 +123,7 @@ const App = ({
               printer={printer}
               hardware={hardware}
               storage={storage}
-              machineId={machineId}
+              machineConfig={machineConfig}
               {...props}
             />
           )}

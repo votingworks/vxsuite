@@ -22,7 +22,6 @@ it('renders ClerkScreen', async () => {
       fetchElection={jest.fn()}
       isFetchingElection={false}
       isLiveMode={false}
-      setAppMode={jest.fn()}
       setAppPrecinctId={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}

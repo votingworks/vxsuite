@@ -23,8 +23,6 @@ import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
 import {
   ActivationData,
-  AppMode,
-  AppModeNames,
   CardAPI,
   CardData,
   CardPresentAPI,
@@ -33,14 +31,12 @@ import {
   UserSettings,
   VoterCardData,
   VxMarkOnly,
-  VxMarkPlusVxPrint,
-  VxPrintOnly,
   Tally,
   CandidateVoteTally,
-  getAppMode,
   YesNoVoteTally,
   SerializableActivationData,
   Provider,
+  MachineConfig,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import {
@@ -95,7 +91,6 @@ interface UserState {
 }
 
 interface SharedState {
-  appMode: AppMode
   appPrecinctId: string
   ballotsPrintedCount: number
   election: OptionalElection
@@ -107,7 +102,7 @@ interface SharedState {
   isFetchingElection: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
-  machineId: string
+  machineConfig: Readonly<MachineConfig>
   shortValue?: string
   tally: Tally
 }
@@ -126,7 +121,7 @@ export interface Props extends RouteComponentProps {
   card: Card
   storage: Storage<AppStorage>
   printer: Printer
-  machineId: Provider<string>
+  machineConfig: Provider<MachineConfig>
 }
 
 export const electionStorageKey = 'election'
@@ -169,7 +164,6 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   private sharedState: SharedState = {
-    appMode: VxMarkOnly,
     appPrecinctId: '',
     ballotsPrintedCount: 0,
     election: undefined,
@@ -181,7 +175,7 @@ class AppRoot extends React.Component<Props, State> {
     isFetchingElection: false,
     isLiveMode: false,
     isPollsOpen: false,
-    machineId: '---',
+    machineConfig: { appMode: VxMarkOnly, machineId: '0000' },
     shortValue: '{}',
     tally: [],
   }
@@ -578,12 +572,11 @@ class AppRoot extends React.Component<Props, State> {
     const election = this.getElection()
     const { ballotStyleId, precinctId } = this.getBallotActivation()
     const {
-      appMode = this.initialState.appMode,
       appPrecinctId = this.initialState.appPrecinctId,
       ballotsPrintedCount = this.initialState.ballotsPrintedCount,
       isLiveMode = this.initialState.isLiveMode,
       isPollsOpen = this.initialState.isPollsOpen,
-      tally = this.initialState.tally,
+      tally = election ? getZeroTally(election) : this.initialState.tally,
     } = this.getStoredState()
     const ballotStyle =
       ballotStyleId &&
@@ -597,7 +590,6 @@ class AppRoot extends React.Component<Props, State> {
         ? getContests({ ballotStyle, election })
         : this.initialState.contests
     this.setState({
-      appMode,
       appPrecinctId,
       ballotsPrintedCount,
       ballotStyleId,
@@ -612,7 +604,7 @@ class AppRoot extends React.Component<Props, State> {
     document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
     this.setDocumentFontSize()
-    this.setMachineId()
+    this.setMachineConfig()
     this.startShortValueReadPolling()
     this.startLongValueWritePolling()
     this.startHardwareStatusPolling()
@@ -625,15 +617,15 @@ class AppRoot extends React.Component<Props, State> {
     this.stopHardwareStatusPolling()
   }
 
-  public setMachineId = async () => {
+  public setMachineConfig = async () => {
     try {
-      const machineId = await this.props.machineId.get()
+      const machineConfig = await this.props.machineConfig.get()
 
-      if (machineId) {
-        this.setState({ machineId })
+      if (machineConfig) {
+        this.setState({ machineConfig })
       }
     } catch {
-      // TODO: what should happen if `machineId` is not returned?
+      // TODO: what should happen if `machineConfig` is not returned?
     }
   }
 
@@ -707,7 +699,6 @@ class AppRoot extends React.Component<Props, State> {
 
   public setStoredState = () => {
     const {
-      appMode,
       appPrecinctId,
       ballotsPrintedCount,
       isLiveMode,
@@ -715,7 +706,6 @@ class AppRoot extends React.Component<Props, State> {
       tally,
     } = this.state
     this.props.storage.set(stateStorageKey, {
-      appMode,
       appPrecinctId,
       ballotsPrintedCount,
       isLiveMode,
@@ -725,19 +715,7 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public getStoredState = (): Partial<State> => {
-    const storedState = this.props.storage.get(stateStorageKey) || {}
-
-    if (storedState.appMode) {
-      try {
-        storedState.appMode = getAppMode(storedState.appMode.name)
-      } catch {
-        /* istanbul ignore next */
-
-        delete storedState.appMode
-      }
-    }
-
-    return storedState
+    return this.props.storage.get(stateStorageKey) || {}
   }
 
   public updateVote = (contestId: string, vote: OptionalVote) => {
@@ -810,11 +788,6 @@ class AppRoot extends React.Component<Props, State> {
 
   public setDocumentFontSize = (textSize: number = GLOBALS.TEXT_SIZE) => {
     document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[textSize]}px`
-  }
-
-  public setAppMode = (appModeName: AppModeNames) => {
-    const appMode = getAppMode(appModeName)
-    this.setState({ appMode }, this.resetTally)
   }
 
   public setAppPrecinctId = (appPrecinctId: string) => {
@@ -913,7 +886,6 @@ class AppRoot extends React.Component<Props, State> {
 
   public render() {
     const {
-      appMode,
       appPrecinctId,
       ballotsPrintedCount,
       ballotStyleId,
@@ -929,7 +901,7 @@ class AppRoot extends React.Component<Props, State> {
       isVoterCardPrinted,
       isVoterCardValid,
       isRecentVoterPrint,
-      machineId,
+      machineConfig,
       hasAccessibleControllerAttached,
       hasCardReaderAttached,
       hasChargerAttached,
@@ -940,6 +912,9 @@ class AppRoot extends React.Component<Props, State> {
       userSettings,
       votes,
     } = this.state
+
+    const { appMode } = machineConfig
+
     if (!hasCardReaderAttached) {
       return <SetupCardReaderPage setUserSettings={this.setUserSettings} />
     }
@@ -956,7 +931,6 @@ class AppRoot extends React.Component<Props, State> {
           fetchElection={this.fetchElection}
           isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
-          setAppMode={this.setAppMode}
           setAppPrecinctId={this.setAppPrecinctId}
           toggleLiveMode={this.toggleLiveMode}
           unconfigure={this.unconfigure}
@@ -972,13 +946,12 @@ class AppRoot extends React.Component<Props, State> {
       if (isPollWorkerCardPresent) {
         return (
           <PollWorkerScreen
-            appMode={appMode}
             appPrecinctId={appPrecinctId}
             ballotsPrintedCount={ballotsPrintedCount}
             election={election}
             isLiveMode={isLiveMode}
             isPollsOpen={isPollsOpen}
-            machineId={machineId}
+            machineConfig={machineConfig}
             printer={this.props.printer}
             tally={tally}
             togglePollsOpen={this.togglePollsOpen}
@@ -992,7 +965,7 @@ class AppRoot extends React.Component<Props, State> {
         return <ExpiredCardScreen setUserSettings={this.setUserSettings} />
       }
       if (isPollsOpen && isVoterCardPrinted) {
-        if (isRecentVoterPrint && appMode === VxMarkPlusVxPrint) {
+        if (isRecentVoterPrint && appMode.isVxMark && appMode.isVxPrint) {
           return <CastBallotPage />
         } else {
           return <UsedCardScreen setUserSettings={this.setUserSettings} />
@@ -1001,7 +974,7 @@ class AppRoot extends React.Component<Props, State> {
       if (isPollsOpen && isVoterCardExpired) {
         return <ExpiredCardScreen setUserSettings={this.setUserSettings} />
       }
-      if (isPollsOpen && appMode === VxPrintOnly) {
+      if (isPollsOpen && appMode.isVxPrint && !appMode.isVxMark) {
         return (
           <PrintOnlyScreen
             ballotStyleId={ballotStyleId}
@@ -1029,7 +1002,7 @@ class AppRoot extends React.Component<Props, State> {
               <BallotContext.Provider
                 value={{
                   activateBallot: this.activateBallot,
-                  appMode,
+                  machineConfig,
                   ballotStyleId,
                   contests,
                   election,
