@@ -10,7 +10,6 @@ import Screen from '../components/Screen'
 import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
 import { MarkVoterCardFunction, PartialUserSettings } from '../config/types'
 import { Printer } from '../utils/printer'
-import isEmptyObject from '../utils/isEmptyObject'
 import Text from '../components/Text'
 
 const Graphic = styled.img`
@@ -43,7 +42,7 @@ interface Props {
   setUserSettings: (partial: PartialUserSettings) => void
   showNoChargerAttachedWarning: boolean
   updateTally: () => void
-  votes: VotesDict
+  votes?: VotesDict
 }
 
 export const printerMessageTimeoutSeconds = 5
@@ -65,7 +64,7 @@ const PrintOnlyScreen = ({
   const printerTimer = useRef(0)
   const [okToPrint, setOkToPrint] = useState(true)
   const [isPrinted, updateIsPrinted] = useState(false)
-  const isCardVotesEmpty = isEmptyObject(votes)
+  const isCardVotesEmpty = votes === undefined
 
   const isReadyToPrint =
     election &&
@@ -214,7 +213,7 @@ const PrintOnlyScreen = ({
           election={election}
           isLiveMode={isLiveMode}
           precinctId={precinctId}
-          votes={votes}
+          votes={votes!} // votes exists because isReadyToPrint implies votes!=undefined , but tsc unable to reason about it
         />
       )}
     </React.Fragment>

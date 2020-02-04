@@ -39,6 +39,8 @@ beforeEach(() => {
 
 jest.useFakeTimers()
 
+jest.setTimeout(10000)
+
 it('VxPrintOnly flow', async () => {
   const card = new MemoryCard()
   const printer = fakePrinter()
@@ -298,6 +300,39 @@ it('VxPrintOnly flow', async () => {
   // Check Printed Ballots Count
   getAllByTextWithMarkup('Ballots Printed: 3')
 
+  // Blank Ballot, i.e. a ballot that deliberately is left empty by the voter, should still print
+  card.insertCard(
+    createVoterCard(),
+    encodeBallot({
+      election: electionSample,
+      ballotId: 'test-ballot-id',
+      ballotStyle: electionSample.ballotStyles[0],
+      precinct: electionSample.precincts[0],
+      votes: {},
+      isTestBallot: true,
+      ballotType: BallotType.Standard,
+    })
+  )
+
+  // Show Printing Ballot screen
+  await advanceTimersAndPromises()
+  getByText('Printing your official ballot')
+
+  expect(getAllByTextWithMarkup('[no selection]')).toHaveLength(20)
+
+  // After timeout, show Verify and Cast Instructions
+  await advanceTimersAndPromises(printerMessageTimeoutSeconds)
+  getByText('Verify and Cast Your Printed Ballot')
+  expect(printer.print).toHaveBeenCalledTimes(6)
+
+  // Remove card
+  card.removeCard()
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
+
+  // Check Printed Ballots Count
+  getAllByTextWithMarkup('Ballots Printed: 4')
+
   // ---------------
 
   // Pollworker Closes Polls
@@ -306,7 +341,7 @@ it('VxPrintOnly flow', async () => {
   getByText('Close Polls for Center Springfield')
 
   // Check for Report Details
-  expect(getAllByTextWithMarkup('Ballots printed count: 3').length).toBe(2)
+  expect(getAllByTextWithMarkup('Ballots printed count: 4').length).toBe(2)
   expect(getAllByTextWithMarkup('Edward Shiplett').length).toBe(2)
 
   expect(getAllByText('Edward Shiplett')[0].nextSibling!.textContent).toBe('3')
@@ -342,7 +377,7 @@ it('VxPrintOnly flow', async () => {
   getByText('Printing Polls Closed report for Center Springfield')
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   getByText('Open Polls for Center Springfield')
-  expect(printer.print).toHaveBeenCalledTimes(6)
+  expect(printer.print).toHaveBeenCalledTimes(7)
 
   // Remove card
   card.removeCard()

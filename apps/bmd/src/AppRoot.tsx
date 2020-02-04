@@ -87,7 +87,7 @@ interface UserState {
   contests: Contests
   precinctId: string
   userSettings: UserSettings
-  votes: VotesDict
+  votes?: VotesDict
 }
 
 interface SharedState {
@@ -128,6 +128,7 @@ export const electionStorageKey = 'election'
 export const stateStorageKey = 'state'
 export const activationStorageKey = 'activation'
 export const votesStorageKey = 'votes'
+export const blankBallotVotes = {}
 
 class AppRoot extends React.Component<Props, State> {
   private machineIdAbortController = new AbortController()
@@ -160,7 +161,7 @@ class AppRoot extends React.Component<Props, State> {
     contests: [],
     precinctId: '',
     userSettings: { textSize: GLOBALS.TEXT_SIZE },
-    votes: {},
+    votes: blankBallotVotes,
   }
 
   private sharedState: SharedState = {
@@ -299,7 +300,7 @@ class AppRoot extends React.Component<Props, State> {
               voterCardCreatedAt,
               ballotStyleId:
                 ballot.ballotStyle?.id ?? this.initialState.ballotStyleId,
-              votes: ballot.votes ?? {},
+              votes: ballot.votes,
             }
           },
           () => {
@@ -423,7 +424,7 @@ class AppRoot extends React.Component<Props, State> {
               election,
               precinctId: this.state.precinctId,
             })!,
-            votes: this.state.votes,
+            votes: this.state.votes ?? blankBallotVotes,
             isTestBallot: !this.state.isLiveMode,
             ballotType: BallotType.Standard,
           }
@@ -662,7 +663,7 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public getVotes = () => {
-    return this.props.storage.get(votesStorageKey) || {}
+    return this.props.storage.get(votesStorageKey) || blankBallotVotes
   }
 
   public setVotes = async (votes: VotesDict) => {
@@ -724,7 +725,7 @@ class AppRoot extends React.Component<Props, State> {
         votes: { ...prevState.votes, [contestId]: vote },
       }),
       () => {
-        this.setVotes(this.state.votes)
+        this.state.votes && this.setVotes(this.state.votes)
       }
     )
   }
@@ -1017,7 +1018,7 @@ class AppRoot extends React.Component<Props, State> {
                   updateVote: this.updateVote,
                   forceSaveVote: this.forceSaveVote,
                   userSettings,
-                  votes,
+                  votes: votes ?? blankBallotVotes,
                 }}
               >
                 <Ballot />

@@ -38,7 +38,7 @@ beforeEach(() => {
 })
 
 jest.useFakeTimers()
-jest.setTimeout(10000)
+jest.setTimeout(15000)
 
 it('VxMark+Print end-to-end flow', async () => {
   const card = new MemoryCard()

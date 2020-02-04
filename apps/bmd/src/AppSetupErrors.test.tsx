@@ -151,18 +151,16 @@ describe('Displays setup warning messages and errors scrrens', () => {
   it('Displays error screen if Power connection is lost', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
-    const machineId = fakeMachineId()
+    const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
-    setStateInStorage(storage, {
-      appMode: VxPrintOnly,
-    })
+    setStateInStorage(storage)
     const { getByText, queryByText } = render(
       <App
         card={card}
         hardware={hardware}
         storage={storage}
-        machineId={machineId}
+        machineConfig={machineConfig}
       />
     )
 
