@@ -11,17 +11,24 @@ import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
 import { MarkVoterCardFunction, PartialUserSettings } from '../config/types'
 import { Printer } from '../utils/printer'
 import isEmptyObject from '../utils/isEmptyObject'
+import Text from '../components/Text'
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
   height: 40vw;
 `
 
-const BallotsPrinted = styled.div`
+const TopLeftContent = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  margin: 0.3rem 0.5rem;
+  margin: 0.5rem 0.75rem;
+`
+const TopRightContent = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0.5rem 0.75rem;
 `
 
 interface Props {
@@ -170,11 +177,20 @@ const PrintOnlyScreen = ({
           <MainChild centerVertical maxWidth={false}>
             <Prose textCenter>{renderContent()}</Prose>
             {!isVoterCardPresent && (
-              <BallotsPrinted>
-                <small>
-                  Ballots Printed: <strong>{ballotsPrintedCount}</strong>
-                </small>
-              </BallotsPrinted>
+              <React.Fragment>
+                {!isLiveMode && (
+                  <TopRightContent>
+                    <Text as="span" warning warningIcon bold>
+                      Testing Mode
+                    </Text>
+                  </TopRightContent>
+                )}
+                <TopLeftContent>
+                  <small>
+                    Ballots Printed: <strong>{ballotsPrintedCount}</strong>
+                  </small>
+                </TopLeftContent>
+              </React.Fragment>
             )}
           </MainChild>
         </Main>
