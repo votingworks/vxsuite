@@ -1013,6 +1013,7 @@ class AppRoot extends React.Component<Props, State> {
             precinctId={precinctId}
             printer={this.props.printer}
             setUserSettings={this.setUserSettings}
+            showNoChargerAttachedWarning={!hasChargerAttached}
             updateTally={this.updateTally}
             votes={votes}
           />

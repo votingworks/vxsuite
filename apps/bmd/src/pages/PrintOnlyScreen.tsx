@@ -41,6 +41,7 @@ interface Props {
   precinctId: string
   printer: Printer
   setUserSettings: (partial: PartialUserSettings) => void
+  showNoChargerAttachedWarning: boolean
   updateTally: () => void
   votes: VotesDict
 }
@@ -57,6 +58,7 @@ const PrintOnlyScreen = ({
   precinctId,
   printer,
   setUserSettings,
+  showNoChargerAttachedWarning,
   updateTally,
   votes,
 }: Props) => {
@@ -165,7 +167,18 @@ const PrintOnlyScreen = ({
           />
         </p>
         <h1>Insert Card</h1>
-        <p>Insert Card to print your official ballot.</p>
+        <p>
+          Insert Card to print your official ballot.
+          {showNoChargerAttachedWarning && (
+            <React.Fragment>
+              <br />
+              <Text as="span" warning small>
+                <strong>No Power Detected.</strong> Please ask a poll worker to
+                plug in the power cord for this machine.
+              </Text>
+            </React.Fragment>
+          )}
+        </p>
       </React.Fragment>
     )
   }

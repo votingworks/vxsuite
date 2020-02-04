@@ -150,6 +150,44 @@ describe('Displays setup warning messages and errors scrrens', () => {
     await wait(() => getByText(vxPrintInsertCardScreenText))
   })
 
+  it('Displays error screen if Power connection is lost', async () => {
+    const card = new MemoryCard()
+    const storage = new MemoryStorage<AppStorage>()
+    const machineId = fakeMachineId()
+    const hardware = MemoryHardware.standard
+    setElectionInStorage(storage)
+    setStateInStorage(storage, {
+      appMode: VxPrintOnly,
+    })
+    const { getByText, queryByText } = render(
+      <App
+        card={card}
+        hardware={hardware}
+        storage={storage}
+        machineId={machineId}
+      />
+    )
+
+    // Let the initial hardware detection run.
+    await advanceTimersAndPromises()
+
+    // Start on VxPrint Insert Card screen
+    const vxPrintInsertCardScreenText =
+      'Insert Card to print your official ballot.'
+    getByText(vxPrintInsertCardScreenText)
+
+    // Disconnect Power
+    hardware.setBatteryDischarging(true)
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
+    await wait(() => getByText(noPowerDetectedWarningText))
+
+    // Reconnect Power
+    hardware.setBatteryDischarging(false)
+    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
+    await wait(() => !queryByText(noPowerDetectedWarningText))
+    getByText(vxPrintInsertCardScreenText)
+  })
+
   it('Admin screen trumps "No Printer Detected" error', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage<AppStorage>()
