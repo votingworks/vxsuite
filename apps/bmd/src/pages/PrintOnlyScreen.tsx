@@ -17,8 +17,16 @@ const Graphic = styled.img`
   height: 40vw;
 `
 
+const BallotsPrinted = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0.3rem 0.5rem;
+`
+
 interface Props {
   ballotStyleId: string
+  ballotsPrintedCount: number
   election: Election
   isLiveMode: boolean
   isVoterCardPresent: boolean
@@ -34,6 +42,7 @@ export const printerMessageTimeoutSeconds = 5
 
 const PrintOnlyScreen = ({
   ballotStyleId,
+  ballotsPrintedCount,
   election,
   isLiveMode,
   isVoterCardPresent,
@@ -160,6 +169,13 @@ const PrintOnlyScreen = ({
         <Main>
           <MainChild centerVertical maxWidth={false}>
             <Prose textCenter>{renderContent()}</Prose>
+            {!isVoterCardPresent && (
+              <BallotsPrinted>
+                <small>
+                  Ballots Printed: <strong>{ballotsPrintedCount}</strong>
+                </small>
+              </BallotsPrinted>
+            )}
           </MainChild>
         </Main>
       </Screen>
