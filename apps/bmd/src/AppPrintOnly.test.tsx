@@ -32,6 +32,7 @@ import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxPrintOnly } from './config/types'
+import { mockOf } from '../test/testUtils'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -41,7 +42,7 @@ jest.useFakeTimers()
 
 jest.setTimeout(10000)
 
-it('VxPrintOnly flow', async () => {
+test('VxPrintOnly flow', async () => {
   const card = new MemoryCard()
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
@@ -395,4 +396,107 @@ it('VxPrintOnly flow', async () => {
 
   // Default Unconfigured
   getByText('Device Not Configured')
+})
+
+test('VxPrint retains app mode when unconfigured', async () => {
+  const card = new MemoryCard()
+  const printer = fakePrinter()
+  const hardware = MemoryHardware.standard
+  const storage = new MemoryStorage<AppStorage>()
+  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
+  const { getByLabelText, getByText, getByTestId } = render(
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      printer={printer}
+      machineConfig={machineConfig}
+    />
+  )
+
+  await advanceTimersAndPromises()
+
+  async function configure(): Promise<void> {
+    // Configure with Admin Card
+    card.insertCard(adminCard, electionSample)
+    await advanceTimersAndPromises()
+    fireEvent.click(getByText('Load Election Definition'))
+
+    await advanceTimersAndPromises()
+    getByText('Election definition is loaded.')
+
+    // Select precinct
+    getByText('State of Hamilton')
+    const precinctSelect = getByLabelText('Precinct')
+    const precinctId = (within(precinctSelect).getByText(
+      'Center Springfield'
+    ) as HTMLOptionElement).value
+    fireEvent.change(precinctSelect, { target: { value: precinctId } })
+    within(getByTestId('election-info')).getByText('Center Springfield')
+
+    // Remove card
+    card.removeCard()
+    await advanceTimersAndPromises()
+    getByText('Polls Closed')
+    getByText('Insert Poll Worker card to open.')
+  }
+
+  // Open Polls with Poll Worker Card
+  async function openPolls(): Promise<void> {
+    const currentPrintCallCount = mockOf(printer.print).mock.calls.length
+
+    card.insertCard(pollWorkerCard)
+    await advanceTimersAndPromises()
+    fireEvent.click(getByText('Open Polls for Center Springfield'))
+    await advanceTimersAndPromises()
+    getByText('Open polls and print Polls Opened report?')
+    fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+    await advanceTimersAndPromises()
+    getByText('Printing Polls Opened report for Center Springfield')
+    await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
+    getByText('Close Polls for Center Springfield')
+    expect(printer.print).toHaveBeenCalledTimes(currentPrintCallCount + 1)
+
+    // Remove card
+    card.removeCard()
+    await advanceTimersAndPromises()
+  }
+
+  async function unconfigure(): Promise<void> {
+    // Unconfigure with Admin Card
+    card.insertCard(adminCard, electionSample)
+    await advanceTimersAndPromises()
+    getByText('Election definition is loaded.')
+    fireEvent.click(getByText('Remove'))
+    await advanceTimersAndPromises()
+
+    // Default Unconfigured
+    getByText('Device Not Configured')
+
+    // Remove card
+    card.removeCard()
+    await advanceTimersAndPromises()
+  }
+
+  // ---------------
+
+  // Default Unconfigured
+  getByText('Device Not Configured')
+
+  // Do the initial configuration & open polls.
+  await configure()
+  await openPolls()
+
+  // Make sure we're ready to print ballots.
+  getByText('Insert Card to print your official ballot.')
+
+  // Remove election configuration.
+  await unconfigure()
+
+  // Re-configure & open polls again.
+  await configure()
+  await openPolls()
+
+  // Make sure we're again ready to print ballots.
+  getByText('Insert Card to print your official ballot.')
 })
