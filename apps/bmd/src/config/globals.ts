@@ -17,3 +17,4 @@ export enum YES_NO_VOTES {
 }
 export const WRITE_IN_CANDIDATE_MAX_LENGTH = 40
 export const LOW_BATTERY_THRESHOLD = 0.25
+export const QUIT_KIOSK_IDLE_SECONDS = 5 * 60 // 5 minutes

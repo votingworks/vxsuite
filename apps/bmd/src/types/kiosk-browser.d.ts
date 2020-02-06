@@ -57,6 +57,7 @@ declare module 'kiosk-browser' {
     getBatteryInfo(): Promise<BatteryInfo>
     getDeviceList(): Promise<Device[]>
     onDeviceChange: Listeners<[ChangeType, Device]>
+    quit(): void
   }
 }
 

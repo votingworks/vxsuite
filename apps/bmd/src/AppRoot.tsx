@@ -19,6 +19,7 @@ import { RouteComponentProps } from 'react-router-dom'
 // eslint-disable-next-line import/no-unresolved
 import { Listener, ChangeType, Device } from 'kiosk-browser'
 import './App.css'
+import IdleTimer from 'react-idle-timer'
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
 import {
@@ -1030,7 +1031,9 @@ class AppRoot extends React.Component<Props, State> {
           )
         }
       }
-      return (
+
+      const shouldQuitOnIdle = !machineConfig.machineId.endsWith('0')
+      const insertCardScreen = (
         <InsertCardScreen
           appPrecinctId={appPrecinctId}
           election={election}
@@ -1041,6 +1044,17 @@ class AppRoot extends React.Component<Props, State> {
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
         />
+      )
+
+      return shouldQuitOnIdle ? (
+        <IdleTimer
+          onIdle={() => window.kiosk?.quit()}
+          timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
+        >
+          {insertCardScreen}
+        </IdleTimer>
+      ) : (
+        insertCardScreen
       )
     } else {
       return <UnconfiguredScreen />

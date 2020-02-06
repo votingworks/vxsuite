@@ -52,5 +52,6 @@ export default function fakeKiosk({
       remove: jest.fn(),
       trigger: jest.fn(),
     },
+    quit: jest.fn(),
   }
 }
