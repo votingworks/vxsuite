@@ -90,24 +90,31 @@ interface UserState {
   votes?: VotesDict
 }
 
-interface SharedState {
-  appPrecinctId: string
-  ballotsPrintedCount: number
-  election: OptionalElection
+interface HardwareState {
   hasAccessibleControllerAttached: boolean
   hasCardReaderAttached: boolean
   hasChargerAttached: boolean
   hasLowBattery: boolean
   hasPrinterAttached: boolean
+  machineConfig: Readonly<MachineConfig>
+}
+
+interface SharedState {
+  appPrecinctId: string
+  ballotsPrintedCount: number
+  election: OptionalElection
   isFetchingElection: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
-  machineConfig: Readonly<MachineConfig>
   shortValue?: string
   tally: Tally
 }
 
-export interface State extends CardState, UserState, SharedState {}
+export interface State
+  extends CardState,
+    UserState,
+    HardwareState,
+    SharedState {}
 
 export interface AppStorage {
   election?: Election
@@ -164,27 +171,35 @@ class AppRoot extends React.Component<Props, State> {
     votes: blankBallotVotes,
   }
 
-  private sharedState: SharedState = {
-    appPrecinctId: '',
-    ballotsPrintedCount: 0,
-    election: undefined,
+  private initialHardwareState: HardwareState = {
     hasAccessibleControllerAttached: false,
     hasCardReaderAttached: false,
     hasChargerAttached: true,
     hasLowBattery: false,
     hasPrinterAttached: true,
+    machineConfig: { appMode: VxMarkOnly, machineId: '0000' },
+  }
+
+  private sharedState: SharedState = {
+    appPrecinctId: '',
+    ballotsPrintedCount: 0,
+    election: undefined,
     isFetchingElection: false,
     isLiveMode: false,
     isPollsOpen: false,
-    machineConfig: { appMode: VxMarkOnly, machineId: '0000' },
     shortValue: '{}',
     tally: [],
   }
 
-  private initialState: State = {
+  private resetState: Omit<State, keyof HardwareState> = {
     ...this.initialUserState,
     ...this.initialCardPresentState,
     ...this.sharedState,
+  }
+
+  private initialState: State = {
+    ...this.resetState,
+    ...this.initialHardwareState,
   }
 
   public state = this.initialState
@@ -681,19 +696,7 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public unconfigure = () => {
-    // Preserve hardware state after unconfigure.
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    const {
-      hasAccessibleControllerAttached,
-      hasCardReaderAttached,
-      hasChargerAttached,
-      hasPrinterAttached,
-      hasLowBattery,
-      ...rest
-    } = this.initialState
-    /* eslint-enable @typescript-eslint/no-unused-vars */
-
-    this.setState(rest)
+    this.setState(this.resetState)
     this.props.storage.clear()
     this.props.history.push('/')
   }
