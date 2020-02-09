@@ -456,10 +456,7 @@ class CandidateContest extends React.Component<Props, State> {
                     )
                     const isDisabled = hasReachedMaxSelections && !isChecked
                     const handleDisabledClick = () => {
-                      /* istanbul ignore else */
-                      if (isDisabled) {
-                        this.handleChangeVoteAlert(candidate)
-                      }
+                      this.handleChangeVoteAlert(candidate)
                     }
                     const party =
                       candidate.partyId &&
