@@ -397,6 +397,13 @@ class CandidateContest extends React.Component<Props, State> {
     scrollContainer.scrollTo({ behavior: 'smooth', left: 0, top })
   }
 
+  public handleDisabledAddWriteInClick = () => {
+    this.handleChangeVoteAlert({
+      id: 'write-in',
+      name: 'a write-in candidate',
+    } as Candidate)
+  }
+
   public static contextType = BallotContext
 
   public render() {
@@ -456,10 +463,7 @@ class CandidateContest extends React.Component<Props, State> {
                     )
                     const isDisabled = hasReachedMaxSelections && !isChecked
                     const handleDisabledClick = () => {
-                      /* istanbul ignore else */
-                      if (isDisabled) {
-                        this.handleChangeVoteAlert(candidate)
-                      }
+                      this.handleChangeVoteAlert(candidate)
                     }
                     const party =
                       candidate.partyId &&
@@ -515,11 +519,15 @@ class CandidateContest extends React.Component<Props, State> {
                           </ChoiceButton>
                         )
                       })}
-                  {contest.allowWriteIns && !hasReachedMaxSelections && (
+                  {contest.allowWriteIns && (
                     <ChoiceButton
                       choice="write-in"
                       isSelected={false}
-                      onPress={this.initWriteInCandidate}
+                      onPress={
+                        hasReachedMaxSelections
+                          ? this.handleDisabledAddWriteInClick
+                          : this.initWriteInCandidate
+                      }
                     >
                       <Prose>
                         <p aria-label="add write-in candidate.">

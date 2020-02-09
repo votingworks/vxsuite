@@ -974,6 +974,25 @@ exports[`Single Seat Contest 1`] = `
                   </p>
                 </div>
               </button>
+              <button
+                class="c13"
+                data-choice="write-in"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="c4"
+                >
+                  <p
+                    aria-label="add write-in candidate."
+                  >
+                    <em>
+                      add write-in candidate
+                    </em>
+                  </p>
+                </div>
+              </button>
             </div>
           </div>
         </div>

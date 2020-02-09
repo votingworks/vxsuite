@@ -94,7 +94,6 @@ it('Single Seat Contest with Write In', async () => {
   advanceTimers()
 
   // Remove Write-In Candidate
-  // await wait(() => getByText('BOB'))
   fireEvent.click(getByText('BOB').closest('button')!)
   fireEvent.click(getByText('Yes, Remove.'))
   advanceTimers()
@@ -107,7 +106,7 @@ it('Single Seat Contest with Write In', async () => {
   fireEvent.click(getByText('Accept'))
   expect(getByText('SAL').closest('button')!.dataset.selected).toBe('true')
 
-  // Try to Select Other Candidate when Max Candidates Selected.
+  // Try to Select Other Candidate when max candidates are selected.
   fireEvent.click(
     getByText(singleSeatContestWithWriteIn.candidates[0].name).closest(
       'button'
@@ -117,7 +116,13 @@ it('Single Seat Contest with Write In', async () => {
     `You may only select ${singleSeatContestWithWriteIn.seats} candidate in this contest. To vote for ${singleSeatContestWithWriteIn.candidates[0].name}, you must first unselect the selected candidate.`
   )
   fireEvent.click(getByText('Okay'))
-  advanceTimers() // For 200ms Delay in closing modal
+
+  // Try to add another write-in when max candidates are selected.
+  fireEvent.click(getByText('add write-in candidate').closest('button')!)
+  getByText(
+    `You may only select ${singleSeatContestWithWriteIn.seats} candidate in this contest. To vote for a write-in candidate, you must first unselect the selected candidate.`
+  )
+  fireEvent.click(getByText('Okay'))
 
   // Go to review page and confirm write in exists
   while (!queryByText('Review Your Votes')) {
