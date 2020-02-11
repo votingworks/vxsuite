@@ -599,7 +599,7 @@ class CandidateContest extends React.Component<Props, State> {
           centerContent
           content={
             <Prose>
-              <Text>
+              <Text id="modalaudiofocus">
                 Do you want to unselect and remove{' '}
                 {candidatePendingRemoval?.name}?
               </Text>
