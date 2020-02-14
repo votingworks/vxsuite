@@ -17,9 +17,10 @@ import React from 'react'
 import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
 // eslint-disable-next-line import/no-unresolved
-import { Listener, ChangeType, Device } from 'kiosk-browser'
 import './App.css'
 import IdleTimer from 'react-idle-timer'
+import { Subscription } from 'rxjs'
+import { map } from 'rxjs/operators'
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
 import {
@@ -143,7 +144,7 @@ class AppRoot extends React.Component<Props, State> {
 
   private cardPoller?: IntervalPoller
   private statusPoller?: IntervalPoller
-  private onDeviceChangeListener?: Listener<[ChangeType, Device]>
+  private onDeviceChangeSubscription?: Subscription
   private lastVoteUpdateAt = 0
   private lastVoteSaveToCardAt = 0
   private forceSaveVoteFlag = false
@@ -541,39 +542,34 @@ class AppRoot extends React.Component<Props, State> {
     }
 
     /* istanbul ignore else */
-    if (!this.onDeviceChangeListener) {
+    if (!this.onDeviceChangeSubscription) {
       const { hardware } = this.props
 
       // watch for changes
-      this.onDeviceChangeListener = hardware.onDeviceChange.add(
-        async (changeType, device) => {
-          /* istanbul ignore else */
-          if (isAccessibleController(device)) {
-            this.setState({
-              hasAccessibleControllerAttached:
-                changeType === 0 /* ChangeType.Add */,
-            })
-          } else if (isCardReader(device)) {
-            this.setState({
-              hasCardReaderAttached: changeType === 0 /* ChangeType.Add */,
-            })
-          } else {
-            const printer = await hardware.readPrinterStatus()
+      this.onDeviceChangeSubscription = hardware.devices
+        .pipe(map(devices => Array.from(devices)))
+        .subscribe(async devices => {
+          const hasAccessibleControllerAttached = devices.some(
+            isAccessibleController
+          )
+          const hasCardReaderAttached = devices.some(isCardReader)
+          const printer = await hardware.readPrinterStatus()
+          const hasPrinterAttached = printer.connected
 
-            if (!printer.connected) {
-              this.resetBallot()
+          if (!hasPrinterAttached) {
+            this.resetBallot()
 
-              // stop+start forces a last-card-value cache flush
-              this.stopShortValueReadPolling()
-              this.startShortValueReadPolling()
-            }
-
-            this.setState({
-              hasPrinterAttached: printer.connected,
-            })
+            // stop+start forces a last-card-value cache flush
+            this.stopShortValueReadPolling()
+            this.startShortValueReadPolling()
           }
-        }
-      )
+
+          this.setState({
+            hasAccessibleControllerAttached,
+            hasCardReaderAttached,
+            hasPrinterAttached,
+          })
+        })
     }
   }
 
@@ -581,8 +577,8 @@ class AppRoot extends React.Component<Props, State> {
     this.statusPoller?.stop()
     this.statusPoller = undefined
 
-    this.onDeviceChangeListener?.remove()
-    this.onDeviceChangeListener = undefined
+    this.onDeviceChangeSubscription?.unsubscribe()
+    this.onDeviceChangeSubscription = undefined
   }
 
   public componentDidMount = () => {

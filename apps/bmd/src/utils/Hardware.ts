@@ -1,12 +1,4 @@
-import {
-  Kiosk,
-  BatteryInfo,
-  Device,
-  Listeners,
-  ChangeType,
-  Listener,
-  // eslint-disable-next-line import/no-unresolved
-} from 'kiosk-browser'
+import { Observable, BehaviorSubject } from 'rxjs'
 
 interface PrinterStatus {
   connected: boolean
@@ -21,7 +13,7 @@ export const BrotherHLL5100DNProductId = 0x007f
 /**
  * Determines whether a device is the accessible controller.
  */
-export function isAccessibleController(device: Device): boolean {
+export function isAccessibleController(device: KioskBrowser.Device): boolean {
   return (
     device.vendorId === AccessibleControllerVendorId &&
     device.productId === AccessibleControllerProductId
@@ -36,7 +28,7 @@ export const OmniKeyCardReaderProductId = 0x3031
 /**
  * Determines whether a device is the card reader.
  */
-export function isCardReader(device: Device): boolean {
+export function isCardReader(device: KioskBrowser.Device): boolean {
   return (
     (device.manufacturer.replace(/_/g, ' ') === OmniKeyCardReaderManufacturer &&
       device.deviceName.replace(/_/g, ' ') === OmniKeyCardReaderDeviceName) ||
@@ -48,7 +40,7 @@ export function isCardReader(device: Device): boolean {
 /**
  * Determines whether a device is a supported printer.
  */
-export function isPrinter(device: Device): boolean {
+export function isPrinter(device: KioskBrowser.Device): boolean {
   return (
     device.vendorId === BrotherHLL5100DNVendorId &&
     device.productId === BrotherHLL5100DNProductId
@@ -62,7 +54,7 @@ export interface Hardware {
   /**
    * Reads Battery status
    */
-  readBatteryStatus(): Promise<BatteryInfo>
+  readBatteryStatus(): Promise<KioskBrowser.BatteryInfo>
 
   /**
    * Reads Printer status
@@ -70,22 +62,22 @@ export interface Hardware {
   readPrinterStatus(): Promise<PrinterStatus>
 
   /**
-   * Manage notifications for device changes.
+   * Subscribe to USB device updates.
    */
-  onDeviceChange: Listeners<[ChangeType, Device]>
+  devices: Observable<Iterable<KioskBrowser.Device>>
 }
 
 /**
  * Implements the `Hardware` API with an in-memory implementation.
  */
 export class MemoryHardware implements Hardware {
-  private batteryStatus: BatteryInfo = {
+  private batteryStatus: KioskBrowser.BatteryInfo = {
     discharging: false,
     level: 0.8,
   }
-  private devices = new Set<Device>()
+  private connectedDevices = new Set<KioskBrowser.Device>()
 
-  private accessibleController: Readonly<Device> = {
+  private accessibleController: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: 'USB Advanced Audio Device',
     locationId: 0,
@@ -95,7 +87,7 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   }
 
-  private printer: Readonly<Device> = {
+  private printer: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: 'HL-L5100DN_series',
     locationId: 0,
@@ -105,7 +97,7 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   }
 
-  private cardReader: Readonly<Device> = {
+  private cardReader: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: OmniKeyCardReaderDeviceName,
     locationId: 0,
@@ -157,7 +149,7 @@ export class MemoryHardware implements Hardware {
   /**
    * Reads Battery status
    */
-  public async readBatteryStatus(): Promise<BatteryInfo> {
+  public async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo> {
     return this.batteryStatus
   }
 
@@ -193,7 +185,7 @@ export class MemoryHardware implements Hardware {
    */
   public async readPrinterStatus(): Promise<PrinterStatus> {
     return {
-      connected: Array.from(this.devices).some(isPrinter),
+      connected: Array.from(this.connectedDevices).some(isPrinter),
     }
   }
 
@@ -204,63 +196,28 @@ export class MemoryHardware implements Hardware {
     this.setDeviceConnected(this.printer, connected)
   }
 
-  /**
-   * Manage notifications for device changes.
-   */
-  public onDeviceChange: Listeners<[ChangeType, Device]> = (() => {
-    const callbacks = new Set<
-      (changeType: ChangeType, device: Device) => void
-    >()
-
-    return {
-      add: (
-        callback: (changeType: ChangeType, device: Device) => void
-      ): Listener<[ChangeType, Device]> => {
-        callbacks.add(callback)
-
-        for (const device of this.devices) {
-          callback(0 /* ChangeType.Add */, device)
-        }
-
-        return {
-          remove() {
-            callbacks.delete(callback)
-          },
-        }
-      },
-
-      remove: (
-        callback: (changeType: ChangeType, device: Device) => void
-      ): void => {
-        callbacks.delete(callback)
-      },
-
-      trigger: (changeType: ChangeType, device: Device): void => {
-        for (const callback of callbacks) {
-          callback(changeType, device)
-        }
-      },
-    }
-  })()
+  private devicesSubject = new BehaviorSubject(this.connectedDevices)
 
   /**
-   * Gets a list of connected devices.
+   * Subscribe to USB device updates.
    */
-  public getDeviceList(): Device[] {
-    return Array.from(this.devices)
-  }
+  public devices: Observable<Iterable<KioskBrowser.Device>> = this
+    .devicesSubject
 
   /**
    * Determines whether a device is in the list of connected devices.
    */
-  public hasDevice(device: Device): boolean {
-    return this.devices.has(device)
+  public hasDevice(device: KioskBrowser.Device): boolean {
+    return this.connectedDevices.has(device)
   }
 
   /**
    * Sets the connection status for a device by adding or removing it as needed.
    */
-  public setDeviceConnected(device: Device, connected: boolean): void {
+  public setDeviceConnected(
+    device: KioskBrowser.Device,
+    connected: boolean
+  ): void {
     if (connected !== this.hasDevice(device)) {
       if (connected) {
         this.addDevice(device)
@@ -273,22 +230,22 @@ export class MemoryHardware implements Hardware {
   /**
    * Adds a device to the set of connected devices.
    */
-  public addDevice(device: Device): void {
-    if (this.devices.has(device)) {
+  public addDevice(device: KioskBrowser.Device): void {
+    if (this.connectedDevices.has(device)) {
       throw new Error(
         `cannot add device that was already added: ${device.deviceName}`
       )
     }
 
-    this.devices.add(device)
-    this.onDeviceChange.trigger(0 /* ChangeType.Add */, device)
+    this.connectedDevices.add(device)
+    this.devicesSubject.next(this.connectedDevices)
   }
 
   /**
    * Removes a previously-added device from the set of connected devices.
    */
-  public removeDevice(device: Device): void {
-    const hadDevice = this.devices.delete(device)
+  public removeDevice(device: KioskBrowser.Device): void {
+    const hadDevice = this.connectedDevices.delete(device)
 
     if (!hadDevice) {
       throw new Error(
@@ -296,7 +253,7 @@ export class MemoryHardware implements Hardware {
       )
     }
 
-    this.onDeviceChange.trigger(1 /* ChangeType.Remove */, device)
+    this.devicesSubject.next(this.connectedDevices)
   }
 }
 
@@ -304,14 +261,14 @@ export class MemoryHardware implements Hardware {
  * Implements the `Hardware` API by accessing it through the kiosk.
  */
 export class KioskHardware extends MemoryHardware {
-  public constructor(private kiosk: Kiosk) {
+  public constructor(private kiosk: KioskBrowser.Kiosk) {
     super()
   }
 
   /**
    * Reads Battery status
    */
-  public async readBatteryStatus(): Promise<BatteryInfo> {
+  public async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo> {
     return this.kiosk.getBatteryInfo()
   }
 
@@ -323,7 +280,16 @@ export class KioskHardware extends MemoryHardware {
     return { connected: printers.some(printer => printer.connected) }
   }
 
-  onDeviceChange = this.kiosk.onDeviceChange
+  /**
+   * Gets an observable that yields the current set of connected USB devices as
+   * devices are added and removed.
+   *
+   * Given a set of initial devices (e.g. {mouse, keyboard}), a subscriber would
+   * receive the initial set. Once a new device is added (e.g. flash drive), that
+   * first subscriber receives a new set (e.g. {mouse, keyboard, flash drive}).
+   * New subscribers immediately receive the same current set.
+   */
+  public devices = this.kiosk.devices
 }
 
 /**
