@@ -101,7 +101,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.0",
     "styled-components": "^4.4.1",
-    "typescript": "^3.7.5",
+    "typescript": "^3.8.2",
     "use-interval": "^1.2.1"
   },
   "devDependencies": {
