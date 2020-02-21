@@ -30,6 +30,7 @@ module.exports = {
     SharedArrayBuffer: 'readonly',
     // fetch: true, // required if using via 'jest-fetch-mock'
     fetchMock: true, // required if using via 'jest-fetch-mock'
+    globalThis: true,
   },
   parserOptions: {
     ecmaFeatures: {
