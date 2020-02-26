@@ -94,7 +94,7 @@
     "normalize.css": "^8.0.1",
     "pluralize": "^8.0.0",
     "react": "^16.13.0",
-    "react-dom": "^16.12.0",
+    "react-dom": "^16.13.0",
     "react-gamepad": "^1.0.3",
     "react-idle-timer": "^4.2.12",
     "react-modal": "^3.11.2",
