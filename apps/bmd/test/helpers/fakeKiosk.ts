@@ -1,8 +1,10 @@
+import { BehaviorSubject } from 'rxjs'
+
 // Disable `import/no-unresolved` because this module only exists for TypeScript.
 // eslint-disable-next-line import/no-unresolved
-import { Kiosk, BatteryInfo, PrinterInfo, Device } from 'kiosk-browser'
-
-export function fakeDevice(props: Partial<Device> = {}): Device {
+export function fakeDevice(
+  props: Partial<KioskBrowser.Device> = {}
+): KioskBrowser.Device {
   return {
     deviceName: 'fake device',
     deviceAddress: 0,
@@ -15,7 +17,9 @@ export function fakeDevice(props: Partial<Device> = {}): Device {
   }
 }
 
-export function fakePrinterInfo(props: Partial<PrinterInfo> = {}): PrinterInfo {
+export function fakePrinterInfo(
+  props: Partial<KioskBrowser.PrinterInfo> = {}
+): KioskBrowser.PrinterInfo {
   return {
     connected: false,
     description: props.name ?? 'Fake Printer',
@@ -33,9 +37,9 @@ export default function fakeKiosk({
   battery: { level = 1, discharging = false } = {},
   printers,
 }: {
-  battery?: Partial<BatteryInfo>
-  printers?: Partial<PrinterInfo>[]
-} = {}): jest.Mocked<Kiosk> {
+  battery?: Partial<KioskBrowser.BatteryInfo>
+  printers?: Partial<KioskBrowser.PrinterInfo>[]
+} = {}): jest.Mocked<KioskBrowser.Kiosk> {
   if (!printers) {
     printers = [{}]
   }
@@ -46,12 +50,7 @@ export default function fakeKiosk({
     print: jest.fn().mockResolvedValue(undefined),
     getBatteryInfo: jest.fn().mockResolvedValue({ level, discharging }),
     getPrinterInfo: jest.fn().mockResolvedValue(printers),
-    getDeviceList: jest.fn().mockResolvedValue([]),
-    onDeviceChange: {
-      add: jest.fn(),
-      remove: jest.fn(),
-      trigger: jest.fn(),
-    },
+    devices: new BehaviorSubject(new Set<KioskBrowser.Device>()),
     quit: jest.fn(),
   }
 }

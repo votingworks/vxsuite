@@ -1,4 +1,4 @@
-declare module 'kiosk-browser' {
+declare namespace KioskBrowser {
   export interface BatteryInfo {
     discharging: boolean
     level: number // Number between 0–1
@@ -15,11 +15,6 @@ declare module 'kiosk-browser' {
     options?: { [key: string]: string }
   }
 
-  export enum ChangeType {
-    Add,
-    Remove,
-  }
-
   export interface Device {
     locationId: number
     vendorId: number
@@ -30,33 +25,11 @@ declare module 'kiosk-browser' {
     deviceAddress: number
   }
 
-  export type DeviceChangeListener = (
-    changeType: ChangeType,
-    device: Device
-  ) => void
-
-  export interface Listener<
-    A extends unknown[],
-    C extends Function = (...args: A) => void
-  > {
-    remove(): void
-  }
-
-  export interface Listeners<
-    A extends unknown[],
-    C extends Function = (...args: A) => void
-  > {
-    add(callback: C): Listener<A, C>
-    remove(callback: C): void
-    trigger(...args: A): void
-  }
-
   export interface Kiosk {
     print(): Promise<void>
     getPrinterInfo(): Promise<PrinterInfo[]>
     getBatteryInfo(): Promise<BatteryInfo>
-    getDeviceList(): Promise<Device[]>
-    onDeviceChange: Listeners<[ChangeType, Device]>
+    devices: import('rxjs').Observable<Iterable<Device>>
     quit(): void
   }
 }
@@ -68,4 +41,4 @@ declare module 'kiosk-browser' {
 // the `Window` interface, but then we couldn't refer to `kiosk` without
 // `window`.
 // eslint-disable-next-line no-var
-declare var kiosk: import('kiosk-browser').Kiosk | undefined
+declare var kiosk: KioskBrowser.Kiosk | undefined

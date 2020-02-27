@@ -62,18 +62,31 @@ describe('KioskHardware', () => {
 })
 
 describe('MemoryHardware', () => {
-  it('has a standard config with all the typical hardware', () => {
+  it('has a standard config with all the typical hardware', done => {
     const hardware = MemoryHardware.standard
-    expect(hardware.getDeviceList()).toHaveLength(
-      1 + // accessible controller
-      1 + // printer
-        1 // card reader
-    )
+
+    hardware.devices.subscribe(devices => {
+      expect(
+        new Set(Array.from(devices).map(device => device.deviceName))
+      ).toEqual(
+        new Set([
+          OmniKeyCardReaderDeviceName,
+          'USB Advanced Audio Device',
+          'HL-L5100DN_series',
+        ])
+      )
+
+      done()
+    })
   })
 
-  it('has no connected devices by default', () => {
+  it('has no connected devices by default', done => {
     const hardware = new MemoryHardware()
-    expect(hardware.getDeviceList()).toEqual([])
+
+    hardware.devices.subscribe(devices => {
+      expect(Array.from(devices)).toEqual([])
+      done()
+    })
   })
 
   it('does not have devices that have not been added', () => {
@@ -136,12 +149,9 @@ describe('MemoryHardware', () => {
     const callback = jest.fn()
     const device = fakeDevice()
 
-    hardware.onDeviceChange.add(callback)
-    expect(callback).not.toHaveBeenCalled()
-
+    hardware.devices.subscribe(callback)
     hardware.addDevice(device)
-    expect(callback).toHaveBeenCalledWith(0 /* ChangeType.Add */, device)
-    expect(hardware.getDeviceList()).toEqual([device])
+    expect(callback).toHaveBeenCalledWith(new Set([device]))
   })
 
   it('triggers callbacks when removing devices', () => {
@@ -151,16 +161,11 @@ describe('MemoryHardware', () => {
 
     hardware.addDevice(device)
 
-    hardware.onDeviceChange.add(callback)
-    expect(callback).toHaveBeenNthCalledWith(1, 0 /* ChangeType.Add */, device)
+    hardware.devices.subscribe(callback)
+    expect(callback).toHaveBeenNthCalledWith(1, new Set([device]))
 
     hardware.removeDevice(device)
-    expect(callback).toHaveBeenNthCalledWith(
-      2,
-      1 /* ChangeType.Remove */,
-      device
-    )
-    expect(hardware.getDeviceList()).toEqual([])
+    expect(callback).toHaveBeenNthCalledWith(2, new Set([]))
   })
 
   it('throws when adding the same device twice', () => {
@@ -178,24 +183,13 @@ describe('MemoryHardware', () => {
     expect(() => hardware.removeDevice(device)).toThrowError(/never added/)
   })
 
-  it('allows removing callbacks by passing them to remove', () => {
+  it('allows unsubscribing from a device subscription', () => {
     const hardware = new MemoryHardware()
     const callback = jest.fn()
     const device = fakeDevice()
 
-    hardware.onDeviceChange.add(callback)
-    hardware.onDeviceChange.remove(callback)
-
-    hardware.addDevice(device)
-    expect(callback).not.toHaveBeenCalled()
-  })
-
-  it('allows removing callbacks by calling remove on the returned listener', () => {
-    const hardware = new MemoryHardware()
-    const callback = jest.fn()
-    const device = fakeDevice()
-
-    hardware.onDeviceChange.add(callback).remove()
+    hardware.devices.subscribe(callback).unsubscribe()
+    callback.mockClear()
 
     hardware.addDevice(device)
     expect(callback).not.toHaveBeenCalled()
