@@ -2070,16 +2070,16 @@
     "@svgr/plugin-svgo" "^4.3.1"
     loader-utils "^1.2.3"
 
-"@testing-library/cypress@^5.3.0":
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/cypress/-/cypress-5.3.0.tgz#1bbfcbf8a391d31693998c439408b1456c5c24df"
-  integrity sha512-OLUHMHFS1HRE7xBeOnqZLd+qtFmGLphnSx8ryX9YafBrYzs4e/DfnpR0dy9D5zx7Je4FnkoWBQKHiWxG1T/UKw==
+"@testing-library/cypress@^5.3.1":
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/@testing-library/cypress/-/cypress-5.3.1.tgz#96c9bd0f72eb2330b4b5154dd71e81d2c644ce62"
+  integrity sha512-MMg1LM+bbz4CUIZpE3LXODBUoDOp6H4DinezI/DJ357UNS1W6zZohxAul5Nol23NKclB/GQOs/4cuge/smt9Gg==
   dependencies:
     "@babel/runtime" "^7.8.4"
-    "@testing-library/dom" "^6.12.2"
-    "@types/testing-library__cypress" "^5.0.2"
+    "@testing-library/dom" "^6.15.0"
+    "@types/testing-library__cypress" "^5.0.3"
 
-"@testing-library/dom@^6.12.2", "@testing-library/dom@^6.15.0":
+"@testing-library/dom@^6.15.0":
   version "6.15.0"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-6.15.0.tgz#042abea7b4685b70d9a919100da9024507dc20bb"
   integrity sha512-8N24c4XwOigPicwc8n4ECgEoJW2/mMzRJBxu4Uo0zhLERZTbNzqpL5fyCigu7JGUXX+ITuiK4z9/lnHbYRHLwQ==
@@ -2352,10 +2352,10 @@
     "@types/react-native" "*"
     csstype "^2.2.0"
 
-"@types/testing-library__cypress@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@types/testing-library__cypress/-/testing-library__cypress-5.0.2.tgz#b7ceef8efb5de417f7daedd76b6e30d63ae8dbf0"
-  integrity sha512-Q4U1/HOY7EDUtwyHYMFOHTRrkOH/nClz6MudjtDxRlgmIudmVzuXJmNFNGR4GmcXovNc2fJFXsGaRUKZT0Df/w==
+"@types/testing-library__cypress@^5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@types/testing-library__cypress/-/testing-library__cypress-5.0.3.tgz#94969b7c1eea96e09d8e023a1d225590fa75a1fe"
+  integrity sha512-efMwaVnsWEBDz0Ikm84Kh/oiUxMfz5LQtWx/Y6s2Bj0KkQ6+569/101X3Gz2bJy+otaXWPzOUOwDeAfzOJWoeQ==
   dependencies:
     "@types/testing-library__dom" "*"
     cypress "*"
