@@ -172,7 +172,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     sems_candidates.county_code = ? and
     candidates.contest_id = sems_candidates.contest_id and candidates.candidate_id = sems_candidates.candidate_id and
     candidates.party_id = parties.party_id
-    order by candidates.sort_seq"""
+    order by cast(candidates.sort_seq as integer)"""
 
     for contest in contests:
         contest["candidates"] = [{

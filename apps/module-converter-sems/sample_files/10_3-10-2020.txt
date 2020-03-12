@@ -1,0 +1,202 @@
+0, "GEMS Import Data", 1, 5, 1, 1, 1, 1
+1, "2020 Primary Election", "3/10/2020"
+2, -1, 1, "United States"
+2, -1, 100000047, "US House Of Representatives"
+3, 0, 775000001, "ACKERMAN COMMUNITY CENTER"
+3, 0, 2890, "BEAT 3 COUNTY BARN"
+3, 0, 2888, "BLANTON'S PIANO SERVICE"
+3, 0, 2898, "BYWY FIRE DEPARTMENT"
+3, 0, 2885, "CHESTER COMMUNITY CENTER"
+3, 0, 2887, "FRENCH CAMP FIRE DEPARTMENT"
+3, 0, 2889, "HEBRON ROAD"
+3, 0, 2897, "MT HERMON UMC"
+3, 0, 775000002, "PANHANDLE FIRE DEPARTMENT"
+3, 0, 2894, "REFORM FIRE DEPARTMENT"
+3, 0, 2896, "SHERWOOD COMMUNITY CENTER"
+3, 0, 2886, "WEIR FIRE DEPARTMENT"
+3, 0, 2899, "WEIR SCHOOL GYMNASIUM"
+4, 2898, 6538, 22725, "Bywy", 0, "1D"
+4, 2898, 6538, 575002363, "Bywy", 0, "1D"
+4, 2898, 6538, 22725, "Bywy", 0, "2R"
+4, 2898, 6538, 575002363, "Bywy", 0, "2R"
+4, 2885, 6524, 22683, "Chester", 0, "1D"
+4, 2885, 6524, 22683, "Chester", 0, "2R"
+4, 775000001, 6522, 22713, "District 5", 0, "1D"
+4, 775000001, 6522, 775000004, "District 5", 0, "1D"
+4, 775000001, 6522, 775000993, "District 5", 0, "1D"
+4, 775000001, 6522, 775000994, "District 5", 0, "1D"
+4, 775000001, 6522, 775000995, "District 5", 0, "1D"
+4, 775000001, 6522, 775000996, "District 5", 0, "1D"
+4, 775000001, 6522, 775001002, "District 5", 0, "1D"
+4, 775000001, 6522, 775001003, "District 5", 0, "1D"
+4, 775000001, 6522, 775001004, "District 5", 0, "1D"
+4, 775000001, 6522, 775001005, "District 5", 0, "1D"
+4, 775000001, 6522, 22713, "District 5", 0, "2R"
+4, 775000001, 6522, 775000004, "District 5", 0, "2R"
+4, 775000001, 6522, 775000993, "District 5", 0, "2R"
+4, 775000001, 6522, 775000994, "District 5", 0, "2R"
+4, 775000001, 6522, 775000995, "District 5", 0, "2R"
+4, 775000001, 6522, 775000996, "District 5", 0, "2R"
+4, 775000001, 6522, 775001002, "District 5", 0, "2R"
+4, 775000001, 6522, 775001003, "District 5", 0, "2R"
+4, 775000001, 6522, 775001004, "District 5", 0, "2R"
+4, 775000001, 6522, 775001005, "District 5", 0, "2R"
+4, 2886, 6525, 22686, "East Weir", 0, "1D"
+4, 2886, 6525, 22687, "East Weir", 0, "1D"
+4, 2886, 6525, 775001116, "East Weir", 0, "1D"
+4, 2886, 6525, 775001117, "East Weir", 0, "1D"
+4, 2886, 6525, 22686, "East Weir", 0, "2R"
+4, 2886, 6525, 22687, "East Weir", 0, "2R"
+4, 2886, 6525, 775001116, "East Weir", 0, "2R"
+4, 2886, 6525, 775001117, "East Weir", 0, "2R"
+4, 2887, 6526, 22689, "French Camp", 0, "1D"
+4, 2887, 6526, 575000859, "French Camp", 0, "1D"
+4, 2887, 6526, 22689, "French Camp", 0, "2R"
+4, 2887, 6526, 575000859, "French Camp", 0, "2R"
+4, 2888, 6527, 22691, "Fentress", 0, "1D"
+4, 2888, 6527, 22692, "Fentress", 0, "1D"
+4, 2888, 6527, 775000997, "Fentress", 0, "1D"
+4, 2888, 6527, 775000998, "Fentress", 0, "1D"
+4, 2888, 6527, 775002731, "Fentress", 0, "1D"
+4, 2888, 6527, 22691, "Fentress", 0, "2R"
+4, 2888, 6527, 22692, "Fentress", 0, "2R"
+4, 2888, 6527, 775000997, "Fentress", 0, "2R"
+4, 2888, 6527, 775000998, "Fentress", 0, "2R"
+4, 2888, 6527, 775002731, "Fentress", 0, "2R"
+4, 2889, 6528, 22695, "Hebron", 0, "1D"
+4, 2889, 6528, 22695, "Hebron", 0, "2R"
+4, 2890, 6529, 22697, "Kenego", 0, "1D"
+4, 2890, 6529, 22697, "Kenego", 0, "2R"
+4, 775000002, 6532, 22706, "Panhandle", 0, "1D"
+4, 775000002, 6532, 22706, "Panhandle", 0, "2R"
+4, 2894, 6534, 22710, "Reform", 0, "1D"
+4, 2894, 6534, 22710, "Reform", 0, "2R"
+4, 2896, 6536, 22719, "Sherwood", 0, "1D"
+4, 2896, 6536, 775002424, "Sherwood", 0, "1D"
+4, 2896, 6536, 22719, "Sherwood", 0, "2R"
+4, 2896, 6536, 775002424, "Sherwood", 0, "2R"
+4, 2897, 6537, 22724, "Southwest Ackerman", 0, "1D"
+4, 2897, 6537, 775000999, "Southwest Ackerman", 0, "1D"
+4, 2897, 6537, 775001000, "Southwest Ackerman", 0, "1D"
+4, 2897, 6537, 775002728, "Southwest Ackerman", 0, "1D"
+4, 2897, 6537, 22724, "Southwest Ackerman", 0, "2R"
+4, 2897, 6537, 775000999, "Southwest Ackerman", 0, "2R"
+4, 2897, 6537, 775001000, "Southwest Ackerman", 0, "2R"
+4, 2897, 6537, 775002728, "Southwest Ackerman", 0, "2R"
+4, 2899, 6539, 22728, "West Weir", 0, "1D"
+4, 2899, 6539, 775001118, "West Weir", 0, "1D"
+4, 2899, 6539, 22728, "West Weir", 0, "2R"
+4, 2899, 6539, 775001118, "West Weir", 0, "2R"
+5, 22683, 1
+5, 22683, 100000047
+5, 22686, 1
+5, 22686, 100000047
+5, 22687, 1
+5, 22687, 100000047
+5, 22689, 1
+5, 22689, 100000047
+5, 22691, 1
+5, 22691, 100000047
+5, 22692, 1
+5, 22692, 100000047
+5, 22695, 1
+5, 22695, 100000047
+5, 22697, 1
+5, 22697, 100000047
+5, 22706, 1
+5, 22706, 100000047
+5, 22709, 1
+5, 22709, 100000047
+5, 22710, 1
+5, 22710, 100000047
+5, 22713, 1
+5, 22713, 100000047
+5, 22719, 1
+5, 22719, 100000047
+5, 22724, 1
+5, 22724, 100000047
+5, 22725, 1
+5, 22725, 100000047
+5, 22728, 1
+5, 22728, 100000047
+5, 575000859, 1
+5, 575000859, 100000047
+5, 575002363, 1
+5, 575002363, 100000047
+5, 775000004, 1
+5, 775000004, 100000047
+5, 775000993, 1
+5, 775000993, 100000047
+5, 775000994, 1
+5, 775000994, 100000047
+5, 775000995, 1
+5, 775000995, 100000047
+5, 775000996, 1
+5, 775000996, 100000047
+5, 775000997, 1
+5, 775000997, 100000047
+5, 775000998, 1
+5, 775000998, 100000047
+5, 775000999, 1
+5, 775000999, 100000047
+5, 775001000, 1
+5, 775001000, 100000047
+5, 775001002, 1
+5, 775001002, 100000047
+5, 775001003, 1
+5, 775001003, 100000047
+5, 775001004, 1
+5, 775001004, 100000047
+5, 775001005, 1
+5, 775001005, 100000047
+5, 775001116, 1
+5, 775001116, 100000047
+5, 775001117, 1
+5, 775001117, 100000047
+5, 775001118, 1
+5, 775001118, 100000047
+5, 775002424, 1
+5, 775002424, 100000047
+5, 775002728, 1
+5, 775002728, 100000047
+5, 775002731, 1
+5, 775002731, 100000047
+6, 2, "Democrat", "D", 2, "Democrat"
+6, 3, "Republican", "R", 3, "Republican"
+6, 4, "Libertarian", "L", 4, "Libertarian"
+6, 5, "Reform", "REF", 5, "Reform"
+6, 6, "Natural Law", "N", 6, "Natural Law"
+6, 8, "Constitution", "C", 8, "Constitution"
+6, 9, "Green", "G", 9, "Green"
+6, 10, "America First", "A", 10, "America First"
+6, 11, "Independent", "I", 11, "Independent"
+6, 12, "Nonpartisan", "NP", 12, "Nonpartisan"
+6, 575000001, "Justice", "JUS", 575000001, "Justice"
+6, 575000002, "Prohibition", "PRO", 575000002, "Prohibition"
+6, 575000003, "American Delta", "ADP", 575000003, "American Delta"
+6, 575000004, "Veterans", "VET", 575000004, "Veterans"
+7, 775020738, "President-Democrat",0, 0, 1, 1, 1, "United States\nPresident\n4 YEAR TERM\nVote for ONE", 2, 0
+7, 775020740, "Senate -Democrat",0, 0, 1, 1, 1, "United States\nSenate \n6 YEAR TERM\nVote for ONE", 2, 0
+7, 775020730, "1st Congressional District-Democrat",0, 0, 100000047, 1, 1, "US House Of Rep 01\n1st Congressional District\n2 YEAR TERM\nVote for ONE", 2, 0
+7, 775020739, "President-Republican",0, 0, 1, 1, 1, "United States\nPresident\n4 YEAR TERM\nVote for ONE", 3, 0
+7, 775020741, "Senate -Republican",0, 0, 1, 1, 1, "United States\nSenate \n6 YEAR TERM\nVote for ONE", 3, 0
+7, 775020731, "1st Congressional District-Republican",0, 0, 100000047, 1, 1, "US House Of Rep 01\n1st Congressional District\n2 YEAR TERM\nVote for ONE", 3, 0
+8, 775020738, 1, "BIDEN JOSEPH R",0, 1, 2, "Joseph R. Biden"
+8, 775020738, 2, "BLOOMBERG MICHAEL R",0, 2, 2, "Michael R. Bloomberg"
+8, 775020738, 3, "BUTTIGIEG PETE",0, 3, 2, "Pete Buttigieg"
+8, 775020738, 4, "GABBARD TULSI",0, 4, 2, "Tulsi Gabbard"
+8, 775020738, 5, "KLOBUCHAR AMY",0, 5, 2, "Amy Klobuchar"
+8, 775020738, 6, "PATRICK DEVAL",0, 6, 2, "Deval Patrick"
+8, 775020738, 7, "SANDERS BERNIE",0, 7, 2, "Bernie Sanders"
+8, 775020738, 8, "STEYER TOM",0, 8, 2, "Tom Steyer"
+8, 775020738, 9, "WARREN ELIZABETH",0, 9, 2, "Elizabeth Warren"
+8, 775020738, 10, "YANG ANDREW",0, 10, 2, "Andrew Yang"
+8, 775020740, 1, "BARTEE TOBEY BERNARD",0, 1, 2, "Tobey Bernard Bartee"
+8, 775020740, 2, "BOHREN JENSEN D",0, 2, 2, "Jensen Bohren"
+8, 775020740, 3, "ESPY MICHAEL WILLIAM",0, 3, 2, "Mike Espy"
+8, 775020730, 2, "ELIASON ANTONIA LILLIAN",0, 2, 2, "Antonia Eliason"
+8, 775020739, 1, "DE LA FUENTA ROQUE "ROCKY"",0, 1, 3, "Roque 'Rocky' De La Fuente"
+8, 775020739, 2, "TRUMP DONALD J",0, 2, 3, "Donald J. Trump"
+8, 775020739, 3, "WELD WILLIAM",0, 3, 3, "Bill Weld"
+8, 775020741, 1, "SMITH CINDY HYDE",0, 1, 3, "Cindy Hyde-Smith"
+8, 775020731, 1, "KELLY TRENT",0, 1, 3, "Trent Kelly"
