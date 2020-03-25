@@ -473,7 +473,7 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@babel/parser@7.8.4", "@babel/parser@^7.0.0", "@babel/parser@^7.1.0", "@babel/parser@^7.4.4", "@babel/parser@^7.7.4", "@babel/parser@^7.8.0", "@babel/parser@^7.8.3", "@babel/parser@^7.8.4":
+"@babel/parser@7.8.4", "@babel/parser@^7.0.0", "@babel/parser@^7.1.0", "@babel/parser@^7.4.4", "@babel/parser@^7.7.4", "@babel/parser@^7.8.3", "@babel/parser@^7.8.4", "@babel/parser@^7.9.0":
   version "7.8.4"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.8.4.tgz#d1dbe64691d60358a974295fa53da074dd2ce8e8"
   integrity sha512-0fKu/QqildpXmPVaRBoXOlyBb3MC+J0A66x97qEfLOMkn3u6nfY5esWogQwi/K0BjASYy4DbnsEWnpNL6qT5Mw==
@@ -1602,12 +1602,12 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@codemod/parser@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@codemod/parser/-/parser-1.0.6.tgz#0cc89acde17eaa947dfcce00d5bb019bb6a1a7e7"
-  integrity sha512-pF4ZxphbGPunNcwuedlXp7TZQpLQNLgEVoY6uHSEzX/eYqrCX6vzkfMKQcM4zktx1iTh9D2vEd18C/iueLdsvw==
+"@codemod/parser@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@codemod/parser/-/parser-1.0.7.tgz#00e69a53c88c8dc1f8b2f6b75346485cdd4a5f87"
+  integrity sha512-GSrc8CvwDN24GluYQ7xDBMMQo5mFJO6cs2/jZssfDjOalRKKKb9UqvkNYFuYXXm4buRAF23Soih9bpPhcDxA/g==
   dependencies:
-    "@babel/parser" "^7.8.0"
+    "@babel/parser" "^7.9.0"
 
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
