@@ -1,6 +1,5 @@
 import {
   BallotType,
-  Candidate,
   CompletedBallot,
   Contests,
   Election,
@@ -14,16 +13,18 @@ import * as jsfeat from 'jsfeat'
 import { v4 as uuid } from 'uuid'
 import findContests from './hmpb/findContests'
 import findTargets from './hmpb/findTargets'
+import { addVote } from './hmpb/votes'
 import { detect } from './metadata'
 import {
   BallotPageLayout,
   BallotPageMetadata,
   InterpretedBallot,
+  Rect,
 } from './types'
 import defined from './utils/defined'
 import { rectPoints } from './utils/geometry'
 import { map, reversed, zip, zipMin } from './utils/iterators'
-import diffGrayscaleImages from './utils/jsfeat/diffGrayscaleImages'
+import { diffImagesScore } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
 
@@ -169,10 +170,7 @@ export default class Interpreter {
 
     strictEqual(template.contests.length, contests.length)
 
-    for (const [{ targets, bounds }, contest] of zip(
-      template.contests,
-      contests
-    )) {
+    for (const [{ targets }, contest] of zip(template.contests, contests)) {
       if (contest.type === 'candidate') {
         const expectedTargets =
           contest.candidates.length +
@@ -185,24 +183,21 @@ export default class Interpreter {
         }
 
         for (const [target, candidate] of zipMin(targets, contest.candidates)) {
-          if (candidate.id === '41') {
-            const diff = diffGrayscaleImages(
-              ballotMat,
-              templateMat,
-              target,
-              target
-            )
-            const score =
-              [...diff.data].reduce(
-                (sum, value) => sum + (value > 127 ? 1 : 0),
-                0
-              ) /
-              (target.width * target.height)
+          if (this.isTargetMarked(ballotMat, templateMat, target)) {
+            addVote(votes, contest, candidate)
+          }
+        }
 
-            if (score >= 0.3) {
-              const contestVotes = (votes[contest.id] ?? []) as Candidate[]
-              contestVotes.push(candidate)
-              votes[contest.id] = contestVotes
+        if (contest.allowWriteIns) {
+          const writeInTargets = targets.slice(contest.candidates.length)
+
+          for (const writeInTarget of writeInTargets) {
+            if (this.isTargetMarked(ballotMat, templateMat, writeInTarget)) {
+              addVote(votes, contest, {
+                id: '__write-in',
+                name: 'Write-In',
+                isWriteIn: true,
+              })
             }
           }
         }
@@ -212,10 +207,31 @@ export default class Interpreter {
             `Contest ${contest.id} is supposed to have two targets (yes/no), but found ${targets.length}.`
           )
         }
+
+        const [yesTarget, noTarget] = targets
+        const yesMarked = this.isTargetMarked(ballotMat, templateMat, yesTarget)
+        const noMarked = this.isTargetMarked(ballotMat, templateMat, noTarget)
+
+        if (yesMarked && noMarked) {
+          // TODO: communicate this overvote somehow
+        } else if (yesMarked || noMarked) {
+          addVote(votes, contest, yesMarked ? 'yes' : 'no')
+        }
       }
     }
 
     return votes
+  }
+
+  private isTargetMarked(
+    ballotMat: jsfeat.matrix_t,
+    templateMat: jsfeat.matrix_t,
+    target: Rect,
+    { threshold = 0.3 } = {}
+  ): boolean {
+    const score = diffImagesScore(ballotMat, templateMat, target, target)
+
+    return score >= threshold
   }
 
   private mapBallotOntoTemplate(

@@ -1,7 +1,7 @@
 import { matrix_t, U8C1_t } from 'jsfeat'
 import { Rect } from '../../types'
 
-export default function diffGrayscaleImages(
+export function diffGrayscaleImages(
   base: matrix_t,
   current: matrix_t,
   baseBounds: Rect,
@@ -53,4 +53,17 @@ export default function diffGrayscaleImages(
   }
 
   return diff
+}
+
+export function diffImagesScore(
+  base: matrix_t,
+  current: matrix_t,
+  baseBounds: Rect,
+  currentBounds: Rect
+): number {
+  const diff = diffGrayscaleImages(base, current, baseBounds, currentBounds)
+  return (
+    [...diff.data].reduce((sum, value) => sum + (value > 127 ? 1 : 0), 0) /
+    (baseBounds.width * baseBounds.height)
+  )
 }

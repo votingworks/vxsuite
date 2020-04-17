@@ -1,4 +1,10 @@
-import { templatePage1, templatePage2, yvonneDavis } from '../test/fixtures'
+import {
+  templatePage1,
+  templatePage2,
+  yvonneDavis,
+  fullVotesPage1,
+  fullVotesPage2,
+} from '../test/fixtures'
 import election from '../test/fixtures/election'
 import Interpreter from './Interpreter'
 
@@ -275,4 +281,100 @@ test('interpret single vote', async () => {
       }),
     ],
   })
+})
+
+test('interpret multiple vote', async () => {
+  const interpreter = new Interpreter(election)
+
+  await interpreter.addTemplate(await templatePage1.imageData())
+  await interpreter.addTemplate(await templatePage2.imageData())
+
+  const { ballot } = await interpreter.interpretBallot(
+    await fullVotesPage1.imageData()
+  )
+  expect(ballot.votes).toMatchInlineSnapshot(`
+    Object {
+      "1": Array [
+        Object {
+          "id": "14",
+          "name": "Tim Smith",
+          "partyId": "6",
+        },
+      ],
+      "2": Array [
+        Object {
+          "id": "21",
+          "incumbent": true,
+          "name": "Eddie Bernice Johnson",
+          "partyId": "2",
+        },
+      ],
+      "3": Array [
+        Object {
+          "id": "31",
+          "incumbent": true,
+          "name": "Jane Bland",
+          "partyId": "3",
+        },
+      ],
+      "4": Array [
+        Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+      "5": Array [
+        Object {
+          "id": "51",
+          "incumbent": true,
+          "name": "John Ames",
+          "partyId": "2",
+        },
+      ],
+      "6": Array [
+        Object {
+          "id": "62",
+          "name": "Chad Prda",
+          "partyId": "3",
+        },
+      ],
+      "7": Array [
+        Object {
+          "id": "73",
+          "name": "Andrew Jewell",
+          "partyId": "7",
+        },
+      ],
+    }
+  `)
+})
+
+test('invalid marks', async () => {
+  const interpreter = new Interpreter(election)
+
+  await interpreter.addTemplate(await templatePage1.imageData())
+  await interpreter.addTemplate(await templatePage2.imageData())
+
+  const { ballot } = await interpreter.interpretBallot(
+    await fullVotesPage2.imageData()
+  )
+  // TODO: communicate invalid marks somehow instead of just ignoring them
+  expect(ballot.votes).toMatchInlineSnapshot(`
+    Object {
+      "10": Array [
+        Object {
+          "id": "rupp",
+          "name": "Randall Rupp",
+          "partyId": "2",
+        },
+        Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+      "9": "yes",
+    }
+  `)
 })

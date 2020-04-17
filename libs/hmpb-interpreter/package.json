@@ -13,7 +13,9 @@
     "test:watch": "jest --watch"
   },
   "files": [
-    "dist"
+    "dist",
+    "!*.test.{js,d.ts}",
+    "!dist/test"
   ],
   "husky": {
     "hooks": {
