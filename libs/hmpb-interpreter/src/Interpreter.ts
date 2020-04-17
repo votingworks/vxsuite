@@ -254,12 +254,7 @@ export default class Interpreter {
     const homography = new jsfeat.motion_model.homography2d()
     const transform = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t)
 
-    homography.run(
-      templatePoints as any,
-      ballotPoints as any,
-      transform,
-      ballotPoints.length
-    )
+    homography.run(templatePoints, ballotPoints, transform, ballotPoints.length)
 
     const mappedImage = new jsfeat.matrix_t(
       templateMat.cols,

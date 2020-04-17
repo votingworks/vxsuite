@@ -50,8 +50,8 @@ export function findShape(
   let xMax = startingPoint.x
   let yMax = startingPoint.y
 
-  while (toVisit.length > 0) {
-    const { x, y } = toVisit.shift()!
+  for (let point: Point | undefined; (point = toVisit.shift()); point) {
+    const { x, y } = point
 
     if (visitedPoints.has(x, y)) {
       continue

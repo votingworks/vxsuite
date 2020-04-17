@@ -1,9 +1,14 @@
 import { join } from 'path'
 import { readImageData } from './utils'
 
-const fixture = (filePath: string) => ({
-  id: () => filePath,
-  imageData: () => readImageData(filePath),
+export interface Fixture {
+  id(): string
+  imageData(): Promise<ImageData>
+}
+
+const fixture = (filePath: string): Fixture => ({
+  id: (): string => filePath,
+  imageData: (): Promise<ImageData> => readImageData(filePath),
 })
 
 export const templatePage1 = fixture(
