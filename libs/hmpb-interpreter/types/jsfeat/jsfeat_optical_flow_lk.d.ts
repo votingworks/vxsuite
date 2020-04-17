@@ -1,0 +1,2 @@
+export function track(prev_pyr: import("./jsfeat_struct/pyramid_t").default, curr_pyr: import("./jsfeat_struct/pyramid_t").default, prev_xy: number[], curr_xy: number[], count: number, win_size: number, max_iter?: number | undefined, status?: Uint8Array | undefined, eps?: number | undefined, min_eigen_threshold?: number | undefined): void;
+export type pyramid_t = import("./jsfeat_struct/pyramid_t").default;

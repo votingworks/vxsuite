@@ -1,0 +1,13 @@
+export function identity(M: import("./jsfeat_struct/matrix_t").default, value?: number | undefined): void;
+export function transpose(At: import("./jsfeat_struct/matrix_t").default, A: import("./jsfeat_struct/matrix_t").default): void;
+export function multiply(C: import("./jsfeat_struct/matrix_t").default, A: import("./jsfeat_struct/matrix_t").default, B: import("./jsfeat_struct/matrix_t").default): void;
+export function multiply_ABt(C: import("./jsfeat_struct/matrix_t").default, A: import("./jsfeat_struct/matrix_t").default, B: import("./jsfeat_struct/matrix_t").default): void;
+export function multiply_AtB(C: import("./jsfeat_struct/matrix_t").default, A: import("./jsfeat_struct/matrix_t").default, B: import("./jsfeat_struct/matrix_t").default): void;
+export function multiply_AAt(C: import("./jsfeat_struct/matrix_t").default, A: import("./jsfeat_struct/matrix_t").default): void;
+export function multiply_AtA(C: import("./jsfeat_struct/matrix_t").default, A: import("./jsfeat_struct/matrix_t").default): void;
+export function identity_3x3(M: import("./jsfeat_struct/matrix_t").default, value?: number | undefined): void;
+export function invert_3x3(from: import("./jsfeat_struct/matrix_t").default, to: import("./jsfeat_struct/matrix_t").default): void;
+export function multiply_3x3(C: import("./jsfeat_struct/matrix_t").default, A: import("./jsfeat_struct/matrix_t").default, B: import("./jsfeat_struct/matrix_t").default): void;
+export function mat3x3_determinant(M: import("./jsfeat_struct/matrix_t").default): number;
+export function determinant_3x3(M11: number, M12: number, M13: number, M21: number, M22: number, M23: number, M31: number, M32: number, M33: number): number;
+export type matrix_t = import("./jsfeat_struct/matrix_t").default;

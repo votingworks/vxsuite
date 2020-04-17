@@ -1,0 +1,20 @@
+export function grayscale(src: Float32Array, w: number, h: number, dst: matrix_t, code?: number | undefined): void;
+export function resample(src: matrix_t, dst: matrix_t, nw: number, nh: number): void;
+export function box_blur_gray(src: matrix_t, dst: matrix_t, radius: number, options?: number | undefined): void;
+export function gaussian_blur(src: matrix_t, dst: matrix_t, kernel_size?: number | undefined, sigma?: number | undefined): void;
+export function hough_transform(img: matrix_t, rho_res: number, theta_res: number, threshold: number): [number, number][];
+export function pyrdown(src: matrix_t, dst: matrix_t, sx?: number | undefined, sy?: number | undefined): void;
+export function scharr_derivatives(src: matrix_t, dst: matrix_t): void;
+export function sobel_derivatives(src: matrix_t, dst: matrix_t): void;
+export function compute_integral_image(src: matrix_t, dst_sum: Uint8Array | Int32Array | Float32Array | Float64Array, dst_sqsum: Uint8Array | Int32Array | Float32Array | Float64Array, dst_tilted: Uint8Array | Int32Array | Float32Array | Float64Array): void;
+export function equalize_histogram(src: matrix_t, dst: matrix_t): void;
+export function canny(src: matrix_t, dst: matrix_t, low_thresh: number, high_thresh: number): void;
+export function warp_perspective(src: matrix_t, dst: matrix_t, transform: matrix_t, fill_value?: number | undefined): void;
+export function warp_affine(src: matrix_t, dst: matrix_t, transform: matrix_t, fill_value?: number | undefined): void;
+export function skindetector(src: {
+    width: number;
+    height: number;
+    data: number[];
+}, dst: Uint8Array): void;
+export type Data = Uint8Array | Int32Array | Float32Array | Float64Array;
+import matrix_t from "./jsfeat_struct/matrix_t";
