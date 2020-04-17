@@ -36,7 +36,6 @@
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
     "@yarnpkg/pnpify": "^2.0.0-rc.20",
-    "canvas": "^2.6.1",
     "eslint": "^6.8.0",
     "husky": "^4.2.5",
     "jest": "^25.3.0",
@@ -48,6 +47,7 @@
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "^1.2.0",
+    "canvas": "^2.6.1",
     "jsfeat": "^0.0.8",
     "node-quirc": "^2.2.1",
     "uuid": "^7.0.3"
