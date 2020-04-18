@@ -1,12 +1,8 @@
 import { join } from 'path'
-import { readImageData } from './utils'
+import { Input } from '../src'
+import { readImageData } from '../src/utils/readImageData'
 
-export interface Fixture {
-  id(): string
-  imageData(): Promise<ImageData>
-}
-
-const fixture = (filePath: string): Fixture => ({
+const fixture = (filePath: string): Input => ({
   id: (): string => filePath,
   imageData: (): Promise<ImageData> => readImageData(filePath),
 })
