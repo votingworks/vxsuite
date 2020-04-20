@@ -7,7 +7,10 @@ import { Election } from '@votingworks/ballot-encoder'
 
 import { CVRCallbackParams, CastVoteRecord, BatchInfo } from './types'
 import Store from './store'
-import interpretFile, { interpretBallotData } from './interpreter'
+import DefaultInterpreter, {
+  Interpreter,
+  interpretBallotData,
+} from './interpreter'
 import { Scanner } from './scanner'
 
 interface CVRCallbackWithBatchIDParams extends CVRCallbackParams {
@@ -30,6 +33,7 @@ export interface Options {
   scanner: Scanner
   ballotImagesPath: string
   importedBallotImagesPath: string
+  interpreter: Interpreter
 }
 
 export interface Importer {
@@ -50,6 +54,7 @@ export default class SystemImporter implements Importer {
   private watcher?: chokidar.FSWatcher
   private store: Store
   private scanner: Scanner
+  private interpreter: Interpreter
   private manualBatchId?: number
   private onCVRAddedCallbacks: ((cvr: CastVoteRecord) => void)[] = []
 
@@ -70,12 +75,14 @@ export default class SystemImporter implements Importer {
     scanner,
     ballotImagesPath = DefaultBallotImagesPath,
     importedBallotImagesPath = DefaultImportedBallotImagesPath,
+    interpreter = new DefaultInterpreter(),
   }: Partial<Exclude<Options, 'store' | 'scanner'>> & {
     store: Store
     scanner: Scanner
   }) {
     this.store = store
     this.scanner = scanner
+    this.interpreter = interpreter
     this.ballotImagesPath = ballotImagesPath
     this.importedBallotImagesPath = importedBallotImagesPath
 
@@ -160,7 +167,7 @@ export default class SystemImporter implements Importer {
 
     const batchId = parseInt(batchIdMatch[1])
 
-    await interpretFile({
+    await this.interpreter.interpretFile({
       election: this.election,
       ballotImagePath,
       cvrCallback: ({ ballotImagePath, cvr }: CVRCallbackParams) => {

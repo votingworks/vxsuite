@@ -20,16 +20,26 @@ import { CastVoteRecord, CVRCallbackFunction } from './types'
 // TODO: do dependency-injection here instead
 import { RealZBarImage } from './zbarimg'
 
+export interface InterpretFileParams {
+  readonly election: Election
+  readonly ballotImagePath: string
+  readonly cvrCallback: CVRCallbackFunction
+}
+
+export interface Interpreter {
+  interpretFile(interpretFileParams: InterpretFileParams): Promise<void>
+}
+
 const zbarimg = new RealZBarImage()
 
 const readFile = promisify(readFileCallback)
 
-export interface InterpretBallotStringParams {
+interface InterpretBallotStringParams {
   readonly election: Election
   readonly encodedBallot: Uint8Array
 }
 
-export function ballotToCastVoteRecord(
+function ballotToCastVoteRecord(
   ballot: CompletedBallot
 ): CastVoteRecord | undefined {
   // TODO: Replace all this with a `CompletedBallot` -> `CastVoteRecord` mapper.
@@ -78,12 +88,6 @@ export function interpretBallotData({
   return ballotToCastVoteRecord(ballot)
 }
 
-export interface InterpretFileParams {
-  readonly election: Election
-  readonly ballotImagePath: string
-  readonly cvrCallback: CVRCallbackFunction
-}
-
 async function readQRCodeFromImageData(
   imageData: Buffer
 ): Promise<Buffer | undefined> {
@@ -102,21 +106,23 @@ export async function readQRCodeFromImageFile(
   )
 }
 
-export default async function interpretFile(
-  interpretFileParams: InterpretFileParams
-) {
-  const { election, ballotImagePath, cvrCallback } = interpretFileParams
+export default class SummaryBallotInterpreter implements Interpreter {
+  public constructor() {}
 
-  try {
-    const encodedBallot = await readQRCodeFromImageFile(ballotImagePath)
+  public async interpretFile(interpretFileParams: InterpretFileParams) {
+    const { election, ballotImagePath, cvrCallback } = interpretFileParams
 
-    if (!encodedBallot) {
-      throw new Error(`no QR codes found in ballot image: ${ballotImagePath}`)
+    try {
+      const encodedBallot = await readQRCodeFromImageFile(ballotImagePath)
+
+      if (!encodedBallot) {
+        throw new Error(`no QR codes found in ballot image: ${ballotImagePath}`)
+      }
+
+      const cvr = interpretBallotData({ election, encodedBallot })
+      cvrCallback({ ballotImagePath, cvr })
+    } catch {
+      return cvrCallback({ ballotImagePath })
     }
-
-    const cvr = interpretBallotData({ election, encodedBallot })
-    cvrCallback({ ballotImagePath, cvr })
-  } catch {
-    return cvrCallback({ ballotImagePath })
   }
 }
