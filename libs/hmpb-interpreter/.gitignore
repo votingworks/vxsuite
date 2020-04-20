@@ -14,3 +14,4 @@ node_modules
 .yarn/build-state.yml
 
 debug*.png
+votingworks-hmpb-interpreter*.tgz

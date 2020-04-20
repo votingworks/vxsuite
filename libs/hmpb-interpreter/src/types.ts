@@ -53,3 +53,8 @@ export interface UninterpretedBallot {
   ballotImage: BallotImage
   reason: string | Error
 }
+
+export interface Input {
+  id(): string
+  imageData(): Promise<ImageData>
+}
