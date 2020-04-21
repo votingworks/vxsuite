@@ -97,12 +97,12 @@ async function readQRCodeFromImageData(
 }
 
 export async function readQRCodeFromImageFile(
-  path: string
+  filepath: string
 ): Promise<Buffer | undefined> {
-  const imageData = await readFile(path)
+  const imageData = await readFile(filepath)
   return (
     (await readQRCodeFromImageData(imageData)) ||
-    (await zbarimg.readQRCodeFromImage(path))
+    (await zbarimg.readQRCodeFromImage({ filepath }))
   )
 }
 

@@ -1,7 +1,11 @@
 import execFile from './exec'
 
+interface ZBarImageParams {
+  readonly filepath: string
+}
+
 export interface ZBarImage {
-  readQRCodeFromImage(filepath: string): Promise<Buffer | undefined>
+  readQRCodeFromImage(params: ZBarImageParams): Promise<Buffer | undefined>
 }
 
 /**
@@ -9,9 +13,9 @@ export interface ZBarImage {
  * when it's a binary QR Code
  */
 export class RealZBarImage implements ZBarImage {
-  public async readQRCodeFromImage(
-    filepath: string
-  ): Promise<Buffer | undefined> {
+  public async readQRCodeFromImage({
+    filepath,
+  }: ZBarImageParams): Promise<Buffer | undefined> {
     try {
       const { stdout } = await execFile('zbarimg', ['--raw', `${filepath}`])
 
