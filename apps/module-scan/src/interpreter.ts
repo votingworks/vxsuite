@@ -107,8 +107,6 @@ export async function readQRCodeFromImageFile(
 }
 
 export default class SummaryBallotInterpreter implements Interpreter {
-  public constructor() {}
-
   public async interpretFile(interpretFileParams: InterpretFileParams) {
     const { election, ballotImagePath, cvrCallback } = interpretFileParams
 
