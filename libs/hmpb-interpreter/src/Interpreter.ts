@@ -14,7 +14,7 @@ import { v4 as uuid } from 'uuid'
 import findContests from './hmpb/findContests'
 import findTargets from './hmpb/findTargets'
 import { addVote } from './hmpb/votes'
-import { detect } from './metadata'
+import { DecodeQRCode, detect } from './metadata'
 import {
   BallotPageLayout,
   BallotPageMetadata,
@@ -27,6 +27,11 @@ import { map, reversed, zip, zipMin } from './utils/iterators'
 import { diffImagesScore } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
+
+export interface Options {
+  readonly election: Election
+  decodeQRCode?: DecodeQRCode
+}
 
 /**
  * Interprets ballot images based on templates. A template is simply an empty
@@ -46,7 +51,19 @@ export default class Interpreter {
     BallotPageMetadata['ballotStyleId'],
     (BallotPageLayout | undefined)[]
   >()
-  public constructor(private election: Election) {}
+  private election: Election
+  private decodeQRCode?: DecodeQRCode
+
+  public constructor(election: Election)
+  public constructor(options: Options)
+  public constructor(optionsOrElection: Options | Election) {
+    if ('election' in optionsOrElection) {
+      this.election = optionsOrElection.election
+      this.decodeQRCode = optionsOrElection.decodeQRCode
+    } else {
+      this.election = optionsOrElection
+    }
+  }
 
   /**
    * Adds a template so that this `Interpreter` will be able to scan ballots
@@ -85,7 +102,8 @@ export default class Interpreter {
     imageData: ImageData,
     metadata?: BallotPageMetadata
   ): Promise<BallotPageLayout> {
-    metadata = metadata ?? (await detect(imageData))
+    metadata =
+      metadata ?? (await detect(imageData, { decodeQRCode: this.decodeQRCode }))
     const grayscale = readGrayscaleImage(imageData)
     const contests = [
       ...map(findContests(grayscale), ({ bounds }) => ({

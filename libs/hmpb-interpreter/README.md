@@ -36,6 +36,26 @@ const interpretedBallot = await interpreter.interpretBallot(imageData)
 console.log('Interpreted ballot:', interpretedBallot)
 ```
 
+### Customizing QR Code Decoder
+
+This library uses [`node-quirc`](https://github.com/dlbeer/quirc/) to decode QR
+codes. If you wish to supply your own decoder, pass `decodeQRCode` to
+`Interpreter` like so:
+
+```ts
+// Example custom QR code reader using jsQR
+import jsQR from 'jsqr'
+import { Interpreter } from '@votingworks/hmpb-interpreter'
+
+const interpreter = new Interpreter({
+  election,
+  async decodeQRCode(imageData: ImageData): Promise<Buffer | undefined> {
+    const code = jsQR(imageData.data, imageData.width, imageData.height)
+    return code ? Buffer.from(code.binaryData) : undefined
+  })
+})
+```
+
 ## CLI Usage
 
 ```sh
