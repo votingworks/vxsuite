@@ -159,7 +159,8 @@ export default class Interpreter {
       )
     }
 
-    metadata = metadata ?? (await detect(imageData))
+    metadata =
+      metadata ?? (await detect(imageData, { decodeQRCode: this.decodeQRCode }))
     const ballotMat = readGrayscaleImage(imageData)
     const contests = findContests(ballotMat)
     const ballotLayout: BallotPageLayout = {
