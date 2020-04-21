@@ -3,6 +3,8 @@ import defined from './utils/defined'
 import crop from './utils/jsfeat/crop'
 import * as qrcode from './utils/qrcode'
 
+export type DecodeQRCode = (imageData: ImageData) => Promise<Buffer | undefined>
+
 export class MetadataDecodeError extends Error {}
 
 export function decodeSearchParams(
@@ -31,7 +33,8 @@ export function decodeSearchParams(
 }
 
 export async function detect(
-  imageData: ImageData
+  imageData: ImageData,
+  { decodeQRCode = qrcode.decode }: { decodeQRCode?: DecodeQRCode } = {}
 ): Promise<BallotPageMetadata> {
   const x = Math.floor((imageData.width * 7) / 8)
   const y = Math.floor((imageData.height * 7) / 8)
@@ -41,7 +44,7 @@ export async function detect(
     width: imageData.width - x,
     height: imageData.height - y,
   })
-  const data = await qrcode.decode(cropped)
+  const data = await decodeQRCode(cropped)
 
   if (!data) {
     throw new MetadataDecodeError('Expected QR code not found.')

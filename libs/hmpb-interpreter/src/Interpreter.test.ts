@@ -1,9 +1,9 @@
 import {
+  fullVotesPage1,
+  fullVotesPage2,
   templatePage1,
   templatePage2,
   yvonneDavis,
-  fullVotesPage1,
-  fullVotesPage2,
 } from '../test/fixtures'
 import election from '../test/fixtures/election'
 import Interpreter from './Interpreter'
@@ -377,4 +377,23 @@ test('invalid marks', async () => {
       "9": "yes",
     }
   `)
+})
+
+test('custom QR code reader', async () => {
+  const interpreter = new Interpreter({
+    election,
+    decodeQRCode: async (): Promise<Buffer> =>
+      Buffer.from('https://vx.vote?t=t&pr=11&bs=22&p=3-4'),
+  })
+  const template = await interpreter.interpretTemplate(
+    await templatePage1.imageData()
+  )
+
+  expect(template.ballotImage.metadata).toEqual({
+    ballotStyleId: '22',
+    precinctId: '11',
+    isTestBallot: true,
+    pageNumber: 3,
+    pageCount: 4,
+  })
 })
