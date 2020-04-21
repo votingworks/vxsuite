@@ -53,16 +53,20 @@ export default class Interpreter {
    * printed from it. The template image should be an image of a blank ballot,
    * either scanned or otherwise rendered as an image.
    */
-  public async addTemplate(imageData: ImageData): Promise<BallotPageLayout>
+  public async addTemplate(
+    imageData: ImageData,
+    metadata?: BallotPageMetadata
+  ): Promise<BallotPageLayout>
   public async addTemplate(
     template: BallotPageLayout
   ): Promise<BallotPageLayout>
   public async addTemplate(
-    imageDataOrTemplate: ImageData | BallotPageLayout
+    imageDataOrTemplate: ImageData | BallotPageLayout,
+    metadata?: BallotPageMetadata
   ): Promise<BallotPageLayout> {
     const template =
       'data' in imageDataOrTemplate
-        ? await this.interpretTemplate(imageDataOrTemplate)
+        ? await this.interpretTemplate(imageDataOrTemplate, metadata)
         : imageDataOrTemplate
     const templates =
       this.templates.get(template.ballotImage.metadata.ballotStyleId) ??
