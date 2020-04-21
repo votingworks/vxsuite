@@ -529,8 +529,14 @@ test('interpret multiple vote', async () => {
 test('invalid marks', async () => {
   const interpreter = new Interpreter(election)
 
-  await interpreter.addTemplate(await templatePage1.imageData())
-  await interpreter.addTemplate(await templatePage2.imageData())
+  await interpreter.addTemplate(
+    await templatePage1.imageData(),
+    await templatePage1.metadata()
+  )
+  await interpreter.addTemplate(
+    await templatePage2.imageData(),
+    await templatePage2.metadata()
+  )
 
   const { ballot } = await interpreter.interpretBallot(
     await fullVotesPage2.imageData()
