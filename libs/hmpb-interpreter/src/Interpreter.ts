@@ -28,6 +28,19 @@ import { diffImagesScore } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
 
+/**
+ * Interprets ballot images based on templates. A template is simply an empty
+ * ballot and should be exactly what is given to a voter for them to mark.
+ *
+ * @example
+ *
+ * ```ts
+ * const interpreter = new Interpreter(election)
+ * await interpreter.addTemplate(templatePage1)
+ * await interpreter.addTemplate(templatePage2)
+ * console.log(await interpreter.interpretBallot(ballotPage1))
+ * ```
+ */
 export default class Interpreter {
   private templates = new Map<
     BallotPageMetadata['ballotStyleId'],
@@ -35,6 +48,11 @@ export default class Interpreter {
   >()
   public constructor(private election: Election) {}
 
+  /**
+   * Adds a template so that this `Interpreter` will be able to scan ballots
+   * printed from it. The template image should be an image of a blank ballot,
+   * either scanned or otherwise rendered as an image.
+   */
   public async addTemplate(imageData: ImageData): Promise<BallotPageLayout>
   public async addTemplate(
     template: BallotPageLayout
@@ -54,6 +72,11 @@ export default class Interpreter {
     return template
   }
 
+  /**
+   * Interprets an image as a template, returning the layout information read
+   * from the image. The template image should be an image of a blank ballot,
+   * either scanned or otherwise rendered as an image.
+   */
   public async interpretTemplate(
     imageData: ImageData,
     metadata?: BallotPageMetadata
@@ -78,6 +101,10 @@ export default class Interpreter {
     }
   }
 
+  /**
+   * Determines whether there are any templates missing, i.e. the existing
+   * templates do not account for all contests in all ballot styles.
+   */
   public hasMissingTemplates(): boolean {
     for (const ballotStyle of this.election.ballotStyles) {
       const templates = this.templates.get(ballotStyle.id)
@@ -96,6 +123,9 @@ export default class Interpreter {
     return false
   }
 
+  /**
+   * Interprets an image as a ballot, returning information about the votes cast.
+   */
   public async interpretBallot(
     imageData: ImageData,
     metadata?: BallotPageMetadata
