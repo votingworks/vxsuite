@@ -41,7 +41,12 @@ export interface BallotPageMetadata {
 
 export interface BallotPageContestLayout {
   bounds: Rect
-  targets: readonly Rect[]
+  options: readonly BallotPageContestOptionLayout[]
+}
+
+export interface BallotPageContestOptionLayout {
+  bounds: Rect
+  target: Rect
 }
 
 export interface InterpretedBallot {

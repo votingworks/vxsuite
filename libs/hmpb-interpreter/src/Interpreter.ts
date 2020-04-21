@@ -11,6 +11,7 @@ import {
 import { strictEqual } from 'assert'
 import * as jsfeat from 'jsfeat'
 import { v4 as uuid } from 'uuid'
+import findContestOptions from './hmpb/findContestOptions'
 import findContests from './hmpb/findContests'
 import findTargets from './hmpb/findTargets'
 import { addVote } from './hmpb/votes'
@@ -105,7 +106,7 @@ export default class Interpreter {
     metadata =
       metadata ?? (await detect(imageData, { decodeQRCode: this.decodeQRCode }))
     const grayscale = readGrayscaleImage(imageData)
-    const contests = [
+    const contests = findContestOptions([
       ...map(findContests(grayscale), ({ bounds }) => ({
         bounds,
         targets: [
@@ -115,7 +116,7 @@ export default class Interpreter {
           ),
         ],
       })),
-    ]
+    ])
 
     return {
       ballotImage: { imageData, metadata },
@@ -163,7 +164,7 @@ export default class Interpreter {
     const contests = findContests(ballotMat)
     const ballotLayout: BallotPageLayout = {
       ballotImage: { imageData, metadata },
-      contests: [...map(contests, ({ bounds }) => ({ bounds, targets: [] }))],
+      contests: [...map(contests, ({ bounds }) => ({ bounds, options: [] }))],
     }
 
     const { election } = this
@@ -222,29 +223,31 @@ export default class Interpreter {
 
     strictEqual(template.contests.length, contests.length)
 
-    for (const [{ targets }, contest] of zip(template.contests, contests)) {
+    for (const [{ options }, contest] of zip(template.contests, contests)) {
       if (contest.type === 'candidate') {
-        const expectedTargets =
+        const expectedOptions =
           contest.candidates.length +
           (contest.allowWriteIns ? contest.seats : 0)
 
-        if (targets.length !== expectedTargets) {
+        if (options.length !== expectedOptions) {
           throw new Error(
-            `Contest ${contest.id} is supposed to have ${expectedTargets} target(s), but found ${targets.length}.`
+            `Contest ${contest.id} is supposed to have ${expectedOptions} options(s), but found ${options.length}.`
           )
         }
 
-        for (const [target, candidate] of zipMin(targets, contest.candidates)) {
-          if (this.isTargetMarked(ballotMat, templateMat, target)) {
+        for (const [option, candidate] of zipMin(options, contest.candidates)) {
+          if (this.isTargetMarked(ballotMat, templateMat, option.target)) {
             addVote(votes, contest, candidate)
           }
         }
 
         if (contest.allowWriteIns) {
-          const writeInTargets = targets.slice(contest.candidates.length)
+          const writeInOptions = options.slice(contest.candidates.length)
 
-          for (const writeInTarget of writeInTargets) {
-            if (this.isTargetMarked(ballotMat, templateMat, writeInTarget)) {
+          for (const writeInOption of writeInOptions) {
+            if (
+              this.isTargetMarked(ballotMat, templateMat, writeInOption.target)
+            ) {
               addVote(votes, contest, {
                 id: '__write-in',
                 name: 'Write-In',
@@ -254,15 +257,23 @@ export default class Interpreter {
           }
         }
       } else {
-        if (targets.length !== 2) {
+        if (options.length !== 2) {
           throw new Error(
-            `Contest ${contest.id} is supposed to have two targets (yes/no), but found ${targets.length}.`
+            `Contest ${contest.id} is supposed to have two options (yes/no), but found ${options.length}.`
           )
         }
 
-        const [yesTarget, noTarget] = targets
-        const yesMarked = this.isTargetMarked(ballotMat, templateMat, yesTarget)
-        const noMarked = this.isTargetMarked(ballotMat, templateMat, noTarget)
+        const [yesOption, noOption] = options
+        const yesMarked = this.isTargetMarked(
+          ballotMat,
+          templateMat,
+          yesOption.target
+        )
+        const noMarked = this.isTargetMarked(
+          ballotMat,
+          templateMat,
+          noOption.target
+        )
 
         if (yesMarked && noMarked) {
           // TODO: communicate this overvote somehow
