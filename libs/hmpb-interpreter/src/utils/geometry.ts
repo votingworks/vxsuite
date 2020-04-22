@@ -1,6 +1,6 @@
 import { Point, Rect } from '../types'
 
-export function rectPoints({ x, y, width, height }: Rect): Point[] {
+export function rectCorners({ x, y, width, height }: Rect): Point[] {
   return [
     { x, y },
     { x: x + width, y },

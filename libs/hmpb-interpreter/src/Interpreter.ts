@@ -23,7 +23,7 @@ import {
   Rect,
 } from './types'
 import defined from './utils/defined'
-import { rectPoints } from './utils/geometry'
+import { rectCorners } from './utils/geometry'
 import { map, reversed, zip, zipMin } from './utils/iterators'
 import { diffImagesScore } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
@@ -311,8 +311,8 @@ export default class Interpreter {
       { bounds: ballotContestBounds },
       { bounds: templateContestBounds },
     ] of zip(ballot.contests, template.contests)) {
-      ballotPoints.push(...rectPoints(ballotContestBounds))
-      templatePoints.push(...rectPoints(templateContestBounds))
+      ballotPoints.push(...rectCorners(ballotContestBounds))
+      templatePoints.push(...rectCorners(templateContestBounds))
     }
 
     const homography = new jsfeat.motion_model.homography2d()
