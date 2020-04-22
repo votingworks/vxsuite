@@ -449,14 +449,18 @@ test('interpret single vote', async () => {
   const { ballot } = await interpreter.interpretBallot(
     await yvonneDavis.imageData()
   )
-  expect(ballot.votes).toEqual({
-    '4': [
-      expect.objectContaining({
-        id: '41',
-        name: 'Yvonne Davis',
-      }),
-    ],
-  })
+  expect(ballot.votes).toMatchInlineSnapshot(`
+    Object {
+      "texas-house-district-111": Array [
+        Object {
+          "id": "yvonne-davis",
+          "incumbent": true,
+          "name": "Yvonne Davis",
+          "partyId": "2",
+        },
+      ],
+    }
+  `)
 })
 
 test('interpret multiple vote', async () => {
@@ -470,56 +474,56 @@ test('interpret multiple vote', async () => {
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
-      "1": Array [
+      "dallas-county-commissioners-court-pct-3": Array [
         Object {
-          "id": "14",
-          "name": "Tim Smith",
-          "partyId": "6",
+          "id": "andrew-jewell",
+          "name": "Andrew Jewell",
+          "partyId": "7",
         },
       ],
-      "2": Array [
+      "dallas-county-sheriff": Array [
         Object {
-          "id": "21",
-          "incumbent": true,
-          "name": "Eddie Bernice Johnson",
-          "partyId": "2",
-        },
-      ],
-      "3": Array [
-        Object {
-          "id": "31",
-          "incumbent": true,
-          "name": "Jane Bland",
+          "id": "chad-prda",
+          "name": "Chad Prda",
           "partyId": "3",
         },
       ],
-      "4": Array [
+      "dallas-county-tax-assessor": Array [
+        Object {
+          "id": "john-ames",
+          "incumbent": true,
+          "name": "John Ames",
+          "partyId": "2",
+        },
+      ],
+      "texas-house-district-111": Array [
         Object {
           "id": "__write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
       ],
-      "5": Array [
+      "texas-sc-judge-place-6": Array [
         Object {
-          "id": "51",
+          "id": "jane-bland",
           "incumbent": true,
-          "name": "John Ames",
-          "partyId": "2",
-        },
-      ],
-      "6": Array [
-        Object {
-          "id": "62",
-          "name": "Chad Prda",
+          "name": "Jane Bland",
           "partyId": "3",
         },
       ],
-      "7": Array [
+      "us-house-district-30": Array [
         Object {
-          "id": "73",
-          "name": "Andrew Jewell",
-          "partyId": "7",
+          "id": "eddie-bernice-johnson",
+          "incumbent": true,
+          "name": "Eddie Bernice Johnson",
+          "partyId": "2",
+        },
+      ],
+      "us-senate": Array [
+        Object {
+          "id": "tim-smith",
+          "name": "Tim Smith",
+          "partyId": "6",
         },
       ],
     }
@@ -544,9 +548,9 @@ test('invalid marks', async () => {
   // TODO: communicate invalid marks somehow instead of just ignoring them
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
-      "10": Array [
+      "dallas-city-council": Array [
         Object {
-          "id": "rupp",
+          "id": "randall-rupp",
           "name": "Randall Rupp",
           "partyId": "2",
         },
@@ -556,7 +560,7 @@ test('invalid marks', async () => {
           "name": "Write-In",
         },
       ],
-      "9": "yes",
+      "dallas-county-proposition-r": "yes",
     }
   `)
 })
