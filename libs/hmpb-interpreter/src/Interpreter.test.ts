@@ -7,6 +7,7 @@ import {
 } from '../test/fixtures'
 import election from '../test/fixtures/election'
 import Interpreter from './Interpreter'
+import { vh as flipVH } from './utils/flip'
 
 test('interpret two-column template', async () => {
   const interpreter = new Interpreter(election)
@@ -582,4 +583,33 @@ test('custom QR code reader', async () => {
     pageNumber: 3,
     pageCount: 4,
   })
+})
+
+test('upside-down ballot', async () => {
+  const interpreter = new Interpreter(election)
+
+  await interpreter.addTemplate(
+    await templatePage1.imageData(),
+    await templatePage1.metadata()
+  )
+  await interpreter.addTemplate(
+    await templatePage2.imageData(),
+    await templatePage2.metadata()
+  )
+
+  const { ballot } = await interpreter.interpretBallot(
+    flipVH(await yvonneDavis.imageData())
+  )
+  expect(ballot.votes).toMatchInlineSnapshot(`
+    Object {
+      "texas-house-district-111": Array [
+        Object {
+          "id": "yvonne-davis",
+          "incumbent": true,
+          "name": "Yvonne Davis",
+          "partyId": "2",
+        },
+      ],
+    }
+  `)
 })

@@ -23,6 +23,7 @@ import {
   Rect,
 } from './types'
 import defined from './utils/defined'
+import { vh as flipVH } from './utils/flip'
 import { rectCorners } from './utils/geometry'
 import { map, reversed, zip, zipMin } from './utils/iterators'
 import { diffImagesScore } from './utils/jsfeat/diff'
@@ -103,8 +104,11 @@ export default class Interpreter {
     imageData: ImageData,
     metadata?: BallotPageMetadata
   ): Promise<BallotPageLayout> {
-    metadata =
-      metadata ?? (await detect(imageData, { decodeQRCode: this.decodeQRCode }))
+    ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
+      imageData,
+      metadata
+    ))
+
     const grayscale = readGrayscaleImage(imageData)
     const contests = findContestOptions([
       ...map(findContests(grayscale), ({ bounds }) => ({
@@ -159,8 +163,11 @@ export default class Interpreter {
       )
     }
 
-    metadata =
-      metadata ?? (await detect(imageData, { decodeQRCode: this.decodeQRCode }))
+    ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
+      imageData,
+      metadata
+    ))
+
     const ballotMat = readGrayscaleImage(imageData)
     const contests = findContests(ballotMat)
     const ballotLayout: BallotPageLayout = {
@@ -210,6 +217,25 @@ export default class Interpreter {
     }
 
     return { matchedTemplate, ballot }
+  }
+
+  private async normalizeImageDataAndMetadata(
+    imageData: ImageData,
+    metadata?: BallotPageMetadata
+  ): Promise<{ imageData: ImageData; metadata: BallotPageMetadata }> {
+    if (metadata) {
+      return { imageData, metadata }
+    }
+
+    const detectResult = await detect(imageData, {
+      decodeQRCode: this.decodeQRCode,
+    })
+    metadata = detectResult.metadata
+    if (detectResult.flipped) {
+      imageData = flipVH(imageData)
+    }
+
+    return { imageData, metadata }
   }
 
   private getVotesForBallot(

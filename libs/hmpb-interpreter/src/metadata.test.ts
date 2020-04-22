@@ -1,6 +1,7 @@
+import { createImageData } from 'canvas'
 import { croppedQRCode, templatePage1 } from '../test/fixtures'
 import { decodeSearchParams, detect } from './metadata'
-import { createImageData } from 'canvas'
+import { vh as flipVH } from './utils/flip'
 
 test('URL decoding', () => {
   expect(
@@ -42,11 +43,14 @@ test('cropped QR code', async () => {
 
 test('ballot', async () => {
   expect(await detect(await templatePage1.imageData())).toEqual({
-    ballotStyleId: '77',
-    precinctId: '42',
-    isTestBallot: true,
-    pageNumber: 1,
-    pageCount: 2,
+    metadata: {
+      ballotStyleId: '77',
+      precinctId: '42',
+      isTestBallot: true,
+      pageNumber: 1,
+      pageCount: 2,
+    },
+    flipped: false,
   })
 })
 
@@ -57,10 +61,26 @@ test('custom QR code reader', async () => {
         Buffer.from('https://vx.vote?t=t&pr=11&bs=22&p=3-4'),
     })
   ).toEqual({
-    ballotStyleId: '22',
-    precinctId: '11',
-    isTestBallot: true,
-    pageNumber: 3,
-    pageCount: 4,
+    metadata: {
+      ballotStyleId: '22',
+      precinctId: '11',
+      isTestBallot: true,
+      pageNumber: 3,
+      pageCount: 4,
+    },
+    flipped: false,
+  })
+})
+
+test('upside-down ballot images', async () => {
+  expect(await detect(flipVH(await templatePage1.imageData()))).toEqual({
+    metadata: {
+      ballotStyleId: '77',
+      precinctId: '42',
+      isTestBallot: true,
+      pageNumber: 1,
+      pageCount: 2,
+    },
+    flipped: true,
   })
 })
