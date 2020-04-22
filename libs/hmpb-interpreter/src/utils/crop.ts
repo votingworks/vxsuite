@@ -1,5 +1,5 @@
 import { createCanvas } from 'canvas'
-import { Rect } from '../../types'
+import { Rect } from '../types'
 
 export default function crop(imageData: ImageData, bounds: Rect): ImageData {
   const canvas = createCanvas(bounds.width, bounds.height)

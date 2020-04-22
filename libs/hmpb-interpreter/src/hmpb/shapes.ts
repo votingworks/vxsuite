@@ -43,7 +43,7 @@ export function findShape(
 ): Shape {
   const toVisit: Point[] = [startingPoint]
   const points = new Map2d<number, number, boolean>()
-  const { data, cols, channel } = image
+  const { data, cols, rows, channel } = image
 
   let xMin = startingPoint.x
   let yMin = startingPoint.y
@@ -82,7 +82,13 @@ export function findShape(
           const nextX = x + xD
           const nextY = y + yD
 
-          if (!points.has(nextX, nextY)) {
+          if (
+            nextX > 0 &&
+            nextY > 0 &&
+            nextX < cols &&
+            nextY < rows &&
+            !points.has(nextX, nextY)
+          ) {
             toVisit.push({ x: nextX, y: nextY })
           }
         }
