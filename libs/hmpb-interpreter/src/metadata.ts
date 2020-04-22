@@ -1,6 +1,6 @@
 import { BallotPageMetadata } from './types'
+import crop from './utils/crop'
 import defined from './utils/defined'
-import crop from './utils/jsfeat/crop'
 import * as qrcode from './utils/qrcode'
 
 export type DecodeQRCode = (imageData: ImageData) => Promise<Buffer | undefined>
