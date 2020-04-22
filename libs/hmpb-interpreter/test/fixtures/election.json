@@ -40,7 +40,7 @@
   ],
   "contests": [
     {
-      "id": "1",
+      "id": "us-senate",
       "section": "United States",
       "districtId": "12",
       "type": "candidate",
@@ -49,24 +49,40 @@
       "allowWriteIns": false,
       "candidates": [
         {
-          "id": "11",
+          "id": "john-cornyn",
           "name": "John Cornyn",
           "partyId": "3",
           "incumbent": true
         },
-        { "id": "12", "name": "James Brumley", "partyId": "4" },
-        { "id": "13", "name": "Cedric Jefferson", "partyId": "5" },
-        { "id": "14", "name": "Tim Smith", "partyId": "6" },
-        { "id": "15", "name": "Arjun Srinivasan", "partyId": "6" },
         {
-          "id": "16",
+          "id": "james-brumley",
+          "name": "James Brumley",
+          "partyId": "4"
+        },
+        {
+          "id": "cedric-jefferson",
+          "name": "Cedric Jefferson",
+          "partyId": "5"
+        },
+        {
+          "id": "tim-smith",
+          "name": "Tim Smith",
+          "partyId": "6"
+        },
+        {
+          "id": "arjun-srinivasan",
+          "name": "Arjun Srinivasan",
+          "partyId": "6"
+        },
+        {
+          "id": "ricardo-turullols-bonilla",
           "name": "Ricardo Turullols-Bonilla",
           "partyId": "6"
         }
       ]
     },
     {
-      "id": "2",
+      "id": "us-house-district-30",
       "section": "United States",
       "districtId": "12",
       "type": "candidate",
@@ -75,16 +91,20 @@
       "allowWriteIns": false,
       "candidates": [
         {
-          "id": "21",
+          "id": "eddie-bernice-johnson",
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
           "incumbent": true
         },
-        { "id": "22", "name": "Tre Pennie", "partyId": "3" }
+        {
+          "id": "tre-pennie",
+          "name": "Tre Pennie",
+          "partyId": "3"
+        }
       ]
     },
     {
-      "id": "3",
+      "id": "texas-sc-judge-place-6",
       "section": "State of Texas",
       "districtId": "12",
       "type": "candidate",
@@ -93,16 +113,20 @@
       "allowWriteIns": false,
       "candidates": [
         {
-          "id": "31",
+          "id": "jane-bland",
           "name": "Jane Bland",
           "partyId": "3",
           "incumbent": true
         },
-        { "id": "32", "name": "Kathy Cheng", "partyId": "2" }
+        {
+          "id": "kathy-cheng",
+          "name": "Kathy Cheng",
+          "partyId": "2"
+        }
       ]
     },
     {
-      "id": "4",
+      "id": "texas-house-district-111",
       "section": "State of Texas",
       "districtId": "12",
       "type": "candidate",
@@ -111,7 +135,7 @@
       "allowWriteIns": true,
       "candidates": [
         {
-          "id": "41",
+          "id": "yvonne-davis",
           "name": "Yvonne Davis",
           "partyId": "2",
           "incumbent": true
@@ -119,7 +143,7 @@
       ]
     },
     {
-      "id": "5",
+      "id": "dallas-county-tax-assessor",
       "section": "Dallas County",
       "districtId": "12",
       "type": "candidate",
@@ -128,7 +152,7 @@
       "allowWriteIns": true,
       "candidates": [
         {
-          "id": "51",
+          "id": "john-ames",
           "name": "John Ames",
           "partyId": "2",
           "incumbent": true
@@ -136,7 +160,7 @@
       ]
     },
     {
-      "id": "6",
+      "id": "dallas-county-sheriff",
       "section": "Dallas County",
       "districtId": "12",
       "type": "candidate",
@@ -145,20 +169,20 @@
       "allowWriteIns": true,
       "candidates": [
         {
-          "id": "61",
+          "id": "marian-brown",
           "name": "Marian Brown",
           "partyId": "2",
           "incumbent": true
         },
         {
-          "id": "62",
+          "id": "chad-prda",
           "name": "Chad Prda",
           "partyId": "3"
         }
       ]
     },
     {
-      "id": "7",
+      "id": "dallas-county-commissioners-court-pct-3",
       "section": "Dallas County",
       "districtId": "12",
       "type": "candidate",
@@ -167,25 +191,25 @@
       "allowWriteIns": true,
       "candidates": [
         {
-          "id": "71",
+          "id": "john-wiley-price",
           "name": "John Wiley Price",
           "partyId": "2",
           "incumbent": true
         },
         {
-          "id": "72",
+          "id": "s-t-russell",
           "name": "S.T. Russell",
           "partyId": "3"
         },
         {
-          "id": "73",
+          "id": "andrew-jewell",
           "name": "Andrew Jewell",
           "partyId": "7"
         }
       ]
     },
     {
-      "id": "8",
+      "id": "dallas-county-retain-chief-justice",
       "section": "Dallas County",
       "districtId": "12",
       "type": "yesno",
@@ -193,7 +217,7 @@
       "description": "Shall Robert Demergue be retained as Chief Justice of the Dallas County Court of Appeals?"
     },
     {
-      "id": "9",
+      "id": "dallas-county-proposition-r",
       "section": "Dallas County",
       "districtId": "12",
       "type": "yesno",
@@ -201,7 +225,7 @@
       "description": "Shall the Dallas County extend the Recycling Program countywide?"
     },
     {
-      "id": "10",
+      "id": "dallas-city-council",
       "districtId": "12",
       "section": "City of Dallas",
       "type": "candidate",
@@ -209,32 +233,32 @@
       "seats": 3,
       "candidates": [
         {
-          "id": "eagle",
+          "id": "harvey-eagle",
           "name": "Harvey Eagle",
           "partyId": "2"
         },
         {
-          "id": "rupp",
+          "id": "randall-rupp",
           "name": "Randall Rupp",
           "partyId": "2"
         },
         {
-          "id": "shry",
+          "id": "carroll-shry",
           "name": "Carroll Shry",
           "partyId": "2"
         },
         {
-          "id": "barker",
+          "id": "beverly-barker",
           "name": "Beverly Barker",
           "partyId": "3"
         },
         {
-          "id": "davis",
+          "id": "donald-davis",
           "name": "Donald Davis",
           "partyId": "3"
         },
         {
-          "id": "smith",
+          "id": "hugo-smith",
           "name": "Hugo Smith",
           "partyId": "3"
         }
@@ -242,7 +266,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "11",
+      "id": "dallas-mayor",
       "districtId": "12",
       "type": "candidate",
       "section": "City of Dallas",
