@@ -470,7 +470,7 @@ test('interpret multiple vote', async () => {
   await interpreter.addTemplate(await templatePage1.imageData())
   await interpreter.addTemplate(await templatePage2.imageData())
 
-  const { ballot } = await interpreter.interpretBallot(
+  const { ballot, marks } = await interpreter.interpretBallot(
     await fullVotesPage1.imageData()
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
@@ -528,6 +528,129 @@ test('interpret multiple vote', async () => {
         },
       ],
     }
+  `)
+
+  expect(
+    marks.map((mark) =>
+      mark.type === 'yesno'
+        ? { type: mark.type, option: mark.option, score: mark.score }
+        : mark.type === 'candidate'
+        ? { type: mark.type, option: mark.option.name, score: mark.score }
+        : { type: mark.type, bounds: mark.bounds }
+    )
+  ).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "option": "John Cornyn",
+        "score": 0.045773348098929495,
+        "type": "candidate",
+      },
+      Object {
+        "option": "James Brumley",
+        "score": 0.01473922902494331,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Cedric Jefferson",
+        "score": 0.03136810279667423,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Tim Smith",
+        "score": 0.46485260770975056,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Arjun Srinivasan",
+        "score": 0.05020302694721299,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Ricardo Turullols-Bonilla",
+        "score": 0.015873015873015872,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Eddie Bernice Johnson",
+        "score": 0.4130675526024363,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Tre Pennie",
+        "score": 0.02343159486016629,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Jane Bland",
+        "score": 0.33758439609902474,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Kathy Cheng",
+        "score": 0.03854875283446712,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Yvonne Davis",
+        "score": 0.060538944259874494,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Write-In",
+        "score": 0.45351473922902497,
+        "type": "candidate",
+      },
+      Object {
+        "option": "John Ames",
+        "score": 0.42005813953488375,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Write-In",
+        "score": 0.0200302343159486,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Marian Brown",
+        "score": 0.08692365835222977,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Chad Prda",
+        "score": 0.390400604686319,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Write-In",
+        "score": 0.03322259136212625,
+        "type": "candidate",
+      },
+      Object {
+        "option": "John Wiley Price",
+        "score": 0.02040816326530612,
+        "type": "candidate",
+      },
+      Object {
+        "option": "S.T. Russell",
+        "score": 0.039634146341463415,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Andrew Jewell",
+        "score": 0.41496598639455784,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Write-In",
+        "score": 0.033854166666666664,
+        "type": "candidate",
+      },
+      Object {
+        "option": "Write-In",
+        "score": 0.02758881330309902,
+        "type": "candidate",
+      },
+    ]
   `)
 })
 

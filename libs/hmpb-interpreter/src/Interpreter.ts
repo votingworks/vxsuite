@@ -20,6 +20,9 @@ import {
   BallotPageLayout,
   BallotPageMetadata,
   InterpretedBallot,
+  InterpretedBallotCandidateTargetMark,
+  InterpretedBallotMark,
+  InterpretedBallotYesNoTargetMark,
   Rect,
 } from './types'
 import defined from './utils/defined'
@@ -197,13 +200,20 @@ export default class Interpreter {
         (offset, template) => offset + (template?.contests.length ?? 0),
         0
       )
-    const votes = this.getVotesForBallot(
+    const marks = this.getMarksForBallot(
       ballotLayout,
       matchedTemplate,
       getContests({ ballotStyle, election }).slice(
         contestOffset,
         contestOffset + matchedTemplate.contests.length
       )
+    )
+    const votes = this.getVotesFromMarks(
+      getContests({ ballotStyle, election }).slice(
+        contestOffset,
+        contestOffset + matchedTemplate.contests.length
+      ),
+      marks
     )
 
     const ballot: CompletedBallot = {
@@ -216,7 +226,77 @@ export default class Interpreter {
       votes,
     }
 
-    return { matchedTemplate, ballot }
+    return { matchedTemplate, ballot, marks }
+  }
+
+  private getVotesFromMarks(
+    contests: Contests,
+    marks: readonly InterpretedBallotMark[],
+    { markScoreThreshold = 0.3 } = {}
+  ): VotesDict {
+    const votes: VotesDict = {}
+
+    for (const contest of contests) {
+      const contestMarks = marks.filter(
+        (mark) => mark.contest?.id === contest.id
+      )
+
+      if (contest.type === 'candidate') {
+        const candidateMarks = contestMarks as readonly InterpretedBallotCandidateTargetMark[]
+        const expectedOptions =
+          contest.candidates.length +
+          (contest.allowWriteIns ? contest.seats : 0)
+
+        if (candidateMarks.length !== expectedOptions) {
+          throw new Error(
+            `Contest ${contest.id} is supposed to have ${expectedOptions} options(s), but found ${candidateMarks.length}.`
+          )
+        }
+
+        for (const [mark, candidate] of zipMin(
+          candidateMarks,
+          contest.candidates
+        )) {
+          if (mark.score >= markScoreThreshold) {
+            addVote(votes, contest, candidate)
+          }
+        }
+
+        if (contest.allowWriteIns) {
+          const writeInMarks = candidateMarks.slice(contest.candidates.length)
+
+          for (const writeInMark of writeInMarks) {
+            if (writeInMark.score >= markScoreThreshold) {
+              addVote(votes, contest, {
+                id: '__write-in',
+                name: 'Write-In',
+                isWriteIn: true,
+              })
+            }
+          }
+        }
+      } else {
+        const yesNoMarks = contestMarks as readonly InterpretedBallotYesNoTargetMark[]
+
+        if (yesNoMarks.length !== 2) {
+          throw new Error(
+            `Contest ${contest.id} is supposed to have two options (yes/no), but found ${yesNoMarks.length}.`
+          )
+        }
+
+        const [yesMark, noMark] = yesNoMarks
+        const yesMarked = yesMark.score >= markScoreThreshold
+        const noMarked = noMark.score >= markScoreThreshold
+
+        if (yesMarked && noMarked) {
+          // You can't pick both, so don't record a vote here.
+        } else if (yesMarked || noMarked) {
+          addVote(votes, contest, yesMarked ? 'yes' : 'no')
+        }
+      }
+    }
+
+    return votes
   }
 
   private async normalizeImageDataAndMetadata(
@@ -238,15 +318,15 @@ export default class Interpreter {
     return { imageData, metadata }
   }
 
-  private getVotesForBallot(
+  private getMarksForBallot(
     ballotLayout: BallotPageLayout,
     template: BallotPageLayout,
     contests: Contests
-  ): VotesDict {
+  ): readonly InterpretedBallotMark[] {
     const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template)
     const templateMat = readGrayscaleImage(template.ballotImage.imageData)
     const ballotMat = readGrayscaleImage(mappedBallot)
-    const votes: VotesDict = {}
+    const marks: InterpretedBallotMark[] = []
 
     strictEqual(template.contests.length, contests.length)
 
@@ -263,24 +343,46 @@ export default class Interpreter {
         }
 
         for (const [option, candidate] of zipMin(options, contest.candidates)) {
-          if (this.isTargetMarked(ballotMat, templateMat, option.target)) {
-            addVote(votes, contest, candidate)
+          const score = this.targetMarkScore(
+            ballotMat,
+            templateMat,
+            option.target
+          )
+          const mark: InterpretedBallotCandidateTargetMark = {
+            type: 'candidate',
+            // TODO: Look for the actual mark shape bounds.
+            bounds: option.target,
+            contest,
+            score,
+            target: option.target,
+            option: candidate,
           }
+          marks.push(mark)
         }
 
         if (contest.allowWriteIns) {
           const writeInOptions = options.slice(contest.candidates.length)
 
           for (const writeInOption of writeInOptions) {
-            if (
-              this.isTargetMarked(ballotMat, templateMat, writeInOption.target)
-            ) {
-              addVote(votes, contest, {
+            const score = this.targetMarkScore(
+              ballotMat,
+              templateMat,
+              writeInOption.target
+            )
+            const mark: InterpretedBallotCandidateTargetMark = {
+              type: 'candidate',
+              // TODO: Look for the actual mark shape bounds.
+              bounds: writeInOption.target,
+              contest,
+              score,
+              target: writeInOption.target,
+              option: {
                 id: '__write-in',
                 name: 'Write-In',
                 isWriteIn: true,
-              })
+              },
             }
+            marks.push(mark)
           }
         }
       } else {
@@ -291,37 +393,49 @@ export default class Interpreter {
         }
 
         const [yesOption, noOption] = options
-        const yesMarked = this.isTargetMarked(
+        const yesScore = this.targetMarkScore(
           ballotMat,
           templateMat,
           yesOption.target
         )
-        const noMarked = this.isTargetMarked(
+        const yesMark: InterpretedBallotYesNoTargetMark = {
+          type: 'yesno',
+          // TODO: Look for the actual mark shape bounds.
+          bounds: yesOption.target,
+          contest,
+          option: 'yes',
+          score: yesScore,
+          target: yesOption.target,
+        }
+        marks.push(yesMark)
+
+        const noScore = this.targetMarkScore(
           ballotMat,
           templateMat,
           noOption.target
         )
-
-        if (yesMarked && noMarked) {
-          // TODO: communicate this overvote somehow
-        } else if (yesMarked || noMarked) {
-          addVote(votes, contest, yesMarked ? 'yes' : 'no')
+        const noMark: InterpretedBallotYesNoTargetMark = {
+          type: 'yesno',
+          // TODO: Look for the actual mark shape bounds.
+          bounds: noOption.target,
+          contest,
+          option: 'yes',
+          score: noScore,
+          target: noOption.target,
         }
+        marks.push(noMark)
       }
     }
 
-    return votes
+    return marks
   }
 
-  private isTargetMarked(
+  private targetMarkScore(
     ballotMat: jsfeat.matrix_t,
     templateMat: jsfeat.matrix_t,
-    target: Rect,
-    { threshold = 0.3 } = {}
-  ): boolean {
-    const score = diffImagesScore(ballotMat, templateMat, target, target)
-
-    return score >= threshold
+    target: Rect
+  ): number {
+    return diffImagesScore(ballotMat, templateMat, target, target)
   }
 
   private mapBallotOntoTemplate(
