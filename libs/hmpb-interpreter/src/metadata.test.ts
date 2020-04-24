@@ -73,7 +73,11 @@ test('custom QR code reader', async () => {
 })
 
 test('upside-down ballot images', async () => {
-  expect(await detect(flipVH(await templatePage1.imageData()))).toEqual({
+  const imageData = await templatePage1.imageData()
+
+  flipVH(imageData)
+
+  expect(await detect(imageData)).toEqual({
     metadata: {
       ballotStyleId: '77',
       precinctId: '42',

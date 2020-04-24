@@ -312,7 +312,7 @@ export default class Interpreter {
     })
     metadata = detectResult.metadata
     if (detectResult.flipped) {
-      imageData = flipVH(imageData)
+      flipVH(imageData)
     }
 
     return { imageData, metadata }
