@@ -1,12 +1,17 @@
 import { createImageData } from 'canvas'
 import { vh } from './flip'
 
-test('vh does nothing to 1x1 image', () => {
+test('vh does nothing to 1x1 image (rgba)', () => {
   const image = createImageData(Uint8ClampedArray.of(42, 42, 42, 255), 1, 1)
   expect([...vh(image).data]).toEqual([...image.data])
 })
 
-test('vh flips images vertically and horizontally', () => {
+test('vh does nothing to 1x1 image (gray)', () => {
+  const image = createImageData(Uint8ClampedArray.of(42), 1, 1)
+  expect([...vh(image).data]).toEqual([...image.data])
+})
+
+test('vh flips images vertically and horizontally (rgba)', () => {
   const pixels = [
     [
       [0, 1, 2, 3],
@@ -35,5 +40,28 @@ test('vh flips images vertically and horizontally', () => {
     ...[...pixels[2][1], ...pixels[2][0]],
     ...[...pixels[1][1], ...pixels[1][0]],
     ...[...pixels[0][1], ...pixels[0][0]],
+  ])
+})
+
+test('vh flips images vertically and horizontally (gray)', () => {
+  const pixels = [
+    [0, 1],
+    [2, 3],
+    [4, 5],
+  ]
+  const image = createImageData(
+    Uint8ClampedArray.of(
+      ...[pixels[0][0], pixels[0][1]],
+      ...[pixels[1][0], pixels[1][1]],
+      ...[pixels[2][0], pixels[2][1]]
+    ),
+    2,
+    3
+  )
+
+  expect([...vh(image).data]).toEqual([
+    ...[pixels[2][1], pixels[2][0]],
+    ...[pixels[1][1], pixels[1][0]],
+    ...[pixels[0][1], pixels[0][0]],
   ])
 })
