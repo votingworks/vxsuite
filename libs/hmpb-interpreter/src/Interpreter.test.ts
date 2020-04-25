@@ -24,7 +24,6 @@ test('interpret two-column template', async () => {
     }
   `)
 
-  expect(template.ballotImage.imageData).toBe(imageData)
   expect(template.contests).toMatchInlineSnapshot(`
     Array [
       Object {
