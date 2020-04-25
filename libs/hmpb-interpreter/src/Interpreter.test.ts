@@ -720,9 +720,10 @@ test('upside-down ballot', async () => {
     await templatePage2.metadata()
   )
 
-  const { ballot } = await interpreter.interpretBallot(
-    flipVH(await yvonneDavis.imageData())
-  )
+  const imageData = await yvonneDavis.imageData()
+  flipVH(imageData)
+
+  const { ballot } = await interpreter.interpretBallot(imageData)
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
       "texas-house-district-111": Array [
