@@ -1,15 +1,10 @@
-import { BallotPageMetadata, Rect } from './types'
-import crop from './utils/crop'
+import { BallotPageMetadata, DetectQRCode } from './types'
 import defined from './utils/defined'
-import { flipRectVH } from './utils/geometry'
 import * as qrcode from './utils/qrcode'
 
 export interface DetectOptions {
-  decodeQRCode?: DecodeQRCode
-  searchBounds?: Rect
+  detectQRCode?: DetectQRCode
 }
-
-export type DecodeQRCode = (imageData: ImageData) => Promise<Buffer | undefined>
 
 export interface DetectResult {
   metadata: BallotPageMetadata
@@ -43,60 +38,17 @@ export function decodeSearchParams(
   }
 }
 
-async function detectInBounds(
-  imageData: ImageData,
-  { decodeQRCode, searchBounds }: Required<DetectOptions>
-): Promise<BallotPageMetadata | undefined> {
-  const cropped = crop(imageData, searchBounds)
-  const data = await decodeQRCode(cropped)
-
-  if (!data) {
-    return
-  }
-
-  const qrtext = new TextDecoder().decode(data)
-  return decodeSearchParams(new URL(qrtext).searchParams)
-}
-
 export async function detect(
   imageData: ImageData,
-  { decodeQRCode = qrcode.decode, searchBounds }: DetectOptions = {}
+  { detectQRCode = qrcode.default }: DetectOptions = {}
 ): Promise<DetectResult> {
-  if (!searchBounds) {
-    const x = Math.floor((imageData.width * 3) / 4)
-    const y = Math.floor((imageData.height * 3) / 4)
-    searchBounds = {
-      x,
-      y,
-      width: imageData.width - x,
-      height: imageData.height - y,
-    }
+  const result = await detectQRCode(imageData)
+
+  if (!result) {
+    throw new MetadataDecodeError('Expected QR code not found.')
   }
 
-  const metadata = await detectInBounds(imageData, {
-    decodeQRCode,
-    searchBounds,
-  })
-
-  if (metadata) {
-    return { metadata, flipped: false }
-  }
-
-  const searchBoundsFlipped = flipRectVH(
-    { x: 0, y: 0, width: imageData.width, height: imageData.height },
-    searchBounds
-  )
-  const metadataFlipped = await detectInBounds(imageData, {
-    decodeQRCode,
-    searchBounds: searchBoundsFlipped,
-  })
-
-  if (metadataFlipped) {
-    return {
-      metadata: metadataFlipped,
-      flipped: true,
-    }
-  }
-
-  throw new MetadataDecodeError('Expected QR code not found.')
+  const qrtext = new TextDecoder().decode(result.data)
+  const metadata = decodeSearchParams(new URL(qrtext).searchParams)
+  return { metadata, flipped: result.rightSideUp === false }
 }

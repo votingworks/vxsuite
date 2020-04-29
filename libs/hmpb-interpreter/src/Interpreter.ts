@@ -15,10 +15,11 @@ import findContestOptions from './hmpb/findContestOptions'
 import findContests from './hmpb/findContests'
 import findTargets from './hmpb/findTargets'
 import { addVote } from './hmpb/votes'
-import { DecodeQRCode, detect } from './metadata'
+import { detect } from './metadata'
 import {
   BallotPageLayout,
   BallotPageMetadata,
+  DetectQRCode,
   InterpretedBallot,
   InterpretedBallotCandidateTargetMark,
   InterpretedBallotMark,
@@ -35,7 +36,10 @@ import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
 
 export interface Options {
   readonly election: Election
-  decodeQRCode?: DecodeQRCode
+  detectQRCode?: DetectQRCode
+
+  /** @deprecated */
+  decodeQRCode?: DetectQRCode
 }
 
 /**
@@ -57,14 +61,15 @@ export default class Interpreter {
     (BallotPageLayout | undefined)[]
   >()
   private election: Election
-  private decodeQRCode?: DecodeQRCode
+  private detectQRCode?: DetectQRCode
 
   public constructor(election: Election)
   public constructor(options: Options)
   public constructor(optionsOrElection: Options | Election) {
     if ('election' in optionsOrElection) {
       this.election = optionsOrElection.election
-      this.decodeQRCode = optionsOrElection.decodeQRCode
+      this.detectQRCode =
+        optionsOrElection.detectQRCode ?? optionsOrElection.decodeQRCode
     } else {
       this.election = optionsOrElection
     }
@@ -308,7 +313,7 @@ export default class Interpreter {
     }
 
     const detectResult = await detect(imageData, {
-      decodeQRCode: this.decodeQRCode,
+      detectQRCode: this.detectQRCode,
     })
     metadata = detectResult.metadata
     if (detectResult.flipped) {
