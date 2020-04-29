@@ -1,6 +1,6 @@
 {
   "name": "@votingworks/hmpb-interpreter",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Interprets hand-marked paper ballots.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
