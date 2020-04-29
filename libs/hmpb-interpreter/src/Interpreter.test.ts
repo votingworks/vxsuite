@@ -7,6 +7,7 @@ import {
 } from '../test/fixtures'
 import election from '../test/fixtures/election'
 import Interpreter from './Interpreter'
+import { DetectQRCodeResult } from './types'
 import { vh as flipVH } from './utils/flip'
 
 test('interpret two-column template', async () => {
@@ -691,8 +692,9 @@ test('invalid marks', async () => {
 test('custom QR code reader', async () => {
   const interpreter = new Interpreter({
     election,
-    decodeQRCode: async (): Promise<Buffer> =>
-      Buffer.from('https://vx.vote?t=t&pr=11&bs=22&p=3-4'),
+    detectQRCode: async (): Promise<DetectQRCodeResult> => ({
+      data: Buffer.from('https://vx.vote?t=t&pr=11&bs=22&p=3-4'),
+    }),
   })
   const template = await interpreter.interpretTemplate(
     await templatePage1.imageData()

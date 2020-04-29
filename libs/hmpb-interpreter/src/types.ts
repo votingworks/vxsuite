@@ -100,3 +100,12 @@ export interface Input {
   id(): string
   imageData(): Promise<ImageData>
 }
+
+export interface DetectQRCode {
+  (imageData: ImageData): Promise<DetectQRCodeResult | undefined>
+}
+
+export interface DetectQRCodeResult {
+  data: Buffer
+  rightSideUp?: boolean
+}

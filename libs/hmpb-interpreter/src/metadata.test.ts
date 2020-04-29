@@ -1,7 +1,7 @@
-import { createImageData } from 'canvas'
 import { croppedQRCode, templatePage1 } from '../test/fixtures'
 import { decodeSearchParams, detect } from './metadata'
 import { vh as flipVH } from './utils/flip'
+import { jsqr } from './utils/qrcode'
 
 test('URL decoding', () => {
   expect(
@@ -54,11 +54,27 @@ test('ballot', async () => {
   })
 })
 
+test('alternate QR code reader', async () => {
+  expect(
+    await detect(await templatePage1.imageData(), { detectQRCode: jsqr })
+  ).toEqual({
+    metadata: {
+      ballotStyleId: '77',
+      precinctId: '42',
+      isTestBallot: true,
+      pageNumber: 1,
+      pageCount: 2,
+    },
+    flipped: false,
+  })
+})
+
 test('custom QR code reader', async () => {
   expect(
-    await detect(createImageData(85, 110), {
-      decodeQRCode: async () =>
-        Buffer.from('https://vx.vote?t=t&pr=11&bs=22&p=3-4'),
+    await detect(await templatePage1.imageData(), {
+      detectQRCode: async () => ({
+        data: Buffer.from('https://vx.vote?t=t&pr=11&bs=22&p=3-4'),
+      }),
     })
   ).toEqual({
     metadata: {
