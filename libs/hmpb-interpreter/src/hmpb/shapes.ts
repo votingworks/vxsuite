@@ -1,18 +1,20 @@
-import { matrix_t } from 'jsfeat'
 import { Point, Rect } from '../types'
+import { PIXEL_BLACK } from '../utils/binarize'
+import { getImageChannelCount } from '../utils/makeImageTransform'
 import Map2d from './Map2d'
 
-export const DEFAULT_MAX_FOREGROUND_COLOR = 200
-
 export interface Shape {
-  points: Map2d<number, number, boolean>
   bounds: Rect
 }
 
+/**
+ * Finds shapes in a binarized image by looking for adjacent pixels of a
+ * specific color looking at points from a point generator.
+ */
 export function* findShapes<TNext>(
-  image: matrix_t,
+  imageData: ImageData,
   points: Generator<Point, void, TNext | undefined>,
-  { threshold = DEFAULT_MAX_FOREGROUND_COLOR } = {}
+  { color = PIXEL_BLACK } = {}
 ): Generator<Shape, void, TNext> {
   const visitedPoints = new Map2d<number, number, boolean>()
   const pointsIterator = points[Symbol.iterator]()
@@ -28,22 +30,27 @@ export function* findShapes<TNext>(
     const { x, y } = next.value
 
     if (!visitedPoints.has(x, y)) {
-      nextArg = yield findShape(image, { x, y }, visitedPoints, { threshold })
+      nextArg = yield findShape(imageData, { x, y }, visitedPoints, { color })
     } else {
       nextArg = undefined
     }
   }
 }
 
+/**
+ * Finds a shape in a binarized image by looking for adjacent pixels of a
+ * specific color starting at a given point.
+ */
 export function findShape(
-  image: matrix_t,
+  imageData: ImageData,
   startingPoint: Point,
   visitedPoints = new Map2d<number, number, boolean>(),
-  { threshold = DEFAULT_MAX_FOREGROUND_COLOR } = {}
+  { color = PIXEL_BLACK } = {}
 ): Shape {
   const toVisit: Point[] = [startingPoint]
   const points = new Map2d<number, number, boolean>()
-  const { data, cols, rows, channel } = image
+  const { data, width, height } = imageData
+  const channel = getImageChannelCount(imageData)
 
   let xMin = startingPoint.x
   let yMin = startingPoint.y
@@ -58,9 +65,8 @@ export function findShape(
     }
     visitedPoints.set(x, y, true)
 
-    const index = (x + y * cols) * channel
-    const color = data[index]
-    const isForeground = color <= threshold
+    const index = (x + y * width) * channel
+    const isForeground = data[index] === color
     points.set(x, y, isForeground)
 
     if (isForeground) {
@@ -85,8 +91,8 @@ export function findShape(
           if (
             nextX > 0 &&
             nextY > 0 &&
-            nextX < cols &&
-            nextY < rows &&
+            nextX < width &&
+            nextY < height &&
             !points.has(nextX, nextY)
           ) {
             toVisit.push({ x: nextX, y: nextY })
@@ -97,7 +103,6 @@ export function findShape(
   }
 
   return {
-    points: points.filter((_x, _y, isForeground) => isForeground),
     bounds: { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin },
   }
 }

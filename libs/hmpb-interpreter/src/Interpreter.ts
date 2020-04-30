@@ -8,7 +8,7 @@ import {
   getPrecinctById,
   VotesDict,
 } from '@votingworks/ballot-encoder'
-import { strictEqual } from 'assert'
+import { strict as assert } from 'assert'
 import * as jsfeat from 'jsfeat'
 import { v4 as uuid } from 'uuid'
 import findContestOptions from './hmpb/findContestOptions'
@@ -26,11 +26,12 @@ import {
   InterpretedBallotYesNoTargetMark,
   Rect,
 } from './types'
+import { binarize } from './utils/binarize'
 import defined from './utils/defined'
 import { vh as flipVH } from './utils/flip'
 import { rectCorners } from './utils/geometry'
 import { map, reversed, zip, zipMin } from './utils/iterators'
-import { diffImagesScore } from './utils/jsfeat/diff'
+import { ratio } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
 
@@ -117,13 +118,12 @@ export default class Interpreter {
       metadata
     ))
 
-    const grayscale = readGrayscaleImage(imageData)
     const contests = findContestOptions([
-      ...map(findContests(grayscale), ({ bounds }) => ({
+      ...map(findContests(imageData), ({ bounds }) => ({
         bounds,
         targets: [
           ...map(
-            reversed(findTargets(grayscale, bounds)),
+            reversed(findTargets(imageData, bounds)),
             ({ bounds }) => bounds
           ),
         ],
@@ -176,8 +176,7 @@ export default class Interpreter {
       metadata
     ))
 
-    const ballotMat = readGrayscaleImage(imageData)
-    const contests = findContests(ballotMat)
+    const contests = findContests(imageData)
     const ballotLayout: BallotPageLayout = {
       ballotImage: { imageData, metadata },
       contests: [...map(contests, ({ bounds }) => ({ bounds, options: [] }))],
@@ -237,7 +236,7 @@ export default class Interpreter {
   private getVotesFromMarks(
     contests: Contests,
     marks: readonly InterpretedBallotMark[],
-    { markScoreThreshold = 0.3 } = {}
+    { markScoreThreshold = 0.2 } = {}
   ): VotesDict {
     const votes: VotesDict = {}
 
@@ -308,6 +307,8 @@ export default class Interpreter {
     imageData: ImageData,
     metadata?: BallotPageMetadata
   ): Promise<{ imageData: ImageData; metadata: BallotPageMetadata }> {
+    binarize(imageData)
+
     if (metadata) {
       return { imageData, metadata }
     }
@@ -329,11 +330,9 @@ export default class Interpreter {
     contests: Contests
   ): readonly InterpretedBallotMark[] {
     const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template)
-    const templateMat = readGrayscaleImage(template.ballotImage.imageData)
-    const ballotMat = readGrayscaleImage(mappedBallot)
     const marks: InterpretedBallotMark[] = []
 
-    strictEqual(template.contests.length, contests.length)
+    assert.equal(template.contests.length, contests.length)
 
     for (const [{ options }, contest] of zip(template.contests, contests)) {
       if (contest.type === 'candidate') {
@@ -349,8 +348,8 @@ export default class Interpreter {
 
         for (const [option, candidate] of zipMin(options, contest.candidates)) {
           const score = this.targetMarkScore(
-            ballotMat,
-            templateMat,
+            template.ballotImage.imageData,
+            mappedBallot,
             option.target
           )
           const mark: InterpretedBallotCandidateTargetMark = {
@@ -370,8 +369,8 @@ export default class Interpreter {
 
           for (const writeInOption of writeInOptions) {
             const score = this.targetMarkScore(
-              ballotMat,
-              templateMat,
+              template.ballotImage.imageData,
+              mappedBallot,
               writeInOption.target
             )
             const mark: InterpretedBallotCandidateTargetMark = {
@@ -399,8 +398,8 @@ export default class Interpreter {
 
         const [yesOption, noOption] = options
         const yesScore = this.targetMarkScore(
-          ballotMat,
-          templateMat,
+          template.ballotImage.imageData,
+          mappedBallot,
           yesOption.target
         )
         const yesMark: InterpretedBallotYesNoTargetMark = {
@@ -415,8 +414,8 @@ export default class Interpreter {
         marks.push(yesMark)
 
         const noScore = this.targetMarkScore(
-          ballotMat,
-          templateMat,
+          template.ballotImage.imageData,
+          mappedBallot,
           noOption.target
         )
         const noMark: InterpretedBallotYesNoTargetMark = {
@@ -436,11 +435,11 @@ export default class Interpreter {
   }
 
   private targetMarkScore(
-    ballotMat: jsfeat.matrix_t,
-    templateMat: jsfeat.matrix_t,
+    template: ImageData,
+    ballot: ImageData,
     target: Rect
   ): number {
-    return diffImagesScore(ballotMat, templateMat, target, target)
+    return ratio(template, ballot, target, target)
   }
 
   private mapBallotOntoTemplate(
