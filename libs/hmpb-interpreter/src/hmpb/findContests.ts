@@ -1,10 +1,9 @@
-import { matrix_t } from 'jsfeat'
 import { Rect } from '../types'
 import scanColumns from './scanColumns'
 import { findShapes, Shape } from './shapes'
 
 export default function* findContests(
-  ballotImage: matrix_t,
+  ballotImage: ImageData,
   {
     inset = 0,
     minContestWidthPercent = 20,
@@ -16,17 +15,17 @@ export default function* findContests(
   const bounds: Rect = {
     x: inset,
     y: inset,
-    width: ballotImage.cols - inset,
-    height: ballotImage.rows - inset,
+    width: ballotImage.width - inset,
+    height: ballotImage.height - inset,
   }
   const minContestWidth = Math.floor(
-    (minContestWidthPercent * ballotImage.cols) / 100
+    (minContestWidthPercent * ballotImage.width) / 100
   )
   const minContestHeight = Math.floor(
-    (minContestHeightPercent * ballotImage.rows) / 100
+    (minContestHeightPercent * ballotImage.height) / 100
   )
   const maxTopContestOffset = Math.floor(
-    (maxTopContestOffsetPercent * ballotImage.rows) / 100
+    (maxTopContestOffsetPercent * ballotImage.height) / 100
   )
 
   let nextY: number | undefined

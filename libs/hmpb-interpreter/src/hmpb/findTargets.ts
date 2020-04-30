@@ -1,10 +1,9 @@
-import { matrix_t } from 'jsfeat'
 import { Rect } from '../types'
 import scanColumns from './scanColumns'
 import { findShapes, Shape } from './shapes'
 
 export default function* findTargets(
-  ballotImage: matrix_t,
+  ballotImage: ImageData,
   bounds: Rect,
   { aspectRatio = 1.5, aspectRatioTolerance = 0.1 } = {}
 ): Generator<Shape> {

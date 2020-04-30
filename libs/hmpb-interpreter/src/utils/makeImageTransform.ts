@@ -75,6 +75,17 @@ export function assertRGBAOrGrayscaleImage(imageData: ImageData): void {
   }
 }
 
+export function assertImageChannelsMatch(
+  imageData1: ImageData,
+  imageData2: ImageData
+): void {
+  assert.equal(
+    getImageChannelCount(imageData1),
+    getImageChannelCount(imageData2),
+    'expected images to have the same number of channels'
+  )
+}
+
 export function assertImageSizesMatch(
   imageData1: ImageData,
   imageData2: ImageData
@@ -86,10 +97,14 @@ export function assertImageSizesMatch(
   )
 }
 
+export function getImageChannelCount(imageData: ImageData): number {
+  return imageData.data.length / (imageData.width * imageData.height)
+}
+
 export function isGrayscale(imageData: ImageData): boolean {
-  return imageData.data.length / (imageData.width * imageData.height) === 1
+  return getImageChannelCount(imageData) === 1
 }
 
 export function isRGBA(imageData: ImageData): boolean {
-  return imageData.data.length / (imageData.width * imageData.height) === 4
+  return getImageChannelCount(imageData) === 4
 }

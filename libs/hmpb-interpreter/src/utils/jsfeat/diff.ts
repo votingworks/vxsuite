@@ -1,69 +1,133 @@
-import { matrix_t, U8C1_t } from 'jsfeat'
 import { Rect } from '../../types'
+import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize'
+import {
+  assertImageChannelsMatch,
+  assertImageSizesMatch,
+  getImageChannelCount,
+  isRGBA,
+} from '../makeImageTransform'
 
-export function diffGrayscaleImages(
-  base: matrix_t,
-  current: matrix_t,
-  baseBounds: Rect,
-  currentBounds: Rect
-): matrix_t {
-  if (
-    baseBounds.width !== currentBounds.width ||
-    baseBounds.height !== currentBounds.height
-  ) {
-    throw new Error(
-      `Cannot diff image areas that are not the same size (${baseBounds.width}, ${baseBounds.height}) != (${currentBounds.width}, ${currentBounds.height}).`
-    )
+/**
+ * Generates an image from two binarized images where black pixels are where
+ * `compare` is black and `base` is not. This is useful for determining where a
+ * white-background form was filled out, for example.
+ *
+ * Note that the sizes of the bounds, which default to the full image size, must
+ * be equal.
+ *
+ * ```
+ *         BASE                  COMPARE                 DIFF
+ * ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+ * │                   │  │        █ █ ███    │  │        █ █ ███    │
+ * │ █ █               │  │ █ █    ███  █     │  │        ███  █     │
+ * │  █                │  │  █     █ █ ███    │  │        █ █ ███    │
+ * │ █ █ █████████████ │  │ █ █ █████████████ │  │                   │
+ * └───────────────────┘  └───────────────────┘  └───────────────────┘
+ * ```
+ */
+export default function diff(
+  base: ImageData,
+  compare: ImageData,
+  baseBounds: Rect = { x: 0, y: 0, width: base.width, height: base.height },
+  compareBounds: Rect = {
+    x: 0,
+    y: 0,
+    width: compare.width,
+    height: compare.height,
   }
+): ImageData {
+  assertImageChannelsMatch(base, compare)
+  assertImageSizesMatch(base, compare)
 
-  if (base.channel !== current.channel) {
-    throw new Error(
-      `Cannot diff images with mismatched channels (${base.channel} != ${current.channel}).`
-    )
-  }
+  const { data: baseData, width } = base
+  const { data: compareData } = compare
+  const { x: baseXOffset, y: baseYOffset } = baseBounds
+  const { x: compareXOffset, y: compareYOffset } = compareBounds
+  const { width: dstWidth, height: dstHeight } = baseBounds
+  let dst: Uint8ClampedArray
 
-  if (base.data.length !== base.cols * base.rows) {
-    throw new Error(
-      `Expected base image to be 8-bit pixel grayscale, but got ${
-        ((base.cols * base.rows) / base.data.length) * 8
-      }-bit.`
-    )
-  }
+  if (isRGBA(base)) {
+    dst = new Uint8ClampedArray(dstWidth * dstHeight * 4)
 
-  if (current.data.length !== current.cols * base.rows) {
-    throw new Error(
-      `Expected current image to be 8-bit pixel grayscale, but got ${
-        ((current.cols * current.rows) / current.data.length) * 8
-      }-bit.`
-    )
-  }
+    for (let y = 0; y < dstHeight; y += 1) {
+      for (let x = 0; x < dstWidth; x += 1) {
+        const baseOffset = (baseXOffset + x + (baseYOffset + y) * width) << 2
+        const compareOffset =
+          (compareXOffset + x + (compareYOffset + y) * width) << 2
+        const dstOffset = (x + y * dstWidth) << 2
 
-  const { width, height } = baseBounds
-  const diff = new matrix_t(width, height, U8C1_t)
+        if (
+          baseData[baseOffset] === PIXEL_BLACK &&
+          baseData[baseOffset + 1] === PIXEL_BLACK &&
+          baseData[baseOffset + 2] === PIXEL_BLACK
+        ) {
+          dst[dstOffset] = PIXEL_WHITE
+          dst[dstOffset + 1] = PIXEL_WHITE
+          dst[dstOffset + 2] = PIXEL_WHITE
+        } else {
+          dst[dstOffset] = compareData[compareOffset]
+          dst[dstOffset + 1] = compareData[compareOffset + 1]
+          dst[dstOffset + 2] = compareData[compareOffset + 2]
+        }
+        dst[dstOffset + 3] = 0xff
+      }
+    }
+  } else {
+    dst = new Uint8ClampedArray(dstWidth * dstHeight)
 
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const currentPix =
-        current.data[currentBounds.x + x + (currentBounds.y + y) * current.cols]
-      const basePix =
-        base.data[baseBounds.x + x + (baseBounds.y + y) * base.cols]
-      const d = Math.abs(currentPix - basePix)
-      diff.data[x + y * width] = d
+    for (let y = 0; y < dstHeight; y += 1) {
+      for (let x = 0; x < dstWidth; x += 1) {
+        const baseOffset = baseXOffset + x + (baseYOffset + y) * width
+        const compareOffset = compareXOffset + x + (compareYOffset + y) * width
+        const dstOffset = x + y * width
+
+        if (baseData[baseOffset] === PIXEL_BLACK) {
+          dst[dstOffset] = PIXEL_WHITE
+        } else {
+          dst[dstOffset] = compareData[compareOffset]
+        }
+      }
     }
   }
 
-  return diff
+  return {
+    data: dst,
+    width: dstWidth,
+    height: dstHeight,
+  }
 }
 
-export function diffImagesScore(
-  base: matrix_t,
-  current: matrix_t,
-  baseBounds: Rect,
-  currentBounds: Rect
+/**
+ * Determines the ratio of newly-black pixels comparing `base` to `compare` to
+ * the total number of pixels.
+ *
+ * ```
+ *      BASE (19×4)           COMPARE (19×4)       RATIO = 14÷(19×4)
+ * ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+ * │                   │  │        █ █ ███    │  │        █ █ ███    │
+ * │ █ █               │  │ █ █    ███  █     │  │        ███  █     │
+ * │  █                │  │  █     █ █ ███    │  │        █ █ ███    │
+ * │ █ █ █████████████ │  │ █ █ █████████████ │  │                   │
+ * └───────────────────┘  └───────────────────┘  └───────────────────┘
+ * ```
+ */
+export function ratio(
+  base: ImageData,
+  compare: ImageData,
+  baseBounds?: Rect,
+  compareBounds?: Rect
 ): number {
-  const diff = diffGrayscaleImages(base, current, baseBounds, currentBounds)
-  return (
-    [...diff.data].reduce((sum, value) => sum + (value > 127 ? 1 : 0), 0) /
-    (baseBounds.width * baseBounds.height)
-  )
+  const diffImage = diff(base, compare, baseBounds, compareBounds)
+  const { data, width, height } = diffImage
+  const size = data.length
+  const channels = getImageChannelCount(base)
+  let blackPixelCount = 0
+
+  for (let offset = 0; offset < size; offset += channels) {
+    if (data[offset] === PIXEL_BLACK) {
+      blackPixelCount += 1
+    }
+  }
+
+  return blackPixelCount / (width * height)
 }
