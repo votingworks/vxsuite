@@ -33,11 +33,11 @@ export async function detect(
   // handle raw bitmaps.
   const result = await quirc.decode(toPNGData(imageData))
 
-  if (result.length !== 1) {
-    return
+  for (const symbol of result) {
+    if (!('err' in symbol)) {
+      return { data: symbol.data }
+    }
   }
-
-  return { data: result[0].data }
 }
 
 export default withCropping(detect)
