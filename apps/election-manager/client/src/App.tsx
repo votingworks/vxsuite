@@ -1,26 +1,23 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import { BrowserRouter, Route } from 'react-router-dom'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import './App.css'
+
+import { LocalStorage } from './utils/Storage'
+
+import AppRoot, { Props as AppRootProps, AppStorage } from './AppRoot'
+
+export interface Props {
+  storage?: AppRootProps['storage']
 }
 
-export default App;
+const App = ({ storage = new LocalStorage<AppStorage>() }) => (
+  <BrowserRouter>
+    <Route
+      path="/"
+      render={(props) => <AppRoot storage={storage} {...props} />}
+    />
+  </BrowserRouter>
+)
+
+export default App

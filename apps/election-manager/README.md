@@ -25,37 +25,36 @@ This app is intended to be used on an offline computer by an election admin.
 
 ## App Screens
 
-- Unconfigured App Screen
-  - Select election config file
-  - Button to create new election
-- Edit Election Config (MVP solution)
-  - Form:
-    - Textarea
-    - Save button
-    - Cancel button (with warning modal, if config has been changed)
-    - Remove config button (with warning modal)
-    - Export config button
-- List Ballot Styles
-  - Rows:
-    - precinct
-    - style
-    - contest count
-    - view ballot link
-  - Filters:
-    - precinct
-    - style
-- View Ballot
-  - html ballot in print-ready format (via PagedJS)
-  - PDF ballot (in iframe under html ballot or click to open in new window)
-  - Previous and Next Ballot Style links
+- [x] Unconfigured App Screen
+  - [x] Select election config file
+  - [x] Button to create new election
+- [x] Edit Election Config (MVP solution)
+  - [x] Form:
+    - [x] Textarea
+    - [x] Save button
+    - [x] Reset button
+    - [x] Unconfigure button (with warning modal)
+- [x] List Ballot Styles
+  - [x] Rows:
+    - [x] precinct
+    - [x] style
+    - [x] contest count
+    - [x] view ballot link
+  - [x] Sort:
+    - [x] precinct
+    - [x] style
+- [x] View Ballot
+  - [ ] html ballot in print-ready format (via PagedJS)
+  - [ ] PDF ballot (in iframe under html ballot or click to open in new window)
+  - [ ] Previous and Next Ballot Style links
 
 ## Navigation
 
 Displayed when election config exists.
 
-- Ballot Styles
-- Edit Election Config
-- Export Election Ballot Package
+- [x] Ballot Styles
+- [x] Edit Election Config
+- [x] Export Election Ballot Package
 
 ## Future Features
 
@@ -63,6 +62,7 @@ Displayed when election config exists.
   - Edit Contest section
     - List Contests screen
     - Edit Contest Screen with live preview
+- "Export config" button on Config screen
 
 ## Open Questions
 
