@@ -1,7 +1,7 @@
 import {
   assertGrayscaleImage,
-  assertImageSizesMatch,
   assertRGBAImage,
+  assertSizesMatch,
   makeInPlaceImageTransform,
 } from './makeImageTransform'
 
@@ -16,7 +16,7 @@ export function vhRGBA(
 ): void {
   assertRGBAImage(srcImageData)
   assertRGBAImage(dstImageData)
-  assertImageSizesMatch(srcImageData, dstImageData)
+  assertSizesMatch(srcImageData, dstImageData)
 
   const { data: src } = srcImageData
   const { data: dst } = dstImageData
@@ -71,7 +71,7 @@ export function vhGray(
 ): void {
   assertGrayscaleImage(srcImageData)
   assertGrayscaleImage(dstImageData)
-  assertImageSizesMatch(srcImageData, dstImageData)
+  assertSizesMatch(srcImageData, dstImageData)
 
   const { data: src } = srcImageData
   const { data: dst } = dstImageData

@@ -1,4 +1,5 @@
 import { strict as assert } from 'assert'
+import { Size } from '../types'
 
 export type InPlaceImageTransform<A extends unknown[], R> = (
   srcImageData: ImageData,
@@ -86,14 +87,11 @@ export function assertImageChannelsMatch(
   )
 }
 
-export function assertImageSizesMatch(
-  imageData1: ImageData,
-  imageData2: ImageData
-): void {
+export function assertSizesMatch(size1: Size, size2: Size): void {
   assert.deepEqual(
-    { width: imageData1.width, height: imageData1.height },
-    { width: imageData2.width, height: imageData2.height },
-    'expected source and destination image sizes to be equal'
+    { width: size1.width, height: size1.height },
+    { width: size2.width, height: size2.height },
+    'expected sizes to be equal'
   )
 }
 

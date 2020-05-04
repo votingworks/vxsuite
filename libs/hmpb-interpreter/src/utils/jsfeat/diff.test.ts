@@ -1,5 +1,7 @@
-import diff, { ratio } from './diff'
+import { croppedQRCode } from '../../../test/fixtures'
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize'
+import crop from '../crop'
+import diff, { ratio } from './diff'
 
 test('images have no diff with themselves', () => {
   const imageData = {
@@ -70,7 +72,7 @@ test('images have no percentage diff with themselves', () => {
     height: 1,
   }
 
-  expect(ratio(imageData, imageData)).toEqual(0)
+  expect(ratio(diff(imageData, imageData))).toEqual(0)
 })
 
 test('images have diff percentage as ratio of black diff pixels to total pixels', () => {
@@ -85,5 +87,18 @@ test('images have diff percentage as ratio of black diff pixels to total pixels'
     height: 1,
   }
 
-  expect(ratio(base, compare)).toEqual(0.5)
+  expect(ratio(diff(base, compare))).toEqual(0.5)
+})
+
+test('comparing part of an image to all of another', async () => {
+  const base = await croppedQRCode.imageData()
+  const compareBounds = { x: 150, y: 80, width: 150, height: 80 }
+  const compare = crop(base, compareBounds)
+  const diffImage = diff(base, compare, compareBounds, {
+    ...compareBounds,
+    x: 0,
+    y: 0,
+  })
+
+  expect(ratio(diffImage)).toBe(0)
 })
