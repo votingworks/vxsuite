@@ -2,7 +2,7 @@ import { Rect } from '../../types'
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize'
 import {
   assertImageChannelsMatch,
-  assertImageSizesMatch,
+  assertSizesMatch,
   getImageChannelCount,
   isRGBA,
 } from '../makeImageTransform'
@@ -37,10 +37,10 @@ export default function diff(
   }
 ): ImageData {
   assertImageChannelsMatch(base, compare)
-  assertImageSizesMatch(base, compare)
+  assertSizesMatch(baseBounds, compareBounds)
 
-  const { data: baseData, width } = base
-  const { data: compareData } = compare
+  const { data: baseData, width: baseWidth } = base
+  const { data: compareData, width: compareWidth } = compare
   const { x: baseXOffset, y: baseYOffset } = baseBounds
   const { x: compareXOffset, y: compareYOffset } = compareBounds
   const { width: dstWidth, height: dstHeight } = baseBounds
@@ -51,9 +51,10 @@ export default function diff(
 
     for (let y = 0; y < dstHeight; y += 1) {
       for (let x = 0; x < dstWidth; x += 1) {
-        const baseOffset = (baseXOffset + x + (baseYOffset + y) * width) << 2
+        const baseOffset =
+          (baseXOffset + x + (baseYOffset + y) * baseWidth) << 2
         const compareOffset =
-          (compareXOffset + x + (compareYOffset + y) * width) << 2
+          (compareXOffset + x + (compareYOffset + y) * compareWidth) << 2
         const dstOffset = (x + y * dstWidth) << 2
 
         if (
@@ -77,9 +78,10 @@ export default function diff(
 
     for (let y = 0; y < dstHeight; y += 1) {
       for (let x = 0; x < dstWidth; x += 1) {
-        const baseOffset = baseXOffset + x + (baseYOffset + y) * width
-        const compareOffset = compareXOffset + x + (compareYOffset + y) * width
-        const dstOffset = x + y * width
+        const baseOffset = baseXOffset + x + (baseYOffset + y) * baseWidth
+        const compareOffset =
+          compareXOffset + x + (compareYOffset + y) * compareWidth
+        const dstOffset = x + y * dstWidth
 
         if (baseData[baseOffset] === PIXEL_BLACK) {
           dst[dstOffset] = PIXEL_WHITE
@@ -97,37 +99,42 @@ export default function diff(
   }
 }
 
-/**
- * Determines the ratio of newly-black pixels comparing `base` to `compare` to
- * the total number of pixels.
- *
- * ```
- *      BASE (19×4)           COMPARE (19×4)       RATIO = 14÷(19×4)
- * ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
- * │                   │  │        █ █ ███    │  │        █ █ ███    │
- * │ █ █               │  │ █ █    ███  █     │  │        ███  █     │
- * │  █                │  │  █     █ █ ███    │  │        █ █ ███    │
- * │ █ █ █████████████ │  │ █ █ █████████████ │  │                   │
- * └───────────────────┘  └───────────────────┘  └───────────────────┘
- * ```
- */
-export function ratio(
-  base: ImageData,
-  compare: ImageData,
-  baseBounds?: Rect,
-  compareBounds?: Rect
-): number {
-  const diffImage = diff(base, compare, baseBounds, compareBounds)
-  const { data, width, height } = diffImage
-  const size = data.length
-  const channels = getImageChannelCount(base)
-  let blackPixelCount = 0
+export interface CountOptions {
+  color?: number
+  bounds?: Rect
+}
 
-  for (let offset = 0; offset < size; offset += channels) {
-    if (data[offset] === PIXEL_BLACK) {
-      blackPixelCount += 1
+/**
+ * Determines the ratio of black (or custom color) pixels in an image to the
+ * total number of pixels.
+ */
+export function ratio(image: ImageData, options: CountOptions = {}): number {
+  const { width, height } = image
+  return countPixels(image, options) / (width * height)
+}
+
+/**
+ * Determines number of black (or custom color) pixels in an image.
+ */
+export function countPixels(
+  image: ImageData,
+  {
+    color = PIXEL_BLACK,
+    bounds = { x: 0, y: 0, width: image.width, height: image.height },
+  }: CountOptions = {}
+): number {
+  const { data } = image
+  const channels = getImageChannelCount(image)
+  const { x: startX, y: startY, width, height } = bounds
+  let count = 0
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      if (data[((startY + y) * width + startX + x) * channels] === color) {
+        count += 1
+      }
     }
   }
 
-  return blackPixelCount / (width * height)
+  return count
 }

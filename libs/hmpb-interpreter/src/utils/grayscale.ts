@@ -1,9 +1,9 @@
 import {
   assertGrayscaleImage,
-  assertImageSizesMatch,
   assertRGBAImage,
-  makeInPlaceImageTransform,
+  assertSizesMatch,
   isRGBA,
+  makeInPlaceImageTransform,
 } from './makeImageTransform'
 
 export default makeInPlaceImageTransform(fromGray, fromRGBA)
@@ -17,7 +17,7 @@ export function fromGray(
 ): void {
   assertGrayscaleImage(srcImageData)
   assertGrayscaleImage(dstImageData)
-  assertImageSizesMatch(srcImageData, dstImageData)
+  assertSizesMatch(srcImageData, dstImageData)
 
   if (srcImageData === dstImageData) {
     return
@@ -37,7 +37,7 @@ export function fromRGBA(
   dstImageData = srcImageData
 ): void {
   assertRGBAImage(srcImageData)
-  assertImageSizesMatch(srcImageData, dstImageData)
+  assertSizesMatch(srcImageData, dstImageData)
 
   const { data: src, width, height } = srcImageData
   const { data: dst } = dstImageData

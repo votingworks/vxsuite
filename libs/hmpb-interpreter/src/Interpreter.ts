@@ -31,7 +31,7 @@ import defined from './utils/defined'
 import { vh as flipVH } from './utils/flip'
 import { rectCorners } from './utils/geometry'
 import { map, reversed, zip, zipMin } from './utils/iterators'
-import { ratio } from './utils/jsfeat/diff'
+import diff, { ratio } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
 
@@ -439,7 +439,7 @@ export default class Interpreter {
     ballot: ImageData,
     target: Rect
   ): number {
-    return ratio(template, ballot, target, target)
+    return ratio(diff(template, ballot, target, target))
   }
 
   private mapBallotOntoTemplate(
