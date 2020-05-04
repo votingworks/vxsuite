@@ -572,7 +572,7 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Eddie Bernice Johnson",
-        "score": 0.3813215208564046,
+        "score": 0.38095238095238093,
         "type": "candidate",
       },
       Object {

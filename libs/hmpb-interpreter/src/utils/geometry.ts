@@ -1,11 +1,14 @@
-import { Point, Rect } from '../types'
+import { Corners, Rect } from '../types'
 
-export function rectCorners({ x, y, width, height }: Rect): Point[] {
+/**
+ * Gets the four extreme points of a rectangle, inclusive.
+ */
+export function rectCorners({ x, y, width, height }: Rect): Corners {
   return [
     { x, y },
-    { x: x + width, y },
-    { x, y: y + height },
-    { x: x + width, y: y + height },
+    { x: x + width - 1, y },
+    { x, y: y + height - 1 },
+    { x: x + width - 1, y: y + height - 1 },
   ]
 }
 
