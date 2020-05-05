@@ -1,11 +1,16 @@
-import { Election, Candidate } from '@votingworks/ballot-encoder'
+import {
+  Election,
+  Candidate,
+  CompletedBallot,
+} from '@votingworks/ballot-encoder'
 import { promises as fs } from 'fs'
 import { OptionParseError } from '..'
-import { Input, InterpretedBallot } from '../../types'
+import { Input, Interpreted } from '../../types'
 import { Interpreter } from '../..'
 import { table } from 'table'
 import chalk from 'chalk'
 import { readImageData } from '../../utils/readImageData'
+import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../Interpreter'
 
 export enum OutputFormat {
   JSON = 'json',
@@ -17,6 +22,7 @@ export interface Options {
   autoInputs: readonly Input[]
   templateInputs: readonly Input[]
   ballotInputs: readonly Input[]
+  markScoreVoteThreshold: number
   format: OutputFormat
 }
 
@@ -25,6 +31,7 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
   const autoInputs: Input[] = []
   const templateInputs: Input[] = []
   const ballotInputs: Input[] = []
+  let markScoreVoteThreshold = DEFAULT_MARK_SCORE_VOTE_THRESHOLD
   let format = OutputFormat.Table
 
   for (let i = 0; i < args.length; i += 1) {
@@ -45,6 +52,15 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
         election = JSON.parse(await fs.readFile(electionJSONFile, 'utf8'))
         break
       }
+
+      case '-m':
+      case '--min-mark-score':
+        i += 1
+        markScoreVoteThreshold = parseFloat(args[i])
+        if (isNaN(markScoreVoteThreshold)) {
+          throw new OptionParseError(`Invalid minimum mark score: ${args[i]}`)
+        }
+        break
 
       case '-f':
       case '--format':
@@ -114,7 +130,8 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
     autoInputs,
     templateInputs,
     ballotInputs,
-    format: format,
+    markScoreVoteThreshold,
+    format,
   }
 }
 
@@ -123,7 +140,10 @@ export default async function run(
   stdin: typeof process.stdin,
   stdout: typeof process.stdout
 ): Promise<number> {
-  const interpreter = new Interpreter(options.election)
+  const interpreter = new Interpreter({
+    election: options.election,
+    markScoreVoteThreshold: options.markScoreVoteThreshold,
+  })
   const ballotInputs = [...options.ballotInputs]
 
   for (const templateInput of options.templateInputs) {
@@ -138,7 +158,7 @@ export default async function run(
     }
   }
 
-  const results: { input: Input; interpreted: InterpretedBallot }[] = []
+  const results: { input: Input; interpreted: Interpreted }[] = []
 
   for (const ballotInput of ballotInputs) {
     results.push({
@@ -156,7 +176,43 @@ export default async function run(
           results.map(({ input, interpreted }) => ({
             input: input.id(),
             interpreted: {
+              metadata: interpreted.metadata,
               votes: interpreted.ballot.votes,
+              marks: interpreted.marks
+                .filter((mark) =>
+                  mark.type === 'candidate' || mark.type === 'yesno'
+                    ? mark.score > 0
+                    : true
+                )
+                .map((mark) =>
+                  mark.type === 'candidate'
+                    ? {
+                        type: mark.type,
+                        contest: mark.contest.id,
+                        option: mark.option.id,
+                        score: mark.score,
+                        bounds: mark.bounds,
+                        target: mark.target,
+                      }
+                    : mark.type === 'yesno'
+                    ? {
+                        type: mark.type,
+                        contest: mark.contest.id,
+                        option: mark.option,
+                        score: mark.score,
+                        bounds: mark.bounds,
+                        target: mark.target,
+                      }
+                    : {
+                        type: mark.type,
+                        contest: mark.contest?.id,
+                        option:
+                          typeof mark.option === 'string'
+                            ? mark.option
+                            : mark.option?.id,
+                        bounds: mark.bounds,
+                      }
+                ),
             },
           })),
           undefined,

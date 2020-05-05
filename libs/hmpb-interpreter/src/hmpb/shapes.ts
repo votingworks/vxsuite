@@ -1,6 +1,6 @@
 import { Point, Rect } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
-import { getImageChannelCount } from '../utils/makeImageTransform'
+import { getImageChannelCount } from '../utils/imageFormatUtils'
 import Map2d from './Map2d'
 
 export interface Shape {

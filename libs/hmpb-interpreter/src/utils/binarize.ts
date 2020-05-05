@@ -1,5 +1,5 @@
 import grayscale from './grayscale'
-import { isRGBA } from './makeImageTransform'
+import { isRGBA } from './imageFormatUtils'
 import otsu from './otsu'
 
 export type RGBA = [number, number, number, number]

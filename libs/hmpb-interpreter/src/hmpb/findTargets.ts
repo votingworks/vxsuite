@@ -1,12 +1,19 @@
 import { Rect } from '../types'
+import { PIXEL_WHITE } from '../utils/binarize'
+import { rectCenter } from '../utils/geometry'
 import scanColumns from './scanColumns'
-import { findShapes, Shape } from './shapes'
+import { findShape, findShapes } from './shapes'
+
+export interface TargetShape {
+  bounds: Rect
+  inner: Rect
+}
 
 export default function* findTargets(
   ballotImage: ImageData,
   bounds: Rect,
   { aspectRatio = 1.5, aspectRatioTolerance = 0.1 } = {}
-): Generator<Shape> {
+): Generator<TargetShape> {
   let nextY: number | undefined
   const shapeIterator = findShapes(
     ballotImage,
@@ -35,7 +42,16 @@ export default function* findTargets(
       minAspectRatio <= actualAspectRatio &&
       actualAspectRatio <= maxAspectRatio
     ) {
-      yield shape
+      const innerShape = findShape(
+        ballotImage,
+        rectCenter(shape.bounds, { round: true }),
+        undefined,
+        { color: PIXEL_WHITE }
+      )
+      yield {
+        bounds: shape.bounds,
+        inner: innerShape.bounds,
+      }
       nextY = shape.bounds.y - 1
     } else {
       nextY = undefined

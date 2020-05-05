@@ -1,6 +1,14 @@
-import { Rect } from '../types'
+import { Corners, Point, Rect } from '../types'
+import { PIXEL_BLACK } from '../utils/binarize'
+import { rectCorners } from '../utils/geometry'
+import { getImageChannelCount } from '../utils/imageFormatUtils'
 import scanColumns from './scanColumns'
 import { findShapes, Shape } from './shapes'
+
+export interface ContestShape {
+  bounds: Rect
+  corners: Corners
+}
 
 export default function* findContests(
   ballotImage: ImageData,
@@ -11,7 +19,7 @@ export default function* findContests(
     maxTopContestOffsetPercent = 5,
     columns = [true, true, true],
   } = {}
-): Generator<Shape> {
+): Generator<ContestShape> {
   const bounds: Rect = {
     x: inset,
     y: inset,
@@ -59,11 +67,52 @@ export default function* findContests(
         : maxTopContestOffset >= shape.bounds.y
 
     if (isShapeBigEnough && isShapeCloseEnoughToLastShape) {
-      yield shape
+      yield {
+        bounds: shape.bounds,
+        corners: getCorners(ballotImage, shape),
+      }
       nextY = shape.bounds.y + shape.bounds.height + 1
       lastContestShape = shape
     } else {
       nextY = undefined
+    }
+  }
+}
+
+function getCorners(imageData: ImageData, shape: Shape): Corners {
+  const [topLeft, topRight, bottomLeft, bottomRight] = rectCorners(shape.bounds)
+
+  return [
+    findCorner(imageData, topLeft, { x: 1, y: 1 }),
+    findCorner(imageData, topRight, { x: -1, y: 1 }),
+    findCorner(imageData, bottomLeft, { x: 1, y: -1 }),
+    findCorner(imageData, bottomRight, { x: -1, y: -1 }),
+  ]
+}
+
+function findCorner(
+  { data, width, height }: ImageData,
+  { x: startX, y: startY }: Point,
+  direction: Point
+): Point {
+  const channels = getImageChannelCount({ data, width, height })
+
+  for (let step = 0; ; step += 1) {
+    {
+      const x = startX + step * direction.x
+      const y = startY
+
+      if (data[(y * width + x) * channels] === PIXEL_BLACK) {
+        return { x, y }
+      }
+    }
+    {
+      const x = startX
+      const y = startY + step * direction.y
+
+      if (data[(y * width + x) * channels] === PIXEL_BLACK) {
+        return { x, y }
+      }
     }
   }
 }

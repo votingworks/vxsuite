@@ -3,7 +3,7 @@ import {
   assertRGBAImage,
   assertSizesMatch,
   makeInPlaceImageTransform,
-} from './makeImageTransform'
+} from './imageFormatUtils'
 
 /**
  * Flips an image vertically and horizontally, equivalent to a 180° rotation.

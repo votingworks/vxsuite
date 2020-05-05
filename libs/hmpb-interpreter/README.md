@@ -19,9 +19,14 @@ $ npm install -g @votingworks/hmpb-interpreter # or, with npm
 ```ts
 import { Interpreter } from '@votingworks/hmpb-interpreter'
 
-// Configure contests via an election.json. Contests on printed ballots must
-// appear in the same order they appear in this configuration.
-const interpreter = new Interpreter(election)
+const interpreter = new Interpreter({
+  // Configure contests via an election.json. Contests on printed ballots must
+  // appear in the same order they appear in this configuration.
+  election,
+
+  // Require at least 20% filled in targets.
+  markScoreVoteThreshold: 0.2,
+})
 
 while (interpreter.hasMissingTemplates()) {
   // Templates are images of blank ballots.
@@ -31,9 +36,9 @@ while (interpreter.hasMissingTemplates()) {
 console.log('Interpreter has templates for all ballot styles and contests!')
 
 const imageData = await getNextImage()
-const interpretedBallot = await interpreter.interpretBallot(imageData)
+const { ballot } = await interpreter.interpretBallot(imageData)
 
-console.log('Interpreted ballot:', interpretedBallot)
+console.log('Interpreted ballot:', ballot)
 ```
 
 ### Customizing QR Code Decoder

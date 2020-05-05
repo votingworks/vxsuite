@@ -62,9 +62,11 @@ export function* reversed<T>(collection: Iterable<T>): Generator<T> {
 
 export function* map<T, U>(
   collection: Iterable<T>,
-  mapfn: (element: T) => U
+  mapfn: (element: T, index: number) => U
 ): Generator<U> {
+  let index = 0
   for (const element of collection) {
-    yield mapfn(element)
+    yield mapfn(element, index)
+    index += 1
   }
 }

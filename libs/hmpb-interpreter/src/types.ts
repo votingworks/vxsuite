@@ -6,6 +6,7 @@ import {
   Precinct,
   YesNoContest,
 } from '@votingworks/ballot-encoder'
+import { TargetShape } from './hmpb/findTargets'
 
 export interface Point {
   x: number
@@ -46,49 +47,57 @@ export interface BallotPageMetadata {
 
 export interface BallotPageContestLayout {
   bounds: Rect
+  corners: Corners
   options: readonly BallotPageContestOptionLayout[]
 }
 
 export interface BallotPageContestOptionLayout {
   bounds: Rect
-  target: Rect
+  target: TargetShape
 }
 
-export interface InterpretedBallot {
+export interface GetBallotOptions {
+  markScoreVoteThreshold: number
+}
+
+export interface Interpreted {
   matchedTemplate: BallotPageLayout
+  metadata: BallotPageMetadata
+  marks: BallotMark[]
   ballot: CompletedBallot
-  marks: readonly InterpretedBallotMark[]
 }
 
-export type InterpretedBallotMark =
-  | InterpretedBallotStrayMark
-  | InterpretedBallotTargetMark
+export interface FindMarksResult {
+  matchedTemplate: BallotPageLayout
+  metadata: BallotPageMetadata
+  marks: BallotMark[]
+}
 
-export interface InterpretedBallotStrayMark {
+export type BallotMark = BallotStrayMark | BallotTargetMark
+
+export interface BallotStrayMark {
   type: 'stray'
   bounds: Rect
   contest?: YesNoContest | CandidateContest
-  choice?: Rect
+  option?: Candidate | 'yes' | 'no'
 }
 
-export type InterpretedBallotTargetMark =
-  | InterpretedBallotCandidateTargetMark
-  | InterpretedBallotYesNoTargetMark
+export type BallotTargetMark = BallotCandidateTargetMark | BallotYesNoTargetMark
 
-export interface InterpretedBallotCandidateTargetMark {
+export interface BallotCandidateTargetMark {
   type: 'candidate'
   bounds: Rect
   contest: CandidateContest
-  target: Rect
+  target: TargetShape
   option: Candidate
   score: number
 }
 
-export interface InterpretedBallotYesNoTargetMark {
+export interface BallotYesNoTargetMark {
   type: 'yesno'
   bounds: Rect
   contest: YesNoContest
-  target: Rect
+  target: TargetShape
   option: 'yes' | 'no'
   score: number
 }
