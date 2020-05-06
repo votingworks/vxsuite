@@ -15,19 +15,19 @@ import {
 import { readFile as readFileCallback } from 'fs'
 import { decode } from 'node-quirc'
 import { promisify } from 'util'
-import { CastVoteRecord, CVRCallbackFunction } from './types'
-
+import { CastVoteRecord } from './types'
 // TODO: do dependency-injection here instead
 import { RealZBarImage } from './zbarimg'
 
 export interface InterpretFileParams {
   readonly election: Election
   readonly ballotImagePath: string
-  readonly cvrCallback: CVRCallbackFunction
 }
 
 export interface Interpreter {
-  interpretFile(interpretFileParams: InterpretFileParams): Promise<void>
+  interpretFile(
+    interpretFileParams: InterpretFileParams
+  ): Promise<CastVoteRecord | undefined>
 }
 
 const zbarimg = new RealZBarImage()
@@ -107,8 +107,10 @@ export async function readQRCodeFromImageFile(
 }
 
 export default class SummaryBallotInterpreter implements Interpreter {
-  public async interpretFile(interpretFileParams: InterpretFileParams) {
-    const { election, ballotImagePath, cvrCallback } = interpretFileParams
+  public async interpretFile(
+    interpretFileParams: InterpretFileParams
+  ): Promise<CastVoteRecord | undefined> {
+    const { election, ballotImagePath } = interpretFileParams
 
     try {
       const encodedBallot = await readQRCodeFromImageFile(ballotImagePath)
@@ -118,9 +120,9 @@ export default class SummaryBallotInterpreter implements Interpreter {
       }
 
       const cvr = interpretBallotData({ election, encodedBallot })
-      cvrCallback({ ballotImagePath, cvr })
+      return cvr
     } catch {
-      return cvrCallback({ ballotImagePath })
+      return undefined
     }
   }
 }

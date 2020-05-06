@@ -5,17 +5,13 @@ import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
 import { Election } from '@votingworks/ballot-encoder'
 
-import { CVRCallbackParams, CastVoteRecord, BatchInfo } from './types'
+import { CastVoteRecord, BatchInfo } from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
   interpretBallotData,
 } from './interpreter'
 import { Scanner } from './scanner'
-
-interface CVRCallbackWithBatchIDParams extends CVRCallbackParams {
-  batchId: number
-}
 
 export const DefaultBallotImagesPath = path.join(
   __dirname,
@@ -167,34 +163,30 @@ export default class SystemImporter implements Importer {
 
     const batchId = parseInt(batchIdMatch[1])
 
-    await this.interpreter.interpretFile({
+    const cvr = await this.interpreter.interpretFile({
       election: this.election,
       ballotImagePath,
-      cvrCallback: ({ ballotImagePath, cvr }: CVRCallbackParams) => {
-        this.cvrCallbackWithBatchId({ batchId, ballotImagePath, cvr })
-      },
     })
+
+    if (cvr) {
+      this.onCVRExtractedFromBallot(batchId, ballotImagePath, cvr)
+    } // eventually do something with files that don't have a CVR in them?
   }
 
-  private cvrCallbackWithBatchId({
-    batchId,
-    ballotImagePath,
-    cvr,
-  }: CVRCallbackWithBatchIDParams) {
-    if (cvr) {
-      this.addCVR(batchId, ballotImagePath, cvr)
+  private onCVRExtractedFromBallot(
+    batchId: number,
+    ballotImagePath: string,
+    cvr: CastVoteRecord
+  ) {
+    this.addCVR(batchId, ballotImagePath, cvr)
 
-      // move the file only if there was a CVR
-      if (fs.existsSync(ballotImagePath)) {
-        fs.renameSync(
-          ballotImagePath,
-          path.join(
-            this.importedBallotImagesPath,
-            path.basename(ballotImagePath)
-          )
-        )
-      }
-    } // eventually do something with files that don't have a CVR in them?
+    // move the file only if there was a CVR
+    if (fs.existsSync(ballotImagePath)) {
+      fs.renameSync(
+        ballotImagePath,
+        path.join(this.importedBallotImagesPath, path.basename(ballotImagePath))
+      )
+    }
   }
 
   /**
