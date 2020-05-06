@@ -1,0 +1,369 @@
+{
+  "title": "2020 Primary Election",
+  "state": "State of Mississippi",
+  "county": {
+    "id": "10",
+    "name": "Choctaw County"
+  },
+  "date": "3/10/2020",
+  "parties": [
+    {
+      "id": "2",
+      "name": "Democrat",
+      "abbrev": "D"
+    },
+    {
+      "id": "3",
+      "name": "Republican",
+      "abbrev": "R"
+    },
+    {
+      "id": "4",
+      "name": "Libertarian",
+      "abbrev": "L"
+    },
+    {
+      "id": "5",
+      "name": "Reform",
+      "abbrev": "REF"
+    },
+    {
+      "id": "6",
+      "name": "Natural Law",
+      "abbrev": "N"
+    },
+    {
+      "id": "8",
+      "name": "Constitution",
+      "abbrev": "C"
+    },
+    {
+      "id": "9",
+      "name": "Green",
+      "abbrev": "G"
+    },
+    {
+      "id": "10",
+      "name": "America First",
+      "abbrev": "A"
+    },
+    {
+      "id": "11",
+      "name": "Independent",
+      "abbrev": "I"
+    },
+    {
+      "id": "12",
+      "name": "Nonpartisan",
+      "abbrev": "NP"
+    },
+    {
+      "id": "575000001",
+      "name": "Justice",
+      "abbrev": "JUS"
+    },
+    {
+      "id": "575000002",
+      "name": "Prohibition",
+      "abbrev": "PRO"
+    },
+    {
+      "id": "575000003",
+      "name": "American Delta",
+      "abbrev": "ADP"
+    },
+    {
+      "id": "575000004",
+      "name": "Veterans",
+      "abbrev": "VET"
+    }
+  ],
+  "contests": [
+    {
+      "id": "775020738",
+      "section": "United States",
+      "districtId": "1",
+      "type": "candidate",
+      "partyId": "2",
+      "official_label": "President-Democrat",
+      "title": "President",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031649",
+          "name": "Joseph R. Biden",
+          "partyId": "2"
+        },
+        {
+          "id": "775031655",
+          "name": "Andrew Yang",
+          "partyId": "2"
+        },
+        {
+          "id": "775031654",
+          "name": "Michael R. Bloomberg",
+          "partyId": "2"
+        },
+        {
+          "id": "775031651",
+          "name": "Pete Buttigieg",
+          "partyId": "2"
+        },
+        {
+          "id": "775031652",
+          "name": "Tulsi Gabbard",
+          "partyId": "2"
+        },
+        {
+          "id": "775031646",
+          "name": "Amy Klobuchar",
+          "partyId": "2"
+        },
+        {
+          "id": "775031653",
+          "name": "Deval Patrick",
+          "partyId": "2"
+        },
+        {
+          "id": "775031650",
+          "name": "Bernie Sanders",
+          "partyId": "2"
+        },
+        {
+          "id": "775031647",
+          "name": "Tom Steyer",
+          "partyId": "2"
+        },
+        {
+          "id": "775031648",
+          "name": "Elizabeth Warren",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "775020740",
+      "section": "United States",
+      "districtId": "1",
+      "type": "candidate",
+      "partyId": "2",
+      "official_label": "Senate -Democrat",
+      "title": "Senate ",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031631",
+          "name": "Tobey Bernard Bartee",
+          "partyId": "2"
+        },
+        {
+          "id": "775031632",
+          "name": "Jensen Bohren",
+          "partyId": "2"
+        },
+        {
+          "id": "775031633",
+          "name": "Mike Espy",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "775020730",
+      "section": "US House Of Representatives",
+      "districtId": "100000047",
+      "type": "candidate",
+      "partyId": "2",
+      "official_label": "1st Congressional District-Democrat",
+      "title": "1st Congressional District",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031635",
+          "name": "Antonia Eliason",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "775020739",
+      "section": "United States",
+      "districtId": "1",
+      "type": "candidate",
+      "partyId": "3",
+      "official_label": "President-Republican",
+      "title": "President",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031657",
+          "name": "Roque 'Rocky' De La Fuente",
+          "partyId": "3"
+        },
+        {
+          "id": "775031656",
+          "name": "Donald J. Trump",
+          "partyId": "3"
+        },
+        {
+          "id": "775031658",
+          "name": "Bill Weld",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "775020741",
+      "section": "United States",
+      "districtId": "1",
+      "type": "candidate",
+      "partyId": "3",
+      "official_label": "Senate -Republican",
+      "title": "Senate ",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031639",
+          "name": "Cindy Hyde-Smith",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "775020731",
+      "section": "US House Of Representatives",
+      "districtId": "100000047",
+      "type": "candidate",
+      "partyId": "3",
+      "official_label": "1st Congressional District-Republican",
+      "title": "1st Congressional District",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031626",
+          "name": "Trent Kelly",
+          "partyId": "3"
+        }
+      ]
+    }
+  ],
+  "districts": [
+    {
+      "id": "1",
+      "name": "United States"
+    },
+    {
+      "id": "100000047",
+      "name": "US House Of Representatives"
+    }
+  ],
+  "precincts": [
+    {
+      "id": "6522",
+      "name": "District 5"
+    },
+    {
+      "id": "6524",
+      "name": "Chester"
+    },
+    {
+      "id": "6525",
+      "name": "East Weir"
+    },
+    {
+      "id": "6526",
+      "name": "French Camp"
+    },
+    {
+      "id": "6527",
+      "name": "Fentress"
+    },
+    {
+      "id": "6528",
+      "name": "Hebron"
+    },
+    {
+      "id": "6529",
+      "name": "Kenego"
+    },
+    {
+      "id": "6532",
+      "name": "Panhandle"
+    },
+    {
+      "id": "6534",
+      "name": "Reform"
+    },
+    {
+      "id": "6536",
+      "name": "Sherwood"
+    },
+    {
+      "id": "6537",
+      "name": "Southwest Ackerman"
+    },
+    {
+      "id": "6538",
+      "name": "Bywy"
+    },
+    {
+      "id": "6539",
+      "name": "West Weir"
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "1D",
+      "partyId": "2",
+      "precincts": [
+        "6538",
+        "6524",
+        "6522",
+        "6525",
+        "6526",
+        "6527",
+        "6528",
+        "6529",
+        "6532",
+        "6534",
+        "6536",
+        "6537",
+        "6539"
+      ],
+      "districts": [
+        "1",
+        "100000047"
+      ]
+    },
+    {
+      "id": "2R",
+      "partyId": "3",
+      "precincts": [
+        "6538",
+        "6524",
+        "6522",
+        "6525",
+        "6526",
+        "6527",
+        "6528",
+        "6529",
+        "6532",
+        "6534",
+        "6536",
+        "6537",
+        "6539"
+      ],
+      "districts": [
+        "1",
+        "100000047"
+      ]
+    }
+  ],
+  "sealURL": "/seals/Seal_of_Mississippi_BW.svg"
+}
