@@ -5,7 +5,7 @@ import {
   assertSizesMatch,
   getImageChannelCount,
   isRGBA,
-} from '../makeImageTransform'
+} from '../imageFormatUtils'
 
 /**
  * Generates an image from two binarized images where black pixels are where

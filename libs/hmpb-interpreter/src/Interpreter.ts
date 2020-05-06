@@ -6,42 +6,48 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
-  VotesDict,
 } from '@votingworks/ballot-encoder'
 import { strict as assert } from 'assert'
 import * as jsfeat from 'jsfeat'
 import { v4 as uuid } from 'uuid'
+import getVotesFromMarks from './getVotesFromMarks'
 import findContestOptions from './hmpb/findContestOptions'
 import findContests from './hmpb/findContests'
-import findTargets from './hmpb/findTargets'
-import { addVote } from './hmpb/votes'
+import findTargets, { TargetShape } from './hmpb/findTargets'
 import { detect } from './metadata'
 import {
+  BallotCandidateTargetMark,
+  BallotMark,
   BallotPageLayout,
   BallotPageMetadata,
+  BallotYesNoTargetMark,
   DetectQRCode,
-  InterpretedBallot,
-  InterpretedBallotCandidateTargetMark,
-  InterpretedBallotMark,
-  InterpretedBallotYesNoTargetMark,
-  Rect,
+  FindMarksResult,
+  Interpreted,
+  Point,
+  Size,
 } from './types'
-import { binarize } from './utils/binarize'
+import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize'
+import crop from './utils/crop'
 import defined from './utils/defined'
 import { vh as flipVH } from './utils/flip'
 import { rectCorners } from './utils/geometry'
 import { map, reversed, zip, zipMin } from './utils/iterators'
-import diff, { ratio } from './utils/jsfeat/diff'
+import diff, { countPixels } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
+import outline from './utils/outline'
 
 export interface Options {
   readonly election: Election
-  detectQRCode?: DetectQRCode
+  readonly detectQRCode?: DetectQRCode
+  readonly markScoreVoteThreshold?: number
 
   /** @deprecated */
   decodeQRCode?: DetectQRCode
 }
+
+export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.2
 
 /**
  * Interprets ballot images based on templates. A template is simply an empty
@@ -61,8 +67,9 @@ export default class Interpreter {
     BallotPageMetadata['ballotStyleId'],
     (BallotPageLayout | undefined)[]
   >()
-  private election: Election
-  private detectQRCode?: DetectQRCode
+  private readonly election: Election
+  private readonly detectQRCode?: DetectQRCode
+  private readonly markScoreVoteThreshold: number
 
   public constructor(election: Election)
   public constructor(options: Options)
@@ -71,8 +78,12 @@ export default class Interpreter {
       this.election = optionsOrElection.election
       this.detectQRCode =
         optionsOrElection.detectQRCode ?? optionsOrElection.decodeQRCode
+      this.markScoreVoteThreshold =
+        optionsOrElection.markScoreVoteThreshold ??
+        DEFAULT_MARK_SCORE_VOTE_THRESHOLD
     } else {
       this.election = optionsOrElection
+      this.markScoreVoteThreshold = DEFAULT_MARK_SCORE_VOTE_THRESHOLD
     }
   }
 
@@ -119,14 +130,10 @@ export default class Interpreter {
     ))
 
     const contests = findContestOptions([
-      ...map(findContests(imageData), ({ bounds }) => ({
+      ...map(findContests(imageData), ({ bounds, corners }) => ({
         bounds,
-        targets: [
-          ...map(
-            reversed(findTargets(imageData, bounds)),
-            ({ bounds }) => bounds
-          ),
-        ],
+        corners,
+        targets: [...reversed(findTargets(imageData, bounds))],
       })),
     ])
 
@@ -163,8 +170,17 @@ export default class Interpreter {
    */
   public async interpretBallot(
     imageData: ImageData,
+    { metadata }: { metadata?: BallotPageMetadata } = {}
+  ): Promise<Interpreted> {
+    const marked = await this.findMarks(imageData, metadata)
+    const ballot = this.interpretMarks(marked)
+    return { ...marked, ballot }
+  }
+
+  private async findMarks(
+    imageData: ImageData,
     metadata?: BallotPageMetadata
-  ): Promise<InterpretedBallot> {
+  ): Promise<FindMarksResult> {
     if (this.hasMissingTemplates()) {
       throw new Error(
         'Refusing to interpret ballots before all templates are added.'
@@ -179,22 +195,22 @@ export default class Interpreter {
     const contests = findContests(imageData)
     const ballotLayout: BallotPageLayout = {
       ballotImage: { imageData, metadata },
-      contests: [...map(contests, ({ bounds }) => ({ bounds, options: [] }))],
+      contests: [
+        ...map(contests, ({ bounds, corners }) => ({
+          bounds,
+          corners,
+          options: [],
+        })),
+      ],
     }
 
     const { election } = this
-    const { ballotStyleId, pageNumber, precinctId } = metadata
+    const { ballotStyleId, pageNumber } = metadata
     const templatesForBallotStyle = this.templates.get(ballotStyleId) ?? []
     const matchedTemplate = defined(templatesForBallotStyle[pageNumber - 1])
     const ballotStyle = defined(
       getBallotStyle({
         ballotStyleId,
-        election,
-      })
-    )
-    const precinct = defined(
-      getPrecinctById({
-        precinctId,
         election,
       })
     )
@@ -212,95 +228,38 @@ export default class Interpreter {
         contestOffset + matchedTemplate.contests.length
       )
     )
-    const votes = this.getVotesFromMarks(
-      getContests({ ballotStyle, election }).slice(
-        contestOffset,
-        contestOffset + matchedTemplate.contests.length
-      ),
-      marks
-    )
 
-    const ballot: CompletedBallot = {
+    return { matchedTemplate, metadata, marks }
+  }
+
+  private interpretMarks({
+    marks,
+    metadata,
+  }: FindMarksResult): CompletedBallot {
+    const { election } = this
+    const ballotStyle = defined(
+      getBallotStyle({
+        ballotStyleId: metadata.ballotStyleId,
+        election,
+      })
+    )
+    const precinct = defined(
+      getPrecinctById({
+        election,
+        precinctId: metadata.precinctId,
+      })
+    )
+    return {
       ballotId: uuid(),
       ballotStyle,
       ballotType: BallotType.Standard,
-      election: this.election,
-      isTestBallot: false,
+      election,
+      isTestBallot: metadata.isTestBallot,
       precinct,
-      votes,
+      votes: getVotesFromMarks(marks, {
+        markScoreVoteThreshold: this.markScoreVoteThreshold,
+      }),
     }
-
-    return { matchedTemplate, ballot, marks }
-  }
-
-  private getVotesFromMarks(
-    contests: Contests,
-    marks: readonly InterpretedBallotMark[],
-    { markScoreThreshold = 0.2 } = {}
-  ): VotesDict {
-    const votes: VotesDict = {}
-
-    for (const contest of contests) {
-      const contestMarks = marks.filter(
-        (mark) => mark.contest?.id === contest.id
-      )
-
-      if (contest.type === 'candidate') {
-        const candidateMarks = contestMarks as readonly InterpretedBallotCandidateTargetMark[]
-        const expectedOptions =
-          contest.candidates.length +
-          (contest.allowWriteIns ? contest.seats : 0)
-
-        if (candidateMarks.length !== expectedOptions) {
-          throw new Error(
-            `Contest ${contest.id} is supposed to have ${expectedOptions} options(s), but found ${candidateMarks.length}.`
-          )
-        }
-
-        for (const [mark, candidate] of zipMin(
-          candidateMarks,
-          contest.candidates
-        )) {
-          if (mark.score >= markScoreThreshold) {
-            addVote(votes, contest, candidate)
-          }
-        }
-
-        if (contest.allowWriteIns) {
-          const writeInMarks = candidateMarks.slice(contest.candidates.length)
-
-          for (const writeInMark of writeInMarks) {
-            if (writeInMark.score >= markScoreThreshold) {
-              addVote(votes, contest, {
-                id: '__write-in',
-                name: 'Write-In',
-                isWriteIn: true,
-              })
-            }
-          }
-        }
-      } else {
-        const yesNoMarks = contestMarks as readonly InterpretedBallotYesNoTargetMark[]
-
-        if (yesNoMarks.length !== 2) {
-          throw new Error(
-            `Contest ${contest.id} is supposed to have two options (yes/no), but found ${yesNoMarks.length}.`
-          )
-        }
-
-        const [yesMark, noMark] = yesNoMarks
-        const yesMarked = yesMark.score >= markScoreThreshold
-        const noMarked = noMark.score >= markScoreThreshold
-
-        if (yesMarked && noMarked) {
-          // You can't pick both, so don't record a vote here.
-        } else if (yesMarked || noMarked) {
-          addVote(votes, contest, yesMarked ? 'yes' : 'no')
-        }
-      }
-    }
-
-    return votes
   }
 
   private async normalizeImageDataAndMetadata(
@@ -328,9 +287,9 @@ export default class Interpreter {
     ballotLayout: BallotPageLayout,
     template: BallotPageLayout,
     contests: Contests
-  ): readonly InterpretedBallotMark[] {
+  ): BallotMark[] {
     const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template)
-    const marks: InterpretedBallotMark[] = []
+    const marks: BallotMark[] = []
 
     assert.equal(template.contests.length, contests.length)
 
@@ -352,10 +311,9 @@ export default class Interpreter {
             mappedBallot,
             option.target
           )
-          const mark: InterpretedBallotCandidateTargetMark = {
+          const mark: BallotCandidateTargetMark = {
             type: 'candidate',
-            // TODO: Look for the actual mark shape bounds.
-            bounds: option.target,
+            bounds: option.target.bounds,
             contest,
             score,
             target: option.target,
@@ -373,10 +331,9 @@ export default class Interpreter {
               mappedBallot,
               writeInOption.target
             )
-            const mark: InterpretedBallotCandidateTargetMark = {
+            const mark: BallotCandidateTargetMark = {
               type: 'candidate',
-              // TODO: Look for the actual mark shape bounds.
-              bounds: writeInOption.target,
+              bounds: writeInOption.target.bounds,
               contest,
               score,
               target: writeInOption.target,
@@ -402,10 +359,9 @@ export default class Interpreter {
           mappedBallot,
           yesOption.target
         )
-        const yesMark: InterpretedBallotYesNoTargetMark = {
+        const yesMark: BallotYesNoTargetMark = {
           type: 'yesno',
-          // TODO: Look for the actual mark shape bounds.
-          bounds: yesOption.target,
+          bounds: yesOption.target.bounds,
           contest,
           option: 'yes',
           score: yesScore,
@@ -418,10 +374,9 @@ export default class Interpreter {
           mappedBallot,
           noOption.target
         )
-        const noMark: InterpretedBallotYesNoTargetMark = {
+        const noMark: BallotYesNoTargetMark = {
           type: 'yesno',
-          // TODO: Look for the actual mark shape bounds.
-          bounds: noOption.target,
+          bounds: noOption.target.bounds,
           contest,
           option: 'yes',
           score: noScore,
@@ -437,9 +392,68 @@ export default class Interpreter {
   private targetMarkScore(
     template: ImageData,
     ballot: ImageData,
-    target: Rect
+    target: TargetShape
   ): number {
-    return ratio(diff(template, ballot, target, target))
+    const offsetAndScore = new Map<Point, number>()
+    const templateTarget = outline(crop(template, target.bounds))
+    const templateTargetInner = outline(crop(template, target.inner))
+    const templatePixelCountAvailableToFill = countPixels(templateTargetInner, {
+      color: PIXEL_WHITE,
+    })
+
+    for (const { x, y } of [
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 },
+    ]) {
+      const offsetTargetInner = {
+        ...target.inner,
+        x: target.inner.x + x,
+        y: target.inner.y + y,
+      }
+      const diffImageInner = diff(
+        templateTarget,
+        ballot,
+        {
+          ...target.inner,
+          x: target.inner.x - target.bounds.x,
+          y: target.inner.y - target.bounds.y,
+        },
+        offsetTargetInner
+      )
+      const ballotTargetInnerNewBlackPixelCount = countPixels(diffImageInner, {
+        color: PIXEL_BLACK,
+      })
+      offsetAndScore.set(
+        { x, y },
+        ballotTargetInnerNewBlackPixelCount / templatePixelCountAvailableToFill
+      )
+    }
+    const [[, minScore]] = [...offsetAndScore].sort(([, a], [, b]) => a - b)
+    return minScore
+  }
+
+  private mapImageWithPoints(
+    imageMat: jsfeat.matrix_t,
+    mappedSize: Size,
+    fromPoints: Point[],
+    toPoints: Point[]
+  ): ImageData {
+    const homography = new jsfeat.motion_model.homography2d()
+    const transform = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t)
+
+    homography.run(toPoints, fromPoints, transform, toPoints.length)
+
+    const mappedImage = new jsfeat.matrix_t(
+      mappedSize.width,
+      mappedSize.height,
+      jsfeat.U8C1_t
+    )
+    jsfeat.imgproc.warp_perspective(imageMat, mappedImage, transform, 255)
+
+    return matToImageData(mappedImage)
   }
 
   private mapBallotOntoTemplate(
@@ -447,9 +461,12 @@ export default class Interpreter {
     template: BallotPageLayout
   ): ImageData {
     const ballotMat = readGrayscaleImage(ballot.ballotImage.imageData)
-    const templateMat = readGrayscaleImage(template.ballotImage.imageData)
-    const ballotPoints = []
-    const templatePoints = []
+    const templateSize = {
+      width: template.ballotImage.imageData.width,
+      height: template.ballotImage.imageData.height,
+    }
+    const ballotPoints: Point[] = []
+    const templatePoints: Point[] = []
 
     for (const [
       { bounds: ballotContestBounds },
@@ -459,18 +476,11 @@ export default class Interpreter {
       templatePoints.push(...rectCorners(templateContestBounds))
     }
 
-    const homography = new jsfeat.motion_model.homography2d()
-    const transform = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t)
-
-    homography.run(templatePoints, ballotPoints, transform, ballotPoints.length)
-
-    const mappedImage = new jsfeat.matrix_t(
-      templateMat.cols,
-      templateMat.rows,
-      jsfeat.U8C1_t
+    return this.mapImageWithPoints(
+      ballotMat,
+      templateSize,
+      ballotPoints,
+      templatePoints
     )
-    jsfeat.imgproc.warp_perspective(ballotMat, mappedImage, transform, 255)
-
-    return matToImageData(mappedImage)
   }
 }

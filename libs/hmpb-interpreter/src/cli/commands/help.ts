@@ -29,6 +29,11 @@ export function printHelp(out: typeof process.stdout): void {
     `${$0} interpret -e election.json -f json template*.jpg ballot*.jpg\n`
   )
   out.write(`\n`)
+  out.write(chalk.gray(`# Set an explicit minimum mark score (0-1).\n`))
+  out.write(
+    `${$0} interpret -e election.json -m 0.5 template*.jpg ballot*.jpg\n`
+  )
+  out.write(`\n`)
   out.write(
     chalk.gray(
       `# Automatically process images as templates until all pages are found.\n`

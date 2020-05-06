@@ -4,7 +4,7 @@ import {
   assertSizesMatch,
   isRGBA,
   makeInPlaceImageTransform,
-} from './makeImageTransform'
+} from './imageFormatUtils'
 
 export default makeInPlaceImageTransform(fromGray, fromRGBA)
 

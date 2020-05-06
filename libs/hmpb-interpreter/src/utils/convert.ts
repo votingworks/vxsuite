@@ -1,12 +1,12 @@
 import { strict as assert } from 'assert'
 import { createImageData, ImageData } from 'canvas'
+import { matrix_t, U8C1_t, U8C4_t } from 'jsfeat'
 import {
-  makeImageTransform,
-  isRGBA,
-  assertRGBAOrGrayscaleImage,
   assertGrayscaleImage,
-} from './makeImageTransform'
-import { matrix_t, U8C4_t, U8C1_t } from 'jsfeat'
+  assertRGBAOrGrayscaleImage,
+  isRGBA,
+  makeImageTransform,
+} from './imageFormatUtils'
 
 /**
  * Converts an image to an RGBA image.

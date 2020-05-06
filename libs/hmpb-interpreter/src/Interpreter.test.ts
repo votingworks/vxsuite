@@ -34,6 +34,24 @@ test('interpret two-column template', async () => {
           "x": 935,
           "y": 127,
         },
+        "corners": Array [
+          Object {
+            "x": 937,
+            "y": 127,
+          },
+          Object {
+            "x": 1663,
+            "y": 136,
+          },
+          Object {
+            "x": 937,
+            "y": 1268,
+          },
+          Object {
+            "x": 1663,
+            "y": 1268,
+          },
+        ],
         "options": Array [
           Object {
             "bounds": Object {
@@ -43,10 +61,18 @@ test('interpret two-column template', async () => {
               "y": 365,
             },
             "target": Object {
-              "height": 43,
-              "width": 63,
-              "x": 981,
-              "y": 370,
+              "bounds": Object {
+                "height": 43,
+                "width": 63,
+                "x": 981,
+                "y": 370,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 988,
+                "y": 377,
+              },
             },
           },
           Object {
@@ -57,10 +83,18 @@ test('interpret two-column template', async () => {
               "y": 517,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 981,
-              "y": 522,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 981,
+                "y": 522,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 988,
+                "y": 529,
+              },
             },
           },
           Object {
@@ -71,10 +105,18 @@ test('interpret two-column template', async () => {
               "y": 667,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 981,
-              "y": 672,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 981,
+                "y": 672,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 988,
+                "y": 679,
+              },
             },
           },
           Object {
@@ -85,10 +127,18 @@ test('interpret two-column template', async () => {
               "y": 817,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 981,
-              "y": 822,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 981,
+                "y": 822,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 48,
+                "x": 989,
+                "y": 829,
+              },
             },
           },
           Object {
@@ -99,10 +149,18 @@ test('interpret two-column template', async () => {
               "y": 968,
             },
             "target": Object {
-              "height": 43,
-              "width": 63,
-              "x": 982,
-              "y": 973,
+              "bounds": Object {
+                "height": 43,
+                "width": 63,
+                "x": 982,
+                "y": 973,
+              },
+              "inner": Object {
+                "height": 29,
+                "width": 49,
+                "x": 989,
+                "y": 980,
+              },
             },
           },
           Object {
@@ -113,10 +171,18 @@ test('interpret two-column template', async () => {
               "y": 1120,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 982,
-              "y": 1124,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 982,
+                "y": 1124,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 989,
+                "y": 1131,
+              },
             },
           },
         ],
@@ -128,6 +194,24 @@ test('interpret two-column template', async () => {
           "x": 937,
           "y": 1310,
         },
+        "corners": Array [
+          Object {
+            "x": 937,
+            "y": 1312,
+          },
+          Object {
+            "x": 1663,
+            "y": 1310,
+          },
+          Object {
+            "x": 938,
+            "y": 1914,
+          },
+          Object {
+            "x": 1664,
+            "y": 1913,
+          },
+        ],
         "options": Array [
           Object {
             "bounds": Object {
@@ -137,10 +221,18 @@ test('interpret two-column template', async () => {
               "y": 1611,
             },
             "target": Object {
-              "height": 43,
-              "width": 63,
-              "x": 983,
-              "y": 1616,
+              "bounds": Object {
+                "height": 43,
+                "width": 63,
+                "x": 983,
+                "y": 1616,
+              },
+              "inner": Object {
+                "height": 29,
+                "width": 49,
+                "x": 990,
+                "y": 1623,
+              },
             },
           },
           Object {
@@ -151,10 +243,18 @@ test('interpret two-column template', async () => {
               "y": 1763,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 983,
-              "y": 1767,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 983,
+                "y": 1767,
+              },
+              "inner": Object {
+                "height": 29,
+                "width": 49,
+                "x": 990,
+                "y": 1773,
+              },
             },
           },
         ],
@@ -166,6 +266,24 @@ test('interpret two-column template', async () => {
           "x": 938,
           "y": 1955,
         },
+        "corners": Array [
+          Object {
+            "x": 938,
+            "y": 1969,
+          },
+          Object {
+            "x": 1659,
+            "y": 1955,
+          },
+          Object {
+            "x": 940,
+            "y": 2553,
+          },
+          Object {
+            "x": 1666,
+            "y": 2552,
+          },
+        ],
         "options": Array [
           Object {
             "bounds": Object {
@@ -175,10 +293,18 @@ test('interpret two-column template', async () => {
               "y": 2254,
             },
             "target": Object {
-              "height": 43,
-              "width": 62,
-              "x": 985,
-              "y": 2259,
+              "bounds": Object {
+                "height": 43,
+                "width": 62,
+                "x": 985,
+                "y": 2259,
+              },
+              "inner": Object {
+                "height": 29,
+                "width": 49,
+                "x": 992,
+                "y": 2266,
+              },
             },
           },
           Object {
@@ -189,10 +315,18 @@ test('interpret two-column template', async () => {
               "y": 2406,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 985,
-              "y": 2410,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 985,
+                "y": 2410,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 992,
+                "y": 2417,
+              },
             },
           },
         ],
@@ -204,6 +338,24 @@ test('interpret two-column template', async () => {
           "x": 1704,
           "y": 128,
         },
+        "corners": Array [
+          Object {
+            "x": 1705,
+            "y": 128,
+          },
+          Object {
+            "x": 2432,
+            "y": 129,
+          },
+          Object {
+            "x": 1705,
+            "y": 675,
+          },
+          Object {
+            "x": 2428,
+            "y": 675,
+          },
+        ],
         "options": Array [
           Object {
             "bounds": Object {
@@ -213,10 +365,18 @@ test('interpret two-column template', async () => {
               "y": 429,
             },
             "target": Object {
-              "height": 43,
-              "width": 63,
-              "x": 1750,
-              "y": 434,
+              "bounds": Object {
+                "height": 43,
+                "width": 63,
+                "x": 1750,
+                "y": 434,
+              },
+              "inner": Object {
+                "height": 29,
+                "width": 49,
+                "x": 1757,
+                "y": 441,
+              },
             },
           },
           Object {
@@ -227,10 +387,18 @@ test('interpret two-column template', async () => {
               "y": 582,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 1750,
-              "y": 585,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 1750,
+                "y": 585,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 1757,
+                "y": 592,
+              },
             },
           },
         ],
@@ -242,6 +410,24 @@ test('interpret two-column template', async () => {
           "x": 1704,
           "y": 716,
         },
+        "corners": Array [
+          Object {
+            "x": 1704,
+            "y": 727,
+          },
+          Object {
+            "x": 2429,
+            "y": 716,
+          },
+          Object {
+            "x": 1706,
+            "y": 1264,
+          },
+          Object {
+            "x": 2432,
+            "y": 1263,
+          },
+        ],
         "options": Array [
           Object {
             "bounds": Object {
@@ -251,10 +437,18 @@ test('interpret two-column template', async () => {
               "y": 1016,
             },
             "target": Object {
-              "height": 43,
-              "width": 64,
-              "x": 1750,
-              "y": 1021,
+              "bounds": Object {
+                "height": 43,
+                "width": 64,
+                "x": 1750,
+                "y": 1021,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 50,
+                "x": 1757,
+                "y": 1028,
+              },
             },
           },
           Object {
@@ -265,10 +459,18 @@ test('interpret two-column template', async () => {
               "y": 1168,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 1751,
-              "y": 1171,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 1751,
+                "y": 1171,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 1758,
+                "y": 1178,
+              },
             },
           },
         ],
@@ -280,6 +482,24 @@ test('interpret two-column template', async () => {
           "x": 1705,
           "y": 1305,
         },
+        "corners": Array [
+          Object {
+            "x": 1705,
+            "y": 1334,
+          },
+          Object {
+            "x": 2432,
+            "y": 1305,
+          },
+          Object {
+            "x": 1707,
+            "y": 1940,
+          },
+          Object {
+            "x": 2435,
+            "y": 1939,
+          },
+        ],
         "options": Array [
           Object {
             "bounds": Object {
@@ -289,10 +509,18 @@ test('interpret two-column template', async () => {
               "y": 1544,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 1752,
-              "y": 1549,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 1752,
+                "y": 1549,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 1759,
+                "y": 1556,
+              },
             },
           },
           Object {
@@ -303,10 +531,18 @@ test('interpret two-column template', async () => {
               "y": 1694,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 1752,
-              "y": 1699,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 1752,
+                "y": 1699,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 1759,
+                "y": 1706,
+              },
             },
           },
           Object {
@@ -317,10 +553,18 @@ test('interpret two-column template', async () => {
               "y": 1846,
             },
             "target": Object {
-              "height": 43,
-              "width": 63,
-              "x": 1753,
-              "y": 1849,
+              "bounds": Object {
+                "height": 43,
+                "width": 63,
+                "x": 1753,
+                "y": 1849,
+              },
+              "inner": Object {
+                "height": 29,
+                "width": 50,
+                "x": 1759,
+                "y": 1856,
+              },
             },
           },
         ],
@@ -332,6 +576,24 @@ test('interpret two-column template', async () => {
           "x": 1707,
           "y": 1981,
         },
+        "corners": Array [
+          Object {
+            "x": 1707,
+            "y": 1983,
+          },
+          Object {
+            "x": 2436,
+            "y": 1981,
+          },
+          Object {
+            "x": 1711,
+            "y": 2984,
+          },
+          Object {
+            "x": 2437,
+            "y": 2980,
+          },
+        ],
         "options": Array [
           Object {
             "bounds": Object {
@@ -341,10 +603,18 @@ test('interpret two-column template', async () => {
               "y": 2343,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 1754,
-              "y": 2348,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 1754,
+                "y": 2348,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 1761,
+                "y": 2355,
+              },
             },
           },
           Object {
@@ -355,10 +625,18 @@ test('interpret two-column template', async () => {
               "y": 2495,
             },
             "target": Object {
-              "height": 41,
-              "width": 64,
-              "x": 1754,
-              "y": 2499,
+              "bounds": Object {
+                "height": 41,
+                "width": 64,
+                "x": 1754,
+                "y": 2499,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 50,
+                "x": 1761,
+                "y": 2506,
+              },
             },
           },
           Object {
@@ -369,10 +647,18 @@ test('interpret two-column template', async () => {
               "y": 2643,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 1755,
-              "y": 2647,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 1755,
+                "y": 2647,
+              },
+              "inner": Object {
+                "height": 29,
+                "width": 49,
+                "x": 1762,
+                "y": 2653,
+              },
             },
           },
           Object {
@@ -383,10 +669,18 @@ test('interpret two-column template', async () => {
               "y": 2793,
             },
             "target": Object {
-              "height": 42,
-              "width": 64,
-              "x": 1755,
-              "y": 2796,
+              "bounds": Object {
+                "height": 42,
+                "width": 64,
+                "x": 1755,
+                "y": 2796,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 50,
+                "x": 1762,
+                "y": 2803,
+              },
             },
           },
           Object {
@@ -397,10 +691,18 @@ test('interpret two-column template', async () => {
               "y": 2889,
             },
             "target": Object {
-              "height": 42,
-              "width": 63,
-              "x": 1756,
-              "y": 2892,
+              "bounds": Object {
+                "height": 42,
+                "width": 63,
+                "x": 1756,
+                "y": 2892,
+              },
+              "inner": Object {
+                "height": 28,
+                "width": 49,
+                "x": 1763,
+                "y": 2899,
+              },
             },
           },
         ],
@@ -431,13 +733,13 @@ test('interpret empty ballot', async () => {
   const p1 = await interpreter.addTemplate(await templatePage1.imageData())
   await interpreter.addTemplate(await templatePage2.imageData())
 
-  const { matchedTemplate, ballot } = await interpreter.interpretBallot(
-    await templatePage1.imageData()
-  )
+  const {
+    matchedTemplate,
+    metadata,
+    ballot,
+  } = await interpreter.interpretBallot(await templatePage1.imageData())
   expect(matchedTemplate === p1).toBe(true)
-  expect(ballot.ballotStyle).toEqual(
-    expect.objectContaining({ id: p1.ballotImage.metadata.ballotStyleId })
-  )
+  expect(metadata.ballotStyleId).toEqual(p1.ballotImage.metadata.ballotStyleId)
   expect(ballot.votes).toEqual({})
 })
 
@@ -542,12 +844,12 @@ test('interpret multiple vote', async () => {
     Array [
       Object {
         "option": "John Cornyn",
-        "score": 0.009597637504614249,
+        "score": 0,
         "type": "candidate",
       },
       Object {
         "option": "James Brumley",
-        "score": 0.0041572184429327285,
+        "score": 0,
         "type": "candidate",
       },
       Object {
@@ -557,7 +859,7 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.41156462585034015,
+        "score": 0.9328287606433302,
         "type": "candidate",
       },
       Object {
@@ -572,7 +874,7 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Eddie Bernice Johnson",
-        "score": 0.38095238095238093,
+        "score": 0.8958930276981852,
         "type": "candidate",
       },
       Object {
@@ -582,7 +884,7 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.21380345086271568,
+        "score": 0.4854732895970009,
         "type": "candidate",
       },
       Object {
@@ -592,37 +894,37 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Yvonne Davis",
-        "score": 0.019933554817275746,
+        "score": 0,
         "type": "candidate",
       },
       Object {
         "option": "Write-In",
-        "score": 0.3922902494331066,
+        "score": 0.8395061728395061,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.37318313953488375,
+        "score": 0.8551136363636364,
         "type": "candidate",
       },
       Object {
         "option": "Write-In",
-        "score": 0.0003779289493575208,
+        "score": 0,
         "type": "candidate",
       },
       Object {
         "option": "Marian Brown",
-        "score": 0.0015117157974300832,
+        "score": 0,
         "type": "candidate",
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.3000755857898715,
+        "score": 0.6976303317535545,
         "type": "candidate",
       },
       Object {
         "option": "Write-In",
-        "score": 0.01107419712070875,
+        "score": 0,
         "type": "candidate",
       },
       Object {
@@ -637,12 +939,12 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Andrew Jewell",
-        "score": 0.3257747543461829,
+        "score": 0.776930409914204,
         "type": "candidate",
       },
       Object {
         "option": "Write-In",
-        "score": 0.004092261904761905,
+        "score": 0,
         "type": "candidate",
       },
       Object {
@@ -666,10 +968,9 @@ test('invalid marks', async () => {
     await templatePage2.metadata()
   )
 
-  const { ballot } = await interpreter.interpretBallot(
+  const { ballot, marks } = await interpreter.interpretBallot(
     await fullVotesPage2.imageData()
   )
-  // TODO: communicate invalid marks somehow instead of just ignoring them
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
       "dallas-city-council": Array [
@@ -685,7 +986,925 @@ test('invalid marks', async () => {
         },
       ],
       "dallas-county-proposition-r": "yes",
+      "dallas-county-retain-chief-justice": "yes",
     }
+  `)
+
+  expect(marks).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "bounds": Object {
+          "height": 43,
+          "width": 62,
+          "x": 215,
+          "y": 636,
+        },
+        "contest": Object {
+          "description": "Shall Robert Demergue be retained as Chief Justice of the Dallas County Court of Appeals?",
+          "districtId": "12",
+          "id": "dallas-county-retain-chief-justice",
+          "section": "Dallas County",
+          "title": "Retain Robert Demergue as Chief Justice?",
+          "type": "yesno",
+        },
+        "option": "yes",
+        "score": 0.3758325404376784,
+        "target": Object {
+          "bounds": Object {
+            "height": 43,
+            "width": 62,
+            "x": 215,
+            "y": 636,
+          },
+          "inner": Object {
+            "height": 29,
+            "width": 48,
+            "x": 222,
+            "y": 643,
+          },
+        },
+        "type": "yesno",
+      },
+      Object {
+        "bounds": Object {
+          "height": 43,
+          "width": 63,
+          "x": 214,
+          "y": 733,
+        },
+        "contest": Object {
+          "description": "Shall Robert Demergue be retained as Chief Justice of the Dallas County Court of Appeals?",
+          "districtId": "12",
+          "id": "dallas-county-retain-chief-justice",
+          "section": "Dallas County",
+          "title": "Retain Robert Demergue as Chief Justice?",
+          "type": "yesno",
+        },
+        "option": "yes",
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 43,
+            "width": 63,
+            "x": 214,
+            "y": 733,
+          },
+          "inner": Object {
+            "height": 29,
+            "width": 48,
+            "x": 222,
+            "y": 740,
+          },
+        },
+        "type": "yesno",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 62,
+          "x": 214,
+          "y": 1323,
+        },
+        "contest": Object {
+          "description": "Shall the Dallas County extend the Recycling Program countywide?",
+          "districtId": "12",
+          "id": "dallas-county-proposition-r",
+          "section": "Dallas County",
+          "title": "Proposition R: Countywide Recycling Program",
+          "type": "yesno",
+        },
+        "option": "yes",
+        "score": 0.937381404174573,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 62,
+            "x": 214,
+            "y": 1323,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 48,
+            "x": 221,
+            "y": 1330,
+          },
+        },
+        "type": "yesno",
+      },
+      Object {
+        "bounds": Object {
+          "height": 43,
+          "width": 62,
+          "x": 214,
+          "y": 1419,
+        },
+        "contest": Object {
+          "description": "Shall the Dallas County extend the Recycling Program countywide?",
+          "districtId": "12",
+          "id": "dallas-county-proposition-r",
+          "section": "Dallas County",
+          "title": "Proposition R: Countywide Recycling Program",
+          "type": "yesno",
+        },
+        "option": "yes",
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 43,
+            "width": 62,
+            "x": 214,
+            "y": 1419,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 48,
+            "x": 221,
+            "y": 1427,
+          },
+        },
+        "type": "yesno",
+      },
+      Object {
+        "bounds": Object {
+          "height": 43,
+          "width": 63,
+          "x": 982,
+          "y": 371,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "harvey-eagle",
+              "name": "Harvey Eagle",
+              "partyId": "2",
+            },
+            Object {
+              "id": "randall-rupp",
+              "name": "Randall Rupp",
+              "partyId": "2",
+            },
+            Object {
+              "id": "carroll-shry",
+              "name": "Carroll Shry",
+              "partyId": "2",
+            },
+            Object {
+              "id": "beverly-barker",
+              "name": "Beverly Barker",
+              "partyId": "3",
+            },
+            Object {
+              "id": "donald-davis",
+              "name": "Donald Davis",
+              "partyId": "3",
+            },
+            Object {
+              "id": "hugo-smith",
+              "name": "Hugo Smith",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-city-council",
+          "seats": 3,
+          "section": "City of Dallas",
+          "title": "City Council",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "harvey-eagle",
+          "name": "Harvey Eagle",
+          "partyId": "2",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 43,
+            "width": 63,
+            "x": 982,
+            "y": 371,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 49,
+            "x": 989,
+            "y": 378,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 63,
+          "x": 982,
+          "y": 522,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "harvey-eagle",
+              "name": "Harvey Eagle",
+              "partyId": "2",
+            },
+            Object {
+              "id": "randall-rupp",
+              "name": "Randall Rupp",
+              "partyId": "2",
+            },
+            Object {
+              "id": "carroll-shry",
+              "name": "Carroll Shry",
+              "partyId": "2",
+            },
+            Object {
+              "id": "beverly-barker",
+              "name": "Beverly Barker",
+              "partyId": "3",
+            },
+            Object {
+              "id": "donald-davis",
+              "name": "Donald Davis",
+              "partyId": "3",
+            },
+            Object {
+              "id": "hugo-smith",
+              "name": "Hugo Smith",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-city-council",
+          "seats": 3,
+          "section": "City of Dallas",
+          "title": "City Council",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "randall-rupp",
+          "name": "Randall Rupp",
+          "partyId": "2",
+        },
+        "score": 0.8097514340344169,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 63,
+            "x": 982,
+            "y": 522,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 48,
+            "x": 990,
+            "y": 529,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 63,
+          "x": 982,
+          "y": 672,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "harvey-eagle",
+              "name": "Harvey Eagle",
+              "partyId": "2",
+            },
+            Object {
+              "id": "randall-rupp",
+              "name": "Randall Rupp",
+              "partyId": "2",
+            },
+            Object {
+              "id": "carroll-shry",
+              "name": "Carroll Shry",
+              "partyId": "2",
+            },
+            Object {
+              "id": "beverly-barker",
+              "name": "Beverly Barker",
+              "partyId": "3",
+            },
+            Object {
+              "id": "donald-davis",
+              "name": "Donald Davis",
+              "partyId": "3",
+            },
+            Object {
+              "id": "hugo-smith",
+              "name": "Hugo Smith",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-city-council",
+          "seats": 3,
+          "section": "City of Dallas",
+          "title": "City Council",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "carroll-shry",
+          "name": "Carroll Shry",
+          "partyId": "2",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 63,
+            "x": 982,
+            "y": 672,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 48,
+            "x": 990,
+            "y": 679,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 63,
+          "x": 982,
+          "y": 824,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "harvey-eagle",
+              "name": "Harvey Eagle",
+              "partyId": "2",
+            },
+            Object {
+              "id": "randall-rupp",
+              "name": "Randall Rupp",
+              "partyId": "2",
+            },
+            Object {
+              "id": "carroll-shry",
+              "name": "Carroll Shry",
+              "partyId": "2",
+            },
+            Object {
+              "id": "beverly-barker",
+              "name": "Beverly Barker",
+              "partyId": "3",
+            },
+            Object {
+              "id": "donald-davis",
+              "name": "Donald Davis",
+              "partyId": "3",
+            },
+            Object {
+              "id": "hugo-smith",
+              "name": "Hugo Smith",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-city-council",
+          "seats": 3,
+          "section": "City of Dallas",
+          "title": "City Council",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "beverly-barker",
+          "name": "Beverly Barker",
+          "partyId": "3",
+        },
+        "score": 0.17273576097105509,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 63,
+            "x": 982,
+            "y": 824,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 49,
+            "x": 989,
+            "y": 831,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 43,
+          "width": 63,
+          "x": 982,
+          "y": 974,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "harvey-eagle",
+              "name": "Harvey Eagle",
+              "partyId": "2",
+            },
+            Object {
+              "id": "randall-rupp",
+              "name": "Randall Rupp",
+              "partyId": "2",
+            },
+            Object {
+              "id": "carroll-shry",
+              "name": "Carroll Shry",
+              "partyId": "2",
+            },
+            Object {
+              "id": "beverly-barker",
+              "name": "Beverly Barker",
+              "partyId": "3",
+            },
+            Object {
+              "id": "donald-davis",
+              "name": "Donald Davis",
+              "partyId": "3",
+            },
+            Object {
+              "id": "hugo-smith",
+              "name": "Hugo Smith",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-city-council",
+          "seats": 3,
+          "section": "City of Dallas",
+          "title": "City Council",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "donald-davis",
+          "name": "Donald Davis",
+          "partyId": "3",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 43,
+            "width": 63,
+            "x": 982,
+            "y": 974,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 49,
+            "x": 989,
+            "y": 981,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 63,
+          "x": 982,
+          "y": 1125,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "harvey-eagle",
+              "name": "Harvey Eagle",
+              "partyId": "2",
+            },
+            Object {
+              "id": "randall-rupp",
+              "name": "Randall Rupp",
+              "partyId": "2",
+            },
+            Object {
+              "id": "carroll-shry",
+              "name": "Carroll Shry",
+              "partyId": "2",
+            },
+            Object {
+              "id": "beverly-barker",
+              "name": "Beverly Barker",
+              "partyId": "3",
+            },
+            Object {
+              "id": "donald-davis",
+              "name": "Donald Davis",
+              "partyId": "3",
+            },
+            Object {
+              "id": "hugo-smith",
+              "name": "Hugo Smith",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-city-council",
+          "seats": 3,
+          "section": "City of Dallas",
+          "title": "City Council",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "hugo-smith",
+          "name": "Hugo Smith",
+          "partyId": "3",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 63,
+            "x": 982,
+            "y": 1125,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 49,
+            "x": 989,
+            "y": 1132,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 63,
+          "x": 982,
+          "y": 1276,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "harvey-eagle",
+              "name": "Harvey Eagle",
+              "partyId": "2",
+            },
+            Object {
+              "id": "randall-rupp",
+              "name": "Randall Rupp",
+              "partyId": "2",
+            },
+            Object {
+              "id": "carroll-shry",
+              "name": "Carroll Shry",
+              "partyId": "2",
+            },
+            Object {
+              "id": "beverly-barker",
+              "name": "Beverly Barker",
+              "partyId": "3",
+            },
+            Object {
+              "id": "donald-davis",
+              "name": "Donald Davis",
+              "partyId": "3",
+            },
+            Object {
+              "id": "hugo-smith",
+              "name": "Hugo Smith",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-city-council",
+          "seats": 3,
+          "section": "City of Dallas",
+          "title": "City Council",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 63,
+            "x": 982,
+            "y": 1276,
+          },
+          "inner": Object {
+            "height": 29,
+            "width": 49,
+            "x": 989,
+            "y": 1282,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 63,
+          "x": 982,
+          "y": 1373,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "harvey-eagle",
+              "name": "Harvey Eagle",
+              "partyId": "2",
+            },
+            Object {
+              "id": "randall-rupp",
+              "name": "Randall Rupp",
+              "partyId": "2",
+            },
+            Object {
+              "id": "carroll-shry",
+              "name": "Carroll Shry",
+              "partyId": "2",
+            },
+            Object {
+              "id": "beverly-barker",
+              "name": "Beverly Barker",
+              "partyId": "3",
+            },
+            Object {
+              "id": "donald-davis",
+              "name": "Donald Davis",
+              "partyId": "3",
+            },
+            Object {
+              "id": "hugo-smith",
+              "name": "Hugo Smith",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-city-council",
+          "seats": 3,
+          "section": "City of Dallas",
+          "title": "City Council",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "score": 0.9441287878787878,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 63,
+            "x": 982,
+            "y": 1373,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 49,
+            "x": 989,
+            "y": 1380,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 43,
+          "width": 63,
+          "x": 982,
+          "y": 1469,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "harvey-eagle",
+              "name": "Harvey Eagle",
+              "partyId": "2",
+            },
+            Object {
+              "id": "randall-rupp",
+              "name": "Randall Rupp",
+              "partyId": "2",
+            },
+            Object {
+              "id": "carroll-shry",
+              "name": "Carroll Shry",
+              "partyId": "2",
+            },
+            Object {
+              "id": "beverly-barker",
+              "name": "Beverly Barker",
+              "partyId": "3",
+            },
+            Object {
+              "id": "donald-davis",
+              "name": "Donald Davis",
+              "partyId": "3",
+            },
+            Object {
+              "id": "hugo-smith",
+              "name": "Hugo Smith",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-city-council",
+          "seats": 3,
+          "section": "City of Dallas",
+          "title": "City Council",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 43,
+            "width": 63,
+            "x": 982,
+            "y": 1469,
+          },
+          "inner": Object {
+            "height": 29,
+            "width": 49,
+            "x": 989,
+            "y": 1476,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 63,
+          "x": 1752,
+          "y": 374,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "orville-white",
+              "name": "Orville White",
+              "partyId": "2",
+            },
+            Object {
+              "id": "gregory-seldon",
+              "name": "Gregory Seldon",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-mayor",
+          "seats": 1,
+          "section": "City of Dallas",
+          "title": "Mayor",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "orville-white",
+          "name": "Orville White",
+          "partyId": "2",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 63,
+            "x": 1752,
+            "y": 374,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 49,
+            "x": 1759,
+            "y": 381,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 63,
+          "x": 1752,
+          "y": 524,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "orville-white",
+              "name": "Orville White",
+              "partyId": "2",
+            },
+            Object {
+              "id": "gregory-seldon",
+              "name": "Gregory Seldon",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-mayor",
+          "seats": 1,
+          "section": "City of Dallas",
+          "title": "Mayor",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "gregory-seldon",
+          "name": "Gregory Seldon",
+          "partyId": "3",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 63,
+            "x": 1752,
+            "y": 524,
+          },
+          "inner": Object {
+            "height": 28,
+            "width": 50,
+            "x": 1758,
+            "y": 531,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 42,
+          "width": 64,
+          "x": 1751,
+          "y": 674,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "orville-white",
+              "name": "Orville White",
+              "partyId": "2",
+            },
+            Object {
+              "id": "gregory-seldon",
+              "name": "Gregory Seldon",
+              "partyId": "3",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-mayor",
+          "seats": 1,
+          "section": "City of Dallas",
+          "title": "Mayor",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 42,
+            "width": 64,
+            "x": 1751,
+            "y": 674,
+          },
+          "inner": Object {
+            "height": 29,
+            "width": 50,
+            "x": 1758,
+            "y": 680,
+          },
+        },
+        "type": "candidate",
+      },
+    ]
   `)
 })
 
