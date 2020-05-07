@@ -11,7 +11,7 @@ import {
 
 import { MainChild } from '../components/Main'
 import { Monospace } from '../components/Text'
-// import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
+import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 
 const ExportElectionBallotPackageScreen = () => {
   const { election: e } = useContext(AppContext)
@@ -94,11 +94,11 @@ const ExportElectionBallotPackageScreen = () => {
           </Monospace>
         </li>
       </ul>
-      {/* <HandMarkedPaperBallot
+      <HandMarkedPaperBallot
         ballotStyleId={ballotStyleId}
         election={election}
         precinctId={precinctId}
-      /> */}
+      />
     </MainChild>
   )
 }
