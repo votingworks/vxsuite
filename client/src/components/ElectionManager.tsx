@@ -14,36 +14,39 @@ export const routerPaths = {
   root: '/',
   electionConfig: '/config',
   ballotsList: '/ballots',
-  ballotsView: ({ styleId, precinctId }: BallotScreenProps) =>
-    `/ballots/style/${styleId}/precinct/${precinctId}`,
+  ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps) =>
+    `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
   export: '/export',
 }
 
 const ElectionManager = () => (
-  <Screen>
-    <Main padded>
-      <Switch>
-        <Route
-          path={routerPaths.electionConfig}
-          component={ElectionConfigScreen}
-        />
-        <Route
-          path={routerPaths.ballotsList}
-          exact
-          component={BallotListScreen}
-        />
-        <Route
-          path={routerPaths.ballotsView({
-            styleId: ':styleId',
-            precinctId: ':precinctId',
-          })}
-          component={BallotScreen}
-        />
-        <Route component={BallotListScreen} />
-      </Switch>
-    </Main>
-    <Navigation />
-  </Screen>
+  <React.Fragment>
+    <Screen>
+      <Main padded>
+        <Switch>
+          <Route
+            path={routerPaths.electionConfig}
+            component={ElectionConfigScreen}
+          />
+          <Route
+            path={routerPaths.ballotsList}
+            exact
+            component={BallotListScreen}
+          />
+          <Route
+            path={routerPaths.ballotsView({
+              ballotStyleId: ':ballotStyleId',
+              precinctId: ':precinctId',
+            })}
+            component={BallotScreen}
+          />
+          <Route component={BallotListScreen} />
+        </Switch>
+      </Main>
+      <Navigation />
+    </Screen>
+    <div id="print-ballot" />
+  </React.Fragment>
 )
 
 export default ElectionManager
