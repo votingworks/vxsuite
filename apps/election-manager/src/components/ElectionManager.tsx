@@ -9,6 +9,7 @@ import { BallotScreenProps } from '../config/types'
 import ElectionConfigScreen from '../screens/ElectionConfigScreen'
 import BallotListScreen from '../screens/BallotListScreen'
 import BallotScreen from '../screens/BallotScreen'
+import ExportElectionBallotPackageScreen from '../screens/ExportElectionBallotPackageScreen'
 
 export const routerPaths = {
   root: '/',
@@ -39,6 +40,10 @@ const ElectionManager = () => (
               precinctId: ':precinctId',
             })}
             component={BallotScreen}
+          />
+          <Route
+            path={routerPaths.export}
+            component={ExportElectionBallotPackageScreen}
           />
           <Route component={BallotListScreen} />
         </Switch>
