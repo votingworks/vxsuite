@@ -141,21 +141,19 @@ const ContestSection = styled.div`
 
 const ballotMetadata = ({
   isLiveMode,
-  isTemplate,
   precinctId,
   ballotStyleId,
   pageNumber,
   pageCount,
 }: {
   isLiveMode: boolean
-  isTemplate: boolean
   precinctId: Precinct['id']
   ballotStyleId: BallotStyle['id']
   pageNumber: number
   pageCount: number
 }): string => {
   const params = new URLSearchParams([
-    ['t', `${!isLiveMode ? 't' : '_'}${isTemplate ? 't' : '_'}`],
+    ['t', `${!isLiveMode ? 't' : '_'}`],
     ['pr', precinctId],
     ['bs', ballotStyleId],
     ['p', `${pageNumber}-${pageCount}`],
@@ -234,7 +232,6 @@ interface Props {
   ballotStyleId: string
   election: Election
   isLiveMode?: boolean
-  isTemplate?: boolean
   precinctId: string
   votes?: VotesDict
 }
@@ -243,7 +240,6 @@ const HandMarkedPaperBallot = ({
   ballotStyleId,
   election,
   isLiveMode = true,
-  isTemplate = false,
   precinctId,
   votes = {},
 }: Props) => {
@@ -314,7 +310,6 @@ const HandMarkedPaperBallot = ({
                 level="L"
                 value={ballotMetadata({
                   isLiveMode,
-                  isTemplate,
                   precinctId,
                   ballotStyleId,
                   pageNumber: 1,
@@ -327,7 +322,6 @@ const HandMarkedPaperBallot = ({
                 level="L"
                 value={ballotMetadata({
                   isLiveMode,
-                  isTemplate,
                   precinctId,
                   ballotStyleId,
                   pageNumber: 2,
