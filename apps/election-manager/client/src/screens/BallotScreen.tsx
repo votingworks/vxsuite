@@ -9,6 +9,8 @@ import { MainChild } from '../components/Main'
 import { routerPaths } from '../components/ElectionManager'
 import LinkButton from '../components/LinkButton'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
+import { Monospace } from '../components/Text'
+import { getBallotFileName } from '../utils/election'
 
 const BallotScreen = () => {
   const { precinctId, ballotStyleId } = useParams<BallotScreenProps>()
@@ -24,6 +26,16 @@ const BallotScreen = () => {
       <h1>
         Ballot Style <strong>{ballotStyleId}</strong> for {precinctName}
       </h1>
+      <p>
+        Filename:{' '}
+        <Monospace>
+          {getBallotFileName({
+            election,
+            ballotStyleId,
+            precinctId,
+          })}
+        </Monospace>
+      </p>
       <p>Print page to view ballot.</p>
       <HandMarkedPaperBallot
         ballotStyleId={ballotStyleId}

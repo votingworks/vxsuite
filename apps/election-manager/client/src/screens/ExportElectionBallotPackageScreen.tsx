@@ -3,9 +3,14 @@ import { Election } from '@votingworks/ballot-encoder'
 
 import AppContext from '../contexts/AppContext'
 
-import { getBallotStylesDataByStyle, getPrecinctById } from '../utils/election'
+import {
+  getBallotStylesDataByStyle,
+  getPrecinctById,
+  getBallotFileName,
+} from '../utils/election'
 
 import { MainChild } from '../components/Main'
+import { Monospace } from '../components/Text'
 // import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 
 const ExportElectionBallotPackageScreen = () => {
@@ -15,9 +20,14 @@ const ExportElectionBallotPackageScreen = () => {
   const ballotStylesDataByStyle = getBallotStylesDataByStyle(election)
   const [ballotIndex, setBallotIndex] = useState(0)
   const ballot = ballotStylesDataByStyle[ballotIndex]
+  const { contestIds, precinctId, ballotStyleId } = ballot
   const ballotCount = ballotStylesDataByStyle.length
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadComplete, setDownloadComplete] = useState(false)
+  const precinctName = getPrecinctById({
+    election,
+    precinctId: ballot.precinctId,
+  })!.name
 
   useEffect(() => {
     const saveBallotPDF = (milliseconds = 500) =>
@@ -68,10 +78,20 @@ const ExportElectionBallotPackageScreen = () => {
           Ballot Style: <strong>{ballot.ballotStyleId}</strong>
         </li>
         <li>
-          Precinct:{' '}
-          <strong>
-            {getPrecinctById({ election, precinctId: ballot.precinctId })?.name}
-          </strong>
+          Precinct: <strong>{precinctName}</strong>
+        </li>
+        <li>
+          Contest count: <strong>{contestIds.length}</strong>
+        </li>
+        <li>
+          Filename:{' '}
+          <Monospace>
+            {getBallotFileName({
+              election,
+              ballotStyleId,
+              precinctId,
+            })}
+          </Monospace>
         </li>
       </ul>
       {/* <HandMarkedPaperBallot

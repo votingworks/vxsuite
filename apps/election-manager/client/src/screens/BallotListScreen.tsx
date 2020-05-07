@@ -1,10 +1,9 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import { Election } from '@votingworks/ballot-encoder'
-import ObjectHash from 'object-hash'
-import dashify from 'dashify'
 
 import AppContext from '../contexts/AppContext'
+import { getBallotFileName } from '../utils/election'
 
 import { routerPaths } from '../components/ElectionManager'
 import Button, { SegmentedButton } from '../components/Button'
@@ -35,8 +34,8 @@ const BallotListScreen = () => {
   const sortByStyle = () => setBallotView(0)
   const sortByPrecinct = () => setBallotView(1)
 
-  const electionHash = ObjectHash(election)
   const ballots = ballotLists[ballotView]
+
   return (
     <MainChild>
       <Header>
@@ -95,9 +94,11 @@ const BallotListScreen = () => {
                 <TD>{ballot.contestIds.length}</TD>
                 <TD nowrap>
                   <Monospace>
-                    {`election-${electionHash}-ballot-style-${
-                      ballot.ballotStyleId
-                    }-precinct-${dashify(precinctName)}.pdf`}
+                    {getBallotFileName({
+                      election,
+                      precinctId: ballot.precinctId,
+                      ballotStyleId: ballot.ballotStyleId,
+                    })}
                   </Monospace>
                 </TD>
               </tr>
