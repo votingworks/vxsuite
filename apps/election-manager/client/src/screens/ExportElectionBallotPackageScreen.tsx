@@ -8,6 +8,7 @@ import {
   getPrecinctById,
   getBallotFileName,
 } from '../utils/election'
+import DownloadableArchive from '../utils/DownloadableArchive'
 
 import { MainChild } from '../components/Main'
 import { Monospace } from '../components/Text'
@@ -22,49 +23,75 @@ const ExportElectionBallotPackageScreen = () => {
   const ballot = ballotStylesDataByStyle[ballotIndex]
   const { contestIds, precinctId, ballotStyleId } = ballot
   const ballotCount = ballotStylesDataByStyle.length
-  const [isDownloading, setIsDownloading] = useState(false)
+  const [isChoosingFile, setIsChoosingFile] = useState(true)
+  const [downloadFailed, setDownloadFailed] = useState(false)
   const [downloadComplete, setDownloadComplete] = useState(false)
+  const [archive] = useState(new DownloadableArchive())
   const precinctName = getPrecinctById({
     election,
     precinctId: ballot.precinctId,
   })!.name
 
   useEffect(() => {
-    const saveBallotPDF = (milliseconds = 500) =>
-      new Promise((resolve) =>
-        setTimeout(() => {
-          setBallotIndex(ballotIndex + 1)
-          return resolve
-        }, milliseconds)
-      )
+    const saveBallotPDF = async () => {
+      const name = getBallotFileName({
+        election,
+        ballotStyleId,
+        precinctId,
+      })
+      const data = await kiosk!.printToPDF()
+      await archive.file(name, Buffer.from(data))
+      setBallotIndex((ballotIndex) => ballotIndex + 1)
+    }
 
-    const initDownload = (milliseconds = 2000) =>
-      new Promise((resolve) =>
-        setTimeout(() => {
-          setDownloadComplete(true)
-          return resolve
-        }, milliseconds)
-      )
-
-    if (ballotIndex + 1 < ballotCount) {
+    if (!downloadFailed && isChoosingFile) {
+      ;(async () => {
+        try {
+          await archive.begin()
+          await archive.file(
+            'election.json',
+            JSON.stringify(election, undefined, 2)
+          )
+          setIsChoosingFile(false)
+          setDownloadFailed(false)
+        } catch {
+          setIsChoosingFile(false)
+          setDownloadFailed(true)
+        }
+      })()
+    } else if (ballotIndex + 1 < ballotCount) {
       saveBallotPDF()
     } else {
-      setIsDownloading(true)
-      initDownload()
+      ;(async () => {
+        await archive.end()
+        setDownloadComplete(true)
+      })()
     }
-  }, [setIsDownloading, ballotIndex, ballotCount])
+  }, [
+    archive,
+    isChoosingFile,
+    downloadFailed,
+    ballotStyleId,
+    precinctId,
+    election,
+    ballotIndex,
+    ballotCount,
+    setIsChoosingFile,
+    setDownloadFailed,
+  ])
+
+  if (downloadFailed) {
+    return (
+      <MainChild>
+        <h1>Download Failed</h1>
+      </MainChild>
+    )
+  }
 
   if (downloadComplete) {
     return (
       <MainChild>
         <h1>Download Complete</h1>
-      </MainChild>
-    )
-  }
-  if (isDownloading) {
-    return (
-      <MainChild>
-        <h1>Downloading Election Ballot Package…</h1>
       </MainChild>
     )
   }
