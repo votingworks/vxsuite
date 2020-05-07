@@ -13,22 +13,32 @@ export const getContests = ({
       ballotStyle.partyId === c.partyId
   )
 
-const precinctBallotStyles = {
-  'precinct-1': {
-    'ballot-style-1': ['mayor-contest', 'proposition-r'],
-  },
-}
+export const getPrecinctById = ({
+  election,
+  precinctId,
+}: {
+  election: Election
+  precinctId: string
+}) => election.precincts.find((p) => p.id === precinctId)
 
-const ballotStylePrecinct = {
-  'precinct-1': {
-    'ballot-style-1': ['mayor-contest', 'proposition-r'],
-  },
-}
+export const getBallotStyle = ({
+  ballotStyleId,
+  election,
+}: {
+  ballotStyleId: string
+  election: Election
+}) => election.ballotStyles.find((bs) => bs.id === ballotStyleId) as BallotStyle
 
-const ballots = [
-  {
-    precinctId: '1',
-    ballotStyle: '1',
-    contestIds: ['mayor-contest', 'proposition-r'],
-  },
-]
+export const getPartyPrimaryAdjectiveFromBallotStyle = ({
+  ballotStyleId,
+  election,
+}: {
+  ballotStyleId: string
+  election: Election
+}): string => {
+  const parts = ballotStyleId?.match(/(\d+)(\w+)/i)
+  const abbrev = parts?.[2]
+  const party = election.parties.find((p) => p.abbrev === abbrev)
+  const name = party?.name
+  return name === 'Democrat' ? 'Democratic' : name ?? ''
+}

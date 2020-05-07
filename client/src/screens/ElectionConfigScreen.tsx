@@ -27,8 +27,8 @@ const FlexTextareaWrapper = styled.div`
 
 const EditElectionConfigScreen = () => {
   const history = useHistory()
-  const { election: contextElection, saveElection } = useContext(AppContext)
-  const election = contextElection as Election
+  const { election: e, saveElection } = useContext(AppContext)
+  const election = e as Election
   const stringifiedElection = JSON.stringify(election, null, 2)
   const [electionString, setElectionString] = useState(stringifiedElection)
   const [dirty, setDirty] = useState(false)
@@ -132,10 +132,10 @@ const EditElectionConfigScreen = () => {
         }
         actions={
           <React.Fragment>
-            <Button primary onPress={unconfigureElection}>
-              Yes
-            </Button>
             <Button onPress={cancelConfirmingUnconfig}>Cancel</Button>
+            <Button danger onPress={unconfigureElection}>
+              Remove Config
+            </Button>
           </React.Fragment>
         }
       />
