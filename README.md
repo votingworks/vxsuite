@@ -44,9 +44,12 @@ This app is intended to be used on an offline computer by an election admin.
     - [x] precinct
     - [x] style
 - [x] View Ballot
-  - [ ] html ballot in print-ready format (via PagedJS)
+  - [x] html ballot in print-ready format (via PagedJS)
   - [ ] PDF ballot (in iframe under html ballot or click to open in new window)
   - [ ] Previous and Next Ballot Style links
+- [x] Export Election Ballot Package screen
+  - [x] Mock export UI
+  - [ ] Hook up to API in kiosk browser
 
 ## Navigation
 
