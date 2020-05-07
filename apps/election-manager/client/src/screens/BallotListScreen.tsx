@@ -14,65 +14,23 @@ import Table, { TD } from '../components/Table'
 import { Monospace, NoWrap } from '../components/Text'
 import Prose from '../components/Prose'
 import pluralize from 'pluralize'
-
-interface BallotStyleData {
-  ballotStyleId: string
-  contestIds: string[]
-  precinctIds: string[]
-}
-
-interface BallotStyleDataRow {
-  ballotStyleId: string
-  contestIds: string[]
-  precinctId: string
-}
+import {
+  getBallotStylesDataByStyle,
+  getBallotStylesDataByPrecinct,
+} from '../utils/election'
 
 const Header = styled.div`
   margin-bottom: 1rem;
 `
 
-const sortOptions = {
-  ignorePunctuation: true,
-  numeric: true,
-}
-
 const BallotListScreen = () => {
   const { election: e } = useContext(AppContext)
   const election = e as Election
-  const { ballotStyles } = election
 
-  const ballotStylesData: BallotStyleData[] = ballotStyles
-    .map((ballotStyle) => ({
-      ballotStyleId: ballotStyle.id,
-      precinctIds: ballotStyle.precincts,
-      contestIds: election.contests
-        .filter((c) => ballotStyle.districts.includes(c.districtId))
-        .map((c) => c.id),
-    }))
-    .sort((a, b) =>
-      a.ballotStyleId.localeCompare(b.ballotStyleId, undefined, sortOptions)
-    )
-
-  const ballotStylesDataByStyle = ballotStylesData.reduce<BallotStyleDataRow[]>(
-    (accumulator, currentValue) =>
-      accumulator.concat(
-        currentValue.precinctIds.map((precinctId) => ({
-          ...currentValue,
-          precinctId,
-        }))
-      ),
-    []
-  )
-
-  const ballotStylesDataByPrecinct = [...ballotStylesDataByStyle].sort(
-    (a, b) => {
-      const nameA = election.precincts.find((p) => p.id === a.precinctId)!.name
-      const nameB = election.precincts.find((p) => p.id === b.precinctId)!.name
-      return nameA.localeCompare(nameB, undefined, sortOptions)
-    }
-  )
-
-  const ballotLists = [ballotStylesDataByStyle, ballotStylesDataByPrecinct]
+  const ballotLists = [
+    getBallotStylesDataByStyle(election),
+    getBallotStylesDataByPrecinct(election),
+  ]
   const [ballotView, setBallotView] = useState(0)
   const sortByStyle = () => setBallotView(0)
   const sortByPrecinct = () => setBallotView(1)
