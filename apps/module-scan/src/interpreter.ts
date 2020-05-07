@@ -13,11 +13,11 @@ import {
   OptionalYesNoVote,
 } from '@votingworks/ballot-encoder'
 import { readFile as readFileCallback } from 'fs'
-import { decode } from 'node-quirc'
+import { decode as decodeJpeg } from 'jpeg-js'
+import { detect as qrdetect } from '@votingworks/qrdetect'
+import { decode as quircDecode } from 'node-quirc'
 import { promisify } from 'util'
 import { CastVoteRecord } from './types'
-// TODO: do dependency-injection here instead
-import { RealZBarImage } from './zbarimg'
 
 export interface InterpretFileParams {
   readonly election: Election
@@ -29,8 +29,6 @@ export interface Interpreter {
     interpretFileParams: InterpretFileParams
   ): Promise<CastVoteRecord | undefined>
 }
-
-const zbarimg = new RealZBarImage()
 
 const readFile = promisify(readFileCallback)
 
@@ -88,22 +86,27 @@ export function interpretBallotData({
   return ballotToCastVoteRecord(ballot)
 }
 
-async function readQRCodeFromImageData(
-  imageData: Buffer
+async function readQRCodeFromImageFileData(
+  fileData: Buffer
 ): Promise<Buffer | undefined> {
-  const qrCodes = await decode(imageData)
+  const quircCodes = await quircDecode(fileData)
 
-  return qrCodes.length > 0 ? qrCodes[0].data : undefined
+  if (quircCodes.length > 0) {
+    return quircCodes[0].data
+  }
+
+  const { data, width, height } = decodeJpeg(fileData)
+  const qrdetectCodes = qrdetect(data, width, height)
+
+  if (qrdetectCodes.length > 0) {
+    return qrdetectCodes[0].data
+  }
 }
 
 export async function readQRCodeFromImageFile(
   filepath: string
 ): Promise<Buffer | undefined> {
-  const imageData = await readFile(filepath)
-  return (
-    (await readQRCodeFromImageData(imageData)) ||
-    (await zbarimg.readQRCodeFromImage({ filepath }))
-  )
+  return await readQRCodeFromImageFileData(await readFile(filepath))
 }
 
 export default class SummaryBallotInterpreter implements Interpreter {
