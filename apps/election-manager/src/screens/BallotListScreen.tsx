@@ -16,13 +16,13 @@ import Prose from '../components/Prose'
 import pluralize from 'pluralize'
 
 interface BallotStyleData {
-  styleId: string
+  ballotStyleId: string
   contestIds: string[]
   precinctIds: string[]
 }
 
 interface BallotStyleDataRow {
-  styleId: string
+  ballotStyleId: string
   contestIds: string[]
   precinctId: string
 }
@@ -37,19 +37,21 @@ const sortOptions = {
 }
 
 const BallotListScreen = () => {
-  const { election: contextElection } = useContext(AppContext)
-  const election = contextElection as Election
+  const { election: e } = useContext(AppContext)
+  const election = e as Election
   const { ballotStyles } = election
 
   const ballotStylesData: BallotStyleData[] = ballotStyles
     .map((ballotStyle) => ({
-      styleId: ballotStyle.id,
+      ballotStyleId: ballotStyle.id,
       precinctIds: ballotStyle.precincts,
       contestIds: election.contests
         .filter((c) => ballotStyle.districts.includes(c.districtId))
         .map((c) => c.id),
     }))
-    .sort((a, b) => a.styleId.localeCompare(b.styleId, undefined, sortOptions))
+    .sort((a, b) =>
+      a.ballotStyleId.localeCompare(b.ballotStyleId, undefined, sortOptions)
+    )
 
   const ballotStylesDataByStyle = ballotStylesData.reduce<BallotStyleDataRow[]>(
     (accumulator, currentValue) =>
@@ -118,7 +120,7 @@ const BallotListScreen = () => {
               (p) => p.id === ballot.precinctId
             )!.name
             return (
-              <tr key={ballot.styleId + ballot.precinctId}>
+              <tr key={ballot.ballotStyleId + ballot.precinctId}>
                 <TD textAlign="right" nowrap>
                   <LinkButton
                     fullWidth
@@ -128,7 +130,7 @@ const BallotListScreen = () => {
                     View Ballot
                   </LinkButton>
                 </TD>
-                <TD>{ballot.styleId}</TD>
+                <TD>{ballot.ballotStyleId}</TD>
                 <TD>
                   <NoWrap>{precinctName}</NoWrap>
                 </TD>
@@ -136,7 +138,7 @@ const BallotListScreen = () => {
                 <TD nowrap>
                   <Monospace>
                     {`election-${electionHash}-ballot-style-${
-                      ballot.styleId
+                      ballot.ballotStyleId
                     }-precinct-${dashify(precinctName)}.pdf`}
                   </Monospace>
                 </TD>
