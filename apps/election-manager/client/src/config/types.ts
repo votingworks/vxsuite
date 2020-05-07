@@ -13,6 +13,6 @@ export type SaveElection = (value: OptionalElection) => void
 
 // Router Props
 export interface BallotScreenProps {
-  styleId: string
+  ballotStyleId: string
   precinctId: string
 }
