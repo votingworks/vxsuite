@@ -21,37 +21,34 @@ export const routerPaths = {
 }
 
 const ElectionManager = () => (
-  <React.Fragment>
-    <Screen>
-      <Main padded>
-        <Switch>
-          <Route
-            path={routerPaths.electionConfig}
-            component={ElectionConfigScreen}
-          />
-          <Route
-            path={routerPaths.ballotsList}
-            exact
-            component={BallotListScreen}
-          />
-          <Route
-            path={routerPaths.ballotsView({
-              ballotStyleId: ':ballotStyleId',
-              precinctId: ':precinctId',
-            })}
-            component={BallotScreen}
-          />
-          <Route
-            path={routerPaths.export}
-            component={ExportElectionBallotPackageScreen}
-          />
-          <Route component={BallotListScreen} />
-        </Switch>
-      </Main>
-      <Navigation />
-    </Screen>
-    <div id="print-ballot" />
-  </React.Fragment>
+  <Screen>
+    <Main padded>
+      <Switch>
+        <Route
+          path={routerPaths.electionConfig}
+          component={ElectionConfigScreen}
+        />
+        <Route
+          path={routerPaths.ballotsList}
+          exact
+          component={BallotListScreen}
+        />
+        <Route
+          path={routerPaths.ballotsView({
+            ballotStyleId: ':ballotStyleId',
+            precinctId: ':precinctId',
+          })}
+          component={BallotScreen}
+        />
+        <Route
+          path={routerPaths.export}
+          component={ExportElectionBallotPackageScreen}
+        />
+        <Route component={BallotListScreen} />
+      </Switch>
+    </Main>
+    <Navigation />
+  </Screen>
 )
 
 export default ElectionManager
