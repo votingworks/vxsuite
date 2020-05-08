@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
+import ObjectHash from 'object-hash'
 
 import { Election, OptionalElection } from '@votingworks/ballot-encoder'
 
@@ -24,12 +25,16 @@ export const electionStorageKey = 'election'
 
 const AppRoot = ({ storage }: Props) => {
   const getElection = () => storage.get(electionStorageKey)
-
-  const [election, setElection] = useState<OptionalElection>(getElection())
+  const storageElection = getElection()
+  const [electionHash, setElectionHash] = useState(
+    storageElection ? ObjectHash(storageElection) : ''
+  )
+  const [election, setElection] = useState<OptionalElection>(storageElection)
 
   const saveElection: SaveElection = (electionConfigFile) => {
     const election = electionConfigFile
     setElection(election)
+    setElectionHash(election ? ObjectHash(election) : '')
     if (election === undefined) {
       storage.remove(electionStorageKey)
     } else {
@@ -41,6 +46,7 @@ const AppRoot = ({ storage }: Props) => {
     <AppContext.Provider
       value={{
         election,
+        electionHash,
         saveElection,
       }}
     >
