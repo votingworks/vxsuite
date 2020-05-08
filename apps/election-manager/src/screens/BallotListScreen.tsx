@@ -23,7 +23,7 @@ const Header = styled.div`
 `
 
 const BallotListScreen = () => {
-  const { election: e } = useContext(AppContext)
+  const { election: e, electionHash } = useContext(AppContext)
   const election = e as Election
 
   const ballotLists = [
@@ -95,9 +95,10 @@ const BallotListScreen = () => {
                 <TD nowrap>
                   <Monospace>
                     {getBallotFileName({
-                      election,
-                      precinctId: ballot.precinctId,
                       ballotStyleId: ballot.ballotStyleId,
+                      election,
+                      electionHash,
+                      precinctId: ballot.precinctId,
                     })}
                   </Monospace>
                 </TD>

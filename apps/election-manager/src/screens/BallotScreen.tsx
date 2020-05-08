@@ -14,7 +14,7 @@ import { getBallotFileName } from '../utils/election'
 
 const BallotScreen = () => {
   const { precinctId, ballotStyleId } = useParams<BallotScreenProps>()
-  const { election: e } = useContext(AppContext)
+  const { election: e, electionHash } = useContext(AppContext)
   const election = e as Election
   const precinctName = getPrecinctById({ election, precinctId })?.name
 
@@ -30,8 +30,9 @@ const BallotScreen = () => {
         Filename:{' '}
         <Monospace>
           {getBallotFileName({
-            election,
             ballotStyleId,
+            election,
+            electionHash,
             precinctId,
           })}
         </Monospace>

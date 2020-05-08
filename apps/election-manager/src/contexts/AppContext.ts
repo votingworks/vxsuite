@@ -4,11 +4,13 @@ import { SaveElection } from '../config/types'
 
 interface AppContextInterface {
   election: OptionalElection
+  electionHash: string
   saveElection: SaveElection
 }
 
 const appContext: AppContextInterface = {
   election: undefined,
+  electionHash: '',
   saveElection: () => undefined,
 }
 
