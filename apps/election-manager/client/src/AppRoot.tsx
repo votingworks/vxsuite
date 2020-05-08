@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import ObjectHash from 'object-hash'
@@ -25,11 +25,13 @@ export const electionStorageKey = 'election'
 
 const AppRoot = ({ storage }: Props) => {
   const getElection = () => storage.get(electionStorageKey)
+
   const storageElection = getElection()
   const [electionHash, setElectionHash] = useState(
     storageElection ? ObjectHash(storageElection) : ''
   )
-  const [election, setElection] = useState<OptionalElection>(storageElection)
+  const [election, setElection] = useState<OptionalElection>(getElection())
+  const printBallotRef = useRef<HTMLDivElement>(null)
 
   const saveElection: SaveElection = (electionConfigFile) => {
     const election = electionConfigFile
@@ -48,10 +50,14 @@ const AppRoot = ({ storage }: Props) => {
         election,
         electionHash,
         saveElection,
+        printBallotRef,
       }}
     >
       {election ? (
-        <ElectionManager />
+        <React.Fragment>
+          <ElectionManager />
+          <div ref={printBallotRef} />
+        </React.Fragment>
       ) : (
         <UnconfiguredApp election={election} saveElection={saveElection} />
       )}

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react'
+import React, { useLayoutEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { Previewer } from 'pagedjs'
 import {
@@ -16,6 +16,7 @@ import {
 } from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../config/globals'
+import AppContext from '../contexts/AppContext'
 
 import { BubbleMark } from './BubbleMark'
 import WriteInLine from './WriteInLine'
@@ -234,6 +235,7 @@ interface Props {
   isLiveMode?: boolean
   precinctId: string
   votes?: VotesDict
+  onRendered?(props: Omit<Props, 'onRendered'>): void
 }
 
 const HandMarkedPaperBallot = ({
@@ -242,7 +244,9 @@ const HandMarkedPaperBallot = ({
   isLiveMode = true,
   precinctId,
   votes = {},
+  onRendered,
 }: Props) => {
+  const { printBallotRef } = useContext(AppContext)
   const { county, date, seal, sealURL, state, parties, title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     ballotStyleId,
@@ -255,29 +259,42 @@ const HandMarkedPaperBallot = ({
 
   // TODO: The following PagedJS callback needs to be moved to the parent wrapper to run once per page, not per ballot.
   useLayoutEffect(() => {
-    const previewer = new Previewer()
-    previewer.preview(
-      document.querySelector('#screen-ballot')!.innerHTML,
-      ['/ballot/ballot.css'],
-      document.querySelector('#print-ballot')
-    )
-    console.log('previewer run')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // .then((flow: { total: any }) => {
-    //   console.log('preview rendered, total pages', flow.total, { flow })
-    // })
+    const printBallot = printBallotRef?.current
+
+    if (!printBallot) {
+      return
+    }
+
+    ;(async () => {
+      const flow = await new Previewer().preview(
+        ballotRef.current!.innerHTML,
+        ['/ballot/ballot.css'],
+        printBallot
+      )
+      console.log('preview rendered, total pages', flow.total, { flow })
+      onRendered?.({ ballotStyleId, election, isLiveMode, precinctId, votes })
+    })()
+
     return () => {
       // console.log('removing pagedjs ballot')
-      document.querySelector('#print-ballot')!.innerHTML = ''
+      printBallot.innerHTML = ''
     }
-  }, [])
+  }, [
+    ballotStyleId,
+    precinctId,
+    isLiveMode,
+    election,
+    votes,
+    onRendered,
+    printBallotRef,
+  ])
 
   // eslint-disable-next-line no-restricted-syntax
   const ballotRef = useRef<HTMLDivElement>(null)
 
   return (
     <React.Fragment>
-      <Ballot id="screen-ballot" aria-hidden data-ballot ref={ballotRef}>
+      <Ballot aria-hidden data-ballot ref={ballotRef}>
         <div className="ballot-footer">
           <PageFooter>
             <PageFooterMain>
