@@ -15,7 +15,7 @@ import { Monospace } from '../components/Text'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 
 const ExportElectionBallotPackageScreen = () => {
-  const { election: e } = useContext(AppContext)
+  const { election: e, electionHash } = useContext(AppContext)
   const election = e as Election
 
   const ballotStylesDataByStyle = getBallotStylesDataByStyle(election)
@@ -35,8 +35,9 @@ const ExportElectionBallotPackageScreen = () => {
   useEffect(() => {
     const saveBallotPDF = async () => {
       const name = getBallotFileName({
-        election,
         ballotStyleId,
+        election,
+        electionHash,
         precinctId,
       })
       const data = await kiosk!.printToPDF()
@@ -69,15 +70,16 @@ const ExportElectionBallotPackageScreen = () => {
     }
   }, [
     archive,
-    isChoosingFile,
-    downloadFailed,
-    ballotStyleId,
-    precinctId,
-    election,
-    ballotIndex,
     ballotCount,
-    setIsChoosingFile,
+    ballotIndex,
+    ballotStyleId,
+    downloadFailed,
+    election,
+    electionHash,
+    isChoosingFile,
+    precinctId,
     setDownloadFailed,
+    setIsChoosingFile,
   ])
 
   if (downloadFailed) {
@@ -114,8 +116,9 @@ const ExportElectionBallotPackageScreen = () => {
           Filename:{' '}
           <Monospace>
             {getBallotFileName({
-              election,
               ballotStyleId,
+              election,
+              electionHash,
               precinctId,
             })}
           </Monospace>

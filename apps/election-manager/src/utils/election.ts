@@ -1,6 +1,5 @@
 import { Election, BallotStyle } from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
-import ObjectHash from 'object-hash'
 
 export const getContests = ({
   ballotStyle,
@@ -89,15 +88,16 @@ export const getBallotStylesDataByPrecinct = (election: Election) =>
   })
 
 export const getBallotFileName = ({
-  election,
   ballotStyleId,
+  election,
+  electionHash,
   precinctId,
 }: {
-  election: Election
   ballotStyleId: string
+  election: Election
+  electionHash: string
   precinctId: string
 }) => {
-  const electionHash = ObjectHash(election)
   const precinctName = getPrecinctById({
     election,
     precinctId,
