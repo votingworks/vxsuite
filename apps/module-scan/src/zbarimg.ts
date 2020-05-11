@@ -13,6 +13,7 @@ export interface ZBarImage {
  * when it's a binary QR Code
  */
 export class RealZBarImage implements ZBarImage {
+  // eslint-disable-next-line class-methods-use-this
   public async readQRCodeFromImage({
     filepath,
   }: ZBarImageParams): Promise<Buffer | undefined> {

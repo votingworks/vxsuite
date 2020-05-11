@@ -4,11 +4,11 @@ import { join } from 'path'
 import LoopScanner from './LoopScanner'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
-const ballotImagePaths = ['1', '2'].map(suffix =>
+const ballotImagePaths = ['1', '2'].map((suffix) =>
   join(sampleBallotImagesPath, `sample-batch-1-ballot-${suffix}.jpg`)
 )
 
-function getScanner() {
+function getScanner(): LoopScanner | undefined {
   if (process.env.MOCK_SCANNER) {
     process.stdout.write(
       'Using mock scanner that scans these files repeatedly:\n'

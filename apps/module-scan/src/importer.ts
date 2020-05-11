@@ -83,9 +83,9 @@ export default class SystemImporter implements Importer {
     this.importedBallotImagesPath = importedBallotImagesPath
 
     // make sure those directories exist
-    for (const path of [ballotImagesPath, importedBallotImagesPath]) {
-      if (!fs.existsSync(path)) {
-        fs.mkdirSync(path)
+    for (const imagesPat of [ballotImagesPath, importedBallotImagesPath]) {
+      if (!fs.existsSync(imagesPat)) {
+        fs.mkdirSync(imagesPat)
       }
     }
   }
@@ -94,7 +94,7 @@ export default class SystemImporter implements Importer {
    * Adds a ballot using the data that would have been read from a scan, i.e.
    * the data encoded by the QR code.
    */
-  public async addManualBallot(encodedBallot: Uint8Array) {
+  public async addManualBallot(encodedBallot: Uint8Array): Promise<void> {
     if (!this.election) {
       return
     }
@@ -109,7 +109,7 @@ export default class SystemImporter implements Importer {
     })
 
     if (cvr) {
-      this.addCVR(this.manualBatchId!, 'manual-' + cvr['_ballotId'], cvr)
+      this.addCVR(this.manualBatchId!, `manual-${cvr._ballotId}`, cvr)
     }
   }
 
@@ -117,7 +117,7 @@ export default class SystemImporter implements Importer {
    * Sets the election information used to encode and decode ballots and begins
    * watching for scanned images to import.
    */
-  public async configure(newElection: Election) {
+  public async configure(newElection: Election): Promise<void> {
     this.election = newElection
 
     // start watching the ballots
@@ -128,12 +128,12 @@ export default class SystemImporter implements Importer {
         pollInterval: 200,
       },
     })
-    this.watcher.on('add', async path => {
+    this.watcher.on('add', async (addedPath) => {
       try {
-        await this.fileAdded(path)
+        await this.fileAdded(addedPath)
       } catch (error) {
         process.stderr.write(
-          `unable to process file (${path}): ${error.stack}\n`
+          `unable to process file (${addedPath}): ${error.stack}\n`
         )
       }
     })
@@ -142,7 +142,7 @@ export default class SystemImporter implements Importer {
   /**
    * Callback for chokidar to inform us that a new file was seen.
    */
-  private async fileAdded(ballotImagePath: string) {
+  private async fileAdded(ballotImagePath: string): Promise<void> {
     if (!this.election) {
       return
     }
@@ -161,7 +161,7 @@ export default class SystemImporter implements Importer {
       return
     }
 
-    const batchId = parseInt(batchIdMatch[1])
+    const batchId = parseInt(batchIdMatch[1], 10)
 
     const cvr = await this.interpreter.interpretFile({
       election: this.election,
@@ -177,7 +177,7 @@ export default class SystemImporter implements Importer {
     batchId: number,
     ballotImagePath: string,
     cvr: CastVoteRecord
-  ) {
+  ): void {
     this.addCVR(batchId, ballotImagePath, cvr)
 
     // move the file only if there was a CVR
@@ -217,7 +217,7 @@ export default class SystemImporter implements Importer {
   /**
    * Create a new batch and scan as many images as we can into it.
    */
-  public async doImport() {
+  public async doImport(): Promise<void> {
     if (!this.election) {
       throw new Error('no election configuration')
     }
@@ -241,7 +241,7 @@ export default class SystemImporter implements Importer {
   /**
    * Export the current CVRs to a string.
    */
-  public async doExport() {
+  public async doExport(): Promise<string> {
     if (!this.election) {
       return ''
     }
@@ -254,7 +254,7 @@ export default class SystemImporter implements Importer {
   /**
    * Reset all the data, both in the store and the ballot images.
    */
-  public async doZero() {
+  public async doZero(): Promise<void> {
     await this.store.init(true)
     fsExtra.emptyDirSync(this.ballotImagesPath)
     fsExtra.emptyDirSync(this.importedBallotImagesPath)
@@ -264,19 +264,21 @@ export default class SystemImporter implements Importer {
   /**
    * Get the imported batches and current election info, if any.
    */
-  public async getStatus() {
+  public async getStatus(): Promise<{
+    electionHash?: string
+    batches: BatchInfo[]
+  }> {
     const batches = await this.store.batchStatus()
     if (this.election) {
       return { electionHash: 'hashgoeshere', batches }
-    } else {
-      return { batches }
     }
+    return { batches }
   }
 
   /**
    * Resets all data like `doZero`, removes election info, and stops importing.
    */
-  public async unconfigure() {
+  public async unconfigure(): Promise<void> {
     await this.doZero()
     this.election = undefined
     if (this.watcher) {

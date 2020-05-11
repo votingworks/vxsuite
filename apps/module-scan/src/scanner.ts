@@ -5,7 +5,7 @@ export interface Scanner {
   scanInto(directory: string, prefix?: string): Promise<void>
 }
 
-function zeroPad(number: number, maxLength: number = 2): string {
+function zeroPad(number: number, maxLength = 2): string {
   return number.toString().padStart(maxLength, '0')
 }
 
@@ -21,6 +21,7 @@ function dateStamp(date: Date = new Date()): string {
  * Scans duplex images in batch mode from a Fujitsu scanner.
  */
 export class FujitsuScanner implements Scanner {
+  // eslint-disable-next-line class-methods-use-this
   public async scanInto(directory: string, prefix = ''): Promise<void> {
     await execFile('scanimage', [
       '-d',
