@@ -11,7 +11,6 @@ module.exports = {
   },
   parser: '@typescript-eslint/parser', // Specifies the ESLint parser
   extends: [
-    'airbnb',
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/typescript',
@@ -34,13 +33,8 @@ module.exports = {
     project: './tsconfig.json',
     sourceType: 'module',
   },
-  plugins: [
-    '@typescript-eslint',
-    'jest',
-    'no-null',
-  ],
+  plugins: ['@typescript-eslint', 'jest', 'no-null'],
   settings: {
-    'import/extensions': allExtensions,
     'import/parsers': {
       '@typescript-eslint/parser': tsExtensions,
     },
@@ -51,20 +45,26 @@ module.exports = {
     },
   },
   rules: {
-    '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
+    '@typescript-eslint/explicit-function-return-type': 'error',
     '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/no-null-keyword': 'on',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
-    '@typescript-eslint/no-unused-vars': ['error', {
-      'vars': 'all'
-    }],
+    'no-underscore-dangle': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+      },
+    ],
     camelcase: 'error',
+    'consistent-return': 'off',
+    'import/extensions': ['error', 'never', { '.json': 'always' }],
     'import/no-extraneous-dependencies': [
       'error',
       {
         devDependencies: true,
       },
     ],
+    'lines-between-class-members': 'off',
     'no-null/no-null': 2, // TypeScript with strictNullChecks
     strict: 0,
   },

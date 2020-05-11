@@ -35,7 +35,9 @@ beforeEach(async () => {
   app = buildApp({ importer, store })
 })
 
-function getScannerCVRCountWaiter() {
+function getScannerCVRCountWaiter(): {
+  waitForCount(count: number): Promise<void>
+} {
   let cvrCount = 0
 
   importer.addAddCVRCallback(() => {
@@ -43,9 +45,9 @@ function getScannerCVRCountWaiter() {
   })
 
   return {
-    waitForCount(count: number): Promise<void> {
-      return new Promise(resolve => {
-        function checkCVRCount() {
+    waitForCount(count): Promise<void> {
+      return new Promise((resolve) => {
+        function checkCVRCount(): void {
           if (count <= cvrCount) {
             resolve()
           } else {
@@ -78,9 +80,7 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
 
-  await request(app)
-    .post('/scan/scanBatch')
-    .expect(200, { status: 'ok' })
+  await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
 
   {
     // move some sample ballots into the ballots directory
@@ -162,8 +162,8 @@ test('going through the whole process works', async () => {
     // to expected outcome as a string directly.
     const CVRs: CastVoteRecord[] = exportResponse.text
       .split('\n')
-      .map(line => JSON.parse(line))
-    const ballotIds = CVRs.map(cvr => cvr._ballotId)
+      .map((line) => JSON.parse(line))
+    const ballotIds = CVRs.map((cvr) => cvr._ballotId)
     ballotIds.sort()
     expect(JSON.stringify(ballotIds)).toBe(
       JSON.stringify([
@@ -184,9 +184,9 @@ test('going through the whole process works', async () => {
       .get('/scan/status')
       .set('Accept', 'application/json')
       .expect(200)
-    ;({ id: batchIdToDelete, count: cvrCountToDelete } = JSON.parse(
+    ;[{ id: batchIdToDelete, count: cvrCountToDelete }] = JSON.parse(
       status.text
-    ).batches[0])
+    ).batches
     await request(app)
       .delete(`/scan/batch/${batchIdToDelete}`)
       .set('Accept', 'application/json')
@@ -223,8 +223,8 @@ test('going through the whole process works', async () => {
     // to expected outcome as a string directly.
     const CVRs: CastVoteRecord[] = exportResponse.text
       .split('\n')
-      .map(line => JSON.parse(line))
-    const ballotIds = CVRs.map(cvr => cvr._ballotId)
+      .map((line) => JSON.parse(line))
+    const ballotIds = CVRs.map((cvr) => cvr._ballotId)
     ballotIds.sort()
     expect(CVRs.length).toBe(5 - cvrCountToDelete)
   }

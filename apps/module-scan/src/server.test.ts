@@ -114,8 +114,6 @@ test('POST /scan/unconfigure', async () => {
 })
 
 test('GET /', async () => {
-  const response = await request(app)
-    .get('/')
-    .expect(200)
+  const response = await request(app).get('/').expect(200)
   expect(response.text).toContain('Test Page for Scan')
 })

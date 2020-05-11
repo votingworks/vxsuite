@@ -14,6 +14,7 @@ import { CastVoteRecord, BatchInfo } from './types'
  */
 export default class Store {
   private dbPath: string
+
   private db?: sqlite3.Database
 
   /**
@@ -37,10 +38,9 @@ export default class Store {
    */
   private async getDb(): Promise<sqlite3.Database> {
     if (!this.db) {
-      return await this.dbCreate()
-    } else {
-      return this.db
+      return this.dbCreate()
     }
+    return this.db
   }
 
   /**
@@ -50,7 +50,10 @@ export default class Store {
    *
    * await store.dbRunAsync('insert into muppets (name) values (?)', 'Kermit')
    */
-  public async dbRunAsync<P extends unknown[]>(sql: string, ...params: P) {
+  public async dbRunAsync<P extends unknown[]>(
+    sql: string,
+    ...params: P
+  ): Promise<void> {
     const db = await this.getDb()
     return new Promise((resolve, reject) => {
       db.run(sql, ...params, (err: Error) => {
@@ -90,18 +93,18 @@ export default class Store {
    *
    * await store.dbGetAsync('select count(*) as count from muppets')
    */
-  public dbGetAsync<T, P extends unknown[] = []>(
+  public async dbGetAsync<T, P extends unknown[] = []>(
     sql: string,
     ...params: P
   ): Promise<T> {
-    return new Promise<T>(async (resolve, reject) => {
-      const db = await this.getDb()
+    const db = await this.getDb()
+    return new Promise<T>((resolve, reject) => {
       db.get(sql, params, (err, row: T) => {
         if (err) {
-          return reject(err)
+          reject(err)
+        } else {
+          resolve(row)
         }
-
-        resolve(row)
       })
     })
   }
@@ -111,7 +114,7 @@ export default class Store {
    */
   public async dbDestroy(): Promise<void> {
     const db = await this.getDb()
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       db.close(() => {
         if (fs.existsSync(this.dbPath)) {
           fs.unlinkSync(this.dbPath)
@@ -127,7 +130,7 @@ export default class Store {
    */
   public async dbCreate(): Promise<sqlite3.Database> {
     this.db = await new Promise<sqlite3.Database>((resolve, reject) => {
-      const db = new sqlite3.Database(this.dbPath, err => {
+      const db = new sqlite3.Database(this.dbPath, (err) => {
         if (err) {
           reject(err)
         } else {
@@ -149,7 +152,7 @@ export default class Store {
   /**
    * Initializes the database by destroying the existing one if needed.
    */
-  public async init(resetDB = false) {
+  public async init(resetDB = false): Promise<void> {
     if (this.db) {
       await this.dbDestroy()
     }
@@ -166,7 +169,7 @@ export default class Store {
   /**
    * Adds a batch and returns its id.
    */
-  public async addBatch() {
+  public async addBatch(): Promise<number> {
     await this.dbRunAsync(
       "insert into batches (startedAt) values (strftime('%s','now'))"
     )
@@ -174,13 +177,13 @@ export default class Store {
     const { rowId } = await this.dbGetAsync(
       'select last_insert_rowid() as rowId'
     )
-    return parseInt(rowId)
+    return parseInt(rowId, 10)
   }
 
   /**
    * Marks the batch with id `batchId` as finished.
    */
-  public async finishBatch(batchId: number) {
+  public async finishBatch(batchId: number): Promise<void> {
     await this.dbRunAsync(
       "update batches set endedAt = strftime('%s','now') where id = ?",
       batchId
@@ -190,7 +193,11 @@ export default class Store {
   /**
    * Adds a cast vote record to an existing batch.
    */
-  public async addCVR(batchId: number, filename: string, cvr: CastVoteRecord) {
+  public async addCVR(
+    batchId: number,
+    filename: string,
+    cvr: CastVoteRecord
+  ): Promise<void> {
     try {
       await this.dbRunAsync(
         'insert into CVRs (batch_id, filename, cvr_json) values (?, ?, ?)',
@@ -208,7 +215,7 @@ export default class Store {
   /**
    * Deletes the batch with id `batchId`.
    */
-  public async deleteBatch(batchId: number) {
+  public async deleteBatch(batchId: number): Promise<boolean> {
     const { count }: { count: number } = await this.dbGetAsync(
       'select count(*) as count from batches where id = ?',
       batchId
@@ -221,18 +228,18 @@ export default class Store {
   /**
    * Gets all batches, including their CVR count.
    */
-  public async batchStatus() {
+  public async batchStatus(): Promise<BatchInfo[]> {
     const sql =
       'select batches.id as id, startedAt, endedAt, count(*) as count from CVRs, batches where CVRS.batch_id = batches.id group by batches.id, batches.startedAt, batches.endedAt order by batches.startedAt desc'
-    return this.dbAllAsync<BatchInfo>(sql)
+    return this.dbAllAsync(sql)
   }
 
   /**
    * Exports all CVR JSON data to a stream.
    */
-  public async exportCVRs(writeStream: Writable) {
+  public async exportCVRs(writeStream: Writable): Promise<void> {
     const sql = 'select cvr_json as cvrJSON from CVRs'
     const rows = await this.dbAllAsync<{ cvrJSON: string }>(sql)
-    writeStream.write(rows.map(row => row.cvrJSON).join('\n'))
+    writeStream.write(rows.map((row) => row.cvrJSON).join('\n'))
   }
 }

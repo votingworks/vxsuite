@@ -36,7 +36,8 @@ export default class LoopScanner implements Scanner {
    * @param prefix a prefix to use for the scanned filename
    */
   public async scanInto(directory: string, prefix?: string): Promise<void> {
-    const id = ++this.id
+    this.id += 1
+    const { id } = this
     const imagePath = this.getImagePathToScanAtOffset(id)
 
     process.stdout.write(

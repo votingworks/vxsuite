@@ -63,7 +63,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   })
 
   app.delete('/scan/batch/:batchId', async (request, response) => {
-    if (await store.deleteBatch(parseInt(request.params.batchId))) {
+    if (await store.deleteBatch(parseInt(request.params.batchId, 10))) {
       response.json({ status: 'ok' })
     } else {
       response.status(404).end()
@@ -104,7 +104,7 @@ export async function start({
   scanner = new FujitsuScanner(),
   importer = new SystemImporter({ store, scanner }),
   app = buildApp({ importer, store }),
-}: Partial<StartOptions> = {}) {
+}: Partial<StartOptions> = {}): Promise<void> {
   await store.init()
   app.listen(port, () => {
     // eslint-disable-next-line no-console

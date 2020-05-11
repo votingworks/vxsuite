@@ -66,7 +66,7 @@ function ballotToCastVoteRecord(
       const candidates = vote as Optional<CandidateVote>
 
       if (candidates && candidates.length > 0) {
-        cvrForContest = candidates.map(candidate =>
+        cvrForContest = candidates.map((candidate) =>
           candidate.isWriteIn ? 'writein' : candidate.id
         )
       }
@@ -106,10 +106,11 @@ async function readQRCodeFromImageFileData(
 export async function readQRCodeFromImageFile(
   filepath: string
 ): Promise<Buffer | undefined> {
-  return await readQRCodeFromImageFileData(await readFile(filepath))
+  return readQRCodeFromImageFileData(await readFile(filepath))
 }
 
 export default class SummaryBallotInterpreter implements Interpreter {
+  // eslint-disable-next-line class-methods-use-this
   public async interpretFile(
     interpretFileParams: InterpretFileParams
   ): Promise<CastVoteRecord | undefined> {
