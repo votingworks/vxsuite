@@ -33,8 +33,8 @@ const AppRoot = ({ storage }: Props) => {
   const [election, setElection] = useState<OptionalElection>(getElection())
   const printBallotRef = useRef<HTMLDivElement>(null)
 
-  const saveElection: SaveElection = (electionConfigFile) => {
-    const election = electionConfigFile
+  const saveElection: SaveElection = (electionDefinitionFile) => {
+    const election = electionDefinitionFile
     setElection(election)
     setElectionHash(election ? ObjectHash(election) : '')
     if (election === undefined) {

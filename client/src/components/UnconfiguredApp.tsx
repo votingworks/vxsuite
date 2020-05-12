@@ -13,6 +13,9 @@ import { routerPaths } from './ElectionManager'
 import FileInputButton from './FileInputButton'
 import Main, { MainChild } from './Main'
 import Screen from './Screen'
+import Prose from './Prose'
+import Loading from './Loading'
+import Navigation from './Navigation'
 
 interface Props {
   election: OptionalElection
@@ -25,12 +28,15 @@ const UnconfiguredApp = ({ election, saveElection }: Props) => {
   const history = useHistory()
   const location = useLocation()
 
+  const [isUploading, setIsUploading] = useState(false)
+
   const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false)
   const createNewElection = () => {
     saveElection(newElection)
-    history.push(routerPaths.electionConfig)
+    history.push(routerPaths.electionDefinition)
   }
   const handleVxElectionFile: InputEventFunction = async (event) => {
+    setIsUploading(true)
     const input = event.currentTarget
     const file = input.files && input.files[0]
 
@@ -41,6 +47,7 @@ const UnconfiguredApp = ({ election, saveElection }: Props) => {
         saveElection(JSON.parse(fileContent))
       } catch (error) {
         setVxElectionFileIsInvalid(true)
+        setIsUploading(false)
         console.error('handleVxElectionFile failed', error) // eslint-disable-line no-console
       }
     }
@@ -52,28 +59,42 @@ const UnconfiguredApp = ({ election, saveElection }: Props) => {
     }
   }, [location, history])
 
+  if (isUploading) {
+    return (
+      <Screen>
+        <Loading isFullscreen />
+      </Screen>
+    )
+  }
   return (
     <Screen>
       <Main padded>
-        <MainChild>
-          <h1>Unconfigured App</h1>
-          {vxElectionFileIsInvalid && (
-            <p>Invalid Vx Election Definition file.</p>
-          )}
-          <FileInputButton
-            id="vx-election"
-            name="vx-election"
-            accept=".json,application/json"
-            onChange={handleVxElectionFile}
-          >
-            Select Vx Election Definition file
-          </FileInputButton>{' '}
-          <Button onPress={createNewElection}>Create New Election</Button>
-          <pre>
-            <code>{JSON.stringify(election, null, 2)}</code>
-          </pre>
+        <MainChild center>
+          <Prose textCenter>
+            <p>Select an existing election definition or create a new one.</p>
+            {vxElectionFileIsInvalid && (
+              <p>Invalid Vx Election Definition file.</p>
+            )}
+            <p>
+              <FileInputButton
+                id="vx-election"
+                name="vx-election"
+                accept=".json,application/json"
+                onChange={handleVxElectionFile}
+              >
+                Select Vx Election Definition File
+              </FileInputButton>
+            </p>
+            <p>or</p>
+            <p>
+              <Button onPress={createNewElection}>
+                Create New Election Definition
+              </Button>
+            </p>
+          </Prose>
         </MainChild>
       </Main>
+      <Navigation />
     </Screen>
   )
 }
