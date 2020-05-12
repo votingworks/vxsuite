@@ -13,23 +13,12 @@ import DefaultInterpreter, {
 } from './interpreter'
 import { Scanner } from './scanner'
 
-export const DefaultBallotImagesPath = path.join(
-  __dirname,
-  '..',
-  'ballot-images/'
-)
-export const DefaultImportedBallotImagesPath = path.join(
-  __dirname,
-  '..',
-  'imported-ballot-images/'
-)
-
 export interface Options {
   store: Store
   scanner: Scanner
   ballotImagesPath: string
   importedBallotImagesPath: string
-  interpreter: Interpreter
+  interpreter?: Interpreter
 }
 
 export interface Importer {
@@ -69,13 +58,10 @@ export default class SystemImporter implements Importer {
   public constructor({
     store,
     scanner,
-    ballotImagesPath = DefaultBallotImagesPath,
-    importedBallotImagesPath = DefaultImportedBallotImagesPath,
+    ballotImagesPath,
+    importedBallotImagesPath,
     interpreter = new DefaultInterpreter(),
-  }: Partial<Exclude<Options, 'store' | 'scanner'>> & {
-    store: Store
-    scanner: Scanner
-  }) {
+  }: Options) {
     this.store = store
     this.scanner = scanner
     this.interpreter = interpreter

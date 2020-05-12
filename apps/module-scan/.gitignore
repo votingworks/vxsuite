@@ -1,5 +1,5 @@
 node_modules
 cvrs.db
-ballot-images/
-imported-ballot-images/
+tmp
+!tmp/.gitkeep
 *~

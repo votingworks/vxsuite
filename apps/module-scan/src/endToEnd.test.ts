@@ -1,6 +1,6 @@
 import { Application } from 'express'
 import request from 'supertest'
-import * as fs from 'fs'
+import { promises as fs } from 'fs'
 import * as path from 'path'
 import { electionSample as election } from '@votingworks/ballot-encoder'
 import { buildApp } from './server'
@@ -8,6 +8,9 @@ import SystemImporter from './importer'
 import Store from './store'
 import { FujitsuScanner, Scanner } from './scanner'
 import { CastVoteRecord, BatchInfo } from './types'
+import makeTemporaryBallotImportImageDirectories, {
+  TemporaryBallotImportImageDirectories,
+} from './makeTemporaryBallotImportImageDirectories'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -24,15 +27,22 @@ let app: Application
 let importer: SystemImporter
 let store: Store
 let scanner: Scanner
+let importDirs: TemporaryBallotImportImageDirectories
 
 beforeEach(async () => {
   store = await Store.memoryStore()
   scanner = new FujitsuScanner()
+  importDirs = makeTemporaryBallotImportImageDirectories()
   importer = new SystemImporter({
     store,
     scanner,
+    ...importDirs.paths,
   })
   app = buildApp({ importer, store })
+})
+
+afterEach(async () => {
+  importDirs.remove()
 })
 
 function getScannerCVRCountWaiter(): {
@@ -85,11 +95,11 @@ test('going through the whole process works', async () => {
   {
     // move some sample ballots into the ballots directory
     const expectedBallotCount = 3
-    const sampleBallots = fs.readdirSync(sampleBallotImagesPath)
+    const sampleBallots = await fs.readdir(sampleBallotImagesPath)
     for (const ballot of sampleBallots) {
       const oldPath = path.join(sampleBallotImagesPath, ballot)
       const newPath = path.join(importer.ballotImagesPath, ballot)
-      fs.copyFileSync(oldPath, newPath)
+      await fs.copyFile(oldPath, newPath)
     }
 
     // wait for the processing
