@@ -38,6 +38,14 @@ export function decodeSearchParams(
   }
 }
 
+export function fromString(text: string): BallotPageMetadata {
+  return decodeSearchParams(new URL(text).searchParams)
+}
+
+export function fromBytes(data: Buffer): BallotPageMetadata {
+  return fromString(new TextDecoder().decode(data))
+}
+
 export async function detect(
   imageData: ImageData,
   { detectQRCode = qrcode.default }: DetectOptions = {}
@@ -48,7 +56,8 @@ export async function detect(
     throw new MetadataDecodeError('Expected QR code not found.')
   }
 
-  const qrtext = new TextDecoder().decode(result.data)
-  const metadata = decodeSearchParams(new URL(qrtext).searchParams)
-  return { metadata, flipped: result.rightSideUp === false }
+  return {
+    metadata: fromBytes(result.data),
+    flipped: result.rightSideUp === false,
+  }
 }

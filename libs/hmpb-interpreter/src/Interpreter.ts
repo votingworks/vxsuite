@@ -170,7 +170,7 @@ export default class Interpreter {
    */
   public async interpretBallot(
     imageData: ImageData,
-    { metadata }: { metadata?: BallotPageMetadata } = {}
+    metadata?: BallotPageMetadata
   ): Promise<Interpreted> {
     const marked = await this.findMarks(imageData, metadata)
     const ballot = this.interpretMarks(marked)
