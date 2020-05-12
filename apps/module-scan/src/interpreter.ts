@@ -7,14 +7,19 @@ import {
   CandidateVote,
   CompletedBallot,
   decodeBallot,
+  detect,
   Election,
   getContests,
   Optional,
   OptionalYesNoVote,
 } from '@votingworks/ballot-encoder'
+import {
+  Interpreter as HMPBInterpreter,
+  metadataFromBytes,
+} from '@votingworks/hmpb-interpreter'
+import { detect as qrdetect } from '@votingworks/qrdetect'
 import { readFile as readFileCallback } from 'fs'
 import { decode as decodeJpeg } from 'jpeg-js'
-import { detect as qrdetect } from '@votingworks/qrdetect'
 import { decode as quircDecode } from 'node-quirc'
 import { promisify } from 'util'
 import { CastVoteRecord } from './types'
@@ -86,47 +91,82 @@ export function interpretBallotData({
   return ballotToCastVoteRecord(ballot)
 }
 
-async function readQRCodeFromImageFileData(
-  fileData: Buffer
-): Promise<Buffer | undefined> {
-  const quircCodes = await quircDecode(fileData)
+interface BallotImageData {
+  file: Buffer
+  image: ImageData
+  qrcode: Buffer
+}
+
+export async function getBallotImageData(
+  filepath: string
+): Promise<BallotImageData> {
+  const file = await readFile(filepath)
+  const { data, width, height } = decodeJpeg(file)
+  const image = { data: Uint8ClampedArray.from(data), width, height }
+  const quircCodes = await quircDecode(file)
 
   if (quircCodes.length > 0) {
-    return quircCodes[0].data
+    return { file, image, qrcode: quircCodes[0].data }
   }
 
-  const { data, width, height } = decodeJpeg(fileData)
   const qrdetectCodes = qrdetect(data, width, height)
 
   if (qrdetectCodes.length > 0) {
-    return qrdetectCodes[0].data
+    return { file, image, qrcode: qrdetectCodes[0].data }
   }
-}
 
-export async function readQRCodeFromImageFile(
-  filepath: string
-): Promise<Buffer | undefined> {
-  return readQRCodeFromImageFileData(await readFile(filepath))
+  throw new Error(`no QR code found in ${filepath}`)
 }
 
 export default class SummaryBallotInterpreter implements Interpreter {
+  private hmpbInterpreter?: HMPBInterpreter
+
   // eslint-disable-next-line class-methods-use-this
-  public async interpretFile(
-    interpretFileParams: InterpretFileParams
-  ): Promise<CastVoteRecord | undefined> {
-    const { election, ballotImagePath } = interpretFileParams
+  public async interpretFile({
+    election,
+    ballotImagePath,
+  }: InterpretFileParams): Promise<CastVoteRecord | undefined> {
+    let ballotImageData: BallotImageData
 
     try {
-      const encodedBallot = await readQRCodeFromImageFile(ballotImagePath)
-
-      if (!encodedBallot) {
-        throw new Error(`no QR codes found in ballot image: ${ballotImagePath}`)
-      }
-
-      const cvr = interpretBallotData({ election, encodedBallot })
-      return cvr
+      ballotImageData = await getBallotImageData(ballotImagePath)
     } catch {
-      return undefined
+      return
     }
+
+    return (
+      (await this.interpretBMDFile(election, ballotImageData)) ??
+      (await this.interpretHMPBFile(election, ballotImageData))
+    )
+  }
+
+  private async interpretBMDFile(
+    election: Election,
+    { qrcode }: BallotImageData
+  ): Promise<CastVoteRecord | undefined> {
+    if (typeof detect(qrcode) !== 'undefined') {
+      return interpretBallotData({ election, encodedBallot: qrcode })
+    }
+  }
+
+  private async interpretHMPBFile(
+    election: Election,
+    { image, qrcode }: BallotImageData
+  ): Promise<CastVoteRecord | undefined> {
+    if (!this.hmpbInterpreter) {
+      this.hmpbInterpreter = new HMPBInterpreter(election)
+    }
+
+    const metadata = metadataFromBytes(qrcode)
+
+    if (!this.hmpbInterpreter.hasMissingTemplates()) {
+      const { ballot } = await this.hmpbInterpreter.interpretBallot(
+        image,
+        metadata
+      )
+      return ballotToCastVoteRecord(ballot)
+    }
+
+    await this.hmpbInterpreter.addTemplate(image, metadata)
   }
 }
