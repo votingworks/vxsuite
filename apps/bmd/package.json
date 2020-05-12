@@ -111,7 +111,7 @@
     "@testing-library/react": "^9.5.0",
     "@types/base64-js": "^1.2.5",
     "@types/react-gamepad": "^1.0.0",
-    "@typescript-eslint/eslint-plugin": "^2.32.0",
+    "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.31.0",
     "cypress": "^4.5.0",
     "eslint": "^5.16.0",
