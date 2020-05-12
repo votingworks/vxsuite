@@ -40,7 +40,6 @@ const BallotListScreen = () => {
     <MainChild>
       <Header>
         <Prose maxWidth={false}>
-          <h1>Ballots</h1>
           <p>
             {`Sort ${pluralize('ballot', ballots.length, true)} by: `}
             <SegmentedButton>
