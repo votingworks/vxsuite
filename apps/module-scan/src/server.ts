@@ -8,6 +8,7 @@ import * as path from 'path'
 import { Election } from '@votingworks/ballot-encoder'
 
 import SystemImporter, { Importer } from './importer'
+import makeTemporaryBallotImportImageDirectories from './makeTemporaryBallotImportImageDirectories'
 import Store from './store'
 import { FujitsuScanner, Scanner } from './scanner'
 
@@ -102,12 +103,17 @@ export async function start({
   port = process.env.PORT || 3002,
   store = new Store(path.join(__dirname, '..', 'cvrs.db')),
   scanner = new FujitsuScanner(),
-  importer = new SystemImporter({ store, scanner }),
+  importer = new SystemImporter({
+    store,
+    scanner,
+    ...makeTemporaryBallotImportImageDirectories().paths,
+  }),
   app = buildApp({ importer, store }),
 }: Partial<StartOptions> = {}): Promise<void> {
   await store.init()
   app.listen(port, () => {
     // eslint-disable-next-line no-console
     console.log(`Listening at http://localhost:${port}/`)
+    console.log(`Scanning ballots into ${importer.ballotImagesPath}`)
   })
 }

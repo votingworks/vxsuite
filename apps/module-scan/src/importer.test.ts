@@ -3,14 +3,28 @@ import { electionSample as election } from '@votingworks/ballot-encoder'
 import SystemImporter from './importer'
 import Store from './store'
 import { Scanner } from './scanner'
+import makeTemporaryBallotImportImageDirectories, {
+  TemporaryBallotImportImageDirectories,
+} from './makeTemporaryBallotImportImageDirectories'
 
 jest.mock('chokidar')
 const mockChokidar = chokidar as jest.Mocked<typeof chokidar>
+
+let importDirs: TemporaryBallotImportImageDirectories
+
+beforeEach(() => {
+  importDirs = makeTemporaryBallotImportImageDirectories()
+})
+
+afterEach(() => {
+  importDirs.remove()
+})
 
 test('doImport calls scanner.scanInto', async () => {
   const scanner: Scanner = { scanInto: jest.fn() }
   const scannerMock = scanner as jest.Mocked<typeof scanner>
   const importer = new SystemImporter({
+    ...importDirs.paths,
     store: await Store.memoryStore(),
     scanner,
   })
@@ -45,8 +59,10 @@ test('doImport calls scanner.scanInto', async () => {
 test('configure starts watching files', async () => {
   const scanner: Scanner = { scanInto: jest.fn().mockResolvedValue(undefined) }
   const importer = new SystemImporter({
+    ...importDirs.paths,
     store: await Store.memoryStore(),
     scanner,
   })
-  importer.configure(election)
+  await importer.configure(election)
+  await importer.unconfigure()
 })
