@@ -1,7 +1,9 @@
 import React, { useCallback, useContext, useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
+import fileDownload from 'js-file-download'
 import { Election } from '@votingworks/ballot-encoder'
+import dashify from 'dashify'
 
 import AppContext from '../contexts/AppContext'
 
@@ -25,7 +27,7 @@ const FlexTextareaWrapper = styled.div`
   }
 `
 
-const EditElectionConfigScreen = () => {
+const ElectionEditDefinitionScreen = () => {
   const history = useHistory()
   const { election: e, saveElection } = useContext(AppContext)
   const election = e as Election
@@ -74,6 +76,16 @@ const EditElectionConfigScreen = () => {
     setError('')
   }
 
+  const downloadElectionDefinition = () => {
+    fileDownload(
+      JSON.stringify(election, null, 2),
+      `${dashify(election.date)}-${dashify(election.county.name)}-${dashify(
+        election.title
+      )}-vx-election-definition.json`,
+      'application/json'
+    )
+  }
+
   useEffect(() => {
     parseElection()
   }, [parseElection, electionString])
@@ -81,12 +93,11 @@ const EditElectionConfigScreen = () => {
   return (
     <React.Fragment>
       <MainChild>
-        <Header>
-          <Prose maxWidth={false}>
-            <h1>Election Config</h1>
-            {error && <p>{error}</p>}
-          </Prose>
-        </Header>
+        {error && (
+          <Header>
+            <Prose maxWidth={false}>{error}</Prose>
+          </Header>
+        )}
         <ButtonBar padded dark>
           <Button
             small
@@ -102,13 +113,16 @@ const EditElectionConfigScreen = () => {
           <div />
           <div />
           <div />
+          <Button small disabled={dirty} onPress={downloadElectionDefinition}>
+            Download
+          </Button>
           <Button
             small
             danger={!dirty}
             disabled={dirty}
             onPress={initConfirmingUnconfig}
           >
-            Unconfigure
+            Remove
           </Button>
         </ButtonBar>
       </MainChild>
@@ -124,17 +138,15 @@ const EditElectionConfigScreen = () => {
         centerContent
         content={
           <Prose textCenter>
-            <p>
-              Do you want to unconfigure the current election? All data will be
-              removed from this app.
-            </p>
+            <p>Do you want to remove the current election definition?</p>
+            <p>All data will be removed from this app.</p>
           </Prose>
         }
         actions={
           <React.Fragment>
             <Button onPress={cancelConfirmingUnconfig}>Cancel</Button>
             <Button danger onPress={unconfigureElection}>
-              Remove Config
+              Remove Election Definition
             </Button>
           </React.Fragment>
         }
@@ -143,4 +155,4 @@ const EditElectionConfigScreen = () => {
   )
 }
 
-export default EditElectionConfigScreen
+export default ElectionEditDefinitionScreen
