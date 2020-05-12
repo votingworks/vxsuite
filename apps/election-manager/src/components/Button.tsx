@@ -38,7 +38,7 @@ const buttonStyles = css<StyledButtonProps>`
     small ? '0.35rem 0.5rem' : big ? '1rem 1.75rem' : '0.75rem 1rem'};
   line-height: 1.25;
   color: ${({ disabled = false, danger = false, primary = false }) =>
-    (disabled && 'rgb(169, 169, 169)') ||
+    (disabled && 'rgb(160, 160, 160)') ||
     (danger && '#FFFFFF') ||
     (primary && '#FFFFFF') ||
     'black'};
