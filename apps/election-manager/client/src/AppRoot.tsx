@@ -9,7 +9,6 @@ import AppContext from './contexts/AppContext'
 
 import { Storage } from './utils/Storage'
 
-import UnconfiguredApp from './components/UnconfiguredApp'
 import ElectionManager from './components/ElectionManager'
 import { SaveElection } from './config/types'
 
@@ -49,18 +48,12 @@ const AppRoot = ({ storage }: Props) => {
       value={{
         election,
         electionHash,
-        saveElection,
         printBallotRef,
+        saveElection,
       }}
     >
-      {election ? (
-        <React.Fragment>
-          <ElectionManager />
-          <div ref={printBallotRef} />
-        </React.Fragment>
-      ) : (
-        <UnconfiguredApp election={election} saveElection={saveElection} />
-      )}
+      <ElectionManager />
+      <div ref={printBallotRef} />
     </AppContext.Provider>
   )
 }
