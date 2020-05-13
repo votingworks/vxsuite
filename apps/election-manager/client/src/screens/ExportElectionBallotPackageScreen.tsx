@@ -70,6 +70,10 @@ const ExportElectionBallotPackageScreen = () => {
         case 'ArchiveBegin': {
           try {
             await state.archive.begin()
+            await state.archive.file(
+              'election.json',
+              JSON.stringify(election, undefined, 2)
+            )
 
             setState({
               type: 'RenderBallot',
@@ -92,7 +96,7 @@ const ExportElectionBallotPackageScreen = () => {
         }
       }
     })()
-  }, [state, ballotStylesDataByStyle.length])
+  }, [state, election, ballotStylesDataByStyle.length])
 
   /**
    * Callback from `HandMarkedPaperBallot` to let us know the preview has been
