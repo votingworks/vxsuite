@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "^1.2.0",
+    "@votingworks/hmpb-interpreter": "^3.0.0",
     "@votingworks/qrdetect": "^1.0.1",
     "chokidar": "^3.4.0",
     "express": "^4.16.4",
