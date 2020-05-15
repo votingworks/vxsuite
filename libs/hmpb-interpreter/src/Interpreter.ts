@@ -1,4 +1,5 @@
 import {
+  BallotStyle,
   BallotType,
   CompletedBallot,
   Contests,
@@ -6,6 +7,7 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
+  Precinct,
 } from '@votingworks/ballot-encoder'
 import { strict as assert } from 'assert'
 import * as jsfeat from 'jsfeat'
@@ -65,7 +67,7 @@ export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.2
 export default class Interpreter {
   private templates = new Map<
     BallotPageMetadata['ballotStyleId'],
-    (BallotPageLayout | undefined)[]
+    Map<BallotPageMetadata['precinctId'], (BallotPageLayout | undefined)[]>
   >()
   private readonly election: Election
   private readonly detectQRCode?: DetectQRCode
@@ -107,12 +109,67 @@ export default class Interpreter {
       'data' in imageDataOrTemplate
         ? await this.interpretTemplate(imageDataOrTemplate, metadata)
         : imageDataOrTemplate
-    const templates =
-      this.templates.get(template.ballotImage.metadata.ballotStyleId) ??
-      new Array(template.ballotImage.metadata.pageCount)
-    templates[template.ballotImage.metadata.pageNumber - 1] = template
-    this.templates.set(template.ballotImage.metadata.ballotStyleId, templates)
+    if (!metadata) {
+      metadata = template.ballotImage.metadata
+    }
+    this.setTemplate(
+      metadata.ballotStyleId,
+      metadata.precinctId,
+      metadata.pageNumber,
+      metadata.pageCount,
+      template
+    )
     return template
+  }
+
+  /**
+   * Gets a template by ballot style, precinct, and page number if present.
+   */
+  private getTemplate(
+    ballotStyleId: BallotStyle['id'],
+    precinctId: Precinct['id'],
+    pageNumber: number
+  ): BallotPageLayout | undefined {
+    const templatesByPrecinctIdAndPageNumber = this.templates.get(ballotStyleId)
+
+    if (!templatesByPrecinctIdAndPageNumber) {
+      return
+    }
+
+    const templatesByPageNumber = templatesByPrecinctIdAndPageNumber.get(
+      precinctId
+    )
+
+    return templatesByPageNumber?.[pageNumber - 1]
+  }
+
+  /**
+   * Sets a template by ballot style, precinct, and page number.
+   */
+  private setTemplate(
+    ballotStyleId: BallotStyle['id'],
+    precinctId: Precinct['id'],
+    pageNumber: number,
+    pageCount: number,
+    template: BallotPageLayout
+  ): void {
+    let templatesByPrecinctIdAndPageNumber = this.templates.get(ballotStyleId)
+
+    if (!templatesByPrecinctIdAndPageNumber) {
+      templatesByPrecinctIdAndPageNumber = new Map()
+      this.templates.set(ballotStyleId, templatesByPrecinctIdAndPageNumber)
+    }
+
+    let templatesByPageNumber = templatesByPrecinctIdAndPageNumber.get(
+      precinctId
+    )
+
+    if (!templatesByPageNumber) {
+      templatesByPageNumber = new Array(pageCount)
+      templatesByPrecinctIdAndPageNumber.set(precinctId, templatesByPageNumber)
+    }
+
+    templatesByPageNumber[pageNumber - 1] = template
   }
 
   /**
@@ -144,25 +201,68 @@ export default class Interpreter {
   }
 
   /**
+   * Gets information about missing templates. Note that until we start adding
+   * templates, we will not know how many pages each ballot should be and
+   * therefore won't have perfect knowledge of how many templates are missing.
+   * To account for this, template metadata for which we know nothing about
+   * either the ballot style or the precinct will have a single entry to
+   * represent it and a page count of -1.
+   */
+  public *getMissingTemplates(): Generator<BallotPageMetadata> {
+    const isTestBallot =
+      [...this.templates.values()].some((byBallotStyle) =>
+        [...byBallotStyle.values()].some((byPageNumber) =>
+          byPageNumber.some(
+            (template) => template?.ballotImage.metadata.isTestBallot
+          )
+        )
+      ) ?? false
+
+    for (const ballotStyle of this.election.ballotStyles) {
+      const ballotStyleTemplates = this.templates.get(ballotStyle.id)
+
+      for (const precinctId of ballotStyle.precincts) {
+        if (ballotStyleTemplates) {
+          const precinctTemplates = ballotStyleTemplates.get(precinctId)
+
+          if (precinctTemplates) {
+            for (const [i, template] of precinctTemplates.entries()) {
+              if (!template) {
+                // Yield a specific, known missing page with a real page number.
+                yield {
+                  ballotStyleId: ballotStyle.id,
+                  isTestBallot,
+                  pageCount: precinctTemplates.length,
+                  pageNumber: i + 1,
+                  precinctId,
+                }
+              }
+            }
+
+            continue
+          }
+        }
+
+        // Either nothing exists for this ballot style or this precinct. We
+        // can't know how many pages there should be, so we just yield one page
+        // for the whole thing.
+        yield {
+          ballotStyleId: ballotStyle.id,
+          isTestBallot,
+          pageCount: -1,
+          pageNumber: -1,
+          precinctId,
+        }
+      }
+    }
+  }
+
+  /**
    * Determines whether there are any templates missing, i.e. the existing
    * templates do not account for all contests in all ballot styles.
    */
   public hasMissingTemplates(): boolean {
-    for (const ballotStyle of this.election.ballotStyles) {
-      const templates = this.templates.get(ballotStyle.id)
-
-      if (!templates) {
-        return true
-      }
-
-      for (const template of templates) {
-        if (!template) {
-          return true
-        }
-      }
-    }
-
-    return false
+    return !this.getMissingTemplates().next().done
   }
 
   /**
@@ -204,32 +304,48 @@ export default class Interpreter {
       ],
     }
 
+    const { ballotStyleId, precinctId, pageNumber } = metadata
+    const matchedTemplate = defined(
+      this.getTemplate(ballotStyleId, precinctId, pageNumber)
+    )
+    const marks = this.getMarksForBallot(
+      ballotLayout,
+      matchedTemplate,
+      this.getContestsForTemplate(matchedTemplate)
+    )
+
+    return { matchedTemplate, metadata, marks }
+  }
+
+  /**
+   * Get the contests for the given template.
+   */
+  private getContestsForTemplate(template: BallotPageLayout): Contests {
     const { election } = this
-    const { ballotStyleId, pageNumber } = metadata
-    const templatesForBallotStyle = this.templates.get(ballotStyleId) ?? []
-    const matchedTemplate = defined(templatesForBallotStyle[pageNumber - 1])
+    const {
+      ballotStyleId,
+      pageNumber,
+      precinctId,
+    } = template.ballotImage.metadata
     const ballotStyle = defined(
       getBallotStyle({
         ballotStyleId,
         election,
       })
     )
-    const contestOffset = templatesForBallotStyle
-      .slice(0, pageNumber - 1)
-      .reduce(
-        (offset, template) => offset + (template?.contests.length ?? 0),
-        0
-      )
-    const marks = this.getMarksForBallot(
-      ballotLayout,
-      matchedTemplate,
-      getContests({ ballotStyle, election }).slice(
-        contestOffset,
-        contestOffset + matchedTemplate.contests.length
-      )
-    )
 
-    return { matchedTemplate, metadata, marks }
+    let contestOffset = 0
+    for (let i = 1; i < pageNumber; i += 1) {
+      const pageTemplate = defined(
+        this.getTemplate(ballotStyleId, precinctId, i)
+      )
+      contestOffset += pageTemplate.contests.length
+    }
+
+    return getContests({ ballotStyle, election }).slice(
+      contestOffset,
+      contestOffset + template.contests.length
+    )
   }
 
   private interpretMarks({

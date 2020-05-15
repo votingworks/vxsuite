@@ -713,13 +713,35 @@ test('interpret two-column template', async () => {
 
 test('missing templates', async () => {
   const interpreter = new Interpreter(election)
+  const metadataPage1 = await templatePage1.metadata()
+  const metadataPage2 = await templatePage2.metadata()
+
   expect(interpreter.hasMissingTemplates()).toBe(true)
+  expect([...interpreter.getMissingTemplates()]).toEqual([
+    {
+      ballotStyleId: metadataPage1.ballotStyleId,
+      isTestBallot: false,
+      pageCount: -1,
+      pageNumber: -1,
+      precinctId: metadataPage1.precinctId,
+    },
+  ])
 
   await interpreter.addTemplate(await templatePage1.imageData())
   expect(interpreter.hasMissingTemplates()).toBe(true)
+  expect([...interpreter.getMissingTemplates()]).toEqual([
+    {
+      ballotStyleId: metadataPage2.ballotStyleId,
+      isTestBallot: true,
+      pageCount: 2,
+      pageNumber: 2,
+      precinctId: metadataPage2.precinctId,
+    },
+  ])
 
   await interpreter.addTemplate(await templatePage2.imageData())
   expect(interpreter.hasMissingTemplates()).toBe(false)
+  expect([...interpreter.getMissingTemplates()]).toEqual([])
 })
 
 test('interpret empty ballot', async () => {
