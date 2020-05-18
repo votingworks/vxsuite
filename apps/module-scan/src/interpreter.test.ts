@@ -54,19 +54,17 @@ test('extracts a CVR from votes encoded in a QR code', async () => {
 test('interprets marks on a HMPB', async () => {
   const interpreter = new SummaryBallotInterpreter()
 
-  expect(
-    await interpreter.interpretFile({
-      election: hmpbElection,
-      ballotImagePath: join(sampleBallotImagesPath, 'hmpb-01.jpg'),
-    })
-  ).toBeUndefined()
+  await interpreter.addHmpbTemplate(
+    hmpbElection,
+    (await getBallotImageData(join(sampleBallotImagesPath, 'hmpb-01.jpg')))
+      .image
+  )
 
-  expect(
-    await interpreter.interpretFile({
-      election: hmpbElection,
-      ballotImagePath: join(sampleBallotImagesPath, 'hmpb-02.jpg'),
-    })
-  ).toBeUndefined()
+  await interpreter.addHmpbTemplate(
+    hmpbElection,
+    (await getBallotImageData(join(sampleBallotImagesPath, 'hmpb-02.jpg')))
+      .image
+  )
 
   expect(
     await interpreter.interpretFile({

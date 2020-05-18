@@ -3,3 +3,4 @@ cvrs.db
 tmp
 !tmp/.gitkeep
 *~
+*.log

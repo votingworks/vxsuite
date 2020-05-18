@@ -22,6 +22,7 @@ export interface Options {
 }
 
 export interface Importer {
+  addHmpbTemplate(imageData: ImageData): Promise<void>
   addManualBallot(encodedBallot: Uint8Array): Promise<void>
   configure(newElection: Election): void
   doExport(): Promise<string>
@@ -74,6 +75,21 @@ export default class SystemImporter implements Importer {
         fs.mkdirSync(imagesPat)
       }
     }
+  }
+
+  /**
+   * Adds a ballot image as a hand-marked paper ballot template.
+   */
+  public async addHmpbTemplate(imageData: ImageData): Promise<void> {
+    const { election } = this
+
+    if (!election) {
+      throw new Error(
+        `cannot add a HMPB template without a configured election`
+      )
+    }
+
+    this.interpreter.addHmpbTemplate(election, imageData)
   }
 
   /**

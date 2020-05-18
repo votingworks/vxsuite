@@ -24,12 +24,17 @@ import { decode as quircDecode } from 'node-quirc'
 import { promisify } from 'util'
 import { CastVoteRecord } from './types'
 
+import makeDebug from 'debug'
+
+const debug = makeDebug('module-scan:interpreter')
+
 export interface InterpretFileParams {
   readonly election: Election
   readonly ballotImagePath: string
 }
 
 export interface Interpreter {
+  addHmpbTemplate(election: Election, imageData: ImageData): Promise<void>
   interpretFile(
     interpretFileParams: InterpretFileParams
   ): Promise<CastVoteRecord | undefined>
@@ -121,6 +126,23 @@ export async function getBallotImageData(
 export default class SummaryBallotInterpreter implements Interpreter {
   private hmpbInterpreter?: HMPBInterpreter
 
+  async addHmpbTemplate(
+    election: Election,
+    imageData: ImageData
+  ): Promise<void> {
+    const {
+      ballotImage: { metadata },
+    } = await this.getHmbpInterpreter(election).addTemplate(imageData)
+
+    debug(
+      'Added HMPB template page %d/%d: ballotStyleId=%s precinctId=%s',
+      metadata.pageNumber,
+      metadata.pageCount,
+      metadata.ballotStyleId,
+      metadata.precinctId
+    )
+  }
+
   // eslint-disable-next-line class-methods-use-this
   public async interpretFile({
     election,
@@ -130,7 +152,8 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
     try {
       ballotImageData = await getBallotImageData(ballotImagePath)
-    } catch {
+    } catch (error) {
+      debug('interpretFile failed with error: %s', error.message)
       return
     }
 
@@ -153,20 +176,24 @@ export default class SummaryBallotInterpreter implements Interpreter {
     election: Election,
     { image, qrcode }: BallotImageData
   ): Promise<CastVoteRecord | undefined> {
+    const hmpbInterpreter = this.getHmbpInterpreter(election)
+    const metadata = metadataFromBytes(qrcode)
+
+    if (hmpbInterpreter.hasMissingTemplates()) {
+      debug(
+        'refusing to interpret HMPB file because the configured election is still missing templates'
+      )
+      return
+    }
+
+    const { ballot } = await hmpbInterpreter.interpretBallot(image, metadata)
+    return ballotToCastVoteRecord(ballot)
+  }
+
+  private getHmbpInterpreter(election: Election): HMPBInterpreter {
     if (!this.hmpbInterpreter) {
       this.hmpbInterpreter = new HMPBInterpreter(election)
     }
-
-    const metadata = metadataFromBytes(qrcode)
-
-    if (!this.hmpbInterpreter.hasMissingTemplates()) {
-      const { ballot } = await this.hmpbInterpreter.interpretBallot(
-        image,
-        metadata
-      )
-      return ballotToCastVoteRecord(ballot)
-    }
-
-    await this.hmpbInterpreter.addTemplate(image, metadata)
+    return this.hmpbInterpreter
   }
 }
