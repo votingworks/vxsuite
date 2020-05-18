@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
-import { ButtonEventFunction, ScannerStatus } from '../config/types'
+import { ButtonEventFunction, ScanStatusResponse } from '../config/types'
 
 import Prose from '../components/Prose'
 import Table, { TD } from '../components/Table'
@@ -20,9 +20,9 @@ const shortDateTime = (unixTimestamp: number) => {
 }
 
 interface Props {
-  invalidateBranch: ButtonEventFunction
+  invalidateBatch: ButtonEventFunction
   isScanning: boolean
-  status: ScannerStatus
+  status: ScanStatusResponse
   deleteBatch(batchId: number): void
 }
 
@@ -39,9 +39,9 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
           <React.Fragment>
             <p>
               A total of{' '}
-              <strong>{pluralize('ballots', ballotCount, true)}</strong> have
+              <strong>{pluralize('ballot', ballotCount, true)}</strong> have
               been scanned in{' '}
-              <strong>{pluralize('batches', batchCount, true)}</strong>.
+              <strong>{pluralize('batch', batchCount, true)}</strong>.
             </p>
             <Table>
               <thead>

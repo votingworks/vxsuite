@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es5"
+    "target": "es2017"
   },
   "exclude": ["src/setupProxy.js", ".eslintrc.js"],
   "include": ["src", "prodserver"]
