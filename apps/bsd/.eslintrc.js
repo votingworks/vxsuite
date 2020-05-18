@@ -40,7 +40,6 @@ module.exports = {
     react: {
       version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
     },
-    'import/extensions': allExtensions,
     'import/parsers': {
       '@typescript-eslint/parser': tsExtensions,
     },
@@ -52,6 +51,8 @@ module.exports = {
   },
   rules: {
     camelcase: 'error',
+    'consistent-return': 'off',
+    'import/extensions': ['error', 'never', { json: 'always' }],
     'import/no-extraneous-dependencies': [
       'error',
       {
@@ -69,9 +70,10 @@ module.exports = {
       1,
       { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
     ],
+    'react/jsx-fragments': ['error', 'element'],
+    'react/jsx-props-no-spreading': 'off',
     strict: 0,
     '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
     '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/no-null-keyword': 'on'
   },
 }

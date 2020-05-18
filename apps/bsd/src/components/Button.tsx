@@ -37,13 +37,13 @@ const buttonStyles = css<Props>`
 `
 
 export const DecoyButton = styled.div`
-  ${buttonStyles} /* stylelint-disable-line value-keyword-case */
+  ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
 
 const Button = styled('button').attrs((props: Attrs) => ({
   type: props.type || 'button',
 }))`
-  ${buttonStyles} /* stylelint-disable-line value-keyword-case */
+  ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
 
 export default Button

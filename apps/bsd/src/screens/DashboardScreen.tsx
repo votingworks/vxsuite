@@ -14,8 +14,9 @@ const Scanning = styled.em`
 
 const shortDateTime = (unixTimestamp: number) => {
   const d = new Date(unixTimestamp * 1000)
-  return `${d.getFullYear()}-${d.getMonth() +
-    1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
+  return `${d.getFullYear()}-${
+    d.getMonth() + 1
+  }-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
 }
 
 interface Props {
@@ -29,11 +30,7 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
   const { batches } = status
   const batchCount = (batches && batches.length) || 0
   const ballotCount =
-    batches &&
-    batches.reduce((result: number, b) => {
-      result = result + b.count
-      return result
-    }, 0)
+    batches && batches.reduce((result, b) => result + b.count, 0)
   return (
     <React.Fragment>
       <Prose maxWidth={false}>
@@ -57,7 +54,7 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                 </tr>
               </thead>
               <tbody>
-                {batches.map(batch => (
+                {batches.map((batch) => (
                   <tr key={batch.id}>
                     <td>{batch.id}</td>
                     <td>{batch.count}</td>
@@ -76,7 +73,7 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                         small
                         onClick={() => {
                           if (
-                            // eslint-disable-next-line no-restricted-globals
+                            // eslint-disable-next-line no-alert, no-restricted-globals
                             confirm(
                               `Are you sure you want to delete batch ${batch.id}? This action cannot be undone.`
                             )

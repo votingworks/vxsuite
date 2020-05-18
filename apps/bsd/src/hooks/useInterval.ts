@@ -1,10 +1,8 @@
 // TODO: Replace with library: https://github.com/votingworks/bas/issues/16
 import { useEffect, useRef } from 'react'
 
-const noop = () => {}
-
 function useInterval(callback: () => void, delay: number) {
-  const savedCallback = useRef(noop)
+  const savedCallback = useRef<() => void>()
 
   useEffect(() => {
     savedCallback.current = callback
@@ -12,10 +10,12 @@ function useInterval(callback: () => void, delay: number) {
 
   useEffect(() => {
     function tick() {
-      savedCallback.current()
+      if (savedCallback.current) {
+        savedCallback.current()
+      }
     }
     if (delay !== undefined) {
-      let id = setInterval(tick, delay)
+      const id = setInterval(tick, delay)
       return () => clearInterval(id)
     }
   }, [delay])
