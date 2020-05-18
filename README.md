@@ -21,7 +21,7 @@ This app is intended to be used on an offline computer by an election admin.
    - `election.json` - VotingWorks data format for election data: contests, canidates,ballot styles, precincts, etc.
    - approved official ballots in pdf format:
      - one for each combination of ballot style and precinct
-     - file name pattern: `election-${electionHash}-ballot-style-${ballotStyle}-precinct-id-${precinctId}.pdf`
+     - file name pattern: `election-${electionId}-precinct-${dashify(precinctName)}-id-${precinctId}-style-${ballotStyleId}.pdf`
 
 ## App Screens
 
