@@ -51,7 +51,7 @@ def enable(card: bool, fixture_path: Optional[str]):
 def enable_fixture(fixture_path: str):
     if os.path.isfile(fixture_path):
         fatal('You provided a file for FIXTURE instead of a directory: %s.' %
-              fixture)
+              fixture_path)
         exit(-1)
 
     fixture_short_path = os.path.join(fixture_path, 'short.json')
