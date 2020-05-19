@@ -1062,7 +1062,7 @@ test('invalid marks', async () => {
           "title": "Retain Robert Demergue as Chief Justice?",
           "type": "yesno",
         },
-        "option": "yes",
+        "option": "no",
         "score": 0,
         "target": Object {
           "bounds": Object {
@@ -1128,7 +1128,7 @@ test('invalid marks', async () => {
           "title": "Proposition R: Countywide Recycling Program",
           "type": "yesno",
         },
-        "option": "yes",
+        "option": "no",
         "score": 0,
         "target": Object {
           "bounds": Object {

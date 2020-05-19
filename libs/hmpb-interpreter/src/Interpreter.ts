@@ -494,7 +494,7 @@ export default class Interpreter {
           type: 'yesno',
           bounds: noOption.target.bounds,
           contest,
-          option: 'yes',
+          option: 'no',
           score: noScore,
           target: noOption.target,
         }
