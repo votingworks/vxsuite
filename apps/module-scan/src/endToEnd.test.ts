@@ -11,6 +11,7 @@ import { CastVoteRecord, BatchInfo } from './types'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './makeTemporaryBallotImportImageDirectories'
+import getScannerCVRCountWaiter from '../test/getScannerCVRCountWaiter'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -45,34 +46,8 @@ afterEach(async () => {
   importDirs.remove()
 })
 
-function getScannerCVRCountWaiter(): {
-  waitForCount(count: number): Promise<void>
-} {
-  let cvrCount = 0
-
-  importer.addAddCVRCallback(() => {
-    cvrCount += 1
-  })
-
-  return {
-    waitForCount(count): Promise<void> {
-      return new Promise((resolve) => {
-        function checkCVRCount(): void {
-          if (count <= cvrCount) {
-            resolve()
-          } else {
-            setTimeout(checkCVRCount, 10)
-          }
-        }
-
-        checkCVRCount()
-      })
-    },
-  }
-}
-
 test('going through the whole process works', async () => {
-  const waiter = getScannerCVRCountWaiter()
+  const waiter = getScannerCVRCountWaiter(importer)
 
   {
     // try export before configure

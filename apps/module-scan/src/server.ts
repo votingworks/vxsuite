@@ -60,45 +60,63 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json({ status: 'ok' })
   })
 
-  app.post(
-    '/scan/hmpb/addTemplates',
-    upload.array('ballots') as RequestHandler,
-    async (request, response) => {
-      for (const file of request.files as Express.Multer.File[]) {
-        if (file.mimetype !== 'application/pdf') {
+  async function addHmpbTemplates(
+    files: Express.Multer.File[],
+    response: Response
+  ): Promise<void> {
+    for (const file of files) {
+      if (file.mimetype !== 'application/pdf') {
+        response.status(400)
+        response.json({
+          errors: [
+            {
+              type: 'invalid-template-file-type',
+              message: `File upload expected to be application/pdf, got: ${file.mimetype}`,
+            },
+          ],
+        })
+        return
+      }
+
+      let page = 0
+      for await (const image of pdfToImages(file.buffer, { scale: 2 })) {
+        try {
+          page += 1
+          await importer.addHmpbTemplate(image)
+        } catch (error) {
           response.status(400)
           response.json({
             errors: [
               {
-                type: 'invalid-template-file-type',
-                message: `File upload expected to be application/pdf, got: ${file.mimetype}`,
+                type: 'invalid-template-file-image',
+                message: `Ballot image on page ${page} of file '${file.filename}' could not be interpreted as a template: ${error}`,
               },
             ],
           })
           return
         }
-
-        let page = 0
-        for await (const image of pdfToImages(file.buffer)) {
-          try {
-            page += 1
-            await importer.addHmpbTemplate(image)
-          } catch (error) {
-            response.status(400)
-            response.json({
-              errors: [
-                {
-                  type: 'invalid-template-file-image',
-                  message: `Ballot image on page ${page} of file ${file.filename} could not be interpreted as a template: ${error}`,
-                },
-              ],
-            })
-            return
-          }
-        }
       }
+    }
+  }
 
-      response.json({ status: 'ok' })
+  app.post(
+    '/scan/hmpb/addTemplates',
+    upload.array('ballots') as RequestHandler,
+    async (request, response) => {
+      try {
+        await addHmpbTemplates(request.files as Express.Multer.File[], response)
+        response.json({ status: 'ok' })
+      } catch (error) {
+        response.status(500)
+        response.json({
+          errors: [
+            {
+              type: 'internal-server-error',
+              message: error.message,
+            },
+          ],
+        })
+      }
     }
   )
 
