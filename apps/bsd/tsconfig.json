@@ -15,6 +15,6 @@
     "strict": true,
     "target": "es5"
   },
-  "exclude": ["src/setupProxy.js"],
-  "include": ["src"]
+  "exclude": ["src/setupProxy.js", ".eslintrc.js"],
+  "include": ["src", "prodserver"]
 }

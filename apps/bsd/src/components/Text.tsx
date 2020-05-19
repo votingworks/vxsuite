@@ -65,13 +65,13 @@ const Text = styled('p')<Props>`
   font-weight: ${({ bold }) => (bold ? '600' : undefined)};
   font-style: ${({ italic }) => (italic ? 'italic' : undefined)};
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
-  /* stylelint-disable-next-line value-keyword-case, order/properties-order */
+  /* stylelint-disable-next-line value-keyword-case */
   ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}
 `
 
 export const TextWithLineBreaks = ({ text }: { text: string }) => (
   <React.Fragment>
-    {text.split(/[\n|\r]{2}/g).map(x => (
+    {text.split(/[\n|\r]{2}/g).map((x) => (
       <p key={x}>
         {x.split(/[\n|\r]/g).map((y, i, arr) => (
           <React.Fragment key={y}>

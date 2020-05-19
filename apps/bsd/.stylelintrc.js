@@ -10,5 +10,6 @@ module.exports = {
   rules: {
     'selector-max-id': 1,
     'selector-max-universal': 1,
+    'order/properties-alphabetical-order': null,
   },
 }

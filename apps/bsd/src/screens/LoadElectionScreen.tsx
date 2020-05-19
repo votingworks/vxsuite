@@ -26,32 +26,7 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
   }
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
-  if (process.env.NODE_ENV !== 'production') {
-    return (
-      <Screen {...getRootProps()}>
-        <Main noPadding>
-          <MainChild center padded>
-            <input {...getInputProps()} />
-            <Prose textCenter>
-              {isDragActive ? (
-                <p>Drop files here…</p>
-              ) : (
-                <React.Fragment>
-                  <h1>Not Configured</h1>
-                  <Text narrow>
-                    Insert Election Clerk card, drag and drop{' '}
-                    <code>election.json</code> file here, or click to browse for
-                    file.
-                  </Text>
-                </React.Fragment>
-              )}
-            </Prose>
-          </MainChild>
-        </Main>
-        <MainNav />
-      </Screen>
-    )
-  } else {
+  if (process.env.NODE_ENV === 'production') {
     return (
       <Screen>
         <Main>
@@ -66,6 +41,31 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
       </Screen>
     )
   }
+
+  return (
+    <Screen {...getRootProps()}>
+      <Main noPadding>
+        <MainChild center padded>
+          <input {...getInputProps()} />
+          <Prose textCenter>
+            {isDragActive ? (
+              <p>Drop files here…</p>
+            ) : (
+              <React.Fragment>
+                <h1>Not Configured</h1>
+                <Text narrow>
+                  Insert Election Clerk card, drag and drop{' '}
+                  <code>election.json</code> file here, or click to browse for
+                  file.
+                </Text>
+              </React.Fragment>
+            )}
+          </Prose>
+        </MainChild>
+      </Main>
+      <MainNav />
+    </Screen>
+  )
 }
 
 export default LoadElectionConfigScreen
