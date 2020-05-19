@@ -65,122 +65,492 @@ const interpreter = new Interpreter({
 
 ```sh
 # To try this example out, install globally then clone the repository and `cd`
-# to `test/fixtures`.
+# to `test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library`.
 $ hmpb interpret -e election.json \
-  template-2020-04-15-0001.jpg \
-  template-2020-04-15-0002.jpg \
-  template-2020-04-15-0001-full-votes.jpg \
-  template-2020-04-15-0002-full-votes.jpg
-╔═══════════════════════════════════════════════════════╤═════════════════════════════════════════╤═════════════════════════════════════════╗
-║ Contest                                               │ template-2020-04-15-0001-full-votes.jpg │ template-2020-04-15-0002-full-votes.jpg ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Member, U.S. Senate                                   │ Tim Smith                               │                                         ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Member, U.S. House, District 30                       │ Eddie Bernice Johnson                   │                                         ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Judge, Texas Supreme Court, Place 6                   │ Jane Bland                              │                                         ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Member, Texas House of Representatives, District 111  │ Write-In                                │                                         ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Dallas County Tax Assessor-Collector                  │ John Ames                               │                                         ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Dallas County Sheriff                                 │ Chad Prda                               │                                         ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Member, Dallas County Commissioners Court, Precinct 3 │ Andrew Jewell                           │                                         ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Retain Robert Demergue as Chief Justice?              │                                         │                                         ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Proposition R: Countywide Recycling Program           │                                         │ yes                                     ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ City Council                                          │                                         │ Randall Rupp, Write-In                  ║
-╟───────────────────────────────────────────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────╢
-║ Mayor                                                 │                                         │                                         ║
-╚═══════════════════════════════════════════════════════╧═════════════════════════════════════════╧═════════════════════════════════════════╝
+  blank-p1.jpg \
+  blank-p2.jpg \
+  filled-in-p1.jpg \
+  filled-in-p2.jpg
+╔═══════════════════════════════════════════════════════╤═══════════════════════╤══════════════════╗
+║ Contest                                               │ filled-in-p1.jpg      │ filled-in-p2.jpg ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Member, U.S. Senate                                   │ Tim Smith             │                  ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Member, U.S. House, District 30                       │ Eddie Bernice Johnson │                  ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Judge, Texas Supreme Court, Place 6                   │ Jane Bland            │                  ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Member, Texas House of Representatives, District 111  │ Write-In              │                  ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Dallas County Tax Assessor-Collector                  │ John Ames             │                  ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Dallas County Sheriff                                 │ Chad Prda             │                  ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Member, Dallas County Commissioners Court, Precinct 3 │                       │ Andrew Jewell    ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Retain Robert Demergue as Chief Justice?              │                       │                  ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Proposition R: Countywide Recycling Program           │                       │ no               ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ City Council                                          │                       │                  ║
+╟───────────────────────────────────────────────────────┼───────────────────────┼──────────────────╢
+║ Mayor                                                 │                       │                  ║
+╚═══════════════════════════════════════════════════════╧═══════════════════════╧══════════════════╝
 
 # You can also request output as JSON.
-$ hmpb interpret -e election.json -f json \
-  template-2020-04-15-0001.jpg \
-  template-2020-04-15-0002.jpg \
-  template-2020-04-15-0001-full-votes.jpg \
-  template-2020-04-15-0002-full-votes.jpg
+$ hmpb interpret -e election.json -f \
+  blank-p1.jpg \
+  blank-p2.jpg \
+  filled-in-p1.jpg \
+  filled-in-p2.jpg
 [
   {
-    "input": "template-2020-04-15-0001-full-votes.jpg",
+    "input": "filled-in-p1.jpg",
     "interpreted": {
+      "metadata": {
+        "ballotStyleId": "77",
+        "precinctId": "42",
+        "isTestBallot": false,
+        "pageCount": 2,
+        "pageNumber": 1
+      },
       "votes": {
-        "1": [
+        "us-senate": [
           {
-            "id": "14",
+            "id": "tim-smith",
             "name": "Tim Smith",
             "partyId": "6"
           }
         ],
-        "2": [
+        "us-house-district-30": [
           {
-            "id": "21",
+            "id": "eddie-bernice-johnson",
             "name": "Eddie Bernice Johnson",
             "partyId": "2",
             "incumbent": true
           }
         ],
-        "3": [
+        "texas-sc-judge-place-6": [
           {
-            "id": "31",
+            "id": "jane-bland",
             "name": "Jane Bland",
             "partyId": "3",
             "incumbent": true
           }
         ],
-        "4": [
+        "texas-house-district-111": [
           {
             "id": "__write-in",
             "name": "Write-In",
             "isWriteIn": true
           }
         ],
-        "5": [
+        "dallas-county-tax-assessor": [
           {
-            "id": "51",
+            "id": "john-ames",
             "name": "John Ames",
             "partyId": "2",
             "incumbent": true
           }
         ],
-        "6": [
+        "dallas-county-sheriff": [
           {
-            "id": "62",
+            "id": "chad-prda",
             "name": "Chad Prda",
             "partyId": "3"
           }
-        ],
-        "7": [
-          {
-            "id": "73",
-            "name": "Andrew Jewell",
-            "partyId": "7"
-          }
         ]
-      }
+      },
+      "marks": [
+        {
+          "type": "candidate",
+          "contest": "us-senate",
+          "option": "john-cornyn",
+          "score": 0.005037783375314861,
+          "bounds": {
+            "x": 470,
+            "y": 176,
+            "width": 32,
+            "height": 22
+          },
+          "target": {
+            "bounds": {
+              "x": 470,
+              "y": 176,
+              "width": 32,
+              "height": 22
+            },
+            "inner": {
+              "x": 472,
+              "y": 178,
+              "width": 28,
+              "height": 18
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "us-senate",
+          "option": "tim-smith",
+          "score": 0.8808290155440415,
+          "bounds": {
+            "x": 470,
+            "y": 411,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 470,
+              "y": 411,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 472,
+              "y": 413,
+              "width": 28,
+              "height": 17
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "us-house-district-30",
+          "option": "eddie-bernice-johnson",
+          "score": 0.7227979274611399,
+          "bounds": {
+            "x": 470,
+            "y": 831,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 470,
+              "y": 831,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 472,
+              "y": 833,
+              "width": 28,
+              "height": 17
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "texas-sc-judge-place-6",
+          "option": "jane-bland",
+          "score": 0.6120906801007556,
+          "bounds": {
+            "x": 470,
+            "y": 1173,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 470,
+              "y": 1173,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 472,
+              "y": 1175,
+              "width": 28,
+              "height": 18
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "texas-house-district-111",
+          "option": "__write-in",
+          "score": 0.7025,
+          "bounds": {
+            "x": 872,
+            "y": 320,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 872,
+              "y": 320,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 874,
+              "y": 322,
+              "width": 28,
+              "height": 18
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "dallas-county-tax-assessor",
+          "option": "john-ames",
+          "score": 0.8737113402061856,
+          "bounds": {
+            "x": 872,
+            "y": 556,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 872,
+              "y": 556,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 874,
+              "y": 558,
+              "width": 28,
+              "height": 17
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "dallas-county-sheriff",
+          "option": "chad-prda",
+          "score": 0.6313131313131313,
+          "bounds": {
+            "x": 872,
+            "y": 916,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 872,
+              "y": 916,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 874,
+              "y": 917,
+              "width": 28,
+              "height": 18
+            }
+          }
+        }
+      ]
     }
   },
   {
-    "input": "template-2020-04-15-0002-full-votes.jpg",
+    "input": "filled-in-p2.jpg",
     "interpreted": {
+      "metadata": {
+        "ballotStyleId": "77",
+        "precinctId": "42",
+        "isTestBallot": false,
+        "pageCount": 2,
+        "pageNumber": 2
+      },
       "votes": {
-        "9": "yes",
-        "10": [
+        "dallas-county-commissioners-court-pct-3": [
           {
-            "id": "rupp",
-            "name": "Randall Rupp",
-            "partyId": "2"
-          },
-          {
-            "id": "__write-in",
-            "name": "Write-In",
-            "isWriteIn": true
+            "id": "andrew-jewell",
+            "name": "Andrew Jewell",
+            "partyId": "7"
           }
-        ]
-      }
+        ],
+        "dallas-county-proposition-r": "no"
+      },
+      "marks": [
+        {
+          "type": "candidate",
+          "contest": "dallas-county-commissioners-court-pct-3",
+          "option": "andrew-jewell",
+          "score": 0.72544080604534,
+          "bounds": {
+            "x": 67,
+            "y": 398,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 67,
+              "y": 398,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 69,
+              "y": 400,
+              "width": 28,
+              "height": 18
+            }
+          }
+        },
+        {
+          "type": "yesno",
+          "contest": "dallas-county-retain-chief-justice",
+          "option": "yes",
+          "score": 0.14910025706940874,
+          "bounds": {
+            "x": 67,
+            "y": 869,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 67,
+              "y": 869,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 69,
+              "y": 870,
+              "width": 28,
+              "height": 18
+            }
+          }
+        },
+        {
+          "type": "yesno",
+          "contest": "dallas-county-proposition-r",
+          "option": "no",
+          "score": 0.7964376590330788,
+          "bounds": {
+            "x": 470,
+            "y": 365,
+            "width": 32,
+            "height": 22
+          },
+          "target": {
+            "bounds": {
+              "x": 470,
+              "y": 365,
+              "width": 32,
+              "height": 22
+            },
+            "inner": {
+              "x": 472,
+              "y": 367,
+              "width": 28,
+              "height": 18
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "dallas-city-council",
+          "option": "randall-rupp",
+          "score": 0.13110539845758354,
+          "bounds": {
+            "x": 470,
+            "y": 647,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 470,
+              "y": 647,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 472,
+              "y": 649,
+              "width": 28,
+              "height": 17
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "dallas-city-council",
+          "option": "donald-davis",
+          "score": 0.13212435233160622,
+          "bounds": {
+            "x": 470,
+            "y": 881,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 470,
+              "y": 881,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 472,
+              "y": 883,
+              "width": 28,
+              "height": 17
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "dallas-city-council",
+          "option": "__write-in",
+          "score": 0.09595959595959595,
+          "bounds": {
+            "x": 470,
+            "y": 1087,
+            "width": 32,
+            "height": 21
+          },
+          "target": {
+            "bounds": {
+              "x": 470,
+              "y": 1087,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 472,
+              "y": 1089,
+              "width": 28,
+              "height": 18
+            }
+          }
+        },
+        {
+          "type": "candidate",
+          "contest": "dallas-city-council",
+          "option": "__write-in",
+          "score": 0.01015228426395939,
+          "bounds": {
+            "x": 470,
+            "y": 1137,
+            "width": 32,
+            "height": 22
+          },
+          "target": {
+            "bounds": {
+              "x": 470,
+              "y": 1137,
+              "width": 32,
+              "height": 22
+            },
+            "inner": {
+              "x": 472,
+              "y": 1139,
+              "width": 28,
+              "height": 18
+            }
+          }
+        }
+      ]
     }
   }
 ]
