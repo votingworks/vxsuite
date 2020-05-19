@@ -313,8 +313,7 @@ const HandMarkedPaperBallot = ({
               <Prose maxWidth={false} compact>
                 <Text>
                   {isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}{' '}
-                  for
-                  {partyPrimaryAdjective} {title}
+                  for {partyPrimaryAdjective} {title}
                 </Text>
                 <Text>
                   {county.name}, {state}
