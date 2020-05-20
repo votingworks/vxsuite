@@ -112,13 +112,33 @@ export interface ClerkCardData extends CardData {
 }
 
 // Scanner Types
+export interface OkResponse {
+  status: 'ok'
+}
+
 export interface Batch {
   id: number
   count: number
   startedAt: number
   endedAt: number
 }
-export interface ScannerStatus {
+export interface ScanStatusResponse {
   electionHash?: string
   batches: Batch[]
+}
+
+export type ConfigureRequest = Election
+export type ConfigureResponse = OkResponse
+
+export type UnconfigureRequest = {}
+export type UnconfigureResponse = OkResponse
+
+export type CardReadRequest = {}
+export type CardReadResponse =
+  | { present: false }
+  | { present: true; longValueExists: boolean; shortValue?: string }
+
+export type CardReadLongRequest = {}
+export interface CardReadLongResponse {
+  longValue: string
 }

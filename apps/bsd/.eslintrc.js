@@ -59,11 +59,13 @@ module.exports = {
         devDependencies: true,
       },
     ],
+    'no-await-in-loop': 'off',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
     '@typescript-eslint/no-unused-vars': ['error', {
       'vars': 'all'
     }],
     'no-null/no-null': 2, // TypeScript with strictNullChecks
+    'no-restricted-syntax': 'off',
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],
     'react/jsx-filename-extension': [

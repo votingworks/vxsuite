@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import fileDownload from 'js-file-download'
 
 import {
@@ -6,7 +6,10 @@ import {
   CardData,
   Election,
   OptionalElection,
-  ScannerStatus,
+  ScanStatusResponse,
+  UnconfigureResponse,
+  CardReadLongResponse,
+  CardReadResponse,
 } from './config/types'
 
 import Brand from './components/Brand'
@@ -22,8 +25,8 @@ import DashboardScreen from './screens/DashboardScreen'
 
 import 'normalize.css'
 import './App.css'
-
-let loadingElection = false
+import fetchJSON from './util/fetchJSON'
+import configure from './api/configure'
 
 const App: React.FC = () => {
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
@@ -34,166 +37,178 @@ const App: React.FC = () => {
   const [pendingDeleteBatchIds, setPendingDeleteBatchIds] = useState<number[]>(
     []
   )
-  const [status, setStatus] = useState<ScannerStatus>({ batches: [] })
+  const [status, setStatus] = useState<ScanStatusResponse>({ batches: [] })
+  const [loadingElection, setLoadingElection] = useState(false)
   const { batches } = status
   const isScanning = batches && batches[0] && !batches[0].endedAt
 
-  const unconfigure = () => {
+  const unconfigure = useCallback(() => {
     setElection(undefined)
     window.localStorage.clear()
-  }
+  }, [setElection])
 
-  const uploadElection = (electionToUpload: OptionalElection) => {
-    if (electionToUpload) configureServer(electionToUpload) // eslint-disable-line @typescript-eslint/no-use-before-define
-    setElection(electionToUpload)
-  }
+  const updateStatus = useCallback(async () => {
+    try {
+      setStatus(await fetchJSON<ScanStatusResponse>('/scan/status'))
+    } catch (error) {
+      console.log('failed updateStatus()', error) // eslint-disable-line no-console
+    }
+  }, [setStatus])
 
-  const configureServer = (configuredElection: Election) => {
-    fetch('/scan/configure', {
-      method: 'post',
-      body: JSON.stringify(configuredElection),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((r) => r.json())
-      .then((response) => {
-        if (response.status === 'ok') {
-          updateStatus() // eslint-disable-line @typescript-eslint/no-use-before-define
+  const configureServer = useCallback(
+    async (configuredElection: Election) => {
+      try {
+        await configure(configuredElection)
+        updateStatus()
+      } catch (error) {
+        console.log('failed configureServer()', error) // eslint-disable-line no-console
+      }
+    },
+    [updateStatus]
+  )
+
+  const uploadElection = useCallback(
+    async (electionToUpload: OptionalElection) => {
+      if (electionToUpload) await configureServer(electionToUpload)
+      setElection(electionToUpload)
+    },
+    [setElection, configureServer]
+  )
+
+  const unconfigureServer = useCallback(async () => {
+    try {
+      const response = await fetchJSON<UnconfigureResponse>(
+        '/scan/unconfigure',
+        {
+          method: 'post',
         }
-      })
-      .catch((error) => {
-        console.log('failed handleFileInput()', error) // eslint-disable-line no-console
-      })
-  }
+      )
+      if (response.status === 'ok') {
+        unconfigure()
+      }
+    } catch (error) {
+      console.log('failed unconfigureServer()', error) // eslint-disable-line no-console
+    }
+  }, [unconfigure])
 
-  const unconfigureServer = () => {
-    fetch('/scan/unconfigure', {
-      method: 'post',
-    })
-      .then((r) => r.json())
-      .then((response) => {
-        if (response.status === 'ok') {
-          unconfigure()
-        }
-      })
-      .catch((error) => {
-        console.log('failed handleFileInput()', error) // eslint-disable-line no-console
-      })
-  }
+  const fetchElection = useCallback(
+    async () =>
+      fetchJSON<CardReadLongResponse>('/card/read_long').then((card) =>
+        JSON.parse(card.longValue)
+      ),
+    []
+  )
 
-  const fetchElection = async () => {
-    return fetch('/card/read_long')
-      .then((r) => r.json())
-      .then((card) => JSON.parse(card.longValue))
-  }
-
-  const processCardData = (cardData: CardData, longValueExists: boolean) => {
-    if (cardData.t === 'clerk') {
-      if (!election) {
-        if (longValueExists && !loadingElection) {
-          loadingElection = true
-          fetchElection().then((fetchedElection) => {
-            setElection(fetchedElection)
-            configureServer(fetchedElection)
-            loadingElection = false
-          })
+  const processCardData = useCallback(
+    async (cardData: CardData, longValueExists: boolean) => {
+      if (cardData.t === 'clerk') {
+        if (!election) {
+          if (longValueExists && !loadingElection) {
+            setLoadingElection(true)
+            await uploadElection(await fetchElection())
+            setLoadingElection(false)
+          }
         }
       }
-    }
-  }
+    },
+    [election, fetchElection, loadingElection, uploadElection]
+  )
 
-  const readCard = () => {
-    fetch('/card/read')
-      .then((r) => r.json())
-      .then((card) => {
-        if (card.shortValue) {
-          const cardData = JSON.parse(card.shortValue) as CardData
-          processCardData(cardData, card.longValueExists)
-        }
-      })
-      .catch(() => {
-        setCardServerAvailable(false)
-      })
-  }
-
-  const scanBatch = () => {
-    fetch('/scan/scanBatch', {
-      method: 'post',
-    }).catch((error) => {
-      console.log('failed handleFileInput()', error) // eslint-disable-line no-console
-    })
-  }
-
-  const invalidateBranch = (event: ButtonEvent) => {
-    const { id } = (event.target as HTMLElement).dataset
-    fetch('/scan/invalidateBatch', {
-      method: 'post',
-      body: id,
-    }).catch((error) => {
-      console.log('failed invalidateBranch()', error) // eslint-disable-line no-console
-    })
-  }
-
-  const ejectUSB = () => {
-    fetch('/usbstick/eject', {
-      method: 'post',
-    })
-  }
-
-  const zeroData = () => {
-    fetch('/scan/zero', {
-      method: 'post',
-    }).catch((error) => {
-      console.log('failed zeroData()', error) // eslint-disable-line no-console
-    })
-  }
-
-  const exportResults = () => {
-    fetch(`/scan/export`, {
-      method: 'post',
-    })
-      .then((response) => response.blob())
-      .then((blob) => {
-        fileDownload(blob, 'vx-results.csv', 'text/csv')
-      })
-      .catch((error) => {
-        console.log('failed getOutputFile()', error) // eslint-disable-line no-console
-      })
-  }
-
-  const updateStatus = () => {
-    fetch('/scan/status')
-      .then((r) => r.json())
-      .then(setStatus)
-      .catch((error) => {
-        console.log('failed updateStatus()', error) // eslint-disable-line no-console
-      })
-  }
-
-  const deleteBatch = async (id: number) => {
-    setPendingDeleteBatchIds((previousIds) => [...previousIds, id])
-
+  const readCard = useCallback(async () => {
     try {
-      await fetch(`/scan/batch/${id}`, {
-        method: 'DELETE',
+      const card = await fetchJSON<CardReadResponse>('/card/read')
+      if (card.present && card.shortValue) {
+        const cardData = JSON.parse(card.shortValue) as CardData
+        processCardData(cardData, card.longValueExists)
+      }
+    } catch {
+      setCardServerAvailable(false)
+    }
+  }, [processCardData, setCardServerAvailable])
+
+  const scanBatch = useCallback(async () => {
+    try {
+      await fetch('/scan/scanBatch', {
+        method: 'post',
       })
-    } finally {
-      setPendingDeleteBatchIds((previousIds) =>
-        previousIds.filter((previousId) => previousId !== id)
-      )
+    } catch (error) {
+      console.log('failed handleFileInput()', error) // eslint-disable-line no-console
     }
-  }
+  }, [])
 
-  useInterval(() => {
-    if (election) {
-      updateStatus()
-    } else if (cardServerAvailable) {
-      readCard()
+  const invalidateBatch = useCallback(async (event: ButtonEvent) => {
+    try {
+      const { id } = (event.target as HTMLElement).dataset
+      await fetch('/scan/invalidateBatch', {
+        method: 'post',
+        body: id,
+      })
+    } catch (error) {
+      console.log('failed invalidateBranch()', error) // eslint-disable-line no-console
     }
-  }, 1000)
+  }, [])
 
-  useEffect(updateStatus, [])
+  const ejectUSB = useCallback(
+    async () =>
+      fetch('/usbstick/eject', {
+        method: 'post',
+      }),
+    []
+  )
+
+  const zeroData = useCallback(async () => {
+    try {
+      fetch('/scan/zero', {
+        method: 'post',
+      })
+    } catch (error) {
+      console.log('failed zeroData()', error) // eslint-disable-line no-console
+    }
+  }, [])
+
+  const exportResults = useCallback(async () => {
+    try {
+      const response = await fetch(`/scan/export`, {
+        method: 'post',
+      })
+      const blob = await response.blob()
+      fileDownload(blob, 'vx-results.csv', 'text/csv')
+    } catch (error) {
+      console.log('failed getOutputFile()', error) // eslint-disable-line no-console
+    }
+  }, [])
+
+  const deleteBatch = useCallback(
+    async (id: number) => {
+      setPendingDeleteBatchIds((previousIds) => [...previousIds, id])
+
+      try {
+        await fetch(`/scan/batch/${id}`, {
+          method: 'DELETE',
+        })
+      } finally {
+        setPendingDeleteBatchIds((previousIds) =>
+          previousIds.filter((previousId) => previousId !== id)
+        )
+      }
+    },
+    [setPendingDeleteBatchIds]
+  )
+
+  useInterval(
+    useCallback(() => {
+      if (election) {
+        updateStatus()
+      } else if (cardServerAvailable) {
+        readCard()
+      }
+    }, [election, cardServerAvailable, updateStatus, readCard]),
+    1000
+  )
+
+  useEffect(() => {
+    updateStatus()
+  }, [updateStatus])
 
   if (election) {
     if (!status.electionHash) {
@@ -204,7 +219,7 @@ const App: React.FC = () => {
         <Main>
           <MainChild maxWidth={false}>
             <DashboardScreen
-              invalidateBranch={invalidateBranch}
+              invalidateBatch={invalidateBatch}
               isScanning={isScanning}
               status={{
                 ...status,
@@ -230,7 +245,7 @@ const App: React.FC = () => {
     )
   }
 
-  return <LoadElectionScreen setElection={uploadElection} />
+  return <LoadElectionScreen setElection={setElection} />
 }
 
 export default App
