@@ -1,6 +1,9 @@
 import { VotesDict } from '@votingworks/ballot-encoder'
+import makeDebug from 'debug'
 import { addVote } from './hmpb/votes'
 import { BallotMark } from './types'
+
+const debug = makeDebug('hmpb-interpreter:getVotesFromMarks')
 
 /**
  * Gets the votes where the given marks have a high enough score to count, where
@@ -17,12 +20,28 @@ export default function getVotesFromMarks(
     switch (mark.type) {
       case 'candidate':
         if (mark.score >= markScoreVoteThreshold) {
+          debug(
+            `'%s' contest '%s' mark score (%d) for '%s' meets vote threshold (%d)`,
+            mark.type,
+            mark.contest.id,
+            mark.score,
+            mark.option.name,
+            markScoreVoteThreshold
+          )
           addVote(votes, mark.contest, mark.option)
         }
         break
 
       case 'yesno':
         if (mark.score >= markScoreVoteThreshold) {
+          debug(
+            `'%s' contest '%s' mark score (%d) for '%s' meets vote threshold (%d)`,
+            mark.type,
+            mark.contest.id,
+            mark.score,
+            mark.option,
+            markScoreVoteThreshold
+          )
           addVote(votes, mark.contest, mark.option)
         }
         break

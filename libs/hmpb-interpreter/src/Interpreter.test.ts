@@ -1,24 +1,23 @@
-import {
-  fullVotesPage1,
-  fullVotesPage2,
-  templatePage1,
-  templatePage2,
-  yvonneDavis,
-} from '../test/fixtures'
-import election from '../test/fixtures/election'
 import Interpreter from './Interpreter'
 import { DetectQRCodeResult } from './types'
 import { vh as flipVH } from './utils/flip'
+import election from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library/election'
+import {
+  blankPage1,
+  blankPage2,
+  filledInPage1,
+  filledInPage2,
+} from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library'
 
 test('interpret two-column template', async () => {
   const interpreter = new Interpreter(election)
-  const imageData = await templatePage1.imageData()
+  const imageData = await blankPage1.imageData()
   const template = await interpreter.interpretTemplate(imageData)
 
   expect(template.ballotImage.metadata).toMatchInlineSnapshot(`
     Object {
       "ballotStyleId": "77",
-      "isTestBallot": true,
+      "isTestBallot": false,
       "pageCount": 2,
       "pageNumber": 1,
       "precinctId": "42",
@@ -29,303 +28,159 @@ test('interpret two-column template', async () => {
     Array [
       Object {
         "bounds": Object {
-          "height": 1142,
-          "width": 729,
-          "x": 935,
-          "y": 127,
-        },
-        "corners": Array [
-          Object {
-            "x": 937,
-            "y": 127,
-          },
-          Object {
-            "x": 1663,
-            "y": 136,
-          },
-          Object {
-            "x": 937,
-            "y": 1268,
-          },
-          Object {
-            "x": 1663,
-            "y": 1268,
-          },
-        ],
-        "options": Array [
-          Object {
-            "bounds": Object {
-              "height": 152,
-              "width": 729,
-              "x": 935,
-              "y": 365,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 43,
-                "width": 63,
-                "x": 981,
-                "y": 370,
-              },
-              "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 988,
-                "y": 377,
-              },
-            },
-          },
-          Object {
-            "bounds": Object {
-              "height": 150,
-              "width": 729,
-              "x": 935,
-              "y": 517,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 981,
-                "y": 522,
-              },
-              "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 988,
-                "y": 529,
-              },
-            },
-          },
-          Object {
-            "bounds": Object {
-              "height": 150,
-              "width": 729,
-              "x": 935,
-              "y": 667,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 981,
-                "y": 672,
-              },
-              "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 988,
-                "y": 679,
-              },
-            },
-          },
-          Object {
-            "bounds": Object {
-              "height": 151,
-              "width": 729,
-              "x": 935,
-              "y": 817,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 981,
-                "y": 822,
-              },
-              "inner": Object {
-                "height": 28,
-                "width": 48,
-                "x": 989,
-                "y": 829,
-              },
-            },
-          },
-          Object {
-            "bounds": Object {
-              "height": 151,
-              "width": 729,
-              "x": 935,
-              "y": 968,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 43,
-                "width": 63,
-                "x": 982,
-                "y": 973,
-              },
-              "inner": Object {
-                "height": 29,
-                "width": 49,
-                "x": 989,
-                "y": 980,
-              },
-            },
-          },
-          Object {
-            "bounds": Object {
-              "height": 145,
-              "width": 729,
-              "x": 935,
-              "y": 1120,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 982,
-                "y": 1124,
-              },
-              "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 989,
-                "y": 1131,
-              },
-            },
-          },
-        ],
-      },
-      Object {
-        "bounds": Object {
-          "height": 605,
-          "width": 728,
-          "x": 937,
-          "y": 1310,
-        },
-        "corners": Array [
-          Object {
-            "x": 937,
-            "y": 1312,
-          },
-          Object {
-            "x": 1663,
-            "y": 1310,
-          },
-          Object {
-            "x": 938,
-            "y": 1914,
-          },
-          Object {
-            "x": 1664,
-            "y": 1913,
-          },
-        ],
-        "options": Array [
-          Object {
-            "bounds": Object {
-              "height": 151,
-              "width": 728,
-              "x": 937,
-              "y": 1611,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 43,
-                "width": 63,
-                "x": 983,
-                "y": 1616,
-              },
-              "inner": Object {
-                "height": 29,
-                "width": 49,
-                "x": 990,
-                "y": 1623,
-              },
-            },
-          },
-          Object {
-            "bounds": Object {
-              "height": 148,
-              "width": 728,
-              "x": 937,
-              "y": 1763,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 983,
-                "y": 1767,
-              },
-              "inner": Object {
-                "height": 29,
-                "width": 49,
-                "x": 990,
-                "y": 1773,
-              },
-            },
-          },
-        ],
-      },
-      Object {
-        "bounds": Object {
           "height": 599,
-          "width": 729,
-          "x": 938,
-          "y": 1955,
+          "width": 380,
+          "x": 447,
+          "y": 45,
         },
         "corners": Array [
           Object {
-            "x": 938,
-            "y": 1969,
+            "x": 447,
+            "y": 45,
           },
           Object {
-            "x": 1659,
-            "y": 1955,
+            "x": 826,
+            "y": 45,
           },
           Object {
-            "x": 940,
-            "y": 2553,
+            "x": 447,
+            "y": 643,
           },
           Object {
-            "x": 1666,
-            "y": 2552,
+            "x": 826,
+            "y": 643,
           },
         ],
         "options": Array [
           Object {
             "bounds": Object {
-              "height": 151,
-              "width": 729,
-              "x": 938,
-              "y": 2254,
+              "height": 79,
+              "width": 380,
+              "x": 447,
+              "y": 174,
             },
             "target": Object {
               "bounds": Object {
-                "height": 43,
-                "width": 62,
-                "x": 985,
-                "y": 2259,
+                "height": 22,
+                "width": 32,
+                "x": 470,
+                "y": 176,
               },
               "inner": Object {
-                "height": 29,
-                "width": 49,
-                "x": 992,
-                "y": 2266,
+                "height": 18,
+                "width": 28,
+                "x": 472,
+                "y": 178,
               },
             },
           },
           Object {
             "bounds": Object {
-              "height": 144,
-              "width": 729,
-              "x": 938,
-              "y": 2406,
+              "height": 78,
+              "width": 380,
+              "x": 447,
+              "y": 253,
             },
             "target": Object {
               "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 985,
-                "y": 2410,
+                "height": 21,
+                "width": 32,
+                "x": 470,
+                "y": 255,
               },
               "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 992,
-                "y": 2417,
+                "height": 18,
+                "width": 28,
+                "x": 472,
+                "y": 256,
+              },
+            },
+          },
+          Object {
+            "bounds": Object {
+              "height": 78,
+              "width": 380,
+              "x": 447,
+              "y": 331,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 470,
+                "y": 333,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 472,
+                "y": 334,
+              },
+            },
+          },
+          Object {
+            "bounds": Object {
+              "height": 78,
+              "width": 380,
+              "x": 447,
+              "y": 409,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 470,
+                "y": 411,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 472,
+                "y": 413,
+              },
+            },
+          },
+          Object {
+            "bounds": Object {
+              "height": 78,
+              "width": 380,
+              "x": 447,
+              "y": 487,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 470,
+                "y": 489,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 472,
+                "y": 491,
+              },
+            },
+          },
+          Object {
+            "bounds": Object {
+              "height": 77,
+              "width": 380,
+              "x": 447,
+              "y": 565,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 470,
+                "y": 567,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 472,
+                "y": 569,
               },
             },
           },
@@ -333,71 +188,71 @@ test('interpret two-column template', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 548,
-          "width": 729,
-          "x": 1704,
-          "y": 128,
+          "height": 320,
+          "width": 380,
+          "x": 447,
+          "y": 667,
         },
         "corners": Array [
           Object {
-            "x": 1705,
-            "y": 128,
+            "x": 447,
+            "y": 667,
           },
           Object {
-            "x": 2432,
-            "y": 129,
+            "x": 826,
+            "y": 667,
           },
           Object {
-            "x": 1705,
-            "y": 675,
+            "x": 447,
+            "y": 986,
           },
           Object {
-            "x": 2428,
-            "y": 675,
+            "x": 826,
+            "y": 986,
           },
         ],
         "options": Array [
           Object {
             "bounds": Object {
-              "height": 151,
-              "width": 729,
-              "x": 1704,
-              "y": 429,
+              "height": 78,
+              "width": 380,
+              "x": 447,
+              "y": 829,
             },
             "target": Object {
               "bounds": Object {
-                "height": 43,
-                "width": 63,
-                "x": 1750,
-                "y": 434,
+                "height": 21,
+                "width": 32,
+                "x": 470,
+                "y": 831,
               },
               "inner": Object {
-                "height": 29,
-                "width": 49,
-                "x": 1757,
-                "y": 441,
+                "height": 17,
+                "width": 28,
+                "x": 472,
+                "y": 833,
               },
             },
           },
           Object {
             "bounds": Object {
-              "height": 91,
-              "width": 729,
-              "x": 1704,
-              "y": 582,
+              "height": 78,
+              "width": 380,
+              "x": 447,
+              "y": 907,
             },
             "target": Object {
               "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 1750,
-                "y": 585,
+                "height": 21,
+                "width": 32,
+                "x": 470,
+                "y": 909,
               },
               "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 1757,
-                "y": 592,
+                "height": 18,
+                "width": 28,
+                "x": 472,
+                "y": 911,
               },
             },
           },
@@ -405,71 +260,71 @@ test('interpret two-column template', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 549,
-          "width": 729,
-          "x": 1704,
-          "y": 716,
+          "height": 318,
+          "width": 380,
+          "x": 447,
+          "y": 1009,
         },
         "corners": Array [
           Object {
-            "x": 1704,
-            "y": 727,
+            "x": 447,
+            "y": 1009,
           },
           Object {
-            "x": 2429,
-            "y": 716,
+            "x": 826,
+            "y": 1009,
           },
           Object {
-            "x": 1706,
-            "y": 1264,
+            "x": 447,
+            "y": 1326,
           },
           Object {
-            "x": 2432,
-            "y": 1263,
+            "x": 826,
+            "y": 1326,
           },
         ],
         "options": Array [
           Object {
             "bounds": Object {
-              "height": 150,
-              "width": 729,
-              "x": 1704,
-              "y": 1016,
+              "height": 78,
+              "width": 380,
+              "x": 447,
+              "y": 1171,
             },
             "target": Object {
               "bounds": Object {
-                "height": 43,
-                "width": 64,
-                "x": 1750,
-                "y": 1021,
+                "height": 21,
+                "width": 32,
+                "x": 470,
+                "y": 1173,
               },
               "inner": Object {
-                "height": 28,
-                "width": 50,
-                "x": 1757,
-                "y": 1028,
+                "height": 18,
+                "width": 28,
+                "x": 472,
+                "y": 1175,
               },
             },
           },
           Object {
             "bounds": Object {
-              "height": 94,
-              "width": 729,
-              "x": 1704,
-              "y": 1168,
+              "height": 76,
+              "width": 380,
+              "x": 447,
+              "y": 1249,
             },
             "target": Object {
               "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 1751,
-                "y": 1171,
+                "height": 22,
+                "width": 32,
+                "x": 470,
+                "y": 1251,
               },
               "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 1758,
-                "y": 1178,
+                "height": 18,
+                "width": 28,
+                "x": 472,
+                "y": 1253,
               },
             },
           },
@@ -477,93 +332,71 @@ test('interpret two-column template', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 636,
-          "width": 731,
-          "x": 1705,
-          "y": 1305,
+          "height": 324,
+          "width": 379,
+          "x": 850,
+          "y": 45,
         },
         "corners": Array [
           Object {
-            "x": 1705,
-            "y": 1334,
+            "x": 850,
+            "y": 45,
           },
           Object {
-            "x": 2432,
-            "y": 1305,
+            "x": 1228,
+            "y": 45,
           },
           Object {
-            "x": 1707,
-            "y": 1940,
+            "x": 850,
+            "y": 368,
           },
           Object {
-            "x": 2435,
-            "y": 1939,
+            "x": 1228,
+            "y": 368,
           },
         ],
         "options": Array [
           Object {
             "bounds": Object {
-              "height": 150,
-              "width": 731,
-              "x": 1705,
-              "y": 1544,
+              "height": 78,
+              "width": 379,
+              "x": 850,
+              "y": 240,
             },
             "target": Object {
               "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 1752,
-                "y": 1549,
+                "height": 21,
+                "width": 32,
+                "x": 872,
+                "y": 242,
               },
               "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 1759,
-                "y": 1556,
+                "height": 17,
+                "width": 28,
+                "x": 874,
+                "y": 244,
               },
             },
           },
           Object {
             "bounds": Object {
-              "height": 150,
-              "width": 731,
-              "x": 1705,
-              "y": 1694,
+              "height": 49,
+              "width": 379,
+              "x": 850,
+              "y": 319,
             },
             "target": Object {
               "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 1752,
-                "y": 1699,
+                "height": 21,
+                "width": 32,
+                "x": 872,
+                "y": 320,
               },
               "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 1759,
-                "y": 1706,
-              },
-            },
-          },
-          Object {
-            "bounds": Object {
-              "height": 92,
-              "width": 731,
-              "x": 1705,
-              "y": 1846,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 43,
-                "width": 63,
-                "x": 1753,
-                "y": 1849,
-              },
-              "inner": Object {
-                "height": 29,
-                "width": 50,
-                "x": 1759,
-                "y": 1856,
+                "height": 18,
+                "width": 28,
+                "x": 874,
+                "y": 322,
               },
             },
           },
@@ -571,137 +404,165 @@ test('interpret two-column template', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 1004,
-          "width": 731,
-          "x": 1707,
-          "y": 1981,
+          "height": 291,
+          "width": 379,
+          "x": 850,
+          "y": 392,
         },
         "corners": Array [
           Object {
-            "x": 1707,
-            "y": 1983,
+            "x": 850,
+            "y": 392,
           },
           Object {
-            "x": 2436,
-            "y": 1981,
+            "x": 1228,
+            "y": 392,
           },
           Object {
-            "x": 1711,
-            "y": 2984,
+            "x": 850,
+            "y": 682,
           },
           Object {
-            "x": 2437,
-            "y": 2980,
+            "x": 1228,
+            "y": 682,
           },
         ],
         "options": Array [
           Object {
             "bounds": Object {
-              "height": 151,
-              "width": 731,
-              "x": 1707,
-              "y": 2343,
+              "height": 78,
+              "width": 379,
+              "x": 850,
+              "y": 554,
             },
             "target": Object {
               "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 1754,
-                "y": 2348,
+                "height": 21,
+                "width": 32,
+                "x": 872,
+                "y": 556,
               },
               "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 1761,
-                "y": 2355,
+                "height": 17,
+                "width": 28,
+                "x": 874,
+                "y": 558,
               },
             },
           },
           Object {
             "bounds": Object {
-              "height": 148,
-              "width": 731,
-              "x": 1707,
-              "y": 2495,
+              "height": 49,
+              "width": 379,
+              "x": 850,
+              "y": 633,
             },
             "target": Object {
               "bounds": Object {
-                "height": 41,
-                "width": 64,
-                "x": 1754,
-                "y": 2499,
+                "height": 21,
+                "width": 32,
+                "x": 872,
+                "y": 634,
               },
               "inner": Object {
-                "height": 28,
-                "width": 50,
-                "x": 1761,
-                "y": 2506,
+                "height": 18,
+                "width": 28,
+                "x": 874,
+                "y": 636,
+              },
+            },
+          },
+        ],
+      },
+      Object {
+        "bounds": Object {
+          "height": 335,
+          "width": 379,
+          "x": 850,
+          "y": 706,
+        },
+        "corners": Array [
+          Object {
+            "x": 850,
+            "y": 706,
+          },
+          Object {
+            "x": 1228,
+            "y": 706,
+          },
+          Object {
+            "x": 850,
+            "y": 1040,
+          },
+          Object {
+            "x": 1228,
+            "y": 1040,
+          },
+        ],
+        "options": Array [
+          Object {
+            "bounds": Object {
+              "height": 79,
+              "width": 379,
+              "x": 850,
+              "y": 835,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 872,
+                "y": 837,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 874,
+                "y": 839,
               },
             },
           },
           Object {
             "bounds": Object {
-              "height": 149,
-              "width": 731,
-              "x": 1707,
-              "y": 2643,
+              "height": 78,
+              "width": 379,
+              "x": 850,
+              "y": 914,
             },
             "target": Object {
               "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 1755,
-                "y": 2647,
+                "height": 21,
+                "width": 32,
+                "x": 872,
+                "y": 916,
               },
               "inner": Object {
-                "height": 29,
-                "width": 49,
-                "x": 1762,
-                "y": 2653,
+                "height": 18,
+                "width": 28,
+                "x": 874,
+                "y": 917,
               },
             },
           },
           Object {
             "bounds": Object {
-              "height": 96,
-              "width": 731,
-              "x": 1707,
-              "y": 2793,
+              "height": 47,
+              "width": 379,
+              "x": 850,
+              "y": 993,
             },
             "target": Object {
               "bounds": Object {
-                "height": 42,
-                "width": 64,
-                "x": 1755,
-                "y": 2796,
+                "height": 21,
+                "width": 32,
+                "x": 872,
+                "y": 994,
               },
               "inner": Object {
-                "height": 28,
-                "width": 50,
-                "x": 1762,
-                "y": 2803,
-              },
-            },
-          },
-          Object {
-            "bounds": Object {
-              "height": 93,
-              "width": 731,
-              "x": 1707,
-              "y": 2889,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 42,
-                "width": 63,
-                "x": 1756,
-                "y": 2892,
-              },
-              "inner": Object {
-                "height": 28,
-                "width": 49,
-                "x": 1763,
-                "y": 2899,
+                "height": 18,
+                "width": 28,
+                "x": 874,
+                "y": 995,
               },
             },
           },
@@ -713,8 +574,8 @@ test('interpret two-column template', async () => {
 
 test('missing templates', async () => {
   const interpreter = new Interpreter(election)
-  const metadataPage1 = await templatePage1.metadata()
-  const metadataPage2 = await templatePage2.metadata()
+  const metadataPage1 = await blankPage1.metadata()
+  const metadataPage2 = await blankPage2.metadata()
 
   expect(interpreter.hasMissingTemplates()).toBe(true)
   expect([...interpreter.getMissingTemplates()]).toEqual([
@@ -727,19 +588,19 @@ test('missing templates', async () => {
     },
   ])
 
-  await interpreter.addTemplate(await templatePage1.imageData())
+  await interpreter.addTemplate(await blankPage1.imageData())
   expect(interpreter.hasMissingTemplates()).toBe(true)
   expect([...interpreter.getMissingTemplates()]).toEqual([
     {
       ballotStyleId: metadataPage2.ballotStyleId,
-      isTestBallot: true,
+      isTestBallot: false,
       pageCount: 2,
       pageNumber: 2,
       precinctId: metadataPage2.precinctId,
     },
   ])
 
-  await interpreter.addTemplate(await templatePage2.imageData())
+  await interpreter.addTemplate(await blankPage2.imageData())
   expect(interpreter.hasMissingTemplates()).toBe(false)
   expect([...interpreter.getMissingTemplates()]).toEqual([])
 })
@@ -748,64 +609,34 @@ test('interpret empty ballot', async () => {
   const interpreter = new Interpreter(election)
 
   await expect(
-    interpreter.interpretBallot(await templatePage1.imageData())
+    interpreter.interpretBallot(await blankPage1.imageData())
   ).rejects.toThrow(
     'Refusing to interpret ballots before all templates are added.'
   )
-  const p1 = await interpreter.addTemplate(await templatePage1.imageData())
-  await interpreter.addTemplate(await templatePage2.imageData())
+  const p1 = await interpreter.addTemplate(await blankPage1.imageData())
+  await interpreter.addTemplate(await blankPage2.imageData())
 
   const {
     matchedTemplate,
     metadata,
     ballot,
-  } = await interpreter.interpretBallot(await templatePage1.imageData())
+  } = await interpreter.interpretBallot(await blankPage1.imageData())
   expect(matchedTemplate === p1).toBe(true)
   expect(metadata.ballotStyleId).toEqual(p1.ballotImage.metadata.ballotStyleId)
   expect(ballot.votes).toEqual({})
 })
 
-test('interpret single vote', async () => {
+test('interpret votes', async () => {
   const interpreter = new Interpreter(election)
 
-  await interpreter.addTemplate(await templatePage1.imageData())
-  await interpreter.addTemplate(await templatePage2.imageData())
-
-  const { ballot } = await interpreter.interpretBallot(
-    await yvonneDavis.imageData()
-  )
-  expect(ballot.votes).toMatchInlineSnapshot(`
-    Object {
-      "texas-house-district-111": Array [
-        Object {
-          "id": "yvonne-davis",
-          "incumbent": true,
-          "name": "Yvonne Davis",
-          "partyId": "2",
-        },
-      ],
-    }
-  `)
-})
-
-test('interpret multiple vote', async () => {
-  const interpreter = new Interpreter(election)
-
-  await interpreter.addTemplate(await templatePage1.imageData())
-  await interpreter.addTemplate(await templatePage2.imageData())
+  await interpreter.addTemplate(await blankPage1.imageData())
+  await interpreter.addTemplate(await blankPage2.imageData())
 
   const { ballot, marks } = await interpreter.interpretBallot(
-    await fullVotesPage1.imageData()
+    await filledInPage1.imageData()
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
-      "dallas-county-commissioners-court-pct-3": Array [
-        Object {
-          "id": "andrew-jewell",
-          "name": "Andrew Jewell",
-          "partyId": "7",
-        },
-      ],
       "dallas-county-sheriff": Array [
         Object {
           "id": "chad-prda",
@@ -866,7 +697,7 @@ test('interpret multiple vote', async () => {
     Array [
       Object {
         "option": "John Cornyn",
-        "score": 0,
+        "score": 0.005037783375314861,
         "type": "candidate",
       },
       Object {
@@ -881,7 +712,7 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.9328287606433302,
+        "score": 0.8808290155440415,
         "type": "candidate",
       },
       Object {
@@ -896,7 +727,7 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Eddie Bernice Johnson",
-        "score": 0.8958930276981852,
+        "score": 0.7227979274611399,
         "type": "candidate",
       },
       Object {
@@ -906,7 +737,7 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.4854732895970009,
+        "score": 0.6120906801007556,
         "type": "candidate",
       },
       Object {
@@ -921,12 +752,12 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.8395061728395061,
+        "score": 0.7025,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.8551136363636364,
+        "score": 0.8737113402061856,
         "type": "candidate",
       },
       Object {
@@ -941,32 +772,7 @@ test('interpret multiple vote', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.6976303317535545,
-        "type": "candidate",
-      },
-      Object {
-        "option": "Write-In",
-        "score": 0,
-        "type": "candidate",
-      },
-      Object {
-        "option": "John Wiley Price",
-        "score": 0,
-        "type": "candidate",
-      },
-      Object {
-        "option": "S.T. Russell",
-        "score": 0,
-        "type": "candidate",
-      },
-      Object {
-        "option": "Andrew Jewell",
-        "score": 0.776930409914204,
-        "type": "candidate",
-      },
-      Object {
-        "option": "Write-In",
-        "score": 0,
+        "score": 0.6313131313131313,
         "type": "candidate",
       },
       Object {
@@ -982,33 +788,27 @@ test('invalid marks', async () => {
   const interpreter = new Interpreter(election)
 
   await interpreter.addTemplate(
-    await templatePage1.imageData(),
-    await templatePage1.metadata()
+    await blankPage1.imageData(),
+    await blankPage1.metadata()
   )
   await interpreter.addTemplate(
-    await templatePage2.imageData(),
-    await templatePage2.metadata()
+    await blankPage2.imageData(),
+    await blankPage2.metadata()
   )
 
   const { ballot, marks } = await interpreter.interpretBallot(
-    await fullVotesPage2.imageData()
+    await filledInPage2.imageData()
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
-      "dallas-city-council": Array [
+      "dallas-county-commissioners-court-pct-3": Array [
         Object {
-          "id": "randall-rupp",
-          "name": "Randall Rupp",
-          "partyId": "2",
-        },
-        Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
+          "id": "andrew-jewell",
+          "name": "Andrew Jewell",
+          "partyId": "7",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "yes",
+      "dallas-county-proposition-r": "no",
     }
   `)
 
@@ -1016,10 +816,291 @@ test('invalid marks', async () => {
     Array [
       Object {
         "bounds": Object {
-          "height": 43,
-          "width": 62,
-          "x": 215,
-          "y": 636,
+          "height": 21,
+          "width": 32,
+          "x": 67,
+          "y": 242,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "john-wiley-price",
+              "incumbent": true,
+              "name": "John Wiley Price",
+              "partyId": "2",
+            },
+            Object {
+              "id": "s-t-russell",
+              "name": "S.T. Russell",
+              "partyId": "3",
+            },
+            Object {
+              "id": "andrew-jewell",
+              "name": "Andrew Jewell",
+              "partyId": "7",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-county-commissioners-court-pct-3",
+          "seats": 2,
+          "section": "Dallas County",
+          "title": "Member, Dallas County Commissioners Court, Precinct 3",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "john-wiley-price",
+          "incumbent": true,
+          "name": "John Wiley Price",
+          "partyId": "2",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 21,
+            "width": 32,
+            "x": 67,
+            "y": 242,
+          },
+          "inner": Object {
+            "height": 17,
+            "width": 28,
+            "x": 69,
+            "y": 244,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 21,
+          "width": 32,
+          "x": 67,
+          "y": 320,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "john-wiley-price",
+              "incumbent": true,
+              "name": "John Wiley Price",
+              "partyId": "2",
+            },
+            Object {
+              "id": "s-t-russell",
+              "name": "S.T. Russell",
+              "partyId": "3",
+            },
+            Object {
+              "id": "andrew-jewell",
+              "name": "Andrew Jewell",
+              "partyId": "7",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-county-commissioners-court-pct-3",
+          "seats": 2,
+          "section": "Dallas County",
+          "title": "Member, Dallas County Commissioners Court, Precinct 3",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "s-t-russell",
+          "name": "S.T. Russell",
+          "partyId": "3",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 21,
+            "width": 32,
+            "x": 67,
+            "y": 320,
+          },
+          "inner": Object {
+            "height": 18,
+            "width": 28,
+            "x": 69,
+            "y": 322,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 21,
+          "width": 32,
+          "x": 67,
+          "y": 398,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "john-wiley-price",
+              "incumbent": true,
+              "name": "John Wiley Price",
+              "partyId": "2",
+            },
+            Object {
+              "id": "s-t-russell",
+              "name": "S.T. Russell",
+              "partyId": "3",
+            },
+            Object {
+              "id": "andrew-jewell",
+              "name": "Andrew Jewell",
+              "partyId": "7",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-county-commissioners-court-pct-3",
+          "seats": 2,
+          "section": "Dallas County",
+          "title": "Member, Dallas County Commissioners Court, Precinct 3",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "andrew-jewell",
+          "name": "Andrew Jewell",
+          "partyId": "7",
+        },
+        "score": 0.72544080604534,
+        "target": Object {
+          "bounds": Object {
+            "height": 21,
+            "width": 32,
+            "x": 67,
+            "y": 398,
+          },
+          "inner": Object {
+            "height": 18,
+            "width": 28,
+            "x": 69,
+            "y": 400,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 22,
+          "width": 32,
+          "x": 67,
+          "y": 476,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "john-wiley-price",
+              "incumbent": true,
+              "name": "John Wiley Price",
+              "partyId": "2",
+            },
+            Object {
+              "id": "s-t-russell",
+              "name": "S.T. Russell",
+              "partyId": "3",
+            },
+            Object {
+              "id": "andrew-jewell",
+              "name": "Andrew Jewell",
+              "partyId": "7",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-county-commissioners-court-pct-3",
+          "seats": 2,
+          "section": "Dallas County",
+          "title": "Member, Dallas County Commissioners Court, Precinct 3",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 22,
+            "width": 32,
+            "x": 67,
+            "y": 476,
+          },
+          "inner": Object {
+            "height": 18,
+            "width": 28,
+            "x": 69,
+            "y": 478,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 22,
+          "width": 32,
+          "x": 67,
+          "y": 526,
+        },
+        "contest": Object {
+          "allowWriteIns": true,
+          "candidates": Array [
+            Object {
+              "id": "john-wiley-price",
+              "incumbent": true,
+              "name": "John Wiley Price",
+              "partyId": "2",
+            },
+            Object {
+              "id": "s-t-russell",
+              "name": "S.T. Russell",
+              "partyId": "3",
+            },
+            Object {
+              "id": "andrew-jewell",
+              "name": "Andrew Jewell",
+              "partyId": "7",
+            },
+          ],
+          "districtId": "12",
+          "id": "dallas-county-commissioners-court-pct-3",
+          "seats": 2,
+          "section": "Dallas County",
+          "title": "Member, Dallas County Commissioners Court, Precinct 3",
+          "type": "candidate",
+        },
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "score": 0,
+        "target": Object {
+          "bounds": Object {
+            "height": 22,
+            "width": 32,
+            "x": 67,
+            "y": 526,
+          },
+          "inner": Object {
+            "height": 18,
+            "width": 28,
+            "x": 69,
+            "y": 528,
+          },
+        },
+        "type": "candidate",
+      },
+      Object {
+        "bounds": Object {
+          "height": 21,
+          "width": 32,
+          "x": 67,
+          "y": 869,
         },
         "contest": Object {
           "description": "Shall Robert Demergue be retained as Chief Justice of the Dallas County Court of Appeals?",
@@ -1030,29 +1111,29 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.3758325404376784,
+        "score": 0.14910025706940874,
         "target": Object {
           "bounds": Object {
-            "height": 43,
-            "width": 62,
-            "x": 215,
-            "y": 636,
+            "height": 21,
+            "width": 32,
+            "x": 67,
+            "y": 869,
           },
           "inner": Object {
-            "height": 29,
-            "width": 48,
-            "x": 222,
-            "y": 643,
+            "height": 18,
+            "width": 28,
+            "x": 69,
+            "y": 870,
           },
         },
         "type": "yesno",
       },
       Object {
         "bounds": Object {
-          "height": 43,
-          "width": 63,
-          "x": 214,
-          "y": 733,
+          "height": 21,
+          "width": 32,
+          "x": 67,
+          "y": 919,
         },
         "contest": Object {
           "description": "Shall Robert Demergue be retained as Chief Justice of the Dallas County Court of Appeals?",
@@ -1066,26 +1147,26 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 43,
-            "width": 63,
-            "x": 214,
-            "y": 733,
+            "height": 21,
+            "width": 32,
+            "x": 67,
+            "y": 919,
           },
           "inner": Object {
-            "height": 29,
-            "width": 48,
-            "x": 222,
-            "y": 740,
+            "height": 18,
+            "width": 28,
+            "x": 69,
+            "y": 920,
           },
         },
         "type": "yesno",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 62,
-          "x": 214,
-          "y": 1323,
+          "height": 22,
+          "width": 32,
+          "x": 470,
+          "y": 315,
         },
         "contest": Object {
           "description": "Shall the Dallas County extend the Recycling Program countywide?",
@@ -1096,29 +1177,29 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.937381404174573,
+        "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 62,
-            "x": 214,
-            "y": 1323,
+            "height": 22,
+            "width": 32,
+            "x": 470,
+            "y": 315,
           },
           "inner": Object {
-            "height": 28,
-            "width": 48,
-            "x": 221,
-            "y": 1330,
+            "height": 18,
+            "width": 28,
+            "x": 472,
+            "y": 317,
           },
         },
         "type": "yesno",
       },
       Object {
         "bounds": Object {
-          "height": 43,
-          "width": 62,
-          "x": 214,
-          "y": 1419,
+          "height": 22,
+          "width": 32,
+          "x": 470,
+          "y": 365,
         },
         "contest": Object {
           "description": "Shall the Dallas County extend the Recycling Program countywide?",
@@ -1129,29 +1210,29 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "no",
-        "score": 0,
+        "score": 0.7964376590330788,
         "target": Object {
           "bounds": Object {
-            "height": 43,
-            "width": 62,
-            "x": 214,
-            "y": 1419,
+            "height": 22,
+            "width": 32,
+            "x": 470,
+            "y": 365,
           },
           "inner": Object {
-            "height": 28,
-            "width": 48,
-            "x": 221,
-            "y": 1427,
+            "height": 18,
+            "width": 28,
+            "x": 472,
+            "y": 367,
           },
         },
         "type": "yesno",
       },
       Object {
         "bounds": Object {
-          "height": 43,
-          "width": 63,
-          "x": 982,
-          "y": 371,
+          "height": 21,
+          "width": 32,
+          "x": 470,
+          "y": 569,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1202,26 +1283,26 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 43,
-            "width": 63,
-            "x": 982,
-            "y": 371,
+            "height": 21,
+            "width": 32,
+            "x": 470,
+            "y": 569,
           },
           "inner": Object {
-            "height": 28,
-            "width": 49,
-            "x": 989,
-            "y": 378,
+            "height": 18,
+            "width": 28,
+            "x": 472,
+            "y": 570,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 63,
-          "x": 982,
-          "y": 522,
+          "height": 21,
+          "width": 32,
+          "x": 470,
+          "y": 647,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1269,29 +1350,29 @@ test('invalid marks', async () => {
           "name": "Randall Rupp",
           "partyId": "2",
         },
-        "score": 0.8097514340344169,
+        "score": 0.13110539845758354,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 63,
-            "x": 982,
-            "y": 522,
+            "height": 21,
+            "width": 32,
+            "x": 470,
+            "y": 647,
           },
           "inner": Object {
-            "height": 28,
-            "width": 48,
-            "x": 990,
-            "y": 529,
+            "height": 17,
+            "width": 28,
+            "x": 472,
+            "y": 649,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 63,
-          "x": 982,
-          "y": 672,
+          "height": 21,
+          "width": 32,
+          "x": 470,
+          "y": 725,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1342,26 +1423,26 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 63,
-            "x": 982,
-            "y": 672,
+            "height": 21,
+            "width": 32,
+            "x": 470,
+            "y": 725,
           },
           "inner": Object {
-            "height": 28,
-            "width": 48,
-            "x": 990,
-            "y": 679,
+            "height": 17,
+            "width": 28,
+            "x": 472,
+            "y": 727,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 63,
-          "x": 982,
-          "y": 824,
+          "height": 21,
+          "width": 32,
+          "x": 470,
+          "y": 803,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1409,29 +1490,29 @@ test('invalid marks', async () => {
           "name": "Beverly Barker",
           "partyId": "3",
         },
-        "score": 0.17273576097105509,
+        "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 63,
-            "x": 982,
-            "y": 824,
+            "height": 21,
+            "width": 32,
+            "x": 470,
+            "y": 803,
           },
           "inner": Object {
-            "height": 28,
-            "width": 49,
-            "x": 989,
-            "y": 831,
+            "height": 17,
+            "width": 28,
+            "x": 472,
+            "y": 805,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 43,
-          "width": 63,
-          "x": 982,
-          "y": 974,
+          "height": 21,
+          "width": 32,
+          "x": 470,
+          "y": 881,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1479,29 +1560,29 @@ test('invalid marks', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
-        "score": 0,
+        "score": 0.13212435233160622,
         "target": Object {
           "bounds": Object {
-            "height": 43,
-            "width": 63,
-            "x": 982,
-            "y": 974,
+            "height": 21,
+            "width": 32,
+            "x": 470,
+            "y": 881,
           },
           "inner": Object {
-            "height": 28,
-            "width": 49,
-            "x": 989,
-            "y": 981,
+            "height": 17,
+            "width": 28,
+            "x": 472,
+            "y": 883,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 63,
-          "x": 982,
-          "y": 1125,
+          "height": 21,
+          "width": 32,
+          "x": 470,
+          "y": 959,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1552,26 +1633,26 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 63,
-            "x": 982,
-            "y": 1125,
+            "height": 21,
+            "width": 32,
+            "x": 470,
+            "y": 959,
           },
           "inner": Object {
-            "height": 28,
-            "width": 49,
-            "x": 989,
-            "y": 1132,
+            "height": 18,
+            "width": 28,
+            "x": 472,
+            "y": 961,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 63,
-          "x": 982,
-          "y": 1276,
+          "height": 22,
+          "width": 32,
+          "x": 470,
+          "y": 1037,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1622,26 +1703,26 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 63,
-            "x": 982,
-            "y": 1276,
+            "height": 22,
+            "width": 32,
+            "x": 470,
+            "y": 1037,
           },
           "inner": Object {
-            "height": 29,
-            "width": 49,
-            "x": 989,
-            "y": 1282,
+            "height": 18,
+            "width": 28,
+            "x": 472,
+            "y": 1039,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 63,
-          "x": 982,
-          "y": 1373,
+          "height": 21,
+          "width": 32,
+          "x": 470,
+          "y": 1087,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1689,29 +1770,29 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0.9441287878787878,
+        "score": 0.09595959595959595,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 63,
-            "x": 982,
-            "y": 1373,
+            "height": 21,
+            "width": 32,
+            "x": 470,
+            "y": 1087,
           },
           "inner": Object {
-            "height": 28,
-            "width": 49,
-            "x": 989,
-            "y": 1380,
+            "height": 18,
+            "width": 28,
+            "x": 472,
+            "y": 1089,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 43,
-          "width": 63,
-          "x": 982,
-          "y": 1469,
+          "height": 22,
+          "width": 32,
+          "x": 470,
+          "y": 1137,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1759,29 +1840,29 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0,
+        "score": 0.01015228426395939,
         "target": Object {
           "bounds": Object {
-            "height": 43,
-            "width": 63,
-            "x": 982,
-            "y": 1469,
+            "height": 22,
+            "width": 32,
+            "x": 470,
+            "y": 1137,
           },
           "inner": Object {
-            "height": 29,
-            "width": 49,
-            "x": 989,
-            "y": 1476,
+            "height": 18,
+            "width": 28,
+            "x": 472,
+            "y": 1139,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 63,
-          "x": 1752,
-          "y": 374,
+          "height": 22,
+          "width": 32,
+          "x": 872,
+          "y": 176,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1812,26 +1893,26 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 63,
-            "x": 1752,
-            "y": 374,
+            "height": 22,
+            "width": 32,
+            "x": 872,
+            "y": 176,
           },
           "inner": Object {
-            "height": 28,
-            "width": 49,
-            "x": 1759,
-            "y": 381,
+            "height": 18,
+            "width": 28,
+            "x": 874,
+            "y": 178,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 63,
-          "x": 1752,
-          "y": 524,
+          "height": 21,
+          "width": 32,
+          "x": 872,
+          "y": 255,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1862,26 +1943,26 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 63,
-            "x": 1752,
-            "y": 524,
+            "height": 21,
+            "width": 32,
+            "x": 872,
+            "y": 255,
           },
           "inner": Object {
-            "height": 28,
-            "width": 50,
-            "x": 1758,
-            "y": 531,
+            "height": 18,
+            "width": 28,
+            "x": 874,
+            "y": 256,
           },
         },
         "type": "candidate",
       },
       Object {
         "bounds": Object {
-          "height": 42,
-          "width": 64,
-          "x": 1751,
-          "y": 674,
+          "height": 21,
+          "width": 32,
+          "x": 872,
+          "y": 333,
         },
         "contest": Object {
           "allowWriteIns": true,
@@ -1912,16 +1993,16 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 42,
-            "width": 64,
-            "x": 1751,
-            "y": 674,
+            "height": 21,
+            "width": 32,
+            "x": 872,
+            "y": 333,
           },
           "inner": Object {
-            "height": 29,
-            "width": 50,
-            "x": 1758,
-            "y": 680,
+            "height": 17,
+            "width": 28,
+            "x": 874,
+            "y": 335,
           },
         },
         "type": "candidate",
@@ -1938,7 +2019,7 @@ test('custom QR code reader', async () => {
     }),
   })
   const template = await interpreter.interpretTemplate(
-    await templatePage1.imageData()
+    await blankPage1.imageData()
   )
 
   expect(template.ballotImage.metadata).toEqual({
@@ -1954,26 +2035,63 @@ test('upside-down ballot', async () => {
   const interpreter = new Interpreter(election)
 
   await interpreter.addTemplate(
-    await templatePage1.imageData(),
-    await templatePage1.metadata()
+    await blankPage1.imageData(),
+    await blankPage1.metadata()
   )
   await interpreter.addTemplate(
-    await templatePage2.imageData(),
-    await templatePage2.metadata()
+    await blankPage2.imageData(),
+    await blankPage2.metadata()
   )
 
-  const imageData = await yvonneDavis.imageData()
+  const imageData = await filledInPage1.imageData()
   flipVH(imageData)
 
   const { ballot } = await interpreter.interpretBallot(imageData)
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
+      "dallas-county-sheriff": Array [
+        Object {
+          "id": "chad-prda",
+          "name": "Chad Prda",
+          "partyId": "3",
+        },
+      ],
+      "dallas-county-tax-assessor": Array [
+        Object {
+          "id": "john-ames",
+          "incumbent": true,
+          "name": "John Ames",
+          "partyId": "2",
+        },
+      ],
       "texas-house-district-111": Array [
         Object {
-          "id": "yvonne-davis",
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+      "texas-sc-judge-place-6": Array [
+        Object {
+          "id": "jane-bland",
           "incumbent": true,
-          "name": "Yvonne Davis",
+          "name": "Jane Bland",
+          "partyId": "3",
+        },
+      ],
+      "us-house-district-30": Array [
+        Object {
+          "id": "eddie-bernice-johnson",
+          "incumbent": true,
+          "name": "Eddie Bernice Johnson",
           "partyId": "2",
+        },
+      ],
+      "us-senate": Array [
+        Object {
+          "id": "tim-smith",
+          "name": "Tim Smith",
+          "partyId": "6",
         },
       ],
     }

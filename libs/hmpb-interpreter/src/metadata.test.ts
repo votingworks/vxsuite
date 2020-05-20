@@ -1,4 +1,5 @@
-import { croppedQRCode, templatePage1 } from '../test/fixtures'
+import { croppedQRCode } from '../test/fixtures'
+import { blankPage1 } from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library'
 import { decodeSearchParams, detect } from './metadata'
 import { vh as flipVH } from './utils/flip'
 import { jsqr } from './utils/qrcode'
@@ -42,11 +43,11 @@ test('cropped QR code', async () => {
 })
 
 test('ballot', async () => {
-  expect(await detect(await templatePage1.imageData())).toEqual({
+  expect(await detect(await blankPage1.imageData())).toEqual({
     metadata: {
       ballotStyleId: '77',
       precinctId: '42',
-      isTestBallot: true,
+      isTestBallot: false,
       pageNumber: 1,
       pageCount: 2,
     },
@@ -56,12 +57,12 @@ test('ballot', async () => {
 
 test('alternate QR code reader', async () => {
   expect(
-    await detect(await templatePage1.imageData(), { detectQRCode: jsqr })
+    await detect(await blankPage1.imageData(), { detectQRCode: jsqr })
   ).toEqual({
     metadata: {
       ballotStyleId: '77',
       precinctId: '42',
-      isTestBallot: true,
+      isTestBallot: false,
       pageNumber: 1,
       pageCount: 2,
     },
@@ -71,16 +72,16 @@ test('alternate QR code reader', async () => {
 
 test('custom QR code reader', async () => {
   expect(
-    await detect(await templatePage1.imageData(), {
+    await detect(await blankPage1.imageData(), {
       detectQRCode: async () => ({
-        data: Buffer.from('https://vx.vote?t=t&pr=11&bs=22&p=3-4'),
+        data: Buffer.from('https://vx.vote?t=_&pr=11&bs=22&p=3-4'),
       }),
     })
   ).toEqual({
     metadata: {
       ballotStyleId: '22',
       precinctId: '11',
-      isTestBallot: true,
+      isTestBallot: false,
       pageNumber: 3,
       pageCount: 4,
     },
@@ -89,7 +90,7 @@ test('custom QR code reader', async () => {
 })
 
 test('upside-down ballot images', async () => {
-  const imageData = await templatePage1.imageData()
+  const imageData = await blankPage1.imageData()
 
   flipVH(imageData)
 
@@ -97,7 +98,7 @@ test('upside-down ballot images', async () => {
     metadata: {
       ballotStyleId: '77',
       precinctId: '42',
-      isTestBallot: true,
+      isTestBallot: false,
       pageNumber: 1,
       pageCount: 2,
     },

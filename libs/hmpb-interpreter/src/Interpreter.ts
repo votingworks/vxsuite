@@ -10,6 +10,7 @@ import {
   Precinct,
 } from '@votingworks/ballot-encoder'
 import { strict as assert } from 'assert'
+import makeDebug from 'debug'
 import * as jsfeat from 'jsfeat'
 import { v4 as uuid } from 'uuid'
 import getVotesFromMarks from './getVotesFromMarks'
@@ -39,6 +40,8 @@ import diff, { countPixels } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
 import outline from './utils/outline'
+
+const debug = makeDebug('hmpb-interpreter:Interpreter')
 
 export interface Options {
   readonly election: Election
@@ -229,6 +232,12 @@ export default class Interpreter {
             for (const [i, template] of precinctTemplates.entries()) {
               if (!template) {
                 // Yield a specific, known missing page with a real page number.
+                debug(
+                  `missing template: ballot style '%s'; precinct '%s'; page #%d`,
+                  ballotStyle.id,
+                  precinctId,
+                  i + 1
+                )
                 yield {
                   ballotStyleId: ballotStyle.id,
                   isTestBallot,
@@ -246,6 +255,11 @@ export default class Interpreter {
         // Either nothing exists for this ballot style or this precinct. We
         // can't know how many pages there should be, so we just yield one page
         // for the whole thing.
+        debug(
+          `found missing template: ballot style '%s'; precinct '%s'`,
+          ballotStyle.id,
+          precinctId
+        )
         yield {
           ballotStyleId: ballotStyle.id,
           isTestBallot,
@@ -281,6 +295,8 @@ export default class Interpreter {
     imageData: ImageData,
     metadata?: BallotPageMetadata
   ): Promise<FindMarksResult> {
+    debug('looking for marks in %d×%d image', imageData.width, imageData.height)
+
     if (this.hasMissingTemplates()) {
       throw new Error(
         'Refusing to interpret ballots before all templates are added.'
@@ -291,6 +307,7 @@ export default class Interpreter {
       imageData,
       metadata
     ))
+    debug('using metadata: %O', metadata)
 
     const contests = findContests(imageData)
     const ballotLayout: BallotPageLayout = {
@@ -303,6 +320,10 @@ export default class Interpreter {
         })),
       ],
     }
+    debug(
+      'found contest areas: %O',
+      ballotLayout.contests.map(({ bounds }) => bounds)
+    )
 
     const { ballotStyleId, precinctId, pageNumber } = metadata
     const matchedTemplate = defined(
@@ -404,12 +425,18 @@ export default class Interpreter {
     template: BallotPageLayout,
     contests: Contests
   ): BallotMark[] {
+    assert.equal(
+      template.contests.length,
+      contests.length,
+      `ballot and template have different numbers of contests; maybe the ballot is from another version of the template?`
+    )
+
     const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template)
     const marks: BallotMark[] = []
 
-    assert.equal(template.contests.length, contests.length)
-
     for (const [{ options }, contest] of zip(template.contests, contests)) {
+      debug(`getting marks for %s contest '%s'`, contest.type, contest.id)
+
       if (contest.type === 'candidate') {
         const expectedOptions =
           contest.candidates.length +
@@ -426,6 +453,11 @@ export default class Interpreter {
             template.ballotImage.imageData,
             mappedBallot,
             option.target
+          )
+          debug(
+            `candidate '%s' target filled in with score %d`,
+            candidate.name,
+            score
           )
           const mark: BallotCandidateTargetMark = {
             type: 'candidate',
@@ -475,6 +507,7 @@ export default class Interpreter {
           mappedBallot,
           yesOption.target
         )
+        debug(`'yes' mark score: %d`, yesScore)
         const yesMark: BallotYesNoTargetMark = {
           type: 'yesno',
           bounds: yesOption.target.bounds,
@@ -490,6 +523,7 @@ export default class Interpreter {
           mappedBallot,
           noOption.target
         )
+        debug(`'no' mark score: %d`, noScore)
         const noMark: BallotYesNoTargetMark = {
           type: 'yesno',
           bounds: noOption.target.bounds,
