@@ -5,6 +5,7 @@ export default async function configure(election: Election): Promise<void> {
   const response = await fetchJSON<ConfigureResponse>('/scan/configure', {
     method: 'post',
     body: JSON.stringify(election),
+    headers: { 'Content-Type': 'application/json' },
   })
 
   if (response.status !== 'ok') {
