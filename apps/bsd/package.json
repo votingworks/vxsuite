@@ -83,6 +83,7 @@
     "fetch-mock": "^9.9.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.3",
+    "node-fetch": "^2.6.0",
     "prettier": "^2.0.5",
     "stylelint": "^13.4.0",
     "stylelint-config-palantir": "^5.0.0",
