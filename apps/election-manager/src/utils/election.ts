@@ -103,7 +103,7 @@ export const getBallotFileName = ({
     precinctId,
   })!.name
 
-  return `election-${electionHash.slice(0, 7)}-precinct-${dashify(
+  return `election-${electionHash.slice(0, 10)}-precinct-${dashify(
     precinctName
   )}-id-${precinctId}-style-${ballotStyleId}.pdf`
 }
