@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Run Tests
           command: |
-            yarn test
+            yarn test:coverage
 
 workflows:
   version: 2
