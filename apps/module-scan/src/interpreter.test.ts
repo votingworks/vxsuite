@@ -1,9 +1,14 @@
 import { electionSample } from '@votingworks/ballot-encoder'
 import { join } from 'path'
-import hmpbElection from '../tests/fixtures/election'
+import hmpbElection from '../test/fixtures/hmpb-dallas-county/election'
 import SummaryBallotInterpreter, { getBallotImageData } from './interpreter'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
+const electionFixturesRoot = join(
+  __dirname,
+  '..',
+  'test/fixtures/hmpb-dallas-county'
+)
 
 test('reads QR codes from ballot images #1', async () => {
   const { qrcode } = await getBallotImageData(
@@ -54,31 +59,27 @@ test('extracts a CVR from votes encoded in a QR code', async () => {
 test('interprets marks on a HMPB', async () => {
   const interpreter = new SummaryBallotInterpreter()
 
-  expect(
-    await interpreter.interpretFile({
-      election: hmpbElection,
-      ballotImagePath: join(sampleBallotImagesPath, 'hmpb-01.jpg'),
-    })
-  ).toBeUndefined()
+  await interpreter.addHmpbTemplate(
+    hmpbElection,
+    (await getBallotImageData(join(electionFixturesRoot, 'blank-p1.jpg'))).image
+  )
+
+  await interpreter.addHmpbTemplate(
+    hmpbElection,
+    (await getBallotImageData(join(electionFixturesRoot, 'blank-p2.jpg'))).image
+  )
 
   expect(
     await interpreter.interpretFile({
       election: hmpbElection,
-      ballotImagePath: join(sampleBallotImagesPath, 'hmpb-02.jpg'),
-    })
-  ).toBeUndefined()
-
-  expect(
-    await interpreter.interpretFile({
-      election: hmpbElection,
-      ballotImagePath: join(sampleBallotImagesPath, 'hmpb-01-full-votes.jpg'),
+      ballotImagePath: join(electionFixturesRoot, 'filled-in-p1.jpg'),
     })
   ).toEqual(
     expect.objectContaining({
       _ballotStyleId: '77',
       _precinctId: '42',
       'dallas-city-council': '',
-      'dallas-county-commissioners-court-pct-3': ['andrew-jewell'],
+      'dallas-county-commissioners-court-pct-3': '',
       'dallas-county-proposition-r': '',
       'dallas-county-retain-chief-justice': '',
       'dallas-county-sheriff': ['chad-prda'],

@@ -11,8 +11,9 @@ let app: Application
 let importer: Importer
 let importerMock: jest.Mocked<Importer>
 
-function makeMockImporter(): Importer {
+function makeMockImporter(): jest.Mocked<Importer> {
   return {
+    addHmpbTemplate: jest.fn(),
     addManualBallot: jest.fn(),
     configure: jest.fn(),
     doExport: jest.fn(),

@@ -3,7 +3,13 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
-import express, { Application, Request, Response } from 'express'
+import express, {
+  Application,
+  Request,
+  Response,
+  RequestHandler,
+} from 'express'
+import multer from 'multer'
 import * as path from 'path'
 import { Election } from '@votingworks/ballot-encoder'
 
@@ -11,6 +17,7 @@ import SystemImporter, { Importer } from './importer'
 import makeTemporaryBallotImportImageDirectories from './makeTemporaryBallotImportImageDirectories'
 import Store from './store'
 import { FujitsuScanner, Scanner } from './scanner'
+import pdfToImages from './util/pdfToImages'
 
 export interface AppOptions {
   store: Store
@@ -23,6 +30,7 @@ export interface AppOptions {
  */
 export function buildApp({ store, importer }: AppOptions): Application {
   const app: Application = express()
+  const upload = multer({ storage: multer.memoryStorage() })
 
   app.use(express.json())
 
@@ -51,6 +59,66 @@ export function buildApp({ store, importer }: AppOptions): Application {
     await importer.addManualBallot(new TextEncoder().encode(ballotString))
     response.json({ status: 'ok' })
   })
+
+  async function addHmpbTemplates(
+    files: Express.Multer.File[],
+    response: Response
+  ): Promise<void> {
+    for (const file of files) {
+      if (file.mimetype !== 'application/pdf') {
+        response.status(400)
+        response.json({
+          errors: [
+            {
+              type: 'invalid-template-file-type',
+              message: `File upload expected to be application/pdf, got: ${file.mimetype}`,
+            },
+          ],
+        })
+        return
+      }
+
+      let page = 0
+      for await (const image of pdfToImages(file.buffer, { scale: 2 })) {
+        try {
+          page += 1
+          await importer.addHmpbTemplate(image)
+        } catch (error) {
+          response.status(400)
+          response.json({
+            errors: [
+              {
+                type: 'invalid-template-file-image',
+                message: `Ballot image on page ${page} of file '${file.filename}' could not be interpreted as a template: ${error}`,
+              },
+            ],
+          })
+          return
+        }
+      }
+    }
+  }
+
+  app.post(
+    '/scan/hmpb/addTemplates',
+    upload.array('ballots') as RequestHandler,
+    async (request, response) => {
+      try {
+        await addHmpbTemplates(request.files as Express.Multer.File[], response)
+        response.json({ status: 'ok' })
+      } catch (error) {
+        response.status(500)
+        response.json({
+          errors: [
+            {
+              type: 'internal-server-error',
+              message: error.message,
+            },
+          ],
+        })
+      }
+    }
+  )
 
   app.post('/scan/export', async (_request, response) => {
     const cvrs = await importer.doExport()
