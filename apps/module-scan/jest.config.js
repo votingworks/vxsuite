@@ -10,4 +10,12 @@ module.exports = {
     '!src/index.ts',
     '!src/types.ts',
   ],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 93,
+      lines: 87,
+      statements: 87,
+    },
+  },
 }
