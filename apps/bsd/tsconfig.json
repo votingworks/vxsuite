@@ -16,5 +16,5 @@
     "target": "es2017"
   },
   "exclude": ["src/setupProxy.js", ".eslintrc.js"],
-  "include": ["src", "prodserver"]
+  "include": ["src", "prodserver", "test", "types"]
 }

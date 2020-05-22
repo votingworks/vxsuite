@@ -92,14 +92,15 @@
     "stylelint-config-palantir": "^5.0.0",
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-styled-components": "^0.1.1",
-    "stylelint-processor-styled-components": "^1.10.0"
+    "stylelint-processor-styled-components": "^1.10.0",
+    "zip-stream": "^3.0.1"
   },
   "jest": {
     "coverageThreshold": {
       "global": {
-        "statements": 48,
-        "branches": 30,
-        "lines": 49,
+        "statements": 49,
+        "branches": 31,
+        "lines": 50,
         "functions": 51
       }
     }
