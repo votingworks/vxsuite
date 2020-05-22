@@ -46,7 +46,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
       await importer.doImport()
       response.json({ status: 'ok' })
     } catch (err) {
-      response.json({ status: `could not scan ${err.message}` })
+      response.json({ status: `could not scan: ${err.message}` })
     }
   })
 
@@ -180,7 +180,6 @@ export async function start({
 }: Partial<StartOptions> = {}): Promise<void> {
   await store.init()
   app.listen(port, () => {
-    // eslint-disable-next-line no-console
     console.log(`Listening at http://localhost:${port}/`)
     console.log(`Scanning ballots into ${importer.ballotImagesPath}`)
   })

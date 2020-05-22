@@ -65,6 +65,15 @@ test('POST /scan/scanBatch', async () => {
   expect(importer.doImport).toBeCalled()
 })
 
+test('POST /scan/scanBatch errors', async () => {
+  importerMock.doImport.mockRejectedValue(new Error('scanner is a teapot'))
+  await request(app)
+    .post('/scan/scanBatch')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'could not scan: scanner is a teapot' })
+  expect(importer.doImport).toBeCalled()
+})
+
 test('POST /scan/addManualBallot', async () => {
   importerMock.addManualBallot.mockResolvedValue(undefined)
   await request(app)
