@@ -20,16 +20,13 @@
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.+(js|jsx|ts|tsx)": [
-      "eslint --quiet --fix",
-      "git add"
+      "eslint --quiet --fix"
     ],
     "package.json": [
-      "sort-package-json",
-      "git add"
+      "sort-package-json"
     ]
   },
   "dependencies": {
