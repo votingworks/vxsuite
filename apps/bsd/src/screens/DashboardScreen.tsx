@@ -28,7 +28,7 @@ interface Props {
 
 const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
   const { batches } = status
-  const batchCount = (batches && batches.length) || 0
+  const batchCount = batches.length
   const ballotCount =
     batches && batches.reduce((result, b) => result + b.count, 0)
   return (
@@ -65,7 +65,7 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                       {isScanning && !batch.endedAt ? (
                         <Scanning>Scanning…</Scanning>
                       ) : (
-                        <small>{shortDateTime(batch.endedAt)}</small>
+                        <small>{shortDateTime(batch.endedAt!)}</small>
                       )}
                     </TD>
                     <TD narrow>
