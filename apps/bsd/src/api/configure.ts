@@ -1,4 +1,5 @@
-import { Election, ConfigureResponse } from '../config/types'
+import { Election } from '@votingworks/ballot-encoder'
+import { ConfigureResponse } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
 
 export default async function configure(election: Election): Promise<void> {

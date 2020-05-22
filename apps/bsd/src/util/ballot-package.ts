@@ -1,6 +1,6 @@
 import 'fast-text-encoding'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'
-import { BallotStyle, Election, Precinct } from '../config/types'
+import { BallotStyle, Election, Precinct } from '@votingworks/ballot-encoder'
 
 // election-4e31cb1-precinct-oaklawn-branch-library-id-42-style-77.pdf
 const BALLOT_PDF_FILENAME_PATTERN = /^election-(?:\w+)-precinct-(?:.+)-id-([^-]+)-style-(.+).pdf$/

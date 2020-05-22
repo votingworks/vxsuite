@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import fileDownload from 'js-file-download'
+import { Election, OptionalElection } from '@votingworks/ballot-encoder'
 
 import {
   ButtonEvent,
   CardData,
-  Election,
-  OptionalElection,
   ScanStatusResponse,
   UnconfigureResponse,
   CardReadLongResponse,
