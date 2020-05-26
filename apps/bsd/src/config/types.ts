@@ -41,7 +41,7 @@ export interface Batch {
   id: number
   count: number
   startedAt: number
-  endedAt: number
+  endedAt?: number
 }
 export interface ScanStatusResponse {
   electionHash?: string
