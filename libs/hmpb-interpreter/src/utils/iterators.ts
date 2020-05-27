@@ -1,3 +1,5 @@
+import { inspect } from 'util'
+
 export function zip(): Generator<[]>
 export function zip<T>(one: Iterable<T>): Generator<[T]>
 export function zip<T, U>(one: Iterable<T>, two: Iterable<U>): Generator<[T, U]>
@@ -24,9 +26,16 @@ export function* zip(...iterables: Iterable<unknown>[]): Generator<unknown[]> {
 
   while (true) {
     const nexts = iterators.map((iterator) => iterator.next())
+    const dones = nexts.filter(({ done }) => done)
 
-    if (nexts.every(({ done }) => done)) {
+    if (dones.length === nexts.length) {
       break
+    } else if (dones.length > 0) {
+      throw new Error(
+        `not all iterables are the same length: ${nexts
+          .map(({ value }) => inspect(value))
+          .join(', ')}`
+      )
     }
 
     yield nexts.map(({ value }) => value)

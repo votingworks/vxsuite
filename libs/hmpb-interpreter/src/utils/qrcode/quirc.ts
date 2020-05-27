@@ -1,7 +1,10 @@
 import { createCanvas } from 'canvas'
+import makeDebug from 'debug'
 import * as quirc from 'node-quirc'
 import { DetectQRCodeResult } from '../../types'
 import { withCropping } from './withCropping'
+
+const debug = makeDebug('hmpb-interpreter:quirc')
 
 const PNG_DATA_URL_PREFIX = 'data:image/png;base64,'
 
@@ -29,12 +32,15 @@ function toPNGData(imageData: ImageData): Buffer {
 export async function detect(
   imageData: ImageData
 ): Promise<DetectQRCodeResult | undefined> {
+  debug('detecting QR code in %d×%d image', imageData.width, imageData.height)
+
   // Unfortunately, quirc requires either JPEG or PNG encoded images and can't
   // handle raw bitmaps.
   const result = await quirc.decode(toPNGData(imageData))
 
   for (const symbol of result) {
     if (!('err' in symbol)) {
+      debug('found QR code with data: %o', symbol.data)
       return { data: symbol.data }
     }
   }
