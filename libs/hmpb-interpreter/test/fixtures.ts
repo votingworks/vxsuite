@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs'
-import { join, dirname, basename, extname } from 'path'
+import { basename, dirname, extname, join } from 'path'
 import { BallotPageMetadata, Input } from '../src'
 import { readImageData } from '../src/utils/readImageData'
 

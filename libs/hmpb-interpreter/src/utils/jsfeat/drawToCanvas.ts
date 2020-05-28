@@ -1,5 +1,5 @@
-import * as jsfeat from 'jsfeat'
 import { Canvas } from 'canvas'
+import * as jsfeat from 'jsfeat'
 
 export default function drawToCanvas(
   canvas: Canvas,

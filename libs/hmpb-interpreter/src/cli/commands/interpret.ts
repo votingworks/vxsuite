@@ -1,16 +1,12 @@
-import {
-  Election,
-  Candidate,
-  CompletedBallot,
-} from '@votingworks/ballot-encoder'
-import { promises as fs } from 'fs'
-import { OptionParseError } from '..'
-import { Input, Interpreted } from '../../types'
-import { Interpreter } from '../..'
-import { table } from 'table'
+import { Candidate, Election } from '@votingworks/ballot-encoder'
 import chalk from 'chalk'
-import { readImageData } from '../../utils/readImageData'
+import { promises as fs } from 'fs'
+import { table } from 'table'
+import { OptionParseError } from '..'
+import { Interpreter } from '../..'
 import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../Interpreter'
+import { Input, Interpreted } from '../../types'
+import { readImageData } from '../../utils/readImageData'
 
 export enum OutputFormat {
   JSON = 'json',

@@ -1,7 +1,7 @@
 import { createCanvas } from 'canvas'
 import * as quirc from 'node-quirc'
-import { withCropping } from './withCropping'
 import { DetectQRCodeResult } from '../../types'
+import { withCropping } from './withCropping'
 
 const PNG_DATA_URL_PREFIX = 'data:image/png;base64,'
 

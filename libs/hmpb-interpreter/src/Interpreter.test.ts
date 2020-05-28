@@ -1,13 +1,13 @@
-import Interpreter from './Interpreter'
-import { DetectQRCodeResult } from './types'
-import { vh as flipVH } from './utils/flip'
-import election from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library/election'
 import {
   blankPage1,
   blankPage2,
   filledInPage1,
   filledInPage2,
 } from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library'
+import election from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library/election'
+import Interpreter from './Interpreter'
+import { DetectQRCodeResult } from './types'
+import { vh as flipVH } from './utils/flip'
 
 test('interpret two-column template', async () => {
   const interpreter = new Interpreter(election)
