@@ -92,3 +92,40 @@ test('interprets marks on a HMPB', async () => {
     })
   )
 })
+
+test('interprets marks on an upside-down HMPB', async () => {
+  const interpreter = new SummaryBallotInterpreter()
+
+  await interpreter.addHmpbTemplate(
+    hmpbElection,
+    (await getBallotImageData(join(electionFixturesRoot, 'blank-p1.jpg'))).image
+  )
+
+  await interpreter.addHmpbTemplate(
+    hmpbElection,
+    (await getBallotImageData(join(electionFixturesRoot, 'blank-p2.jpg'))).image
+  )
+
+  expect(
+    await interpreter.interpretFile({
+      election: hmpbElection,
+      ballotImagePath: join(electionFixturesRoot, 'filled-in-p1-flipped.jpg'),
+    })
+  ).toEqual(
+    expect.objectContaining({
+      _ballotStyleId: '77',
+      _precinctId: '42',
+      'dallas-city-council': '',
+      'dallas-county-commissioners-court-pct-3': '',
+      'dallas-county-proposition-r': '',
+      'dallas-county-retain-chief-justice': '',
+      'dallas-county-sheriff': ['chad-prda'],
+      'dallas-county-tax-assessor': ['john-ames'],
+      'dallas-mayor': '',
+      'texas-house-district-111': ['writein'],
+      'texas-sc-judge-place-6': ['jane-bland'],
+      'us-house-district-30': ['eddie-bernice-johnson'],
+      'us-senate': ['tim-smith'],
+    })
+  )
+})

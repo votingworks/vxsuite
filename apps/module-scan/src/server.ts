@@ -107,8 +107,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         await addHmpbTemplates(request.files as Express.Multer.File[], response)
         response.json({ status: 'ok' })
       } catch (error) {
-        response.status(500)
-        response.json({
+        response.status(500).json({
           errors: [
             {
               type: 'internal-server-error',

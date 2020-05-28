@@ -13,10 +13,7 @@ import {
   Optional,
   OptionalYesNoVote,
 } from '@votingworks/ballot-encoder'
-import {
-  Interpreter as HMPBInterpreter,
-  metadataFromBytes,
-} from '@votingworks/hmpb-interpreter'
+import { Interpreter as HMPBInterpreter } from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import { readFile as readFileCallback } from 'fs'
 import { decode as decodeJpeg } from 'jpeg-js'
@@ -174,10 +171,9 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
   private async interpretHMPBFile(
     election: Election,
-    { image, qrcode }: BallotImageData
+    { image }: BallotImageData
   ): Promise<CastVoteRecord | undefined> {
     const hmpbInterpreter = this.getHmbpInterpreter(election)
-    const metadata = metadataFromBytes(qrcode)
 
     if (hmpbInterpreter.hasMissingTemplates()) {
       debug(
@@ -186,7 +182,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
       return
     }
 
-    const { ballot } = await hmpbInterpreter.interpretBallot(image, metadata)
+    const { ballot } = await hmpbInterpreter.interpretBallot(image)
     return ballotToCastVoteRecord(ballot)
   }
 
