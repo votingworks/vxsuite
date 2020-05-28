@@ -1,8 +1,8 @@
 import {
-  CandidateContest,
   Candidate,
-  YesNoContest,
+  CandidateContest,
   VotesDict,
+  YesNoContest,
 } from '@votingworks/ballot-encoder'
 import { inspect } from 'util'
 

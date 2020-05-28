@@ -1,4 +1,4 @@
-import { Rect, Point } from '../types'
+import { Point, Rect } from '../types'
 
 export interface Options {
   readonly columns: readonly boolean[]

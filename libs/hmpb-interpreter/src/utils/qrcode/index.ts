@@ -1,6 +1,6 @@
+import { DetectQRCodeResult } from '../../types'
 import jsqr from './jsqr'
 import quirc from './quirc'
-import { DetectQRCodeResult } from '../../types'
 
 export { jsqr, quirc }
 
