@@ -99,18 +99,22 @@ export default class Interpreter {
    */
   public async addTemplate(
     imageData: ImageData,
-    metadata?: BallotPageMetadata
+    metadata?: BallotPageMetadata,
+    { flipped }?: { flipped?: boolean }
   ): Promise<BallotPageLayout>
   public async addTemplate(
     template: BallotPageLayout
   ): Promise<BallotPageLayout>
   public async addTemplate(
     imageDataOrTemplate: ImageData | BallotPageLayout,
-    metadata?: BallotPageMetadata
+    metadata?: BallotPageMetadata,
+    { flipped }: { flipped?: boolean } = {}
   ): Promise<BallotPageLayout> {
     const template =
       'data' in imageDataOrTemplate
-        ? await this.interpretTemplate(imageDataOrTemplate, metadata)
+        ? await this.interpretTemplate(imageDataOrTemplate, metadata, {
+            flipped,
+          })
         : imageDataOrTemplate
     if (!metadata) {
       metadata = template.ballotImage.metadata
@@ -182,11 +186,15 @@ export default class Interpreter {
    */
   public async interpretTemplate(
     imageData: ImageData,
-    metadata?: BallotPageMetadata
+    metadata?: BallotPageMetadata,
+    { flipped = false } = {}
   ): Promise<BallotPageLayout> {
     ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
       imageData,
-      metadata
+      metadata,
+      {
+        flipped,
+      }
     ))
 
     const contests = findContestOptions([
@@ -284,16 +292,18 @@ export default class Interpreter {
    */
   public async interpretBallot(
     imageData: ImageData,
-    metadata?: BallotPageMetadata
+    metadata?: BallotPageMetadata,
+    { flipped = false } = {}
   ): Promise<Interpreted> {
-    const marked = await this.findMarks(imageData, metadata)
+    const marked = await this.findMarks(imageData, metadata, { flipped })
     const ballot = this.interpretMarks(marked)
     return { ...marked, ballot }
   }
 
   private async findMarks(
     imageData: ImageData,
-    metadata?: BallotPageMetadata
+    metadata?: BallotPageMetadata,
+    { flipped = false } = {}
   ): Promise<FindMarksResult> {
     debug('looking for marks in %d×%d image', imageData.width, imageData.height)
 
@@ -305,7 +315,10 @@ export default class Interpreter {
 
     ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
       imageData,
-      metadata
+      metadata,
+      {
+        flipped,
+      }
     ))
     debug('using metadata: %O', metadata)
 
@@ -401,11 +414,15 @@ export default class Interpreter {
 
   private async normalizeImageDataAndMetadata(
     imageData: ImageData,
-    metadata?: BallotPageMetadata
+    metadata?: BallotPageMetadata,
+    { flipped = false } = {}
   ): Promise<{ imageData: ImageData; metadata: BallotPageMetadata }> {
     binarize(imageData)
 
     if (metadata) {
+      if (flipped) {
+        flipVH(imageData)
+      }
       return { imageData, metadata }
     }
 

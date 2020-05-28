@@ -7,7 +7,6 @@ import {
 import election from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library/election'
 import Interpreter from './Interpreter'
 import { DetectQRCodeResult } from './types'
-import { vh as flipVH } from './utils/flip'
 
 test('interpret two-column template', async () => {
   const interpreter = new Interpreter(election)
@@ -2043,10 +2042,9 @@ test('upside-down ballot', async () => {
     await blankPage2.metadata()
   )
 
-  const imageData = await filledInPage1.imageData()
-  flipVH(imageData)
-
-  const { ballot } = await interpreter.interpretBallot(imageData)
+  const { ballot, metadata } = await interpreter.interpretBallot(
+    await filledInPage1.imageData()
+  )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
       "dallas-county-sheriff": Array [
@@ -2096,4 +2094,14 @@ test('upside-down ballot', async () => {
       ],
     }
   `)
+
+  const {
+    ballot: { votes: votesWithFlipped },
+  } = await interpreter.interpretBallot(
+    await filledInPage1.imageData({ flipped: true }),
+    metadata,
+    { flipped: true }
+  )
+
+  expect(votesWithFlipped).toEqual(ballot.votes)
 })
