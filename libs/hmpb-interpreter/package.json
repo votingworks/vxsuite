@@ -11,7 +11,8 @@
     "prepare": "tsc",
     "lint": "eslint '{src,test}/**/*.ts'",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "files": [
     "dist",
