@@ -947,14 +947,15 @@
   resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-1.2.0.tgz#e2721f2f009d5f5d333baf9d7e162960623f7157"
   integrity sha512-TlCfcO2agFz9qS1vg3JqLGuTuxG46qD5HSMiLs3PooQ6mOMifEXOzEYkY/cv71xaSCxSy621DKfB/ilYX6TNwA==
 
-"@votingworks/hmpb-interpreter@^3.1.1":
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@votingworks/hmpb-interpreter/-/hmpb-interpreter-3.1.1.tgz#69912ef804d76f4b07f2ea1edff88a75f4e3abbf"
-  integrity sha512-pjFAV1epcY0w/Uzh3uCiiz2zRr/MLe4RxNc5F4uzVmGwuwySOUxyFmuyBmYo2Cr7a5Ww6p7Bwwxxt3Ss6G6p0g==
+"@votingworks/hmpb-interpreter@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@votingworks/hmpb-interpreter/-/hmpb-interpreter-3.2.0.tgz#b4e40ad41670dc219b303babb2e0d8d06b62df65"
+  integrity sha512-2LtPUH24zmShu05TxXooldu1SUz6umAZsOeyHRbD3lIW6VG1mIuUjLE26M08u1URhJUkLfMxemBulSfMMHRJ0A==
   dependencies:
     "@votingworks/ballot-encoder" "^1.2.0"
     canvas "^2.6.1"
     chalk "^4.0.0"
+    debug "^4.1.1"
     jsfeat "^0.0.8"
     jsqr "^1.3.0"
     node-quirc "^2.2.1"
