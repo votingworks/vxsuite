@@ -8,6 +8,7 @@ import AppContext from '../contexts/AppContext'
 import { MainChild } from '../components/Main'
 import { routerPaths } from '../components/ElectionManager'
 import LinkButton from '../components/LinkButton'
+import Button from '../components/Button'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import { Monospace } from '../components/Text'
 import { getBallotFileName } from '../utils/election'
@@ -37,7 +38,9 @@ const BallotScreen = () => {
           })}
         </Monospace>
       </p>
-      <p>Print page to view ballot.</p>
+      <p>
+	<Button onPress={window.print}>Print Ballot</Button>
+      </p>
       <HandMarkedPaperBallot
         ballotStyleId={ballotStyleId}
         election={election}
