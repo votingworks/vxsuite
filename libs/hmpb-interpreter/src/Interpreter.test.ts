@@ -3,6 +3,7 @@ import {
   blankPage2,
   filledInPage1,
   filledInPage2,
+  partialBorderPage2,
 } from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library'
 import election from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library/election'
 import Interpreter from './Interpreter'
@@ -2094,6 +2095,35 @@ test('upside-down ballot', async () => {
           "partyId": "6",
         },
       ],
+    }
+  `)
+})
+
+test('regression: page outline', async () => {
+  const interpreter = new Interpreter(election)
+
+  await interpreter.addTemplate(
+    await blankPage1.imageData(),
+    await blankPage1.metadata()
+  )
+  await interpreter.addTemplate(
+    await blankPage2.imageData(),
+    await blankPage2.metadata()
+  )
+
+  const { ballot } = await interpreter.interpretBallot(
+    await partialBorderPage2.imageData()
+  )
+  expect(ballot.votes).toMatchInlineSnapshot(`
+    Object {
+      "dallas-county-commissioners-court-pct-3": Array [
+        Object {
+          "id": "andrew-jewell",
+          "name": "Andrew Jewell",
+          "partyId": "7",
+        },
+      ],
+      "dallas-county-proposition-r": "no",
     }
   `)
 })

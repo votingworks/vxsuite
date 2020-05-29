@@ -414,6 +414,7 @@ export default class Interpreter {
     })
     metadata = detectResult.metadata
     if (detectResult.flipped) {
+      debug('detected image is flipped, correcting orientation')
       flipVH(imageData)
     }
 
@@ -428,7 +429,13 @@ export default class Interpreter {
     assert.equal(
       template.contests.length,
       contests.length,
-      `ballot and template have different numbers of contests; maybe the ballot is from another version of the template?`
+      `template and election definition have different numbers of contests (${template.contests.length} vs ${contests.length}); maybe the template is from an old version of the election definition?`
+    )
+
+    assert.equal(
+      ballotLayout.contests.length,
+      contests.length,
+      `ballot and election definition have different numbers of contests (${ballotLayout.contests.length} vs ${contests.length}); maybe the ballot is from an old version of the election definition?`
     )
 
     const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template)

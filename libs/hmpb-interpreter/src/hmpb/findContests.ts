@@ -16,6 +16,8 @@ export default function* findContests(
     inset = 0,
     minContestWidthPercent = 20,
     minContestHeightPercent = 10,
+    maxContestWidthPercent = 40,
+    maxContestHeightPercent = 90,
     maxTopContestOffsetPercent = 5,
     columns = [true, true, true],
   } = {}
@@ -31,6 +33,12 @@ export default function* findContests(
   )
   const minContestHeight = Math.floor(
     (minContestHeightPercent * ballotImage.height) / 100
+  )
+  const maxContestWidth = Math.floor(
+    (maxContestWidthPercent * ballotImage.width) / 100
+  )
+  const maxContestHeight = Math.floor(
+    (maxContestHeightPercent * ballotImage.height) / 100
   )
   const maxTopContestOffset = Math.floor(
     (maxTopContestOffsetPercent * ballotImage.height) / 100
@@ -55,9 +63,11 @@ export default function* findContests(
 
     const shape = next.value
 
-    const isShapeBigEnough =
+    const isShapeSizedAppropriately =
       shape.bounds.width >= minContestWidth &&
-      shape.bounds.height >= minContestHeight
+      shape.bounds.height >= minContestHeight &&
+      shape.bounds.width <= maxContestWidth &&
+      shape.bounds.height <= maxContestHeight
     const isShapeCloseEnoughToLastShape =
       lastContestShape && shape.bounds.y > lastContestShape.bounds.y
         ? lastContestShape.bounds.y +
@@ -66,7 +76,7 @@ export default function* findContests(
           shape.bounds.y
         : maxTopContestOffset >= shape.bounds.y
 
-    if (isShapeBigEnough && isShapeCloseEnoughToLastShape) {
+    if (isShapeSizedAppropriately && isShapeCloseEnoughToLastShape) {
       yield {
         bounds: shape.bounds,
         corners: getCorners(ballotImage, shape),
