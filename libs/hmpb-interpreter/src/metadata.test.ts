@@ -1,7 +1,6 @@
 import { croppedQRCode } from '../test/fixtures'
 import { blankPage1 } from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library'
 import { decodeSearchParams, detect } from './metadata'
-import { vh as flipVH } from './utils/flip'
 import { jsqr } from './utils/qrcode'
 
 test('URL decoding', () => {
@@ -90,11 +89,7 @@ test('custom QR code reader', async () => {
 })
 
 test('upside-down ballot images', async () => {
-  const imageData = await blankPage1.imageData()
-
-  flipVH(imageData)
-
-  expect(await detect(imageData)).toEqual({
+  expect(await detect(await blankPage1.imageData({ flipped: true }))).toEqual({
     metadata: {
       ballotStyleId: '77',
       precinctId: '42',
