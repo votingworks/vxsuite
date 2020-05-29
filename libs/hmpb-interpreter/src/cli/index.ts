@@ -78,7 +78,7 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
     case 'help':
       return {
         command: commandArgs[0],
-        options: await parseHelpOptions(commandArgs),
+        options: await parseHelpOptions(args.slice(1)),
       }
 
     default:

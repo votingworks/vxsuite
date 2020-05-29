@@ -110,6 +110,7 @@ export interface UninterpretedBallot {
 export interface Input {
   id(): string
   imageData(): Promise<ImageData>
+  metadata?: () => Promise<BallotPageMetadata | undefined>
 }
 
 export interface DetectQRCode {
