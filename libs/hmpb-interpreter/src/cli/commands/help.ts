@@ -29,6 +29,15 @@ export function printHelp(out: typeof process.stdout): void {
     `${$0} interpret -e election.json -f json template*.jpg ballot*.jpg\n`
   )
   out.write(`\n`)
+  out.write(
+    chalk.gray(
+      `# Specify image metadata (file:ballotStyleId:precinctId:pageNumber:pageCount).\n`
+    )
+  )
+  out.write(
+    `${$0} interpret -e election.json template1.jpg:2D:77:1:2 template2.jpg:2D:77:2:2 ballot1.jpg:2D:77:1:2\n`
+  )
+  out.write(`\n`)
   out.write(chalk.gray(`# Set an explicit minimum mark score (0-1).\n`))
   out.write(
     `${$0} interpret -e election.json -m 0.5 template*.jpg ballot*.jpg\n`

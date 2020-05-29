@@ -5,7 +5,7 @@ import { table } from 'table'
 import { OptionParseError } from '..'
 import { Interpreter } from '../..'
 import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../Interpreter'
-import { Input, Interpreted } from '../../types'
+import { BallotPageMetadata, Input, Interpreted } from '../../types'
 import { readImageData } from '../../utils/readImageData'
 
 export enum OutputFormat {
@@ -20,6 +20,26 @@ export interface Options {
   ballotInputs: readonly Input[]
   markScoreVoteThreshold: number
   format: OutputFormat
+}
+
+function makeInputFromBallotArgument(arg: string): Input {
+  const [file, ballotStyleId, precinctId, pageNumber, pageCount] = arg.split(
+    ':'
+  )
+  const input: Input = {
+    id: () => file,
+    imageData: () => readImageData(file),
+  }
+  if (ballotStyleId && precinctId && pageNumber && pageCount) {
+    input.metadata = async (): Promise<BallotPageMetadata> => ({
+      ballotStyleId,
+      precinctId,
+      pageNumber: Number(pageNumber),
+      pageCount: Number(pageCount),
+      isTestBallot: false,
+    })
+  }
+  return input
 }
 
 export async function parseOptions(args: readonly string[]): Promise<Options> {
@@ -78,10 +98,7 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
           )
         }
 
-        templateInputs.push({
-          id: () => templateFile,
-          imageData: () => readImageData(templateFile),
-        })
+        templateInputs.push(makeInputFromBallotArgument(templateFile))
         break
       }
 
@@ -96,10 +113,7 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
           )
         }
 
-        ballotInputs.push({
-          id: () => ballotFile,
-          imageData: () => readImageData(ballotFile),
-        })
+        ballotInputs.push(makeInputFromBallotArgument(ballotFile))
         break
       }
 
@@ -108,10 +122,7 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
           throw new OptionParseError(`Unknown option: ${arg}`)
         }
 
-        autoInputs.push({
-          id: () => arg,
-          imageData: () => readImageData(arg),
-        })
+        autoInputs.push(makeInputFromBallotArgument(arg))
         break
       }
     }
@@ -143,12 +154,18 @@ export default async function run(
   const ballotInputs = [...options.ballotInputs]
 
   for (const templateInput of options.templateInputs) {
-    interpreter.addTemplate(await templateInput.imageData())
+    interpreter.addTemplate(
+      await templateInput.imageData(),
+      await templateInput.metadata?.()
+    )
   }
 
   for (const autoInput of options.autoInputs) {
     if (interpreter.hasMissingTemplates()) {
-      await interpreter.addTemplate(await autoInput.imageData())
+      await interpreter.addTemplate(
+        await autoInput.imageData(),
+        await autoInput.metadata?.()
+      )
     } else {
       ballotInputs.push(autoInput)
     }
@@ -160,7 +177,8 @@ export default async function run(
     results.push({
       input: ballotInput,
       interpreted: await interpreter.interpretBallot(
-        await ballotInput.imageData()
+        await ballotInput.imageData(),
+        await ballotInput.metadata?.()
       ),
     })
   }
