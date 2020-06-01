@@ -101,6 +101,7 @@ test('going through the whole process works', async () => {
       Object {
         "_ballotStyleId": "77",
         "_precinctId": "42",
+        "_testBallot": false,
         "dallas-city-council": "",
         "dallas-county-commissioners-court-pct-3": "",
         "dallas-county-proposition-r": "",
@@ -130,6 +131,7 @@ test('going through the whole process works', async () => {
       Object {
         "_ballotStyleId": "77",
         "_precinctId": "42",
+        "_testBallot": false,
         "dallas-city-council": "",
         "dallas-county-commissioners-court-pct-3": Array [
           "andrew-jewell",

@@ -48,7 +48,7 @@ function ballotToCastVoteRecord(
   ballot: CompletedBallot
 ): CastVoteRecord | undefined {
   // TODO: Replace all this with a `CompletedBallot` -> `CastVoteRecord` mapper.
-  const { election, ballotStyle, precinct, ballotId } = ballot
+  const { election, ballotStyle, precinct, ballotId, isTestBallot } = ballot
 
   // figure out the contests
   const contests = getContests({ ballotStyle, election })
@@ -58,6 +58,7 @@ function ballotToCastVoteRecord(
     _precinctId: precinct.id,
     _ballotId: ballotId,
     _ballotStyleId: ballotStyle.id,
+    _testBallot: isTestBallot,
   }
 
   for (const contest of contests) {
