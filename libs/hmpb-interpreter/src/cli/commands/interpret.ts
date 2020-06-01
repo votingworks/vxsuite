@@ -154,7 +154,7 @@ export default async function run(
   const ballotInputs = [...options.ballotInputs]
 
   for (const templateInput of options.templateInputs) {
-    interpreter.addTemplate(
+    await interpreter.addTemplate(
       await templateInput.imageData(),
       await templateInput.metadata?.()
     )
