@@ -91,7 +91,9 @@ test('going through the whole process works', async () => {
     const CVRs: CastVoteRecord[] = exportResponse.text
       .split('\n')
       .map((line) => JSON.parse(line))
-    const p1CVR = CVRs.find((cvr) => cvr['us-senate'])!
+    const p1CVR = CVRs.find(
+      (cvr) => Array.isArray(cvr['us-senate']) && cvr['us-senate'].length > 0
+    )!
     const p2CVR = CVRs.find((cvr) => cvr !== p1CVR)!
 
     delete p1CVR._ballotId
@@ -102,17 +104,17 @@ test('going through the whole process works', async () => {
         "_ballotStyleId": "77",
         "_precinctId": "42",
         "_testBallot": false,
-        "dallas-city-council": "",
-        "dallas-county-commissioners-court-pct-3": "",
-        "dallas-county-proposition-r": "",
-        "dallas-county-retain-chief-justice": "",
+        "dallas-city-council": Array [],
+        "dallas-county-commissioners-court-pct-3": Array [],
+        "dallas-county-proposition-r": Array [],
+        "dallas-county-retain-chief-justice": Array [],
         "dallas-county-sheriff": Array [
           "chad-prda",
         ],
         "dallas-county-tax-assessor": Array [
           "john-ames",
         ],
-        "dallas-mayor": "",
+        "dallas-mayor": Array [],
         "texas-house-district-111": Array [
           "writein",
         ],
@@ -132,19 +134,21 @@ test('going through the whole process works', async () => {
         "_ballotStyleId": "77",
         "_precinctId": "42",
         "_testBallot": false,
-        "dallas-city-council": "",
+        "dallas-city-council": Array [],
         "dallas-county-commissioners-court-pct-3": Array [
           "andrew-jewell",
         ],
-        "dallas-county-proposition-r": "no",
-        "dallas-county-retain-chief-justice": "",
-        "dallas-county-sheriff": "",
-        "dallas-county-tax-assessor": "",
-        "dallas-mayor": "",
-        "texas-house-district-111": "",
-        "texas-sc-judge-place-6": "",
-        "us-house-district-30": "",
-        "us-senate": "",
+        "dallas-county-proposition-r": Array [
+          "no",
+        ],
+        "dallas-county-retain-chief-justice": Array [],
+        "dallas-county-sheriff": Array [],
+        "dallas-county-tax-assessor": Array [],
+        "dallas-mayor": Array [],
+        "texas-house-district-111": Array [],
+        "texas-sc-judge-place-6": Array [],
+        "us-house-district-30": Array [],
+        "us-senate": Array [],
       }
     `)
   }
