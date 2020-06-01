@@ -11,17 +11,16 @@ import {
   Election,
   getContests,
   Optional,
-  OptionalYesNoVote,
+  YesNoVote,
 } from '@votingworks/ballot-encoder'
 import { Interpreter as HMPBInterpreter } from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
+import makeDebug from 'debug'
 import { readFile as readFileCallback } from 'fs'
 import { decode as decodeJpeg } from 'jpeg-js'
 import { decode as quircDecode } from 'node-quirc'
 import { promisify } from 'util'
 import { CastVoteRecord } from './types'
-
-import makeDebug from 'debug'
 
 const debug = makeDebug('module-scan:interpreter')
 
@@ -47,7 +46,6 @@ interface InterpretBallotStringParams {
 function ballotToCastVoteRecord(
   ballot: CompletedBallot
 ): CastVoteRecord | undefined {
-  // TODO: Replace all this with a `CompletedBallot` -> `CastVoteRecord` mapper.
   const { election, ballotStyle, precinct, ballotId, isTestBallot } = ballot
 
   // figure out the contests
@@ -64,11 +62,13 @@ function ballotToCastVoteRecord(
   for (const contest of contests) {
     // no answer for a particular contest is recorded in our final dictionary as an empty string
     // not the same thing as undefined.
-    let cvrForContest: string | string[] = ''
+    let cvrForContest: string[] = []
     const vote = ballot.votes[contest.id]
 
     if (contest.type === 'yesno') {
-      cvrForContest = (vote as OptionalYesNoVote) || ''
+      if (vote) {
+        cvrForContest = [vote as YesNoVote]
+      }
     } else if (contest.type === 'candidate') {
       // selections for this question
       const candidates = vote as Optional<CandidateVote>
