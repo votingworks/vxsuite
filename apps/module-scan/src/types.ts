@@ -9,6 +9,7 @@ export interface CastVoteRecord
   _precinctId: string
   _ballotId: string
   _testBallot: boolean
+  _scannerId: string
 }
 
 export interface BatchInfo {

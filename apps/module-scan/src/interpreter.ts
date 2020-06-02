@@ -21,6 +21,7 @@ import { decode as decodeJpeg } from 'jpeg-js'
 import { decode as quircDecode } from 'node-quirc'
 import { promisify } from 'util'
 import { CastVoteRecord } from './types'
+import { getMachineId } from './util/machineId'
 
 const debug = makeDebug('module-scan:interpreter')
 
@@ -57,6 +58,7 @@ function ballotToCastVoteRecord(
     _ballotId: ballotId,
     _ballotStyleId: ballotStyle.id,
     _testBallot: isTestBallot,
+    _scannerId: getMachineId(),
   }
 
   for (const contest of contests) {
