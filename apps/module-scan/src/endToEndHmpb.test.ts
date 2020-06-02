@@ -103,6 +103,7 @@ test('going through the whole process works', async () => {
       Object {
         "_ballotStyleId": "77",
         "_precinctId": "42",
+        "_scannerId": "000",
         "_testBallot": false,
         "dallas-city-council": Array [],
         "dallas-county-commissioners-court-pct-3": Array [],
@@ -133,6 +134,7 @@ test('going through the whole process works', async () => {
       Object {
         "_ballotStyleId": "77",
         "_precinctId": "42",
+        "_scannerId": "000",
         "_testBallot": false,
         "dallas-city-council": Array [],
         "dallas-county-commissioners-court-pct-3": Array [
