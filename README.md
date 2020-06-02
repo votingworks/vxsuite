@@ -27,13 +27,18 @@ This app is intended to be used on an offline computer by an election admin.
 
 - [x] Unconfigured App Screen
   - [x] Select election config file
+  - [ ] Select other election files
   - [x] Button to create new election
-- [x] Edit Election Config (MVP solution)
-  - [x] Form:
-    - [x] Textarea
-    - [x] Save button
-    - [x] Reset button
-    - [x] Unconfigure button (with warning modal)
+- [ ] Edit Election Definition
+  - [ ] basic fields
+  - [ ] parties (starting with some defaults)
+  - [ ] districts
+  - [ ] precincts
+  - [ ] ballot styles and mappings to precincts and districts
+  - [ ] contests
+    - [ ] select district
+    - [ ] candidate contest
+    - [ ] measure contest
 - [x] List Ballot Styles
   - [x] Rows:
     - [x] precinct
@@ -43,21 +48,38 @@ This app is intended to be used on an offline computer by an election admin.
   - [x] Sort:
     - [x] precinct
     - [x] style
-- [x] View Ballot
-  - [x] html ballot in print-ready format (via PagedJS)
-  - [ ] PDF ballot (in iframe under html ballot or click to open in new window)
-  - [ ] Previous and Next Ballot Style links
-- [x] Export Election Ballot Package screen
-  - [x] Mock export UI
-  - [ ] Hook up to API in kiosk browser
+  - [x] Export Election Ballot Package for Mail Ballot Manager
+  - [x] View Ballot
+    - [x] html ballot in print-ready format (via PagedJS)
+    - [ ] PDF ballot (in iframe under html ballot or click to open in new window)
+    - [ ] Previous and Next Ballot Style links
+  - [x] Export Election Ballot Package screen
+    - [x] Mock export UI
+    - [ ] Hook up to API in kiosk browser
+  - [ ] Proof all Ballot Style content (from EMS)
+  - [ ] Print Test Ballot Deck Results (from EMS)
+- [ ] Program Cards (from EMS)
+  - [ ] Admin
+  - [ ] Poll Worker
+- [ ] Results
+  - [ ] Load CVR files (from EMS)
+  - [ ] View results (from EMS)
+- [ ] Unconfigure (from EMS)
+- [ ] Eject USB (from EMS)
 
 ## Navigation
 
-Displayed when election config exists.
+Main Nav:
 
-- [x] Ballot Styles
-- [x] Edit Election Config
-- [x] Export Election Ballot Package
+- [x] Definition
+- [x] Ballots
+- [ ] Results
+- [ ] Cards
+
+User Nav
+
+- [ ] Eject USB
+- [ ] Unconfigure
 
 ## Future Features
 
@@ -66,9 +88,3 @@ Displayed when election config exists.
     - List Contests screen
     - Edit Contest Screen with live preview
 - "Export config" button on Config screen
-
-## Open Questions
-
-- Do we implement anything to ensure that ballots are not edited after package is created?
-  - hash of the election package displayed at creation and when loaded into other components?
-  - possibly a manifest of ballot files with hashes?
