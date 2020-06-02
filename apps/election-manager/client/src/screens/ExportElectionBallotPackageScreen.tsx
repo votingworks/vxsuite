@@ -1,69 +1,32 @@
 import { Election } from '@votingworks/ballot-encoder'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
+import NavigationScreen from '../components/NavigationScreen'
 import { Monospace } from '../components/Text'
 import AppContext from '../contexts/AppContext'
-import DownloadableArchive from '../utils/DownloadableArchive'
 import {
   getBallotFileName,
   getBallotStylesDataByStyle,
   getPrecinctById,
 } from '../utils/election'
-import NavigationScreen from '../components/NavigationScreen'
-
-type State = Init | ArchiveBegin | RenderBallot | ArchiveEnd | Done | Failed
-
-interface Init {
-  type: 'Init'
-}
-
-interface ArchiveBegin {
-  type: 'ArchiveBegin'
-  archive: DownloadableArchive
-}
-
-interface RenderBallot {
-  type: 'RenderBallot'
-  archive: DownloadableArchive
-  ballotIndex: number
-  ballotCount: number
-}
-
-interface ArchiveEnd {
-  type: 'ArchiveEnd'
-  archive: DownloadableArchive
-  ballotCount: number
-}
-
-interface Done {
-  type: 'Done'
-  ballotCount: number
-}
-
-interface Failed {
-  type: 'Failed'
-  message: string
-}
+import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
 
 const ExportElectionBallotPackageScreen = () => {
   const { election: e, electionHash } = useContext(AppContext)
   const election = e as Election
   const ballotStylesDataByStyle = getBallotStylesDataByStyle(election)
 
-  const [state, setState] = useState<State>({ type: 'Init' })
+  const [state, setState] = useState<workflow.State>(workflow.init(election))
 
   /**
    * Execute side effects for the current state and, when ready, transition to
    * the next state.
    */
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       switch (state.type) {
         case 'Init': {
-          setState({
-            type: 'ArchiveBegin',
-            archive: new DownloadableArchive(),
-          })
+          setState(workflow.next)
           break
         }
 
@@ -75,24 +38,16 @@ const ExportElectionBallotPackageScreen = () => {
               JSON.stringify(election, undefined, 2)
             )
 
-            setState({
-              type: 'RenderBallot',
-              archive: state.archive,
-              ballotIndex: 0,
-              ballotCount: ballotStylesDataByStyle.length,
-            })
+            setState(workflow.next)
           } catch (error) {
-            setState({
-              type: 'Failed',
-              message: error.message,
-            })
+            setState(workflow.error(state, error))
           }
           break
         }
 
         case 'ArchiveEnd': {
           await state.archive.end()
-          setState({ type: 'Done', ballotCount: state.ballotCount })
+          setState(workflow.next)
         }
       }
     })()
@@ -120,17 +75,9 @@ const ExportElectionBallotPackageScreen = () => {
       precinctId,
     })
     const data = await kiosk!.printToPDF()
-    await state.archive.file(name, Buffer.from(data))
-
-    if (state.ballotIndex + 1 === state.ballotCount) {
-      setState({
-        type: 'ArchiveEnd',
-        archive: state.archive,
-        ballotCount: state.ballotCount,
-      })
-    } else {
-      setState({ ...state, ballotIndex: state.ballotIndex + 1 })
-    }
+    const path = `${state.testMode ? 'test' : 'live'}/${name}`
+    await state.archive.file(path, Buffer.from(data))
+    setState(workflow.next)
   }, [state, ballotStylesDataByStyle, election, electionHash])
 
   switch (state.type) {
@@ -152,7 +99,7 @@ const ExportElectionBallotPackageScreen = () => {
     }
 
     case 'RenderBallot': {
-      const { ballotIndex, ballotCount } = state
+      const { ballotIndex, ballotData, testMode } = state
       const { ballotStyleId, precinctId, contestIds } = ballotStylesDataByStyle[
         ballotIndex
       ]
@@ -161,7 +108,7 @@ const ExportElectionBallotPackageScreen = () => {
       return (
         <NavigationScreen>
           <h1>
-            Generating Ballot {ballotIndex + 1} of {ballotCount}
+            Generating Ballot {ballotIndex + 1} of {ballotData.length}
           </h1>
           <ul>
             <li>
@@ -190,6 +137,7 @@ const ExportElectionBallotPackageScreen = () => {
             election={election}
             precinctId={precinctId}
             onRendered={onRendered}
+            isLiveMode={!testMode}
           />
         </NavigationScreen>
       )
