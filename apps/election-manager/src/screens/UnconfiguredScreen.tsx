@@ -15,10 +15,10 @@ import AppContext from '../contexts/AppContext'
 import Button from '../components/Button'
 import { routerPaths } from '../components/ElectionManager'
 import FileInputButton from '../components/FileInputButton'
-import { MainChild } from '../components/Main'
 import HorizontalRule from '../components/HorizontalRule'
 import Prose from '../components/Prose'
 import Loading from '../components/Loading'
+import NavigationScreen from '../components/NavigationScreen'
 
 const Loaded = styled.p`
   line-height: 2.5rem;
@@ -176,15 +176,15 @@ const UnconfiguredScreen = () => {
 
   if (isUploading || isLoading) {
     return (
-      <MainChild center>
+      <NavigationScreen>
         <Loading isFullscreen />
-      </MainChild>
+      </NavigationScreen>
     )
   }
 
   if (isConvertSEMS && inputConversionFiles.length > 0) {
     return (
-      <MainChild center>
+      <NavigationScreen mainChildCenter>
         <Prose textCenter>
           <h1>Convert from SEMS files</h1>
           <p> Select the following files from a USB drive, etc.</p>
@@ -221,12 +221,12 @@ const UnconfiguredScreen = () => {
           <HorizontalRule />
           <p><Button small onPress={resetUploadFilesAndGoBack}>back</Button></p>
         </Prose>
-      </MainChild>
+      </NavigationScreen>
     )
   }
 
   return (
-    <MainChild center>
+    <NavigationScreen mainChildCenter>
       <Prose textCenter>
         <h1>Configure Election Manager</h1>
         <p>How would you like to start?</p>
@@ -261,7 +261,7 @@ const UnconfiguredScreen = () => {
         )}
 
       </Prose>
-    </MainChild >
+    </NavigationScreen>
   )
 }
 
