@@ -31,7 +31,7 @@ export interface RenderBallot {
   archive: DownloadableArchive
   ballotData: BallotStyleData[]
   ballotIndex: number
-  testMode: boolean
+  isLiveMode: boolean
 }
 
 export interface ArchiveEnd {
@@ -75,15 +75,15 @@ export function next(state: State): State {
         archive: state.archive,
         ballotData: getBallotStylesDataByStyle(state.election),
         ballotIndex: 0,
-        testMode: false,
+        isLiveMode: true,
       }
 
     case 'RenderBallot':
-      if (!state.testMode) {
+      if (state.isLiveMode) {
         // Render the same page, but in test mode.
         return {
           ...state,
-          testMode: !state.testMode,
+          isLiveMode: !state.isLiveMode,
         }
       }
 
@@ -97,7 +97,7 @@ export function next(state: State): State {
 
       return {
         ...state,
-        testMode: !state.testMode,
+        isLiveMode: !state.isLiveMode,
         ballotIndex: state.ballotIndex + 1,
       }
 

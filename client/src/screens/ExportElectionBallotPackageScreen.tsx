@@ -75,7 +75,7 @@ const ExportElectionBallotPackageScreen = () => {
       precinctId,
     })
     const data = await kiosk!.printToPDF()
-    const path = `${state.testMode ? 'test' : 'live'}/${name}`
+    const path = `${state.isLiveMode ? 'live' : 'test'}/${name}`
     await state.archive.file(path, Buffer.from(data))
     setState(workflow.next)
   }, [state, ballotStylesDataByStyle, election, electionHash])
@@ -99,7 +99,7 @@ const ExportElectionBallotPackageScreen = () => {
     }
 
     case 'RenderBallot': {
-      const { ballotIndex, ballotData, testMode } = state
+      const { ballotIndex, ballotData, isLiveMode } = state
       const { ballotStyleId, precinctId, contestIds } = ballotStylesDataByStyle[
         ballotIndex
       ]
@@ -137,7 +137,7 @@ const ExportElectionBallotPackageScreen = () => {
             election={election}
             precinctId={precinctId}
             onRendered={onRendered}
-            isLiveMode={!testMode}
+            isLiveMode={isLiveMode}
           />
         </NavigationScreen>
       )
