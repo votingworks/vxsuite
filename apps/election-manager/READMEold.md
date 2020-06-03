@@ -27,7 +27,7 @@ This app is intended to be used on an offline computer by an election admin.
 
 - [x] Unconfigured App Screen
   - [x] Select election config file
-  - [ ] Select other election files
+  - [x] Convert from local election files
   - [x] Button to create new election
 - [ ] Edit Election Definition
   - [ ] basic fields
