@@ -1,4 +1,14 @@
 import { OptionalElection } from '@votingworks/ballot-encoder'
+import {
+  Candidate,
+  Contest,
+  VotesDict,
+} from '@votingworks/ballot-encoder'
+
+// Generic
+export interface Dictionary<T> {
+  [key: string]: T | undefined
+}
 
 // Events
 export type InputEventFunction = (
@@ -15,4 +25,37 @@ export type SaveElection = (value: OptionalElection) => void
 export interface BallotScreenProps {
   ballotStyleId: string
   precinctId: string
+}
+
+
+// Tallies
+export type ContestOption = Candidate | 'yes' | 'no'
+export interface ContestOptionTally {
+  option: ContestOption
+  tally: number
+}
+
+export interface ContestTally {
+  contest: Contest
+  tallies: ContestOptionTally[]
+}
+
+export interface ElectionTally {
+  precinctId: string | undefined
+  contestTallies: ContestTally[]
+}
+
+export interface FullElectionTally {
+  precinctTallies: Dictionary<ElectionTally>
+  overallTally: ElectionTally
+}
+
+export type VotesByPrecinct = Dictionary<VotesDict[]>
+
+// Cast Vote Record
+
+export interface CastVoteRecord extends Dictionary<string | string[]> {
+  _precinctId: string
+  _ballotId: string
+  _ballotStyleId: string
 }
