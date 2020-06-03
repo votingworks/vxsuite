@@ -22,7 +22,7 @@ test('advances from ArchiveBegin to RenderBallot with the first ballot in live m
     expect.objectContaining({
       type: 'RenderBallot',
       ballotIndex: 0,
-      testMode: false,
+      isLiveMode: true,
     })
   )
 })
@@ -36,14 +36,14 @@ test('advances from RenderBallot by rendering a test ballot after a live one', (
         { ballotStyleId: '77', precinctId: '42', contestIds: ['1'] },
       ],
       ballotIndex: 0,
-      testMode: false,
+      isLiveMode: true,
     })
   ).toEqual({
     type: 'RenderBallot',
     archive: new DownloadableArchive(),
     ballotData: [{ ballotStyleId: '77', precinctId: '42', contestIds: ['1'] }],
     ballotIndex: 0,
-    testMode: true,
+    isLiveMode: false,
   })
 })
 
@@ -57,13 +57,13 @@ test('advances from RenderBallot by rendering the next page after both live and 
         { ballotStyleId: '77', precinctId: '42', contestIds: ['2'] },
       ],
       ballotIndex: 0,
-      testMode: true,
+      isLiveMode: false,
     })
   ).toEqual(
     expect.objectContaining({
       type: 'RenderBallot',
       ballotIndex: 1,
-      testMode: false,
+      isLiveMode: true,
     })
   )
 })
@@ -78,7 +78,7 @@ test('advances from RenderBallot to ArchiveEnd after the last page', () => {
         { ballotStyleId: '77', precinctId: '42', contestIds: ['2'] },
       ],
       ballotIndex: 1,
-      testMode: true,
+      isLiveMode: false,
     })
   ).toEqual(
     expect.objectContaining({
@@ -112,7 +112,7 @@ test('advances to Failed on render error', () => {
           { ballotStyleId: '77', precinctId: '42', contestIds: ['2'] },
         ],
         ballotIndex: 1,
-        testMode: true,
+        isLiveMode: false,
       },
       new Error('something happened!')
     )
