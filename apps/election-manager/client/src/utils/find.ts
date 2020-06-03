@@ -1,7 +1,31 @@
-import { Parties } from '@votingworks/ballot-encoder'
+/**
+ * Finds an element in `array` that matches `predicate`, optionally returning
+ * `defaultValue` if no element matches.
+ *
+ * @throws when no element matches and no default value is provided
+ */
+function find<T>(array: T[], predicate: (element: T) => boolean): T
+function find<T>(
+  array: T[],
+  predicate: (element: T) => boolean,
+  defaultValue: T
+): T
+function find<T>(
+  array: T[],
+  predicate: (element: T) => boolean,
+  defaultValue?: T
+): T {
+  const result = array.find(predicate)
 
-export const findPartyById = (parties: Parties, id: string) => {
-  return parties.find(p => p.id === id)
+  if (result === undefined) {
+    if (defaultValue === undefined) {
+      throw new Error('unable to find an element matching a predicate')
+    }
+
+    return defaultValue
+  }
+
+  return result
 }
 
-export default { findPartyById }
+export default find

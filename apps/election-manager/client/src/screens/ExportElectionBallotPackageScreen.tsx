@@ -1,7 +1,6 @@
 import { Election } from '@votingworks/ballot-encoder'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
-import { MainChild } from '../components/Main'
 import { Monospace } from '../components/Text'
 import AppContext from '../contexts/AppContext'
 import DownloadableArchive from '../utils/DownloadableArchive'
@@ -10,6 +9,7 @@ import {
   getBallotStylesDataByStyle,
   getPrecinctById,
 } from '../utils/election'
+import NavigationScreen from '../components/NavigationScreen'
 
 type State = Init | ArchiveBegin | RenderBallot | ArchiveEnd | Done | Failed
 
@@ -57,7 +57,7 @@ const ExportElectionBallotPackageScreen = () => {
    * the next state.
    */
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       switch (state.type) {
         case 'Init': {
           setState({
@@ -136,18 +136,18 @@ const ExportElectionBallotPackageScreen = () => {
   switch (state.type) {
     case 'Init': {
       return (
-        <MainChild>
+        <NavigationScreen>
           <h1>Initializing Download…</h1>
-        </MainChild>
+        </NavigationScreen>
       )
     }
 
     case 'ArchiveBegin': {
       return (
-        <MainChild>
+        <NavigationScreen>
           <h1>Downloading</h1>
           <p>Choose where to save the package…</p>
-        </MainChild>
+        </NavigationScreen>
       )
     }
 
@@ -159,7 +159,7 @@ const ExportElectionBallotPackageScreen = () => {
       const precinctName = getPrecinctById({ election, precinctId })!.name
 
       return (
-        <MainChild>
+        <NavigationScreen>
           <h1>
             Generating Ballot {ballotIndex + 1} of {ballotCount}
           </h1>
@@ -191,40 +191,40 @@ const ExportElectionBallotPackageScreen = () => {
             precinctId={precinctId}
             onRendered={onRendered}
           />
-        </MainChild>
+        </NavigationScreen>
       )
     }
 
     case 'ArchiveEnd': {
       return (
-        <MainChild>
+        <NavigationScreen>
           <h1>Finishing Download</h1>
           <p>Rendered {state.ballotCount} ballot(s), closing zip file.</p>
-        </MainChild>
+        </NavigationScreen>
       )
     }
 
     case 'Done': {
       return (
-        <MainChild>
+        <NavigationScreen>
           <h1>Download Complete</h1>
           <p>Rendered {state.ballotCount} ballot(s).</p>
-        </MainChild>
+        </NavigationScreen>
       )
     }
 
     case 'Failed': {
       return (
-        <MainChild>
+        <NavigationScreen>
           <h1>Download Failed</h1>
           <p>An error occurred: {state.message}.</p>
-        </MainChild>
+        </NavigationScreen>
       )
     }
   }
 
   // @ts-ignore
-  return <MainChild>Unknown State: {state.type}</MainChild>
+  return <NavigationScreen>Unknown State: {state.type}</NavigationScreen>
 }
 
 export default ExportElectionBallotPackageScreen

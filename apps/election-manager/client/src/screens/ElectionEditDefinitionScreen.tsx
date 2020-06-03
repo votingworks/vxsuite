@@ -10,10 +10,10 @@ import AppContext from '../contexts/AppContext'
 import Button from '../components/Button'
 import Textarea from '../components/Textarea'
 import { routerPaths } from '../components/ElectionManager'
-import { MainChild } from '../components/Main'
 import ButtonBar from '../components/ButtonBar'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
+import NavigationScreen from '../components/NavigationScreen'
 
 const Header = styled.div`
   margin-bottom: 1rem;
@@ -92,7 +92,7 @@ const ElectionEditDefinitionScreen = () => {
 
   return (
     <React.Fragment>
-      <MainChild>
+      <NavigationScreen mainChildFlex>
         {error && (
           <Header>
             <Prose maxWidth={false}>{error}</Prose>
@@ -106,16 +106,16 @@ const ElectionEditDefinitionScreen = () => {
             disabled={!dirty || !!error}
           >
             Save
-          </Button>
+            </Button>
           <Button small onPress={resetElectionConfig} disabled={!dirty}>
             Reset
-          </Button>
+            </Button>
           <div />
           <div />
           <div />
           <Button small disabled={dirty} onPress={downloadElectionDefinition}>
             Download
-          </Button>
+            </Button>
           <Button
             small
             danger={!dirty}
@@ -123,16 +123,16 @@ const ElectionEditDefinitionScreen = () => {
             onPress={initConfirmingUnconfig}
           >
             Remove
-          </Button>
+            </Button>
         </ButtonBar>
-      </MainChild>
-      <FlexTextareaWrapper>
-        <Textarea
-          onChange={editElection}
-          value={electionString}
-          resize={false}
-        />
-      </FlexTextareaWrapper>
+        <FlexTextareaWrapper>
+          <Textarea
+            onChange={editElection}
+            value={electionString}
+            resize={false}
+          />
+        </FlexTextareaWrapper>
+      </NavigationScreen>
       <Modal
         isOpen={isConfimingUnconfig}
         centerContent
