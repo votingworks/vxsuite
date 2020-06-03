@@ -7,7 +7,7 @@ install:
 ifeq ($(PLATFORM),Darwin)
 	brew install libjpeg libpng
 else ifeq ($(PLATFORM),Linux)
-	apt install -y libjpeg-dev libpng-dev
+	sudo apt install -y libjpeg-dev libpng-dev
 else
 	@echo "I don't know how to install libjpeg and libpng on your platform: $(PLATFORM)"
 endif
