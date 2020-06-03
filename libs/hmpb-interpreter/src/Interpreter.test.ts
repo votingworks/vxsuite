@@ -2015,7 +2015,7 @@ test('custom QR code reader', async () => {
   const interpreter = new Interpreter({
     election,
     detectQRCode: async (): Promise<DetectQRCodeResult> => ({
-      data: Buffer.from('https://vx.vote?t=t&pr=11&bs=22&p=3-4'),
+      data: Buffer.from('https://vx.vote?t=_&pr=11&bs=22&p=3-4'),
     }),
   })
   const template = await interpreter.interpretTemplate(
@@ -2025,7 +2025,7 @@ test('custom QR code reader', async () => {
   expect(template.ballotImage.metadata).toEqual({
     ballotStyleId: '22',
     precinctId: '11',
-    isTestBallot: true,
+    isTestBallot: false,
     pageNumber: 3,
     pageCount: 4,
   })
@@ -2105,6 +2105,37 @@ test('upside-down ballot', async () => {
   )
 
   expect(votesWithFlipped).toEqual(ballot.votes)
+})
+
+test('enforcing test vs live mode', async () => {
+  const interpreter = new Interpreter(election)
+
+  await expect(
+    interpreter.addTemplate(
+      await blankPage1.imageData(),
+      await blankPage1.metadata({ isTestBallot: true })
+    )
+  ).rejects.toThrowError(
+    'interpreter configured with testMode=false cannot process ballots with isTestBallot=true'
+  )
+
+  await interpreter.addTemplate(
+    await blankPage1.imageData(),
+    await blankPage1.metadata()
+  )
+  await interpreter.addTemplate(
+    await blankPage2.imageData(),
+    await blankPage2.metadata()
+  )
+
+  await expect(
+    interpreter.interpretBallot(
+      await blankPage1.imageData(),
+      await blankPage1.metadata({ isTestBallot: true })
+    )
+  ).rejects.toThrowError(
+    'interpreter configured with testMode=false cannot process ballots with isTestBallot=true'
+  )
 })
 
 test('regression: page outline', async () => {

@@ -47,6 +47,7 @@ export interface Options {
   readonly election: Election
   readonly detectQRCode?: DetectQRCode
   readonly markScoreVoteThreshold?: number
+  readonly testMode?: boolean
 
   /** @deprecated */
   decodeQRCode?: DetectQRCode
@@ -73,6 +74,7 @@ export default class Interpreter {
     Map<BallotPageMetadata['precinctId'], (BallotPageLayout | undefined)[]>
   >()
   private readonly election: Election
+  private readonly testMode: boolean
   private readonly detectQRCode?: DetectQRCode
   private readonly markScoreVoteThreshold: number
 
@@ -86,9 +88,11 @@ export default class Interpreter {
       this.markScoreVoteThreshold =
         optionsOrElection.markScoreVoteThreshold ??
         DEFAULT_MARK_SCORE_VOTE_THRESHOLD
+      this.testMode = optionsOrElection.testMode ?? false
     } else {
       this.election = optionsOrElection
       this.markScoreVoteThreshold = DEFAULT_MARK_SCORE_VOTE_THRESHOLD
+      this.testMode = false
     }
   }
 
@@ -423,16 +427,21 @@ export default class Interpreter {
       if (flipped) {
         flipVH(imageData)
       }
-      return { imageData, metadata }
+    } else {
+      const detectResult = await detect(imageData, {
+        detectQRCode: this.detectQRCode,
+      })
+      metadata = detectResult.metadata
+      if (detectResult.flipped) {
+        debug('detected image is flipped, correcting orientation')
+        flipVH(imageData)
+      }
     }
 
-    const detectResult = await detect(imageData, {
-      detectQRCode: this.detectQRCode,
-    })
-    metadata = detectResult.metadata
-    if (detectResult.flipped) {
-      debug('detected image is flipped, correcting orientation')
-      flipVH(imageData)
+    if (metadata.isTestBallot !== this.testMode) {
+      throw new Error(
+        `interpreter configured with testMode=${this.testMode} cannot process ballots with isTestBallot=${metadata.isTestBallot}`
+      )
     }
 
     return { imageData, metadata }
