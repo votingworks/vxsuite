@@ -2,15 +2,15 @@ version: 2
 jobs:
   test-server:
     docker:
-      - image: circleci/python:3.7.3
+      - image: circleci/python:3.7.7
     steps:
       - checkout
       - run:
           name: Set up python tools for backend
           command: |
-            sudo make install-smartcard
-            make install-dependencies
-            make install-dev-dependencies
+            sudo apt update -y
+            make install-smartcard
+            make build-dev
       - run:
           name: Run Python Tests and Coverage
           command: |

@@ -13,7 +13,7 @@ The instructions below show how to run this web server either directly or via Do
 ```sh
 # without docker only -- docker handles this for you
 sudo add-apt-repository ppa:deadsnakes/ppa
-sudo make install
+make install
 make build
 ```
 
@@ -23,7 +23,7 @@ Install dependencies you need
 
 ```sh
 # without docker only -- docker handles this for you
-make install-dev-dependencies
+make build-dev
 ```
 
 and then run the tests

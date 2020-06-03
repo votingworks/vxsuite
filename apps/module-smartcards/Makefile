@@ -1,20 +1,18 @@
 
 install-python:
-	apt install -y python3.7 python3.7-dev python3-pip
+	sudo apt install -y python3.7 python3.7-dev python3-pip
+	python3 -m pip install pipenv
 
 install-smartcard:
-	apt install -y libusb-1.0-0-dev libpcsclite-dev pcscd pcsc-tools swig
+	sudo apt install -y libusb-1.0-0-dev libpcsclite-dev pcscd pcsc-tools swig
 
 install: install-python install-smartcard
 
-install-dependencies:
-	python3 -m pip install pipenv
+build:
 	python3 -m pipenv install
 
-install-dev-dependencies:
+build-dev:
 	python3 -m pipenv install --dev
-
-build: install install-dependencies
 
 test:
 	python3 -m pipenv run python -m pytest
