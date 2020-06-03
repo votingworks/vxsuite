@@ -57,7 +57,7 @@ This app is intended to be used on an offline computer by an election admin.
     - [x] Mock export UI
     - [ ] Hook up to API in kiosk browser
   - [ ] Proof all Ballot Style content (from EMS)
-  - [ ] Print Test Ballot Deck Results (from EMS)
+- [x] Print Test Ballot Deck Results (from EMS)
 - [ ] Program Cards (from EMS)
   - [ ] Admin
   - [ ] Poll Worker
@@ -73,6 +73,7 @@ Main Nav:
 
 - [x] Definition
 - [x] Ballots
+- [x] Test Deck Results
 - [ ] Results
 - [ ] Cards
 
