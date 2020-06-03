@@ -23,14 +23,19 @@ export class Fixture implements Input {
     return imageData
   }
 
-  public async metadata(): Promise<BallotPageMetadata> {
+  public async metadata(
+    overrides: Partial<BallotPageMetadata> = {}
+  ): Promise<BallotPageMetadata> {
     const imagePath = this.filePath()
     const ext = extname(imagePath)
     const metadataPath = `${join(
       dirname(imagePath),
       basename(imagePath, ext)
     )}-metadata.json`
-    return JSON.parse(await fs.readFile(metadataPath, 'utf8'))
+    return {
+      ...JSON.parse(await fs.readFile(metadataPath, 'utf8')),
+      ...overrides,
+    }
   }
 }
 
