@@ -8,7 +8,6 @@ import { getBallotFileName } from '../utils/election'
 import { routerPaths } from '../components/ElectionManager'
 import Button, { SegmentedButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
-import { MainChild } from '../components/Main'
 import Table, { TD } from '../components/Table'
 import { Monospace, NoWrap } from '../components/Text'
 import Prose from '../components/Prose'
@@ -17,6 +16,7 @@ import {
   getBallotStylesDataByStyle,
   getBallotStylesDataByPrecinct,
 } from '../utils/election'
+import NavigationScreen from '../components/NavigationScreen'
 
 const Header = styled.div`
   margin-bottom: 1rem;
@@ -37,7 +37,7 @@ const BallotListScreen = () => {
   const ballots = ballotLists[ballotView]
 
   return (
-    <MainChild>
+    <NavigationScreen>
       <Header>
         <Prose maxWidth={false}>
           <p>
@@ -45,18 +45,18 @@ const BallotListScreen = () => {
             <SegmentedButton>
               <Button small onPress={sortByStyle} disabled={ballotView === 0}>
                 Style
-              </Button>
+            </Button>
               <Button
                 small
                 onPress={sortByPrecinct}
                 disabled={ballotView === 1}
               >
                 Precinct
-              </Button>
+            </Button>
             </SegmentedButton>{' '}
             <LinkButton small to={routerPaths.export}>
               Export Ballot Package
-            </LinkButton>
+          </LinkButton>
           </p>
         </Prose>
       </Header>
@@ -84,7 +84,7 @@ const BallotListScreen = () => {
                     to={routerPaths.ballotsView(ballot)}
                   >
                     View Ballot
-                  </LinkButton>
+                </LinkButton>
                 </TD>
                 <TD>{ballot.ballotStyleId}</TD>
                 <TD>
@@ -106,7 +106,7 @@ const BallotListScreen = () => {
           })}
         </tbody>
       </Table>
-    </MainChild>
+    </NavigationScreen>
   )
 }
 

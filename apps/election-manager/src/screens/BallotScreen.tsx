@@ -5,13 +5,13 @@ import { Election, getPrecinctById } from '@votingworks/ballot-encoder'
 import { BallotScreenProps } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
-import { MainChild } from '../components/Main'
 import { routerPaths } from '../components/ElectionManager'
 import LinkButton from '../components/LinkButton'
 import Button from '../components/Button'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import { Monospace } from '../components/Text'
 import { getBallotFileName } from '../utils/election'
+import NavigationScreen from '../components/NavigationScreen'
 
 const BallotScreen = () => {
   const { precinctId, ballotStyleId } = useParams<BallotScreenProps>()
@@ -20,7 +20,7 @@ const BallotScreen = () => {
   const precinctName = getPrecinctById({ election, precinctId })?.name
 
   return (
-    <MainChild>
+    <NavigationScreen>
       <LinkButton small to={routerPaths.ballotsList}>
         back to Ballots
       </LinkButton>
@@ -39,14 +39,14 @@ const BallotScreen = () => {
         </Monospace>
       </p>
       <p>
-	<Button onPress={window.print}>Print Ballot</Button>
+        <Button onPress={window.print}>Print Ballot</Button>
       </p>
       <HandMarkedPaperBallot
         ballotStyleId={ballotStyleId}
         election={election}
         precinctId={precinctId}
       />
-    </MainChild>
+    </NavigationScreen>
   )
 }
 
