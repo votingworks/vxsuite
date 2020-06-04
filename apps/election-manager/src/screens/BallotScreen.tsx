@@ -1,6 +1,10 @@
 import React, { useContext } from 'react'
 import { useParams } from 'react-router-dom'
-import { getPrecinctById } from '@votingworks/ballot-encoder'
+import {
+  getBallotStyle,
+  getContests,
+  getPrecinctById,
+} from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
 import { BallotScreenProps } from '../config/types'
