@@ -6,8 +6,6 @@ import pluralize from 'pluralize'
 import { BallotScreenProps } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
-import { routerPaths } from '../components/ElectionManager'
-import LinkButton from '../components/LinkButton'
 import Button from '../components/Button'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import { Monospace } from '../components/Text'
@@ -29,10 +27,7 @@ const BallotScreen = () => {
           Ballot Style <strong>{ballotStyleId}</strong> for {precinctName}
         </h1>
         <p>
-          <LinkButton small to={routerPaths.ballotsList}>
-            back to Ballots
-          </LinkButton>{' '}
-          <Button small onPress={window.print}>Print Ballot</Button>
+          <Button primary onPress={window.print}>Print Ballot</Button>
         </p>
         <p>
           Filename:{' '}
