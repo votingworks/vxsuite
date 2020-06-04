@@ -6,7 +6,6 @@ import {
   ButtonEvent,
   CardData,
   ScanStatusResponse,
-  UnconfigureResponse,
   CardReadLongResponse,
   CardReadResponse,
 } from './config/types'
@@ -16,7 +15,6 @@ import Button from './components/Button'
 import ButtonBar from './components/ButtonBar'
 import Main, { MainChild } from './components/Main'
 import Screen from './components/Screen'
-import useStateWithLocalStorage from './hooks/useStateWithLocalStorage'
 import useInterval from './hooks/useInterval'
 
 import LoadElectionScreen from './screens/LoadElectionScreen'
@@ -25,13 +23,15 @@ import DashboardScreen from './screens/DashboardScreen'
 import 'normalize.css'
 import './App.css'
 import fetchJSON from './util/fetchJSON'
-import configure from './api/configure'
+import {
+  delete as deleteElection,
+  get as getElection,
+  put as putElection,
+} from './api/election'
 
 const App: React.FC = () => {
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
-  const [election, setElection] = useStateWithLocalStorage<OptionalElection>(
-    'election'
-  )
+  const [election, setElection] = useState<OptionalElection>()
   // used to hide batches while they're being deleted
   const [pendingDeleteBatchIds, setPendingDeleteBatchIds] = useState<number[]>(
     []
@@ -41,10 +41,9 @@ const App: React.FC = () => {
   const { batches } = status
   const isScanning = batches && batches[0] && !batches[0].endedAt
 
-  const unconfigure = useCallback(() => {
-    setElection(undefined)
-    window.localStorage.clear()
-  }, [setElection])
+  useEffect(() => {
+    getElection().then(setElection)
+  }, [])
 
   const updateStatus = useCallback(async () => {
     try {
@@ -57,7 +56,7 @@ const App: React.FC = () => {
   const configureServer = useCallback(
     async (configuredElection: Election) => {
       try {
-        await configure(configuredElection)
+        await putElection(configuredElection)
         updateStatus()
       } catch (error) {
         console.log('failed configureServer()', error) // eslint-disable-line no-console
@@ -76,27 +75,17 @@ const App: React.FC = () => {
 
   const unconfigureServer = useCallback(async () => {
     try {
-      const response = await fetchJSON<UnconfigureResponse>(
-        '/scan/unconfigure',
-        {
-          method: 'post',
-        }
-      )
-      if (response.status === 'ok') {
-        unconfigure()
-      }
+      await deleteElection()
+      setElection(undefined)
     } catch (error) {
       console.log('failed unconfigureServer()', error) // eslint-disable-line no-console
     }
-  }, [unconfigure])
+  }, [setElection])
 
-  const fetchElection = useCallback(
-    async () =>
-      fetchJSON<CardReadLongResponse>('/card/read_long').then((card) =>
-        JSON.parse(card.longValue)
-      ),
-    []
-  )
+  const loadElectionFromCard = useCallback(async () => {
+    const card = await fetchJSON<CardReadLongResponse>('/card/read_long')
+    return JSON.parse(card.longValue)
+  }, [])
 
   const processCardData = useCallback(
     async (cardData: CardData, longValueExists: boolean) => {
@@ -104,13 +93,13 @@ const App: React.FC = () => {
         if (!election) {
           if (longValueExists && !loadingElection) {
             setLoadingElection(true)
-            await uploadElection(await fetchElection())
+            await uploadElection(await loadElectionFromCard())
             setLoadingElection(false)
           }
         }
       }
     },
-    [election, fetchElection, loadingElection, uploadElection]
+    [election, loadElectionFromCard, loadingElection, uploadElection]
   )
 
   const readCard = useCallback(async () => {
@@ -210,9 +199,6 @@ const App: React.FC = () => {
   }, [updateStatus])
 
   if (election) {
-    if (!status.electionHash) {
-      configureServer(election)
-    }
     return (
       <Screen>
         <Main>
