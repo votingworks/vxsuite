@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Election } from '@votingworks/ballot-encoder'
+
 
 import AppContext from '../contexts/AppContext'
 
@@ -26,7 +26,7 @@ const NavigationScreen = ({
     new RegExp('^' + path).test(location.pathname) ? 'active-section' : ''
 
   const { election: e } = useContext(AppContext)
-  const election = e as Election
+  const election = e!
 
   return (
     <Screen>

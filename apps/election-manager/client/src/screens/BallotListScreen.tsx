@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
-import { Election } from '@votingworks/ballot-encoder'
 
 import AppContext from '../contexts/AppContext'
 import { getBallotFileName } from '../utils/election'
@@ -24,7 +23,7 @@ const Header = styled.div`
 
 const BallotListScreen = () => {
   const { election: e, electionHash } = useContext(AppContext)
-  const election = e as Election
+  const election = e!
 
   const ballotLists = [
     getBallotStylesDataByStyle(election),
