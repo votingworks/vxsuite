@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
-import { Election } from '@votingworks/ballot-encoder'
+
 
 import { BallotScreenProps } from '../config/types'
 
@@ -16,8 +16,9 @@ import TestDeckScreen from '../screens/TestDeckScreen'
 export const routerPaths = {
   root: '/',
   electionDefinition: '/definition',
+  testDecksResults: '/test-deck-results/',
+  testDeckResultsReport: ({ precinctId }: { precinctId: string }) => `/test-deck-results/${precinctId}`,
   ballotsList: '/ballots',
-  ballotsTestDeckResults: '/test-deck-results',
   ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps) =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
   export: '/export-election-ballot-package',
@@ -25,7 +26,7 @@ export const routerPaths = {
 
 const ElectionManager = () => {
   const { election: e } = useContext(AppContext)
-  const election = e as Election
+  const election = e!
 
   if (!election) {
     return (
@@ -41,7 +42,10 @@ const ElectionManager = () => {
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
       </Route>
-      <Route exact path={routerPaths.ballotsTestDeckResults}>
+      <Route path={[
+        routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
+        routerPaths.testDecksResults,
+      ]}>
         <TestDeckScreen />
       </Route>
       <Route

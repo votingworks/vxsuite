@@ -1,4 +1,4 @@
-import { Election } from '@votingworks/ballot-encoder'
+
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import NavigationScreen from '../components/NavigationScreen'
@@ -13,7 +13,7 @@ import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
 
 const ExportElectionBallotPackageScreen = () => {
   const { election: e, electionHash } = useContext(AppContext)
-  const election = e as Election
+  const election = e!
   const ballotStylesDataByStyle = getBallotStylesDataByStyle(election)
 
   const [state, setState] = useState<workflow.State>(workflow.init(election))
