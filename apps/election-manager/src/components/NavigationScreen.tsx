@@ -51,8 +51,8 @@ const NavigationScreen = ({
               >
                 Ballots
               </LinkButton>
-              <LinkButton small to={routerPaths.testDeckResults}
-                className={isActiveSection(routerPaths.testDeckResults)}
+              <LinkButton small to={routerPaths.testDecksResults}
+                className={isActiveSection(routerPaths.testDecksResults)}
               >
                 Test Deck Results
               </LinkButton>
