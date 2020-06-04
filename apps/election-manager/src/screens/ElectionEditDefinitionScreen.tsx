@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
 import fileDownload from 'js-file-download'
-import { Election } from '@votingworks/ballot-encoder'
+
 import dashify from 'dashify'
 
 import AppContext from '../contexts/AppContext'
@@ -30,7 +30,7 @@ const FlexTextareaWrapper = styled.div`
 const ElectionEditDefinitionScreen = () => {
   const history = useHistory()
   const { election: e, saveElection } = useContext(AppContext)
-  const election = e as Election
+  const election = e!
   const stringifiedElection = JSON.stringify(election, null, 2)
   const [electionString, setElectionString] = useState(stringifiedElection)
   const [dirty, setDirty] = useState(false)

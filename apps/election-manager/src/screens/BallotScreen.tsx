@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { useParams } from 'react-router-dom'
-import { Election, getPrecinctById } from '@votingworks/ballot-encoder'
+import { getPrecinctById } from '@votingworks/ballot-encoder'
 
 import { BallotScreenProps } from '../config/types'
 import AppContext from '../contexts/AppContext'
@@ -16,7 +16,7 @@ import NavigationScreen from '../components/NavigationScreen'
 const BallotScreen = () => {
   const { precinctId, ballotStyleId } = useParams<BallotScreenProps>()
   const { election: e, electionHash } = useContext(AppContext)
-  const election = e as Election
+  const election = e!
   const precinctName = getPrecinctById({ election, precinctId })?.name
 
   return (
