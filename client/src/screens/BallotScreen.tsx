@@ -18,7 +18,7 @@ const BallotScreen = () => {
   const { election: e, electionHash } = useContext(AppContext)
   const election = e!
   const precinctName = getPrecinctById({ election, precinctId })?.name
-  const ballotStyle = election.ballotStyles.find(bs => bs.id === ballotStyleId)!
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
 
   return (
     <React.Fragment>
