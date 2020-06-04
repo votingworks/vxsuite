@@ -42,12 +42,7 @@ const BallotScreen = () => {
         </p>
         <HorizontalRule />
         <p>Ballot style {ballotStyle.id} has {pluralize('contest', election.contests.length, true)}:</p>
-        {election.contests
-          .filter(
-            contest =>
-              ballotStyle.districts.includes(contest.districtId) &&
-              ballotStyle.partyId === contest.partyId
-          )
+        {getContests({ ballotStyle, election })
           .map(contest => (
             <React.Fragment key={contest.id}>
               <h3>{contest.title}</h3>
