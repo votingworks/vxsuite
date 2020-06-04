@@ -1,16 +1,14 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import styled from 'styled-components'
+import { useParams } from 'react-router-dom'
+import { routerPaths } from '../components/ElectionManager'
 import {
   CandidateContest,
   Election,
   VotesDict,
+  getPrecinctById,
+  Precinct,
 } from '@votingworks/ballot-encoder'
-
-
-import {
-  ButtonEventFunction,
-  ElectionTally,
-} from '../config/types'
 
 import AppContext from '../contexts/AppContext'
 
@@ -22,6 +20,7 @@ import Tally from '../components/Tally'
 import { filterTalliesByParty, tallyVotes } from '../lib/votecounting'
 import find from '../utils/find'
 import NavigationScreen from '../components/NavigationScreen'
+import LinkButton from '../components/LinkButton'
 
 const ElectionTallyReport = styled.div`
   page-break-before: always;
@@ -82,46 +81,35 @@ const generateTestDeckBallots = ({
   return votes
 }
 
-interface Precinct {
-  name: string
-  id: string
+const allPrecincts: Precinct = {
+  id: '', name: 'All Precincts'
 }
-
-const initialPrecinct: Precinct = { id: '', name: '' }
 
 const TestDeckScreen = () => {
   const { election: e } = useContext(AppContext)
-  const election = e as Election
-  const [electionTally, setElectionTally] = useState<ElectionTally | undefined>(
-    undefined
-  )
+  const election = e!
+  const { precinctId: p = '' } = useParams()
+  const precinctId = p.trim()
 
-  const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
+  const precinct = precinctId === 'all'
+    ? allPrecincts
+    : getPrecinctById({ election, precinctId })
 
-  const selectPrecinct: ButtonEventFunction = event => {
-    const { id = '', name = '' } = event.currentTarget.dataset
-    setPrecinct({ id, name })
-    const precinctId = id || undefined
-    const votes = generateTestDeckBallots({ election, precinctId })
-    const tally = tallyVotes({ election, precinctId, votes })
-    setElectionTally(tally)
-  }
-
-  const resetDeck = () => {
-    setPrecinct(initialPrecinct)
-    setElectionTally(undefined)
-  }
+  const votes = generateTestDeckBallots({ election, precinctId: precinct?.id })
+  const electionTally = tallyVotes({ election, precinctId: precinct?.id, votes })
 
   const ballotStylePartyIds = Array.from(
     new Set(election.ballotStyles.map(bs => bs.partyId))
   )
 
-  if (electionTally) {
+  const pageTitle = 'Test Ballot Deck Results'
+
+  if (precinct?.name) {
     return (
       <React.Fragment>
         <NavigationScreen>
           <Prose >
-            <h1>Test Deck Results</h1>
+            <h1>{pageTitle}</h1>
             <p>
               <strong>Election:</strong> {election.title}
               <br />
@@ -130,12 +118,7 @@ const TestDeckScreen = () => {
             <p>
               <Button primary onPress={window.print}>
                 Print Results Report
-                  </Button>
-            </p>
-            <p>
-              <Button small onPress={resetDeck}>
-                Back to All Decks
-                </Button>
+              </Button>
             </p>
           </Prose>
         </NavigationScreen>
@@ -151,8 +134,8 @@ const TestDeckScreen = () => {
               election.title
               }`
             return (
-              <ElectionTallyReport key={partyId}>
-                <h1>Test Deck Results</h1>
+              <ElectionTallyReport key={partyId || 'no-party'}>
+                <h1>{pageTitle}</h1>
                 <p>
                   <strong>Election:</strong> {electionTitle}
                   <br />
@@ -173,32 +156,28 @@ const TestDeckScreen = () => {
   return (
     <NavigationScreen>
       <Prose>
-        <h1>Test Ballot Deck Results</h1>
+        <h1>{pageTitle}</h1>
         <p>
           Select desired precinct for <strong>{election.title}</strong>.
       </p>
       </Prose>
       <p>
-        <Button
-          data-id=""
-          data-name="All Precincts"
+        <LinkButton
+          to={routerPaths.testDeckResultsReport({ precinctId: 'all' })}
           fullWidth
-          onPress={selectPrecinct}
         >
           <strong>All Precincts</strong>
-        </Button>
+        </LinkButton>
       </p>
       <ButtonList>
         {election.precincts.map(p => (
-          <Button
+          <LinkButton
             key={p.id}
-            data-id={p.id}
-            data-name={p.name}
+            to={routerPaths.testDeckResultsReport({ precinctId: p.id })}
             fullWidth
-            onPress={selectPrecinct}
           >
             {p.name}
-          </Button>
+          </LinkButton>
         ))}
       </ButtonList>
     </NavigationScreen>
