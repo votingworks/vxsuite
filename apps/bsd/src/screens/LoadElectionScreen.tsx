@@ -51,7 +51,7 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
 
             body.append(
               'ballots',
-              new Blob([ballot.file], { type: 'application/pdf' })
+              new Blob([ballot.live, ballot.test], { type: 'application/pdf' })
             )
 
             // eslint-disable-next-line no-await-in-loop
