@@ -51,12 +51,11 @@ const NavigationScreen = ({
               >
                 Ballots
               </LinkButton>
-              <LinkButton small to={routerPaths.ballotsTestDeckResults}
-                className={isActiveSection(routerPaths.ballotsTestDeckResults)}
+              <LinkButton small to={routerPaths.testDeckResults}
+                className={isActiveSection(routerPaths.testDeckResults)}
               >
                 Test Deck Results
               </LinkButton>
-
             </React.Fragment>
           )
         }
