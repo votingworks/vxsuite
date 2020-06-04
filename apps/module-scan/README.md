@@ -46,8 +46,7 @@ This scanner module provides the following API:
   }
   ```
 
-- `POST /scan/configure` configures the scanner with an `election.json` as the
-  body
+- `PUT /election` configures the scanner with an `election.json` as the body
 
 - `POST /scan/invalidateBatch` invalidates a batch
 
@@ -62,6 +61,6 @@ This scanner module provides the following API:
 
 - `POST /scan/zero` zero's all data but not the election config
 
-- `POST /scan/unconfigure` removes all configuration information and data
+- `DELETE /election` removes all configuration information and data
 
 ## Architecture

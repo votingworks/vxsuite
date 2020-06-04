@@ -2,11 +2,30 @@
 // The durable datastore for CVRs and configuration info.
 //
 
+import { createHash } from 'crypto'
+import makeDebug from 'debug'
 import * as sqlite3 from 'sqlite3'
-import fs from 'fs'
+import { promises as fs } from 'fs'
 import { Writable } from 'stream'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
+import { Election } from '@votingworks/ballot-encoder'
 
 import { CastVoteRecord, BatchInfo } from './types'
+import { Blobs, FileSystemBlobs, MemoryBlobs } from './util/blobs'
+
+const debug = makeDebug('module-scan:store')
+
+interface HmpbTemplatesColumns {
+  id: number
+  filename: string
+  width: number
+  height: number
+  ballotStyleId: string
+  precinctId: string
+  isTestBallot: number
+  pageNumber: number
+  pageCount: number
+}
 
 /**
  * Manages a data store for imported ballot image batches and cast vote records
@@ -14,21 +33,28 @@ import { CastVoteRecord, BatchInfo } from './types'
  */
 export default class Store {
   private dbPath: string
-
+  private files: Blobs
   private db?: sqlite3.Database
 
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
+   * @param filesPath a file system path, or ":memory:" for an in-memory database
    */
-  public constructor(dbPath: string) {
+  public constructor(dbPath: string, filesPath: string)
+  public constructor(dbPath: string, files: Blobs)
+  public constructor(dbPath: string, filesPathOrFiles: string | Blobs) {
     this.dbPath = dbPath
+    this.files =
+      typeof filesPathOrFiles === 'string'
+        ? new FileSystemBlobs(filesPathOrFiles)
+        : filesPathOrFiles
   }
 
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
   public static async memoryStore(): Promise<Store> {
-    const store = new Store(':memory:')
+    const store = new Store(':memory:', new MemoryBlobs())
     await store.init()
     return store
   }
@@ -115,9 +141,11 @@ export default class Store {
   public async dbDestroy(): Promise<void> {
     const db = await this.getDb()
     return new Promise((resolve) => {
-      db.close(() => {
-        if (fs.existsSync(this.dbPath)) {
-          fs.unlinkSync(this.dbPath)
+      db.close(async () => {
+        try {
+          await fs.unlink(this.dbPath)
+        } catch {
+          // ignore failure
         }
 
         resolve()
@@ -145,6 +173,12 @@ export default class Store {
     await this.dbRunAsync(
       'create table if not exists CVRs (id integer primary key autoincrement, batch_id integer references batches, filename text unique, cvr_json text)'
     )
+    await this.dbRunAsync(
+      'create table if not exists hmpb_templates (id integer primary key autoincrement, filename text unique, width integer, height integer, ballot_style_id varchar(255), precinct_id varchar(255), is_test_ballot boolean, page_number integer, page_count integer)'
+    )
+    await this.dbRunAsync(
+      'create unique index if not exists hmpb_templates_1 on hmpb_templates (ballot_style_id, precinct_id, is_test_ballot, page_number, page_count)'
+    )
 
     return this.db
   }
@@ -158,12 +192,38 @@ export default class Store {
     }
 
     if (resetDB) {
-      if (fs.existsSync(this.dbPath)) {
-        fs.unlinkSync(this.dbPath)
+      try {
+        await fs.unlink(this.dbPath)
+      } catch {
+        // ignore failure
       }
     }
 
     await this.dbCreate()
+  }
+
+  /**
+   * Gets the current election definition.
+   */
+  public async getElection(): Promise<Election | undefined> {
+    const data = await this.files.get('election.json')
+    return data ? JSON.parse(new TextDecoder().decode(data)) : undefined
+  }
+
+  /**
+   * Sets the current election definition.
+   */
+  public async setElection(election?: Election): Promise<void> {
+    if (election) {
+      this.files.set(
+        'election.json',
+        Buffer.from(
+          new TextEncoder().encode(JSON.stringify(election, undefined, 2))
+        )
+      )
+    } else {
+      this.files.delete('election.json')
+    }
   }
 
   /**
@@ -241,5 +301,64 @@ export default class Store {
     const sql = 'select cvr_json as cvrJSON from CVRs'
     const rows = await this.dbAllAsync<{ cvrJSON: string }>(sql)
     writeStream.write(rows.map((row) => row.cvrJSON).join('\n'))
+  }
+
+  public async addHmpbTemplate(
+    imageData: ImageData,
+    metadata: BallotPageMetadata
+  ): Promise<void> {
+    const hash = createHash('sha256')
+    hash.update(metadata.ballotStyleId)
+    hash.update(metadata.precinctId)
+    hash.update(metadata.isTestBallot ? 'test' : 'live')
+    hash.update(metadata.pageNumber.toString())
+    hash.update(metadata.pageCount.toString())
+
+    const filename = hash.digest('hex')
+    debug('storing HMPB template to %s: %O', filename, metadata)
+    await this.files.set(filename, Buffer.from(imageData.data))
+
+    await this.dbRunAsync(
+      'delete from hmpb_templates where ballot_style_id = ? and precinct_id = ? and is_test_ballot = ? and page_number = ? and page_count = ?',
+      metadata.ballotStyleId,
+      metadata.precinctId,
+      metadata.isTestBallot,
+      metadata.pageNumber,
+      metadata.pageCount
+    )
+    await this.dbRunAsync(
+      'insert into hmpb_templates (filename, width, height, ballot_style_id, precinct_id, is_test_ballot, page_number, page_count) values (?, ?, ?, ?, ?, ?, ?, ?)',
+      filename,
+      imageData.width,
+      imageData.height,
+      metadata.ballotStyleId,
+      metadata.precinctId,
+      metadata.isTestBallot,
+      metadata.pageNumber,
+      metadata.pageCount
+    )
+  }
+
+  public async getHmpbTemplates(): Promise<[ImageData, BallotPageMetadata][]> {
+    const sql =
+      'select id, filename, width, height, ballot_style_id as ballotStyleId, precinct_id as precinctId, is_test_ballot as isTestBallot, page_number as pageNumber, page_count as pageCount from hmpb_templates'
+    const rows = await this.dbAllAsync<HmpbTemplatesColumns>(sql)
+    const results: [ImageData, BallotPageMetadata][] = []
+
+    for (const { id, filename, width, height, ...metadata } of rows) {
+      debug(
+        'loading stored HMPB template %d from %s: %O',
+        id,
+        filename,
+        metadata
+      )
+      const data = Uint8ClampedArray.from((await this.files.get(filename))!)
+      results.push([
+        { data, width, height },
+        { ...metadata, isTestBallot: metadata.isTestBallot !== 0 },
+      ])
+    }
+
+    return results
   }
 }

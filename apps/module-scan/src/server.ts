@@ -3,12 +3,7 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
-import express, {
-  Application,
-  Request,
-  Response,
-  RequestHandler,
-} from 'express'
+import express, { Application, Response, RequestHandler } from 'express'
 import multer from 'multer'
 import * as path from 'path'
 import { Election } from '@votingworks/ballot-encoder'
@@ -34,10 +29,21 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.use(express.json())
 
-  app.post('/scan/configure', (request: Request, response: Response) => {
+  app.get('/election', async (_request, response) => {
+    response.json(await store.getElection())
+  })
+
+  app.put('/election', async (request, response) => {
     // store the election file
     const election = request.body as Election
     importer.configure(election)
+    await store.setElection(election)
+    response.json({ status: 'ok' })
+  })
+
+  app.delete('/election', async (_request, response) => {
+    await importer.unconfigure()
+    await store.setElection(undefined)
     response.json({ status: 'ok' })
   })
 
@@ -82,8 +88,10 @@ export function buildApp({ store, importer }: AppOptions): Application {
       for await (const image of pdfToImages(file.buffer, { scale: 2 })) {
         try {
           page += 1
-          await importer.addHmpbTemplate(image)
+          const metadata = await importer.addHmpbTemplate(image)
+          await store.addHmpbTemplate(image, metadata)
         } catch (error) {
+          console.error(error)
           response.status(400)
           response.json({
             errors: [
@@ -143,11 +151,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json({ status: 'ok' })
   })
 
-  app.post('/scan/unconfigure', async (_request, response) => {
-    await importer.unconfigure()
-    response.json({ status: 'ok' })
-  })
-
   app.get('/', (_request, response) => {
     response.sendFile(path.join(__dirname, '..', 'index.html'))
   })
@@ -168,7 +171,10 @@ export interface StartOptions {
  */
 export async function start({
   port = process.env.PORT || 3002,
-  store = new Store(path.join(__dirname, '..', 'cvrs.db')),
+  store = new Store(
+    path.join(__dirname, '..', 'cvrs.db'),
+    path.join(__dirname, '..', 'hmpb-templates')
+  ),
   scanner = new FujitsuScanner(),
   importer = new SystemImporter({
     store,
@@ -178,6 +184,17 @@ export async function start({
   app = buildApp({ importer, store }),
 }: Partial<StartOptions> = {}): Promise<void> {
   await store.init()
+
+  const election = await store.getElection()
+  if (election) {
+    await importer.configure(election)
+  }
+
+  for (const [imageData, metadata] of await store.getHmpbTemplates()) {
+    console.log('Re-loading existing HMPB template', metadata)
+    await importer.addHmpbTemplate(imageData, metadata)
+  }
+
   app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}/`)
     console.log(`Scanning ballots into ${importer.ballotImagesPath}`)

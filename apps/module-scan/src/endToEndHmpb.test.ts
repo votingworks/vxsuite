@@ -40,7 +40,7 @@ test('going through the whole process works', async () => {
   const waiter = getScannerCVRCountWaiter(importer)
 
   await request(app)
-    .post('/scan/configure')
+    .put('/election')
     .send(election)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')

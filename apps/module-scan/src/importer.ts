@@ -12,6 +12,7 @@ import DefaultInterpreter, {
   interpretBallotData,
 } from './interpreter'
 import { Scanner } from './scanner'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 
 export interface Options {
   store: Store
@@ -22,7 +23,7 @@ export interface Options {
 }
 
 export interface Importer {
-  addHmpbTemplate(imageData: ImageData): Promise<void>
+  addHmpbTemplate(imageData: ImageData): Promise<BallotPageMetadata>
   addManualBallot(encodedBallot: Uint8Array): Promise<void>
   configure(newElection: Election): void
   doExport(): Promise<string>
@@ -80,7 +81,10 @@ export default class SystemImporter implements Importer {
   /**
    * Adds a ballot image as a hand-marked paper ballot template.
    */
-  public async addHmpbTemplate(imageData: ImageData): Promise<void> {
+  public async addHmpbTemplate(
+    imageData: ImageData,
+    metadata?: BallotPageMetadata
+  ): Promise<BallotPageMetadata> {
     const { election } = this
 
     if (!election) {
@@ -89,7 +93,7 @@ export default class SystemImporter implements Importer {
       )
     }
 
-    this.interpreter.addHmpbTemplate(election, imageData)
+    return this.interpreter.addHmpbTemplate(election, imageData, metadata)
   }
 
   /**

@@ -1,0 +1,44 @@
+import Store from './store'
+import election from '../test/fixtures/hmpb-dallas-county/election'
+
+test('get/set election', async () => {
+  const store = await Store.memoryStore()
+
+  expect(await store.getElection()).toBeUndefined()
+
+  await store.setElection(election)
+  expect(await store.getElection()).toEqual(election)
+
+  await store.setElection(undefined)
+  expect(await store.getElection()).toBeUndefined()
+})
+
+test('HMPB template handling', async () => {
+  const store = await Store.memoryStore()
+
+  expect(await store.getHmpbTemplates()).toEqual([])
+
+  await store.addHmpbTemplate(
+    { data: Uint8ClampedArray.of(1, 2, 3, 0), width: 1, height: 1 },
+    {
+      ballotStyleId: '12D',
+      precinctId: '99',
+      isTestBallot: false,
+      pageNumber: 1,
+      pageCount: 2,
+    }
+  )
+
+  expect(await store.getHmpbTemplates()).toEqual([
+    [
+      { data: Uint8ClampedArray.of(1, 2, 3, 0), width: 1, height: 1 },
+      {
+        ballotStyleId: '12D',
+        precinctId: '99',
+        isTestBallot: false,
+        pageNumber: 1,
+        pageCount: 2,
+      },
+    ],
+  ])
+})
