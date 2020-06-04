@@ -16,8 +16,8 @@ import TestDeckScreen from '../screens/TestDeckScreen'
 export const routerPaths = {
   root: '/',
   electionDefinition: '/definition',
+  testDeckResults: '/test-deck-results',
   ballotsList: '/ballots',
-  ballotsTestDeckResults: '/test-deck-results',
   ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps) =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
   export: '/export-election-ballot-package',
@@ -41,7 +41,7 @@ const ElectionManager = () => {
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
       </Route>
-      <Route exact path={routerPaths.ballotsTestDeckResults}>
+      <Route exact path={routerPaths.testDeckResults}>
         <TestDeckScreen />
       </Route>
       <Route
