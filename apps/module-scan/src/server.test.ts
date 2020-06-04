@@ -42,9 +42,9 @@ test('GET /scan/status', async () => {
   expect(importer.getStatus).toBeCalled()
 })
 
-test('PUT /election', async () => {
+test('PUT /config/election', async () => {
   await request(app)
-    .put('/election')
+    .put('/config/election')
     .send(election)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -113,11 +113,11 @@ test('POST /scan/zero', async () => {
   expect(importer.doZero).toBeCalled()
 })
 
-test('DELETE /election', async () => {
+test('DELETE /config/election', async () => {
   importerMock.unconfigure.mockResolvedValue()
 
   await request(app)
-    .delete('/election')
+    .delete('/config/election')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
   expect(importer.unconfigure).toBeCalled()

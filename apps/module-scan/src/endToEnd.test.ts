@@ -59,7 +59,7 @@ test('going through the whole process works', async () => {
   }
 
   await request(app)
-    .put('/election')
+    .put('/config/election')
     .send(election)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -215,5 +215,5 @@ test('going through the whole process works', async () => {
   }
 
   // clean up
-  await request(app).delete('/election')
+  await request(app).delete('/config/election')
 })

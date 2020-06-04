@@ -29,11 +29,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.use(express.json())
 
-  app.get('/election', async (_request, response) => {
+  app.get('/config/election', async (_request, response) => {
     response.json(await store.getElection())
   })
 
-  app.put('/election', async (request, response) => {
+  app.put('/config/election', async (request, response) => {
     // store the election file
     const election = request.body as Election
     importer.configure(election)
@@ -41,7 +41,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json({ status: 'ok' })
   })
 
-  app.delete('/election', async (_request, response) => {
+  app.delete('/config/election', async (_request, response) => {
     await importer.unconfigure()
     await store.setElection(undefined)
     response.json({ status: 'ok' })
