@@ -91,7 +91,7 @@ const initialPrecinct: Precinct = { id: '', name: '' }
 
 const TestDeckScreen = () => {
   const { election: e } = useContext(AppContext)
-  const election = e as Election
+  const election = e!
   const [electionTally, setElectionTally] = useState<ElectionTally | undefined>(
     undefined
   )

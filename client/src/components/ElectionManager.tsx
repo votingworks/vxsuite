@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
-import { Election } from '@votingworks/ballot-encoder'
+
 
 import { BallotScreenProps } from '../config/types'
 
@@ -25,7 +25,7 @@ export const routerPaths = {
 
 const ElectionManager = () => {
   const { election: e } = useContext(AppContext)
-  const election = e as Election
+  const election = e!
 
   if (!election) {
     return (
