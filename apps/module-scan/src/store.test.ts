@@ -18,26 +18,19 @@ test('HMPB template handling', async () => {
 
   expect(await store.getHmpbTemplates()).toEqual([])
 
-  await store.addHmpbTemplate(
-    { data: Uint8ClampedArray.of(1, 2, 3, 0), width: 1, height: 1 },
-    {
-      ballotStyleId: '12D',
-      precinctId: '99',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 2,
-    }
-  )
+  await store.addHmpbTemplate(Buffer.of(1, 2, 3), {
+    ballotStyleId: '12D',
+    precinctId: '99',
+    isTestBallot: false,
+  })
 
   expect(await store.getHmpbTemplates()).toEqual([
     [
-      { data: Uint8ClampedArray.of(1, 2, 3, 0), width: 1, height: 1 },
+      Buffer.of(1, 2, 3),
       {
         ballotStyleId: '12D',
         precinctId: '99',
         isTestBallot: false,
-        pageNumber: 1,
-        pageCount: 2,
       },
     ],
   ])
