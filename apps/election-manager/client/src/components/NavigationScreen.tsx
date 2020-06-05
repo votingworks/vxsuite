@@ -56,6 +56,11 @@ const NavigationScreen = ({
               >
                 Test Deck Results
               </LinkButton>
+              <LinkButton small to={routerPaths.smartCards}
+                className={isActiveSection(routerPaths.smartCards)}
+              >
+                SmartCards
+              </LinkButton>
             </React.Fragment>
           )
         }
