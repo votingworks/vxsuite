@@ -8,7 +8,7 @@ import Screen from '../components/Screen'
 import Text from '../components/Text'
 import { SetElection } from '../config/types'
 import { readBallotPackage, BallotPackageEntry } from '../util/ballot-package'
-import configure from '../api/configure'
+import { put as putElection } from '../api/election'
 
 interface Props {
   setElection: SetElection
@@ -33,14 +33,14 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
       if (isElectionJSON) {
         reader.onload = async () => {
           const election = JSON.parse(reader.result as string)
-          await configure(election)
+          await putElection(election)
           setElection(election)
         }
 
         reader.readAsText(file)
       } else {
         readBallotPackage(file).then(async (pkg) => {
-          await configure(pkg.election)
+          await putElection(pkg.election)
           setCurrentUploadingBallotIndex(0)
           setTotalTemplates(pkg.ballots.length)
 
