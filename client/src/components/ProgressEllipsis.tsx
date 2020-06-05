@@ -13,7 +13,7 @@ const ProgressEllipsis = styled.span`
     vertical-align: bottom;
     text-align: left;
     content: '…';
-    animation: loadingEllipsis steps(4, end) 2s infinite;
+    animation: loadingEllipsis steps(4, end) 1s infinite;
   }
   &::before {
     color: transparent;
