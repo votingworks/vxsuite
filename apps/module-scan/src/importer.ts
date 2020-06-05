@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
 import { Election } from '@votingworks/ballot-encoder'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 
 import { CastVoteRecord, BatchInfo } from './types'
 import Store from './store'
@@ -12,6 +13,7 @@ import DefaultInterpreter, {
   interpretBallotData,
 } from './interpreter'
 import { Scanner } from './scanner'
+import pdfToImages from './util/pdfToImages'
 
 export interface Options {
   store: Store
@@ -22,7 +24,8 @@ export interface Options {
 }
 
 export interface Importer {
-  addHmpbTemplate(imageData: ImageData): Promise<void>
+  addHmpbTemplate(imageData: ImageData): Promise<BallotPageMetadata>
+  addHmpbTemplates(pdf: Buffer): Promise<BallotPageMetadata[]>
   addManualBallot(encodedBallot: Uint8Array): Promise<void>
   configure(newElection: Election): void
   doExport(): Promise<string>
@@ -31,6 +34,8 @@ export interface Importer {
   getStatus(): Promise<{ batches: BatchInfo[]; electionHash?: string }>
   unconfigure(): Promise<void>
 }
+
+export class HmpbInterpretationError extends Error {}
 
 /**
  * Imports ballot images from a `Scanner` and stores them in a `Store`.
@@ -77,10 +82,31 @@ export default class SystemImporter implements Importer {
     }
   }
 
+  public async addHmpbTemplates(pdf: Buffer): Promise<BallotPageMetadata[]> {
+    const result: BallotPageMetadata[] = []
+    let page = 0
+
+    for await (const image of pdfToImages(pdf, { scale: 2 })) {
+      try {
+        page += 1
+        result.push(await this.addHmpbTemplate(image))
+      } catch (error) {
+        throw new HmpbInterpretationError(
+          `Ballot image on page ${page} could not be interpreted as a template: ${error}`
+        )
+      }
+    }
+
+    return result
+  }
+
   /**
    * Adds a ballot image as a hand-marked paper ballot template.
    */
-  public async addHmpbTemplate(imageData: ImageData): Promise<void> {
+  public async addHmpbTemplate(
+    imageData: ImageData,
+    metadata?: BallotPageMetadata
+  ): Promise<BallotPageMetadata> {
     const { election } = this
 
     if (!election) {
@@ -89,7 +115,7 @@ export default class SystemImporter implements Importer {
       )
     }
 
-    this.interpreter.addHmpbTemplate(election, imageData)
+    return this.interpreter.addHmpbTemplate(election, imageData, metadata)
   }
 
   /**

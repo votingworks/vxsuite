@@ -2,6 +2,8 @@ node_modules
 cvrs.db
 tmp
 !tmp/.gitkeep
+hmpb-templates
+!hmpb-templates/.gitkeep
 *~
 *.log
 coverage/

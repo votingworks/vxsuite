@@ -2,11 +2,23 @@
 // The durable datastore for CVRs and configuration info.
 //
 
+import makeDebug from 'debug'
 import * as sqlite3 from 'sqlite3'
-import fs from 'fs'
+import { promises as fs } from 'fs'
 import { Writable } from 'stream'
+import { Election } from '@votingworks/ballot-encoder'
 
-import { CastVoteRecord, BatchInfo } from './types'
+import { CastVoteRecord, BatchInfo, BallotMetadata } from './types'
+
+const debug = makeDebug('module-scan:store')
+
+interface HmpbTemplatesColumns {
+  id: number
+  pdf: Buffer
+  ballotStyleId: string
+  precinctId: string
+  isTestBallot: number // sqlite doesn't have "boolean", really
+}
 
 /**
  * Manages a data store for imported ballot image batches and cast vote records
@@ -14,7 +26,6 @@ import { CastVoteRecord, BatchInfo } from './types'
  */
 export default class Store {
   private dbPath: string
-
   private db?: sqlite3.Database
 
   /**
@@ -115,9 +126,11 @@ export default class Store {
   public async dbDestroy(): Promise<void> {
     const db = await this.getDb()
     return new Promise((resolve) => {
-      db.close(() => {
-        if (fs.existsSync(this.dbPath)) {
-          fs.unlinkSync(this.dbPath)
+      db.close(async () => {
+        try {
+          await fs.unlink(this.dbPath)
+        } catch {
+          // ignore failure
         }
 
         resolve()
@@ -145,6 +158,15 @@ export default class Store {
     await this.dbRunAsync(
       'create table if not exists CVRs (id integer primary key autoincrement, batch_id integer references batches, filename text unique, cvr_json text)'
     )
+    await this.dbRunAsync(
+      'create table if not exists elections (id integer primary key autoincrement, definition_json text)'
+    )
+    await this.dbRunAsync(
+      'create table if not exists hmpb_templates (id integer primary key autoincrement, pdf blob, ballot_style_id varchar(255), precinct_id varchar(255), is_test_ballot boolean)'
+    )
+    await this.dbRunAsync(
+      'create unique index if not exists hmpb_templates_1 on hmpb_templates (ballot_style_id, precinct_id, is_test_ballot)'
+    )
 
     return this.db
   }
@@ -153,17 +175,43 @@ export default class Store {
    * Initializes the database by destroying the existing one if needed.
    */
   public async init(resetDB = false): Promise<void> {
-    if (this.db) {
-      await this.dbDestroy()
-    }
-
-    if (resetDB) {
-      if (fs.existsSync(this.dbPath)) {
-        fs.unlinkSync(this.dbPath)
+    if (resetDB || !this.db) {
+      if (this.db) {
+        await this.dbDestroy()
       }
-    }
 
-    await this.dbCreate()
+      try {
+        await fs.unlink(this.dbPath)
+      } catch {
+        // ignore failure
+      }
+
+      await this.dbCreate()
+    }
+  }
+
+  /**
+   * Gets the current election definition.
+   */
+  public async getElection(): Promise<Election | undefined> {
+    const row = await this.dbGetAsync<{ election: string } | undefined>(
+      'select definition_json as election from elections'
+    )
+    return row ? JSON.parse(row.election) : undefined
+  }
+
+  /**
+   * Sets the current election definition.
+   */
+  public async setElection(election?: Election): Promise<void> {
+    await this.dbRunAsync('delete from elections')
+
+    if (election) {
+      await this.dbRunAsync(
+        'insert into elections (definition_json) values (?)',
+        JSON.stringify(election, undefined, 2)
+      )
+    }
   }
 
   /**
@@ -241,5 +289,43 @@ export default class Store {
     const sql = 'select cvr_json as cvrJSON from CVRs'
     const rows = await this.dbAllAsync<{ cvrJSON: string }>(sql)
     writeStream.write(rows.map((row) => row.cvrJSON).join('\n'))
+  }
+
+  public async addHmpbTemplate(
+    pdf: Buffer,
+    metadata: BallotMetadata
+  ): Promise<void> {
+    debug('storing HMPB template: %O', metadata)
+
+    await this.dbRunAsync(
+      'delete from hmpb_templates where ballot_style_id = ? and precinct_id = ? and is_test_ballot = ?',
+      metadata.ballotStyleId,
+      metadata.precinctId,
+      metadata.isTestBallot
+    )
+    await this.dbRunAsync(
+      'insert into hmpb_templates (pdf, ballot_style_id, precinct_id, is_test_ballot) values (?, ?, ?, ?)',
+      pdf,
+      metadata.ballotStyleId,
+      metadata.precinctId,
+      metadata.isTestBallot
+    )
+  }
+
+  public async getHmpbTemplates(): Promise<[Buffer, BallotMetadata][]> {
+    const sql =
+      'select id, pdf, ballot_style_id as ballotStyleId, precinct_id as precinctId, is_test_ballot as isTestBallot from hmpb_templates'
+    const rows = await this.dbAllAsync<HmpbTemplatesColumns>(sql)
+    const results: [Buffer, BallotMetadata][] = []
+
+    for (const { id, pdf, ...metadata } of rows) {
+      debug('loading stored HMPB template id=%d: %O', id, metadata)
+      results.push([
+        pdf,
+        { ...metadata, isTestBallot: metadata.isTestBallot !== 0 },
+      ])
+    }
+
+    return results
   }
 }

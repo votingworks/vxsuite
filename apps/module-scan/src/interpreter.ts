@@ -13,7 +13,10 @@ import {
   Optional,
   YesNoVote,
 } from '@votingworks/ballot-encoder'
-import { Interpreter as HMPBInterpreter } from '@votingworks/hmpb-interpreter'
+import {
+  Interpreter as HMPBInterpreter,
+  BallotPageMetadata,
+} from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import { readFile as readFileCallback } from 'fs'
@@ -31,7 +34,11 @@ export interface InterpretFileParams {
 }
 
 export interface Interpreter {
-  addHmpbTemplate(election: Election, imageData: ImageData): Promise<void>
+  addHmpbTemplate(
+    election: Election,
+    imageData: ImageData,
+    metadata?: BallotPageMetadata
+  ): Promise<BallotPageMetadata>
   interpretFile(
     interpretFileParams: InterpretFileParams
   ): Promise<CastVoteRecord | undefined>
@@ -128,11 +135,14 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
   async addHmpbTemplate(
     election: Election,
-    imageData: ImageData
-  ): Promise<void> {
-    const {
-      ballotImage: { metadata },
-    } = await this.getHmbpInterpreter(election).addTemplate(imageData)
+    imageData: ImageData,
+    metadata?: BallotPageMetadata
+  ): Promise<BallotPageMetadata> {
+    const result = await this.getHmbpInterpreter(election).addTemplate(
+      imageData,
+      metadata
+    )
+    metadata = result.ballotImage.metadata
 
     debug(
       'Added HMPB template page %d/%d: ballotStyleId=%s precinctId=%s',
@@ -141,6 +151,8 @@ export default class SummaryBallotInterpreter implements Interpreter {
       metadata.ballotStyleId,
       metadata.precinctId
     )
+
+    return metadata
   }
 
   // eslint-disable-next-line class-methods-use-this

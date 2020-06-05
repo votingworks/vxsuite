@@ -1,4 +1,5 @@
 import { BallotStyle, Precinct } from '@votingworks/ballot-encoder'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 
 export interface Dictionary<T> {
   [key: string]: T | undefined
@@ -25,3 +26,8 @@ export interface HmpbTemplateInfo {
   pageNumber: number
   pageCount: number
 }
+
+export type BallotMetadata = Omit<
+  BallotPageMetadata,
+  'pageNumber' | 'pageCount'
+>
