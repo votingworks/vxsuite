@@ -5,7 +5,7 @@ import Store from './store'
 import { Scanner } from './scanner'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
-} from './makeTemporaryBallotImportImageDirectories'
+} from './util/makeTemporaryBallotImportImageDirectories'
 
 jest.mock('chokidar')
 const mockChokidar = chokidar as jest.Mocked<typeof chokidar>
