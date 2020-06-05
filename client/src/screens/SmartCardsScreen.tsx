@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 
 import { ButtonEventFunction } from '../config/types'
 
-import sleep from '../lib/sleep'
+import sleep from '../utils/sleep'
 import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'
