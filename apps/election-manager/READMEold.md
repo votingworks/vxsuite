@@ -58,13 +58,13 @@ This app is intended to be used on an offline computer by an election admin.
     - [x] Mock export UI
     - [ ] Hook up to API in kiosk browser
 - [x] Print Test Ballot Deck Results (from EMS)
-- [ ] Program Cards (from EMS)
-  - [ ] Admin
-  - [ ] Poll Worker
+- [x] Program Cards (from EMS)
+  - [x] Admin
+  - [x] Poll Worker
 - [ ] Results
   - [ ] Load CVR files (from EMS)
   - [ ] View results (from EMS)
-- [ ] Unconfigure (from EMS)
+- [x] Unconfigure
 - [ ] Eject USB (from EMS)
 
 ## Navigation
