@@ -2,8 +2,8 @@ import 'fast-text-encoding'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'
 import { BallotStyle, Election, Precinct } from '@votingworks/ballot-encoder'
 
-// election-4e31cb1-precinct-oaklawn-branch-library-id-42-style-77.pdf
-const BALLOT_PDF_FILENAME_PATTERN = /^election-(?:\w+)-precinct-(?:.+)-id-([^-]+)-style-(.+).pdf$/
+// live/election-4e31cb1-precinct-oaklawn-branch-library-id-42-style-77.pdf
+const BALLOT_PDF_FILENAME_PATTERN = /^([^/]+)\/election-(?:\w+)-precinct-(?:.+)-id-([^-]+)-style-(.+).pdf$/
 
 export interface BallotPackage {
   election: Election
@@ -11,10 +11,25 @@ export interface BallotPackage {
 }
 
 export interface BallotPackageEntry {
-  file: Buffer
+  live: Buffer
+  test: Buffer
   ballotStyle: BallotStyle
   precinct: Precinct
 }
+
+type PartialBallotPackageEntry =
+  | {
+      live: Buffer
+      test?: Buffer
+      ballotStyle: BallotStyle
+      precinct: Precinct
+    }
+  | {
+      live?: Buffer
+      test: Buffer
+      ballotStyle: BallotStyle
+      precinct: Precinct
+    }
 
 function readFile(file: File): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -114,6 +129,7 @@ export async function readBallotPackage(file: File): Promise<BallotPackage> {
 
   const election: Election = await readJSONEntry(zipfile, electionEntry)
   const ballots: BallotPackageEntry[] = []
+  const partialBallots: PartialBallotPackageEntry[] = []
 
   for (const entry of entries.filter(({ fileName }) =>
     fileName.endsWith('.pdf')
@@ -126,7 +142,13 @@ export async function readBallotPackage(file: File): Promise<BallotPackage> {
       )
     }
 
-    const [, precinctId, ballotStyleId] = match
+    const [, type, precinctId, ballotStyleId] = match
+
+    if (type !== 'live' && type !== 'test') {
+      throw new Error(
+        `ballot package is malformed: invalid ballot type '${type}' for ballot style id=${ballotStyleId} and precinct id=${precinctId} (${file.name})`
+      )
+    }
 
     const ballotStyle = election.ballotStyles.find(
       ({ id }) => id === ballotStyleId
@@ -135,21 +157,72 @@ export async function readBallotPackage(file: File): Promise<BallotPackage> {
 
     if (!ballotStyle) {
       throw new Error(
-        `ballot package is malformed: election configuration is missing ballot style with id=${ballotStyleId} from file ${file.name}`
+        `ballot package is malformed: election configuration is missing ballot style with id=${ballotStyleId} (${file.name})`
       )
     }
 
     if (!precinct) {
       throw new Error(
-        `ballot package is malformed: election configuration is missing precinct with id=${precinctId} from file ${file.name}`
+        `ballot package is malformed: election configuration is missing precinct with id=${precinctId} (${file.name})`
       )
     }
 
-    ballots.push({
-      file: await readEntry(zipfile, entry),
-      ballotStyle,
-      precinct,
-    })
+    const ballotPDF = await readEntry(zipfile, entry)
+    const partialBallotIndex = partialBallots.findIndex(
+      (b) => b.ballotStyle.id === ballotStyleId && b.precinct.id === precinctId
+    )
+
+    if (partialBallotIndex >= 0) {
+      const partialBallot = partialBallots[partialBallotIndex]
+
+      switch (type) {
+        case 'live':
+          if (partialBallot.live) {
+            throw new Error(
+              `ballot package is malformed: duplicate live ballot found with ballot style id=${ballotStyleId} and precinct id=${precinctId} (${file.name})`
+            )
+          }
+          break
+
+        case 'test':
+          if (partialBallot.test) {
+            throw new Error(
+              `ballot package is malformed: duplicate test ballot found with ballot style id=${ballotStyleId} and precinct id=${precinctId} (${file.name})`
+            )
+          }
+          break
+
+        default:
+          // Already handled above when checking 'type'.
+          break
+      }
+
+      ballots.push({
+        ...partialBallot,
+        [type]: ballotPDF,
+      } as BallotPackageEntry)
+      partialBallots.splice(partialBallotIndex, 1)
+    } else if (type === 'live') {
+      partialBallots.push({
+        ballotStyle,
+        precinct,
+        live: ballotPDF,
+      })
+    } else if (type === 'test') {
+      partialBallots.push({
+        ballotStyle,
+        precinct,
+        test: ballotPDF,
+      })
+    }
+  }
+
+  if (partialBallots.length) {
+    throw new Error(
+      `ballot package is malformed: some ballots do not have both live and test types: ${partialBallots
+        .map((b) => `(${b.ballotStyle.id}, ${b.precinct.id})`)
+        .join(', ')}`
+    )
   }
 
   return { election, ballots }
