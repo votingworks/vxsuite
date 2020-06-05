@@ -10,7 +10,7 @@ import { FujitsuScanner, Scanner } from './scanner'
 import { CastVoteRecord, BatchInfo } from './types'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
-} from './makeTemporaryBallotImportImageDirectories'
+} from './util/makeTemporaryBallotImportImageDirectories'
 import getScannerCVRCountWaiter from '../test/getScannerCVRCountWaiter'
 
 const sampleBallotImagesPath = path.join(

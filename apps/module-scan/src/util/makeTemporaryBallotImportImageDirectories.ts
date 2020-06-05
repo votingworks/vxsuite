@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as tmp from 'tmp'
-import { Options } from './importer'
+import type { Options } from '../importer'
 
 export interface TemporaryBallotImportImageDirectories {
   paths: Pick<Options, 'ballotImagesPath' | 'importedBallotImagesPath'>
@@ -9,7 +9,7 @@ export interface TemporaryBallotImportImageDirectories {
 }
 
 export default function makeTemporaryBallotImportImageDirectories(): TemporaryBallotImportImageDirectories {
-  const root = tmp.dirSync({ tmpdir: path.join(__dirname, '../tmp') })
+  const root = tmp.dirSync({ tmpdir: path.join(__dirname, '../../tmp') })
   return {
     paths: {
       ballotImagesPath: path.join(root.name, 'to-import'),

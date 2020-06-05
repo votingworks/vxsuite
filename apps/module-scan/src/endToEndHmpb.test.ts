@@ -6,7 +6,7 @@ import getScannerCVRCountWaiter from '../test/getScannerCVRCountWaiter'
 import SystemImporter from './importer'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
-} from './makeTemporaryBallotImportImageDirectories'
+} from './util/makeTemporaryBallotImportImageDirectories'
 import { FujitsuScanner } from './scanner'
 import { buildApp } from './server'
 import Store from './store'

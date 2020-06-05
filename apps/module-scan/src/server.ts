@@ -9,7 +9,7 @@ import * as path from 'path'
 import { Election } from '@votingworks/ballot-encoder'
 
 import SystemImporter, { Importer } from './importer'
-import makeTemporaryBallotImportImageDirectories from './makeTemporaryBallotImportImageDirectories'
+import makeTemporaryBallotImportImageDirectories from './util/makeTemporaryBallotImportImageDirectories'
 import Store from './store'
 import { FujitsuScanner, Scanner } from './scanner'
 
