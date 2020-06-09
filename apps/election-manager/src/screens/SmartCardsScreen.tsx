@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 
 import { ButtonEventFunction } from '../config/types'
 
-import sleep from '../lib/sleep'
+import sleep from '../utils/sleep'
 import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'
@@ -26,9 +26,8 @@ const SmartCardsScreen = () => {
       await fetch('/card/write_protect_override', {
         method: 'post',
       })
-      window.setTimeout(() => {
-        setIsProgrammingCard(false)
-      }, 1000)
+      await sleep()
+      setIsProgrammingCard(false)
       return
     }
 

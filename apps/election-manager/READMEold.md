@@ -61,11 +61,11 @@ This app is intended to be used on an offline computer by an election admin.
 - [x] Program Cards (from EMS)
   - [x] Admin
   - [x] Poll Worker
-- [ ] Results
-  - [ ] Load CVR files (from EMS)
-  - [ ] View results (from EMS)
+- [x] Results
+  - [x] Load CVR files (from EMS)
+  - [x] View results (from EMS)
 - [x] Unconfigure
-- [ ] Eject USB (from EMS)
+- [x] Eject USB (from EMS)
 
 ## Navigation
 
@@ -73,14 +73,12 @@ Main Nav:
 
 - [x] Definition
 - [x] Ballots
-- [x] Test Deck Results
-- [ ] Results
-- [ ] Cards
+- [x] Cards
+- [x] Tally
 
 User Nav
 
-- [ ] Eject USB
-- [ ] Unconfigure
+- [x] Eject USB
 
 ## Future Features
 
