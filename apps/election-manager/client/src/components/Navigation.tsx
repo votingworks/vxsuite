@@ -56,7 +56,20 @@ const PrimaryNav = styled.div`
     }
   }
 `
-const SecondaryNav = styled.div``
+const SecondaryNav = styled.div`
+  margin: 0 1rem;
+  align-self: center;
+  & > * {
+    margin: 0 0.25rem;
+    &:first-child {
+      margin-left: 0;
+    }
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+`
 
 const Navigation = ({ brand, primaryNav, secondaryNav }: Props) => {
   return (
