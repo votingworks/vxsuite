@@ -24,6 +24,8 @@ const BallotScreen = () => {
   const precinctName = getPrecinctById({ election, precinctId })?.name
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!
 
+  const ballotContests = getContests({ ballotStyle, election })
+
   return (
     <React.Fragment>
       <NavigationScreen>
@@ -45,8 +47,8 @@ const BallotScreen = () => {
           </Monospace>
         </p>
         <HorizontalRule />
-        <p>Ballot style {ballotStyle.id} has {pluralize('contest', election.contests.length, true)}:</p>
-        {getContests({ ballotStyle, election })
+        <p><strong>Ballot style {ballotStyle.id}</strong> has the following <strong>{pluralize('contest', ballotContests.length, true)}</strong>.</p>
+        {ballotContests
           .map(contest => (
             <React.Fragment key={contest.id}>
               <h3>{contest.title}</h3>

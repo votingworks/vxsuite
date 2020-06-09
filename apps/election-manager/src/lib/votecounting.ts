@@ -4,6 +4,7 @@ import {
   ContestOptionTally,
   Dictionary,
   ElectionTally,
+  FullElectionTally,
   VotesByPrecinct,
   CastVoteRecord,
 } from '../config/types'
@@ -173,7 +174,7 @@ interface FullTallyParams {
   votesByPrecinct: VotesByPrecinct
 }
 
-export function fullTallyVotes({ election, votesByPrecinct }: FullTallyParams) {
+export function fullTallyVotes({ election, votesByPrecinct }: FullTallyParams): FullElectionTally {
   const precinctTallies: Dictionary<ElectionTally> = {}
 
   let allVotes: VotesDict[] = []

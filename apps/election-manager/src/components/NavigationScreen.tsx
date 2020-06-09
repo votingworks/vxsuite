@@ -51,15 +51,15 @@ const NavigationScreen = ({
               >
                 Ballots
               </LinkButton>
-              <LinkButton small to={routerPaths.testDecksResults}
-                className={isActiveSection(routerPaths.testDecksResults)}
-              >
-                Test Deck Results
-              </LinkButton>
               <LinkButton small to={routerPaths.smartCards}
                 className={isActiveSection(routerPaths.smartCards)}
               >
-                SmartCards
+                Cards
+              </LinkButton>
+              <LinkButton small to={routerPaths.tally}
+                className={isActiveSection(routerPaths.tally)}
+              >
+                Tally
               </LinkButton>
             </React.Fragment>
           )

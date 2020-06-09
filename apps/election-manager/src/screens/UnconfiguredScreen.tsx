@@ -240,8 +240,6 @@ const UnconfiguredScreen = () => {
         {vxElectionFileIsInvalid && <Invalid>Invalid Vx Election Definition file.</Invalid>}
         <p>
           <FileInputButton
-            id="vx-election"
-            name="vx-election"
             accept=".json,application/json"
             onChange={handleVxElectionFile}
           >

@@ -1,3 +1,5 @@
+import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
+
 import { OptionalElection } from '@votingworks/ballot-encoder'
 import {
   Candidate,
@@ -26,7 +28,9 @@ export interface BallotScreenProps {
   ballotStyleId: string
   precinctId: string
 }
-
+export interface PrecinctReportScreenProps {
+  precinctId: string
+}
 
 // Tallies
 export type ContestOption = Candidate | 'yes' | 'no'
@@ -59,3 +63,14 @@ export interface CastVoteRecord extends Dictionary<string | string[]> {
   _ballotId: string
   _ballotStyleId: string
 }
+
+// Cast Vote Records
+export interface CastVoteRecordFile {
+  readonly name: string
+  readonly count: number
+  readonly precinctIds: readonly string[]
+}
+export type CastVoteRecordFilesDictionary = Dictionary<CastVoteRecordFile>
+export type SetCastVoteRecordFilesFunction = React.Dispatch<
+  React.SetStateAction<CastVoteRecordFiles>
+>

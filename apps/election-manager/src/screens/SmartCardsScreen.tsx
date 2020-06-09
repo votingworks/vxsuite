@@ -26,9 +26,8 @@ const SmartCardsScreen = () => {
       await fetch('/card/write_protect_override', {
         method: 'post',
       })
-      window.setTimeout(() => {
-        setIsProgrammingCard(false)
-      }, 1000)
+      await sleep()
+      setIsProgrammingCard(false)
       return
     }
 
