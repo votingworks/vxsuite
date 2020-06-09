@@ -21,6 +21,7 @@ import { filterTalliesByParty, tallyVotes } from '../lib/votecounting'
 import find from '../utils/find'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
+import { PrecinctReportScreenProps } from '../config/types'
 
 const ElectionTallyReport = styled.div`
   page-break-before: always;
@@ -88,7 +89,7 @@ const allPrecincts: Precinct = {
 const TestDeckScreen = () => {
   const { election: e } = useContext(AppContext)
   const election = e!
-  const { precinctId: p = '' } = useParams()
+  const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
   const precinctId = p.trim()
 
   const precinct = precinctId === 'all'
@@ -102,7 +103,7 @@ const TestDeckScreen = () => {
     new Set(election.ballotStyles.map(bs => bs.partyId))
   )
 
-  const pageTitle = 'Test Ballot Deck Results'
+  const pageTitle = 'Test Ballot Deck Tally'
 
   if (precinct?.name) {
     return (
@@ -119,6 +120,11 @@ const TestDeckScreen = () => {
               <Button primary onPress={window.print}>
                 Print Results Report
               </Button>
+            </p>
+            <p>
+              <LinkButton small to={routerPaths.testDecksTally}>
+                back to Test Deck list
+              </LinkButton>
             </p>
           </Prose>
         </NavigationScreen>
