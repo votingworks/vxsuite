@@ -1,4 +1,5 @@
 import * as chokidar from 'chokidar'
+import makeDebug from 'debug'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
@@ -15,6 +16,8 @@ import DefaultInterpreter, {
 import { Scanner } from './scanner'
 import pdfToImages from './util/pdfToImages'
 
+const debug = makeDebug('module-scan:importer')
+
 export interface Options {
   store: Store
   scanner: Scanner
@@ -27,11 +30,13 @@ export interface Importer {
   addHmpbTemplate(imageData: ImageData): Promise<BallotPageMetadata>
   addHmpbTemplates(pdf: Buffer): Promise<BallotPageMetadata[]>
   addManualBallot(encodedBallot: Uint8Array): Promise<void>
-  configure(newElection: Election): void
+  configure(newElection: Election): Promise<void>
   doExport(): Promise<string>
   doImport(): Promise<void>
   doZero(): Promise<void>
   getStatus(): Promise<{ batches: BatchInfo[]; electionHash?: string }>
+  restoreConfig(): Promise<void>
+  setTestMode(testMode: boolean): Promise<void>
   unconfigure(): Promise<void>
 }
 
@@ -41,7 +46,6 @@ export class HmpbInterpretationError extends Error {}
  * Imports ballot images from a `Scanner` and stores them in a `Store`.
  */
 export default class SystemImporter implements Importer {
-  private election?: Election
   private watcher?: chokidar.FSWatcher
   private store: Store
   private scanner: Scanner
@@ -75,9 +79,9 @@ export default class SystemImporter implements Importer {
     this.importedBallotImagesPath = importedBallotImagesPath
 
     // make sure those directories exist
-    for (const imagesPat of [ballotImagesPath, importedBallotImagesPath]) {
-      if (!fs.existsSync(imagesPat)) {
-        fs.mkdirSync(imagesPat)
+    for (const imagesPath of [ballotImagesPath, importedBallotImagesPath]) {
+      if (!fs.existsSync(imagesPath)) {
+        fs.mkdirSync(imagesPath)
       }
     }
   }
@@ -107,7 +111,7 @@ export default class SystemImporter implements Importer {
     imageData: ImageData,
     metadata?: BallotPageMetadata
   ): Promise<BallotPageMetadata> {
-    const { election } = this
+    const election = await this.store.getElection()
 
     if (!election) {
       throw new Error(
@@ -123,7 +127,9 @@ export default class SystemImporter implements Importer {
    * the data encoded by the QR code.
    */
   public async addManualBallot(encodedBallot: Uint8Array): Promise<void> {
-    if (!this.election) {
+    const election = await this.store.getElection()
+
+    if (!election) {
       return
     }
 
@@ -132,7 +138,7 @@ export default class SystemImporter implements Importer {
     }
 
     const cvr = interpretBallotData({
-      election: this.election,
+      election,
       encodedBallot,
     })
 
@@ -146,7 +152,7 @@ export default class SystemImporter implements Importer {
    * watching for scanned images to import.
    */
   public async configure(newElection: Election): Promise<void> {
-    this.election = newElection
+    await this.store.setElection(newElection)
 
     // start watching the ballots
     this.watcher = chokidar.watch(this.ballotImagesPath, {
@@ -167,11 +173,45 @@ export default class SystemImporter implements Importer {
     })
   }
 
+  public async setTestMode(testMode: boolean): Promise<void> {
+    debug('setting test mode to %s', testMode)
+    await this.doZero()
+    this.interpreter.setTestMode(testMode)
+  }
+
+  /**
+   * Restore configuration from the store.
+   */
+  public async restoreConfig(): Promise<void> {
+    const election = await this.store.getElection()
+    const testMode = await this.store.getTestMode()
+    debug(
+      'restoring election (title=%s) and test mode (%s) config',
+      election?.title,
+      testMode
+    )
+    if (election) {
+      await this.configure(election)
+    }
+    this.interpreter.setTestMode(testMode)
+
+    for (const [pdf, metadata] of await this.store.getHmpbTemplates()) {
+      if (metadata.isTestBallot === testMode) {
+        debug('reloading existing HMPB template: %O', metadata)
+        await this.addHmpbTemplates(pdf)
+      } else {
+        debug('skipping existing HMPB template: %O', metadata)
+      }
+    }
+  }
+
   /**
    * Callback for chokidar to inform us that a new file was seen.
    */
   private async fileAdded(ballotImagePath: string): Promise<void> {
-    if (!this.election) {
+    const election = await this.store.getElection()
+
+    if (!election) {
       return
     }
 
@@ -192,7 +232,7 @@ export default class SystemImporter implements Importer {
     const batchId = parseInt(batchIdMatch[1], 10)
 
     const cvr = await this.interpreter.interpretFile({
-      election: this.election,
+      election,
       ballotImagePath,
     })
 
@@ -246,7 +286,9 @@ export default class SystemImporter implements Importer {
    * Create a new batch and scan as many images as we can into it.
    */
   public async doImport(): Promise<void> {
-    if (!this.election) {
+    const election = await this.store.getElection()
+
+    if (!election) {
       throw new Error('no election configuration')
     }
 
@@ -270,7 +312,9 @@ export default class SystemImporter implements Importer {
    * Export the current CVRs to a string.
    */
   public async doExport(): Promise<string> {
-    if (!this.election) {
+    const election = await this.store.getElection()
+
+    if (!election) {
       return ''
     }
 
@@ -283,7 +327,7 @@ export default class SystemImporter implements Importer {
    * Reset all the data, both in the store and the ballot images.
    */
   public async doZero(): Promise<void> {
-    await this.store.init(true)
+    await this.store.zero()
     fsExtra.emptyDirSync(this.ballotImagesPath)
     fsExtra.emptyDirSync(this.importedBallotImagesPath)
     this.manualBatchId = undefined
@@ -296,8 +340,9 @@ export default class SystemImporter implements Importer {
     electionHash?: string
     batches: BatchInfo[]
   }> {
+    const election = await this.store.getElection()
     const batches = await this.store.batchStatus()
-    if (this.election) {
+    if (election) {
       return { electionHash: 'hashgoeshere', batches }
     }
     return { batches }
@@ -308,7 +353,7 @@ export default class SystemImporter implements Importer {
    */
   public async unconfigure(): Promise<void> {
     await this.doZero()
-    this.election = undefined
+    await this.store.setElection(undefined)
     if (this.watcher) {
       this.watcher.close()
     }

@@ -6,12 +6,12 @@
 import express, { Application, RequestHandler } from 'express'
 import multer from 'multer'
 import * as path from 'path'
-import { Election } from '@votingworks/ballot-encoder'
 
 import SystemImporter, { Importer } from './importer'
 import makeTemporaryBallotImportImageDirectories from './util/makeTemporaryBallotImportImageDirectories'
 import Store from './store'
 import { FujitsuScanner, Scanner } from './scanner'
+import { BallotMetadata } from './types'
 
 export interface AppOptions {
   store: Store
@@ -28,21 +28,48 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.use(express.json())
 
-  app.get('/config/election', async (_request, response) => {
-    response.json(await store.getElection())
+  app.get('/config', async (_request, response) => {
+    response.json({
+      election: await store.getElection(),
+      testMode: await store.getTestMode(),
+    })
   })
 
-  app.put('/config/election', async (request, response) => {
-    // store the election file
-    const election = request.body as Election
-    importer.configure(election)
-    await store.setElection(election)
-    response.json({ status: 'ok' })
-  })
+  app.patch('/config', async (request, response) => {
+    for (const key in request.body) {
+      if (Object.prototype.hasOwnProperty.call(request.body, key)) {
+        const value = request.body[key]
 
-  app.delete('/config/election', async (_request, response) => {
-    await importer.unconfigure()
-    await store.setElection(undefined)
+        switch (key) {
+          case 'election':
+            // eslint-disable-next-line no-null/no-null
+            if (value === null) {
+              await importer.unconfigure()
+            } else {
+              await importer.configure(value)
+              await store.setElection(value)
+            }
+            break
+
+          case 'testMode':
+            await importer.setTestMode(value)
+            await store.setTestMode(value)
+            break
+
+          default:
+            response.status(400).json({
+              errors: [
+                {
+                  type: 'unexpected-property',
+                  message: `unexpected property '${key}'`,
+                },
+              ],
+            })
+            return
+        }
+      }
+    }
+
     response.json({ status: 'ok' })
   })
 
@@ -67,37 +94,71 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.post(
     '/scan/hmpb/addTemplates',
-    upload.array('ballots') as RequestHandler,
+    upload.fields([
+      { name: 'ballots' },
+      { name: 'metadatas' },
+    ]) as RequestHandler,
     async (request, response) => {
+      const isTestMode = await store.getTestMode()
+
+      /* istanbul ignore next */
+      if (Array.isArray(request.files)) {
+        response.status(400).json({
+          errors: [
+            {
+              type: 'missing-ballot-files',
+              message: `expected ballot files in "ballots" and "metadatas" fields, but no files were found`,
+            },
+          ],
+        })
+        return
+      }
+
       try {
-        for (const file of request.files as Express.Multer.File[]) {
-          if (file.mimetype !== 'application/pdf') {
+        const { ballots = [], metadatas = [] } = request.files
+
+        for (let i = 0; i < ballots.length; i++) {
+          const ballotFile = ballots[i]
+          const metadataFile = metadatas[i]
+
+          if (ballotFile?.mimetype !== 'application/pdf') {
             response.status(400).json({
               errors: [
                 {
                   type: 'invalid-ballot-type',
-                  message: `expected ballot files to be application/pdf, but got ${file.mimetype}`,
+                  message: `expected ballot files to be application/pdf, but got ${ballotFile?.mimetype}`,
                 },
               ],
             })
             return
           }
 
-          const metadatas = await importer.addHmpbTemplates(file.buffer)
-
-          if (metadatas.length > 0) {
-            const metadata = metadatas[0]
-
-            await store.addHmpbTemplate(file.buffer, {
-              ballotStyleId: metadata.ballotStyleId,
-              precinctId: metadata.precinctId,
-              isTestBallot: metadata.isTestBallot,
+          if (metadataFile?.mimetype !== 'application/json') {
+            response.status(400).json({
+              errors: [
+                {
+                  type: 'invalid-metadata-type',
+                  message: `expected ballot metadata to be application/json, but got ${metadataFile?.mimetype}`,
+                },
+              ],
             })
+            return
+          }
+
+          const metadata: BallotMetadata = JSON.parse(
+            new TextDecoder().decode(metadataFile.buffer)
+          )
+
+          await store.addHmpbTemplate(ballotFile.buffer, metadata)
+
+          if (metadata.isTestBallot === isTestMode) {
+            await importer.addHmpbTemplates(ballotFile.buffer)
           }
         }
 
         response.json({ status: 'ok' })
       } catch (error) {
+        console.log(error)
         response.status(500).json({
           errors: [
             {
@@ -166,16 +227,7 @@ export async function start({
   log = console.log,
 }: Partial<StartOptions> = {}): Promise<void> {
   await store.init()
-
-  const election = await store.getElection()
-  if (election) {
-    importer.configure(election)
-  }
-
-  for (const [pdf, metadata] of await store.getHmpbTemplates()) {
-    log('Re-loading existing HMPB template', metadata)
-    await importer.addHmpbTemplates(pdf)
-  }
+  await importer.restoreConfig()
 
   app.listen(port, () => {
     log(`Listening at http://localhost:${port}/`)

@@ -40,8 +40,8 @@ test('going through the whole process works', async () => {
   const waiter = getScannerCVRCountWaiter(importer)
 
   await request(app)
-    .put('/config/election')
-    .send(election)
+    .patch('/config')
+    .send({ election })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -49,6 +49,19 @@ test('going through the whole process works', async () => {
   await request(app)
     .post('/scan/hmpb/addTemplates')
     .attach('ballots', join(electionFixturesRoot, 'ballot.pdf'))
+    .attach(
+      'metadatas',
+      Buffer.from(
+        new TextEncoder().encode(
+          JSON.stringify({
+            ballotStyleId: '77',
+            precinctId: '42',
+            isTestBallot: false,
+          })
+        )
+      ),
+      { filename: 'metadata.json', contentType: 'application/json' }
+    )
     .expect(200)
 
   await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })

@@ -42,6 +42,7 @@ export interface Interpreter {
   interpretFile(
     interpretFileParams: InterpretFileParams
   ): Promise<CastVoteRecord | undefined>
+  setTestMode(testMode: boolean): void
 }
 
 const readFile = promisify(readFileCallback)
@@ -132,6 +133,7 @@ export async function getBallotImageData(
 
 export default class SummaryBallotInterpreter implements Interpreter {
   private hmpbInterpreter?: HMPBInterpreter
+  private testMode?: boolean
 
   async addHmpbTemplate(
     election: Election,
@@ -145,11 +147,12 @@ export default class SummaryBallotInterpreter implements Interpreter {
     metadata = result.ballotImage.metadata
 
     debug(
-      'Added HMPB template page %d/%d: ballotStyleId=%s precinctId=%s',
+      'Added HMPB template page %d/%d: ballotStyleId=%s precinctId=%s isTestBallot=%s',
       metadata.pageNumber,
       metadata.pageCount,
       metadata.ballotStyleId,
-      metadata.precinctId
+      metadata.precinctId,
+      metadata.isTestBallot
     )
 
     return metadata
@@ -173,6 +176,11 @@ export default class SummaryBallotInterpreter implements Interpreter {
       (await this.interpretBMDFile(election, ballotImageData)) ??
       (await this.interpretHMPBFile(election, ballotImageData))
     )
+  }
+
+  public setTestMode(testMode: boolean): void {
+    this.testMode = testMode
+    this.hmpbInterpreter = undefined
   }
 
   private async interpretBMDFile(
@@ -203,7 +211,10 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
   private getHmbpInterpreter(election: Election): HMPBInterpreter {
     if (!this.hmpbInterpreter) {
-      this.hmpbInterpreter = new HMPBInterpreter(election)
+      this.hmpbInterpreter = new HMPBInterpreter({
+        election,
+        testMode: this.testMode,
+      })
     }
     return this.hmpbInterpreter
   }

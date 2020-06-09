@@ -765,9 +765,9 @@
 
     
     function doConfigure() {
-    fetch('/config/election', {
+    fetch('/config', {
     method: 'PUT',
-    body: JSON.stringify(election),
+    body: JSON.stringify({ election }),
     headers: {
     'Content-Type': 'application/json'
     }

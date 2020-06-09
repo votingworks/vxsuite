@@ -59,8 +59,8 @@ test('going through the whole process works', async () => {
   }
 
   await request(app)
-    .put('/config/election')
-    .send(election)
+    .patch('/config')
+    .send({ election })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -215,5 +215,6 @@ test('going through the whole process works', async () => {
   }
 
   // clean up
-  await request(app).delete('/config/election')
+  // eslint-disable-next-line no-null/no-null
+  await request(app).patch('/config').send({ election: null })
 })
