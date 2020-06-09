@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import { eject } from '../lib/usbstick'
 
 import AppContext from '../contexts/AppContext'
 
@@ -9,6 +10,7 @@ import Screen from './Screen'
 import Main, { MainChild } from './Main'
 import Navigation from './Navigation'
 import LinkButton from './LinkButton'
+import Button from './Button'
 
 interface Props {
   children: React.ReactNode
@@ -64,6 +66,11 @@ const NavigationScreen = ({
             </React.Fragment>
           )
         }
+        secondaryNav={election && (
+          <React.Fragment>
+            <Button small onPress={eject}>Eject USB</Button>
+          </React.Fragment>
+        )}
       />
     </Screen>
   )
