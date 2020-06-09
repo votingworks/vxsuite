@@ -1,10 +1,11 @@
-import { Application } from 'express'
-import request from 'supertest'
 import { electionSample as election } from '@votingworks/ballot-encoder'
-import { buildApp, start } from './server'
-import { Importer } from './importer'
-import Store from './store'
+import { Application } from 'express'
 import { Server } from 'http'
+import request from 'supertest'
+import { makeMockImporter } from '../test/util/mocks'
+import { Importer } from './importer'
+import { buildApp, start } from './server'
+import Store from './store'
 
 jest.mock('./importer')
 
@@ -12,20 +13,6 @@ let app: Application
 let importer: Importer
 let store: Store
 let importerMock: jest.Mocked<Importer>
-
-function makeMockImporter(): jest.Mocked<Importer> {
-  return {
-    addHmpbTemplate: jest.fn(),
-    addHmpbTemplates: jest.fn(),
-    addManualBallot: jest.fn(),
-    configure: jest.fn(),
-    doExport: jest.fn(),
-    doImport: jest.fn(),
-    doZero: jest.fn(),
-    getStatus: jest.fn(),
-    unconfigure: jest.fn(),
-  }
-}
 
 beforeEach(async () => {
   importer = makeMockImporter()
@@ -46,10 +33,10 @@ test('GET /scan/status', async () => {
   expect(importer.getStatus).toBeCalled()
 })
 
-test('PUT /config/election', async () => {
+test('PATCH /config to set election', async () => {
   await request(app)
-    .put('/config/election')
-    .send(election)
+    .patch('/config')
+    .send({ election })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -58,6 +45,49 @@ test('PUT /config/election', async () => {
       title: 'General Election',
     })
   )
+})
+
+test('PATCH /config to delete election', async () => {
+  importerMock.unconfigure.mockResolvedValue()
+
+  await request(app)
+    .patch('/config')
+    // eslint-disable-next-line no-null/no-null
+    .send({ election: null })
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+  expect(importer.unconfigure).toBeCalled()
+})
+
+test('PATCH /config to set testMode', async () => {
+  importerMock.setTestMode.mockResolvedValueOnce(undefined)
+
+  await request(app)
+    .patch('/config')
+    .send({ testMode: true })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200)
+
+  expect(importerMock.setTestMode).toHaveBeenNthCalledWith(1, true)
+
+  await request(app)
+    .patch('/config')
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .send({ testMode: false })
+    .expect(200)
+
+  expect(importerMock.setTestMode).toHaveBeenNthCalledWith(2, false)
+})
+
+test('PATCH /config rejects unknown properties', async () => {
+  await request(app)
+    .patch('/config')
+    .send({ nope: true })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(400)
 })
 
 test('POST /scan/scanBatch', async () => {
@@ -117,16 +147,6 @@ test('POST /scan/zero', async () => {
   expect(importer.doZero).toBeCalled()
 })
 
-test('DELETE /config/election', async () => {
-  importerMock.unconfigure.mockResolvedValue()
-
-  await request(app)
-    .delete('/config/election')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
-  expect(importer.unconfigure).toBeCalled()
-})
-
 test('GET /', async () => {
   const response = await request(app).get('/').expect(200)
   expect(response.text).toContain('Test Page for Scan')
@@ -151,6 +171,25 @@ test('POST /scan/hmpb/addTemplates bad template', async () => {
   })
 })
 
+test('POST /scan/hmpb/addTemplates bad metadata', async () => {
+  const response = await request(app)
+    .post('/scan/hmpb/addTemplates')
+    .attach('ballots', Buffer.of(), {
+      filename: 'ballot.pdf',
+      contentType: 'application/pdf',
+    })
+    .expect(400)
+  expect(JSON.parse(response.text)).toEqual({
+    errors: [
+      {
+        type: 'invalid-metadata-type',
+        message:
+          'expected ballot metadata to be application/json, but got undefined',
+      },
+    ],
+  })
+})
+
 test('POST /scan/hmpb/addTemplates', async () => {
   importerMock.addHmpbTemplates.mockResolvedValueOnce([
     {
@@ -168,6 +207,19 @@ test('POST /scan/hmpb/addTemplates', async () => {
       filename: 'ballot.pdf',
       contentType: 'application/pdf',
     })
+    .attach(
+      'metadatas',
+      Buffer.from(
+        new TextEncoder().encode(
+          JSON.stringify({
+            ballotStyleId: '77',
+            precinctId: '42',
+            isTestBallot: false,
+          })
+        )
+      ),
+      { filename: 'metadata.json', contentType: 'application/json' }
+    )
     .expect(200)
 
   expect(JSON.parse(response.text)).toEqual({ status: 'ok' })
@@ -186,28 +238,14 @@ test('POST /scan/hmpb/addTemplates', async () => {
 
 test('start reloads configuration from the store', async () => {
   // don't actually listen
-  jest
-    .spyOn(app, 'listen')
-    .mockReturnValueOnce((undefined as unknown) as Server)
-
-  // configure election and add a few HMPB templates
-  await store.setElection(election)
-  await store.addHmpbTemplate(Buffer.of(1), {
-    ballotStyleId: '77',
-    precinctId: '42',
-    isTestBallot: false,
-  })
-  await store.addHmpbTemplate(Buffer.of(2), {
-    ballotStyleId: '77',
-    precinctId: '43',
-    isTestBallot: false,
+  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
+    onListening?.()
+    return (undefined as unknown) as Server
   })
 
   // start up the server
   await start({ store, importer, app, log: jest.fn() })
 
   // did we load everything from the store?
-  expect(importer.configure).toHaveBeenCalledWith(election)
-  expect(importer.addHmpbTemplates).toHaveBeenNthCalledWith(1, Buffer.of(1))
-  expect(importer.addHmpbTemplates).toHaveBeenNthCalledWith(2, Buffer.of(2))
+  expect(importer.restoreConfig).toHaveBeenCalled()
 })

@@ -128,9 +128,14 @@ export default class Store {
     return new Promise((resolve) => {
       db.close(async () => {
         try {
+          debug('deleting the database file at %s', this.dbPath)
           await fs.unlink(this.dbPath)
-        } catch {
-          // ignore failure
+        } catch (error) {
+          debug(
+            'failed to delete database file %s: %s',
+            this.dbPath,
+            error.message
+          )
         }
 
         resolve()
@@ -142,6 +147,7 @@ export default class Store {
    * Creates the database including its tables.
    */
   public async dbCreate(): Promise<sqlite3.Database> {
+    debug('creating the database at %s', this.dbPath)
     this.db = await new Promise<sqlite3.Database>((resolve, reject) => {
       const db = new sqlite3.Database(this.dbPath, (err) => {
         if (err) {
@@ -159,7 +165,7 @@ export default class Store {
       'create table if not exists CVRs (id integer primary key autoincrement, batch_id integer references batches, filename text unique, cvr_json text)'
     )
     await this.dbRunAsync(
-      'create table if not exists elections (id integer primary key autoincrement, definition_json text)'
+      'create table if not exists configs (key varchar(255) unique, value text)'
     )
     await this.dbRunAsync(
       'create table if not exists hmpb_templates (id integer primary key autoincrement, pdf blob, ballot_style_id varchar(255), precinct_id varchar(255), is_test_ballot boolean)'
@@ -180,12 +186,6 @@ export default class Store {
         await this.dbDestroy()
       }
 
-      try {
-        await fs.unlink(this.dbPath)
-      } catch {
-        // ignore failure
-      }
-
       await this.dbCreate()
     }
   }
@@ -194,22 +194,67 @@ export default class Store {
    * Gets the current election definition.
    */
   public async getElection(): Promise<Election | undefined> {
-    const row = await this.dbGetAsync<{ election: string } | undefined>(
-      'select definition_json as election from elections'
-    )
-    return row ? JSON.parse(row.election) : undefined
+    return await this.getConfig('election')
   }
 
   /**
    * Sets the current election definition.
    */
   public async setElection(election?: Election): Promise<void> {
-    await this.dbRunAsync('delete from elections')
+    await this.setConfig('election', election)
+  }
 
-    if (election) {
+  /**
+   * Gets the current test mode setting value.
+   */
+  public async getTestMode(): Promise<boolean> {
+    return await this.getConfig('testMode', false)
+  }
+
+  /**
+   * Sets the current test mode setting value.
+   */
+  public async setTestMode(testMode: boolean): Promise<void> {
+    await this.setConfig('testMode', testMode)
+  }
+
+  /**
+   * Gets a config value by key.
+   */
+  private async getConfig<T>(key: string): Promise<T | undefined>
+  // eslint-disable-next-line no-dupe-class-members
+  private async getConfig<T>(key: string, defaultValue: T): Promise<T>
+  // eslint-disable-next-line no-dupe-class-members
+  private async getConfig<T>(
+    key: string,
+    defaultValue?: T
+  ): Promise<T | undefined> {
+    debug('get config %s', key)
+
+    const row = await this.dbGetAsync<{ value: string } | undefined, [string]>(
+      'select value from configs where key = ?',
+      key
+    )
+
+    if (typeof row === 'undefined') {
+      return defaultValue
+    }
+
+    return JSON.parse(row.value)
+  }
+
+  /**
+   * Sets the current election definition.
+   */
+  private async setConfig<T>(key: string, value?: T): Promise<void> {
+    debug('set config %s=%O', key, value)
+    if (typeof value === 'undefined') {
+      await this.dbRunAsync('delete from configs where key = ?', key)
+    } else {
       await this.dbRunAsync(
-        'insert into elections (definition_json) values (?)',
-        JSON.stringify(election, undefined, 2)
+        'insert or replace into configs (key, value) values (?, ?)',
+        key,
+        JSON.stringify(value)
       )
     }
   }
@@ -258,6 +303,11 @@ export default class Store {
       // this might happen on duplicate insert, which happens
       // when chokidar sometimes notices a file twice.
     }
+  }
+
+  public async zero(): Promise<void> {
+    await this.dbRunAsync('delete from CVRs')
+    await this.dbRunAsync('delete from batches')
   }
 
   /**
@@ -314,7 +364,7 @@ export default class Store {
 
   public async getHmpbTemplates(): Promise<[Buffer, BallotMetadata][]> {
     const sql =
-      'select id, pdf, ballot_style_id as ballotStyleId, precinct_id as precinctId, is_test_ballot as isTestBallot from hmpb_templates'
+      'select id, pdf, ballot_style_id as ballotStyleId, precinct_id as precinctId, is_test_ballot as isTestBallot from hmpb_templates order by id asc'
     const rows = await this.dbAllAsync<HmpbTemplatesColumns>(sql)
     const results: [Buffer, BallotMetadata][] = []
 

@@ -1,3 +1,5 @@
+import { promises as fs } from 'fs'
+import * as tmp from 'tmp'
 import Store from './store'
 import election from '../test/fixtures/hmpb-dallas-county/election'
 
@@ -11,6 +13,18 @@ test('get/set election', async () => {
 
   await store.setElection(undefined)
   expect(await store.getElection()).toBeUndefined()
+})
+
+test('get/set test mode', async () => {
+  const store = await Store.memoryStore()
+
+  expect(await store.getTestMode()).toBe(false)
+
+  await store.setTestMode(true)
+  expect(await store.getTestMode()).toBe(true)
+
+  await store.setTestMode(false)
+  expect(await store.getTestMode()).toBe(false)
 })
 
 test('HMPB template handling', async () => {
@@ -34,4 +48,15 @@ test('HMPB template handling', async () => {
       },
     ],
   ])
+})
+
+test('destroy database', async () => {
+  const dbFile = tmp.fileSync()
+  const store = new Store(dbFile.name)
+
+  await store.init()
+  await fs.access(dbFile.name)
+
+  await store.dbDestroy()
+  await expect(fs.access(dbFile.name)).rejects.toThrowError('ENOENT')
 })

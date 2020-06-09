@@ -46,8 +46,7 @@ This scanner module provides the following API:
   }
   ```
 
-- `PUT /config/election` configures the scanner with an `election.json` as the
-  body
+- `PATCH /config` configures `election` with an `election.json` or `testMode`
 
 - `POST /scan/invalidateBatch` invalidates a batch
 
@@ -61,7 +60,5 @@ This scanner module provides the following API:
 - `DELETE /scan/batch/:batchId` delete a batch by ID
 
 - `POST /scan/zero` zero's all data but not the election config
-
-- `DELETE /config/election` removes all configuration information and data
 
 ## Architecture
