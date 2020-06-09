@@ -65,7 +65,7 @@ This app is intended to be used on an offline computer by an election admin.
   - [x] Load CVR files (from EMS)
   - [x] View results (from EMS)
 - [x] Unconfigure
-- [ ] Eject USB (from EMS)
+- [x] Eject USB (from EMS)
 
 ## Navigation
 
@@ -78,8 +78,7 @@ Main Nav:
 
 User Nav
 
-- [ ] Eject USB
-- [ ] Unconfigure
+- [x] Eject USB
 
 ## Future Features
 
