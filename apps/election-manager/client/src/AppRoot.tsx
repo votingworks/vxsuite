@@ -7,6 +7,7 @@ import { Election, OptionalElection } from '@votingworks/ballot-encoder'
 
 import AppContext from './contexts/AppContext'
 
+import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
 import { Storage } from './utils/Storage'
 
 import ElectionManager from './components/ElectionManager'
@@ -32,6 +33,10 @@ const AppRoot = ({ storage }: Props) => {
   const [election, setElection] = useState<OptionalElection>(getElection())
   const printBallotRef = useRef<HTMLDivElement>(null)
 
+  const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
+    CastVoteRecordFiles.empty
+  )
+
   const saveElection: SaveElection = (electionDefinition) => {
     setElection(electionDefinition)
     setElectionHash(electionDefinition ? ObjectHash(electionDefinition) : '')
@@ -45,9 +50,11 @@ const AppRoot = ({ storage }: Props) => {
   return (
     <AppContext.Provider
       value={{
+        castVoteRecordFiles,
         election,
         electionHash,
         printBallotRef,
+        setCastVoteRecordFiles,
         saveElection,
       }}
     >
