@@ -48,14 +48,17 @@ export interface ScanStatusResponse {
   batches: Batch[]
 }
 
-export type GetElectionRequest = {}
-export type GetElectionResponse = Election
+export type GetConfigRequest = {}
+export interface GetConfigResponse {
+  election?: Election
+  testMode: boolean
+}
 
-export type PutElectionRequest = Election
-export type PutElectionResponse = OkResponse
-
-export type DeleteElectionRequest = {}
-export type DeleteElectionResponse = OkResponse
+export interface PatchConfigRequest {
+  election?: Election | null
+  testMode?: boolean
+}
+export type PatchConfigResponse = OkResponse
 
 export type CardReadRequest = {}
 export type CardReadResponse =
