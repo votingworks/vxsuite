@@ -28,11 +28,12 @@ const HiddenFileInput = styled.input`
 type HiddenFileInputProps = Parameters<typeof HiddenFileInput>[0]
 
 interface Props {
-  accept: string
+  accept?: string
   buttonProps?: ButtonProps
-  name: string
+  name?: string
+  multiple?: boolean
   children: string
-  id: string
+  id?: string
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 

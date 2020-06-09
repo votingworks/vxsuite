@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
 
-import { BallotScreenProps } from '../config/types'
+import { BallotScreenProps, PrecinctReportScreenProps } from '../config/types'
 
 import AppContext from '../contexts/AppContext'
 
@@ -13,16 +13,23 @@ import ExportElectionBallotPackageScreen from '../screens/ExportElectionBallotPa
 import UnconfiguredScreen from '../screens/UnconfiguredScreen'
 import TestDeckScreen from '../screens/TestDeckScreen'
 import SmartCardsScreen from '../screens/SmartCardsScreen'
+import TallyScreen from '../screens/TallyScreen'
+import TallyReportScreen from '../screens/TallyReportScreen'
 
 export const routerPaths = {
   root: '/',
   electionDefinition: '/definition',
-  testDecksResults: '/test-deck-results/',
-  testDeckResultsReport: ({ precinctId }: { precinctId: string }) => `/test-deck-results/${precinctId}`,
   ballotsList: '/ballots',
   ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps) =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
   smartCards: `/smartcards`,
+  tally: `/tally`,
+  tallyReport: ({ precinctId }: PrecinctReportScreenProps) =>
+    `/tally/precinct/${precinctId}`,
+  tallyFullReport: `/tally/full`,
+  testDecksTally: '/tally/test-ballot-deck',
+  testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps) =>
+    `/tally/test-ballot-deck/${precinctId}`,
   export: '/export-election-ballot-package',
 }
 
@@ -46,7 +53,7 @@ const ElectionManager = () => {
       </Route>
       <Route path={[
         routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
-        routerPaths.testDecksResults,
+        routerPaths.testDecksTally,
       ]}>
         <TestDeckScreen />
       </Route>
@@ -63,6 +70,15 @@ const ElectionManager = () => {
       </Route>
       <Route path={routerPaths.smartCards}>
         <SmartCardsScreen />
+      </Route>
+      <Route exact path={routerPaths.tally}>
+        <TallyScreen />
+      </Route>
+      <Route path={[
+        routerPaths.tallyReport({ precinctId: ':precinctId' }),
+        routerPaths.tallyFullReport,
+      ]}>
+        <TallyReportScreen />
       </Route>
       <Redirect to={routerPaths.ballotsList} />
     </Switch>
