@@ -35,7 +35,7 @@ module.exports = {
     project: './tsconfig.json',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'jest', 'no-null', 'react', 'jsx-a11y'],
+  plugins: ['@typescript-eslint', 'jest', 'react', 'jsx-a11y'],
   settings: {
     react: {
       version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
@@ -64,7 +64,6 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', {
       'vars': 'all'
     }],
-    'no-null/no-null': 2, // TypeScript with strictNullChecks
     'no-restricted-syntax': 'off',
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],

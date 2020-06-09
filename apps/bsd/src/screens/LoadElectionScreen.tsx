@@ -8,7 +8,7 @@ import Screen from '../components/Screen'
 import Text from '../components/Text'
 import { SetElection } from '../config/types'
 import { readBallotPackage, BallotPackageEntry } from '../util/ballot-package'
-import { put as putElection } from '../api/election'
+import { patch as patchConfig } from '../api/config'
 
 interface Props {
   setElection: SetElection
@@ -33,14 +33,14 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
       if (isElectionJSON) {
         reader.onload = async () => {
           const election = JSON.parse(reader.result as string)
-          await putElection(election)
+          await patchConfig({ election })
           setElection(election)
         }
 
         reader.readAsText(file)
       } else {
         readBallotPackage(file).then(async (pkg) => {
-          await putElection(pkg.election)
+          await patchConfig({ election: pkg.election })
           setCurrentUploadingBallotIndex(0)
           setTotalTemplates(pkg.ballots.length)
 
@@ -51,7 +51,40 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
 
             body.append(
               'ballots',
-              new Blob([ballot.live, ballot.test], { type: 'application/pdf' })
+              new Blob([ballot.live], { type: 'application/pdf' })
+            )
+
+            body.append(
+              'metadatas',
+              new Blob(
+                [
+                  JSON.stringify({
+                    precinctId: ballot.precinct.id,
+                    ballotStyleId: ballot.ballotStyle.id,
+                    isTestBallot: false,
+                  }),
+                ],
+                { type: 'application/json' }
+              )
+            )
+
+            body.append(
+              'ballots',
+              new Blob([ballot.test], { type: 'application/pdf' })
+            )
+
+            body.append(
+              'metadatas',
+              new Blob(
+                [
+                  JSON.stringify({
+                    precinctId: ballot.precinct.id,
+                    ballotStyleId: ballot.ballotStyle.id,
+                    isTestBallot: true,
+                  }),
+                ],
+                { type: 'application/json' }
+              )
             )
 
             // eslint-disable-next-line no-await-in-loop

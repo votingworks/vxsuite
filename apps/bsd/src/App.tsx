@@ -23,11 +23,7 @@ import DashboardScreen from './screens/DashboardScreen'
 import 'normalize.css'
 import './App.css'
 import fetchJSON from './util/fetchJSON'
-import {
-  delete as deleteElection,
-  get as getElection,
-  put as putElection,
-} from './api/election'
+import { get as getConfig, patch as patchConfig } from './api/config'
 
 const App: React.FC = () => {
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
@@ -36,13 +32,17 @@ const App: React.FC = () => {
   const [pendingDeleteBatchIds, setPendingDeleteBatchIds] = useState<number[]>(
     []
   )
+  const [isTestMode, setTestMode] = useState<boolean>()
   const [status, setStatus] = useState<ScanStatusResponse>({ batches: [] })
   const [loadingElection, setLoadingElection] = useState(false)
   const { batches } = status
   const isScanning = batches && batches[0] && !batches[0].endedAt
 
   useEffect(() => {
-    getElection().then(setElection)
+    getConfig().then((config) => {
+      setElection(config.election)
+      setTestMode(config.testMode)
+    })
   }, [])
 
   const updateStatus = useCallback(async () => {
@@ -56,7 +56,7 @@ const App: React.FC = () => {
   const configureServer = useCallback(
     async (configuredElection: Election) => {
       try {
-        await putElection(configuredElection)
+        await patchConfig({ election: configuredElection })
         updateStatus()
       } catch (error) {
         console.log('failed configureServer()', error) // eslint-disable-line no-console
@@ -75,7 +75,7 @@ const App: React.FC = () => {
 
   const unconfigureServer = useCallback(async () => {
     try {
-      await deleteElection()
+      await patchConfig({ election: null })
       setElection(undefined)
     } catch (error) {
       console.log('failed unconfigureServer()', error) // eslint-disable-line no-console
@@ -154,6 +154,14 @@ const App: React.FC = () => {
     }
   }, [])
 
+  const toggleTestMode = useCallback(async () => {
+    // eslint-disable-next-line no-restricted-globals, no-alert
+    if (confirm('Toggling test mode will zero out your scans. Are you sure?')) {
+      setTestMode(!isTestMode)
+      await patchConfig({ testMode: !isTestMode })
+    }
+  }, [isTestMode, setTestMode])
+
   const exportResults = useCallback(async () => {
     try {
       const response = await fetch(`/scan/export`, {
@@ -217,7 +225,17 @@ const App: React.FC = () => {
           </MainChild>
         </Main>
         <ButtonBar secondary naturalOrder separatePrimaryButton>
-          <Brand>VxScan</Brand>
+          <Brand>
+            VxScan
+            {isTestMode && (
+              <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
+            )}
+          </Brand>
+          {typeof isTestMode === 'boolean' && (
+            <Button onClick={toggleTestMode}>
+              {isTestMode ? 'Live mode…' : 'Test mode…'}
+            </Button>
+          )}
           <Button onClick={unconfigureServer}>Factory Reset</Button>
           <Button onClick={zeroData}>Zero</Button>
           <Button onClick={ejectUSB}>Eject USB</Button>
