@@ -1,9 +1,9 @@
-import * as fs from 'fs'
-import { promisify } from 'util'
-import { join } from 'path'
+import makeDebug from 'debug'
+import { promises as fs } from 'fs'
+import { extname, join } from 'path'
 import { Scanner } from './scanner'
 
-const copyFile = promisify(fs.copyFile)
+const debug = makeDebug('module-scan:LoopScanner')
 
 /**
  * Provides mock scanning services by copying the same set of images over and
@@ -36,13 +36,21 @@ export default class LoopScanner implements Scanner {
    * @param prefix a prefix to use for the scanned filename
    */
   public async scanInto(directory: string, prefix?: string): Promise<void> {
-    this.id += 1
     const { id } = this
     const imagePath = this.getImagePathToScanAtOffset(id)
+    const ext = extname(imagePath)
+    this.id += 1
 
-    process.stdout.write(
-      `mock scanning ${imagePath} into ${directory} with prefix '${prefix}'\n`
+    debug(
+      `mock scanning %s into %s with prefix '%s'`,
+      imagePath,
+      directory,
+      prefix
     )
-    await copyFile(imagePath, join(directory, `${prefix}-${id}`))
+
+    await fs.copyFile(
+      imagePath,
+      join(directory, prefix ? `${prefix}-${id + 1}${ext}` : `${id + 1}${ext}`)
+    )
   }
 }

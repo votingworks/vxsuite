@@ -25,7 +25,7 @@ yarn test
 yarn start
 
 # mock scanner
-MOCK_SCANNER=1 yarn start
+MOCK_SCANNER_FILES=file1.jpg,file2.jpg yarn start
 ```
 
 ## API Documentation
