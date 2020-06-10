@@ -33,7 +33,7 @@ module.exports = {
     project: './tsconfig.json',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'jest', 'no-null'],
+  plugins: ['@typescript-eslint', 'jest'],
   settings: {
     'import/parsers': {
       '@typescript-eslint/parser': tsExtensions,
@@ -65,7 +65,6 @@ module.exports = {
       },
     ],
     'lines-between-class-members': 'off',
-    'no-null/no-null': 2, // TypeScript with strictNullChecks
     strict: 0,
   },
 }

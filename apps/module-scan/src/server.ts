@@ -42,7 +42,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
         switch (key) {
           case 'election':
-            // eslint-disable-next-line no-null/no-null
             if (value === null) {
               await importer.unconfigure()
             } else {
