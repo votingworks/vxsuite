@@ -62,6 +62,7 @@ export interface GetBallotOptions {
 
 export interface Interpreted {
   matchedTemplate: BallotPageLayout
+  mappedBallot: ImageData
   metadata: BallotPageMetadata
   marks: BallotMark[]
   ballot: CompletedBallot
@@ -69,6 +70,7 @@ export interface Interpreted {
 
 export interface FindMarksResult {
   matchedTemplate: BallotPageLayout
+  mappedBallot: ImageData
   metadata: BallotPageMetadata
   marks: BallotMark[]
 }
