@@ -7,6 +7,7 @@
 
 const express = require('express')
 
+const proxy = require('../client/src/setupProxy')
 const app = express()
 const port = 3000
 
@@ -15,9 +16,7 @@ app.use((req, res, next) => {
   next()
 })
 
-// we might eventually want this proxy but not yet.
-// const proxy = require('../client/src/setupProxy')
-//proxy(app)
+proxy(app)
 
 app.use('/', express.static('../client/build'))
 
