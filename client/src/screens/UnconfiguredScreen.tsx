@@ -188,7 +188,7 @@ const UnconfiguredScreen = () => {
         <Prose textCenter>
           <h1>Convert from SEMS files</h1>
           <p> Select the following files from a USB drive, etc.</p>
-          {inputConversionFiles.map((file: VxFile, i: number) =>
+          {inputConversionFiles.map((file: VxFile) =>
             file.path ? (
               <Loaded key={file.name}>{`Loaded ${file.name}`}</Loaded>
             ) : (
@@ -198,7 +198,6 @@ const UnconfiguredScreen = () => {
                     buttonProps={{
                       fullWidth: true,
                     }}
-                    id={`f${i}`}
                     name={file.name}
                     onChange={handleFileInput}
                   >
