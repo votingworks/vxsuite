@@ -52,7 +52,6 @@ test('PATCH /config to delete election', async () => {
 
   await request(app)
     .patch('/config')
-    // eslint-disable-next-line no-null/no-null
     .send({ election: null })
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })

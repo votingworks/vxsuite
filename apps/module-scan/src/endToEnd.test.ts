@@ -215,6 +215,5 @@ test('going through the whole process works', async () => {
   }
 
   // clean up
-  // eslint-disable-next-line no-null/no-null
   await request(app).patch('/config').send({ election: null })
 })
