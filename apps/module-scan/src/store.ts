@@ -84,10 +84,13 @@ export default class Store {
    *
    * await store.dbAllAsync('select * from muppets')
    */
-  public async dbAllAsync<T>(sql: string): Promise<T[]> {
+  public async dbAllAsync<T, P extends unknown[] = []>(
+    sql: string,
+    ...params: P
+  ): Promise<T[]> {
     const db = await this.getDb()
     return new Promise((resolve, reject) => {
-      db.all(sql, [], (err, rows: T[]) => {
+      db.all(sql, params, (err, rows: T[]) => {
         if (err) {
           reject(err)
         } else {
