@@ -16,6 +16,8 @@ import {
 import {
   Interpreter as HMPBInterpreter,
   BallotPageMetadata,
+  BallotMark,
+  Size,
 } from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
@@ -33,6 +35,17 @@ export interface InterpretFileParams {
   readonly ballotImagePath: string
 }
 
+export interface MarkInfo {
+  marks: BallotMark[]
+  ballotSize: Size
+}
+
+export interface InterpretedBallot {
+  cvr: CastVoteRecord
+  normalizedImage: ImageData
+  marks?: MarkInfo
+}
+
 export interface Interpreter {
   addHmpbTemplate(
     election: Election,
@@ -41,7 +54,7 @@ export interface Interpreter {
   ): Promise<BallotPageMetadata>
   interpretFile(
     interpretFileParams: InterpretFileParams
-  ): Promise<CastVoteRecord | undefined>
+  ): Promise<InterpretedBallot | undefined>
   setTestMode(testMode: boolean): void
 }
 
@@ -52,9 +65,7 @@ interface InterpretBallotStringParams {
   readonly encodedBallot: Uint8Array
 }
 
-function ballotToCastVoteRecord(
-  ballot: CompletedBallot
-): CastVoteRecord | undefined {
+function ballotToCastVoteRecord(ballot: CompletedBallot): CastVoteRecord {
   const { election, ballotStyle, precinct, ballotId, isTestBallot } = ballot
 
   // figure out the contests
@@ -99,7 +110,7 @@ function ballotToCastVoteRecord(
 export function interpretBallotData({
   election,
   encodedBallot,
-}: InterpretBallotStringParams): CastVoteRecord | undefined {
+}: InterpretBallotStringParams): CastVoteRecord {
   const { ballot } = decodeBallot(election, encodedBallot)
   return ballotToCastVoteRecord(ballot)
 }
@@ -162,7 +173,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
   public async interpretFile({
     election,
     ballotImagePath,
-  }: InterpretFileParams): Promise<CastVoteRecord | undefined> {
+  }: InterpretFileParams): Promise<InterpretedBallot | undefined> {
     let ballotImageData: BallotImageData
 
     try {
@@ -172,10 +183,13 @@ export default class SummaryBallotInterpreter implements Interpreter {
       return
     }
 
-    return (
-      (await this.interpretBMDFile(election, ballotImageData)) ??
-      (await this.interpretHMPBFile(election, ballotImageData))
-    )
+    const bmdResult = await this.interpretBMDFile(election, ballotImageData)
+
+    if (bmdResult) {
+      return bmdResult
+    }
+
+    return await this.interpretHMPBFile(election, ballotImageData)
   }
 
   public setTestMode(testMode: boolean): void {
@@ -185,17 +199,23 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
   private async interpretBMDFile(
     election: Election,
-    { qrcode }: BallotImageData
-  ): Promise<CastVoteRecord | undefined> {
-    if (typeof detect(qrcode) !== 'undefined') {
-      return interpretBallotData({ election, encodedBallot: qrcode })
+    { qrcode, image }: BallotImageData
+  ): Promise<InterpretedBallot | undefined> {
+    if (typeof detect(qrcode) === 'undefined') {
+      return
+    }
+
+    const cvr = interpretBallotData({ election, encodedBallot: qrcode })
+
+    if (cvr) {
+      return { cvr, normalizedImage: image }
     }
   }
 
   private async interpretHMPBFile(
     election: Election,
     { image }: BallotImageData
-  ): Promise<CastVoteRecord | undefined> {
+  ): Promise<InterpretedBallot | undefined> {
     const hmpbInterpreter = this.getHmbpInterpreter(election)
 
     if (hmpbInterpreter.hasMissingTemplates()) {
@@ -205,8 +225,23 @@ export default class SummaryBallotInterpreter implements Interpreter {
       return
     }
 
-    const { ballot } = await hmpbInterpreter.interpretBallot(image)
-    return ballotToCastVoteRecord(ballot)
+    const {
+      ballot,
+      marks,
+      mappedBallot,
+    } = await hmpbInterpreter.interpretBallot(image)
+
+    return {
+      cvr: ballotToCastVoteRecord(ballot),
+      normalizedImage: mappedBallot,
+      marks: {
+        marks,
+        ballotSize: {
+          width: mappedBallot.width,
+          height: mappedBallot.height,
+        },
+      },
+    }
   }
 
   private getHmbpInterpreter(election: Election): HMPBInterpreter {

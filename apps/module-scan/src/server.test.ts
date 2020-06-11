@@ -1,6 +1,8 @@
 import { electionSample as election } from '@votingworks/ballot-encoder'
 import { Application } from 'express'
+import { promises as fs } from 'fs'
 import { Server } from 'http'
+import { join } from 'path'
 import request from 'supertest'
 import { makeMockImporter } from '../test/util/mocks'
 import { Importer } from './importer'
@@ -144,6 +146,104 @@ test('POST /scan/zero', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
   expect(importer.doZero).toBeCalled()
+})
+
+test('GET /scan/batch/:batchId', async () => {
+  const batchId = await store.addBatch()
+  await store.addCVR(batchId, '/tmp/image.jpg', {
+    _ballotId: 'abc',
+    _ballotStyleId: '77',
+    _precinctId: '42',
+    _scannerId: 'def',
+    _testBallot: false,
+  })
+  await store.finishBatch(batchId)
+
+  await request(app)
+    .get(`/scan/batch/${batchId}`)
+    .set('Accept', 'application/json')
+    .expect(200, [
+      {
+        id: 1,
+        filename: '/tmp/image.jpg',
+        cvr: {
+          _ballotId: 'abc',
+          _ballotStyleId: '77',
+          _precinctId: '42',
+          _scannerId: 'def',
+          _testBallot: false,
+        },
+      },
+    ])
+})
+
+test('GET /scan/batch/:batchId 404', async () => {
+  await request(app)
+    .get(`/scan/batch/999`)
+    .set('Accept', 'application/json')
+    .expect(404)
+})
+
+test('GET /scan/batch/:batchId/ballot/:ballotId', async () => {
+  const batchId = await store.addBatch()
+  const ballotId = await store.addCVR(batchId, '/tmp/image.jpg', {
+    _ballotId: 'abc',
+    _ballotStyleId: '77',
+    _precinctId: '42',
+    _scannerId: 'def',
+    _testBallot: false,
+  })
+  await store.finishBatch(batchId)
+
+  await request(app)
+    .get(`/scan/batch/${batchId}/ballot/${ballotId}`)
+    .set('Accept', 'application/json')
+    .expect(200, {
+      id: 1,
+      filename: '/tmp/image.jpg',
+      cvr: {
+        _ballotId: 'abc',
+        _ballotStyleId: '77',
+        _precinctId: '42',
+        _scannerId: 'def',
+        _testBallot: false,
+      },
+    })
+})
+
+test('GET /scan/batch/:batchId/ballot/:ballotId 404', async () => {
+  await request(app)
+    .get(`/scan/batch/999/ballot/111`)
+    .set('Accept', 'application/json')
+    .expect(404)
+})
+
+test('GET /scan/batch/:batchId/ballot/:ballotId/image', async () => {
+  const filename = join(
+    __dirname,
+    '../test/fixtures/hmpb-dallas-county/filled-in-p1.jpg'
+  )
+  const batchId = await store.addBatch()
+  const ballotId = await store.addCVR(batchId, filename, {
+    _ballotId: 'abc',
+    _ballotStyleId: '77',
+    _precinctId: '42',
+    _scannerId: 'def',
+    _testBallot: false,
+  })
+  await store.finishBatch(batchId)
+
+  await request(app)
+    .get(`/scan/batch/${batchId}/ballot/${ballotId}/image`)
+    .set('Accept', 'application/json')
+    .expect(200, await fs.readFile(filename))
+})
+
+test('GET /scan/batch/:batchId/ballot/:ballotId/image 404', async () => {
+  await request(app)
+    .get(`/scan/batch/999/ballot/111`)
+    .set('Accept', 'application/json')
+    .expect(404)
 })
 
 test('GET /', async () => {

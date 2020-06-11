@@ -39,14 +39,17 @@ test('does not find QR codes when there are none to find', async () => {
 })
 
 test('extracts a CVR from votes encoded in a QR code', async () => {
-  const cvr = await new SummaryBallotInterpreter().interpretFile({
-    election: electionSample,
-    ballotImagePath: join(
-      sampleBallotImagesPath,
-      'sample-batch-1-ballot-1.jpg'
-    ),
-  })
-  expect(cvr).toEqual(
+  expect(
+    (
+      await new SummaryBallotInterpreter().interpretFile({
+        election: electionSample,
+        ballotImagePath: join(
+          sampleBallotImagesPath,
+          'sample-batch-1-ballot-1.jpg'
+        ),
+      })
+    )?.cvr
+  ).toEqual(
     expect.objectContaining({
       _ballotId: 'r6UYR4t7hEFMz8QlMWf1Sw',
       _ballotStyleId: '12',
@@ -70,10 +73,12 @@ test('interprets marks on a HMPB', async () => {
   )
 
   expect(
-    await interpreter.interpretFile({
-      election: hmpbElection,
-      ballotImagePath: join(electionFixturesRoot, 'filled-in-p1.jpg'),
-    })
+    (
+      await interpreter.interpretFile({
+        election: hmpbElection,
+        ballotImagePath: join(electionFixturesRoot, 'filled-in-p1.jpg'),
+      })
+    )?.cvr
   ).toEqual(
     expect.objectContaining({
       _ballotStyleId: '77',
@@ -107,10 +112,12 @@ test('interprets marks on an upside-down HMPB', async () => {
   )
 
   expect(
-    await interpreter.interpretFile({
-      election: hmpbElection,
-      ballotImagePath: join(electionFixturesRoot, 'filled-in-p1-flipped.jpg'),
-    })
+    (
+      await interpreter.interpretFile({
+        election: hmpbElection,
+        ballotImagePath: join(electionFixturesRoot, 'filled-in-p1-flipped.jpg'),
+      })
+    )?.cvr
   ).toEqual(
     expect.objectContaining({
       _ballotStyleId: '77',

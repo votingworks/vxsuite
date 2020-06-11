@@ -8,7 +8,8 @@ import { promises as fs } from 'fs'
 import { Writable } from 'stream'
 import { Election } from '@votingworks/ballot-encoder'
 
-import { CastVoteRecord, BatchInfo, BallotMetadata } from './types'
+import { CastVoteRecord, BatchInfo, BallotMetadata, BallotInfo } from './types'
+import { MarkInfo } from './interpreter'
 
 const debug = makeDebug('module-scan:store')
 
@@ -165,7 +166,7 @@ export default class Store {
       'create table if not exists batches (id integer primary key autoincrement, startedAt datetime, endedAt datetime)'
     )
     await this.dbRunAsync(
-      'create table if not exists CVRs (id integer primary key autoincrement, batch_id integer references batches, filename text unique, cvr_json text)'
+      'create table if not exists ballots (id integer primary key autoincrement, batch_id integer references batches, filename text unique, marks_json text, cvr_json text)'
     )
     await this.dbRunAsync(
       'create table if not exists configs (key varchar(255) unique, value text)'
@@ -292,25 +293,93 @@ export default class Store {
   public async addCVR(
     batchId: number,
     filename: string,
-    cvr: CastVoteRecord
-  ): Promise<void> {
+    cvr: CastVoteRecord,
+    markInfo?: MarkInfo
+  ): Promise<number> {
     try {
       await this.dbRunAsync(
-        'insert into CVRs (batch_id, filename, cvr_json) values (?, ?, ?)',
+        'insert into ballots (batch_id, filename, cvr_json, marks_json) values (?, ?, ?, ?)',
         batchId,
         filename,
-        JSON.stringify(cvr)
+        JSON.stringify(cvr),
+        markInfo ? JSON.stringify(markInfo) : null
       )
-    } catch {
+      const { rowId } = await this.dbGetAsync(
+        'select last_insert_rowid() as rowId'
+      )
+      return parseInt(rowId, 10)
+    } catch (error) {
       // this catch effectively swallows an insert error
       // this might happen on duplicate insert, which happens
       // when chokidar sometimes notices a file twice.
+      debug('addCVR failed: %s', error)
+      const { id } = await this.dbGetAsync(
+        'select id from ballots where filename = ?',
+        filename
+      )
+      return parseInt(id, 10)
     }
   }
 
   public async zero(): Promise<void> {
-    await this.dbRunAsync('delete from CVRs')
+    await this.dbRunAsync('delete from ballots')
     await this.dbRunAsync('delete from batches')
+  }
+
+  /**
+   * Gets the batch with id `batchId`.
+   */
+  public async getBatch(batchId: number): Promise<BallotInfo[]> {
+    return (
+      await this.dbAllAsync<
+        {
+          id: number
+          filename: string
+          marksJSON?: string
+          cvrJSON?: string
+        },
+        [number]
+      >(
+        'select id, filename, marks_json as marksJSON, cvr_json as cvrJSON from ballots where batch_id = ?',
+        batchId
+      )
+    ).map((row) => ({
+      id: row.id,
+      filename: row.filename,
+      marks: row.marksJSON ? JSON.parse(row.marksJSON) : undefined,
+      cvr: row.cvrJSON ? JSON.parse(row.cvrJSON) : undefined,
+    }))
+  }
+
+  public async getBallotInfo(
+    batchId: number,
+    ballotId: number
+  ): Promise<BallotInfo | undefined> {
+    const row = await this.dbGetAsync<
+      | {
+          id: number
+          filename: string
+          marksJSON?: string
+          cvrJSON?: string
+        }
+      | undefined,
+      [number, number]
+    >(
+      'select id, filename, marks_json as marksJSON, cvr_json as cvrJSON from ballots where batch_id = ? and id = ?',
+      batchId,
+      ballotId
+    )
+
+    if (!row) {
+      return
+    }
+
+    return {
+      id: row.id,
+      filename: row.filename,
+      marks: row.marksJSON ? JSON.parse(row.marksJSON) : undefined,
+      cvr: row.cvrJSON ? JSON.parse(row.cvrJSON) : undefined,
+    }
   }
 
   /**
@@ -321,7 +390,7 @@ export default class Store {
       'select count(*) as count from batches where id = ?',
       batchId
     )
-    await this.dbRunAsync('delete from CVRs where batch_id = ?', batchId)
+    await this.dbRunAsync('delete from ballots where batch_id = ?', batchId)
     await this.dbRunAsync('delete from batches where id = ?', batchId)
     return count > 0
   }
@@ -331,7 +400,7 @@ export default class Store {
    */
   public async batchStatus(): Promise<BatchInfo[]> {
     const sql =
-      'select batches.id as id, startedAt, endedAt, count(*) as count from CVRs, batches where CVRS.batch_id = batches.id group by batches.id, batches.startedAt, batches.endedAt order by batches.startedAt desc'
+      'select batches.id as id, startedAt, endedAt, count(*) as count from ballots, batches where ballots.batch_id = batches.id group by batches.id, batches.startedAt, batches.endedAt order by batches.startedAt desc'
     return this.dbAllAsync(sql)
   }
 
@@ -339,7 +408,8 @@ export default class Store {
    * Exports all CVR JSON data to a stream.
    */
   public async exportCVRs(writeStream: Writable): Promise<void> {
-    const sql = 'select cvr_json as cvrJSON from CVRs'
+    const sql =
+      'select cvr_json as cvrJSON from ballots where cvr_json is not null'
     const rows = await this.dbAllAsync<{ cvrJSON: string }>(sql)
     writeStream.write(rows.map((row) => row.cvrJSON).join('\n'))
   }
