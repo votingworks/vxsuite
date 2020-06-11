@@ -181,6 +181,48 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json(status)
   })
 
+  app.get('/scan/batch/:batchId', async (request, response) => {
+    const batch = await store.getBatch(parseInt(request.params.batchId, 10))
+
+    if (batch.length) {
+      response.json(batch)
+    } else {
+      response.status(404).end()
+    }
+  })
+
+  app.get(
+    '/scan/batch/:batchId/ballot/:ballotId',
+    async (request, response) => {
+      const ballot = await store.getBallotInfo(
+        parseInt(request.params.batchId, 10),
+        parseInt(request.params.ballotId, 10)
+      )
+
+      if (ballot) {
+        response.json(ballot)
+      } else {
+        response.status(404).end()
+      }
+    }
+  )
+
+  app.get(
+    '/scan/batch/:batchId/ballot/:ballotId/image',
+    async (request, response) => {
+      const ballot = await store.getBallotInfo(
+        parseInt(request.params.batchId, 10),
+        parseInt(request.params.ballotId, 10)
+      )
+
+      if (ballot) {
+        response.sendFile(ballot.filename)
+      } else {
+        response.status(404).end()
+      }
+    }
+  )
+
   app.delete('/scan/batch/:batchId', async (request, response) => {
     if (await store.deleteBatch(parseInt(request.params.batchId, 10))) {
       response.json({ status: 'ok' })

@@ -1,5 +1,6 @@
 import * as chokidar from 'chokidar'
 import makeDebug from 'debug'
+import * as jpeg from 'jpeg-js'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
@@ -12,6 +13,7 @@ import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
   interpretBallotData,
+  MarkInfo,
 } from './interpreter'
 import { Scanner } from './scanner'
 import pdfToImages from './util/pdfToImages'
@@ -209,6 +211,8 @@ export default class SystemImporter implements Importer {
    * Callback for chokidar to inform us that a new file was seen.
    */
   private async fileAdded(ballotImagePath: string): Promise<void> {
+    debug('fileAdded %s', ballotImagePath)
+
     const election = await this.store.getElection()
 
     if (!election) {
@@ -231,29 +235,33 @@ export default class SystemImporter implements Importer {
 
     const batchId = parseInt(batchIdMatch[1], 10)
 
-    const cvr = await this.interpreter.interpretFile({
+    const interpreted = await this.interpreter.interpretFile({
       election,
       ballotImagePath,
     })
+    if (!interpreted) {
+      return
+    }
+
+    const { cvr, marks, normalizedImage } = interpreted
+    debug('interpreted %s: cvr=%O marks=%O', ballotImagePath, cvr, marks)
 
     if (cvr) {
-      this.onCVRExtractedFromBallot(batchId, ballotImagePath, cvr)
-    } // eventually do something with files that don't have a CVR in them?
-  }
-
-  private onCVRExtractedFromBallot(
-    batchId: number,
-    ballotImagePath: string,
-    cvr: CastVoteRecord
-  ): void {
-    this.addCVR(batchId, ballotImagePath, cvr)
-
-    // move the file only if there was a CVR
-    if (fs.existsSync(ballotImagePath)) {
-      fs.renameSync(
-        ballotImagePath,
-        path.join(this.importedBallotImagesPath, path.basename(ballotImagePath))
+      const importedBallotImagePath = path.join(
+        this.importedBallotImagesPath,
+        path.basename(ballotImagePath)
       )
+
+      this.addCVR(batchId, importedBallotImagePath, cvr, marks)
+
+      // move the file only if there was a CVR
+      fs.unlinkSync(ballotImagePath)
+      fs.writeFileSync(
+        importedBallotImagePath,
+        jpeg.encode(normalizedImage).data
+      )
+    } else {
+      // eventually do something with files that don't have a CVR in them?
     }
   }
 
@@ -270,9 +278,10 @@ export default class SystemImporter implements Importer {
   private addCVR(
     batchId: number,
     ballotImagePath: string,
-    cvr: CastVoteRecord
+    cvr: CastVoteRecord,
+    markInfo?: MarkInfo
   ): void {
-    this.store.addCVR(batchId, ballotImagePath, cvr)
+    this.store.addCVR(batchId, ballotImagePath, cvr, markInfo)
     for (const callback of this.onCVRAddedCallbacks) {
       try {
         callback(cvr)
