@@ -346,13 +346,13 @@ export default class Interpreter {
     const matchedTemplate = defined(
       this.getTemplate(ballotStyleId, precinctId, pageNumber)
     )
-    const marks = this.getMarksForBallot(
+    const [mappedBallot, marks] = this.getMarksForBallot(
       ballotLayout,
       matchedTemplate,
       this.getContestsForTemplate(matchedTemplate)
     )
 
-    return { matchedTemplate, metadata, marks }
+    return { matchedTemplate, mappedBallot, metadata, marks }
   }
 
   /**
@@ -451,7 +451,7 @@ export default class Interpreter {
     ballotLayout: BallotPageLayout,
     template: BallotPageLayout,
     contests: Contests
-  ): BallotMark[] {
+  ): [ImageData, BallotMark[]] {
     assert.equal(
       template.contests.length,
       contests.length,
@@ -569,7 +569,7 @@ export default class Interpreter {
       }
     }
 
-    return marks
+    return [mappedBallot, marks]
   }
 
   private targetMarkScore(

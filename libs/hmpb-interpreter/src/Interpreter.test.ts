@@ -618,10 +618,13 @@ test('interpret empty ballot', async () => {
 
   const {
     matchedTemplate,
+    mappedBallot,
     metadata,
     ballot,
   } = await interpreter.interpretBallot(await blankPage1.imageData())
   expect(matchedTemplate === p1).toBe(true)
+  expect(mappedBallot.width).toBe(matchedTemplate.ballotImage.imageData.width)
+  expect(mappedBallot.height).toBe(matchedTemplate.ballotImage.imageData.height)
   expect(metadata.ballotStyleId).toEqual(p1.ballotImage.metadata.ballotStyleId)
   expect(ballot.votes).toEqual({})
 })
