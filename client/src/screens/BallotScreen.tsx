@@ -68,13 +68,11 @@ const BallotScreen = () => {
           ))}
         <HorizontalRule />
       </NavigationScreen>
-      <div className="foobar">
-        <HandMarkedPaperBallot
-          ballotStyleId={ballotStyleId}
-          election={election}
-          precinctId={precinctId}
-        />
-      </div>
+      <HandMarkedPaperBallot
+        ballotStyleId={ballotStyleId}
+        election={election}
+        precinctId={precinctId}
+      />
     </React.Fragment>
   )
 }
