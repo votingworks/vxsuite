@@ -23,7 +23,7 @@ const Container = styled.span`
   display: flex;
   align-items: flex-start;
   & > span:first-child {
-    margin-top: 0.1em;
+    margin-top: 0.15em;
     margin-right: 0.3em;
   }
 `
