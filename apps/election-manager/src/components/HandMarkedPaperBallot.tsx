@@ -176,7 +176,7 @@ const CandidateContestChoices = ({
   return (
     <React.Fragment>
       {contest.candidates.map((candidate) => (
-        <Text key={candidate.id} bold data-candidate>
+        <Text key={candidate.id} data-candidate>
           <BubbleMark checked={vote.some((v) => v.id === candidate.id)}>
             <span>
               <strong data-candidate-name={candidate.name}>
