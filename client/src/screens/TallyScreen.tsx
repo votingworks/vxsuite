@@ -167,7 +167,6 @@ const TallyScreen = () => {
       )}
       <p>
         <FileInputButton
-          id="load-cvrs"
           multiple
           onChange={processCastVoteRecordFiles}
         >
