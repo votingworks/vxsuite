@@ -33,7 +33,6 @@ interface Props {
   name?: string
   multiple?: boolean
   children: string
-  id?: string
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
@@ -41,7 +40,6 @@ const FileInputButton = ({
   accept = '*/*',
   buttonProps,
   children,
-  id,
   onChange,
   ...rest
 }: Props) => {
@@ -51,15 +49,14 @@ const FileInputButton = ({
   }
   return (
     <React.Fragment>
-      <HiddenFileInput
-        {...rest}
-        accept={accept}
-        id={id}
-        onBlur={onBlur}
-        onChange={onChange}
-        type="file"
-      />
-      <LabelButton htmlFor={id} {...buttonProps}>
+      <LabelButton {...buttonProps}>
+        <HiddenFileInput
+          {...rest}
+          accept={accept}
+          onBlur={onBlur}
+          onChange={onChange}
+          type="file"
+        />
         {children}
       </LabelButton>
     </React.Fragment>
