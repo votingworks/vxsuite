@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef, useContext } from 'react'
+import ReactDOM from 'react-dom'
 import styled from 'styled-components'
-import { Previewer } from 'pagedjs'
+import { Handler, Previewer, registerHandlers } from 'pagedjs'
 import {
   CandidateVote,
   YesNoVote,
@@ -32,6 +33,49 @@ import {
 import QRCode from './QRCode'
 import Prose from './Prose'
 import Text from './Text'
+
+const qrCodeTargetClassName = 'qr-code-target'
+
+interface PagedJSPage {
+  element: {
+    dataset: {
+      pageNumber: string
+    }
+  }
+  id: string
+}
+
+class PagedQRCodeInjector extends Handler {
+  afterRendered(pages: PagedJSPage[]) {
+    pages.forEach((page) => {
+      const { pageNumber } = page.element.dataset
+      const qrCodeTarget = document
+        .getElementById(page.id)
+        ?.getElementsByClassName(qrCodeTargetClassName)[0]
+      const {
+        precinctId = '',
+        ballotStyleId = '',
+        isLiveMode = '',
+      } = (qrCodeTarget as HTMLDivElement)?.dataset
+      if (qrCodeTarget) {
+        ReactDOM.render(
+          <QRCode
+            level="L"
+            value={ballotMetadata({
+              isLiveMode: isLiveMode === 'true',
+              precinctId,
+              ballotStyleId,
+              pageNumber: parseInt(pageNumber, 10),
+              pageCount: pages.length,
+            })}
+          />,
+          qrCodeTarget
+        )
+      }
+    })
+  }
+}
+registerHandlers(PagedQRCodeInjector)
 
 const Ballot = styled.div`
   /* display: flex; */
@@ -315,30 +359,12 @@ const HandMarkedPaperBallot = ({
                 <Text>{date}</Text>
               </Prose>
             </PageFooterMain>
-            <PageFooterQRCode className="qr-code qr-code-page-1">
-              <QRCode
-                level="L"
-                value={ballotMetadata({
-                  isLiveMode,
-                  precinctId,
-                  ballotStyleId,
-                  pageNumber: 1,
-                  pageCount: 2,
-                })}
-              />
-            </PageFooterQRCode>
-            <PageFooterQRCode className="qr-code qr-code-page-2">
-              <QRCode
-                level="L"
-                value={ballotMetadata({
-                  isLiveMode,
-                  precinctId,
-                  ballotStyleId,
-                  pageNumber: 2,
-                  pageCount: 2,
-                })}
-              />
-            </PageFooterQRCode>
+            <PageFooterQRCode
+              className={qrCodeTargetClassName}
+              data-is-live-mode={isLiveMode}
+              data-precinct-id={precinctId}
+              data-ballot-style-id={ballotStyleId}
+            />
           </PageFooter>
         </div>
 
