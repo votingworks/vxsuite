@@ -15,15 +15,6 @@
   content: counter(pages);
 }
 
-/* qr code hide/show hack */
-.qr-code {
-  display: none;
-}
-[data-page-number='1'] .qr-code-page-1,
-[data-page-number='2'] .qr-code-page-2 {
-  display: block;
-}
-
 @media print {
   @page {
     size: letter portrait;
