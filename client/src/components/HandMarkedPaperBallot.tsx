@@ -262,16 +262,16 @@ const YesNoContestChoices = (props: {
   contest: YesNoContest
   vote: OptionalYesNoVote
 }) => (
-    <React.Fragment>
-      {['Yes', 'No'].map((answer) => (
-        <Text key={answer} bold noWrap>
-          <BubbleMark checked={props.vote === answer.toLowerCase()}>
-            {GLOBALS.YES_NO_VOTES[answer.toLowerCase() as YesNoVote]}
-          </BubbleMark>
-        </Text>
-      ))}
-    </React.Fragment>
-  )
+  <React.Fragment>
+    {['Yes', 'No'].map((answer) => (
+      <Text key={answer} bold noWrap>
+        <BubbleMark checked={props.vote === answer.toLowerCase()}>
+          {GLOBALS.YES_NO_VOTES[answer.toLowerCase() as YesNoVote]}
+        </BubbleMark>
+      </Text>
+    ))}
+  </React.Fragment>
+)
 
 interface Props {
   ballotStyleId: string
@@ -383,8 +383,8 @@ const HandMarkedPaperBallot = ({
                     <SealImage src={sealURL} alt="" />
                   </div>
                 ) : (
-                      <React.Fragment />
-                    )}
+                  <React.Fragment />
+                )}
                 <Prose>
                   <h2>
                     {isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}
