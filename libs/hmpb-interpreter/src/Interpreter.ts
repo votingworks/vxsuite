@@ -27,6 +27,7 @@ import {
   DetectQRCode,
   FindMarksResult,
   Interpreted,
+  PartialTemplateSpecifier,
   Point,
   Size,
 } from './types'
@@ -216,71 +217,99 @@ export default class Interpreter {
   }
 
   /**
-   * Gets information about missing templates. Note that until we start adding
-   * templates, we will not know how many pages each ballot should be and
-   * therefore won't have perfect knowledge of how many templates are missing.
-   * To account for this, template metadata for which we know nothing about
-   * either the ballot style or the precinct will have a single entry to
-   * represent it and a page count of -1.
+   * Determines whether enough of the template images have been added to allow
+   * scanning a ballot with the given metadata.
    */
-  public *getMissingTemplates(): Generator<BallotPageMetadata> {
-    const isTestBallot =
-      [...this.templates.values()].some((byBallotStyle) =>
-        [...byBallotStyle.values()].some((byPageNumber) =>
-          byPageNumber.some(
-            (template) => template?.ballotImage.metadata.isTestBallot
-          )
-        )
-      ) ?? false
+  public canScanBallot(metadata: BallotPageMetadata): boolean {
+    debug('canScanBallot metadata=%O', metadata)
 
+    const ballotStyleTemplates = this.templates.get(metadata.ballotStyleId)
+
+    if (!ballotStyleTemplates) {
+      debug(
+        'cannot scan ballot because there are no templates for ballot style %s',
+        metadata.ballotStyleId
+      )
+      return false
+    }
+
+    const precinctTemplates = ballotStyleTemplates.get(metadata.precinctId)
+
+    if (!precinctTemplates) {
+      debug(
+        'cannot scan ballot because there are no templates for precinct %s',
+        metadata.precinctId
+      )
+      return false
+    }
+
+    for (
+      let pageNumber = 1;
+      pageNumber <= metadata.pageNumber;
+      pageNumber += 1
+    ) {
+      const pageTemplate = precinctTemplates[pageNumber - 1]
+
+      if (!pageTemplate) {
+        debug(
+          'cannot scan ballot because template page %d of %d is missing',
+          pageNumber,
+          precinctTemplates.length
+        )
+        return false
+      }
+
+      if (
+        pageNumber === metadata.pageNumber &&
+        pageTemplate.ballotImage.metadata.isTestBallot !== metadata.isTestBallot
+      ) {
+        debug(
+          'cannot scan ballot because template page %d of %d does not match the expected test ballot value (%s)',
+          pageNumber,
+          precinctTemplates.length,
+          metadata.isTestBallot
+        )
+        return false
+      }
+    }
+
+    return true
+  }
+
+  /**
+   * Gets information about missing templates. As more templates are added to
+   * fill in the gaps, the resulting specifier will become more specific.
+   */
+  public *getMissingTemplates(): Generator<PartialTemplateSpecifier> {
     for (const ballotStyle of this.election.ballotStyles) {
       const ballotStyleTemplates = this.templates.get(ballotStyle.id)
 
+      if (!ballotStyleTemplates) {
+        yield { ballotStyleId: ballotStyle.id }
+        continue
+      }
+
       for (const precinctId of ballotStyle.precincts) {
-        if (ballotStyleTemplates) {
-          const precinctTemplates = ballotStyleTemplates.get(precinctId)
+        const precinctTemplates = ballotStyleTemplates.get(precinctId)
 
-          if (precinctTemplates) {
-            for (const [i, template] of precinctTemplates.entries()) {
-              if (!template) {
-                // Yield a specific, known missing page with a real page number.
-                debug(
-                  `missing template: ballot style '%s'; precinct '%s'; page #%d`,
-                  ballotStyle.id,
-                  precinctId,
-                  i + 1
-                )
-                yield {
-                  ballotStyleId: ballotStyle.id,
-                  isTestBallot,
-                  pageCount: precinctTemplates.length,
-                  pageNumber: i + 1,
-                  precinctId,
-                }
-              }
-            }
-
-            continue
-          }
+        if (!precinctTemplates) {
+          yield { ballotStyleId: ballotStyle.id, precinctId }
+          continue
         }
 
-        // Either nothing exists for this ballot style or this precinct. We
-        // can't know how many pages there should be, so we just yield one page
-        // for the whole thing.
-        debug(
-          `found missing template: ballot style '%s'; precinct '%s'`,
-          ballotStyle.id,
-          precinctId
-        )
-        yield {
-          ballotStyleId: ballotStyle.id,
-          isTestBallot,
-          pageCount: -1,
-          pageNumber: -1,
-          precinctId,
+        for (const [i, pageTemplate] of precinctTemplates.entries()) {
+          if (!pageTemplate) {
+            yield {
+              ballotStyleId: ballotStyle.id,
+              precinctId,
+              pageNumber: i + 1,
+            }
+          }
         }
       }
     }
+
+    return false
   }
 
   /**
@@ -310,13 +339,6 @@ export default class Interpreter {
     { flipped = false } = {}
   ): Promise<FindMarksResult> {
     debug('looking for marks in %d×%d image', imageData.width, imageData.height)
-
-    if (this.hasMissingTemplates()) {
-      throw new Error(
-        'Refusing to interpret ballots before all templates are added.'
-      )
-    }
-
     ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
       imageData,
       metadata,
@@ -325,6 +347,12 @@ export default class Interpreter {
       }
     ))
     debug('using metadata: %O', metadata)
+
+    if (!this.canScanBallot(metadata)) {
+      throw new Error(
+        'Cannot scan ballot because not all required templates have been added'
+      )
+    }
 
     const contests = findContests(imageData)
     const ballotLayout: BallotPageLayout = {

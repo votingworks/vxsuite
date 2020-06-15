@@ -4,8 +4,8 @@ import {
   filledInPage1,
   filledInPage2,
   partialBorderPage2,
-} from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library'
-import election from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library/election'
+  election,
+} from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
 import Interpreter from './Interpreter'
 import { DetectQRCodeResult } from './types'
 
@@ -581,10 +581,6 @@ test('missing templates', async () => {
   expect([...interpreter.getMissingTemplates()]).toEqual([
     {
       ballotStyleId: metadataPage1.ballotStyleId,
-      isTestBallot: false,
-      pageCount: -1,
-      pageNumber: -1,
-      precinctId: metadataPage1.precinctId,
     },
   ])
 
@@ -593,10 +589,8 @@ test('missing templates', async () => {
   expect([...interpreter.getMissingTemplates()]).toEqual([
     {
       ballotStyleId: metadataPage2.ballotStyleId,
-      isTestBallot: false,
-      pageCount: 2,
-      pageNumber: 2,
       precinctId: metadataPage2.precinctId,
+      pageNumber: 2,
     },
   ])
 
@@ -611,7 +605,7 @@ test('interpret empty ballot', async () => {
   await expect(
     interpreter.interpretBallot(await blankPage1.imageData())
   ).rejects.toThrow(
-    'Refusing to interpret ballots before all templates are added.'
+    'Cannot scan ballot because not all required templates have been added'
   )
   const p1 = await interpreter.addTemplate(await blankPage1.imageData())
   await interpreter.addTemplate(await blankPage2.imageData())
@@ -800,7 +794,8 @@ test('invalid marks', async () => {
   )
 
   const { ballot, marks } = await interpreter.interpretBallot(
-    await filledInPage2.imageData()
+    await filledInPage2.imageData(),
+    await filledInPage2.metadata()
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {

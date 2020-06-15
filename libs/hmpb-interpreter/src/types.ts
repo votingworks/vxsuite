@@ -123,3 +123,12 @@ export interface DetectQRCodeResult {
   data: Buffer
   rightSideUp?: boolean
 }
+
+export type PartialTemplateSpecifier =
+  | { ballotStyleId: BallotStyle['id'] }
+  | { ballotStyleId: BallotStyle['id']; precinctId: BallotStyle['id'] }
+  | {
+      ballotStyleId: BallotStyle['id']
+      precinctId: BallotStyle['id']
+      pageNumber: number
+    }

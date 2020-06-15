@@ -1,5 +1,5 @@
 import { croppedQRCode } from '../test/fixtures'
-import { blankPage1 } from '../test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library'
+import { blankPage1 } from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
 import { decodeSearchParams, detect } from './metadata'
 import { jsqr } from './utils/qrcode'
 
