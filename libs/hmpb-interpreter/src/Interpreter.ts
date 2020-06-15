@@ -194,6 +194,11 @@ export default class Interpreter {
     metadata?: BallotPageMetadata,
     { flipped = false } = {}
   ): Promise<BallotPageLayout> {
+    debug(
+      'interpretTemplate: looking for contests in %d×%d image',
+      imageData.width,
+      imageData.height
+    )
     ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
       imageData,
       metadata,
@@ -201,6 +206,8 @@ export default class Interpreter {
         flipped,
       }
     ))
+
+    debug('using metadata for template: %O', metadata)
 
     const contests = findContestOptions([
       ...map(findContests(imageData), ({ bounds, corners }) => ({

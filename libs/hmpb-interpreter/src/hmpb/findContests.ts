@@ -1,9 +1,12 @@
+import makeDebug from 'debug'
 import { Corners, Point, Rect } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { rectCorners } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import scanColumns from './scanColumns'
 import { findShapes, Shape } from './shapes'
+
+const debug = makeDebug('hmpb-interpreter:findContests')
 
 export interface ContestShape {
   bounds: Rect
@@ -77,6 +80,10 @@ export default function* findContests(
         : maxTopContestOffset >= shape.bounds.y
 
     if (isShapeSizedAppropriately && isShapeCloseEnoughToLastShape) {
+      debug(
+        'found a shape with the right size and proximity to the last shape: %O',
+        shape.bounds
+      )
       yield {
         bounds: shape.bounds,
         corners: getCorners(ballotImage, shape),
@@ -84,6 +91,12 @@ export default function* findContests(
       nextY = shape.bounds.y + shape.bounds.height + 1
       lastContestShape = shape
     } else {
+      if (shape.bounds.width > 0 && shape.bounds.height > 0) {
+        debug(
+          'skipping shape because it is not the right size or not close enough to the last shape: %O',
+          shape.bounds
+        )
+      }
       nextY = undefined
     }
   }
