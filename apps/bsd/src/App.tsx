@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import fileDownload from 'js-file-download'
 import { Election, OptionalElection } from '@votingworks/ballot-encoder'
 
@@ -24,6 +25,8 @@ import 'normalize.css'
 import './App.css'
 import fetchJSON from './util/fetchJSON'
 import { get as getConfig, patch as patchConfig } from './api/config'
+import BatchScreen from './screens/BatchScreen'
+import BallotScreen from './screens/BallotScreen'
 
 const App: React.FC = () => {
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
@@ -208,43 +211,55 @@ const App: React.FC = () => {
 
   if (election) {
     return (
-      <Screen>
-        <Main>
-          <MainChild maxWidth={false}>
-            <DashboardScreen
-              invalidateBatch={invalidateBatch}
-              isScanning={isScanning}
-              status={{
-                ...status,
-                batches: status.batches.filter(
-                  (batch) => !pendingDeleteBatchIds.includes(batch.id)
-                ),
-              }}
-              deleteBatch={deleteBatch}
-            />
-          </MainChild>
-        </Main>
-        <ButtonBar secondary naturalOrder separatePrimaryButton>
-          <Brand>
-            VxScan
-            {isTestMode && (
-              <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
+      <BrowserRouter>
+        <Screen>
+          <Main>
+            <MainChild maxWidth={false}>
+              <Switch>
+                <Route path="/batch/:batchId/ballot/:ballotId">
+                  <BallotScreen />
+                </Route>
+                <Route path="/batch/:batchId">
+                  <BatchScreen />
+                </Route>
+                <Route path="/">
+                  <DashboardScreen
+                    invalidateBatch={invalidateBatch}
+                    isScanning={isScanning}
+                    status={{
+                      ...status,
+                      batches: status.batches.filter(
+                        (batch) => !pendingDeleteBatchIds.includes(batch.id)
+                      ),
+                    }}
+                    deleteBatch={deleteBatch}
+                  />
+                </Route>
+              </Switch>
+            </MainChild>
+          </Main>
+          <ButtonBar secondary naturalOrder separatePrimaryButton>
+            <Brand>
+              VxScan
+              {isTestMode && (
+                <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
+              )}
+            </Brand>
+            {typeof isTestMode === 'boolean' && (
+              <Button onClick={toggleTestMode}>
+                {isTestMode ? 'Live mode…' : 'Test mode…'}
+              </Button>
             )}
-          </Brand>
-          {typeof isTestMode === 'boolean' && (
-            <Button onClick={toggleTestMode}>
-              {isTestMode ? 'Live mode…' : 'Test mode…'}
+            <Button onClick={unconfigureServer}>Factory Reset</Button>
+            <Button onClick={zeroData}>Zero</Button>
+            <Button onClick={ejectUSB}>Eject USB</Button>
+            <Button onClick={exportResults}>Export</Button>
+            <Button disabled={isScanning} primary onClick={scanBatch}>
+              Scan New Batch
             </Button>
-          )}
-          <Button onClick={unconfigureServer}>Factory Reset</Button>
-          <Button onClick={zeroData}>Zero</Button>
-          <Button onClick={ejectUSB}>Eject USB</Button>
-          <Button onClick={exportResults}>Export</Button>
-          <Button disabled={isScanning} primary onClick={scanBatch}>
-            Scan New Batch
-          </Button>
-        </ButtonBar>
-      </Screen>
+          </ButtonBar>
+        </Screen>
+      </BrowserRouter>
     )
   }
 

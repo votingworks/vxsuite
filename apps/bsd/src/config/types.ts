@@ -1,4 +1,5 @@
 import type { Election, OptionalElection } from '@votingworks/ballot-encoder'
+import type { BallotMark, Size } from '@votingworks/hmpb-interpreter'
 
 export interface Dictionary<T> {
   [key: string]: T | undefined
@@ -33,6 +34,15 @@ export interface ClerkCardData extends CardData {
 }
 
 // Scanner Types
+export interface CastVoteRecord
+  extends Dictionary<string | string[] | boolean> {
+  _precinctId: string
+  _ballotStyleId: string
+  _ballotId: string
+  _testBallot: boolean
+  _scannerId: string
+}
+
 export interface OkResponse {
   status: 'ok'
 }
@@ -40,9 +50,23 @@ export interface OkResponse {
 export interface Batch {
   id: number
   count: number
+  ballots: Ballot[]
   startedAt: number
   endedAt?: number
 }
+
+export interface Ballot {
+  id: number
+  filename: string
+  cvr?: CastVoteRecord
+  marks?: MarkInfo
+}
+
+export interface MarkInfo {
+  marks: BallotMark[]
+  ballotSize: Size
+}
+
 export interface ScanStatusResponse {
   electionHash?: string
   batches: Batch[]

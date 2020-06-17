@@ -5,8 +5,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test": "react-scripts test --env=jest-environment-jsdom-sixteen",
+    "test:coverage": "yarn test --coverage --watchAll=false",
     "eject": "react-scripts eject",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
@@ -51,6 +51,7 @@
     "@types/react": "16.9.35",
     "@types/react-dom": "16.9.8",
     "@types/styled-components": "^4.1.14",
+    "@votingworks/hmpb-interpreter": "^3.3.1",
     "fast-text-encoding": "^1.0.2",
     "http-proxy-middleware": "^0.19.1",
     "js-file-download": "^0.4.6",
@@ -59,6 +60,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-dropzone": "^11.0.1",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "styled-components": "^4.2.0",
     "typescript": "3.9.2",
@@ -69,6 +71,7 @@
     "@types/fast-text-encoding": "^1.0.1",
     "@types/fetch-mock": "^7.3.2",
     "@types/pify": "^3.0.2",
+    "@types/react-router-dom": "^5.1.5",
     "@types/yauzl": "^2.9.1",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
@@ -83,7 +86,9 @@
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^4.0.2",
     "fetch-mock": "^9.9.0",
+    "history": "^4.10.1",
     "husky": "^4.2.5",
+    "jest-environment-jsdom-sixteen": "^1.0.3",
     "lint-staged": "^10.2.3",
     "node-fetch": "^2.6.0",
     "prettier": "^2.0.5",
@@ -97,10 +102,10 @@
   "jest": {
     "coverageThreshold": {
       "global": {
-        "statements": 55,
-        "branches": 46,
-        "lines": 55,
-        "functions": 62
+        "statements": 60,
+        "branches": 48,
+        "functions": 66,
+        "lines": 60
       }
     }
   }
