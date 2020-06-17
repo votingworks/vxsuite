@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react'
+import { createMemoryHistory } from 'history'
 import React from 'react'
+import { Router } from 'react-router-dom'
 import { ScanStatusResponse } from '../config/types'
 import DashboardScreen from './DashboardScreen'
 
@@ -10,12 +12,14 @@ test('null state', () => {
     batches: [],
   }
   const component = render(
-    <DashboardScreen
-      deleteBatch={deleteBatch}
-      invalidateBatch={invalidateBatch}
-      isScanning={false}
-      status={status}
-    />
+    <Router history={createMemoryHistory()}>
+      <DashboardScreen
+        deleteBatch={deleteBatch}
+        invalidateBatch={invalidateBatch}
+        isScanning={false}
+        status={status}
+      />
+    </Router>
   )
 
   expect(component.baseElement.textContent).toMatch(
@@ -28,17 +32,35 @@ test('shows scanned ballot count', () => {
   const invalidateBatch = jest.fn()
   const status: ScanStatusResponse = {
     batches: [
-      { id: 1, count: 1, startedAt: 0, endedAt: 0 },
-      { id: 2, count: 3, startedAt: 0, endedAt: 0 },
+      {
+        id: 1,
+        count: 1,
+        startedAt: 0,
+        endedAt: 0,
+        ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
+      },
+      {
+        id: 2,
+        count: 3,
+        startedAt: 0,
+        endedAt: 0,
+        ballots: [
+          { id: 2, filename: '/tmp/img2.jpg' },
+          { id: 3, filename: '/tmp/img3.jpg' },
+          { id: 4, filename: '/tmp/img4.jpg' },
+        ],
+      },
     ],
   }
   const component = render(
-    <DashboardScreen
-      deleteBatch={deleteBatch}
-      invalidateBatch={invalidateBatch}
-      isScanning={false}
-      status={status}
-    />
+    <Router history={createMemoryHistory()}>
+      <DashboardScreen
+        deleteBatch={deleteBatch}
+        invalidateBatch={invalidateBatch}
+        isScanning={false}
+        status={status}
+      />
+    </Router>
   )
 
   expect(component.baseElement.textContent).toMatch(
@@ -50,15 +72,28 @@ test('shows whether a batch is scanning', () => {
   const deleteBatch = jest.fn()
   const invalidateBatch = jest.fn()
   const status: ScanStatusResponse = {
-    batches: [{ id: 1, count: 3, startedAt: 0 }],
+    batches: [
+      {
+        id: 1,
+        count: 3,
+        startedAt: 0,
+        ballots: [
+          { id: 2, filename: '/tmp/img2.jpg' },
+          { id: 3, filename: '/tmp/img3.jpg' },
+          { id: 4, filename: '/tmp/img4.jpg' },
+        ],
+      },
+    ],
   }
   const component = render(
-    <DashboardScreen
-      deleteBatch={deleteBatch}
-      invalidateBatch={invalidateBatch}
-      isScanning
-      status={status}
-    />
+    <Router history={createMemoryHistory()}>
+      <DashboardScreen
+        deleteBatch={deleteBatch}
+        invalidateBatch={invalidateBatch}
+        isScanning
+        status={status}
+      />
+    </Router>
   )
 
   expect(component.baseElement.textContent).toMatch(/Scanning…/)
@@ -69,17 +104,35 @@ test('allows deleting a batch', async () => {
   const invalidateBatch = jest.fn()
   const status: ScanStatusResponse = {
     batches: [
-      { id: 1, count: 1, startedAt: 0, endedAt: 0 },
-      { id: 2, count: 3, startedAt: 0, endedAt: 0 },
+      {
+        id: 1,
+        count: 1,
+        startedAt: 0,
+        endedAt: 0,
+        ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
+      },
+      {
+        id: 2,
+        count: 3,
+        startedAt: 0,
+        endedAt: 0,
+        ballots: [
+          { id: 2, filename: '/tmp/img2.jpg' },
+          { id: 3, filename: '/tmp/img3.jpg' },
+          { id: 4, filename: '/tmp/img4.jpg' },
+        ],
+      },
     ],
   }
   const component = render(
-    <DashboardScreen
-      deleteBatch={deleteBatch}
-      invalidateBatch={invalidateBatch}
-      isScanning={false}
-      status={status}
-    />
+    <Router history={createMemoryHistory()}>
+      <DashboardScreen
+        deleteBatch={deleteBatch}
+        invalidateBatch={invalidateBatch}
+        isScanning={false}
+        status={status}
+      />
+    </Router>
   )
 
   expect(deleteBatch).not.toHaveBeenCalled()
@@ -102,4 +155,35 @@ test('allows deleting a batch', async () => {
   jest.spyOn(window, 'confirm').mockReturnValueOnce(true)
   deleteBatch2Button.click()
   expect(deleteBatch).toHaveBeenNthCalledWith(2, status.batches[1].id)
+})
+
+test('allows navigating to a batch screen', async () => {
+  const deleteBatch = jest.fn()
+  const invalidateBatch = jest.fn()
+  const status: ScanStatusResponse = {
+    batches: [
+      {
+        id: 1,
+        count: 1,
+        startedAt: 0,
+        endedAt: 0,
+        ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
+      },
+    ],
+  }
+  const history = createMemoryHistory()
+  const component = render(
+    <Router history={history}>
+      <DashboardScreen
+        deleteBatch={deleteBatch}
+        invalidateBatch={invalidateBatch}
+        isScanning={false}
+        status={status}
+      />
+    </Router>
+  )
+
+  const [viewLink] = component.getAllByText('View', { selector: 'a' })
+  viewLink.click()
+  expect(history.location.pathname).toEqual('/batch/1')
 })

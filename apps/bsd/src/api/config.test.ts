@@ -2,10 +2,6 @@ import fetchMock from 'fetch-mock'
 import { electionSample } from '@votingworks/ballot-encoder'
 import { get, patch } from './config'
 
-beforeEach(() => {
-  fetchMock.reset()
-})
-
 test('GET /config', async () => {
   fetchMock.getOnce(
     '/config',
