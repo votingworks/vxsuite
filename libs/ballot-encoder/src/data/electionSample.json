@@ -3,9 +3,20 @@
   "state": "State of Hamilton",
   "county": {
     "id": "franklin",
-    "name": "Franklin County"
+    "name": "Franklin County",
+    "_lang": {
+      "es-us": {
+        "name": "Franklin County"
+      }
+    }
   },
   "date": "2020-11-03",
+  "_lang": {
+    "es-us": {
+      "title": "Eleccion General",
+      "state": "Estado de Hamilton"
+    }
+  },
   "districts": [
     {
       "id": "district-1",
@@ -28,22 +39,42 @@
     {
       "id": "0",
       "name": "Federalist",
-      "abbrev": "F"
+      "abbrev": "F",
+      "_lang": {
+        "es-us": {
+          "name": "Federalista"
+        }
+      }
     },
     {
       "id": "1",
       "name": "People's",
-      "abbrev": "P"
+      "abbrev": "P",
+      "_lang": {
+        "es-us": {
+          "name": "Popolar"
+        }
+      }
     },
     {
       "id": "2",
       "name": "Liberty",
-      "abbrev": "Li"
+      "abbrev": "Li",
+      "_lang": {
+        "es-us": {
+          "name": "Libertad"
+        }
+      }
     },
     {
       "id": "3",
       "name": "Constitution",
-      "abbrev": "C"
+      "abbrev": "C",
+      "_lang": {
+        "es-us": {
+          "name": "Constitución"
+        }
+      }
     },
     {
       "id": "4",
@@ -58,7 +89,12 @@
     {
       "id": "6",
       "name": "Independent",
-      "abbrev": "I"
+      "abbrev": "I",
+      "_lang": {
+        "es-us": {
+          "name": "Independiente"
+        }
+      }
     }
   ],
   "contests": [
@@ -101,7 +137,13 @@
           "partyId": "5"
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "_lang": {
+        "es-us": {
+          "section": "Estados Unidos",
+          "title": "Presidente y Vicepresidente"
+        }
+      }
     },
     {
       "id": "senator",
@@ -147,7 +189,13 @@
           "partyId": "6"
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "_lang": {
+        "es-us": {
+          "section": "Estados Unidos",
+          "title": "Senador"
+        }
+      }
     },
     {
       "id": "representative-district-6",
@@ -183,7 +231,13 @@
           "partyId": "4"
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "_lang": {
+        "es-us": {
+          "section": "Estados Unidos",
+          "title": "Representante, Distrito 6"
+        }
+      }
     },
     {
       "id": "governor",
@@ -324,7 +378,13 @@
           "partyId": "6"
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "_lang": {
+        "es-us": {
+          "section": "Estado de Hamilton",
+          "title": "Gobernador"
+        }
+      }
     },
     {
       "id": "lieutenant-governor",
@@ -380,7 +440,13 @@
           "partyId": "6"
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "_lang": {
+        "es-us": {
+          "section": "Estado de Hamilton",
+          "title": "Vicegobernador"
+        }
+      }
     },
     {
       "id": "secretary-of-state",
@@ -401,7 +467,13 @@
           "partyId": "1"
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "_lang": {
+        "es-us": {
+          "section": "Estado de Hamilton",
+          "title": "Secretario de Estado"
+        }
+      }
     },
     {
       "id": "state-senator-district-31",
@@ -417,7 +489,13 @@
           "partyId": "3"
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "_lang": {
+        "es-us": {
+          "section": "Estado de Hamilton",
+          "title": "Senador, Distrito 31"
+        }
+      }
     },
     {
       "id": "state-assembly-district-54",
@@ -443,7 +521,13 @@
           "partyId": "2"
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "_lang": {
+        "es-us": {
+          "section": "Estado de Hamilton",
+          "title": "Miembro de la Asamblea, Distrito 54"
+        }
+      }
     },
     {
       "id": "county-commissioners",
@@ -529,7 +613,13 @@
           "partyId": "6"
         }
       ],
-      "allowWriteIns": true
+      "allowWriteIns": true,
+      "_lang": {
+        "es-us": {
+          "section": "Condado de Franklin",
+          "title": "Comisionados del Condado"
+        }
+      }
     },
     {
       "id": "county-registrar-of-wills",
@@ -545,7 +635,40 @@
           "partyId": "6"
         }
       ],
-      "allowWriteIns": true
+      "allowWriteIns": true,
+      "_lang": {
+        "es-us": {
+          "section": "Condado de Franklin",
+          "title": "Registrador de Testamentos"
+        }
+      }
+    },
+    {
+      "id": "primary-constitution-head-of-party",
+      "districtId": "7",
+      "partyId": "3",
+      "type": "candidate",
+      "section": "Franklin County",
+      "title": "Head of Constitution Party",
+      "seats": 1,
+      "allowWriteIns": false,
+      "candidates": [
+        {
+          "id": "alice",
+          "name": "Alice Jones",
+          "partyId": "3"
+        },
+        {
+          "id": "bob",
+          "name": "Bob Smith"
+        }
+      ],
+      "_lang": {
+        "es-us": {
+          "section": "Condado de Franklin",
+          "title": "Jefe del Partido de la Constitución"
+        }
+      }
     },
     {
       "id": "city-mayor",
@@ -566,7 +689,13 @@
           "partyId": "2"
         }
       ],
-      "allowWriteIns": true
+      "allowWriteIns": true,
+      "_lang": {
+        "es-us": {
+          "section": "Ciudad de Springfield",
+          "title": "Alcalde"
+        }
+      }
     },
     {
       "id": "city-council",
@@ -607,7 +736,13 @@
           "partyId": "1"
         }
       ],
-      "allowWriteIns": true
+      "allowWriteIns": true,
+      "_lang": {
+        "es-us": {
+          "section": "Ciudad de Springfield",
+          "title": "Ayuntamiento"
+        }
+      }
     },
     {
       "id": "judicial-robert-demergue",
@@ -615,7 +750,14 @@
       "type": "yesno",
       "section": "Hamilton Court of Appeals",
       "title": "Retain Robert Demergue as Chief Justice?",
-      "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?"
+      "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?",
+      "_lang": {
+        "es-us": {
+          "section": "Tribunal de Apelaciones de Hamilton",
+          "title": "¿Retener a Robert Demergue como presidente del Tribunal Supremo?",
+          "description": "¿Deberá Robert Demergue ser retenido como Presidente del Tribunal de Apelaciones de Hamilton?"
+        }
+      }
     },
     {
       "id": "judicial-elmer-hull",
@@ -623,7 +765,14 @@
       "type": "yesno",
       "section": "Hamilton Court of Appeals",
       "title": "Retain Elmer Hull as Associate Justice?",
-      "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?"
+      "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?",
+      "_lang": {
+        "es-us": {
+          "section": "Tribunal de Apelaciones de Hamilton",
+          "title": "¿Retener a Elmer Hull como juez asociado?",
+          "description": "¿Se retendrá a Elmer Hull como Juez Asociado de la Corte de Apelaciones de Hamilton?"
+        }
+      }
     },
     {
       "id": "question-a",
@@ -632,7 +781,15 @@
       "section": "State of Hamilton",
       "shortTitle": "Question A",
       "title": "Question A: Recovery of Property Damages",
-      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?"
+      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
+      "_lang": {
+        "es-us": {
+          "section": "Estado de Hamilton",
+          "shortTitle": "Pregunta A",
+          "title": "Pregunta A: Recuperación de daños a la propiedad",
+          "description": "¿Deberá haber una enmienda a la constitución del Estado con respecto a la recuperación de daños relacionados con la construcción de mejoras de bienes inmuebles y, en relación con esto, prohibir las leyes que limitan o menoscaban el derecho del propietario a recuperar los daños causados ​​por la falta de una mejora en un de manera buena y profesional?"
+        }
+      }
     },
     {
       "id": "question-b",
@@ -641,7 +798,15 @@
       "section": "State of Hamilton",
       "shortTitle": "Question B",
       "title": "Question B: Separation of Powers",
-      "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch?\n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government.\n\nNo person holding any office under the government of the United States, or of any other state or country, shall act as a general officer or as a member of the general assembly, unless at the time of taking such engagement that person shall have resigned the office under such government; and if any general officer, senator, representative, or judge shall, after election and engagement, accept any appointment under any other government, the office under this shall be immediately vacated; but this restriction shall not apply to any person appointed to take deposition or acknowledgement of deeds, or other legal instruments, by the authority of any other state or country.\n\nNo senator or representative shall, during the time for which he or she was elected, be appointed to any state office, board, commission or other state or quasi-public entity exercising executive power under the laws of this state, and no person holding any executive office or serving as a member of any board, commission or other state or quasi-public entity exercising executive power under the laws of this state shall be a member of the senate or the house of representatives during his or her continuance in such office.\n\nb. Article V of the Constitution shall be amended to read as follows: The powers of the government shall be distributed into three (3) separate and distinct departments: the legislative, the executive and the judicial.\n\nc. Article VI, Section 10 of the Constitution shall be deleted in its entirety.\n\nd. Article IX, Section 5 of the Constitution shall be amended to read as follows:\n\nSection 5. Powers of appointment.- The governor shall, by and with the advice and consent of the senate, appoint all officers of the state whose appointment is not herein otherwise provided for and all members of any board, commission or other state or quasi-public entity which exercises executive power under the laws of this state; but the general assembly may by law vest the appointment of such inferior officers, as they deem proper, in the governor, or within their respective departments in the other general officers, the judiciary or in the heads of departments."
+      "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch? \n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government. \n\nNo person holding any office under the government of the United States, or of any other state or country, shall act as a general officer or as a member of the general assembly, unless at the time of taking such engagement that person shall have resigned the office under such government; and if any general officer, senator, representative, or judge shall, after election and engagement, accept any appointment under any other government, the office under this shall be immediately vacated; but this restriction shall not apply to any person appointed to take deposition or acknowledgement of deeds, or other legal instruments, by the authority of any other state or country. \n\nNo senator or representative shall, during the time for which he or she was elected, be appointed to any state office, board, commission or other state or quasi-public entity exercising executive power under the laws of this state, and no person holding any executive office or serving as a member of any board, commission or other state or quasi-public entity exercising executive power under the laws of this state shall be a member of the senate or the house of representatives during his or her continuance in such office. \n\nb. Article V of the Constitution shall be amended to read as follows: The powers of the government shall be distributed into three (3) separate and distinct departments: the legislative, the executive and the judicial. \n\nc. Article VI, Section 10 of the Constitution shall be deleted in its entirety. \n\nd. Article IX, Section 5 of the Constitution shall be amended to read as follows: \n\nSection 5. Powers of appointment.- The governor shall, by and with the advice and consent of the senate, appoint all officers of the state whose appointment is not herein otherwise provided for and all members of any board, commission or other state or quasi-public entity which exercises executive power under the laws of this state; but the general assembly may by law vest the appointment of such inferior officers, as they deem proper, in the governor, or within their respective departments in the other general officers, the judiciary or in the heads of departments.",
+      "_lang": {
+        "es-us": {
+          "section": "Estado de Hamilton",
+          "shortTitle": "Pregunta B",
+          "title": "Pregunta B: Separación de poderes",
+          "description": "¿Habrá enmiendas a la constitución del Estado destinadas a tener el efecto colectivo de asegurar la separación del poder gubernamental entre las tres ramas del gobierno estatal: la rama legislativa, la rama ejecutiva y la rama judicial? \n\na. El Artículo III, Sección 6 de la Constitución se enmendará para que lea como sigue: \n\n Sección 6. Ocupación de cargos bajo otros gobiernos \n\nSenadores y representantes para no ocupar otros cargos designados bajo el gobierno del estado. \n\nNinguna persona que tenga cualquier oficina bajo el gobierno de los Estados Unidos, o de cualquier otro estado o país, actuará como oficial general o como miembro de la asamblea general, a menos que al momento de asumir dicho compromiso, esa persona haya renunciado a la oficina bajo tal gobierno; y si algún oficial general, senador, representante o juez, después de la elección y el compromiso, acepta cualquier nombramiento bajo cualquier otro gobierno, la oficina bajo este se anulará de inmediato; pero esta restricción no se aplicará a ninguna persona designada para depositar o reconocer los hechos u otros instrumentos legales por parte de la autoridad de cualquier otro estado o país. \n\nNingún senador o representante lo hará, durante el tiempo durante el cual él o ella fue elegido, ser nombrado para cualquier cargo estatal, junta, comisión u otra entidad estatal o cuasi pública que ejerza el poder ejecutivo según las leyes de este estado, y ninguna persona que tenga un cargo ejecutivo o sirva como miembro de una junta, comisión u otro La entidad estatal o cuasi pública que ejerza el poder ejecutivo bajo las leyes de este estado será miembro del Senado o de la Cámara de Representantes durante su permanencia en dicho cargo. \n\nb. El Artículo V de la Constitución se modificará para que lea como sigue: Los poderes del gobierno se distribuirán en tres (3) departamentos separados y distintos: el legislativo, el ejecutivo y el judicial. \n\nc. El Artículo VI, Sección 10 de la Constitución se eliminará en su totalidad. \n\nd. El Artículo IX, Sección 5 de la Constitución se enmendará para que lea como sigue: \n\n Sección 5. Poderes de nombramiento.- El gobernador deberá, por y con el consejo y consentimiento del Senado, nombrar a todos los funcionarios del estado cuyo nombramiento no se estipula en este documento para todos los miembros de cualquier junta, comisión u otra entidad estatal o cuasi pública que ejerza el poder ejecutivo de conformidad con las leyes de este estado; pero la asamblea general puede, por ley, otorgar el nombramiento de los oficiales inferiores, según lo consideren apropiado, en el gobernador o dentro de sus respectivos departamentos en los otros oficiales generales, el poder judicial o en los jefes de departamentos."
+        }
+      }
     },
     {
       "id": "question-c",
@@ -650,7 +815,15 @@
       "section": "State of Hamilton",
       "shortTitle": "Question C",
       "title": "Question C: Limits to Damages for Non-Economic Loss",
-      "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider? \"Non-economic loss\" generally includes, but is not limited to, losses such as pain and suffering, inconvenience, mental anguish, loss of capacity for enjoyment of life, loss of consortium, and other losses the claimant is entitled to recover as damages under general law.\n\n This amendment will not in any way affect the recovery of damages for economic loss under State law. \"Economic loss\" generally includes, but is not limited to, monetary losses such as past and future medical expenses, loss of past and future earnings, loss of use of property, costs of repair or replacement, the economic value of domestic services, loss of employment or business opportunities. This amendment will not in any way affect the recovery of any additional damages known under State law as exemplary or punitive damages, which are damages allowed by law to punish a defendant and to deter persons from engaging in similar conduct in the future."
+      "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider? \"Non-economic loss\" generally includes, but is not limited to, losses such as pain and suffering, inconvenience, mental anguish, loss of capacity for enjoyment of life, loss of consortium, and other losses the claimant is entitled to recover as damages under general law. \n\nThis amendment will not in any way affect the recovery of damages for economic loss under State law. \"Economic loss\" generally includes, but is not limited to, monetary losses such as past and future medical expenses, loss of past and future earnings, loss of use of property, costs of repair or replacement, the economic value of domestic services, loss of employment or business opportunities. This amendment will not in any way affect the recovery of any additional damages known under State law as exemplary or punitive damages, which are damages allowed by law to punish a defendant and to deter persons from engaging in similar conduct in the future.",
+      "_lang": {
+        "es-us": {
+          "section": "Estado de Hamilton",
+          "shortTitle": "Pregunta C",
+          "title": "Pregunta C: Límites a los daños por pérdidas no económicas",
+          "description": "¿Deberá haber una enmienda a la constitución estatal que permita a la legislatura estatal promulgar leyes que limiten la cantidad de daños por pérdidas no económicas que podrían otorgarse por lesiones o muerte causadas por un proveedor de atención médica? \"Pérdida no económica \" generalmente incluye, pero no se limita a, pérdidas tales como dolor y sufrimiento, inconvenientes, angustia mental, pérdida de capacidad para disfrutar de la vida, pérdida de consorcio y otras pérdidas que el reclamante tiene derecho a recuperar. como daños según la ley general. \n\nEsta enmienda no afectará de ninguna manera la recuperación de daños por pérdidas económicas según la ley estatal. \"Pérdida económica \" generalmente incluye, pero no se limita a, pérdidas monetarias tales como gastos médicos pasados ​​y futuros, pérdida de ganancias pasadas y futuras, pérdida de uso de propiedad, costos de reparación o reemplazo, el valor económico de los servicios domésticos. , pérdida de empleo u oportunidades de negocio. Esta enmienda no afectará de ninguna manera la recuperación de daños adicionales conocidos bajo la ley estatal como daños ejemplares o punitivos, que son daños permitidos por la ley para castigar a un acusado y disuadir a las personas de participar en una conducta similar en el futuro."
+        }
+      }
     },
     {
       "id": "proposition-1",
@@ -659,7 +832,15 @@
       "section": "State of Hamilton",
       "shortTitle": "Proposition 1",
       "title": "Proposition 1: Gambling in Franklin and Fromwit Counties",
-      "description": "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of this amendment? Requires implementing legislation."
+      "description": "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of this amendment? Requires implementing legislation.",
+      "_lang": {
+        "es-us": {
+          "section": "Estado de Hamilton",
+          "shortTitle": "Proposición 1",
+          "title": "Proposición 1: Juegos de azar en los condados de Franklin y Fromwit",
+          "description": "¿Deberá haber una enmienda a la constitución estatal que autorice a los condados de Franklin y Fromwit a celebrar referéndums sobre si autorizar máquinas tragamonedas en instalaciones existentes, con licencia de parmutuel (carreras de pura sangre y arnés, carreras de galgos y jai alai) que han realizado carreras en vivo o juegos en ese condado durante cada uno de los últimos dos años calendario antes de la fecha de vigencia de esta enmienda? Requiere legislación de implementación."
+        }
+      }
     },
     {
       "id": "measure-101",
@@ -668,7 +849,15 @@
       "section": "Franklin County",
       "shortTitle": "Measure 101",
       "title": "Measure 101: College District",
-      "description": "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?"
+      "description": "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?",
+      "_lang": {
+        "es-us": {
+          "section": "Condado de Franklin",
+          "shortTitle": "Medida 101",
+          "title": "Medida 101: Distrito universitario",
+          "description": "Mejorar las instalaciones educativas en Diablo Valley y Franklin, Colleges y el centro de San Brentwood, y ayudar a preparar a los estudiantes para trabajos y transferencias universitarias modernizando las aulas y laboratorios, construyendo instalaciones para capacitación en salud, medicina, ciencia y tecnología e implementando infraestructura mejoras, el Franklin Community College District emitirá $ 450 millones en bonos a tasas de interés legales con supervisión independiente, auditorías y todos los fondos gastados en sitios locales?"
+        }
+      }
     },
     {
       "id": "102",
@@ -677,7 +866,15 @@
       "section": "Franklin County",
       "shortTitle": "Measure 102",
       "title": "Measure 102: Vehicle Abatement Program",
-      "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
+      "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?",
+      "_lang": {
+        "es-us": {
+          "section": "Condado de Franklin",
+          "shortTitle": "Medida 102",
+          "title": "Medida 102: Programa de reducción de vehículos",
+          "description": "Si el Programa de reducción de vehículos del condado de Franklin y las tarifas de registro de vehículos (un dólar por vehículo y dos dólares adicionales para ciertos vehículos comerciales pagaderos al registrar un vehículo) se renueven por un período de diez años a partir del 1 de julio de 2021, para la reducción y retiro de vehículos abandonados, destrozados, desmantelados o inoperantes?"
+        }
+      }
     },
     {
       "id": "measure-666",
@@ -687,27 +884,15 @@
       "section": "Franklin County",
       "shortTitle": "Measure 666",
       "title": "Measure 666: The Question No One Gets To",
-      "description": "This question has a partyId, but no ballot style with the corresponding districts has that partyId, so this question will never get selected by a ballot style. This completes test coverage."
-    },
-    {
-      "id": "primary-constitution-head-of-party",
-      "districtId": "7",
-      "partyId": "3",
-      "type": "candidate",
-      "section": "Franklin County",
-      "title": "Head of Constitution Party",
-      "seats": 1,
-      "candidates": [
-        {
-          "id": "alice",
-          "name": "Alice Jones",
-          "partyId": "3"
-        },
-        {
-          "id": "bob",
-          "name": "Bob Smith"
+      "description": "This question has a partyId, but no ballot style with the corresponding districts has that partyId, so this question will never get selected by a ballot style. This completes test coverage.",
+      "_lang": {
+        "es-us": {
+          "section": "Condado de Franklin",
+          "shortTitle": "Medida 666",
+          "title": "Medida 666: La pregunta a la que nadie llega",
+          "description": "Esta pregunta tiene un partyId, pero ningún estilo de boleta con los distritos correspondientes tiene ese partyId, por lo que esta pregunta nunca será seleccionada por un estilo de boleta. Esto completa la cobertura de prueba."
         }
-      ]
+      }
     }
   ],
   "precincts": [
