@@ -2115,7 +2115,7 @@ test('enforcing test vs live mode', async () => {
       await blankPage1.metadata({ isTestBallot: true })
     )
   ).rejects.toThrowError(
-    'interpreter configured with testMode=false cannot process ballots with isTestBallot=true'
+    'interpreter configured with testMode=false cannot add templates with isTestBallot=true'
   )
 
   await interpreter.addTemplate(
@@ -2133,8 +2133,21 @@ test('enforcing test vs live mode', async () => {
       await blankPage1.metadata({ isTestBallot: true })
     )
   ).rejects.toThrowError(
-    'interpreter configured with testMode=false cannot process ballots with isTestBallot=true'
+    'interpreter configured with testMode=false cannot interpret ballots with isTestBallot=true'
   )
+})
+
+test('can interpret a template that is not in the same mode as the interpreter', async () => {
+  const interpreter = new Interpreter({ election, testMode: true })
+
+  expect(
+    (
+      await interpreter.interpretTemplate(
+        await blankPage1.imageData(),
+        await blankPage1.metadata({ isTestBallot: false })
+      )
+    ).ballotImage.metadata.isTestBallot
+  ).toBe(false)
 })
 
 test('regression: page outline', async () => {
