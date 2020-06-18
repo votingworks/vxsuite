@@ -2014,7 +2014,7 @@ test('custom QR code reader', async () => {
   const interpreter = new Interpreter({
     election,
     detectQRCode: async (): Promise<DetectQRCodeResult> => ({
-      data: Buffer.from('https://vx.vote?t=_&pr=11&bs=22&p=3-4'),
+      data: Buffer.from('https://ballot.page?t=_&pr=11&bs=22&p=3-4'),
     }),
   })
   const template = await interpreter.interpretTemplate(
