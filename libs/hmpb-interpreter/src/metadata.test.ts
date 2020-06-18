@@ -73,7 +73,7 @@ test('custom QR code reader', async () => {
   expect(
     await detect(await blankPage1.imageData(), {
       detectQRCode: async () => ({
-        data: Buffer.from('https://vx.vote?t=_&pr=11&bs=22&p=3-4'),
+        data: Buffer.from('https://ballot.page?t=_&pr=11&bs=22&p=3-4'),
       }),
     })
   ).toEqual({
