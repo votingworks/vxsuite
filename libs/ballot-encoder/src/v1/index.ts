@@ -94,7 +94,9 @@ function encodeBallotVotesInto(
 
         // candidate choices get one bit per candidate
         for (const candidate of contest.candidates) {
-          bits.writeBoolean(choices.some(choice => choice.id === candidate.id))
+          bits.writeBoolean(
+            choices.some((choice) => choice.id === candidate.id)
+          )
         }
 
         if (contest.allowWriteIns) {
@@ -151,7 +153,7 @@ export function decodeBallotFromReader(
       `ballot style with id ${JSON.stringify(
         ballotStyleId
       )} could not be found, expected one of: ${election.ballotStyles
-        .map(bs => bs.id)
+        .map((bs) => bs.id)
         .join(', ')}`
     )
   }
@@ -164,7 +166,7 @@ export function decodeBallotFromReader(
       `precinct with id ${JSON.stringify(
         precinctId
       )} could not be found, expected one of: ${election.precincts
-        .map(p => p.id)
+        .map((p) => p.id)
         .join(', ')}`
     )
   }

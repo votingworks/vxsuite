@@ -15,23 +15,42 @@ import {
   Uint8Index,
   Uint8Size,
 } from '../src/bits'
+import { SubType } from '../src/types'
 
-type Instance = InstanceType<new (...args: any) => any>
-
-interface Action<C extends Instance, M extends keyof C = keyof C> {
+// eslint-disable-next-line @typescript-eslint/ban-types
+type BitWriterMethods = SubType<BitWriter, Function>
+interface BitWriterAction<
+  M extends keyof BitWriterMethods = keyof BitWriterMethods
+> {
   method: M
-  args: Parameters<C[M]>
-  returnValue?: ReturnType<C[M]>
+  args: Parameters<BitWriterMethods[M]>
+  returnValue?: ReturnType<BitWriterMethods[M]>
 }
 
-interface BoundAction<C extends Instance, M extends keyof C = keyof C>
-  extends Action<C, M> {
+// eslint-disable-next-line @typescript-eslint/ban-types
+type BitReaderMethods = SubType<BitReader, Function>
+interface BitReaderAction<
+  M extends keyof BitReaderMethods = keyof BitReaderMethods
+> {
+  method: M
+  args: Parameters<BitReaderMethods[M]>
+  returnValue?: ReturnType<BitReaderMethods[M]>
+}
+
+type Action<
+  C extends BitWriter | BitReader = BitWriter | BitReader
+> = C extends BitWriter ? BitWriterAction : BitReaderAction
+
+interface PerformedAction<
+  C extends BitWriter | BitReader = BitWriter | BitReader
+> {
   receiver: C
+  action: Action<C>
 }
 
 const random = new Random()
 
-type ActionsPair = [Action<BitWriter>[], Action<BitReader>[]]
+type ActionsPair = [BitWriterAction[], BitReaderAction[]]
 
 /**
  * Test cases are a pair of lists for write and read actions that should match
@@ -47,7 +66,7 @@ const testCaseFactories = {
 
     return [
       [{ method: 'writeBoolean', args }],
-      args.map(arg => ({
+      args.map((arg) => ({
         method: 'readBoolean',
         args: [],
         returnValue: arg,
@@ -120,7 +139,7 @@ const testCaseFactories = {
           args: args as Parameters<BitWriter['writeUint1']>,
         },
       ],
-      args.map(arg => ({
+      args.map((arg) => ({
         method: 'readUint1',
         args: [],
         returnValue: arg,
@@ -141,7 +160,7 @@ const testCaseFactories = {
           args: args as Parameters<BitWriter['writeUint8']>,
         },
       ],
-      args.map(arg => ({
+      args.map((arg) => ({
         method: 'readUint8',
         args: [],
         returnValue: arg,
@@ -163,7 +182,7 @@ const testCaseFactories = {
  * ])
  */
 function doWritesAndReads([writes, reads]: ActionsPair): void {
-  const performedActions: BoundAction<any>[] = []
+  const performedActions: PerformedAction[] = []
   const writer = new BitWriter()
 
   for (const write of writes) {
@@ -224,14 +243,14 @@ const resetColor = '\x1b[0m'
  * formatAction({ method: 'push', args: [1], receiver: array })               // Array#push(1)
  * formatAction({ method: 'pop', args: [], receiver: array, returnValue: 1 }) // Array#pop() → 1
  */
-function formatAction<C extends Instance>(
-  action: BoundAction<C>,
+function formatAction(
+  { action, receiver }: PerformedAction,
   includeReturnValue = false
 ): string {
-  return `${codeColor}${action.receiver.constructor.name}#${
+  return `${codeColor}${receiver.constructor.name}#${
     action.method
-  }(${resetColor}${action.args
-    .map(arg => inspect(arg, { colors: true }))
+  }(${resetColor}${(action.args as string[])
+    .map((arg) => inspect(arg, { colors: true }))
     .join(', ')}${codeColor})${resetColor}${
     includeReturnValue && typeof action.returnValue !== 'undefined'
       ? ` → ${inspect(action.returnValue, { colors: true })}`
@@ -256,12 +275,12 @@ function formatAction<C extends Instance>(
  * // - n/a
  * formatActions([])
  */
-function formatActions<C extends Instance>(actions: BoundAction<C>[]): string {
+function formatActions(actions: PerformedAction[]): string {
   if (actions.length === 0) {
     return `- ${dimColor}n/a${resetColor}`
   }
 
-  return actions.map(action => `- ${formatAction(action, true)}`).join('\n')
+  return actions.map((action) => `- ${formatAction(action, true)}`).join('\n')
 }
 
 /**
@@ -271,20 +290,19 @@ function formatActions<C extends Instance>(actions: BoundAction<C>[]): string {
  * expected value, an error will be thrown with the log of performed actions
  * that led to this failure.
  */
-function performAction<C extends Instance>(
+function performAction<C extends BitWriter | BitReader>(
   action: Action<C>,
   receiver: C,
-  log: BoundAction<C>[]
+  log: PerformedAction<C>[]
 ): void {
-  const boundAction = { ...action, receiver }
   let actualValue: typeof action['returnValue']
 
   try {
-    actualValue = receiver[action.method](...action.args)
+    actualValue = (receiver as any)[action.method](...action.args)
   } catch (error) {
     error.message = `After performing these actions:\n${formatActions(
       log
-    )}\n\nAction ${formatAction(boundAction)}${
+    )}\n\nAction ${formatAction({ receiver, action })}${
       typeof action.returnValue === 'undefined'
         ? ''
         : ` (expected return ${inspect(action.returnValue, { colors: true })})`
@@ -298,12 +316,13 @@ function performAction<C extends Instance>(
     } catch (error) {
       error.message = `After performing these actions:\n${formatActions(
         log
-      )}\n\nAction ${formatAction(
-        boundAction
-      )} did not return expected value.\n\n${error.message}`
+      )}\n\nAction ${formatAction({
+        receiver,
+        action,
+      })} did not return expected value.\n\n${error.message}`
       throw error
     }
   }
 
-  log.push(boundAction)
+  log.push({ receiver, action })
 }

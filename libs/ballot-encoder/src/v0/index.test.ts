@@ -105,7 +105,7 @@ test('encodes & decodes yesno votes', () => {
   const ballotStyle = election.ballotStyles[0]
   const contests = getContests({ ballotStyle, election })
   const precinct = election.precincts[0]
-  const yesnos = contests.filter(contest => contest.type === 'yesno')!
+  const yesnos = contests.filter((contest) => contest.type === 'yesno')!
   const votes = vote(contests, {
     [yesnos[0].id]: 'yes',
     [yesnos[1].id]: 'no',
@@ -130,7 +130,9 @@ test('encodes & decodes candidate votes', () => {
   const ballotStyle = election.ballotStyles[0]
   const contests = getContests({ ballotStyle, election })
   const precinct = election.precincts[0]
-  const contest = contests.find(c => c.type === 'candidate') as CandidateContest
+  const contest = contests.find(
+    (c) => c.type === 'candidate'
+  ) as CandidateContest
   const votes = vote(contests, {
     [contest.id]: contest.candidates.slice(0, 2),
   })
@@ -154,7 +156,9 @@ test('encodes write-ins as `W`', () => {
   const ballotStyle = election.ballotStyles[0]
   const contests = getContests({ ballotStyle, election })
   const precinct = election.precincts[0]
-  const contest = contests.find(c => c.type === 'candidate') as CandidateContest
+  const contest = contests.find(
+    (c) => c.type === 'candidate'
+  ) as CandidateContest
   const votes = vote(contests, {
     [contest.id]: [
       { name: 'MICKEY MOUSE', isWriteIn: true, id: 'write-in__MICKEY MOUSE' },
@@ -198,7 +202,7 @@ test('cannot encode a yesno contest with an invalid value', () => {
   const ballotStyle = election.ballotStyles[0]
   const contests = getContests({ ballotStyle, election })
   const precinct = election.precincts[0]
-  const yesnos = contests.filter(contest => contest.type === 'yesno')!
+  const yesnos = contests.filter((contest) => contest.type === 'yesno')!
   const votes = vote(contests, {
     [yesnos[0].id]: 'YEP',
   })

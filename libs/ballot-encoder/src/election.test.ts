@@ -7,22 +7,22 @@ import {
 } from './election'
 
 test('can build votes from a candidate ID', () => {
-  const contests = election.contests.filter(c => c.id === 'president')
+  const contests = election.contests.filter((c) => c.id === 'president')
   const president = contests[0] as CandidateContest
   const candidateId = 'barchi-hallaren'
 
   expect(vote(contests, { president: candidateId })).toEqual({
-    president: [president.candidates.find(c => candidateId === c.id)],
+    president: [president.candidates.find((c) => candidateId === c.id)],
   })
 })
 
 test('can build votes from an array of candidate IDs', () => {
-  const contests = election.contests.filter(c => c.id === 'president')
+  const contests = election.contests.filter((c) => c.id === 'president')
   const president = contests[0] as CandidateContest
   const candidateIds = ['barchi-hallaren', 'cramer-vuocolo']
 
   expect(vote(contests, { president: candidateIds })).toEqual({
-    president: president.candidates.filter(c => candidateIds.includes(c.id)),
+    president: president.candidates.filter((c) => candidateIds.includes(c.id)),
   })
 })
 
@@ -36,7 +36,7 @@ test('can build votes from yesno values', () => {
 })
 
 test('can build votes from a candidate object', () => {
-  const contests = election.contests.filter(c => c.id === 'president')
+  const contests = election.contests.filter((c) => c.id === 'president')
   const president = contests[0] as CandidateContest
   const candidate = president.candidates[0]
 
@@ -46,7 +46,7 @@ test('can build votes from a candidate object', () => {
 })
 
 test('can build votes from a candidates array', () => {
-  const contests = election.contests.filter(c => c.id === 'president')
+  const contests = election.contests.filter((c) => c.id === 'president')
   const president = contests[0] as CandidateContest
   const { candidates } = president
 

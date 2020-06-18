@@ -212,7 +212,7 @@ it('encodes & decodes yesno votes correctly', () => {
     // ballot Id
     .writeString('abcde')
     // vote roll call
-    .writeBoolean(...contests.map(contest => contest.id in votes))
+    .writeBoolean(...contests.map((contest) => contest.id in votes))
     // vote data
     .writeBoolean(true)
     .writeBoolean(true)
@@ -271,7 +271,7 @@ it('encodes & decodes candidate choice votes correctly', () => {
     // ballot Id
     .writeString('abcde')
     // vote roll call
-    .writeBoolean(...contests.map(contest => contest.id in votes))
+    .writeBoolean(...contests.map((contest) => contest.id in votes))
     // vote data
     // - president (barchi-hallaren)
     .writeBoolean(true, ...falses(5))
@@ -341,7 +341,7 @@ it('encodes & decodes write-in votes correctly', () => {
     // ballot Id
     .writeString('abcde')
     // vote roll call
-    .writeBoolean(...contests.map(contest => contest.id in votes))
+    .writeBoolean(...contests.map((contest) => contest.id in votes))
     // vote data
     // - county-registrar-of-wills (ramachandrani)
     .writeBoolean(false)

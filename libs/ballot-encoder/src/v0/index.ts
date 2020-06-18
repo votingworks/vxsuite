@@ -82,7 +82,7 @@ export function encodeBallotAsString({
 
 function encodeBallotVotes(contests: Contests, votes: VotesDict): string {
   return contests
-    .map(contest => {
+    .map((contest) => {
       const contestVote = votes[contest.id]
       if (!contestVote) {
         return EmptyVoteValue
@@ -119,9 +119,9 @@ function encodeCandidateVote(
   contest: CandidateContest,
   contestVote: CandidateVote
 ): string {
-  const candidateIDs = contest.candidates.map(c => c.id)
+  const candidateIDs = contest.candidates.map((c) => c.id)
   return (contestVote as CandidateVote)
-    .map(c => (c.isWriteIn ? 'W' : candidateIDs.indexOf(c.id)))
+    .map((c) => (c.isWriteIn ? 'W' : candidateIDs.indexOf(c.id)))
     .join(CandidateSeparator)
 }
 
@@ -144,7 +144,7 @@ export function decodeBallotFromString(
   if (encodedBallotSections.length !== BallotSections.length) {
     throw new Error(
       `ballot data is malformed, expected data in this format: ${BallotSections.map(
-        section => `«${section}»`
+        (section) => `«${section}»`
       ).join(BallotSectionSeparator)}`
     )
   }

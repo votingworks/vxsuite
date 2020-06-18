@@ -195,13 +195,13 @@ export default class BitWriter {
         inGroupsOf(
           Uint8Size,
           Array.from(this.toUint8Array())
-            .map(n => n.toString(2).padStart(Uint8Size, '0'))
+            .map((n) => n.toString(2).padStart(Uint8Size, '0'))
             .join('')
             .slice(0, this.cursor.combinedBitOffset)
             .split('')
         )
       )
-        .map(row => row.map(cell => cell.join('')).join(' '))
+        .map((row) => row.map((cell) => cell.join('')).join(' '))
         .join('\n')
     )
     return this

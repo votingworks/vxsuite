@@ -65,9 +65,9 @@ export class CustomEncoding implements Encoding {
   private static validateChars(chars: string): void {
     if (chars.length > CustomEncoding.MAX_CODE + 1) {
       throw new Error(
-        `character set too large, has ${
-          chars.length
-        } but only ${CustomEncoding.MAX_CODE + 1} are allowed`
+        `character set too large, has ${chars.length} but only ${
+          CustomEncoding.MAX_CODE + 1
+        } are allowed`
       )
     }
 

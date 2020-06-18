@@ -30,10 +30,7 @@ test('can round-trip a utf-8 emoji string', () => {
 
 test('can round-trip a non-aligned utf-8 emoji string', () => {
   const reader = new BitReader(
-    new BitWriter()
-      .writeUint1(0)
-      .writeString('🌈')
-      .toUint8Array()
+    new BitWriter().writeUint1(0).writeString('🌈').toUint8Array()
   )
 
   expect(reader.readUint1()).toEqual(0)

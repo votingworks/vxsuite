@@ -15,20 +15,13 @@ test('can write a byte', () => {
 
 test('can write multiple bits', () => {
   expect(
-    new BitWriter()
-      .writeUint1(1)
-      .writeUint1(0)
-      .writeUint1(1)
-      .toUint8Array()
+    new BitWriter().writeUint1(1).writeUint1(0).writeUint1(1).toUint8Array()
   ).toEqual(Uint8Array.of(0b10100000))
 })
 
 test('can write multiple bytes', () => {
   expect(
-    new BitWriter()
-      .writeUint8(0b00010110)
-      .writeUint8(0b11110000)
-      .toUint8Array()
+    new BitWriter().writeUint8(0b00010110).writeUint8(0b11110000).toUint8Array()
   ).toEqual(Uint8Array.of(0b00010110, 0b11110000))
 })
 
@@ -44,10 +37,7 @@ test('writes a boolean by writing a bit', () => {
 
 test('can write a non-aligned byte after writing a bit', () => {
   expect(
-    new BitWriter()
-      .writeUint1(1)
-      .writeUint8(0b00001110)
-      .toUint8Array()
+    new BitWriter().writeUint1(1).writeUint8(0b00001110).toUint8Array()
   ).toEqual(Uint8Array.of(0b10000111, 0b00000000))
 })
 
@@ -84,10 +74,7 @@ test('can write a utf-8 string without a preceding length', () => {
 
 test('can write a non-aligned utf-8 string after writing a bit', () => {
   expect(
-    new BitWriter()
-      .writeUint1(1)
-      .writeString('abc')
-      .toUint8Array()
+    new BitWriter().writeUint1(1).writeString('abc').toUint8Array()
   ).toEqual(
     Uint8Array.of(0b10000001, 0b10110000, 0b10110001, 0b00110001, 0b10000000)
   )
