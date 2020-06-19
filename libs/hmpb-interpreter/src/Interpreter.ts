@@ -124,6 +124,13 @@ export default class Interpreter {
     if (!metadata) {
       metadata = template.ballotImage.metadata
     }
+
+    if (metadata.isTestBallot !== this.testMode) {
+      throw new Error(
+        `interpreter configured with testMode=${this.testMode} cannot add templates with isTestBallot=${metadata.isTestBallot}`
+      )
+    }
+
     this.setTemplate(
       metadata.ballotStyleId,
       metadata.precinctId,
@@ -335,17 +342,6 @@ export default class Interpreter {
     metadata?: BallotPageMetadata,
     { flipped = false } = {}
   ): Promise<Interpreted> {
-    const marked = await this.findMarks(imageData, metadata, { flipped })
-    const ballot = this.interpretMarks(marked)
-    return { ...marked, ballot }
-  }
-
-  private async findMarks(
-    imageData: ImageData,
-    metadata?: BallotPageMetadata,
-    { flipped = false } = {}
-  ): Promise<FindMarksResult> {
-    debug('looking for marks in %d×%d image', imageData.width, imageData.height)
     ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
       imageData,
       metadata,
@@ -353,7 +349,24 @@ export default class Interpreter {
         flipped,
       }
     ))
+
+    if (metadata.isTestBallot !== this.testMode) {
+      throw new Error(
+        `interpreter configured with testMode=${this.testMode} cannot interpret ballots with isTestBallot=${metadata.isTestBallot}`
+      )
+    }
+
     debug('using metadata: %O', metadata)
+    const marked = await this.findMarks(imageData, metadata)
+    const ballot = this.interpretMarks(marked)
+    return { ...marked, ballot }
+  }
+
+  private async findMarks(
+    imageData: ImageData,
+    metadata: BallotPageMetadata
+  ): Promise<FindMarksResult> {
+    debug('looking for marks in %d×%d image', imageData.width, imageData.height)
 
     if (!this.canScanBallot(metadata)) {
       throw new Error(
@@ -471,12 +484,6 @@ export default class Interpreter {
         debug('detected image is flipped, correcting orientation')
         flipVH(imageData)
       }
-    }
-
-    if (metadata.isTestBallot !== this.testMode) {
-      throw new Error(
-        `interpreter configured with testMode=${this.testMode} cannot process ballots with isTestBallot=${metadata.isTestBallot}`
-      )
     }
 
     return { imageData, metadata }
