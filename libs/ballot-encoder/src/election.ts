@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import electionSampleUntyped from './data/electionSample.json'
 
 // Generic
@@ -6,6 +7,20 @@ export interface Dictionary<T> {
   [key: string]: Optional<T>
 }
 export type Optional<T> = T | undefined
+
+export type LocaleMap<T extends object, K extends keyof T = keyof T> = {
+  [key: string]: { [P in K]?: T[P] } | undefined
+}
+
+export type Localize<T extends object, K extends keyof T> = {
+  _lang?: LocaleMap<T, K>
+} & {
+  [P in keyof T]: T[P] extends (infer E)[]
+    ? Localized<E>[]
+    : T[P] extends object
+    ? Localized<T[P]>
+    : T[P]
+}
 
 // Candidates
 export interface Candidate {
@@ -79,6 +94,26 @@ export interface Election {
   readonly title: string
 }
 export type OptionalElection = Optional<Election>
+
+type Localized<T> = T extends Election
+  ? Localize<
+      Election,
+      'date' | 'seal' | 'sealURL' | 'state' | 'title' | 'districts'
+    >
+  : T extends BallotStyle
+  ? Localize<T, 'precincts' | 'districts'>
+  : T extends Precinct
+  ? Localize<T, 'name'>
+  : T extends District
+  ? Localize<T, 'name'>
+  : T
+
+export type LocalizedElection = Localized<Election>
+
+export type LocalizedBallotStyles = {
+  readonly precincts: Localized<Precinct>[]
+  readonly districts: string[]
+}
 
 // Votes
 export type CandidateVote = Candidate[]
@@ -203,7 +238,7 @@ export const validateVotes = ({
   }
 }
 
-export const electionSample = electionSampleUntyped as Election
+export const electionSample = electionSampleUntyped as LocalizedElection
 
 /**
  * Gets the adjective used to describe the political party for a primary
@@ -290,4 +325,62 @@ export function vote(
       [contestId]: Array.isArray(choice) ? choice : [choice],
     }
   }, {})
+}
+
+/**
+ * Copies an election definition preferring strings from the matching locale.
+ */
+export function withLocale(election: Election, locale: string): Election {
+  return copyWithLocale(election, locale)
+}
+
+function copyWithLocale<T>(value: T, locale: string): T
+function copyWithLocale<T>(value: T[], locale: string): T[]
+function copyWithLocale<T>(value: T, locale: string): T {
+  if (Array.isArray(value)) {
+    return (value.map((element) =>
+      copyWithLocale(element, locale)
+    ) as unknown) as T
+  }
+
+  if (typeof value === 'undefined') {
+    return value
+  }
+
+  if (typeof value === 'object') {
+    const record = value as Record<string, unknown>
+    const lang =
+      '_lang' in record && (record._lang as LocaleMap<Record<string, unknown>>)
+
+    if (!lang) {
+      return value
+    }
+
+    const stringsEntry = Object.entries(lang).find(
+      ([key]) => key.toLowerCase() === locale.toLowerCase()
+    )
+
+    if (!stringsEntry || !stringsEntry[1]) {
+      return value
+    }
+
+    const strings = stringsEntry[1]
+    const result: Record<string, unknown> = {}
+
+    for (const [key, val] of Object.entries(record)) {
+      if (key === '_lang') {
+        continue
+      }
+
+      if (key in strings) {
+        result[key] = strings[key]
+      } else {
+        result[key] = copyWithLocale(val, locale)
+      }
+    }
+
+    return result as T
+  }
+
+  return value
 }

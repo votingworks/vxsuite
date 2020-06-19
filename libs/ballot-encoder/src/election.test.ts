@@ -1,9 +1,10 @@
 import {
-  vote,
-  getPartyPrimaryAdjectiveFromBallotStyle,
-  electionSample as election,
-  validateVotes,
   CandidateContest,
+  electionSample as election,
+  getPartyPrimaryAdjectiveFromBallotStyle,
+  validateVotes,
+  vote,
+  withLocale,
 } from './election'
 
 test('can build votes from a candidate ID', () => {
@@ -103,4 +104,30 @@ test('validates votes by checking that contests are present in a given ballot st
   ).toThrowError(
     'found a vote with contest id "nope", but no such contest exists in ballot style 12'
   )
+})
+
+test('pulls translation keys from the top level object', () => {
+  expect(election.title).toEqual('General Election')
+  expect(withLocale(election, 'es-US').title).toEqual('Eleccion General')
+})
+
+test('pulls translation keys from nested objects', () => {
+  expect(election.parties[0].name).toEqual('Federalist')
+  expect(withLocale(election, 'es-US').parties[0].name).toEqual('Federalista')
+})
+
+test('treats locale identifier as case-insensitive', () => {
+  expect(withLocale(election, 'es-US')).toEqual(withLocale(election, 'eS-Us'))
+})
+
+test('passes undefined values through', () => {
+  expect(withLocale({ ...election, seal: undefined }, 'es-US')).toHaveProperty(
+    'seal',
+    undefined
+  )
+})
+
+test('uses the defaults for anything without a translation', () => {
+  expect(withLocale(election, 'en-US').title).toEqual(election.title)
+  expect(withLocale(election, 'fr-FR').title).toEqual(election.title)
 })
