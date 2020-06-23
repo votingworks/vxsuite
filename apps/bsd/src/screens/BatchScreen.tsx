@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useHistory, useParams, Link } from 'react-router-dom'
 import Prose from '../components/Prose'
 import Table from '../components/Table'
-import { Ballot } from '../config/types'
+import { Ballot, HmpbBallotInfo, BmdBallotInfo } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
 
 export default function BatchScreen() {
@@ -30,16 +30,25 @@ export default function BatchScreen() {
               <th>Ballot Style ID</th>
               <th>&nbsp;</th>
             </tr>
-            {ballots?.map((ballot) => (
-              <tr key={ballot.id}>
-                <td>{ballot.id}</td>
-                <td>{ballot.cvr?._precinctId}</td>
-                <td>{ballot.cvr?._ballotStyleId}</td>
-                <td>
-                  <Link to={`/batch/${batchId}/ballot/${ballot.id}`}>View</Link>
-                </td>
-              </tr>
-            ))}
+            {ballots
+              ?.filter(
+                (ballot): ballot is HmpbBallotInfo | BmdBallotInfo =>
+                  'cvr' in ballot
+              )
+              .map((ballot) => (
+                <tr key={ballot.id}>
+                  <td>{ballot.id}</td>
+                  {/* eslint-disable-next-line no-underscore-dangle */}
+                  <td>{ballot.cvr._precinctId}</td>
+                  {/* eslint-disable-next-line no-underscore-dangle */}
+                  <td>{ballot.cvr._ballotStyleId}</td>
+                  <td>
+                    <Link to={`/batch/${batchId}/ballot/${ballot.id}`}>
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))}
           </thead>
         </Table>
       </Prose>
