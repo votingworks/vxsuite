@@ -11,6 +11,17 @@ yarn install
 yarn pnpify --sdk
 ```
 
+## Developing Alongside another Project
+
+In dev `ballot-encoder` dir, run `yarn tsc` to generate JavaScript files.
+
+In the PROJECT you wish to use this dev version of `ballot-encoder`:
+
+1. `cd path/to/PROJECT/node_modules/@votingworks`
+2. `rm -rf ballot-encoder`
+3. `ln -s path/to/ballot-encoder ballot-encoder`
+4. restart project server if applicable
+
 ## Example
 
 ```ts
