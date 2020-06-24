@@ -44,18 +44,18 @@ const BallotListScreen = () => {
             <SegmentedButton>
               <Button small onPress={sortByStyle} disabled={ballotView === 0}>
                 Style
-            </Button>
+              </Button>
               <Button
                 small
                 onPress={sortByPrecinct}
                 disabled={ballotView === 1}
               >
                 Precinct
-            </Button>
+              </Button>
             </SegmentedButton>{' '}
             <LinkButton small to={routerPaths.export}>
               Export Ballot Package
-          </LinkButton>
+            </LinkButton>
           </p>
         </Prose>
       </Header>
@@ -83,7 +83,7 @@ const BallotListScreen = () => {
                     to={routerPaths.ballotsView(ballot)}
                   >
                     View Ballot
-                </LinkButton>
+                  </LinkButton>
                 </TD>
                 <TD>{ballot.ballotStyleId}</TD>
                 <TD>
