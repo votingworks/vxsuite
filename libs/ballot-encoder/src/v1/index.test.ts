@@ -2,7 +2,7 @@ import { BitWriter } from '../bits'
 import {
   BallotType,
   BallotTypeMaximumValue,
-  electionSample as election,
+  electionSampleLongContent as election,
   getContests,
   vote,
 } from '../election'

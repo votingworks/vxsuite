@@ -383,6 +383,56 @@
           "id": "ash",
           "name": "Henry Ash",
           "partyId": "6"
+        },
+        {
+          "id": "kennedy",
+          "name": "Karen Kennedy",
+          "partyId": "6"
+        },
+        {
+          "id": "jackson",
+          "name": "Van Jackson",
+          "partyId": "6"
+        },
+        {
+          "id": "brown",
+          "name": "Debbie Brown",
+          "partyId": "6"
+        },
+        {
+          "id": "teller",
+          "name": "Joseph Teller",
+          "partyId": "6"
+        },
+        {
+          "id": "ward",
+          "name": "Greg Ward",
+          "partyId": "6"
+        },
+        {
+          "id": "murphy",
+          "name": "Lou Murphy",
+          "partyId": "6"
+        },
+        {
+          "id": "newman",
+          "name": "Jane Newman",
+          "partyId": "6"
+        },
+        {
+          "id": "callanann",
+          "name": "Jack Callanann",
+          "partyId": "6"
+        },
+        {
+          "id": "york",
+          "name": "Esther York",
+          "partyId": "6"
+        },
+        {
+          "id": "chandler",
+          "name": "Glenn Chandler",
+          "partyId": "6"
         }
       ],
       "allowWriteIns": false,
@@ -595,6 +645,26 @@
           "partyId": "3"
         },
         {
+          "id": "white",
+          "name": "John White",
+          "partyId": "4"
+        },
+        {
+          "id": "schmidt",
+          "name": "Joe Schmidt",
+          "partyId": "4"
+        },
+        {
+          "id": "smith",
+          "name": "Joe Smith",
+          "partyId": "4"
+        },
+        {
+          "id": "marracini",
+          "name": "Amanda Marracini",
+          "partyId": "5"
+        },
+        {
           "id": "schreiner",
           "name": "Martin Schreiner",
           "partyId": "6"
@@ -785,13 +855,13 @@
       "section": "State of Hamilton",
       "shortTitle": "Question B",
       "title": "Question B: Separation of Powers",
-      "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch? \n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government.",
+      "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch? \n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government. \n\nNo person holding any office under the government of the United States, or of any other state or country, shall act as a general officer or as a member of the general assembly, unless at the time of taking such engagement that person shall have resigned the office under such government; and if any general officer, senator, representative, or judge shall, after election and engagement, accept any appointment under any other government, the office under this shall be immediately vacated; but this restriction shall not apply to any person appointed to take deposition or acknowledgement of deeds, or other legal instruments, by the authority of any other state or country. \n\nNo senator or representative shall, during the time for which he or she was elected, be appointed to any state office, board, commission or other state or quasi-public entity exercising executive power under the laws of this state, and no person holding any executive office or serving as a member of any board, commission or other state or quasi-public entity exercising executive power under the laws of this state shall be a member of the senate or the house of representatives during his or her continuance in such office. \n\nb. Article V of the Constitution shall be amended to read as follows: The powers of the government shall be distributed into three (3) separate and distinct departments: the legislative, the executive and the judicial. \n\nc. Article VI, Section 10 of the Constitution shall be deleted in its entirety. \n\nd. Article IX, Section 5 of the Constitution shall be amended to read as follows: \n\nSection 5. Powers of appointment.- The governor shall, by and with the advice and consent of the senate, appoint all officers of the state whose appointment is not herein otherwise provided for and all members of any board, commission or other state or quasi-public entity which exercises executive power under the laws of this state; but the general assembly may by law vest the appointment of such inferior officers, as they deem proper, in the governor, or within their respective departments in the other general officers, the judiciary or in the heads of departments.",
       "_lang": {
         "es-US": {
           "section": "Estado de Hamilton",
           "shortTitle": "Pregunta B",
           "title": "Pregunta B: Separación de poderes",
-          "description": "¿Habrá enmiendas a la constitución del Estado destinadas a tener el efecto colectivo de asegurar la separación del poder gubernamental entre las tres ramas del gobierno estatal: la rama legislativa, la rama ejecutiva y la rama judicial? \n\na. El Artículo III, Sección 6 de la Constitución se enmendará para que lea como sigue: \n\n Sección 6. Ocupación de cargos bajo otros gobiernos \n\nSenadores y representantes para no ocupar otros cargos designados bajo el gobierno del estado."
+          "description": "¿Habrá enmiendas a la constitución del Estado destinadas a tener el efecto colectivo de asegurar la separación del poder gubernamental entre las tres ramas del gobierno estatal: la rama legislativa, la rama ejecutiva y la rama judicial? \n\na. El Artículo III, Sección 6 de la Constitución se enmendará para que lea como sigue: \n\n Sección 6. Ocupación de cargos bajo otros gobiernos \n\nSenadores y representantes para no ocupar otros cargos designados bajo el gobierno del estado. \n\nNinguna persona que tenga cualquier oficina bajo el gobierno de los Estados Unidos, o de cualquier otro estado o país, actuará como oficial general o como miembro de la asamblea general, a menos que al momento de asumir dicho compromiso, esa persona haya renunciado a la oficina bajo tal gobierno; y si algún oficial general, senador, representante o juez, después de la elección y el compromiso, acepta cualquier nombramiento bajo cualquier otro gobierno, la oficina bajo este se anulará de inmediato; pero esta restricción no se aplicará a ninguna persona designada para depositar o reconocer los hechos u otros instrumentos legales por parte de la autoridad de cualquier otro estado o país. \n\nNingún senador o representante lo hará, durante el tiempo durante el cual él o ella fue elegido, ser nombrado para cualquier cargo estatal, junta, comisión u otra entidad estatal o cuasi pública que ejerza el poder ejecutivo según las leyes de este estado, y ninguna persona que tenga un cargo ejecutivo o sirva como miembro de una junta, comisión u otro La entidad estatal o cuasi pública que ejerza el poder ejecutivo bajo las leyes de este estado será miembro del Senado o de la Cámara de Representantes durante su permanencia en dicho cargo. \n\nb. El Artículo V de la Constitución se modificará para que lea como sigue: Los poderes del gobierno se distribuirán en tres (3) departamentos separados y distintos: el legislativo, el ejecutivo y el judicial. \n\nc. El Artículo VI, Sección 10 de la Constitución se eliminará en su totalidad. \n\nd. El Artículo IX, Sección 5 de la Constitución se enmendará para que lea como sigue: \n\n Sección 5. Poderes de nombramiento.- El gobernador deberá, por y con el consejo y consentimiento del Senado, nombrar a todos los funcionarios del estado cuyo nombramiento no se estipula en este documento para todos los miembros de cualquier junta, comisión u otra entidad estatal o cuasi pública que ejerza el poder ejecutivo de conformidad con las leyes de este estado; pero la asamblea general puede, por ley, otorgar el nombramiento de los oficiales inferiores, según lo consideren apropiado, en el gobernador o dentro de sus respectivos departamentos en los otros oficiales generales, el poder judicial o en los jefes de departamentos."
         }
       }
     },
@@ -802,13 +872,13 @@
       "section": "State of Hamilton",
       "shortTitle": "Question C",
       "title": "Question C: Limits to Damages for Non-Economic Loss",
-      "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider?",
+      "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider? \"Non-economic loss\" generally includes, but is not limited to, losses such as pain and suffering, inconvenience, mental anguish, loss of capacity for enjoyment of life, loss of consortium, and other losses the claimant is entitled to recover as damages under general law. \n\nThis amendment will not in any way affect the recovery of damages for economic loss under State law. \"Economic loss\" generally includes, but is not limited to, monetary losses such as past and future medical expenses, loss of past and future earnings, loss of use of property, costs of repair or replacement, the economic value of domestic services, loss of employment or business opportunities. This amendment will not in any way affect the recovery of any additional damages known under State law as exemplary or punitive damages, which are damages allowed by law to punish a defendant and to deter persons from engaging in similar conduct in the future.",
       "_lang": {
         "es-US": {
           "section": "Estado de Hamilton",
           "shortTitle": "Pregunta C",
           "title": "Pregunta C: Límites a los daños por pérdidas no económicas",
-          "description": "¿Deberá haber una enmienda a la constitución estatal que permita a la legislatura estatal promulgar leyes que limiten la cantidad de daños por pérdidas no económicas que podrían otorgarse por lesiones o muerte causadas por un proveedor de atención médica?"
+          "description": "¿Deberá haber una enmienda a la constitución estatal que permita a la legislatura estatal promulgar leyes que limiten la cantidad de daños por pérdidas no económicas que podrían otorgarse por lesiones o muerte causadas por un proveedor de atención médica? \"Pérdida no económica \" generalmente incluye, pero no se limita a, pérdidas tales como dolor y sufrimiento, inconvenientes, angustia mental, pérdida de capacidad para disfrutar de la vida, pérdida de consorcio y otras pérdidas que el reclamante tiene derecho a recuperar. como daños según la ley general. \n\nEsta enmienda no afectará de ninguna manera la recuperación de daños por pérdidas económicas según la ley estatal. \"Pérdida económica \" generalmente incluye, pero no se limita a, pérdidas monetarias tales como gastos médicos pasados ​​y futuros, pérdida de ganancias pasadas y futuras, pérdida de uso de propiedad, costos de reparación o reemplazo, el valor económico de los servicios domésticos. , pérdida de empleo u oportunidades de negocio. Esta enmienda no afectará de ninguna manera la recuperación de daños adicionales conocidos bajo la ley estatal como daños ejemplares o punitivos, que son daños permitidos por la ley para castigar a un acusado y disuadir a las personas de participar en una conducta similar en el futuro."
         }
       }
     },

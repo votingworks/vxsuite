@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import electionSampleUntyped from './data/electionSample.json'
+import electionSampleLongContentUntyped from './data/electionSampleLongContent.json'
 
 // Generic
 export type VoidFunction = () => void
@@ -247,6 +248,7 @@ export const validateVotes = ({
 }
 
 export const electionSample = (electionSampleUntyped as unknown) as LocalizedElection
+export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as LocalizedElection
 
 /**
  * @deprecated Does not support i18n. 'party.fullname` should be used instead.
