@@ -1,11 +1,7 @@
 import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
 
 import { OptionalElection } from '@votingworks/ballot-encoder'
-import {
-  Candidate,
-  Contest,
-  VotesDict,
-} from '@votingworks/ballot-encoder'
+import { Candidate, Contest, VotesDict } from '@votingworks/ballot-encoder'
 
 // Generic
 export interface Dictionary<T> {
@@ -27,6 +23,7 @@ export type SaveElection = (value: OptionalElection) => void
 export interface BallotScreenProps {
   ballotStyleId: string
   precinctId: string
+  languageCode?: string
 }
 export interface PrecinctReportScreenProps {
   precinctId: string

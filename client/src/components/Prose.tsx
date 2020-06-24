@@ -54,10 +54,10 @@ const Prose = styled('div')<Props>`
   & h5 + p {
     margin-top: ${({ compact }) => (compact ? 0 : '-1em')};
   }
-  & > :first-child {
+  & > :not(.ignore-prose):first-child {
     margin-top: 0;
   }
-  & > :last-child {
+  & > :not(.ignore-prose):last-child {
     margin-bottom: 0;
   }
   & dl {

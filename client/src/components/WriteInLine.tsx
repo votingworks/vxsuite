@@ -8,6 +8,7 @@ interface Props {
 const Container = styled.span`
   display: block;
   flex: 1;
+  margin-top: 1em;
   border-bottom: 1pt solid #000000;
 `
 
