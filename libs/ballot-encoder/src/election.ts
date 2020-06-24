@@ -64,6 +64,7 @@ export interface BallotStyle {
 export interface Party {
   readonly id: string
   readonly name: string
+  readonly fullName: string
   readonly abbrev: string
 }
 export type Parties = Party[]
@@ -90,6 +91,7 @@ export interface Election {
   readonly date: string
   readonly seal?: string
   readonly sealURL?: string
+  readonly ballotStrings?: Dictionary<string>
   readonly state: string
   readonly title: string
 }
@@ -98,7 +100,13 @@ export type OptionalElection = Optional<Election>
 type Localized<T> = T extends Election
   ? Localize<
       Election,
-      'date' | 'seal' | 'sealURL' | 'state' | 'title' | 'districts'
+      | 'date'
+      | 'seal'
+      | 'sealURL'
+      | 'state'
+      | 'title'
+      | 'districts'
+      | 'ballotStrings'
     >
   : T extends BallotStyle
   ? Localize<T, 'precincts' | 'districts'>
@@ -238,9 +246,10 @@ export const validateVotes = ({
   }
 }
 
-export const electionSample = electionSampleUntyped as LocalizedElection
+export const electionSample = (electionSampleUntyped as unknown) as LocalizedElection
 
 /**
+ * @deprecated Does not support i18n. 'party.fullname` should be used instead.
  * Gets the adjective used to describe the political party for a primary
  * election, e.g. "Republican" or "Democratic".
  */
@@ -256,6 +265,22 @@ export const getPartyPrimaryAdjectiveFromBallotStyle = ({
   const party = abbrev && election.parties.find((p) => p.abbrev === abbrev)
   const name = party && party.name
   return (name === 'Democrat' && 'Democratic') || name || ''
+}
+
+/**
+ * Gets the full name of the political party for a primary election,
+ * e.g. "Republican Party" or "Democratic Party".
+ */
+export const getPartyFullNameFromBallotStyle = ({
+  ballotStyleId,
+  election,
+}: {
+  ballotStyleId: string
+  election: Election
+}): string => {
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  const party = election.parties.find((p) => p.id === ballotStyle?.partyId)
+  return party?.fullName ?? ''
 }
 
 /**

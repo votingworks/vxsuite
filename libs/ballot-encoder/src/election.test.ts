@@ -2,6 +2,7 @@ import {
   CandidateContest,
   electionSample as election,
   getPartyPrimaryAdjectiveFromBallotStyle,
+  getPartyFullNameFromBallotStyle,
   validateVotes,
   vote,
   withLocale,
@@ -70,15 +71,32 @@ test('can get a party primary adjective from ballot style', () => {
   ).toEqual('Federalist')
 })
 
+test('can get a party full name from ballot style', () => {
+  const ballotStyleId = '7C'
+  expect(
+    getPartyFullNameFromBallotStyle({
+      ballotStyleId,
+      election,
+    })
+  ).toEqual('Constitution Party')
+})
+
+test('can get a party full name from ballot style', () => {
+  const ballotStyleId = 'DOES_NOT_EXIST'
+  expect(
+    getPartyFullNameFromBallotStyle({
+      ballotStyleId,
+      election,
+    })
+  ).toEqual('')
+})
+
 test('special cases party primary adjective transform "Democrat" -> "Democratic"', () => {
   const ballotStyleId = '12D'
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
-      election: {
-        ...election,
-        parties: [{ id: '0', abbrev: 'D', name: 'Democrat' }],
-      },
+      election,
     })
   ).toEqual('Democratic')
 })
