@@ -18,7 +18,7 @@ import NavigationScreen from '../components/NavigationScreen'
 import HorizontalRule from '../components/HorizontalRule'
 
 const BallotScreen = () => {
-  const { precinctId, ballotStyleId, languageCode } = useParams<
+  const { precinctId, ballotStyleId, localeCode } = useParams<
     BallotScreenProps
   >()
   const { election: e, electionHash } = useContext(AppContext)
@@ -79,7 +79,7 @@ const BallotScreen = () => {
         ballotStyleId={ballotStyleId}
         election={election}
         precinctId={precinctId}
-        secondLocaleCode={languageCode}
+        secondLocaleCode={localeCode}
       />
     </React.Fragment>
   )
