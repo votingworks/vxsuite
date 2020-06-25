@@ -36,7 +36,7 @@ const BallotScreen = () => {
           Ballot Style <strong>{ballotStyleId}</strong> for {precinctName}
         </h1>
         <p>
-          <Button primary onPress={window.print}>
+          <Button primary onPress={(window.kiosk ?? window).print}>
             Print Ballot
           </Button>
         </p>
