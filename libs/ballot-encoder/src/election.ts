@@ -355,6 +355,17 @@ export function vote(
 }
 
 /**
+ * Helper function to get array of locale codes used in election definition.
+ */
+export const getElectionLocales = (
+  election: Election,
+  baseLocale = 'en-US'
+): string[] => [
+  baseLocale,
+  ...Object.keys((election as LocalizedElection)._lang as object),
+]
+
+/**
  * Copies an election definition preferring strings from the matching locale.
  */
 export function withLocale(election: Election, locale: string): Election {

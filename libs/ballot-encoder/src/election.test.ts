@@ -1,8 +1,9 @@
 import {
   CandidateContest,
   electionSample as election,
-  getPartyPrimaryAdjectiveFromBallotStyle,
+  getElectionLocales,
   getPartyFullNameFromBallotStyle,
+  getPartyPrimaryAdjectiveFromBallotStyle,
   validateVotes,
   vote,
   withLocale,
@@ -122,6 +123,11 @@ test('validates votes by checking that contests are present in a given ballot st
   ).toThrowError(
     'found a vote with contest id "nope", but no such contest exists in ballot style 12'
   )
+})
+
+test('list locales in election definition', () => {
+  expect(getElectionLocales(election)).toEqual(['en-US', 'es-US'])
+  expect(getElectionLocales(election, 'zh-CN')).toEqual(['zh-CN', 'es-US'])
 })
 
 test('pulls translation keys from the top level object', () => {
