@@ -58,9 +58,9 @@ This app is intended to be used on an offline computer by an election admin.
     - [x] Mock export UI
     - [ ] Hook up to API in kiosk browser
 - [x] Print Test Ballot Deck Results (from EMS)
-- [x] Program Cards (from EMS)
-  - [x] Admin
-  - [x] Poll Worker
+- [ ] Program Cards (Revert from commit "Remove Smartcard Programming" when ready)
+  - [ ] Admin
+  - [ ] Poll Worker
 - [x] Results
   - [x] Load CVR files (from EMS)
   - [x] View results (from EMS)
@@ -73,7 +73,7 @@ Main Nav:
 
 - [x] Definition
 - [x] Ballots
-- [x] Cards
+- [ ] Cards
 - [x] Tally
 
 User Nav
