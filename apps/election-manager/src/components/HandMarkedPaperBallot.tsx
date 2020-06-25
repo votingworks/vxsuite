@@ -21,7 +21,7 @@ import {
 
 import AppContext from '../contexts/AppContext'
 
-import { DEFAULT_LANGUAGE } from '../config/globals'
+import { DEFAULT_LOCALE } from '../config/globals'
 
 import findPartyById from '../utils/findPartyById'
 import {
@@ -83,7 +83,7 @@ const dualLanguageComposer = (
 ) => (key: string, options?: StringMap) => {
   const enTranslation = t(key, {
     ...options,
-    lng: DEFAULT_LANGUAGE,
+    lng: DEFAULT_LOCALE,
   })
   if (!lng) {
     return enTranslation
@@ -381,7 +381,7 @@ const HandMarkedPaperBallot = ({
   const localeElection: OptionalElection = secondLocaleCode
     ? withLocale(election, secondLocaleCode)
     : undefined
-  i18n.addResources(DEFAULT_LANGUAGE, '', election.ballotStrings)
+  i18n.addResources(DEFAULT_LOCALE, '', election.ballotStrings)
   if (localeElection) {
     i18n.addResources(secondLocaleCode, '', localeElection.ballotStrings)
   }

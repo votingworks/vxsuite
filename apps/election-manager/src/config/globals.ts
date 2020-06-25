@@ -3,4 +3,4 @@ export enum YES_NO_VOTES {
   no = 'No',
   yes = 'Yes',
 }
-export const DEFAULT_LANGUAGE = 'en-US'
+export const DEFAULT_LOCALE = 'en-US'
