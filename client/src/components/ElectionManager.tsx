@@ -12,7 +12,6 @@ import BallotScreen from '../screens/BallotScreen'
 import ExportElectionBallotPackageScreen from '../screens/ExportElectionBallotPackageScreen'
 import UnconfiguredScreen from '../screens/UnconfiguredScreen'
 import TestDeckScreen from '../screens/TestDeckScreen'
-import SmartCardsScreen from '../screens/SmartCardsScreen'
 import TallyScreen from '../screens/TallyScreen'
 import TallyReportScreen from '../screens/TallyReportScreen'
 
@@ -22,7 +21,6 @@ export const routerPaths = {
   ballotsList: '/ballots',
   ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps) =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
-  smartCards: `/smartcards`,
   tally: `/tally`,
   tallyReport: ({ precinctId }: PrecinctReportScreenProps) =>
     `/tally/precinct/${precinctId}`,
@@ -67,9 +65,6 @@ const ElectionManager = () => {
       </Route>
       <Route exact path={routerPaths.export}>
         <ExportElectionBallotPackageScreen />
-      </Route>
-      <Route path={routerPaths.smartCards}>
-        <SmartCardsScreen />
       </Route>
       <Route exact path={routerPaths.tally}>
         <TallyScreen />
