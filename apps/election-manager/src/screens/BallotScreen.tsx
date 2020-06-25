@@ -79,7 +79,7 @@ const BallotScreen = () => {
         ballotStyleId={ballotStyleId}
         election={election}
         precinctId={precinctId}
-        secondLanguageCode={languageCode}
+        secondLocaleCode={languageCode}
       />
     </React.Fragment>
   )
