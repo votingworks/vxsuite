@@ -23,7 +23,7 @@ export type SaveElection = (value: OptionalElection) => void
 export interface BallotScreenProps {
   ballotStyleId: string
   precinctId: string
-  languageCode?: string
+  localeCode?: string
 }
 export interface PrecinctReportScreenProps {
   precinctId: string

@@ -23,9 +23,9 @@ export const routerPaths = {
   ballotsViewLanguage: ({
     ballotStyleId,
     precinctId,
-    languageCode,
+    localeCode,
   }: BallotScreenProps) =>
-    `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${languageCode}`,
+    `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${localeCode}`,
   tally: `/tally`,
   tallyReport: ({ precinctId }: PrecinctReportScreenProps) =>
     `/tally/precinct/${precinctId}`,
@@ -65,7 +65,7 @@ const ElectionManager = () => {
           routerPaths.ballotsViewLanguage({
             ballotStyleId: ':ballotStyleId',
             precinctId: ':precinctId',
-            languageCode: ':languageCode',
+            localeCode: ':localeCode',
           }),
           routerPaths.ballotsView({
             ballotStyleId: ':ballotStyleId',
