@@ -404,6 +404,10 @@ const HandMarkedPaperBallot = ({
   useLayoutEffect(() => {
     const printBallot = printBallotRef?.current
 
+    if (!printBallot) {
+      return
+    }
+
     const ballotStylesheets = [
       `/ballot/layout-${secondLanguageCode ? 'dual' : 'single'}-language.css`,
       '/ballot/ballot.css',
@@ -413,22 +417,16 @@ const HandMarkedPaperBallot = ({
       ballotStylesheets.push('/ballot/ballot-development.css')
     }
 
-    if (!printBallot) {
-      return
-    }
-
     ;(async () => {
-      const flow = await new Previewer().preview(
+      await new Previewer().preview(
         ballotRef.current!.innerHTML,
         ballotStylesheets,
         printBallot
       )
-      console.log('preview rendered, total pages', flow.total, { flow })
       onRendered?.({ ballotStyleId, election, isLiveMode, precinctId, votes })
     })()
 
     return () => {
-      // console.log('removing pagedjs ballot')
       printBallot.innerHTML = ''
     }
   }, [
