@@ -1,5 +1,6 @@
 import { Election, BallotStyle } from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
+import { DEFAULT_LOCALE, LANGUAGES } from '../config/globals'
 
 export const getContests = ({
   ballotStyle,
@@ -85,23 +86,33 @@ export const getBallotStylesDataByPrecinct = (election: Election) =>
     return nameA.localeCompare(nameB, undefined, sortOptions)
   })
 
+export const getLanguageByLocaleCode = (localeCode: string) =>
+  LANGUAGES[localeCode.split('-')[0]]
+
 export const getBallotFileName = ({
   ballotStyleId,
   election,
   electionHash,
   precinctId,
+  localeCode,
 }: {
   ballotStyleId: string
   election: Election
   electionHash: string
   precinctId: string
+  localeCode: string
 }) => {
   const precinctName = getPrecinctById({
     election,
     precinctId,
   })!.name
 
+  const locales =
+    localeCode === DEFAULT_LOCALE
+      ? DEFAULT_LOCALE
+      : `${DEFAULT_LOCALE}-${localeCode}`
+
   return `election-${electionHash.slice(0, 10)}-precinct-${dashify(
     precinctName
-  )}-id-${precinctId}-style-${ballotStyleId}.pdf`
+  )}-id-${precinctId}-style-${ballotStyleId}-locale-${locales}.pdf`
 }
