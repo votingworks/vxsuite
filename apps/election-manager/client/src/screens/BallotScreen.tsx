@@ -1,33 +1,67 @@
-import React, { useContext } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useContext, useState } from 'react'
+import { useParams, useHistory } from 'react-router-dom'
 import {
   getBallotStyle,
   getContests,
   getPrecinctById,
+  getElectionLocales,
 } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
 import { BallotScreenProps } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
-import Button from '../components/Button'
+import Button, { SegmentedButton } from '../components/Button'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import { Monospace } from '../components/Text'
-import { getBallotFileName } from '../utils/election'
+import { getBallotFileName, getLanguageByLocaleCode } from '../utils/election'
 import NavigationScreen from '../components/NavigationScreen'
 import HorizontalRule from '../components/HorizontalRule'
+import { DEFAULT_LOCALE } from '../config/globals'
+import { routerPaths } from '../components/ElectionManager'
 
 const BallotScreen = () => {
-  const { precinctId, ballotStyleId, localeCode } = useParams<
-    BallotScreenProps
-  >()
+  const history = useHistory()
+  const {
+    precinctId,
+    ballotStyleId,
+    localeCode: currentLocaleCode,
+  } = useParams<BallotScreenProps>()
   const { election: e, electionHash } = useContext(AppContext)
   const election = e!
+  const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
 
   const precinctName = getPrecinctById({ election, precinctId })?.name
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!
-
   const ballotContests = getContests({ ballotStyle, election })
+
+  const [isLiveMode, setIsLiveMode] = useState(true)
+  const toggleLiveMode = () => setIsLiveMode((m) => !m)
+  const changeLocale = (localeCode: string) =>
+    history.replace(
+      localeCode === DEFAULT_LOCALE
+        ? routerPaths.ballotsView({ precinctId, ballotStyleId })
+        : routerPaths.ballotsViewLanguage({
+            precinctId,
+            ballotStyleId,
+            localeCode,
+          })
+    )
+
+  const filename = getBallotFileName({
+    ballotStyleId,
+    election,
+    electionHash,
+    precinctId,
+    localeCode: currentLocaleCode || DEFAULT_LOCALE,
+  })
+
+  const printBallot = async () => {
+    const documentTitle = document.title
+    document.title = filename
+    await (window.kiosk ?? window).print()
+    document.title = documentTitle
+  }
 
   return (
     <React.Fragment>
@@ -36,20 +70,49 @@ const BallotScreen = () => {
           Ballot Style <strong>{ballotStyleId}</strong> for {precinctName}
         </h1>
         <p>
-          <Button primary onPress={(window.kiosk ?? window).print}>
-            Print Ballot
-          </Button>
+          <SegmentedButton>
+            <Button disabled={isLiveMode} onPress={toggleLiveMode} small>
+              Live Mode
+            </Button>
+            <Button disabled={!isLiveMode} onPress={toggleLiveMode} small>
+              Test Mode
+            </Button>
+          </SegmentedButton>{' '}
+          {availableLocaleCodes.length > 1 && (
+            <SegmentedButton>
+              {availableLocaleCodes.map((localeCode) => (
+                <Button
+                  disabled={
+                    currentLocaleCode
+                      ? localeCode === currentLocaleCode
+                      : localeCode === DEFAULT_LOCALE
+                  }
+                  key={localeCode}
+                  onPress={() => changeLocale(localeCode)}
+                  small
+                >
+                  {localeCode === DEFAULT_LOCALE
+                    ? getLanguageByLocaleCode(DEFAULT_LOCALE)
+                    : `${getLanguageByLocaleCode(
+                        DEFAULT_LOCALE
+                      )}/${getLanguageByLocaleCode(localeCode)}`}
+                </Button>
+              ))}
+            </SegmentedButton>
+          )}
         </p>
         <p>
-          Filename:{' '}
-          <Monospace>
-            {getBallotFileName({
-              ballotStyleId,
-              election,
-              electionHash,
-              precinctId,
-            })}
-          </Monospace>
+          <Button primary onPress={printBallot}>
+            Print {isLiveMode ? 'Official Ballot' : 'Test Ballot'} in{' '}
+            {currentLocaleCode
+              ? `${getLanguageByLocaleCode(
+                  DEFAULT_LOCALE
+                )}/${getLanguageByLocaleCode(currentLocaleCode)}`
+              : getLanguageByLocaleCode(DEFAULT_LOCALE)}
+          </Button>{' '}
+        </p>
+        <p>
+          Filename: <Monospace>{filename}</Monospace>
         </p>
         <HorizontalRule />
         <p>
@@ -78,8 +141,9 @@ const BallotScreen = () => {
       <HandMarkedPaperBallot
         ballotStyleId={ballotStyleId}
         election={election}
+        isLiveMode={isLiveMode}
         precinctId={precinctId}
-        secondLocaleCode={localeCode}
+        secondLocaleCode={currentLocaleCode}
       />
     </React.Fragment>
   )
