@@ -18,6 +18,7 @@ import {
   BallotPageMetadata,
   BallotMark,
   Size,
+  BallotPageLayout,
 } from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
@@ -44,6 +45,7 @@ export interface InterpretedBallot {
   cvr: CastVoteRecord
   normalizedImage: ImageData
   marks?: MarkInfo
+  metadata?: BallotPageMetadata
 }
 
 export interface Interpreter {
@@ -51,7 +53,11 @@ export interface Interpreter {
     election: Election,
     imageData: ImageData,
     metadata?: BallotPageMetadata
-  ): Promise<BallotPageMetadata>
+  ): Promise<BallotPageLayout>
+  addHmpbTemplate(
+    election: Election,
+    layout: BallotPageLayout
+  ): Promise<BallotPageLayout>
   interpretFile(
     interpretFileParams: InterpretFileParams
   ): Promise<InterpretedBallot | undefined>
@@ -96,7 +102,7 @@ function ballotToCastVoteRecord(ballot: CompletedBallot): CastVoteRecord {
 
       if (candidates && candidates.length > 0) {
         cvrForContest = candidates.map((candidate) =>
-          candidate.isWriteIn ? 'writein' : candidate.id
+          candidate.isWriteIn ? '__write-in' : candidate.id
         )
       }
     }
@@ -150,12 +156,30 @@ export default class SummaryBallotInterpreter implements Interpreter {
     election: Election,
     imageData: ImageData,
     metadata?: BallotPageMetadata
-  ): Promise<BallotPageMetadata> {
-    const result = await this.getHmbpInterpreter(election).addTemplate(
-      imageData,
-      metadata
-    )
-    metadata = result.ballotImage.metadata
+  ): Promise<BallotPageLayout>
+  async addHmpbTemplate(
+    election: Election,
+    layout: BallotPageLayout
+  ): Promise<BallotPageLayout>
+  async addHmpbTemplate(
+    election: Election,
+    imageDataOrLayout: ImageData | BallotPageLayout,
+    metadata?: BallotPageMetadata
+  ): Promise<BallotPageLayout> {
+    const interpreter = this.getHmbpInterpreter(election)
+    let layout: BallotPageLayout
+
+    if ('data' in imageDataOrLayout) {
+      layout = await interpreter.interpretTemplate(imageDataOrLayout, metadata)
+    } else {
+      layout = imageDataOrLayout
+    }
+
+    ;({ metadata } = layout.ballotImage)
+
+    if (metadata.isTestBallot === this.testMode) {
+      await interpreter.addTemplate(layout)
+    }
 
     debug(
       'Added HMPB template page %d/%d: ballotStyleId=%s precinctId=%s isTestBallot=%s',
@@ -166,7 +190,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
       metadata.isTestBallot
     )
 
-    return metadata
+    return layout
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -217,18 +241,11 @@ export default class SummaryBallotInterpreter implements Interpreter {
     { image }: BallotImageData
   ): Promise<InterpretedBallot | undefined> {
     const hmpbInterpreter = this.getHmbpInterpreter(election)
-
-    if (hmpbInterpreter.hasMissingTemplates()) {
-      debug(
-        'refusing to interpret HMPB file because the configured election is still missing templates'
-      )
-      return
-    }
-
     const {
       ballot,
       marks,
       mappedBallot,
+      metadata,
     } = await hmpbInterpreter.interpretBallot(image)
 
     return {
@@ -241,11 +258,18 @@ export default class SummaryBallotInterpreter implements Interpreter {
           height: mappedBallot.height,
         },
       },
+      metadata,
     }
   }
 
   private getHmbpInterpreter(election: Election): HMPBInterpreter {
     if (!this.hmpbInterpreter) {
+      if (typeof this.testMode === 'undefined') {
+        throw new Error(
+          'testMode has not been configured; please set it to true or false before interpreting ballots'
+        )
+      }
+
       this.hmpbInterpreter = new HMPBInterpreter({
         election,
         testMode: this.testMode,

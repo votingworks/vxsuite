@@ -6,9 +6,12 @@ import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
 import { Election } from '@votingworks/ballot-encoder'
-import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
+import {
+  BallotPageMetadata,
+  BallotPageLayout,
+} from '@votingworks/hmpb-interpreter'
 
-import { CastVoteRecord, BatchInfo } from './types'
+import { CastVoteRecord, BatchInfo, BallotMetadata } from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
@@ -29,8 +32,10 @@ export interface Options {
 }
 
 export interface Importer {
-  addHmpbTemplate(imageData: ImageData): Promise<BallotPageMetadata>
-  addHmpbTemplates(pdf: Buffer): Promise<BallotPageMetadata[]>
+  addHmpbTemplates(
+    pdf: Buffer,
+    metadata: BallotMetadata
+  ): Promise<BallotPageLayout[]>
   addManualBallot(encodedBallot: Uint8Array): Promise<void>
   configure(newElection: Election): Promise<void>
   doExport(): Promise<string>
@@ -86,42 +91,53 @@ export default class SystemImporter implements Importer {
         fs.mkdirSync(imagesPath)
       }
     }
+
+    this.setTestMode(false)
   }
 
-  public async addHmpbTemplates(pdf: Buffer): Promise<BallotPageMetadata[]> {
-    const result: BallotPageMetadata[] = []
-    let page = 0
-
-    for await (const image of pdfToImages(pdf, { scale: 2 })) {
-      try {
-        page += 1
-        result.push(await this.addHmpbTemplate(image))
-      } catch (error) {
-        throw new HmpbInterpretationError(
-          `Ballot image on page ${page} could not be interpreted as a template: ${error}`
-        )
-      }
-    }
-
-    return result
-  }
-
-  /**
-   * Adds a ballot image as a hand-marked paper ballot template.
-   */
-  public async addHmpbTemplate(
-    imageData: ImageData,
-    metadata?: BallotPageMetadata
-  ): Promise<BallotPageMetadata> {
+  public async addHmpbTemplates(
+    pdf: Buffer,
+    metadata: BallotMetadata
+  ): Promise<BallotPageLayout[]> {
     const election = await this.store.getElection()
+    const result: BallotPageLayout[] = []
 
     if (!election) {
-      throw new Error(
+      throw new HmpbInterpretationError(
         `cannot add a HMPB template without a configured election`
       )
     }
 
-    return this.interpreter.addHmpbTemplate(election, imageData, metadata)
+    for await (const { page, pageCount, pageNumber } of pdfToImages(pdf, {
+      scale: 2,
+    })) {
+      try {
+        result.push(
+          await this.interpreter.addHmpbTemplate(election, page, {
+            ...metadata,
+            pageNumber,
+            pageCount,
+          })
+        )
+      } catch (error) {
+        throw new HmpbInterpretationError(
+          `Ballot image on page ${pageNumber} could not be interpreted as a template: ${error}`
+        )
+      }
+    }
+
+    this.store.addHmpbTemplate(
+      pdf,
+      // remove ballot image for storage
+      result.map((layout) => ({
+        ...layout,
+        ballotImage: {
+          metadata: layout.ballotImage.metadata,
+        },
+      }))
+    )
+
+    return result
   }
 
   /**
@@ -187,22 +203,34 @@ export default class SystemImporter implements Importer {
   public async restoreConfig(): Promise<void> {
     const election = await this.store.getElection()
     const testMode = await this.store.getTestMode()
+    if (!election) {
+      debug('skipping restore because there is no stored election')
+      return
+    }
+
     debug(
       'restoring election (title=%s) and test mode (%s) config',
-      election?.title,
+      election.title,
       testMode
     )
-    if (election) {
-      await this.configure(election)
-    }
+    await this.configure(election)
     this.interpreter.setTestMode(testMode)
 
-    for (const [pdf, metadata] of await this.store.getHmpbTemplates()) {
-      if (metadata.isTestBallot === testMode) {
-        debug('reloading existing HMPB template: %O', metadata)
-        await this.addHmpbTemplates(pdf)
-      } else {
-        debug('skipping existing HMPB template: %O', metadata)
+    for (const [pdf, layouts] of await this.store.getHmpbTemplates()) {
+      debug('restoring ballot: %O', layouts)
+      for await (const { page, pageCount, pageNumber } of pdfToImages(pdf, {
+        scale: 2,
+      })) {
+        debug('restoring page %d/%d', pageNumber, pageCount)
+        const layout = layouts[pageNumber - 1]
+
+        await this.interpreter.addHmpbTemplate(election, {
+          ...layout,
+          ballotImage: {
+            ...layout.ballotImage,
+            imageData: page,
+          },
+        })
       }
     }
   }
@@ -243,8 +271,14 @@ export default class SystemImporter implements Importer {
       return
     }
 
-    const { cvr, marks, normalizedImage } = interpreted
-    debug('interpreted %s: cvr=%O marks=%O', ballotImagePath, cvr, marks)
+    const { cvr, marks, normalizedImage, metadata } = interpreted
+    debug(
+      'interpreted %s: cvr=%O marks=%O metadata=%O',
+      ballotImagePath,
+      cvr,
+      marks,
+      metadata
+    )
 
     if (cvr) {
       const importedBallotImagePath = path.join(
@@ -252,7 +286,7 @@ export default class SystemImporter implements Importer {
         path.basename(ballotImagePath)
       )
 
-      this.addCVR(batchId, importedBallotImagePath, cvr, marks)
+      this.addCVR(batchId, importedBallotImagePath, cvr, marks, metadata)
 
       // move the file only if there was a CVR
       fs.unlinkSync(ballotImagePath)
@@ -279,9 +313,10 @@ export default class SystemImporter implements Importer {
     batchId: number,
     ballotImagePath: string,
     cvr: CastVoteRecord,
-    markInfo?: MarkInfo
+    markInfo?: MarkInfo,
+    metadata?: BallotPageMetadata
   ): void {
-    this.store.addCVR(batchId, ballotImagePath, cvr, markInfo)
+    this.store.addCVR(batchId, ballotImagePath, cvr, markInfo, metadata)
     for (const callback of this.onCVRAddedCallbacks) {
       try {
         callback(cvr)

@@ -7,9 +7,14 @@ import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
 import { makeMockInterpreter } from '../test/util/mocks'
+import pdfToImages from './util/pdfToImages'
+import { createImageData } from 'canvas'
 
 jest.mock('chokidar')
 const mockChokidar = chokidar as jest.Mocked<typeof chokidar>
+
+jest.mock('./util/pdfToImages')
+const pdfToImagesMock = pdfToImages as jest.MockedFunction<typeof pdfToImages>
 
 let importDirs: TemporaryBallotImportImageDirectories
 
@@ -101,23 +106,68 @@ test('restoreConfig reads config data from the store', async () => {
 
   await store.setElection(election)
   await store.setTestMode(true)
-  await store.addHmpbTemplate(Buffer.of(1), {
-    ballotStyleId: '77',
-    precinctId: '42',
-    isTestBallot: true,
-  })
-  await store.addHmpbTemplate(Buffer.of(2), {
-    ballotStyleId: '77',
-    precinctId: '43',
-    isTestBallot: true,
-  })
+  await store.addHmpbTemplate(Buffer.of(1), [
+    {
+      ballotImage: {
+        metadata: {
+          ballotStyleId: '77',
+          precinctId: '42',
+          isTestBallot: true,
+          pageNumber: 1,
+          pageCount: 2,
+        },
+      },
+      contests: [],
+    },
+    {
+      ballotImage: {
+        metadata: {
+          ballotStyleId: '77',
+          precinctId: '43',
+          isTestBallot: true,
+          pageNumber: 2,
+          pageCount: 2,
+        },
+      },
+      contests: [],
+    },
+  ])
 
   jest.spyOn(importer, 'configure').mockResolvedValue()
-  jest.spyOn(importer, 'addHmpbTemplates').mockResolvedValue([])
+  pdfToImagesMock.mockImplementationOnce(async function* () {
+    yield {
+      pageNumber: 1,
+      pageCount: 2,
+      page: createImageData(Uint8ClampedArray.of(0, 0, 0, 1), 1, 1),
+    }
+    yield {
+      pageNumber: 2,
+      pageCount: 2,
+      page: createImageData(Uint8ClampedArray.of(0, 0, 0, 2), 1, 1),
+    }
+  })
 
   await importer.restoreConfig()
   expect(importer.configure).toHaveBeenCalledWith(election)
-  expect(importer.addHmpbTemplates).toHaveBeenNthCalledWith(1, Buffer.of(1))
-  expect(importer.addHmpbTemplates).toHaveBeenNthCalledWith(2, Buffer.of(2))
+  expect(interpreter.addHmpbTemplate).toHaveBeenCalledTimes(2)
   expect(interpreter.setTestMode).toHaveBeenCalledWith(true)
+})
+
+test('cannot add HMPB templates before configuring an election', async () => {
+  const scanner: Scanner = { scanInto: jest.fn() }
+  const importer = new SystemImporter({
+    ...importDirs.paths,
+    store: await Store.memoryStore(),
+    scanner,
+  })
+
+  await expect(
+    importer.addHmpbTemplates(Buffer.of(), {
+      ballotStyleId: '77',
+      precinctId: '42',
+      isTestBallot: false,
+    })
+  ).rejects.toThrowError(
+    'cannot add a HMPB template without a configured election'
+  )
 })

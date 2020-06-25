@@ -130,7 +130,7 @@ test('going through the whole process works', async () => {
         ],
         "dallas-mayor": Array [],
         "texas-house-district-111": Array [
-          "writein",
+          "__write-in",
         ],
         "texas-sc-judge-place-6": Array [
           "jane-bland",

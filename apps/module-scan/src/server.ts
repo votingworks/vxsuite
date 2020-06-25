@@ -98,8 +98,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
       { name: 'metadatas' },
     ]) as RequestHandler,
     async (request, response) => {
-      const isTestMode = await store.getTestMode()
-
       /* istanbul ignore next */
       if (Array.isArray(request.files)) {
         response.status(400).json({
@@ -148,11 +146,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
             new TextDecoder().decode(metadataFile.buffer)
           )
 
-          await store.addHmpbTemplate(ballotFile.buffer, metadata)
-
-          if (metadata.isTestBallot === isTestMode) {
-            await importer.addHmpbTemplates(ballotFile.buffer)
-          }
+          await importer.addHmpbTemplates(ballotFile.buffer, metadata)
         }
 
         response.json({ status: 'ok' })
@@ -191,37 +185,35 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
-  app.get(
-    '/scan/batch/:batchId/ballot/:ballotId',
-    async (request, response) => {
-      const ballot = await store.getBallotInfo(
-        parseInt(request.params.batchId, 10),
-        parseInt(request.params.ballotId, 10)
-      )
+  app.get('/scan/hmpb/ballot/:ballotId', async (request, response) => {
+    const ballot = await store.getBallot(parseInt(request.params.ballotId, 10))
 
-      if (ballot) {
-        response.json(ballot)
-      } else {
-        response.status(404).end()
-      }
+    if (ballot) {
+      response.json(ballot)
+    } else {
+      response.status(404).end()
     }
-  )
+  })
 
-  app.get(
-    '/scan/batch/:batchId/ballot/:ballotId/image',
-    async (request, response) => {
-      const ballot = await store.getBallotInfo(
-        parseInt(request.params.batchId, 10),
-        parseInt(request.params.ballotId, 10)
-      )
+  app.patch('/scan/hmpb/ballot/:ballotId', async (request, response) => {
+    await store.saveBallotAdjudication(
+      parseInt(request.params.ballotId, 10),
+      request.body
+    )
+    response.json({ status: 'ok' })
+  })
 
-      if (ballot) {
-        response.sendFile(ballot.filename)
-      } else {
-        response.status(404).end()
-      }
+  app.get('/scan/hmpb/ballot/:ballotId/image', async (request, response) => {
+    const filename = await store.getBallotFilename(
+      parseInt(request.params.ballotId, 10)
+    )
+
+    if (filename) {
+      response.sendFile(filename)
+    } else {
+      response.status(404).end()
     }
-  )
+  })
 
   app.delete('/scan/batch/:batchId', async (request, response) => {
     if (await store.deleteBatch(parseInt(request.params.batchId, 10))) {

@@ -2,14 +2,35 @@
 // The durable datastore for CVRs and configuration info.
 //
 
+import {
+  Candidate,
+  Election,
+  getBallotStyle,
+  getContests,
+} from '@votingworks/ballot-encoder'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
+import { strict as assert } from 'assert'
 import makeDebug from 'debug'
-import * as sqlite3 from 'sqlite3'
 import { promises as fs } from 'fs'
+import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
-import { Election } from '@votingworks/ballot-encoder'
-
-import { CastVoteRecord, BatchInfo, BallotMetadata, BallotInfo } from './types'
 import { MarkInfo } from './interpreter'
+import {
+  BallotInfo,
+  BatchInfo,
+  CastVoteRecord,
+  SerializableBallotPageLayout,
+  isMarked,
+} from './types'
+import {
+  CandidateContestOption,
+  Contest,
+  ContestOption,
+  ReviewBallot,
+  YesNoContestOption,
+  MarksByContestId,
+} from './types/ballot-review'
+import applyChangesToMarks from './util/applyChangesToMarks'
 
 const debug = makeDebug('module-scan:store')
 
@@ -19,6 +40,7 @@ interface HmpbTemplatesColumns {
   ballotStyleId: string
   precinctId: string
   isTestBallot: number // sqlite doesn't have "boolean", really
+  layoutsJSON: string
 }
 
 /**
@@ -163,19 +185,45 @@ export default class Store {
     })
 
     await this.dbRunAsync(
-      'create table if not exists batches (id integer primary key autoincrement, startedAt datetime, endedAt datetime)'
+      `create table if not exists batches (
+        id integer primary key autoincrement,
+        startedAt datetime,
+        endedAt datetime
+      )`
     )
     await this.dbRunAsync(
-      'create table if not exists ballots (id integer primary key autoincrement, batch_id integer references batches, filename text unique, marks_json text, cvr_json text)'
+      `create table if not exists ballots (
+        id integer primary key autoincrement,
+        batch_id integer references batches,
+        filename text unique,
+        marks_json text,
+        cvr_json text,
+        metadata_json text,
+        adjudication_json text
+      )`
     )
     await this.dbRunAsync(
-      'create table if not exists configs (key varchar(255) unique, value text)'
+      `create table if not exists configs (
+        key varchar(255) unique,
+        value text
+      )`
     )
     await this.dbRunAsync(
-      'create table if not exists hmpb_templates (id integer primary key autoincrement, pdf blob, ballot_style_id varchar(255), precinct_id varchar(255), is_test_ballot boolean)'
+      `create table if not exists hmpb_templates (
+        id integer primary key autoincrement,
+        pdf blob,
+        ballot_style_id varchar(255),
+        precinct_id varchar(255),
+        is_test_ballot boolean,
+        layouts_json text
+      )`
     )
     await this.dbRunAsync(
-      'create unique index if not exists hmpb_templates_1 on hmpb_templates (ballot_style_id, precinct_id, is_test_ballot)'
+      `create unique index if not exists hmpb_templates_idx on hmpb_templates (
+        ballot_style_id,
+        precinct_id,
+        is_test_ballot
+      )`
     )
 
     return this.db
@@ -294,15 +342,17 @@ export default class Store {
     batchId: number,
     filename: string,
     cvr: CastVoteRecord,
-    markInfo?: MarkInfo
+    markInfo?: MarkInfo,
+    metadata?: BallotPageMetadata
   ): Promise<number> {
     try {
       await this.dbRunAsync(
-        'insert into ballots (batch_id, filename, cvr_json, marks_json) values (?, ?, ?, ?)',
+        'insert into ballots (batch_id, filename, cvr_json, marks_json, metadata_json) values (?, ?, ?, ?, ?)',
         batchId,
         filename,
         JSON.stringify(cvr),
-        markInfo ? JSON.stringify(markInfo) : null
+        markInfo ? JSON.stringify(markInfo, undefined, 2) : null,
+        metadata ? JSON.stringify(metadata, undefined, 2) : null
       )
       const { rowId } = await this.dbGetAsync(
         'select last_insert_rowid() as rowId'
@@ -351,22 +401,51 @@ export default class Store {
     }))
   }
 
-  public async getBallotInfo(
-    batchId: number,
+  public async getBallotFilename(
     ballotId: number
-  ): Promise<BallotInfo | undefined> {
+  ): Promise<string | undefined> {
+    const row = await this.dbGetAsync<
+      { filename: string } | undefined,
+      [number]
+    >('select filename from ballots where id = ?', ballotId)
+
+    if (!row) {
+      return
+    }
+
+    return row.filename
+  }
+
+  public async getBallot(ballotId: number): Promise<ReviewBallot | undefined> {
+    const election = await this.getElection()
+
+    if (!election) {
+      return
+    }
+
     const row = await this.dbGetAsync<
       | {
           id: number
           filename: string
           marksJSON?: string
+          adjudicationJSON?: string
           cvrJSON?: string
+          metadataJSON?: string
         }
       | undefined,
-      [number, number]
+      [number]
     >(
-      'select id, filename, marks_json as marksJSON, cvr_json as cvrJSON from ballots where batch_id = ? and id = ?',
-      batchId,
+      `
+        select
+          id,
+          filename,
+          marks_json as marksJSON,
+          adjudication_json as adjudicationJSON,
+          cvr_json as cvrJSON,
+          metadata_json as metadataJSON
+        from ballots
+        where id = ?
+      `,
       ballotId
     )
 
@@ -374,12 +453,187 @@ export default class Store {
       return
     }
 
-    return {
-      id: row.id,
-      filename: row.filename,
-      marks: row.marksJSON ? JSON.parse(row.marksJSON) : undefined,
-      cvr: row.cvrJSON ? JSON.parse(row.cvrJSON) : undefined,
+    const cvr: CastVoteRecord | undefined = row.cvrJSON
+      ? JSON.parse(row.cvrJSON)
+      : undefined
+    const marks: MarkInfo | undefined = row.marksJSON
+      ? JSON.parse(row.marksJSON)
+      : undefined
+    const adjudication: MarksByContestId | undefined = row.adjudicationJSON
+      ? JSON.parse(row.adjudicationJSON)
+      : undefined
+    const metadata: BallotPageMetadata | undefined = row.metadataJSON
+      ? JSON.parse(row.metadataJSON)
+      : undefined
+
+    if (!cvr || !marks || !metadata) {
+      return
     }
+
+    const hmpbTemplateRow = await this.dbGetAsync<
+      { layoutsJSON: string },
+      [string, string, boolean]
+    >(
+      'select layouts_json as layoutsJSON from hmpb_templates where ballot_style_id = ? and precinct_id = ? and is_test_ballot = ?',
+      metadata.ballotStyleId,
+      metadata.precinctId,
+      metadata.isTestBallot
+    )
+
+    const layouts: SerializableBallotPageLayout[] = JSON.parse(
+      hmpbTemplateRow.layoutsJSON
+    )
+    const layout = layouts[metadata.pageNumber - 1]
+    const ballotStyle = getBallotStyle({
+      ballotStyleId: metadata.ballotStyleId,
+      election,
+    })
+
+    if (!ballotStyle) {
+      return
+    }
+
+    const ballot: ReviewBallot['ballot'] = {
+      url: `/scan/hmpb/ballot/${ballotId}`,
+      image: {
+        url: `/scan/hmpb/ballot/${ballotId}/image`,
+        width: marks.ballotSize.width,
+        height: marks.ballotSize.height,
+      },
+    }
+
+    const contestOffset = layouts
+      .slice(0, metadata.pageNumber - 1)
+      .reduce((sum, { contests }) => sum + contests.length, 0)
+    debug('determined contest offset to be %d', contestOffset)
+    const contestDefinitions = getContests({ ballotStyle, election }).slice(
+      contestOffset,
+      contestOffset + layout.contests.length
+    )
+
+    assert.equal(contestDefinitions.length, layout.contests.length)
+
+    const contests: Contest[] = contestDefinitions.map(
+      (contestDefinition, contestIndex) => {
+        const contestLayout = layout.contests[contestIndex]
+        const contestMarksOffset = layout.contests
+          .slice(0, contestIndex)
+          .reduce((sum, contest) => sum + contest.options.length, 0)
+        const contestMarks = marks.marks.slice(
+          contestMarksOffset,
+          contestMarksOffset + contestLayout.options.length
+        )
+        const options: ContestOption[] =
+          contestDefinition.type === 'candidate'
+            ? contestMarks.map<CandidateContestOption>((mark, markIndex) => {
+                assert.notEqual(mark.type, 'stray')
+
+                const candidate: Candidate | undefined =
+                  contestDefinition.candidates[markIndex]
+
+                return {
+                  type: 'candidate',
+                  id: candidate?.id ?? '__write-in',
+                  name: candidate?.name ?? 'Write-In',
+                  bounds: contestLayout.options[markIndex].bounds,
+                }
+              })
+            : contestMarks.map<YesNoContestOption>((mark, markIndex) => {
+                assert.notEqual(mark.type, 'stray')
+
+                return {
+                  type: 'yesno',
+                  id: markIndex === 0 ? 'yes' : 'no',
+                  name: markIndex === 0 ? 'yes' : 'no',
+                  bounds: contestLayout.options[markIndex].bounds,
+                }
+              })
+
+        return {
+          id: contestDefinition.id,
+          title: contestDefinition.title,
+          bounds: contestLayout.bounds,
+          options,
+        }
+      }
+    )
+
+    debug('overlaying ballot adjudication: %O', adjudication)
+
+    const overlay = marks.marks.reduce<MarksByContestId>(
+      (marks, mark) =>
+        mark.type === 'stray'
+          ? marks
+          : {
+              ...marks,
+              [mark.contest.id]: {
+                ...marks[mark.contest.id],
+                [typeof mark.option === 'string'
+                  ? mark.option
+                  : mark.option.id]:
+                  adjudication?.[mark.contest.id]?.[
+                    typeof mark.option === 'string'
+                      ? mark.option
+                      : mark.option.id
+                  ] ??
+                  isMarked(mark) ??
+                  false,
+              },
+            },
+      {}
+    )
+
+    debug('overlay results: %O', overlay)
+
+    return {
+      ballot,
+      marks: overlay,
+      contests,
+    }
+  }
+
+  public async saveBallotAdjudication(
+    ballotId: number,
+    change: MarksByContestId
+  ): Promise<boolean> {
+    const row = await this.dbGetAsync<
+      { adjudicationJSON?: string; marksJSON?: string } | undefined,
+      [number]
+    >(
+      `
+      select
+        adjudication_json as adjudicationJSON,
+        marks_json as marksJSON
+      from ballots
+      where id = ?
+    `,
+      ballotId
+    )
+
+    if (!row || !row.marksJSON) {
+      return false
+    }
+
+    const marks: MarkInfo = JSON.parse(row.marksJSON)
+    const newAdjudication = applyChangesToMarks(
+      marks.marks,
+      row.adjudicationJSON ? JSON.parse(row.adjudicationJSON) : {},
+      change
+    )
+
+    debug(
+      'saving adjudication changes for ballot %d: %O',
+      ballotId,
+      newAdjudication
+    )
+
+    await this.dbRunAsync(
+      'update ballots set adjudication_json = ? where id = ?',
+      JSON.stringify(newAdjudication, undefined, 2),
+      ballotId
+    )
+
+    return true
   }
 
   /**
@@ -416,8 +670,10 @@ export default class Store {
 
   public async addHmpbTemplate(
     pdf: Buffer,
-    metadata: BallotMetadata
+    layouts: readonly SerializableBallotPageLayout[]
   ): Promise<void> {
+    const { metadata } = layouts[0].ballotImage
+
     debug('storing HMPB template: %O', metadata)
 
     await this.dbRunAsync(
@@ -427,25 +683,39 @@ export default class Store {
       metadata.isTestBallot
     )
     await this.dbRunAsync(
-      'insert into hmpb_templates (pdf, ballot_style_id, precinct_id, is_test_ballot) values (?, ?, ?, ?)',
+      'insert into hmpb_templates (pdf, ballot_style_id, precinct_id, is_test_ballot, layouts_json) values (?, ?, ?, ?, ?)',
       pdf,
       metadata.ballotStyleId,
       metadata.precinctId,
-      metadata.isTestBallot
+      metadata.isTestBallot,
+      JSON.stringify(layouts, undefined, 2)
     )
   }
 
-  public async getHmpbTemplates(): Promise<[Buffer, BallotMetadata][]> {
+  public async getHmpbTemplates(): Promise<
+    [Buffer, SerializableBallotPageLayout[]][]
+  > {
     const sql =
-      'select id, pdf, ballot_style_id as ballotStyleId, precinct_id as precinctId, is_test_ballot as isTestBallot from hmpb_templates order by id asc'
+      'select id, pdf, ballot_style_id as ballotStyleId, precinct_id as precinctId, is_test_ballot as isTestBallot, layouts_json as layoutsJSON from hmpb_templates order by id asc'
     const rows = await this.dbAllAsync<HmpbTemplatesColumns>(sql)
-    const results: [Buffer, BallotMetadata][] = []
+    const results: [Buffer, SerializableBallotPageLayout[]][] = []
 
-    for (const { id, pdf, ...metadata } of rows) {
+    for (const { id, pdf, layoutsJSON, ...metadata } of rows) {
       debug('loading stored HMPB template id=%d: %O', id, metadata)
+      const layouts: SerializableBallotPageLayout[] = JSON.parse(layoutsJSON)
       results.push([
         pdf,
-        { ...metadata, isTestBallot: metadata.isTestBallot !== 0 },
+        layouts.map((layout, i) => ({
+          ...layout,
+          ballotImage: {
+            metadata: {
+              ...metadata,
+              isTestBallot: metadata.isTestBallot !== 0,
+              pageNumber: i + 1,
+              pageCount: layouts.length,
+            },
+          },
+        })),
       ])
     }
 

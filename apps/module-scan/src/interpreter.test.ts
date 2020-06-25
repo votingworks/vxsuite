@@ -62,6 +62,8 @@ test('extracts a CVR from votes encoded in a QR code', async () => {
 test('interprets marks on a HMPB', async () => {
   const interpreter = new SummaryBallotInterpreter()
 
+  interpreter.setTestMode(false)
+
   await interpreter.addHmpbTemplate(
     hmpbElection,
     (await getBallotImageData(join(electionFixturesRoot, 'blank-p1.jpg'))).image
@@ -90,7 +92,7 @@ test('interprets marks on a HMPB', async () => {
       'dallas-county-sheriff': ['chad-prda'],
       'dallas-county-tax-assessor': ['john-ames'],
       'dallas-mayor': [],
-      'texas-house-district-111': ['writein'],
+      'texas-house-district-111': ['__write-in'],
       'texas-sc-judge-place-6': ['jane-bland'],
       'us-house-district-30': ['eddie-bernice-johnson'],
       'us-senate': ['tim-smith'],
@@ -100,6 +102,8 @@ test('interprets marks on a HMPB', async () => {
 
 test('interprets marks on an upside-down HMPB', async () => {
   const interpreter = new SummaryBallotInterpreter()
+
+  interpreter.setTestMode(false)
 
   await interpreter.addHmpbTemplate(
     hmpbElection,
@@ -129,7 +133,7 @@ test('interprets marks on an upside-down HMPB', async () => {
       'dallas-county-sheriff': ['chad-prda'],
       'dallas-county-tax-assessor': ['john-ames'],
       'dallas-mayor': [],
-      'texas-house-district-111': ['writein'],
+      'texas-house-district-111': ['__write-in'],
       'texas-sc-judge-place-6': ['jane-bland'],
       'us-house-district-30': ['eddie-bernice-johnson'],
       'us-senate': ['tim-smith'],

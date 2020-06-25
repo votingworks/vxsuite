@@ -25,8 +25,12 @@ test('yields the right number of images sized correctly', async () => {
   expect(pages.length).toEqual(2)
 
   const [
-    { width: width1, height: height1 },
-    { width: width2, height: height2 },
+    {
+      page: { width: width1, height: height1 },
+    },
+    {
+      page: { width: width2, height: height2 },
+    },
   ] = pages
   expect({ width: width1, height: height1 }).toEqual({
     width: 612,
@@ -40,8 +44,10 @@ test('yields the right number of images sized correctly', async () => {
 
 test('can generate images with a different scale', async () => {
   const pdfBytes = await fs.readFile(ballotPath)
-  const [{ width, height }] = await asyncIterableToArray(
-    pdfToImages(pdfBytes, { scale: 2 })
-  )
+  const [
+    {
+      page: { width, height },
+    },
+  ] = await asyncIterableToArray(pdfToImages(pdfBytes, { scale: 2 }))
   expect({ width, height }).toEqual({ width: 1224, height: 1584 })
 })
