@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
-import ObjectHash from 'object-hash'
+import { sha256 } from 'js-sha256'
 
 import { Election, OptionalElection } from '@votingworks/ballot-encoder'
 
@@ -28,7 +28,7 @@ const AppRoot = ({ storage }: Props) => {
 
   const storageElection = getElection()
   const [electionHash, setElectionHash] = useState(
-    storageElection ? ObjectHash(storageElection) : ''
+    storageElection ? sha256(JSON.stringify(storageElection)) : ''
   )
   const [election, setElection] = useState<OptionalElection>(getElection())
   const printBallotRef = useRef<HTMLDivElement>(null)
@@ -39,7 +39,9 @@ const AppRoot = ({ storage }: Props) => {
 
   const saveElection: SaveElection = (electionDefinition) => {
     setElection(electionDefinition)
-    setElectionHash(electionDefinition ? ObjectHash(electionDefinition) : '')
+    setElectionHash(
+      electionDefinition ? sha256(JSON.stringify(electionDefinition)) : ''
+    )
     if (electionDefinition === undefined) {
       storage.remove(electionStorageKey)
     } else {
