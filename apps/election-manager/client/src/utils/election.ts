@@ -89,6 +89,13 @@ export const getBallotStylesDataByPrecinct = (election: Election) =>
 export const getLanguageByLocaleCode = (localeCode: string) =>
   LANGUAGES[localeCode.split('-')[0]]
 
+export const getHumanBallotLanguageFormat = (localeCode: string) =>
+  localeCode === DEFAULT_LOCALE
+    ? getLanguageByLocaleCode(DEFAULT_LOCALE)
+    : `${getLanguageByLocaleCode(DEFAULT_LOCALE)}/${getLanguageByLocaleCode(
+        localeCode
+      )}`
+
 export const getBallotFileName = ({
   ballotStyleId,
   election,
