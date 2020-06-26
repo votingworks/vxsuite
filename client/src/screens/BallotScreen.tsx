@@ -14,7 +14,10 @@ import AppContext from '../contexts/AppContext'
 import Button, { SegmentedButton } from '../components/Button'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import { Monospace } from '../components/Text'
-import { getBallotFileName, getLanguageByLocaleCode } from '../utils/election'
+import {
+  getBallotFileName,
+  getHumanBallotLanguageFormat,
+} from '../utils/election'
 import NavigationScreen from '../components/NavigationScreen'
 import HorizontalRule from '../components/HorizontalRule'
 import { DEFAULT_LOCALE } from '../config/globals'
@@ -91,11 +94,7 @@ const BallotScreen = () => {
                   onPress={() => changeLocale(localeCode)}
                   small
                 >
-                  {localeCode === DEFAULT_LOCALE
-                    ? getLanguageByLocaleCode(DEFAULT_LOCALE)
-                    : `${getLanguageByLocaleCode(
-                        DEFAULT_LOCALE
-                      )}/${getLanguageByLocaleCode(localeCode)}`}
+                  {getHumanBallotLanguageFormat(localeCode)}
                 </Button>
               ))}
             </SegmentedButton>
@@ -103,13 +102,12 @@ const BallotScreen = () => {
         </p>
         <p>
           <Button primary onPress={printBallot}>
-            Print {isLiveMode ? 'Official Ballot' : 'Test Ballot'} in{' '}
-            {currentLocaleCode
-              ? `${getLanguageByLocaleCode(
-                  DEFAULT_LOCALE
-                )}/${getLanguageByLocaleCode(currentLocaleCode)}`
-              : getLanguageByLocaleCode(DEFAULT_LOCALE)}
-          </Button>{' '}
+            {availableLocaleCodes.length > 1 && currentLocaleCode
+              ? `Print ${
+                  isLiveMode ? 'Official Ballot' : 'Test Ballot'
+                } in ${getHumanBallotLanguageFormat(currentLocaleCode)}`
+              : `Print ${isLiveMode ? 'Official Ballot' : 'Test Ballot'}`}
+          </Button>
         </p>
         <p>
           Filename: <Monospace>{filename}</Monospace>
