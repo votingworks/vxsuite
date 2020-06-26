@@ -122,6 +122,7 @@ class PagedQRCodeInjector extends Handler {
         precinctId = '',
         ballotStyleId = '',
         isLiveMode = '',
+        secondLocaleCode = '',
       } = (qrCodeTarget as HTMLDivElement)?.dataset
       if (qrCodeTarget) {
         ReactDOM.render(
@@ -133,6 +134,7 @@ class PagedQRCodeInjector extends Handler {
               ballotStyleId,
               pageNumber: parseInt(pageNumber, 10),
               pageCount: pages.length,
+              secondLocaleCode,
             })}
           />,
           qrCodeTarget
@@ -281,20 +283,23 @@ const ballotMetadata = ({
   ballotStyleId,
   pageNumber,
   pageCount,
+  secondLocaleCode,
 }: {
   isLiveMode: boolean
   precinctId: Precinct['id']
   ballotStyleId: BallotStyle['id']
   pageNumber: number
   pageCount: number
+  secondLocaleCode: string
 }): string => {
   const params = new URLSearchParams([
     ['t', `${!isLiveMode ? 't' : '_'}`],
     ['pr', precinctId],
     ['bs', ballotStyleId],
+    ['l', secondLocaleCode],
     ['p', `${pageNumber}-${pageCount}`],
   ])
-  return new URL(`https://vx.vote/?${params}`).toString()
+  return new URL(`https://ballot.page/?${params}`).toString()
 }
 
 const CandidateContestChoices = ({
@@ -536,6 +541,7 @@ const HandMarkedPaperBallot = ({
               data-is-live-mode={isLiveMode}
               data-precinct-id={precinctId}
               data-ballot-style-id={ballotStyleId}
+              data-second-locale-code={secondLocaleCode}
             />
           </PageFooter>
         </div>
