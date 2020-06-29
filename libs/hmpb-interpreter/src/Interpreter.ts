@@ -1,5 +1,4 @@
 import {
-  BallotStyle,
   BallotType,
   CompletedBallot,
   Contests,
@@ -7,7 +6,6 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
-  Precinct,
 } from '@votingworks/ballot-encoder'
 import { strict as assert } from 'assert'
 import makeDebug from 'debug'
@@ -20,6 +18,7 @@ import findTargets, { TargetShape } from './hmpb/findTargets'
 import { detect } from './metadata'
 import {
   BallotCandidateTargetMark,
+  BallotLocales,
   BallotMark,
   BallotPageLayout,
   BallotPageMetadata,
@@ -40,6 +39,7 @@ import { map, reversed, zip, zipMin } from './utils/iterators'
 import diff, { countPixels } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
+import KeyedMap from './utils/KeyedMap'
 import outline from './utils/outline'
 
 const debug = makeDebug('hmpb-interpreter:Interpreter')
@@ -56,6 +56,8 @@ export interface Options {
 
 export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.2
 
+type TemplateKey = Omit<BallotPageMetadata, 'isTestBallot' | 'pageCount'>
+
 /**
  * Interprets ballot images based on templates. A template is simply an empty
  * ballot and should be exactly what is given to a voter for them to mark.
@@ -70,10 +72,23 @@ export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.2
  * ```
  */
 export default class Interpreter {
-  private templates = new Map<
-    BallotPageMetadata['ballotStyleId'],
-    Map<BallotPageMetadata['precinctId'], (BallotPageLayout | undefined)[]>
-  >()
+  private templates = new KeyedMap<
+    [
+      BallotLocales | undefined,
+      BallotPageMetadata['ballotStyleId'],
+      BallotPageMetadata['precinctId'],
+      number
+    ],
+    BallotPageLayout | undefined
+  >(([locales, ballotStyleId, precinctId, pageNumber]) =>
+    [
+      locales?.primary,
+      locales?.secondary,
+      ballotStyleId,
+      precinctId,
+      pageNumber,
+    ].join('-')
+  )
   private readonly election: Election
   private readonly testMode: boolean
   private readonly detectQRCode?: DetectQRCode
@@ -131,64 +146,33 @@ export default class Interpreter {
       )
     }
 
-    this.setTemplate(
-      metadata.ballotStyleId,
-      metadata.precinctId,
-      metadata.pageNumber,
-      metadata.pageCount,
-      template
-    )
+    this.setTemplate(metadata, template)
     return template
   }
 
   /**
    * Gets a template by ballot style, precinct, and page number if present.
    */
-  private getTemplate(
-    ballotStyleId: BallotStyle['id'],
-    precinctId: Precinct['id'],
-    pageNumber: number
-  ): BallotPageLayout | undefined {
-    const templatesByPrecinctIdAndPageNumber = this.templates.get(ballotStyleId)
-
-    if (!templatesByPrecinctIdAndPageNumber) {
-      return
-    }
-
-    const templatesByPageNumber = templatesByPrecinctIdAndPageNumber.get(
-      precinctId
-    )
-
-    return templatesByPageNumber?.[pageNumber - 1]
+  private getTemplate({
+    locales,
+    ballotStyleId,
+    precinctId,
+    pageNumber,
+  }: TemplateKey): BallotPageLayout | undefined {
+    return this.templates.get([locales, ballotStyleId, precinctId, pageNumber])
   }
 
   /**
    * Sets a template by ballot style, precinct, and page number.
    */
   private setTemplate(
-    ballotStyleId: BallotStyle['id'],
-    precinctId: Precinct['id'],
-    pageNumber: number,
-    pageCount: number,
+    { locales, ballotStyleId, precinctId, pageNumber }: TemplateKey,
     template: BallotPageLayout
   ): void {
-    let templatesByPrecinctIdAndPageNumber = this.templates.get(ballotStyleId)
-
-    if (!templatesByPrecinctIdAndPageNumber) {
-      templatesByPrecinctIdAndPageNumber = new Map()
-      this.templates.set(ballotStyleId, templatesByPrecinctIdAndPageNumber)
-    }
-
-    let templatesByPageNumber = templatesByPrecinctIdAndPageNumber.get(
-      precinctId
+    this.templates.set(
+      [locales, ballotStyleId, precinctId, pageNumber],
+      template
     )
-
-    if (!templatesByPageNumber) {
-      templatesByPageNumber = new Array(pageCount)
-      templatesByPrecinctIdAndPageNumber.set(precinctId, templatesByPageNumber)
-    }
-
-    templatesByPageNumber[pageNumber - 1] = template
   }
 
   /**
@@ -237,38 +221,17 @@ export default class Interpreter {
   public canScanBallot(metadata: BallotPageMetadata): boolean {
     debug('canScanBallot metadata=%O', metadata)
 
-    const ballotStyleTemplates = this.templates.get(metadata.ballotStyleId)
-
-    if (!ballotStyleTemplates) {
-      debug(
-        'cannot scan ballot because there are no templates for ballot style %s',
-        metadata.ballotStyleId
-      )
-      return false
-    }
-
-    const precinctTemplates = ballotStyleTemplates.get(metadata.precinctId)
-
-    if (!precinctTemplates) {
-      debug(
-        'cannot scan ballot because there are no templates for precinct %s',
-        metadata.precinctId
-      )
-      return false
-    }
-
     for (
       let pageNumber = 1;
       pageNumber <= metadata.pageNumber;
       pageNumber += 1
     ) {
-      const pageTemplate = precinctTemplates[pageNumber - 1]
-
+      const pageTemplate = this.getTemplate({ ...metadata, pageNumber })
       if (!pageTemplate) {
         debug(
           'cannot scan ballot because template page %d of %d is missing',
           pageNumber,
-          precinctTemplates.length
+          metadata.pageCount
         )
         return false
       }
@@ -280,7 +243,7 @@ export default class Interpreter {
         debug(
           'cannot scan ballot because template page %d of %d does not match the expected test ballot value (%s)',
           pageNumber,
-          precinctTemplates.length,
+          metadata.pageCount,
           metadata.isTestBallot
         )
         return false
@@ -294,29 +257,44 @@ export default class Interpreter {
    * Gets information about missing templates. As more templates are added to
    * fill in the gaps, the resulting specifier will become more specific.
    */
-  public *getMissingTemplates(): Generator<PartialTemplateSpecifier> {
-    for (const ballotStyle of this.election.ballotStyles) {
-      const ballotStyleTemplates = this.templates.get(ballotStyle.id)
+  public *getMissingTemplates(
+    ballotLocaleConfigs: readonly (BallotLocales | undefined)[] = [undefined]
+  ): Generator<PartialTemplateSpecifier> {
+    for (const locales of ballotLocaleConfigs) {
+      for (const ballotStyle of this.election.ballotStyles) {
+        for (const precinctId of ballotStyle.precincts) {
+          const templatePage1 = this.getTemplate({
+            locales,
+            ballotStyleId: ballotStyle.id,
+            precinctId,
+            pageNumber: 1,
+          })
 
-      if (!ballotStyleTemplates) {
-        yield { ballotStyleId: ballotStyle.id }
-        continue
-      }
-
-      for (const precinctId of ballotStyle.precincts) {
-        const precinctTemplates = ballotStyleTemplates.get(precinctId)
-
-        if (!precinctTemplates) {
-          yield { ballotStyleId: ballotStyle.id, precinctId }
-          continue
-        }
-
-        for (const [i, pageTemplate] of precinctTemplates.entries()) {
-          if (!pageTemplate) {
+          if (templatePage1) {
+            for (
+              let pageNumber = 2;
+              pageNumber <= templatePage1.ballotImage.metadata.pageCount;
+              pageNumber += 1
+            ) {
+              if (
+                !this.getTemplate({
+                  locales,
+                  ballotStyleId: ballotStyle.id,
+                  precinctId,
+                  pageNumber,
+                })
+              ) {
+                yield {
+                  ballotStyleId: ballotStyle.id,
+                  precinctId,
+                  pageNumber,
+                }
+              }
+            }
+          } else {
             yield {
               ballotStyleId: ballotStyle.id,
               precinctId,
-              pageNumber: i + 1,
             }
           }
         }
@@ -390,9 +368,9 @@ export default class Interpreter {
       ballotLayout.contests.map(({ bounds }) => bounds)
     )
 
-    const { ballotStyleId, precinctId, pageNumber } = metadata
+    const { locales, ballotStyleId, precinctId, pageNumber } = metadata
     const matchedTemplate = defined(
-      this.getTemplate(ballotStyleId, precinctId, pageNumber)
+      this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
     )
     const [mappedBallot, marks] = this.getMarksForBallot(
       ballotLayout,
@@ -409,6 +387,7 @@ export default class Interpreter {
   private getContestsForTemplate(template: BallotPageLayout): Contests {
     const { election } = this
     const {
+      locales,
       ballotStyleId,
       pageNumber,
       precinctId,
@@ -423,7 +402,7 @@ export default class Interpreter {
     let contestOffset = 0
     for (let i = 1; i < pageNumber; i += 1) {
       const pageTemplate = defined(
-        this.getTemplate(ballotStyleId, precinctId, i)
+        this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber: i })
       )
       contestOffset += pageTemplate.contests.length
     }

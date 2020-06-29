@@ -19,6 +19,7 @@ test('interpret two-column template', async () => {
     Object {
       "ballotStyleId": "77",
       "isTestBallot": false,
+      "locales": undefined,
       "pageCount": 2,
       "pageNumber": 1,
       "precinctId": "42",
@@ -578,15 +579,15 @@ test('missing templates', async () => {
   const metadataPage1 = await blankPage1.metadata()
   const metadataPage2 = await blankPage2.metadata()
 
-  expect(interpreter.hasMissingTemplates()).toBe(true)
   expect([...interpreter.getMissingTemplates()]).toEqual([
     {
       ballotStyleId: metadataPage1.ballotStyleId,
+      precinctId: metadataPage1.precinctId,
     },
   ])
+  expect(interpreter.hasMissingTemplates()).toBe(true)
 
   await interpreter.addTemplate(await blankPage1.imageData())
-  expect(interpreter.hasMissingTemplates()).toBe(true)
   expect([...interpreter.getMissingTemplates()]).toEqual([
     {
       ballotStyleId: metadataPage2.ballotStyleId,
@@ -594,10 +595,11 @@ test('missing templates', async () => {
       pageNumber: 2,
     },
   ])
+  expect(interpreter.hasMissingTemplates()).toBe(true)
 
   await interpreter.addTemplate(await blankPage2.imageData())
-  expect(interpreter.hasMissingTemplates()).toBe(false)
   expect([...interpreter.getMissingTemplates()]).toEqual([])
+  expect(interpreter.hasMissingTemplates()).toBe(false)
 })
 
 test('interpret empty ballot', async () => {
@@ -2180,6 +2182,7 @@ test('regression: page outline', async () => {
 })
 
 test('choctaw general 2019', async () => {
+  jest.setTimeout(10000)
   const interpreter = new Interpreter(choctaw.election)
 
   await interpreter.addTemplate(

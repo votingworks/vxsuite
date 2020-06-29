@@ -1,7 +1,7 @@
 import { Point, Rect } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
-import Map2d from './Map2d'
+import { VisitedPoints } from '../utils/VisitedPoints'
 
 export interface Shape {
   bounds: Rect
@@ -16,7 +16,7 @@ export function* findShapes<TNext>(
   points: Generator<Point, void, TNext | undefined>,
   { color = PIXEL_BLACK } = {}
 ): Generator<Shape, void, TNext> {
-  const visitedPoints = new Map2d<number, number, boolean>()
+  const visitedPoints = new VisitedPoints(imageData.width, imageData.height)
   const pointsIterator = points[Symbol.iterator]()
   let nextArg: TNext | undefined
 
@@ -44,11 +44,11 @@ export function* findShapes<TNext>(
 export function findShape(
   imageData: ImageData,
   startingPoint: Point,
-  visitedPoints = new Map2d<number, number, boolean>(),
+  visitedPoints = new VisitedPoints(imageData.width, imageData.height),
   { color = PIXEL_BLACK } = {}
 ): Shape {
   const toVisit: Point[] = [startingPoint]
-  const points = new Map2d<number, number, boolean>()
+  const points = new VisitedPoints(imageData.width, imageData.height)
   const { data, width, height } = imageData
   const channel = getImageChannelCount(imageData)
 
@@ -60,14 +60,13 @@ export function findShape(
   for (let point: Point | undefined; (point = toVisit.shift()); point) {
     const { x, y } = point
 
-    if (visitedPoints.has(x, y)) {
+    if (!visitedPoints.add(x, y)) {
       continue
     }
-    visitedPoints.set(x, y, true)
 
     const index = (x + y * width) * channel
     const isForeground = data[index] === color
-    points.set(x, y, isForeground)
+    points.add(x, y, isForeground)
 
     if (isForeground) {
       if (x < xMin) {

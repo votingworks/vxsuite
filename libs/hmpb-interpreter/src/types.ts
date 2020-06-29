@@ -37,7 +37,13 @@ export interface BallotPageLayout {
   contests: readonly BallotPageContestLayout[]
 }
 
+export interface BallotLocales {
+  primary: string
+  secondary?: string
+}
+
 export interface BallotPageMetadata {
+  locales?: BallotLocales
   ballotStyleId: BallotStyle['id']
   precinctId: Precinct['id']
   isTestBallot: boolean
