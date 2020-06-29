@@ -1,9 +1,19 @@
 import type { Election, OptionalElection } from '@votingworks/ballot-encoder'
-import type { BallotMark, Size } from '@votingworks/hmpb-interpreter'
+import type {
+  BallotMark,
+  BallotPageLayout,
+  Size,
+} from '@votingworks/hmpb-interpreter'
 
 export interface Dictionary<T> {
   [key: string]: T | undefined
 }
+
+export type DeepReadonly<T> = T extends (infer E)[]
+  ? readonly DeepReadonly<E>[]
+  : T extends object
+  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+  : T
 
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
@@ -55,11 +65,32 @@ export interface Batch {
   endedAt?: number
 }
 
-export interface Ballot {
+export type Ballot = BmdBallotInfo | HmpbBallotInfo | UnreadableBallotInfo
+
+export interface BmdBallotInfo {
   id: number
   filename: string
-  cvr?: CastVoteRecord
-  marks?: MarkInfo
+  cvr: CastVoteRecord
+}
+
+export interface HmpbBallotInfo {
+  id: number
+  filename: string
+  cvr: CastVoteRecord
+  marks: MarkInfo
+  layout: SerializableBallotPageLayout
+}
+
+export interface UnreadableBallotInfo {
+  id: number
+  filename: string
+}
+
+export type SerializableBallotPageLayout = Omit<
+  BallotPageLayout,
+  'ballotImage'
+> & {
+  ballotImage: Omit<BallotPageLayout['ballotImage'], 'imageData'>
 }
 
 export interface MarkInfo {
@@ -93,3 +124,6 @@ export type CardReadLongRequest = {}
 export interface CardReadLongResponse {
   longValue: string
 }
+
+// eslint-disable-next-line import/no-cycle
+export * from './types/ballot-review'

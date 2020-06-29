@@ -61,6 +61,7 @@ module.exports = {
     ],
     'no-await-in-loop': 'off',
     'no-nested-ternary': 'off',
+    'no-unused-expressions': 'off',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
     '@typescript-eslint/no-unused-vars': ['error', {
       'vars': 'all'
