@@ -1,7 +1,9 @@
+import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
 import { promises as fs } from 'fs'
 import * as tmp from 'tmp'
-import Store from './store'
 import election from '../test/fixtures/hmpb-dallas-county/election'
+import zeroRect from '../test/fixtures/zeroRect'
+import Store from './store'
 
 test('get/set election', async () => {
   const store = await Store.memoryStore()
@@ -32,20 +34,62 @@ test('HMPB template handling', async () => {
 
   expect(await store.getHmpbTemplates()).toEqual([])
 
-  await store.addHmpbTemplate(Buffer.of(1, 2, 3), {
-    ballotStyleId: '12D',
-    precinctId: '99',
-    isTestBallot: false,
-  })
+  await store.addHmpbTemplate(Buffer.of(1, 2, 3), [
+    {
+      ballotImage: {
+        metadata: {
+          ballotStyleId: '12D',
+          precinctId: '99',
+          isTestBallot: false,
+          pageNumber: 1,
+          pageCount: 2,
+        },
+      },
+      contests: [],
+    },
+    {
+      ballotImage: {
+        metadata: {
+          ballotStyleId: '12D',
+          precinctId: '99',
+          isTestBallot: false,
+          pageNumber: 2,
+          pageCount: 2,
+        },
+      },
+      contests: [],
+    },
+  ])
 
   expect(await store.getHmpbTemplates()).toEqual([
     [
       Buffer.of(1, 2, 3),
-      {
-        ballotStyleId: '12D',
-        precinctId: '99',
-        isTestBallot: false,
-      },
+      [
+        {
+          ballotImage: {
+            metadata: {
+              ballotStyleId: '12D',
+              precinctId: '99',
+              isTestBallot: false,
+              pageNumber: 1,
+              pageCount: 2,
+            },
+          },
+          contests: [],
+        },
+        {
+          ballotImage: {
+            metadata: {
+              ballotStyleId: '12D',
+              precinctId: '99',
+              isTestBallot: false,
+              pageNumber: 2,
+              pageCount: 2,
+            },
+          },
+          contests: [],
+        },
+      ],
     ],
   ])
 })
@@ -59,4 +103,139 @@ test('destroy database', async () => {
 
   await store.dbDestroy()
   await expect(fs.access(dbFile.name)).rejects.toThrowError('ENOENT')
+})
+
+test('adjudication', async () => {
+  const candidateContest = election.contests.find(
+    (contest) => contest.type === 'candidate'
+  ) as CandidateContest
+  const candidateOption = candidateContest.candidates[0]
+  const yesnoContest = election.contests.find(
+    (contest) => contest.type === 'yesno'
+  ) as YesNoContest
+  const yesnoOption = 'yes'
+
+  const store = await Store.memoryStore()
+  await store.setElection(election)
+  await store.addHmpbTemplate(Buffer.of(), [
+    {
+      ballotImage: {
+        metadata: {
+          ballotStyleId: '77',
+          precinctId: '42',
+          isTestBallot: false,
+          pageNumber: 1,
+          pageCount: 2,
+        },
+      },
+      contests: [
+        {
+          bounds: zeroRect,
+          corners: [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+          ],
+          options: [
+            {
+              bounds: zeroRect,
+              target: {
+                bounds: zeroRect,
+                inner: zeroRect,
+              },
+            },
+          ],
+        },
+        {
+          bounds: zeroRect,
+          corners: [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+          ],
+          options: [
+            {
+              bounds: zeroRect,
+              target: {
+                bounds: zeroRect,
+                inner: zeroRect,
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ])
+  const batchId = await store.addBatch()
+  const ballotId = await store.addCVR(
+    batchId,
+    '/a/ballot.jpg',
+    {
+      _ballotId: 'abcde',
+      _ballotStyleId: '77',
+      _precinctId: '42',
+      _scannerId: '123',
+      _testBallot: false,
+    },
+    {
+      ballotSize: { width: 800, height: 1000 },
+      marks: [
+        {
+          type: 'candidate',
+          contest: candidateContest,
+          option: candidateOption,
+          score: 0,
+          bounds: zeroRect,
+          target: {
+            bounds: zeroRect,
+            inner: zeroRect,
+          },
+        },
+        {
+          type: 'yesno',
+          contest: yesnoContest,
+          option: yesnoOption,
+          score: 1,
+          bounds: zeroRect,
+          target: {
+            bounds: zeroRect,
+            inner: zeroRect,
+          },
+        },
+      ],
+    },
+    {
+      ballotStyleId: '77',
+      precinctId: '42',
+      isTestBallot: false,
+      pageNumber: 1,
+      pageCount: 2,
+    }
+  )
+  await store.finishBatch(batchId)
+
+  expect(await store.getBallot(ballotId)).toEqual(
+    expect.objectContaining({
+      marks: {
+        [candidateContest.id]: { [candidateOption.id]: false },
+        [yesnoContest.id]: { [yesnoOption]: true },
+      },
+    })
+  )
+
+  await store.saveBallotAdjudication(ballotId, {
+    [candidateContest.id]: { [candidateOption.id]: true },
+    [yesnoContest.id]: { [yesnoOption]: false },
+  })
+
+  expect(await store.getBallot(ballotId)).toEqual(
+    expect.objectContaining({
+      marks: {
+        [candidateContest.id]: { [candidateOption.id]: true },
+        [yesnoContest.id]: { [yesnoOption]: false },
+      },
+    })
+  )
 })

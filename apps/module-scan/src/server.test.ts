@@ -1,4 +1,5 @@
-import { electionSample as election } from '@votingworks/ballot-encoder'
+import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
+import election from '../test/fixtures/hmpb-dallas-county/election'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'
@@ -8,6 +9,8 @@ import { makeMockImporter } from '../test/util/mocks'
 import { Importer } from './importer'
 import { buildApp, start } from './server'
 import Store from './store'
+import { createImageData } from 'canvas'
+import zeroRect from '../test/fixtures/zeroRect'
 
 jest.mock('./importer')
 
@@ -20,6 +23,33 @@ beforeEach(async () => {
   importer = makeMockImporter()
   importerMock = importer as jest.Mocked<Importer>
   store = await Store.memoryStore()
+  await store.setElection(election)
+  await store.addHmpbTemplate(Buffer.of(), [
+    {
+      ballotImage: {
+        metadata: {
+          ballotStyleId: '77',
+          precinctId: '42',
+          isTestBallot: false,
+          pageNumber: 1,
+          pageCount: 2,
+        },
+      },
+      contests: [],
+    },
+    {
+      ballotImage: {
+        metadata: {
+          ballotStyleId: '77',
+          precinctId: '42',
+          isTestBallot: false,
+          pageNumber: 2,
+          pageCount: 2,
+        },
+      },
+      contests: [],
+    },
+  ])
   app = buildApp({ importer, store })
 })
 
@@ -33,6 +63,12 @@ test('GET /scan/status', async () => {
     .set('Accept', 'application/json')
     .expect(200, status)
   expect(importer.getStatus).toBeCalled()
+})
+
+test('GET /config', async () => {
+  await store.setElection(election)
+  await store.setTestMode(true)
+  await request(app).get('/config').expect(200, { election, testMode: true })
 })
 
 test('PATCH /config to set election', async () => {
@@ -184,41 +220,168 @@ test('GET /scan/batch/:batchId 404', async () => {
     .expect(404)
 })
 
-test('GET /scan/batch/:batchId/ballot/:ballotId', async () => {
+test('GET /scan/hmpb/ballot/:ballotId', async () => {
+  const contest = election.contests.find(
+    ({ type }) => type === 'candidate'
+  ) as CandidateContest
+  const option = contest.candidates[0]
   const batchId = await store.addBatch()
-  const ballotId = await store.addCVR(batchId, '/tmp/image.jpg', {
-    _ballotId: 'abc',
-    _ballotStyleId: '77',
-    _precinctId: '42',
-    _scannerId: 'def',
-    _testBallot: false,
-  })
+  const ballotId = await store.addCVR(
+    batchId,
+    '/tmp/image.jpg',
+    {
+      _ballotId: 'abc',
+      _ballotStyleId: '77',
+      _precinctId: '42',
+      _scannerId: 'def',
+      _testBallot: false,
+    },
+    {
+      ballotSize: { width: 0, height: 0 },
+      marks: [
+        {
+          type: 'candidate',
+          contest,
+          option,
+          bounds: zeroRect,
+          score: 1,
+          target: { bounds: zeroRect, inner: zeroRect },
+        },
+      ],
+    },
+    {
+      ballotStyleId: '77',
+      precinctId: '42',
+      isTestBallot: false,
+      pageNumber: 1,
+      pageCount: 1,
+    }
+  )
   await store.finishBatch(batchId)
 
   await request(app)
-    .get(`/scan/batch/${batchId}/ballot/${ballotId}`)
+    .get(`/scan/hmpb/ballot/${ballotId}`)
     .set('Accept', 'application/json')
     .expect(200, {
-      id: 1,
-      filename: '/tmp/image.jpg',
-      cvr: {
-        _ballotId: 'abc',
-        _ballotStyleId: '77',
-        _precinctId: '42',
-        _scannerId: 'def',
-        _testBallot: false,
+      ballot: {
+        url: '/scan/hmpb/ballot/1',
+        image: { url: '/scan/hmpb/ballot/1/image', width: 0, height: 0 },
       },
+      marks: { 'us-senate': { 'john-cornyn': true } },
+      contests: [],
     })
 })
 
-test('GET /scan/batch/:batchId/ballot/:ballotId 404', async () => {
+test('GET /scan/hmpb/ballot/:ballotId 404', async () => {
   await request(app)
-    .get(`/scan/batch/999/ballot/111`)
+    .get(`/scan/hmpb/ballot/111`)
     .set('Accept', 'application/json')
     .expect(404)
 })
 
-test('GET /scan/batch/:batchId/ballot/:ballotId/image', async () => {
+test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
+  const candidateContest = election.contests.find(
+    ({ type }) => type === 'candidate'
+  ) as CandidateContest
+  const candidateOption = candidateContest.candidates[0]
+  const yesnoContest = election.contests.find(
+    ({ type }) => type === 'yesno'
+  ) as YesNoContest
+  const yesnoOption = 'no'
+  const batchId = await store.addBatch()
+  const ballotId = await store.addCVR(
+    batchId,
+    '/tmp/image.jpg',
+    {
+      _ballotId: 'abc',
+      _ballotStyleId: '77',
+      _precinctId: '42',
+      _scannerId: 'def',
+      _testBallot: false,
+    },
+    {
+      ballotSize: { width: 0, height: 0 },
+      marks: [
+        {
+          type: 'candidate',
+          contest: candidateContest,
+          option: candidateOption,
+          bounds: zeroRect,
+          score: 1,
+          target: { bounds: zeroRect, inner: zeroRect },
+        },
+        {
+          type: 'yesno',
+          contest: yesnoContest,
+          option: yesnoOption,
+          bounds: zeroRect,
+          score: 0,
+          target: { bounds: zeroRect, inner: zeroRect },
+        },
+      ],
+    },
+    {
+      ballotStyleId: '77',
+      precinctId: '42',
+      isTestBallot: false,
+      pageNumber: 1,
+      pageCount: 1,
+    }
+  )
+  await store.finishBatch(batchId)
+  await request(app)
+    .patch(`/scan/hmpb/ballot/${ballotId}`)
+    .send({
+      [candidateContest.id]: { [candidateOption.id]: false },
+      [yesnoContest.id]: { [yesnoOption]: true },
+    })
+    .expect(200, { status: 'ok' })
+
+  await request(app)
+    .get(`/scan/hmpb/ballot/${ballotId}`)
+    .expect(200, {
+      ballot: {
+        url: `/scan/hmpb/ballot/${ballotId}`,
+        image: {
+          url: `/scan/hmpb/ballot/${ballotId}/image`,
+          width: 0,
+          height: 0,
+        },
+      },
+      marks: {
+        [candidateContest.id]: { [candidateOption.id]: false },
+        [yesnoContest.id]: { [yesnoOption]: true },
+      },
+      contests: [],
+    })
+
+  // patches accumulate
+  await request(app)
+    .patch(`/scan/hmpb/ballot/${ballotId}`)
+    .send({
+      [candidateContest.id]: { [candidateOption.id]: true },
+    })
+    .expect(200, { status: 'ok' })
+  await request(app)
+    .get(`/scan/hmpb/ballot/${ballotId}`)
+    .expect(200, {
+      ballot: {
+        url: `/scan/hmpb/ballot/${ballotId}`,
+        image: {
+          url: `/scan/hmpb/ballot/${ballotId}/image`,
+          width: 0,
+          height: 0,
+        },
+      },
+      marks: {
+        [candidateContest.id]: { [candidateOption.id]: true },
+        [yesnoContest.id]: { [yesnoOption]: true },
+      },
+      contests: [],
+    })
+})
+
+test('GET /scan/hmpb/ballot/:ballotId/image', async () => {
   const filename = join(
     __dirname,
     '../test/fixtures/hmpb-dallas-county/filled-in-p1.jpg'
@@ -234,14 +397,14 @@ test('GET /scan/batch/:batchId/ballot/:ballotId/image', async () => {
   await store.finishBatch(batchId)
 
   await request(app)
-    .get(`/scan/batch/${batchId}/ballot/${ballotId}/image`)
+    .get(`/scan/hmpb/ballot/${ballotId}/image`)
     .set('Accept', 'application/json')
     .expect(200, await fs.readFile(filename))
 })
 
-test('GET /scan/batch/:batchId/ballot/:ballotId/image 404', async () => {
+test('GET /scan/hmpb/ballot/:ballotId/image 404', async () => {
   await request(app)
-    .get(`/scan/batch/999/ballot/111`)
+    .get(`/scan/hmpb/ballot/111/image`)
     .set('Accept', 'application/json')
     .expect(404)
 })
@@ -292,11 +455,17 @@ test('POST /scan/hmpb/addTemplates bad metadata', async () => {
 test('POST /scan/hmpb/addTemplates', async () => {
   importerMock.addHmpbTemplates.mockResolvedValueOnce([
     {
-      ballotStyleId: '77',
-      precinctId: '42',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 2,
+      ballotImage: {
+        imageData: createImageData(Uint8ClampedArray.of(0, 0, 0, 0), 1, 1),
+        metadata: {
+          ballotStyleId: '77',
+          precinctId: '42',
+          isTestBallot: false,
+          pageNumber: 1,
+          pageCount: 2,
+        },
+      },
+      contests: [],
     },
   ])
 
@@ -322,17 +491,6 @@ test('POST /scan/hmpb/addTemplates', async () => {
     .expect(200)
 
   expect(JSON.parse(response.text)).toEqual({ status: 'ok' })
-
-  expect(await store.getHmpbTemplates()).toEqual([
-    [
-      Buffer.of(4, 5, 6),
-      {
-        ballotStyleId: '77',
-        precinctId: '42',
-        isTestBallot: false,
-      },
-    ],
-  ])
 })
 
 test('start reloads configuration from the store', async () => {

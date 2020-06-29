@@ -47,6 +47,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'error',
     '@typescript-eslint/no-non-null-assertion': 'off',
+    'no-dupe-class-members': 'off',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
     'no-underscore-dangle': 'off',
     '@typescript-eslint/no-unused-vars': [

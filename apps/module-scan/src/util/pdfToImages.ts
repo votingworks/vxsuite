@@ -7,7 +7,7 @@ import { getDocument } from 'pdfjs-dist'
 export default async function* pdfToImages(
   pdfBytes: Buffer,
   { scale = 1 } = {}
-): AsyncGenerator<ImageData> {
+): AsyncGenerator<{ pageNumber: number; pageCount: number; page: ImageData }> {
   const canvas = createCanvas(0, 0)
   const context = canvas.getContext('2d')
   const pdf = await getDocument(pdfBytes).promise
@@ -22,6 +22,11 @@ export default async function* pdfToImages(
     canvas.height = viewport.height
 
     await page.render({ canvasContext: context, viewport }).promise
-    yield context.getImageData(0, 0, canvas.width, canvas.height)
+
+    yield {
+      pageCount: pdf.numPages,
+      pageNumber: i,
+      page: context.getImageData(0, 0, canvas.width, canvas.height),
+    }
   }
 }
