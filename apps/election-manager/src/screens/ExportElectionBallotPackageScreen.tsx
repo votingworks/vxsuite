@@ -107,7 +107,7 @@ const ExportElectionBallotPackageScreen = () => {
       return (
         <NavigationScreen>
           <h1>Downloading…</h1>
-          <p>Choose where to save the package…</p>
+          <p>Choose where to save the package.</p>
         </NavigationScreen>
       )
     }
@@ -157,7 +157,7 @@ const ExportElectionBallotPackageScreen = () => {
             isLiveMode={isLiveMode}
             precinctId={precinctId}
             onRendered={onRendered}
-            secondLocaleCode={localeCode}
+            secondaryLocaleCode={localeCode}
           />
         </NavigationScreen>
       )
