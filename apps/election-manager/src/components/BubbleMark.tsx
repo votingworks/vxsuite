@@ -31,7 +31,7 @@ const Container = styled.span`
 const Content = styled.span`
   display: flex;
   flex: 1;
-  flex-direction: row;
+  flex-direction: column;
 `
 
 export const BubbleMark = ({ checked = false, children }: Props) => (
@@ -41,4 +41,4 @@ export const BubbleMark = ({ checked = false, children }: Props) => (
   </Container>
 )
 
-// export default BubbleMark
+export default BubbleMark

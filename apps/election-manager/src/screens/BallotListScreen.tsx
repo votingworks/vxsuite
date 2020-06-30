@@ -2,13 +2,12 @@ import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 
 import AppContext from '../contexts/AppContext'
-import { getBallotFileName } from '../utils/election'
 
 import { routerPaths } from '../components/ElectionManager'
 import Button, { SegmentedButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Table, { TD } from '../components/Table'
-import { Monospace, NoWrap } from '../components/Text'
+import { NoWrap } from '../components/Text'
 import Prose from '../components/Prose'
 import pluralize from 'pluralize'
 import {
@@ -22,7 +21,7 @@ const Header = styled.div`
 `
 
 const BallotListScreen = () => {
-  const { election: e, electionHash } = useContext(AppContext)
+  const { election: e } = useContext(AppContext)
   const election = e!
 
   const ballotLists = [
@@ -44,18 +43,18 @@ const BallotListScreen = () => {
             <SegmentedButton>
               <Button small onPress={sortByStyle} disabled={ballotView === 0}>
                 Style
-            </Button>
+              </Button>
               <Button
                 small
                 onPress={sortByPrecinct}
                 disabled={ballotView === 1}
               >
                 Precinct
-            </Button>
+              </Button>
             </SegmentedButton>{' '}
             <LinkButton small to={routerPaths.export}>
               Export Ballot Package
-          </LinkButton>
+            </LinkButton>
           </p>
         </Prose>
       </Header>
@@ -66,7 +65,6 @@ const BallotListScreen = () => {
             <TD as="th">Style</TD>
             <TD as="th">Precinct</TD>
             <TD as="th">Contests</TD>
-            <TD as="th">Filename</TD>
           </tr>
         </thead>
         <tbody>
@@ -83,23 +81,13 @@ const BallotListScreen = () => {
                     to={routerPaths.ballotsView(ballot)}
                   >
                     View Ballot
-                </LinkButton>
+                  </LinkButton>
                 </TD>
                 <TD>{ballot.ballotStyleId}</TD>
                 <TD>
                   <NoWrap>{precinctName}</NoWrap>
                 </TD>
                 <TD>{ballot.contestIds.length}</TD>
-                <TD nowrap>
-                  <Monospace>
-                    {getBallotFileName({
-                      ballotStyleId: ballot.ballotStyleId,
-                      election,
-                      electionHash,
-                      precinctId: ballot.precinctId,
-                    })}
-                  </Monospace>
-                </TD>
               </tr>
             )
           })}

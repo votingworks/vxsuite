@@ -4,8 +4,10 @@ import {
   BallotStyle,
   Contest,
   Precinct,
+  getElectionLocales,
 } from '@votingworks/ballot-encoder'
 import { getBallotStylesDataByStyle } from '../utils/election'
+import { DEFAULT_LOCALE } from '../config/globals'
 
 export type State =
   | Init
@@ -32,17 +34,21 @@ export interface RenderBallot {
   ballotData: BallotStyleData[]
   ballotIndex: number
   isLiveMode: boolean
+  electionLocales: string[]
+  localeCodeIndex: number
 }
 
 export interface ArchiveEnd {
   type: 'ArchiveEnd'
   archive: DownloadableArchive
   ballotCount: number
+  localesCount: number
 }
 
 export interface Done {
   type: 'Done'
   ballotCount: number
+  localesCount: number
 }
 
 export interface Failed {
@@ -76,6 +82,8 @@ export function next(state: State): State {
         ballotData: getBallotStylesDataByStyle(state.election),
         ballotIndex: 0,
         isLiveMode: true,
+        electionLocales: getElectionLocales(state.election, DEFAULT_LOCALE),
+        localeCodeIndex: 0,
       }
 
     case 'RenderBallot':
@@ -92,19 +100,31 @@ export function next(state: State): State {
           type: 'ArchiveEnd',
           archive: state.archive,
           ballotCount: state.ballotData.length,
+          localesCount: state.electionLocales.length,
         }
       }
 
+      // next locale
+      if (state.localeCodeIndex + 1 < state.electionLocales.length) {
+        return {
+          ...state,
+          localeCodeIndex: state.localeCodeIndex + 1,
+        }
+      }
+
+      // next ballot
       return {
         ...state,
         isLiveMode: !state.isLiveMode,
         ballotIndex: state.ballotIndex + 1,
+        localeCodeIndex: 0,
       }
 
     case 'ArchiveEnd':
       return {
         type: 'Done',
         ballotCount: state.ballotCount,
+        localesCount: state.localesCount,
       }
 
     default:
