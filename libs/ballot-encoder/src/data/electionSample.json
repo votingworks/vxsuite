@@ -941,7 +941,7 @@
       "es-US": {
         "Official Ballot": "Boleta Oficial",
         "TEST BALLOT": "BOLETA DE PRUEBA",
-        "Yes": "Sî",
+        "Yes": "Sí",
         "No": "No",
         "Precinct": "Recinto",
         "Style": "Estilo",
@@ -949,17 +949,17 @@
         "Pages": "Paginas",
         "{{primaryPartyName}} {{electionTitle}}": "{{electionTitle}} del {{primaryPartyName}}",
         "write-in": "voto por",
-        "Vote for 1": "Vote por 1",
-        "Vote for not more than {{ seats }}": "Vote por no más de {{ seats }}",
-        "voteYesOrNo": "Vote <strong>Sî</strong> o <strong>No</strong>",
+        "Vote for 1": "Voto por 1",
+        "Vote for not more than {{ seats }}": "Voto por no más de {{ seats }}",
+        "voteYesOrNo": "Voto <strong>Sí</strong> o <strong>No</strong>",
         "Instructions": "Instrucciones",
-        "To vote, use a black pen to completely fill in the oval to the left of your choice.": "Para votar, use un bolígrafo negro para completar completamente el óvalo a la izquierda de su elección.",
-        "To Vote for a Write-In": "Para escribir un voto",
-        "To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.": "Para votar por una persona que no figura en la boleta electoral, complete por completo el óvalo a la izquierda de la línea de “voto por” e imprima el nombre de la persona en la línea.",
+        "To vote, use a black pen to completely fill in the oval to the left of your choice.": "Para votar, use un bolígrafo negro para rellenar completamente el óvalo a la izquierda de su selección.",
+        "To Vote for a Write-In": "Para asignar un voto",
+        "To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person's name on the line.": "Para votar para una persona que no figura en la boleta electoral, rellena completamente el óvalo a la izquierda de la línea de “voto por” y escriba el nombre de la persona en la línea.",
         "To correct a mistake": "Para corregir un error",
-        "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.": "Para hacer una corrección, solicite una boleta de reemplazo. Cualquier marca que no sean óvalos llenos puede hacer que su boleta no se cuente.",
+        "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.": "Para hacer una corrección, solicite una boleta nueva. Cualquier marca que no sea óvalos llenos puede hacer que su boleta no se cuente.",
         "Thank you for voting.": "Gracias por votar.",
-        "You have reached the end of the ballot. Please review your ballot selections.": "Has llegado al final de la votación. Por favor revise sus selecciones de boleta."
+        "You have reached the end of the ballot. Please review your ballot selections.": "Ha llegado al final de la votación. Por favor revise las opciones seleccionadas en su boleta."
       }
     }
   }
