@@ -22,6 +22,16 @@ In the PROJECT you wish to use this dev version of `ballot-encoder`:
 3. `ln -s path/to/ballot-encoder ballot-encoder`
 4. restart project server if applicable
 
+## Pubishing New NPM Version
+
+1. Update the version and create a git tag: `npm version [major|minor|patch]`
+2. Push branch for PR review. Once approved…
+3. Generate the JavaScript files from TypeScript: `yarn prepare` (or `yarn tsc`)
+4. Publish current version: `yarn npm publish --access=public`
+
+Optionally, deprecate a previous version. For example:
+`npm deprecate -f '@votingworks/ballot-encoder@1.3.1' "Poor translations"`
+
 ## Example
 
 ```ts
