@@ -1,5 +1,6 @@
 import { Election, BallotStyle } from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
+import { DEFAULT_LOCALE, LANGUAGES } from '../config/globals'
 
 export const getContests = ({
   ballotStyle,
@@ -30,18 +31,16 @@ export const getBallotStyle = ({
   election: Election
 }) => election.ballotStyles.find((bs) => bs.id === ballotStyleId) as BallotStyle
 
-export const getPartyPrimaryAdjectiveFromBallotStyle = ({
+export const getPartyFullNameFromBallotStyle = ({
   ballotStyleId,
   election,
 }: {
   ballotStyleId: string
   election: Election
 }): string => {
-  const parts = ballotStyleId?.match(/(\d+)(\w+)/i)
-  const abbrev = parts?.[2]
-  const party = election.parties.find((p) => p.abbrev === abbrev)
-  const name = party?.name
-  return name === 'Democrat' ? 'Democratic' : name ?? ''
+  const { partyId } = getBallotStyle({ ballotStyleId, election })
+  const party = election.parties.find((p) => p.id === partyId)
+  return party?.fullName || ''
 }
 
 interface BallotStyleData {
@@ -87,23 +86,40 @@ export const getBallotStylesDataByPrecinct = (election: Election) =>
     return nameA.localeCompare(nameB, undefined, sortOptions)
   })
 
+export const getLanguageByLocaleCode = (localeCode: string) =>
+  LANGUAGES[localeCode.split('-')[0]]
+
+export const getHumanBallotLanguageFormat = (localeCode: string) =>
+  localeCode === DEFAULT_LOCALE
+    ? getLanguageByLocaleCode(DEFAULT_LOCALE)
+    : `${getLanguageByLocaleCode(DEFAULT_LOCALE)}/${getLanguageByLocaleCode(
+        localeCode
+      )}`
+
 export const getBallotFileName = ({
   ballotStyleId,
   election,
   electionHash,
   precinctId,
+  localeCode,
 }: {
   ballotStyleId: string
   election: Election
   electionHash: string
   precinctId: string
+  localeCode: string
 }) => {
   const precinctName = getPrecinctById({
     election,
     precinctId,
   })!.name
 
+  const locales =
+    localeCode === DEFAULT_LOCALE
+      ? DEFAULT_LOCALE
+      : `${DEFAULT_LOCALE}-${localeCode}`
+
   return `election-${electionHash.slice(0, 10)}-precinct-${dashify(
     precinctName
-  )}-id-${precinctId}-style-${ballotStyleId}.pdf`
+  )}-id-${precinctId}-style-${ballotStyleId}-locale-${locales}.pdf`
 }

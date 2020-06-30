@@ -1,7 +1,6 @@
 import React, { useContext } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
-
 import { BallotScreenProps, PrecinctReportScreenProps } from '../config/types'
 
 import AppContext from '../contexts/AppContext'
@@ -21,6 +20,12 @@ export const routerPaths = {
   ballotsList: '/ballots',
   ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps) =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
+  ballotsViewLanguage: ({
+    ballotStyleId,
+    precinctId,
+    localeCode,
+  }: BallotScreenProps) =>
+    `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${localeCode}`,
   tally: `/tally`,
   tallyReport: ({ precinctId }: PrecinctReportScreenProps) =>
     `/tally/precinct/${precinctId}`,
@@ -36,9 +41,7 @@ const ElectionManager = () => {
   const election = e!
 
   if (!election) {
-    return (
-      <UnconfiguredScreen />
-    )
+    return <UnconfiguredScreen />
   }
 
   return (
@@ -49,17 +52,26 @@ const ElectionManager = () => {
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
       </Route>
-      <Route path={[
-        routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
-        routerPaths.testDecksTally,
-      ]}>
+      <Route
+        path={[
+          routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
+          routerPaths.testDecksTally,
+        ]}
+      >
         <TestDeckScreen />
       </Route>
       <Route
-        path={routerPaths.ballotsView({
-          ballotStyleId: ':ballotStyleId',
-          precinctId: ':precinctId',
-        })}
+        path={[
+          routerPaths.ballotsViewLanguage({
+            ballotStyleId: ':ballotStyleId',
+            precinctId: ':precinctId',
+            localeCode: ':localeCode',
+          }),
+          routerPaths.ballotsView({
+            ballotStyleId: ':ballotStyleId',
+            precinctId: ':precinctId',
+          }),
+        ]}
       >
         <BallotScreen />
       </Route>
@@ -69,10 +81,12 @@ const ElectionManager = () => {
       <Route exact path={routerPaths.tally}>
         <TallyScreen />
       </Route>
-      <Route path={[
-        routerPaths.tallyReport({ precinctId: ':precinctId' }),
-        routerPaths.tallyFullReport,
-      ]}>
+      <Route
+        path={[
+          routerPaths.tallyReport({ precinctId: ':precinctId' }),
+          routerPaths.tallyFullReport,
+        ]}
+      >
         <TallyReportScreen />
       </Route>
       <Redirect to={routerPaths.ballotsList} />
