@@ -9,6 +9,7 @@ interface Props {
   center?: boolean
   error?: boolean
   italic?: boolean
+  left?: boolean
   muted?: boolean
   narrow?: boolean
   normal?: boolean
@@ -46,8 +47,11 @@ const Text = styled('p')<Props>`
   margin-right: ${({ narrow }) => (narrow ? 'auto' : undefined)};
   margin-left: ${({ narrow }) => (narrow ? 'auto' : undefined)};
   max-width: ${({ narrow }) => (narrow ? '33ch' : undefined)};
-  text-align: ${({ center, right }) =>
-    (center && 'center') || (right && 'right') || undefined};
+  text-align: ${({ center, right, left }) =>
+    (left && 'left') ||
+    (center && 'center') ||
+    (right && 'right') ||
+    undefined};
   white-space: ${({ noWrap }) => (noWrap ? 'nowrap' : undefined)};
   color: ${({ error, muted, warning }) =>
     (error && 'red') ??

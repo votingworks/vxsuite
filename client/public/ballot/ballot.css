@@ -3,32 +3,13 @@
 }
 
 .pagedjs_pagebox .pagedjs_margin-bottom-center {
-  align-items: flex-start;
+  align-items: flex-end;
+  padding-bottom: 0.37in;
 }
-.ballot-footer {
-  position: running(ballotFooter);
-}
-.ballot-footer-page-number::before {
+
+.page-number::before {
   content: counter(page);
 }
-.ballot-footer-pages-number::before {
+.total-pages::before {
   content: counter(pages);
-}
-
-@media print {
-  @page {
-    size: letter portrait;
-    margin: 0.3in 0.3in 0.9in;
-
-    @bottom-center {
-      content: element(ballotFooter);
-    }
-  }
-}
-
-@media screen {
-  .pagedjs_page {
-    outline: 1px solid green;
-    margin: 0.25in auto;
-  }
 }
