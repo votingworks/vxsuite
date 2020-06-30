@@ -393,9 +393,13 @@ const HandMarkedPaperBallot = ({
   const localeElection: OptionalElection = secondaryLocaleCode
     ? withLocale(election, secondaryLocaleCode)
     : undefined
-  i18n.addResources(DEFAULT_LOCALE, '', election.ballotStrings)
+  i18n.addResources(DEFAULT_LOCALE, 'translation', election.ballotStrings)
   if (localeElection) {
-    i18n.addResources(secondaryLocaleCode, '', localeElection.ballotStrings)
+    i18n.addResources(
+      secondaryLocaleCode,
+      'translation',
+      localeElection.ballotStrings
+    )
   }
   const primaryPartyName = getPartyFullNameFromBallotStyle({
     ballotStyleId,
