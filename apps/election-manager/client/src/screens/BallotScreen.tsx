@@ -141,7 +141,7 @@ const BallotScreen = () => {
         election={election}
         isLiveMode={isLiveMode}
         precinctId={precinctId}
-        secondLocaleCode={currentLocaleCode}
+        secondaryLocaleCode={currentLocaleCode}
       />
     </React.Fragment>
   )
