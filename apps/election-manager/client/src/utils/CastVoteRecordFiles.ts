@@ -1,5 +1,5 @@
 import arrayUnique from 'array-unique'
-import md5 from 'md5'
+import { sha256 } from 'js-sha256'
 // eslint-disable-next-line import/no-cycle
 import { CastVoteRecord, CastVoteRecordFile } from '../config/types'
 import readFileAsync from '../lib/readFileAsync'
@@ -124,7 +124,7 @@ export default class CastVoteRecordFiles {
   public async add(file: File): Promise<CastVoteRecordFiles> {
     try {
       const fileContent = await readFileAsync(file)
-      const signature = md5(fileContent)
+      const signature = sha256(fileContent)
 
       if (this.signatures.has(signature)) {
         return new CastVoteRecordFiles(
