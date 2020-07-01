@@ -8,7 +8,9 @@ interface AppContextInterface {
   election: OptionalElection
   electionHash: string
   saveElection: SaveElection
-  setCastVoteRecordFiles: React.Dispatch<React.SetStateAction<CastVoteRecordFiles>>
+  setCastVoteRecordFiles: React.Dispatch<
+    React.SetStateAction<CastVoteRecordFiles>
+  >
   printBallotRef?: RefObject<HTMLElement>
 }
 
