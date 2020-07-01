@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useLayoutEffect, useRef, useContext } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
@@ -21,8 +22,6 @@ import {
 
 import AppContext from '../contexts/AppContext'
 
-import { DEFAULT_LOCALE } from '../config/globals'
-
 import findPartyById from '../utils/findPartyById'
 import {
   getBallotStyle,
@@ -37,6 +36,7 @@ import QRCode from './QRCode'
 import Prose from './Prose'
 import Text from './Text'
 import HorizontalRule from './HorizontalRule'
+import { BallotLocale } from '../config/types'
 
 const localeDateLong = (dateString: string, locale: string) =>
   moment(new Date(dateString)).locale(locale).format('LL')
@@ -81,19 +81,19 @@ const dualPhraseWithSlash = (
 
 const dualLanguageComposer = (
   t: TFunction,
-  lng?: string,
+  locales: BallotLocale,
   separator?: string
 ) => (key: string, options?: StringMap) => {
   const enTranslation = t(key, {
     ...options,
-    lng: DEFAULT_LOCALE,
+    lng: locales.primary,
   })
-  if (!lng) {
+  if (!locales.secondary) {
     return enTranslation
   }
   const dualTranslation = t(key, {
     ...options,
-    lng,
+    lng: locales.secondary,
   })
   if (separator === 'break') {
     return dualPhraseWithBreak(enTranslation, dualTranslation)
@@ -125,6 +125,7 @@ class PagedQRCodeInjector extends Handler {
         precinctId = '',
         ballotStyleId = '',
         isLiveMode = '',
+        primaryLocaleCode = '',
         secondaryLocaleCode = '',
       } = (qrCodeTarget as HTMLDivElement)?.dataset
       if (qrCodeTarget) {
@@ -137,7 +138,7 @@ class PagedQRCodeInjector extends Handler {
               ballotStyleId,
               pageNumber: parseInt(pageNumber, 10),
               pageCount: pages.length,
-              primaryLocaleCode: DEFAULT_LOCALE,
+              primaryLocaleCode,
               secondaryLocaleCode,
             })}
           />,
@@ -311,19 +312,19 @@ const ballotMetadata = ({
 
 const CandidateContestChoices = ({
   contest,
-  secondaryLocaleCode,
+  locales,
   parties,
   vote = [],
 }: {
   contest: CandidateContest
-  secondaryLocaleCode?: string
+  locales: BallotLocale
   parties: Parties
   vote: CandidateVote
 }) => {
   const { t } = useTranslation()
   const writeInCandidates = vote.filter((c) => c.isWriteIn)
   const remainingChoices = [...Array(contest.seats - vote.length).keys()]
-  const dualLanguageWithSlash = dualLanguageComposer(t, secondaryLocaleCode)
+  const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   return (
     <React.Fragment>
       {contest.candidates.map((candidate) => (
@@ -373,7 +374,7 @@ interface Props {
   election: Election
   isLiveMode?: boolean
   precinctId: string
-  secondaryLocaleCode?: string
+  locales: BallotLocale
   votes?: VotesDict
   onRendered?(props: Omit<Props, 'onRendered'>): void
 }
@@ -383,20 +384,26 @@ const HandMarkedPaperBallot = ({
   election,
   isLiveMode = true,
   precinctId,
-  secondaryLocaleCode = '',
+  locales,
   votes = {},
   onRendered,
 }: Props) => {
+  assert.notEqual(
+    locales.primary,
+    locales.secondary,
+    'rendering a dual-language ballot with both languages the same is not allowed'
+  )
+
   const { t, i18n } = useTranslation()
   const { printBallotRef } = useContext(AppContext)
   const { county, date, seal, sealURL, state, parties, title } = election
-  const localeElection: OptionalElection = secondaryLocaleCode
-    ? withLocale(election, secondaryLocaleCode)
+  const localeElection: OptionalElection = locales.secondary
+    ? withLocale(election, locales.secondary)
     : undefined
-  i18n.addResources(DEFAULT_LOCALE, 'translation', election.ballotStrings)
-  if (localeElection) {
+  i18n.addResources(locales.primary, 'translation', election.ballotStrings)
+  if (localeElection && locales.secondary) {
     i18n.addResources(
-      secondaryLocaleCode,
+      locales.secondary,
       'translation',
       localeElection.ballotStrings
     )
@@ -425,7 +432,7 @@ const HandMarkedPaperBallot = ({
     }
 
     const ballotStylesheets = [
-      `/ballot/layout-${secondaryLocaleCode ? 'dual' : 'single'}-language.css`,
+      `/ballot/layout-${locales.secondary ? 'dual' : 'single'}-language.css`,
       '/ballot/ballot.css',
     ]
 
@@ -439,7 +446,14 @@ const HandMarkedPaperBallot = ({
         ballotStylesheets,
         printBallot
       )
-      onRendered?.({ ballotStyleId, election, isLiveMode, precinctId, votes })
+      onRendered?.({
+        ballotStyleId,
+        election,
+        isLiveMode,
+        precinctId,
+        votes,
+        locales,
+      })
     })()
 
     return () => {
@@ -452,19 +466,15 @@ const HandMarkedPaperBallot = ({
     onRendered,
     precinctId,
     printBallotRef,
-    secondaryLocaleCode,
+    locales,
     votes,
   ])
 
   // eslint-disable-next-line no-restricted-syntax
   const ballotRef = useRef<HTMLDivElement>(null)
 
-  const dualLanguageWithSlash = dualLanguageComposer(t, secondaryLocaleCode)
-  const dualLanguageWithBreak = dualLanguageComposer(
-    t,
-    secondaryLocaleCode,
-    'break'
-  )
+  const dualLanguageWithSlash = dualLanguageComposer(t, locales)
+  const dualLanguageWithBreak = dualLanguageComposer(t, locales, 'break')
 
   return (
     <React.Fragment>
@@ -502,7 +512,7 @@ const HandMarkedPaperBallot = ({
               </PageFooterRow>
               <PageFooterRow>
                 <div>
-                  <Text small={!!secondaryLocaleCode} left as="div">
+                  <Text small={!!locales.secondary} left as="div">
                     {ballotStyle.partyId &&
                     primaryPartyName &&
                     localePrimaryPartyName
@@ -510,7 +520,7 @@ const HandMarkedPaperBallot = ({
                           `${ballotStyle.partyId && primaryPartyName} ${title}`,
                           localeElection &&
                             t('{{primaryPartyName}} {{electionTitle}}', {
-                              lng: secondaryLocaleCode,
+                              lng: locales.secondary,
                               primaryPartyName: localePrimaryPartyName,
                               electionTitle: localeElection.title,
                             })
@@ -522,7 +532,7 @@ const HandMarkedPaperBallot = ({
                   </Text>
                 </div>
                 <div>
-                  <Text small={!!secondaryLocaleCode} center as="div">
+                  <Text small={!!locales.secondary} center as="div">
                     {dualPhraseWithBreak(
                       `${county.name}, ${state}`,
                       localeElection &&
@@ -531,16 +541,16 @@ const HandMarkedPaperBallot = ({
                   </Text>
                 </div>
                 <div>
-                  <Text small={!!secondaryLocaleCode} right as="div">
-                    {secondaryLocaleCode ? (
+                  <Text small={!!locales.secondary} right as="div">
+                    {locales.secondary ? (
                       <React.Fragment>
-                        <strong>{localeDateLong(date, DEFAULT_LOCALE)}</strong>
+                        <strong>{localeDateLong(date, locales.primary)}</strong>
                         <br />
-                        {localeDateLong(date, secondaryLocaleCode)}
+                        {localeDateLong(date, locales.secondary)}
                       </React.Fragment>
                     ) : (
                       <React.Fragment>
-                        {localeDateLong(date, DEFAULT_LOCALE)}
+                        {localeDateLong(date, locales.primary)}
                       </React.Fragment>
                     )}
                   </Text>
@@ -552,7 +562,8 @@ const HandMarkedPaperBallot = ({
               data-is-live-mode={isLiveMode}
               data-precinct-id={precinctId}
               data-ballot-style-id={ballotStyleId}
-              data-second-locale-code={secondaryLocaleCode}
+              data-primary-locale-code={locales.primary}
+              data-secondary-locale-code={locales.secondary}
             />
           </PageFooter>
         </div>
@@ -577,8 +588,8 @@ const HandMarkedPaperBallot = ({
                 <Prose>
                   <h2>
                     {isLiveMode
-                      ? t('Official Ballot', { lng: DEFAULT_LOCALE })
-                      : t('TEST BALLOT', { lng: DEFAULT_LOCALE })}
+                      ? t('Official Ballot', { lng: locales.primary })
+                      : t('TEST BALLOT', { lng: locales.primary })}
                   </h2>
                   <h3>
                     {ballotStyle.partyId && primaryPartyName} {title}
@@ -588,22 +599,22 @@ const HandMarkedPaperBallot = ({
                     <br />
                     {county.name}
                     <br />
-                    {localeDateLong(date, DEFAULT_LOCALE)}
+                    {localeDateLong(date, locales.primary)}
                   </p>
-                  {localeElection && (
+                  {localeElection && locales.secondary && (
                     <p>
                       <strong>
                         {isLiveMode
-                          ? t('Official Ballot', { lng: secondaryLocaleCode })
+                          ? t('Official Ballot', { lng: locales.secondary })
                           : t('TEST BALLOT', {
-                              lng: secondaryLocaleCode,
+                              lng: locales.secondary,
                             })}
                       </strong>
                       <br />
                       <strong>
                         {ballotStyle.partyId && primaryPartyName
                           ? t('{{primaryPartyName}} {{electionTitle}}', {
-                              lng: secondaryLocaleCode,
+                              lng: locales.secondary,
                               primaryPartyName: localePrimaryPartyName,
                               electionTitle: localeElection.title,
                             })
@@ -614,7 +625,7 @@ const HandMarkedPaperBallot = ({
                       <br />
                       {localeElection.county.name}
                       <br />
-                      {localeDateLong(date, secondaryLocaleCode)}
+                      {localeDateLong(date, locales.secondary)}
                     </p>
                   )}
                 </Prose>
@@ -626,31 +637,31 @@ const HandMarkedPaperBallot = ({
                     alt=""
                     className="ignore-prose"
                   />
-                  <h4>{t('Instructions', { lng: DEFAULT_LOCALE })}</h4>
+                  <h4>{t('Instructions', { lng: locales.primary })}</h4>
                   <Text small>
                     {t(
                       'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                      { lng: DEFAULT_LOCALE }
+                      { lng: locales.primary }
                     )}
                   </Text>
                   <h4>
-                    {t('To Vote for a Write-In', { lng: DEFAULT_LOCALE })}
+                    {t('To Vote for a Write-In', { lng: locales.primary })}
                   </h4>
                   <Text small>
                     <img src="/ballot/instructions-write-in.svg" alt="" />
                     {t(
                       'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                      { lng: DEFAULT_LOCALE }
+                      { lng: locales.primary }
                     )}
                   </Text>
-                  <h4>{t('To correct a mistake', { lng: DEFAULT_LOCALE })}</h4>
+                  <h4>{t('To correct a mistake', { lng: locales.primary })}</h4>
                   <Text small>
                     {t(
                       'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                      { lng: DEFAULT_LOCALE }
+                      { lng: locales.primary }
                     )}
                   </Text>
-                  {secondaryLocaleCode && (
+                  {locales.secondary && (
                     <React.Fragment>
                       <HorizontalRule />
                       <img
@@ -658,34 +669,34 @@ const HandMarkedPaperBallot = ({
                         alt=""
                         className="ignore-prose"
                       />
-                      <h4>{t('Instructions', { lng: secondaryLocaleCode })}</h4>
+                      <h4>{t('Instructions', { lng: locales.secondary })}</h4>
                       <Text small>
                         {t(
                           'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                          { lng: secondaryLocaleCode }
+                          { lng: locales.secondary }
                         )}
                       </Text>
                       <h4>
                         {t('To Vote for a Write-In', {
-                          lng: secondaryLocaleCode,
+                          lng: locales.secondary,
                         })}
                       </h4>
                       <Text small>
                         <img src="/ballot/instructions-write-in.svg" alt="" />
                         {t(
                           'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                          { lng: secondaryLocaleCode }
+                          { lng: locales.secondary }
                         )}
                       </Text>
                       <h4>
                         {t('To correct a mistake', {
-                          lng: secondaryLocaleCode,
+                          lng: locales.secondary,
                         })}
                       </h4>
                       <Text small>
                         {t(
                           'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                          { lng: secondaryLocaleCode }
+                          { lng: locales.secondary }
                         )}
                       </Text>
                     </React.Fragment>
@@ -732,7 +743,7 @@ const HandMarkedPaperBallot = ({
                             contest={contest}
                             parties={parties}
                             vote={votes[contest.id] as CandidateVote}
-                            secondaryLocaleCode={secondaryLocaleCode}
+                            locales={locales}
                           />
                         </React.Fragment>
                       )}
@@ -741,16 +752,16 @@ const HandMarkedPaperBallot = ({
                           <p>
                             <Trans
                               i18nKey="voteYesOrNo"
-                              tOptions={{ lng: DEFAULT_LOCALE }}
+                              tOptions={{ lng: locales.primary }}
                             >
                               Vote <strong>Yes</strong> or <strong>No</strong>
                             </Trans>
-                            {secondaryLocaleCode && (
+                            {locales.secondary && (
                               <React.Fragment>
                                 {' / '}
                                 <Trans
                                   i18nKey="voteYesOrNo"
-                                  tOptions={{ lng: secondaryLocaleCode }}
+                                  tOptions={{ lng: locales.secondary }}
                                 >
                                   Vote <strong>Yes</strong> or{' '}
                                   <strong>No</strong>

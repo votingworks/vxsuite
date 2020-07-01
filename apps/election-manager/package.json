@@ -61,6 +61,7 @@
     ]
   },
   "devDependencies": {
-    "@types/readable-stream": "^2.3.5"
+    "@types/readable-stream": "^2.3.5",
+    "prettier": "^2.0.5"
   }
 }

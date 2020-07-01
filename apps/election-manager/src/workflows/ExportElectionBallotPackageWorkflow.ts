@@ -1,13 +1,7 @@
+import { Election } from '@votingworks/ballot-encoder'
+import { BallotConfig } from '../config/types'
 import DownloadableArchive from '../utils/DownloadableArchive'
-import {
-  Election,
-  BallotStyle,
-  Contest,
-  Precinct,
-  getElectionLocales,
-} from '@votingworks/ballot-encoder'
-import { getBallotStylesDataByStyle } from '../utils/election'
-import { DEFAULT_LOCALE } from '../config/globals'
+import getAllBallotConfigs from '../utils/getAllBallotConfigs'
 
 export type State =
   | Init
@@ -20,35 +14,37 @@ export type State =
 export interface Init {
   type: 'Init'
   election: Election
+  electionHash: string
+  ballotConfigs: readonly BallotConfig[]
 }
 
 export interface ArchiveBegin {
   type: 'ArchiveBegin'
   election: Election
+  electionHash: string
+  ballotConfigs: readonly BallotConfig[]
   archive: DownloadableArchive
 }
 
 export interface RenderBallot {
   type: 'RenderBallot'
+  election: Election
+  electionHash: string
   archive: DownloadableArchive
-  ballotData: BallotStyleData[]
-  ballotIndex: number
-  isLiveMode: boolean
-  electionLocales: string[]
-  localeCodeIndex: number
+  ballotConfigsCount: number
+  remainingBallotConfigs: readonly BallotConfig[]
+  currentBallotConfig: BallotConfig
 }
 
 export interface ArchiveEnd {
   type: 'ArchiveEnd'
   archive: DownloadableArchive
-  ballotCount: number
-  localesCount: number
+  ballotConfigsCount: number
 }
 
 export interface Done {
   type: 'Done'
-  ballotCount: number
-  localesCount: number
+  ballotConfigsCount: number
 }
 
 export interface Failed {
@@ -56,14 +52,17 @@ export interface Failed {
   message: string
 }
 
-export interface BallotStyleData {
-  ballotStyleId: BallotStyle['id']
-  contestIds: Contest['id'][]
-  precinctId: Precinct['id']
-}
-
-export function init(election: Election): Init {
-  return { type: 'Init', election }
+export function init(
+  election: Election,
+  electionHash: string,
+  localeCodes: readonly string[]
+): Init {
+  return {
+    type: 'Init',
+    election,
+    electionHash,
+    ballotConfigs: getAllBallotConfigs(election, electionHash, localeCodes),
+  }
 }
 
 export function next(state: State): State {
@@ -72,59 +71,57 @@ export function next(state: State): State {
       return {
         type: 'ArchiveBegin',
         election: state.election,
+        electionHash: state.electionHash,
+        ballotConfigs: state.ballotConfigs,
         archive: new DownloadableArchive(),
       }
 
-    case 'ArchiveBegin':
+    case 'ArchiveBegin': {
+      const [
+        currentBallotConfig,
+        ...remainingBallotConfigs
+      ] = state.ballotConfigs
+
       return {
         type: 'RenderBallot',
+        election: state.election,
+        electionHash: state.electionHash,
         archive: state.archive,
-        ballotData: getBallotStylesDataByStyle(state.election),
-        ballotIndex: 0,
-        isLiveMode: true,
-        electionLocales: getElectionLocales(state.election, DEFAULT_LOCALE),
-        localeCodeIndex: 0,
+        ballotConfigsCount: state.ballotConfigs.length,
+        currentBallotConfig,
+        remainingBallotConfigs,
       }
+    }
 
-    case 'RenderBallot':
-      if (state.isLiveMode) {
-        // Render the same page, but in test mode.
-        return {
-          ...state,
-          isLiveMode: !state.isLiveMode,
-        }
-      }
+    case 'RenderBallot': {
+      const [
+        currentBallotConfig,
+        ...remainingBallotConfigs
+      ] = state.remainingBallotConfigs
 
-      if (state.ballotIndex + 1 === state.ballotData.length) {
+      if (!currentBallotConfig) {
         return {
           type: 'ArchiveEnd',
           archive: state.archive,
-          ballotCount: state.ballotData.length,
-          localesCount: state.electionLocales.length,
+          ballotConfigsCount: state.ballotConfigsCount,
         }
       }
 
-      // next locale
-      if (state.localeCodeIndex + 1 < state.electionLocales.length) {
-        return {
-          ...state,
-          localeCodeIndex: state.localeCodeIndex + 1,
-        }
-      }
-
-      // next ballot
       return {
-        ...state,
-        isLiveMode: !state.isLiveMode,
-        ballotIndex: state.ballotIndex + 1,
-        localeCodeIndex: 0,
+        type: 'RenderBallot',
+        election: state.election,
+        electionHash: state.electionHash,
+        archive: state.archive,
+        ballotConfigsCount: state.ballotConfigsCount,
+        currentBallotConfig,
+        remainingBallotConfigs,
       }
+    }
 
     case 'ArchiveEnd':
       return {
         type: 'Done',
-        ballotCount: state.ballotCount,
-        localesCount: state.localesCount,
+        ballotConfigsCount: state.ballotConfigsCount,
       }
 
     default:
