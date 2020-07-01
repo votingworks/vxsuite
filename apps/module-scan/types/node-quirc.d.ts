@@ -15,6 +15,8 @@ declare module 'node-quirc' {
     MODE_KANJI: 'KANJI'
   }
 
+  type DecodeResult = (QRCode | DecodeError)[]
+
   interface QRCode {
     version: number
     // eslint-disable-next-line camelcase
@@ -32,11 +34,15 @@ declare module 'node-quirc' {
     data: Buffer
   }
 
+  interface DecodeError {
+    err: string
+  }
+
   // eslint-disable-next-line import/export
-  export function decode(img: Buffer): Promise<QRCode[]>
+  export function decode(img: Buffer): Promise<DecodeResult>
   // eslint-disable-next-line import/export
   export function decode(
     img: Buffer,
-    callback: (err: Error, results: QRCode[]) => void
-  ): Promise<QRCode[]>
+    callback: (err: Error, results: DecodeResult) => void
+  ): Promise<DecodeResult>
 }

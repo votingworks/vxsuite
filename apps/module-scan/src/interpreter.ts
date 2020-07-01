@@ -133,10 +133,10 @@ export async function getBallotImageData(
   const file = await readFile(filepath)
   const { data, width, height } = decodeJpeg(file)
   const image = { data: Uint8ClampedArray.from(data), width, height }
-  const quircCodes = await quircDecode(file)
+  const [quircCode] = await quircDecode(file)
 
-  if (quircCodes.length > 0) {
-    return { file, image, qrcode: quircCodes[0].data }
+  if (quircCode && 'data' in quircCode) {
+    return { file, image, qrcode: quircCode.data }
   }
 
   const qrdetectCodes = qrdetect(data, width, height)
