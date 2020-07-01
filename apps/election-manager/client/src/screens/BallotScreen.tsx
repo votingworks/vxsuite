@@ -8,16 +8,13 @@ import {
 } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
-import { BallotScreenProps } from '../config/types'
+import { BallotScreenProps, BallotLocale } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
 import Button, { SegmentedButton } from '../components/Button'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import { Monospace } from '../components/Text'
-import {
-  getBallotFileName,
-  getHumanBallotLanguageFormat,
-} from '../utils/election'
+import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
 import NavigationScreen from '../components/NavigationScreen'
 import HorizontalRule from '../components/HorizontalRule'
 import { DEFAULT_LOCALE } from '../config/globals'
@@ -33,6 +30,10 @@ const BallotScreen = () => {
   const { election: e, electionHash } = useContext(AppContext)
   const election = e!
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
+  const locales: BallotLocale = {
+    primary: DEFAULT_LOCALE,
+    secondary: currentLocaleCode,
+  }
 
   const precinctName = getPrecinctById({ election, precinctId })?.name
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!
@@ -51,12 +52,13 @@ const BallotScreen = () => {
           })
     )
 
-  const filename = getBallotFileName({
+  const filename = getBallotPath({
     ballotStyleId,
     election,
     electionHash,
     precinctId,
-    localeCode: currentLocaleCode || DEFAULT_LOCALE,
+    locales,
+    isLiveMode,
   })
 
   const printBallot = async () => {
@@ -94,7 +96,11 @@ const BallotScreen = () => {
                   onPress={() => changeLocale(localeCode)}
                   small
                 >
-                  {getHumanBallotLanguageFormat(localeCode)}
+                  {getHumanBallotLanguageFormat({
+                    primary: DEFAULT_LOCALE,
+                    secondary:
+                      localeCode === DEFAULT_LOCALE ? undefined : localeCode,
+                  })}
                 </Button>
               ))}
             </SegmentedButton>
@@ -105,7 +111,7 @@ const BallotScreen = () => {
             {availableLocaleCodes.length > 1 && currentLocaleCode
               ? `Print ${
                   isLiveMode ? 'Official Ballot' : 'Test Ballot'
-                } in ${getHumanBallotLanguageFormat(currentLocaleCode)}`
+                } in ${getHumanBallotLanguageFormat(locales)}`
               : `Print ${isLiveMode ? 'Official Ballot' : 'Test Ballot'}`}
           </Button>
         </p>
@@ -141,7 +147,7 @@ const BallotScreen = () => {
         election={election}
         isLiveMode={isLiveMode}
         precinctId={precinctId}
-        secondaryLocaleCode={currentLocaleCode}
+        locales={locales}
       />
     </React.Fragment>
   )
