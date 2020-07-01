@@ -1,118 +1,153 @@
-import { init, next, error } from './ExportElectionBallotPackageWorkflow'
+import * as workflow from './ExportElectionBallotPackageWorkflow'
 import { electionSample } from '@votingworks/ballot-encoder'
 import DownloadableArchive from '../utils/DownloadableArchive'
 
-test('initializes with an Election', () => {
-  expect(init(electionSample).type).toEqual('Init')
+test('initializes with an Election, hash, and locales', () => {
+  expect(workflow.init(electionSample, 'abcde', ['en-US']).type).toEqual('Init')
 })
 
 test('advances from Init to ArchiveBegin', () => {
-  const state = init(electionSample)
-  expect(next(state).type).toEqual('ArchiveBegin')
+  const state = workflow.init(electionSample, 'abcde', ['en-US'])
+  expect(workflow.next(state).type).toEqual('ArchiveBegin')
 })
 
-test('advances from ArchiveBegin to RenderBallot with the first ballot in live mode', () => {
+test('makes the first ballot config the current one moving from ArchiveBegin to RenderBallot', () => {
   expect(
-    next({
+    workflow.next({
       type: 'ArchiveBegin',
       election: electionSample,
+      electionHash: 'abcde',
+      ballotConfigs: [
+        {
+          ballotStyleId: '77',
+          precinctId: '42',
+          contestIds: [],
+          filename: 'live/ballot.pdf',
+          isLiveMode: true,
+          locales: { primary: 'en-US' },
+        },
+      ],
       archive: new DownloadableArchive(),
     })
   ).toEqual(
     expect.objectContaining({
       type: 'RenderBallot',
-      ballotIndex: 0,
-      isLiveMode: true,
+      remainingBallotConfigs: [],
+      currentBallotConfig: {
+        ballotStyleId: '77',
+        precinctId: '42',
+        contestIds: [],
+        filename: 'live/ballot.pdf',
+        isLiveMode: true,
+        locales: { primary: 'en-US' },
+      },
     })
   )
 })
 
-test('advances from RenderBallot by rendering a test ballot after a live one', () => {
+test('advances to the next ballot config if there is one', () => {
   expect(
-    next({
+    workflow.next({
       type: 'RenderBallot',
+      election: electionSample,
+      electionHash: 'abcde',
       archive: new DownloadableArchive(),
-      ballotData: [
-        { ballotStyleId: '77', precinctId: '42', contestIds: ['1'] },
+      currentBallotConfig: {
+        ballotStyleId: '77',
+        precinctId: '42',
+        contestIds: [],
+        filename: 'test/ballot.pdf',
+        isLiveMode: false,
+        locales: { primary: 'en-US' },
+      },
+      remainingBallotConfigs: [
+        {
+          ballotStyleId: '77',
+          precinctId: '42',
+          contestIds: [],
+          filename: 'live/ballot.pdf',
+          isLiveMode: true,
+          locales: { primary: 'en-US' },
+        },
       ],
-      ballotIndex: 0,
-      isLiveMode: true,
-    })
-  ).toEqual({
-    type: 'RenderBallot',
-    archive: new DownloadableArchive(),
-    ballotData: [{ ballotStyleId: '77', precinctId: '42', contestIds: ['1'] }],
-    ballotIndex: 0,
-    isLiveMode: false,
-  })
-})
-
-test('advances from RenderBallot by rendering the next page after both live and test are rendered', () => {
-  expect(
-    next({
-      type: 'RenderBallot',
-      archive: new DownloadableArchive(),
-      ballotData: [
-        { ballotStyleId: '77', precinctId: '42', contestIds: ['1'] },
-        { ballotStyleId: '77', precinctId: '42', contestIds: ['2'] },
-      ],
-      ballotIndex: 0,
-      isLiveMode: false,
+      ballotConfigsCount: 2,
     })
   ).toEqual(
     expect.objectContaining({
       type: 'RenderBallot',
-      ballotIndex: 1,
-      isLiveMode: true,
+      remainingBallotConfigs: [],
+      currentBallotConfig: {
+        ballotStyleId: '77',
+        precinctId: '42',
+        contestIds: [],
+        filename: 'live/ballot.pdf',
+        isLiveMode: true,
+        locales: { primary: 'en-US' },
+      },
+      ballotConfigsCount: 2,
     })
   )
 })
 
-test('advances from RenderBallot to ArchiveEnd after the last page', () => {
+test('advances to ArchiveEnd if there are no more ballot configs', () => {
   expect(
-    next({
+    workflow.next({
       type: 'RenderBallot',
+      election: electionSample,
+      electionHash: 'abcde',
       archive: new DownloadableArchive(),
-      ballotData: [
-        { ballotStyleId: '77', precinctId: '42', contestIds: ['1'] },
-        { ballotStyleId: '77', precinctId: '42', contestIds: ['2'] },
-      ],
-      ballotIndex: 1,
-      isLiveMode: false,
+      currentBallotConfig: {
+        ballotStyleId: '77',
+        precinctId: '42',
+        contestIds: [],
+        filename: 'test/ballot.pdf',
+        isLiveMode: false,
+        locales: { primary: 'en-US' },
+      },
+      remainingBallotConfigs: [],
+      ballotConfigsCount: 2,
     })
   ).toEqual(
     expect.objectContaining({
       type: 'ArchiveEnd',
-      ballotCount: 2,
+      ballotConfigsCount: 2,
     })
   )
 })
 
 test('advances from ArchiveEnd to Done', () => {
   expect(
-    next({
+    workflow.next({
       type: 'ArchiveEnd',
       archive: new DownloadableArchive(),
-      ballotCount: 2,
+      ballotConfigsCount: 2,
     })
-  ).toEqual({
-    type: 'Done',
-    ballotCount: 2,
-  })
+  ).toEqual(
+    expect.objectContaining({
+      type: 'Done',
+      ballotConfigsCount: 2,
+    })
+  )
 })
 
 test('advances to Failed on render error', () => {
   expect(
-    error(
+    workflow.error(
       {
         type: 'RenderBallot',
+        election: electionSample,
+        electionHash: 'abcde',
         archive: new DownloadableArchive(),
-        ballotData: [
-          { ballotStyleId: '77', precinctId: '42', contestIds: ['1'] },
-          { ballotStyleId: '77', precinctId: '42', contestIds: ['2'] },
-        ],
-        ballotIndex: 1,
-        isLiveMode: false,
+        currentBallotConfig: {
+          ballotStyleId: '77',
+          precinctId: '42',
+          contestIds: [],
+          filename: 'test/ballot.pdf',
+          isLiveMode: false,
+          locales: { primary: 'en-US' },
+        },
+        remainingBallotConfigs: [],
+        ballotConfigsCount: 3,
       },
       new Error('something happened!')
     )
