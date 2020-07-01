@@ -1,6 +1,10 @@
 import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
 
-import { OptionalElection } from '@votingworks/ballot-encoder'
+import {
+  OptionalElection,
+  BallotStyle,
+  Precinct,
+} from '@votingworks/ballot-encoder'
 import { Candidate, Contest, VotesDict } from '@votingworks/ballot-encoder'
 
 // Generic
@@ -18,6 +22,23 @@ export type ButtonEventFunction = (
 
 // Election
 export type SaveElection = (value: OptionalElection) => void
+
+export interface BallotStyleData {
+  ballotStyleId: BallotStyle['id']
+  contestIds: Contest['id'][]
+  precinctId: Precinct['id']
+}
+
+export interface BallotConfig extends BallotStyleData {
+  filename: string
+  locales: BallotLocale
+  isLiveMode: boolean
+}
+
+export interface BallotLocale {
+  primary: string
+  secondary?: string
+}
 
 // Router Props
 export interface BallotScreenProps {
