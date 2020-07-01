@@ -4,8 +4,7 @@ import { getElectionLocales } from '@votingworks/ballot-encoder'
 
 import { DEFAULT_LOCALE } from '../config/globals'
 import {
-  getBallotFileName,
-  getBallotStylesDataByStyle,
+  getBallotPath,
   getPrecinctById,
   getHumanBallotLanguageFormat,
 } from '../utils/election'
@@ -20,10 +19,11 @@ import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
 const ExportElectionBallotPackageScreen = () => {
   const { election: e, electionHash } = useContext(AppContext)
   const election = e!
-  const ballotStylesDataByStyle = getBallotStylesDataByStyle(election)
   const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
 
-  const [state, setState] = useState<workflow.State>(workflow.init(election))
+  const [state, setState] = useState<workflow.State>(
+    workflow.init(election, electionHash, electionLocaleCodes)
+  )
 
   /**
    * Execute side effects for the current state and, when ready, transition to
@@ -43,6 +43,10 @@ const ExportElectionBallotPackageScreen = () => {
             await state.archive.file(
               'election.json',
               JSON.stringify(election, undefined, 2)
+            )
+            await state.archive.file(
+              'manifest.json',
+              JSON.stringify({ ballots: state.ballotConfigs }, undefined, 2)
             )
 
             setState(workflow.next)
@@ -72,27 +76,24 @@ const ExportElectionBallotPackageScreen = () => {
       )
     }
 
-    const { ballotStyleId, precinctId } = ballotStylesDataByStyle[
-      state.ballotIndex
-    ]
-    const fileName = getBallotFileName({
+    const {
+      ballotStyleId,
+      precinctId,
+      locales,
+      isLiveMode,
+    } = state.currentBallotConfig
+    const path = getBallotPath({
       ballotStyleId,
       election,
       electionHash,
       precinctId,
-      localeCode: electionLocaleCodes[state.localeCodeIndex],
+      locales,
+      isLiveMode,
     })
     const data = await kiosk!.printToPDF()
-    const path = `${state.isLiveMode ? 'live' : 'test'}/${fileName}`
     await state.archive.file(path, Buffer.from(data))
     setState(workflow.next)
-  }, [
-    ballotStylesDataByStyle,
-    election,
-    electionHash,
-    electionLocaleCodes,
-    state,
-  ])
+  }, [election, electionHash, state])
 
   switch (state.type) {
     case 'Init': {
@@ -113,16 +114,21 @@ const ExportElectionBallotPackageScreen = () => {
     }
 
     case 'RenderBallot': {
-      const { ballotIndex, ballotData, isLiveMode, localeCodeIndex } = state
-      const { ballotStyleId, precinctId, contestIds } = ballotStylesDataByStyle[
-        ballotIndex
-      ]
+      const {
+        ballotStyleId,
+        precinctId,
+        contestIds,
+        isLiveMode,
+        locales,
+      } = state.currentBallotConfig
       const precinctName = getPrecinctById({ election, precinctId })!.name
-      const localeCode = electionLocaleCodes[localeCodeIndex]
+
       return (
         <NavigationScreen>
           <h1>
-            Generating Ballot {ballotIndex + 1} of {ballotData.length}…
+            Generating Ballot{' '}
+            {state.ballotConfigsCount - state.remainingBallotConfigs.length} of{' '}
+            {state.ballotConfigsCount}…
           </h1>
           <ul>
             <li>
@@ -136,19 +142,11 @@ const ExportElectionBallotPackageScreen = () => {
             </li>
             <li>
               Language format:{' '}
-              <strong>{getHumanBallotLanguageFormat(localeCode)}</strong>
+              <strong>{getHumanBallotLanguageFormat(locales)}</strong>
             </li>
             <li>
               Filename:{' '}
-              <Monospace>
-                {getBallotFileName({
-                  ballotStyleId,
-                  election,
-                  electionHash,
-                  precinctId,
-                  localeCode,
-                })}
-              </Monospace>
+              <Monospace>{state.currentBallotConfig.filename}</Monospace>
             </li>
           </ul>
           <HandMarkedPaperBallot
@@ -157,7 +155,7 @@ const ExportElectionBallotPackageScreen = () => {
             isLiveMode={isLiveMode}
             precinctId={precinctId}
             onRendered={onRendered}
-            secondaryLocaleCode={localeCode}
+            locales={locales}
           />
         </NavigationScreen>
       )
@@ -168,9 +166,8 @@ const ExportElectionBallotPackageScreen = () => {
         <NavigationScreen>
           <h1>Finishing Download…</h1>
           <p>
-            Rendered {pluralize('ballot', state.ballotCount, true)} in{' '}
-            {pluralize('language format', state.localesCount, true)}, closing
-            zip file.
+            Rendered {pluralize('ballot', state.ballotConfigsCount, true)},
+            closing zip file.
           </p>
         </NavigationScreen>
       )
@@ -180,10 +177,7 @@ const ExportElectionBallotPackageScreen = () => {
       return (
         <NavigationScreen>
           <h1>Download Complete</h1>
-          <p>
-            Rendered {pluralize('ballot', state.ballotCount, true)} in{' '}
-            {pluralize('language format', state.localesCount, true)}.
-          </p>
+          <p>Rendered {pluralize('ballot', state.ballotConfigsCount, true)}.</p>
         </NavigationScreen>
       )
     }

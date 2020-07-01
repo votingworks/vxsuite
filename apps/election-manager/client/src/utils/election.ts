@@ -1,6 +1,7 @@
 import { Election, BallotStyle } from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
-import { DEFAULT_LOCALE, LANGUAGES } from '../config/globals'
+import { LANGUAGES } from '../config/globals'
+import { BallotLocale } from '../config/types'
 
 export const getContests = ({
   ballotStyle,
@@ -87,39 +88,41 @@ export const getBallotStylesDataByPrecinct = (election: Election) =>
   })
 
 export const getLanguageByLocaleCode = (localeCode: string) =>
-  LANGUAGES[localeCode.split('-')[0]]
+  LANGUAGES[localeCode.split('-')[0]] ?? localeCode
 
-export const getHumanBallotLanguageFormat = (localeCode: string) =>
-  localeCode === DEFAULT_LOCALE
-    ? getLanguageByLocaleCode(DEFAULT_LOCALE)
-    : `${getLanguageByLocaleCode(DEFAULT_LOCALE)}/${getLanguageByLocaleCode(
-        localeCode
+export const getHumanBallotLanguageFormat = (locales: BallotLocale) =>
+  !locales.secondary
+    ? getLanguageByLocaleCode(locales.primary)
+    : `${getLanguageByLocaleCode(locales.primary)}/${getLanguageByLocaleCode(
+        locales.secondary
       )}`
 
-export const getBallotFileName = ({
+export const getBallotPath = ({
   ballotStyleId,
   election,
   electionHash,
   precinctId,
-  localeCode,
+  locales,
+  isLiveMode,
 }: {
   ballotStyleId: string
   election: Election
   electionHash: string
   precinctId: string
-  localeCode: string
+  locales: BallotLocale
+  isLiveMode: boolean
 }) => {
   const precinctName = getPrecinctById({
     election,
     precinctId,
   })!.name
 
-  const locales =
-    localeCode === DEFAULT_LOCALE
-      ? DEFAULT_LOCALE
-      : `${DEFAULT_LOCALE}-${localeCode}`
-
-  return `election-${electionHash.slice(0, 10)}-precinct-${dashify(
+  return `${isLiveMode ? 'live' : 'test'}/election-${electionHash.slice(
+    0,
+    10
+  )}-precinct-${dashify(
     precinctName
-  )}-id-${precinctId}-style-${ballotStyleId}-locale-${locales}.pdf`
+  )}-id-${precinctId}-style-${ballotStyleId}-${getHumanBallotLanguageFormat(
+    locales
+  )?.replace(/[^a-z]+/gi, '-')}.pdf`
 }
