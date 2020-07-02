@@ -74,7 +74,9 @@ export interface FullElectionTally {
 
 export type VotesByPrecinct = Dictionary<VotesDict[]>
 
-// Cast Vote Record
+// Cast Vote Records
+
+export type SaveCastVoteRecordFiles = (value?: CastVoteRecordFiles) => void
 
 export interface CastVoteRecord extends Dictionary<string | string[]> {
   _precinctId: string
@@ -82,7 +84,6 @@ export interface CastVoteRecord extends Dictionary<string | string[]> {
   _ballotStyleId: string
 }
 
-// Cast Vote Records
 export interface CastVoteRecordFile {
   readonly name: string
   readonly count: number
