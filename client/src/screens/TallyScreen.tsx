@@ -5,7 +5,6 @@ import { InputEventFunction } from '../config/types'
 
 import { fullTallyVotes, getVotesByPrecinct } from '../lib/votecounting'
 import ConverterClient from '../lib/ConverterClient'
-import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
 
 import AppContext from '../contexts/AppContext'
 
@@ -22,7 +21,7 @@ const TallyScreen = () => {
   const {
     castVoteRecordFiles,
     election: e,
-    setCastVoteRecordFiles,
+    saveCastVoteRecordFiles,
   } = useContext(AppContext)
   const election = e!
 
@@ -45,12 +44,12 @@ const TallyScreen = () => {
     const files = Array.from(input.files || [])
     const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(files)
 
-    setCastVoteRecordFiles(newCastVoteRecordFiles)
+    saveCastVoteRecordFiles(newCastVoteRecordFiles)
     input.value = ''
   }
 
   const resetCastVoteRecordFiles = () => {
-    setCastVoteRecordFiles(CastVoteRecordFiles.empty)
+    saveCastVoteRecordFiles()
   }
 
   const exportResults = async () => {
