@@ -25,6 +25,11 @@ declare namespace KioskBrowser {
     deviceAddress: number
   }
 
+  export interface UsbDrive {
+    deviceName: string
+    mountPoint?: string
+  }
+
   export interface FileWriter {
     /**
      * Writes a chunk to the file. May be called multiple times. Data will be
@@ -57,6 +62,11 @@ declare namespace KioskBrowser {
      * Once chosen, resolves with a handle to the file to write data to it.
      */
     saveAs(): Promise<FileWriter | undefined>
+
+    // USB sticks
+    getUsbDrives(): Promise<UsbDrive[]>
+    mountUsbDrive(device: string)
+    unmountUsbDrive(device: string)
   }
 }
 
