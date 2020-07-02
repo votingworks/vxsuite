@@ -11,10 +11,11 @@ import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
 import { Storage } from './utils/Storage'
 
 import ElectionManager from './components/ElectionManager'
-import { SaveElection } from './config/types'
+import { SaveElection, SaveCastVoteRecordFiles } from './config/types'
 
 export interface AppStorage {
   election?: Election
+  cvrFiles?: string
 }
 
 export interface Props extends RouteComponentProps {
@@ -22,19 +23,25 @@ export interface Props extends RouteComponentProps {
 }
 
 export const electionStorageKey = 'election'
+export const cvrsStorageKey = 'cvrFiles'
 
 const AppRoot = ({ storage }: Props) => {
+  const printBallotRef = useRef<HTMLDivElement>(null)
+
   const getElection = () => storage.get(electionStorageKey)
+  const getCVRFiles = () => storage.get(cvrsStorageKey)
 
   const storageElection = getElection()
+  const [election, setElection] = useState<OptionalElection>(storageElection)
   const [electionHash, setElectionHash] = useState(
     storageElection ? sha256(JSON.stringify(storageElection)) : ''
   )
-  const [election, setElection] = useState<OptionalElection>(getElection())
-  const printBallotRef = useRef<HTMLDivElement>(null)
 
+  const storageCVRFiles = getCVRFiles()
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
-    CastVoteRecordFiles.empty
+    storageCVRFiles
+      ? CastVoteRecordFiles.import(storageCVRFiles)
+      : CastVoteRecordFiles.empty
   )
 
   const saveElection: SaveElection = (electionDefinition) => {
@@ -42,10 +49,21 @@ const AppRoot = ({ storage }: Props) => {
     setElectionHash(
       electionDefinition ? sha256(JSON.stringify(electionDefinition)) : ''
     )
-    if (electionDefinition === undefined) {
-      storage.remove(electionStorageKey)
-    } else {
+    if (electionDefinition) {
       storage.set(electionStorageKey, electionDefinition)
+    } else {
+      storage.remove(electionStorageKey)
+    }
+  }
+
+  const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = (
+    newCVRFiles = CastVoteRecordFiles.empty
+  ) => {
+    setCastVoteRecordFiles(newCVRFiles)
+    if (newCVRFiles === CastVoteRecordFiles.empty) {
+      storage.remove(cvrsStorageKey)
+    } else {
+      storage.set(cvrsStorageKey, newCVRFiles.export())
     }
   }
 
@@ -57,6 +75,7 @@ const AppRoot = ({ storage }: Props) => {
         electionHash,
         printBallotRef,
         setCastVoteRecordFiles,
+        saveCastVoteRecordFiles,
         saveElection,
       }}
     >
