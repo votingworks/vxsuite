@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { Election } from '@votingworks/ballot-encoder'
+import { LocalizedElection } from '@votingworks/ballot-encoder'
 
 import ConverterClient, { VxFile } from '../lib/ConverterClient'
 import readFileAsync from '../lib/readFileAsync'
@@ -43,7 +43,7 @@ interface InputFile {
 const allFilesExist = (files: VxFile[]) => files.every((f) => !!f.path)
 const someFilesExist = (files: VxFile[]) => files.some((f) => !!f.path)
 
-const newElection = defaultElection as Election
+const newElection = (defaultElection as unknown) as LocalizedElection
 
 const UnconfiguredScreen = () => {
   const history = useHistory()
@@ -90,24 +90,30 @@ const UnconfiguredScreen = () => {
     }
   }, [client])
 
-  const getOutputFile = useCallback(async (electionFileName: string) => {
-    try {
-      const blob = await client.getOutputFile(electionFileName)
-      await resetServerFiles()
-      saveElection(await new Response(blob).json())
-    } catch (error) {
-      console.log('failed getOutputFile()', error) // eslint-disable-line no-console
-    }
-  }, [client, resetServerFiles, saveElection])
+  const getOutputFile = useCallback(
+    async (electionFileName: string) => {
+      try {
+        const blob = await client.getOutputFile(electionFileName)
+        await resetServerFiles()
+        saveElection(await new Response(blob).json())
+      } catch (error) {
+        console.log('failed getOutputFile()', error) // eslint-disable-line no-console
+      }
+    },
+    [client, resetServerFiles, saveElection]
+  )
 
-  const processInputFiles = useCallback(async (electionFileName: string) => {
-    try {
-      await client.process()
-      await getOutputFile(electionFileName)
-    } catch (error) {
-      console.log('failed processInputFiles()', error) // eslint-disable-line no-console
-    }
-  }, [client, getOutputFile])
+  const processInputFiles = useCallback(
+    async (electionFileName: string) => {
+      try {
+        await client.process()
+        await getOutputFile(electionFileName)
+      } catch (error) {
+        console.log('failed processInputFiles()', error) // eslint-disable-line no-console
+      }
+    },
+    [client, getOutputFile]
+  )
 
   const updateStatus = useCallback(async () => {
     try {
@@ -192,24 +198,25 @@ const UnconfiguredScreen = () => {
             file.path ? (
               <Loaded key={file.name}>{`Loaded ${file.name}`}</Loaded>
             ) : (
-                <p key={file.name}>
-                  <FileInputButton
-                    accept=".txt"
-                    buttonProps={{
-                      fullWidth: true,
-                    }}
-                    name={file.name}
-                    onChange={handleFileInput}
-                  >
-                    {file.name}
-                  </FileInputButton>
-                </p>
-              )
+              <p key={file.name}>
+                <FileInputButton
+                  accept=".txt"
+                  buttonProps={{
+                    fullWidth: true,
+                  }}
+                  name={file.name}
+                  onChange={handleFileInput}
+                >
+                  {file.name}
+                </FileInputButton>
+              </p>
+            )
           )}
           <p>
             <Button
               disabled={
-                !someFilesExist(inputConversionFiles) && !vxElectionFileIsInvalid
+                !someFilesExist(inputConversionFiles) &&
+                !vxElectionFileIsInvalid
               }
               small
               onPress={resetUploadFiles}
@@ -218,7 +225,11 @@ const UnconfiguredScreen = () => {
             </Button>
           </p>
           <HorizontalRule />
-          <p><Button small onPress={resetUploadFilesAndGoBack}>back</Button></p>
+          <p>
+            <Button small onPress={resetUploadFilesAndGoBack}>
+              back
+            </Button>
+          </p>
         </Prose>
       </NavigationScreen>
     )
@@ -236,7 +247,9 @@ const UnconfiguredScreen = () => {
         </p>
         <HorizontalRule>or</HorizontalRule>
 
-        {vxElectionFileIsInvalid && <Invalid>Invalid Vx Election Definition file.</Invalid>}
+        {vxElectionFileIsInvalid && (
+          <Invalid>Invalid Vx Election Definition file.</Invalid>
+        )}
         <p>
           <FileInputButton
             accept=".json,application/json"
@@ -256,7 +269,6 @@ const UnconfiguredScreen = () => {
             )}
           </React.Fragment>
         )}
-
       </Prose>
     </NavigationScreen>
   )
