@@ -28,7 +28,8 @@ const buttonStyles = css<StyledButtonProps>`
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71, 167, 75, 1);
   box-sizing: border-box;
-  background: ${({ danger = false, primary = false }) =>
+  background: ${({ disabled = false, danger = false, primary = false }) =>
+    (disabled && 'rgb(211, 211, 211)') ||
     (danger && 'red') ||
     (primary && 'rgb(71, 167, 75)') ||
     'rgb(211, 211, 211)'};
