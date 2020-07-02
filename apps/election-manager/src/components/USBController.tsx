@@ -21,7 +21,7 @@ const USBController = () => {
   }, available ? 1000 : null);  
   
   if (!available) {
-    return (<React.Fragment></React.Fragment>)
+    return null
   }
 
   if (!present) {
