@@ -34,6 +34,10 @@
       "git add"
     ]
   },
+  "dependencies": {
+    "@antongolub/iso8601": "^1.2.1",
+    "zod": "1.7.1"
+  },
   "devDependencies": {
     "@types/jest": "^24.0.18",
     "@types/random-js": "^1.0.31",

@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import electionSampleUntyped from './data/electionSample.json'
 import electionSampleLongContentUntyped from './data/electionSampleLongContent.json'
+import * as s from './schema'
 
 // Generic
 export type VoidFunction = () => void
@@ -9,19 +9,7 @@ export interface Dictionary<T> {
 }
 export type Optional<T> = T | undefined
 
-export type LocaleMap<T extends object, K extends keyof T = keyof T> = {
-  [key: string]: { [P in K]?: T[P] } | undefined
-}
-
-export type Localize<T extends object, K extends keyof T> = {
-  _lang?: LocaleMap<T, K>
-} & {
-  [P in keyof T]: T[P] extends (infer E)[]
-    ? Localized<E>[]
-    : T[P] extends object
-    ? Localized<T[P]>
-    : T[P]
-}
+export type Translations = Record<string, Record<string, string> | undefined>
 
 // Candidates
 export interface Candidate {
@@ -51,7 +39,7 @@ export interface CandidateContest extends Contest {
 export interface YesNoContest extends Contest {
   readonly type: 'yesno'
   readonly description: string
-  readonly shortTitle: string
+  readonly shortTitle?: string
 }
 export type Contests = (CandidateContest | YesNoContest)[]
 
@@ -82,7 +70,10 @@ export interface County {
   readonly name: string
 }
 
+export type BallotStrings = Record<string, string | Translations>
+
 export interface Election {
+  readonly _lang?: Translations
   readonly ballotStyles: BallotStyle[]
   readonly county: County
   readonly parties: Parties
@@ -92,37 +83,11 @@ export interface Election {
   readonly date: string
   readonly seal?: string
   readonly sealURL?: string
-  readonly ballotStrings?: Dictionary<string>
+  readonly ballotStrings?: BallotStrings
   readonly state: string
   readonly title: string
 }
 export type OptionalElection = Optional<Election>
-
-type Localized<T> = T extends Election
-  ? Localize<
-      Election,
-      | 'date'
-      | 'seal'
-      | 'sealURL'
-      | 'state'
-      | 'title'
-      | 'districts'
-      | 'ballotStrings'
-    >
-  : T extends BallotStyle
-  ? Localize<T, 'precincts' | 'districts'>
-  : T extends Precinct
-  ? Localize<T, 'name'>
-  : T extends District
-  ? Localize<T, 'name'>
-  : T
-
-export type LocalizedElection = Localized<Election>
-
-export type LocalizedBallotStyles = {
-  readonly precincts: Localized<Precinct>[]
-  readonly districts: string[]
-}
 
 // Votes
 export type CandidateVote = Candidate[]
@@ -247,8 +212,8 @@ export const validateVotes = ({
   }
 }
 
-export const electionSample = (electionSampleUntyped as unknown) as LocalizedElection
-export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as LocalizedElection
+export const electionSample = (electionSampleUntyped as unknown) as Election
+export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election
 
 /**
  * @deprecated Does not support i18n. 'party.fullname` should be used instead.
@@ -360,10 +325,8 @@ export function vote(
 export const getElectionLocales = (
   election: Election,
   baseLocale = 'en-US'
-): string[] => [
-  baseLocale,
-  ...Object.keys((election as LocalizedElection)._lang as object),
-]
+): string[] =>
+  election._lang ? [baseLocale, ...Object.keys(election._lang)] : [baseLocale]
 
 /**
  * Copies an election definition preferring strings from the matching locale.
@@ -387,8 +350,7 @@ function copyWithLocale<T>(value: T, locale: string): T {
 
   if (typeof value === 'object') {
     const record = value as Record<string, unknown>
-    const lang =
-      '_lang' in record && (record._lang as LocaleMap<Record<string, unknown>>)
+    const lang = '_lang' in record && (record._lang as Translations)
 
     if (!lang) {
       return value
@@ -421,4 +383,9 @@ function copyWithLocale<T>(value: T, locale: string): T {
   }
 
   return value
+}
+
+// Parsing
+export function parseElection(object: unknown): Election {
+  return s.Election.parse(object)
 }

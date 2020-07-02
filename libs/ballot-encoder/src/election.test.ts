@@ -4,6 +4,7 @@ import {
   getElectionLocales,
   getPartyFullNameFromBallotStyle,
   getPartyPrimaryAdjectiveFromBallotStyle,
+  parseElection,
   validateVotes,
   vote,
   withLocale,
@@ -128,6 +129,9 @@ test('validates votes by checking that contests are present in a given ballot st
 test('list locales in election definition', () => {
   expect(getElectionLocales(election)).toEqual(['en-US', 'es-US'])
   expect(getElectionLocales(election, 'zh-CN')).toEqual(['zh-CN', 'es-US'])
+  expect(getElectionLocales({ ...election, _lang: undefined })).toEqual([
+    'en-US',
+  ])
 })
 
 test('pulls translation keys from the top level object', () => {
@@ -154,4 +158,47 @@ test('passes undefined values through', () => {
 test('uses the defaults for anything without a translation', () => {
   expect(withLocale(election, 'en-US').title).toEqual(election.title)
   expect(withLocale(election, 'fr-FR').title).toEqual(election.title)
+})
+
+test('parsing fails on an empty object', () => {
+  expect(() => parseElection({})).toThrowError(
+    'title: Non-string type: undefined'
+  )
+})
+
+test('parsing gives specific errors for nested objects', () => {
+  expect(() =>
+    parseElection({
+      ...election,
+      contests: [
+        ...election.contests.slice(1),
+        {
+          ...election.contests[0],
+          // give title a type it shouldn't have
+          title: 42,
+        },
+      ],
+    })
+  ).toThrowError(/contests.21:.*title: Non-string type: number/s)
+})
+
+test('ensures dates are ISO 8601-formatted', () => {
+  expect(() =>
+    parseElection({
+      ...election,
+      date: 'not ISO',
+    })
+  ).toThrowError('dates must be ISO 8601-formatted')
+})
+
+test('parsing a valid election object succeeds', () => {
+  expect(() => {
+    const parsed = parseElection(election as unknown)
+
+    // This check is here to prove TS inferred that `parsed` is an `Election`.
+    expect(parsed.title).toEqual(election.title)
+
+    // Check the whole thing
+    expect(parsed).toEqual(election)
+  }).not.toThrowError()
 })
