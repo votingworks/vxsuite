@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { Election } from '@votingworks/ballot-encoder'
+import { LocalizedElection } from '@votingworks/ballot-encoder'
 
 import ConverterClient, { VxFile } from '../lib/ConverterClient'
 import readFileAsync from '../lib/readFileAsync'
@@ -43,7 +43,7 @@ interface InputFile {
 const allFilesExist = (files: VxFile[]) => files.every((f) => !!f.path)
 const someFilesExist = (files: VxFile[]) => files.some((f) => !!f.path)
 
-const newElection = defaultElection as Election
+const newElection = (defaultElection as unknown) as LocalizedElection
 
 const UnconfiguredScreen = () => {
   const history = useHistory()
