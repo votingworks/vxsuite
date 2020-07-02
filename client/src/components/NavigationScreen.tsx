@@ -59,7 +59,7 @@ const NavigationScreen = ({
             </React.Fragment>
           )
         }
-        secondaryNav={election && <USBController />}
+        secondaryNav={<USBController />}
       />
     </Screen>
   )
