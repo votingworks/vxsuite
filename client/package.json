@@ -35,6 +35,7 @@
     "react-scripts": "3.4.1",
     "styled-components": "^5.1.0",
     "typescript": "~3.7.2",
+    "use-interval": "^1.2.1",
     "zip-stream": "^3.0.1"
   },
   "scripts": {
