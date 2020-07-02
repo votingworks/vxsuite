@@ -120,7 +120,6 @@ html body .cvox_indicator_container {
 
 /* Adjust printed ballot paper settings */
 @page {
-  margin: 0.375in;
-  /* margin: 0.3in 0.3in 0.9in; */
+  margin: 0.5in;
   size: letter portrait;
 }

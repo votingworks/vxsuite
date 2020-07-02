@@ -7,7 +7,7 @@ const HorizontalRule = styled.p`
   &::after,
   &::before {
     flex: 1;
-    border-top: 1px solid rgb(180, 180, 180);
+    border-top: 1px solid rgb(194, 200, 203);
     content: '';
   }
   &::before {
