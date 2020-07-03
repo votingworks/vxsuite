@@ -5,7 +5,6 @@ import { InputEventFunction } from '../config/types'
 
 import { fullTallyVotes, getVotesByPrecinct } from '../lib/votecounting'
 import ConverterClient from '../lib/ConverterClient'
-import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
 
 import AppContext from '../contexts/AppContext'
 
@@ -22,7 +21,7 @@ const TallyScreen = () => {
   const {
     castVoteRecordFiles,
     election: e,
-    setCastVoteRecordFiles
+    saveCastVoteRecordFiles,
   } = useContext(AppContext)
   const election = e!
 
@@ -34,28 +33,28 @@ const TallyScreen = () => {
 
   const getPrecinctNames = (precinctIds: readonly string[]) =>
     precinctIds
-      .map(id => election.precincts.find(p => p.id === id)!.name)
+      .map((id) => election.precincts.find((p) => p.id === id)!.name)
       .join(', ')
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles = !!castVoteRecordFileList.length
 
-  const processCastVoteRecordFiles: InputEventFunction = async event => {
+  const processCastVoteRecordFiles: InputEventFunction = async (event) => {
     const input = event.currentTarget
     const files = Array.from(input.files || [])
     const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(files)
 
-    setCastVoteRecordFiles(newCastVoteRecordFiles)
+    saveCastVoteRecordFiles(newCastVoteRecordFiles)
     input.value = ''
   }
 
   const resetCastVoteRecordFiles = () => {
-    setCastVoteRecordFiles(CastVoteRecordFiles.empty)
+    saveCastVoteRecordFiles()
   }
 
   const exportResults = async () => {
     const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
-      .map(c => JSON.stringify(c))
+      .map((c) => JSON.stringify(c))
       .join('\n')
 
     // process on the server
@@ -103,17 +102,15 @@ const TallyScreen = () => {
                   Precinct(s)
                 </TD>
               </tr>
-              {castVoteRecordFileList.map(
-                ({ name, count, precinctIds }) => (
-                  <tr key={name}>
-                    <TD narrow nowrap>
-                      {name}
-                    </TD>
-                    <TD narrow>{count}</TD>
-                    <TD>{getPrecinctNames(precinctIds)}</TD>
-                  </tr>
-                )
-              )}
+              {castVoteRecordFileList.map(({ name, count, precinctIds }) => (
+                <tr key={name}>
+                  <TD narrow nowrap>
+                    {name}
+                  </TD>
+                  <TD narrow>{count}</TD>
+                  <TD>{getPrecinctNames(precinctIds)}</TD>
+                </tr>
+              ))}
               <tr>
                 <TD as="th" narrow nowrap>
                   Total CVRs Count
@@ -128,12 +125,12 @@ const TallyScreen = () => {
               </tr>
             </React.Fragment>
           ) : (
-              <tr>
-                <TD colSpan={2}>
-                  <em>No CVR files loaded.</em>
-                </TD>
-              </tr>
-            )}
+            <tr>
+              <TD colSpan={2}>
+                <em>No CVR files loaded.</em>
+              </TD>
+            </tr>
+          )}
         </tbody>
       </Table>
       {castVoteRecordFiles.duplicateFiles.length > 0 && (
@@ -141,18 +138,14 @@ const TallyScreen = () => {
           {castVoteRecordFiles.duplicateFiles.length === 1 && (
             <React.Fragment>
               The file{' '}
-              <strong>
-                {castVoteRecordFiles.duplicateFiles.join(', ')}
-              </strong>{' '}
+              <strong>{castVoteRecordFiles.duplicateFiles.join(', ')}</strong>{' '}
               was ignored as a duplicate of a file already loaded.
             </React.Fragment>
           )}
           {castVoteRecordFiles.duplicateFiles.length > 1 && (
             <React.Fragment>
               The files{' '}
-              <strong>
-                {castVoteRecordFiles.duplicateFiles.join(', ')}
-              </strong>{' '}
+              <strong>{castVoteRecordFiles.duplicateFiles.join(', ')}</strong>{' '}
               were ignored as duplicates of files already loaded.
             </React.Fragment>
           )}
@@ -161,15 +154,12 @@ const TallyScreen = () => {
       {castVoteRecordFiles.errorFile && (
         <Text error>
           There was an error reading the content of the file{' '}
-          <strong>{castVoteRecordFiles.errorFile}</strong>. Please ensure
-          this file only contains CVR data.
+          <strong>{castVoteRecordFiles.errorFile}</strong>. Please ensure this
+          file only contains CVR data.
         </Text>
       )}
       <p>
-        <FileInputButton
-          multiple
-          onChange={processCastVoteRecordFiles}
-        >
+        <FileInputButton multiple onChange={processCastVoteRecordFiles}>
           Load CVR Files
         </FileInputButton>{' '}
         <Button
@@ -198,7 +188,7 @@ const TallyScreen = () => {
                     ignorePunctuation: true,
                   })
                 )
-                .map(precinct => {
+                .map((precinct) => {
                   const precinctBallotsCount =
                     votesByPrecinct && votesByPrecinct[precinct.id]
                       ? votesByPrecinct[precinct.id]!.length
@@ -211,7 +201,11 @@ const TallyScreen = () => {
                       <TD>{precinctBallotsCount}</TD>
                       <TD>
                         {!!precinctBallotsCount && (
-                          <LinkButton to={routerPaths.tallyReport({ precinctId: precinct.id })}>
+                          <LinkButton
+                            to={routerPaths.tallyReport({
+                              precinctId: precinct.id,
+                            })}
+                          >
                             View {precinct.name} Tally
                           </LinkButton>
                         )}
@@ -233,9 +227,7 @@ const TallyScreen = () => {
                 </TD>
                 <TD>
                   <LinkButton
-                    disabled={
-                      !hasCastVoteRecordFiles || !fullElectionTally
-                    }
+                    disabled={!hasCastVoteRecordFiles || !fullElectionTally}
                     to={routerPaths.tallyFullReport}
                   >
                     View Full Election Tally
@@ -244,19 +236,16 @@ const TallyScreen = () => {
               </tr>
             </React.Fragment>
           ) : (
-              <tr>
-                <TD colSpan={2}>
-                  <em>Load CVR files to view ballot count by precinct.</em>
-                </TD>
-              </tr>
-            )}
+            <tr>
+              <TD colSpan={2}>
+                <em>Load CVR files to view ballot count by precinct.</em>
+              </TD>
+            </tr>
+          )}
         </tbody>
       </Table>
       <p>
-        <Button
-          disabled={!hasCastVoteRecordFiles}
-          onPress={exportResults}
-        >
+        <Button disabled={!hasCastVoteRecordFiles} onPress={exportResults}>
           Export SEMS Results File
         </Button>
       </p>
