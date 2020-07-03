@@ -32,7 +32,11 @@ export const cvrsStorageKey = 'cvrFiles'
 const AppRoot = ({ storage }: Props) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
-  const getElection = () => parseElection(storage.get(electionStorageKey))
+  const getElection = () => {
+    const election = storage.get(electionStorageKey)
+
+    return election ? parseElection(election) : undefined
+  }
   const getCVRFiles = () => storage.get(cvrsStorageKey)
 
   const storageElection = getElection()
