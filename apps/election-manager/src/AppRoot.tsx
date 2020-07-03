@@ -3,7 +3,11 @@ import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import { sha256 } from 'js-sha256'
 
-import { Election, OptionalElection } from '@votingworks/ballot-encoder'
+import {
+  Election,
+  OptionalElection,
+  parseElection,
+} from '@votingworks/ballot-encoder'
 
 import AppContext from './contexts/AppContext'
 
@@ -28,7 +32,7 @@ export const cvrsStorageKey = 'cvrFiles'
 const AppRoot = ({ storage }: Props) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
-  const getElection = () => storage.get(electionStorageKey)
+  const getElection = () => parseElection(storage.get(electionStorageKey))
   const getCVRFiles = () => storage.get(cvrsStorageKey)
 
   const storageElection = getElection()

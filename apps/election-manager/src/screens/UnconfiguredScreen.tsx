@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { LocalizedElection } from '@votingworks/ballot-encoder'
+import { Election, parseElection } from '@votingworks/ballot-encoder'
 
 import ConverterClient, { VxFile } from '../lib/ConverterClient'
 import readFileAsync from '../lib/readFileAsync'
@@ -43,7 +43,7 @@ interface InputFile {
 const allFilesExist = (files: VxFile[]) => files.every((f) => !!f.path)
 const someFilesExist = (files: VxFile[]) => files.some((f) => !!f.path)
 
-const newElection = (defaultElection as unknown) as LocalizedElection
+const newElection = (defaultElection as unknown) as Election
 
 const UnconfiguredScreen = () => {
   const history = useHistory()
@@ -73,7 +73,7 @@ const UnconfiguredScreen = () => {
       setVxElectionFileIsInvalid(false)
       try {
         const fileContent = await readFileAsync(file)
-        saveElection(JSON.parse(fileContent))
+        saveElection(parseElection(JSON.parse(fileContent)))
       } catch (error) {
         setVxElectionFileIsInvalid(true)
         setIsUploading(false)
