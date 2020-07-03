@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@antongolub/iso8601@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@antongolub/iso8601/-/iso8601-1.2.1.tgz#91c4c950ae69d6be7c018051095a6e11d24b8d11"
+  integrity sha512-XsH1mkG5a4J8feeH50Il436pyNCVj6n7EeILYhAHVibQDrxV9gZso198vBZ/dxyhbnfjwK315gvi3/EtEpoekQ==
+
 "@babel/code-frame@7.8.3", "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.8.3":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.8.3.tgz#33e25903d7481181534e12ec0a25f16b6fcf419e"
@@ -1737,10 +1742,13 @@
     semver "^6.3.0"
     tsutils "^3.17.1"
 
-"@votingworks/ballot-encoder@^1.3.2":
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-1.3.2.tgz#21a99f271f5f5b225bd6a2d956730b3265702de1"
-  integrity sha512-uE+NZX6vgw0eETcFniKBe7nC841LEECqsWkx3CASguKoEzv+Yyhe49SdavtuaU37Pucz+xLdOImFG4sI5zIgcw==
+"@votingworks/ballot-encoder@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-1.4.0.tgz#e2e0c60b01f7f6f94cb5b91e3d3ef1720aaabc97"
+  integrity sha512-q1R1+MrpGyQmtfjubCnuuPQXXb5Bbn/BpQardKvtuiWH5j5ow5G4ssW3M+eInUUJcub+XXnQDc+FIapWxrSW1g==
+  dependencies:
+    "@antongolub/iso8601" "^1.2.1"
+    zod "^1.7.1"
 
 "@votingworks/qrcode.react@1.0.1":
   version "1.0.1"
@@ -11360,3 +11368,8 @@ zip-stream@^3.0.1:
     archiver-utils "^2.1.0"
     compress-commons "^3.0.0"
     readable-stream "^3.6.0"
+
+zod@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-1.7.1.tgz#983e4ae8e2f032420960288ea7c54a5afc50c011"
+  integrity sha512-EqtwN5PJTgg/iOxMvjezNcha8xDcrcUr2V4oYZ8GMzxzFGfZV+LFI+ey2sBs2mGWSF8qZE8gHIquApWa7jiTYg==
