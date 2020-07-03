@@ -14,6 +14,7 @@ import ButtonBar from '../components/ButtonBar'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import NavigationScreen from '../components/NavigationScreen'
+import { parseElection } from '@votingworks/ballot-encoder'
 
 const Header = styled.div`
   margin-bottom: 1rem;
@@ -48,10 +49,10 @@ const ElectionEditDefinitionScreen = () => {
     history.push(routerPaths.root)
   }
 
-  const parseElection = useCallback(() => {
+  const parseElectionString = useCallback(() => {
     try {
       setError('')
-      const newElection = JSON.parse(electionString)
+      const newElection = parseElection(JSON.parse(electionString))
       return newElection
     } catch (error) {
       setError(error.toString())
@@ -63,7 +64,7 @@ const ElectionEditDefinitionScreen = () => {
     setElectionString(event.target.value)
   }
   const hanldeSaveElection = () => {
-    const newElection = parseElection()
+    const newElection = parseElectionString()
     if (newElection) {
       saveElection(newElection)
       setDirty(false)
@@ -87,8 +88,8 @@ const ElectionEditDefinitionScreen = () => {
   }
 
   useEffect(() => {
-    parseElection()
-  }, [parseElection, electionString])
+    parseElectionString()
+  }, [parseElectionString, electionString])
 
   return (
     <React.Fragment>
@@ -106,16 +107,16 @@ const ElectionEditDefinitionScreen = () => {
             disabled={!dirty || !!error}
           >
             Save
-            </Button>
+          </Button>
           <Button small onPress={resetElectionConfig} disabled={!dirty}>
             Reset
-            </Button>
+          </Button>
           <div />
           <div />
           <div />
           <Button small disabled={dirty} onPress={downloadElectionDefinition}>
             Download
-            </Button>
+          </Button>
           <Button
             small
             danger={!dirty}
@@ -123,7 +124,7 @@ const ElectionEditDefinitionScreen = () => {
             onPress={initConfirmingUnconfig}
           >
             Remove
-            </Button>
+          </Button>
         </ButtonBar>
         <FlexTextareaWrapper>
           <Textarea
