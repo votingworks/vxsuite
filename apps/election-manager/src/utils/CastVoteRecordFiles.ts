@@ -104,6 +104,39 @@ export default class CastVoteRecordFiles {
   }
 
   /**
+   * Import from exported localStorage string
+   */
+  public static import(stringifiedCVRFiles: string) {
+    const {
+      signatures,
+      files,
+      duplicateFilenames,
+      parseFailedFilenames,
+      allCastVoteRecords,
+    } = JSON.parse(stringifiedCVRFiles)
+    return new CastVoteRecordFiles(
+      new Set(signatures),
+      new Set(files),
+      new Set(duplicateFilenames),
+      new Set(parseFailedFilenames),
+      new Map(allCastVoteRecords)
+    )
+  }
+
+  /**
+   * Export to localStorage string
+   */
+  public export() {
+    return JSON.stringify({
+      signatures: [...this.signatures],
+      files: [...this.files],
+      duplicateFilenames: [...this.duplicateFilenames],
+      parseFailedFilenames: [...this.parseFailedFilenames],
+      allCastVoteRecords: [...this.allCastVoteRecords.entries()],
+    })
+  }
+
+  /**
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `files` to those contained by this `CastVoteRecordFiles` instance.
    */
@@ -138,7 +171,7 @@ export default class CastVoteRecordFiles {
 
       const fileCastVoteRecords = parseCVRs(fileContent)
       const precinctIds = arrayUnique(
-        fileCastVoteRecords.map(cvr => cvr._precinctId)
+        fileCastVoteRecords.map((cvr) => cvr._precinctId)
       )
 
       return new CastVoteRecordFiles(
@@ -152,7 +185,7 @@ export default class CastVoteRecordFiles {
         this.parseFailedFilenames,
         mapAdd(
           this.allCastVoteRecords,
-          cvr => cvr._ballotId,
+          (cvr) => cvr._ballotId,
           ...fileCastVoteRecords
         )
       )
