@@ -30,6 +30,7 @@ interface Props {
   centerContent?: boolean
   actions?: ReactNode
   onAfterOpen?: () => void
+  onOverlayClick?: () => void
 }
 
 const Modal: React.FC<Props> = ({
@@ -48,6 +49,7 @@ const Modal: React.FC<Props> = ({
       }
     }, 10)
   },
+  onOverlayClick,
 }: Props) => (
   <ReactModal
     appElement={
@@ -63,6 +65,7 @@ const Modal: React.FC<Props> = ({
     overlayClassName="modal-overlay"
     onAfterOpen={onAfterOpen}
     testId="modal"
+    onRequestClose={onOverlayClick}
   >
     <ModalContent centerContent={centerContent}>{content}</ModalContent>
     {actions && <ButtonBar as="div">{actions}</ButtonBar>}

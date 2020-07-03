@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 
@@ -24,16 +24,31 @@ const TallyScreen = () => {
   const {
     castVoteRecordFiles,
     election: e,
+    isOfficialResults,
     saveCastVoteRecordFiles,
+    saveIsOfficialResults,
   } = useContext(AppContext)
   const election = e!
 
-  const [isConfimingRemoveCRVs, setIsConfimingRemoveCRVs] = useState(false)
+  const [isConfimingRemoveCRVs, setIsConfirmingRemoveCRVs] = useState(false)
   const cancelConfirmingRemoveCRVs = () => {
-    setIsConfimingRemoveCRVs(false)
+    setIsConfirmingRemoveCRVs(false)
   }
   const confirmRemoveCRVs = () => {
-    setIsConfimingRemoveCRVs(true)
+    setIsConfirmingRemoveCRVs(true)
+  }
+
+  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
+  const [isConfirmingOfficial, setIsConfirmingOfficial] = useState(false)
+  const cancelConfirmingOfficial = () => {
+    setIsConfirmingOfficial(false)
+  }
+  const confirmOfficial = () => {
+    setIsConfirmingOfficial(true)
+  }
+  const setOfficial = () => {
+    setIsConfirmingOfficial(false)
+    saveIsOfficialResults()
   }
 
   const votesByPrecinct = getVotesByPrecinct({
@@ -61,8 +76,20 @@ const TallyScreen = () => {
 
   const resetCastVoteRecordFiles = () => {
     saveCastVoteRecordFiles()
-    setIsConfimingRemoveCRVs(false)
+    setIsConfirmingRemoveCRVs(false)
   }
+
+  const [hasConverter, setHasConverter] = useState(false)
+  useEffect(() => {
+    ;(async () => {
+      try {
+        await new ConverterClient('results').getFiles()
+        setHasConverter(true)
+      } catch {
+        setHasConverter(false)
+      }
+    })()
+  }, [])
 
   const exportResults = async () => {
     const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
@@ -98,7 +125,7 @@ const TallyScreen = () => {
   return (
     <React.Fragment>
       <NavigationScreen>
-        <h1>Election Tally</h1>
+        <h1>Election Tally Reports</h1>
         <h2>Cast Vote Record (CVR) files</h2>
         <Table>
           <tbody>
@@ -172,9 +199,19 @@ const TallyScreen = () => {
           </Text>
         )}
         <p>
-          <FileInputButton multiple onChange={processCastVoteRecordFiles}>
+          <FileInputButton
+            multiple
+            onChange={processCastVoteRecordFiles}
+            disabled={isOfficialResults}
+          >
             Load CVR Files
           </FileInputButton>{' '}
+          <Button
+            disabled={!hasCastVoteRecordFiles || isOfficialResults}
+            onPress={confirmOfficial}
+          >
+            Mark Tally Results as Official…
+          </Button>{' '}
           <Button
             danger
             disabled={!hasCastVoteRecordFiles}
@@ -183,11 +220,11 @@ const TallyScreen = () => {
             Remove CVR Files…
           </Button>
         </p>
-        <h2>Ballot Count By Precinct</h2>
-        <Table>
-          <tbody>
-            {hasCastVoteRecordFiles ? (
-              <React.Fragment>
+        {hasCastVoteRecordFiles && (
+          <React.Fragment>
+            <h2>Ballot Count By Precinct</h2>
+            <Table>
+              <tbody>
                 <tr>
                   <TD as="th" narrow>
                     Precinct
@@ -215,11 +252,12 @@ const TallyScreen = () => {
                         <TD>
                           {!!precinctBallotsCount && (
                             <LinkButton
+                              small
                               to={routerPaths.tallyReport({
                                 precinctId: precinct.id,
                               })}
                             >
-                              View {precinct.name} Tally
+                              View {statusPrefix} {precinct.name} Tally Report
                             </LinkButton>
                           )}
                         </TD>
@@ -243,32 +281,32 @@ const TallyScreen = () => {
                       disabled={!hasCastVoteRecordFiles || !fullElectionTally}
                       to={routerPaths.tallyFullReport}
                     >
-                      View Full Election Tally
+                      View {statusPrefix} Full Election Tally
                     </LinkButton>
                   </TD>
                 </tr>
-              </React.Fragment>
-            ) : (
-              <tr>
-                <TD colSpan={2}>
-                  <em>Load CVR files to view ballot count by precinct.</em>
-                </TD>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-        <p>
-          <Button disabled={!hasCastVoteRecordFiles} onPress={exportResults}>
-            Export SEMS Results File
-          </Button>
-        </p>
-        <HorizontalRule />
-        <h2>Test Ballot Deck Tally</h2>
-        <p>
-          <LinkButton to={routerPaths.testDecksTally}>
-            View Test Ballot Deck Tally
-          </LinkButton>
-        </p>
+              </tbody>
+            </Table>
+          </React.Fragment>
+        )}
+        {hasConverter && hasCastVoteRecordFiles && (
+          <p>
+            <Button disabled={!hasCastVoteRecordFiles} onPress={exportResults}>
+              Export SEMS Results File
+            </Button>
+          </p>
+        )}
+        {!hasCastVoteRecordFiles && (
+          <React.Fragment>
+            <HorizontalRule />
+            <h2>Pre-Election Features</h2>
+            <p>
+              <LinkButton to={routerPaths.testDecksTally}>
+                View Test Ballot Deck Tally
+              </LinkButton>
+            </p>
+          </React.Fragment>
+        )}
       </NavigationScreen>
       <Modal
         isOpen={isConfimingRemoveCRVs}
@@ -290,6 +328,30 @@ const TallyScreen = () => {
             </Button>
           </React.Fragment>
         }
+        onOverlayClick={cancelConfirmingRemoveCRVs}
+      />
+      <Modal
+        isOpen={isConfirmingOfficial}
+        centerContent
+        content={
+          <Prose textCenter>
+            <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
+            <p>
+              Have all CVR files been loaded? Once results are marked as
+              official, no additional CVRs can be loaded.
+            </p>
+            <p>Have all unofficial tally reports been reviewed?</p>
+          </Prose>
+        }
+        actions={
+          <React.Fragment>
+            <Button onPress={cancelConfirmingOfficial}>Cancel</Button>
+            <Button primary onPress={setOfficial}>
+              Mark Tally Results as Official
+            </Button>
+          </React.Fragment>
+        }
+        onOverlayClick={cancelConfirmingOfficial}
       />
     </React.Fragment>
   )

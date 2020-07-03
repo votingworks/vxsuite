@@ -62,7 +62,7 @@ const BallotListScreen = () => {
         <thead>
           <tr>
             <TD as="th" />
-            <TD as="th">Style</TD>
+            <TD as="th">Ballot Style</TD>
             <TD as="th">Precinct</TD>
             <TD as="th">Contests</TD>
           </tr>
