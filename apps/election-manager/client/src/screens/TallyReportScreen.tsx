@@ -1,6 +1,5 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components'
-import pluralize from 'pluralize'
 
 import find from '../utils/find'
 
@@ -34,8 +33,11 @@ const TallyHeader = styled.div`
 const TallyReportScreen = () => {
   const history = useHistory()
   const { precinctId } = useParams<PrecinctReportScreenProps>()
-  const { castVoteRecordFiles, election: e } = useContext(AppContext)
+  const { castVoteRecordFiles, election: e, isOfficialResults } = useContext(
+    AppContext
+  )
   const election = e!
+  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
 
   if (castVoteRecordFiles.castVoteRecords.length === 0) {
     history.replace(routerPaths.tally)
@@ -78,13 +80,13 @@ const TallyReportScreen = () => {
         <Prose className="no-print">
           <h1>
             {precinctId
-              ? `Precinct Tally Report for ${precinctName}`
-              : `${election.title} Tally Report`}
+              ? `${statusPrefix} Precinct Tally Report for ${precinctName}`
+              : `${statusPrefix} ${election.title} Tally Report`}
           </h1>
           {reportMeta}
           <p>
             <Button primary onPress={window.print}>
-              Print Tally Report
+              Print {statusPrefix} Tally Report
             </Button>
           </p>
           <p>
@@ -131,7 +133,9 @@ const TallyReportScreen = () => {
                 <React.Fragment>
                   <TallyHeader>
                     <Prose maxWidth={false}>
-                      <h1>{electionTitle} Tally Report</h1>
+                      <h1>
+                        {statusPrefix} {electionTitle} Tally Report
+                      </h1>
                       {reportMeta}
                     </Prose>
                   </TallyHeader>
@@ -148,7 +152,10 @@ const TallyReportScreen = () => {
                     <React.Fragment>
                       <TallyHeader key={precinctTally.precinctId}>
                         <Prose maxWidth={false}>
-                          <h1>Precinct Tally Report for: {precinctName}</h1>
+                          <h1>
+                            {statusPrefix} Precinct Tally Report for:{' '}
+                            {precinctName}
+                          </h1>
                           {reportMeta}
                         </Prose>
                       </TallyHeader>

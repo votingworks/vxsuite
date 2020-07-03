@@ -16,6 +16,7 @@ import { SaveElection, SaveCastVoteRecordFiles } from './config/types'
 export interface AppStorage {
   election?: Election
   cvrFiles?: string
+  isOfficialResults?: boolean
 }
 
 export interface Props extends RouteComponentProps {
@@ -24,12 +25,14 @@ export interface Props extends RouteComponentProps {
 
 export const electionStorageKey = 'election'
 export const cvrsStorageKey = 'cvrFiles'
+export const isOfficialResultsKey = 'isOfficialResults'
 
 const AppRoot = ({ storage }: Props) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
   const getElection = () => storage.get(electionStorageKey)
   const getCVRFiles = () => storage.get(cvrsStorageKey)
+  const getIsOfficialResults = () => storage.get(isOfficialResultsKey)
 
   const storageElection = getElection()
   const [election, setElection] = useState<OptionalElection>(storageElection)
@@ -43,6 +46,15 @@ const AppRoot = ({ storage }: Props) => {
       ? CastVoteRecordFiles.import(storageCVRFiles)
       : CastVoteRecordFiles.empty
   )
+
+  const storageIsOfficialResults = getIsOfficialResults() || false
+  const [isOfficialResults, setIsOfficialResults] = useState<boolean>(
+    storageIsOfficialResults
+  )
+  const saveIsOfficialResults = () => {
+    setIsOfficialResults(true)
+    storage.set(isOfficialResultsKey, true)
+  }
 
   const saveElection: SaveElection = (electionDefinition) => {
     setElection(electionDefinition)
@@ -62,6 +74,8 @@ const AppRoot = ({ storage }: Props) => {
     setCastVoteRecordFiles(newCVRFiles)
     if (newCVRFiles === CastVoteRecordFiles.empty) {
       storage.remove(cvrsStorageKey)
+      storage.remove(isOfficialResultsKey)
+      setIsOfficialResults(false)
     } else {
       storage.set(cvrsStorageKey, newCVRFiles.export())
     }
@@ -73,10 +87,12 @@ const AppRoot = ({ storage }: Props) => {
         castVoteRecordFiles,
         election,
         electionHash,
+        isOfficialResults,
         printBallotRef,
-        setCastVoteRecordFiles,
         saveCastVoteRecordFiles,
         saveElection,
+        setCastVoteRecordFiles,
+        saveIsOfficialResults,
       }}
     >
       <ElectionManager />
