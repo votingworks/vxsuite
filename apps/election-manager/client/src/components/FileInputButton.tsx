@@ -30,6 +30,7 @@ type HiddenFileInputProps = Parameters<typeof HiddenFileInput>[0]
 interface Props {
   accept?: string
   buttonProps?: ButtonProps
+  disabled?: boolean
   name?: string
   multiple?: boolean
   children: string
@@ -40,6 +41,7 @@ const FileInputButton = ({
   accept = '*/*',
   buttonProps,
   children,
+  disabled,
   onChange,
   ...rest
 }: Props) => {
@@ -49,10 +51,11 @@ const FileInputButton = ({
   }
   return (
     <React.Fragment>
-      <LabelButton {...buttonProps}>
+      <LabelButton {...buttonProps} disabled={disabled}>
         <HiddenFileInput
           {...rest}
           accept={accept}
+          disabled={disabled}
           onBlur={onBlur}
           onChange={onChange}
           type="file"

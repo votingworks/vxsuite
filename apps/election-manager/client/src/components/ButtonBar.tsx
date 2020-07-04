@@ -16,7 +16,7 @@ const ButtonBar = styled('nav')<Props>`
   padding: ${({ padded = false }) => (padded ? '0.25rem' : undefined)};
 
   & > * {
-    flex: 1;
+    flex-grow: 1;
     margin: 0.25rem;
   }
 
