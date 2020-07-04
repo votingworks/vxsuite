@@ -1,9 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import {
-  Election,
-  Candidate,
-} from '@votingworks/ballot-encoder'
+import { Election, Candidate } from '@votingworks/ballot-encoder'
 
 import { ElectionTally } from '../config/types'
 
@@ -11,8 +8,12 @@ import Prose from './Prose'
 import Table, { TD } from './Table'
 
 const Contest = styled.div`
-  margin: 2rem 0 4rem;
+  margin: 1rem 0 2rem;
   page-break-inside: avoid;
+  h2,
+  h3 {
+    margin-bottom: 0.25em;
+  }
 `
 
 interface Props {
@@ -25,9 +26,9 @@ const Tally = ({ election, electionTally }: Props) => {
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
   const ballotStyles = precinctId
-    ? election.ballotStyles.filter(bs => bs.precincts.includes(precinctId))
+    ? election.ballotStyles.filter((bs) => bs.precincts.includes(precinctId))
     : []
-  const districts = ballotStyles.flatMap(bs => bs.districts)
+  const districts = ballotStyles.flatMap((bs) => bs.districts)
 
   return (
     <React.Fragment>
@@ -39,17 +40,17 @@ const Tally = ({ election, electionTally }: Props) => {
         return (
           <Contest key={`div-${contest.id}`}>
             <Prose maxWidth={false}>
-              <h2>
+              <h3>
                 {contest.section}, {contest.title}
-              </h2>
+              </h3>
               <Table>
                 <tbody>
-                  {tallies.map(tally => {
+                  {tallies.map((tally) => {
                     const key = `${contest.id}-${
                       contest.type === 'candidate'
                         ? (tally.option as Candidate).id
                         : tally.option
-                      }`
+                    }`
                     const choice =
                       contest.type === 'candidate'
                         ? (tally.option as Candidate).name

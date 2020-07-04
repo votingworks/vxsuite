@@ -13,23 +13,31 @@ import HorizontalRule from '../components/HorizontalRule'
 import Tally from '../components/Tally'
 import NavigationScreen from '../components/NavigationScreen'
 import Prose from '../components/Prose'
+import Text from '../components/Text'
 import LinkButton from '../components/LinkButton'
 import { routerPaths } from '../components/ElectionManager'
 import { filterTalliesByParty } from '../lib/votecounting'
 import { useParams, useHistory } from 'react-router-dom'
+import {
+  localeWeedkayAndDate,
+  localeLongDateAndTime,
+} from '../utils/IntlDateTimeFormats'
 
 const TallyHeader = styled.div`
   page-break-before: always;
+  h1 + p {
+    margin-top: -1.5em;
+  }
 `
 
 const TallyReportScreen = () => {
   const history = useHistory()
   const { precinctId } = useParams<PrecinctReportScreenProps>()
-  const {
-    castVoteRecordFiles,
-    election: e
-  } = useContext(AppContext)
+  const { castVoteRecordFiles, election: e, isOfficialResults } = useContext(
+    AppContext
+  )
   const election = e!
+  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
 
   if (castVoteRecordFiles.castVoteRecords.length === 0) {
     history.replace(routerPaths.tally)
@@ -47,38 +55,39 @@ const TallyReportScreen = () => {
   ) as ElectionTally[]
 
   const ballotStylePartyIds = Array.from(
-    new Set(election.ballotStyles.map(bs => bs.partyId))
+    new Set(election.ballotStyles.map((bs) => bs.partyId))
   )
 
   const precinctName =
-    precinctId &&
-    find(election.precincts, p => p.id === precinctId).name
+    precinctId && find(election.precincts, (p) => p.id === precinctId).name
 
-  const pageTitle = precinctId
-    ? `Precinct Tally: ${precinctName}`
-    : `Full Election Tally and ${electionPrecinctTallies.length} Precinct Tallies`
+  const electionDate = localeWeedkayAndDate.format(new Date(election.date))
+  const generatedAt = localeLongDateAndTime.format(new Date())
+
+  const reportMeta = (
+    <p>
+      {electionDate}, {election.county.name}, {election.state}
+      <br />
+      <Text small as="span">
+        This report was created on {generatedAt}
+      </Text>
+    </p>
+  )
 
   return (
     <React.Fragment>
       <NavigationScreen>
         <Prose className="no-print">
-          <h1>{pageTitle}</h1>
-          <p>
-            <strong>Election:</strong> {election.title}
-            {precinctName && (
-              <React.Fragment>
-                <br />
-                <span>
-                  <strong>Precinct:</strong> {precinctName}
-                </span>
-              </React.Fragment>
-            )}
-          </p>
-
+          <h1>
+            {precinctId
+              ? `${statusPrefix} Precinct Tally Report for ${precinctName}`
+              : `${statusPrefix} ${election.title} Tally Report`}
+          </h1>
+          {reportMeta}
           <p>
             <Button primary onPress={window.print}>
-              Print Tally Report
-          </Button>
+              Print {statusPrefix} Tally Report
+            </Button>
           </p>
           <p>
             <LinkButton small to={routerPaths.tally}>
@@ -88,11 +97,11 @@ const TallyReportScreen = () => {
         </Prose>
       </NavigationScreen>
       <div className="print-only">
-        {ballotStylePartyIds.map(partyId => {
+        {ballotStylePartyIds.map((partyId) => {
           let precinctTallies = electionPrecinctTallies
           let overallTally = fullElectionTally.overallTally
 
-          const party = election.parties.find(p => p.id === partyId)
+          const party = election.parties.find((p) => p.id === partyId)
           const electionTitle = party
             ? `${party.name} ${election.title}`
             : election.title
@@ -103,7 +112,7 @@ const TallyReportScreen = () => {
               electionTally: fullElectionTally.overallTally,
               party,
             })
-            precinctTallies = electionPrecinctTallies.map(precinctTally =>
+            precinctTallies = electionPrecinctTallies.map((precinctTally) =>
               filterTalliesByParty({
                 election,
                 electionTally: precinctTally,
@@ -114,52 +123,51 @@ const TallyReportScreen = () => {
 
           if (precinctId) {
             precinctTallies = precinctTallies.filter(
-              pt => pt.precinctId === precinctId
+              (pt) => pt.precinctId === precinctId
             )
           }
 
           return (
             <React.Fragment key={partyId || 'none'}>
-              {!precinctId && (
+              {!precinctId ? (
                 <React.Fragment>
                   <TallyHeader>
-                    <Prose>
-                      <h1>Election Tally</h1>
-                      <p>
-                        <strong>Election:</strong> {electionTitle}
-                        <br />
-                        <span>
-                          <strong>Precinct:</strong> All Precincts
-                        </span>
-                      </p>
+                    <Prose maxWidth={false}>
+                      <h1>
+                        {statusPrefix} {electionTitle} Tally Report
+                      </h1>
+                      {reportMeta}
                     </Prose>
                   </TallyHeader>
+                  <HorizontalRule />
                   <Tally election={election} electionTally={overallTally} />
                 </React.Fragment>
+              ) : (
+                precinctTallies.map((precinctTally) => {
+                  const precinctName = find(
+                    election.precincts,
+                    (p) => p.id === precinctTally.precinctId
+                  ).name
+                  return (
+                    <React.Fragment>
+                      <TallyHeader key={precinctTally.precinctId}>
+                        <Prose maxWidth={false}>
+                          <h1>
+                            {statusPrefix} Precinct Tally Report for:{' '}
+                            {precinctName}
+                          </h1>
+                          {reportMeta}
+                        </Prose>
+                      </TallyHeader>
+                      <HorizontalRule />
+                      <Tally
+                        election={election}
+                        electionTally={precinctTally}
+                      />
+                    </React.Fragment>
+                  )
+                })
               )}
-              {precinctTallies.map(precinctTally => {
-                const precinctName = find(
-                  election.precincts,
-                  p => p.id === precinctTally.precinctId
-                ).name
-                return (
-                  <TallyHeader key={precinctTally.precinctId}>
-                    <Prose>
-                      <h1>Precinct Tally: {precinctName}</h1>
-                      <p>
-                        <strong>Election:</strong> {electionTitle}
-                        <br />
-                        <strong>Precinct:</strong> {precinctName}
-                      </p>
-                    </Prose>
-                    <HorizontalRule />
-                    <Tally
-                      election={election}
-                      electionTally={precinctTally}
-                    />
-                  </TallyHeader>
-                )
-              })}
             </React.Fragment>
           )
         })}
