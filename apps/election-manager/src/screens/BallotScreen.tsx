@@ -12,6 +12,7 @@ import { BallotScreenProps, BallotLocale } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
 import Button, { SegmentedButton } from '../components/Button'
+import PrintButton from '../components/PrintButton'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import { Monospace } from '../components/Text'
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
@@ -61,13 +62,6 @@ const BallotScreen = () => {
     isLiveMode,
   })
 
-  const printBallot = async () => {
-    const documentTitle = document.title
-    document.title = filename
-    await (window.kiosk ?? window).print()
-    document.title = documentTitle
-  }
-
   return (
     <React.Fragment>
       <NavigationScreen>
@@ -107,13 +101,13 @@ const BallotScreen = () => {
           )}
         </p>
         <p>
-          <Button primary onPress={printBallot}>
+          <PrintButton primary title={filename}>
             {availableLocaleCodes.length > 1 && currentLocaleCode
               ? `Print ${
                   isLiveMode ? 'Official Ballot' : 'Test Ballot'
                 } in ${getHumanBallotLanguageFormat(locales)}`
               : `Print ${isLiveMode ? 'Official Ballot' : 'Test Ballot'}`}
-          </Button>
+          </PrintButton>
         </p>
         <p>
           Filename: <Monospace>{filename}</Monospace>

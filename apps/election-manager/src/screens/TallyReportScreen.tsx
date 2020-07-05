@@ -8,7 +8,7 @@ import { fullTallyVotes, getVotesByPrecinct } from '../lib/votecounting'
 import { ElectionTally, PrecinctReportScreenProps } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
-import Button from '../components/Button'
+import PrintButton from '../components/PrintButton'
 import HorizontalRule from '../components/HorizontalRule'
 import Tally from '../components/Tally'
 import NavigationScreen from '../components/NavigationScreen'
@@ -24,10 +24,10 @@ import {
 } from '../utils/IntlDateTimeFormats'
 
 const TallyHeader = styled.div`
-  page-break-before: always;
-  h1 + p {
+    page-break-before: always;
+    h1 + p {
     margin-top: -1.5em;
-  }
+    }
 `
 
 const TallyReportScreen = () => {
@@ -80,14 +80,14 @@ const TallyReportScreen = () => {
         <Prose className="no-print">
           <h1>
             {precinctId
-              ? `${statusPrefix} Precinct Tally Report for ${precinctName}`
-              : `${statusPrefix} ${election.title} Tally Report`}
+            ? `${statusPrefix} Precinct Tally Report for ${precinctName}`
+            : `${statusPrefix} ${election.title} Tally Report`}
           </h1>
           {reportMeta}
           <p>
-            <Button primary onPress={window.print}>
+            <PrintButton primary>
               Print {statusPrefix} Tally Report
-            </Button>
+            </PrintButton>
           </p>
           <p>
             <LinkButton small to={routerPaths.tally}>
@@ -103,8 +103,8 @@ const TallyReportScreen = () => {
 
           const party = election.parties.find((p) => p.id === partyId)
           const electionTitle = party
-            ? `${party.name} ${election.title}`
-            : election.title
+			      ? `${party.name} ${election.title}`
+			      : election.title
 
           if (party) {
             overallTally = filterTalliesByParty({
