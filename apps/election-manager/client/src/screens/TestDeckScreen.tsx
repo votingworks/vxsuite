@@ -12,7 +12,7 @@ import {
 
 import AppContext from '../contexts/AppContext'
 
-import Button from '../components/Button'
+import PrintButton from '../components/PrintButton'
 import ButtonList from '../components/ButtonList'
 import Prose from '../components/Prose'
 import Tally from '../components/Tally'
@@ -24,7 +24,7 @@ import LinkButton from '../components/LinkButton'
 import { PrecinctReportScreenProps } from '../config/types'
 
 const ElectionTallyReport = styled.div`
-  page-break-before: always;
+    page-break-before: always;
 `
 
 interface GenerateTestDeckParams {
@@ -37,8 +37,8 @@ const generateTestDeckBallots = ({
   precinctId,
 }: GenerateTestDeckParams) => {
   const precincts: string[] = precinctId
-    ? [precinctId]
-    : election.precincts.map(p => p.id)
+			    ? [precinctId]
+			    : election.precincts.map(p => p.id)
 
   let votes: VotesDict[] = []
 
@@ -52,7 +52,7 @@ const generateTestDeckBallots = ({
       const contests = election.contests.filter(
         c =>
           ballotStyle.districts.includes(c.districtId) &&
-          ballotStyle.partyId === c.partyId
+           ballotStyle.partyId === c.partyId
       )
 
       const numBallots = Math.max(
@@ -93,8 +93,8 @@ const TestDeckScreen = () => {
   const precinctId = p.trim()
 
   const precinct = precinctId === 'all'
-    ? allPrecincts
-    : getPrecinctById({ election, precinctId })
+		 ? allPrecincts
+		 : getPrecinctById({ election, precinctId })
 
   const votes = generateTestDeckBallots({ election, precinctId: precinct?.id })
   const electionTally = tallyVotes({ election, precinctId: precinct?.id, votes })
@@ -117,9 +117,9 @@ const TestDeckScreen = () => {
               <strong>Precinct:</strong> {precinct.name}
             </p>
             <p>
-              <Button primary onPress={window.print}>
+              <PrintButton primary>
                 Print Results Report
-              </Button>
+              </PrintButton>
             </p>
             <p>
               <LinkButton small to={routerPaths.testDecksTally}>
