@@ -1,4 +1,4 @@
-import { BallotPageMetadata, DetectQRCode } from './types'
+import { BallotPageMetadata, DetectQRCode, BallotLocales } from './types'
 import defined from './utils/defined'
 import * as qrcode from './utils/qrcode'
 
@@ -21,6 +21,18 @@ export function decodeSearchParams(
   const ballotStyleId = defined(searchParams.get('bs'))
   const pageInfo = defined(searchParams.get('p'))
 
+  const primaryLocaleCode = searchParams.get('l1') ?? undefined
+  const secondaryLocaleCode = searchParams.get('l2') ?? undefined
+  let locales: BallotLocales | undefined
+
+  if (primaryLocaleCode) {
+    if (secondaryLocaleCode) {
+      locales = { primary: primaryLocaleCode, secondary: secondaryLocaleCode }
+    } else {
+      locales = { primary: primaryLocaleCode }
+    }
+  }
+
   const [typeTestBallot] = type.split('', 2)
   const [pageInfoNumber, pageInfoCount] = pageInfo.split('-', 2)
 
@@ -30,6 +42,7 @@ export function decodeSearchParams(
   const pageCount = parseInt(pageInfoCount, 10)
 
   return {
+    locales,
     ballotStyleId,
     precinctId,
     isTestBallot,

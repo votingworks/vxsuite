@@ -11,9 +11,33 @@ test('URL decoding', () => {
         ['pr', 'Acme & Co'],
         ['bs', 'Ballot Style Orange'],
         ['p', '2-3'],
+        ['l1', 'en-US'],
+        ['l2', 'es-US'],
       ])
     )
   ).toEqual({
+    locales: { primary: 'en-US', secondary: 'es-US' },
+    ballotStyleId: 'Ballot Style Orange',
+    precinctId: 'Acme & Co',
+    isTestBallot: true,
+    pageNumber: 2,
+    pageCount: 3,
+  })
+})
+
+test('omitted secondary locale code', () => {
+  expect(
+    decodeSearchParams(
+      new URLSearchParams([
+        ['t', 'tt'],
+        ['pr', 'Acme & Co'],
+        ['bs', 'Ballot Style Orange'],
+        ['p', '2-3'],
+        ['l1', 'en-US'],
+      ])
+    )
+  ).toEqual({
+    locales: { primary: 'en-US' },
     ballotStyleId: 'Ballot Style Orange',
     precinctId: 'Acme & Co',
     isTestBallot: true,
@@ -30,6 +54,7 @@ test('live mode', () => {
         ['pr', ''],
         ['bs', ''],
         ['p', '1-1'],
+        ['l1', 'en-US'],
       ])
     )
   ).toEqual(expect.objectContaining({ isTestBallot: false }))
