@@ -4,7 +4,7 @@ import pluralize from 'pluralize'
 
 import { InputEventFunction } from '../config/types'
 
-import { fullTallyVotes, getVotesByPrecinct } from '../lib/votecounting'
+import { getVotesByPrecinct, getVotesByScanner } from '../lib/votecounting'
 import ConverterClient from '../lib/ConverterClient'
 
 import AppContext from '../contexts/AppContext'
@@ -55,7 +55,10 @@ const TallyScreen = () => {
     election,
     castVoteRecords: castVoteRecordFiles.castVoteRecords,
   })
-  const fullElectionTally = fullTallyVotes({ election, votesByPrecinct })
+  const votesByScanner = getVotesByScanner({
+    election,
+    castVoteRecords: castVoteRecordFiles.castVoteRecords,
+  })
 
   const getPrecinctNames = (precinctIds: readonly string[]) =>
     precinctIds
@@ -240,9 +243,7 @@ const TallyScreen = () => {
                   )
                   .map((precinct) => {
                     const precinctBallotsCount =
-                      votesByPrecinct && votesByPrecinct[precinct.id]
-                        ? votesByPrecinct[precinct.id]!.length
-                        : 0
+                      votesByPrecinct?.[precinct.id]?.length ?? 0
                     return (
                       <tr key={precinct.id}>
                         <TD narrow nowrap>
@@ -253,7 +254,7 @@ const TallyScreen = () => {
                           {!!precinctBallotsCount && (
                             <LinkButton
                               small
-                              to={routerPaths.tallyReport({
+                              to={routerPaths.tallyPrecinctReport({
                                 precinctId: precinct.id,
                               })}
                             >
@@ -278,11 +279,71 @@ const TallyScreen = () => {
                   </TD>
                   <TD>
                     <LinkButton
-                      disabled={!hasCastVoteRecordFiles || !fullElectionTally}
+                      disabled={!hasCastVoteRecordFiles}
                       to={routerPaths.tallyFullReport}
                     >
                       View {statusPrefix} Full Election Tally
                     </LinkButton>
+                  </TD>
+                </tr>
+              </tbody>
+            </Table>
+            <h2>Ballot Count by Scanner</h2>
+            <Table>
+              <tbody>
+                <tr>
+                  <TD as="th" narrow>
+                    Scanner ID
+                  </TD>
+                  <TD as="th">Ballot Count</TD>
+                  <TD as="th">View Tally</TD>
+                </tr>
+                {Object.keys(votesByScanner)
+                  .sort()
+                  .map((scannerId) => {
+                    const scannerBallotsCount =
+                      votesByScanner[scannerId]?.length
+                    return (
+                      <tr key={scannerId}>
+                        <TD narrow nowrap>
+                          {scannerId}
+                        </TD>
+                        <TD>{scannerBallotsCount}</TD>
+                        <TD>
+                          {!!scannerBallotsCount && (
+                            <LinkButton
+                              small
+                              to={routerPaths.tallyScannerReport({
+                                scannerId,
+                              })}
+                            >
+                              View {statusPrefix} Scanner {scannerId} Tally
+                              Report
+                            </LinkButton>
+                          )}
+                        </TD>
+                      </tr>
+                    )
+                  })}
+                <tr>
+                  <TD narrow nowrap>
+                    <strong>Total Ballot Count</strong>
+                  </TD>
+                  <TD>
+                    <strong>
+                      {Object.values(votesByPrecinct).reduce(
+                        (prev, curr) => prev + (curr ? curr.length : 0),
+                        0
+                      )}
+                    </strong>
+                  </TD>
+                  <TD>
+                    {/* <LinkButton
+                      disabled={!hasCastVoteRecordFiles}
+                      to={routerPaths.tallyFullReport}
+                    >
+                      View {statusPrefix} Full Election Tally
+                    </LinkButton> */}
                   </TD>
                 </tr>
               </tbody>

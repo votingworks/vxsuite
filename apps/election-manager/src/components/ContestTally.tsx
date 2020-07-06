@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Election, Candidate } from '@votingworks/ballot-encoder'
 
-import { ElectionTally } from '../config/types'
+import { Tally } from '../config/types'
 
 import Prose from './Prose'
 import Table, { TD } from './Table'
@@ -18,10 +18,10 @@ const Contest = styled.div`
 
 interface Props {
   election: Election
-  electionTally: ElectionTally
+  electionTally: Tally
 }
 
-const Tally = ({ election, electionTally }: Props) => {
+const ContestTally = ({ election, electionTally }: Props) => {
   const { precinctId } = electionTally
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
@@ -73,4 +73,4 @@ const Tally = ({ election, electionTally }: Props) => {
     </React.Fragment>
   )
 }
-export default Tally
+export default ContestTally
