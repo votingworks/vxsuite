@@ -202,3 +202,130 @@ test('parsing a valid election object succeeds', () => {
     expect(parsed).toEqual(election)
   }).not.toThrowError()
 })
+
+test('parsing validates district references', () => {
+  expect(() => {
+    parseElection({
+      ...election,
+      districts: election.districts.filter(({ id }) => id !== 'district-1'),
+    })
+  }).toThrowError(
+    "Ballot style '12' has district 'district-1', but no such district is defined. Districts defined: [district-2, district-3, 7]"
+  )
+})
+
+test('parsing validates precinct references', () => {
+  expect(() => {
+    parseElection({
+      ...election,
+      precincts: election.precincts.filter(({ id }) => id !== '23'),
+    })
+  }).toThrowError(
+    "Ballot style '12' has precinct '23', but no such precinct is defined. Precincts defined: [21, 20]"
+  )
+})
+
+test('parsing validates contest party references', () => {
+  const contest = election.contests.find(
+    ({ id }) => id === 'president'
+  ) as CandidateContest
+  const remainingContests = election.contests.filter((c) => contest !== c)
+
+  expect(() => {
+    parseElection({
+      ...election,
+      contests: [
+        {
+          ...contest,
+          partyId: 'not-a-party',
+        },
+        ...remainingContests,
+      ],
+    })
+  }).toThrowError(
+    "Contest 'president' has party 'not-a-party', but no such party is defined. Parties defined: [0, 1, 2, 3, 4, 5, 6, 7, 8]"
+  )
+})
+
+test('parsing validates candidate party references', () => {
+  const contest = election.contests.find(
+    ({ id }) => id === 'president'
+  ) as CandidateContest
+  const remainingContests = election.contests.filter((c) => contest !== c)
+
+  expect(() => {
+    parseElection({
+      ...election,
+      contests: [
+        {
+          ...contest,
+          candidates: [
+            ...contest.candidates.slice(1),
+            {
+              ...contest.candidates[0],
+              partyId: 'not-a-party',
+            },
+          ],
+        },
+        ...remainingContests,
+      ],
+    })
+  }).toThrowError(
+    "Candidate 'barchi-hallaren' in contest 'president' has party 'not-a-party', but no such party is defined. Parties defined: [0, 1, 2, 3, 4, 5, 6, 7, 8]"
+  )
+})
+
+test('validates uniqueness of district ids', () => {
+  expect(() => {
+    parseElection({
+      ...election,
+      districts: [...election.districts, ...election.districts],
+    })
+  }).toThrowError("Duplicate district 'district-1' found.")
+})
+
+test('validates uniqueness of precinct ids', () => {
+  expect(() => {
+    parseElection({
+      ...election,
+      precincts: [...election.precincts, ...election.precincts],
+    })
+  }).toThrowError("Duplicate precinct '23' found.")
+})
+
+test('validates uniqueness of contest ids', () => {
+  expect(() => {
+    parseElection({
+      ...election,
+      contests: [...election.contests, ...election.contests],
+    })
+  }).toThrowError("Duplicate contest 'president' found.")
+})
+
+test('validates uniqueness of party ids', () => {
+  expect(() => {
+    parseElection({
+      ...election,
+      parties: [...election.parties, ...election.parties],
+    })
+  }).toThrowError("Duplicate party '0' found.")
+})
+
+test('validates uniqueness of candidate ids within a contest', () => {
+  const contest = election.contests[0] as CandidateContest
+
+  expect(() => {
+    parseElection({
+      ...election,
+      contests: [
+        ...election.contests.slice(1),
+        {
+          ...contest,
+          candidates: [...contest.candidates, ...contest.candidates],
+        },
+      ],
+    })
+  }).toThrowError(
+    "Duplicate candidate 'barchi-hallaren' found in contest 'president'."
+  )
+})

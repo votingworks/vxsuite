@@ -386,6 +386,154 @@ function copyWithLocale<T>(value: T, locale: string): T {
 }
 
 // Parsing
+export class ElectionParseError extends Error {
+  public constructor(public readonly errors: ElectionDefinitionError[]) {
+    super(errors.map(({ message }) => message).join('\n'))
+  }
+}
+
 export function parseElection(object: unknown): Election {
-  return s.Election.parse(object)
+  const election = s.Election.parse(object)
+  const errors = [...findElectionDefinitionErrors(election)]
+
+  if (errors.length) {
+    throw new ElectionParseError(errors)
+  }
+
+  return election
+}
+
+export type ElectionDefinitionError = InvalidReference | DuplicateIdentifier
+
+export interface InvalidReference {
+  type: 'InvalidReference'
+  source: string
+  reference: string
+  message: string
+}
+
+export interface DuplicateIdentifier {
+  type: 'DuplicateIdentifier'
+  message: string
+}
+
+export function* findElectionDefinitionErrors(
+  election: Election
+): Generator<ElectionDefinitionError> {
+  for (const { id, districts, precincts } of election.ballotStyles) {
+    for (const [districtIndex, districtId] of districts.entries()) {
+      if (!election.districts.some(({ id }) => id === districtId)) {
+        yield {
+          type: 'InvalidReference',
+          source: `ballotStyles[id=${id}].districts[${districtIndex}]`,
+          reference: `districts[id=${districtId}]`,
+          message: `Ballot style '${id}' has district '${districtId}', but no such district is defined. Districts defined: [${election.districts
+            .map(({ id }) => id)
+            .join(', ')}].`,
+        }
+      }
+    }
+
+    for (const [precinctIndex, precinctId] of precincts.entries()) {
+      if (!election.precincts.some(({ id }) => id === precinctId)) {
+        yield {
+          type: 'InvalidReference',
+          source: `ballotStyles[id=${id}].precincts[${precinctIndex}]`,
+          reference: `districts[id=${precinctId}]`,
+          message: `Ballot style '${id}' has precinct '${precinctId}', but no such precinct is defined. Precincts defined: [${election.precincts
+            .map(({ id }) => id)
+            .join(', ')}].`,
+        }
+      }
+    }
+  }
+
+  for (const contest of election.contests) {
+    if (contest.type === 'candidate') {
+      if (
+        contest.partyId &&
+        !election.parties.some(({ id }) => id === contest.partyId)
+      ) {
+        yield {
+          type: 'InvalidReference',
+          source: `contests[id=${contest.id}].partyId`,
+          reference: `parties[id=${contest.partyId}]`,
+          message: `Contest '${contest.id}' has party '${
+            contest.partyId
+          }', but no such party is defined. Parties defined: [${election.parties
+            .map(({ id }) => id)
+            .join(', ')}].`,
+        }
+      }
+
+      for (const candidate of contest.candidates) {
+        if (
+          candidate.partyId &&
+          !election.parties.some(({ id }) => id === candidate.partyId)
+        ) {
+          yield {
+            type: 'InvalidReference',
+            source: `contests[id=${contest.id}].candidates[id=${candidate.id}].partyId`,
+            reference: `parties[id=${candidate.partyId}]`,
+            message: `Candidate '${candidate.id}' in contest '${
+              contest.id
+            }' has party '${
+              candidate.partyId
+            }', but no such party is defined. Parties defined: [${election.parties
+              .map(({ id }) => id)
+              .join(', ')}].`,
+          }
+        }
+      }
+
+      for (const id of findDuplicateIds(contest.candidates)) {
+        yield {
+          type: 'DuplicateIdentifier',
+          message: `Duplicate candidate '${id}' found in contest '${contest.id}'.`,
+        }
+      }
+    }
+  }
+
+  for (const id of findDuplicateIds(election.districts)) {
+    yield {
+      type: 'DuplicateIdentifier',
+      message: `Duplicate district '${id}' found.`,
+    }
+  }
+
+  for (const id of findDuplicateIds(election.precincts)) {
+    yield {
+      type: 'DuplicateIdentifier',
+      message: `Duplicate precinct '${id}' found.`,
+    }
+  }
+
+  for (const id of findDuplicateIds(election.contests)) {
+    yield {
+      type: 'DuplicateIdentifier',
+      message: `Duplicate contest '${id}' found.`,
+    }
+  }
+
+  for (const id of findDuplicateIds(election.parties)) {
+    yield {
+      type: 'DuplicateIdentifier',
+      message: `Duplicate party '${id}' found.`,
+    }
+  }
+}
+
+function* findDuplicateIds<Id, T extends { id: Id }>(
+  identifiables: Iterable<T>
+): Generator<Id> {
+  const knownIds = new Set<Id>()
+
+  for (const { id } of identifiables) {
+    if (knownIds.has(id)) {
+      yield id
+    } else {
+      knownIds.add(id)
+    }
+  }
 }
