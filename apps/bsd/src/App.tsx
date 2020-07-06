@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom'
 import fileDownload from 'js-file-download'
 import { Election, OptionalElection } from '@votingworks/ballot-encoder'
 
@@ -29,6 +29,7 @@ import BatchScreen from './screens/BatchScreen'
 import BallotScreen from './screens/BallotScreen'
 
 const App: React.FC = () => {
+  const history = useHistory()
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
   const [election, setElection] = useState<OptionalElection>()
   // used to hide batches while they're being deleted
@@ -80,10 +81,11 @@ const App: React.FC = () => {
     try {
       await patchConfig({ election: null })
       setElection(undefined)
+      history.replace('/')
     } catch (error) {
       console.log('failed unconfigureServer()', error) // eslint-disable-line no-console
     }
-  }, [setElection])
+  }, [history, setElection])
 
   const loadElectionFromCard = useCallback(async () => {
     const card = await fetchJSON<CardReadLongResponse>('/card/read_long')
@@ -149,21 +151,23 @@ const App: React.FC = () => {
 
   const zeroData = useCallback(async () => {
     try {
-      fetch('/scan/zero', {
+      await fetch('/scan/zero', {
         method: 'post',
       })
+      history.replace('/')
     } catch (error) {
       console.log('failed zeroData()', error) // eslint-disable-line no-console
     }
-  }, [])
+  }, [history])
 
   const toggleTestMode = useCallback(async () => {
     // eslint-disable-next-line no-restricted-globals, no-alert
     if (confirm('Toggling test mode will zero out your scans. Are you sure?')) {
       setTestMode(!isTestMode)
       await patchConfig({ testMode: !isTestMode })
+      history.replace('/')
     }
-  }, [isTestMode, setTestMode])
+  }, [history, isTestMode, setTestMode])
 
   const exportResults = useCallback(async () => {
     try {
