@@ -1,9 +1,12 @@
+import {
+  BallotStyle,
+  Contest,
+  Election,
+  Precinct,
+} from '@votingworks/ballot-encoder'
+import { BallotLocales } from '@votingworks/hmpb-interpreter'
 import 'fast-text-encoding'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'
-import { BallotStyle, Election, Precinct } from '@votingworks/ballot-encoder'
-
-// live/election-4e31cb1-precinct-oaklawn-branch-library-id-42-style-77.pdf
-const BALLOT_PDF_FILENAME_PATTERN = /^([^/]+)\/election-(?:\w+)-precinct-(?:.+)-id-([^-]+)-style-(.+).pdf$/
 
 export interface BallotPackage {
   election: Election
@@ -11,31 +14,32 @@ export interface BallotPackage {
 }
 
 export interface BallotPackageEntry {
-  live: Buffer
-  test: Buffer
-  ballotStyle: BallotStyle
-  precinct: Precinct
+  pdf: Buffer
+  ballotConfig: BallotConfig
 }
 
-type PartialBallotPackageEntry =
-  | {
-      live: Buffer
-      test?: Buffer
-      ballotStyle: BallotStyle
-      precinct: Precinct
-    }
-  | {
-      live?: Buffer
-      test: Buffer
-      ballotStyle: BallotStyle
-      precinct: Precinct
-    }
+export interface BallotPackageManifest {
+  ballots: readonly BallotConfig[]
+}
+
+export interface BallotStyleData {
+  ballotStyleId: BallotStyle['id']
+  contestIds: Contest['id'][]
+  precinctId: Precinct['id']
+}
+
+export interface BallotConfig extends BallotStyleData {
+  filename: string
+  locales: BallotLocales
+  isLiveMode: boolean
+}
 
 function readFile(file: File): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
 
     reader.onerror = () => {
+      /* istanbul ignore next */
       reject(reader.error)
     }
 
@@ -76,6 +80,7 @@ function getEntries(zipfile: ZipFile): Promise<Entry[]> {
         resolve(entries)
       })
       .on('error', (error) => {
+        /* istanbul ignore next */
         reject(error)
       })
       .readEntry()
@@ -85,10 +90,11 @@ function getEntries(zipfile: ZipFile): Promise<Entry[]> {
 async function readEntry(zipfile: ZipFile, entry: Entry): Promise<Buffer> {
   const stream = await new Promise<NodeJS.ReadableStream>((resolve, reject) => {
     zipfile.openReadStream(entry, (error, value) => {
-      if (error || !value) {
-        reject(error)
-      } else {
+      /* istanbul ignore else */
+      if (!error && value) {
         resolve(value)
+      } else {
+        reject(error)
       }
     })
   })
@@ -103,6 +109,7 @@ async function readEntry(zipfile: ZipFile, entry: Entry): Promise<Buffer> {
         resolve(Buffer.concat(chunks))
       })
       .on('error', (error) => {
+        /* istanbul ignore next */
         reject(error)
       })
   })
@@ -120,6 +127,9 @@ export async function readBallotPackage(file: File): Promise<BallotPackage> {
   const electionEntry = entries.find(
     (entry) => entry.fileName === 'election.json'
   )
+  const manifestEntry = entries.find(
+    (entry) => entry.fileName === 'manifest.json'
+  )
 
   if (!electionEntry) {
     throw new Error(
@@ -127,101 +137,35 @@ export async function readBallotPackage(file: File): Promise<BallotPackage> {
     )
   }
 
+  if (!manifestEntry) {
+    throw new Error(
+      `ballot package does not have a file called 'manifest.json': ${file.name} (size=${file.size})`
+    )
+  }
+
   const election: Election = await readJSONEntry(zipfile, electionEntry)
+  const manifest: BallotPackageManifest = await readJSONEntry(
+    zipfile,
+    manifestEntry
+  )
   const ballots: BallotPackageEntry[] = []
-  const partialBallots: PartialBallotPackageEntry[] = []
 
-  for (const entry of entries.filter(({ fileName }) =>
-    fileName.endsWith('.pdf')
-  )) {
-    const match = entry.fileName.match(BALLOT_PDF_FILENAME_PATTERN)
-
-    if (!match) {
-      throw new Error(
-        `ballot package is malformed: PDF file name does not follow the expected format: ${entry.fileName}`
-      )
-    }
-
-    const [, type, precinctId, ballotStyleId] = match
-
-    if (type !== 'live' && type !== 'test') {
-      throw new Error(
-        `ballot package is malformed: invalid ballot type '${type}' for ballot style id=${ballotStyleId} and precinct id=${precinctId} (${file.name})`
-      )
-    }
-
-    const ballotStyle = election.ballotStyles.find(
-      ({ id }) => id === ballotStyleId
-    )
-    const precinct = election.precincts.find(({ id }) => id === precinctId)
-
-    if (!ballotStyle) {
-      throw new Error(
-        `ballot package is malformed: election configuration is missing ballot style with id=${ballotStyleId} (${file.name})`
-      )
-    }
-
-    if (!precinct) {
-      throw new Error(
-        `ballot package is malformed: election configuration is missing precinct with id=${precinctId} (${file.name})`
-      )
-    }
-
-    const ballotPDF = await readEntry(zipfile, entry)
-    const partialBallotIndex = partialBallots.findIndex(
-      (b) => b.ballotStyle.id === ballotStyleId && b.precinct.id === precinctId
+  for (const entry of entries) {
+    const ballotConfig = manifest.ballots.find(
+      (b) => b.filename === entry.fileName
     )
 
-    if (partialBallotIndex >= 0) {
-      const partialBallot = partialBallots[partialBallotIndex]
-
-      switch (type) {
-        case 'live':
-          if (partialBallot.live) {
-            throw new Error(
-              `ballot package is malformed: duplicate live ballot found with ballot style id=${ballotStyleId} and precinct id=${precinctId} (${file.name})`
-            )
-          }
-          break
-
-        case 'test':
-          if (partialBallot.test) {
-            throw new Error(
-              `ballot package is malformed: duplicate test ballot found with ballot style id=${ballotStyleId} and precinct id=${precinctId} (${file.name})`
-            )
-          }
-          break
-
-        default:
-          // Already handled above when checking 'type'.
-          break
-      }
-
+    if (ballotConfig) {
       ballots.push({
-        ...partialBallot,
-        [type]: ballotPDF,
-      } as BallotPackageEntry)
-      partialBallots.splice(partialBallotIndex, 1)
-    } else if (type === 'live') {
-      partialBallots.push({
-        ballotStyle,
-        precinct,
-        live: ballotPDF,
-      })
-    } else if (type === 'test') {
-      partialBallots.push({
-        ballotStyle,
-        precinct,
-        test: ballotPDF,
+        ballotConfig,
+        pdf: await readEntry(zipfile, entry),
       })
     }
   }
 
-  if (partialBallots.length) {
+  if (ballots.length !== manifest.ballots.length) {
     throw new Error(
-      `ballot package is malformed: some ballots do not have both live and test types: ${partialBallots
-        .map((b) => `(${b.ballotStyle.id}, ${b.precinct.id})`)
-        .join(', ')}`
+      `ballot package is malformed; found ${ballots.length} file(s) matching entries in the manifest ('manifest.json'), but the manifest has ${manifest.ballots.length}. perhaps this ballot package is using a different version of the software?`
     )
   }
 
