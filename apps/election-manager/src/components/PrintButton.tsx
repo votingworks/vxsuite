@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import Button, { ButtonInterface } from './Button'
 import Modal from './Modal'
-import Prose from './Prose'
+import Loading from './Loading'
 
 interface PrintButtonProps extends ButtonInterface {
   title?: string
@@ -39,7 +39,7 @@ const PrintButton = ({
       isOpen={isPrinting}
       centerContent
       content={
-	<Prose>Printing....</Prose>
+	<Loading>Printing</Loading>
       }
     />
     </React.Fragment>
