@@ -299,7 +299,12 @@ const TallyScreen = () => {
                   <TD as="th">View Tally</TD>
                 </tr>
                 {Object.keys(votesByScanner)
-                  .sort()
+                  .sort((a, b) =>
+                    a.localeCompare(b, 'en', {
+                      numeric: true,
+                      ignorePunctuation: true,
+                    })
+                  )
                   .map((scannerId) => {
                     const scannerBallotsCount =
                       votesByScanner[scannerId]?.length
