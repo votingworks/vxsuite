@@ -4,38 +4,49 @@ import useInterval from 'use-interval'
 
 import Button from './Button'
 import Text from './Text'
-import { isPresent, isMounted, doMount, doUnmount, isAvailable } from '../lib/usbstick'
+import {
+  isPresent,
+  isMounted,
+  doMount,
+  doUnmount,
+  isAvailable,
+} from '../lib/usbstick'
 
 const USBController = () => {
   const available = isAvailable()
   const [present, setPresent] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  useInterval(() => {
-    (async () => {
-      const p = await isPresent()
-      setPresent(p)
-      if (p)
-	setMounted(await isMounted())
-    })()
-  }, available ? 1000 : null);  
-  
+  useInterval(
+    () => {
+      ;(async () => {
+        const p = await isPresent()
+        setPresent(p)
+        if (p) setMounted(await isMounted())
+      })()
+    },
+    available ? 1000 : false
+  )
+
   if (!available) {
-    return null
+    return null // eslint-disable-line no-restricted-syntax
   }
 
   if (!present) {
     return <Text>No USB</Text>
   }
-  
+
   return (
     <React.Fragment>
       {mounted ? (
-	<Button small onPress={doUnmount}>Eject USB</Button>
+        <Button small onPress={doUnmount}>
+          Eject USB
+        </Button>
       ) : (
-	<Button small onPress={doMount}>Mount USB</Button>
-      )
-    }
+        <Button small onPress={doMount}>
+          Mount USB
+        </Button>
+      )}
     </React.Fragment>
   )
 }

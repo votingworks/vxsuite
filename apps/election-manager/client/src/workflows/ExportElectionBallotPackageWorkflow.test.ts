@@ -1,5 +1,5 @@
-import * as workflow from './ExportElectionBallotPackageWorkflow'
 import { electionSample } from '@votingworks/ballot-encoder'
+import * as workflow from './ExportElectionBallotPackageWorkflow'
 import DownloadableArchive from '../utils/DownloadableArchive'
 
 test('initializes with an Election, hash, and locales', () => {

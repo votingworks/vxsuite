@@ -18,7 +18,6 @@ interface StyledButtonProps
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 
 export const buttonFocusStyle = css`
-  /* outline: rgb(77, 144, 254) dashed 0.25rem; */
   outline: none;
 `
 
@@ -46,7 +45,7 @@ const buttonStyles = css<StyledButtonProps>`
   font-size: ${({ big = false }) => (big ? '1.25rem' : '1rem')};
   touch-action: manipulation;
   &:focus {
-    ${buttonFocusStyle}
+    ${buttonFocusStyle} /* stylelint-disable-line value-keyword-case */
   }
   &:hover,
   &:active {
@@ -55,13 +54,13 @@ const buttonStyles = css<StyledButtonProps>`
 `
 
 export const DecoyButton = styled.div`
-  ${buttonStyles}/* stylelint-disable-line value-keyword-case */
+  ${buttonStyles} /* stylelint-disable-line value-keyword-case */
 `
 
 const StyledButton = styled('button').attrs((props: Attrs) => ({
   type: props.type ?? 'button',
 }))`
-  ${buttonStyles}/* stylelint-disable-line value-keyword-case */
+  ${buttonStyles} /* stylelint-disable-line value-keyword-case */
 `
 
 export interface Props extends StyledButtonProps {
@@ -127,7 +126,7 @@ export const SegmentedButton = styled.span`
 `
 
 export const LabelButton = styled.label`
-  ${buttonStyles}
+  ${buttonStyles} /* stylelint-disable-line value-keyword-case */
 `
 
 export default Button

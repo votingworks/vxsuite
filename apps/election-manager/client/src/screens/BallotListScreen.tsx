@@ -1,15 +1,15 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 
+import pluralize from 'pluralize'
 import AppContext from '../contexts/AppContext'
 
-import { routerPaths } from '../components/ElectionManager'
+import routerPaths from '../routerPaths'
 import Button, { SegmentedButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Table, { TD } from '../components/Table'
 import { NoWrap } from '../components/Text'
 import Prose from '../components/Prose'
-import pluralize from 'pluralize'
 import {
   getBallotStylesDataByStyle,
   getBallotStylesDataByPrecinct,
@@ -68,9 +68,9 @@ const BallotListScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {ballots.map((ballot) => {
+          {ballots.map(ballot => {
             const precinctName = election.precincts.find(
-              (p) => p.id === ballot.precinctId
+              p => p.id === ballot.precinctId
             )!.name
             return (
               <tr key={ballot.ballotStyleId + ballot.precinctId}>

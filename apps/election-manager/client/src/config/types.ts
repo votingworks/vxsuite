@@ -1,5 +1,3 @@
-import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
-
 import {
   OptionalElection,
   BallotStyle,
@@ -87,8 +85,6 @@ export type VotesByFunction = (value: {
 
 // Cast Vote Records
 
-export type SaveCastVoteRecordFiles = (value?: CastVoteRecordFiles) => void
-
 export interface CastVoteRecord extends Dictionary<string | string[]> {
   _precinctId: string
   _ballotId: string
@@ -103,6 +99,3 @@ export interface CastVoteRecordFile {
   readonly precinctIds: readonly string[]
 }
 export type CastVoteRecordFilesDictionary = Dictionary<CastVoteRecordFile>
-export type SetCastVoteRecordFilesFunction = React.Dispatch<
-  React.SetStateAction<CastVoteRecordFiles>
->

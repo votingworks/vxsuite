@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 
 import AppContext from '../contexts/AppContext'
 
-import { routerPaths } from './ElectionManager'
+import routerPaths from '../routerPaths'
 import Screen from './Screen'
 import Main, { MainChild } from './Main'
 import Navigation from './Navigation'
@@ -19,7 +19,7 @@ interface Props {
 const NavigationScreen = ({
   children,
   mainChildCenter = false,
-  mainChildFlex = false
+  mainChildFlex = false,
 }: Props) => {
   const location = useLocation()
   const isActiveSection = (path: string) =>
@@ -51,7 +51,9 @@ const NavigationScreen = ({
               >
                 Ballots
               </LinkButton>
-              <LinkButton small to={routerPaths.tally}
+              <LinkButton
+                small
+                to={routerPaths.tally}
                 className={isActiveSection(routerPaths.tally)}
               >
                 Tally

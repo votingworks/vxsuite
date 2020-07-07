@@ -13,7 +13,7 @@ import defaultElection from '../data/defaultElection.json'
 import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'
-import { routerPaths } from '../components/ElectionManager'
+import routerPaths from '../routerPaths'
 import FileInputButton from '../components/FileInputButton'
 import HorizontalRule from '../components/HorizontalRule'
 import Prose from '../components/Prose'
@@ -40,8 +40,8 @@ interface InputFile {
   file: File
 }
 
-const allFilesExist = (files: VxFile[]) => files.every((f) => !!f.path)
-const someFilesExist = (files: VxFile[]) => files.some((f) => !!f.path)
+const allFilesExist = (files: VxFile[]) => files.every(f => !!f.path)
+const someFilesExist = (files: VxFile[]) => files.some(f => !!f.path)
 
 const newElection = (defaultElection as unknown) as Election
 
@@ -64,7 +64,7 @@ const UnconfiguredScreen = () => {
     history.push(routerPaths.electionDefinition)
   }
 
-  const handleVxElectionFile: InputEventFunction = async (event) => {
+  const handleVxElectionFile: InputEventFunction = async event => {
     setIsUploading(true)
     const input = event.currentTarget
     const file = input.files && input.files[0]
@@ -149,7 +149,7 @@ const UnconfiguredScreen = () => {
     }
   }
 
-  const handleFileInput: InputEventFunction = async (event) => {
+  const handleFileInput: InputEventFunction = async event => {
     const input = event.currentTarget
     const file = input.files && input.files[0]
     const name = input.name

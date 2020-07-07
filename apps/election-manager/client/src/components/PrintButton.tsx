@@ -14,7 +14,7 @@ const PrintButton = ({
   ...rest
 }: React.PropsWithChildren<PrintButtonProps>) => {
   const [isPrinting, setIsPrinting] = useState(false)
-  
+
   const print = async () => {
     setIsPrinting(true)
     setTimeout(() => {
@@ -29,19 +29,17 @@ const PrintButton = ({
       document.title = documentTitle
     }
   }
-  
+
   return (
     <React.Fragment>
-    <Button onPress={print} {...rest}>
-    {children}
-    </Button>
-    <Modal
-      isOpen={isPrinting}
-      centerContent
-      content={
-	<Loading>Printing</Loading>
-      }
-    />
+      <Button onPress={print} {...rest}>
+        {children}
+      </Button>
+      <Modal
+        isOpen={isPrinting}
+        centerContent
+        content={<Loading>Printing</Loading>}
+      />
     </React.Fragment>
   )
 }

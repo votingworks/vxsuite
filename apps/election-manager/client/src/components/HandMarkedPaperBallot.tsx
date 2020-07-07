@@ -39,7 +39,9 @@ import HorizontalRule from './HorizontalRule'
 import { BallotLocale } from '../config/types'
 
 const localeDateLong = (dateString: string, locale: string) =>
-  moment(new Date(dateString)).locale(locale).format('LL')
+  moment(new Date(dateString))
+    .locale(locale)
+    .format('LL')
 
 const dualPhraseWithBreak = (t1: string, t2?: string) => {
   if (!t2 || t1 === t2) {
@@ -104,6 +106,34 @@ const dualLanguageComposer = (
   })
 }
 
+const ballotMetadata = ({
+  isLiveMode,
+  precinctId,
+  ballotStyleId,
+  pageNumber,
+  pageCount,
+  primaryLocaleCode,
+  secondaryLocaleCode,
+}: {
+  isLiveMode: boolean
+  precinctId: Precinct['id']
+  ballotStyleId: BallotStyle['id']
+  pageNumber: number
+  pageCount: number
+  primaryLocaleCode: string
+  secondaryLocaleCode: string
+}): string => {
+  const params = new URLSearchParams([
+    ['t', `${!isLiveMode ? 't' : '_'}`],
+    ['pr', precinctId],
+    ['bs', ballotStyleId],
+    ['l1', primaryLocaleCode],
+    ['l2', secondaryLocaleCode],
+    ['p', `${pageNumber}-${pageCount}`],
+  ])
+  return new URL(`https://ballot.page/?${params}`).toString()
+}
+
 const qrCodeTargetClassName = 'qr-code-target'
 
 interface PagedJSPage {
@@ -116,7 +146,7 @@ interface PagedJSPage {
 }
 class PagedQRCodeInjector extends Handler {
   afterRendered(pages: PagedJSPage[]) {
-    pages.forEach((page) => {
+    pages.forEach(page => {
       const { pageNumber } = page.element.dataset
       const qrCodeTarget = document
         .getElementById(page.id)
@@ -167,6 +197,7 @@ const Content = styled.div`
 const PageFooter = styled.div`
   display: flex;
   justify-content: flex-end;
+  /* stylelint-disable-next-line selector-class-pattern */
   .pagedjs_left_page & {
     margin-left: 0.66in;
   }
@@ -221,8 +252,6 @@ const PageFooterQRCode = styled.div`
 const BallotColumns = styled.div`
   columns: 3;
   column-gap: 1em;
-  /* column-fill: auto; */
-  /* height: 10in; */
 `
 const IntroColumn = styled.div`
   break-after: column;
@@ -249,9 +278,9 @@ const Instructions = styled.div`
   padding: 0.125in;
   img {
     float: right;
-    width: 45%;
     margin: 0.05in 0 0.05in 0.05in;
     background: #ffffff;
+    width: 45%;
   }
   h4 + p {
     margin-top: -1.3em;
@@ -275,40 +304,12 @@ const ColumnFooter = styled.div`
   page-break-inside: avoid;
 `
 const WriteInItem = styled.p`
+  margin: 0.5em 0 !important; /* stylelint-disable-line declaration-no-important */
   page-break-inside: avoid;
-  margin: 0.5em 0 !important;
   &:last-child {
-    margin-bottom: 0 !important;
+    margin-bottom: 0 !important; /* stylelint-disable-line declaration-no-important */
   }
 `
-
-const ballotMetadata = ({
-  isLiveMode,
-  precinctId,
-  ballotStyleId,
-  pageNumber,
-  pageCount,
-  primaryLocaleCode,
-  secondaryLocaleCode,
-}: {
-  isLiveMode: boolean
-  precinctId: Precinct['id']
-  ballotStyleId: BallotStyle['id']
-  pageNumber: number
-  pageCount: number
-  primaryLocaleCode: string
-  secondaryLocaleCode: string
-}): string => {
-  const params = new URLSearchParams([
-    ['t', `${!isLiveMode ? 't' : '_'}`],
-    ['pr', precinctId],
-    ['bs', ballotStyleId],
-    ['l1', primaryLocaleCode],
-    ['l2', secondaryLocaleCode],
-    ['p', `${pageNumber}-${pageCount}`],
-  ])
-  return new URL(`https://ballot.page/?${params}`).toString()
-}
 
 const CandidateContestChoices = ({
   contest,
@@ -322,14 +323,14 @@ const CandidateContestChoices = ({
   vote: CandidateVote
 }) => {
   const { t } = useTranslation()
-  const writeInCandidates = vote.filter((c) => c.isWriteIn)
+  const writeInCandidates = vote.filter(c => c.isWriteIn)
   const remainingChoices = [...Array(contest.seats - vote.length).keys()]
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   return (
     <React.Fragment>
-      {contest.candidates.map((candidate) => (
+      {contest.candidates.map(candidate => (
         <Text key={candidate.id} data-candidate>
-          <BubbleMark checked={vote.some((v) => v.id === candidate.id)}>
+          <BubbleMark checked={vote.some(v => v.id === candidate.id)}>
             <span>
               <strong data-candidate-name={candidate.name}>
                 {candidate.name}
@@ -344,7 +345,7 @@ const CandidateContestChoices = ({
           </BubbleMark>
         </Text>
       ))}
-      {writeInCandidates.map((candidate) => (
+      {writeInCandidates.map(candidate => (
         <Text key={candidate.name} bold noWrap>
           <BubbleMark checked>
             <span>
@@ -355,7 +356,7 @@ const CandidateContestChoices = ({
         </Text>
       ))}
       {contest.allowWriteIns &&
-        remainingChoices.map((k) => (
+        remainingChoices.map(k => (
           <WriteInItem key={k} data-write-in>
             <BubbleMark>
               <WriteInLine />
@@ -424,6 +425,9 @@ const HandMarkedPaperBallot = ({
     localeElection && getContests({ ballotStyle, election: localeElection })
   const precinct = getPrecinctById({ election, precinctId })!
 
+  // eslint-disable-next-line no-restricted-syntax
+  const ballotRef = useRef<HTMLDivElement>(null)
+
   useLayoutEffect(() => {
     const printBallot = printBallotRef?.current
 
@@ -470,9 +474,6 @@ const HandMarkedPaperBallot = ({
     votes,
   ])
 
-  // eslint-disable-next-line no-restricted-syntax
-  const ballotRef = useRef<HTMLDivElement>(null)
-
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   const dualLanguageWithBreak = dualLanguageComposer(t, locales, 'break')
 
@@ -501,9 +502,9 @@ const HandMarkedPaperBallot = ({
                     {dualLanguageWithBreak('Page')}
                   </Text>
                   <Text as="h2">
-                    <span className="page-number"></span>
+                    <span className="page-number" />
                     <span>/</span>
-                    <span className="total-pages"></span>
+                    <span className="total-pages" />
                   </Text>
                   <Text small left as="div">
                     {dualLanguageWithBreak('Pages')}
@@ -775,7 +776,7 @@ const HandMarkedPaperBallot = ({
                               {(localeContests[i] as YesNoContest).description}
                             </Text>
                           )}
-                          {['Yes', 'No'].map((answer) => (
+                          {['Yes', 'No'].map(answer => (
                             <Text key={answer} bold noWrap>
                               <BubbleMark
                                 checked={

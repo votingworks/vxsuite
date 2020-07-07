@@ -26,9 +26,9 @@ const ContestTally = ({ election, electionTally }: Props) => {
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
   const ballotStyles = precinctId
-    ? election.ballotStyles.filter((bs) => bs.precincts.includes(precinctId))
+    ? election.ballotStyles.filter(bs => bs.precincts.includes(precinctId))
     : []
-  const districts = ballotStyles.flatMap((bs) => bs.districts)
+  const districts = ballotStyles.flatMap(bs => bs.districts)
 
   return (
     <React.Fragment>
@@ -45,7 +45,7 @@ const ContestTally = ({ election, electionTally }: Props) => {
               </h3>
               <Table>
                 <tbody>
-                  {tallies.map((tally) => {
+                  {tallies.map(tally => {
                     const key = `${contest.id}-${
                       contest.type === 'candidate'
                         ? (tally.option as Candidate).id

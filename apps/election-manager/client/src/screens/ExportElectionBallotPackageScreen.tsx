@@ -90,7 +90,7 @@ const ExportElectionBallotPackageScreen = () => {
       locales,
       isLiveMode,
     })
-    const data = await kiosk!.printToPDF()
+    const data = await window.kiosk!.printToPDF()
     await state.archive.file(path, Buffer.from(data))
     setState(workflow.next)
   }, [election, electionHash, state])
@@ -192,8 +192,7 @@ const ExportElectionBallotPackageScreen = () => {
     }
   }
 
-  // @ts-ignore
-  return <NavigationScreen>Unknown State: {state.type}</NavigationScreen>
+  return <NavigationScreen>Unknown State: {state}</NavigationScreen>
 }
 
 export default ExportElectionBallotPackageScreen
