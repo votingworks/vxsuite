@@ -11,7 +11,7 @@ jobs:
             "client/package.json" }}
       - run:
           name: Setup Dependencies
-          command: yarn install --frozen-lockfile
+          command: yarn --cwd client install --frozen-lockfile
       - run:
           name: Setup Code Climate test-reporter
           command: |
@@ -20,15 +20,13 @@ jobs:
       - save_cache: # special step to save the dependency cache
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "package.json" }}
+            "client/package.json" }}
           paths:
             - ~/.cache
       - run: # run tests
           name: Run Front-End Test and Coverage
           command: |
-            ./cc-test-reporter before-build
-            yarn --cwd client test
-            ./cc-test-reporter after-build --exit-code $?
+            yarn --cwd client test:coverage
 
 workflows:
   version: 2
