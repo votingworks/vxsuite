@@ -88,7 +88,7 @@ function encodeBallotVotesInto(
     if (contestVote) {
       if (contest.type === 'yesno') {
         // yesno votes get a single bit
-        bits.writeBoolean(contestVote === 'yes')
+        bits.writeBoolean(contestVote === ['yes'])
       } else {
         const choices = contestVote as CandidateVote
 
@@ -218,7 +218,7 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   for (const contest of contestsWithAnswers) {
     if (contest.type === 'yesno') {
       // yesno votes get a single bit
-      votes[contest.id] = bits.readUint1() ? 'yes' : 'no'
+      votes[contest.id] = bits.readUint1() ? ['yes'] : ['no']
     } else {
       const contestVote: CandidateVote = []
 

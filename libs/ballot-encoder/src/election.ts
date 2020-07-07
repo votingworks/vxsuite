@@ -91,7 +91,7 @@ export type OptionalElection = Optional<Election>
 
 // Votes
 export type CandidateVote = Candidate[]
-export type YesNoVote = 'yes' | 'no'
+export type YesNoVote = ['yes'] | ['no'] | []
 export type OptionalYesNoVote = Optional<YesNoVote>
 export type Vote = CandidateVote | YesNoVote
 export type OptionalVote = Optional<Vote>

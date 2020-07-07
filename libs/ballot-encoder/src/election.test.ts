@@ -120,7 +120,7 @@ test('validates votes by checking that contests are present in a given ballot st
   const ballotStyle = election.ballotStyles[0]
 
   expect(() =>
-    validateVotes({ votes: { nope: 'yes' }, ballotStyle, election })
+    validateVotes({ votes: { nope: ['yes'] }, ballotStyle, election })
   ).toThrowError(
     'found a vote with contest id "nope", but no such contest exists in ballot style 12'
   )

@@ -102,9 +102,9 @@ function encodeYesNoVote(
   contestVote: YesNoVote
 ): string {
   switch (contestVote) {
-    case 'no':
+    case ['no']:
       return '0'
-    case 'yes':
+    case ['yes']:
       return '1'
     default:
       throw new Error(
@@ -218,9 +218,9 @@ function decodeYesNoVote(
 ): YesNoVote {
   switch (contestVote) {
     case '0':
-      return 'no'
+      return ['no']
     case '1':
-      return 'yes'
+      return ['yes']
     default:
       throw new Error(
         `cannot decode yesno vote in contest ${JSON.stringify(
