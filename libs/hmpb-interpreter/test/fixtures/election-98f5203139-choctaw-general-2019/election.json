@@ -10,71 +10,85 @@
     {
       "id": "2",
       "name": "Democrat",
+      "fullName": "Democrat",
       "abbrev": "D"
     },
     {
       "id": "3",
       "name": "Republican",
+      "fullName": "Republican",
       "abbrev": "R"
     },
     {
       "id": "4",
       "name": "Libertarian",
+      "fullName": "Libertarian",
       "abbrev": "L"
     },
     {
       "id": "5",
       "name": "Reform",
+      "fullName": "Reform",
       "abbrev": "REF"
     },
     {
       "id": "6",
       "name": "Natural Law",
+      "fullName": "Natural Law",
       "abbrev": "N"
     },
     {
       "id": "8",
       "name": "Constitution",
+      "fullName": "Constitution",
       "abbrev": "C"
     },
     {
       "id": "9",
       "name": "Green",
+      "fullName": "Green",
       "abbrev": "G"
     },
     {
       "id": "10",
       "name": "America First",
+      "fullName": "America First",
       "abbrev": "A"
     },
     {
       "id": "11",
       "name": "Independent",
+      "fullName": "Independent",
       "abbrev": "I"
     },
     {
       "id": "12",
       "name": "Nonpartisan",
+      "fullName": "Nonpartisan",
       "abbrev": "NP"
     },
     {
       "id": "575000001",
       "name": "Justice",
+      "fullName": "Justice",
       "abbrev": "JUS"
     },
     {
       "id": "575000002",
       "name": "Prohibition",
+      "fullName": "Prohibition",
       "abbrev": "PRO"
     },
     {
       "id": "575000003",
       "name": "American Delta",
+      "fullName": "American Delta",
       "abbrev": "ADP"
     },
     {
       "id": "575000004",
       "name": "Veterans",
+      "fullName": "Veterans",
       "abbrev": "VET"
     }
   ],

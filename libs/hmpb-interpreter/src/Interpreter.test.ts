@@ -647,7 +647,6 @@ test('interpret votes', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -662,7 +661,6 @@ test('interpret votes', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -670,7 +668,6 @@ test('interpret votes', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -827,7 +824,6 @@ test('invalid marks', async () => {
           "candidates": Array [
             Object {
               "id": "john-wiley-price",
-              "incumbent": true,
               "name": "John Wiley Price",
               "partyId": "2",
             },
@@ -851,7 +847,6 @@ test('invalid marks', async () => {
         },
         "option": Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -884,7 +879,6 @@ test('invalid marks', async () => {
           "candidates": Array [
             Object {
               "id": "john-wiley-price",
-              "incumbent": true,
               "name": "John Wiley Price",
               "partyId": "2",
             },
@@ -940,7 +934,6 @@ test('invalid marks', async () => {
           "candidates": Array [
             Object {
               "id": "john-wiley-price",
-              "incumbent": true,
               "name": "John Wiley Price",
               "partyId": "2",
             },
@@ -996,7 +989,6 @@ test('invalid marks', async () => {
           "candidates": Array [
             Object {
               "id": "john-wiley-price",
-              "incumbent": true,
               "name": "John Wiley Price",
               "partyId": "2",
             },
@@ -1052,7 +1044,6 @@ test('invalid marks', async () => {
           "candidates": Array [
             Object {
               "id": "john-wiley-price",
-              "incumbent": true,
               "name": "John Wiley Price",
               "partyId": "2",
             },
@@ -2059,7 +2050,6 @@ test('upside-down ballot', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -2074,7 +2064,6 @@ test('upside-down ballot', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -2082,7 +2071,6 @@ test('upside-down ballot', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },

@@ -5,36 +5,42 @@
     "id": "10",
     "name": "Dallas County"
   },
-  "date": "November 3, 2020",
+  "date": "2020-11-03T00:00:00-06:00",
   "parties": [
     {
       "id": "2",
       "name": "Democrat",
+      "fullName": "Democrat",
       "abbrev": "D"
     },
     {
       "id": "3",
       "name": "Republican",
+      "fullName": "Republican",
       "abbrev": "R"
     },
     {
       "id": "4",
       "name": "The Human Rights Party",
+      "fullName": "The Human Rights Party",
       "abbrev": "HR"
     },
     {
       "id": "5",
       "name": "People Over Politics Party",
+      "fullName": "People Over Politics Party",
       "abbrev": "POP"
     },
     {
       "id": "6",
       "name": "Independent",
+      "fullName": "Independent",
       "abbrev": "I"
     },
     {
       "id": "7",
       "name": "Libertarian Party",
+      "fullName": "Libertarian Party",
       "abbrev": "L"
     }
   ],
@@ -51,8 +57,7 @@
         {
           "id": "john-cornyn",
           "name": "John Cornyn",
-          "partyId": "3",
-          "incumbent": true
+          "partyId": "3"
         },
         {
           "id": "james-brumley",
@@ -93,8 +98,7 @@
         {
           "id": "eddie-bernice-johnson",
           "name": "Eddie Bernice Johnson",
-          "partyId": "2",
-          "incumbent": true
+          "partyId": "2"
         },
         {
           "id": "tre-pennie",
@@ -115,8 +119,7 @@
         {
           "id": "jane-bland",
           "name": "Jane Bland",
-          "partyId": "3",
-          "incumbent": true
+          "partyId": "3"
         },
         {
           "id": "kathy-cheng",
@@ -137,8 +140,7 @@
         {
           "id": "yvonne-davis",
           "name": "Yvonne Davis",
-          "partyId": "2",
-          "incumbent": true
+          "partyId": "2"
         }
       ]
     },
@@ -154,8 +156,7 @@
         {
           "id": "john-ames",
           "name": "John Ames",
-          "partyId": "2",
-          "incumbent": true
+          "partyId": "2"
         }
       ]
     },
@@ -171,8 +172,7 @@
         {
           "id": "marian-brown",
           "name": "Marian Brown",
-          "partyId": "2",
-          "incumbent": true
+          "partyId": "2"
         },
         {
           "id": "chad-prda",
@@ -193,8 +193,7 @@
         {
           "id": "john-wiley-price",
           "name": "John Wiley Price",
-          "partyId": "2",
-          "incumbent": true
+          "partyId": "2"
         },
         {
           "id": "s-t-russell",
