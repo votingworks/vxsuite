@@ -62,7 +62,7 @@ const generateTestDeckBallots = ({
       )
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
-        let oneBallot: VotesDict = {}
+        const oneBallot: VotesDict = {}
         contests.forEach((contest) => {
           if (contest.type === 'yesno') {
             oneBallot[contest.id] = ballotNum % 2 === 0 ? 'yes' : 'no'
