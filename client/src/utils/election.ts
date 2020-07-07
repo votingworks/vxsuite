@@ -124,5 +124,5 @@ export const getBallotPath = ({
     precinctName
   )}-id-${precinctId}-style-${ballotStyleId}-${getHumanBallotLanguageFormat(
     locales
-  )?.replace(/[^a-z]+/gi, '-')}.pdf`
+  ).replace(/[^a-z]+/gi, '-')}.pdf`
 }
