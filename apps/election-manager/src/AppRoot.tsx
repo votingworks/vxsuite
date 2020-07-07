@@ -34,7 +34,7 @@ export const cvrsStorageKey = 'cvrFiles'
 export const isOfficialResultsKey = 'isOfficialResults'
 
 const AppRoot = ({ storage }: Props) => {
-  const printBallotRef = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
+  const printBallotRef = useRef<HTMLDivElement>(null)
 
   const getElection = () => {
     const election = storage.get(electionStorageKey)

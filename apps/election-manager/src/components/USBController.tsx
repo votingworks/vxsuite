@@ -29,7 +29,7 @@ const USBController = () => {
   )
 
   if (!available) {
-    return null // eslint-disable-line no-restricted-syntax
+    return null
   }
 
   if (!present) {
