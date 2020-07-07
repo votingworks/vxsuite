@@ -777,7 +777,8 @@ const HandMarkedPaperBallot = ({
                             <Text key={answer} bold noWrap>
                               <BubbleMark
                                 checked={
-                                  votes[contest.id] === answer.toLowerCase()
+                                  votes[contest.id] &&
+                                  votes[contest.id]![0] === answer.toLowerCase()
                                 }
                               >
                                 <span>{dualLanguageWithSlash(answer)}</span>

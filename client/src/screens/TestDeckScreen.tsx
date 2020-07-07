@@ -4,9 +4,9 @@ import { useParams } from 'react-router-dom'
 import {
   CandidateContest,
   Election,
-  VotesDict,
   getPrecinctById,
   Precinct,
+  VotesDict,
 } from '@votingworks/ballot-encoder'
 import routerPaths from '../routerPaths'
 
@@ -65,7 +65,7 @@ const generateTestDeckBallots = ({
         const oneBallot: VotesDict = {}
         contests.forEach((contest) => {
           if (contest.type === 'yesno') {
-            oneBallot[contest.id] = ballotNum % 2 === 0 ? 'yes' : 'no'
+            oneBallot[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no']
           } else if (contest.candidates.length > 0) {
             oneBallot[contest.id] = [
               contest.candidates[ballotNum % contest.candidates.length],
@@ -155,6 +155,7 @@ const TestDeckScreen = () => {
                 <ContestTally
                   election={election}
                   electionTally={electionTallyForParty}
+                  contestTallyMeta={{}}
                 />
               </ElectionTallyReport>
             )

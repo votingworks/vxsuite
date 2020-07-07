@@ -2013,10 +2013,10 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@votingworks/ballot-encoder@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-1.4.0.tgz#e2e0c60b01f7f6f94cb5b91e3d3ef1720aaabc97"
-  integrity sha512-q1R1+MrpGyQmtfjubCnuuPQXXb5Bbn/BpQardKvtuiWH5j5ow5G4ssW3M+eInUUJcub+XXnQDc+FIapWxrSW1g==
+"@votingworks/ballot-encoder@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-2.0.0.tgz#89888cb34acf845c99f54c170ee276d0aa4d4109"
+  integrity sha512-htqT7y8YWzfBE1L/uj9ViX62M50g6FjhffeD/yHYv7ggFcMMDK35jMQUNs1ML67lgGee7ZO/q7aqkUN3nFdt1Q==
   dependencies:
     "@antongolub/iso8601" "^1.2.1"
     zod "^1.7.1"

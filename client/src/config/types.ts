@@ -7,8 +7,9 @@ import {
 import { Candidate, Contest, VotesDict } from '@votingworks/ballot-encoder'
 
 // Generic
+export declare type Optional<T> = T | undefined
 export interface Dictionary<T> {
-  [key: string]: T | undefined
+  [key: string]: Optional<T>
 }
 
 // Events
@@ -53,7 +54,11 @@ export interface ScannerReportScreenProps {
 }
 
 // Tallies
-export type ContestOption = Candidate | 'yes' | 'no'
+export interface YesNoContestOptionTally {
+  option: ['yes'] | ['no'] | []
+  tally: number
+}
+export type ContestOption = Candidate | ['yes'] | ['no'] | []
 export interface ContestOptionTally {
   option: ContestOption
   tally: number
@@ -62,6 +67,7 @@ export interface ContestOptionTally {
 export interface ContestTally {
   contest: Contest
   tallies: ContestOptionTally[]
+  ballotsCastWithContest: number
 }
 
 // TODO: separate into PrecinctTally and ScannerTally

@@ -16,6 +16,7 @@ import {
   VotesByFunction,
   Tally,
   ContestTally,
+  YesNoContestOptionTally,
 } from '../config/types'
 
 import find from '../utils/find'
@@ -128,7 +129,7 @@ export function tallyVotesByContest({
   election.contests.forEach((contest) => {
     let options: ContestOption[]
     if (contest.type === 'yesno') {
-      options = ['yes', 'no']
+      options = [['yes'], ['no']]
     } else {
       options = contest.candidates
     }
@@ -151,7 +152,14 @@ export function tallyVotesByContest({
 
       if (contest.type === 'yesno') {
         const optionTally = find(tallies, (optionTally) => {
-          return optionTally.option === selected
+          // console.log({
+          //   contest,
+          //   option: (optionTally as YesNoContestOptionTally).option[0],
+          //   selected: selected[0],
+          // })
+          return (
+            (optionTally as YesNoContestOptionTally).option[0] === selected[0]
+          )
         })
         optionTally.tally += 1
       } else {
@@ -166,7 +174,7 @@ export function tallyVotesByContest({
       }
     })
 
-    contestTallies.push({ contest, tallies })
+    contestTallies.push({ contest, tallies, ballotsCastWithContest: 1 })
   })
 
   return contestTallies
@@ -261,3 +269,47 @@ export function fullTallyVotes({
     },
   }
 }
+
+export interface ContestTallyMeta {
+  overvotes: number
+  undervotes: number
+  ballots: number
+}
+
+export const getContestTallyMeta = ({
+  election,
+  castVoteRecords,
+}: FullTallyParams) =>
+  election.contests.reduce<Dictionary<ContestTallyMeta>>(
+    (dictionary, contest) => {
+      const contestCVRs = castVoteRecords.filter(
+        (cvr) => cvr[contest.id] !== undefined
+      )
+      const contestVotes = contestCVRs.map((cvr) => cvr[contest.id])
+      const overvotes = contestVotes.filter((vote) => {
+        if (contest.type === 'yesno') {
+          return (vote as YesNoVote).length > 1
+        }
+        if (contest.type === 'candidate') {
+          return ((vote as unknown) as CandidateVote).length > contest.seats
+        }
+        return false
+      })
+      const undervotes = contestVotes.filter((vote) => {
+        if (contest.type === 'yesno') {
+          return (vote as YesNoVote).length === 0
+        }
+        if (contest.type === 'candidate') {
+          return ((vote as unknown) as CandidateVote).length < contest.seats
+        }
+        return false
+      })
+      dictionary[contest.id] = {
+        ballots: contestCVRs.length,
+        overvotes: overvotes.length,
+        undervotes: undervotes.length,
+      }
+      return dictionary
+    },
+    {}
+  )
