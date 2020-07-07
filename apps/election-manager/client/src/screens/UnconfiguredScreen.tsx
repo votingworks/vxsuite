@@ -152,7 +152,7 @@ const UnconfiguredScreen = () => {
   const handleFileInput: InputEventFunction = async event => {
     const input = event.currentTarget
     const file = input.files && input.files[0]
-    const name = input.name
+    const { name } = input
     if (file && name) {
       await submitFile({ file, name })
     }

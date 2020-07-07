@@ -23,7 +23,7 @@ const NavigationScreen = ({
 }: Props) => {
   const location = useLocation()
   const isActiveSection = (path: string) =>
-    new RegExp('^' + path).test(location.pathname) ? 'active-section' : ''
+    new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : ''
 
   const { election: e } = useContext(AppContext)
   const election = e!

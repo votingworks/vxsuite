@@ -66,12 +66,10 @@ const generateTestDeckBallots = ({
         contests.forEach((contest) => {
           if (contest.type === 'yesno') {
             oneBallot[contest.id] = ballotNum % 2 === 0 ? 'yes' : 'no'
-          } else {
-            if (contest.candidates.length > 0) {
-              oneBallot[contest.id] = [
-                contest.candidates[ballotNum % contest.candidates.length],
-              ]
-            }
+          } else if (contest.candidates.length > 0) {
+            oneBallot[contest.id] = [
+              contest.candidates[ballotNum % contest.candidates.length],
+            ]
           }
         })
         votes.push(oneBallot)

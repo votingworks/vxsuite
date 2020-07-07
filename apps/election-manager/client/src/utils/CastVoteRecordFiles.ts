@@ -68,9 +68,13 @@ function mapAdd<K, V>(
  */
 export default class CastVoteRecordFiles {
   private readonly signatures: Set<string>
+
   private readonly files: Set<CastVoteRecordFile>
+
   private readonly duplicateFilenames: Set<string>
+
   private readonly parseFailedFilenames: Set<string>
+
   private readonly allCastVoteRecords: Map<string, CastVoteRecord>
 
   /**
