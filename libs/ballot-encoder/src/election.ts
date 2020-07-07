@@ -319,6 +319,10 @@ export function vote(
   }, {})
 }
 
+export function isVotePresent(vote?: Vote): boolean {
+  return !!vote && vote.length > 0
+}
+
 /**
  * Helper function to get array of locale codes used in election definition.
  */

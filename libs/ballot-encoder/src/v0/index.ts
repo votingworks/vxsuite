@@ -17,6 +17,7 @@ import {
   VotesDict,
   YesNoContest,
   YesNoVote,
+  isVotePresent,
 } from '../election'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
@@ -84,7 +85,7 @@ function encodeBallotVotes(contests: Contests, votes: VotesDict): string {
   return contests
     .map((contest) => {
       const contestVote = votes[contest.id]
-      if (!contestVote) {
+      if (!isVotePresent(contestVote)) {
         return EmptyVoteValue
       }
 

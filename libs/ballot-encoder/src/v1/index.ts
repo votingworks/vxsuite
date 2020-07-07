@@ -11,6 +11,7 @@ import {
   validateVotes,
   VotesDict,
   YesNoVote,
+  isVotePresent,
 } from '../election'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
@@ -78,15 +79,14 @@ function encodeBallotVotesInto(
 ): BitWriter {
   // write roll call
   for (const contest of contests) {
-    const contestVote = votes[contest.id]
-    bits.writeUint1(contestVote ? 1 : 0)
+    bits.writeUint1(isVotePresent(votes[contest.id]) ? 1 : 0)
   }
 
   // write vote data
   for (const contest of contests) {
     const contestVote = votes[contest.id]
 
-    if (contestVote) {
+    if (isVotePresent(contestVote)) {
       if (contest.type === 'yesno') {
         const ynVote = contestVote as YesNoVote
 

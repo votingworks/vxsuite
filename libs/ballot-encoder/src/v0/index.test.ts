@@ -109,6 +109,7 @@ test('encodes & decodes yesno votes', () => {
   const votes = vote(contests, {
     [yesnos[0].id]: ['yes'],
     [yesnos[1].id]: ['no'],
+    [yesnos[2].id]: [],
   })
   const ballotId = 'abcde'
   const ballot = {
@@ -123,7 +124,9 @@ test('encodes & decodes yesno votes', () => {
   const encodedBallot = '12.23.||||||||||||1|0||||||.abcde'
 
   expect(encodeBallotAsString(ballot)).toEqual(encodedBallot)
-  expect(decodeBallotFromString(election, encodedBallot)).toEqual(ballot)
+  expect(
+    encodeBallotAsString(decodeBallotFromString(election, encodedBallot))
+  ).toEqual(encodedBallot)
 })
 
 test('encodes & decodes candidate votes', () => {
