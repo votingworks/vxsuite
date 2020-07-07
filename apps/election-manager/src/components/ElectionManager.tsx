@@ -1,7 +1,11 @@
 import React, { useContext } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
-import { BallotScreenProps, PrecinctReportScreenProps } from '../config/types'
+import {
+  BallotScreenProps,
+  PrecinctReportScreenProps,
+  ScannerReportScreenProps,
+} from '../config/types'
 
 import AppContext from '../contexts/AppContext'
 
@@ -27,8 +31,10 @@ export const routerPaths = {
   }: BallotScreenProps) =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${localeCode}`,
   tally: `/tally`,
-  tallyReport: ({ precinctId }: PrecinctReportScreenProps) =>
+  tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps) =>
     `/tally/precinct/${precinctId}`,
+  tallyScannerReport: ({ scannerId }: ScannerReportScreenProps) =>
+    `/tally/scanner/${scannerId}`,
   tallyFullReport: `/tally/full`,
   testDecksTally: '/tally/test-ballot-deck',
   testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps) =>
@@ -83,7 +89,15 @@ const ElectionManager = () => {
       </Route>
       <Route
         path={[
-          routerPaths.tallyReport({ precinctId: ':precinctId' }),
+          routerPaths.tallyPrecinctReport({ precinctId: ':precinctId' }),
+          routerPaths.tallyFullReport,
+        ]}
+      >
+        <TallyReportScreen />
+      </Route>
+      <Route
+        path={[
+          routerPaths.tallyScannerReport({ scannerId: ':scannerId' }),
           routerPaths.tallyFullReport,
         ]}
       >
