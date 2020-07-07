@@ -51,8 +51,12 @@ test('batch-1-20200504_210852-ballot-0001', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "yes",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -153,8 +157,12 @@ test('batch-1-20200504_210852-ballot-0003', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "yes",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -258,8 +266,12 @@ test('batch-1-20200504_210852-ballot-0005', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "no",
-      "dallas-county-retain-chief-justice": "yes",
+      "dallas-county-proposition-r": Array [
+        "no",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "yes",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -370,8 +382,12 @@ test('batch-1-20200504_210852-ballot-0007', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "no",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "no",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -477,8 +493,12 @@ test('batch-1-20200504_210852-ballot-0009', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "yes",
+      "dallas-county-proposition-r": Array [
+        "yes",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "yes",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "orville-white",
@@ -582,8 +602,12 @@ test('batch-1-20200504_210852-ballot-0011', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "yes",
+      "dallas-county-proposition-r": Array [
+        "yes",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "yes",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "orville-white",
@@ -694,8 +718,12 @@ test('batch-1-20200504_210852-ballot-0013', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "yes",
+      "dallas-county-proposition-r": Array [
+        "yes",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "yes",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -801,8 +829,12 @@ test('batch-1-20200504_210852-ballot-0015', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "yes",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -932,8 +964,12 @@ test('batch-1-20200504_210852-ballot-0019', async () => {
           "partyId": "2",
         },
       ],
-      "dallas-county-proposition-r": "no",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "no",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -1029,8 +1065,12 @@ test('batch-1-20200504_210852-ballot-0021', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "yes",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -1167,8 +1207,12 @@ test('batch-1-20200504_210852-ballot-0025', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "no",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "no",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -1274,8 +1318,12 @@ test('batch-1-20200504_210852-ballot-0027', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "yes",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "gregory-seldon",
@@ -1386,8 +1434,12 @@ test('batch-1-20200504_210852-ballot-0029', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "no",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "no",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "orville-white",
@@ -1491,8 +1543,12 @@ test('batch-1-20200504_210852-ballot-0031', async () => {
           "partyId": "3",
         },
       ],
-      "dallas-county-proposition-r": "yes",
-      "dallas-county-retain-chief-justice": "no",
+      "dallas-county-proposition-r": Array [
+        "yes",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "no",
+      ],
       "dallas-mayor": Array [
         Object {
           "id": "orville-white",

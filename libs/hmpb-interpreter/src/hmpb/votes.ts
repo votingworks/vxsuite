@@ -3,6 +3,7 @@ import {
   CandidateContest,
   VotesDict,
   YesNoContest,
+  YesNoVote,
 } from '@votingworks/ballot-encoder'
 import { inspect } from 'util'
 
@@ -26,7 +27,9 @@ export function addVote(
     contestVotes.push(candidateOrYesNo)
     votes[contest.id] = contestVotes
   } else if (contest.type === 'yesno' && typeof candidateOrYesNo === 'string') {
-    votes[contest.id] = candidateOrYesNo
+    const contestVotes = (votes[contest.id] ?? []) as ('yes' | 'no')[]
+    contestVotes.push(candidateOrYesNo)
+    votes[contest.id] = contestVotes as YesNoVote
   } else {
     throw new Error(
       `Invalid vote for '${contest.type}' contest type: ${inspect(

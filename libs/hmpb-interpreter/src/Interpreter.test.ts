@@ -1,11 +1,12 @@
 import {
   blankPage1,
   blankPage2,
+  election,
   filledInPage1,
   filledInPage2,
   partialBorderPage2,
-  election,
 } from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
+import * as hamilton from '../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
 import * as choctaw from '../test/fixtures/election-98f5203139-choctaw-general-2019'
 import Interpreter from './Interpreter'
 import { DetectQRCodeResult } from './types'
@@ -806,7 +807,9 @@ test('invalid marks', async () => {
           "partyId": "7",
         },
       ],
-      "dallas-county-proposition-r": "no",
+      "dallas-county-proposition-r": Array [
+        "no",
+      ],
     }
   `)
 
@@ -2140,6 +2143,110 @@ test('can interpret a template that is not in the same mode as the interpreter',
   ).toBe(false)
 })
 
+test('dual language ballot', async () => {
+  const interpreter = new Interpreter({ election: hamilton.election })
+
+  await interpreter.addTemplate(
+    await hamilton.blankPage1.imageData(),
+    await hamilton.blankPage1.metadata()
+  )
+
+  const { ballot } = await interpreter.interpretBallot(
+    await hamilton.filledInPage1.imageData()
+  )
+  expect(ballot.votes).toMatchInlineSnapshot(`
+    Object {
+      "president": Array [
+        Object {
+          "id": "barchi-hallaren",
+          "name": "Joseph Barchi and Joseph Hallaren",
+          "partyId": "0",
+        },
+      ],
+      "representative-district-6": Array [
+        Object {
+          "id": "schott",
+          "name": "Brad Schott",
+          "partyId": "2",
+        },
+      ],
+      "senator": Array [
+        Object {
+          "id": "brown",
+          "name": "David Brown",
+          "partyId": "6",
+        },
+      ],
+    }
+  `)
+})
+
+/**
+ * TODO: Enable this test when contest box identification improves.
+ *
+ * At the moment we look for contest boxes by finding contiguous dark pixels
+ * that are roughly the expected dimensions for a contest. Unfortunately, if
+ * someone draws lines connecting boxes then we can't distinguish them.
+ */
+test.skip('handles lines connecting contest boxes', async () => {
+  const interpreter = new Interpreter({ election: hamilton.election })
+
+  await interpreter.addTemplate(
+    await hamilton.blankPage1.imageData(),
+    await hamilton.blankPage1.metadata()
+  )
+  await interpreter.addTemplate(
+    await hamilton.blankPage2.imageData(),
+    await hamilton.blankPage2.metadata()
+  )
+  await interpreter.addTemplate(
+    await hamilton.blankPage3.imageData(),
+    await hamilton.blankPage3.metadata()
+  )
+
+  const { ballot } = await interpreter.interpretBallot(
+    await hamilton.filledInPage3.imageData()
+  )
+  expect(ballot.votes).toMatchInlineSnapshot()
+})
+
+test('yesno overvotes', async () => {
+  const interpreter = new Interpreter({ election: hamilton.election })
+
+  await interpreter.addTemplate(
+    await hamilton.blankPage1.imageData(),
+    await hamilton.blankPage1.metadata()
+  )
+  await interpreter.addTemplate(
+    await hamilton.blankPage2.imageData(),
+    await hamilton.blankPage2.metadata()
+  )
+  await interpreter.addTemplate(
+    await hamilton.blankPage3.imageData(),
+    await hamilton.blankPage3.metadata()
+  )
+  await interpreter.addTemplate(
+    await hamilton.blankPage4.imageData(),
+    await hamilton.blankPage4.metadata()
+  )
+  await interpreter.addTemplate(
+    await hamilton.blankPage5.imageData(),
+    await hamilton.blankPage5.metadata()
+  )
+
+  const { ballot } = await interpreter.interpretBallot(
+    await hamilton.filledInPage5YesNoOvervote.imageData()
+  )
+  expect(ballot.votes).toMatchInlineSnapshot(`
+    Object {
+      "proposition-1": Array [
+        "yes",
+        "no",
+      ],
+    }
+  `)
+})
+
 test('regression: page outline', async () => {
   const interpreter = new Interpreter(election)
 
@@ -2164,7 +2271,9 @@ test('regression: page outline', async () => {
           "partyId": "7",
         },
       ],
-      "dallas-county-proposition-r": "no",
+      "dallas-county-proposition-r": Array [
+        "no",
+      ],
     }
   `)
 })
