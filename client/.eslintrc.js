@@ -83,7 +83,24 @@ module.exports = {
     // ADDED RULES for election-manager
     //
     'react/require-default-props': 'off',
-    'react/prop-types': 'off',    
+    'react/prop-types': 'off',
+    //
+    // FIXME: address these new rules, part of eslint v6, required by this version of React.
+    'class-methods-use-this': 'off',
+    'no-shadow': 'off',
+    'no-param-reassign': 'off',
+    'no-nested-ternary': 'off',
+    'no-return-await': 'off',
+    'no-underscore-dangle': 'off',
+    'no-unused-expressions': 'off',
+    'consistent-return': 'off',
+    'no-multi-assign': 'off',
+    'guard-for-in': 'off',
+    'default-case': 'off',
+    'no-plusplus': 'off',
+    'no-await-in-loop': 'off',
+    'no-useless-constructor': 'off',
+    'no-return-assign': 'off',
     //
     //
     'react/jsx-filename-extension': [
