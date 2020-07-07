@@ -423,7 +423,6 @@ const HandMarkedPaperBallot = ({
     localeElection && getContests({ ballotStyle, election: localeElection })
   const precinct = getPrecinctById({ election, precinctId })!
 
-  // eslint-disable-next-line no-restricted-syntax
   const ballotRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
