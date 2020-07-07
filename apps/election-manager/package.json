@@ -58,10 +58,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "statements": 45,
-        "branches": 35,
-        "lines": 47,
-        "functions": 44
+        "statements": 44,
+        "branches": 34,
+        "lines": 44,
+        "functions": 42
       }
     }
   },
@@ -122,8 +122,8 @@
     "husky": "^4.2.1",
     "lint-staged": "^10.0.7",
     "prettier": "^2.0.5",
-    "sort-package-json": "^1.44.0",
     "react-test-renderer": "^16.13.1",
+    "sort-package-json": "^1.44.0",
     "stylelint": "^13.1.0",
     "stylelint-config-palantir": "^4.0.1",
     "stylelint-config-prettier": "^8.0.1",
