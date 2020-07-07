@@ -102,7 +102,7 @@ function encodeYesNoVote(
   contestVote: YesNoVote
 ): string {
   if (
-    !(contestVote instanceof Array) ||
+    !Array.isArray(contestVote) ||
     contestVote.length > 1 ||
     (contestVote.length === 1 && !['yes', 'no'].includes(contestVote[0]))
   ) {

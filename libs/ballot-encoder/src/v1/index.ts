@@ -90,7 +90,7 @@ function encodeBallotVotesInto(
       if (contest.type === 'yesno') {
         const ynVote = contestVote as YesNoVote
 
-        if (!(ynVote instanceof Array)) {
+        if (!Array.isArray(ynVote)) {
           throw new Error(
             `cannot encode a non-array yes/no vote: ${JSON.stringify(ynVote)}`
           )
