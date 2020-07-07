@@ -1,7 +1,6 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
-import { routerPaths } from '../components/ElectionManager'
 import {
   CandidateContest,
   Election,
@@ -9,6 +8,7 @@ import {
   getPrecinctById,
   Precinct,
 } from '@votingworks/ballot-encoder'
+import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
 
@@ -40,7 +40,7 @@ const generateTestDeckBallots = ({
     ? [precinctId]
     : election.precincts.map((p) => p.id)
 
-  let votes: VotesDict[] = []
+  const votes: VotesDict[] = []
 
   precincts.forEach((precinctId) => {
     const precinct = find(election.precincts, (p) => p.id === precinctId)

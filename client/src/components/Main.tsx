@@ -5,7 +5,7 @@ interface Props {
   noOverflow?: boolean
 }
 
-const Main = styled('main') <Props>`
+const Main = styled('main')<Props>`
   display: flex;
   flex-direction: column;
   overflow: ${({ noOverflow = false }) => (noOverflow ? undefined : 'auto')};
@@ -22,15 +22,15 @@ interface ChildProps {
   flexContainer?: boolean
 }
 
-export const MainChild = styled('div') <ChildProps>`
-  flex: ${({ flexContainer }) => flexContainer ? 1 : undefined};
-  display: ${({ flexContainer }) => flexContainer ? 'flex' : undefined};
+export const MainChild = styled('div')<ChildProps>`
+  display: ${({ flexContainer }) => (flexContainer ? 'flex' : undefined)};
+  flex: ${({ flexContainer }) => (flexContainer ? 1 : undefined)};
   flex-direction: inherit;
   margin: ${({
-  center = false,
-  centerVertical = center,
-  centerHorizontal = center,
-}) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
+    center = false,
+    centerVertical = center,
+    centerHorizontal = center,
+  }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
 `
 
 export default Main

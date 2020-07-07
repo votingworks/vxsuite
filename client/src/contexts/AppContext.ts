@@ -1,7 +1,9 @@
 import { createContext, RefObject } from 'react'
 import { OptionalElection } from '@votingworks/ballot-encoder'
-import { SaveElection, SaveCastVoteRecordFiles } from '../config/types'
-import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
+import { SaveElection } from '../config/types'
+import CastVoteRecordFiles, {
+  SaveCastVoteRecordFiles,
+} from '../utils/CastVoteRecordFiles'
 
 interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles

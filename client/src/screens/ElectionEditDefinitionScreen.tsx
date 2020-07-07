@@ -5,24 +5,24 @@ import fileDownload from 'js-file-download'
 
 import dashify from 'dashify'
 
+import { parseElection } from '@votingworks/ballot-encoder'
 import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'
 import Textarea from '../components/Textarea'
-import { routerPaths } from '../components/ElectionManager'
+import routerPaths from '../routerPaths'
 import ButtonBar from '../components/ButtonBar'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import NavigationScreen from '../components/NavigationScreen'
-import { parseElection } from '@votingworks/ballot-encoder'
 
 const Header = styled.div`
   margin-bottom: 1rem;
 `
 
 const FlexTextareaWrapper = styled.div`
-  flex: 1;
   display: flex;
+  flex: 1;
   & > textarea {
     flex: 1;
   }
@@ -32,7 +32,7 @@ const ElectionEditDefinitionScreen = () => {
   const history = useHistory()
   const { election: e, saveElection } = useContext(AppContext)
   const election = e!
-  const stringifiedElection = JSON.stringify(election, null, 2)
+  const stringifiedElection = JSON.stringify(election, null, 2) // eslint-disable-line no-restricted-syntax
   const [electionString, setElectionString] = useState(stringifiedElection)
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState('')
@@ -79,7 +79,7 @@ const ElectionEditDefinitionScreen = () => {
 
   const downloadElectionDefinition = () => {
     fileDownload(
-      JSON.stringify(election, null, 2),
+      JSON.stringify(election, null, 2), // eslint-disable-line no-restricted-syntax
       `${dashify(election.date)}-${dashify(election.county.name)}-${dashify(
         election.title
       )}-vx-election-definition.json`,

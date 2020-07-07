@@ -1,5 +1,13 @@
 // eslint-disable-next-line import/no-cycle
 import {
+  Party,
+  YesNoVote,
+  Candidate,
+  CandidateVote,
+  Election,
+  VotesDict,
+} from '@votingworks/ballot-encoder'
+import {
   ContestOption,
   ContestOptionTally,
   Dictionary,
@@ -10,14 +18,6 @@ import {
   Tally,
   ContestTally,
 } from '../config/types'
-import {
-  Party,
-  YesNoVote,
-  Candidate,
-  CandidateVote,
-  Election,
-  VotesDict,
-} from '@votingworks/ballot-encoder'
 
 import find from '../utils/find'
 
@@ -230,7 +230,7 @@ export function fullTallyVotes({
 
   let allVotes: VotesDict[] = []
 
-  for (let precinctId in votesByPrecinct) {
+  for (const precinctId in votesByPrecinct) {
     const votes = votesByPrecinct[precinctId]!
     precinctTallies[precinctId] = {
       precinctId,

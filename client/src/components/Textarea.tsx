@@ -5,13 +5,13 @@ interface Props {
 }
 
 const Textarea = styled.textarea<Props>`
+  border: 2px solid #333333;
   width: 100%;
   min-height: 400px;
-  resize: ${({ resize = true }) => (resize ? undefined : 'none')};
   padding: 0.25rem;
-  font-size: 1rem;
-  border: 2px solid #333333;
   font-family: monospace;
+  font-size: 1rem;
+  resize: ${({ resize = true }) => (resize ? undefined : 'none')};
 `
 
 export default Textarea

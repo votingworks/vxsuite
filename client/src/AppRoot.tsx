@@ -11,11 +11,13 @@ import {
 
 import AppContext from './contexts/AppContext'
 
-import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
+import CastVoteRecordFiles, {
+  SaveCastVoteRecordFiles,
+} from './utils/CastVoteRecordFiles'
 import { Storage } from './utils/Storage'
 
 import ElectionManager from './components/ElectionManager'
-import { SaveElection, SaveCastVoteRecordFiles } from './config/types'
+import { SaveElection } from './config/types'
 
 export interface AppStorage {
   election?: Election
@@ -32,7 +34,7 @@ export const cvrsStorageKey = 'cvrFiles'
 export const isOfficialResultsKey = 'isOfficialResults'
 
 const AppRoot = ({ storage }: Props) => {
-  const printBallotRef = useRef<HTMLDivElement>(null)
+  const printBallotRef = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
 
   const getElection = () => {
     const election = storage.get(electionStorageKey)
@@ -64,7 +66,7 @@ const AppRoot = ({ storage }: Props) => {
     storage.set(isOfficialResultsKey, true)
   }
 
-  const saveElection: SaveElection = (electionDefinition) => {
+  const saveElection: SaveElection = electionDefinition => {
     setElection(electionDefinition)
     setElectionHash(
       electionDefinition ? sha256(JSON.stringify(electionDefinition)) : ''

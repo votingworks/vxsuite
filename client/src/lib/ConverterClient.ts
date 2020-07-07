@@ -60,6 +60,6 @@ export default class ConverterClient {
   }
 
   public async reset(): Promise<void> {
-    await fetch(`/convert/reset`, { method: 'POST' })
+    await fetch('/convert/reset', { method: 'POST' })
   }
 }
