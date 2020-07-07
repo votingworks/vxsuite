@@ -6,12 +6,11 @@
 import express, { Application, RequestHandler } from 'express'
 import multer from 'multer'
 import * as path from 'path'
-
 import SystemImporter, { Importer } from './importer'
-import makeTemporaryBallotImportImageDirectories from './util/makeTemporaryBallotImportImageDirectories'
-import Store from './store'
 import { FujitsuScanner, Scanner } from './scanner'
-import { BallotMetadata } from './types'
+import Store from './store'
+import { BallotConfig } from './types'
+import makeTemporaryBallotImportImageDirectories from './util/makeTemporaryBallotImportImageDirectories'
 
 export interface AppOptions {
   store: Store
@@ -142,11 +141,16 @@ export function buildApp({ store, importer }: AppOptions): Application {
             return
           }
 
-          const metadata: BallotMetadata = JSON.parse(
+          const metadata: BallotConfig = JSON.parse(
             new TextDecoder().decode(metadataFile.buffer)
           )
 
-          await importer.addHmpbTemplates(ballotFile.buffer, metadata)
+          await importer.addHmpbTemplates(ballotFile.buffer, {
+            ballotStyleId: metadata.ballotStyleId,
+            precinctId: metadata.precinctId,
+            isTestBallot: !metadata.isLiveMode,
+            locales: metadata.locales,
+          })
         }
 
         response.json({ status: 'ok' })

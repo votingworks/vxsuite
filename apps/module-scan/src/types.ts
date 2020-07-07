@@ -1,9 +1,10 @@
-import { BallotStyle, Precinct } from '@votingworks/ballot-encoder'
+import { BallotStyle, Precinct, Contest } from '@votingworks/ballot-encoder'
 import {
   BallotMark,
   BallotPageLayout,
   BallotPageMetadata,
   BallotTargetMark,
+  BallotLocales,
 } from '@votingworks/hmpb-interpreter'
 import { MarkInfo } from './interpreter'
 
@@ -12,12 +13,14 @@ export interface Dictionary<T> {
 }
 
 export interface CastVoteRecord
-  extends Dictionary<string | string[] | boolean> {
+  extends Dictionary<string | string[] | boolean | number | BallotLocales> {
   _precinctId: string
   _ballotStyleId: string
   _ballotId: string
   _testBallot: boolean
   _scannerId: string
+  _pageNumber?: number
+  _locales?: BallotLocales
 }
 
 export interface BatchInfo {
@@ -67,11 +70,27 @@ export type SerializableBallotPageLayout = Omit<
   ballotImage: Omit<BallotPageLayout['ballotImage'], 'imageData'>
 }
 
+export interface BallotPackageManifest {
+  ballots: readonly BallotConfig[]
+}
+
+export interface BallotStyleData {
+  ballotStyleId: BallotStyle['id']
+  contestIds: Contest['id'][]
+  precinctId: Precinct['id']
+}
+
+export interface BallotConfig extends BallotStyleData {
+  filename: string
+  locales: BallotLocales
+  isLiveMode: boolean
+}
+
 export * from './types/ballot-review'
 
 export function isMarked(
   mark: BallotTargetMark,
-  { marginalMarkMin = 0.1, validMarkMin = 0.8 } = {}
+  { marginalMarkMin = 0.1, validMarkMin = 0.2 } = {}
 ): boolean | undefined {
   if (mark.score >= validMarkMin) {
     return true

@@ -91,8 +91,6 @@ export default class SystemImporter implements Importer {
         fs.mkdirSync(imagesPath)
       }
     }
-
-    this.setTestMode(false)
   }
 
   public async addHmpbTemplates(
@@ -201,20 +199,18 @@ export default class SystemImporter implements Importer {
    * Restore configuration from the store.
    */
   public async restoreConfig(): Promise<void> {
-    const election = await this.store.getElection()
     const testMode = await this.store.getTestMode()
+    debug('restoring test mode (%s)', testMode)
+    this.interpreter.setTestMode(testMode)
+
+    const election = await this.store.getElection()
     if (!election) {
-      debug('skipping restore because there is no stored election')
+      debug('skipping election restore because there is no stored election')
       return
     }
 
-    debug(
-      'restoring election (title=%s) and test mode (%s) config',
-      election.title,
-      testMode
-    )
+    debug('restoring election (%O)', election)
     await this.configure(election)
-    this.interpreter.setTestMode(testMode)
 
     for (const [pdf, layouts] of await this.store.getHmpbTemplates()) {
       debug('restoring ballot: %O', layouts)

@@ -1,7 +1,7 @@
 import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
 import { promises as fs } from 'fs'
 import * as tmp from 'tmp'
-import election from '../test/fixtures/hmpb-dallas-county/election'
+import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import Store from './store'
 
@@ -38,8 +38,8 @@ test('HMPB template handling', async () => {
     {
       ballotImage: {
         metadata: {
-          ballotStyleId: '12D',
-          precinctId: '99',
+          ballotStyleId: '12',
+          precinctId: '23',
           isTestBallot: false,
           pageNumber: 1,
           pageCount: 2,
@@ -50,8 +50,8 @@ test('HMPB template handling', async () => {
     {
       ballotImage: {
         metadata: {
-          ballotStyleId: '12D',
-          precinctId: '99',
+          ballotStyleId: '12',
+          precinctId: '23',
           isTestBallot: false,
           pageNumber: 2,
           pageCount: 2,
@@ -68,8 +68,8 @@ test('HMPB template handling', async () => {
         {
           ballotImage: {
             metadata: {
-              ballotStyleId: '12D',
-              precinctId: '99',
+              ballotStyleId: '12',
+              precinctId: '23',
               isTestBallot: false,
               pageNumber: 1,
               pageCount: 2,
@@ -80,8 +80,8 @@ test('HMPB template handling', async () => {
         {
           ballotImage: {
             metadata: {
-              ballotStyleId: '12D',
-              precinctId: '99',
+              ballotStyleId: '12',
+              precinctId: '23',
               isTestBallot: false,
               pageNumber: 2,
               pageCount: 2,
@@ -121,11 +121,12 @@ test('adjudication', async () => {
     {
       ballotImage: {
         metadata: {
-          ballotStyleId: '77',
-          precinctId: '42',
+          ballotStyleId: '12',
+          precinctId: '23',
           isTestBallot: false,
           pageNumber: 1,
           pageCount: 2,
+          locales: { primary: 'en-US' },
         },
       },
       contests: [
@@ -174,10 +175,12 @@ test('adjudication', async () => {
     '/a/ballot.jpg',
     {
       _ballotId: 'abcde',
-      _ballotStyleId: '77',
-      _precinctId: '42',
+      _ballotStyleId: '12',
+      _precinctId: '23',
       _scannerId: '123',
       _testBallot: false,
+      _pageNumber: 1,
+      _locales: { primary: 'en-US' },
     },
     {
       ballotSize: { width: 800, height: 1000 },
@@ -207,11 +210,12 @@ test('adjudication', async () => {
       ],
     },
     {
-      ballotStyleId: '77',
-      precinctId: '42',
+      ballotStyleId: '12',
+      precinctId: '23',
       isTestBallot: false,
       pageNumber: 1,
       pageCount: 2,
+      locales: { primary: 'en-US' },
     }
   )
   await store.finishBatch(batchId)
@@ -238,4 +242,55 @@ test('adjudication', async () => {
       },
     })
   )
+})
+
+test('getBatch with a batch that does not exist', async () => {
+  const store = await Store.memoryStore()
+
+  expect(await store.getBatch(999)).toEqual([])
+})
+
+test('getBatch with a batch that does exist', async () => {
+  const store = await Store.memoryStore()
+  await store.setElection(election)
+  const batchId = await store.addBatch()
+  await store.addCVR(
+    batchId,
+    '/a/ballot.jpg',
+    {
+      _ballotId: 'abcde',
+      _ballotStyleId: '12',
+      _precinctId: '23',
+      _scannerId: '123',
+      _testBallot: false,
+    },
+    {
+      ballotSize: { width: 800, height: 1000 },
+      marks: [],
+    }
+  )
+  await store.finishBatch(batchId)
+
+  expect(await store.getBatch(batchId)).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "cvr": Object {
+          "_ballotId": "abcde",
+          "_ballotStyleId": "12",
+          "_precinctId": "23",
+          "_scannerId": "123",
+          "_testBallot": false,
+        },
+        "filename": "/a/ballot.jpg",
+        "id": 1,
+        "marks": Object {
+          "ballotSize": Object {
+            "height": 1000,
+            "width": 800,
+          },
+          "marks": Array [],
+        },
+      },
+    ]
+  `)
 })
