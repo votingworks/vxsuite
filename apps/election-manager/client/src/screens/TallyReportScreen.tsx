@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { useParams, useHistory } from 'react-router-dom'
 import find from '../utils/find'
 
-import { fullTallyVotes } from '../lib/votecounting'
+import { fullTallyVotes, getContestTallyMeta } from '../lib/votecounting'
 
 import {
   PrecinctReportScreenProps,
@@ -48,6 +48,11 @@ const TallyReportScreen = () => {
   }
 
   const fullElectionTally = fullTallyVotes({
+    election,
+    castVoteRecords: castVoteRecordFiles.castVoteRecords,
+  })
+
+  const contestTallyMeta = getContestTallyMeta({
     election,
     castVoteRecords: castVoteRecordFiles.castVoteRecords,
   })
@@ -161,6 +166,7 @@ const TallyReportScreen = () => {
                   <ContestTally
                     election={election}
                     electionTally={precinctTally!}
+                    contestTallyMeta={contestTallyMeta}
                   />
                 </React.Fragment>
               )
@@ -188,6 +194,7 @@ const TallyReportScreen = () => {
                   <ContestTally
                     election={election}
                     electionTally={scannerTally!}
+                    contestTallyMeta={contestTallyMeta}
                   />
                 </React.Fragment>
               )
@@ -205,7 +212,11 @@ const TallyReportScreen = () => {
                 </Prose>
               </TallyHeader>
               <HorizontalRule />
-              <ContestTally election={election} electionTally={overallTally} />
+              <ContestTally
+                election={election}
+                electionTally={overallTally}
+                contestTallyMeta={contestTallyMeta}
+              />
             </React.Fragment>
           )
         })}
