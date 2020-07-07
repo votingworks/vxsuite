@@ -101,7 +101,11 @@ function encodeYesNoVote(
   _contest: YesNoContest,
   contestVote: YesNoVote
 ): string {
-  const err = (): void => {
+  if (
+    !(contestVote instanceof Array) ||
+    contestVote.length > 1 ||
+    (contestVote.length === 1 && !['yes', 'no'].includes(contestVote[0]))
+  ) {
     throw new Error(
       `cannot encode yesno vote, expected ['no'] or ['yes'] but got ${JSON.stringify(
         contestVote
@@ -109,18 +113,7 @@ function encodeYesNoVote(
     )
   }
 
-  if (!(contestVote instanceof Array) || contestVote.length > 1) {
-    return err()
-  }
-
-  switch (contestVote[0]) {
-    case 'no':
-      return '0'
-    case 'yes':
-      return '1'
-    default:
-      return err()
-  }
+  return contestVote[0] === 'yes' ? '1' : '0'
 }
 
 function encodeCandidateVote(

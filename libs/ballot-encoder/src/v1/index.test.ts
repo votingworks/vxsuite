@@ -232,6 +232,35 @@ it('encodes & decodes yesno votes correctly', () => {
   expect(decodeBallot(election, encodedBallot)).toEqual(ballot)
 })
 
+it('throws on trying to encode a bad yes/no vote', () => {
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts[0]
+  const ballotId = 'abcde'
+  const contests = getContests({ ballotStyle, election })
+  const votes = vote(contests, {
+    'judicial-robert-demergue': 'yes',
+  })
+  const ballot = {
+    election,
+    ballotId,
+    ballotStyle,
+    precinct,
+    votes,
+    isTestBallot: false,
+    ballotType: BallotType.Standard,
+  }
+
+  expect(() => encodeBallot(ballot)).toThrowError(
+    'cannot encode a non-array yes/no vote: "yes"'
+  )
+
+  // overvotes fail too.
+  ballot.votes['judicial-robert-demergue'] = ['yes', 'no']
+  expect(() => encodeBallot(ballot)).toThrowError(
+    'cannot encode a yes/no overvote: ["yes","no"]'
+  )
+})
+
 it('encodes & decodes candidate choice votes correctly', () => {
   const ballotStyle = election.ballotStyles[0]
   const precinct = election.precincts[0]
