@@ -1,11 +1,19 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election, Candidate } from '@votingworks/ballot-encoder'
+import { Election, Candidate, Dictionary } from '@votingworks/ballot-encoder'
+import pluralize from 'pluralize'
 
 import { Tally } from '../config/types'
 
 import Prose from './Prose'
+import Text from './Text'
 import Table, { TD } from './Table'
+import { ContestTallyMeta } from '../lib/votecounting'
+
+const ContestMeta = styled.div`
+  float: right;
+  margin-top: 0.5em;
+`
 
 const Contest = styled.div`
   margin: 1rem 0 2rem;
@@ -19,9 +27,10 @@ const Contest = styled.div`
 interface Props {
   election: Election
   electionTally: Tally
+  contestTallyMeta: Dictionary<ContestTallyMeta>
 }
 
-const ContestTally = ({ election, electionTally }: Props) => {
+const ContestTally = ({ election, electionTally, contestTallyMeta }: Props) => {
   const { precinctId } = electionTally
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
@@ -37,9 +46,23 @@ const ContestTally = ({ election, electionTally }: Props) => {
           ? districts.includes(contest.districtId)
           : true
 
+        const {
+          ballots,
+          overvotes,
+          undervotes,
+        }: ContestTallyMeta = contestTallyMeta[contest.id]!
         return (
           <Contest key={`div-${contest.id}`}>
             <Prose maxWidth={false}>
+              {ballots && (
+                <ContestMeta className="ignore-prose">
+                  <Text as="span" small>
+                    {pluralize('ballots', ballots, true)} cast /{' '}
+                    {pluralize('overvotes', overvotes, true)} /{' '}
+                    {pluralize('undervotes', undervotes, true)}
+                  </Text>
+                </ContestMeta>
+              )}
               <h3>
                 {contest.section}, {contest.title}
               </h3>
