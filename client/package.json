@@ -10,7 +10,8 @@
     "lint:fix": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --fix --report-unused-disable-directives --quiet && yarn stylelint:run --fix",
     "start": "react-scripts start",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
-    "test": "react-scripts test --env=jsdom-fourteen"
+    "test": "react-scripts test --env=jsdom-fourteen",
+    "test:coverage": "react-scripts test --coverage --watchAll=false --env=jsdom-fourteen"
   },
   "husky": {
     "hooks": {
@@ -46,6 +47,23 @@
   },
   "eslintConfig": {
     "extends": "react-app"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/config/*",
+      "!src/**/*.d.ts",
+      "!src/index.tsx",
+      "!src/serviceWorker.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 45,
+        "branches": 35,
+        "lines": 47,
+        "functions": 44
+      }
+    }
   },
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",

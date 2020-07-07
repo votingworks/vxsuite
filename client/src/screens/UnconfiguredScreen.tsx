@@ -135,7 +135,6 @@ const UnconfiguredScreen = () => {
       setInputConversionFiles(files.inputFiles)
       setIsLoading(false)
     } catch (error) {
-      console.log('failed updateStatus()', error) // eslint-disable-line no-console
       setIsLoading(false)
     }
   }, [client, getOutputFile, processInputFiles])
