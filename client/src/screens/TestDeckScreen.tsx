@@ -15,16 +15,16 @@ import AppContext from '../contexts/AppContext'
 import PrintButton from '../components/PrintButton'
 import ButtonList from '../components/ButtonList'
 import Prose from '../components/Prose'
-import Tally from '../components/Tally'
+import ContestTally from '../components/ContestTally'
 
-import { filterTalliesByParty, tallyVotes } from '../lib/votecounting'
+import { filterTalliesByParty, tallyVotesByContest } from '../lib/votecounting'
 import find from '../utils/find'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
-import { PrecinctReportScreenProps } from '../config/types'
+import { PrecinctReportScreenProps, Tally } from '../config/types'
 
 const ElectionTallyReport = styled.div`
-    page-break-before: always;
+  page-break-before: always;
 `
 
 interface GenerateTestDeckParams {
@@ -37,33 +37,33 @@ const generateTestDeckBallots = ({
   precinctId,
 }: GenerateTestDeckParams) => {
   const precincts: string[] = precinctId
-			    ? [precinctId]
-			    : election.precincts.map(p => p.id)
+    ? [precinctId]
+    : election.precincts.map((p) => p.id)
 
   let votes: VotesDict[] = []
 
-  precincts.forEach(precinctId => {
-    const precinct = find(election.precincts, p => p.id === precinctId)
-    const precinctBallotStyles = election.ballotStyles.filter(bs =>
+  precincts.forEach((precinctId) => {
+    const precinct = find(election.precincts, (p) => p.id === precinctId)
+    const precinctBallotStyles = election.ballotStyles.filter((bs) =>
       bs.precincts.includes(precinct.id)
     )
 
-    precinctBallotStyles.forEach(ballotStyle => {
+    precinctBallotStyles.forEach((ballotStyle) => {
       const contests = election.contests.filter(
-        c =>
+        (c) =>
           ballotStyle.districts.includes(c.districtId) &&
-           ballotStyle.partyId === c.partyId
+          ballotStyle.partyId === c.partyId
       )
 
       const numBallots = Math.max(
-        ...contests.map(c =>
+        ...contests.map((c) =>
           c.type === 'yesno' ? 2 : (c as CandidateContest).candidates.length
         )
       )
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
         let oneBallot: VotesDict = {}
-        contests.forEach(contest => {
+        contests.forEach((contest) => {
           if (contest.type === 'yesno') {
             oneBallot[contest.id] = ballotNum % 2 === 0 ? 'yes' : 'no'
           } else {
@@ -83,7 +83,8 @@ const generateTestDeckBallots = ({
 }
 
 const allPrecincts: Precinct = {
-  id: '', name: 'All Precincts'
+  id: '',
+  name: 'All Precincts',
 }
 
 const TestDeckScreen = () => {
@@ -92,15 +93,23 @@ const TestDeckScreen = () => {
   const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
   const precinctId = p.trim()
 
-  const precinct = precinctId === 'all'
-		 ? allPrecincts
-		 : getPrecinctById({ election, precinctId })
+  const precinct =
+    precinctId === 'all'
+      ? allPrecincts
+      : getPrecinctById({ election, precinctId })
 
   const votes = generateTestDeckBallots({ election, precinctId: precinct?.id })
-  const electionTally = tallyVotes({ election, precinctId: precinct?.id, votes })
+  const electionTally: Tally = {
+    precinctId: precinct?.id,
+    contestTallies: tallyVotesByContest({
+      election,
+      precinctId: precinct?.id,
+      votes,
+    }),
+  }
 
   const ballotStylePartyIds = Array.from(
-    new Set(election.ballotStyles.map(bs => bs.partyId))
+    new Set(election.ballotStyles.map((bs) => bs.partyId))
   )
 
   const pageTitle = 'Test Ballot Deck Tally'
@@ -109,7 +118,7 @@ const TestDeckScreen = () => {
     return (
       <React.Fragment>
         <NavigationScreen>
-          <Prose >
+          <Prose>
             <h1>{pageTitle}</h1>
             <p>
               <strong>Election:</strong> {election.title}
@@ -117,9 +126,7 @@ const TestDeckScreen = () => {
               <strong>Precinct:</strong> {precinct.name}
             </p>
             <p>
-              <PrintButton primary>
-                Print Results Report
-              </PrintButton>
+              <PrintButton primary>Print Results Report</PrintButton>
             </p>
             <p>
               <LinkButton small to={routerPaths.testDecksTally}>
@@ -129,16 +136,16 @@ const TestDeckScreen = () => {
           </Prose>
         </NavigationScreen>
         <div className="print-only">
-          {ballotStylePartyIds.map(partyId => {
-            const party = election.parties.find(p => p.id === partyId)
+          {ballotStylePartyIds.map((partyId) => {
+            const party = election.parties.find((p) => p.id === partyId)
             const electionTallyForParty = filterTalliesByParty({
               election,
               electionTally,
               party,
             })
-            const electionTitle = `${party ? party.name : ''} ${
+            const electionTitle = `${party ? party.fullName : ''} ${
               election.title
-              }`
+            }`
             return (
               <ElectionTallyReport key={partyId || 'no-party'}>
                 <h1>{pageTitle}</h1>
@@ -147,7 +154,7 @@ const TestDeckScreen = () => {
                   <br />
                   <strong>Precinct:</strong> {precinct.name}
                 </p>
-                <Tally
+                <ContestTally
                   election={election}
                   electionTally={electionTallyForParty}
                 />
@@ -165,7 +172,7 @@ const TestDeckScreen = () => {
         <h1>{pageTitle}</h1>
         <p>
           Select desired precinct for <strong>{election.title}</strong>.
-      </p>
+        </p>
       </Prose>
       <p>
         <LinkButton
@@ -176,7 +183,7 @@ const TestDeckScreen = () => {
         </LinkButton>
       </p>
       <ButtonList>
-        {election.precincts.map(p => (
+        {election.precincts.map((p) => (
           <LinkButton
             key={p.id}
             to={routerPaths.testDeckResultsReport({ precinctId: p.id })}

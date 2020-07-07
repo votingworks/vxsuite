@@ -4,6 +4,7 @@ import {
   OptionalElection,
   BallotStyle,
   Precinct,
+  Election,
 } from '@votingworks/ballot-encoder'
 import { Candidate, Contest, VotesDict } from '@votingworks/ballot-encoder'
 
@@ -49,6 +50,9 @@ export interface BallotScreenProps {
 export interface PrecinctReportScreenProps {
   precinctId: string
 }
+export interface ScannerReportScreenProps {
+  scannerId: string
+}
 
 // Tallies
 export type ContestOption = Candidate | 'yes' | 'no'
@@ -62,17 +66,24 @@ export interface ContestTally {
   tallies: ContestOptionTally[]
 }
 
-export interface ElectionTally {
-  precinctId: string | undefined
+// TODO: separate into PrecinctTally and ScannerTally
+export interface Tally {
+  precinctId?: string
+  scannerId?: string
   contestTallies: ContestTally[]
 }
 
 export interface FullElectionTally {
-  precinctTallies: Dictionary<ElectionTally>
-  overallTally: ElectionTally
+  scannerTallies: Dictionary<Tally>
+  precinctTallies: Dictionary<Tally>
+  overallTally: Tally
 }
 
-export type VotesByPrecinct = Dictionary<VotesDict[]>
+export type VotesByFilter = Dictionary<VotesDict[]>
+export type VotesByFunction = (value: {
+  election: Election
+  castVoteRecords: CastVoteRecord[]
+}) => VotesByFilter
 
 // Cast Vote Records
 
@@ -82,6 +93,8 @@ export interface CastVoteRecord extends Dictionary<string | string[]> {
   _precinctId: string
   _ballotId: string
   _ballotStyleId: string
+  _testBallot: string
+  _scannerId: string
 }
 
 export interface CastVoteRecordFile {
