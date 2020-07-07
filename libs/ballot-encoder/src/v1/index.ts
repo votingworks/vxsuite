@@ -10,6 +10,7 @@ import {
   getPrecinctById,
   validateVotes,
   VotesDict,
+  YesNoVote,
 } from '../election'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
@@ -87,8 +88,22 @@ function encodeBallotVotesInto(
 
     if (contestVote) {
       if (contest.type === 'yesno') {
+        const ynVote = contestVote as YesNoVote
+
+        if (!(ynVote instanceof Array)) {
+          throw new Error(
+            `cannot encode a non-array yes/no vote: ${JSON.stringify(ynVote)}`
+          )
+        }
+
+        if (ynVote.length > 1) {
+          throw new Error(
+            `cannot encode a yes/no overvote: ${JSON.stringify(ynVote)}`
+          )
+        }
+
         // yesno votes get a single bit
-        bits.writeBoolean(contestVote === ['yes'])
+        bits.writeBoolean(ynVote[0] === 'yes')
       } else {
         const choices = contestVote as CandidateVote
 

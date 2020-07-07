@@ -183,14 +183,14 @@ it('encodes & decodes yesno votes correctly', () => {
   const ballotId = 'abcde'
   const contests = getContests({ ballotStyle, election })
   const votes = vote(contests, {
-    'judicial-robert-demergue': 'yes',
-    'judicial-elmer-hull': 'yes',
-    'question-a': 'yes',
-    'question-b': 'no',
-    'question-c': 'yes',
-    'proposition-1': 'yes',
-    'measure-101': 'no',
-    '102': 'yes',
+    'judicial-robert-demergue': ['yes'],
+    'judicial-elmer-hull': ['yes'],
+    'question-a': ['yes'],
+    'question-b': ['no'],
+    'question-c': ['yes'],
+    'proposition-1': ['yes'],
+    'measure-101': ['no'],
+    '102': ['yes'],
   })
   const ballot = {
     election,

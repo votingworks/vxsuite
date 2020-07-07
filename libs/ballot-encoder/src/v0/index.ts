@@ -101,17 +101,25 @@ function encodeYesNoVote(
   _contest: YesNoContest,
   contestVote: YesNoVote
 ): string {
-  switch (contestVote) {
-    case ['no']:
+  const err = (): void => {
+    throw new Error(
+      `cannot encode yesno vote, expected ['no'] or ['yes'] but got ${JSON.stringify(
+        contestVote
+      )}`
+    )
+  }
+
+  if (!(contestVote instanceof Array) || contestVote.length > 1) {
+    return err()
+  }
+
+  switch (contestVote[0]) {
+    case 'no':
       return '0'
-    case ['yes']:
+    case 'yes':
       return '1'
     default:
-      throw new Error(
-        `cannot encode yesno vote, expected "no" or "yes" but got ${JSON.stringify(
-          contestVote
-        )}`
-      )
+      return err()
   }
 }
 
