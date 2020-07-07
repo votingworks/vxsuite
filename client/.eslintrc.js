@@ -40,13 +40,7 @@ module.exports = {
     project: './tsconfig.json',
     sourceType: 'module',
   },
-  plugins: [
-    '@typescript-eslint',
-    'jest',
-    'react',
-    'cypress',
-    'jsx-a11y',
-  ],
+  plugins: ['@typescript-eslint', 'jest', 'react', 'cypress', 'jsx-a11y'],
   settings: {
     react: {
       version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
@@ -62,9 +56,12 @@ module.exports = {
     },
   },
   rules: {
-    "jsx-a11y/label-has-associated-control": [2, {
-      "assert": "htmlFor",
-    }],
+    'jsx-a11y/label-has-associated-control': [
+      2,
+      {
+        assert: 'htmlFor',
+      },
+    ],
     camelcase: 'error',
     'import/no-extraneous-dependencies': [
       'error',
@@ -73,10 +70,13 @@ module.exports = {
       },
     ],
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
-    '@typescript-eslint/no-unused-vars': ['error', {
-      'vars': 'all'
-    }],
-    'quotes': ["error", "single", { "avoidEscape": true }],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+      },
+    ],
+    quotes: ['error', 'single', { avoidEscape: true }],
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],
     //
@@ -118,16 +118,23 @@ module.exports = {
       'error',
       {
         selector: 'Literal[value=null]',
-        message: '`null` is generally not what you want outside of React classes, use `undefined` instead'
-      }
+        message:
+          '`null` is generally not what you want outside of React classes, use `undefined` instead',
+      },
     ],
   },
   overrides: [
     {
       files: 'cypress/**/*',
       parserOptions: {
-        project: './cypress/tsconfig.json'
-      }
-    }
-  ]
+        project: './cypress/tsconfig.json',
+      },
+    },
+    {
+      files: '**/*.{jsx,tsx}',
+      rules: {
+        'no-restricted-syntax': 'off',
+      },
+    },
+  ],
 }

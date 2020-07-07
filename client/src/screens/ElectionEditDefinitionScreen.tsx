@@ -32,7 +32,7 @@ const ElectionEditDefinitionScreen = () => {
   const history = useHistory()
   const { election: e, saveElection } = useContext(AppContext)
   const election = e!
-  const stringifiedElection = JSON.stringify(election, null, 2) // eslint-disable-line no-restricted-syntax
+  const stringifiedElection = JSON.stringify(election, undefined, 2)
   const [electionString, setElectionString] = useState(stringifiedElection)
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState('')
@@ -79,7 +79,7 @@ const ElectionEditDefinitionScreen = () => {
 
   const downloadElectionDefinition = () => {
     fileDownload(
-      JSON.stringify(election, null, 2), // eslint-disable-line no-restricted-syntax
+      JSON.stringify(election, undefined, 2),
       `${dashify(election.date)}-${dashify(election.county.name)}-${dashify(
         election.title
       )}-vx-election-definition.json`,

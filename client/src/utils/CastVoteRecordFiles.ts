@@ -1,9 +1,7 @@
 import arrayUnique from 'array-unique'
 import { sha256 } from 'js-sha256'
-// eslint-disable-next-line import/no-cycle
 import { CastVoteRecord, CastVoteRecordFile } from '../config/types'
 import readFileAsync from '../lib/readFileAsync'
-// eslint-disable-next-line import/no-cycle
 import { parseCVRs } from '../lib/votecounting'
 
 /**
