@@ -7,6 +7,7 @@ import ZipStream from 'zip-stream'
  */
 export default class DownloadableArchive {
   private zip?: ZipStream
+
   private endPromise?: Promise<void>
 
   public constructor(private kiosk = window.kiosk!) {}
