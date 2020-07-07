@@ -9,7 +9,7 @@ const Container = styled.span`
   display: block;
   flex: 1;
   margin-top: 1em;
-  border-bottom: 1pt solid #000000;
+  border-bottom: 1pt solid #000000; /* stylelint-disable-line unit-blacklist */
 `
 
 const WriteInLine = ({ label }: Props) => (

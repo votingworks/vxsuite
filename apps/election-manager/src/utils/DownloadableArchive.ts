@@ -24,9 +24,9 @@ export default class DownloadableArchive {
     }
 
     let endResolve: () => void
-    this.endPromise = new Promise((resolve) => (endResolve = resolve))
+    this.endPromise = new Promise(resolve => (endResolve = resolve))
     this.zip = new ZipStream()
-      .on('data', (chunk) => fileWriter.write(chunk))
+      .on('data', chunk => fileWriter.write(chunk))
       .on('end', () => fileWriter.end().then(endResolve))
   }
 
@@ -44,7 +44,7 @@ export default class DownloadableArchive {
     }
 
     return new Promise((resolve, reject) => {
-      zip.entry(data, { name }, (err) => (err ? reject(err) : resolve()))
+      zip.entry(data, { name }, err => (err ? reject(err) : resolve()))
     })
   }
 

@@ -14,7 +14,7 @@ import FileInputButton from '../components/FileInputButton'
 import Text from '../components/Text'
 import Table, { TD } from '../components/Table'
 import NavigationScreen from '../components/NavigationScreen'
-import { routerPaths } from '../components/ElectionManager'
+import routerPaths from '../routerPaths'
 import LinkButton from '../components/LinkButton'
 import HorizontalRule from '../components/HorizontalRule'
 import Modal from '../components/Modal'
@@ -62,13 +62,13 @@ const TallyScreen = () => {
 
   const getPrecinctNames = (precinctIds: readonly string[]) =>
     precinctIds
-      .map((id) => election.precincts.find((p) => p.id === id)!.name)
+      .map(id => election.precincts.find(p => p.id === id)!.name)
       .join(', ')
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles = !!castVoteRecordFileList.length
 
-  const processCastVoteRecordFiles: InputEventFunction = async (event) => {
+  const processCastVoteRecordFiles: InputEventFunction = async event => {
     const input = event.currentTarget
     const files = Array.from(input.files || [])
     const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(files)
@@ -96,7 +96,7 @@ const TallyScreen = () => {
 
   const exportResults = async () => {
     const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
-      .map((c) => JSON.stringify(c))
+      .map(c => JSON.stringify(c))
       .join('\n')
 
     // process on the server
@@ -241,7 +241,7 @@ const TallyScreen = () => {
                       ignorePunctuation: true,
                     })
                   )
-                  .map((precinct) => {
+                  .map(precinct => {
                     const precinctBallotsCount =
                       votesByPrecinct?.[precinct.id]?.length ?? 0
                     return (

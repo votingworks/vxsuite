@@ -141,7 +141,7 @@ export default class CastVoteRecordFiles {
    * `files` to those contained by this `CastVoteRecordFiles` instance.
    */
   public async addAll(files: File[]): Promise<CastVoteRecordFiles> {
-    let result: CastVoteRecordFiles = this
+    let result: CastVoteRecordFiles = this // eslint-disable-line @typescript-eslint/no-this-alias
 
     for (const file of files) {
       result = await result.add(file)
@@ -171,7 +171,7 @@ export default class CastVoteRecordFiles {
 
       const fileCastVoteRecords = parseCVRs(fileContent)
       const precinctIds = arrayUnique(
-        fileCastVoteRecords.map((cvr) => cvr._precinctId)
+        fileCastVoteRecords.map(cvr => cvr._precinctId)
       )
 
       return new CastVoteRecordFiles(
@@ -185,7 +185,7 @@ export default class CastVoteRecordFiles {
         this.parseFailedFilenames,
         mapAdd(
           this.allCastVoteRecords,
-          (cvr) => cvr._ballotId,
+          cvr => cvr._ballotId,
           ...fileCastVoteRecords
         )
       )
@@ -228,3 +228,5 @@ export default class CastVoteRecordFiles {
     return [...this.allCastVoteRecords.values()]
   }
 }
+
+export type SaveCastVoteRecordFiles = (value?: CastVoteRecordFiles) => void

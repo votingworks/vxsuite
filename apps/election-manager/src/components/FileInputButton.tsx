@@ -17,7 +17,7 @@ const HiddenFileInput = styled.input`
   height: 0.1px;
   overflow: hidden;
   &:focus + label {
-    ${buttonFocusStyle}
+    ${buttonFocusStyle} /* stylelint-disable-line value-keyword-case */
   }
   &:hover + label,
   &:active + label {
@@ -45,7 +45,7 @@ const FileInputButton = ({
   onChange,
   ...rest
 }: Props) => {
-  const onBlur: InputEventFunction = (event) => {
+  const onBlur: InputEventFunction = event => {
     const input = event.currentTarget
     input!.blur()
   }
