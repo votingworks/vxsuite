@@ -66,7 +66,7 @@ const AppRoot = ({ storage }: Props) => {
     storage.set(isOfficialResultsKey, true)
   }
 
-  const saveElection: SaveElection = electionDefinition => {
+  const saveElection: SaveElection = (electionDefinition) => {
     setElection(electionDefinition)
     setElectionHash(
       electionDefinition ? sha256(JSON.stringify(electionDefinition)) : ''

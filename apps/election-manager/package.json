@@ -100,7 +100,7 @@
     "eslint-plugin-react-hooks": "^4.0.5",
     "husky": "^4.2.1",
     "lint-staged": "^10.0.7",
-    "prettier": "^1.19.1",
+    "prettier": "^2.0.5",
     "stylelint": "^13.1.0",
     "stylelint-config-palantir": "^4.0.1",
     "stylelint-config-prettier": "^8.0.1",

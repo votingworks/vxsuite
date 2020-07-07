@@ -11,7 +11,7 @@ export const getContests = ({
   election: Election
 }) =>
   election.contests.filter(
-    c =>
+    (c) =>
       ballotStyle.districts.includes(c.districtId) &&
       ballotStyle.partyId === c.partyId
   )
@@ -22,7 +22,7 @@ export const getPrecinctById = ({
 }: {
   election: Election
   precinctId: string
-}) => election.precincts.find(p => p.id === precinctId)
+}) => election.precincts.find((p) => p.id === precinctId)
 
 export const getBallotStyle = ({
   ballotStyleId,
@@ -30,7 +30,7 @@ export const getBallotStyle = ({
 }: {
   ballotStyleId: string
   election: Election
-}) => election.ballotStyles.find(bs => bs.id === ballotStyleId) as BallotStyle
+}) => election.ballotStyles.find((bs) => bs.id === ballotStyleId) as BallotStyle
 
 export const getPartyFullNameFromBallotStyle = ({
   ballotStyleId,
@@ -40,7 +40,7 @@ export const getPartyFullNameFromBallotStyle = ({
   election: Election
 }): string => {
   const { partyId } = getBallotStyle({ ballotStyleId, election })
-  const party = election.parties.find(p => p.id === partyId)
+  const party = election.parties.find((p) => p.id === partyId)
   return party?.fullName || ''
 }
 
@@ -57,12 +57,12 @@ const sortOptions = {
 
 export const getBallotStylesData = (election: Election) =>
   election.ballotStyles
-    .map(ballotStyle => ({
+    .map((ballotStyle) => ({
       ballotStyleId: ballotStyle.id,
       precinctIds: ballotStyle.precincts,
       contestIds: election.contests
-        .filter(c => ballotStyle.districts.includes(c.districtId))
-        .map(c => c.id),
+        .filter((c) => ballotStyle.districts.includes(c.districtId))
+        .map((c) => c.id),
     }))
     .sort((a, b) =>
       a.ballotStyleId.localeCompare(b.ballotStyleId, undefined, sortOptions)
@@ -72,7 +72,7 @@ export const getBallotStylesDataByStyle = (election: Election) =>
   getBallotStylesData(election).reduce<BallotStyleData[]>(
     (accumulator, currentValue) =>
       accumulator.concat(
-        currentValue.precinctIds.map(precinctId => ({
+        currentValue.precinctIds.map((precinctId) => ({
           ...currentValue,
           precinctId,
         }))
@@ -82,8 +82,8 @@ export const getBallotStylesDataByStyle = (election: Election) =>
 
 export const getBallotStylesDataByPrecinct = (election: Election) =>
   [...getBallotStylesDataByStyle(election)].sort((a, b) => {
-    const nameA = election.precincts.find(p => p.id === a.precinctId)!.name
-    const nameB = election.precincts.find(p => p.id === b.precinctId)!.name
+    const nameA = election.precincts.find((p) => p.id === a.precinctId)!.name
+    const nameB = election.precincts.find((p) => p.id === b.precinctId)!.name
     return nameA.localeCompare(nameB, undefined, sortOptions)
   })
 
