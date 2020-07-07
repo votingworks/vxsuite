@@ -40,8 +40,8 @@ interface InputFile {
   file: File
 }
 
-const allFilesExist = (files: VxFile[]) => files.every(f => !!f.path)
-const someFilesExist = (files: VxFile[]) => files.some(f => !!f.path)
+const allFilesExist = (files: VxFile[]) => files.every((f) => !!f.path)
+const someFilesExist = (files: VxFile[]) => files.some((f) => !!f.path)
 
 const newElection = (defaultElection as unknown) as Election
 
@@ -64,7 +64,7 @@ const UnconfiguredScreen = () => {
     history.push(routerPaths.electionDefinition)
   }
 
-  const handleVxElectionFile: InputEventFunction = async event => {
+  const handleVxElectionFile: InputEventFunction = async (event) => {
     setIsUploading(true)
     const input = event.currentTarget
     const file = input.files && input.files[0]
@@ -149,7 +149,7 @@ const UnconfiguredScreen = () => {
     }
   }
 
-  const handleFileInput: InputEventFunction = async event => {
+  const handleFileInput: InputEventFunction = async (event) => {
     const input = event.currentTarget
     const file = input.files && input.files[0]
     const { name } = input

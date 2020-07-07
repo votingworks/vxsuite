@@ -175,7 +175,7 @@ export default class CastVoteRecordFiles {
 
       const fileCastVoteRecords = parseCVRs(fileContent)
       const precinctIds = arrayUnique(
-        fileCastVoteRecords.map(cvr => cvr._precinctId)
+        fileCastVoteRecords.map((cvr) => cvr._precinctId)
       )
 
       return new CastVoteRecordFiles(
@@ -189,7 +189,7 @@ export default class CastVoteRecordFiles {
         this.parseFailedFilenames,
         mapAdd(
           this.allCastVoteRecords,
-          cvr => cvr._ballotId,
+          (cvr) => cvr._ballotId,
           ...fileCastVoteRecords
         )
       )

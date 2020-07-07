@@ -39,9 +39,7 @@ import HorizontalRule from './HorizontalRule'
 import { BallotLocale } from '../config/types'
 
 const localeDateLong = (dateString: string, locale: string) =>
-  moment(new Date(dateString))
-    .locale(locale)
-    .format('LL')
+  moment(new Date(dateString)).locale(locale).format('LL')
 
 const dualPhraseWithBreak = (t1: string, t2?: string) => {
   if (!t2 || t1 === t2) {
@@ -146,7 +144,7 @@ interface PagedJSPage {
 }
 class PagedQRCodeInjector extends Handler {
   afterRendered(pages: PagedJSPage[]) {
-    pages.forEach(page => {
+    pages.forEach((page) => {
       const { pageNumber } = page.element.dataset
       const qrCodeTarget = document
         .getElementById(page.id)
@@ -323,14 +321,14 @@ const CandidateContestChoices = ({
   vote: CandidateVote
 }) => {
   const { t } = useTranslation()
-  const writeInCandidates = vote.filter(c => c.isWriteIn)
+  const writeInCandidates = vote.filter((c) => c.isWriteIn)
   const remainingChoices = [...Array(contest.seats - vote.length).keys()]
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   return (
     <React.Fragment>
-      {contest.candidates.map(candidate => (
+      {contest.candidates.map((candidate) => (
         <Text key={candidate.id} data-candidate>
-          <BubbleMark checked={vote.some(v => v.id === candidate.id)}>
+          <BubbleMark checked={vote.some((v) => v.id === candidate.id)}>
             <span>
               <strong data-candidate-name={candidate.name}>
                 {candidate.name}
@@ -345,7 +343,7 @@ const CandidateContestChoices = ({
           </BubbleMark>
         </Text>
       ))}
-      {writeInCandidates.map(candidate => (
+      {writeInCandidates.map((candidate) => (
         <Text key={candidate.name} bold noWrap>
           <BubbleMark checked>
             <span>
@@ -356,7 +354,7 @@ const CandidateContestChoices = ({
         </Text>
       ))}
       {contest.allowWriteIns &&
-        remainingChoices.map(k => (
+        remainingChoices.map((k) => (
           <WriteInItem key={k} data-write-in>
             <BubbleMark>
               <WriteInLine />
@@ -776,7 +774,7 @@ const HandMarkedPaperBallot = ({
                               {(localeContests[i] as YesNoContest).description}
                             </Text>
                           )}
-                          {['Yes', 'No'].map(answer => (
+                          {['Yes', 'No'].map((answer) => (
                             <Text key={answer} bold noWrap>
                               <BubbleMark
                                 checked={

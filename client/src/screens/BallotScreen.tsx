@@ -41,7 +41,7 @@ const BallotScreen = () => {
   const ballotContests = getContests({ ballotStyle, election })
 
   const [isLiveMode, setIsLiveMode] = useState(true)
-  const toggleLiveMode = () => setIsLiveMode(m => !m)
+  const toggleLiveMode = () => setIsLiveMode((m) => !m)
   const changeLocale = (localeCode: string) =>
     history.replace(
       localeCode === DEFAULT_LOCALE
@@ -79,7 +79,7 @@ const BallotScreen = () => {
           </SegmentedButton>{' '}
           {availableLocaleCodes.length > 1 && (
             <SegmentedButton>
-              {availableLocaleCodes.map(localeCode => (
+              {availableLocaleCodes.map((localeCode) => (
                 <Button
                   disabled={
                     currentLocaleCode
@@ -117,12 +117,12 @@ const BallotScreen = () => {
           <strong>Ballot style {ballotStyle.id}</strong> has the following{' '}
           <strong>{pluralize('contest', ballotContests.length, true)}</strong>.
         </p>
-        {ballotContests.map(contest => (
+        {ballotContests.map((contest) => (
           <React.Fragment key={contest.id}>
             <h3>{contest.title}</h3>
             {contest.type === 'candidate' ? (
               <ul>
-                {contest.candidates.map(candidate => (
+                {contest.candidates.map((candidate) => (
                   <li key={candidate.id}>{candidate.name}</li>
                 ))}
               </ul>

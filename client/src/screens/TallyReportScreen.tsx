@@ -59,11 +59,11 @@ const TallyReportScreen = () => {
   const electionScannerTallies = Object.values(fullElectionTally.scannerTallies)
 
   const ballotStylePartyIds = Array.from(
-    new Set(election.ballotStyles.map(bs => bs.partyId))
+    new Set(election.ballotStyles.map((bs) => bs.partyId))
   )
 
   const precinctName =
-    precinctId && find(election.precincts, p => p.id === precinctId).name
+    precinctId && find(election.precincts, (p) => p.id === precinctId).name
 
   const electionDate = localeWeedkayAndDate.format(new Date(election.date))
   const generatedAt = localeLongDateAndTime.format(new Date())
@@ -105,12 +105,12 @@ const TallyReportScreen = () => {
         </Prose>
       </NavigationScreen>
       <div className="print-only">
-        {ballotStylePartyIds.map(partyId => {
+        {ballotStylePartyIds.map((partyId) => {
           let precinctTallies = electionPrecinctTallies
           let scannerTallies = electionScannerTallies
           let overallTally = fullElectionTally.overallTally
 
-          const party = election.parties.find(p => p.id === partyId)
+          const party = election.parties.find((p) => p.id === partyId)
           const electionTitle = party
             ? `${party.fullName} ${election.title}`
             : election.title
@@ -121,7 +121,7 @@ const TallyReportScreen = () => {
               electionTally: fullElectionTally.overallTally,
               party,
             })
-            precinctTallies = electionPrecinctTallies.map(precinctTally =>
+            precinctTallies = electionPrecinctTallies.map((precinctTally) =>
               filterTalliesByParty({
                 election,
                 electionTally: precinctTally!,
