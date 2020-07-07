@@ -240,7 +240,7 @@ export function fullTallyVotes({
     }
     allVotes = [...allVotes, ...votes]
   }
-  for (let scannerId in votesByScanner) {
+  for (const scannerId in votesByScanner) {
     const votes = votesByScanner[scannerId]!
     scannerTallies[scannerId] = {
       scannerId,

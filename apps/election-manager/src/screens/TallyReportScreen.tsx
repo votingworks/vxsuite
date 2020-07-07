@@ -108,7 +108,7 @@ const TallyReportScreen = () => {
         {ballotStylePartyIds.map((partyId) => {
           let precinctTallies = electionPrecinctTallies
           let scannerTallies = electionScannerTallies
-          let overallTally = fullElectionTally.overallTally
+          let { overallTally } = fullElectionTally
 
           const party = election.parties.find((p) => p.id === partyId)
           const electionTitle = party
