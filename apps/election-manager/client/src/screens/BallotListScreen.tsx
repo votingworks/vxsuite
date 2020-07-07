@@ -68,9 +68,9 @@ const BallotListScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {ballots.map(ballot => {
+          {ballots.map((ballot) => {
             const precinctName = election.precincts.find(
-              p => p.id === ballot.precinctId
+              (p) => p.id === ballot.precinctId
             )!.name
             return (
               <tr key={ballot.ballotStyleId + ballot.precinctId}>

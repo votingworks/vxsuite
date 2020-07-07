@@ -15,7 +15,7 @@ const App = ({ storage = new LocalStorage<AppStorage>() }) => (
   <BrowserRouter>
     <Route
       path="/"
-      render={props => <AppRoot storage={storage} {...props} />}
+      render={(props) => <AppRoot storage={storage} {...props} />}
     />
   </BrowserRouter>
 )
