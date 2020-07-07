@@ -1,4 +1,4 @@
-import { Candidate, Election } from '@votingworks/ballot-encoder'
+import { Candidate, Election, parseElection } from '@votingworks/ballot-encoder'
 import chalk from 'chalk'
 import { promises as fs } from 'fs'
 import { table } from 'table'
@@ -82,7 +82,9 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
           )
         }
 
-        election = JSON.parse(await fs.readFile(electionJSONFile, 'utf8'))
+        election = parseElection(
+          JSON.parse(await fs.readFile(electionJSONFile, 'utf8'))
+        )
         break
       }
 

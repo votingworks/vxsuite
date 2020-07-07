@@ -79,7 +79,6 @@ test('batch-1-20200504_210852-ballot-0002', async () => {
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -99,7 +98,6 @@ test('batch-1-20200504_210852-ballot-0002', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -114,7 +112,6 @@ test('batch-1-20200504_210852-ballot-0002', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -122,7 +119,6 @@ test('batch-1-20200504_210852-ballot-0002', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -185,7 +181,6 @@ test('batch-1-20200504_210852-ballot-0004', async () => {
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -198,7 +193,6 @@ test('batch-1-20200504_210852-ballot-0004', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -206,7 +200,6 @@ test('batch-1-20200504_210852-ballot-0004', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -221,7 +214,6 @@ test('batch-1-20200504_210852-ballot-0004', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -294,7 +286,6 @@ test('batch-1-20200504_210852-ballot-0006', async () => {
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -314,7 +305,6 @@ test('batch-1-20200504_210852-ballot-0006', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -322,7 +312,6 @@ test('batch-1-20200504_210852-ballot-0006', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -330,7 +319,6 @@ test('batch-1-20200504_210852-ballot-0006', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -338,7 +326,6 @@ test('batch-1-20200504_210852-ballot-0006', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -430,7 +417,6 @@ test('batch-1-20200504_210852-ballot-0008', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -438,7 +424,6 @@ test('batch-1-20200504_210852-ballot-0008', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -453,7 +438,6 @@ test('batch-1-20200504_210852-ballot-0008', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -521,7 +505,6 @@ test('batch-1-20200504_210852-ballot-0010', async () => {
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -541,7 +524,6 @@ test('batch-1-20200504_210852-ballot-0010', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -549,7 +531,6 @@ test('batch-1-20200504_210852-ballot-0010', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -557,7 +538,6 @@ test('batch-1-20200504_210852-ballot-0010', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -630,7 +610,6 @@ test('batch-1-20200504_210852-ballot-0012', async () => {
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -650,7 +629,6 @@ test('batch-1-20200504_210852-ballot-0012', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -658,7 +636,6 @@ test('batch-1-20200504_210852-ballot-0012', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -666,7 +643,6 @@ test('batch-1-20200504_210852-ballot-0012', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -681,7 +657,6 @@ test('batch-1-20200504_210852-ballot-0012', async () => {
       "us-senate": Array [
         Object {
           "id": "john-cornyn",
-          "incumbent": true,
           "name": "John Cornyn",
           "partyId": "3",
         },
@@ -761,7 +736,6 @@ test('batch-1-20200504_210852-ballot-0014', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -855,7 +829,6 @@ test('batch-1-20200504_210852-ballot-0016', async () => {
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -875,7 +848,6 @@ test('batch-1-20200504_210852-ballot-0016', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -883,7 +855,6 @@ test('batch-1-20200504_210852-ballot-0016', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -891,7 +862,6 @@ test('batch-1-20200504_210852-ballot-0016', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -899,7 +869,6 @@ test('batch-1-20200504_210852-ballot-0016', async () => {
       "us-senate": Array [
         Object {
           "id": "john-cornyn",
-          "incumbent": true,
           "name": "John Cornyn",
           "partyId": "3",
         },
@@ -1005,7 +974,6 @@ test('batch-1-20200504_210852-ballot-0020', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -1013,7 +981,6 @@ test('batch-1-20200504_210852-ballot-0020', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -1021,7 +988,6 @@ test('batch-1-20200504_210852-ballot-0020', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -1091,7 +1057,6 @@ test('batch-1-20200504_210852-ballot-0022', async () => {
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -1111,7 +1076,6 @@ test('batch-1-20200504_210852-ballot-0022', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -1119,7 +1083,6 @@ test('batch-1-20200504_210852-ballot-0022', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -1127,7 +1090,6 @@ test('batch-1-20200504_210852-ballot-0022', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -1135,7 +1097,6 @@ test('batch-1-20200504_210852-ballot-0022', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -1143,7 +1104,6 @@ test('batch-1-20200504_210852-ballot-0022', async () => {
       "us-senate": Array [
         Object {
           "id": "john-cornyn",
-          "incumbent": true,
           "name": "John Cornyn",
           "partyId": "3",
         },
@@ -1249,7 +1209,6 @@ test('batch-1-20200504_210852-ballot-0026', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -1257,7 +1216,6 @@ test('batch-1-20200504_210852-ballot-0026', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -1265,7 +1223,6 @@ test('batch-1-20200504_210852-ballot-0026', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -1273,7 +1230,6 @@ test('batch-1-20200504_210852-ballot-0026', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -1281,7 +1237,6 @@ test('batch-1-20200504_210852-ballot-0026', async () => {
       "us-senate": Array [
         Object {
           "id": "john-cornyn",
-          "incumbent": true,
           "name": "John Cornyn",
           "partyId": "3",
         },
@@ -1366,7 +1321,6 @@ test('batch-1-20200504_210852-ballot-0028', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -1374,7 +1328,6 @@ test('batch-1-20200504_210852-ballot-0028', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -1382,7 +1335,6 @@ test('batch-1-20200504_210852-ballot-0028', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -1462,7 +1414,6 @@ test('batch-1-20200504_210852-ballot-0030', async () => {
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -1475,7 +1426,6 @@ test('batch-1-20200504_210852-ballot-0030', async () => {
       "dallas-county-sheriff": Array [
         Object {
           "id": "marian-brown",
-          "incumbent": true,
           "name": "Marian Brown",
           "partyId": "2",
         },
@@ -1483,7 +1433,6 @@ test('batch-1-20200504_210852-ballot-0030', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -1491,7 +1440,6 @@ test('batch-1-20200504_210852-ballot-0030', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -1499,7 +1447,6 @@ test('batch-1-20200504_210852-ballot-0030', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -1507,7 +1454,6 @@ test('batch-1-20200504_210852-ballot-0030', async () => {
       "us-senate": Array [
         Object {
           "id": "john-cornyn",
-          "incumbent": true,
           "name": "John Cornyn",
           "partyId": "3",
         },
@@ -1573,7 +1519,6 @@ test('batch-1-20200504_210852-ballot-0032', async () => {
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "john-wiley-price",
-          "incumbent": true,
           "name": "John Wiley Price",
           "partyId": "2",
         },
@@ -1586,7 +1531,6 @@ test('batch-1-20200504_210852-ballot-0032', async () => {
       "dallas-county-sheriff": Array [
         Object {
           "id": "marian-brown",
-          "incumbent": true,
           "name": "Marian Brown",
           "partyId": "2",
         },
@@ -1594,7 +1538,6 @@ test('batch-1-20200504_210852-ballot-0032', async () => {
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
-          "incumbent": true,
           "name": "John Ames",
           "partyId": "2",
         },
@@ -1602,7 +1545,6 @@ test('batch-1-20200504_210852-ballot-0032', async () => {
       "texas-house-district-111": Array [
         Object {
           "id": "yvonne-davis",
-          "incumbent": true,
           "name": "Yvonne Davis",
           "partyId": "2",
         },
@@ -1610,7 +1552,6 @@ test('batch-1-20200504_210852-ballot-0032', async () => {
       "texas-sc-judge-place-6": Array [
         Object {
           "id": "jane-bland",
-          "incumbent": true,
           "name": "Jane Bland",
           "partyId": "3",
         },
@@ -1618,7 +1559,6 @@ test('batch-1-20200504_210852-ballot-0032', async () => {
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
-          "incumbent": true,
           "name": "Eddie Bernice Johnson",
           "partyId": "2",
         },
@@ -1626,7 +1566,6 @@ test('batch-1-20200504_210852-ballot-0032', async () => {
       "us-senate": Array [
         Object {
           "id": "john-cornyn",
-          "incumbent": true,
           "name": "John Cornyn",
           "partyId": "3",
         },
