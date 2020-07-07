@@ -133,7 +133,7 @@
       "fullName": "Democratic Party",
       "abbrev": "D",
       "_lang": {
-        "es": {
+        "es-US": {
           "name": "Demócrata",
           "fullName": "Partido Democrático",
           "abbrev": "D"
@@ -146,7 +146,7 @@
       "fullName": "Republican Party",
       "abbrev": "R",
       "_lang": {
-        "es": {
+        "es-US": {
           "name": "Republicano",
           "fullName": "Partido Republicano",
           "abbrev": "R"
