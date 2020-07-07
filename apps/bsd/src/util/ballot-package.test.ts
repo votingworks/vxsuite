@@ -2,27 +2,32 @@ import { electionSample } from '@votingworks/ballot-encoder'
 import { promises as fs } from 'fs'
 import { join } from 'path'
 import { zipFile } from '../../test/util/zip'
-import { readBallotPackage } from './ballot-package'
+import { readBallotPackage, BallotPackageManifest } from './ballot-package'
 
 test('readBallotPackage finds all expected ballots', async () => {
   const file = new File(
     [
       await fs.readFile(
-        join(__dirname, '../../test/fixtures/ballot-package-dallas-county.zip')
+        join(
+          __dirname,
+          '../../test/fixtures/ballot-package-state-of-hamilton.zip'
+        )
       ),
     ],
-    'ballot-package-dallas-county.zip'
+    'ballot-package-state-of-hamilton.zip'
   )
   const { ballots, election } = await readBallotPackage(file)
+  const ballotStyleIds = election.ballotStyles.map(({ id }) => id)
+  const precinctIds = election.precincts.map(({ id }) => id)
   expect(election.title).toEqual('General Election')
-  expect(election.state).toEqual('State of Texas')
-  expect(ballots.length).toEqual(1)
+  expect(election.state).toEqual('State of Hamilton')
+  expect(ballots.length).toEqual(16)
 
-  const [ballot] = ballots
-  expect(ballot.ballotStyle.id).toEqual('77')
-  expect(ballot.precinct.id).toEqual('42')
-  expect(ballot.live).toBeInstanceOf(Buffer)
-  expect(ballot.test).toBeInstanceOf(Buffer)
+  for (const { ballotConfig, pdf } of ballots) {
+    expect(ballotStyleIds).toContain(ballotConfig.ballotStyleId)
+    expect(precinctIds).toContain(ballotConfig.precinctId)
+    expect(pdf).toBeInstanceOf(Buffer)
+  }
 })
 
 test('readBallotPackage throws when an election.json is not present', async () => {
@@ -30,81 +35,54 @@ test('readBallotPackage throws when an election.json is not present', async () =
   await expect(
     readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
-    `ballot package does not have a file called 'election.json': election-ballot-package.zip (size=22)`
+    `ballot package does not have a file called 'election.json': election-ballot-package.zip`
   )
 })
 
-test('readBallotPackage throws when a PDF not matching the file pattern is found', async () => {
+test('readBallotPackage throws when an manifest.json is not present', async () => {
   const pkg = await zipFile({
     'election.json': JSON.stringify(electionSample),
-    'unexpected.pdf': Buffer.of(),
   })
   await expect(
     readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
-    'ballot package is malformed: PDF file name does not follow the expected format: unexpected.pdf'
+    `ballot package does not have a file called 'manifest.json': election-ballot-package.zip`
   )
 })
 
-test('readBallotPackage throws when a live ballot is missing', async () => {
+test('readBallotPackage throws when the manifest does not match ballots', async () => {
+  const manifest: BallotPackageManifest = {
+    ballots: [
+      {
+        ballotStyleId: '5',
+        precinctId: '21',
+        filename: 'test/election-deadbeef-whatever.pdf',
+        contestIds: ['1', '2'],
+        isLiveMode: false,
+        locales: { primary: 'en-US' },
+      },
+    ],
+  }
   const pkg = await zipFile({
     'election.json': JSON.stringify(electionSample),
-    'test/election-deadbeef-precinct-center-springfield-id-23-style-12.pdf': Buffer.of(),
+    'manifest.json': JSON.stringify(manifest),
   })
+
   await expect(
     readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
-    'ballot package is malformed: some ballots do not have both live and test types: (12, 23)'
+    `ballot package is malformed; found 0 file(s) matching entries in the manifest ('manifest.json'), but the manifest has 1. perhaps this ballot package is using a different version of the software?`
   )
 })
 
-test('readBallotPackage throws given an invalid ballot type first', async () => {
-  const pkg = await zipFile({
-    'election.json': JSON.stringify(electionSample),
-    'life/election-deadbeef-precinct-center-springfield-id-23-style-12.pdf': Buffer.of(),
-  })
+test('readBallotPackage throws when given an invalid zip file', async () => {
   await expect(
-    readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
-  ).rejects.toThrowError(
-    `ballot package is malformed: invalid ballot type 'life' for ballot style id=12 and precinct id=23`
-  )
+    readBallotPackage(new File(['not-a-zip'], 'election-ballot-package.zip'))
+  ).rejects.toThrowError()
 })
 
-test('readBallotPackage throws given an invalid ballot type second', async () => {
-  const pkg = await zipFile({
-    'election.json': JSON.stringify(electionSample),
-    'live/election-deadbeef-precinct-center-springfield-id-23-style-12.pdf': Buffer.of(),
-    'life/election-deadbeef-precinct-center-springfield-id-23-style-12.pdf': Buffer.of(),
-  })
+test('readBallotPackage throws when the file cannot be read', async () => {
   await expect(
-    readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
-  ).rejects.toThrowError(
-    `ballot package is malformed: invalid ballot type 'life' for ballot style id=12 and precinct id=23`
-  )
-})
-
-test('readBallotPackage throws given duplicates of a live ballot', async () => {
-  const pkg = await zipFile({
-    'election.json': JSON.stringify(electionSample),
-    'live/election-deadbeef-precinct-center-springfield-id-23-style-12.pdf': Buffer.of(),
-    'live/election-deadbeef-precinct-centre-springfield-id-23-style-12.pdf': Buffer.of(),
-  })
-  await expect(
-    readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
-  ).rejects.toThrowError(
-    `ballot package is malformed: duplicate live ballot found with ballot style id=12 and precinct id=23`
-  )
-})
-
-test('readBallotPackage throws given duplicates of a test ballot', async () => {
-  const pkg = await zipFile({
-    'election.json': JSON.stringify(electionSample),
-    'test/election-deadbeef-precinct-center-springfield-id-23-style-12.pdf': Buffer.of(),
-    'test/election-deadbeef-precinct-centre-springfield-id-23-style-12.pdf': Buffer.of(),
-  })
-  await expect(
-    readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
-  ).rejects.toThrowError(
-    `ballot package is malformed: duplicate test ballot found with ballot style id=12 and precinct id=23`
-  )
+    readBallotPackage(({} as unknown) as File)
+  ).rejects.toThrowError()
 })

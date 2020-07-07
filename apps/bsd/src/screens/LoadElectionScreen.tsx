@@ -1,30 +1,32 @@
+import { getPrecinctById } from '@votingworks/ballot-encoder'
 import React, { useState } from 'react'
-import { useDropzone } from 'react-dropzone'
-
-import Prose from '../components/Prose'
-import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
-import Screen from '../components/Screen'
-import Text from '../components/Text'
-import { SetElection } from '../config/types'
-import { readBallotPackage, BallotPackageEntry } from '../util/ballot-package'
 import { patch as patchConfig } from '../api/config'
+import ElectionConfiguration from '../components/ElectionConfiguration'
+import Main, { MainChild } from '../components/Main'
+import Prose from '../components/Prose'
+import Screen from '../components/Screen'
+import { SetElection } from '../config/types'
+import { readBallotPackage } from '../util/ballot-package'
+import { addTemplates } from '../api/hmpb'
 
 interface Props {
   setElection: SetElection
 }
 
-const LoadElectionConfigScreen = ({ setElection }: Props) => {
+const LoadElectionScreen = ({ setElection }: Props) => {
   const [
     currentUploadingBallotIndex,
     setCurrentUploadingBallotIndex,
   ] = useState(-1)
   const [totalTemplates, setTotalTemplates] = useState(0)
-  const [currentUploadingBallot, setCurrentUploadingBallot] = useState<
-    BallotPackageEntry
-  >()
+  const [currentUploadingBallot, setCurrentUploadingBallot] = useState<{
+    ballotStyle: string
+    precinct: string
+    isLiveMode: boolean
+    locales?: string
+  }>()
 
-  const onDrop = (acceptedFiles: File[]) => {
+  const onDrop = (acceptedFiles: readonly File[]) => {
     if (acceptedFiles.length === 1) {
       const file = acceptedFiles[0]
       const isElectionJSON = file.type === 'application/json'
@@ -40,73 +42,39 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
         reader.readAsText(file)
       } else {
         readBallotPackage(file).then(async (pkg) => {
-          await patchConfig({ election: pkg.election })
-          setCurrentUploadingBallotIndex(0)
-          setTotalTemplates(pkg.ballots.length)
-
-          for (const ballot of pkg.ballots) {
-            setCurrentUploadingBallot(ballot)
-
-            const body = new FormData()
-
-            body.append(
-              'ballots',
-              new Blob([ballot.live], { type: 'application/pdf' })
-            )
-
-            body.append(
-              'metadatas',
-              new Blob(
-                [
-                  JSON.stringify({
-                    precinctId: ballot.precinct.id,
-                    ballotStyleId: ballot.ballotStyle.id,
-                    isTestBallot: false,
-                  }),
-                ],
-                { type: 'application/json' }
-              )
-            )
-
-            body.append(
-              'ballots',
-              new Blob([ballot.test], { type: 'application/pdf' })
-            )
-
-            body.append(
-              'metadatas',
-              new Blob(
-                [
-                  JSON.stringify({
-                    precinctId: ballot.precinct.id,
-                    ballotStyleId: ballot.ballotStyle.id,
-                    isTestBallot: true,
-                  }),
-                ],
-                { type: 'application/json' }
-              )
-            )
-
-            // eslint-disable-next-line no-await-in-loop
-            await fetch('/scan/hmpb/addTemplates', { method: 'POST', body })
-            setCurrentUploadingBallotIndex((prev) => prev + 1)
-          }
-
-          setElection(pkg.election)
+          addTemplates(pkg)
+            .on('configuring', () => {
+              setCurrentUploadingBallotIndex(0)
+              setTotalTemplates(pkg.ballots.length)
+            })
+            .on('uploading', (_pkg, ballot) => {
+              const { locales } = ballot.ballotConfig
+              setCurrentUploadingBallot({
+                ballotStyle: ballot.ballotConfig.ballotStyleId,
+                precinct:
+                  getPrecinctById({
+                    election: pkg.election,
+                    precinctId: ballot.ballotConfig.precinctId,
+                  })?.name ?? ballot.ballotConfig.precinctId,
+                isLiveMode: ballot.ballotConfig.isLiveMode,
+                locales: locales?.secondary
+                  ? `${locales.primary} / ${locales.secondary}`
+                  : locales?.primary,
+              })
+              setCurrentUploadingBallotIndex(pkg.ballots.indexOf(ballot))
+            })
+            .on('completed', () => {
+              setElection(pkg.election)
+            })
         })
 
         reader.readAsArrayBuffer(file)
       }
     }
   }
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: ['application/json', 'application/zip'],
-  })
-
   if (totalTemplates > 0 && currentUploadingBallot) {
     return (
-      <Screen {...getRootProps()}>
+      <Screen>
         <Main noPadding>
           <MainChild center padded>
             <Prose textCenter>
@@ -114,10 +82,23 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
                 Uploading ballot package {currentUploadingBallotIndex + 1} of{' '}
                 {totalTemplates}
               </h1>
-              <p>
-                {currentUploadingBallot.ballotStyle.id} /{' '}
-                {currentUploadingBallot.precinct.name}
-              </p>
+              <ul style={{ textAlign: 'left' }}>
+                <li>
+                  <strong>Ballot Style:</strong>{' '}
+                  {currentUploadingBallot.ballotStyle}
+                </li>
+                <li>
+                  <strong>Precinct:</strong> {currentUploadingBallot.precinct}
+                </li>
+                <li>
+                  <strong>Test Ballot:</strong>{' '}
+                  {currentUploadingBallot.isLiveMode ? 'No' : 'Yes'}
+                </li>
+                <li>
+                  <strong>Languages:</strong>{' '}
+                  {currentUploadingBallot.locales ?? <em>(unknown)</em>}
+                </li>
+              </ul>
             </Prose>
           </MainChild>
         </Main>
@@ -125,30 +106,7 @@ const LoadElectionConfigScreen = ({ setElection }: Props) => {
     )
   }
 
-  return (
-    <Screen {...getRootProps()}>
-      <Main noPadding>
-        <MainChild center padded>
-          <input {...getInputProps()} />
-          <Prose textCenter>
-            {isDragActive ? (
-              <p>Drop files here…</p>
-            ) : (
-              <React.Fragment>
-                <h1>Not Configured</h1>
-                <Text narrow>
-                  Insert Election Clerk card, drag and drop{' '}
-                  <code>election.json</code> or ballot package <code>zip</code>{' '}
-                  file here, or click to browse for file.
-                </Text>
-              </React.Fragment>
-            )}
-          </Prose>
-        </MainChild>
-      </Main>
-      <MainNav />
-    </Screen>
-  )
+  return <ElectionConfiguration acceptFiles={onDrop} />
 }
 
-export default LoadElectionConfigScreen
+export default LoadElectionScreen

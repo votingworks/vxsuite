@@ -6,6 +6,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jest-environment-jsdom-sixteen",
+    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache",
     "test:coverage": "yarn test --coverage --watchAll=false",
     "eject": "react-scripts eject",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
@@ -51,7 +52,7 @@
     "@types/react": "16.9.35",
     "@types/react-dom": "16.9.8",
     "@types/styled-components": "^4.1.14",
-    "@votingworks/hmpb-interpreter": "^3.3.1",
+    "@votingworks/hmpb-interpreter": "^3.5.0",
     "fast-text-encoding": "^1.0.2",
     "http-proxy-middleware": "^0.19.1",
     "js-file-download": "^0.4.6",
@@ -102,10 +103,10 @@
   "jest": {
     "coverageThreshold": {
       "global": {
-        "statements": 62,
-        "branches": 50,
+        "statements": 64,
+        "branches": 56,
         "functions": 68,
-        "lines": 63
+        "lines": 64
       }
     }
   }
