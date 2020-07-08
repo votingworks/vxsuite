@@ -400,11 +400,14 @@ export const getOvervotePairTallies = ({
   election,
   castVoteRecords,
 }: FullTallyParams): Dictionary<ContestOvervotePairTallies> => {
-  const overvotePairTallies: Dictionary<ContestOvervotePairTallies> = {}
-  election.contests
+  const overvotePairTallies: Dictionary<ContestOvervotePairTallies> = election.contests
     .filter((contest) => contest.type === 'candidate')
-    .forEach(
-      (contest) => (overvotePairTallies[contest.id] = { contest, tallies: [] })
+    .reduce(
+      (result, contest) => ({
+        ...result,
+        [contest.id]: { contest, tallies: [] },
+      }),
+      {}
     )
 
   for (const cvr of castVoteRecords) {
