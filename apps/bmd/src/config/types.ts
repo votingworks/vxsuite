@@ -5,6 +5,7 @@ import {
   BallotStyle,
   Precinct,
   Election,
+  YesNoVote,
 } from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
 
@@ -71,6 +72,7 @@ export interface SerializableActivationData {
 }
 
 // Votes
+export type YesNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>
 export interface WriteInCandidateTally {
   name: string
   tally: number

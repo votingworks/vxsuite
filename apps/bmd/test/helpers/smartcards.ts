@@ -26,8 +26,8 @@ export const sampleVotes0: Readonly<VotesDict> = vote(
   }),
   {
     president: [contest0candidate0],
-    'question-a': 'no',
-    'question-b': 'yes',
+    'question-a': ['no'],
+    'question-b': ['yes'],
     senator: [contest1candidate0],
   }
 )
@@ -38,7 +38,7 @@ export const sampleVotes1: Readonly<VotesDict> = vote(
     election: election,
   }),
   {
-    '102': 'yes',
+    '102': ['yes'],
     president: 'barchi-hallaren',
     senator: 'weiford',
     'representative-district-6': 'plunkard',
@@ -51,13 +51,13 @@ export const sampleVotes1: Readonly<VotesDict> = vote(
     'county-registrar-of-wills': 'ramachandrani',
     'city-mayor': 'white',
     'city-council': ['eagle'],
-    'judicial-robert-demergue': 'yes',
-    'judicial-elmer-hull': 'yes',
-    'question-a': 'yes',
-    'question-b': 'yes',
-    'question-c': 'yes',
-    'proposition-1': 'yes',
-    'measure-101': 'yes',
+    'judicial-robert-demergue': ['yes'],
+    'judicial-elmer-hull': ['yes'],
+    'question-a': ['yes'],
+    'question-b': ['yes'],
+    'question-c': ['yes'],
+    'proposition-1': ['yes'],
+    'measure-101': ['yes'],
   }
 )
 
@@ -67,7 +67,7 @@ export const sampleVotes2: Readonly<VotesDict> = vote(
     election: election,
   }),
   {
-    '102': 'no',
+    '102': ['no'],
     president: 'cramer-vuocolo',
     senator: 'garriss',
     'representative-district-6': 'reeder',
@@ -82,13 +82,13 @@ export const sampleVotes2: Readonly<VotesDict> = vote(
     ],
     'city-mayor': 'seldon',
     'city-council': ['rupp'],
-    'judicial-robert-demergue': 'no',
-    'judicial-elmer-hull': 'no',
-    'question-a': 'no',
-    'question-b': 'no',
-    'question-c': 'no',
-    'proposition-1': 'no',
-    'measure-101': 'no',
+    'judicial-robert-demergue': ['no'],
+    'judicial-elmer-hull': ['no'],
+    'question-a': ['no'],
+    'question-b': ['no'],
+    'question-c': ['no'],
+    'proposition-1': ['no'],
+    'measure-101': ['no'],
   }
 )
 
@@ -98,7 +98,7 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
     election: election,
   }),
   {
-    '102': 'yes',
+    '102': ['yes'],
     president: 'court-blumhardt',
     senator: 'wentworthfarthington',
     'representative-district-6': 'schott',
@@ -113,13 +113,13 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
     ],
     'city-mayor': 'white',
     'city-council': ['shry'],
-    'judicial-robert-demergue': 'yes',
-    'judicial-elmer-hull': 'yes',
-    'question-a': 'yes',
-    'question-b': 'yes',
-    'question-c': 'yes',
-    'proposition-1': 'yes',
-    'measure-101': 'yes',
+    'judicial-robert-demergue': ['yes'],
+    'judicial-elmer-hull': ['yes'],
+    'question-a': ['yes'],
+    'question-b': ['yes'],
+    'question-c': ['yes'],
+    'proposition-1': ['yes'],
+    'measure-101': ['yes'],
   }
 )
 

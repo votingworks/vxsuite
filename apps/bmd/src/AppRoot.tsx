@@ -69,6 +69,7 @@ import {
   isAccessibleController,
   isCardReader,
 } from './utils/Hardware'
+import { getSingleYesNoVote } from './utils/votes'
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -843,7 +844,7 @@ class AppRoot extends React.Component<Props, State> {
           if (contest.type === 'yesno') {
             const yesnoContestTally = contestTally as YesNoVoteTally
             const vote = votes[contestId] as YesNoVote
-            yesnoContestTally[vote]++
+            yesnoContestTally[getSingleYesNoVote(vote)!]++
           } else if (contest.type === 'candidate') {
             const candidateContestTally = contestTally as CandidateVoteTally
             const vote = votes[contestId] as CandidateVote

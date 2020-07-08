@@ -26,6 +26,7 @@ import Screen from '../components/Screen'
 import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import SettingsTextSize from '../components/SettingsTextSize'
+import { getSingleYesNoVote } from '../utils/votes'
 
 const ContentHeader = styled.div`
   margin: 0 auto;
@@ -237,15 +238,17 @@ const CandidateContestResult = ({
 const YesNoContestResult = (props: {
   contest: YesNoContest
   vote: OptionalYesNoVote
-}) =>
-  props.vote ? (
+}) => {
+  const yesNo = getSingleYesNoVote(props.vote)
+  return yesNo ? (
     <Text bold wordBreak voteIcon>
-      {YES_NO_VOTES[props.vote]}{' '}
+      {YES_NO_VOTES[yesNo]}{' '}
       {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
     </Text>
   ) : (
     <NoSelection />
   )
+}
 
 const SidebarSpacer = styled.div`
   height: 90px;

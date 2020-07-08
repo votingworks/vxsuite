@@ -19,6 +19,7 @@ import * as GLOBALS from '../config/globals'
 
 import { randomBase64 } from '../utils/random'
 import { findPartyById } from '../utils/find'
+import { getSingleYesNoVote } from '../utils/votes'
 import {
   getBallotStyle,
   getContests,
@@ -156,17 +157,19 @@ const CandidateContestResult = ({
 const YesNoContestResult = (props: {
   contest: YesNoContest
   vote: OptionalYesNoVote
-}) =>
-  props.vote ? (
+}) => {
+  const yesNo = getSingleYesNoVote(props.vote)
+  return yesNo ? (
     <Text bold wordBreak>
       <strong>
-        {GLOBALS.YES_NO_VOTES[props.vote]}{' '}
+        {GLOBALS.YES_NO_VOTES[yesNo]}{' '}
         {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
       </strong>
     </Text>
   ) : (
     <NoSelection />
   )
+}
 
 interface Props {
   ballotStyleId: string
