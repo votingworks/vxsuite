@@ -342,25 +342,30 @@ const TallyScreen = () => {
                       )}
                     </strong>
                   </TD>
-                  <TD>
-                    {/* <LinkButton
-                      disabled={!hasCastVoteRecordFiles}
-                      to={routerPaths.tallyFullReport}
-                    >
-                      View {statusPrefix} Full Election Tally
-                    </LinkButton> */}
-                  </TD>
+                  <TD />
                 </tr>
               </tbody>
             </Table>
+            <h2>Additional Reports</h2>
+            <p>
+              <LinkButton to={routerPaths.overvoteCombinationReport}>
+                {statusPrefix} Overvote Combination Report
+              </LinkButton>
+            </p>
           </React.Fragment>
         )}
         {hasConverter && hasCastVoteRecordFiles && (
-          <p>
-            <Button disabled={!hasCastVoteRecordFiles} onPress={exportResults}>
-              Export SEMS Results File
-            </Button>
-          </p>
+          <React.Fragment>
+            <h2>Export Options</h2>
+            <p>
+              <Button
+                disabled={!hasCastVoteRecordFiles}
+                onPress={exportResults}
+              >
+                Export SEMS Results File
+              </Button>
+            </p>
+          </React.Fragment>
         )}
         {!hasCastVoteRecordFiles && (
           <React.Fragment>
