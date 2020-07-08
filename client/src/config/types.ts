@@ -104,3 +104,6 @@ export interface CastVoteRecordFile {
   readonly precinctIds: readonly string[]
 }
 export type CastVoteRecordFilesDictionary = Dictionary<CastVoteRecordFile>
+
+export type VoteCounts = Dictionary<Dictionary<number>>
+export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>

@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useCallback } from 'react'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 
-import { InputEventFunction, Dictionary } from '../config/types'
+import { InputEventFunction } from '../config/types'
 
 import {
   voteCountsByCategory,
@@ -32,14 +32,13 @@ const TallyScreen = () => {
     isOfficialResults,
     saveCastVoteRecordFiles,
     saveIsOfficialResults,
+    setVoteCounts,
+    voteCounts,
   } = useContext(AppContext)
   const election = e!
 
   const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
   const [isConfimingRemoveCRVs, setIsConfirmingRemoveCRVs] = useState(false)
-  const [voteCounts, setVoteCounts] = useState<
-    Dictionary<Dictionary<number>> | undefined
-  >(undefined)
 
   const cancelConfirmingRemoveCRVs = () => {
     setIsConfirmingRemoveCRVs(false)
