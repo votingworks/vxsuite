@@ -4,7 +4,11 @@ import * as path from 'path'
 import { promises as fs } from 'fs'
 
 import find from '../utils/find'
-import { parseCVRs, fullTallyVotes } from './votecounting'
+import {
+  parseCVRs,
+  fullTallyVotes,
+  getOvervotePairTallies,
+} from './votecounting'
 
 const fixturesPath = path.join(__dirname, '../../test/fixtures')
 const electionFilePath = path.join(fixturesPath, 'election.json')
@@ -68,4 +72,18 @@ test('tabulating a set of CVRs gives expected output', async () => {
   )
 
   expect(numWriteIns).toBe(149)
+})
+
+test('overvote report', async () => {
+  // get the election
+  const election = JSON.parse(
+    (await fs.readFile(electionFilePath)).toString('utf-8')
+  ) as Election
+
+  // get the CVRs
+  const cvrsFileContents = (await fs.readFile(cvrFilePath)).toString('utf-8')
+  const castVoteRecords = parseCVRs(cvrsFileContents)
+
+  const pairTallies = getOvervotePairTallies({ election, castVoteRecords })
+  expect(pairTallies).toMatchSnapshot()
 })

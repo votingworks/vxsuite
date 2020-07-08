@@ -4,6 +4,7 @@ import {
   Candidate,
   CandidateContest,
   CandidateVote,
+  Contest,
   Election,
   VotesDict,
 } from '@votingworks/ballot-encoder'
@@ -19,6 +20,7 @@ import {
   ContestTally,
   YesNoContestOptionTally,
 } from '../config/types'
+import { getBallotStyle, getContests } from '../utils/election'
 
 import find from '../utils/find'
 
@@ -316,3 +318,127 @@ export const getContestTallyMeta = ({
     },
     {}
   )
+
+//
+// some different ideas on tabulation, starting with the overvote report
+//
+
+export interface Pair<T> {
+  first: T
+  second: T
+}
+
+const makePairs = <T>(inputArray: T[]): Pair<T>[] => {
+  const pairs = []
+  for (let i = 0; i < inputArray.length; i++) {
+    for (let j = i + 1; j < inputArray.length; j++) {
+      pairs.push({ first: inputArray[i], second: inputArray[j] })
+    }
+  }
+
+  return pairs
+}
+
+export interface OvervotePairTally {
+  candidates: Pair<Candidate>
+  tally: number
+}
+
+export interface ContestOvervotePairTallies {
+  contest: Contest
+  tallies: OvervotePairTally[]
+}
+
+const findOvervotePairTally = (
+  pairTallies: OvervotePairTally[],
+  pair: Pair<Candidate>
+): OvervotePairTally | undefined => {
+  for (const pairTally of pairTallies) {
+    if (
+      (pairTally.candidates.first === pair.first &&
+        pairTally.candidates.second === pair.second) ||
+      (pairTally.candidates.first === pair.second &&
+        pairTally.candidates.second === pair.first)
+    ) {
+      return pairTally
+    }
+  }
+}
+
+// filters the CVR so it doesn't contain contests it shouldn't (TODO: should we cancel it altogether if it does?)
+interface ProcessCastVoteRecordParams {
+  election: Election
+  castVoteRecord: CastVoteRecord
+}
+
+const processCastVoteRecord = ({
+  election,
+  castVoteRecord,
+}: ProcessCastVoteRecordParams): CastVoteRecord | undefined => {
+  const ballotStyle = getBallotStyle({
+    ballotStyleId: castVoteRecord._ballotStyleId,
+    election,
+  })
+  if (!ballotStyle.precincts.includes(castVoteRecord._precinctId)) return
+  const contestIds = getContests({ ballotStyle, election }).map(
+    (contest) => contest.id
+  )
+  const newCVR: CastVoteRecord = {
+    _precinctId: castVoteRecord._precinctId,
+    _ballotStyleId: castVoteRecord._ballotStyleId,
+    _ballotId: castVoteRecord._ballotId,
+    _testBallot: castVoteRecord._testBallot,
+    _scannerId: castVoteRecord._scannerId,
+  }
+  for (const key of contestIds) {
+    if (castVoteRecord[key]) newCVR[key] = castVoteRecord[key]
+  }
+  return newCVR
+}
+
+export const getOvervotePairTallies = ({
+  election,
+  castVoteRecords,
+}: FullTallyParams): Dictionary<ContestOvervotePairTallies> => {
+  const overvotePairTallies: Dictionary<ContestOvervotePairTallies> = {}
+  election.contests
+    .filter((contest) => contest.type === 'candidate')
+    .forEach(
+      (contest) => (overvotePairTallies[contest.id] = { contest, tallies: [] })
+    )
+
+  for (const cvr of castVoteRecords) {
+    const safeCVR = processCastVoteRecord({ election, castVoteRecord: cvr })
+    if (!safeCVR) continue // eslint-disable-line no-continue
+
+    for (const contestId in safeCVR) {
+      const contestOvervotePairTallies = overvotePairTallies[contestId]
+      if (!contestOvervotePairTallies) continue // eslint-disable-line no-continue
+
+      const candidateContest = contestOvervotePairTallies.contest as CandidateContest
+      const selected = safeCVR[contestId]
+
+      if (!selected || selected.length <= candidateContest.seats) continue // eslint-disable-line no-continue
+
+      const candidates = candidateContest.candidates.filter((c) =>
+        selected.includes(c.id)
+      )
+      const overvotePairs = makePairs(candidates)
+
+      for (const pair of overvotePairs) {
+        let pairTally = findOvervotePairTally(
+          contestOvervotePairTallies.tallies,
+          pair
+        )
+        if (!pairTally) {
+          pairTally = { candidates: pair, tally: 0 }
+          contestOvervotePairTallies.tallies.push(pairTally)
+        }
+
+        pairTally.tally += 1
+      }
+    }
+  }
+
+  return overvotePairTallies
+}
