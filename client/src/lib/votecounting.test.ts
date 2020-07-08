@@ -52,4 +52,22 @@ test('tabulating a set of CVRs gives expected output', async () => {
       (contestOptionTally.option as Candidate).id === 'neil-armstrong'
   )
   expect(neilArmstrongTally.tally).toBe(1134)
+
+  // sum up all the write-ins across all questions, should be 149.
+  const candidateTallies = fullTally.overallTally.contestTallies.filter(
+    (contestTally) => contestTally.contest.type === 'candidate'
+  )
+
+  const numWriteIns = candidateTallies.reduce(
+    (overallSum, contestTally) =>
+      overallSum +
+      contestTally.tallies
+        .filter(
+          (optionTally) => (optionTally.option as Candidate).id === '__write-in'
+        )
+        .reduce((contestSum, optionTally) => contestSum + optionTally.tally, 0),
+    0
+  )
+
+  expect(numWriteIns).toBe(149)
 })
