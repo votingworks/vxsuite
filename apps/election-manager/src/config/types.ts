@@ -90,12 +90,15 @@ export type VotesByFunction = (value: {
 
 // Cast Vote Records
 
-export interface CastVoteRecord extends Dictionary<string | string[]> {
+export interface CastVoteRecord
+  extends Dictionary<string | string[] | number | BallotLocale> {
   _precinctId: string
   _ballotId: string
   _ballotStyleId: string
   _testBallot: string
   _scannerId: string
+  _pageNumber?: number
+  _locale?: BallotLocale
 }
 
 export interface CastVoteRecordFile {

@@ -389,6 +389,8 @@ const processCastVoteRecord = ({
     _ballotId: castVoteRecord._ballotId,
     _testBallot: castVoteRecord._testBallot,
     _scannerId: castVoteRecord._scannerId,
+    _pageNumber: castVoteRecord._pageNumber,
+    _locale: castVoteRecord._locale,
   }
   for (const key of contestIds) {
     if (castVoteRecord[key]) newCVR[key] = castVoteRecord[key]
@@ -419,7 +421,7 @@ export const getOvervotePairTallies = ({
       if (!contestOvervotePairTallies) continue // eslint-disable-line no-continue
 
       const candidateContest = contestOvervotePairTallies.contest as CandidateContest
-      const selected = safeCVR[contestId]
+      const selected = safeCVR[contestId] as string[]
 
       if (!selected || selected.length <= candidateContest.seats) continue // eslint-disable-line no-continue
 
