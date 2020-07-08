@@ -67,7 +67,6 @@ export interface ContestOptionTally {
 export interface ContestTally {
   contest: Contest
   tallies: ContestOptionTally[]
-  ballotsCastWithContest: number
 }
 
 // TODO: separate into PrecinctTally and ScannerTally

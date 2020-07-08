@@ -177,7 +177,7 @@ export function tallyVotesByContest({
       }
     })
 
-    contestTallies.push({ contest, tallies, ballotsCastWithContest: 1 })
+    contestTallies.push({ contest, tallies })
   })
 
   return contestTallies
