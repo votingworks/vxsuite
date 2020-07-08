@@ -6,10 +6,10 @@ import { OptionParseError } from '..'
 import { Interpreter } from '../..'
 import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../Interpreter'
 import {
+  BallotLocales,
   BallotPageMetadata,
   Input,
   Interpreted,
-  BallotLocales,
 } from '../../types'
 import { readImageData } from '../../utils/readImageData'
 
@@ -276,11 +276,18 @@ export default async function run(
                     .join(', ') ?? ''
                 )
               } else {
-                return vote === 'yes'
-                  ? chalk.green(vote)
-                  : vote === 'no'
-                  ? chalk.red(vote)
-                  : ''
+                const yesnos = vote as ('yes' | 'no')[] | undefined
+                return (
+                  yesnos
+                    ?.map((v) =>
+                      v === 'yes'
+                        ? chalk.green(v)
+                        : v === 'no'
+                        ? chalk.red(v)
+                        : ''
+                    )
+                    .join(', ') ?? ''
+                )
               }
             }),
           ]),
