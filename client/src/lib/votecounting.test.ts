@@ -1,4 +1,4 @@
-import { Candidate, Election } from '@votingworks/ballot-encoder'
+import { Candidate, parseElection } from '@votingworks/ballot-encoder'
 
 import * as path from 'path'
 import { promises as fs } from 'fs'
@@ -16,9 +16,9 @@ const cvrFilePath = path.join(fixturesPath, 'CVRs.txt')
 
 test('tabulating a set of CVRs gives expected output', async () => {
   // get the election
-  const election = JSON.parse(
-    (await fs.readFile(electionFilePath)).toString('utf-8')
-  ) as Election
+  const election = parseElection(
+    JSON.parse((await fs.readFile(electionFilePath)).toString('utf-8'))
+  )
 
   // get the CVRs
   const cvrsFileContents = (await fs.readFile(cvrFilePath)).toString('utf-8')
@@ -76,9 +76,9 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
 test('overvote report', async () => {
   // get the election
-  const election = JSON.parse(
-    (await fs.readFile(electionFilePath)).toString('utf-8')
-  ) as Election
+  const election = parseElection(
+    JSON.parse((await fs.readFile(electionFilePath)).toString('utf-8'))
+  )
 
   // get the CVRs
   const cvrsFileContents = (await fs.readFile(cvrFilePath)).toString('utf-8')
