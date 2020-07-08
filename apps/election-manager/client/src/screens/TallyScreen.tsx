@@ -4,7 +4,12 @@ import pluralize from 'pluralize'
 
 import { InputEventFunction } from '../config/types'
 
-import { getVotesByPrecinct, getVotesByScanner } from '../lib/votecounting'
+import {
+  getVotesByScanner,
+  voteCountsByCategory,
+  CVRCategorizerByPrecinct,
+  CVRCategorizerByScanner,
+} from '../lib/votecounting'
 import ConverterClient from '../lib/ConverterClient'
 
 import AppContext from '../contexts/AppContext'
@@ -12,6 +17,7 @@ import AppContext from '../contexts/AppContext'
 import Button from '../components/Button'
 import FileInputButton from '../components/FileInputButton'
 import Text from '../components/Text'
+import Loading from '../components/Loading'
 import Table, { TD } from '../components/Table'
 import NavigationScreen from '../components/NavigationScreen'
 import routerPaths from '../routerPaths'
@@ -30,6 +36,7 @@ const TallyScreen = () => {
   } = useContext(AppContext)
   const election = e!
 
+  const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
   const [isConfimingRemoveCRVs, setIsConfirmingRemoveCRVs] = useState(false)
   const cancelConfirmingRemoveCRVs = () => {
     setIsConfirmingRemoveCRVs(false)
@@ -51,10 +58,19 @@ const TallyScreen = () => {
     saveIsOfficialResults()
   }
 
-  const votesByPrecinct = getVotesByPrecinct({
-    election,
+  const voteCounts = voteCountsByCategory({
     castVoteRecords: castVoteRecordFiles.castVoteRecords,
+    categorizers: {
+      Precinct: CVRCategorizerByPrecinct,
+      Scanner: CVRCategorizerByScanner,
+    },
   })
+
+  let totalBallots = 0
+  for (const precinctId in voteCounts.Precinct) {
+    totalBallots += voteCounts!.Precinct![precinctId]!
+  }
+
   const votesByScanner = getVotesByScanner({
     election,
     castVoteRecords: castVoteRecordFiles.castVoteRecords,
@@ -66,14 +82,18 @@ const TallyScreen = () => {
       .join(', ')
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList
-  const hasCastVoteRecordFiles = !!castVoteRecordFileList.length
+  const hasCastVoteRecordFiles =
+    !!castVoteRecordFileList.length || !!castVoteRecordFiles.errorFile
 
   const processCastVoteRecordFiles: InputEventFunction = async (event) => {
     const input = event.currentTarget
     const files = Array.from(input.files || [])
-    const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(files)
 
+    setIsLoadingCVRFile(true)
+    const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(files)
     saveCastVoteRecordFiles(newCastVoteRecordFiles)
+    setIsLoadingCVRFile(false)
+
     input.value = ''
   }
 
@@ -243,7 +263,7 @@ const TallyScreen = () => {
                   )
                   .map((precinct) => {
                     const precinctBallotsCount =
-                      votesByPrecinct?.[precinct.id]?.length ?? 0
+                      voteCounts.Precinct?.[precinct.id] ?? 0
                     return (
                       <tr key={precinct.id}>
                         <TD narrow nowrap>
@@ -270,12 +290,7 @@ const TallyScreen = () => {
                     <strong>Total Ballot Count</strong>
                   </TD>
                   <TD>
-                    <strong>
-                      {Object.values(votesByPrecinct).reduce(
-                        (prev, curr) => prev + (curr ? curr.length : 0),
-                        0
-                      )}
-                    </strong>
+                    <strong>{totalBallots}</strong>
                   </TD>
                   <TD>
                     <LinkButton
@@ -335,12 +350,7 @@ const TallyScreen = () => {
                     <strong>Total Ballot Count</strong>
                   </TD>
                   <TD>
-                    <strong>
-                      {Object.values(votesByPrecinct).reduce(
-                        (prev, curr) => prev + (curr ? curr.length : 0),
-                        0
-                      )}
-                    </strong>
+                    <strong>{totalBallots}</strong>
                   </TD>
                   <TD />
                 </tr>
@@ -384,10 +394,18 @@ const TallyScreen = () => {
         centerContent
         content={
           <Prose textCenter>
-            <p>
-              Do you want to remove the {castVoteRecordFileList.length} uploaded
-              CRV {pluralize('files', castVoteRecordFileList.length)}?
-            </p>
+            {castVoteRecordFileList.length ? (
+              <p>
+                Do you want to remove the {castVoteRecordFileList.length}{' '}
+                uploaded CRV {pluralize('files', castVoteRecordFileList.length)}
+                ?
+              </p>
+            ) : (
+              <p>
+                Do you want to remove the files causing errors:{' '}
+                {castVoteRecordFiles.errorFile}?
+              </p>
+            )}
             <p>All reports will be unavailable without CVR data.</p>
           </Prose>
         }
@@ -423,6 +441,11 @@ const TallyScreen = () => {
           </React.Fragment>
         }
         onOverlayClick={cancelConfirmingOfficial}
+      />
+      <Modal
+        isOpen={isLoadingCVRFile}
+        centerContent
+        content={<Loading>Loading CVR File</Loading>}
       />
     </React.Fragment>
   )

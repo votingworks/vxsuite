@@ -445,3 +445,37 @@ export const getOvervotePairTallies = ({
 
   return overvotePairTallies
 }
+
+type CVRCategorizer = (cvr: CastVoteRecord) => string
+
+interface VoteCountsByCategoryParams {
+  castVoteRecords: CastVoteRecord[]
+  categorizers: Dictionary<CVRCategorizer>
+}
+
+export const CVRCategorizerByPrecinct: CVRCategorizer = (cvr: CastVoteRecord) =>
+  cvr._precinctId
+export const CVRCategorizerByScanner: CVRCategorizer = (cvr: CastVoteRecord) =>
+  cvr._scannerId
+
+export const voteCountsByCategory = ({
+  castVoteRecords,
+  categorizers,
+}: VoteCountsByCategoryParams): Dictionary<Dictionary<number>> => {
+  const counts: Dictionary<Dictionary<number>> = {}
+  for (const category in categorizers) {
+    counts[category] = {}
+  }
+
+  for (const cvr of castVoteRecords) {
+    for (const category in categorizers) {
+      const categorizer = categorizers[category]
+      const categoryValue = categorizer!(cvr)
+      const count = counts[category]!
+
+      count[categoryValue] = (count[categoryValue] || 0) + 1
+    }
+  }
+
+  return counts
+}
