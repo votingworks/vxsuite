@@ -72,8 +72,9 @@ const PairsReportScreen = () => {
         </Text>
       </p>
       <p>
-        The sum of all pairs will total more greater than the overvote count if
-        more than two options selected for any ballot contest.
+        In any given contest, if any ballot includes an overvote for more than
+        two selections, the pair tallies will sum up to more than the contest
+        overvote count.
       </p>
     </React.Fragment>
   )
