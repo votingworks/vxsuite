@@ -25,6 +25,7 @@ const routerPaths = {
   testDecksTally: '/tally/test-ballot-deck',
   testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps) =>
     `/tally/test-ballot-deck/${precinctId}`,
+  overvoteCombinationReport: '/tally/pairs',
   export: '/export-election-ballot-package',
 }
 
