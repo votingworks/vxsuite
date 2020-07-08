@@ -17,7 +17,7 @@ import CastVoteRecordFiles, {
 import { Storage } from './utils/Storage'
 
 import ElectionManager from './components/ElectionManager'
-import { SaveElection } from './config/types'
+import { SaveElection, OptionalVoteCounts } from './config/types'
 
 export interface AppStorage {
   election?: Election
@@ -79,6 +79,8 @@ const AppRoot = ({ storage }: Props) => {
     }
   }
 
+  const [voteCounts, setVoteCounts] = useState<OptionalVoteCounts>()
+
   const saveElection: SaveElection = (electionDefinition) => {
     setElection(electionDefinition)
     setElectionHash(
@@ -102,8 +104,10 @@ const AppRoot = ({ storage }: Props) => {
         printBallotRef,
         saveCastVoteRecordFiles,
         saveElection,
-        setCastVoteRecordFiles,
         saveIsOfficialResults,
+        setCastVoteRecordFiles,
+        setVoteCounts,
+        voteCounts,
       }}
     >
       <ElectionManager />
