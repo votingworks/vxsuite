@@ -11,7 +11,6 @@ import {
   Election,
   getContests,
   Optional,
-  YesNoVote,
 } from '@votingworks/ballot-encoder'
 import {
   Interpreter as HMPBInterpreter,
@@ -94,7 +93,7 @@ function ballotToCastVoteRecord(ballot: CompletedBallot): CastVoteRecord {
 
     if (contest.type === 'yesno') {
       if (vote) {
-        cvrForContest = [vote as YesNoVote]
+        cvrForContest = vote as string[]
       }
     } else if (contest.type === 'candidate') {
       // selections for this question
