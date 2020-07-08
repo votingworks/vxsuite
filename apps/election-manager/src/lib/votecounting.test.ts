@@ -31,7 +31,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // some specific tallies checked by hand
 
-  // - Jackie Chan, 679 bubbles, of which 4 are overvotes --> 675
+  // - Jackie Chan, 1380 bubbles, of which 8 are overvotes --> 1372
   const presidentTallies = find(
     fullTally.overallTally.contestTallies,
     (contestTally) => contestTally.contest.id === 'president'
@@ -41,9 +41,9 @@ test('tabulating a set of CVRs gives expected output', async () => {
     (contestOptionTally) =>
       (contestOptionTally.option as Candidate).id === 'jackie-chan'
   )
-  expect(jackieChanTally.tally).toBe(675)
+  expect(jackieChanTally.tally).toBe(1372)
 
-  // - Neil Armstrong, 1139 bubbles, of which 5 are overvotes --> 1134
+  // - Neil Armstrong, 2207 bubbles, of which 10 are overvotes --> 2197
   const repDistrict18Tallies = find(
     fullTally.overallTally.contestTallies,
     (contestTally) => contestTally.contest.id === 'representative-district-18'
@@ -53,9 +53,10 @@ test('tabulating a set of CVRs gives expected output', async () => {
     (contestOptionTally) =>
       (contestOptionTally.option as Candidate).id === 'neil-armstrong'
   )
-  expect(neilArmstrongTally.tally).toBe(1134)
+  expect(neilArmstrongTally.tally).toBe(2197)
 
-  // sum up all the write-ins across all questions, should be 149.
+  // sum up all the write-ins across all questions
+  // 262 bubbles filled out, of which 2 are overvotes --> 260 write-ins
   const candidateTallies = fullTally.overallTally.contestTallies.filter(
     (contestTally) => contestTally.contest.type === 'candidate'
   )
@@ -71,7 +72,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
     0
   )
 
-  expect(numWriteIns).toBe(149)
+  expect(numWriteIns).toBe(260)
 })
 
 test('overvote report', async () => {
