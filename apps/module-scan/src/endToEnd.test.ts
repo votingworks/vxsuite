@@ -150,15 +150,13 @@ test('going through the whole process works', async () => {
       .map((line) => JSON.parse(line))
     const ballotIds = CVRs.map((cvr) => cvr._ballotId)
     ballotIds.sort()
-    expect(JSON.stringify(ballotIds)).toBe(
-      JSON.stringify([
-        '85lnPkvfNEytP3Z8gMoEcA',
-        'QZZeZdTBy8/RwGnoH6/mkw', // v1 encoding
-        'manual-test-serial-number',
-        'manual-test-serial-number-2',
-        'r6UYR4t7hEFMz8QlMWf1Sw',
-      ])
-    )
+    expect(ballotIds).toEqual([
+      '85lnPkvfNEytP3Z8gMoEcA',
+      'SAlVfdOQd4G6ALjkH3rlOg', // v1 encoding
+      'manual-test-serial-number',
+      'manual-test-serial-number-2',
+      'r6UYR4t7hEFMz8QlMWf1Sw',
+    ])
   }
 
   let batchIdToDelete: number

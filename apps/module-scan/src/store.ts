@@ -544,7 +544,7 @@ export default class Store {
                 return {
                   type: 'yesno',
                   id: markIndex === 0 ? 'yes' : 'no',
-                  name: markIndex === 0 ? 'yes' : 'no',
+                  name: markIndex === 0 ? ['yes'] : ['no'],
                   bounds: contestLayout.options[markIndex].bounds,
                 }
               })
