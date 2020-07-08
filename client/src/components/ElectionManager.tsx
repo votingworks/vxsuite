@@ -13,6 +13,7 @@ import TallyScreen from '../screens/TallyScreen'
 import TallyReportScreen from '../screens/TallyReportScreen'
 
 import routerPaths from '../routerPaths'
+import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationReportScreen'
 
 const ElectionManager = () => {
   const { election: e } = useContext(AppContext)
@@ -74,6 +75,9 @@ const ElectionManager = () => {
         ]}
       >
         <TallyReportScreen />
+      </Route>
+      <Route path={routerPaths.overvoteCombinationReport}>
+        <OvervoteCombinationReportScreen />
       </Route>
       <Redirect to={routerPaths.ballotsList} />
     </Switch>
