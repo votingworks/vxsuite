@@ -462,6 +462,7 @@ export const voteCountsByCategory = ({
   castVoteRecords,
   categorizers,
 }: VoteCountsByCategoryParams): Dictionary<Dictionary<number>> => {
+  console.log('COUNTING VOTES')
   const counts: Dictionary<Dictionary<number>> = {}
   for (const category in categorizers) {
     counts[category] = {}

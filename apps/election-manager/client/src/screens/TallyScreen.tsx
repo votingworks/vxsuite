@@ -1,11 +1,10 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useCallback } from 'react'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 
-import { InputEventFunction } from '../config/types'
+import { InputEventFunction, Dictionary } from '../config/types'
 
 import {
-  getVotesByScanner,
   voteCountsByCategory,
   CVRCategorizerByPrecinct,
   CVRCategorizerByScanner,
@@ -38,6 +37,10 @@ const TallyScreen = () => {
 
   const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
   const [isConfimingRemoveCRVs, setIsConfirmingRemoveCRVs] = useState(false)
+  const [voteCounts, setVoteCounts] = useState<
+    Dictionary<Dictionary<number>> | undefined
+  >(undefined)
+
   const cancelConfirmingRemoveCRVs = () => {
     setIsConfirmingRemoveCRVs(false)
   }
@@ -58,23 +61,12 @@ const TallyScreen = () => {
     saveIsOfficialResults()
   }
 
-  const voteCounts = voteCountsByCategory({
-    castVoteRecords: castVoteRecordFiles.castVoteRecords,
-    categorizers: {
-      Precinct: CVRCategorizerByPrecinct,
-      Scanner: CVRCategorizerByScanner,
-    },
-  })
-
   let totalBallots = 0
-  for (const precinctId in voteCounts.Precinct) {
-    totalBallots += voteCounts!.Precinct![precinctId]!
+  if (voteCounts) {
+    for (const precinctId in voteCounts.Precinct) {
+      totalBallots += voteCounts!.Precinct![precinctId]!
+    }
   }
-
-  const votesByScanner = getVotesByScanner({
-    election,
-    castVoteRecords: castVoteRecordFiles.castVoteRecords,
-  })
 
   const getPrecinctNames = (precinctIds: readonly string[]) =>
     precinctIds
@@ -84,6 +76,24 @@ const TallyScreen = () => {
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles =
     !!castVoteRecordFileList.length || !!castVoteRecordFiles.errorFile
+
+  const computeVoteCounts = useCallback(() => {
+    if (hasCastVoteRecordFiles) {
+      setVoteCounts(
+        voteCountsByCategory({
+          castVoteRecords: castVoteRecordFiles.castVoteRecords,
+          categorizers: {
+            Precinct: CVRCategorizerByPrecinct,
+            Scanner: CVRCategorizerByScanner,
+          },
+        })
+      )
+    }
+  }, [setVoteCounts, castVoteRecordFiles, hasCastVoteRecordFiles])
+
+  useEffect(() => {
+    computeVoteCounts()
+  }, [computeVoteCounts])
 
   const processCastVoteRecordFiles: InputEventFunction = async (event) => {
     const input = event.currentTarget
@@ -243,7 +253,7 @@ const TallyScreen = () => {
             Remove CVR Files…
           </Button>
         </p>
-        {hasCastVoteRecordFiles && (
+        {hasCastVoteRecordFiles && voteCounts && (
           <React.Fragment>
             <h2>Ballot Count By Precinct</h2>
             <Table>
@@ -313,7 +323,7 @@ const TallyScreen = () => {
                   <TD as="th">Ballot Count</TD>
                   <TD as="th">View Tally</TD>
                 </tr>
-                {Object.keys(votesByScanner)
+                {Object.keys(voteCounts.Scanner!)
                   .sort((a, b) =>
                     a.localeCompare(b, 'en', {
                       numeric: true,
@@ -321,8 +331,7 @@ const TallyScreen = () => {
                     })
                   )
                   .map((scannerId) => {
-                    const scannerBallotsCount =
-                      votesByScanner[scannerId]?.length
+                    const scannerBallotsCount = voteCounts.Scanner![scannerId]
                     return (
                       <tr key={scannerId}>
                         <TD narrow nowrap>
