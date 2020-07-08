@@ -2,6 +2,7 @@ import {
   Party,
   YesNoVote,
   Candidate,
+  CandidateContest,
   CandidateVote,
   Election,
   VotesDict,
@@ -150,13 +151,15 @@ export function tallyVotesByContest({
         return
       }
 
+      // overvotes & undervotes
+      const seats =
+        contest.type === 'yesno' ? 1 : (contest as CandidateContest).seats
+      if (selected.length > seats || selected.length === 0) {
+        return
+      }
+
       if (contest.type === 'yesno') {
         const optionTally = find(tallies, (optionTally) => {
-          // console.log({
-          //   contest,
-          //   option: (optionTally as YesNoContestOptionTally).option[0],
-          //   selected: selected[0],
-          // })
           return (
             (optionTally as YesNoContestOptionTally).option[0] === selected[0]
           )
