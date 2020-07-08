@@ -1,6 +1,6 @@
 import { createContext, RefObject } from 'react'
 import { OptionalElection } from '@votingworks/ballot-encoder'
-import { SaveElection } from '../config/types'
+import { SaveElection, OptionalVoteCounts } from '../config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../utils/CastVoteRecordFiles'
@@ -17,6 +17,8 @@ interface AppContextInterface {
     React.SetStateAction<CastVoteRecordFiles>
   >
   saveIsOfficialResults: () => void
+  setVoteCounts: React.Dispatch<React.SetStateAction<OptionalVoteCounts>>
+  voteCounts: OptionalVoteCounts
 }
 
 const appContext: AppContextInterface = {
@@ -29,6 +31,8 @@ const appContext: AppContextInterface = {
   saveElection: () => undefined,
   setCastVoteRecordFiles: () => undefined,
   saveIsOfficialResults: () => undefined,
+  setVoteCounts: () => undefined,
+  voteCounts: undefined,
 }
 
 const AppContext = createContext(appContext)
