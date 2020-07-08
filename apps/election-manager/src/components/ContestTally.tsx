@@ -54,7 +54,7 @@ const ContestTally = ({ election, electionTally, contestTallyMeta }: Props) => {
         return (
           <Contest key={`div-${contest.id}`}>
             <Prose maxWidth={false}>
-              {ballots && (
+              {!!ballots && (
                 <ContestMeta className="ignore-prose">
                   <Text as="span" small>
                     {pluralize('ballots', ballots, true)} cast /{' '}
