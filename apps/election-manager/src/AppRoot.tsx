@@ -66,18 +66,6 @@ const AppRoot = ({ storage }: Props) => {
     storage.set(isOfficialResultsKey, true)
   }
 
-  const saveElection: SaveElection = (electionDefinition) => {
-    setElection(electionDefinition)
-    setElectionHash(
-      electionDefinition ? sha256(JSON.stringify(electionDefinition)) : ''
-    )
-    if (electionDefinition) {
-      storage.set(electionStorageKey, electionDefinition)
-    } else {
-      storage.remove(electionStorageKey)
-    }
-  }
-
   const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = (
     newCVRFiles = CastVoteRecordFiles.empty
   ) => {
@@ -88,6 +76,19 @@ const AppRoot = ({ storage }: Props) => {
       setIsOfficialResults(false)
     } else {
       storage.set(cvrsStorageKey, newCVRFiles.export())
+    }
+  }
+
+  const saveElection: SaveElection = (electionDefinition) => {
+    setElection(electionDefinition)
+    setElectionHash(
+      electionDefinition ? sha256(JSON.stringify(electionDefinition)) : ''
+    )
+    if (electionDefinition) {
+      storage.set(electionStorageKey, electionDefinition)
+    } else {
+      storage.remove(electionStorageKey)
+      saveCastVoteRecordFiles()
     }
   }
 
