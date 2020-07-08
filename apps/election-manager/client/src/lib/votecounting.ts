@@ -24,7 +24,7 @@ import find from '../utils/find'
 
 // the generic write-in candidate to keep count
 const writeInCandidate: Candidate = {
-  id: 'writein',
+  id: '__write-in',
   name: 'Write-In',
   isWriteIn: true,
 }
