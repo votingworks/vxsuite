@@ -26,11 +26,8 @@ test('tabulating a set of CVRs gives expected output', async () => {
   expect(fullTally).toMatchSnapshot()
 
   // some specific tallies checked by hand
-  // spot-checked the following:
-  // - Jackie Chan, 679 bubbles, of which 4 are overvotes --> 675
-  // - Neil Armstrong, 1139 bubbles, of which 5 are overvotes --> 1134
-  // - 149 write-ins
 
+  // - Jackie Chan, 679 bubbles, of which 4 are overvotes --> 675
   const presidentTallies = find(
     fullTally.overallTally.contestTallies,
     (contestTally) => contestTally.contest.id === 'president'
@@ -42,6 +39,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
   )
   expect(jackieChanTally.tally).toBe(675)
 
+  // - Neil Armstrong, 1139 bubbles, of which 5 are overvotes --> 1134
   const repDistrict18Tallies = find(
     fullTally.overallTally.contestTallies,
     (contestTally) => contestTally.contest.id === 'representative-district-18'
