@@ -152,9 +152,9 @@ export function tallyVotesByContest({
       }
 
       // overvotes & undervotes
-      const seats =
+      const maxSelectable =
         contest.type === 'yesno' ? 1 : (contest as CandidateContest).seats
-      if (selected.length > seats || selected.length === 0) {
+      if (selected.length > maxSelectable || selected.length === 0) {
         return
       }
 
