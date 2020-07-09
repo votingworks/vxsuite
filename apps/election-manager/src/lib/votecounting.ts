@@ -451,7 +451,7 @@ export const getOvervotePairTallies = ({
 type CVRCategorizer = (cvr: CastVoteRecord) => string
 
 interface VoteCountsByCategoryParams {
-  castVoteRecords: CastVoteRecord[]
+  castVoteRecords: CastVoteRecord[][]
   categorizers: Dictionary<CVRCategorizer>
 }
 
@@ -464,19 +464,20 @@ export const voteCountsByCategory = ({
   castVoteRecords,
   categorizers,
 }: VoteCountsByCategoryParams): Dictionary<Dictionary<number>> => {
-  console.log('COUNTING VOTES')
   const counts: Dictionary<Dictionary<number>> = {}
   for (const category in categorizers) {
     counts[category] = {}
   }
 
-  for (const cvr of castVoteRecords) {
-    for (const category in categorizers) {
-      const categorizer = categorizers[category]
-      const categoryValue = categorizer!(cvr)
-      const count = counts[category]!
+  for (const cvrArray of castVoteRecords) {
+    for (const cvr of cvrArray) {
+      for (const category in categorizers) {
+        const categorizer = categorizers[category]
+        const categoryValue = categorizer!(cvr)
+        const count = counts[category]!
 
-      count[categoryValue] = (count[categoryValue] || 0) + 1
+        count[categoryValue] = (count[categoryValue] || 0) + 1
+      }
     }
   }
 

@@ -2,6 +2,8 @@ import React, { useContext } from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
+import { CastVoteRecord } from '../config/types'
+
 import NavigationScreen from '../components/NavigationScreen'
 import PrintButton from '../components/PrintButton'
 import LinkButton from '../components/LinkButton'
@@ -48,9 +50,12 @@ const PairsReportScreen = () => {
   )
   const election = e!
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
+  const castVoteRecords = ([] as CastVoteRecord[]).concat(
+    ...castVoteRecordFiles.castVoteRecords
+  )
   const overvotePairTallies = getOvervotePairTallies({
     election,
-    castVoteRecords: castVoteRecordFiles.castVoteRecords,
+    castVoteRecords,
   })
 
   const electionDate = localeWeedkayAndDate.format(new Date(election.date))
@@ -58,7 +63,7 @@ const PairsReportScreen = () => {
 
   const contestTallyMeta = getContestTallyMeta({
     election,
-    castVoteRecords: castVoteRecordFiles.castVoteRecords,
+    castVoteRecords,
   })
 
   const reportHeader = (

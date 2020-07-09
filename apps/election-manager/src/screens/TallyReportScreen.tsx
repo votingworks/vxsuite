@@ -7,6 +7,7 @@ import find from '../utils/find'
 import { fullTallyVotes, getContestTallyMeta } from '../lib/votecounting'
 
 import {
+  CastVoteRecord,
   PrecinctReportScreenProps,
   ScannerReportScreenProps,
 } from '../config/types'
@@ -44,18 +45,22 @@ const TallyReportScreen = () => {
   const election = e!
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
 
-  if (castVoteRecordFiles.castVoteRecords.length === 0) {
+  const castVoteRecords = ([] as CastVoteRecord[]).concat(
+    ...castVoteRecordFiles.castVoteRecords
+  )
+
+  if (castVoteRecords.length === 0) {
     history.replace(routerPaths.tally)
   }
 
   const fullElectionTally = fullTallyVotes({
     election,
-    castVoteRecords: castVoteRecordFiles.castVoteRecords,
+    castVoteRecords,
   })
 
   const contestTallyMeta = getContestTallyMeta({
     election,
-    castVoteRecords: castVoteRecordFiles.castVoteRecords,
+    castVoteRecords,
   })
 
   const electionPrecinctTallies = Object.values(
