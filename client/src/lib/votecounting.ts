@@ -31,12 +31,112 @@ const writeInCandidate: Candidate = {
   isWriteIn: true,
 }
 
+export interface ParseCastVoteRecordResult {
+  cvr: CastVoteRecord
+  errors: string[]
+  lineNumber: number
+}
+
 // CVRs are newline-separated JSON objects
-export const parseCVRs = (castVoteRecordsString: string) =>
-  castVoteRecordsString
-    .split('\n')
-    .filter((el) => el) // remove empty lines
-    .map((line) => JSON.parse(line) as CastVoteRecord)
+export function* parseCVRs(
+  castVoteRecordsString: string,
+  election: Election
+): Generator<ParseCastVoteRecordResult> {
+  const ballotStyleIds = new Set(election.ballotStyles.map(({ id }) => id))
+  const precinctIds = new Set(election.precincts.map(({ id }) => id))
+  const ballotStyleContests = new Set(
+    election.ballotStyles.flatMap((ballotStyle) =>
+      getContests({ ballotStyle, election }).map(
+        ({ id }) => `${ballotStyle.id}/${id}`
+      )
+    )
+  )
+
+  const lines = castVoteRecordsString.split('\n')
+
+  for (const [lineOffset, line] of lines.entries()) {
+    if (line) {
+      const cvr = JSON.parse(line) as CastVoteRecord
+      const errors: string[] = []
+      const {
+        _ballotId,
+        _ballotStyleId,
+        _precinctId,
+        _testBallot,
+        _scannerId,
+        _locale,
+        _pageNumber,
+        ...votes
+      } = cvr
+
+      if (!ballotStyleIds.has(_ballotStyleId)) {
+        errors.push(
+          `Ballot style '${_ballotStyleId}' in CVR is not in the election definition`
+        )
+      }
+
+      if (!precinctIds.has(_precinctId)) {
+        errors.push(
+          `Precinct '${_precinctId}' in CVR is not in the election definition`
+        )
+      }
+
+      for (const contestId in votes as VotesDict) {
+        if (Object.prototype.hasOwnProperty.call(votes, contestId)) {
+          if (!ballotStyleContests.has(`${_ballotStyleId}/${contestId}`)) {
+            errors.push(
+              `Contest '${contestId}' in CVR is not in the election definition or is not a valid contest for ballot style '${_ballotStyleId}'`
+            )
+          }
+        }
+      }
+
+      if (typeof _testBallot !== 'boolean') {
+        errors.push(
+          `CVR test ballot flag must be true or false, got '${_testBallot}' (${typeof _testBallot}, not boolean)`
+        )
+      }
+
+      if (
+        typeof _pageNumber !== 'undefined' &&
+        typeof _pageNumber !== 'number'
+      ) {
+        errors.push(
+          `Page number in CVR must be a number if it is set, got '${_pageNumber}' (${typeof _pageNumber}, not number)`
+        )
+      }
+
+      if (typeof _ballotId !== 'string') {
+        errors.push(
+          `Ballot ID in CVR must be a string, got '${_ballotId}' (${typeof _ballotId}, not string)`
+        )
+      }
+
+      if (typeof _scannerId !== 'string') {
+        errors.push(
+          `Scanner ID in CVR must be a string, got '${_scannerId}' (${typeof _scannerId}, not string)`
+        )
+      }
+
+      if (
+        typeof _locale !== 'undefined' &&
+        (typeof _locale !== 'object' ||
+          !_locale ||
+          typeof _locale.primary !== 'string' ||
+          (typeof _locale.secondary !== 'undefined' &&
+            typeof _locale.primary !== 'string'))
+      ) {
+        errors.push(
+          `Locale in CVR must be a locale object with primary and optional secondary locales, got '${JSON.stringify(
+            _locale
+          )}'`
+        )
+      }
+
+      yield { cvr, errors, lineNumber: lineOffset + 1 }
+    }
+  }
+}
 
 export const getVotesByPrecinct: VotesByFunction = ({
   election,
