@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useCallback } from 'react'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 
-import { InputEventFunction } from '../config/types'
+import { CastVoteRecordLists, InputEventFunction } from '../config/types'
 
 import {
   voteCountsByCategory,
@@ -77,17 +77,20 @@ const TallyScreen = () => {
   const hasCastVoteRecordFiles =
     !!castVoteRecordFileList.length || !!castVoteRecordFiles.lastError
 
-  const computeVoteCounts = useCallback(() => {
-    setVoteCounts(
-      voteCountsByCategory({
-        castVoteRecords: castVoteRecordFiles.castVoteRecords,
-        categorizers: {
-          Precinct: CVRCategorizerByPrecinct,
-          Scanner: CVRCategorizerByScanner,
-        },
-      })
-    )
-  }, [setVoteCounts, castVoteRecordFiles])
+  const computeVoteCounts = useCallback(
+    (castVoteRecords: CastVoteRecordLists) => {
+      setVoteCounts(
+        voteCountsByCategory({
+          castVoteRecords,
+          categorizers: {
+            Precinct: CVRCategorizerByPrecinct,
+            Scanner: CVRCategorizerByScanner,
+          },
+        })
+      )
+    },
+    [setVoteCounts]
+  )
 
   const processCastVoteRecordFiles: InputEventFunction = async (event) => {
     const input = event.currentTarget
@@ -99,7 +102,7 @@ const TallyScreen = () => {
       election
     )
     saveCastVoteRecordFiles(newCastVoteRecordFiles)
-    computeVoteCounts()
+    computeVoteCounts(newCastVoteRecordFiles.castVoteRecords)
     setIsLoadingCVRFile(false)
 
     input.value = ''
