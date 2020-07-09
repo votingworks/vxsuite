@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 import { useParams, useHistory } from 'react-router-dom'
@@ -37,11 +37,38 @@ const TallyHeader = styled.div`
 
 const TallyReportScreen = () => {
   const history = useHistory()
+
   const { precinctId } = useParams<PrecinctReportScreenProps>()
   const { scannerId } = useParams<ScannerReportScreenProps>()
   const { castVoteRecordFiles, election: e, isOfficialResults } = useContext(
     AppContext
   )
+
+  // the point of this state and effect is to show a loading screen
+  // and almost immediately trigger removing the loading screen,
+  // which will then trigger the computation of the tally.
+  //
+  // because the computation takes a while and blocks the main thread
+  // (which we should fix, of course), the loading screen effectively
+  // stays on the screen as long as it takes to prepare the report.
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => {
+    window.setTimeout(() => {
+      setIsLoading(false)
+    }, 100)
+  })
+
+  if (isLoading) {
+    return (
+      <NavigationScreen mainChildCenter>
+        <Prose textCenter>
+          <h1>Building Tabulation Report...</h1>
+          <p>This may take a few seconds.</p>
+        </Prose>
+      </NavigationScreen>
+    )
+  }
+
   const election = e!
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
 
