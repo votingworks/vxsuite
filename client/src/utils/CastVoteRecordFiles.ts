@@ -31,6 +31,7 @@ function setAdd<T>(set: Set<T>, ...values: T[]): Set<T> {
  * mapAdd(map, value => value.id, { id: 3 }) // Map { 1 => { id: 1 }, 3 => { id: 3 } }
  * map                                       // Map { 1 => { id: 1 } }
  */
+/**
 function mapAdd<K, V>(
   map: Map<K, V>,
   keyfn: (value: V) => K,
@@ -43,7 +44,7 @@ function mapAdd<K, V>(
   }
 
   return result
-}
+} */
 
 /**
  * Tracks files containing cast vote records (CVRs). Has special handling for
@@ -73,7 +74,8 @@ export default class CastVoteRecordFiles {
 
   private readonly parseFailedFilenames: Set<string>
 
-  private readonly allCastVoteRecords: Map<string, CastVoteRecord>
+  // private readonly allCastVoteRecords: Map<string, CastVoteRecord>
+  private readonly allCastVoteRecords: CastVoteRecord[][]
 
   /**
    * This is your starting point for working with this class as the constructor
@@ -84,7 +86,7 @@ export default class CastVoteRecordFiles {
     new Set(),
     new Set(),
     new Set(),
-    new Map()
+    []
   )
 
   /**
@@ -96,7 +98,7 @@ export default class CastVoteRecordFiles {
     files: Set<CastVoteRecordFile>,
     duplicateFilesnames: Set<string>,
     parseFailedFilenames: Set<string>,
-    castVoteRecords: Map<string, CastVoteRecord>
+    castVoteRecords: CastVoteRecord[][]
   ) {
     this.signatures = signatures
     this.files = files
@@ -121,7 +123,7 @@ export default class CastVoteRecordFiles {
       new Set(files),
       new Set(duplicateFilenames),
       new Set(parseFailedFilenames),
-      new Map(allCastVoteRecords)
+      allCastVoteRecords
     )
   }
 
@@ -134,7 +136,7 @@ export default class CastVoteRecordFiles {
       files: [...this.files],
       duplicateFilenames: [...this.duplicateFilenames],
       parseFailedFilenames: [...this.parseFailedFilenames],
-      allCastVoteRecords: [...this.allCastVoteRecords.entries()],
+      allCastVoteRecords: this.allCastVoteRecords,
     })
   }
 
@@ -176,6 +178,9 @@ export default class CastVoteRecordFiles {
         fileCastVoteRecords.map((cvr) => cvr._precinctId)
       )
 
+      const newCastVoteRecords = this.allCastVoteRecords
+      newCastVoteRecords.push(fileCastVoteRecords)
+
       return new CastVoteRecordFiles(
         setAdd(this.signatures, signature),
         setAdd(this.files, {
@@ -185,11 +190,7 @@ export default class CastVoteRecordFiles {
         }),
         this.duplicateFilenames,
         this.parseFailedFilenames,
-        mapAdd(
-          this.allCastVoteRecords,
-          (cvr) => cvr._ballotId,
-          ...fileCastVoteRecords
-        )
+        newCastVoteRecords
       )
     } catch (error) {
       return new CastVoteRecordFiles(
@@ -226,8 +227,8 @@ export default class CastVoteRecordFiles {
   /**
    * All parsed CVRs from the added files.
    */
-  public get castVoteRecords(): CastVoteRecord[] {
-    return [...this.allCastVoteRecords.values()]
+  public get castVoteRecords(): CastVoteRecord[][] {
+    return this.allCastVoteRecords
   }
 }
 
