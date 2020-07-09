@@ -1,7 +1,11 @@
 import arrayUnique from 'array-unique'
 import { sha256 } from 'js-sha256'
 import { Election } from '@votingworks/ballot-encoder'
-import { CastVoteRecord, CastVoteRecordFile } from '../config/types'
+import {
+  CastVoteRecord,
+  CastVoteRecordFile,
+  CastVoteRecordLists,
+} from '../config/types'
 import readFileAsync from '../lib/readFileAsync'
 import { parseCVRs } from '../lib/votecounting'
 
@@ -196,9 +200,6 @@ export default class CastVoteRecordFiles {
         fileCastVoteRecords.map((cvr) => cvr._precinctId)
       )
 
-      const newCastVoteRecords = this.allCastVoteRecords
-      newCastVoteRecords.push(fileCastVoteRecords)
-
       return new CastVoteRecordFiles(
         setAdd(this.signatures, signature),
         setAdd(this.files, {
@@ -208,7 +209,7 @@ export default class CastVoteRecordFiles {
         }),
         this.duplicateFilenames,
         this.parseFailedErrors,
-        newCastVoteRecords
+        [...this.allCastVoteRecords, fileCastVoteRecords]
       )
     } catch (error) {
       return new CastVoteRecordFiles(
@@ -246,7 +247,7 @@ export default class CastVoteRecordFiles {
   /**
    * All parsed CVRs from the added files.
    */
-  public get castVoteRecords(): CastVoteRecord[][] {
+  public get castVoteRecords(): CastVoteRecordLists {
     return this.allCastVoteRecords
   }
 }
