@@ -72,9 +72,7 @@ const TallyReportScreen = () => {
   const election = e!
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
 
-  const castVoteRecords = ([] as CastVoteRecord[]).concat(
-    ...castVoteRecordFiles.castVoteRecords
-  )
+  const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1)
 
   if (castVoteRecords.length === 0) {
     history.replace(routerPaths.tally)

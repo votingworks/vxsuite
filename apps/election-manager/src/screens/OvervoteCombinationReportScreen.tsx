@@ -50,9 +50,7 @@ const PairsReportScreen = () => {
   )
   const election = e!
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
-  const castVoteRecords = ([] as CastVoteRecord[]).concat(
-    ...castVoteRecordFiles.castVoteRecords
-  )
+  const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1)
   const overvotePairTallies = getOvervotePairTallies({
     election,
     castVoteRecords,
