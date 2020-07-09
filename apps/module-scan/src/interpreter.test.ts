@@ -1,13 +1,15 @@
 import { electionSample } from '@votingworks/ballot-encoder'
+import { readFile } from 'fs-extra'
 import { join } from 'path'
-import hmpbElection from '../test/fixtures/hmpb-dallas-county/election'
+import hmpbElection from '../test/fixtures/state-of-hamilton/election'
 import SummaryBallotInterpreter, { getBallotImageData } from './interpreter'
+import pdfToImages from './util/pdfToImages'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 const electionFixturesRoot = join(
   __dirname,
   '..',
-  'test/fixtures/hmpb-dallas-county'
+  'test/fixtures/state-of-hamilton'
 )
 
 test('reads QR codes from ballot images #1', async () => {
@@ -64,40 +66,63 @@ test('interprets marks on a HMPB', async () => {
 
   interpreter.setTestMode(false)
 
-  await interpreter.addHmpbTemplate(
-    hmpbElection,
-    (await getBallotImageData(join(electionFixturesRoot, 'blank-p1.jpg'))).image
-  )
+  for await (const { page, pageNumber } of pdfToImages(
+    await readFile(join(electionFixturesRoot, 'ballot.pdf')),
+    { scale: 2 }
+  )) {
+    await interpreter.addHmpbTemplate(hmpbElection, page)
 
-  await interpreter.addHmpbTemplate(
-    hmpbElection,
-    (await getBallotImageData(join(electionFixturesRoot, 'blank-p2.jpg'))).image
-  )
+    if (pageNumber === 1) {
+      break
+    }
+  }
 
-  expect(
-    (
-      await interpreter.interpretFile({
-        election: hmpbElection,
-        ballotImagePath: join(electionFixturesRoot, 'filled-in-p1.jpg'),
-      })
-    )?.cvr
-  ).toEqual(
-    expect.objectContaining({
-      _ballotStyleId: '77',
-      _precinctId: '42',
-      'dallas-city-council': [],
-      'dallas-county-commissioners-court-pct-3': [],
-      'dallas-county-proposition-r': [],
-      'dallas-county-retain-chief-justice': [],
-      'dallas-county-sheriff': ['chad-prda'],
-      'dallas-county-tax-assessor': ['john-ames'],
-      'dallas-mayor': [],
-      'texas-house-district-111': ['__write-in'],
-      'texas-sc-judge-place-6': ['jane-bland'],
-      'us-house-district-30': ['eddie-bernice-johnson'],
-      'us-senate': ['tim-smith'],
+  const cvr = (
+    await interpreter.interpretFile({
+      election: hmpbElection,
+      ballotImagePath: join(
+        electionFixturesRoot,
+        'filled-in-dual-language-p1.jpg'
+      ),
     })
-  )
+  )?.cvr
+
+  delete cvr?._ballotId
+
+  expect(cvr).toMatchInlineSnapshot(`
+    Object {
+      "102": Array [],
+      "_ballotStyleId": "12",
+      "_precinctId": "23",
+      "_scannerId": "000",
+      "_testBallot": false,
+      "city-council": Array [],
+      "city-mayor": Array [],
+      "county-commissioners": Array [],
+      "county-registrar-of-wills": Array [],
+      "governor": Array [],
+      "judicial-elmer-hull": Array [],
+      "judicial-robert-demergue": Array [],
+      "lieutenant-governor": Array [],
+      "measure-101": Array [],
+      "president": Array [
+        "barchi-hallaren",
+      ],
+      "proposition-1": Array [],
+      "question-a": Array [],
+      "question-b": Array [],
+      "question-c": Array [],
+      "representative-district-6": Array [
+        "schott",
+      ],
+      "secretary-of-state": Array [],
+      "senator": Array [
+        "brown",
+      ],
+      "state-assembly-district-54": Array [],
+      "state-senator-district-31": Array [],
+    }
+  `)
 })
 
 test('interprets marks on an upside-down HMPB', async () => {
@@ -105,38 +130,61 @@ test('interprets marks on an upside-down HMPB', async () => {
 
   interpreter.setTestMode(false)
 
-  await interpreter.addHmpbTemplate(
-    hmpbElection,
-    (await getBallotImageData(join(electionFixturesRoot, 'blank-p1.jpg'))).image
-  )
+  for await (const { page, pageNumber } of pdfToImages(
+    await readFile(join(electionFixturesRoot, 'ballot.pdf')),
+    { scale: 2 }
+  )) {
+    await interpreter.addHmpbTemplate(hmpbElection, page)
 
-  await interpreter.addHmpbTemplate(
-    hmpbElection,
-    (await getBallotImageData(join(electionFixturesRoot, 'blank-p2.jpg'))).image
-  )
+    if (pageNumber === 1) {
+      break
+    }
+  }
 
-  expect(
-    (
-      await interpreter.interpretFile({
-        election: hmpbElection,
-        ballotImagePath: join(electionFixturesRoot, 'filled-in-p1-flipped.jpg'),
-      })
-    )?.cvr
-  ).toEqual(
-    expect.objectContaining({
-      _ballotStyleId: '77',
-      _precinctId: '42',
-      'dallas-city-council': [],
-      'dallas-county-commissioners-court-pct-3': [],
-      'dallas-county-proposition-r': [],
-      'dallas-county-retain-chief-justice': [],
-      'dallas-county-sheriff': ['chad-prda'],
-      'dallas-county-tax-assessor': ['john-ames'],
-      'dallas-mayor': [],
-      'texas-house-district-111': ['__write-in'],
-      'texas-sc-judge-place-6': ['jane-bland'],
-      'us-house-district-30': ['eddie-bernice-johnson'],
-      'us-senate': ['tim-smith'],
+  const cvr = (
+    await interpreter.interpretFile({
+      election: hmpbElection,
+      ballotImagePath: join(
+        electionFixturesRoot,
+        'filled-in-dual-language-p1-flipped.jpg'
+      ),
     })
-  )
+  )?.cvr
+
+  delete cvr?._ballotId
+
+  expect(cvr).toMatchInlineSnapshot(`
+    Object {
+      "102": Array [],
+      "_ballotStyleId": "12",
+      "_precinctId": "23",
+      "_scannerId": "000",
+      "_testBallot": false,
+      "city-council": Array [],
+      "city-mayor": Array [],
+      "county-commissioners": Array [],
+      "county-registrar-of-wills": Array [],
+      "governor": Array [],
+      "judicial-elmer-hull": Array [],
+      "judicial-robert-demergue": Array [],
+      "lieutenant-governor": Array [],
+      "measure-101": Array [],
+      "president": Array [
+        "barchi-hallaren",
+      ],
+      "proposition-1": Array [],
+      "question-a": Array [],
+      "question-b": Array [],
+      "question-c": Array [],
+      "representative-district-6": Array [
+        "schott",
+      ],
+      "secretary-of-state": Array [],
+      "senator": Array [
+        "brown",
+      ],
+      "state-assembly-district-54": Array [],
+      "state-senator-district-31": Array [],
+    }
+  `)
 })

@@ -1,5 +1,5 @@
 import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
-import election from '../test/fixtures/hmpb-dallas-county/election'
+import election from '../test/fixtures/state-of-hamilton/election'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'
@@ -28,11 +28,12 @@ beforeEach(async () => {
     {
       ballotImage: {
         metadata: {
-          ballotStyleId: '77',
-          precinctId: '42',
+          ballotStyleId: '12',
+          precinctId: '23',
           isTestBallot: false,
           pageNumber: 1,
           pageCount: 2,
+          locales: { primary: 'en-US' },
         },
       },
       contests: [],
@@ -40,11 +41,12 @@ beforeEach(async () => {
     {
       ballotImage: {
         metadata: {
-          ballotStyleId: '77',
-          precinctId: '42',
+          ballotStyleId: '12',
+          precinctId: '23',
           isTestBallot: false,
           pageNumber: 2,
           pageCount: 2,
+          locales: { primary: 'en-US' },
         },
       },
       contests: [],
@@ -220,7 +222,7 @@ test('GET /scan/batch/:batchId 404', async () => {
     .expect(404)
 })
 
-test('GET /scan/hmpb/ballot/:ballotId', async () => {
+test.only('GET /scan/hmpb/ballot/:ballotId', async () => {
   const contest = election.contests.find(
     ({ type }) => type === 'candidate'
   ) as CandidateContest
@@ -231,10 +233,12 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
     '/tmp/image.jpg',
     {
       _ballotId: 'abc',
-      _ballotStyleId: '77',
-      _precinctId: '42',
+      _ballotStyleId: '12',
+      _precinctId: '23',
       _scannerId: 'def',
       _testBallot: false,
+      _pageNumber: 1,
+      _locales: { primary: 'en-US' },
     },
     {
       ballotSize: { width: 0, height: 0 },
@@ -250,11 +254,12 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
       ],
     },
     {
-      ballotStyleId: '77',
-      precinctId: '42',
+      ballotStyleId: '12',
+      precinctId: '23',
       isTestBallot: false,
       pageNumber: 1,
       pageCount: 1,
+      locales: { primary: 'en-US' },
     }
   )
   await store.finishBatch(batchId)
@@ -267,7 +272,7 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
         url: '/scan/hmpb/ballot/1',
         image: { url: '/scan/hmpb/ballot/1/image', width: 0, height: 0 },
       },
-      marks: { 'us-senate': { 'john-cornyn': true } },
+      marks: { president: { 'barchi-hallaren': true } },
       contests: [],
     })
 })
@@ -294,8 +299,8 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
     '/tmp/image.jpg',
     {
       _ballotId: 'abc',
-      _ballotStyleId: '77',
-      _precinctId: '42',
+      _ballotStyleId: '12',
+      _precinctId: '23',
       _scannerId: 'def',
       _testBallot: false,
     },
@@ -321,8 +326,8 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
       ],
     },
     {
-      ballotStyleId: '77',
-      precinctId: '42',
+      ballotStyleId: '12',
+      precinctId: '23',
       isTestBallot: false,
       pageNumber: 1,
       pageCount: 1,
@@ -384,13 +389,13 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
 test('GET /scan/hmpb/ballot/:ballotId/image', async () => {
   const filename = join(
     __dirname,
-    '../test/fixtures/hmpb-dallas-county/filled-in-p1.jpg'
+    '../test/fixtures/state-of-hamilton/filled-in-dual-language-p1.jpg'
   )
   const batchId = await store.addBatch()
   const ballotId = await store.addCVR(batchId, filename, {
     _ballotId: 'abc',
-    _ballotStyleId: '77',
-    _precinctId: '42',
+    _ballotStyleId: '12',
+    _precinctId: '23',
     _scannerId: 'def',
     _testBallot: false,
   })

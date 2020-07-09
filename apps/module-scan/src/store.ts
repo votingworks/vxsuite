@@ -8,7 +8,10 @@ import {
   getBallotStyle,
   getContests,
 } from '@votingworks/ballot-encoder'
-import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
+import {
+  BallotPageMetadata,
+  BallotLocales,
+} from '@votingworks/hmpb-interpreter'
 import { strict as assert } from 'assert'
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
@@ -37,6 +40,7 @@ const debug = makeDebug('module-scan:store')
 interface HmpbTemplatesColumns {
   id: number
   pdf: Buffer
+  locales: string | null
   ballotStyleId: string
   precinctId: string
   isTestBallot: number // sqlite doesn't have "boolean", really
@@ -212,6 +216,7 @@ export default class Store {
       `create table if not exists hmpb_templates (
         id integer primary key autoincrement,
         pdf blob,
+        locales varchar(255),
         ballot_style_id varchar(255),
         precinct_id varchar(255),
         is_test_ballot boolean,
@@ -220,6 +225,7 @@ export default class Store {
     )
     await this.dbRunAsync(
       `create unique index if not exists hmpb_templates_idx on hmpb_templates (
+        locales,
         ballot_style_id,
         precinct_id,
         is_test_ballot
@@ -472,9 +478,10 @@ export default class Store {
 
     const hmpbTemplateRow = await this.dbGetAsync<
       { layoutsJSON: string },
-      [string, string, boolean]
+      [string | null, string, string, boolean]
     >(
-      'select layouts_json as layoutsJSON from hmpb_templates where ballot_style_id = ? and precinct_id = ? and is_test_ballot = ?',
+      'select layouts_json as layoutsJSON from hmpb_templates where locales = ? and ballot_style_id = ? and precinct_id = ? and is_test_ballot = ?',
+      this.serializeLocales(metadata.locales),
       metadata.ballotStyleId,
       metadata.precinctId,
       metadata.isTestBallot
@@ -677,14 +684,16 @@ export default class Store {
     debug('storing HMPB template: %O', metadata)
 
     await this.dbRunAsync(
-      'delete from hmpb_templates where ballot_style_id = ? and precinct_id = ? and is_test_ballot = ?',
+      'delete from hmpb_templates where locales = ? and ballot_style_id = ? and precinct_id = ? and is_test_ballot = ?',
+      this.serializeLocales(metadata.locales),
       metadata.ballotStyleId,
       metadata.precinctId,
       metadata.isTestBallot
     )
     await this.dbRunAsync(
-      'insert into hmpb_templates (pdf, ballot_style_id, precinct_id, is_test_ballot, layouts_json) values (?, ?, ?, ?, ?)',
+      'insert into hmpb_templates (pdf, locales, ballot_style_id, precinct_id, is_test_ballot, layouts_json) values (?, ?, ?, ?, ?, ?)',
       pdf,
+      this.serializeLocales(metadata.locales),
       metadata.ballotStyleId,
       metadata.precinctId,
       metadata.isTestBallot,
@@ -696,7 +705,7 @@ export default class Store {
     [Buffer, SerializableBallotPageLayout[]][]
   > {
     const sql =
-      'select id, pdf, ballot_style_id as ballotStyleId, precinct_id as precinctId, is_test_ballot as isTestBallot, layouts_json as layoutsJSON from hmpb_templates order by id asc'
+      'select id, pdf, locales, ballot_style_id as ballotStyleId, precinct_id as precinctId, is_test_ballot as isTestBallot, layouts_json as layoutsJSON from hmpb_templates order by id asc'
     const rows = await this.dbAllAsync<HmpbTemplatesColumns>(sql)
     const results: [Buffer, SerializableBallotPageLayout[]][] = []
 
@@ -710,6 +719,7 @@ export default class Store {
           ballotImage: {
             metadata: {
               ...metadata,
+              locales: this.parseLocales(metadata.locales),
               isTestBallot: metadata.isTestBallot !== 0,
               pageNumber: i + 1,
               pageCount: layouts.length,
@@ -720,5 +730,26 @@ export default class Store {
     }
 
     return results
+  }
+
+  private serializeLocales(locales?: BallotLocales): string | null {
+    if (!locales) {
+      return null
+    }
+
+    if (!locales.secondary) {
+      return locales.primary
+    }
+
+    return `${locales.primary},${locales.secondary}`
+  }
+
+  private parseLocales(value: string | null): BallotLocales | undefined {
+    if (!value) {
+      return undefined
+    }
+
+    const [primary, secondary] = value.split(',')
+    return { primary, secondary }
   }
 }

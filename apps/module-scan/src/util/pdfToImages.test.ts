@@ -16,13 +16,13 @@ async function asyncIterableToArray<T>(
 
 const ballotPath = join(
   __dirname,
-  '../../test/fixtures/hmpb-dallas-county/ballot.pdf'
+  '../../test/fixtures/state-of-hamilton/ballot.pdf'
 )
 
 test('yields the right number of images sized correctly', async () => {
   const pdfBytes = await fs.readFile(ballotPath)
   const pages = await asyncIterableToArray(pdfToImages(pdfBytes))
-  expect(pages.length).toEqual(2)
+  expect(pages.length).toEqual(5)
 
   const [
     {
