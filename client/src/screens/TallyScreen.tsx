@@ -10,6 +10,7 @@ import {
   CVRCategorizerByScanner,
 } from '../lib/votecounting'
 import ConverterClient from '../lib/ConverterClient'
+import * as format from '../utils/format'
 
 import AppContext from '../contexts/AppContext'
 
@@ -179,7 +180,7 @@ const TallyScreen = () => {
                     <TD narrow nowrap>
                       {name}
                     </TD>
-                    <TD narrow>{count}</TD>
+                    <TD narrow>{format.count(count)}</TD>
                     <TD>{getPrecinctNames(precinctIds)}</TD>
                   </tr>
                 ))}
@@ -188,9 +189,11 @@ const TallyScreen = () => {
                     Total CVRs Count
                   </TD>
                   <TD as="th" narrow>
-                    {castVoteRecordFileList.reduce(
-                      (prev, curr) => prev + curr.count,
-                      0
+                    {format.count(
+                      castVoteRecordFileList.reduce(
+                        (prev, curr) => prev + curr.count,
+                        0
+                      )
                     )}
                   </TD>
                   <TD as="th" />
@@ -278,7 +281,7 @@ const TallyScreen = () => {
                         <TD narrow nowrap>
                           {precinct.name}
                         </TD>
-                        <TD>{precinctBallotsCount}</TD>
+                        <TD>{format.count(precinctBallotsCount)}</TD>
                         <TD>
                           {!!precinctBallotsCount && (
                             <LinkButton
@@ -299,7 +302,7 @@ const TallyScreen = () => {
                     <strong>Total Ballot Count</strong>
                   </TD>
                   <TD>
-                    <strong>{totalBallots}</strong>
+                    <strong>{format.count(totalBallots)}</strong>
                   </TD>
                   <TD>
                     <LinkButton
@@ -330,13 +333,14 @@ const TallyScreen = () => {
                     })
                   )
                   .map((scannerId) => {
-                    const scannerBallotsCount = voteCounts.Scanner![scannerId]
+                    const scannerBallotsCount =
+                      voteCounts.Scanner?.[scannerId] ?? 0
                     return (
                       <tr key={scannerId}>
                         <TD narrow nowrap>
                           {scannerId}
                         </TD>
-                        <TD>{scannerBallotsCount}</TD>
+                        <TD>{format.count(scannerBallotsCount)}</TD>
                         <TD>
                           {!!scannerBallotsCount && (
                             <LinkButton
@@ -358,7 +362,7 @@ const TallyScreen = () => {
                     <strong>Total Ballot Count</strong>
                   </TD>
                   <TD>
-                    <strong>{totalBallots}</strong>
+                    <strong>{format.count(totalBallots)}</strong>
                   </TD>
                   <TD />
                 </tr>
