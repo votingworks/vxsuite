@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useCallback } from 'react'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 
-import { InputEventFunction } from '../config/types'
+import { InputEventFunction, CastVoteRecord } from '../config/types'
 
 import {
   voteCountsByCategory,
@@ -79,6 +79,7 @@ const TallyScreen = () => {
 
   const computeVoteCounts = useCallback(() => {
     if (hasCastVoteRecordFiles) {
+      console.log(castVoteRecordFiles)
       setVoteCounts(
         voteCountsByCategory({
           castVoteRecords: castVoteRecordFiles.castVoteRecords,
@@ -125,7 +126,8 @@ const TallyScreen = () => {
   }, [])
 
   const exportResults = async () => {
-    const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
+    const CastVoteRecordsString = ([] as CastVoteRecord[])
+      .concat(...castVoteRecordFiles.castVoteRecords)
       .map((c) => JSON.stringify(c))
       .join('\n')
 
