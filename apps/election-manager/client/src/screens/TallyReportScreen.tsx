@@ -116,7 +116,7 @@ const TallyReportScreen = () => {
           </p>
           {window.kiosk && (
             <p>
-              <Button onPress={saveAsPDF}>Save Tally Report as PDF</Button>
+              <Button onPress={saveAsPDF}>Save {statusPrefix} Tally Report as PDF</Button>
             </p>
           )}
           <p>
