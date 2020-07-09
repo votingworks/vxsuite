@@ -13,6 +13,7 @@ import {
 import AppContext from '../contexts/AppContext'
 
 import PrintButton from '../components/PrintButton'
+import Button from '../components/Button'
 import HorizontalRule from '../components/HorizontalRule'
 import ContestTally from '../components/ContestTally'
 import NavigationScreen from '../components/NavigationScreen'
@@ -73,6 +74,17 @@ const TallyReportScreen = () => {
   const electionDate = localeWeedkayAndDate.format(new Date(election.date))
   const generatedAt = localeLongDateAndTime.format(new Date())
 
+  const saveAsPDF = async () => {
+    const data = await window.kiosk!.printToPDF()
+    const fileWriter = await window.kiosk!.saveAs()
+    if (!fileWriter) {
+      window.alert('could not download, no appropriate file was chosen.')
+      return
+    }
+    fileWriter.write(data)
+    await fileWriter.end()
+  }
+
   const reportMeta = (
     <p>
       {electionDate}, {election.county.name}, {election.state}
@@ -102,6 +114,11 @@ const TallyReportScreen = () => {
           <p>
             <PrintButton primary>Print {statusPrefix} Tally Report</PrintButton>
           </p>
+          {window.kiosk && (
+            <p>
+              <Button onPress={saveAsPDF}>Save Tally Report as PDF</Button>
+            </p>
+          )}
           <p>
             <LinkButton small to={routerPaths.tally}>
               Back to Tally Index
