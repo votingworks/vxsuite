@@ -1,5 +1,6 @@
 import arrayUnique from 'array-unique'
 import { sha256 } from 'js-sha256'
+import { Election } from '@votingworks/ballot-encoder'
 import { CastVoteRecord, CastVoteRecordFile } from '../config/types'
 import readFileAsync from '../lib/readFileAsync'
 import { parseCVRs } from '../lib/votecounting'
@@ -31,7 +32,6 @@ function setAdd<T>(set: Set<T>, ...values: T[]): Set<T> {
  * mapAdd(map, value => value.id, { id: 3 }) // Map { 1 => { id: 1 }, 3 => { id: 3 } }
  * map                                       // Map { 1 => { id: 1 } }
  */
-/**
 function mapAdd<K, V>(
   map: Map<K, V>,
   keyfn: (value: V) => K,
@@ -44,7 +44,7 @@ function mapAdd<K, V>(
   }
 
   return result
-} */
+}
 
 /**
  * Tracks files containing cast vote records (CVRs). Has special handling for
@@ -72,7 +72,7 @@ export default class CastVoteRecordFiles {
 
   private readonly duplicateFilenames: Set<string>
 
-  private readonly parseFailedFilenames: Set<string>
+  private readonly parseFailedErrors: Map<string, string>
 
   // private readonly allCastVoteRecords: Map<string, CastVoteRecord>
   private readonly allCastVoteRecords: CastVoteRecord[][]
@@ -85,7 +85,7 @@ export default class CastVoteRecordFiles {
     new Set(),
     new Set(),
     new Set(),
-    new Set(),
+    new Map(),
     []
   )
 
@@ -96,14 +96,14 @@ export default class CastVoteRecordFiles {
   private constructor(
     signatures: Set<string>,
     files: Set<CastVoteRecordFile>,
-    duplicateFilesnames: Set<string>,
-    parseFailedFilenames: Set<string>,
+    duplicateFilenames: Set<string>,
+    parseFailedErrors: Map<string, string>,
     castVoteRecords: CastVoteRecord[][]
   ) {
     this.signatures = signatures
     this.files = files
-    this.duplicateFilenames = duplicateFilesnames
-    this.parseFailedFilenames = parseFailedFilenames
+    this.duplicateFilenames = duplicateFilenames
+    this.parseFailedErrors = parseFailedErrors
     this.allCastVoteRecords = castVoteRecords
   }
 
@@ -115,14 +115,14 @@ export default class CastVoteRecordFiles {
       signatures,
       files,
       duplicateFilenames,
-      parseFailedFilenames,
+      parseFailedErrors,
       allCastVoteRecords,
     } = JSON.parse(stringifiedCVRFiles)
     return new CastVoteRecordFiles(
       new Set(signatures),
       new Set(files),
       new Set(duplicateFilenames),
-      new Set(parseFailedFilenames),
+      new Map(parseFailedErrors),
       allCastVoteRecords
     )
   }
@@ -135,7 +135,7 @@ export default class CastVoteRecordFiles {
       signatures: [...this.signatures],
       files: [...this.files],
       duplicateFilenames: [...this.duplicateFilenames],
-      parseFailedFilenames: [...this.parseFailedFilenames],
+      parseFailedErrors: [...this.parseFailedErrors],
       allCastVoteRecords: this.allCastVoteRecords,
     })
   }
@@ -144,11 +144,14 @@ export default class CastVoteRecordFiles {
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `files` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async addAll(files: File[]): Promise<CastVoteRecordFiles> {
+  public async addAll(
+    files: File[],
+    election: Election
+  ): Promise<CastVoteRecordFiles> {
     let result: CastVoteRecordFiles = this // eslint-disable-line @typescript-eslint/no-this-alias
 
     for (const file of files) {
-      result = await result.add(file)
+      result = await result.add(file, election)
     }
 
     return result
@@ -158,7 +161,10 @@ export default class CastVoteRecordFiles {
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `file` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async add(file: File): Promise<CastVoteRecordFiles> {
+  public async add(
+    file: File,
+    election: Election
+  ): Promise<CastVoteRecordFiles> {
     try {
       const fileContent = await readFileAsync(file)
       const signature = sha256(fileContent)
@@ -168,12 +174,24 @@ export default class CastVoteRecordFiles {
           this.signatures,
           this.files,
           setAdd(this.duplicateFilenames, file.name),
-          this.parseFailedFilenames,
+          this.parseFailedErrors,
           this.allCastVoteRecords
         )
       }
 
-      const fileCastVoteRecords = parseCVRs(fileContent)
+      const fileCastVoteRecords: CastVoteRecord[] = []
+
+      for (const { cvr, errors, lineNumber } of parseCVRs(
+        fileContent,
+        election
+      )) {
+        if (errors.length) {
+          throw new Error(`Line ${lineNumber}: ${errors.join('\n')}`)
+        }
+
+        fileCastVoteRecords.push(cvr)
+      }
+
       const precinctIds = arrayUnique(
         fileCastVoteRecords.map((cvr) => cvr._precinctId)
       )
@@ -189,7 +207,7 @@ export default class CastVoteRecordFiles {
           precinctIds,
         }),
         this.duplicateFilenames,
-        this.parseFailedFilenames,
+        this.parseFailedErrors,
         newCastVoteRecords
       )
     } catch (error) {
@@ -197,17 +215,18 @@ export default class CastVoteRecordFiles {
         this.signatures,
         this.files,
         this.duplicateFilenames,
-        setAdd(this.parseFailedFilenames, file.name),
+        mapAdd(this.parseFailedErrors, () => file.name, error.message),
         this.allCastVoteRecords
       )
     }
   }
 
   /**
-   * The last filename that failed to add.
+   * The error for the last file that failed.
    */
-  public get errorFile(): string | undefined {
-    return [...this.parseFailedFilenames].pop()
+  public get lastError(): { filename: string; message: string } | undefined {
+    const last = [...this.parseFailedErrors].pop()
+    return last ? { filename: last[0], message: last[1] } : undefined
   }
 
   /**
