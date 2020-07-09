@@ -67,6 +67,14 @@ declare namespace KioskBrowser {
     getUsbDrives(): Promise<UsbDrive[]>
     mountUsbDrive(device: string)
     unmountUsbDrive(device: string)
+
+    // storage
+    storage: {
+      set<K extends keyof M>(key: string, value: M[K]) : Promise<void>
+      get<K extends keyof M>(key: string) : Promise<M[K] | undefined>
+      remove(key: string) : Promise<void>
+      clear() : Promise<void>
+    }
   }
 }
 
