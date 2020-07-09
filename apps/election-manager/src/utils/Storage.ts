@@ -11,22 +11,22 @@ export interface Storage<M extends Serializable> {
   /**
    * Gets an object from storage by key.
    */
-  get<K extends keyof M>(key: K): M[K] | undefined
+  get<K extends keyof M>(key: K): Promise<M[K] | undefined>
 
   /**
    * Sets an object in storage by key.
    */
-  set<K extends keyof M>(key: K, value: M[K]): void
+  set<K extends keyof M>(key: K, value: M[K]): Promise<void>
 
   /**
    * Removes an object in storage by key.
    */
-  remove<K extends keyof M>(key: K): void
+  remove<K extends keyof M>(key: K): Promise<void>
 
   /**
    * Clears all objects out of storage.
    */
-  clear(): void
+  clear(): Promise<void>
 }
 
 /**
@@ -36,7 +36,7 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
   /**
    * Gets an object from storage by key.
    */
-  public get<K extends keyof M>(key: K): M[K] | undefined {
+  public async get<K extends keyof M>(key: K): Promise<M[K] | undefined> {
     assert(typeof key === 'string')
     const value = window.localStorage.getItem(key)
     return value ? JSON.parse(value) : undefined
@@ -45,7 +45,7 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
   /**
    * Sets an object in storage by key.
    */
-  public set<K extends keyof M>(key: K, value: M[K]): void {
+  public async set<K extends keyof M>(key: K, value: M[K]): Promise<void> {
     assert(typeof key === 'string')
     window.localStorage.setItem(key, JSON.stringify(value))
   }
@@ -53,7 +53,7 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
   /**
    * Removes an object in storage by key.
    */
-  public remove<K extends keyof M>(key: K): void {
+  public async remove<K extends keyof M>(key: K): Promise<void> {
     assert(typeof key === 'string')
     window.localStorage.removeItem(key)
   }
@@ -61,8 +61,44 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
   /**
    * Clears all objects out of storage.
    */
-  public clear(): void {
+  public async clear(): Promise<void> {
     window.localStorage.clear()
+  }
+}
+
+/**
+ * Implements the storage API using Kiosk Storage as the backing store.
+ */
+export class KioskStorage<M extends Serializable> implements Storage<M> {
+  /**
+   * Gets an object from storage by key.
+   */
+  public async get<K extends keyof M>(key: K): Promise<M[K] | undefined> {
+    assert(typeof key === 'string')
+    return window.kiosk!.storage.get(key)
+  }
+
+  /**
+   * Sets an object in storage by key.
+   */
+  public async set<K extends keyof M>(key: K, value: M[K]): Promise<void> {
+    assert(typeof key === 'string')
+    await window.kiosk!.storage.set(key, value)
+  }
+
+  /**
+   * Removes an object in storage by key.
+   */
+  public async remove<K extends keyof M>(key: K): Promise<void> {
+    assert(typeof key === 'string')
+    await window.kiosk!.storage.remove(key)
+  }
+
+  /**
+   * Clears all objects out of storage.
+   */
+  public async clear(): Promise<void> {
+    await window.kiosk!.storage.clear()
   }
 }
 
@@ -90,7 +126,7 @@ export class MemoryStorage<M extends Serializable> implements Storage<M> {
   /**
    * Gets an object from storage by key.
    */
-  public get<K extends keyof M>(key: K): M[K] | undefined {
+  public async get<K extends keyof M>(key: K): Promise<M[K] | undefined> {
     const serialized = this.data.get(key)
 
     if (typeof serialized === 'undefined') {
@@ -103,21 +139,21 @@ export class MemoryStorage<M extends Serializable> implements Storage<M> {
   /**
    * Sets an object in storage by key.
    */
-  public set<K extends keyof M>(key: K, value: M[K]): void {
+  public async set<K extends keyof M>(key: K, value: M[K]): Promise<void> {
     this.data.set(key, JSON.stringify(value))
   }
 
   /**
    * Removes an object in storage by key.
    */
-  public remove<K extends keyof M>(key: K): void {
+  public async remove<K extends keyof M>(key: K): Promise<void> {
     this.data.delete(key)
   }
 
   /**
    * Clears all objects out of storage.
    */
-  public clear(): void {
+  public async clear(): Promise<void> {
     this.data.clear()
   }
 }

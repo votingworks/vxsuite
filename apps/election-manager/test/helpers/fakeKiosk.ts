@@ -55,5 +55,11 @@ export default function fakeKiosk({
     getUsbDrives: jest.fn(),
     mountUsbDrive: jest.fn(),
     unmountUsbDrive: jest.fn(),
+    storage: {
+      set: jest.fn(),
+      get: jest.fn(),
+      remove: jest.fn(),
+      clear: jest.fn(),
+    },
   }
 }

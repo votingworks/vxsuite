@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import { sha256 } from 'js-sha256'
@@ -36,35 +36,46 @@ export const isOfficialResultsKey = 'isOfficialResults'
 const AppRoot = ({ storage }: Props) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
-  const getElection = () => {
-    const election = storage.get(electionStorageKey)
+  const getElection = async () => {
+    const election = await storage.get(electionStorageKey)
 
     return election ? parseElection(election) : undefined
   }
-  const getCVRFiles = () => storage.get(cvrsStorageKey)
-  const getIsOfficialResults = () => storage.get(isOfficialResultsKey)
 
-  const storageElection = getElection()
-  const [election, setElection] = useState<OptionalElection>(storageElection)
-  const [electionHash, setElectionHash] = useState(
-    storageElection ? sha256(JSON.stringify(storageElection)) : ''
-  )
+  const getCVRFiles = async () => storage.get(cvrsStorageKey)
+  const getIsOfficialResults = async () => storage.get(isOfficialResultsKey)
 
-  const storageCVRFiles = getCVRFiles()
+  const [election, setElection] = useState<OptionalElection>(undefined)
+  const [electionHash, setElectionHash] = useState('')
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
-    storageCVRFiles
-      ? CastVoteRecordFiles.import(storageCVRFiles)
-      : CastVoteRecordFiles.empty
+    CastVoteRecordFiles.empty
   )
+  const [isOfficialResults, setIsOfficialResults] = useState(false)
 
-  const storageIsOfficialResults = getIsOfficialResults() || false
-  const [isOfficialResults, setIsOfficialResults] = useState<boolean>(
-    storageIsOfficialResults
-  )
-  const saveIsOfficialResults = () => {
+  const saveIsOfficialResults = async () => {
     setIsOfficialResults(true)
-    storage.set(isOfficialResultsKey, true)
+    await storage.set(isOfficialResultsKey, true)
   }
+
+  useEffect(() => {
+    ;(async () => {
+      if (!election) {
+        const storageElection = await getElection()
+        if (storageElection) {
+          setElection(storageElection)
+          setElectionHash(sha256(JSON.stringify(storageElection)))
+        }
+
+        if (castVoteRecordFiles === CastVoteRecordFiles.empty) {
+          const storageCVRFiles = await getCVRFiles()
+          if (storageCVRFiles) {
+            setCastVoteRecordFiles(CastVoteRecordFiles.import(storageCVRFiles))
+            setIsOfficialResults((await getIsOfficialResults()) || false)
+          }
+        }
+      }
+    })()
+  })
 
   const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = (
     newCVRFiles = CastVoteRecordFiles.empty
