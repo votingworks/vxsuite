@@ -91,11 +91,11 @@ export type VotesByFunction = (value: {
 // Cast Vote Records
 
 export interface CastVoteRecord
-  extends Dictionary<string | string[] | number | BallotLocale> {
+  extends Dictionary<string | string[] | boolean | number | BallotLocale> {
   _precinctId: string
   _ballotId: string
   _ballotStyleId: string
-  _testBallot: string
+  _testBallot: boolean
   _scannerId: string
   _pageNumber?: number
   _locale?: BallotLocale
