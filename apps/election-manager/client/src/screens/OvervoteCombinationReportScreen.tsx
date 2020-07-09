@@ -2,8 +2,6 @@ import React, { useContext } from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
-import { CastVoteRecord } from '../config/types'
-
 import NavigationScreen from '../components/NavigationScreen'
 import PrintButton from '../components/PrintButton'
 import LinkButton from '../components/LinkButton'

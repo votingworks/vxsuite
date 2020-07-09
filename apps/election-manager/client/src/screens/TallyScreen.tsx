@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useCallback } from 'react'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 
-import { InputEventFunction, CastVoteRecord } from '../config/types'
+import { InputEventFunction } from '../config/types'
 
 import {
   voteCountsByCategory,

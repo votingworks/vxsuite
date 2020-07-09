@@ -7,7 +7,6 @@ import find from '../utils/find'
 import { fullTallyVotes, getContestTallyMeta } from '../lib/votecounting'
 
 import {
-  CastVoteRecord,
   PrecinctReportScreenProps,
   ScannerReportScreenProps,
 } from '../config/types'
@@ -146,7 +145,9 @@ const TallyReportScreen = () => {
           </p>
           {window.kiosk && (
             <p>
-              <Button onPress={saveAsPDF}>Save {statusPrefix} Tally Report as PDF</Button>
+              <Button onPress={saveAsPDF}>
+                Save {statusPrefix} Tally Report as PDF
+              </Button>
             </p>
           )}
           <p>
