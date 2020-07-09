@@ -75,7 +75,7 @@ const TallyScreen = () => {
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles =
-    !!castVoteRecordFileList.length || !!castVoteRecordFiles.errorFile
+    !!castVoteRecordFileList.length || !!castVoteRecordFiles.lastError
 
   const computeVoteCounts = useCallback(() => {
     setVoteCounts(
@@ -94,7 +94,10 @@ const TallyScreen = () => {
     const files = Array.from(input.files || [])
 
     setIsLoadingCVRFile(true)
-    const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(files)
+    const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(
+      files,
+      election
+    )
     saveCastVoteRecordFiles(newCastVoteRecordFiles)
     computeVoteCounts()
     setIsLoadingCVRFile(false)
@@ -222,11 +225,12 @@ const TallyScreen = () => {
             )}
           </Text>
         )}
-        {castVoteRecordFiles.errorFile && (
+        {castVoteRecordFiles.lastError && (
           <Text error>
             There was an error reading the content of the file{' '}
-            <strong>{castVoteRecordFiles.errorFile}</strong>. Please ensure this
-            file only contains CVR data.
+            <strong>{castVoteRecordFiles.lastError.filename}</strong>:{' '}
+            {castVoteRecordFiles.lastError.message}. Please ensure this file
+            only contains valid CVR data for this election.
           </Text>
         )}
         <p>
@@ -411,7 +415,7 @@ const TallyScreen = () => {
             ) : (
               <p>
                 Do you want to remove the files causing errors:{' '}
-                {castVoteRecordFiles.errorFile}?
+                {castVoteRecordFiles.lastError?.filename}?
               </p>
             )}
             <p>All reports will be unavailable without CVR data.</p>
