@@ -101,6 +101,8 @@ export interface CastVoteRecord
   _locale?: BallotLocale
 }
 
+export type CastVoteRecordLists = ReadonlyArray<ReadonlyArray<CastVoteRecord>>
+
 export interface CastVoteRecordFile {
   readonly name: string
   readonly count: number
