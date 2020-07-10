@@ -15,6 +15,7 @@ import {
   FullElectionTally,
   VotesByFilter,
   CastVoteRecord,
+  CastVoteRecordLists,
   VotesByFunction,
   Tally,
   ContestTally,
@@ -551,7 +552,7 @@ export const getOvervotePairTallies = ({
 type CVRCategorizer = (cvr: CastVoteRecord) => string
 
 interface VoteCountsByCategoryParams {
-  castVoteRecords: CastVoteRecord[][]
+  castVoteRecords: CastVoteRecordLists
   categorizers: Dictionary<CVRCategorizer>
 }
 
