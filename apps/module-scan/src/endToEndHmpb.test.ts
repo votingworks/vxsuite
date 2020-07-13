@@ -115,7 +115,6 @@ test('going through the whole process works', async () => {
 
     expect(p1CVR).toMatchInlineSnapshot(`
       Object {
-        "102": Array [],
         "_ballotStyleId": "12",
         "_locales": Object {
           "primary": "en-US",
@@ -125,36 +124,19 @@ test('going through the whole process works', async () => {
         "_precinctId": "23",
         "_scannerId": "000",
         "_testBallot": false,
-        "city-council": Array [],
-        "city-mayor": Array [],
-        "county-commissioners": Array [],
-        "county-registrar-of-wills": Array [],
-        "governor": Array [],
-        "judicial-elmer-hull": Array [],
-        "judicial-robert-demergue": Array [],
-        "lieutenant-governor": Array [],
-        "measure-101": Array [],
         "president": Array [
           "barchi-hallaren",
         ],
-        "proposition-1": Array [],
-        "question-a": Array [],
-        "question-b": Array [],
-        "question-c": Array [],
         "representative-district-6": Array [
           "schott",
         ],
-        "secretary-of-state": Array [],
         "senator": Array [
           "brown",
         ],
-        "state-assembly-district-54": Array [],
-        "state-senator-district-31": Array [],
       }
     `)
     expect(p2CVR).toMatchInlineSnapshot(`
       Object {
-        "102": Array [],
         "_ballotStyleId": "12",
         "_locales": Object {
           "primary": "en-US",
@@ -164,29 +146,15 @@ test('going through the whole process works', async () => {
         "_precinctId": "23",
         "_scannerId": "000",
         "_testBallot": false,
-        "city-council": Array [],
-        "city-mayor": Array [],
-        "county-commissioners": Array [],
-        "county-registrar-of-wills": Array [],
         "governor": Array [
           "windbeck",
         ],
-        "judicial-elmer-hull": Array [],
-        "judicial-robert-demergue": Array [],
         "lieutenant-governor": Array [
           "davis",
         ],
-        "measure-101": Array [],
-        "president": Array [],
-        "proposition-1": Array [],
-        "question-a": Array [],
-        "question-b": Array [],
-        "question-c": Array [],
-        "representative-district-6": Array [],
         "secretary-of-state": Array [
           "talarico",
         ],
-        "senator": Array [],
         "state-assembly-district-54": Array [
           "keller",
         ],
