@@ -248,7 +248,11 @@ export default class SummaryBallotInterpreter implements Interpreter {
     } = await hmpbInterpreter.interpretBallot(image)
 
     return {
-      cvr: ballotToCastVoteRecord(ballot),
+      cvr: {
+        ...ballotToCastVoteRecord(ballot),
+        _pageNumber: metadata.pageNumber,
+        _locales: metadata.locales,
+      },
       normalizedImage: mappedBallot,
       marks: {
         marks,
