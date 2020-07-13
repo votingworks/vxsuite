@@ -2392,3 +2392,40 @@ test('choctaw general 2019', async () => {
     }
   `)
 })
+
+test('determining layout of a ballot with borders', async () => {
+  const interpreter = new Interpreter(choctaw.election)
+
+  await interpreter.addTemplate(
+    await choctaw.blankPage1.imageData(),
+    await choctaw.blankPage1.metadata()
+  )
+
+  await interpreter.addTemplate(
+    await choctaw.blankPage2.imageData(),
+    await choctaw.blankPage2.metadata()
+  )
+
+  await interpreter.addTemplate(
+    await choctaw.blankPage3.imageData(),
+    await choctaw.blankPage3.metadata()
+  )
+
+  expect(
+    (
+      await interpreter.interpretBallot(
+        await choctaw.borderPage1.imageData(),
+        await choctaw.blankPage1.metadata()
+      )
+    ).ballot.votes
+  ).toMatchInlineSnapshot(`Object {}`)
+
+  expect(
+    (
+      await interpreter.interpretBallot(
+        await choctaw.borderPage3.imageData(),
+        await choctaw.blankPage3.metadata()
+      )
+    ).ballot.votes
+  ).toMatchInlineSnapshot(`Object {}`)
+})

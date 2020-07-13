@@ -21,7 +21,7 @@ export default function* findContests(
     minContestHeightPercent = 10,
     maxContestWidthPercent = 40,
     maxContestHeightPercent = 90,
-    maxTopContestOffsetPercent = 5,
+    maxTopContestOffsetPercent = 10,
     columns = [true, true, true],
   } = {}
 ): Generator<ContestShape> {
