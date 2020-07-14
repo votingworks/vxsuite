@@ -5,12 +5,7 @@ import { table } from 'table'
 import { OptionParseError } from '..'
 import { Interpreter } from '../..'
 import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../Interpreter'
-import {
-  BallotLocales,
-  BallotPageMetadata,
-  Input,
-  Interpreted,
-} from '../../types'
+import { Input, Interpreted } from '../../types'
 import { readImageData } from '../../utils/readImageData'
 
 export enum OutputFormat {
@@ -28,33 +23,14 @@ export interface Options {
 }
 
 function makeInputFromBallotArgument(arg: string): Input {
-  const args = arg.split(':')
-
-  if (args.length === 5) {
-    args.splice(1, 0, '')
-  }
-
-  const [
-    file,
-    locales,
-    ballotStyleId,
-    precinctId,
-    pageNumber,
-    pageCount,
-  ] = arg.split(':')
+  const [ballotFile, metadataFile] = arg.split(':')
   const input: Input = {
-    id: () => file,
-    imageData: () => readImageData(file),
-  }
-  if (ballotStyleId && precinctId && pageNumber && pageCount) {
-    input.metadata = async (): Promise<BallotPageMetadata> => ({
-      locales: (locales.split(',').filter(Boolean) as unknown) as BallotLocales,
-      ballotStyleId,
-      precinctId,
-      pageNumber: Number(pageNumber),
-      pageCount: Number(pageCount),
-      isTestBallot: false,
-    })
+    id: () => ballotFile,
+    imageData: () => readImageData(ballotFile),
+    metadata: async () =>
+      metadataFile
+        ? JSON.parse(await fs.readFile(metadataFile, 'utf-8'))
+        : undefined,
   }
   return input
 }
