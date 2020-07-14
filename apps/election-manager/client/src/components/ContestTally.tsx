@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election, Candidate, Dictionary } from '@votingworks/ballot-encoder'
+import { Election, Candidate } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
 import { Tally } from '../config/types'
@@ -8,7 +8,10 @@ import { Tally } from '../config/types'
 import Prose from './Prose'
 import Text from './Text'
 import Table, { TD } from './Table'
-import { ContestTallyMeta } from '../lib/votecounting'
+import {
+  ContestTallyMeta,
+  ContestTallyMetaDictionary,
+} from '../lib/votecounting'
 
 const ContestMeta = styled.div`
   float: right;
@@ -27,7 +30,7 @@ const Contest = styled.div`
 interface Props {
   election: Election
   electionTally: Tally
-  contestTallyMeta: Dictionary<ContestTallyMeta>
+  contestTallyMeta: ContestTallyMetaDictionary
 }
 
 const ContestTally = ({ election, electionTally, contestTallyMeta }: Props) => {
@@ -46,23 +49,23 @@ const ContestTally = ({ election, electionTally, contestTallyMeta }: Props) => {
           ? districts.includes(contest.districtId)
           : true
 
-        const {
-          ballots,
-          overvotes,
-          undervotes,
-        }: ContestTallyMeta = contestTallyMeta[contest.id]!
+        const { ballots, overvotes, undervotes }: ContestTallyMeta = {
+          ballots: 0,
+          overvotes: 0,
+          undervotes: 0,
+          ...contestTallyMeta[contest.id],
+        }
+
         return (
           <Contest key={`div-${contest.id}`}>
             <Prose maxWidth={false}>
-              {!!ballots && (
-                <ContestMeta className="ignore-prose">
-                  <Text as="span" small>
-                    {pluralize('ballots', ballots, true)} cast /{' '}
-                    {pluralize('overvotes', overvotes, true)} /{' '}
-                    {pluralize('undervotes', undervotes, true)}
-                  </Text>
-                </ContestMeta>
-              )}
+              <ContestMeta className="ignore-prose">
+                <Text as="span" small>
+                  {pluralize('ballots', ballots, true)} cast /{' '}
+                  {pluralize('overvotes', overvotes, true)} /{' '}
+                  {pluralize('undervotes', undervotes, true)}
+                </Text>
+              </ContestMeta>
               <h3>
                 {contest.section}, {contest.title}
               </h3>
