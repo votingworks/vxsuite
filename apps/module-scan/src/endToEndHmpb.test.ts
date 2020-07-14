@@ -117,6 +117,11 @@ test('going through the whole process works', async () => {
       Object {
         "102": Array [],
         "_ballotStyleId": "12",
+        "_locales": Object {
+          "primary": "en-US",
+          "secondary": "es-US",
+        },
+        "_pageNumber": 1,
         "_precinctId": "23",
         "_scannerId": "000",
         "_testBallot": false,
@@ -151,6 +156,11 @@ test('going through the whole process works', async () => {
       Object {
         "102": Array [],
         "_ballotStyleId": "12",
+        "_locales": Object {
+          "primary": "en-US",
+          "secondary": "es-US",
+        },
+        "_pageNumber": 2,
         "_precinctId": "23",
         "_scannerId": "000",
         "_testBallot": false,

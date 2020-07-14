@@ -93,6 +93,11 @@ test('interprets marks on a HMPB', async () => {
     Object {
       "102": Array [],
       "_ballotStyleId": "12",
+      "_locales": Object {
+        "primary": "en-US",
+        "secondary": "es-US",
+      },
+      "_pageNumber": 1,
       "_precinctId": "23",
       "_scannerId": "000",
       "_testBallot": false,
@@ -157,6 +162,11 @@ test('interprets marks on an upside-down HMPB', async () => {
     Object {
       "102": Array [],
       "_ballotStyleId": "12",
+      "_locales": Object {
+        "primary": "en-US",
+        "secondary": "es-US",
+      },
+      "_pageNumber": 1,
       "_precinctId": "23",
       "_scannerId": "000",
       "_testBallot": false,
