@@ -246,13 +246,51 @@ export default class SummaryBallotInterpreter implements Interpreter {
       mappedBallot,
       metadata,
     } = await hmpbInterpreter.interpretBallot(image)
+    const {
+      _ballotId,
+      _ballotStyleId,
+      _precinctId,
+      _testBallot,
+      _scannerId,
+      _pageNumber,
+      _locales,
+      ...allContestVotes
+    } = ballotToCastVoteRecord(ballot)
+
+    const cvr: CastVoteRecord = {
+      _ballotId,
+      _ballotStyleId,
+      _precinctId,
+      _testBallot,
+      _scannerId,
+      _pageNumber: _pageNumber ?? metadata.pageNumber,
+      _locales: _locales ?? metadata.locales,
+    }
+    const contestIds = marks
+      .filter((mark) => mark.type !== 'stray')
+      .map((mark) => mark.contest?.id)
+
+    for (const key in allContestVotes) {
+      if (
+        Object.prototype.hasOwnProperty.call(allContestVotes, key) &&
+        typeof key === 'string'
+      ) {
+        const votes = allContestVotes[key]
+
+        if (contestIds.includes(key)) {
+          cvr[key] = votes
+        } else if (!Array.isArray(votes) || votes.length > 0) {
+          throw new Error(
+            `Unexpectedly found a CVR entry for contest '${key}', but that contest should not be present on this ballot (${JSON.stringify(
+              metadata
+            )})`
+          )
+        }
+      }
+    }
 
     return {
-      cvr: {
-        ...ballotToCastVoteRecord(ballot),
-        _pageNumber: metadata.pageNumber,
-        _locales: metadata.locales,
-      },
+      cvr,
       normalizedImage: mappedBallot,
       marks: {
         marks,
