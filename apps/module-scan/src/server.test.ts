@@ -1,16 +1,17 @@
 import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
-import election from '../test/fixtures/state-of-hamilton/election'
+import { createImageData } from 'canvas'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'
 import { join } from 'path'
 import request from 'supertest'
+import election from '../test/fixtures/state-of-hamilton/election'
+import zeroRect from '../test/fixtures/zeroRect'
 import { makeMockImporter } from '../test/util/mocks'
 import { Importer } from './importer'
 import { buildApp, start } from './server'
 import Store from './store'
-import { createImageData } from 'canvas'
-import zeroRect from '../test/fixtures/zeroRect'
+import { MarkStatus } from './types/ballot-review'
 
 jest.mock('./importer')
 
@@ -272,7 +273,7 @@ test.only('GET /scan/hmpb/ballot/:ballotId', async () => {
         url: '/scan/hmpb/ballot/1',
         image: { url: '/scan/hmpb/ballot/1/image', width: 0, height: 0 },
       },
-      marks: { president: { 'barchi-hallaren': true } },
+      marks: { president: { 'barchi-hallaren': MarkStatus.Marked } },
       contests: [],
     })
 })

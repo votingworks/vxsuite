@@ -1,5 +1,5 @@
 import { BallotMark } from '@votingworks/hmpb-interpreter'
-import { isMarked } from '../types'
+import { getMarkStatus } from '../types'
 import { MarksByContestId } from '../types/ballot-review'
 
 export default function applyChangesToMarks(
@@ -13,13 +13,13 @@ export default function applyChangesToMarks(
       const contestId = mark.contest.id
       const optionId =
         typeof mark.option === 'string' ? mark.option : mark.option.id
-      const originallyMarked = isMarked(mark) === true
+      const originalMark = getMarkStatus(mark)
       const reduced = changes.reduce(
         (last, change) => change[contestId]?.[optionId] ?? last,
-        originallyMarked
+        originalMark
       )
 
-      if (reduced !== originallyMarked) {
+      if (reduced !== originalMark) {
         result[contestId] = {
           ...result[contestId],
           [optionId]: reduced,
