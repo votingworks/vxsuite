@@ -4,6 +4,7 @@ import {
   DeepReadonly,
   ReviewBallot,
   MarksByContestId,
+  MarkStatus,
 } from '../config/types'
 
 export type State = Failed | Init | Review | Done
@@ -58,10 +59,9 @@ function normalizeChanges(
 
   for (const [contestId, marksByOptionId] of Object.entries(changes)) {
     for (const [optionId, marked] of Object.entries(marksByOptionId!)) {
-      // It wasn't marked if the value is `false` or `undefined`.
-      const originallyMarked = ballot.marks[contestId]?.[optionId] === true
+      const originalMarked = ballot.marks[contestId]?.[optionId]
 
-      if (originallyMarked !== marked) {
+      if (originalMarked !== marked) {
         const normalizedMarksByOptionId = normalized[contestId] ?? {}
         normalizedMarksByOptionId[optionId] = marked
         normalized[contestId] = normalizedMarksByOptionId
@@ -76,7 +76,7 @@ export function change(
   state: State,
   contest: Contest,
   option: ContestOption,
-  marked: boolean
+  marked: MarkStatus
 ): State {
   if (state.type !== 'review') {
     throw new Error(
@@ -116,7 +116,10 @@ export function toggle(
     state,
     contest,
     option,
-    !(changes[contest.id]?.[option.id] ?? ballot.marks[contest.id]?.[option.id])
+    (changes[contest.id]?.[option.id] ??
+      ballot.marks[contest.id]?.[option.id]) === MarkStatus.Marked
+      ? MarkStatus.Unmarked
+      : MarkStatus.Marked
   )
 }
 

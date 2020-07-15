@@ -17,7 +17,13 @@ export interface MarksByContestId {
 }
 
 export interface MarksByOptionId {
-  [key: string]: boolean | undefined
+  [key: string]: MarkStatus | undefined
+}
+
+export enum MarkStatus {
+  Marked = 'marked',
+  Unmarked = 'unmarked',
+  Marginal = 'marginal',
 }
 
 export interface ReviewBallot {
@@ -36,9 +42,7 @@ export interface Contest {
   options: readonly ContestOption[]
 }
 
-export type ContestOption =
-  | CandidateContestOption
-  | YesNoContestOption
+export type ContestOption = CandidateContestOption | YesNoContestOption
 
 export interface CandidateContestOption {
   type: t.CandidateContest['type']
@@ -49,7 +53,7 @@ export interface CandidateContestOption {
 
 export interface YesNoContestOption {
   type: t.YesNoContest['type']
-  id: t.YesNoVote
+  id: Exclude<t.YesNoVote[0] | t.YesNoVote[1], undefined>
   name: t.YesNoVote
   bounds: Rect
 }

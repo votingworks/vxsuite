@@ -8,19 +8,24 @@ import {
   Contest,
   ContestOption,
   DeepReadonly,
+  MarkStatus,
 } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
 import * as workflow from '../workflows/BallotScreenWorkflow'
 
 const ContestOptionButton = styled.button<{
   rect: Rect
-  marked: boolean
-  pending: boolean
+  original: MarkStatus
+  changed?: MarkStatus
 }>`
   position: absolute;
   color: transparent;
-  background-color: ${({ marked, pending }) =>
-    marked && !pending ? 'rgba(71,167,75,.4)' : 'transparent'};
+  background-color: ${({ original, changed }) =>
+    (changed ?? original) === MarkStatus.Marked
+      ? 'rgba(71,167,75,.4)'
+      : changed === MarkStatus.Unmarked
+      ? 'rgba(167,71,75,.4)'
+      : 'transparent'};
   border: none;
   outline: none;
   cursor: pointer;
@@ -37,15 +42,27 @@ const ContestOptionButton = styled.button<{
     height: 28px;
 
     /* stylelint-disable-next-line string-no-newline */
-    content: '${({ marked, pending }) =>
-      marked ? '☑️' : pending ? '☒' : '☐'}';
-    color: ${({ marked, pending }) =>
-      marked ? '#006600ee' : pending ? '#660000ee' : '#006600ee'};
+    content: '${({ original, changed }) =>
+      (changed ?? original) === MarkStatus.Marked
+        ? '☑️'
+        : changed === MarkStatus.Unmarked
+        ? '☒'
+        : '☐'}';
+    color: ${({ original, changed }) =>
+      (changed ?? original) === MarkStatus.Marked
+        ? '#006600ee'
+        : changed === MarkStatus.Unmarked
+        ? '#660000ee'
+        : '#006600ee'};
   }
 
   :hover {
-    background-color: ${({ marked }) =>
-      !marked ? 'rgba(71,167,75,.2)' : 'rgba(71,167,75,.4)'};
+    background-color: ${({ original, changed }) =>
+      changed === MarkStatus.Unmarked
+        ? 'rgba(167,71,75,.4)'
+        : original !== MarkStatus.Marked
+        ? 'rgba(71,167,75,.2)'
+        : 'rgba(71,167,75,.4)'};
   }
 `
 
@@ -128,16 +145,15 @@ export default function BallotScreen() {
     (
       contest: DeepReadonly<Contest>,
       option: DeepReadonly<ContestOption>
-    ): { marked: boolean; pending: boolean } => {
+    ): { original: MarkStatus; changed?: MarkStatus } => {
       if (state.type === 'review' || state.type === 'done') {
-        const wasMarked = state.ballot.marks[contest.id]?.[option.id]
-        const newlyMarked = state.changes[contest.id]?.[option.id]
-        const marked = (newlyMarked ?? wasMarked) === true
-        const pending = typeof newlyMarked === 'boolean'
-        return { marked, pending }
+        const original =
+          state.ballot.marks[contest.id]?.[option.id] ?? MarkStatus.Unmarked
+        const changed = state.changes[contest.id]?.[option.id]
+        return { original, changed }
       }
 
-      return { marked: false, pending: false }
+      return { original: MarkStatus.Unmarked }
     },
     [state]
   )
@@ -234,26 +250,29 @@ export default function BallotScreen() {
                       {contest.options
                         .filter((option) => {
                           const {
-                            marked,
-                            pending,
+                            original,
+                            changed,
                           } = getContestOptionDecoration(contest, option)
 
-                          return marked || pending
+                          return (
+                            original === MarkStatus.Marked ||
+                            changed === MarkStatus.Marked
+                          )
                         })
                         .map((option, i, options) => {
-                          const {
-                            marked,
-                            pending,
-                          } = getContestOptionDecoration(contest, option)
+                          const { changed } = getContestOptionDecoration(
+                            contest,
+                            option
+                          )
 
                           return (
                             <React.Fragment key={option.id}>
                               <span
                                 style={{
                                   textDecoration:
-                                    !marked && pending
+                                    changed === MarkStatus.Unmarked
                                       ? 'line-through red'
-                                      : marked && pending
+                                      : changed === MarkStatus.Marked
                                       ? 'underline green'
                                       : undefined,
                                 }}
