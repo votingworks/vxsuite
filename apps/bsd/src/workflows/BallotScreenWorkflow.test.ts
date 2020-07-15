@@ -1,5 +1,5 @@
 import * as workflow from './BallotScreenWorkflow'
-import { ReviewBallot, Contest } from '../config/types'
+import { ReviewBallot, Contest, MarkStatus } from '../config/types'
 
 test('starts with init', () => {
   expect(workflow.init()).toEqual({ type: 'init' })
@@ -42,12 +42,12 @@ test('can mark an option', () => {
 
   const president = response.contests[0]
   const georgeWashington = president.options[0]
-  state = workflow.change(state, president, georgeWashington, true)
+  state = workflow.change(state, president, georgeWashington, MarkStatus.Marked)
 
   expect(state).toEqual(
     expect.objectContaining({
       type: 'review',
-      changes: { president: { 'george-washington': true } },
+      changes: { president: { 'george-washington': MarkStatus.Marked } },
     })
   )
 })
@@ -79,7 +79,7 @@ test('can unmark an option', () => {
         ],
       },
     ],
-    marks: { president: { 'george-washington': true } },
+    marks: { president: { 'george-washington': MarkStatus.Marked } },
   }
 
   let state: workflow.State = workflow.fetchedBallotInfo(
@@ -89,12 +89,17 @@ test('can unmark an option', () => {
 
   const president = response.contests[0]
   const georgeWashington = president.options[0]
-  state = workflow.change(state, president, georgeWashington, false)
+  state = workflow.change(
+    state,
+    president,
+    georgeWashington,
+    MarkStatus.Unmarked
+  )
 
   expect(state).toEqual(
     expect.objectContaining({
       type: 'review',
-      changes: { president: { 'george-washington': false } },
+      changes: { president: { 'george-washington': MarkStatus.Unmarked } },
     })
   )
 })
@@ -121,7 +126,7 @@ test('changes can only happen while in review', () => {
   }
   const option = contest.options[0]
   expect(() =>
-    workflow.change(workflow.init(), contest, option, true)
+    workflow.change(workflow.init(), contest, option, MarkStatus.Marked)
   ).toThrowError()
 })
 
@@ -152,7 +157,7 @@ test('can toggle an option off and back on', () => {
         ],
       },
     ],
-    marks: { president: { 'george-washington': true } },
+    marks: { president: { 'george-washington': MarkStatus.Marked } },
   }
 
   let state: workflow.State = workflow.fetchedBallotInfo(
@@ -167,7 +172,7 @@ test('can toggle an option off and back on', () => {
   expect(state).toEqual(
     expect.objectContaining({
       type: 'review',
-      changes: { president: { 'george-washington': false } },
+      changes: { president: { 'george-washington': MarkStatus.Unmarked } },
     })
   )
 
@@ -232,7 +237,7 @@ test('finalize moves out of review preserving the adjudication changes', () => {
         ],
       },
     ],
-    marks: { president: { 'george-washington': true } },
+    marks: { president: { 'george-washington': MarkStatus.Marked } },
   }
 
   let state: workflow.State = workflow.fetchedBallotInfo(
@@ -248,7 +253,7 @@ test('finalize moves out of review preserving the adjudication changes', () => {
   expect(state).toEqual(
     expect.objectContaining({
       type: 'review',
-      changes: { president: { 'george-washington': false } },
+      changes: { president: { 'george-washington': MarkStatus.Unmarked } },
     })
   )
 })
