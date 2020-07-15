@@ -7,11 +7,19 @@ import type { objectUtil } from 'zod/lib/src/helpers/objectUtil'
 
 // Generic
 export const Translations = z.record(z.record(z.string()))
+export const Id = z
+  .string()
+  .nonempty()
+  .refine((id) => !id.startsWith('_'), 'IDs may not start with an underscore')
+  .refine(
+    (id) => /^[-_a-z\d]+$/i.test(id),
+    'IDs may only contain letters, numbers, dashes, and underscores'
+  )
 
 // Candidates
 export const Candidate = z.object({
   _lang: Translations.optional(),
-  id: z.string().nonempty(),
+  id: Id,
   name: z.string().nonempty(),
   partyId: z.string().nonempty().optional(),
   isWriteIn: z.boolean().optional(),
@@ -27,7 +35,7 @@ export const ContestTypes = z.union([
 
 export const Contest = z.object({
   _lang: Translations.optional(),
-  id: z.string().nonempty(),
+  id: Id,
   districtId: z.string().nonempty(),
   partyId: z.string().nonempty().optional(),
   section: z.string().nonempty(),
@@ -57,7 +65,7 @@ export const Contests = z.array(z.union([CandidateContest, YesNoContest]))
 // Election
 export const BallotStyle = z.object({
   _lang: Translations.optional(),
-  id: z.string().nonempty(),
+  id: Id,
   precincts: z.array(z.string().nonempty()),
   districts: z.array(z.string().nonempty()),
   partyId: z.string().nonempty().optional(),
@@ -65,7 +73,7 @@ export const BallotStyle = z.object({
 
 export const Party = z.object({
   _lang: Translations.optional(),
-  id: z.string().nonempty(),
+  id: Id,
   name: z.string().nonempty(),
   fullName: z.string().nonempty(),
   abbrev: z.string().nonempty(),
@@ -75,19 +83,19 @@ export const Parties = z.array(Party)
 
 export const Precinct = z.object({
   _lang: Translations.optional(),
-  id: z.string().nonempty(),
+  id: Id,
   name: z.string().nonempty(),
 })
 
 export const District = z.object({
   _lang: Translations.optional(),
-  id: z.string().nonempty(),
+  id: Id,
   name: z.string().nonempty(),
 })
 
 export const County = z.object({
   _lang: Translations.optional(),
-  id: z.string().nonempty(),
+  id: Id,
   name: z.string().nonempty(),
 })
 
