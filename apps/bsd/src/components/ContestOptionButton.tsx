@@ -4,13 +4,13 @@ import { MarkStatus } from '../config/types'
 
 const ContestOptionButton = styled.button<{
   rect: Rect
-  original: MarkStatus
+  current: MarkStatus
   changed?: MarkStatus
 }>`
   position: absolute;
   color: transparent;
-  background-color: ${({ original, changed }) =>
-    (changed ?? original) === MarkStatus.Marked
+  background-color: ${({ current, changed }) =>
+    (changed ?? current) === MarkStatus.Marked
       ? 'rgba(71,167,75,.4)'
       : changed === MarkStatus.Unmarked
       ? 'rgba(167,71,75,.4)'
@@ -31,14 +31,14 @@ const ContestOptionButton = styled.button<{
     height: 28px;
 
     /* stylelint-disable-next-line string-no-newline */
-    content: '${({ original, changed }) =>
-      (changed ?? original) === MarkStatus.Marked
+    content: '${({ current, changed }) =>
+      (changed ?? current) === MarkStatus.Marked
         ? '☑️'
         : changed === MarkStatus.Unmarked
         ? '☒'
         : '☐'}';
-    color: ${({ original, changed }) =>
-      (changed ?? original) === MarkStatus.Marked
+    color: ${({ current, changed }) =>
+      (changed ?? current) === MarkStatus.Marked
         ? '#006600ee'
         : changed === MarkStatus.Unmarked
         ? '#660000ee'
@@ -46,10 +46,10 @@ const ContestOptionButton = styled.button<{
   }
 
   :hover {
-    background-color: ${({ original, changed }) =>
+    background-color: ${({ current, changed }) =>
       changed === MarkStatus.Unmarked
         ? 'rgba(167,71,75,.4)'
-        : original !== MarkStatus.Marked
+        : current !== MarkStatus.Marked
         ? 'rgba(71,167,75,.2)'
         : 'rgba(71,167,75,.4)'};
   }

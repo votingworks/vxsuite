@@ -1,6 +1,7 @@
 import { Rect } from '@votingworks/hmpb-interpreter'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
 import ContestOptionButton from '../components/ContestOptionButton'
 import Prose from '../components/Prose'
 import {
@@ -13,19 +14,35 @@ import {
 import fetchJSON from '../util/fetchJSON'
 import * as workflow from '../workflows/BallotScreenWorkflow'
 
-const ListWithEmptyState = ({
-  empty,
-  children,
-}: {
-  empty: React.ReactElement
-  children: readonly React.ReactChild[]
-}) => {
-  if (children.length === 0) {
-    return empty
+const ContestOptionCheckbox = styled.div<{
+  current: MarkStatus
+  changed?: MarkStatus
+}>`
+  * {
+    cursor: pointer;
+    color: ${({ current, changed }) =>
+      (changed ?? current) === MarkStatus.Marked
+        ? '#006600ee'
+        : changed === MarkStatus.Unmarked
+        ? '#660000ee'
+        : 'auto'}
   }
 
-  return <React.Fragment>{children}</React.Fragment>
-}
+  > input {
+    display: none;
+    margin-left: 5px;
+  }
+
+  > label::before {
+    /* stylelint-disable-next-line string-no-newline */
+    content: '${({ current, changed }) =>
+      (changed ?? current) === MarkStatus.Marked
+        ? '☑'
+        : changed === MarkStatus.Unmarked
+        ? '☒'
+        : '☐'}'
+  }
+`
 
 export default function BallotScreen() {
   const { ballotId } = useParams<{
@@ -92,15 +109,15 @@ export default function BallotScreen() {
     (
       contest: DeepReadonly<Contest>,
       option: DeepReadonly<ContestOption>
-    ): { original: MarkStatus; changed?: MarkStatus } => {
+    ): { current: MarkStatus; changed?: MarkStatus } => {
       if (state.type === 'review' || state.type === 'done') {
-        const original =
+        const current =
           state.ballot.marks[contest.id]?.[option.id] ?? MarkStatus.Unmarked
         const changed = state.changes[contest.id]?.[option.id]
-        return { original, changed }
+        return { current, changed }
       }
 
-      return { original: MarkStatus.Unmarked }
+      return { current: MarkStatus.Unmarked }
     },
     [state]
   )
@@ -188,54 +205,43 @@ export default function BallotScreen() {
               marginLeft: 20,
             }}
           >
-            <dl>
+            <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
               {ballot.contests.map((contest) => (
-                <React.Fragment key={contest.id}>
-                  <dt>{contest.title}</dt>
-                  <dd>
-                    <ListWithEmptyState empty={<span>(none)</span>}>
-                      {contest.options
-                        .filter((option) => {
-                          const {
-                            original,
-                            changed,
-                          } = getContestOptionDecoration(contest, option)
+                <li key={contest.id}>
+                  <h4 style={{ marginBottom: 0 }}>{contest.title}</h4>
+                  <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+                    {contest.options.map((option) => {
+                      const { current, changed } = getContestOptionDecoration(
+                        contest,
+                        option
+                      )
 
-                          return (
-                            original === MarkStatus.Marked ||
-                            changed === MarkStatus.Marked
-                          )
-                        })
-                        .map((option, i, options) => {
-                          const { changed } = getContestOptionDecoration(
-                            contest,
-                            option
-                          )
-
-                          return (
-                            <React.Fragment key={option.id}>
-                              <span
-                                style={{
-                                  textDecoration:
-                                    changed === MarkStatus.Unmarked
-                                      ? 'line-through red'
-                                      : changed === MarkStatus.Marked
-                                      ? 'underline green'
-                                      : undefined,
-                                }}
-                              >
-                                {option.name}
-                              </span>
-
-                              {i < options.length - 1 ? ', ' : ''}
-                            </React.Fragment>
-                          )
-                        })}
-                    </ListWithEmptyState>
-                  </dd>
-                </React.Fragment>
+                      return (
+                        <li key={option.id}>
+                          <ContestOptionCheckbox
+                            current={current}
+                            changed={changed}
+                          >
+                            <input
+                              type="checkbox"
+                              id={`contest-option-sidebar-${contest.id}-${option.id}`}
+                              data-contest-id={contest.id}
+                              data-contest-option-id={option.id}
+                              onClick={onContestOptionClick}
+                            />
+                            <label
+                              htmlFor={`contest-option-sidebar-${contest.id}-${option.id}`}
+                            >
+                              {option.name}
+                            </label>
+                          </ContestOptionCheckbox>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </li>
               ))}
-            </dl>
+            </ul>
 
             <button type="submit" disabled={!hasChanges} onClick={onSaveClick}>
               Save Ballot
