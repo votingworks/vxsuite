@@ -962,10 +962,18 @@
     "@antongolub/iso8601" "^1.2.1"
     zod "^1.7.1"
 
-"@votingworks/hmpb-interpreter@^3.6.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@votingworks/hmpb-interpreter/-/hmpb-interpreter-3.6.0.tgz#0c5c388f6d9b83a967d439bd49c748280e542f97"
-  integrity sha512-LpDKfKHiU9IKtIkr3J6tLbC9g5deMMuQFxdwih7MsOreTDWi/iza/LqpwSsxAqDHfkiLsx3CfLbqAk873rgQKg==
+"@votingworks/ballot-encoder@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-2.0.1.tgz#e056043987b9ef45233b22b496a2133b4daf40e4"
+  integrity sha512-qSNvWbspuoI+PMU1zK1LcImk2laOXT76rMSXUPFAMWi7XbcajzMU65fFHv/m8A9g130QxNzefS3pTXaaFwtkbQ==
+  dependencies:
+    "@antongolub/iso8601" "^1.2.1"
+    zod "^1.7.1"
+
+"@votingworks/hmpb-interpreter@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@votingworks/hmpb-interpreter/-/hmpb-interpreter-4.0.0.tgz#da5c0146d71afa4fe235dc305e6f5598e5d80dce"
+  integrity sha512-hyn7XL9ir2snm67Y7AXLxNnLB6imaM3vObIvrHucFV5/+EKoDkJCp856LjL1lh20LEfzSw/AHScbOO4Y9W7NpQ==
   dependencies:
     "@votingworks/ballot-encoder" "^2.0.0"
     canvas "^2.6.1"
