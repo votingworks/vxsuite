@@ -9,8 +9,8 @@ import {
   getContests,
 } from '@votingworks/ballot-encoder'
 import {
-  BallotPageMetadata,
   BallotLocales,
+  BallotPageMetadata,
 } from '@votingworks/hmpb-interpreter'
 import { strict as assert } from 'assert'
 import makeDebug from 'debug'
@@ -22,16 +22,16 @@ import {
   BallotInfo,
   BatchInfo,
   CastVoteRecord,
+  getMarkStatus,
   SerializableBallotPageLayout,
-  isMarked,
 } from './types'
 import {
   CandidateContestOption,
   Contest,
   ContestOption,
+  MarksByContestId,
   ReviewBallot,
   YesNoContestOption,
-  MarksByContestId,
 } from './types/ballot-review'
 import applyChangesToMarks from './util/applyChangesToMarks'
 
@@ -582,9 +582,7 @@ export default class Store {
                     typeof mark.option === 'string'
                       ? mark.option
                       : mark.option.id
-                  ] ??
-                  isMarked(mark) ??
-                  false,
+                  ] ?? getMarkStatus(mark),
               },
             },
       {}

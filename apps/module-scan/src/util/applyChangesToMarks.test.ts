@@ -4,6 +4,7 @@ import {
   YesNoContest,
 } from '@votingworks/ballot-encoder'
 import zeroRect from '../../test/fixtures/zeroRect'
+import { MarkStatus } from '../types/ballot-review'
 import applyChangesToMarks from './applyChangesToMarks'
 
 test('returns an empty object when no changes are given', () => {
@@ -120,11 +121,14 @@ test('returns the subset of the changes that differ from the original marks', ()
       ],
 
       {
-        [contest.id]: { [option1.id]: false, [option2.id]: true },
+        [contest.id]: {
+          [option1.id]: MarkStatus.Unmarked,
+          [option2.id]: MarkStatus.Marked,
+        },
       }
     )
   ).toEqual({
-    [contest.id]: { [option1.id]: false },
+    [contest.id]: { [option1.id]: MarkStatus.Unmarked },
   })
 })
 
@@ -150,8 +154,8 @@ test('takes the last value for a given option', () => {
         },
       ],
 
-      { [contest.id]: { [option.id]: false } },
-      { [contest.id]: { [option.id]: true } }
+      { [contest.id]: { [option.id]: MarkStatus.Unmarked } },
+      { [contest.id]: { [option.id]: MarkStatus.Marked } }
     )
   ).toEqual({})
 })
@@ -183,7 +187,7 @@ test('does not factor stray marks into the result', () => {
           bounds: zeroRect,
         },
       ],
-      { [contest.id]: { [option.id]: false } }
+      { [contest.id]: { [option.id]: MarkStatus.Unmarked } }
     )
-  ).toEqual({ [contest.id]: { [option.id]: false } })
+  ).toEqual({ [contest.id]: { [option.id]: MarkStatus.Unmarked } })
 })

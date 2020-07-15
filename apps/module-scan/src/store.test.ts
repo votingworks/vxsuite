@@ -4,6 +4,7 @@ import * as tmp from 'tmp'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import Store from './store'
+import { MarkStatus } from './types/ballot-review'
 
 test('get/set election', async () => {
   const store = await Store.memoryStore()
@@ -223,22 +224,22 @@ test('adjudication', async () => {
   expect(await store.getBallot(ballotId)).toEqual(
     expect.objectContaining({
       marks: {
-        [candidateContest.id]: { [candidateOption.id]: false },
-        [yesnoContest.id]: { [yesnoOption]: true },
+        [candidateContest.id]: { [candidateOption.id]: MarkStatus.Unmarked },
+        [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
       },
     })
   )
 
   await store.saveBallotAdjudication(ballotId, {
-    [candidateContest.id]: { [candidateOption.id]: true },
-    [yesnoContest.id]: { [yesnoOption]: false },
+    [candidateContest.id]: { [candidateOption.id]: MarkStatus.Marked },
+    [yesnoContest.id]: { [yesnoOption]: MarkStatus.Unmarked },
   })
 
   expect(await store.getBallot(ballotId)).toEqual(
     expect.objectContaining({
       marks: {
-        [candidateContest.id]: { [candidateOption.id]: true },
-        [yesnoContest.id]: { [yesnoOption]: false },
+        [candidateContest.id]: { [candidateOption.id]: MarkStatus.Marked },
+        [yesnoContest.id]: { [yesnoOption]: MarkStatus.Unmarked },
       },
     })
   )

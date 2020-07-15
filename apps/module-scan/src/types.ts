@@ -1,12 +1,13 @@
-import { BallotStyle, Precinct, Contest } from '@votingworks/ballot-encoder'
+import { BallotStyle, Contest, Precinct } from '@votingworks/ballot-encoder'
 import {
+  BallotLocales,
   BallotMark,
   BallotPageLayout,
   BallotPageMetadata,
   BallotTargetMark,
-  BallotLocales,
 } from '@votingworks/hmpb-interpreter'
 import { MarkInfo } from './interpreter'
+import { MarkStatus } from './types/ballot-review'
 
 export interface Dictionary<T> {
   [key: string]: T | undefined
@@ -88,19 +89,19 @@ export interface BallotConfig extends BallotStyleData {
 
 export * from './types/ballot-review'
 
-export function isMarked(
+export function getMarkStatus(
   mark: BallotTargetMark,
-  { marginalMarkMin = 0.1, validMarkMin = 0.2 } = {}
-): boolean | undefined {
+  { marginalMarkMin = 0.12, validMarkMin = 0.5 } = {}
+): MarkStatus {
   if (mark.score >= validMarkMin) {
-    return true
+    return MarkStatus.Marked
   }
 
   if (mark.score < marginalMarkMin) {
-    return false
+    return MarkStatus.Unmarked
   }
 
-  return undefined
+  return MarkStatus.Marginal
 }
 
 export function isMarginalMark(
@@ -112,6 +113,7 @@ export function isMarginalMark(
 ): boolean {
   return (
     mark.type !== 'stray' &&
-    typeof isMarked(mark, { marginalMarkMin, validMarkMin }) === 'undefined'
+    getMarkStatus(mark, { marginalMarkMin, validMarkMin }) ===
+      MarkStatus.Marginal
   )
 }

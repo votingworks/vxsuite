@@ -8,7 +8,13 @@ export interface MarksByContestId {
 }
 
 export interface MarksByOptionId {
-  [key: string]: boolean | undefined
+  [key: string]: MarkStatus | undefined
+}
+
+export enum MarkStatus {
+  Marked = 'marked',
+  Unmarked = 'unmarked',
+  Marginal = 'marginal',
 }
 
 export interface ReviewBallot {
