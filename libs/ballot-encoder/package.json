@@ -1,6 +1,6 @@
 {
   "name": "@votingworks/ballot-encoder",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "files": [
     "src/**/*.{js,d.ts,d.ts.map,json}"
   ],
