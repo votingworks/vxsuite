@@ -17,7 +17,11 @@ import ButtonList from '../components/ButtonList'
 import Prose from '../components/Prose'
 import ContestTally from '../components/ContestTally'
 
-import { filterTalliesByParty, tallyVotesByContest } from '../lib/votecounting'
+import {
+  filterTalliesByParty,
+  tallyVotesByContest,
+  ContestTallyMetaDictionary,
+} from '../lib/votecounting'
 import find from '../utils/find'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
@@ -105,6 +109,17 @@ const TestDeckScreen = () => {
       votes,
     }),
   }
+  const contestTallyMeta = election.contests.reduce<ContestTallyMetaDictionary>(
+    (contestTallyMeta, contest) => ({
+      ...contestTallyMeta,
+      [contest.id]: {
+        ballots: votes.filter((vote) => !!vote[contest.id]).length,
+        overvotes: 0,
+        undervotes: 0,
+      },
+    }),
+    {}
+  )
 
   const ballotStylePartyIds = Array.from(
     new Set(election.ballotStyles.map((bs) => bs.partyId))
@@ -155,7 +170,7 @@ const TestDeckScreen = () => {
                 <ContestTally
                   election={election}
                   electionTally={electionTallyForParty}
-                  contestTallyMeta={{}}
+                  contestTallyMeta={contestTallyMeta}
                 />
               </ElectionTallyReport>
             )
