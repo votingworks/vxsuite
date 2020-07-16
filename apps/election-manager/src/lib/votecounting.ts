@@ -381,12 +381,13 @@ export interface ContestTallyMeta {
   undervotes: number
   ballots: number
 }
+export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
 
 export const getContestTallyMeta = ({
   election,
   castVoteRecords,
 }: FullTallyParams) =>
-  election.contests.reduce<Dictionary<ContestTallyMeta>>(
+  election.contests.reduce<ContestTallyMetaDictionary>(
     (dictionary, contest) => {
       const contestCVRs = castVoteRecords.filter(
         (cvr) => cvr[contest.id] !== undefined
