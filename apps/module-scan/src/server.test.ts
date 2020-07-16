@@ -1,3 +1,5 @@
+/* eslint-disable jest/expect-expect */
+
 import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
 import { createImageData } from 'canvas'
 import { Application } from 'express'
@@ -223,7 +225,7 @@ test('GET /scan/batch/:batchId 404', async () => {
     .expect(404)
 })
 
-test.only('GET /scan/hmpb/ballot/:ballotId', async () => {
+test('GET /scan/hmpb/ballot/:ballotId', async () => {
   const contest = election.contests.find(
     ({ type }) => type === 'candidate'
   ) as CandidateContest
@@ -304,6 +306,8 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
       _precinctId: '23',
       _scannerId: 'def',
       _testBallot: false,
+      _pageNumber: 1,
+      _locales: { primary: 'en-US' },
     },
     {
       ballotSize: { width: 0, height: 0 },
@@ -332,14 +336,15 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
       isTestBallot: false,
       pageNumber: 1,
       pageCount: 1,
+      locales: { primary: 'en-US' },
     }
   )
   await store.finishBatch(batchId)
   await request(app)
     .patch(`/scan/hmpb/ballot/${ballotId}`)
     .send({
-      [candidateContest.id]: { [candidateOption.id]: false },
-      [yesnoContest.id]: { [yesnoOption]: true },
+      [candidateContest.id]: { [candidateOption.id]: MarkStatus.Unmarked },
+      [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
     })
     .expect(200, { status: 'ok' })
 
@@ -355,8 +360,8 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
         },
       },
       marks: {
-        [candidateContest.id]: { [candidateOption.id]: false },
-        [yesnoContest.id]: { [yesnoOption]: true },
+        [candidateContest.id]: { [candidateOption.id]: MarkStatus.Unmarked },
+        [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
       },
       contests: [],
     })
@@ -365,7 +370,7 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
   await request(app)
     .patch(`/scan/hmpb/ballot/${ballotId}`)
     .send({
-      [candidateContest.id]: { [candidateOption.id]: true },
+      [candidateContest.id]: { [candidateOption.id]: MarkStatus.Marked },
     })
     .expect(200, { status: 'ok' })
   await request(app)
@@ -380,8 +385,8 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
         },
       },
       marks: {
-        [candidateContest.id]: { [candidateOption.id]: true },
-        [yesnoContest.id]: { [yesnoOption]: true },
+        [candidateContest.id]: { [candidateOption.id]: MarkStatus.Marked },
+        [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
       },
       contests: [],
     })
