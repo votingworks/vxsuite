@@ -80,6 +80,47 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
+  if (process.env.NODE_ENV !== 'production') {
+    app.post(
+      '/scan/scanFiles',
+      upload.fields([{ name: 'files' }]) as RequestHandler,
+      async (request, response) => {
+        /* istanbul ignore next */
+        if (Array.isArray(request.files)) {
+          response.status(400).json({
+            errors: [
+              {
+                type: 'missing-ballot-files',
+                message: `expected ballot images in "files", but no files were found`,
+              },
+            ],
+          })
+          return
+        }
+
+        const { files = [] } = request.files
+
+        if (files.length > 0) {
+          const batchId = await store.addBatch()
+
+          for (const file of files) {
+            try {
+              await importer.importFile(batchId, file.originalname, file.buffer)
+            } catch (error) {
+              console.error(
+                `failed to import file ${file.originalname}: ${error.message}`
+              )
+            }
+          }
+
+          await store.finishBatch(batchId)
+        }
+
+        response.json({ status: 'ok' })
+      }
+    )
+  }
+
   app.post('/scan/invalidateBatch', (_request, response) => {
     response.json({ status: 'ok' })
   })

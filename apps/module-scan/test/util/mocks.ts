@@ -16,6 +16,7 @@ export function makeMockImporter(): jest.Mocked<Importer> {
     configure: jest.fn(),
     doExport: jest.fn(),
     doImport: jest.fn(),
+    importFile: jest.fn(),
     doZero: jest.fn(),
     getStatus: jest.fn(),
     restoreConfig: jest.fn(),
