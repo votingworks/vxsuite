@@ -91,7 +91,7 @@ export * from './types/ballot-review'
 
 export function getMarkStatus(
   mark: BallotTargetMark,
-  { marginalMarkMin = 0.12, validMarkMin = 0.5 } = {}
+  { marginalMarkMin = 0.12, validMarkMin = 0.2 } = {}
 ): MarkStatus {
   if (mark.score >= validMarkMin) {
     return MarkStatus.Marked
