@@ -33,6 +33,7 @@ const debug = makeDebug('module-scan:interpreter')
 export interface InterpretFileParams {
   readonly election: Election
   readonly ballotImagePath: string
+  readonly ballotImageFile?: Buffer
 }
 
 export interface MarkInfo {
@@ -127,9 +128,9 @@ interface BallotImageData {
 }
 
 export async function getBallotImageData(
-  filepath: string
+  file: Buffer,
+  filename: string
 ): Promise<BallotImageData> {
-  const file = await readFile(filepath)
   const { data, width, height } = decodeJpeg(file)
   const image = { data: Uint8ClampedArray.from(data), width, height }
   const [quircCode] = await quircDecode(file)
@@ -144,7 +145,7 @@ export async function getBallotImageData(
     return { file, image, qrcode: qrdetectCodes[0].data }
   }
 
-  throw new Error(`no QR code found in ${filepath}`)
+  throw new Error(`no QR code found in ${filename}`)
 }
 
 export default class SummaryBallotInterpreter implements Interpreter {
@@ -196,11 +197,15 @@ export default class SummaryBallotInterpreter implements Interpreter {
   public async interpretFile({
     election,
     ballotImagePath,
+    ballotImageFile,
   }: InterpretFileParams): Promise<InterpretedBallot | undefined> {
     let ballotImageData: BallotImageData
 
     try {
-      ballotImageData = await getBallotImageData(ballotImagePath)
+      ballotImageData = await getBallotImageData(
+        ballotImageFile ?? (await readFile(ballotImagePath)),
+        ballotImagePath
+      )
     } catch (error) {
       debug('interpretFile failed with error: %s', error.message)
       return

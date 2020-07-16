@@ -41,6 +41,11 @@ export interface Importer {
   doExport(): Promise<string>
   doImport(): Promise<void>
   doZero(): Promise<void>
+  importFile(
+    batchId: number,
+    ballotImagePath: string,
+    ballotImageFile?: Buffer
+  ): Promise<void>
   getStatus(): Promise<{ batches: BatchInfo[]; electionHash?: string }>
   restoreConfig(): Promise<void>
   setTestMode(testMode: boolean): Promise<void>
@@ -237,9 +242,7 @@ export default class SystemImporter implements Importer {
   private async fileAdded(ballotImagePath: string): Promise<void> {
     debug('fileAdded %s', ballotImagePath)
 
-    const election = await this.store.getElection()
-
-    if (!election) {
+    if (!(await this.store.getElection())) {
       return
     }
 
@@ -247,6 +250,7 @@ export default class SystemImporter implements Importer {
     if (this.seenBallotImagePaths.has(ballotImagePath)) {
       return
     }
+
     this.seenBallotImagePaths.add(ballotImagePath)
 
     // get the batch ID from the path
@@ -259,9 +263,24 @@ export default class SystemImporter implements Importer {
 
     const batchId = parseInt(batchIdMatch[1], 10)
 
+    await this.importFile(batchId, ballotImagePath, undefined)
+  }
+
+  public async importFile(
+    batchId: number,
+    ballotImagePath: string,
+    ballotImageFile?: Buffer
+  ): Promise<void> {
+    const election = await this.store.getElection()
+
+    if (!election) {
+      return
+    }
+
     const interpreted = await this.interpreter.interpretFile({
       election,
       ballotImagePath,
+      ballotImageFile,
     })
     if (!interpreted) {
       return
@@ -285,7 +304,9 @@ export default class SystemImporter implements Importer {
       this.addCVR(batchId, importedBallotImagePath, cvr, marks, metadata)
 
       // move the file only if there was a CVR
-      fs.unlinkSync(ballotImagePath)
+      if (!ballotImageFile) {
+        fs.unlinkSync(ballotImagePath)
+      }
       fs.writeFileSync(
         importedBallotImagePath,
         jpeg.encode(normalizedImage).data

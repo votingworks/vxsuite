@@ -13,8 +13,10 @@ const electionFixturesRoot = join(
 )
 
 test('reads QR codes from ballot images #1', async () => {
+  const filepath = join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg')
   const { qrcode } = await getBallotImageData(
-    join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg')
+    await readFile(filepath),
+    filepath
   )
 
   expect(qrcode).toEqual(
@@ -23,8 +25,10 @@ test('reads QR codes from ballot images #1', async () => {
 })
 
 test('reads QR codes from ballot images #2', async () => {
+  const filepath = join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.jpg')
   const { qrcode } = await getBallotImageData(
-    join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.jpg')
+    await readFile(filepath),
+    filepath
   )
 
   expect(qrcode).toEqual(
@@ -35,8 +39,9 @@ test('reads QR codes from ballot images #2', async () => {
 })
 
 test('does not find QR codes when there are none to find', async () => {
+  const filepath = join(sampleBallotImagesPath, 'not-a-ballot.jpg')
   await expect(
-    getBallotImageData(join(sampleBallotImagesPath, 'not-a-ballot.jpg'))
+    getBallotImageData(await readFile(filepath), filepath)
   ).rejects.toThrowError('no QR code found')
 })
 

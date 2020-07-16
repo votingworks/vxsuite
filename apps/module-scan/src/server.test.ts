@@ -150,6 +150,17 @@ test('POST /scan/scanBatch errors', async () => {
   expect(importer.doImport).toBeCalled()
 })
 
+test('POST /scan/scanFiles', async () => {
+  importerMock.importFile.mockResolvedValueOnce(undefined)
+  await request(app)
+    .post('/scan/scanFiles')
+    .attach('files', Buffer.of(), {
+      filename: 'ballot.jpg',
+      contentType: 'image/jpeg',
+    })
+    .expect(200, { status: 'ok' })
+})
+
 test('POST /scan/addManualBallot', async () => {
   importerMock.addManualBallot.mockResolvedValue(undefined)
   await request(app)
