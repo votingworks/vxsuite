@@ -1,48 +1,18 @@
-import { Rect } from '@votingworks/hmpb-interpreter'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
+import { fetchBallotInfo } from '../api/hmpb'
 import ContestOptionButton from '../components/ContestOptionButton'
+import ContestOptionCheckbox from '../components/ContestOptionCheckbox'
 import Prose from '../components/Prose'
 import {
   Contest,
   ContestOption,
   DeepReadonly,
   MarkStatus,
-  ReviewBallot,
 } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
+import { scaler } from '../util/scale'
 import * as workflow from '../workflows/BallotScreenWorkflow'
-
-const ContestOptionCheckbox = styled.div<{
-  current: MarkStatus
-  changed?: MarkStatus
-}>`
-  * {
-    cursor: pointer;
-    color: ${({ current, changed }) =>
-      (changed ?? current) === MarkStatus.Marked
-        ? '#006600ee'
-        : changed === MarkStatus.Unmarked
-        ? '#660000ee'
-        : 'auto'}
-  }
-
-  > input {
-    display: none;
-    margin-left: 5px;
-  }
-
-  > label::before {
-    /* stylelint-disable-next-line string-no-newline */
-    content: '${({ current, changed }) =>
-      (changed ?? current) === MarkStatus.Marked
-        ? '☑'
-        : changed === MarkStatus.Unmarked
-        ? '☒'
-        : '☐'}'
-  }
-`
 
 export default function BallotScreen() {
   const { ballotId } = useParams<{
@@ -53,34 +23,20 @@ export default function BallotScreen() {
     state.type === 'init' || state.type === 'failed' ? undefined : state.ballot
 
   useEffect(() => {
-    if (state.type === 'init') {
-      fetchJSON<ReviewBallot>(`/scan/hmpb/ballot/${ballotId}`)
-        .then((newBallot) => {
-          setState(workflow.fetchedBallotInfo(state, newBallot))
-        })
-        .catch((error) => {
+    if (state.type === 'init' && ballotId) {
+      ;(async () => {
+        try {
+          setState(
+            workflow.fetchedBallotInfo(state, await fetchBallotInfo(ballotId))
+          )
+        } catch (error) {
           setState(workflow.fail(state, error))
-        })
+        }
+      })()
     }
   }, [ballotId, state, setState])
 
-  const scale = useCallback(
-    <T extends number | undefined>(value: T): T =>
-      (typeof value === 'number'
-        ? value * (800 / (ballot?.ballot.image.width ?? 800))
-        : value) as T,
-    [ballot]
-  )
-
-  const scaleRect = useCallback(
-    (rect: Rect) => ({
-      x: scale(rect.x),
-      y: scale(rect.y),
-      width: scale(rect.width),
-      height: scale(rect.height),
-    }),
-    [scale]
-  )
+  const scale = scaler(ballot ? 800 / ballot.ballot.image.width : 1)
 
   const onContestOptionClick = useCallback<
     React.MouseEventHandler<HTMLElement>
@@ -186,7 +142,7 @@ export default function BallotScreen() {
             contest.options.map((option) => (
               <ContestOptionButton
                 title={option.name}
-                rect={scaleRect(option.bounds)}
+                rect={scale.rect(option.bounds)}
                 data-contest-id={contest.id}
                 data-contest-option-id={option.id}
                 key={`${option.bounds.x},${option.bounds.y}`}
