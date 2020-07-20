@@ -45,6 +45,6 @@ export interface CandidateContestOption {
 export interface YesNoContestOption {
   type: t.YesNoContest['type']
   id: Exclude<t.YesNoVote[0] | t.YesNoVote[1], undefined>
-  name: t.YesNoVote
+  name: string
   bounds: Rect
 }

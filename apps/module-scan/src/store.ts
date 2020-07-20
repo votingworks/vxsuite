@@ -11,6 +11,7 @@ import {
 import {
   BallotLocales,
   BallotPageMetadata,
+  BallotTargetMark,
 } from '@votingworks/hmpb-interpreter'
 import { strict as assert } from 'assert'
 import makeDebug from 'debug'
@@ -23,6 +24,7 @@ import {
   BatchInfo,
   CastVoteRecord,
   getMarkStatus,
+  isMarginalMark,
   SerializableBallotPageLayout,
 } from './types'
 import {
@@ -203,7 +205,8 @@ export default class Store {
         marks_json text,
         cvr_json text,
         metadata_json text,
-        adjudication_json text
+        adjudication_json text,
+        requires_adjudication boolean
       )`
     )
     await this.dbRunAsync(
@@ -352,13 +355,17 @@ export default class Store {
     metadata?: BallotPageMetadata
   ): Promise<number> {
     try {
+      const requiresAdjudication =
+        markInfo?.marks.some((mark) => isMarginalMark(mark)) ?? false
+
       await this.dbRunAsync(
-        'insert into ballots (batch_id, filename, cvr_json, marks_json, metadata_json) values (?, ?, ?, ?, ?)',
+        'insert into ballots (batch_id, filename, cvr_json, marks_json, metadata_json, requires_adjudication) values (?, ?, ?, ?, ?, ?)',
         batchId,
         filename,
         JSON.stringify(cvr),
         markInfo ? JSON.stringify(markInfo, undefined, 2) : null,
-        metadata ? JSON.stringify(metadata, undefined, 2) : null
+        metadata ? JSON.stringify(metadata, undefined, 2) : null,
+        requiresAdjudication
       )
       const { rowId } = await this.dbGetAsync(
         'select last_insert_rowid() as rowId'
@@ -480,7 +487,16 @@ export default class Store {
       { layoutsJSON: string },
       [string | null, string, string, boolean]
     >(
-      'select layouts_json as layoutsJSON from hmpb_templates where locales = ? and ballot_style_id = ? and precinct_id = ? and is_test_ballot = ?',
+      `
+      select
+        layouts_json as layoutsJSON
+      from hmpb_templates
+      where
+        locales = ?
+        and ballot_style_id = ?
+        and precinct_id = ?
+        and is_test_ballot = ?
+      `,
       this.serializeLocales(metadata.locales),
       metadata.ballotStyleId,
       metadata.precinctId,
@@ -551,7 +567,7 @@ export default class Store {
                 return {
                   type: 'yesno',
                   id: markIndex === 0 ? 'yes' : 'no',
-                  name: markIndex === 0 ? ['yes'] : ['no'],
+                  name: markIndex === 0 ? 'Yes' : 'No',
                   bounds: contestLayout.options[markIndex].bounds,
                 }
               })
@@ -597,6 +613,26 @@ export default class Store {
     }
   }
 
+  public async getNextReviewBallot(): Promise<ReviewBallot | undefined> {
+    const row = await this.dbGetAsync<{ id: number } | undefined, [boolean]>(
+      `
+      select id
+      from ballots
+      where requires_adjudication = ?
+      order by id asc
+      limit 1
+    `,
+      true
+    )
+
+    if (row) {
+      debug('got next review ballot requiring adjudication (id=%d)', row.id)
+      return this.getBallot(row.id)
+    } else {
+      debug('no review ballots requiring adjudication')
+    }
+  }
+
   public async saveBallotAdjudication(
     ballotId: number,
     change: MarksByContestId
@@ -625,16 +661,34 @@ export default class Store {
       row.adjudicationJSON ? JSON.parse(row.adjudicationJSON) : {},
       change
     )
+    const unadjudicatedMarks = marks.marks
+      .filter((mark): mark is BallotTargetMark => isMarginalMark(mark))
+      .filter(
+        (mark) =>
+          !newAdjudication[mark.contest.id]?.[
+            typeof mark.option === 'string' ? mark.option : mark.option.id
+          ]
+      )
 
     debug(
       'saving adjudication changes for ballot %d: %O',
       ballotId,
       newAdjudication
     )
+    debug(
+      'adjudication complete for ballot %d? %s',
+      ballotId,
+      unadjudicatedMarks.length === 0
+    )
 
     await this.dbRunAsync(
-      'update ballots set adjudication_json = ? where id = ?',
+      `update ballots
+        set
+          adjudication_json = ?
+        , requires_adjudication = ?
+      where id = ?`,
       JSON.stringify(newAdjudication, undefined, 2),
+      unadjudicatedMarks.length > 0,
       ballotId
     )
 
