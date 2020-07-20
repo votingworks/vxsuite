@@ -1,6 +1,8 @@
-import { EventEmitter } from 'events'
 import { Election } from '@votingworks/ballot-encoder'
+import { EventEmitter } from 'events'
+import { ReviewBallot } from '../config/types'
 import { BallotPackage, BallotPackageEntry } from '../util/ballot-package'
+import fetchJSON from '../util/fetchJSON'
 import { patch as patchConfig } from './config'
 
 export interface AddTemplatesEvents extends EventEmitter {
@@ -70,4 +72,8 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
   })
 
   return result
+}
+
+export function fetchBallotInfo(ballotId: string): Promise<ReviewBallot> {
+  return fetchJSON<ReviewBallot>(`/scan/hmpb/ballot/${ballotId}`)
 }

@@ -1,84 +1,18 @@
-import { Rect } from '@votingworks/hmpb-interpreter'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
+import { fetchBallotInfo } from '../api/hmpb'
+import ContestOptionButton from '../components/ContestOptionButton'
+import ContestOptionCheckbox from '../components/ContestOptionCheckbox'
 import Prose from '../components/Prose'
 import {
-  ReviewBallot,
   Contest,
   ContestOption,
   DeepReadonly,
   MarkStatus,
 } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
+import { scaler } from '../util/scale'
 import * as workflow from '../workflows/BallotScreenWorkflow'
-
-const ContestOptionButton = styled.button<{
-  rect: Rect
-  original: MarkStatus
-  changed?: MarkStatus
-}>`
-  position: absolute;
-  color: transparent;
-  background-color: ${({ original, changed }) =>
-    (changed ?? original) === MarkStatus.Marked
-      ? 'rgba(71,167,75,.4)'
-      : changed === MarkStatus.Unmarked
-      ? 'rgba(167,71,75,.4)'
-      : 'transparent'};
-  border: none;
-  outline: none;
-  cursor: pointer;
-  left: ${({ rect }) => rect.x}px;
-  top: ${({ rect }) => rect.y}px;
-  width: ${({ rect }) => rect.width}px;
-  height: ${({ rect }) => rect.height}px;
-
-  ::after {
-    position: absolute;
-    top: ${({ rect }) => (rect.height - 28) / 2}px;
-    right: ${30 - 28}px;
-    width: 28px;
-    height: 28px;
-
-    /* stylelint-disable-next-line string-no-newline */
-    content: '${({ original, changed }) =>
-      (changed ?? original) === MarkStatus.Marked
-        ? '☑️'
-        : changed === MarkStatus.Unmarked
-        ? '☒'
-        : '☐'}';
-    color: ${({ original, changed }) =>
-      (changed ?? original) === MarkStatus.Marked
-        ? '#006600ee'
-        : changed === MarkStatus.Unmarked
-        ? '#660000ee'
-        : '#006600ee'};
-  }
-
-  :hover {
-    background-color: ${({ original, changed }) =>
-      changed === MarkStatus.Unmarked
-        ? 'rgba(167,71,75,.4)'
-        : original !== MarkStatus.Marked
-        ? 'rgba(71,167,75,.2)'
-        : 'rgba(71,167,75,.4)'};
-  }
-`
-
-const ListWithEmptyState = ({
-  empty,
-  children,
-}: {
-  empty: React.ReactElement
-  children: readonly React.ReactChild[]
-}) => {
-  if (children.length === 0) {
-    return empty
-  }
-
-  return <React.Fragment>{children}</React.Fragment>
-}
 
 export default function BallotScreen() {
   const { ballotId } = useParams<{
@@ -89,34 +23,20 @@ export default function BallotScreen() {
     state.type === 'init' || state.type === 'failed' ? undefined : state.ballot
 
   useEffect(() => {
-    if (state.type === 'init') {
-      fetchJSON<ReviewBallot>(`/scan/hmpb/ballot/${ballotId}`)
-        .then((newBallot) => {
-          setState(workflow.fetchedBallotInfo(state, newBallot))
-        })
-        .catch((error) => {
+    if (state.type === 'init' && ballotId) {
+      ;(async () => {
+        try {
+          setState(
+            workflow.fetchedBallotInfo(state, await fetchBallotInfo(ballotId))
+          )
+        } catch (error) {
           setState(workflow.fail(state, error))
-        })
+        }
+      })()
     }
   }, [ballotId, state, setState])
 
-  const scale = useCallback(
-    <T extends number | undefined>(value: T): T =>
-      (typeof value === 'number'
-        ? value * (800 / (ballot?.ballot.image.width ?? 800))
-        : value) as T,
-    [ballot]
-  )
-
-  const scaleRect = useCallback(
-    (rect: Rect) => ({
-      x: scale(rect.x),
-      y: scale(rect.y),
-      width: scale(rect.width),
-      height: scale(rect.height),
-    }),
-    [scale]
-  )
+  const scale = scaler(ballot ? 800 / ballot.ballot.image.width : 1)
 
   const onContestOptionClick = useCallback<
     React.MouseEventHandler<HTMLElement>
@@ -145,15 +65,15 @@ export default function BallotScreen() {
     (
       contest: DeepReadonly<Contest>,
       option: DeepReadonly<ContestOption>
-    ): { original: MarkStatus; changed?: MarkStatus } => {
+    ): { current: MarkStatus; changed?: MarkStatus } => {
       if (state.type === 'review' || state.type === 'done') {
-        const original =
+        const current =
           state.ballot.marks[contest.id]?.[option.id] ?? MarkStatus.Unmarked
         const changed = state.changes[contest.id]?.[option.id]
-        return { original, changed }
+        return { current, changed }
       }
 
-      return { original: MarkStatus.Unmarked }
+      return { current: MarkStatus.Unmarked }
     },
     [state]
   )
@@ -222,7 +142,7 @@ export default function BallotScreen() {
             contest.options.map((option) => (
               <ContestOptionButton
                 title={option.name}
-                rect={scaleRect(option.bounds)}
+                rect={scale.rect(option.bounds)}
                 data-contest-id={contest.id}
                 data-contest-option-id={option.id}
                 key={`${option.bounds.x},${option.bounds.y}`}
@@ -241,54 +161,43 @@ export default function BallotScreen() {
               marginLeft: 20,
             }}
           >
-            <dl>
+            <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
               {ballot.contests.map((contest) => (
-                <React.Fragment key={contest.id}>
-                  <dt>{contest.title}</dt>
-                  <dd>
-                    <ListWithEmptyState empty={<span>(none)</span>}>
-                      {contest.options
-                        .filter((option) => {
-                          const {
-                            original,
-                            changed,
-                          } = getContestOptionDecoration(contest, option)
+                <li key={contest.id}>
+                  <h4 style={{ marginBottom: 0 }}>{contest.title}</h4>
+                  <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+                    {contest.options.map((option) => {
+                      const { current, changed } = getContestOptionDecoration(
+                        contest,
+                        option
+                      )
 
-                          return (
-                            original === MarkStatus.Marked ||
-                            changed === MarkStatus.Marked
-                          )
-                        })
-                        .map((option, i, options) => {
-                          const { changed } = getContestOptionDecoration(
-                            contest,
-                            option
-                          )
-
-                          return (
-                            <React.Fragment key={option.id}>
-                              <span
-                                style={{
-                                  textDecoration:
-                                    changed === MarkStatus.Unmarked
-                                      ? 'line-through red'
-                                      : changed === MarkStatus.Marked
-                                      ? 'underline green'
-                                      : undefined,
-                                }}
-                              >
-                                {option.name}
-                              </span>
-
-                              {i < options.length - 1 ? ', ' : ''}
-                            </React.Fragment>
-                          )
-                        })}
-                    </ListWithEmptyState>
-                  </dd>
-                </React.Fragment>
+                      return (
+                        <li key={option.id}>
+                          <ContestOptionCheckbox
+                            current={current}
+                            changed={changed}
+                          >
+                            <input
+                              type="checkbox"
+                              id={`contest-option-sidebar-${contest.id}-${option.id}`}
+                              data-contest-id={contest.id}
+                              data-contest-option-id={option.id}
+                              onClick={onContestOptionClick}
+                            />
+                            <label
+                              htmlFor={`contest-option-sidebar-${contest.id}-${option.id}`}
+                            >
+                              {option.name}
+                            </label>
+                          </ContestOptionCheckbox>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </li>
               ))}
-            </dl>
+            </ul>
 
             <button type="submit" disabled={!hasChanges} onClick={onSaveClick}>
               Save Ballot
