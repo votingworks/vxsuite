@@ -268,6 +268,16 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
+  app.get('/scan/hmpb/review/next-ballot', async (_request, response) => {
+    const ballot = await store.getNextReviewBallot()
+
+    if (ballot) {
+      response.json(ballot)
+    } else {
+      response.status(404).end()
+    }
+  })
+
   app.post('/scan/zero', async (_request, response) => {
     await importer.doZero()
     response.json({ status: 'ok' })
