@@ -25,8 +25,7 @@ import 'normalize.css'
 import './App.css'
 import fetchJSON from './util/fetchJSON'
 import { get as getConfig, patch as patchConfig } from './api/config'
-import BatchScreen from './screens/BatchScreen'
-import BallotScreen from './screens/BallotScreen'
+import BallotReviewScreen from './screens/BallotReviewScreen'
 
 const App: React.FC = () => {
   const history = useHistory()
@@ -36,7 +35,7 @@ const App: React.FC = () => {
   const [pendingDeleteBatchIds, setPendingDeleteBatchIds] = useState<number[]>(
     []
   )
-  const [isTestMode, setTestMode] = useState<boolean>()
+  const [isTestMode, setTestMode] = useState(false)
   const [status, setStatus] = useState<ScanStatusResponse>({ batches: [] })
   const [loadingElection, setLoadingElection] = useState(false)
   const { batches } = status
@@ -217,16 +216,13 @@ const App: React.FC = () => {
     return (
       <BrowserRouter>
         <Screen>
-          <Main>
-            <MainChild maxWidth={false}>
-              <Switch>
-                <Route path="/batch/:batchId/ballot/:ballotId">
-                  <BallotScreen />
-                </Route>
-                <Route path="/batch/:batchId">
-                  <BatchScreen />
-                </Route>
-                <Route path="/">
+          <Switch>
+            <Route path="/review">
+              <BallotReviewScreen isTestMode={isTestMode} />
+            </Route>
+            <Route path="/">
+              <Main>
+                <MainChild maxWidth={false}>
                   <DashboardScreen
                     invalidateBatch={invalidateBatch}
                     isScanning={isScanning}
@@ -238,30 +234,30 @@ const App: React.FC = () => {
                     }}
                     deleteBatch={deleteBatch}
                   />
-                </Route>
-              </Switch>
-            </MainChild>
-          </Main>
-          <ButtonBar secondary naturalOrder separatePrimaryButton>
-            <Brand>
-              VxScan
-              {isTestMode && (
-                <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
-              )}
-            </Brand>
-            {typeof isTestMode === 'boolean' && (
-              <Button onClick={toggleTestMode}>
-                {isTestMode ? 'Live mode…' : 'Test mode…'}
-              </Button>
-            )}
-            <Button onClick={unconfigureServer}>Factory Reset</Button>
-            <Button onClick={zeroData}>Zero</Button>
-            <Button onClick={ejectUSB}>Eject USB</Button>
-            <Button onClick={exportResults}>Export</Button>
-            <Button disabled={isScanning} primary onClick={scanBatch}>
-              Scan New Batch
-            </Button>
-          </ButtonBar>
+                </MainChild>
+              </Main>
+              <ButtonBar secondary naturalOrder separatePrimaryButton>
+                <Brand>
+                  VxScan
+                  {isTestMode && (
+                    <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
+                  )}
+                </Brand>
+                {typeof isTestMode === 'boolean' && (
+                  <Button onClick={toggleTestMode}>
+                    {isTestMode ? 'Live mode…' : 'Test mode…'}
+                  </Button>
+                )}
+                <Button onClick={unconfigureServer}>Factory Reset</Button>
+                <Button onClick={zeroData}>Zero</Button>
+                <Button onClick={ejectUSB}>Eject USB</Button>
+                <Button onClick={exportResults}>Export</Button>
+                <Button disabled={isScanning} primary onClick={scanBatch}>
+                  Scan New Batch
+                </Button>
+              </ButtonBar>
+            </Route>
+          </Switch>
         </Screen>
       </BrowserRouter>
     )

@@ -1,8 +1,12 @@
-import * as workflow from './BallotScreenWorkflow'
+import * as workflow from './BallotReviewScreenWorkflow'
 import { ReviewBallot, Contest, MarkStatus } from '../config/types'
 
 test('starts with init', () => {
   expect(workflow.init()).toEqual({ type: 'init' })
+})
+
+test('can move to no-ballots from init', () => {
+  expect(workflow.noBallots(workflow.init())).toEqual({ type: 'no-ballots' })
 })
 
 test('can mark an option', () => {
@@ -48,6 +52,8 @@ test('can mark an option', () => {
     expect.objectContaining({
       type: 'review',
       changes: { president: { 'george-washington': MarkStatus.Marked } },
+      hasChanges: true,
+      reviewComplete: true,
     })
   )
 })
@@ -126,6 +132,7 @@ test('changes can only happen while in review', () => {
   }
   const option = contest.options[0]
   expect(() =>
+    // @ts-expect-error
     workflow.change(workflow.init(), contest, option, MarkStatus.Marked)
   ).toThrowError()
 })
@@ -207,6 +214,7 @@ test('toggle can only happen while in review', () => {
     ],
   }
   const option = contest.options[0]
+  // @ts-expect-error
   expect(() => workflow.toggle(workflow.init(), contest, option)).toThrowError()
 })
 
@@ -252,13 +260,14 @@ test('finalize moves out of review preserving the adjudication changes', () => {
 
   expect(state).toEqual(
     expect.objectContaining({
-      type: 'review',
+      type: 'done',
       changes: { president: { 'george-washington': MarkStatus.Unmarked } },
     })
   )
 })
 
 test('finalize can only happen while in review', () => {
+  // @ts-expect-error
   expect(() => workflow.finalize(workflow.init())).toThrowError()
 })
 

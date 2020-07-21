@@ -1,6 +1,6 @@
 import { electionSample as election } from '@votingworks/ballot-encoder'
 import fetchMock from 'fetch-mock'
-import { addTemplates } from './hmpb'
+import { addTemplates, fetchBallotInfo, fetchNextBallotToReview } from './hmpb'
 
 test('configures the server with the contained election', async () => {
   fetchMock.patchOnce('/config', { body: { status: 'ok' } })
@@ -80,4 +80,19 @@ test('emits error on API failure', async () => {
         })
     })
   ).rejects.toThrowError()
+})
+
+test('can fetch ballot info by id', async () => {
+  fetchMock.getOnce('/scan/hmpb/ballot/42', { status: 200, body: {} })
+  await expect(fetchBallotInfo('42')).resolves.toBeDefined()
+})
+
+test('can fetch the next ballot needing review', async () => {
+  fetchMock.getOnce('/scan/hmpb/review/next-ballot', { status: 200, body: {} })
+  await expect(fetchNextBallotToReview()).resolves.toBeDefined()
+})
+
+test('returns undefined if there are no ballots to review', async () => {
+  fetchMock.getOnce('/scan/hmpb/review/next-ballot', { status: 404, body: {} })
+  await expect(fetchNextBallotToReview()).resolves.toBeUndefined()
 })

@@ -1,3 +1,4 @@
+import * as assert from 'assert'
 import {
   Contest,
   ContestOption,
@@ -7,7 +8,7 @@ import {
   MarkStatus,
 } from '../config/types'
 
-export type State = Failed | Init | Review | Done
+export type State = Failed | Init | Review | Done | NoBallots
 
 export type Failed = DeepReadonly<{
   type: 'failed'
@@ -23,12 +24,18 @@ export type Review = DeepReadonly<{
   type: 'review'
   ballot: ReviewBallot
   changes: MarksByContestId
+  hasChanges: boolean
+  reviewComplete: boolean
 }>
 
 export type Done = DeepReadonly<{
   type: 'done'
   ballot: ReviewBallot
   changes: MarksByContestId
+}>
+
+export type NoBallots = DeepReadonly<{
+  type: 'no-ballots'
 }>
 
 export function fail(previousState: State, err?: string | Error): Failed {
@@ -43,19 +50,12 @@ export function init(): Init {
   return { type: 'init' }
 }
 
-export function fetchedBallotInfo(state: State, ballot: ReviewBallot): State {
-  return {
-    type: 'review',
-    ballot,
-    changes: {},
-  }
-}
-
 function normalizeChanges(
   ballot: ReviewBallot,
   changes: MarksByContestId
-): MarksByContestId {
+): { changes: MarksByContestId; hasChanges: boolean; reviewComplete: boolean } {
   const normalized: MarksByContestId = {}
+  let hasChanges = false
 
   for (const [contestId, marksByOptionId] of Object.entries(changes)) {
     for (const [optionId, marked] of Object.entries(marksByOptionId!)) {
@@ -65,31 +65,46 @@ function normalizeChanges(
         const normalizedMarksByOptionId = normalized[contestId] ?? {}
         normalizedMarksByOptionId[optionId] = marked
         normalized[contestId] = normalizedMarksByOptionId
+        hasChanges = true
       }
     }
   }
 
-  return normalized
+  let reviewComplete = true
+
+  for (const [contestId, marksByOptionId] of Object.entries(ballot.marks)) {
+    for (const [optionId, mark] of Object.entries(marksByOptionId ?? {})) {
+      if ((normalized[contestId]?.[optionId] ?? mark) === MarkStatus.Marginal) {
+        reviewComplete = false
+      }
+    }
+  }
+
+  return { changes: normalized, hasChanges, reviewComplete }
+}
+
+export function fetchedBallotInfo(state: Init, ballot: ReviewBallot): Review {
+  assert.equal(state.type, 'init')
+  return {
+    type: 'review',
+    ballot,
+    ...normalizeChanges(ballot, {}),
+  }
 }
 
 export function change(
-  state: State,
+  state: Review,
   contest: Contest,
   option: ContestOption,
   marked: MarkStatus
-): State {
-  if (state.type !== 'review') {
-    throw new Error(
-      `changes can only be made while in review (state=${state.type})`
-    )
-  }
-
+): Review {
+  assert.equal(state.type, 'review')
   const { ballot, changes } = state
 
   return {
     type: 'review',
     ballot,
-    changes: normalizeChanges(ballot, {
+    ...normalizeChanges(ballot, {
       ...changes,
       [contest.id]: {
         ...changes[contest.id],
@@ -100,16 +115,11 @@ export function change(
 }
 
 export function toggle(
-  state: State,
+  state: Review,
   contest: Contest,
   option: ContestOption
-): State {
-  if (state.type !== 'review') {
-    throw new Error(
-      `changes can only be made while in review (state=${state.type})`
-    )
-  }
-
+): Review {
+  assert.equal(state.type, 'review')
   const { ballot, changes } = state
 
   return change(
@@ -123,17 +133,17 @@ export function toggle(
   )
 }
 
-export function finalize(state: State): State {
-  if (state.type !== 'review') {
-    throw new Error(
-      `changes can only be finalized while in review (state=${state.type})`
-    )
-  }
+export function noBallots(state: Init): NoBallots {
+  assert.equal(state.type, 'init')
+  return { type: 'no-ballots' }
+}
 
+export function finalize(state: Review): Done {
+  assert.equal(state.type, 'review')
   const { ballot, changes } = state
 
   return {
-    type: 'review',
+    type: 'done',
     ballot,
     changes,
   }

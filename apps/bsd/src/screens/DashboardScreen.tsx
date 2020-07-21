@@ -1,5 +1,4 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
@@ -53,7 +52,7 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                   <th>Ballot Count</th>
                   <th>Started At</th>
                   <th>Finished At</th>
-                  <th colSpan={2}>&nbsp;</th>
+                  <th>&nbsp;</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,9 +69,6 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                       ) : (
                         <small>{shortDateTime(batch.endedAt!)}</small>
                       )}
-                    </TD>
-                    <TD narrow>
-                      <Link to={`/batch/${batch.id}`}>View</Link>
                     </TD>
                     <TD narrow>
                       <Button

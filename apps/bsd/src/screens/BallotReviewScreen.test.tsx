@@ -5,7 +5,7 @@ import React from 'react'
 import { act } from 'react-dom/test-utils'
 import { Route, Router } from 'react-router-dom'
 import { GetBallotResponse } from '../config/types'
-import BallotScreen from './BallotScreen'
+import BallotReviewScreen from './BallotReviewScreen'
 
 test('renders an image of the ballot', async () => {
   const response: GetBallotResponse = {
@@ -26,7 +26,7 @@ test('renders an image of the ballot', async () => {
         history={createMemoryHistory({ initialEntries: ['/batch/1/ballot/2'] })}
       >
         <Route path="/batch/:batchId/ballot/:ballotId">
-          <BallotScreen />
+          <BallotReviewScreen isTestMode={false} />
         </Route>
       </Router>
     )
@@ -73,7 +73,7 @@ test('renders ballot options for each contest option', async () => {
         history={createMemoryHistory({ initialEntries: ['/batch/1/ballot/2'] })}
       >
         <Route path="/batch/:batchId/ballot/:ballotId">
-          <BallotScreen />
+          <BallotReviewScreen isTestMode={false} />
         </Route>
       </Router>
     )
@@ -100,11 +100,11 @@ test('renders an error message on failure to fetch', async () => {
     component = render(
       <Router history={history}>
         <Route path="/batch/:batchId/ballot/:ballotId">
-          <BallotScreen />
+          <BallotReviewScreen isTestMode={false} />
         </Route>
       </Router>
     )
   })
 
-  component.getByText('An error occurred')
+  component.getByText('fetch response is not ok')
 })

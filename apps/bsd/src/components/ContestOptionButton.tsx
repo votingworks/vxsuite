@@ -2,6 +2,14 @@ import styled from 'styled-components'
 import { Rect } from '@votingworks/hmpb-interpreter'
 import { MarkStatus } from '../config/types'
 
+const GREEN_BG = 'rgba(71,167,75,.4)'
+const GREEN_BG_LIGHT = 'rgba(71,167,75,.2)'
+const RED_BG = 'rgba(167,71,75,.4)'
+const YELLOW_BG = '#ffff0066'
+
+const GREEN_FG = '#006600ee'
+const RED_FG = '#660000ee'
+
 const ContestOptionButton = styled.button<{
   rect: Rect
   current: MarkStatus
@@ -11,9 +19,11 @@ const ContestOptionButton = styled.button<{
   color: transparent;
   background-color: ${({ current, changed }) =>
     (changed ?? current) === MarkStatus.Marked
-      ? 'rgba(71,167,75,.4)'
+      ? GREEN_BG
       : changed === MarkStatus.Unmarked
-      ? 'rgba(167,71,75,.4)'
+      ? RED_BG
+      : current === MarkStatus.Marginal
+      ? YELLOW_BG
       : 'transparent'};
   border: none;
   outline: none;
@@ -39,19 +49,19 @@ const ContestOptionButton = styled.button<{
         : '☐'}';
     color: ${({ current, changed }) =>
       (changed ?? current) === MarkStatus.Marked
-        ? '#006600ee'
+        ? GREEN_FG
         : changed === MarkStatus.Unmarked
-        ? '#660000ee'
-        : '#006600ee'};
+        ? RED_FG
+        : GREEN_FG};
   }
 
   :hover {
     background-color: ${({ current, changed }) =>
       changed === MarkStatus.Unmarked
-        ? 'rgba(167,71,75,.4)'
+        ? RED_BG
         : current !== MarkStatus.Marked
-        ? 'rgba(71,167,75,.2)'
-        : 'rgba(71,167,75,.4)'};
+        ? GREEN_BG_LIGHT
+        : GREEN_BG};
   }
 `
 
