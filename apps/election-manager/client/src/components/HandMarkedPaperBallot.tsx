@@ -272,8 +272,6 @@ const BallotHeader = styled.div`
 `
 const Instructions = styled.div`
   margin-bottom: 1em;
-  background: #eeeeee;
-  padding: 0.125in;
   img {
     float: right;
     margin: 0.05in 0 0.05in 0.05in;
