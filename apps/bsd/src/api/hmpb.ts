@@ -77,3 +77,13 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
 export function fetchBallotInfo(ballotId: string): Promise<ReviewBallot> {
   return fetchJSON<ReviewBallot>(`/scan/hmpb/ballot/${ballotId}`)
 }
+
+export async function fetchNextBallotToReview(): Promise<
+  ReviewBallot | undefined
+> {
+  try {
+    return await fetchJSON<ReviewBallot>('/scan/hmpb/review/next-ballot')
+  } catch {
+    return undefined
+  }
+}

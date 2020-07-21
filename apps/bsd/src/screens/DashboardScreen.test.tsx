@@ -156,34 +156,3 @@ test('allows deleting a batch', async () => {
   deleteBatch2Button.click()
   expect(deleteBatch).toHaveBeenNthCalledWith(2, status.batches[1].id)
 })
-
-test('allows navigating to a batch screen', async () => {
-  const deleteBatch = jest.fn()
-  const invalidateBatch = jest.fn()
-  const status: ScanStatusResponse = {
-    batches: [
-      {
-        id: 1,
-        count: 1,
-        startedAt: 0,
-        endedAt: 0,
-        ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
-      },
-    ],
-  }
-  const history = createMemoryHistory()
-  const component = render(
-    <Router history={history}>
-      <DashboardScreen
-        deleteBatch={deleteBatch}
-        invalidateBatch={invalidateBatch}
-        isScanning={false}
-        status={status}
-      />
-    </Router>
-  )
-
-  const [viewLink] = component.getAllByText('View', { selector: 'a' })
-  viewLink.click()
-  expect(history.location.pathname).toEqual('/batch/1')
-})
