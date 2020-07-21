@@ -147,6 +147,7 @@ test('going through the whole process works', async () => {
     // to expected outcome as a string directly.
     const CVRs: CastVoteRecord[] = exportResponse.text
       .split('\n')
+      .filter(Boolean)
       .map((line) => JSON.parse(line))
     const ballotIds = CVRs.map((cvr) => cvr._ballotId)
     ballotIds.sort()
@@ -206,6 +207,7 @@ test('going through the whole process works', async () => {
     // to expected outcome as a string directly.
     const CVRs: CastVoteRecord[] = exportResponse.text
       .split('\n')
+      .filter(Boolean)
       .map((line) => JSON.parse(line))
     const ballotIds = CVRs.map((cvr) => cvr._ballotId)
     ballotIds.sort()

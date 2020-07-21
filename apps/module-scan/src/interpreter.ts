@@ -18,6 +18,7 @@ import {
   BallotMark,
   Size,
   BallotPageLayout,
+  metadataFromBytes,
 } from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
@@ -41,11 +42,34 @@ export interface MarkInfo {
   ballotSize: Size
 }
 
-export interface InterpretedBallot {
+export type InterpretedBallot =
+  | InterpretedBmdBallot
+  | InterpretedHmpbBallot
+  | UninterpretedHmpbBallot
+  | ManualBallot
+
+export interface UninterpretedHmpbBallot {
+  type: 'UninterpretedHmpbBallot'
+  metadata: BallotPageMetadata
+}
+
+export interface ManualBallot {
+  type: 'ManualBallot'
   cvr: CastVoteRecord
+}
+
+export interface InterpretedBmdBallot {
+  type: 'InterpretedBmdBallot'
   normalizedImage: ImageData
-  marks?: MarkInfo
-  metadata?: BallotPageMetadata
+  cvr: CastVoteRecord
+}
+
+export interface InterpretedHmpbBallot {
+  type: 'InterpretedHmpbBallot'
+  normalizedImage: ImageData
+  metadata: BallotPageMetadata
+  markInfo: MarkInfo
+  cvr: CastVoteRecord
 }
 
 export interface Interpreter {
@@ -193,7 +217,6 @@ export default class SummaryBallotInterpreter implements Interpreter {
     return layout
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public async interpretFile({
     election,
     ballotImagePath,
@@ -217,7 +240,26 @@ export default class SummaryBallotInterpreter implements Interpreter {
       return bmdResult
     }
 
-    return await this.interpretHMPBFile(election, ballotImageData)
+    try {
+      const hmpbResult = await this.interpretHMPBFile(election, ballotImageData)
+
+      if (hmpbResult) {
+        return hmpbResult
+      }
+    } catch {
+      // ignore for now
+    }
+
+    try {
+      const metadata = metadataFromBytes(ballotImageData.qrcode)
+
+      return {
+        type: 'UninterpretedHmpbBallot',
+        metadata,
+      }
+    } catch {
+      // ignore for now
+    }
   }
 
   public setTestMode(testMode: boolean): void {
@@ -228,7 +270,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
   private async interpretBMDFile(
     election: Election,
     { qrcode, image }: BallotImageData
-  ): Promise<InterpretedBallot | undefined> {
+  ): Promise<InterpretedBmdBallot | undefined> {
     if (typeof detect(qrcode) === 'undefined') {
       return
     }
@@ -236,14 +278,14 @@ export default class SummaryBallotInterpreter implements Interpreter {
     const cvr = interpretBallotData({ election, encodedBallot: qrcode })
 
     if (cvr) {
-      return { cvr, normalizedImage: image }
+      return { type: 'InterpretedBmdBallot', cvr, normalizedImage: image }
     }
   }
 
   private async interpretHMPBFile(
     election: Election,
     { image }: BallotImageData
-  ): Promise<InterpretedBallot | undefined> {
+  ): Promise<InterpretedHmpbBallot | undefined> {
     const hmpbInterpreter = this.getHmbpInterpreter(election)
     const {
       ballot,
@@ -295,9 +337,10 @@ export default class SummaryBallotInterpreter implements Interpreter {
     }
 
     return {
+      type: 'InterpretedHmpbBallot',
       cvr,
       normalizedImage: mappedBallot,
-      marks: {
+      markInfo: {
         marks,
         ballotSize: {
           width: mappedBallot.width,

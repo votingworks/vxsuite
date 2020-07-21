@@ -14,6 +14,7 @@ import { Importer } from './importer'
 import { buildApp, start } from './server'
 import Store from './store'
 import { MarkStatus } from './types/ballot-review'
+import EMPTY_IMAGE from '../test/fixtures/emptyImage'
 
 jest.mock('./importer')
 
@@ -200,52 +201,16 @@ test('POST /scan/zero', async () => {
   expect(importer.doZero).toBeCalled()
 })
 
-test('GET /scan/batch/:batchId', async () => {
-  const batchId = await store.addBatch()
-  await store.addCVR(batchId, '/tmp/image.jpg', {
-    _ballotId: 'abc',
-    _ballotStyleId: '77',
-    _precinctId: '42',
-    _scannerId: 'def',
-    _testBallot: false,
-  })
-  await store.finishBatch(batchId)
-
-  await request(app)
-    .get(`/scan/batch/${batchId}`)
-    .set('Accept', 'application/json')
-    .expect(200, [
-      {
-        id: 1,
-        filename: '/tmp/image.jpg',
-        cvr: {
-          _ballotId: 'abc',
-          _ballotStyleId: '77',
-          _precinctId: '42',
-          _scannerId: 'def',
-          _testBallot: false,
-        },
-      },
-    ])
-})
-
-test('GET /scan/batch/:batchId 404', async () => {
-  await request(app)
-    .get(`/scan/batch/999`)
-    .set('Accept', 'application/json')
-    .expect(404)
-})
-
 test('GET /scan/hmpb/ballot/:ballotId', async () => {
   const contest = election.contests.find(
     ({ type }) => type === 'candidate'
   ) as CandidateContest
   const option = contest.candidates[0]
   const batchId = await store.addBatch()
-  const ballotId = await store.addCVR(
-    batchId,
-    '/tmp/image.jpg',
-    {
+  const ballotId = await store.addBallot(batchId, '/tmp/image.jpg', {
+    type: 'InterpretedHmpbBallot',
+    normalizedImage: EMPTY_IMAGE,
+    cvr: {
       _ballotId: 'abc',
       _ballotStyleId: '12',
       _precinctId: '23',
@@ -254,7 +219,7 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
       _pageNumber: 1,
       _locales: { primary: 'en-US' },
     },
-    {
+    markInfo: {
       ballotSize: { width: 0, height: 0 },
       marks: [
         {
@@ -267,15 +232,15 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
         },
       ],
     },
-    {
+    metadata: {
       ballotStyleId: '12',
       precinctId: '23',
       isTestBallot: false,
       pageNumber: 1,
       pageCount: 1,
       locales: { primary: 'en-US' },
-    }
-  )
+    },
+  })
   await store.finishBatch(batchId)
 
   await request(app)
@@ -308,10 +273,10 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
   ) as YesNoContest
   const yesnoOption = 'no'
   const batchId = await store.addBatch()
-  const ballotId = await store.addCVR(
-    batchId,
-    '/tmp/image.jpg',
-    {
+  const ballotId = await store.addBallot(batchId, '/tmp/image.jpg', {
+    type: 'InterpretedHmpbBallot',
+    normalizedImage: EMPTY_IMAGE,
+    cvr: {
       _ballotId: 'abc',
       _ballotStyleId: '12',
       _precinctId: '23',
@@ -320,7 +285,7 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
       _pageNumber: 1,
       _locales: { primary: 'en-US' },
     },
-    {
+    markInfo: {
       ballotSize: { width: 0, height: 0 },
       marks: [
         {
@@ -341,15 +306,15 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
         },
       ],
     },
-    {
+    metadata: {
       ballotStyleId: '12',
       precinctId: '23',
       isTestBallot: false,
       pageNumber: 1,
       pageCount: 1,
       locales: { primary: 'en-US' },
-    }
-  )
+    },
+  })
   await store.finishBatch(batchId)
   await request(app)
     .patch(`/scan/hmpb/ballot/${ballotId}`)
@@ -409,12 +374,27 @@ test('GET /scan/hmpb/ballot/:ballotId/image', async () => {
     '../test/fixtures/state-of-hamilton/filled-in-dual-language-p1.jpg'
   )
   const batchId = await store.addBatch()
-  const ballotId = await store.addCVR(batchId, filename, {
-    _ballotId: 'abc',
-    _ballotStyleId: '12',
-    _precinctId: '23',
-    _scannerId: 'def',
-    _testBallot: false,
+  const ballotId = await store.addBallot(batchId, filename, {
+    type: 'InterpretedHmpbBallot',
+    normalizedImage: EMPTY_IMAGE,
+    metadata: {
+      ballotStyleId: '12',
+      precinctId: '23',
+      isTestBallot: false,
+      pageNumber: 1,
+      pageCount: 5,
+    },
+    cvr: {
+      _ballotId: 'abc',
+      _ballotStyleId: '12',
+      _precinctId: '23',
+      _scannerId: 'def',
+      _testBallot: false,
+    },
+    markInfo: {
+      ballotSize: { width: 0, height: 0 },
+      marks: [],
+    },
   })
   await store.finishBatch(batchId)
 

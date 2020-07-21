@@ -18,9 +18,8 @@ import makeDebug from 'debug'
 import { promises as fs } from 'fs'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
-import { MarkInfo } from './interpreter'
+import { MarkInfo, InterpretedBallot } from './interpreter'
 import {
-  BallotInfo,
   BatchInfo,
   CastVoteRecord,
   getMarkStatus,
@@ -345,21 +344,26 @@ export default class Store {
   }
 
   /**
-   * Adds a cast vote record to an existing batch.
+   * Adds a ballot to an existing batch.
    */
-  public async addCVR(
+  public async addBallot(
     batchId: number,
     filename: string,
-    cvr: CastVoteRecord,
-    markInfo?: MarkInfo,
-    metadata?: BallotPageMetadata
+    interpreted: InterpretedBallot
   ): Promise<number> {
     try {
+      const cvr = 'cvr' in interpreted ? interpreted.cvr : undefined
+      const markInfo =
+        'markInfo' in interpreted ? interpreted.markInfo : undefined
+      const metadata =
+        'metadata' in interpreted ? interpreted.metadata : undefined
       const requiresAdjudication =
         markInfo?.marks.some((mark) => isMarginalMark(mark)) ?? false
 
       await this.dbRunAsync(
-        'insert into ballots (batch_id, filename, cvr_json, marks_json, metadata_json, requires_adjudication) values (?, ?, ?, ?, ?, ?)',
+        `insert into ballots
+          (batch_id, filename, cvr_json, marks_json, metadata_json, requires_adjudication)
+          values (?, ?, ?, ?, ?, ?)`,
         batchId,
         filename,
         JSON.stringify(cvr),
@@ -375,7 +379,7 @@ export default class Store {
       // this catch effectively swallows an insert error
       // this might happen on duplicate insert, which happens
       // when chokidar sometimes notices a file twice.
-      debug('addCVR failed: %s', error)
+      debug('addBallot failed: %s', error)
       const { id } = await this.dbGetAsync(
         'select id from ballots where filename = ?',
         filename
@@ -387,31 +391,6 @@ export default class Store {
   public async zero(): Promise<void> {
     await this.dbRunAsync('delete from ballots')
     await this.dbRunAsync('delete from batches')
-  }
-
-  /**
-   * Gets the batch with id `batchId`.
-   */
-  public async getBatch(batchId: number): Promise<BallotInfo[]> {
-    return (
-      await this.dbAllAsync<
-        {
-          id: number
-          filename: string
-          marksJSON?: string
-          cvrJSON?: string
-        },
-        [number]
-      >(
-        'select id, filename, marks_json as marksJSON, cvr_json as cvrJSON from ballots where batch_id = ?',
-        batchId
-      )
-    ).map((row) => ({
-      id: row.id,
-      filename: row.filename,
-      marks: row.marksJSON ? JSON.parse(row.marksJSON) : undefined,
-      cvr: row.cvrJSON ? JSON.parse(row.cvrJSON) : undefined,
-    }))
   }
 
   public async getBallotFilename(
@@ -723,8 +702,10 @@ export default class Store {
   public async exportCVRs(writeStream: Writable): Promise<void> {
     const sql =
       'select cvr_json as cvrJSON from ballots where cvr_json is not null'
-    const rows = await this.dbAllAsync<{ cvrJSON: string }>(sql)
-    writeStream.write(rows.map((row) => row.cvrJSON).join('\n'))
+    for (const { cvrJSON } of await this.dbAllAsync<{ cvrJSON: string }>(sql)) {
+      writeStream.write(cvrJSON)
+      writeStream.write('\n')
+    }
   }
 
   public async addHmpbTemplate(
