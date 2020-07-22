@@ -81,6 +81,9 @@ const AppRoot = ({ storage }: Props) => {
     newCVRFiles = CastVoteRecordFiles.empty
   ) => {
     setCastVoteRecordFiles(newCVRFiles)
+    if (newCVRFiles === CastVoteRecordFiles.empty) {
+      setIsOfficialResults(false)
+    }
     /*
     // TURNING OFF STORAGE FOR NOW
     if (newCVRFiles === CastVoteRecordFiles.empty) {
