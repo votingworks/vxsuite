@@ -16,6 +16,7 @@ import Button from './components/Button'
 import ButtonBar from './components/ButtonBar'
 import Main, { MainChild } from './components/Main'
 import Screen from './components/Screen'
+import USBController from './components/USBController'
 import useInterval from './hooks/useInterval'
 
 import LoadElectionScreen from './screens/LoadElectionScreen'
@@ -140,14 +141,6 @@ const App: React.FC = () => {
     }
   }, [])
 
-  const ejectUSB = useCallback(
-    async () =>
-      fetch('/usbstick/eject', {
-        method: 'post',
-      }),
-    []
-  )
-
   const zeroData = useCallback(async () => {
     try {
       await fetch('/scan/zero', {
@@ -243,6 +236,7 @@ const App: React.FC = () => {
                     <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
                   )}
                 </Brand>
+                <USBController />
                 {typeof isTestMode === 'boolean' && (
                   <Button onClick={toggleTestMode}>
                     {isTestMode ? 'Live mode…' : 'Test mode…'}
@@ -250,7 +244,6 @@ const App: React.FC = () => {
                 )}
                 <Button onClick={unconfigureServer}>Factory Reset</Button>
                 <Button onClick={zeroData}>Zero</Button>
-                <Button onClick={ejectUSB}>Eject USB</Button>
                 <Button onClick={exportResults}>Export</Button>
                 <Button disabled={isScanning} primary onClick={scanBatch}>
                   Scan New Batch

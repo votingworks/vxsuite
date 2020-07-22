@@ -65,6 +65,7 @@
     "react-scripts": "3.4.1",
     "styled-components": "^4.2.0",
     "typescript": "3.9.2",
+    "use-interval": "^1.2.1",
     "yauzl": "^2.10.0"
   },
   "devDependencies": {
