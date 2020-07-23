@@ -34,7 +34,7 @@ export interface Importer {
     pdf: Buffer,
     metadata: BallotMetadata
   ): Promise<BallotPageLayout[]>
-  addManualBallot(encodedBallot: Uint8Array): Promise<void>
+  addManualBallot(encodedBallot: Uint8Array): Promise<number | undefined>
   configure(newElection: Election): Promise<void>
   doExport(): Promise<string>
   doImport(): Promise<void>
@@ -43,7 +43,7 @@ export interface Importer {
     batchId: number,
     ballotImagePath: string,
     ballotImageFile?: Buffer
-  ): Promise<void>
+  ): Promise<number | undefined>
   getStatus(): Promise<{ batches: BatchInfo[]; electionHash?: string }>
   restoreConfig(): Promise<void>
   setTestMode(testMode: boolean): Promise<void>
@@ -145,7 +145,9 @@ export default class SystemImporter implements Importer {
    * Adds a ballot using the data that would have been read from a scan, i.e.
    * the data encoded by the QR code.
    */
-  public async addManualBallot(encodedBallot: Uint8Array): Promise<void> {
+  public async addManualBallot(
+    encodedBallot: Uint8Array
+  ): Promise<number | undefined> {
     const election = await this.store.getElection()
 
     if (!election) {
@@ -162,10 +164,14 @@ export default class SystemImporter implements Importer {
     })
 
     if (cvr) {
-      this.addBallot(this.manualBatchId!, `manual-${cvr._ballotId}`, {
-        type: 'ManualBallot',
-        cvr,
-      })
+      return await this.addBallot(
+        this.manualBatchId!,
+        `manual-${cvr._ballotId}`,
+        {
+          type: 'ManualBallot',
+          cvr,
+        }
+      )
     }
   }
 
@@ -271,7 +277,7 @@ export default class SystemImporter implements Importer {
     batchId: number,
     ballotImagePath: string,
     ballotImageFile?: Buffer
-  ): Promise<void> {
+  ): Promise<number | undefined> {
     const election = await this.store.getElection()
 
     if (!election) {
@@ -318,18 +324,23 @@ export default class SystemImporter implements Importer {
         )}-${ballotImageHash}${ballotImagePathExt}`
       )
 
-      this.addBallot(batchId, importedBallotImagePath, interpreted)
+      const ballotId = await this.addBallot(
+        batchId,
+        importedBallotImagePath,
+        interpreted
+      )
 
-      // move the file only if there was a CVR
       if (!ballotImageFile) {
-        fs.unlinkSync(ballotImagePath)
+        await fsExtra.unlink(ballotImagePath)
       }
       if (normalizedImage) {
-        fs.writeFileSync(
+        await fsExtra.writeFile(
           importedBallotImagePath,
           jpeg.encode(normalizedImage).data
         )
       }
+
+      return ballotId
     } else {
       // eventually do something with files that don't have a CVR in them?
     }
@@ -345,12 +356,17 @@ export default class SystemImporter implements Importer {
   /**
    * Add a ballot to the internal store.
    */
-  private addBallot(
+  private async addBallot(
     batchId: number,
     ballotImagePath: string,
     interpreted: InterpretedBallot
-  ): void {
-    this.store.addBallot(batchId, ballotImagePath, interpreted)
+  ): Promise<number> {
+    const ballotId = await this.store.addBallot(
+      batchId,
+      ballotImagePath,
+      interpreted
+    )
+
     for (const callback of this.onCVRAddedCallbacks) {
       try {
         if ('cvr' in interpreted) {
@@ -360,6 +376,8 @@ export default class SystemImporter implements Importer {
         // ignore failed callbacks
       }
     }
+
+    return ballotId
   }
 
   /**
