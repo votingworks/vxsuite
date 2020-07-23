@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
+import styled from 'styled-components'
 import { useParams, useHistory } from 'react-router-dom'
 import pluralize from 'pluralize'
 
@@ -23,6 +24,18 @@ import Brand from '../components/Brand'
 import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Text from '../components/Text'
+
+const BallotReviewColumns = styled.div`
+  display: flex;
+  flex-direction: row;
+  > div:first-child {
+    position: relative;
+    margin-right: 1em;
+  }
+  > div:last-child {
+    min-width: 400px;
+  }
+`
 
 export interface Props {
   isTestMode: boolean
@@ -188,24 +201,14 @@ export default function BallotReviewScreen({
   return (
     <React.Fragment>
       <Main>
-        <MainChild maxWidth={false}>
-          <Prose maxWidth={false}>
-            <div
-              style={{
-                position: 'relative',
-                width: scale(ballot.ballot.image.width),
-              }}
-            >
+        <BallotReviewColumns>
+          <React.Fragment>
+            <div>
               <img
                 src={ballot.ballot.image.url}
                 alt="Scanned Ballot"
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: scale(ballot.ballot.image.width),
-                  height: scale(ballot.ballot.image.height),
-                }}
+                width={scale(ballot.ballot.image.width)}
+                height={scale(ballot.ballot.image.height)}
               />
               {ballot.type === 'ReviewMarginalMarksBallot' &&
                 ballot.contests.map((contest, contestIndex) =>
@@ -225,57 +228,47 @@ export default function BallotReviewScreen({
                     </ContestOptionButton>
                   ))
                 )}
-              <div
-                style={{
-                  position: 'absolute',
-                  left: scale(ballot.ballot.image.width),
-                  width: 800,
-                  marginLeft: 20,
-                }}
-              >
-                <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-                  {ballot.contests.map((contest) => (
-                    <li key={contest.id}>
-                      <h4 style={{ marginBottom: 0 }}>{contest.title}</h4>
-                      <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-                        {contest.options.map((option) => {
-                          const {
-                            current,
-                            changed,
-                          } = getContestOptionDecoration(contest, option)
-
-                          return (
-                            <li key={option.id}>
-                              <ContestOptionCheckbox
-                                current={current}
-                                changed={changed}
-                              >
-                                <input
-                                  type="checkbox"
-                                  id={`contest-option-sidebar-${contest.id}-${option.id}`}
-                                  data-contest-id={contest.id}
-                                  data-contest-option-id={option.id}
-                                  onClick={onContestOptionClick}
-                                />
-                                <label
-                                  htmlFor={`contest-option-sidebar-${contest.id}-${option.id}`}
-                                >
-                                  {option.name}{' '}
-                                  {(changed ?? current) ===
-                                    MarkStatus.Marginal && '⚠'}
-                                </label>
-                              </ContestOptionCheckbox>
-                            </li>
-                          )
-                        })}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
-          </Prose>
-        </MainChild>
+            <Prose maxWidth={false}>
+              {ballot.contests.map((contest) => (
+                <React.Fragment key={contest.id}>
+                  <h4>{contest.title}</h4>
+                  <p>
+                    {contest.options.map((option) => {
+                      const { current, changed } = getContestOptionDecoration(
+                        contest,
+                        option
+                      )
+
+                      return (
+                        <ContestOptionCheckbox
+                          key={option.id}
+                          current={current}
+                          changed={changed}
+                        >
+                          <input
+                            type="checkbox"
+                            id={`contest-option-sidebar-${contest.id}-${option.id}`}
+                            data-contest-id={contest.id}
+                            data-contest-option-id={option.id}
+                            onClick={onContestOptionClick}
+                          />
+                          <label
+                            htmlFor={`contest-option-sidebar-${contest.id}-${option.id}`}
+                          >
+                            {option.name}{' '}
+                            {(changed ?? current) === MarkStatus.Marginal &&
+                              '⚠'}
+                          </label>
+                        </ContestOptionCheckbox>
+                      )
+                    })}
+                  </p>
+                </React.Fragment>
+              ))}
+            </Prose>
+          </React.Fragment>
+        </BallotReviewColumns>
       </Main>
       <ButtonBar secondary naturalOrder separatePrimaryButton>
         <Brand>

@@ -10,10 +10,11 @@ const GREEN_FG = '#006600ee'
 const RED_FG = '#660000ee'
 const YELLOW_FG = '#666600ee'
 
-const ContestOptionCheckbox = styled.div<{
+const ContestOptionCheckbox = styled.span<{
   current: MarkStatus
   changed?: MarkStatus
 }>`
+  display: block;
   cursor: pointer;
 
   * {
