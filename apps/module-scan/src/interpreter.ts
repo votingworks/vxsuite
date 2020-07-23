@@ -22,10 +22,8 @@ import {
 } from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
-import { readFile as readFileCallback } from 'fs'
 import { decode as decodeJpeg } from 'jpeg-js'
 import { decode as quircDecode } from 'node-quirc'
-import { promisify } from 'util'
 import { CastVoteRecord } from './types'
 import { getMachineId } from './util/machineId'
 
@@ -34,7 +32,7 @@ const debug = makeDebug('module-scan:interpreter')
 export interface InterpretFileParams {
   readonly election: Election
   readonly ballotImagePath: string
-  readonly ballotImageFile?: Buffer
+  readonly ballotImageFile: Buffer
 }
 
 export interface MarkInfo {
@@ -87,8 +85,6 @@ export interface Interpreter {
   ): Promise<InterpretedBallot | undefined>
   setTestMode(testMode: boolean): void
 }
-
-const readFile = promisify(readFileCallback)
 
 interface InterpretBallotStringParams {
   readonly election: Election
@@ -226,7 +222,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
     try {
       ballotImageData = await getBallotImageData(
-        ballotImageFile ?? (await readFile(ballotImagePath)),
+        ballotImageFile,
         ballotImagePath
       )
     } catch (error) {
