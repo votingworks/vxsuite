@@ -6,17 +6,14 @@ import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
 import { Election } from '@votingworks/ballot-encoder'
-import {
-  BallotPageMetadata,
-  BallotPageLayout,
-} from '@votingworks/hmpb-interpreter'
+import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
 
 import { CastVoteRecord, BatchInfo, BallotMetadata } from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
   interpretBallotData,
-  MarkInfo,
+  InterpretedBallot,
 } from './interpreter'
 import { Scanner } from './scanner'
 import pdfToImages from './util/pdfToImages'
@@ -164,7 +161,10 @@ export default class SystemImporter implements Importer {
     })
 
     if (cvr) {
-      this.addCVR(this.manualBatchId!, `manual-${cvr._ballotId}`, cvr)
+      this.addBallot(this.manualBatchId!, `manual-${cvr._ballotId}`, {
+        type: 'ManualBallot',
+        cvr,
+      })
     }
   }
 
@@ -286,13 +286,17 @@ export default class SystemImporter implements Importer {
       return
     }
 
-    const { cvr, marks, normalizedImage, metadata } = interpreted
+    const cvr = 'cvr' in interpreted ? interpreted.cvr : undefined
+    const normalizedImage =
+      'normalizedImage' in interpreted ? interpreted.normalizedImage : undefined
+
     debug(
-      'interpreted %s: cvr=%O marks=%O metadata=%O',
+      'interpreted %s (%s): cvr=%O marks=%O metadata=%O',
       ballotImagePath,
+      interpreted.type,
       cvr,
-      marks,
-      metadata
+      'markInfo' in interpreted ? interpreted.markInfo : undefined,
+      'metadata' in interpreted ? interpreted.metadata : undefined
     )
 
     if (cvr) {
@@ -301,16 +305,18 @@ export default class SystemImporter implements Importer {
         path.basename(ballotImagePath)
       )
 
-      this.addCVR(batchId, importedBallotImagePath, cvr, marks, metadata)
+      this.addBallot(batchId, importedBallotImagePath, interpreted)
 
       // move the file only if there was a CVR
       if (!ballotImageFile) {
         fs.unlinkSync(ballotImagePath)
       }
-      fs.writeFileSync(
-        importedBallotImagePath,
-        jpeg.encode(normalizedImage).data
-      )
+      if (normalizedImage) {
+        fs.writeFileSync(
+          importedBallotImagePath,
+          jpeg.encode(normalizedImage).data
+        )
+      }
     } else {
       // eventually do something with files that don't have a CVR in them?
     }
@@ -324,19 +330,19 @@ export default class SystemImporter implements Importer {
   }
 
   /**
-   * Add a CVR entry to the internal store.
+   * Add a ballot to the internal store.
    */
-  private addCVR(
+  private addBallot(
     batchId: number,
     ballotImagePath: string,
-    cvr: CastVoteRecord,
-    markInfo?: MarkInfo,
-    metadata?: BallotPageMetadata
+    interpreted: InterpretedBallot
   ): void {
-    this.store.addCVR(batchId, ballotImagePath, cvr, markInfo, metadata)
+    this.store.addBallot(batchId, ballotImagePath, interpreted)
     for (const callback of this.onCVRAddedCallbacks) {
       try {
-        callback(cvr)
+        if ('cvr' in interpreted) {
+          callback(interpreted.cvr)
+        }
       } catch {
         // ignore failed callbacks
       }

@@ -5,6 +5,7 @@ import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import Store from './store'
 import { MarkStatus } from './types/ballot-review'
+import EMPTY_IMAGE from '../test/fixtures/emptyImage'
 
 test('get/set election', async () => {
   const store = await Store.memoryStore()
@@ -171,10 +172,10 @@ test('adjudication', async () => {
     },
   ])
   const batchId = await store.addBatch()
-  const ballotId = await store.addCVR(
-    batchId,
-    '/a/ballot.jpg',
-    {
+  const ballotId = await store.addBallot(batchId, '/a/ballot.jpg', {
+    type: 'InterpretedHmpbBallot',
+    normalizedImage: EMPTY_IMAGE,
+    cvr: {
       _ballotId: 'abcde',
       _ballotStyleId: '12',
       _precinctId: '23',
@@ -183,7 +184,7 @@ test('adjudication', async () => {
       _pageNumber: 1,
       _locales: { primary: 'en-US' },
     },
-    {
+    markInfo: {
       ballotSize: { width: 800, height: 1000 },
       marks: [
         {
@@ -210,15 +211,15 @@ test('adjudication', async () => {
         },
       ],
     },
-    {
+    metadata: {
       ballotStyleId: '12',
       precinctId: '23',
       isTestBallot: false,
       pageNumber: 1,
       pageCount: 2,
       locales: { primary: 'en-US' },
-    }
-  )
+    },
+  })
   await store.finishBatch(batchId)
 
   expect(await store.getBallot(ballotId)).toEqual(
@@ -243,55 +244,4 @@ test('adjudication', async () => {
       },
     })
   )
-})
-
-test('getBatch with a batch that does not exist', async () => {
-  const store = await Store.memoryStore()
-
-  expect(await store.getBatch(999)).toEqual([])
-})
-
-test('getBatch with a batch that does exist', async () => {
-  const store = await Store.memoryStore()
-  await store.setElection(election)
-  const batchId = await store.addBatch()
-  await store.addCVR(
-    batchId,
-    '/a/ballot.jpg',
-    {
-      _ballotId: 'abcde',
-      _ballotStyleId: '12',
-      _precinctId: '23',
-      _scannerId: '123',
-      _testBallot: false,
-    },
-    {
-      ballotSize: { width: 800, height: 1000 },
-      marks: [],
-    }
-  )
-  await store.finishBatch(batchId)
-
-  expect(await store.getBatch(batchId)).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "cvr": Object {
-          "_ballotId": "abcde",
-          "_ballotStyleId": "12",
-          "_precinctId": "23",
-          "_scannerId": "123",
-          "_testBallot": false,
-        },
-        "filename": "/a/ballot.jpg",
-        "id": 1,
-        "marks": Object {
-          "ballotSize": Object {
-            "height": 1000,
-            "width": 800,
-          },
-          "marks": Array [],
-        },
-      },
-    ]
-  `)
 })

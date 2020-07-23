@@ -112,6 +112,7 @@ test('going through the whole process works', async () => {
     // to expected outcome as a string directly.
     const CVRs: CastVoteRecord[] = exportResponse.text
       .split('\n')
+      .filter(Boolean)
       .map((line) => JSON.parse(line))
     const p1CVR = CVRs.find(
       (cvr) => Array.isArray(cvr['president']) && cvr['president'].length > 0

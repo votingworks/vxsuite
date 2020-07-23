@@ -220,16 +220,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json(status)
   })
 
-  app.get('/scan/batch/:batchId', async (request, response) => {
-    const batch = await store.getBatch(parseInt(request.params.batchId, 10))
-
-    if (batch.length) {
-      response.json(batch)
-    } else {
-      response.status(404).end()
-    }
-  })
-
   app.get('/scan/hmpb/ballot/:ballotId', async (request, response) => {
     const ballot = await store.getBallot(parseInt(request.params.ballotId, 10))
 
