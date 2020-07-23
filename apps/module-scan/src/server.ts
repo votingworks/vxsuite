@@ -105,7 +105,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
           for (const file of files) {
             try {
-              await importer.importFile(batchId, file.originalname, file.buffer)
+              await importer.importFile(
+                batchId,
+                `batch-${batchId}-manual-upload-${file.originalname}`,
+                file.buffer
+              )
             } catch (error) {
               console.error(
                 `failed to import file ${file.originalname}: ${error.message}`
