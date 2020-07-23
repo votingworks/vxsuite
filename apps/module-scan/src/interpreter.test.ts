@@ -50,13 +50,15 @@ test('does not find QR codes when there are none to find', async () => {
 })
 
 test('extracts a CVR from votes encoded in a QR code', async () => {
+  const ballotImagePath = join(
+    sampleBallotImagesPath,
+    'sample-batch-1-ballot-1.jpg'
+  )
   expect(
     ((await new SummaryBallotInterpreter().interpretFile({
       election: electionSample,
-      ballotImagePath: join(
-        sampleBallotImagesPath,
-        'sample-batch-1-ballot-1.jpg'
-      ),
+      ballotImagePath,
+      ballotImageFile: await readFile(ballotImagePath),
     })) as InterpretedHmpbBallot).cvr
   ).toEqual(
     expect.objectContaining({
@@ -84,12 +86,14 @@ test('interprets marks on a HMPB', async () => {
     }
   }
 
+  const ballotImagePath = join(
+    electionFixturesRoot,
+    'filled-in-dual-language-p1.jpg'
+  )
   const cvr = ((await interpreter.interpretFile({
     election: hmpbElection,
-    ballotImagePath: join(
-      electionFixturesRoot,
-      'filled-in-dual-language-p1.jpg'
-    ),
+    ballotImagePath,
+    ballotImageFile: await readFile(ballotImagePath),
   })) as InterpretedHmpbBallot).cvr
 
   delete cvr?._ballotId
@@ -134,12 +138,14 @@ test('interprets marks on an upside-down HMPB', async () => {
     }
   }
 
+  const ballotImagePath = join(
+    electionFixturesRoot,
+    'filled-in-dual-language-p1-flipped.jpg'
+  )
   const cvr = ((await interpreter.interpretFile({
     election: hmpbElection,
-    ballotImagePath: join(
-      electionFixturesRoot,
-      'filled-in-dual-language-p1-flipped.jpg'
-    ),
+    ballotImagePath,
+    ballotImageFile: await readFile(ballotImagePath),
   })) as InterpretedHmpbBallot).cvr
 
   delete cvr?._ballotId
@@ -184,13 +190,15 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
     }
   }
 
+  const ballotImagePath = join(
+    electionFixturesRoot,
+    'filled-in-dual-language-p3.jpg'
+  )
   expect(
     (await interpreter.interpretFile({
       election: hmpbElection,
-      ballotImagePath: join(
-        electionFixturesRoot,
-        'filled-in-dual-language-p3.jpg'
-      ),
+      ballotImagePath,
+      ballotImageFile: await readFile(ballotImagePath),
     })) as UninterpretedHmpbBallot
   ).toMatchInlineSnapshot(`
     Object {

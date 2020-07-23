@@ -1,4 +1,5 @@
 import * as chokidar from 'chokidar'
+import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import * as jpeg from 'jpeg-js'
 import * as path from 'path'
@@ -277,6 +278,14 @@ export default class SystemImporter implements Importer {
       return
     }
 
+    if (!ballotImageFile) {
+      ballotImageFile = await fsExtra.readFile(ballotImagePath)
+    }
+
+    const ballotImageHash = createHash('sha256')
+      .update(ballotImageFile)
+      .digest('hex')
+
     const interpreted = await this.interpreter.interpretFile({
       election,
       ballotImagePath,
@@ -300,9 +309,13 @@ export default class SystemImporter implements Importer {
     )
 
     if (cvr) {
+      const ballotImagePathExt = path.extname(ballotImagePath)
       const importedBallotImagePath = path.join(
         this.importedBallotImagesPath,
-        path.basename(ballotImagePath)
+        `${path.basename(
+          ballotImagePath,
+          ballotImagePathExt
+        )}-${ballotImageHash}${ballotImagePathExt}`
       )
 
       this.addBallot(batchId, importedBallotImagePath, interpreted)
