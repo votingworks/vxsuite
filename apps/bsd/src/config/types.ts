@@ -65,6 +65,11 @@ export interface Batch {
   endedAt?: number
 }
 
+export interface AdjudicationStatus {
+  adjudicated: number
+  remaining: number
+}
+
 export type Ballot = BmdBallotInfo | HmpbBallotInfo | UnreadableBallotInfo
 
 export interface BmdBallotInfo {
@@ -101,6 +106,7 @@ export interface MarkInfo {
 export interface ScanStatusResponse {
   electionHash?: string
   batches: Batch[]
+  adjudication: AdjudicationStatus
 }
 
 export type GetConfigRequest = {}

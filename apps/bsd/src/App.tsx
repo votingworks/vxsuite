@@ -37,9 +37,12 @@ const App: React.FC = () => {
     []
   )
   const [isTestMode, setTestMode] = useState(false)
-  const [status, setStatus] = useState<ScanStatusResponse>({ batches: [] })
+  const [status, setStatus] = useState<ScanStatusResponse>({
+    batches: [],
+    adjudication: { remaining: 0, adjudicated: 0 },
+  })
   const [loadingElection, setLoadingElection] = useState(false)
-  const { batches } = status
+  const { batches, adjudication } = status
   const isScanning = batches && batches[0] && !batches[0].endedAt
 
   useEffect(() => {
@@ -256,7 +259,17 @@ const App: React.FC = () => {
                 )}
                 <Button onClick={unconfigureServer}>Factory Reset</Button>
                 <Button onClick={zeroData}>Zero</Button>
-                <Button onClick={exportResults}>Export</Button>
+                <Button
+                  onClick={exportResults}
+                  disabled={adjudication.remaining > 0}
+                  title={
+                    adjudication.remaining > 0
+                      ? 'You cannot export results until all ballots have been adjudicated.'
+                      : undefined
+                  }
+                >
+                  Export
+                </Button>
                 <Button disabled={isScanning} primary onClick={scanBatch}>
                   Scan New Batch
                 </Button>

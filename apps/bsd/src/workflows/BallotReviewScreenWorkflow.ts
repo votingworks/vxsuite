@@ -54,12 +54,16 @@ function normalizeChanges(
   ballot: ReviewBallot,
   changes: MarksByContestId
 ): { changes: MarksByContestId; hasChanges: boolean; reviewComplete: boolean } {
+  if (ballot.type === 'ReviewUninterpretableHmpbBallot') {
+    return { changes, hasChanges: true, reviewComplete: true }
+  }
+
   const normalized: MarksByContestId = {}
   let hasChanges = false
 
   for (const [contestId, marksByOptionId] of Object.entries(changes)) {
     for (const [optionId, marked] of Object.entries(marksByOptionId!)) {
-      const originalMarked = ballot.marks[contestId]?.[optionId]
+      const originalMarked = ballot.marks?.[contestId]?.[optionId]
 
       if (originalMarked !== marked) {
         const normalizedMarksByOptionId = normalized[contestId] ?? {}
@@ -72,7 +76,9 @@ function normalizeChanges(
 
   let reviewComplete = true
 
-  for (const [contestId, marksByOptionId] of Object.entries(ballot.marks)) {
+  for (const [contestId, marksByOptionId] of Object.entries(
+    ballot.marks ?? {}
+  )) {
     for (const [optionId, mark] of Object.entries(marksByOptionId ?? {})) {
       if ((normalized[contestId]?.[optionId] ?? mark) === MarkStatus.Marginal) {
         reviewComplete = false
@@ -121,13 +127,15 @@ export function toggle(
 ): Review {
   assert.equal(state.type, 'review')
   const { ballot, changes } = state
+  const changedMark = changes[contest.id]?.[option.id]
+  const currentMark =
+    'marks' in ballot && ballot.marks?.[contest.id]?.[option.id]
 
   return change(
     state,
     contest,
     option,
-    (changes[contest.id]?.[option.id] ??
-      ballot.marks[contest.id]?.[option.id]) === MarkStatus.Marked
+    changedMark ?? currentMark === MarkStatus.Marked
       ? MarkStatus.Unmarked
       : MarkStatus.Marked
   )

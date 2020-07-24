@@ -9,6 +9,7 @@ import {
   ContestOption,
   DeepReadonly,
   MarkStatus,
+  ReviewMarginalMarksBallot,
 } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
 import { scaler } from '../util/scale'
@@ -84,7 +85,9 @@ export default function BallotReviewScreen({ isTestMode }: Props) {
     ): { current: MarkStatus; changed?: MarkStatus } => {
       if (state.type === 'review' || state.type === 'done') {
         const current =
-          state.ballot.marks[contest.id]?.[option.id] ?? MarkStatus.Unmarked
+          (state.ballot as ReviewMarginalMarksBallot).marks?.[contest.id]?.[
+            option.id
+          ] ?? MarkStatus.Unmarked
         const changed = state.changes[contest.id]?.[option.id]
         return { current, changed }
       }
@@ -215,21 +218,24 @@ export default function BallotReviewScreen({ isTestMode }: Props) {
                   height: scale(ballot.ballot.image.height),
                 }}
               />
-              {ballot.contests.map((contest) =>
-                contest.options.map((option) => (
-                  <ContestOptionButton
-                    title={option.name}
-                    rect={scale.rect(option.bounds)}
-                    data-contest-id={contest.id}
-                    data-contest-option-id={option.id}
-                    key={`${option.bounds.x},${option.bounds.y}`}
-                    {...getContestOptionDecoration(contest, option)}
-                    onClick={onContestOptionClick}
-                  >
-                    {option.name}
-                  </ContestOptionButton>
-                ))
-              )}
+              {ballot.type === 'ReviewMarginalMarksBallot' &&
+                ballot.contests.map((contest, contestIndex) =>
+                  contest.options.map((option, optionIndex) => (
+                    <ContestOptionButton
+                      title={option.name}
+                      rect={scale.rect(
+                        ballot.layout[contestIndex].options[optionIndex].bounds
+                      )}
+                      data-contest-id={contest.id}
+                      data-contest-option-id={option.id}
+                      key={`${ballot.layout[contestIndex].options[optionIndex].bounds.x},${ballot.layout[contestIndex].options[optionIndex].bounds.y}`}
+                      {...getContestOptionDecoration(contest, option)}
+                      onClick={onContestOptionClick}
+                    >
+                      {option.name}
+                    </ContestOptionButton>
+                  ))
+                )}
               <div
                 style={{
                   position: 'absolute',
