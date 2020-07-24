@@ -31,6 +31,11 @@ export interface BatchInfo {
   count: number
 }
 
+export interface AdjudicationStatus {
+  adjudicated: number
+  remaining: number
+}
+
 export type BallotInfo = BmdBallotInfo | HmpbBallotInfo | UnreadableBallotInfo
 
 export interface BmdBallotInfo {

@@ -7,7 +7,7 @@ export default function getScannerCVRCountWaiter(
 } {
   let cvrCount = 0
 
-  importer.addAddCVRCallback(() => {
+  importer.addAddBallotCallback(() => {
     cvrCount += 1
   })
 

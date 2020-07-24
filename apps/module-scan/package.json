@@ -45,7 +45,8 @@
     "node-quirc": "^2.1.0",
     "pdfjs-dist": "^2.3.200",
     "sqlite3": "^4.0.8",
-    "tmp": "^0.2.1"
+    "tmp": "^0.2.1",
+    "uuid": "^8.2.0"
   },
   "devDependencies": {
     "@types/busboy": "^0.2.3",
@@ -60,6 +61,7 @@
     "@types/sqlite3": "^3.1.6",
     "@types/supertest": "^2.0.9",
     "@types/tmp": "^0.2.0",
+    "@types/uuid": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
     "eslint": "^7.0.0",

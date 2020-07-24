@@ -2,39 +2,37 @@
 // The durable datastore for CVRs and configuration info.
 //
 
-import {
-  Candidate,
-  Election,
-  getBallotStyle,
-  getContests,
-} from '@votingworks/ballot-encoder'
+import { Election, getBallotStyle } from '@votingworks/ballot-encoder'
 import {
   BallotLocales,
   BallotPageMetadata,
   BallotTargetMark,
+  BallotMark,
+  Size,
 } from '@votingworks/hmpb-interpreter'
-import { strict as assert } from 'assert'
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
+import { decode } from 'jpeg-js'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
-import { MarkInfo, InterpretedBallot } from './interpreter'
+import { InterpretedBallot, MarkInfo } from './interpreter'
 import {
   BatchInfo,
-  CastVoteRecord,
   getMarkStatus,
   isMarginalMark,
   SerializableBallotPageLayout,
+  CastVoteRecord,
+  AdjudicationStatus,
 } from './types'
 import {
-  CandidateContestOption,
   Contest,
+  ContestLayout,
   ContestOption,
   MarksByContestId,
   ReviewBallot,
-  YesNoContestOption,
 } from './types/ballot-review'
-import applyChangesToMarks from './util/applyChangesToMarks'
+import { mergeChanges, changesFromMarks, changesToCVR } from './util/marks'
+import getBallotPageContests from './util/getBallotPageContests'
 
 const debug = makeDebug('module-scan:store')
 
@@ -358,7 +356,8 @@ export default class Store {
       const metadata =
         'metadata' in interpreted ? interpreted.metadata : undefined
       const requiresAdjudication =
-        markInfo?.marks.some((mark) => isMarginalMark(mark)) ?? false
+        interpreted.type === 'UninterpretedHmpbBallot' ||
+        (markInfo?.marks.some((mark) => isMarginalMark(mark)) ?? false)
 
       await this.dbRunAsync(
         `insert into ballots
@@ -421,7 +420,6 @@ export default class Store {
           filename: string
           marksJSON?: string
           adjudicationJSON?: string
-          cvrJSON?: string
           metadataJSON?: string
         }
       | undefined,
@@ -433,7 +431,6 @@ export default class Store {
           filename,
           marks_json as marksJSON,
           adjudication_json as adjudicationJSON,
-          cvr_json as cvrJSON,
           metadata_json as metadataJSON
         from ballots
         where id = ?
@@ -445,9 +442,6 @@ export default class Store {
       return
     }
 
-    const cvr: CastVoteRecord | undefined = row.cvrJSON
-      ? JSON.parse(row.cvrJSON)
-      : undefined
     const marks: MarkInfo | undefined = row.marksJSON
       ? JSON.parse(row.marksJSON)
       : undefined
@@ -458,7 +452,7 @@ export default class Store {
       ? JSON.parse(row.metadataJSON)
       : undefined
 
-    if (!cvr || !marks || !metadata) {
+    if (!metadata) {
       return
     }
 
@@ -495,70 +489,80 @@ export default class Store {
       return
     }
 
+    const ballotSize = await (async (): Promise<Size> => {
+      if (marks) {
+        return marks.ballotSize
+      }
+
+      const ballotImageFile = await fs.readFile(row.filename)
+      const ballotImage = decode(ballotImageFile)
+      return { width: ballotImage.width, height: ballotImage.height }
+    })()
+
     const ballot: ReviewBallot['ballot'] = {
       url: `/scan/hmpb/ballot/${ballotId}`,
       image: {
         url: `/scan/hmpb/ballot/${ballotId}/image`,
-        width: marks.ballotSize.width,
-        height: marks.ballotSize.height,
+        ...ballotSize,
       },
     }
 
-    const contestOffset = layouts
-      .slice(0, metadata.pageNumber - 1)
-      .reduce((sum, { contests }) => sum + contests.length, 0)
-    debug('determined contest offset to be %d', contestOffset)
-    const contestDefinitions = getContests({ ballotStyle, election }).slice(
-      contestOffset,
-      contestOffset + layout.contests.length
+    const ballotPageContests = getBallotPageContests(
+      election,
+      metadata,
+      layouts
     )
 
-    assert.equal(contestDefinitions.length, layout.contests.length)
+    const contests: Contest[] = ballotPageContests.map((contestDefinition) => {
+      const options: ContestOption[] = []
 
-    const contests: Contest[] = contestDefinitions.map(
-      (contestDefinition, contestIndex) => {
-        const contestLayout = layout.contests[contestIndex]
-        const contestMarksOffset = layout.contests
-          .slice(0, contestIndex)
-          .reduce((sum, contest) => sum + contest.options.length, 0)
-        const contestMarks = marks.marks.slice(
-          contestMarksOffset,
-          contestMarksOffset + contestLayout.options.length
-        )
-        const options: ContestOption[] =
-          contestDefinition.type === 'candidate'
-            ? contestMarks.map<CandidateContestOption>((mark, markIndex) => {
-                assert.notEqual(mark.type, 'stray')
-
-                const candidate: Candidate | undefined =
-                  contestDefinition.candidates[markIndex]
-
-                return {
-                  type: 'candidate',
-                  id: candidate?.id ?? '__write-in',
-                  name: candidate?.name ?? 'Write-In',
-                  bounds: contestLayout.options[markIndex].bounds,
-                }
-              })
-            : contestMarks.map<YesNoContestOption>((mark, markIndex) => {
-                assert.notEqual(mark.type, 'stray')
-
-                return {
-                  type: 'yesno',
-                  id: markIndex === 0 ? 'yes' : 'no',
-                  name: markIndex === 0 ? 'Yes' : 'No',
-                  bounds: contestLayout.options[markIndex].bounds,
-                }
-              })
-
-        return {
-          id: contestDefinition.id,
-          title: contestDefinition.title,
-          bounds: contestLayout.bounds,
-          options,
+      if (contestDefinition.type === 'candidate') {
+        for (const candidate of contestDefinition.candidates) {
+          options.push({
+            type: 'candidate',
+            id: candidate.id,
+            name: candidate.name,
+          })
         }
+
+        if (contestDefinition.allowWriteIns) {
+          for (let i = 0; i < contestDefinition.seats; i++) {
+            options.push({
+              type: 'candidate',
+              id: `__write-in-${i}`,
+              name: 'Write-In',
+            })
+          }
+        }
+      } else {
+        options.push(
+          {
+            type: 'yesno',
+            id: 'yes',
+            name: 'Yes',
+          },
+          {
+            type: 'yesno',
+            id: 'no',
+            name: 'No',
+          }
+        )
       }
-    )
+
+      return {
+        id: contestDefinition.id,
+        title: contestDefinition.title,
+        options,
+      }
+    })
+
+    if (!marks) {
+      return {
+        type: 'ReviewUninterpretableHmpbBallot',
+        contests,
+        ballot,
+      }
+    }
 
     debug('overlaying ballot adjudication: %O', adjudication)
 
@@ -585,10 +589,24 @@ export default class Store {
 
     debug('overlay results: %O', overlay)
 
+    const contestLayouts: ContestLayout[] = ballotPageContests.map(
+      (_contestDefinition, contestIndex) => {
+        const contestLayout = layout.contests[contestIndex]
+        return {
+          bounds: contestLayout.bounds,
+          options: contestLayout.options.map((option) => ({
+            bounds: option.bounds,
+          })),
+        }
+      }
+    )
+
     return {
+      type: 'ReviewMarginalMarksBallot',
       ballot,
       marks: overlay,
       contests,
+      layout: contestLayouts,
     }
   }
 
@@ -630,24 +648,27 @@ export default class Store {
       ballotId
     )
 
-    if (!row || !row.marksJSON) {
+    if (!row) {
       return false
     }
 
-    const marks: MarkInfo = JSON.parse(row.marksJSON)
-    const newAdjudication = applyChangesToMarks(
-      marks.marks,
+    const marks: readonly BallotMark[] | undefined = row.marksJSON
+      ? JSON.parse(row.marksJSON).marks
+      : undefined
+    const newAdjudication = mergeChanges(
+      marks ? changesFromMarks(marks) : {},
       row.adjudicationJSON ? JSON.parse(row.adjudicationJSON) : {},
       change
     )
-    const unadjudicatedMarks = marks.marks
-      .filter((mark): mark is BallotTargetMark => isMarginalMark(mark))
-      .filter(
-        (mark) =>
-          !newAdjudication[mark.contest.id]?.[
-            typeof mark.option === 'string' ? mark.option : mark.option.id
-          ]
-      )
+    const unadjudicatedMarks =
+      marks
+        ?.filter((mark): mark is BallotTargetMark => isMarginalMark(mark))
+        .filter(
+          (mark) =>
+            !newAdjudication[mark.contest.id]?.[
+              typeof mark.option === 'string' ? mark.option : mark.option.id
+            ]
+        ) ?? []
 
     debug(
       'saving adjudication changes for ballot %d: %O',
@@ -691,9 +712,51 @@ export default class Store {
    * Gets all batches, including their CVR count.
    */
   public async batchStatus(): Promise<BatchInfo[]> {
-    const sql =
-      'select batches.id as id, startedAt, endedAt, count(*) as count from ballots, batches where ballots.batch_id = batches.id group by batches.id, batches.startedAt, batches.endedAt order by batches.startedAt desc'
-    return this.dbAllAsync(sql)
+    return this.dbAllAsync(`
+      select
+        batches.id as id,
+        startedAt,
+        endedAt,
+        count(*) as count
+      from
+        ballots,
+        batches
+      where
+        ballots.batch_id = batches.id
+      group by
+        batches.id,
+        batches.startedAt,
+        batches.endedAt
+      order by
+        batches.startedAt desc
+    `)
+  }
+
+  /**
+   * Gets adjudication status.
+   */
+  public async adjudicationStatus(): Promise<AdjudicationStatus> {
+    const [{ remaining }, { adjudicated }] = await Promise.all([
+      this.dbGetAsync<{ remaining: number }, [boolean]>(
+        `
+        select count(*) as remaining
+        from ballots
+        where
+          requires_adjudication = ?
+          and adjudication_json is null`,
+        true
+      ),
+      this.dbGetAsync<{ adjudicated: number }, [boolean]>(
+        `
+        select count(*) as adjudicated
+        from ballots
+        where
+          requires_adjudication = ?
+          and adjudication_json is not null`,
+        false
+      ),
+    ])
+    return { adjudicated, remaining }
   }
 
   /**
@@ -701,10 +764,42 @@ export default class Store {
    */
   public async exportCVRs(writeStream: Writable): Promise<void> {
     const sql =
-      'select cvr_json as cvrJSON from ballots where cvr_json is not null'
-    for (const { cvrJSON } of await this.dbAllAsync<{ cvrJSON: string }>(sql)) {
-      writeStream.write(cvrJSON)
-      writeStream.write('\n')
+      'select id, cvr_json as cvrJSON, adjudication_json as adjudicationJSON, metadata_json as metadataJSON from ballots where requires_adjudication = ?'
+    for (const {
+      id,
+      cvrJSON,
+      adjudicationJSON,
+      metadataJSON,
+    } of await this.dbAllAsync<
+      {
+        id: number
+        cvrJSON?: string
+        adjudicationJSON?: string
+        metadataJSON?: string
+      },
+      [boolean]
+    >(sql, false)) {
+      const cvr: CastVoteRecord | undefined = cvrJSON
+        ? JSON.parse(cvrJSON)
+        : undefined
+      const changes: MarksByContestId | undefined = adjudicationJSON
+        ? JSON.parse(adjudicationJSON)
+        : undefined
+      const metadata: BallotPageMetadata | undefined = metadataJSON
+        ? JSON.parse(metadataJSON)
+        : undefined
+      const finalCVR =
+        changes && metadata ? changesToCVR(changes, metadata, cvr) : cvr
+
+      if (!finalCVR) {
+        debug(
+          'export skipping ballot %d because a CVR could not be generated',
+          id
+        )
+      } else {
+        writeStream.write(JSON.stringify(finalCVR))
+        writeStream.write('\n')
+      }
     }
   }
 

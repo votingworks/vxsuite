@@ -9,7 +9,7 @@ import * as fsExtra from 'fs-extra'
 import { Election } from '@votingworks/ballot-encoder'
 import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
 
-import { CastVoteRecord, BatchInfo, BallotMetadata } from './types'
+import { BatchInfo, BallotMetadata, AdjudicationStatus } from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
@@ -61,7 +61,9 @@ export default class SystemImporter implements Importer {
   private scanner: Scanner
   private interpreter: Interpreter
   private manualBatchId?: number
-  private onCVRAddedCallbacks: ((cvr: CastVoteRecord) => void)[] = []
+  private onBallotAddedCallbacks: ((
+    interpreted: InterpretedBallot
+  ) => void)[] = []
 
   private seenBallotImagePaths = new Set<string>()
 
@@ -314,43 +316,42 @@ export default class SystemImporter implements Importer {
       'metadata' in interpreted ? interpreted.metadata : undefined
     )
 
-    if (cvr) {
-      const ballotImagePathExt = path.extname(ballotImagePath)
-      const importedBallotImagePath = path.join(
-        this.importedBallotImagesPath,
-        `${path.basename(
-          ballotImagePath,
-          ballotImagePathExt
-        )}-${ballotImageHash}${ballotImagePathExt}`
-      )
+    const ballotImagePathExt = path.extname(ballotImagePath)
+    const importedBallotImagePath = path.join(
+      this.importedBallotImagesPath,
+      `${path.basename(
+        ballotImagePath,
+        ballotImagePathExt
+      )}-${ballotImageHash}${ballotImagePathExt}`
+    )
 
-      const ballotId = await this.addBallot(
-        batchId,
-        importedBallotImagePath,
-        interpreted
-      )
+    const ballotId = await this.addBallot(
+      batchId,
+      importedBallotImagePath,
+      interpreted
+    )
 
-      if (!ballotImageFile) {
-        await fsExtra.unlink(ballotImagePath)
-      }
-      if (normalizedImage) {
-        await fsExtra.writeFile(
-          importedBallotImagePath,
-          jpeg.encode(normalizedImage).data
-        )
-      }
-
-      return ballotId
-    } else {
-      // eventually do something with files that don't have a CVR in them?
+    try {
+      await fsExtra.unlink(ballotImagePath)
+    } catch {
+      // ignore for now
     }
+
+    await fsExtra.writeFile(
+      importedBallotImagePath,
+      normalizedImage ? jpeg.encode(normalizedImage).data : ballotImageFile
+    )
+
+    return ballotId
   }
 
   /**
    * Register a callback to be called when a CVR entry is added.
    */
-  public addAddCVRCallback(callback: (cvr: CastVoteRecord) => void): void {
-    this.onCVRAddedCallbacks.push(callback)
+  public addAddBallotCallback(
+    callback: (interpreted: InterpretedBallot) => void
+  ): void {
+    this.onBallotAddedCallbacks.push(callback)
   }
 
   /**
@@ -367,11 +368,9 @@ export default class SystemImporter implements Importer {
       interpreted
     )
 
-    for (const callback of this.onCVRAddedCallbacks) {
+    for (const callback of this.onBallotAddedCallbacks) {
       try {
-        if ('cvr' in interpreted) {
-          callback(interpreted.cvr)
-        }
+        callback(interpreted)
       } catch {
         // ignore failed callbacks
       }
@@ -437,13 +436,15 @@ export default class SystemImporter implements Importer {
   public async getStatus(): Promise<{
     electionHash?: string
     batches: BatchInfo[]
+    adjudication: AdjudicationStatus
   }> {
     const election = await this.store.getElection()
     const batches = await this.store.batchStatus()
+    const adjudication = await this.store.adjudicationStatus()
     if (election) {
-      return { electionHash: 'hashgoeshere', batches }
+      return { electionHash: 'hashgoeshere', batches, adjudication }
     }
-    return { batches }
+    return { batches, adjudication }
   }
 
   /**

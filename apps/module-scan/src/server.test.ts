@@ -247,12 +247,14 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
     .get(`/scan/hmpb/ballot/${ballotId}`)
     .set('Accept', 'application/json')
     .expect(200, {
+      type: 'ReviewMarginalMarksBallot',
       ballot: {
         url: '/scan/hmpb/ballot/1',
         image: { url: '/scan/hmpb/ballot/1/image', width: 0, height: 0 },
       },
       marks: { president: { 'barchi-hallaren': MarkStatus.Marked } },
       contests: [],
+      layout: [],
     })
 })
 
@@ -327,6 +329,7 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
   await request(app)
     .get(`/scan/hmpb/ballot/${ballotId}`)
     .expect(200, {
+      type: 'ReviewMarginalMarksBallot',
       ballot: {
         url: `/scan/hmpb/ballot/${ballotId}`,
         image: {
@@ -340,6 +343,7 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
         [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
       },
       contests: [],
+      layout: [],
     })
 
   // patches accumulate
@@ -352,6 +356,7 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
   await request(app)
     .get(`/scan/hmpb/ballot/${ballotId}`)
     .expect(200, {
+      type: 'ReviewMarginalMarksBallot',
       ballot: {
         url: `/scan/hmpb/ballot/${ballotId}`,
         image: {
@@ -365,6 +370,7 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
         [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
       },
       contests: [],
+      layout: [],
     })
 })
 
