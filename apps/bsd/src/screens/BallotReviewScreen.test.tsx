@@ -108,10 +108,10 @@ test('renders ballot options for each contest option', async () => {
   const markElements = component.getAllByTitle(/Candidate #1/)
   expect(markElements).toHaveLength(1)
   const style = window.getComputedStyle(markElements[0])
-  expect(style.getPropertyValue('left')).toEqual('0px')
-  expect(style.getPropertyValue('top')).toEqual('50px')
-  expect(style.getPropertyValue('width')).toEqual('250px')
-  expect(style.getPropertyValue('height')).toEqual('100px')
+  expect(style.getPropertyValue('left')).toEqual('0%')
+  expect(style.getPropertyValue('top')).toEqual('5%')
+  expect(style.getPropertyValue('width')).toEqual('31.25%')
+  expect(style.getPropertyValue('height')).toEqual('10%')
 })
 
 test('renders an error message on failure to fetch', async () => {

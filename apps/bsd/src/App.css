@@ -32,6 +32,10 @@ legend {
   color: rgb(0, 0, 238);
 }
 
+:focus {
+  outline: none;
+}
+
 /* Foundational */
 html,
 body,

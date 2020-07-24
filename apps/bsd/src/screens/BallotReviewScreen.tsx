@@ -5,7 +5,6 @@ import pluralize from 'pluralize'
 
 import { fetchBallotInfo, fetchNextBallotToReview } from '../api/hmpb'
 import ContestOptionButton from '../components/ContestOptionButton'
-import ContestOptionCheckbox from '../components/ContestOptionCheckbox'
 import Prose from '../components/Prose'
 import {
   Contest,
@@ -16,7 +15,7 @@ import {
   AdjudicationStatus,
 } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
-import { scaler } from '../util/scale'
+import relativeRect from '../util/relativeRect'
 import * as workflow from '../workflows/BallotReviewScreenWorkflow'
 import Main, { MainChild } from '../components/Main'
 import ButtonBar from '../components/ButtonBar'
@@ -24,16 +23,46 @@ import Brand from '../components/Brand'
 import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Text from '../components/Text'
+import Checkbox from '../components/Checkbox'
 
 const BallotReviewColumns = styled.div`
   display: flex;
   flex-direction: row;
+  > div {
+    flex: 1;
+  }
   > div:first-child {
-    position: relative;
-    margin-right: 1em;
+    margin-right: 0.5rem;
+    min-width: 50%;
   }
   > div:last-child {
-    min-width: 400px;
+    margin-left: 0.5rem;
+  }
+`
+
+const BallotImageContainer = styled.div`
+  position: relative;
+  img {
+    display: block;
+  }
+`
+const Contests = styled.div`
+  columns: 3;
+  column-gap: 1rem;
+  margin-top: 0.5rem;
+  & > div {
+    break-inside: avoid;
+    margin-bottom: 1em;
+  }
+  button {
+    position: relative;
+    margin-bottom: 0.25em;
+    padding-left: 1.5em;
+    span {
+      position: absolute;
+      top: 0.45em;
+      left: 0.5em;
+    }
   }
 `
 
@@ -82,7 +111,10 @@ export default function BallotReviewScreen({
     }
   }, [ballotId, state, setState])
 
-  const scale = scaler(ballot ? 800 / ballot.ballot.image.width : 1)
+  const relRect = relativeRect(
+    ballot?.ballot.image.width || 1,
+    ballot?.ballot.image.height || 1
+  )
 
   const onContestOptionClick = useCallback<
     React.MouseEventHandler<HTMLElement>
@@ -204,84 +236,100 @@ export default function BallotReviewScreen({
         <BallotReviewColumns>
           <React.Fragment>
             <div>
-              <img
-                src={ballot.ballot.image.url}
-                alt="Scanned Ballot"
-                width={scale(ballot.ballot.image.width)}
-                height={scale(ballot.ballot.image.height)}
-              />
-              {ballot.type === 'ReviewMarginalMarksBallot' &&
-                ballot.contests.map((contest, contestIndex) =>
-                  contest.options.map((option, optionIndex) => (
-                    <ContestOptionButton
-                      title={option.name}
-                      rect={scale.rect(
-                        ballot.layout[contestIndex].options[optionIndex].bounds
-                      )}
-                      data-contest-id={contest.id}
-                      data-contest-option-id={option.id}
-                      key={`${ballot.layout[contestIndex].options[optionIndex].bounds.x},${ballot.layout[contestIndex].options[optionIndex].bounds.y}`}
-                      {...getContestOptionDecoration(contest, option)}
-                      onClick={onContestOptionClick}
-                    >
-                      {option.name}
-                    </ContestOptionButton>
-                  ))
-                )}
+              <BallotImageContainer>
+                <img
+                  src={ballot.ballot.image.url}
+                  alt="Scanned Ballot"
+                  width="100%"
+                />
+                {ballot.type === 'ReviewMarginalMarksBallot' &&
+                  ballot.contests.map((contest, contestIndex) =>
+                    contest.options.map((option, optionIndex) => (
+                      <ContestOptionButton
+                        title={option.name}
+                        rect={relRect(
+                          ballot.layout[contestIndex].options[optionIndex]
+                            .bounds
+                        )}
+                        data-contest-id={contest.id}
+                        data-contest-option-id={option.id}
+                        key={`${ballot.layout[contestIndex].options[optionIndex].bounds.x},${ballot.layout[contestIndex].options[optionIndex].bounds.y}`}
+                        {...getContestOptionDecoration(contest, option)}
+                        tabIndex={-1}
+                        onClick={onContestOptionClick}
+                      >
+                        {option.name}
+                      </ContestOptionButton>
+                    ))
+                  )}
+              </BallotImageContainer>
             </div>
-            <Prose maxWidth={false}>
-              {ballot.contests.map((contest) => (
-                <React.Fragment key={contest.id}>
-                  <h4>{contest.title}</h4>
-                  <p>
-                    {contest.options.map((option) => {
-                      const { current, changed } = getContestOptionDecoration(
-                        contest,
-                        option
-                      )
-
-                      return (
-                        <ContestOptionCheckbox
-                          key={option.id}
-                          current={current}
-                          changed={changed}
-                        >
-                          <input
-                            type="checkbox"
-                            id={`contest-option-sidebar-${contest.id}-${option.id}`}
+            <div>
+              <Contests>
+                {ballot.contests.map((contest) => (
+                  <Prose key={contest.id}>
+                    <h4>{contest.title}</h4>
+                    <p>
+                      {contest.options.map((option, i) => {
+                        const { current, changed } = getContestOptionDecoration(
+                          contest,
+                          option
+                        )
+                        return (
+                          <Button
+                            key={
+                              option.bounds
+                                ? `${option.bounds?.x},${option.bounds?.y}`
+                                : `${i}`
+                            }
+                            small
+                            fullWidth
+                            textAlign="left"
+                            noWrap={false}
+                            primary={(changed ?? current) === MarkStatus.Marked}
+                            danger={changed === MarkStatus.Unmarked}
+                            warning={
+                              changed === undefined &&
+                              current === MarkStatus.Marginal
+                            }
+                            onPress={onContestOptionClick}
                             data-contest-id={contest.id}
                             data-contest-option-id={option.id}
-                            onClick={onContestOptionClick}
-                          />
-                          <label
-                            htmlFor={`contest-option-sidebar-${contest.id}-${option.id}`}
                           >
-                            {option.name}{' '}
-                            {(changed ?? current) === MarkStatus.Marginal &&
-                              '⚠'}
-                          </label>
-                        </ContestOptionCheckbox>
-                      )
-                    })}
-                  </p>
-                </React.Fragment>
-              ))}
-            </Prose>
+                            <Checkbox
+                              isSelected={
+                                (changed ?? current) === MarkStatus.Marked
+                              }
+                              isRemoved={changed === MarkStatus.Unmarked}
+                              isUnknown={
+                                changed === undefined &&
+                                current === MarkStatus.Marginal
+                              }
+                            />{' '}
+                            {option.name}
+                          </Button>
+                        )
+                      })}
+                    </p>
+                  </Prose>
+                ))}
+              </Contests>
+            </div>
           </React.Fragment>
         </BallotReviewColumns>
       </Main>
       <ButtonBar secondary naturalOrder separatePrimaryButton>
         <Brand>
-          VxScan
+          Adjudication
           {isTestMode && <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>}
         </Brand>
-        <LinkButton small to="/">
-          Dashboard
-        </LinkButton>
         <Text white>
           {pluralize('ballot', adjudicationStatus.adjudicated, true)}{' '}
           adjudicated, {adjudicationStatus.remaining - 1} remaining.
         </Text>
+        <LinkButton small to="/">
+          Dashboard
+        </LinkButton>
         <Button
           small
           primary
