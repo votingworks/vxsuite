@@ -7,10 +7,14 @@ export const isPresent = async () => {
 }
 
 const getDevice = async () => {
-  return (await window.kiosk!.getUsbDrives())[0]
+  if (!window.kiosk) {
+    return
+  }
+
+  return (await window.kiosk.getUsbDrives())[0]
 }
 
-const isDeviceMounted = (device: KioskBrowser.UsbDrive) => {
+const isDeviceMounted = (device?: KioskBrowser.UsbDrive) => {
   return !!(device && device.mountPoint)
 }
 
@@ -29,11 +33,11 @@ export const doMount = async () => {
   }
 
   const device = await getDevice()
-  if (isDeviceMounted(device)) {
+  if (!device || isDeviceMounted(device)) {
     return
   }
 
-  window.kiosk!.mountUsbDrive(device.deviceName)
+  await window.kiosk!.mountUsbDrive(device.deviceName)
 }
 
 export const doUnmount = async () => {
@@ -42,9 +46,9 @@ export const doUnmount = async () => {
   }
 
   const device = await getDevice()
-  if (!isDeviceMounted(device)) {
+  if (!device || !isDeviceMounted(device)) {
     return
   }
 
-  window.kiosk!.unmountUsbDrive(device.deviceName)
+  await window.kiosk!.unmountUsbDrive(device.deviceName)
 }
