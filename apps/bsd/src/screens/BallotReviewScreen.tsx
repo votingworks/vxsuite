@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useHistory } from 'react-router-dom'
+import pluralize from 'pluralize'
+
 import { fetchBallotInfo, fetchNextBallotToReview } from '../api/hmpb'
 import ContestOptionButton from '../components/ContestOptionButton'
 import ContestOptionCheckbox from '../components/ContestOptionCheckbox'
@@ -10,6 +12,7 @@ import {
   DeepReadonly,
   MarkStatus,
   ReviewMarginalMarksBallot,
+  AdjudicationStatus,
 } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
 import { scaler } from '../util/scale'
@@ -18,12 +21,19 @@ import Main, { MainChild } from '../components/Main'
 import ButtonBar from '../components/ButtonBar'
 import Brand from '../components/Brand'
 import Button from '../components/Button'
+import LinkButton from '../components/LinkButton'
+import Text from '../components/Text'
 
 export interface Props {
   isTestMode: boolean
+  adjudicationStatus: AdjudicationStatus
 }
 
-export default function BallotReviewScreen({ isTestMode }: Props) {
+export default function BallotReviewScreen({
+  isTestMode,
+  adjudicationStatus,
+}: Props) {
+  const history = useHistory()
   const { ballotId } = useParams<{
     ballotId?: string
   }>()
@@ -34,6 +44,10 @@ export default function BallotReviewScreen({ isTestMode }: Props) {
     state.type === 'no-ballots'
       ? undefined
       : state.ballot
+
+  if (state.type === 'no-ballots') {
+    history.push('/')
+  }
 
   useEffect(() => {
     if (state.type === 'init') {
@@ -136,34 +150,9 @@ export default function BallotReviewScreen({ isTestMode }: Props) {
               <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
             )}
           </Brand>
-          <Button primary disabled>
-            Save &amp; Next
-          </Button>
-        </ButtonBar>
-      </React.Fragment>
-    )
-  }
-
-  if (state.type === 'no-ballots') {
-    return (
-      <React.Fragment>
-        <Main>
-          <MainChild maxWidth={false}>
-            <Prose maxWidth={false}>
-              <p>No ballots needing review were found.</p>
-            </Prose>
-          </MainChild>
-        </Main>
-        <ButtonBar secondary naturalOrder separatePrimaryButton>
-          <Brand>
-            VxScan
-            {isTestMode && (
-              <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
-            )}
-          </Brand>
-          <Button primary disabled>
-            Save &amp; Next
-          </Button>
+          <LinkButton small to="/" primary disabled>
+            Dashboard
+          </LinkButton>
         </ButtonBar>
       </React.Fragment>
     )
@@ -175,7 +164,7 @@ export default function BallotReviewScreen({ isTestMode }: Props) {
         <Main>
           <MainChild maxWidth={false}>
             <Prose maxWidth={false}>
-              <p>Loading…</p>
+              <p>Loading the next ballot requiring adjudication…</p>
             </Prose>
           </MainChild>
         </Main>
@@ -186,9 +175,9 @@ export default function BallotReviewScreen({ isTestMode }: Props) {
               <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
             )}
           </Brand>
-          <Button primary disabled>
-            Save &amp; Next
-          </Button>
+          <LinkButton small to="/" primary disabled>
+            Back
+          </LinkButton>
         </ButtonBar>
       </React.Fragment>
     )
@@ -293,10 +282,18 @@ export default function BallotReviewScreen({ isTestMode }: Props) {
           VxScan
           {isTestMode && <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>}
         </Brand>
+        <LinkButton small to="/">
+          Dashboard
+        </LinkButton>
+        <Text white>
+          {pluralize('ballot', adjudicationStatus.adjudicated, true)}{' '}
+          adjudicated, {adjudicationStatus.remaining - 1} remaining.
+        </Text>
         <Button
+          small
           primary
           disabled={!canSave}
-          onClick={onSaveClick}
+          onPress={onSaveClick}
           title={
             canSave
               ? undefined

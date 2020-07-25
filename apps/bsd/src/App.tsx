@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom'
 import fileDownload from 'js-file-download'
+import pluralize from 'pluralize'
 import { Election, OptionalElection } from '@votingworks/ballot-encoder'
 
 import {
@@ -21,12 +22,13 @@ import useInterval from './hooks/useInterval'
 
 import LoadElectionScreen from './screens/LoadElectionScreen'
 import DashboardScreen from './screens/DashboardScreen'
+import BallotReviewScreen from './screens/BallotReviewScreen'
 
 import 'normalize.css'
 import './App.css'
 import fetchJSON from './util/fetchJSON'
 import { get as getConfig, patch as patchConfig } from './api/config'
-import BallotReviewScreen from './screens/BallotReviewScreen'
+import LinkButton from './components/LinkButton'
 
 const App: React.FC = () => {
   const history = useHistory()
@@ -226,12 +228,16 @@ const App: React.FC = () => {
         <Screen>
           <Switch>
             <Route path="/review">
-              <BallotReviewScreen isTestMode={isTestMode} />
+              <BallotReviewScreen
+                adjudicationStatus={adjudication}
+                isTestMode={isTestMode}
+              />
             </Route>
             <Route path="/">
               <Main>
                 <MainChild maxWidth={false}>
                   <DashboardScreen
+                    adjudicationStatus={adjudication}
                     invalidateBatch={invalidateBatch}
                     isScanning={isScanning}
                     status={{
@@ -253,14 +259,28 @@ const App: React.FC = () => {
                 </Brand>
                 <USBController />
                 {typeof isTestMode === 'boolean' && (
-                  <Button onClick={toggleTestMode}>
+                  <Button small onPress={toggleTestMode}>
                     {isTestMode ? 'Live mode…' : 'Test mode…'}
                   </Button>
                 )}
-                <Button onClick={unconfigureServer}>Factory Reset</Button>
-                <Button onClick={zeroData}>Zero</Button>
+                <Button small onPress={unconfigureServer}>
+                  Factory Reset
+                </Button>
+                <Button small onPress={zeroData}>
+                  Zero
+                </Button>
+                <LinkButton
+                  small
+                  to="/review"
+                  disabled={adjudication.remaining === 0}
+                >
+                  Review{' '}
+                  {!!adjudication.remaining &&
+                    pluralize('ballots', adjudication.remaining, true)}
+                </LinkButton>
                 <Button
-                  onClick={exportResults}
+                  small
+                  onPress={exportResults}
                   disabled={adjudication.remaining > 0}
                   title={
                     adjudication.remaining > 0
@@ -270,7 +290,7 @@ const App: React.FC = () => {
                 >
                   Export
                 </Button>
-                <Button disabled={isScanning} primary onClick={scanBatch}>
+                <Button small disabled={isScanning} primary onPress={scanBatch}>
                   Scan New Batch
                 </Button>
               </ButtonBar>

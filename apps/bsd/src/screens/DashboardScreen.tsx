@@ -2,11 +2,18 @@ import React from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
-import { ButtonEventFunction, ScanStatusResponse } from '../config/types'
+import {
+  ButtonEventFunction,
+  ScanStatusResponse,
+  AdjudicationStatus,
+} from '../config/types'
 
 import Prose from '../components/Prose'
 import Table, { TD } from '../components/Table'
 import Button from '../components/Button'
+
+pluralize.addIrregularRule('requires', 'require')
+pluralize.addIrregularRule('has', 'have')
 
 const Scanning = styled.em`
   color: rgb(71, 167, 75);
@@ -22,13 +29,19 @@ const shortDateTime = (unixTimestamp: number) => {
 }
 
 interface Props {
+  adjudicationStatus: AdjudicationStatus
   invalidateBatch: ButtonEventFunction
   isScanning: boolean
   status: ScanStatusResponse
   deleteBatch(batchId: number): void
 }
 
-const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
+const DashboardScreen = ({
+  adjudicationStatus,
+  isScanning,
+  status,
+  deleteBatch,
+}: Props) => {
   const { batches } = status
   const batchCount = batches.length
   const ballotCount =
@@ -43,7 +56,12 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
               A total of{' '}
               <strong>{pluralize('ballot', ballotCount, true)}</strong> have
               been scanned in{' '}
-              <strong>{pluralize('batch', batchCount, true)}</strong>.
+              <strong>{pluralize('batch', batchCount, true)}</strong>.{' '}
+              {pluralize('ballot', adjudicationStatus.adjudicated, true)}{' '}
+              {pluralize('has', adjudicationStatus.adjudicated)} been
+              adjudicated,{' '}
+              {pluralize('ballot', adjudicationStatus.remaining, true)}{' '}
+              {pluralize('require', adjudicationStatus.remaining)} review.
             </p>
             <Table>
               <thead>
@@ -73,7 +91,7 @@ const DashboardScreen = ({ isScanning, status, deleteBatch }: Props) => {
                     <TD narrow>
                       <Button
                         small
-                        onClick={() => {
+                        onPress={() => {
                           if (
                             // eslint-disable-next-line no-alert, no-restricted-globals
                             confirm(

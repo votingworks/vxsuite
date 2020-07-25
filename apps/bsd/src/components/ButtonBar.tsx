@@ -30,6 +30,7 @@ const ButtonBar = styled('nav')<Props>`
   }
 
   & > * {
+    white-space: nowrap;
     flex: 1;
     margin: 0.25rem;
     @media (min-width: 480px) {
