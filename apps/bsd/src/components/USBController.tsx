@@ -21,6 +21,7 @@ const USBController = () => {
     () => {
       ;(async () => {
         const p = await isPresent()
+        console.log('checking...', p)
         setPresent(p)
         if (p) setMounted(await isMounted())
       })()
@@ -35,6 +36,8 @@ const USBController = () => {
   if (!present) {
     return <Text>No USB</Text>
   }
+
+  console.log('rendering')
 
   return (
     <React.Fragment>
