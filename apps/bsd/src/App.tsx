@@ -167,7 +167,19 @@ const App: React.FC = () => {
         method: 'post',
       })
       const blob = await response.blob()
-      fileDownload(blob, 'vx-results.csv', 'text/csv')
+
+      if (window.kiosk) {
+        const fileWriter = await window.kiosk.saveAs()
+
+        if (!fileWriter) {
+          throw new Error('could not begin download; no file was chosen')
+        }
+
+        await fileWriter.write(await blob.text())
+        await fileWriter.end()
+      } else {
+        fileDownload(blob, 'vx-results.csv', 'text/csv')
+      }
     } catch (error) {
       console.log('failed getOutputFile()', error) // eslint-disable-line no-console
     }
