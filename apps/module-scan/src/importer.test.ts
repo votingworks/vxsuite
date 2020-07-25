@@ -29,9 +29,10 @@ afterEach(() => {
 test('doImport calls scanner.scanInto', async () => {
   const scanner: Scanner = { scanInto: jest.fn() }
   const scannerMock = scanner as jest.Mocked<typeof scanner>
+  const store = await Store.memoryStore()
   const importer = new SystemImporter({
     ...importDirs.paths,
-    store: await Store.memoryStore(),
+    store,
     scanner,
   })
   await expect(importer.doImport()).rejects.toThrow('no election configuration')
@@ -60,6 +61,37 @@ test('doImport calls scanner.scanInto', async () => {
   await importer.unconfigure()
 
   expect(mockWatcherClose).toHaveBeenCalled()
+})
+
+test('unconfigure clears all data.', async () => {
+  const scanner: Scanner = { scanInto: jest.fn() }
+  const store = await Store.memoryStore()
+  const importer = new SystemImporter({
+    ...importDirs.paths,
+    store,
+    scanner,
+  })
+
+  const ballotContent = new TextEncoder().encode(
+    '12.23.1|0|0|0||||||||||||||||.r6UYR4t7hEFMz8ZlMWf1Sw'
+  )
+
+  await importer.configure(election)
+
+  await importer.addManualBallot(ballotContent)
+
+  expect((await importer.getStatus()).batches).toHaveLength(1)
+
+  await importer.unconfigure()
+  expect((await importer.getStatus()).batches).toHaveLength(0)
+
+  await importer.configure(election)
+  expect((await importer.getStatus()).batches).toHaveLength(0)
+
+  await importer.addManualBallot(ballotContent)
+  const batches = (await importer.getStatus()).batches
+  expect(batches).toHaveLength(1)
+  expect(batches[0].id).toEqual(1)
 })
 
 test('configure starts watching files', async () => {
