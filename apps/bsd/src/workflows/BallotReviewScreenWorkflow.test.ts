@@ -1,5 +1,5 @@
 import * as workflow from './BallotReviewScreenWorkflow'
-import { ReviewBallot, Contest, MarkStatus } from '../config/types'
+import { GetBallotResponse, Contest, MarkStatus } from '../config/types'
 
 test('starts with init', () => {
   expect(workflow.init()).toEqual({ type: 'init' })
@@ -10,7 +10,8 @@ test('can move to no-ballots from init', () => {
 })
 
 test('can mark an option', () => {
-  const response: ReviewBallot = {
+  const response: GetBallotResponse = {
+    type: 'ReviewMarginalMarksBallot',
     ballot: {
       image: { url: '/ballot.jpg', width: 850, height: 1100 },
       url: '/ballot',
@@ -36,6 +37,7 @@ test('can mark an option', () => {
         ],
       },
     ],
+    layout: [],
     marks: {},
   }
 
@@ -59,7 +61,8 @@ test('can mark an option', () => {
 })
 
 test('can unmark an option', () => {
-  const response: ReviewBallot = {
+  const response: GetBallotResponse = {
+    type: 'ReviewMarginalMarksBallot',
     ballot: {
       image: { url: '/ballot.jpg', width: 850, height: 1100 },
       url: '/ballot',
@@ -85,6 +88,7 @@ test('can unmark an option', () => {
         ],
       },
     ],
+    layout: [],
     marks: { president: { 'george-washington': MarkStatus.Marked } },
   }
 
@@ -138,7 +142,8 @@ test('changes can only happen while in review', () => {
 })
 
 test('can toggle an option off and back on', () => {
-  const response: ReviewBallot = {
+  const response: GetBallotResponse = {
+    type: 'ReviewMarginalMarksBallot',
     ballot: {
       image: { url: '/ballot.jpg', width: 850, height: 1100 },
       url: '/ballot',
@@ -164,6 +169,7 @@ test('can toggle an option off and back on', () => {
         ],
       },
     ],
+    layout: [],
     marks: { president: { 'george-washington': MarkStatus.Marked } },
   }
 
@@ -219,7 +225,8 @@ test('toggle can only happen while in review', () => {
 })
 
 test('finalize moves out of review preserving the adjudication changes', () => {
-  const response: ReviewBallot = {
+  const response: GetBallotResponse = {
+    type: 'ReviewMarginalMarksBallot',
     ballot: {
       image: { url: '/ballot.jpg', width: 850, height: 1100 },
       url: '/ballot',
@@ -245,6 +252,7 @@ test('finalize moves out of review preserving the adjudication changes', () => {
         ],
       },
     ],
+    layout: [],
     marks: { president: { 'george-washington': MarkStatus.Marked } },
   }
 

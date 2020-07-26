@@ -7,13 +7,20 @@ import { Route, Router } from 'react-router-dom'
 import { GetBallotResponse } from '../config/types'
 import BallotReviewScreen from './BallotReviewScreen'
 
+const noneLeftAdjudicationStatus = {
+  adjudicated: 0,
+  remaining: 0,
+}
+
 test('renders an image of the ballot', async () => {
   const response: GetBallotResponse = {
+    type: 'ReviewMarginalMarksBallot',
     ballot: {
       image: { url: '/scan/hmpb/ballot/2/image', width: 850, height: 1100 },
       url: '/scan/hmpb/ballot/2',
     },
     contests: [],
+    layout: [],
     marks: {},
   }
   fetchMock.getOnce('/scan/hmpb/ballot/2', response)
@@ -26,7 +33,10 @@ test('renders an image of the ballot', async () => {
         history={createMemoryHistory({ initialEntries: ['/batch/1/ballot/2'] })}
       >
         <Route path="/batch/:batchId/ballot/:ballotId">
-          <BallotReviewScreen isTestMode={false} />
+          <BallotReviewScreen
+            adjudicationStatus={noneLeftAdjudicationStatus}
+            isTestMode={false}
+          />
         </Route>
       </Router>
     )
@@ -42,6 +52,7 @@ test('renders an image of the ballot', async () => {
 
 test('renders ballot options for each contest option', async () => {
   const response: GetBallotResponse = {
+    type: 'ReviewMarginalMarksBallot',
     ballot: {
       image: { url: '/scan/hmpb/ballot/2/image', width: 800, height: 1000 },
       url: '/scan/hmpb/ballot/2',
@@ -61,6 +72,7 @@ test('renders ballot options for each contest option', async () => {
         ],
       },
     ],
+    layout: [],
     marks: {},
   }
   fetchMock.getOnce('/scan/hmpb/ballot/2', response)
@@ -73,7 +85,10 @@ test('renders ballot options for each contest option', async () => {
         history={createMemoryHistory({ initialEntries: ['/batch/1/ballot/2'] })}
       >
         <Route path="/batch/:batchId/ballot/:ballotId">
-          <BallotReviewScreen isTestMode={false} />
+          <BallotReviewScreen
+            adjudicationStatus={noneLeftAdjudicationStatus}
+            isTestMode={false}
+          />
         </Route>
       </Router>
     )
@@ -100,7 +115,10 @@ test('renders an error message on failure to fetch', async () => {
     component = render(
       <Router history={history}>
         <Route path="/batch/:batchId/ballot/:ballotId">
-          <BallotReviewScreen isTestMode={false} />
+          <BallotReviewScreen
+            adjudicationStatus={noneLeftAdjudicationStatus}
+            isTestMode={false}
+          />
         </Route>
       </Router>
     )

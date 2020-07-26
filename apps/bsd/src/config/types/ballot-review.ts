@@ -67,6 +67,7 @@ export interface ReviewUninterpretableHmpbBallot {
 export interface Contest {
   id: ContestId
   title: string
+  bounds: Rect
   options: readonly ContestOption[]
 }
 
@@ -76,10 +77,12 @@ export interface CandidateContestOption {
   type: t.CandidateContest['type']
   id: t.CandidateContest['id']
   name: t.Candidate['name']
+  bounds: Rect
 }
 
 export interface YesNoContestOption {
   type: t.YesNoContest['type']
   id: Exclude<t.YesNoVote[0] | t.YesNoVote[1], undefined>
   name: string
+  bounds: Rect
 }

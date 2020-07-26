@@ -5,11 +5,17 @@ import { Router } from 'react-router-dom'
 import { ScanStatusResponse } from '../config/types'
 import DashboardScreen from './DashboardScreen'
 
+const noneLeftAdjudicationStatus = {
+  adjudicated: 0,
+  remaining: 0,
+}
+
 test('null state', () => {
   const deleteBatch = jest.fn()
   const invalidateBatch = jest.fn()
   const status: ScanStatusResponse = {
     batches: [],
+    adjudication: noneLeftAdjudicationStatus,
   }
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -18,6 +24,7 @@ test('null state', () => {
         invalidateBatch={invalidateBatch}
         isScanning={false}
         status={status}
+        adjudicationStatus={noneLeftAdjudicationStatus}
       />
     </Router>
   )
@@ -51,6 +58,7 @@ test('shows scanned ballot count', () => {
         ],
       },
     ],
+    adjudication: noneLeftAdjudicationStatus,
   }
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -59,6 +67,7 @@ test('shows scanned ballot count', () => {
         invalidateBatch={invalidateBatch}
         isScanning={false}
         status={status}
+        adjudicationStatus={noneLeftAdjudicationStatus}
       />
     </Router>
   )
@@ -84,6 +93,7 @@ test('shows whether a batch is scanning', () => {
         ],
       },
     ],
+    adjudication: noneLeftAdjudicationStatus,
   }
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -92,6 +102,7 @@ test('shows whether a batch is scanning', () => {
         invalidateBatch={invalidateBatch}
         isScanning
         status={status}
+        adjudicationStatus={noneLeftAdjudicationStatus}
       />
     </Router>
   )
@@ -123,6 +134,7 @@ test('allows deleting a batch', async () => {
         ],
       },
     ],
+    adjudication: noneLeftAdjudicationStatus,
   }
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -131,6 +143,7 @@ test('allows deleting a batch', async () => {
         invalidateBatch={invalidateBatch}
         isScanning={false}
         status={status}
+        adjudicationStatus={noneLeftAdjudicationStatus}
       />
     </Router>
   )
