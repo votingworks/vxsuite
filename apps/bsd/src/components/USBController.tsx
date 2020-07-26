@@ -42,9 +42,9 @@ const USBController = () => {
   return (
     <React.Fragment>
       {mounted ? (
-        <Button onClick={doUnmount}>Eject USB</Button>
+        <Button onPress={doUnmount}>Eject USB</Button>
       ) : (
-        <Button onClick={doMount}>Mount USB</Button>
+        <Button onPress={doMount}>Mount USB</Button>
       )}
     </React.Fragment>
   )
