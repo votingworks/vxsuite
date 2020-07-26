@@ -5,8 +5,9 @@ import {
   DeepReadonly,
   ReviewBallot,
   MarksByContestId,
-  MarkStatus,
 } from '../config/types'
+
+import { MarkStatus } from '../config/types/ballot-review'
 
 export type State = Failed | Init | Review | Done | NoBallots
 
@@ -135,7 +136,7 @@ export function toggle(
     state,
     contest,
     option,
-    changedMark ?? currentMark === MarkStatus.Marked
+    (changedMark ?? currentMark) === MarkStatus.Marked // these parentheses matter, as it seems === otherwise takes precedence.
       ? MarkStatus.Unmarked
       : MarkStatus.Marked
   )

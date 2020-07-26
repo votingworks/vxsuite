@@ -67,12 +67,21 @@ test('renders ballot options for each contest option', async () => {
             id: 'option-1',
             type: 'candidate',
             name: 'Candidate #1',
-            bounds: { x: 0, y: 50, width: 250, height: 100 },
+            bounds: { x: 0, y: 50, width: 250, height: 100 }, // this one matters
           },
         ],
       },
     ],
-    layout: [],
+    layout: [
+      {
+        bounds: { x: 0, y: 0, width: 10, height: 10 }, // bogus
+        options: [
+          {
+            bounds: { x: 0, y: 50, width: 250, height: 100 }, // this one matters
+          },
+        ],
+      },
+    ],
     marks: {},
   }
   fetchMock.getOnce('/scan/hmpb/ballot/2', response)

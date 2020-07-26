@@ -7,7 +7,10 @@ import App from './App'
 
 beforeEach(() => {
   fetchMock.get('/config', {})
-  fetchMock.get('/scan/status', { batches: [] })
+  fetchMock.get('/scan/status', {
+    batches: [],
+    adjudication: { adjudicated: 0, remaining: 0 },
+  })
 })
 
 test('renders without crashing', async () => {
