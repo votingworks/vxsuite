@@ -295,6 +295,12 @@ export default function BallotReviewScreen({
                             onPress={onContestOptionClick}
                             data-contest-id={contest.id}
                             data-contest-option-id={option.id}
+                            style={{
+                              textDecoration:
+                                changed === MarkStatus.Unmarked
+                                  ? 'line-through'
+                                  : undefined,
+                            }}
                           >
                             <Checkbox
                               isSelected={
