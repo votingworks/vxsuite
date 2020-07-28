@@ -56,7 +56,13 @@ const App: React.FC = () => {
 
   const updateStatus = useCallback(async () => {
     try {
-      setStatus(await fetchJSON<ScanStatusResponse>('/scan/status'))
+      const newStatus = await fetchJSON<ScanStatusResponse>('/scan/status')
+      setStatus((prevStatus) => {
+        if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
+          return prevStatus
+        }
+        return newStatus
+      })
     } catch (error) {
       console.log('failed updateStatus()', error) // eslint-disable-line no-console
     }
