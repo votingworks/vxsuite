@@ -44,8 +44,9 @@ const App: React.FC = () => {
     adjudication: { remaining: 0, adjudicated: 0 },
   })
   const [loadingElection, setLoadingElection] = useState(false)
-  const { batches, adjudication } = status
-  const isScanning = batches && batches[0] && !batches[0].endedAt
+  const { adjudication } = status
+
+  const [isScanning, setIsScanning] = useState(false)
 
   useEffect(() => {
     getConfig().then((config) => {
@@ -60,6 +61,9 @@ const App: React.FC = () => {
       setStatus((prevStatus) => {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
           return prevStatus
+        }
+        if (newStatus.batches[0]?.endedAt) {
+          setIsScanning(false)
         }
         return newStatus
       })
@@ -131,6 +135,7 @@ const App: React.FC = () => {
   }, [processCardData, setCardServerAvailable])
 
   const scanBatch = useCallback(async () => {
+    setIsScanning(true)
     try {
       await fetch('/scan/scanBatch', {
         method: 'post',
