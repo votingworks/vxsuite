@@ -103,7 +103,7 @@ export function change(
   state: Review,
   contest: Contest,
   option: ContestOption,
-  marked: MarkStatus
+  marked: MarkStatus | undefined
 ): Review {
   assert.equal(state.type, 'review')
   const { ballot, changes } = state
@@ -129,17 +129,15 @@ export function toggle(
   assert.equal(state.type, 'review')
   const { ballot, changes } = state
   const changedMark = changes[contest.id]?.[option.id]
-  const currentMark =
-    'marks' in ballot && ballot.marks?.[contest.id]?.[option.id]
-
-  return change(
-    state,
-    contest,
-    option,
+  const ballotMarks = 'marks' in ballot ? ballot.marks : undefined
+  const currentMark = ballotMarks?.[contest.id]?.[option.id]
+  const newChangedMark =
     (changedMark ?? currentMark) === MarkStatus.Marked // these parentheses matter, as it seems === otherwise takes precedence.
-      ? MarkStatus.Unmarked
+      ? currentMark === undefined
+        ? undefined
+        : MarkStatus.Unmarked
       : MarkStatus.Marked
-  )
+  return change(state, contest, option, newChangedMark)
 }
 
 export function noBallots(state: Init): NoBallots {
