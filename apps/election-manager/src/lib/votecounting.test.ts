@@ -130,7 +130,7 @@ test('parsing CVRs flags when a ballot style ID in a CVR is not present in the e
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
-    _locale: { primary: 'en-US', secondary: 'es-US' },
+    _locales: { primary: 'en-US', secondary: 'es-US' },
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
@@ -250,7 +250,7 @@ test('parsing CVRs flags when locale is not well formed', () => {
     _scannerId: 'scanner-1',
     _testBallot: false,
     // @ts-ignore
-    _locale: {},
+    _locales: {},
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
