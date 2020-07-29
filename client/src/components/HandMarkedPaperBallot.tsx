@@ -133,7 +133,7 @@ const ballotMetadata = ({
   ])
 
   if (ballotId) {
-    params.append('bid', ballotId)
+    params.append('id', ballotId)
   }
 
   return new URL(`https://ballot.page/?${params}`).toString()
