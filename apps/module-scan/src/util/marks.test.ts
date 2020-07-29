@@ -128,3 +128,37 @@ test('changesToCVR does a proper merge', () => {
     congressperson: ['beyonce-knowles'],
   })
 })
+
+test('changesToCVR works without originalCVR', () => {
+  const metadata = {
+    ballotStyleId: '12',
+    isTestBallot: false,
+    locales: {
+      primary: 'en-US',
+      secondary: 'es-US',
+    },
+    pageCount: 5,
+    pageNumber: 1,
+    precinctId: '23',
+  }
+
+  const changes = {
+    congressperson: { 'beyonce-knowles': MarkStatus.Marked },
+  }
+
+  const newCVR = changesToCVR(changes, metadata)
+
+  expect(newCVR).toMatchObject({
+    _ballotId: expect.any(String),
+    _ballotStyleId: '12',
+    _precinctId: '23',
+    _pageNumber: 1,
+    _locales: {
+      primary: 'en-US',
+      secondary: 'es-US',
+    },
+    _scannerId: expect.any(String),
+    _testBallot: false,
+    congressperson: ['beyonce-knowles'],
+  })
+})
