@@ -98,7 +98,7 @@ export interface CastVoteRecord
   _testBallot: boolean
   _scannerId: string
   _pageNumber?: number
-  _locale?: BallotLocale
+  _locales?: BallotLocale
 }
 
 export type CastVoteRecordLists = ReadonlyArray<ReadonlyArray<CastVoteRecord>>

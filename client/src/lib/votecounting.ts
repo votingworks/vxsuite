@@ -65,7 +65,7 @@ export function* parseCVRs(
         _precinctId,
         _testBallot,
         _scannerId,
-        _locale,
+        _locales,
         _pageNumber,
         ...votes
       } = cvr
@@ -120,16 +120,16 @@ export function* parseCVRs(
       }
 
       if (
-        typeof _locale !== 'undefined' &&
-        (typeof _locale !== 'object' ||
-          !_locale ||
-          typeof _locale.primary !== 'string' ||
-          (typeof _locale.secondary !== 'undefined' &&
-            typeof _locale.primary !== 'string'))
+        typeof _locales !== 'undefined' &&
+        (typeof _locales !== 'object' ||
+          !_locales ||
+          typeof _locales.primary !== 'string' ||
+          (typeof _locales.secondary !== 'undefined' &&
+            typeof _locales.primary !== 'string'))
       ) {
         errors.push(
           `Locale in CVR must be a locale object with primary and optional secondary locales, got '${JSON.stringify(
-            _locale
+            _locales
           )}'`
         )
       }
@@ -492,7 +492,7 @@ const processCastVoteRecord = ({
     _testBallot: castVoteRecord._testBallot,
     _scannerId: castVoteRecord._scannerId,
     _pageNumber: castVoteRecord._pageNumber,
-    _locale: castVoteRecord._locale,
+    _locales: castVoteRecord._locales,
   }
   for (const key of contestIds) {
     if (castVoteRecord[key]) newCVR[key] = castVoteRecord[key]
