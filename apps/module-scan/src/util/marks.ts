@@ -98,6 +98,7 @@ export function changesToCVR(
   }
 
   const result: CastVoteRecord = {
+    ...(originalCVR ?? {}),
     _ballotId: originalCVR?._ballotId ?? randomBallotId(),
     _ballotStyleId: metadata.ballotStyleId,
     _precinctId: metadata.precinctId,
