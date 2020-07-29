@@ -112,6 +112,7 @@ const ballotMetadata = ({
   pageCount,
   primaryLocaleCode,
   secondaryLocaleCode,
+  ballotId,
 }: {
   isLiveMode: boolean
   precinctId: Precinct['id']
@@ -120,6 +121,7 @@ const ballotMetadata = ({
   pageCount: number
   primaryLocaleCode: string
   secondaryLocaleCode: string
+  ballotId?: string
 }): string => {
   const params = new URLSearchParams([
     ['t', `${!isLiveMode ? 't' : '_'}`],
@@ -129,6 +131,11 @@ const ballotMetadata = ({
     ['l2', secondaryLocaleCode],
     ['p', `${pageNumber}-${pageCount}`],
   ])
+
+  if (ballotId) {
+    params.append('bid', ballotId)
+  }
+
   return new URL(`https://ballot.page/?${params}`).toString()
 }
 
@@ -155,6 +162,7 @@ class PagedQRCodeInjector extends Handler {
         isLiveMode = '',
         primaryLocaleCode = '',
         secondaryLocaleCode = '',
+        ballotId = '',
       } = (qrCodeTarget as HTMLDivElement)?.dataset
       if (qrCodeTarget) {
         ReactDOM.render(
@@ -168,6 +176,7 @@ class PagedQRCodeInjector extends Handler {
               pageCount: pages.length,
               primaryLocaleCode,
               secondaryLocaleCode,
+              ballotId,
             })}
           />,
           qrCodeTarget
@@ -372,6 +381,7 @@ interface Props {
   isLiveMode?: boolean
   precinctId: string
   locales: BallotLocale
+  ballotId?: string
   votes?: VotesDict
   onRendered?(props: Omit<Props, 'onRendered'>): void
 }
@@ -382,6 +392,7 @@ const HandMarkedPaperBallot = ({
   isLiveMode = true,
   precinctId,
   locales,
+  ballotId,
   votes = {},
   onRendered,
 }: Props) => {
@@ -560,6 +571,7 @@ const HandMarkedPaperBallot = ({
               data-ballot-style-id={ballotStyleId}
               data-primary-locale-code={locales.primary}
               data-secondary-locale-code={locales.secondary}
+              data-ballot-id={ballotId}
             />
           </PageFooter>
         </div>
