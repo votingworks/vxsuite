@@ -34,6 +34,9 @@ export class FujitsuScanner implements Scanner {
       'Gray',
       '--swskip',
       '0.5',
+      '--swcrop=yes',
+      '--dropoutcolor',
+      'Red',
       `--batch=${join(directory, `${prefix}${dateStamp()}-ballot-%04d.jpg`)}`,
     ])
   }
