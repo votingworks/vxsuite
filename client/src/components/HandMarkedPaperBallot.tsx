@@ -519,7 +519,7 @@ const HandMarkedPaperBallot = ({
               </PageFooterRow>
               <PageFooterRow>
                 <div>
-                  <Text small={!!locales.secondary} left as="div">
+                  <Text small left as="div">
                     {ballotStyle.partyId &&
                     primaryPartyName &&
                     localePrimaryPartyName
@@ -539,7 +539,7 @@ const HandMarkedPaperBallot = ({
                   </Text>
                 </div>
                 <div>
-                  <Text small={!!locales.secondary} center as="div">
+                  <Text small center as="div">
                     {dualPhraseWithBreak(
                       `${county.name}, ${state}`,
                       localeElection &&
@@ -548,7 +548,7 @@ const HandMarkedPaperBallot = ({
                   </Text>
                 </div>
                 <div>
-                  <Text small={!!locales.secondary} right as="div">
+                  <Text small right as="div">
                     {locales.secondary ? (
                       <React.Fragment>
                         <strong>{localeDateLong(date, locales.primary)}</strong>
