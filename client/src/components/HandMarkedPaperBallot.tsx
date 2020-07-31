@@ -209,6 +209,18 @@ const PageFooter = styled.div`
     margin-left: 0.66in;
   }
 `
+const OfficialInitials = styled.div`
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  margin-right: 0.08in;
+  border: 1px solid #000000;
+  width: 1in;
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pagedjs_left_page & {
+    display: flex;
+  }
+`
 const PageFooterMain = styled.div`
   display: flex;
   flex: 1;
@@ -488,6 +500,11 @@ const HandMarkedPaperBallot = ({
       <Ballot aria-hidden data-ballot ref={ballotRef}>
         <div className="ballot-footer">
           <PageFooter>
+            <OfficialInitials>
+              <Text as="span" small>
+                Official’s Initials
+              </Text>
+            </OfficialInitials>
             <PageFooterMain>
               <PageFooterRow>
                 <div>
