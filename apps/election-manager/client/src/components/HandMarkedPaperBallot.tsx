@@ -794,7 +794,13 @@ const HandMarkedPaperBallot = ({
                               </React.Fragment>
                             )}
                           </p>
-                          <Text small>{contest.description}</Text>
+                          <Text
+                            small
+                            preLine
+                            dangerouslySetInnerHTML={{
+                              __html: contest.description,
+                            }}
+                          />
                           {localeContests && (
                             <Text small>
                               {(localeContests[i] as YesNoContest).description}

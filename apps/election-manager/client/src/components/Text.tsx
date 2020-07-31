@@ -14,6 +14,7 @@ interface Props {
   narrow?: boolean
   normal?: boolean
   noWrap?: boolean
+  preLine?: boolean
   right?: boolean
   small?: boolean
   warning?: boolean
@@ -52,7 +53,8 @@ const Text = styled('p')<Props>`
     (center && 'center') ||
     (right && 'right') ||
     undefined};
-  white-space: ${({ noWrap }) => (noWrap ? 'nowrap' : undefined)};
+  white-space: ${({ noWrap, preLine }) =>
+    noWrap ? 'nowrap' : preLine ? 'pre-line' : undefined};
   color: ${({ error, muted, warning }) =>
     (error && 'red') ??
     (warning && 'darkorange') ??
