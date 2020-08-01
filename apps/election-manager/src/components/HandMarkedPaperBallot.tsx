@@ -502,7 +502,12 @@ const HandMarkedPaperBallot = ({
           <PageFooter>
             <OfficialInitials>
               <Text as="span" small>
-                Official’s Initials
+                <Trans
+                  i18nKey="officialInitials"
+                  tOptions={{ lng: locales.primary }}
+                >
+                  Official’s Initials
+                </Trans>
               </Text>
             </OfficialInitials>
             <PageFooterMain>
