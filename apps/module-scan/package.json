@@ -30,6 +30,7 @@
     ]
   },
   "dependencies": {
+    "@types/sharp": "^0.25.1",
     "@votingworks/ballot-encoder": "^2.0.1",
     "@votingworks/hmpb-interpreter": "^4.0.0",
     "@votingworks/qrdetect": "^1.0.1",
@@ -44,6 +45,7 @@
     "multer": "^1.4.2",
     "node-quirc": "^2.1.0",
     "pdfjs-dist": "^2.3.200",
+    "sharp": "^0.25.4",
     "sqlite3": "^4.0.8",
     "tmp": "^0.2.1",
     "uuid": "^8.2.0"

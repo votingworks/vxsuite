@@ -23,6 +23,7 @@ import {
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import { decode as decodeJpeg } from 'jpeg-js'
+import sharp from 'sharp'
 import { decode as quircDecode } from 'node-quirc'
 import { CastVoteRecord } from './types'
 import { getMachineId } from './util/machineId'
@@ -147,22 +148,61 @@ interface BallotImageData {
   qrcode: Buffer
 }
 
+async function getQRCode(
+  encodedImageData: Buffer,
+  decodedImageData: Buffer,
+  width: number,
+  height: number
+): Promise<Buffer | undefined> {
+  const [quircCode] = await quircDecode(encodedImageData)
+
+  if (quircCode && 'data' in quircCode) {
+    return quircCode.data
+  }
+
+  const qrdetectCodes = qrdetect(decodedImageData, width, height)
+
+  if (qrdetectCodes.length > 0) {
+    return qrdetectCodes[0].data
+  }
+}
+
 export async function getBallotImageData(
   file: Buffer,
   filename: string
 ): Promise<BallotImageData> {
   const { data, width, height } = decodeJpeg(file)
   const image = { data: Uint8ClampedArray.from(data), width, height }
-  const [quircCode] = await quircDecode(file)
 
-  if (quircCode && 'data' in quircCode) {
-    return { file, image, qrcode: quircCode.data }
+  const clipHeight = Math.floor(height / 4)
+  const topCrop = sharp(file)
+    .extract({ left: 0, top: 0, width, height: clipHeight })
+    .raw()
+    .ensureAlpha()
+
+  const topData = await topCrop.toBuffer()
+  const topPng = await topCrop.png().toBuffer()
+  const topQrcode = await getQRCode(topPng, topData, width, clipHeight)
+
+  if (topQrcode) {
+    return { file, image, qrcode: topQrcode }
   }
 
-  const qrdetectCodes = qrdetect(data, width, height)
+  const bottomCrop = sharp(file)
+    .extract({
+      left: 0,
+      top: height - clipHeight,
+      width,
+      height: clipHeight,
+    })
+    .raw()
+    .ensureAlpha()
+  const bottomData = await bottomCrop.toBuffer()
+  const bottomPng = await bottomCrop.png().toBuffer()
+  const bottomQrcode = await getQRCode(bottomPng, bottomData, width, clipHeight)
 
-  if (qrdetectCodes.length > 0) {
-    return { file, image, qrcode: qrdetectCodes[0].data }
+  if (bottomQrcode) {
+    return { file, image, qrcode: bottomQrcode }
   }
 
   throw new Error(`no QR code found in ${filename}`)
