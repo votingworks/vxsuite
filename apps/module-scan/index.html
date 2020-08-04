@@ -43,7 +43,7 @@
         for (const file of scanFilesInput.files) {
           formData.append(
             'files',
-            new Blob([await file.arrayBuffer()], { type: 'image/jpeg' }),
+            new Blob([await file.arrayBuffer()], { type: file.type }),
             file.name
           )
         }
@@ -84,7 +84,7 @@
       id="scan-files-input"
       type="file"
       onchange="scanFromFiles()"
-      accept="image/jpeg"
+      accept="image/jpeg,image/png,image/tiff"
       multiple
       style="opacity: 0;"
     />

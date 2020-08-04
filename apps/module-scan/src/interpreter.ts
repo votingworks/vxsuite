@@ -22,7 +22,6 @@ import {
 } from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
-import { decode as decodeJpeg } from 'jpeg-js'
 import sharp from 'sharp'
 import { decode as quircDecode } from 'node-quirc'
 import { CastVoteRecord } from './types'
@@ -171,35 +170,40 @@ export async function getBallotImageData(
   file: Buffer,
   filename: string
 ): Promise<BallotImageData> {
-  const { data, width, height } = decodeJpeg(file)
+  const img = sharp(file).raw().ensureAlpha()
+  const {
+    data,
+    info: { width, height },
+  } = await img.toBuffer({ resolveWithObject: true })
   const image = { data: Uint8ClampedArray.from(data), width, height }
 
   const clipHeight = Math.floor(height / 4)
-  const topCrop = sharp(file)
+  const topCrop = img
+    .clone()
     .extract({ left: 0, top: 0, width, height: clipHeight })
-    .raw()
-    .ensureAlpha()
 
-  const topData = await topCrop.toBuffer()
-  const topPng = await topCrop.png().toBuffer()
-  const topQrcode = await getQRCode(topPng, topData, width, clipHeight)
+  const topRaw = await topCrop.toBuffer()
+  const topImage = await topCrop.png().toBuffer()
+  const topQrcode = await getQRCode(topImage, topRaw, width, clipHeight)
 
   if (topQrcode) {
     return { file, image, qrcode: topQrcode }
   }
 
-  const bottomCrop = sharp(file)
-    .extract({
-      left: 0,
-      top: height - clipHeight,
-      width,
-      height: clipHeight,
-    })
-    .raw()
-    .ensureAlpha()
-  const bottomData = await bottomCrop.toBuffer()
-  const bottomPng = await bottomCrop.png().toBuffer()
-  const bottomQrcode = await getQRCode(bottomPng, bottomData, width, clipHeight)
+  const bottomCrop = img.clone().extract({
+    left: 0,
+    top: height - clipHeight,
+    width,
+    height: clipHeight,
+  })
+  const bottomRaw = await bottomCrop.toBuffer()
+  const bottomImage = await bottomCrop.png().toBuffer()
+  const bottomQrcode = await getQRCode(
+    bottomImage,
+    bottomRaw,
+    width,
+    clipHeight
+  )
 
   if (bottomQrcode) {
     return { file, image, qrcode: bottomQrcode }

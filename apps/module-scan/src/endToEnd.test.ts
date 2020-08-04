@@ -22,7 +22,13 @@ const sampleBallotImagesPath = path.join(
 // we need longer to make chokidar work
 jest.setTimeout(10000)
 
-jest.mock('./exec')
+jest.mock('./exec', () => ({
+  __esModule: true,
+  default: async (): Promise<{ stdout: string; stderr: string }> => ({
+    stdout: '',
+    stderr: '',
+  }),
+}))
 
 let app: Application
 let importer: SystemImporter

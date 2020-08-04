@@ -207,40 +207,45 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
   ) as CandidateContest
   const option = contest.candidates[0]
   const batchId = await store.addBatch()
-  const ballotId = await store.addBallot(batchId, '/tmp/image.jpg', {
-    type: 'InterpretedHmpbBallot',
-    normalizedImage: EMPTY_IMAGE,
-    cvr: {
-      _ballotId: 'abc',
-      _ballotStyleId: '12',
-      _precinctId: '23',
-      _scannerId: 'def',
-      _testBallot: false,
-      _pageNumber: 1,
-      _locales: { primary: 'en-US' },
-    },
-    markInfo: {
-      ballotSize: { width: 0, height: 0 },
-      marks: [
-        {
-          type: 'candidate',
-          contest,
-          option,
-          bounds: zeroRect,
-          score: 1,
-          target: { bounds: zeroRect, inner: zeroRect },
-        },
-      ],
-    },
-    metadata: {
-      ballotStyleId: '12',
-      precinctId: '23',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 1,
-      locales: { primary: 'en-US' },
-    },
-  })
+  const ballotId = await store.addBallot(
+    batchId,
+    '/tmp/image.jpg',
+    '/tmp/image-normalized.jpg',
+    {
+      type: 'InterpretedHmpbBallot',
+      normalizedImage: EMPTY_IMAGE,
+      cvr: {
+        _ballotId: 'abc',
+        _ballotStyleId: '12',
+        _precinctId: '23',
+        _scannerId: 'def',
+        _testBallot: false,
+        _pageNumber: 1,
+        _locales: { primary: 'en-US' },
+      },
+      markInfo: {
+        ballotSize: { width: 0, height: 0 },
+        marks: [
+          {
+            type: 'candidate',
+            contest,
+            option,
+            bounds: zeroRect,
+            score: 1,
+            target: { bounds: zeroRect, inner: zeroRect },
+          },
+        ],
+      },
+      metadata: {
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestBallot: false,
+        pageNumber: 1,
+        pageCount: 1,
+        locales: { primary: 'en-US' },
+      },
+    }
+  )
   await store.finishBatch(batchId)
 
   await request(app)
@@ -275,48 +280,53 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
   ) as YesNoContest
   const yesnoOption = 'no'
   const batchId = await store.addBatch()
-  const ballotId = await store.addBallot(batchId, '/tmp/image.jpg', {
-    type: 'InterpretedHmpbBallot',
-    normalizedImage: EMPTY_IMAGE,
-    cvr: {
-      _ballotId: 'abc',
-      _ballotStyleId: '12',
-      _precinctId: '23',
-      _scannerId: 'def',
-      _testBallot: false,
-      _pageNumber: 1,
-      _locales: { primary: 'en-US' },
-    },
-    markInfo: {
-      ballotSize: { width: 0, height: 0 },
-      marks: [
-        {
-          type: 'candidate',
-          contest: candidateContest,
-          option: candidateOption,
-          bounds: zeroRect,
-          score: 1,
-          target: { bounds: zeroRect, inner: zeroRect },
-        },
-        {
-          type: 'yesno',
-          contest: yesnoContest,
-          option: yesnoOption,
-          bounds: zeroRect,
-          score: 0,
-          target: { bounds: zeroRect, inner: zeroRect },
-        },
-      ],
-    },
-    metadata: {
-      ballotStyleId: '12',
-      precinctId: '23',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 1,
-      locales: { primary: 'en-US' },
-    },
-  })
+  const ballotId = await store.addBallot(
+    batchId,
+    '/tmp/image.jpg',
+    '/tmp/image-normalized.jpg',
+    {
+      type: 'InterpretedHmpbBallot',
+      normalizedImage: EMPTY_IMAGE,
+      cvr: {
+        _ballotId: 'abc',
+        _ballotStyleId: '12',
+        _precinctId: '23',
+        _scannerId: 'def',
+        _testBallot: false,
+        _pageNumber: 1,
+        _locales: { primary: 'en-US' },
+      },
+      markInfo: {
+        ballotSize: { width: 0, height: 0 },
+        marks: [
+          {
+            type: 'candidate',
+            contest: candidateContest,
+            option: candidateOption,
+            bounds: zeroRect,
+            score: 1,
+            target: { bounds: zeroRect, inner: zeroRect },
+          },
+          {
+            type: 'yesno',
+            contest: yesnoContest,
+            option: yesnoOption,
+            bounds: zeroRect,
+            score: 0,
+            target: { bounds: zeroRect, inner: zeroRect },
+          },
+        ],
+      },
+      metadata: {
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestBallot: false,
+        pageNumber: 1,
+        pageCount: 1,
+        locales: { primary: 'en-US' },
+      },
+    }
+  )
   await store.finishBatch(batchId)
   await request(app)
     .patch(`/scan/hmpb/ballot/${ballotId}`)
@@ -375,12 +385,16 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
 })
 
 test('GET /scan/hmpb/ballot/:ballotId/image', async () => {
-  const filename = join(
+  const original = join(
+    __dirname,
+    '../test/fixtures/state-of-hamilton/filled-in-dual-language-p1-flipped.jpg'
+  )
+  const normalized = join(
     __dirname,
     '../test/fixtures/state-of-hamilton/filled-in-dual-language-p1.jpg'
   )
   const batchId = await store.addBatch()
-  const ballotId = await store.addBallot(batchId, filename, {
+  const ballotId = await store.addBallot(batchId, original, normalized, {
     type: 'InterpretedHmpbBallot',
     normalizedImage: EMPTY_IMAGE,
     metadata: {
@@ -406,15 +420,20 @@ test('GET /scan/hmpb/ballot/:ballotId/image', async () => {
 
   await request(app)
     .get(`/scan/hmpb/ballot/${ballotId}/image`)
-    .set('Accept', 'application/json')
-    .expect(200, await fs.readFile(filename))
+    .expect(301)
+    .expect('Location', `/scan/hmpb/ballot/${ballotId}/image/normalized`)
+
+  await request(app)
+    .get(`/scan/hmpb/ballot/${ballotId}/image/normalized`)
+    .expect(200, await fs.readFile(normalized))
+
+  await request(app)
+    .get(`/scan/hmpb/ballot/${ballotId}/image/original`)
+    .expect(200, await fs.readFile(original))
 })
 
 test('GET /scan/hmpb/ballot/:ballotId/image 404', async () => {
-  await request(app)
-    .get(`/scan/hmpb/ballot/111/image`)
-    .set('Accept', 'application/json')
-    .expect(404)
+  await request(app).get(`/scan/hmpb/ballot/111/image/normalized`).expect(404)
 })
 
 test('GET /', async () => {

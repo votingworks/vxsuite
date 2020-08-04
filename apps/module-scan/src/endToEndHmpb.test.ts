@@ -20,7 +20,13 @@ const electionFixturesRoot = join(
   'test/fixtures/state-of-hamilton'
 )
 
-jest.mock('./exec')
+jest.mock('./exec', () => ({
+  __esModule: true,
+  default: async (): Promise<{ stdout: string; stderr: string }> => ({
+    stdout: '',
+    stderr: '',
+  }),
+}))
 
 let importDirs: TemporaryBallotImportImageDirectories
 let store: Store

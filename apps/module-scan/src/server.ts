@@ -243,16 +243,27 @@ export function buildApp({ store, importer }: AppOptions): Application {
   })
 
   app.get('/scan/hmpb/ballot/:ballotId/image', async (request, response) => {
-    const filename = await store.getBallotFilename(
-      parseInt(request.params.ballotId, 10)
+    response.redirect(
+      301,
+      `/scan/hmpb/ballot/${request.params.ballotId}/image/normalized`
     )
-
-    if (filename) {
-      response.sendFile(filename)
-    } else {
-      response.status(404).end()
-    }
   })
+
+  app.get(
+    '/scan/hmpb/ballot/:ballotId/image/:version',
+    async (request, response) => {
+      const filenames = await store.getBallotFilenames(
+        parseInt(request.params.ballotId, 10)
+      )
+      const version = request.params.version
+
+      if (filenames && version in filenames) {
+        response.sendFile(filenames[version as keyof typeof filenames])
+      } else {
+        response.status(404).end()
+      }
+    }
+  )
 
   app.delete('/scan/batch/:batchId', async (request, response) => {
     if (await store.deleteBatch(parseInt(request.params.batchId, 10))) {
