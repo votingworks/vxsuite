@@ -44,6 +44,14 @@ export interface Importer {
     ballotImagePath: string,
     ballotImageFile?: Buffer
   ): Promise<number | undefined>
+
+  /**
+   * Returns a promise that resolves once all currently-running imports finish.
+   * If another import is triggered in the meantime, that import is not
+   * included.
+   */
+  waitForImports(): Promise<void>
+
   getStatus(): Promise<{ batches: BatchInfo[]; electionHash?: string }>
   restoreConfig(): Promise<void>
   setTestMode(testMode: boolean): Promise<void>
@@ -65,6 +73,7 @@ export default class SystemImporter implements Importer {
     interpreted: InterpretedBallot
   ) => void)[] = []
   private timeouts: ReturnType<typeof setTimeout>[] = []
+  private imports: Promise<void>[] = []
 
   private seenBallotImagePaths = new Set<string>()
 
@@ -194,14 +203,22 @@ export default class SystemImporter implements Importer {
       },
     })
     this.watcher.on('add', async (addedPath) => {
+      debug('starting import task (%s)', addedPath)
+      const importTask = this.fileAdded(addedPath)
+      this.imports.push(importTask)
       try {
-        await this.fileAdded(addedPath)
+        await importTask
+        debug('import task succeeded (%s)', addedPath)
       } catch (error) {
-        process.stderr.write(
-          `unable to process file (${addedPath}): ${error.stack}\n`
-        )
+        debug('import task failed (%s): %s', addedPath, error.stack)
+      } finally {
+        this.imports = this.imports.filter((it) => it === importTask)
       }
     })
+  }
+
+  public async waitForImports(): Promise<void> {
+    await Promise.allSettled(this.imports)
   }
 
   public async setTestMode(testMode: boolean): Promise<void> {

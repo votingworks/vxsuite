@@ -172,6 +172,8 @@ test('going through the whole process works', async () => {
       }
     `)
   }
+
+  await importer.waitForImports()
 })
 
 test('failed scan with QR code can be adjudicated and exported', async () => {
@@ -267,4 +269,6 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
       }
     `)
   }
+
+  await importer.waitForImports()
 })
