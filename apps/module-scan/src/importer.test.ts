@@ -123,6 +123,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
 
   await importer.setTestMode(true)
   expect((await importer.getStatus()).batches).toHaveLength(0)
+  await importer.unconfigure()
 })
 
 test('restoreConfig reads config data from the store', async () => {
@@ -183,6 +184,7 @@ test('restoreConfig reads config data from the store', async () => {
   expect(importer.configure).toHaveBeenCalledWith(election)
   expect(interpreter.addHmpbTemplate).toHaveBeenCalledTimes(2)
   expect(interpreter.setTestMode).toHaveBeenCalledWith(true)
+  await importer.unconfigure()
 })
 
 test('cannot add HMPB templates before configuring an election', async () => {
