@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import useInterval from 'use-interval'
 
@@ -16,16 +16,36 @@ const USBController = () => {
   const available = isAvailable()
   const [present, setPresent] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [recentlyUnmounted, setRecentlyUnmounted] = useState(false)
+
+  const doUnmountAndSetRecentlyUnmounted = async () => {
+    setRecentlyUnmounted(true)
+    doUnmount()
+  }
+
+  const doMountIfNotRecentlyUnmounted = useCallback(async () => {
+    if (!recentlyUnmounted) {
+      await doMount()
+    }
+  }, [recentlyUnmounted])
 
   useInterval(
     () => {
       ;(async () => {
         const p = await isPresent()
         setPresent(p)
-        if (p) setMounted(await isMounted())
+        if (p) {
+          const m = await isMounted()
+          setMounted(m)
+          if (!m) {
+            await doMountIfNotRecentlyUnmounted()
+          }
+        } else {
+          setRecentlyUnmounted(false)
+        }
       })()
     },
-    available ? 1000 : false
+    available ? 2000 : false
   )
 
   if (!available) {
@@ -36,18 +56,14 @@ const USBController = () => {
     return <Text>No USB</Text>
   }
 
+  if (!mounted) {
+    return <Text>Connecting...</Text>
+  }
+
   return (
-    <React.Fragment>
-      {mounted ? (
-        <Button small onPress={doUnmount}>
-          Eject USB
-        </Button>
-      ) : (
-        <Button small onPress={doMount}>
-          Mount USB
-        </Button>
-      )}
-    </React.Fragment>
+    <Button small onPress={doUnmountAndSetRecentlyUnmounted}>
+      Eject USB
+    </Button>
   )
 }
 
