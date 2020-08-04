@@ -3,15 +3,16 @@ import { join } from 'path'
 import request from 'supertest'
 import election from '../test/fixtures/state-of-hamilton/election'
 import getScannerCVRCountWaiter from '../test/getScannerCVRCountWaiter'
-import SystemImporter from './importer'
+import SystemImporter, { Importer } from './importer'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
-import { FujitsuScanner } from './scanner'
+import { FujitsuScanner, Scanner } from './scanner'
 import { buildApp } from './server'
 import Store from './store'
 import { CastVoteRecord, BallotPackageManifest } from './types'
 import { MarkStatus } from './types/ballot-review'
+import { Application } from 'express'
 
 const electionFixturesRoot = join(
   __dirname,
@@ -22,23 +23,28 @@ const electionFixturesRoot = join(
 jest.mock('./exec')
 
 let importDirs: TemporaryBallotImportImageDirectories
+let store: Store
+let scanner: Scanner
+let importer: Importer
+let app: Application
 
-beforeEach(() => {
+beforeEach(async () => {
   importDirs = makeTemporaryBallotImportImageDirectories()
+  store = await Store.memoryStore()
+  scanner = new FujitsuScanner()
+  importer = new SystemImporter({ store, scanner, ...importDirs.paths })
+  app = buildApp({ importer, store })
 })
 
-afterEach(() => {
+afterEach(async () => {
+  await importer.unconfigure()
   importDirs.remove()
 })
 
 test('going through the whole process works', async () => {
   jest.setTimeout(20000)
 
-  const store = await Store.memoryStore()
-  const scanner = new FujitsuScanner()
-  const importer = new SystemImporter({ store, scanner, ...importDirs.paths })
-  const app = buildApp({ importer, store })
-  const waiter = getScannerCVRCountWaiter(importer)
+  const waiter = getScannerCVRCountWaiter(importer as SystemImporter)
 
   await importer.restoreConfig()
 
@@ -74,11 +80,11 @@ test('going through the whole process works', async () => {
     // move some sample ballots into the ballots directory
     await fs.copyFile(
       join(electionFixturesRoot, 'filled-in-dual-language-p1.jpg'),
-      join(importer.ballotImagesPath, 'batch-1-ballot-1.jpg')
+      join(importDirs.paths.ballotImagesPath, 'batch-1-ballot-1.jpg')
     )
     await fs.copyFile(
       join(electionFixturesRoot, 'filled-in-dual-language-p2.jpg'),
-      join(importer.ballotImagesPath, 'batch-1-ballot-2.jpg')
+      join(importDirs.paths.ballotImagesPath, 'batch-1-ballot-2.jpg')
     )
 
     // wait for the processing
@@ -171,11 +177,7 @@ test('going through the whole process works', async () => {
 test('failed scan with QR code can be adjudicated and exported', async () => {
   jest.setTimeout(20000)
 
-  const store = await Store.memoryStore()
-  const scanner = new FujitsuScanner()
-  const importer = new SystemImporter({ store, scanner, ...importDirs.paths })
-  const app = buildApp({ importer, store })
-  const waiter = getScannerCVRCountWaiter(importer)
+  const waiter = getScannerCVRCountWaiter(importer as SystemImporter)
 
   await importer.restoreConfig()
 
@@ -211,7 +213,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     // move some sample ballots into the ballots directory
     await fs.copyFile(
       join(electionFixturesRoot, 'filled-in-dual-language-p3.jpg'),
-      join(importer.ballotImagesPath, 'batch-1-ballot-1.jpg')
+      join(importDirs.paths.ballotImagesPath, 'batch-1-ballot-1.jpg')
     )
 
     // wait for the processing

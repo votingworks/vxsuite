@@ -64,6 +64,7 @@ export default class SystemImporter implements Importer {
   private onBallotAddedCallbacks: ((
     interpreted: InterpretedBallot
   ) => void)[] = []
+  private timeouts: ReturnType<typeof setTimeout>[] = []
 
   private seenBallotImagePaths = new Set<string>()
 
@@ -400,9 +401,11 @@ export default class SystemImporter implements Importer {
     }
 
     // mark the batch done in a few seconds
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       this.store.finishBatch(batchId)
+      this.timeouts = this.timeouts.filter((t) => t === timeout)
     }, 5000)
+    this.timeouts.push(timeout)
   }
 
   /**
@@ -455,6 +458,9 @@ export default class SystemImporter implements Importer {
     await this.store.init(true) // destroy all data
     if (this.watcher) {
       this.watcher.close()
+    }
+    for (const timeout of this.timeouts) {
+      clearTimeout(timeout)
     }
   }
 }
