@@ -527,7 +527,10 @@ export default class Interpreter {
         if (contest.allowWriteIns) {
           const writeInOptions = options.slice(contest.candidates.length)
 
-          for (const writeInOption of writeInOptions) {
+          for (const [
+            writeInIndex,
+            writeInOption,
+          ] of writeInOptions.entries()) {
             const score = this.targetMarkScore(
               template.ballotImage.imageData,
               mappedBallot,
@@ -540,7 +543,7 @@ export default class Interpreter {
               score,
               target: writeInOption.target,
               option: {
-                id: '__write-in',
+                id: `__write-in-${writeInIndex}`,
                 name: 'Write-In',
                 isWriteIn: true,
               },

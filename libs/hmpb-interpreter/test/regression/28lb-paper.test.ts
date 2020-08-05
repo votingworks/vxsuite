@@ -108,7 +108,7 @@ test('batch-1-20200504_210852-ballot-0002', async () => {
       ],
       "texas-house-district-111": Array [
         Object {
-          "id": "__write-in",
+          "id": "__write-in-0",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -770,7 +770,7 @@ test('batch-1-20200504_210852-ballot-0014', async () => {
       ],
       "texas-house-district-111": Array [
         Object {
-          "id": "__write-in",
+          "id": "__write-in-0",
           "isWriteIn": true,
           "name": "Write-In",
         },

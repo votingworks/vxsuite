@@ -65,7 +65,7 @@ const interpreter = new Interpreter({
 
 ```sh
 # To try this example out, install globally then clone the repository and `cd`
-# to `test/fixtures/election-4e31cb17d8f2f3bac574c6d2f6e22fb2528dcdf8-ballot-style-77-precinct-oaklawn-branch-library`.
+# to `test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library`.
 $ hmpb interpret -e election.json \
   blank-p1.jpg \
   blank-p2.jpg \
@@ -140,7 +140,7 @@ $ hmpb interpret -e election.json -f \
         ],
         "texas-house-district-111": [
           {
-            "id": "__write-in",
+            "id": "__write-in-0",
             "name": "Write-In",
             "isWriteIn": true
           }
@@ -269,7 +269,7 @@ $ hmpb interpret -e election.json -f \
         {
           "type": "candidate",
           "contest": "texas-house-district-111",
-          "option": "__write-in",
+          "option": "__write-in-0",
           "score": 0.7025,
           "bounds": {
             "x": 872,
@@ -501,7 +501,7 @@ $ hmpb interpret -e election.json -f \
         {
           "type": "candidate",
           "contest": "dallas-city-council",
-          "option": "__write-in",
+          "option": "__write-in-1",
           "score": 0.09595959595959595,
           "bounds": {
             "x": 470,
@@ -527,7 +527,7 @@ $ hmpb interpret -e election.json -f \
         {
           "type": "candidate",
           "contest": "dallas-city-council",
-          "option": "__write-in",
+          "option": "__write-in-2",
           "score": 0.01015228426395939,
           "bounds": {
             "x": 470,

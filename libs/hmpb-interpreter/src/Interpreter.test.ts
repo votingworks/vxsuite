@@ -654,7 +654,7 @@ test('interpret votes', async () => {
       ],
       "texas-house-district-111": Array [
         Object {
-          "id": "__write-in",
+          "id": "__write-in-0",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1014,7 +1014,7 @@ test('invalid marks', async () => {
           "type": "candidate",
         },
         "option": Object {
-          "id": "__write-in",
+          "id": "__write-in-0",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1069,7 +1069,7 @@ test('invalid marks', async () => {
           "type": "candidate",
         },
         "option": Object {
-          "id": "__write-in",
+          "id": "__write-in-1",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1691,7 +1691,7 @@ test('invalid marks', async () => {
           "type": "candidate",
         },
         "option": Object {
-          "id": "__write-in",
+          "id": "__write-in-0",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1761,7 +1761,7 @@ test('invalid marks', async () => {
           "type": "candidate",
         },
         "option": Object {
-          "id": "__write-in",
+          "id": "__write-in-1",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1831,7 +1831,7 @@ test('invalid marks', async () => {
           "type": "candidate",
         },
         "option": Object {
-          "id": "__write-in",
+          "id": "__write-in-2",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1981,7 +1981,7 @@ test('invalid marks', async () => {
           "type": "candidate",
         },
         "option": Object {
-          "id": "__write-in",
+          "id": "__write-in-0",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2059,7 +2059,7 @@ test('upside-down ballot', async () => {
       ],
       "texas-house-district-111": Array [
         Object {
-          "id": "__write-in",
+          "id": "__write-in-0",
           "isWriteIn": true,
           "name": "Write-In",
         },
