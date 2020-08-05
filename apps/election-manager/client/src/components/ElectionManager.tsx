@@ -11,6 +11,7 @@ import UnconfiguredScreen from '../screens/UnconfiguredScreen'
 import TestDeckScreen from '../screens/TestDeckScreen'
 import TallyScreen from '../screens/TallyScreen'
 import TallyReportScreen from '../screens/TallyReportScreen'
+import CombineResultsScreen from '../screens/CombineResultsScreen'
 
 import routerPaths from '../routerPaths'
 import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationReportScreen'
@@ -59,6 +60,9 @@ const ElectionManager = () => {
       </Route>
       <Route exact path={routerPaths.tally}>
         <TallyScreen />
+      </Route>
+      <Route exact path={routerPaths.combineResultsFiles}>
+        <CombineResultsScreen />
       </Route>
       <Route
         path={[
