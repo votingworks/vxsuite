@@ -78,7 +78,7 @@ const Navigation = ({
   return (
     <NavBar>
       <Brand>
-        <MakeName>VxMail</MakeName>
+        <MakeName>VxPaper</MakeName>
         <ModelName>Election Manager</ModelName>
       </Brand>
       <PrimaryNav>{primaryNav}</PrimaryNav>
