@@ -1,11 +1,12 @@
 
-import json, os
+import json, os, tempfile
 
 from flask import Flask, send_from_directory, send_file, request
 from werkzeug.utils import secure_filename
 
 from . import SEMSinput
 from . import SEMSoutput
+from . import combineSEMSresults
 
 # directory for all files
 FILES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'election_files')
@@ -130,6 +131,25 @@ def results_output():
     else:
         return "", 404
 
+@app.route('/convert/results/combine', methods=["POST"])
+def results_combine(): 
+    first = request.files['firstFile']
+    second = request.files['secondFile']
+
+    # create temp files for everything, since combination works on files for now
+    firstInputFile = tempfile.NamedTemporaryFile()
+    secondInputFile = tempfile.NamedTemporaryFile()
+    outputFile = tempfile.NamedTemporaryFile()
+
+    first.save(firstInputFile)
+    second.save(secondInputFile)
+    firstInputFile.flush()
+    secondInputFile.flush()
+    
+    combineSEMSresults.main(firstInputFile.name, secondInputFile.name, outputFile.name)
+    outputFile.flush()
+    return send_file(outputFile, mimetype='text/csv')
+    
 @app.route('/convert/reset', methods=["POST"])
 def convert_reset():
     reset()

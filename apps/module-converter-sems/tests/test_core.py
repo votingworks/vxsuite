@@ -14,6 +14,7 @@ EXPECTED_ELECTION_FILE = os.path.join(SAMPLE_FILES, '53_expected-election.json')
 
 SAMPLE_CVRS_FILE = os.path.join(SAMPLE_FILES, "CVRs.txt")
 EXPECTED_RESULTS_FILE = os.path.join(SAMPLE_FILES, '53_Results.txt')
+DOUBLED_EXPECTED_RESULTS_FILE = os.path.join(SAMPLE_FILES, '53_Results_Doubled.txt')
 
 def upload_file(client, url, filepath, extra_params={}):
     data = extra_params
@@ -128,6 +129,20 @@ def test_results_process(client):
 
     assert results == expected_results
 
+    # combine the results file with itself, make sure it works
+    data = {}
+    data['firstFile'] = open(EXPECTED_RESULTS_FILE,"rb")
+    data['secondFile'] = open(EXPECTED_RESULTS_FILE, "rb")
+    rv = client.post(
+        '/convert/results/combine',
+        data=data,
+        content_type="multipart/form-data"
+    )    
+
+    expected_results = open(DOUBLED_EXPECTED_RESULTS_FILE, "rb").read()
+
+    assert rv.data == expected_results
+    
     # request reset files
     reset_url = '/convert/reset'
     rv = client.post(reset_url).data
