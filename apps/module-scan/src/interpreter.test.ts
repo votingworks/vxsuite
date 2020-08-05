@@ -181,6 +181,8 @@ test('interprets marks on an upside-down HMPB', async () => {
 })
 
 test('interprets marks in PNG ballots', async () => {
+  jest.setTimeout(10000)
+
   const interpreter = new SummaryBallotInterpreter()
 
   interpreter.setTestMode(false)
