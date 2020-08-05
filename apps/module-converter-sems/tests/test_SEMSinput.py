@@ -18,7 +18,12 @@ TESTS = [
         'main': '10_3-10-2020.txt',
         'candmap': '10_CANDMAP_3-10-2020.txt',
         'expected': '10_3-10-2020-expected-election.json'
-    }    
+    },
+    {
+        'main': '10_9-22-2020.txt',
+        'candmap': '10_CANDMAP_9-22-2020.txt',
+        'expected': '10_9-22-2020-expected-election.json'
+    }        
 ]
 
 def get_sample_file(filename):
@@ -36,3 +41,5 @@ def test_general_conversion():
         expected_result = expected_result_file.read()
 
         assert result.strip() == expected_result.strip()
+
+    
