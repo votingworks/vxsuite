@@ -59,6 +59,22 @@ export default class ConverterClient {
     return await response.json()
   }
 
+  public async combineResultsFiles(
+    firstFile: File,
+    secondFile: File
+  ): Promise<Blob> {
+    const formData = new FormData()
+    formData.append('firstFile', firstFile)
+    formData.append('secondFile', secondFile)
+
+    const response = await fetch('/convert/results/combine', {
+      method: 'POST',
+      body: formData,
+    })
+
+    return await response.blob()
+  }
+
   public async reset(): Promise<void> {
     await fetch('/convert/reset', { method: 'POST' })
   }
