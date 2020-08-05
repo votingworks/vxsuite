@@ -24,7 +24,7 @@ const Loaded = styled.p`
 `
 
 const CombineResultsScreen = () => {
-  const [client] = useState(new ConverterClient('election'))
+  const client = new ConverterClient('election')
   const [resultsOneFile, setResultsOneFile] = useState<File | undefined>(
     undefined
   )
@@ -32,12 +32,6 @@ const CombineResultsScreen = () => {
     undefined
   )
   const [isCombining, setIsCombining] = useState(false)
-
-  /*
-     // download the result
-     const results = await client.getOutputFile(resultsFile.name)
-     fileDownload(results, 'sems-results.csv', 'text/csv')
-   */
 
   const handleFirstFileInput: InputEventFunction = async (event) => {
     const input = event.currentTarget
