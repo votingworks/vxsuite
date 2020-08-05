@@ -150,6 +150,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     sql = "select party_id, label, abbrev from parties"
     parties = [{"id": r[0], "name": r[1], "fullName": full_party_name(r[1]), "abbrev": r[2]} for r in c.execute(sql).fetchall()]
     parties_by_abbrev = dict([[p["abbrev"], p["id"]] for p in parties])
+    parties_by_id = dict([[p["id"], p] for p in parties])
 
     # districts
     sql = "select district_id, label from districts"
@@ -176,21 +177,25 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     # candidates
     sql = """
     select
-    sems_candidates.candidate_sems_id, parties.label_on_ballot, candidates.label_on_ballot,
-    parties.party_id from candidates, parties, sems_candidates
+    sems_candidates.candidate_sems_id, candidates.label_on_ballot,
+    candidates.party_id from candidates, sems_candidates
     where
     candidates.contest_id = ? and
     sems_candidates.county_code = ? and
-    candidates.contest_id = sems_candidates.contest_id and candidates.candidate_id = sems_candidates.candidate_id and
-    candidates.party_id = parties.party_id
+    candidates.contest_id = sems_candidates.contest_id and candidates.candidate_id = sems_candidates.candidate_id
     order by cast(candidates.sort_seq as integer)"""
 
     for contest in contests:
-        contest["candidates"] = [{
-            "id": r[0],
-            "name": r[2],
-            "partyId": r[3]
-        } for r in c.execute(sql, [contest["id"], county_id])]
+        contest["candidates"] = []
+        for r in c.execute(sql, [contest["id"], county_id]):
+            candidate = {
+                "id": r[0],
+                "name": r[1]
+            }
+            if r[2]:
+                candidate["partyId"] = r[2]
+
+            contest["candidates"].append(candidate)
         
     sql = "select precinct_id, precinct_label from splits group by precinct_id, precinct_label"
     precincts = [{"id": r[0], "name": r[1]} for r in c.execute(sql)]
