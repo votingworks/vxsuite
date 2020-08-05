@@ -91,7 +91,7 @@ const AppRoot = ({ storage }: Props) => {
         }
       })()
     },
-    usbStatus !== UsbDriveStatus.notavailable ? 2000 : false
+    usbStatus === UsbDriveStatus.notavailable ? false : 2000
   )
 
   useEffect(() => {

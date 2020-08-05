@@ -18,7 +18,7 @@ const USBController = () => {
   }
 
   if (status === UsbDriveStatus.present) {
-    return <Text>Connecting...</Text>
+    return <Text>Connecting…</Text>
   }
 
   return (
