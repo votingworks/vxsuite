@@ -19,6 +19,8 @@ interface AppContextInterface {
   saveIsOfficialResults: () => void
   setVoteCounts: React.Dispatch<React.SetStateAction<OptionalVoteCounts>>
   voteCounts: OptionalVoteCounts
+  usbDriveStatus: string
+  usbDriveEject: () => void
 }
 
 const appContext: AppContextInterface = {
@@ -33,6 +35,8 @@ const appContext: AppContextInterface = {
   saveIsOfficialResults: () => undefined,
   setVoteCounts: () => undefined,
   voteCounts: undefined,
+  usbDriveStatus: '',
+  usbDriveEject: () => undefined,
 }
 
 const AppContext = createContext(appContext)

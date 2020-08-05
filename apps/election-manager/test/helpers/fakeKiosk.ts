@@ -52,7 +52,7 @@ export default function fakeKiosk({
     devices: new BehaviorSubject(new Set<KioskBrowser.Device>()),
     quit: jest.fn(),
     saveAs: jest.fn().mockResolvedValue(undefined),
-    getUsbDrives: jest.fn(),
+    getUsbDrives: jest.fn().mockResolvedValue([]),
     mountUsbDrive: jest.fn(),
     unmountUsbDrive: jest.fn(),
     storage: {
