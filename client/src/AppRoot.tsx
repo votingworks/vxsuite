@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { useInterval } from 'use-interval'
 import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import { sha256 } from 'js-sha256'
@@ -8,6 +9,13 @@ import {
   OptionalElection,
   parseElection,
 } from '@votingworks/ballot-encoder'
+
+import {
+  getStatus as usbDriveGetStatus,
+  doMount,
+  doUnmount,
+  UsbDriveStatus,
+} from './lib/usbstick'
 
 import AppContext from './contexts/AppContext'
 
@@ -56,6 +64,35 @@ const AppRoot = ({ storage }: Props) => {
     setIsOfficialResults(true)
     await storage.set(isOfficialResultsKey, true)
   }
+
+  const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)
+  const [recentlyEjected, setRecentlyEjected] = useState(false)
+
+  const doMountIfNotRecentlyEjected = useCallback(async () => {
+    if (!recentlyEjected) {
+      await doMount()
+    }
+  }, [recentlyEjected])
+
+  const doEject = async () => {
+    setRecentlyEjected(true)
+    await doUnmount()
+  }
+
+  useInterval(
+    () => {
+      ;(async () => {
+        const status = await usbDriveGetStatus()
+        setUsbStatus(status)
+        if (status === UsbDriveStatus.present) {
+          await doMountIfNotRecentlyEjected()
+        } else {
+          setRecentlyEjected(false)
+        }
+      })()
+    },
+    usbStatus !== UsbDriveStatus.notavailable ? 2000 : false
+  )
 
   useEffect(() => {
     ;(async () => {
@@ -124,6 +161,8 @@ const AppRoot = ({ storage }: Props) => {
         setCastVoteRecordFiles,
         setVoteCounts,
         voteCounts,
+        usbDriveStatus: usbStatus,
+        usbDriveEject: doEject,
       }}
     >
       <ElectionManager />
