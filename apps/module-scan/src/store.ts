@@ -2,12 +2,12 @@
 // The durable datastore for CVRs and configuration info.
 //
 
-import { Election, getBallotStyle } from '@votingworks/ballot-encoder'
+import { Contests, Election, getBallotStyle } from '@votingworks/ballot-encoder'
 import {
   BallotLocales,
+  BallotMark,
   BallotPageMetadata,
   BallotTargetMark,
-  BallotMark,
   Size,
 } from '@votingworks/hmpb-interpreter'
 import makeDebug from 'debug'
@@ -17,22 +17,27 @@ import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
 import { InterpretedBallot, MarkInfo } from './interpreter'
 import {
+  AdjudicationStatus,
   BatchInfo,
+  CastVoteRecord,
   getMarkStatus,
   isMarginalMark,
   SerializableBallotPageLayout,
-  CastVoteRecord,
-  AdjudicationStatus,
 } from './types'
 import {
   Contest,
   ContestLayout,
-  ContestOption,
   MarksByContestId,
+  MarkStatus,
   ReviewBallot,
 } from './types/ballot-review'
-import { mergeChanges, changesFromMarks, changesToCVR } from './util/marks'
+import allContestOptions from './util/allContestOptions'
+import ballotAdjudicationReasons, {
+  adjudicationReasonDescription,
+  AdjudicationReasonType,
+} from './util/ballotAdjudicationReasons'
 import getBallotPageContests from './util/getBallotPageContests'
+import { changesFromMarks, changesToCVR, mergeChanges } from './util/marks'
 
 const debug = makeDebug('module-scan:store')
 
@@ -355,9 +360,65 @@ export default class Store {
         'markInfo' in interpreted ? interpreted.markInfo : undefined
       const metadata =
         'metadata' in interpreted ? interpreted.metadata : undefined
-      const requiresAdjudication =
-        interpreted.type === 'UninterpretedHmpbBallot' ||
-        (markInfo?.marks.some((mark) => isMarginalMark(mark)) ?? false)
+
+      const canBeAdjudicated =
+        interpreted.type === 'InterpretedHmpbBallot' ||
+        interpreted.type === 'UninterpretedHmpbBallot'
+      let requiresAdjudication = false
+
+      if (canBeAdjudicated) {
+        const contests = markInfo?.marks.reduce<Contests>(
+          (contests, { contest }) =>
+            contest && contests.every(({ id }) => contest.id !== id)
+              ? [...contests, contest]
+              : contests,
+          []
+        )
+        const adjudicationReasons = [
+          ...ballotAdjudicationReasons(contests, {
+            optionMarkStatus: (contestId, optionId) => {
+              if (markInfo?.marks) {
+                for (const mark of markInfo.marks) {
+                  if (mark.type === 'stray' || mark.contest.id !== contestId) {
+                    continue
+                  }
+
+                  if (
+                    (mark.type === 'candidate' &&
+                      mark.option.id === optionId) ||
+                    (mark.type === 'yesno' && mark.option === optionId)
+                  ) {
+                    return getMarkStatus(mark)
+                  }
+                }
+              }
+
+              return MarkStatus.Unmarked
+            },
+          }),
+        ]
+
+        // For now, only consider these reasons as requiring adjudication.
+        const enabledAdjudicationReasons = [
+          AdjudicationReasonType.UninterpretableBallot,
+          AdjudicationReasonType.MarginalMark,
+        ]
+
+        for (const reason of adjudicationReasons) {
+          if (enabledAdjudicationReasons.includes(reason.type)) {
+            requiresAdjudication = true
+            debug(
+              'Adjudication required for reason: %s',
+              adjudicationReasonDescription(reason)
+            )
+          } else {
+            debug(
+              'Adjudication reason ignored by configuration: %s',
+              adjudicationReasonDescription(reason)
+            )
+          }
+        }
+      }
 
       await this.dbRunAsync(
         `insert into ballots
@@ -534,45 +595,10 @@ export default class Store {
     )
 
     const contests: Contest[] = ballotPageContests.map((contestDefinition) => {
-      const options: ContestOption[] = []
-
-      if (contestDefinition.type === 'candidate') {
-        for (const candidate of contestDefinition.candidates) {
-          options.push({
-            type: 'candidate',
-            id: candidate.id,
-            name: candidate.name,
-          })
-        }
-
-        if (contestDefinition.allowWriteIns) {
-          for (let i = 0; i < contestDefinition.seats; i++) {
-            options.push({
-              type: 'candidate',
-              id: `__write-in-${i}`,
-              name: 'Write-In',
-            })
-          }
-        }
-      } else {
-        options.push(
-          {
-            type: 'yesno',
-            id: 'yes',
-            name: 'Yes',
-          },
-          {
-            type: 'yesno',
-            id: 'no',
-            name: 'No',
-          }
-        )
-      }
-
       return {
         id: contestDefinition.id,
         title: contestDefinition.title,
-        options,
+        options: [...allContestOptions(contestDefinition)],
       }
     })
 

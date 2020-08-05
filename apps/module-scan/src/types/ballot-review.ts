@@ -61,6 +61,7 @@ export interface CandidateContestOption {
   type: t.CandidateContest['type']
   id: t.CandidateContest['id']
   name: t.Candidate['name']
+  isWriteIn: boolean
 }
 
 export interface YesNoContestOption {
