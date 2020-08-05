@@ -73,6 +73,9 @@
 
 
 import csv, json, sqlite3, sys, re
+from dateutil.parser import parse as date_parse
+from datetime import timedelta, timezone
+
 from .counties import COUNTIES
 
 ELECTION_TABLES = {
@@ -86,6 +89,15 @@ ELECTION_TABLES = {
     "8": {"name": "candidates", "fields": ["contest_id", "candidate_id", "label", "type", "sort_seq", "party_id", "label_on_ballot"]},
     "9": {"name": "sems_candidates", "fields": ["county_code", "contest_id", "candidate_id", "candidate_sems_id"]}
 }
+
+
+FULL_PARTY_NAMES = {
+    "democrat": "Democratic Party",
+    "nonpartisan": "Nonpartisan"
+}
+
+def full_party_name(short_party_name):
+    return FULL_PARTY_NAMES.get(short_party_name.lower(), short_party_name + " Party")
     
 def process_election_files(election_details_file_path, candidate_map_file_path):
     election_details_file = open(election_details_file_path, "r")
@@ -136,7 +148,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
     # parties
     sql = "select party_id, label, abbrev from parties"
-    parties = [{"id": r[0], "name": r[1], "abbrev": r[2]} for r in c.execute(sql).fetchall()]
+    parties = [{"id": r[0], "name": r[1], "fullName": full_party_name(r[1]), "abbrev": r[2]} for r in c.execute(sql).fetchall()]
     parties_by_abbrev = dict([[p["abbrev"], p["id"]] for p in parties])
 
     # districts
@@ -144,15 +156,14 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     districts = [{"id": r[0], "name": r[1]} for r in c.execute(sql).fetchall()]
 
     # contests
-    sql = "select contest_id, contests.label, type, contests.district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label, contest_text from contests, districts where contests.district_id = districts.district_id"
+    sql = "select contest_id, contests.label, type, contests.district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label from contests, districts where contests.district_id = districts.district_id"
     contests = [{
         "id": r[0],
         "section": r[8],
         "districtId": r[3],
         "type": "candidate" if r[2] == "0" else "yesno",
         "partyId": None if r[7] == "0" else r[7],
-        "official_label": r[1],
-        "title": r[9].split("\\n")[1],
+        "title": r[6].split("\\n")[1],
         "seats": int(r[4]),
         "allowWriteIns": int(r[5]) > 0
     } for r in c.execute(sql).fetchall()]
@@ -202,6 +213,12 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         ballot_style["districts"] = [r[0] for r in c.execute(sql_districts, [ballot_style["id"]])]
     
 
+    # set the timezone to be the earliest US timezone (Hawaii standard time)
+    # we don't care about exact timezone because we only want the date, but ISO requires the time
+    # so we use the earliest possible timezone to ensure all US elections are displayed correctly.
+    tz = timezone(timedelta(hours=-10))
+    iso_date = date_parse(election_date).replace(tzinfo=tz).isoformat()
+        
     vx_election = {
         "title": election_title,
         "state": "State of Mississippi",
@@ -209,13 +226,16 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
             "id": county_id,
             "name": "%s County" % COUNTIES[county_id]
         },
-        "date": election_date,
+        "date": iso_date,
         "parties": parties,
         "contests": contests,
         "districts": districts,
         "precincts": precincts,
         "ballotStyles": ballot_styles,
-        "sealURL": "/seals/Seal_of_Mississippi_BW.svg"
+        "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
+        "ballotStrings": {
+            "officialInitials": "Initialing Manager"
+        }
     }
 
     return(vx_election)

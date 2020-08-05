@@ -94,7 +94,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Governor-Democrat", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -122,7 +121,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Lieutenant Governor-Democrat", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -145,7 +143,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Secretary Of State-Democrat", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -163,7 +160,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Attorney General-Democrat", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -181,7 +177,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "State Auditor-Democrat", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -199,7 +194,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Commissioner Of Agriculture & Commerce-Democrat", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -217,7 +211,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Northern District-Democrat", 
       "districtId": "575001705", 
       "seats": 1, 
       "candidates": [
@@ -235,7 +228,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Northern District-Democrat", 
       "districtId": "575001697", 
       "seats": 1, 
       "candidates": [
@@ -253,7 +245,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "District 16-Democrat", 
       "districtId": "100000371", 
       "seats": 1, 
       "candidates": [
@@ -271,7 +262,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "District 15-Democrat", 
       "districtId": "100000234", 
       "seats": 1, 
       "candidates": [
@@ -289,7 +279,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "District 16-Democrat", 
       "districtId": "100000235", 
       "seats": 1, 
       "candidates": [
@@ -307,7 +296,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "District 38-Democrat", 
       "districtId": "100000088", 
       "seats": 1, 
       "candidates": [
@@ -325,7 +313,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "District 43-Democrat", 
       "districtId": "100000092", 
       "seats": 1, 
       "candidates": [
@@ -343,7 +330,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Chancery Court Clerk-Democrat", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -361,7 +347,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Circuit Court Clerk-Democrat", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -379,7 +364,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Coroner-Democrat", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -397,7 +381,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "County Attorney-Democrat", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -415,7 +398,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Sheriff-Democrat", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -433,7 +415,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Surveyor-Democrat", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -451,7 +432,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Tax Accessor/Collector-Democrat", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -469,7 +449,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Supervisor -Democrat", 
       "districtId": "575000195", 
       "seats": 1, 
       "candidates": [
@@ -487,7 +466,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Supervisor -Democrat", 
       "districtId": "575000196", 
       "seats": 1, 
       "candidates": [
@@ -515,7 +493,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Supervisor -Democrat", 
       "districtId": "575000197", 
       "seats": 1, 
       "candidates": [
@@ -533,7 +510,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Supervisor -Democrat", 
       "districtId": "575000198", 
       "seats": 1, 
       "candidates": [
@@ -551,7 +527,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Supervisor -Democrat", 
       "districtId": "575000199", 
       "seats": 1, 
       "candidates": [
@@ -579,7 +554,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Justice Court Judge Dist 1-Democrat", 
       "districtId": "775000248", 
       "seats": 1, 
       "candidates": [
@@ -607,7 +581,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Justice Court Judge Dist 2-Democrat", 
       "districtId": "575000268", 
       "seats": 1, 
       "candidates": [
@@ -635,7 +608,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Justice Court Judge Dist 3-Democrat", 
       "districtId": "775000250", 
       "seats": 1, 
       "candidates": [
@@ -668,7 +640,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Constable District 2-Democrat", 
       "districtId": "775000252", 
       "seats": 1, 
       "candidates": [
@@ -686,7 +657,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Constable District 2-Democrat", 
       "districtId": "775000252", 
       "seats": 1, 
       "candidates": [
@@ -704,7 +674,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "2", 
-      "official_label": "Constable District 3-Democrat", 
       "districtId": "775000253", 
       "seats": 1, 
       "candidates": [
@@ -722,7 +691,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Governor-Republican", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -745,7 +713,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Lieutenant Governor-Republican", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -768,7 +735,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Secretary Of State-Republican", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -786,7 +752,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Attorney General-Republican", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -804,7 +769,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "State Auditor-Republican", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -827,7 +791,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "State Treasurer-Republican", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -850,7 +813,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Commissioner Of Agriculture & Commerce-Republican", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -868,7 +830,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Commissioner Of Insurance-Republican", 
       "districtId": "100000275", 
       "seats": 1, 
       "candidates": [
@@ -891,7 +852,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Northern District-Republican", 
       "districtId": "575001705", 
       "seats": 1, 
       "candidates": [
@@ -909,7 +869,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Northern District-Republican", 
       "districtId": "575001697", 
       "seats": 1, 
       "candidates": [
@@ -932,7 +891,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "District 15-Republican", 
       "districtId": "100000234", 
       "seats": 1, 
       "candidates": [
@@ -950,7 +908,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "District 37-Republican", 
       "districtId": "100000087", 
       "seats": 1, 
       "candidates": [
@@ -968,7 +925,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "District 43-Republican", 
       "districtId": "100000092", 
       "seats": 1, 
       "candidates": [
@@ -991,7 +947,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Circuit Court Clerk-Republican", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -1014,7 +969,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Coroner-Republican", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -1037,7 +991,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Sheriff-Republican", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -1055,7 +1008,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Tax Accessor/Collector-Republican", 
       "districtId": "100000328", 
       "seats": 1, 
       "candidates": [
@@ -1073,7 +1025,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Supervisor -Republican", 
       "districtId": "575000195", 
       "seats": 1, 
       "candidates": [
@@ -1091,7 +1042,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Supervisor -Republican", 
       "districtId": "575000197", 
       "seats": 1, 
       "candidates": [
@@ -1109,7 +1059,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Supervisor -Republican", 
       "districtId": "575000198", 
       "seats": 1, 
       "candidates": [
@@ -1132,7 +1081,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Justice Court Judge Dist 3-Republican", 
       "districtId": "775000250", 
       "seats": 1, 
       "candidates": [
@@ -1150,7 +1098,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Constable District 1-Republican", 
       "districtId": "775000251", 
       "seats": 1, 
       "candidates": [
@@ -1168,7 +1115,6 @@
     {
       "allowWriteIns": true, 
       "partyId": "3", 
-      "official_label": "Constable District 3-Republican", 
       "districtId": "775000253", 
       "seats": 1, 
       "candidates": [
@@ -1185,7 +1131,7 @@
     }
   ], 
   "title": "2019 MOCK Primary Election", 
-  "date": "5/2/2019", 
+  "date": "2019-05-02T00:00:00-10:00",
   "ballotStyles": [
     {
       "districts": [
@@ -2365,71 +2311,85 @@
   "parties": [
     {
       "abbrev": "D", 
+      "fullName": "Democratic Party",
       "id": "2", 
       "name": "Democrat"
     }, 
     {
       "abbrev": "R", 
+      "fullName": "Republican Party",
       "id": "3", 
       "name": "Republican"
     }, 
     {
       "abbrev": "L", 
+      "fullName": "Libertarian Party",
       "id": "4", 
       "name": "Libertarian"
     }, 
     {
       "abbrev": "REF", 
+      "fullName": "Reform Party",
       "id": "5", 
       "name": "Reform"
     }, 
     {
       "abbrev": "N", 
+      "fullName": "Natural Law Party",
       "id": "6", 
       "name": "Natural Law"
     }, 
     {
       "abbrev": "C", 
+      "fullName": "Constitution Party",
       "id": "8", 
       "name": "Constitution"
     }, 
     {
       "abbrev": "G", 
+      "fullName": "Green Party",
       "id": "9", 
       "name": "Green"
     }, 
     {
       "abbrev": "A", 
+      "fullName": "America First Party",
       "id": "10", 
       "name": "America First"
     }, 
     {
       "abbrev": "I", 
+      "fullName": "Independent Party",
       "id": "11", 
       "name": "Independent"
     }, 
     {
       "abbrev": "NP", 
+      "fullName": "Nonpartisan",
       "id": "12", 
       "name": "Nonpartisan"
     }, 
     {
       "abbrev": "JUS", 
+      "fullName": "Justice Party",
       "id": "575000001", 
       "name": "Justice"
     }, 
     {
       "abbrev": "PRO", 
+      "fullName": "Prohibition Party",
       "id": "575000002", 
       "name": "Prohibition"
     }, 
     {
       "abbrev": "ADP", 
+      "fullName": "American Delta Party",
       "id": "575000003", 
       "name": "American Delta"
     }, 
     {
       "abbrev": "VET", 
+      "fullName": "Veterans Party",
       "id": "575000004", 
       "name": "Veterans"
     }
@@ -2516,5 +2476,8 @@
       "name": "West Starkville"
     }
   ],
-  "sealURL": "/seals/Seal_of_Mississippi_BW.svg"
+  "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
+  "ballotStrings": {
+    "officialInitials": "Initialing Manager"
+  }
 }

@@ -106,7 +106,7 @@ def test_election_process(client):
 
 def test_results_process(client):
     reset()
-    
+
     upload_file(client, '/convert/results/submitfile', EXPECTED_ELECTION_FILE, {'name': 'Vx Election Definition'})
 
     rv = client.post("/convert/results/process").data

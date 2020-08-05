@@ -11,6 +11,7 @@ pytest-cov = "*"
 [packages]
 flask = "*"
 pytest = "*"
+python-dateutil = "*"
 
 [requires]
 python_version = "3.7"

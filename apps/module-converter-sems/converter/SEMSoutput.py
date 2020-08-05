@@ -204,7 +204,7 @@ def process_results_file(election_file_path, vx_results_file_path):
             county_id,
             precinct_id,
             contest_id,
-            contest["official_label"],
+            contest["title"],
             contest_party_id or "0",
             contest_party["abbrev"] if contest_party is not None else "NP",
             candidate_id,
