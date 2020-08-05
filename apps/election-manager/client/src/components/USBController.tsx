@@ -1,67 +1,28 @@
-import React, { useState, useCallback } from 'react'
-
-import useInterval from 'use-interval'
+import React, { useContext } from 'react'
+import AppContext from '../contexts/AppContext'
 
 import Button from './Button'
 import Text from './Text'
-import {
-  isPresent,
-  isMounted,
-  doMount,
-  doUnmount,
-  isAvailable,
-} from '../lib/usbstick'
+
+import { UsbDriveStatus } from '../lib/usbstick'
 
 const USBController = () => {
-  const available = isAvailable()
-  const [present, setPresent] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const [recentlyUnmounted, setRecentlyUnmounted] = useState(false)
+  const { usbDriveStatus: status, usbDriveEject } = useContext(AppContext)
 
-  const doUnmountAndSetRecentlyUnmounted = async () => {
-    setRecentlyUnmounted(true)
-    doUnmount()
-  }
-
-  const doMountIfNotRecentlyUnmounted = useCallback(async () => {
-    if (!recentlyUnmounted) {
-      await doMount()
-    }
-  }, [recentlyUnmounted])
-
-  useInterval(
-    () => {
-      ;(async () => {
-        const p = await isPresent()
-        setPresent(p)
-        if (p) {
-          const m = await isMounted()
-          setMounted(m)
-          if (!m) {
-            await doMountIfNotRecentlyUnmounted()
-          }
-        } else {
-          setRecentlyUnmounted(false)
-        }
-      })()
-    },
-    available ? 2000 : false
-  )
-
-  if (!available) {
+  if (status === UsbDriveStatus.notavailable) {
     return null
   }
 
-  if (!present) {
+  if (status === UsbDriveStatus.absent) {
     return <Text>No USB</Text>
   }
 
-  if (!mounted) {
+  if (status === UsbDriveStatus.present) {
     return <Text>Connecting...</Text>
   }
 
   return (
-    <Button small onPress={doUnmountAndSetRecentlyUnmounted}>
+    <Button small onPress={usbDriveEject}>
       Eject USB
     </Button>
   )
