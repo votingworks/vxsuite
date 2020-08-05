@@ -141,6 +141,13 @@ const ballotMetadata = ({
 
 const qrCodeTargetClassName = 'qr-code-target'
 
+const BlankPageContent = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`
+
 interface PagedJSPage {
   element: {
     dataset: {
@@ -149,8 +156,44 @@ interface PagedJSPage {
   }
   id: string
 }
-class PagedQRCodeInjector extends Handler {
+class PostRenderBallotProcessor extends Handler {
   afterRendered(pages: PagedJSPage[]) {
+    // Insert blank page if ballot page count is odd.
+    if (pages.length % 2) {
+      const pagedjsPages = document.getElementsByClassName('pagedjs_pages')[0]
+      if (pagedjsPages.lastChild) {
+        pagedjsPages.appendChild(pagedjsPages.lastChild.cloneNode(true))
+        pagedjsPages.setAttribute(
+          'style',
+          `--pagedjs-page-count:${pages.length + 1};`
+        )
+        const lastPage = document.getElementsByClassName('pagedjs_pages')[0]
+          .lastChild! as Element
+        lastPage.id = `page-${pages.length + 1}`
+        lastPage.classList.remove('pagedjs_first_page', 'pagedjs_right_page')
+        lastPage.classList.add('pagedjs_left_page')
+        lastPage.setAttribute('data-page-number', `${pages.length + 1}`)
+        ReactDOM.render(
+          <BlankPageContent>
+            <Prose>
+              <p>This ballot page is intentionally blank.</p>
+            </Prose>
+          </BlankPageContent>,
+          lastPage.getElementsByClassName('pagedjs_page_content')[0]
+        )
+        pages.push({
+          ...pages[pages.length - 1],
+          element: {
+            dataset: {
+              pageNumber: `${pages.length + 1}`,
+            },
+          },
+          id: `page-${pages.length + 1}`,
+        })
+      }
+    }
+
+    // Post-process QR codes in footer.
     pages.forEach((page) => {
       const { pageNumber } = page.element.dataset
       const qrCodeTarget = document
@@ -185,7 +228,7 @@ class PagedQRCodeInjector extends Handler {
     })
   }
 }
-registerHandlers(PagedQRCodeInjector)
+registerHandlers(PostRenderBallotProcessor)
 
 const Ballot = styled.div`
   display: none;
