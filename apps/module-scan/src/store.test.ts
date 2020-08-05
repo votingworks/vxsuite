@@ -172,54 +172,59 @@ test('adjudication', async () => {
     },
   ])
   const batchId = await store.addBatch()
-  const ballotId = await store.addBallot(batchId, '/a/ballot.jpg', {
-    type: 'InterpretedHmpbBallot',
-    normalizedImage: EMPTY_IMAGE,
-    cvr: {
-      _ballotId: 'abcde',
-      _ballotStyleId: '12',
-      _precinctId: '23',
-      _scannerId: '123',
-      _testBallot: false,
-      _pageNumber: 1,
-      _locales: { primary: 'en-US' },
-    },
-    markInfo: {
-      ballotSize: { width: 800, height: 1000 },
-      marks: [
-        {
-          type: 'candidate',
-          contest: candidateContest,
-          option: candidateOption,
-          score: 0,
-          bounds: zeroRect,
-          target: {
+  const ballotId = await store.addBallot(
+    batchId,
+    '/a/ballot-original.jpg',
+    '/a/ballot-normalized.jpg',
+    {
+      type: 'InterpretedHmpbBallot',
+      normalizedImage: EMPTY_IMAGE,
+      cvr: {
+        _ballotId: 'abcde',
+        _ballotStyleId: '12',
+        _precinctId: '23',
+        _scannerId: '123',
+        _testBallot: false,
+        _pageNumber: 1,
+        _locales: { primary: 'en-US' },
+      },
+      markInfo: {
+        ballotSize: { width: 800, height: 1000 },
+        marks: [
+          {
+            type: 'candidate',
+            contest: candidateContest,
+            option: candidateOption,
+            score: 0,
             bounds: zeroRect,
-            inner: zeroRect,
+            target: {
+              bounds: zeroRect,
+              inner: zeroRect,
+            },
           },
-        },
-        {
-          type: 'yesno',
-          contest: yesnoContest,
-          option: yesnoOption,
-          score: 1,
-          bounds: zeroRect,
-          target: {
+          {
+            type: 'yesno',
+            contest: yesnoContest,
+            option: yesnoOption,
+            score: 1,
             bounds: zeroRect,
-            inner: zeroRect,
+            target: {
+              bounds: zeroRect,
+              inner: zeroRect,
+            },
           },
-        },
-      ],
-    },
-    metadata: {
-      ballotStyleId: '12',
-      precinctId: '23',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 2,
-      locales: { primary: 'en-US' },
-    },
-  })
+        ],
+      },
+      metadata: {
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestBallot: false,
+        pageNumber: 1,
+        pageCount: 2,
+        locales: { primary: 'en-US' },
+      },
+    }
+  )
   await store.finishBatch(batchId)
 
   expect(await store.getBallot(ballotId)).toEqual(

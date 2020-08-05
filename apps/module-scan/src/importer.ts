@@ -1,7 +1,7 @@
 import * as chokidar from 'chokidar'
 import { createHash } from 'crypto'
 import makeDebug from 'debug'
-import * as jpeg from 'jpeg-js'
+import sharp, { Raw } from 'sharp'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
@@ -179,6 +179,7 @@ export default class SystemImporter implements Importer {
       return await this.addBallot(
         this.manualBatchId!,
         `manual-${cvr._ballotId}`,
+        `manual-${cvr._ballotId}`,
         {
           type: 'ManualBallot',
           cvr,
@@ -335,29 +336,45 @@ export default class SystemImporter implements Importer {
     )
 
     const ballotImagePathExt = path.extname(ballotImagePath)
-    const importedBallotImagePath = path.join(
+    const originalBallotImagePath = path.join(
       this.importedBallotImagesPath,
       `${path.basename(
         ballotImagePath,
         ballotImagePathExt
-      )}-${ballotImageHash}${ballotImagePathExt}`
+      )}-${ballotImageHash}-original${ballotImagePathExt}`
+    )
+    const normalizedBallotImagePath = path.join(
+      this.importedBallotImagesPath,
+      `${path.basename(
+        ballotImagePath,
+        ballotImagePathExt
+      )}-${ballotImageHash}-normalized${ballotImagePathExt}`
     )
 
     const ballotId = await this.addBallot(
       batchId,
-      importedBallotImagePath,
+      originalBallotImagePath,
+      normalizedBallotImagePath,
       interpreted
     )
 
-    try {
-      await fsExtra.unlink(ballotImagePath)
-    } catch {
-      // ignore for now
-    }
+    await fsExtra.move(ballotImagePath, originalBallotImagePath)
 
     await fsExtra.writeFile(
-      importedBallotImagePath,
-      normalizedImage ? jpeg.encode(normalizedImage).data : ballotImageFile
+      normalizedBallotImagePath,
+      normalizedImage
+        ? await sharp(Buffer.from(normalizedImage.data.buffer), {
+            raw: {
+              width: normalizedImage.width,
+              height: normalizedImage.height,
+              channels: (normalizedImage.data.length /
+                (normalizedImage.width *
+                  normalizedImage.height)) as Raw['channels'],
+            },
+          })
+            .png()
+            .toBuffer()
+        : ballotImageFile
     )
 
     return ballotId
@@ -377,12 +394,14 @@ export default class SystemImporter implements Importer {
    */
   private async addBallot(
     batchId: number,
-    ballotImagePath: string,
+    originalBallotImagePath: string,
+    normalizedBallotImagePath: string,
     interpreted: InterpretedBallot
   ): Promise<number> {
     const ballotId = await this.store.addBallot(
       batchId,
-      ballotImagePath,
+      originalBallotImagePath,
+      normalizedBallotImagePath,
       interpreted
     )
 

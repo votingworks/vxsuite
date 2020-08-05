@@ -1,5 +1,8 @@
 import { join } from 'path'
 import execFile from './exec'
+import makeDebug from 'debug'
+
+const debug = makeDebug('module-scan:scanner')
 
 export interface Scanner {
   scanInto(directory: string, prefix?: string): Promise<void>
@@ -17,25 +20,50 @@ function dateStamp(date: Date = new Date()): string {
   )}${zeroPad(date.getSeconds())}`
 }
 
+export enum ScannerImageFormat {
+  JPEG = 'jpeg',
+  PNG = 'png',
+  TIFF = 'tiff',
+}
+
 /**
  * Scans duplex images in batch mode from a Fujitsu scanner.
  */
 export class FujitsuScanner implements Scanner {
-  // eslint-disable-next-line class-methods-use-this
+  public constructor(private format = ScannerImageFormat.PNG) {}
+
   public async scanInto(directory: string, prefix = ''): Promise<void> {
-    await execFile('scanimage', [
+    const args = [
       '-d',
       'fujitsu',
       '--resolution',
       '300',
-      '--format=jpeg',
+      `--format=${this.format}`,
       '--source=ADF Duplex',
       '--swskip',
       '0.5',
       '--dropoutcolor',
       'Red',
-      '--swcrop=yes',
-      `--batch=${join(directory, `${prefix}${dateStamp()}-ballot-%04d.jpg`)}`,
-    ])
+      `--batch=${join(
+        directory,
+        `${prefix}${dateStamp()}-ballot-%04d.${this.format}`
+      )}`,
+    ]
+
+    debug(
+      'Calling scanimage to scan into %s with prefix=%s in format %s; %s',
+      directory,
+      prefix,
+      this.format,
+      `scanimage ${args.map((arg) => `'${arg}'`).join(' ')}`
+    )
+
+    try {
+      const { stdout, stderr } = await execFile('scanimage', args)
+      debug('scanimage finished with stdout=%o stderr=%o', stdout, stderr)
+    } catch (error) {
+      debug('scanimage failed with error: %s', error.message)
+      throw error
+    }
   }
 }

@@ -12,7 +12,7 @@ import {
 } from '@votingworks/hmpb-interpreter'
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
-import { decode } from 'jpeg-js'
+import sharp from 'sharp'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
 import { InterpretedBallot, MarkInfo } from './interpreter'
@@ -198,7 +198,8 @@ export default class Store {
       `create table if not exists ballots (
         id integer primary key autoincrement,
         batch_id integer references batches,
-        filename text unique,
+        original_filename text unique,
+        normalized_filename text unique,
         marks_json text,
         cvr_json text,
         metadata_json text,
@@ -346,7 +347,8 @@ export default class Store {
    */
   public async addBallot(
     batchId: number,
-    filename: string,
+    originalFilename: string,
+    normalizedFilename: string,
     interpreted: InterpretedBallot
   ): Promise<number> {
     try {
@@ -361,10 +363,11 @@ export default class Store {
 
       await this.dbRunAsync(
         `insert into ballots
-          (batch_id, filename, cvr_json, marks_json, metadata_json, requires_adjudication)
-          values (?, ?, ?, ?, ?, ?)`,
+          (batch_id, original_filename, normalized_filename, cvr_json, marks_json, metadata_json, requires_adjudication)
+          values (?, ?, ?, ?, ?, ?, ?)`,
         batchId,
-        filename,
+        originalFilename,
+        normalizedFilename,
         JSON.stringify(cvr),
         markInfo ? JSON.stringify(markInfo, undefined, 2) : null,
         metadata ? JSON.stringify(metadata, undefined, 2) : null,
@@ -380,8 +383,8 @@ export default class Store {
       // when chokidar sometimes notices a file twice.
       debug('addBallot failed: %s', error)
       const { id } = await this.dbGetAsync(
-        'select id from ballots where filename = ?',
-        filename
+        'select id from ballots where original_filename = ?',
+        originalFilename
       )
       return parseInt(id, 10)
     }
@@ -392,19 +395,30 @@ export default class Store {
     await this.dbRunAsync('delete from batches')
   }
 
-  public async getBallotFilename(
+  public async getBallotFilenames(
     ballotId: number
-  ): Promise<string | undefined> {
+  ): Promise<{ original: string; normalized: string } | undefined> {
     const row = await this.dbGetAsync<
-      { filename: string } | undefined,
+      { original: string; normalized: string } | undefined,
       [number]
-    >('select filename from ballots where id = ?', ballotId)
+    >(
+      `
+      select
+        original_filename as original,
+        normalized_filename as normalized
+      from
+        ballots
+      where
+        id = ?
+    `,
+      ballotId
+    )
 
     if (!row) {
       return
     }
 
-    return row.filename
+    return row
   }
 
   public async getBallot(ballotId: number): Promise<ReviewBallot | undefined> {
@@ -417,7 +431,8 @@ export default class Store {
     const row = await this.dbGetAsync<
       | {
           id: number
-          filename: string
+          originalFilename: string
+          normalizedFilename: string
           marksJSON?: string
           adjudicationJSON?: string
           metadataJSON?: string
@@ -428,7 +443,8 @@ export default class Store {
       `
         select
           id,
-          filename,
+          original_filename as originalFilename,
+          normalized_filename as normalizedFilename,
           marks_json as marksJSON,
           adjudication_json as adjudicationJSON,
           metadata_json as metadataJSON
@@ -494,9 +510,15 @@ export default class Store {
         return marks.ballotSize
       }
 
-      const ballotImageFile = await fs.readFile(row.filename)
-      const ballotImage = decode(ballotImageFile)
-      return { width: ballotImage.width, height: ballotImage.height }
+      const { width, height } = await sharp(row.normalizedFilename).metadata()
+
+      if (!width || !height) {
+        throw new Error(
+          `unable to read image size from ${row.normalizedFilename}`
+        )
+      }
+
+      return { width, height }
     })()
 
     const ballot: ReviewBallot['ballot'] = {
