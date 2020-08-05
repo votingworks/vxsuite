@@ -159,7 +159,7 @@ def process_results_file(election_file_path, vx_results_file_path):
                     continue
                 
                 for answer in answers:
-                    if answer == 'writein':
+                    if answer == '__write-in':
                         add_entry(precinct_id, contest["id"], WRITEIN_CANDIDATE["id"])
                     else:
                         add_entry(precinct_id, contest["id"], answer)
