@@ -383,12 +383,7 @@ const TallyScreen = () => {
           <React.Fragment>
             <h2>Export Options</h2>
             <p>
-              <Button
-                disabled={!hasCastVoteRecordFiles}
-                onPress={exportResults}
-              >
-                Export SEMS Results File
-              </Button>
+              <Button onPress={exportResults}>Export Results File</Button>
             </p>
           </React.Fragment>
         )}
@@ -403,6 +398,12 @@ const TallyScreen = () => {
             </p>
           </React.Fragment>
         )}
+        <h2>Results Management</h2>
+        <p>
+          <LinkButton to={routerPaths.combineResultsFiles}>
+            Combine Results Files
+          </LinkButton>
+        </p>
       </NavigationScreen>
       <Modal
         isOpen={isConfimingRemoveCRVs}
