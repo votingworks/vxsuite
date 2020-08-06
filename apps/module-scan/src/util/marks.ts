@@ -109,11 +109,11 @@ export function changesToCVR(
   }
 
   for (const [contestId, marksByOptionId] of Object.entries(changes)) {
-    result[contestId] = Object.entries(marksByOptionId!)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .flatMap(([optionId, markStatus]) =>
-        markStatus === MarkStatus.Marked ? [optionId] : []
-      )
+    result[contestId] = Object.entries(
+      marksByOptionId!
+    ).flatMap(([optionId, markStatus]) =>
+      markStatus === MarkStatus.Marked ? [optionId] : []
+    )
   }
 
   return result
