@@ -21,6 +21,10 @@ const USBController = () => {
     return <Text>Connecting…</Text>
   }
 
+  if (status === UsbDriveStatus.recentlyEjected) {
+    return <Text>Ejected</Text>
+  }
+
   return (
     <Button small onPress={usbDriveEject}>
       Eject USB

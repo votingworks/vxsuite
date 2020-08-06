@@ -7,6 +7,7 @@ export enum UsbDriveStatus {
   absent = 'absent',
   present = 'present',
   mounted = 'mounted',
+  recentlyEjected = 'recentlyEjected',
 }
 
 const getDevice = async () => {
