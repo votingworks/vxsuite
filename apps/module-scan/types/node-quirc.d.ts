@@ -38,9 +38,7 @@ declare module 'node-quirc' {
     err: string
   }
 
-  // eslint-disable-next-line import/export
   export function decode(img: Buffer): Promise<DecodeResult>
-  // eslint-disable-next-line import/export
   export function decode(
     img: Buffer,
     callback: (err: Error, results: DecodeResult) => void

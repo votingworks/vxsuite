@@ -281,9 +281,7 @@ export default class Store {
    * Gets a config value by key.
    */
   private async getConfig<T>(key: string): Promise<T | undefined>
-  // eslint-disable-next-line no-dupe-class-members
   private async getConfig<T>(key: string, defaultValue: T): Promise<T>
-  // eslint-disable-next-line no-dupe-class-members
   private async getConfig<T>(
     key: string,
     defaultValue?: T
