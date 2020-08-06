@@ -1,11 +1,22 @@
 import * as z from 'zod'
 import check8601 from '@antongolub/iso8601'
+import { AdjudicationReason as AdjudicationReasonEnum } from './election'
 
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars */
 // @ts-ignore
 import type { objectUtil } from 'zod/lib/src/helpers/objectUtil'
 
 // Generic
+type StringEnum = {
+  [key: string]: string
+}
+
+function schemaForEnum<T extends StringEnum, K extends string = T[keyof T]>(
+  enumeration: T
+): z.ZodEnum<[K, ...K[]]> {
+  return z.enum<K, [K, ...K[]]>(Object.values(enumeration) as [K, ...K[]])
+}
+
 export const Translations = z.record(z.record(z.string()))
 export const Id = z
   .string()
@@ -62,6 +73,21 @@ export const YesNoContest = Contest.merge(
 
 export const Contests = z.array(z.union([CandidateContest, YesNoContest]))
 
+// Hand-marked paper & adjudication
+export const MarkThresholds = z
+  .object({
+    marginal: z.number().min(0).max(1),
+    definite: z.number().min(0).max(1),
+  })
+  .refine(
+    ({ marginal, definite }) => marginal <= definite,
+    'marginal mark threshold must be less than or equal to definite mark threshold'
+  )
+
+export const AdjudicationReason = z.lazy(() =>
+  schemaForEnum(AdjudicationReasonEnum)
+)
+
 // Election
 export const BallotStyle = z.object({
   _lang: Translations.optional(),
@@ -113,6 +139,8 @@ export const Election = z.object({
   ballotStrings: z.record(z.union([z.string(), Translations])).optional(),
   state: z.string().nonempty(),
   title: z.string().nonempty(),
+  markThresholds: MarkThresholds.optional(),
+  adjudicationReasons: z.array(AdjudicationReason).optional(),
 })
 
 export const OptionalElection = Election.optional()

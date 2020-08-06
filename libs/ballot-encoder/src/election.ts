@@ -86,6 +86,8 @@ export interface Election {
   readonly ballotStrings?: BallotStrings
   readonly state: string
   readonly title: string
+  readonly markThresholds?: MarkThresholds
+  readonly adjudicationReasons?: readonly AdjudicationReason[]
 }
 export type OptionalElection = Optional<Election>
 
@@ -101,6 +103,20 @@ export enum BallotType {
   Standard = 0,
   Absentee = 1,
   Provisional = 2,
+}
+
+// Hand-marked paper & adjudication
+export interface MarkThresholds {
+  readonly marginal: number
+  readonly definite: number
+}
+
+export enum AdjudicationReason {
+  UninterpretableBallot = 'UninterpretableBallot',
+  MarginalMark = 'MarginalMark',
+  Overvote = 'Overvote',
+  Undervote = 'Undervote',
+  WriteIn = 'WriteIn',
 }
 
 // Updating this value is a breaking change.
