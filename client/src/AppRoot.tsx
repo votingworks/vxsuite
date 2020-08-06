@@ -94,6 +94,10 @@ const AppRoot = ({ storage }: Props) => {
     usbStatus === UsbDriveStatus.notavailable ? false : 2000
   )
 
+  const displayUsbStatus = recentlyEjected
+    ? UsbDriveStatus.recentlyEjected
+    : usbStatus
+
   useEffect(() => {
     ;(async () => {
       if (!election) {
@@ -161,7 +165,7 @@ const AppRoot = ({ storage }: Props) => {
         setCastVoteRecordFiles,
         setVoteCounts,
         voteCounts,
-        usbDriveStatus: usbStatus,
+        usbDriveStatus: displayUsbStatus,
         usbDriveEject: doEject,
       }}
     >
