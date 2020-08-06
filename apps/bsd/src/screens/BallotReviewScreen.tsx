@@ -87,11 +87,11 @@ export default function BallotReviewScreen({
       ? undefined
       : state.ballot
 
-  if (state.type === 'no-ballots') {
-    history.push('/')
-  }
-
   useEffect(() => {
+    if (state.type === 'no-ballots') {
+      history.push('/')
+    }
+
     if (state.type === 'init') {
       ;(async () => {
         try {
@@ -109,7 +109,7 @@ export default function BallotReviewScreen({
         }
       })()
     }
-  }, [ballotId, state, setState])
+  }, [ballotId, history, state, setState])
 
   const relRect = relativeRect(
     ballot?.ballot.image.width || 1,
