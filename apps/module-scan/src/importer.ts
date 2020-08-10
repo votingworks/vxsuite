@@ -9,7 +9,7 @@ import * as fsExtra from 'fs-extra'
 import { Election } from '@votingworks/ballot-encoder'
 import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
 
-import { BatchInfo, BallotMetadata, AdjudicationStatus } from './types'
+import { BallotMetadata, ScanStatus } from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
@@ -52,7 +52,7 @@ export interface Importer {
    */
   waitForImports(): Promise<void>
 
-  getStatus(): Promise<{ batches: BatchInfo[]; electionHash?: string }>
+  getStatus(): Promise<ScanStatus>
   restoreConfig(): Promise<void>
   setTestMode(testMode: boolean): Promise<void>
   unconfigure(): Promise<void>
@@ -472,11 +472,7 @@ export default class SystemImporter implements Importer {
   /**
    * Get the imported batches and current election info, if any.
    */
-  public async getStatus(): Promise<{
-    electionHash?: string
-    batches: BatchInfo[]
-    adjudication: AdjudicationStatus
-  }> {
+  public async getStatus(): Promise<ScanStatus> {
     const election = await this.store.getElection()
     const batches = await this.store.batchStatus()
     const adjudication = await this.store.adjudicationStatus()

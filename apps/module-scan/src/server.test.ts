@@ -15,6 +15,7 @@ import { buildApp, start } from './server'
 import Store from './store'
 import { MarkStatus } from './types/ballot-review'
 import EMPTY_IMAGE from '../test/fixtures/emptyImage'
+import { ScanStatus } from './types'
 
 jest.mock('./importer')
 
@@ -60,8 +61,9 @@ beforeEach(async () => {
 })
 
 test('GET /scan/status', async () => {
-  const status = {
+  const status: ScanStatus = {
     batches: [],
+    adjudication: { remaining: 0, adjudicated: 0 },
   }
   importerMock.getStatus.mockResolvedValue(status)
   await request(app)
