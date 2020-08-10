@@ -336,6 +336,8 @@ export default class Store {
    * Adds a batch and returns its id.
    */
   public async addBatch(): Promise<number> {
+    // FIX: review the possible race condition here.
+    // https://github.com/votingworks/module-scan/issues/115
     await this.dbRunAsync(
       "insert into batches (startedAt) values (strftime('%s','now'))"
     )
@@ -443,21 +445,18 @@ export default class Store {
         metadata ? JSON.stringify(metadata, undefined, 2) : null,
         requiresAdjudication
       )
-      const { rowId } = await this.dbGetAsync(
-        'select last_insert_rowid() as rowId'
-      )
-      return parseInt(rowId, 10)
     } catch (error) {
       // this catch effectively swallows an insert error
       // this might happen on duplicate insert, which happens
       // when chokidar sometimes notices a file twice.
       debug('addBallot failed: %s', error)
-      const { id } = await this.dbGetAsync(
-        'select id from ballots where original_filename = ?',
-        originalFilename
-      )
-      return parseInt(id, 10)
     }
+
+    const { id } = await this.dbGetAsync(
+      'select id from ballots where original_filename = ?',
+      originalFilename
+    )
+    return parseInt(id, 10)
   }
 
   public async zero(): Promise<void> {
