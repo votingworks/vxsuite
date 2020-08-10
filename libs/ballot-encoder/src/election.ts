@@ -117,6 +117,7 @@ export enum AdjudicationReason {
   Overvote = 'Overvote',
   Undervote = 'Undervote',
   WriteIn = 'WriteIn',
+  BlankBallot = 'BlankBallot',
 }
 
 // Updating this value is a breaking change.
