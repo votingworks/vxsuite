@@ -8,9 +8,11 @@ import multer from 'multer'
 import * as path from 'path'
 import SystemImporter, { Importer } from './importer'
 import { FujitsuScanner, Scanner } from './scanner'
-import Store from './store'
+import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
 import { BallotConfig } from './types'
 import makeTemporaryBallotImportImageDirectories from './util/makeTemporaryBallotImportImageDirectories'
+import { parseElection } from '@votingworks/ballot-encoder'
+import { inspect } from 'util'
 
 export interface AppOptions {
   store: Store
@@ -35,36 +37,50 @@ export function buildApp({ store, importer }: AppOptions): Application {
   })
 
   app.patch('/config', async (request, response) => {
-    for (const key in request.body) {
-      if (Object.prototype.hasOwnProperty.call(request.body, key)) {
-        const value = request.body[key]
+    for (const [key, value] of Object.entries(request.body)) {
+      try {
+        if (!ALLOWED_CONFIG_KEYS.includes(key)) {
+          response.status(400).json({
+            errors: [
+              {
+                type: 'unexpected-property',
+                message: `unexpected property '${key}'`,
+              },
+            ],
+          })
+          return
+        }
 
-        switch (key) {
-          case 'election':
+        switch (key as ConfigKey) {
+          case ConfigKey.Election: {
             if (value === null) {
               await importer.unconfigure()
             } else {
-              await importer.configure(value)
-              await store.setElection(value)
+              const election = parseElection(value)
+              await importer.configure(election)
+              await store.setElection(election)
             }
             break
+          }
 
-          case 'testMode':
+          case ConfigKey.TestMode: {
+            if (typeof value !== 'boolean') {
+              throw new TypeError()
+            }
             await importer.setTestMode(value)
             await store.setTestMode(value)
             break
-
-          default:
-            response.status(400).json({
-              errors: [
-                {
-                  type: 'unexpected-property',
-                  message: `unexpected property '${key}'`,
-                },
-              ],
-            })
-            return
+          }
         }
+      } catch (error) {
+        response.status(400).json({
+          errors: [
+            {
+              type: 'invalid-value',
+              message: `invalid config value for '${key}': ${inspect(value)}`,
+            },
+          ],
+        })
       }
     }
 

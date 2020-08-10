@@ -55,6 +55,13 @@ interface HmpbTemplatesColumns {
   layoutsJSON: string
 }
 
+export enum ConfigKey {
+  Election = 'election',
+  TestMode = 'testMode',
+}
+
+export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey)
+
 /**
  * Manages a data store for imported ballot image batches and cast vote records
  * interpreted by reading the ballots.
@@ -262,37 +269,37 @@ export default class Store {
    * Gets the current election definition.
    */
   public async getElection(): Promise<Election | undefined> {
-    return await this.getConfig('election')
+    return await this.getConfig(ConfigKey.Election)
   }
 
   /**
    * Sets the current election definition.
    */
   public async setElection(election?: Election): Promise<void> {
-    await this.setConfig('election', election)
+    await this.setConfig(ConfigKey.Election, election)
   }
 
   /**
    * Gets the current test mode setting value.
    */
   public async getTestMode(): Promise<boolean> {
-    return await this.getConfig('testMode', false)
+    return await this.getConfig(ConfigKey.TestMode, false)
   }
 
   /**
    * Sets the current test mode setting value.
    */
   public async setTestMode(testMode: boolean): Promise<void> {
-    await this.setConfig('testMode', testMode)
+    await this.setConfig(ConfigKey.TestMode, testMode)
   }
 
   /**
    * Gets a config value by key.
    */
-  private async getConfig<T>(key: string): Promise<T | undefined>
-  private async getConfig<T>(key: string, defaultValue: T): Promise<T>
+  private async getConfig<T>(key: ConfigKey): Promise<T | undefined>
+  private async getConfig<T>(key: ConfigKey, defaultValue: T): Promise<T>
   private async getConfig<T>(
-    key: string,
+    key: ConfigKey,
     defaultValue?: T
   ): Promise<T | undefined> {
     debug('get config %s', key)
@@ -312,7 +319,7 @@ export default class Store {
   /**
    * Sets the current election definition.
    */
-  private async setConfig<T>(key: string, value?: T): Promise<void> {
+  private async setConfig<T>(key: ConfigKey, value?: T): Promise<void> {
     debug('set config %s=%O', key, value)
     if (typeof value === 'undefined') {
       await this.dbRunAsync('delete from configs where key = ?', key)
