@@ -2,7 +2,12 @@
 // The durable datastore for CVRs and configuration info.
 //
 
-import { Contests, Election, getBallotStyle } from '@votingworks/ballot-encoder'
+import {
+  Contests,
+  Election,
+  getBallotStyle,
+  AdjudicationReason,
+} from '@votingworks/ballot-encoder'
 import {
   BallotLocales,
   BallotMark,
@@ -34,7 +39,6 @@ import {
 import allContestOptions from './util/allContestOptions'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
-  AdjudicationReasonType,
 } from './util/ballotAdjudicationReasons'
 import getBallotPageContests from './util/getBallotPageContests'
 import { changesFromMarks, changesToCVR, mergeChanges } from './util/marks'
@@ -400,8 +404,8 @@ export default class Store {
 
         // For now, only consider these reasons as requiring adjudication.
         const enabledAdjudicationReasons = [
-          AdjudicationReasonType.UninterpretableBallot,
-          AdjudicationReasonType.MarginalMark,
+          AdjudicationReason.UninterpretableBallot,
+          AdjudicationReason.MarginalMark,
         ]
 
         for (const reason of adjudicationReasons) {
