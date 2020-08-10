@@ -402,8 +402,8 @@ export default class Store {
           }),
         ]
 
-        // For now, only consider these reasons as requiring adjudication.
-        const enabledAdjudicationReasons = [
+        const election = await this.getElection()
+        const enabledAdjudicationReasons = election?.adjudicationReasons ?? [
           AdjudicationReason.UninterpretableBallot,
           AdjudicationReason.MarginalMark,
         ]
