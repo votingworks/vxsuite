@@ -131,3 +131,20 @@ import { detect } from '@votingworks/ballot-encoder'
 const version = detect(encodedBallot)
 console.log('Ballot version:', version)
 ```
+
+## Publish
+
+This project uses the
+[Angular Commit Message Format convention](https://gist.github.com/brianclements/841ea7bffdb01346392c).
+How to publish a new version:
+
+1. Determine what the appropriate version bump is (i.e. patch, minor, or major).
+   Let's assume this is stored in the environment variable `BUMP`.
+2. Create a branch for publishing the new version.
+3. Bump the version: `npm version $BUMP`.
+4. Publish the package to NPM: `yarn publish:npm`.
+5. Push the branch and the new tag:
+   `git push -u origin HEAD && git push --tags`.
+6. Create a pull request for your newly pushed branch. Note that this pull
+   request should only have the version bump commit, nothing else.
+7. Get the pull request approved and merged.
