@@ -7,7 +7,7 @@
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "scripts": {
-    "lint": "eslint 'src/**/*.{ts,js}' --report-unused-disable-directives",
+    "lint": "eslint 'src/**/*.{ts,js}'",
     "prepare": "in-publish && tsc || not-in-publish",
     "test": "jest",
     "test:ci": "jest --ci --collectCoverage",

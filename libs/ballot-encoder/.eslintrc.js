@@ -42,6 +42,7 @@ module.exports = {
       },
     },
   },
+  reportUnusedDisableDirectives: true,
   rules: {
     camelcase: 'error',
     'import/no-extraneous-dependencies': [
