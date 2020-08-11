@@ -1,21 +1,25 @@
 /* eslint-disable jest/expect-expect */
 
-import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
+import {
+  AdjudicationReason,
+  CandidateContest,
+  YesNoContest,
+} from '@votingworks/ballot-encoder'
 import { createImageData } from 'canvas'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'
 import { join } from 'path'
 import request from 'supertest'
+import EMPTY_IMAGE from '../test/fixtures/emptyImage'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import { makeMockImporter } from '../test/util/mocks'
 import { Importer } from './importer'
 import { buildApp, start } from './server'
 import Store from './store'
-import { MarkStatus } from './types/ballot-review'
-import EMPTY_IMAGE from '../test/fixtures/emptyImage'
 import { ScanStatus } from './types'
+import { MarkStatus } from './types/ballot-review'
 
 jest.mock('./importer')
 
@@ -262,6 +266,13 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
       marks: { president: { 'barchi-hallaren': MarkStatus.Marked } },
       contests: [],
       layout: [],
+      adjudicationInfo: {
+        enabledReasons: [
+          AdjudicationReason.UninterpretableBallot,
+          AdjudicationReason.MarginalMark,
+        ],
+        allReasonInfos: [],
+      },
     })
 })
 
@@ -338,25 +349,39 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
     })
     .expect(200, { status: 'ok' })
 
-  await request(app)
-    .get(`/scan/hmpb/ballot/${ballotId}`)
-    .expect(200, {
-      type: 'ReviewMarginalMarksBallot',
-      ballot: {
-        url: `/scan/hmpb/ballot/${ballotId}`,
-        image: {
-          url: `/scan/hmpb/ballot/${ballotId}/image`,
-          width: 0,
-          height: 0,
+  expect(
+    (await request(app).get(`/scan/hmpb/ballot/${ballotId}`).expect(200)).body
+  ).toEqual({
+    type: 'ReviewMarginalMarksBallot',
+    ballot: {
+      url: `/scan/hmpb/ballot/${ballotId}`,
+      image: {
+        url: `/scan/hmpb/ballot/${ballotId}/image`,
+        width: 0,
+        height: 0,
+      },
+    },
+    marks: {
+      [candidateContest.id]: { [candidateOption.id]: MarkStatus.Unmarked },
+      [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
+    },
+    contests: [],
+    layout: [],
+    adjudicationInfo: {
+      enabledReasons: [
+        AdjudicationReason.UninterpretableBallot,
+        AdjudicationReason.MarginalMark,
+      ],
+      allReasonInfos: [
+        {
+          type: AdjudicationReason.Undervote,
+          contestId: yesnoContest.id,
+          expected: 1,
+          optionIds: [],
         },
-      },
-      marks: {
-        [candidateContest.id]: { [candidateOption.id]: MarkStatus.Unmarked },
-        [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
-      },
-      contests: [],
-      layout: [],
-    })
+      ],
+    },
+  })
 
   // patches accumulate
   await request(app)
@@ -365,25 +390,39 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
       [candidateContest.id]: { [candidateOption.id]: MarkStatus.Marked },
     })
     .expect(200, { status: 'ok' })
-  await request(app)
-    .get(`/scan/hmpb/ballot/${ballotId}`)
-    .expect(200, {
-      type: 'ReviewMarginalMarksBallot',
-      ballot: {
-        url: `/scan/hmpb/ballot/${ballotId}`,
-        image: {
-          url: `/scan/hmpb/ballot/${ballotId}/image`,
-          width: 0,
-          height: 0,
+  expect(
+    (await request(app).get(`/scan/hmpb/ballot/${ballotId}`).expect(200)).body
+  ).toEqual({
+    type: 'ReviewMarginalMarksBallot',
+    ballot: {
+      url: `/scan/hmpb/ballot/${ballotId}`,
+      image: {
+        url: `/scan/hmpb/ballot/${ballotId}/image`,
+        width: 0,
+        height: 0,
+      },
+    },
+    marks: {
+      [candidateContest.id]: { [candidateOption.id]: MarkStatus.Marked },
+      [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
+    },
+    contests: [],
+    layout: [],
+    adjudicationInfo: {
+      enabledReasons: [
+        AdjudicationReason.UninterpretableBallot,
+        AdjudicationReason.MarginalMark,
+      ],
+      allReasonInfos: [
+        {
+          type: AdjudicationReason.Undervote,
+          contestId: yesnoContest.id,
+          expected: 1,
+          optionIds: [],
         },
-      },
-      marks: {
-        [candidateContest.id]: { [candidateOption.id]: MarkStatus.Marked },
-        [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
-      },
-      contests: [],
-      layout: [],
-    })
+      ],
+    },
+  })
 })
 
 test('GET /scan/hmpb/ballot/:ballotId/image', async () => {

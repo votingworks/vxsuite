@@ -1,5 +1,7 @@
 import * as t from '@votingworks/ballot-encoder'
 import { Rect } from '@votingworks/hmpb-interpreter'
+import { AdjudicationReason } from '@votingworks/ballot-encoder'
+import { AdjudicationReasonInfo } from '../util/ballotAdjudicationReasons'
 
 type ContestId = t.Contest['id']
 
@@ -35,12 +37,18 @@ export interface BallotInfo {
   image: { url: string; width: number; height: number }
 }
 
+export interface AdjudicationInfo {
+  enabledReasons: readonly AdjudicationReason[]
+  allReasonInfos: readonly AdjudicationReasonInfo[]
+}
+
 export interface ReviewMarginalMarksBallot {
   type: 'ReviewMarginalMarksBallot'
   ballot: BallotInfo
   contests: readonly Contest[]
   layout: readonly ContestLayout[]
   marks: MarksByContestId
+  adjudicationInfo: AdjudicationInfo
 }
 
 export interface ReviewUninterpretableHmpbBallot {
