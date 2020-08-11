@@ -2429,3 +2429,15 @@ test('determining layout of a ballot with borders', async () => {
     ).ballot.votes
   ).toMatchInlineSnapshot(`Object {}`)
 })
+
+test('takes the mark score vote threshold from the election definition if present', () => {
+  const interpreter = new Interpreter({
+    ...election,
+    markThresholds: {
+      definite: 0.99,
+      marginal: 0.98,
+    },
+  })
+
+  expect(interpreter['markScoreVoteThreshold']).toEqual(0.99)
+})
