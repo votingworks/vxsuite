@@ -967,10 +967,10 @@
     "@antongolub/iso8601" "^1.2.1"
     zod "^1.7.1"
 
-"@votingworks/ballot-encoder@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-2.0.1.tgz#e056043987b9ef45233b22b496a2133b4daf40e4"
-  integrity sha512-qSNvWbspuoI+PMU1zK1LcImk2laOXT76rMSXUPFAMWi7XbcajzMU65fFHv/m8A9g130QxNzefS3pTXaaFwtkbQ==
+"@votingworks/ballot-encoder@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-2.2.0.tgz#92400d3165e87538d324c678cd7d63be47a23fc3"
+  integrity sha512-o0nxhQkbNXupGH8Mh3lfyugz33luhKPvmow1gfKcVzoSTJP7fw2/C/gmZnrSkqFiZisEsbW223FyUbgiaR7+UQ==
   dependencies:
     "@antongolub/iso8601" "^1.2.1"
     zod "^1.7.1"

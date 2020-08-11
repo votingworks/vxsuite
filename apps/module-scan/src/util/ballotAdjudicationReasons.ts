@@ -1,50 +1,51 @@
-import { Contest, Contests } from '@votingworks/ballot-encoder'
+import {
+  AdjudicationReason,
+  Contest,
+  Contests,
+} from '@votingworks/ballot-encoder'
 import { ContestOption, MarkStatus } from '../types'
 import allContestOptions from './allContestOptions'
 
-export enum AdjudicationReasonType {
-  UninterpretableBallot = 'UninterpretableBallot',
-  MarginalMark = 'MarginalMark',
-  Overvote = 'Overvote',
-  Undervote = 'Undervote',
-  WriteIn = 'WriteIn',
+export type AdjudicationReasonInfo =
+  | UninterpretableBallotAdjudicationReasonInfo
+  | MarginalMarkAdjudicationReasonInfo
+  | OvervoteAdjudicationReasonInfo
+  | UndervoteAdjudicationReasonInfo
+  | WriteInAdjudicationReasonInfo
+  | BlankBallotAdjudicationReasonInfo
+
+export interface UninterpretableBallotAdjudicationReasonInfo {
+  type: AdjudicationReason.UninterpretableBallot
 }
 
-export type AdjudicationReason =
-  | UninterpretableBallotAdjudicationReason
-  | MarginalMarkAdjudicationReason
-  | OvervoteAdjudicationReason
-  | UndervoteAdjudicationReason
-  | WriteInAdjudicationReason
-
-export interface UninterpretableBallotAdjudicationReason {
-  type: AdjudicationReasonType.UninterpretableBallot
-}
-
-export interface MarginalMarkAdjudicationReason {
-  type: AdjudicationReasonType.MarginalMark
+export interface MarginalMarkAdjudicationReasonInfo {
+  type: AdjudicationReason.MarginalMark
   contestId: Contest['id']
   optionId: ContestOption['id']
 }
 
-export interface OvervoteAdjudicationReason {
-  type: AdjudicationReasonType.Overvote
+export interface OvervoteAdjudicationReasonInfo {
+  type: AdjudicationReason.Overvote
   contestId: Contest['id']
   optionIds: readonly ContestOption['id'][]
   expected: number
 }
 
-export interface UndervoteAdjudicationReason {
-  type: AdjudicationReasonType.Undervote
+export interface UndervoteAdjudicationReasonInfo {
+  type: AdjudicationReason.Undervote
   contestId: Contest['id']
   optionIds: readonly ContestOption['id'][]
   expected: number
 }
 
-export interface WriteInAdjudicationReason {
-  type: AdjudicationReasonType.WriteIn
+export interface WriteInAdjudicationReasonInfo {
+  type: AdjudicationReason.WriteIn
   contestId: Contest['id']
   optionId: ContestOption['id']
+}
+
+export interface BlankBallotAdjudicationReasonInfo {
+  type: AdjudicationReason.BlankBallot
 }
 
 export interface Options {
@@ -62,12 +63,14 @@ export interface Options {
 export default function* ballotAdjudicationReasons(
   contests: Contests | undefined,
   { optionMarkStatus }: Options
-): Generator<AdjudicationReason> {
+): Generator<AdjudicationReasonInfo> {
   if (!contests) {
     yield {
-      type: AdjudicationReasonType.UninterpretableBallot,
+      type: AdjudicationReason.UninterpretableBallot,
     }
   } else {
+    let isBlankBallot = true
+
     for (const contest of contests) {
       const selectedOptionIds: ContestOption['id'][] = []
 
@@ -75,7 +78,7 @@ export default function* ballotAdjudicationReasons(
         switch (optionMarkStatus(contest.id, option.id)) {
           case MarkStatus.Marginal:
             yield {
-              type: AdjudicationReasonType.MarginalMark,
+              type: AdjudicationReason.MarginalMark,
               contestId: contest.id,
               optionId: option.id,
             }
@@ -83,10 +86,11 @@ export default function* ballotAdjudicationReasons(
 
           case MarkStatus.Marked:
             selectedOptionIds.push(option.id)
+            isBlankBallot = false
 
             if (option.type === 'candidate' && option.isWriteIn) {
               yield {
-                type: AdjudicationReasonType.WriteIn,
+                type: AdjudicationReason.WriteIn,
                 contestId: contest.id,
                 optionId: option.id,
               }
@@ -99,34 +103,40 @@ export default function* ballotAdjudicationReasons(
 
       if (selectedOptionIds.length < expectedSelectionCount) {
         yield {
-          type: AdjudicationReasonType.Undervote,
+          type: AdjudicationReason.Undervote,
           contestId: contest.id,
           optionIds: selectedOptionIds,
           expected: expectedSelectionCount,
         }
       } else if (selectedOptionIds.length > expectedSelectionCount) {
         yield {
-          type: AdjudicationReasonType.Overvote,
+          type: AdjudicationReason.Overvote,
           contestId: contest.id,
           optionIds: selectedOptionIds,
           expected: expectedSelectionCount,
         }
       }
     }
+
+    if (isBlankBallot) {
+      yield {
+        type: AdjudicationReason.BlankBallot,
+      }
+    }
   }
 }
 
 export function adjudicationReasonDescription(
-  reason: AdjudicationReason
+  reason: AdjudicationReasonInfo
 ): string {
   switch (reason.type) {
-    case AdjudicationReasonType.UninterpretableBallot:
+    case AdjudicationReason.UninterpretableBallot:
       return 'The ballot could not be interpreted at all, possibly due to a bad scan.'
 
-    case AdjudicationReasonType.MarginalMark:
+    case AdjudicationReason.MarginalMark:
       return `Contest '${reason.contestId}' has a marginal mark for option '${reason.optionId}'.`
 
-    case AdjudicationReasonType.Overvote:
+    case AdjudicationReason.Overvote:
       return `Contest '${reason.contestId}' is overvoted, expected ${
         reason.expected
       } but got ${
@@ -137,7 +147,7 @@ export function adjudicationReasonDescription(
           : 'none'
       }.`
 
-    case AdjudicationReasonType.Undervote:
+    case AdjudicationReason.Undervote:
       return `Contest '${reason.contestId}' is undervoted, expected ${
         reason.expected
       } but got ${
@@ -148,7 +158,10 @@ export function adjudicationReasonDescription(
           : 'none'
       }.`
 
-    case AdjudicationReasonType.WriteIn:
+    case AdjudicationReason.WriteIn:
       return `Contest '${reason.contestId}' has a write-in.`
+
+    case AdjudicationReason.BlankBallot:
+      return `Ballot has no votes.`
   }
 }

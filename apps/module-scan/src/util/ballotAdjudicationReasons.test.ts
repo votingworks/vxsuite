@@ -1,10 +1,13 @@
+import {
+  AdjudicationReason,
+  CandidateContest,
+  YesNoContest,
+} from '@votingworks/ballot-encoder'
+import election from '../../test/fixtures/2020-choctaw/election'
+import { MarkStatus } from '../types/ballot-review'
 import ballotAdjudicationReasons, {
-  AdjudicationReasonType,
   adjudicationReasonDescription,
 } from './ballotAdjudicationReasons'
-import { MarkStatus } from '../types/ballot-review'
-import election from '../../test/fixtures/2020-choctaw/election'
-import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
 
 const president = election.contests.find(
   ({ id }) => id === '1'
@@ -27,7 +30,7 @@ test('an uninterpretable ballot', () => {
     ...ballotAdjudicationReasons(undefined, {
       optionMarkStatus: () => MarkStatus.Unmarked,
     }),
-  ]).toEqual([{ type: AdjudicationReasonType.UninterpretableBallot }])
+  ]).toEqual([{ type: AdjudicationReason.UninterpretableBallot }])
 })
 
 test('a ballot with no adjudication reasons', () => {
@@ -62,7 +65,7 @@ test('a ballot with marginal marks', () => {
 
   expect(reasons).toEqual([
     {
-      type: AdjudicationReasonType.MarginalMark,
+      type: AdjudicationReason.MarginalMark,
       contestId: president.id,
       optionId: presidentialCandidate2.id,
     },
@@ -84,16 +87,20 @@ test('a ballot with no marks', () => {
 
   expect(reasons).toEqual([
     {
-      type: AdjudicationReasonType.Undervote,
+      type: AdjudicationReason.Undervote,
       contestId: president.id,
       optionIds: [],
       expected: 1,
+    },
+    {
+      type: AdjudicationReason.BlankBallot,
     },
   ])
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
       "Contest '1' is undervoted, expected 1 but got none.",
+      "Ballot has no votes.",
     ]
   `)
 })
@@ -117,7 +124,7 @@ test('a ballot with too many marks', () => {
 
   expect(reasons).toEqual([
     {
-      type: AdjudicationReasonType.Overvote,
+      type: AdjudicationReason.Overvote,
       contestId: president.id,
       optionIds: [presidentialCandidate1.id, presidentialCandidate2.id],
       expected: 1,
@@ -148,23 +155,23 @@ test('multiple contests with issues', () => {
 
   expect(reasons).toEqual([
     {
-      type: AdjudicationReasonType.MarginalMark,
+      type: AdjudicationReason.MarginalMark,
       contestId: president.id,
       optionId: presidentialCandidate1.id,
     },
     {
-      type: AdjudicationReasonType.Undervote,
+      type: AdjudicationReason.Undervote,
       contestId: president.id,
       optionIds: [],
       expected: 1,
     },
     {
-      type: AdjudicationReasonType.WriteIn,
+      type: AdjudicationReason.WriteIn,
       contestId: senator.id,
       optionId: '__write-in-0',
     },
     {
-      type: AdjudicationReasonType.Overvote,
+      type: AdjudicationReason.Overvote,
       contestId: senator.id,
       optionIds: [
         senatorialCandidate1.id,
@@ -195,7 +202,7 @@ test('yesno contest overvotes', () => {
 
   expect(reasons).toEqual([
     {
-      type: AdjudicationReasonType.Overvote,
+      type: AdjudicationReason.Overvote,
       contestId: initiative65.id,
       optionIds: ['yes', 'no'],
       expected: 1,
@@ -221,7 +228,7 @@ test('a ballot with a just a write-in', () => {
 
   expect(reasons).toEqual([
     {
-      type: AdjudicationReasonType.WriteIn,
+      type: AdjudicationReason.WriteIn,
       contestId: president.id,
       optionId: '__write-in-0',
     },
