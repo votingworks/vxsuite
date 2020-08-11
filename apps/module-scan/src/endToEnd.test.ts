@@ -20,7 +20,7 @@ const sampleBallotImagesPath = path.join(
 )
 
 // we need longer to make chokidar work
-jest.setTimeout(10000)
+jest.setTimeout(20000)
 
 jest.mock('./exec', () => ({
   __esModule: true,
