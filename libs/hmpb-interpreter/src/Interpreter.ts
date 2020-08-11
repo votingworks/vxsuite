@@ -103,11 +103,14 @@ export default class Interpreter {
         optionsOrElection.detectQRCode ?? optionsOrElection.decodeQRCode
       this.markScoreVoteThreshold =
         optionsOrElection.markScoreVoteThreshold ??
+        this.election.markThresholds?.definite ??
         DEFAULT_MARK_SCORE_VOTE_THRESHOLD
       this.testMode = optionsOrElection.testMode ?? false
     } else {
       this.election = optionsOrElection
-      this.markScoreVoteThreshold = DEFAULT_MARK_SCORE_VOTE_THRESHOLD
+      this.markScoreVoteThreshold =
+        this.election.markThresholds?.definite ??
+        DEFAULT_MARK_SCORE_VOTE_THRESHOLD
       this.testMode = false
     }
   }
@@ -318,7 +321,10 @@ export default class Interpreter {
   public async interpretBallot(
     imageData: ImageData,
     metadata?: BallotPageMetadata,
-    { flipped = false } = {}
+    {
+      flipped = false,
+      markScoreVoteThreshold = this.markScoreVoteThreshold,
+    } = {}
   ): Promise<Interpreted> {
     ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
       imageData,
@@ -336,7 +342,7 @@ export default class Interpreter {
 
     debug('using metadata: %O', metadata)
     const marked = await this.findMarks(imageData, metadata)
-    const ballot = this.interpretMarks(marked)
+    const ballot = this.interpretMarks(marked, { markScoreVoteThreshold })
     return { ...marked, ballot }
   }
 
@@ -413,10 +419,12 @@ export default class Interpreter {
     )
   }
 
-  private interpretMarks({
-    marks,
-    metadata,
-  }: FindMarksResult): CompletedBallot {
+  private interpretMarks(
+    { marks, metadata }: FindMarksResult,
+    {
+      markScoreVoteThreshold = this.markScoreVoteThreshold,
+    }: { markScoreVoteThreshold?: number }
+  ): CompletedBallot {
     const { election } = this
     const ballotStyle = defined(
       getBallotStyle({
@@ -437,9 +445,7 @@ export default class Interpreter {
       election,
       isTestBallot: metadata.isTestBallot,
       precinct,
-      votes: getVotesFromMarks(marks, {
-        markScoreVoteThreshold: this.markScoreVoteThreshold,
-      }),
+      votes: getVotesFromMarks(marks, { markScoreVoteThreshold }),
     }
   }
 
