@@ -358,7 +358,11 @@ export default class SystemImporter implements Importer {
       interpreted
     )
 
-    await fsExtra.move(ballotImagePath, originalBallotImagePath)
+    if (ballotImageFile) {
+      await fsExtra.writeFile(originalBallotImagePath, ballotImageFile)
+    } else {
+      await fsExtra.move(ballotImagePath, originalBallotImagePath)
+    }
 
     await fsExtra.writeFile(
       normalizedBallotImagePath,

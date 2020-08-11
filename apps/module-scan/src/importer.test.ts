@@ -1,14 +1,16 @@
-import * as chokidar from 'chokidar'
 import { electionSample as election } from '@votingworks/ballot-encoder'
+import { createImageData } from 'canvas'
+import * as chokidar from 'chokidar'
+import * as fs from 'fs-extra'
+import sharp from 'sharp'
+import { makeMockInterpreter } from '../test/util/mocks'
 import SystemImporter from './importer'
-import Store from './store'
 import { Scanner } from './scanner'
+import Store from './store'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
-import { makeMockInterpreter } from '../test/util/mocks'
 import pdfToImages from './util/pdfToImages'
-import { createImageData } from 'canvas'
 
 jest.mock('chokidar')
 const mockChokidar = chokidar as jest.Mocked<typeof chokidar>
@@ -204,4 +206,41 @@ test('cannot add HMPB templates before configuring an election', async () => {
   ).rejects.toThrowError(
     'cannot add a HMPB template without a configured election'
   )
+})
+
+test('manually importing a buffer as a file', async () => {
+  const scanner: Scanner = { scanInto: jest.fn() }
+  const store = await Store.memoryStore()
+  const interpreter = makeMockInterpreter()
+  const importer = new SystemImporter({
+    ...importDirs.paths,
+    store,
+    scanner,
+    interpreter,
+  })
+
+  await store.setElection(election)
+  interpreter.interpretFile.mockResolvedValueOnce({
+    type: 'UninterpretedHmpbBallot',
+    metadata: {
+      ballotStyleId: '77',
+      precinctId: '42',
+      isTestBallot: false,
+      pageNumber: 1,
+      pageCount: 2,
+    },
+  })
+  const ballotId = (await importer.importFile(
+    await store.addBatch(),
+    '/tmp/fake-path.png',
+    await sharp({
+      create: { width: 1, height: 1, channels: 3, background: '#000' },
+    })
+      .png()
+      .toBuffer()
+  ))!
+
+  const filenames = (await store.getBallotFilenames(ballotId))!
+  expect(fs.existsSync(filenames.original)).toBe(true)
+  expect(fs.existsSync(filenames.normalized)).toBe(true)
 })
