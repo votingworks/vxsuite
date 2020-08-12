@@ -98,7 +98,7 @@ $ hmpb interpret -e election.json \
 ╚═══════════════════════════════════════════════════════╧═══════════════════════╧══════════════════╝
 
 # You can also request output as JSON.
-$ hmpb interpret -e election.json -f \
+$ hmpb interpret -e election.json -f json \
   blank-p1.jpg \
   blank-p2.jpg \
   filled-in-p1.jpg \
@@ -126,16 +126,14 @@ $ hmpb interpret -e election.json -f \
           {
             "id": "eddie-bernice-johnson",
             "name": "Eddie Bernice Johnson",
-            "partyId": "2",
-            "incumbent": true
+            "partyId": "2"
           }
         ],
         "texas-sc-judge-place-6": [
           {
             "id": "jane-bland",
             "name": "Jane Bland",
-            "partyId": "3",
-            "incumbent": true
+            "partyId": "3"
           }
         ],
         "texas-house-district-111": [
@@ -149,8 +147,7 @@ $ hmpb interpret -e election.json -f \
           {
             "id": "john-ames",
             "name": "John Ames",
-            "partyId": "2",
-            "incumbent": true
+            "partyId": "2"
           }
         ],
         "dallas-county-sheriff": [
@@ -165,34 +162,8 @@ $ hmpb interpret -e election.json -f \
         {
           "type": "candidate",
           "contest": "us-senate",
-          "option": "john-cornyn",
-          "score": 0.005037783375314861,
-          "bounds": {
-            "x": 470,
-            "y": 176,
-            "width": 32,
-            "height": 22
-          },
-          "target": {
-            "bounds": {
-              "x": 470,
-              "y": 176,
-              "width": 32,
-              "height": 22
-            },
-            "inner": {
-              "x": 472,
-              "y": 178,
-              "width": 28,
-              "height": 18
-            }
-          }
-        },
-        {
-          "type": "candidate",
-          "contest": "us-senate",
           "option": "tim-smith",
-          "score": 0.8808290155440415,
+          "score": 0.7901554404145078,
           "bounds": {
             "x": 470,
             "y": 411,
@@ -218,7 +189,7 @@ $ hmpb interpret -e election.json -f \
           "type": "candidate",
           "contest": "us-house-district-30",
           "option": "eddie-bernice-johnson",
-          "score": 0.7227979274611399,
+          "score": 0.6709844559585493,
           "bounds": {
             "x": 470,
             "y": 831,
@@ -244,7 +215,7 @@ $ hmpb interpret -e election.json -f \
           "type": "candidate",
           "contest": "texas-sc-judge-place-6",
           "option": "jane-bland",
-          "score": 0.6120906801007556,
+          "score": 0.5717884130982368,
           "bounds": {
             "x": 470,
             "y": 1173,
@@ -270,7 +241,7 @@ $ hmpb interpret -e election.json -f \
           "type": "candidate",
           "contest": "texas-house-district-111",
           "option": "__write-in-0",
-          "score": 0.7025,
+          "score": 0.66,
           "bounds": {
             "x": 872,
             "y": 320,
@@ -296,7 +267,7 @@ $ hmpb interpret -e election.json -f \
           "type": "candidate",
           "contest": "dallas-county-tax-assessor",
           "option": "john-ames",
-          "score": 0.8737113402061856,
+          "score": 0.7860824742268041,
           "bounds": {
             "x": 872,
             "y": 556,
@@ -322,7 +293,7 @@ $ hmpb interpret -e election.json -f \
           "type": "candidate",
           "contest": "dallas-county-sheriff",
           "option": "chad-prda",
-          "score": 0.6313131313131313,
+          "score": 0.601010101010101,
           "bounds": {
             "x": 872,
             "y": 916,
@@ -365,14 +336,16 @@ $ hmpb interpret -e election.json -f \
             "partyId": "7"
           }
         ],
-        "dallas-county-proposition-r": "no"
+        "dallas-county-proposition-r": [
+          "no"
+        ]
       },
       "marks": [
         {
           "type": "candidate",
           "contest": "dallas-county-commissioners-court-pct-3",
           "option": "andrew-jewell",
-          "score": 0.72544080604534,
+          "score": 0.6624685138539043,
           "bounds": {
             "x": 67,
             "y": 398,
@@ -424,7 +397,7 @@ $ hmpb interpret -e election.json -f \
           "type": "yesno",
           "contest": "dallas-county-proposition-r",
           "option": "no",
-          "score": 0.7964376590330788,
+          "score": 0.7455470737913485,
           "bounds": {
             "x": 470,
             "y": 365,
@@ -502,7 +475,7 @@ $ hmpb interpret -e election.json -f \
           "type": "candidate",
           "contest": "dallas-city-council",
           "option": "__write-in-1",
-          "score": 0.09595959595959595,
+          "score": 0.09090909090909091,
           "bounds": {
             "x": 470,
             "y": 1087,
@@ -519,32 +492,6 @@ $ hmpb interpret -e election.json -f \
             "inner": {
               "x": 472,
               "y": 1089,
-              "width": 28,
-              "height": 18
-            }
-          }
-        },
-        {
-          "type": "candidate",
-          "contest": "dallas-city-council",
-          "option": "__write-in-2",
-          "score": 0.01015228426395939,
-          "bounds": {
-            "x": 470,
-            "y": 1137,
-            "width": 32,
-            "height": 22
-          },
-          "target": {
-            "bounds": {
-              "x": 470,
-              "y": 1137,
-              "width": 32,
-              "height": 22
-            },
-            "inner": {
-              "x": 472,
-              "y": 1139,
               "width": 28,
               "height": 18
             }

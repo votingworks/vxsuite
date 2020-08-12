@@ -41,6 +41,7 @@ import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
 import KeyedMap from './utils/KeyedMap'
 import outline from './utils/outline'
+import offsets from './utils/offsets'
 
 const debug = makeDebug('hmpb-interpreter:Interpreter')
 
@@ -605,8 +606,16 @@ export default class Interpreter {
   private targetMarkScore(
     template: ImageData,
     ballot: ImageData,
-    target: TargetShape
+    target: TargetShape,
+    { zeroScoreThreshold = 0, maximumCorrectionPixels = 3 } = {}
   ): number {
+    debug(
+      'computing target mark score for target at (x=%d, y=%d) with zero threshold %d',
+      target.inner.x,
+      target.inner.y,
+      zeroScoreThreshold
+    )
+
     const offsetAndScore = new Map<Point, number>()
     const templateTarget = outline(crop(template, target.bounds))
     const templateTargetInner = outline(crop(template, target.inner))
@@ -614,13 +623,7 @@ export default class Interpreter {
       color: PIXEL_WHITE,
     })
 
-    for (const { x, y } of [
-      { x: 0, y: 0 },
-      { x: 1, y: 0 },
-      { x: -1, y: 0 },
-      { x: 0, y: 1 },
-      { x: 0, y: -1 },
-    ]) {
+    for (const { x, y } of offsets()) {
       const offsetTargetInner = {
         ...target.inner,
         x: target.inner.x + x,
@@ -639,12 +642,33 @@ export default class Interpreter {
       const ballotTargetInnerNewBlackPixelCount = countPixels(diffImageInner, {
         color: PIXEL_BLACK,
       })
-      offsetAndScore.set(
-        { x, y },
+      const score =
         ballotTargetInnerNewBlackPixelCount / templatePixelCountAvailableToFill
-      )
+      if (score <= zeroScoreThreshold) {
+        debug(
+          'returning early at (x=%d, y=%d) since score (%d) is ≤ zero threshold (%d)',
+          x,
+          y,
+          score,
+          zeroScoreThreshold
+        )
+        return score
+      }
+      offsetAndScore.set({ x, y }, score)
+
+      if (x === maximumCorrectionPixels && y === maximumCorrectionPixels) {
+        break
+      }
     }
-    const [[, minScore]] = [...offsetAndScore].sort(([, a], [, b]) => a - b)
+    const [[minOffset, minScore]] = [...offsetAndScore].sort(
+      ([, a], [, b]) => a - b
+    )
+    debug(
+      'using minimum score %d from offset (x=%d, y=%d)',
+      minScore,
+      minOffset.x,
+      minOffset.y
+    )
     return minScore
   }
 

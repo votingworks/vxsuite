@@ -7,9 +7,10 @@ import {
   partialBorderPage2,
 } from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
 import * as hamilton from '../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
-import * as choctaw from '../test/fixtures/election-98f5203139-choctaw-general-2019'
+import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-general-2019'
+import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020'
 import Interpreter from './Interpreter'
-import { DetectQRCodeResult } from './types'
+import { DetectQRCodeResult, BallotTargetMark } from './types'
 
 test('interpret two-column template', async () => {
   const interpreter = new Interpreter(election)
@@ -695,7 +696,7 @@ test('interpret votes', async () => {
     Array [
       Object {
         "option": "John Cornyn",
-        "score": 0.005037783375314861,
+        "score": 0,
         "type": "candidate",
       },
       Object {
@@ -710,7 +711,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.8808290155440415,
+        "score": 0.7901554404145078,
         "type": "candidate",
       },
       Object {
@@ -725,7 +726,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Eddie Bernice Johnson",
-        "score": 0.7227979274611399,
+        "score": 0.6709844559585493,
         "type": "candidate",
       },
       Object {
@@ -735,7 +736,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.6120906801007556,
+        "score": 0.5717884130982368,
         "type": "candidate",
       },
       Object {
@@ -750,12 +751,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.7025,
+        "score": 0.66,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.8737113402061856,
+        "score": 0.7860824742268041,
         "type": "candidate",
       },
       Object {
@@ -770,7 +771,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.6313131313131313,
+        "score": 0.601010101010101,
         "type": "candidate",
       },
       Object {
@@ -963,7 +964,7 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.72544080604534,
+        "score": 0.6624685138539043,
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -1205,7 +1206,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "no",
-        "score": 0.7964376590330788,
+        "score": 0.7455470737913485,
         "target": Object {
           "bounds": Object {
             "height": 22,
@@ -1555,7 +1556,7 @@ test('invalid marks', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
-        "score": 0.13212435233160622,
+        "score": 0.12953367875647667,
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -1765,7 +1766,7 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0.09595959595959595,
+        "score": 0.09090909090909091,
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -1835,7 +1836,7 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0.01015228426395939,
+        "score": 0,
         "target": Object {
           "bounds": Object {
             "height": 22,
@@ -2280,22 +2281,22 @@ test('regression: page outline', async () => {
 
 test('choctaw general 2019', async () => {
   jest.setTimeout(10000)
-  const interpreter = new Interpreter(choctaw.election)
+  const interpreter = new Interpreter(choctaw2019.election)
 
   await interpreter.addTemplate(
-    await choctaw.blankPage1.imageData(),
-    await choctaw.blankPage1.metadata()
+    await choctaw2019.blankPage1.imageData(),
+    await choctaw2019.blankPage1.metadata()
   )
   await interpreter.addTemplate(
-    await choctaw.blankPage2.imageData(),
-    await choctaw.blankPage2.metadata()
+    await choctaw2019.blankPage2.imageData(),
+    await choctaw2019.blankPage2.metadata()
   )
 
   expect(
     (
       await interpreter.interpretBallot(
-        await choctaw.filledInPage1.imageData(),
-        await choctaw.filledInPage1.metadata()
+        await choctaw2019.filledInPage1.imageData(),
+        await choctaw2019.filledInPage1.metadata()
       )
     ).ballot.votes
   ).toMatchInlineSnapshot(`
@@ -2355,8 +2356,8 @@ test('choctaw general 2019', async () => {
   expect(
     (
       await interpreter.interpretBallot(
-        await choctaw.filledInPage2.imageData(),
-        await choctaw.filledInPage2.metadata()
+        await choctaw2019.filledInPage2.imageData(),
+        await choctaw2019.filledInPage2.metadata()
       )
     ).ballot.votes
   ).toMatchInlineSnapshot(`
@@ -2394,28 +2395,28 @@ test('choctaw general 2019', async () => {
 })
 
 test('determining layout of a ballot with borders', async () => {
-  const interpreter = new Interpreter(choctaw.election)
+  const interpreter = new Interpreter(choctaw2019.election)
 
   await interpreter.addTemplate(
-    await choctaw.blankPage1.imageData(),
-    await choctaw.blankPage1.metadata()
+    await choctaw2019.blankPage1.imageData(),
+    await choctaw2019.blankPage1.metadata()
   )
 
   await interpreter.addTemplate(
-    await choctaw.blankPage2.imageData(),
-    await choctaw.blankPage2.metadata()
+    await choctaw2019.blankPage2.imageData(),
+    await choctaw2019.blankPage2.metadata()
   )
 
   await interpreter.addTemplate(
-    await choctaw.blankPage3.imageData(),
-    await choctaw.blankPage3.metadata()
+    await choctaw2019.blankPage3.imageData(),
+    await choctaw2019.blankPage3.metadata()
   )
 
   expect(
     (
       await interpreter.interpretBallot(
-        await choctaw.borderPage1.imageData(),
-        await choctaw.blankPage1.metadata()
+        await choctaw2019.borderPage1.imageData(),
+        await choctaw2019.blankPage1.metadata()
       )
     ).ballot.votes
   ).toMatchInlineSnapshot(`Object {}`)
@@ -2423,8 +2424,8 @@ test('determining layout of a ballot with borders', async () => {
   expect(
     (
       await interpreter.interpretBallot(
-        await choctaw.borderPage3.imageData(),
-        await choctaw.blankPage3.metadata()
+        await choctaw2019.borderPage3.imageData(),
+        await choctaw2019.blankPage3.metadata()
       )
     ).ballot.votes
   ).toMatchInlineSnapshot(`Object {}`)
@@ -2440,4 +2441,157 @@ test('takes the mark score vote threshold from the election definition if presen
   })
 
   expect(interpreter['markScoreVoteThreshold']).toEqual(0.99)
+})
+
+test('choctaw 2020 general', async () => {
+  const interpreter = new Interpreter(choctaw2020.election)
+
+  await interpreter.addTemplate(
+    await choctaw2020.blankPage1.imageData(),
+    await choctaw2020.blankPage1.metadata()
+  )
+
+  await interpreter.addTemplate(
+    await choctaw2020.blankPage2.imageData(),
+    await choctaw2020.blankPage2.metadata()
+  )
+
+  const p1Interpreted = await interpreter.interpretBallot(
+    await choctaw2020.filledInPage1.imageData(),
+    await choctaw2020.filledInPage1.metadata()
+  )
+  expect(
+    p1Interpreted.marks
+      .filter((mark): mark is BallotTargetMark => mark.type !== 'stray')
+      .map((mark) => ({
+        contest: mark.contest.id,
+        option: typeof mark.option === 'string' ? mark.option : mark.option.id,
+        score: mark.score,
+      }))
+  ).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "contest": "1",
+        "option": "1",
+        "score": 0.2569060773480663,
+      },
+      Object {
+        "contest": "1",
+        "option": "2",
+        "score": 0,
+      },
+      Object {
+        "contest": "1",
+        "option": "__write-in-0",
+        "score": 0,
+      },
+      Object {
+        "contest": "2",
+        "option": "21",
+        "score": 0,
+      },
+      Object {
+        "contest": "2",
+        "option": "22",
+        "score": 0,
+      },
+      Object {
+        "contest": "2",
+        "option": "23",
+        "score": 0.43103448275862066,
+      },
+      Object {
+        "contest": "2",
+        "option": "__write-in-0",
+        "score": 0,
+      },
+      Object {
+        "contest": "3",
+        "option": "31",
+        "score": 0,
+      },
+      Object {
+        "contest": "3",
+        "option": "32",
+        "score": 0.7099447513812155,
+      },
+      Object {
+        "contest": "3",
+        "option": "__write-in-0",
+        "score": 0,
+      },
+      Object {
+        "contest": "4",
+        "option": "41",
+        "score": 0,
+      },
+      Object {
+        "contest": "4",
+        "option": "42",
+        "score": 0,
+      },
+      Object {
+        "contest": "4",
+        "option": "__write-in-0",
+        "score": 0.576271186440678,
+      },
+      Object {
+        "contest": "initiative-65",
+        "option": "yes",
+        "score": 0.4265536723163842,
+      },
+      Object {
+        "contest": "initiative-65",
+        "option": "no",
+        "score": 0.2796610169491525,
+      },
+      Object {
+        "contest": "initiative-65-a",
+        "option": "yes",
+        "score": 0.2457627118644068,
+      },
+      Object {
+        "contest": "initiative-65-a",
+        "option": "no",
+        "score": 0,
+      },
+    ]
+  `)
+
+  const p2Interpreted = await interpreter.interpretBallot(
+    await choctaw2020.filledInPage2.imageData(),
+    await choctaw2020.filledInPage2.metadata()
+  )
+  expect(
+    p2Interpreted.marks
+      .filter((mark): mark is BallotTargetMark => mark.type !== 'stray')
+      .map((mark) => ({
+        contest: mark.contest.id,
+        option: typeof mark.option === 'string' ? mark.option : mark.option.id,
+        score: mark.score,
+      }))
+  ).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "contest": "flag-question",
+        "option": "yes",
+        "score": 0.3835227272727273,
+      },
+      Object {
+        "contest": "flag-question",
+        "option": "no",
+        "score": 0,
+      },
+      Object {
+        "contest": "runoffs-question",
+        "option": "yes",
+        "score": 0,
+      },
+      Object {
+        "contest": "runoffs-question",
+        "option": "no",
+        "score": 0.2840909090909091,
+      },
+    ]
+  `)
 })
