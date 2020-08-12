@@ -1,4 +1,8 @@
-import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
+import {
+  CandidateContest,
+  YesNoContest,
+  AdjudicationReason,
+} from '@votingworks/ballot-encoder'
 import { promises as fs } from 'fs'
 import * as tmp from 'tmp'
 import election from '../test/fixtures/state-of-hamilton/election'
@@ -13,7 +17,7 @@ test('get/set election', async () => {
   expect(await store.getElection()).toBeUndefined()
 
   await store.setElection(election)
-  expect(await store.getElection()).toEqual(election)
+  expect(await store.getElection()).toEqual(expect.objectContaining(election))
 
   await store.setElection(undefined)
   expect(await store.getElection()).toBeUndefined()
@@ -195,7 +199,7 @@ test('adjudication', async () => {
             type: 'candidate',
             contest: candidateContest,
             option: candidateOption,
-            score: 0,
+            score: 0.2, // marginal
             bounds: zeroRect,
             target: {
               bounds: zeroRect,
@@ -206,7 +210,7 @@ test('adjudication', async () => {
             type: 'yesno',
             contest: yesnoContest,
             option: yesnoOption,
-            score: 1,
+            score: 1, // definite
             bounds: zeroRect,
             target: {
               bounds: zeroRect,
@@ -230,8 +234,27 @@ test('adjudication', async () => {
   expect(await store.getBallot(ballotId)).toEqual(
     expect.objectContaining({
       marks: {
-        [candidateContest.id]: { [candidateOption.id]: MarkStatus.Unmarked },
+        [candidateContest.id]: { [candidateOption.id]: MarkStatus.Marginal },
         [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
+      },
+      adjudicationInfo: {
+        enabledReasons: [
+          AdjudicationReason.UninterpretableBallot,
+          AdjudicationReason.MarginalMark,
+        ],
+        allReasonInfos: [
+          {
+            type: AdjudicationReason.MarginalMark,
+            contestId: candidateContest.id,
+            optionId: candidateOption.id,
+          },
+          {
+            type: AdjudicationReason.Undervote,
+            contestId: candidateContest.id,
+            expected: 1,
+            optionIds: [],
+          },
+        ],
       },
     })
   )
@@ -246,6 +269,25 @@ test('adjudication', async () => {
       marks: {
         [candidateContest.id]: { [candidateOption.id]: MarkStatus.Marked },
         [yesnoContest.id]: { [yesnoOption]: MarkStatus.Unmarked },
+      },
+      adjudicationInfo: {
+        enabledReasons: [
+          AdjudicationReason.UninterpretableBallot,
+          AdjudicationReason.MarginalMark,
+        ],
+        allReasonInfos: [
+          {
+            type: AdjudicationReason.MarginalMark,
+            contestId: candidateContest.id,
+            optionId: candidateOption.id,
+          },
+          {
+            type: AdjudicationReason.Undervote,
+            contestId: candidateContest.id,
+            expected: 1,
+            optionIds: [],
+          },
+        ],
       },
     })
   )

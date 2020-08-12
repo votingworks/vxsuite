@@ -183,7 +183,9 @@ test('restoreConfig reads config data from the store', async () => {
   })
 
   await importer.restoreConfig()
-  expect(importer.configure).toHaveBeenCalledWith(election)
+  expect(importer.configure).toHaveBeenCalledWith(
+    expect.objectContaining(election)
+  )
   expect(interpreter.addHmpbTemplate).toHaveBeenCalledTimes(2)
   expect(interpreter.setTestMode).toHaveBeenCalledWith(true)
   await importer.unconfigure()

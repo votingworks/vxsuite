@@ -4,6 +4,7 @@ import {
   MarksByOptionId,
   MarkStatus,
 } from '../types/ballot-review'
+import { MarkThresholds } from '@votingworks/ballot-encoder'
 import { BallotMark, BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import { getMarkStatus, CastVoteRecord } from '../types'
 import { getMachineId } from './machineId'
@@ -55,7 +56,8 @@ export function mergeChanges(
  * Builds a contest option mark change object from a set of marks.
  */
 export function changesFromMarks(
-  marks: readonly BallotMark[]
+  marks: readonly BallotMark[],
+  markThresholds: MarkThresholds
 ): MarksByContestId {
   const result: MarksByContestId = {}
 
@@ -67,7 +69,8 @@ export function changesFromMarks(
     result[mark.contest.id] = {
       ...result[mark.contest.id],
       [mark.type === 'candidate' ? mark.option.id : mark.option]: getMarkStatus(
-        mark
+        mark,
+        markThresholds
       ),
     }
   }

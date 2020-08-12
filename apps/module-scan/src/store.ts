@@ -3,10 +3,10 @@
 //
 
 import {
+  AdjudicationReason,
   Contests,
   Election,
   getBallotStyle,
-  AdjudicationReason,
 } from '@votingworks/ballot-encoder'
 import {
   BallotLocales,
@@ -30,6 +30,7 @@ import {
   SerializableBallotPageLayout,
 } from './types'
 import {
+  AdjudicationInfo,
   Contest,
   ContestLayout,
   MarksByContestId,
@@ -220,6 +221,7 @@ export default class Store {
         cvr_json text,
         metadata_json text,
         adjudication_json text,
+        adjudication_info_json text,
         requires_adjudication boolean
       )`
     )
@@ -269,7 +271,18 @@ export default class Store {
    * Gets the current election definition.
    */
   public async getElection(): Promise<Election | undefined> {
-    return await this.getConfig(ConfigKey.Election)
+    const election: Election | undefined = await this.getConfig(
+      ConfigKey.Election
+    )
+
+    if (election) {
+      return {
+        markThresholds: { marginal: 0.17, definite: 0.25 },
+        ...election,
+      }
+    }
+
+    return undefined
   }
 
   /**
@@ -378,6 +391,7 @@ export default class Store {
         interpreted.type === 'InterpretedHmpbBallot' ||
         interpreted.type === 'UninterpretedHmpbBallot'
       let requiresAdjudication = false
+      let adjudicationInfo: AdjudicationInfo | undefined
 
       if (canBeAdjudicated) {
         const contests = markInfo?.marks.reduce<Contests>(
@@ -387,38 +401,42 @@ export default class Store {
               : contests,
           []
         )
-        const adjudicationReasons = [
-          ...ballotAdjudicationReasons(contests, {
-            optionMarkStatus: (contestId, optionId) => {
-              if (markInfo?.marks) {
-                for (const mark of markInfo.marks) {
-                  if (mark.type === 'stray' || mark.contest.id !== contestId) {
-                    continue
-                  }
+        const election = await this.getElection()
+        adjudicationInfo = {
+          enabledReasons: election?.adjudicationReasons ?? [
+            AdjudicationReason.UninterpretableBallot,
+            AdjudicationReason.MarginalMark,
+          ],
+          allReasonInfos: [
+            ...ballotAdjudicationReasons(contests, {
+              optionMarkStatus: (contestId, optionId) => {
+                if (markInfo?.marks) {
+                  for (const mark of markInfo.marks) {
+                    if (
+                      mark.type === 'stray' ||
+                      mark.contest.id !== contestId
+                    ) {
+                      continue
+                    }
 
-                  if (
-                    (mark.type === 'candidate' &&
-                      mark.option.id === optionId) ||
-                    (mark.type === 'yesno' && mark.option === optionId)
-                  ) {
-                    return getMarkStatus(mark)
+                    if (
+                      (mark.type === 'candidate' &&
+                        mark.option.id === optionId) ||
+                      (mark.type === 'yesno' && mark.option === optionId)
+                    ) {
+                      return getMarkStatus(mark, election?.markThresholds!)
+                    }
                   }
                 }
-              }
 
-              return MarkStatus.Unmarked
-            },
-          }),
-        ]
+                return MarkStatus.Unmarked
+              },
+            }),
+          ],
+        }
 
-        const election = await this.getElection()
-        const enabledAdjudicationReasons = election?.adjudicationReasons ?? [
-          AdjudicationReason.UninterpretableBallot,
-          AdjudicationReason.MarginalMark,
-        ]
-
-        for (const reason of adjudicationReasons) {
-          if (enabledAdjudicationReasons.includes(reason.type)) {
+        for (const reason of adjudicationInfo.allReasonInfos) {
+          if (adjudicationInfo.enabledReasons.includes(reason.type)) {
             requiresAdjudication = true
             debug(
               'Adjudication required for reason: %s',
@@ -435,15 +453,16 @@ export default class Store {
 
       await this.dbRunAsync(
         `insert into ballots
-          (batch_id, original_filename, normalized_filename, cvr_json, marks_json, metadata_json, requires_adjudication)
-          values (?, ?, ?, ?, ?, ?, ?)`,
+          (batch_id, original_filename, normalized_filename, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
+          values (?, ?, ?, ?, ?, ?, ?, ?)`,
         batchId,
         originalFilename,
         normalizedFilename,
         JSON.stringify(cvr),
         markInfo ? JSON.stringify(markInfo, undefined, 2) : null,
         metadata ? JSON.stringify(metadata, undefined, 2) : null,
-        requiresAdjudication
+        requiresAdjudication,
+        adjudicationInfo ? JSON.stringify(adjudicationInfo, undefined, 2) : null
       )
     } catch (error) {
       // this catch effectively swallows an insert error
@@ -504,6 +523,7 @@ export default class Store {
           normalizedFilename: string
           marksJSON?: string
           adjudicationJSON?: string
+          adjudicationInfoJSON?: string
           metadataJSON?: string
         }
       | undefined,
@@ -516,6 +536,7 @@ export default class Store {
           normalized_filename as normalizedFilename,
           marks_json as marksJSON,
           adjudication_json as adjudicationJSON,
+          adjudication_info_json as adjudicationInfoJSON,
           metadata_json as metadataJSON
         from ballots
         where id = ?
@@ -532,6 +553,9 @@ export default class Store {
       : undefined
     const adjudication: MarksByContestId | undefined = row.adjudicationJSON
       ? JSON.parse(row.adjudicationJSON)
+      : undefined
+    const adjudicationInfo: AdjudicationInfo = row.adjudicationInfoJSON
+      ? JSON.parse(row.adjudicationInfoJSON)
       : undefined
     const metadata: BallotPageMetadata | undefined = row.metadataJSON
       ? JSON.parse(row.metadataJSON)
@@ -637,7 +661,7 @@ export default class Store {
                     typeof mark.option === 'string'
                       ? mark.option
                       : mark.option.id
-                  ] ?? getMarkStatus(mark),
+                  ] ?? getMarkStatus(mark, election.markThresholds!),
               },
             },
       {}
@@ -663,6 +687,7 @@ export default class Store {
       marks: overlay,
       contests,
       layout: contestLayouts,
+      adjudicationInfo,
     }
   }
 
@@ -690,6 +715,7 @@ export default class Store {
     ballotId: number,
     change: MarksByContestId
   ): Promise<boolean> {
+    const { markThresholds } = (await this.getElection()) ?? {}
     const row = await this.dbGetAsync<
       { adjudicationJSON?: string; marksJSON?: string } | undefined,
       [number]
@@ -704,7 +730,7 @@ export default class Store {
       ballotId
     )
 
-    if (!row) {
+    if (!row || !markThresholds) {
       return false
     }
 
@@ -712,13 +738,15 @@ export default class Store {
       ? JSON.parse(row.marksJSON).marks
       : undefined
     const newAdjudication = mergeChanges(
-      marks ? changesFromMarks(marks) : {},
+      marks ? changesFromMarks(marks, markThresholds) : {},
       row.adjudicationJSON ? JSON.parse(row.adjudicationJSON) : {},
       change
     )
     const unadjudicatedMarks =
       marks
-        ?.filter((mark): mark is BallotTargetMark => isMarginalMark(mark))
+        ?.filter((mark): mark is BallotTargetMark =>
+          isMarginalMark(mark, markThresholds)
+        )
         .filter(
           (mark) =>
             !newAdjudication[mark.contest.id]?.[

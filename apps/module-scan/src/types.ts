@@ -1,4 +1,9 @@
-import { BallotStyle, Contest, Precinct } from '@votingworks/ballot-encoder'
+import {
+  BallotStyle,
+  Contest,
+  Precinct,
+  MarkThresholds,
+} from '@votingworks/ballot-encoder'
 import {
   BallotLocales,
   BallotMark,
@@ -102,13 +107,13 @@ export * from './types/ballot-review'
 
 export function getMarkStatus(
   mark: BallotTargetMark,
-  { marginalMarkMin = 0.12, validMarkMin = 0.2 } = {}
+  markThresholds: MarkThresholds
 ): MarkStatus {
-  if (mark.score >= validMarkMin) {
+  if (mark.score >= markThresholds.definite) {
     return MarkStatus.Marked
   }
 
-  if (mark.score < marginalMarkMin) {
+  if (mark.score < markThresholds.marginal) {
     return MarkStatus.Unmarked
   }
 
@@ -117,14 +122,10 @@ export function getMarkStatus(
 
 export function isMarginalMark(
   mark: BallotMark,
-  {
-    marginalMarkMin,
-    validMarkMin,
-  }: { marginalMarkMin?: number; validMarkMin?: number } = {}
+  markThresholds: MarkThresholds
 ): boolean {
   return (
     mark.type !== 'stray' &&
-    getMarkStatus(mark, { marginalMarkMin, validMarkMin }) ===
-      MarkStatus.Marginal
+    getMarkStatus(mark, markThresholds) === MarkStatus.Marginal
   )
 }
