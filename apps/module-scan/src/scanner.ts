@@ -4,8 +4,13 @@ import makeDebug from 'debug'
 
 const debug = makeDebug('module-scan:scanner')
 
+export interface ScanIntoOptions {
+  directory: string
+  prefix?: string
+}
+
 export interface Scanner {
-  scanInto(directory: string, prefix?: string): Promise<void>
+  scanInto(options: ScanIntoOptions): Promise<void>
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -32,7 +37,7 @@ export enum ScannerImageFormat {
 export class FujitsuScanner implements Scanner {
   public constructor(private format = ScannerImageFormat.PNG) {}
 
-  public async scanInto(directory: string, prefix = ''): Promise<void> {
+  public async scanInto({ directory, prefix }: ScanIntoOptions): Promise<void> {
     const args = [
       '-d',
       'fujitsu',

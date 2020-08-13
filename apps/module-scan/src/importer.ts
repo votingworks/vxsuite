@@ -434,7 +434,10 @@ export default class SystemImporter implements Importer {
 
     try {
       // trigger a scan
-      await this.scanner.scanInto(this.ballotImagesPath, `batch-${batchId}-`)
+      await this.scanner.scanInto({
+        directory: this.ballotImagesPath,
+        prefix: `batch-${batchId}-`,
+      })
     } catch (err) {
       // node couldn't execute the command
       throw new Error(`problem scanning: ${err.message}`)

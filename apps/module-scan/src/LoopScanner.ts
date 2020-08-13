@@ -1,7 +1,7 @@
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
 import { extname, join } from 'path'
-import { Scanner } from './scanner'
+import { Scanner, ScanIntoOptions } from './scanner'
 
 const debug = makeDebug('module-scan:LoopScanner')
 
@@ -35,7 +35,7 @@ export default class LoopScanner implements Scanner {
    * @param directory a directory to scan images into; must already exist
    * @param prefix a prefix to use for the scanned filename
    */
-  public async scanInto(directory: string, prefix?: string): Promise<void> {
+  public async scanInto({ directory, prefix }: ScanIntoOptions): Promise<void> {
     const { id } = this
     const imagePath = this.getImagePathToScanAtOffset(id)
     const ext = extname(imagePath)
