@@ -1,18 +1,19 @@
+import { EventEmitter } from 'events'
+import { Application } from 'express'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import request from 'supertest'
 import election from '../test/fixtures/state-of-hamilton/election'
 import getScannerCVRCountWaiter from '../test/getScannerCVRCountWaiter'
 import SystemImporter, { Importer } from './importer'
-import makeTemporaryBallotImportImageDirectories, {
-  TemporaryBallotImportImageDirectories,
-} from './util/makeTemporaryBallotImportImageDirectories'
 import { FujitsuScanner, Scanner } from './scanner'
 import { buildApp } from './server'
 import Store from './store'
-import { CastVoteRecord, BallotPackageManifest } from './types'
+import { BallotPackageManifest, CastVoteRecord } from './types'
 import { MarkStatus } from './types/ballot-review'
-import { Application } from 'express'
+import makeTemporaryBallotImportImageDirectories, {
+  TemporaryBallotImportImageDirectories,
+} from './util/makeTemporaryBallotImportImageDirectories'
 
 const electionFixturesRoot = join(
   __dirname,
@@ -26,6 +27,18 @@ jest.mock('./exec', () => ({
     stdout: '',
     stderr: '',
   }),
+  streamExecFile: (): unknown => {
+    const child = new EventEmitter()
+
+    Object.defineProperties(child, {
+      stdout: { value: new EventEmitter() },
+      stderr: { value: new EventEmitter() },
+    })
+
+    process.nextTick(() => child.emit('exit', 0))
+
+    return child
+  },
 }))
 
 let importDirs: TemporaryBallotImportImageDirectories

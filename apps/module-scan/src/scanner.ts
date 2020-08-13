@@ -1,5 +1,5 @@
 import { join } from 'path'
-import execFile from './exec'
+import { streamExecFile } from './exec'
 import makeDebug from 'debug'
 
 const debug = makeDebug('module-scan:scanner')
@@ -48,6 +48,7 @@ export class FujitsuScanner implements Scanner {
         directory,
         `${prefix}${dateStamp()}-ballot-%04d.${this.format}`
       )}`,
+      `--batch-print`,
     ]
 
     debug(
@@ -58,12 +59,43 @@ export class FujitsuScanner implements Scanner {
       `scanimage ${args.map((arg) => `'${arg}'`).join(' ')}`
     )
 
-    try {
-      const { stdout, stderr } = await execFile('scanimage', args)
-      debug('scanimage finished with stdout=%o stderr=%o', stdout, stderr)
-    } catch (error) {
-      debug('scanimage failed with error: %s', error.message)
-      throw error
-    }
+    await new Promise((resolve, reject) => {
+      const scanimage = streamExecFile('scanimage', args)
+      let stdout = ''
+      let stderr = ''
+
+      scanimage.stdout?.on('readable', () => {
+        if (scanimage.stdout) {
+          const chunk = scanimage.stdout.read()
+          if (chunk) {
+            stdout += chunk
+          }
+        }
+      })
+
+      scanimage.stderr?.on('readable', () => {
+        if (scanimage.stderr) {
+          const chunk = scanimage.stderr.read()
+          if (chunk) {
+            stderr += chunk
+          }
+        }
+      })
+
+      scanimage.once('exit', (code) => {
+        debug(
+          'scanimage exited with code %d and stdout=%o stderr=%o',
+          code,
+          stdout,
+          stderr
+        )
+
+        if (code === 0) {
+          resolve()
+        } else {
+          reject()
+        }
+      })
+    })
   }
 }

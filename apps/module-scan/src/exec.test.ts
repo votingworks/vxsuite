@@ -1,9 +1,9 @@
-import { execFile as systemExecFile } from 'child_process'
-import execFile from './exec'
+import { execFile } from 'child_process'
+import { streamExecFile } from './exec'
 
 jest.mock('child_process')
 
-test('execFile wrapper calls execFile', () => {
-  execFile('ls', [])
-  expect(systemExecFile).toHaveBeenCalled()
+test('streamExecFile wrapper calls execFile', () => {
+  streamExecFile('ls', [])
+  expect(execFile).toHaveBeenCalled()
 })

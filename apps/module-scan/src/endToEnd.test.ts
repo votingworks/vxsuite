@@ -1,17 +1,18 @@
+import { electionSample as election } from '@votingworks/ballot-encoder'
+import { EventEmitter } from 'events'
 import { Application } from 'express'
-import request from 'supertest'
 import { promises as fs } from 'fs'
 import * as path from 'path'
-import { electionSample as election } from '@votingworks/ballot-encoder'
-import { buildApp } from './server'
+import request from 'supertest'
+import getScannerCVRCountWaiter from '../test/getScannerCVRCountWaiter'
 import SystemImporter from './importer'
-import Store from './store'
 import { FujitsuScanner, Scanner } from './scanner'
-import { CastVoteRecord, BatchInfo } from './types'
+import { buildApp } from './server'
+import Store from './store'
+import { BatchInfo, CastVoteRecord } from './types'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
-import getScannerCVRCountWaiter from '../test/getScannerCVRCountWaiter'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -28,6 +29,18 @@ jest.mock('./exec', () => ({
     stdout: '',
     stderr: '',
   }),
+  streamExecFile: (): unknown => {
+    const child = new EventEmitter()
+
+    Object.defineProperties(child, {
+      stdout: { value: new EventEmitter() },
+      stderr: { value: new EventEmitter() },
+    })
+
+    process.nextTick(() => child.emit('exit', 0))
+
+    return child
+  },
 }))
 
 let app: Application
