@@ -1,18 +1,16 @@
 import { electionSample as election } from '@votingworks/ballot-encoder'
-import { EventEmitter } from 'events'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import * as path from 'path'
 import request from 'supertest'
-import getScannerCVRCountWaiter from '../test/getScannerCVRCountWaiter'
 import SystemImporter from './importer'
-import { FujitsuScanner, Scanner } from './scanner'
 import { buildApp } from './server'
 import Store from './store'
 import { BatchInfo, CastVoteRecord } from './types'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
+import { makeMockScanner, MockScanner } from '../test/util/mocks'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -20,38 +18,18 @@ const sampleBallotImagesPath = path.join(
   'sample-ballot-images/'
 )
 
-// we need longer to make chokidar work
-jest.setTimeout(20000)
-
-jest.mock('./exec', () => ({
-  __esModule: true,
-  default: async (): Promise<{ stdout: string; stderr: string }> => ({
-    stdout: '',
-    stderr: '',
-  }),
-  streamExecFile: (): unknown => {
-    const child = new EventEmitter()
-
-    Object.defineProperties(child, {
-      stdout: { value: new EventEmitter() },
-      stderr: { value: new EventEmitter() },
-    })
-
-    process.nextTick(() => child.emit('exit', 0))
-
-    return child
-  },
-}))
+// we need more time for ballot interpretation
+jest.setTimeout(10000)
 
 let app: Application
 let importer: SystemImporter
 let store: Store
-let scanner: Scanner
+let scanner: MockScanner
 let importDirs: TemporaryBallotImportImageDirectories
 
 beforeEach(async () => {
   store = await Store.memoryStore()
-  scanner = new FujitsuScanner()
+  scanner = makeMockScanner()
   importDirs = makeTemporaryBallotImportImageDirectories()
   importer = new SystemImporter({
     store,
@@ -66,8 +44,6 @@ afterEach(async () => {
 })
 
 test('going through the whole process works', async () => {
-  const waiter = getScannerCVRCountWaiter(importer)
-
   {
     // try export before configure
     const response = await request(app)
@@ -84,20 +60,24 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
 
-  await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
-
   {
-    // move some sample ballots into the ballots directory
-    const expectedBallotCount = 3
+    // define the next scanner session
+    const nextSession = scanner.withNextScannerSession()
+
+    // scan some sample ballots
     const sampleBallots = await fs.readdir(sampleBallotImagesPath)
+    const expectedBallots = sampleBallots.filter(
+      (ballot) => !ballot.startsWith('not-')
+    )
     for (const ballot of sampleBallots) {
       const oldPath = path.join(sampleBallotImagesPath, ballot)
       const newPath = path.join(importer.ballotImagesPath, ballot)
       await fs.copyFile(oldPath, newPath)
+      nextSession.scan(newPath)
     }
 
-    // wait for the processing
-    await waiter.waitForCount(expectedBallotCount)
+    nextSession.end()
+    await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
 
     // check the status
     const status = await request(app)
@@ -105,7 +85,9 @@ test('going through the whole process works', async () => {
       .set('Accept', 'application/json')
       .expect(200)
 
-    expect(JSON.parse(status.text).batches[0].count).toBe(expectedBallotCount)
+    expect(JSON.parse(status.text).batches[0].count).toBe(
+      expectedBallots.length
+    )
   }
 
   // a manual ballot
