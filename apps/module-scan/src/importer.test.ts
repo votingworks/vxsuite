@@ -1,6 +1,5 @@
 import { electionSample as election } from '@votingworks/ballot-encoder'
 import { createImageData } from 'canvas'
-import * as chokidar from 'chokidar'
 import * as fs from 'fs-extra'
 import sharp from 'sharp'
 import { makeMockInterpreter } from '../test/util/mocks'
@@ -11,9 +10,6 @@ import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
 import pdfToImages from './util/pdfToImages'
-
-jest.mock('chokidar')
-const mockChokidar = chokidar as jest.Mocked<typeof chokidar>
 
 jest.mock('./util/pdfToImages')
 const pdfToImagesMock = pdfToImages as jest.MockedFunction<typeof pdfToImages>
@@ -39,16 +35,7 @@ test('doImport calls scanner.scanInto', async () => {
   })
   await expect(importer.doImport()).rejects.toThrow('no election configuration')
 
-  const mockWatcherOn = jest.fn()
-  const mockWatcherClose = jest.fn()
-  mockChokidar.watch.mockReturnValue(({
-    on: mockWatcherOn,
-    close: mockWatcherClose,
-  } as unknown) as chokidar.FSWatcher)
-
   await importer.configure(election)
-
-  expect(mockWatcherOn).toHaveBeenCalled()
 
   // failed scan
   scannerMock.scanInto.mockRejectedValueOnce(new Error('scanner is a banana'))
@@ -61,8 +48,6 @@ test('doImport calls scanner.scanInto', async () => {
   await importer.doImport()
 
   await importer.unconfigure()
-
-  expect(mockWatcherClose).toHaveBeenCalled()
 })
 
 test('unconfigure clears all data.', async () => {

@@ -1,18 +1,18 @@
+import { EventEmitter } from 'events'
+import { Application } from 'express'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import request from 'supertest'
 import election from '../test/fixtures/state-of-hamilton/election'
-import getScannerCVRCountWaiter from '../test/getScannerCVRCountWaiter'
+import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import SystemImporter, { Importer } from './importer'
+import { buildApp } from './server'
+import Store from './store'
+import { BallotPackageManifest, CastVoteRecord } from './types'
+import { MarkStatus } from './types/ballot-review'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
-import { FujitsuScanner, Scanner } from './scanner'
-import { buildApp } from './server'
-import Store from './store'
-import { CastVoteRecord, BallotPackageManifest } from './types'
-import { MarkStatus } from './types/ballot-review'
-import { Application } from 'express'
 
 const electionFixturesRoot = join(
   __dirname,
@@ -26,18 +26,30 @@ jest.mock('./exec', () => ({
     stdout: '',
     stderr: '',
   }),
+  streamExecFile: (): unknown => {
+    const child = new EventEmitter()
+
+    Object.defineProperties(child, {
+      stdout: { value: new EventEmitter() },
+      stderr: { value: new EventEmitter() },
+    })
+
+    process.nextTick(() => child.emit('exit', 0))
+
+    return child
+  },
 }))
 
 let importDirs: TemporaryBallotImportImageDirectories
 let store: Store
-let scanner: Scanner
+let scanner: MockScanner
 let importer: Importer
 let app: Application
 
 beforeEach(async () => {
   importDirs = makeTemporaryBallotImportImageDirectories()
   store = await Store.memoryStore()
-  scanner = new FujitsuScanner()
+  scanner = makeMockScanner()
   importer = new SystemImporter({ store, scanner, ...importDirs.paths })
   app = buildApp({ importer, store })
 })
@@ -48,9 +60,7 @@ afterEach(async () => {
 })
 
 test('going through the whole process works', async () => {
-  jest.setTimeout(20000)
-
-  const waiter = getScannerCVRCountWaiter(importer as SystemImporter)
+  jest.setTimeout(10000)
 
   await importer.restoreConfig()
 
@@ -78,27 +88,28 @@ test('going through the whole process works', async () => {
   }
 
   await addTemplatesRequest.expect(200, { status: 'ok' })
-  await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
-
-  const expectedSampleBallots = 2
 
   {
-    // move some sample ballots into the ballots directory
-    await fs.copyFile(
-      join(electionFixturesRoot, 'filled-in-dual-language-p1.jpg'),
-      join(importDirs.paths.ballotImagesPath, 'batch-1-ballot-1.jpg')
-    )
-    await fs.copyFile(
-      join(electionFixturesRoot, 'filled-in-dual-language-p2.jpg'),
-      join(importDirs.paths.ballotImagesPath, 'batch-1-ballot-2.jpg')
-    )
+    // define the next scanner session
+    const nextSession = scanner.withNextScannerSession()
 
-    // wait for the processing
-    await waiter.waitForCount(expectedSampleBallots)
-  }
+    // scan some sample ballots
+    for (const [from, to] of [
+      ['filled-in-dual-language-p1.jpg', 'batch-1-ballot-1.jpg'],
+      ['filled-in-dual-language-p2.jpg', 'batch-1-ballot-2.jpg'],
+    ]) {
+      const fromPath = join(electionFixturesRoot, from)
+      const toPath = join(importDirs.paths.ballotImagesPath, to)
+      await fs.copyFile(fromPath, toPath)
+      nextSession.scan(toPath)
+    }
 
-  {
+    nextSession.end()
+
+    await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
+
     // check the latest batch has the expected ballots
+    const expectedSampleBallots = 2
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
@@ -183,9 +194,7 @@ test('going through the whole process works', async () => {
 })
 
 test('failed scan with QR code can be adjudicated and exported', async () => {
-  jest.setTimeout(20000)
-
-  const waiter = getScannerCVRCountWaiter(importer as SystemImporter)
+  jest.setTimeout(10000)
 
   await importer.restoreConfig()
 
@@ -213,23 +222,20 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
   }
 
   await addTemplatesRequest.expect(200, { status: 'ok' })
-  await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
-
-  const expectedSampleBallots = 1
 
   {
+    const nextSession = scanner.withNextScannerSession()
+
     // move some sample ballots into the ballots directory
-    await fs.copyFile(
-      join(electionFixturesRoot, 'filled-in-dual-language-p3.jpg'),
-      join(importDirs.paths.ballotImagesPath, 'batch-1-ballot-1.jpg')
-    )
+    const from = join(electionFixturesRoot, 'filled-in-dual-language-p3.jpg')
+    const to = join(importDirs.paths.ballotImagesPath, 'batch-1-ballot-1.jpg')
+    await fs.copyFile(from, to)
+    nextSession.scan(to).end()
 
-    // wait for the processing
-    await waiter.waitForCount(expectedSampleBallots)
-  }
+    await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
 
-  {
     // check the latest batch has the expected ballots
+    const expectedSampleBallots = 1
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')

@@ -1,11 +1,18 @@
 import { join } from 'path'
-import execFile from './exec'
+import { streamExecFile } from './exec'
 import makeDebug from 'debug'
+import { StreamLines } from './util/Lines'
 
 const debug = makeDebug('module-scan:scanner')
 
+export interface ScanIntoOptions {
+  directory: string
+  prefix?: string
+  onFileScanned?: (path: string) => void | Promise<void>
+}
+
 export interface Scanner {
-  scanInto(directory: string, prefix?: string): Promise<void>
+  scanInto(options: ScanIntoOptions): Promise<void>
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -32,7 +39,11 @@ export enum ScannerImageFormat {
 export class FujitsuScanner implements Scanner {
   public constructor(private format = ScannerImageFormat.PNG) {}
 
-  public async scanInto(directory: string, prefix = ''): Promise<void> {
+  public async scanInto({
+    directory,
+    prefix,
+    onFileScanned,
+  }: ScanIntoOptions): Promise<void> {
     const args = [
       '-d',
       'fujitsu',
@@ -48,6 +59,7 @@ export class FujitsuScanner implements Scanner {
         directory,
         `${prefix}${dateStamp()}-ballot-%04d.${this.format}`
       )}`,
+      `--batch-print`,
     ]
 
     debug(
@@ -58,12 +70,38 @@ export class FujitsuScanner implements Scanner {
       `scanimage ${args.map((arg) => `'${arg}'`).join(' ')}`
     )
 
-    try {
-      const { stdout, stderr } = await execFile('scanimage', args)
-      debug('scanimage finished with stdout=%o stderr=%o', stdout, stderr)
-    } catch (error) {
-      debug('scanimage failed with error: %s', error.message)
-      throw error
-    }
+    const onFileScannedPromises: (void | Promise<void>)[] = []
+
+    await new Promise((resolve, reject) => {
+      const scanimage = streamExecFile('scanimage', args)
+
+      debug('scanimage [pid=%d] started', scanimage.pid)
+
+      new StreamLines(scanimage.stdout!).on('line', (line: string) => {
+        const path = line.trim()
+        debug(
+          'scanimage [pid=%d] reported a scanned file: %s',
+          scanimage.pid,
+          path
+        )
+        onFileScannedPromises.push(onFileScanned?.(path))
+      })
+
+      new StreamLines(scanimage.stderr!).on('line', (line: string) => {
+        debug('scanimage [pid=%d] stderr: %s', scanimage.pid, line.trim())
+      })
+
+      scanimage.once('exit', (code) => {
+        debug('scanimage [pid=%d] exited with code %d', scanimage.pid, code)
+
+        if (code === 0) {
+          resolve()
+        } else {
+          reject(new Error(`scanimage failed with status code ${code}`))
+        }
+      })
+    })
+
+    await Promise.all(onFileScannedPromises)
   }
 }

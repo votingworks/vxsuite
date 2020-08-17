@@ -1,4 +1,3 @@
-import * as chokidar from 'chokidar'
 import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import sharp, { Raw } from 'sharp'
@@ -64,7 +63,6 @@ export class HmpbInterpretationError extends Error {}
  * Imports ballot images from a `Scanner` and stores them in a `Store`.
  */
 export default class SystemImporter implements Importer {
-  private watcher?: chokidar.FSWatcher
   private store: Store
   private scanner: Scanner
   private interpreter: Interpreter
@@ -74,8 +72,6 @@ export default class SystemImporter implements Importer {
   ) => void)[] = []
   private timeouts: ReturnType<typeof setTimeout>[] = []
   private imports: Promise<void>[] = []
-
-  private seenBallotImagePaths = new Set<string>()
 
   public readonly ballotImagesPath: string
   public readonly importedBallotImagesPath: string
@@ -189,33 +185,10 @@ export default class SystemImporter implements Importer {
   }
 
   /**
-   * Sets the election information used to encode and decode ballots and begins
-   * watching for scanned images to import.
+   * Sets the election information used to encode and decode ballots.
    */
   public async configure(newElection: Election): Promise<void> {
     await this.store.setElection(newElection)
-
-    // start watching the ballots
-    this.watcher = chokidar.watch(this.ballotImagesPath, {
-      persistent: true,
-      awaitWriteFinish: {
-        stabilityThreshold: 2000,
-        pollInterval: 200,
-      },
-    })
-    this.watcher.on('add', async (addedPath) => {
-      debug('starting import task (%s)', addedPath)
-      const importTask = this.fileAdded(addedPath)
-      this.imports.push(importTask)
-      try {
-        await importTask
-        debug('import task succeeded (%s)', addedPath)
-      } catch (error) {
-        debug('import task failed (%s): %s', addedPath, error.stack)
-      } finally {
-        this.imports = this.imports.filter((it) => it === importTask)
-      }
-    })
   }
 
   public async waitForImports(): Promise<void> {
@@ -265,7 +238,7 @@ export default class SystemImporter implements Importer {
   }
 
   /**
-   * Callback for chokidar to inform us that a new file was seen.
+   * Callback to inform us that a new file was seen.
    */
   private async fileAdded(ballotImagePath: string): Promise<void> {
     debug('fileAdded %s', ballotImagePath)
@@ -273,13 +246,6 @@ export default class SystemImporter implements Importer {
     if (!(await this.store.getElection())) {
       return
     }
-
-    // de-dupe because chokidar can't do it apparently
-    if (this.seenBallotImagePaths.has(ballotImagePath)) {
-      return
-    }
-
-    this.seenBallotImagePaths.add(ballotImagePath)
 
     // get the batch ID from the path
     const filename = path.basename(ballotImagePath)
@@ -359,11 +325,33 @@ export default class SystemImporter implements Importer {
     )
 
     if (ballotImageFile) {
+      debug(
+        'about to write ballot image from buffer to %s',
+        originalBallotImagePath
+      )
       await fsExtra.writeFile(originalBallotImagePath, ballotImageFile)
+      debug(
+        'just wrote ballot image from buffer to %s',
+        originalBallotImagePath
+      )
     } else {
+      debug(
+        'about to move ballot image from %s to %s',
+        ballotImagePath,
+        originalBallotImagePath
+      )
       await fsExtra.move(ballotImagePath, originalBallotImagePath)
+      debug(
+        'just moved ballot image from %s to %s',
+        ballotImagePath,
+        originalBallotImagePath
+      )
     }
 
+    debug(
+      'about to write normalized ballot image to %s',
+      normalizedBallotImagePath
+    )
     await fsExtra.writeFile(
       normalizedBallotImagePath,
       normalizedImage
@@ -380,6 +368,7 @@ export default class SystemImporter implements Importer {
             .toBuffer()
         : ballotImageFile
     )
+    debug('wrote normalized ballot image to %s', normalizedBallotImagePath)
 
     return ballotId
   }
@@ -434,7 +423,13 @@ export default class SystemImporter implements Importer {
 
     try {
       // trigger a scan
-      await this.scanner.scanInto(this.ballotImagesPath, `batch-${batchId}-`)
+      await this.scanner.scanInto({
+        directory: this.ballotImagesPath,
+        prefix: `batch-${batchId}-`,
+        onFileScanned: async (path) => {
+          await this.fileAdded(path)
+        },
+      })
     } catch (err) {
       // node couldn't execute the command
       throw new Error(`problem scanning: ${err.message}`)
@@ -492,9 +487,6 @@ export default class SystemImporter implements Importer {
   public async unconfigure(): Promise<void> {
     await this.doZero()
     await this.store.init(true) // destroy all data
-    if (this.watcher) {
-      this.watcher.close()
-    }
     for (const timeout of this.timeouts) {
       clearTimeout(timeout)
     }

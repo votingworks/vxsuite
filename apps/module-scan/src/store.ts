@@ -380,77 +380,74 @@ export default class Store {
     normalizedFilename: string,
     interpreted: InterpretedBallot
   ): Promise<number> {
-    try {
-      const cvr = 'cvr' in interpreted ? interpreted.cvr : undefined
-      const markInfo =
-        'markInfo' in interpreted ? interpreted.markInfo : undefined
-      const metadata =
-        'metadata' in interpreted ? interpreted.metadata : undefined
+    const cvr = 'cvr' in interpreted ? interpreted.cvr : undefined
+    const markInfo =
+      'markInfo' in interpreted ? interpreted.markInfo : undefined
+    const metadata =
+      'metadata' in interpreted ? interpreted.metadata : undefined
 
-      const canBeAdjudicated =
-        interpreted.type === 'InterpretedHmpbBallot' ||
-        interpreted.type === 'UninterpretedHmpbBallot'
-      let requiresAdjudication = false
-      let adjudicationInfo: AdjudicationInfo | undefined
+    const canBeAdjudicated =
+      interpreted.type === 'InterpretedHmpbBallot' ||
+      interpreted.type === 'UninterpretedHmpbBallot'
+    let requiresAdjudication = false
+    let adjudicationInfo: AdjudicationInfo | undefined
 
-      if (canBeAdjudicated) {
-        const contests = markInfo?.marks.reduce<Contests>(
-          (contests, { contest }) =>
-            contest && contests.every(({ id }) => contest.id !== id)
-              ? [...contests, contest]
-              : contests,
-          []
-        )
-        const election = await this.getElection()
-        adjudicationInfo = {
-          enabledReasons: election?.adjudicationReasons ?? [
-            AdjudicationReason.UninterpretableBallot,
-            AdjudicationReason.MarginalMark,
-          ],
-          allReasonInfos: [
-            ...ballotAdjudicationReasons(contests, {
-              optionMarkStatus: (contestId, optionId) => {
-                if (markInfo?.marks) {
-                  for (const mark of markInfo.marks) {
-                    if (
-                      mark.type === 'stray' ||
-                      mark.contest.id !== contestId
-                    ) {
-                      continue
-                    }
+    if (canBeAdjudicated) {
+      const contests = markInfo?.marks.reduce<Contests>(
+        (contests, { contest }) =>
+          contest && contests.every(({ id }) => contest.id !== id)
+            ? [...contests, contest]
+            : contests,
+        []
+      )
+      const election = await this.getElection()
+      adjudicationInfo = {
+        enabledReasons: election?.adjudicationReasons ?? [
+          AdjudicationReason.UninterpretableBallot,
+          AdjudicationReason.MarginalMark,
+        ],
+        allReasonInfos: [
+          ...ballotAdjudicationReasons(contests, {
+            optionMarkStatus: (contestId, optionId) => {
+              if (markInfo?.marks) {
+                for (const mark of markInfo.marks) {
+                  if (mark.type === 'stray' || mark.contest.id !== contestId) {
+                    continue
+                  }
 
-                    if (
-                      (mark.type === 'candidate' &&
-                        mark.option.id === optionId) ||
-                      (mark.type === 'yesno' && mark.option === optionId)
-                    ) {
-                      return getMarkStatus(mark, election?.markThresholds!)
-                    }
+                  if (
+                    (mark.type === 'candidate' &&
+                      mark.option.id === optionId) ||
+                    (mark.type === 'yesno' && mark.option === optionId)
+                  ) {
+                    return getMarkStatus(mark, election?.markThresholds!)
                   }
                 }
+              }
 
-                return MarkStatus.Unmarked
-              },
-            }),
-          ],
-        }
-
-        for (const reason of adjudicationInfo.allReasonInfos) {
-          if (adjudicationInfo.enabledReasons.includes(reason.type)) {
-            requiresAdjudication = true
-            debug(
-              'Adjudication required for reason: %s',
-              adjudicationReasonDescription(reason)
-            )
-          } else {
-            debug(
-              'Adjudication reason ignored by configuration: %s',
-              adjudicationReasonDescription(reason)
-            )
-          }
-        }
+              return MarkStatus.Unmarked
+            },
+          }),
+        ],
       }
 
+      for (const reason of adjudicationInfo.allReasonInfos) {
+        if (adjudicationInfo.enabledReasons.includes(reason.type)) {
+          requiresAdjudication = true
+          debug(
+            'Adjudication required for reason: %s',
+            adjudicationReasonDescription(reason)
+          )
+        } else {
+          debug(
+            'Adjudication reason ignored by configuration: %s',
+            adjudicationReasonDescription(reason)
+          )
+        }
+      }
+    }
+
+    try {
       await this.dbRunAsync(
         `insert into ballots
           (batch_id, original_filename, normalized_filename, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
@@ -465,10 +462,10 @@ export default class Store {
         adjudicationInfo ? JSON.stringify(adjudicationInfo, undefined, 2) : null
       )
     } catch (error) {
-      // this catch effectively swallows an insert error
-      // this might happen on duplicate insert, which happens
-      // when chokidar sometimes notices a file twice.
-      debug('addBallot failed: %s', error)
+      debug(
+        'ballot insert failed; maybe a duplicate? filename=%s',
+        originalFilename
+      )
     }
 
     const { id } = await this.dbGetAsync(
