@@ -4,12 +4,15 @@ import * as fs from 'fs-extra'
 import sharp from 'sharp'
 import { makeMockInterpreter } from '../test/util/mocks'
 import SystemImporter from './importer'
-import { Scanner } from './scanner'
+import { Scanner, Sheet } from './scanner'
 import Store from './store'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
 import pdfToImages from './util/pdfToImages'
+import { join } from 'path'
+
+const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
 jest.mock('./util/pdfToImages')
 const pdfToImagesMock = pdfToImages as jest.MockedFunction<typeof pdfToImages>
@@ -24,9 +27,10 @@ afterEach(() => {
   importDirs.remove()
 })
 
-test('doImport calls scanner.scanInto', async () => {
-  const scanner: Scanner = { scanInto: jest.fn() }
-  const scannerMock = scanner as jest.Mocked<typeof scanner>
+test('doImport calls scanner.scanSheet', async () => {
+  const scanner: jest.Mocked<Scanner> = {
+    scanSheets: jest.fn(),
+  }
   const store = await Store.memoryStore()
   const importer = new SystemImporter({
     ...importDirs.paths,
@@ -38,20 +42,31 @@ test('doImport calls scanner.scanInto', async () => {
   await importer.configure(election)
 
   // failed scan
-  scannerMock.scanInto.mockRejectedValueOnce(new Error('scanner is a banana'))
-  await expect(importer.doImport()).rejects.toThrow(
-    'problem scanning: scanner is a banana'
-  )
+  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
+    Sheet
+  > {
+    yield Promise.reject(new Error('scanner is a banana'))
+  })
+  await expect(importer.doImport()).rejects.toThrow('scanner is a banana')
 
   // successful scan
-  scannerMock.scanInto.mockResolvedValueOnce()
+  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
+    Sheet
+  > {
+    yield [
+      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg'),
+      join(sampleBallotImagesPath, 'blank-page.png'),
+    ]
+  })
   await importer.doImport()
 
   await importer.unconfigure()
 })
 
 test('unconfigure clears all data.', async () => {
-  const scanner: Scanner = { scanInto: jest.fn() }
+  const scanner: jest.Mocked<Scanner> = {
+    scanSheets: jest.fn(),
+  }
   const store = await Store.memoryStore()
   const importer = new SystemImporter({
     ...importDirs.paths,
@@ -81,19 +96,10 @@ test('unconfigure clears all data.', async () => {
   expect(batches[0].id).toEqual(1)
 })
 
-test('configure starts watching files', async () => {
-  const scanner: Scanner = { scanInto: jest.fn().mockResolvedValue(undefined) }
-  const importer = new SystemImporter({
-    ...importDirs.paths,
-    store: await Store.memoryStore(),
-    scanner,
-  })
-  await importer.configure(election)
-  await importer.unconfigure()
-})
-
 test('setTestMode zeroes and sets test mode on the interpreter', async () => {
-  const scanner: Scanner = { scanInto: jest.fn().mockResolvedValue(undefined) }
+  const scanner: jest.Mocked<Scanner> = {
+    scanSheets: jest.fn(),
+  }
   const importer = new SystemImporter({
     ...importDirs.paths,
     store: await Store.memoryStore(),
@@ -114,7 +120,9 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
 })
 
 test('restoreConfig reads config data from the store', async () => {
-  const scanner: Scanner = { scanInto: jest.fn().mockResolvedValue(undefined) }
+  const scanner: jest.Mocked<Scanner> = {
+    scanSheets: jest.fn(),
+  }
   const store = await Store.memoryStore()
   const interpreter = makeMockInterpreter()
   const importer = new SystemImporter({
@@ -177,7 +185,9 @@ test('restoreConfig reads config data from the store', async () => {
 })
 
 test('cannot add HMPB templates before configuring an election', async () => {
-  const scanner: Scanner = { scanInto: jest.fn() }
+  const scanner: jest.Mocked<Scanner> = {
+    scanSheets: jest.fn(),
+  }
   const importer = new SystemImporter({
     ...importDirs.paths,
     store: await Store.memoryStore(),
@@ -196,7 +206,9 @@ test('cannot add HMPB templates before configuring an election', async () => {
 })
 
 test('manually importing a buffer as a file', async () => {
-  const scanner: Scanner = { scanInto: jest.fn() }
+  const scanner: jest.Mocked<Scanner> = {
+    scanSheets: jest.fn(),
+  }
   const store = await Store.memoryStore()
   const interpreter = makeMockInterpreter()
   const importer = new SystemImporter({

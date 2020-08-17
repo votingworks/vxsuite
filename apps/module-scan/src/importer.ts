@@ -15,7 +15,7 @@ import DefaultInterpreter, {
   interpretBallotData,
   InterpretedBallot,
 } from './interpreter'
-import { Scanner } from './scanner'
+import { Scanner, Sheet } from './scanner'
 import pdfToImages from './util/pdfToImages'
 
 const debug = makeDebug('module-scan:importer')
@@ -70,7 +70,6 @@ export default class SystemImporter implements Importer {
   private onBallotAddedCallbacks: ((
     interpreted: InterpretedBallot
   ) => void)[] = []
-  private timeouts: ReturnType<typeof setTimeout>[] = []
   private imports: Promise<void>[] = []
 
   public readonly ballotImagesPath: string
@@ -237,27 +236,43 @@ export default class SystemImporter implements Importer {
     }
   }
 
+  private async cardAdded(card: Sheet, batchId: number): Promise<void> {
+    const start = Date.now()
+    try {
+      debug('cardAdded %o batchId=%d STARTING', card, batchId)
+      await this.fileAdded(card[0], batchId)
+      await this.fileAdded(card[1], batchId)
+    } finally {
+      const end = Date.now()
+      debug(
+        'cardAdded %o batchId=%d FINISHED in %dms',
+        card,
+        batchId,
+        Math.round(end - start)
+      )
+    }
+  }
+
   /**
    * Callback to inform us that a new file was seen.
    */
-  private async fileAdded(ballotImagePath: string): Promise<void> {
-    debug('fileAdded %s', ballotImagePath)
-
-    if (!(await this.store.getElection())) {
-      return
+  private async fileAdded(
+    ballotImagePath: string,
+    batchId: number
+  ): Promise<void> {
+    const start = Date.now()
+    try {
+      debug('fileAdded %s batchId=%d STARTING', ballotImagePath, batchId)
+      await this.importFile(batchId, ballotImagePath, undefined)
+    } finally {
+      const end = Date.now()
+      debug(
+        'fileAdded %s batchId=%d FINISHED in %dms',
+        ballotImagePath,
+        batchId,
+        Math.round(end - start)
+      )
     }
-
-    // get the batch ID from the path
-    const filename = path.basename(ballotImagePath)
-    const batchIdMatch = filename.match(/batch-([^-]*)/)
-
-    if (!batchIdMatch) {
-      return
-    }
-
-    const batchId = parseInt(batchIdMatch[1], 10)
-
-    await this.importFile(batchId, ballotImagePath, undefined)
   }
 
   public async importFile(
@@ -284,7 +299,12 @@ export default class SystemImporter implements Importer {
       ballotImagePath,
       ballotImageFile,
     })
-    if (!interpreted) {
+
+    // TODO: Handle invalid test mode ballots more explicitly.
+    // At some point we want to present information to the user that tells them
+    // there was a ballot that was did not match the test/live mode of the
+    // scanner. For now we just ignore such ballots completely.
+    if (!interpreted || interpreted.type === 'InvalidTestModeBallot') {
       return
     }
 
@@ -325,27 +345,9 @@ export default class SystemImporter implements Importer {
     )
 
     if (ballotImageFile) {
-      debug(
-        'about to write ballot image from buffer to %s',
-        originalBallotImagePath
-      )
       await fsExtra.writeFile(originalBallotImagePath, ballotImageFile)
-      debug(
-        'just wrote ballot image from buffer to %s',
-        originalBallotImagePath
-      )
     } else {
-      debug(
-        'about to move ballot image from %s to %s',
-        ballotImagePath,
-        originalBallotImagePath
-      )
-      await fsExtra.move(ballotImagePath, originalBallotImagePath)
-      debug(
-        'just moved ballot image from %s to %s',
-        ballotImagePath,
-        originalBallotImagePath
-      )
+      await fsExtra.copy(ballotImagePath, originalBallotImagePath)
     }
 
     debug(
@@ -423,24 +425,21 @@ export default class SystemImporter implements Importer {
 
     try {
       // trigger a scan
-      await this.scanner.scanInto({
-        directory: this.ballotImagesPath,
-        prefix: `batch-${batchId}-`,
-        onFileScanned: async (path) => {
-          await this.fileAdded(path)
-        },
-      })
+      debug('scanning starting for batch: %d', batchId)
+      for await (const sheet of this.scanner.scanSheets(
+        this.ballotImagesPath
+      )) {
+        debug('got a ballot card: %o', sheet)
+        await this.cardAdded(sheet, batchId)
+      }
+      debug('scanning completed successfully')
     } catch (err) {
       // node couldn't execute the command
-      throw new Error(`problem scanning: ${err.message}`)
+      throw new Error(`problem scanning: ${err.stack}`)
+    } finally {
+      debug('closing batch %d', batchId)
+      await this.store.finishBatch(batchId)
     }
-
-    // mark the batch done in a few seconds
-    const timeout = setTimeout(() => {
-      this.store.finishBatch(batchId)
-      this.timeouts = this.timeouts.filter((t) => t === timeout)
-    }, 5000)
-    this.timeouts.push(timeout)
   }
 
   /**
@@ -487,8 +486,5 @@ export default class SystemImporter implements Importer {
   public async unconfigure(): Promise<void> {
     await this.doZero()
     await this.store.init(true) // destroy all data
-    for (const timeout of this.timeouts) {
-      clearTimeout(timeout)
-    }
   }
 }

@@ -1,6 +1,5 @@
 import { electionSample as election } from '@votingworks/ballot-encoder'
 import { Application } from 'express'
-import { promises as fs } from 'fs'
 import * as path from 'path'
 import request from 'supertest'
 import SystemImporter from './importer'
@@ -19,7 +18,7 @@ const sampleBallotImagesPath = path.join(
 )
 
 // we need more time for ballot interpretation
-jest.setTimeout(10000)
+jest.setTimeout(20000)
 
 let app: Application
 let importer: SystemImporter
@@ -61,22 +60,22 @@ test('going through the whole process works', async () => {
     .expect(200, { status: 'ok' })
 
   {
-    // define the next scanner session
-    const nextSession = scanner.withNextScannerSession()
-
-    // scan some sample ballots
-    const sampleBallots = await fs.readdir(sampleBallotImagesPath)
-    const expectedBallots = sampleBallots.filter(
-      (ballot) => !ballot.startsWith('not-')
-    )
-    for (const ballot of sampleBallots) {
-      const oldPath = path.join(sampleBallotImagesPath, ballot)
-      const newPath = path.join(importer.ballotImagesPath, ballot)
-      await fs.copyFile(oldPath, newPath)
-      nextSession.scan(newPath)
-    }
-
-    nextSession.end()
+    // define the next scanner session & scan some sample ballots
+    scanner
+      .withNextScannerSession()
+      .sheet([
+        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg'),
+        path.join(sampleBallotImagesPath, 'blank-page.png'),
+      ])
+      .sheet([
+        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.jpg'),
+        path.join(sampleBallotImagesPath, 'blank-page.png'),
+      ])
+      .sheet([
+        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.jpg'),
+        path.join(sampleBallotImagesPath, 'blank-page.png'),
+      ])
+      .end()
     await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
 
     // check the status
@@ -85,9 +84,7 @@ test('going through the whole process works', async () => {
       .set('Accept', 'application/json')
       .expect(200)
 
-    expect(JSON.parse(status.text).batches[0].count).toBe(
-      expectedBallots.length
-    )
+    expect(JSON.parse(status.text).batches[0].count).toBe(3)
   }
 
   // a manual ballot

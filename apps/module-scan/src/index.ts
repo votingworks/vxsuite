@@ -1,11 +1,12 @@
 // Import the rest of our application.
-import * as server from './server'
 import LoopScanner from './LoopScanner'
+import * as server from './server'
+import { isNonEmptyArray } from './types'
 
 function getScanner(): LoopScanner | undefined {
   const files = process.env.MOCK_SCANNER_FILES?.split(',')
 
-  if (files) {
+  if (isNonEmptyArray(files)) {
     process.stdout.write(
       'Using mock scanner that scans these files repeatedly:\n'
     )

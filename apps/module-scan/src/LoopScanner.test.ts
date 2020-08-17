@@ -1,22 +1,29 @@
-import { promises as fs } from 'fs'
+import { readFileSync, writeFileSync } from 'fs-extra'
+import { fileSync } from 'tmp'
 import LoopScanner from './LoopScanner'
 
-jest.mock('fs', () => ({
-  promises: { copyFile: jest.fn() },
-}))
+function readFiles(paths: readonly string[]): string[] {
+  return paths.map((path) => readFileSync(path, 'utf8'))
+}
 
-test('copies files in turn to the destination directory', async () => {
-  const scanner = new LoopScanner(['file1.jpg', 'file2.jpg'])
+test('copies files in pairs', async () => {
+  const [f1, f2, f3, f4] = new Array(4).fill(null).map((_, i) => {
+    const path = fileSync().name
+    writeFileSync(path, i + 1, 'utf8')
+    return path
+  })
+  const scanner = new LoopScanner([f1, f2, f3, f4])
 
-  await scanner.scanInto({ directory: '/tmp' })
-  expect(fs.copyFile).toHaveBeenNthCalledWith(1, 'file1.jpg', '/tmp/1.jpg')
-  await scanner.scanInto({ directory: '/tmp' })
-  expect(fs.copyFile).toHaveBeenNthCalledWith(2, 'file2.jpg', '/tmp/2.jpg')
-})
-
-test('copies files with a named prefix if desired', async () => {
-  const scanner = new LoopScanner(['file1.jpg', 'file2.jpg'])
-
-  await scanner.scanInto({ directory: '/tmp', prefix: 'batch' })
-  expect(fs.copyFile).toHaveBeenCalledWith('file1.jpg', '/tmp/batch-1.jpg')
+  expect(readFiles((await scanner.scanSheets().next()).value)).toEqual([
+    '1',
+    '2',
+  ])
+  expect(readFiles((await scanner.scanSheets().next()).value)).toEqual([
+    '3',
+    '4',
+  ])
+  expect(readFiles((await scanner.scanSheets().next()).value)).toEqual([
+    '1',
+    '2',
+  ])
 })

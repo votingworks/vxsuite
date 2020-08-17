@@ -1,9 +1,5 @@
-import makeDebug from 'debug'
-import { promises as fs } from 'fs'
-import { extname, join } from 'path'
-import { Scanner, ScanIntoOptions } from './scanner'
-
-const debug = makeDebug('module-scan:LoopScanner')
+import { Scanner, Sheet } from './scanner'
+import { NonEmptyArray } from './types'
 
 /**
  * Provides mock scanning services by copying the same set of images over and
@@ -11,12 +7,12 @@ const debug = makeDebug('module-scan:LoopScanner')
  */
 export default class LoopScanner implements Scanner {
   private id = 0
-  private imagePaths: string[]
+  private imagePaths: Readonly<NonEmptyArray<string>>
 
   /**
    * @param imagePaths image paths to "scan" in a repeating sequence
    */
-  public constructor(imagePaths: string[]) {
+  public constructor(imagePaths: Readonly<NonEmptyArray<string>>) {
     this.imagePaths = imagePaths
   }
 
@@ -30,27 +26,12 @@ export default class LoopScanner implements Scanner {
   }
 
   /**
-   * "Scans" the next image by copying it into `directory`.
-   *
-   * @param directory a directory to scan images into; must already exist
-   * @param prefix a prefix to use for the scanned filename
+   * "Scans" the next sheet by returning the paths for the next two images.
    */
-  public async scanInto({ directory, prefix }: ScanIntoOptions): Promise<void> {
-    const { id } = this
-    const imagePath = this.getImagePathToScanAtOffset(id)
-    const ext = extname(imagePath)
-    this.id += 1
-
-    debug(
-      `mock scanning %s into %s with prefix '%s'`,
-      imagePath,
-      directory,
-      prefix
-    )
-
-    await fs.copyFile(
-      imagePath,
-      join(directory, prefix ? `${prefix}-${id + 1}${ext}` : `${id + 1}${ext}`)
-    )
+  public async *scanSheets(): AsyncGenerator<Sheet> {
+    yield [
+      this.getImagePathToScanAtOffset(this.id++),
+      this.getImagePathToScanAtOffset(this.id++),
+    ]
   }
 }

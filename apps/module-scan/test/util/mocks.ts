@@ -1,9 +1,9 @@
-import { Importer } from '../../src/importer'
-import { Interpreter } from '../../src/interpreter'
-import { Scanner, ScanIntoOptions } from '../../src/scanner'
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
 import { Readable } from 'stream'
+import { Importer } from '../../src/importer'
+import { Interpreter } from '../../src/interpreter'
+import { Scanner, Sheet } from '../../src/scanner'
 
 export function makeMockInterpreter(): jest.Mocked<Interpreter> {
   return {
@@ -31,24 +31,28 @@ export function makeMockImporter(): jest.Mocked<Importer> {
 }
 
 type ScanSessionStep =
-  | { type: 'scan'; path: string }
+  | { type: 'sheet'; sheet: Sheet }
   | { type: 'error'; error: Error }
 
 /**
  * Represents a scanner session, but doesn't actually run anything.
  */
-class ScannerSession {
-  private steps: ScanSessionStep[] = []
-  private ended = false
+class ScannerSessionPlan {
+  #steps: ScanSessionStep[] = []
+  #ended = false
+
+  public get steps(): readonly ScanSessionStep[] {
+    return this.#steps
+  }
 
   /**
    * Adds a scanning step to the session.
    */
-  public scan(path: string): this {
-    if (this.ended) {
-      throw new Error('cannot add a scan step to an ended session')
+  public sheet(sheet: Sheet): this {
+    if (this.#ended) {
+      throw new Error('cannot add a sheet scan step to an ended session')
     }
-    this.steps.push({ type: 'scan', path })
+    this.#steps.push({ type: 'sheet', sheet })
     return this
   }
 
@@ -56,30 +60,30 @@ class ScannerSession {
    * Adds an error step to the session.
    */
   public error(error: Error): this {
-    if (this.ended) {
+    if (this.#ended) {
       throw new Error('cannot add an error step to an ended session')
     }
-    this.steps.push({ type: 'error', error })
+    this.#steps.push({ type: 'error', error })
     return this
   }
 
   public end(): void {
-    this.ended = true
+    this.#ended = true
   }
 
   *[Symbol.iterator](): IterableIterator<ScanSessionStep> {
-    if (!this.ended) {
+    if (!this.#ended) {
       throw new Error(
         'session has not been ended; please call `session.end()` before using it'
       )
     }
 
-    yield* this.steps
+    yield* this.#steps
   }
 }
 
 export interface MockScanner extends Scanner {
-  withNextScannerSession(): ScannerSession
+  withNextScannerSession(): ScannerSessionPlan
 }
 
 /**
@@ -96,10 +100,10 @@ export interface MockScanner extends Scanner {
  * // do something to trigger a scan
  */
 export function makeMockScanner(): MockScanner {
-  let nextScannerSession: ScannerSession | undefined
+  let nextScannerSession: ScannerSessionPlan | undefined
 
   return {
-    async scanInto(options: ScanIntoOptions): Promise<void> {
+    async *scanSheets(): AsyncGenerator<Sheet> {
       const session = nextScannerSession
       nextScannerSession = undefined
 
@@ -110,20 +114,23 @@ export function makeMockScanner(): MockScanner {
       }
 
       for (const step of session) {
-        if (step.type === 'scan') {
-          await options.onFileScanned?.(step.path)
-        } else if (step.type === 'error') {
-          throw step.error
+        switch (step.type) {
+          case 'sheet':
+            yield step.sheet
+            break
+
+          case 'error':
+            throw step.error
         }
       }
     },
 
     /**
-     * Gets the next scanner session to be used when `scanInto` is called.
+     * Gets the next scanner session to be used when `scanSheets` is called.
      */
-    withNextScannerSession(): ScannerSession {
+    withNextScannerSession(): ScannerSessionPlan {
       if (!nextScannerSession) {
-        nextScannerSession = new ScannerSession()
+        nextScannerSession = new ScannerSessionPlan()
       }
       return nextScannerSession
     },
@@ -145,13 +152,10 @@ export function makeMockReadable(): MockReadable {
     readable.emit('readable')
   }
   readable.read = (size): unknown => {
-    if (typeof size !== 'number') {
-      return buffer
-    }
-
     if (typeof buffer === 'string') {
-      const result = buffer.slice(0, size)
-      buffer = buffer.length <= size ? undefined : buffer.slice(size)
+      const readSize = size ?? buffer.length
+      const result = buffer.slice(0, readSize)
+      buffer = buffer.length <= readSize ? undefined : buffer.slice(readSize)
       return result
     } else {
       return undefined

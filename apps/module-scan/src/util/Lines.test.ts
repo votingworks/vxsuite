@@ -79,6 +79,9 @@ test('streams lines from an input stream', async () => {
   input.emit('readable')
   expect(onLine).toHaveBeenNthCalledWith(2, 'Hello World!\n')
 
+  read.mockReturnValueOnce(undefined)
+  input.emit('readable')
+
   input.emit('close')
   expect(onLine).toHaveBeenNthCalledWith(3, 'Welcome')
 })
