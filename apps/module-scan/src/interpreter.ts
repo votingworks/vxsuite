@@ -58,7 +58,6 @@ export interface ManualBallot {
 
 export interface InterpretedBmdBallot {
   type: 'InterpretedBmdBallot'
-  normalizedImage: ImageData
   cvr: CastVoteRecord
 }
 
@@ -309,7 +308,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
   private async interpretBMDFile(
     election: Election,
-    { qrcode, image }: BallotImageData
+    { qrcode }: BallotImageData
   ): Promise<InterpretedBmdBallot | undefined> {
     if (typeof detect(qrcode) === 'undefined') {
       return
@@ -318,7 +317,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
     const cvr = interpretBallotData({ election, encodedBallot: qrcode })
 
     if (cvr) {
-      return { type: 'InterpretedBmdBallot', cvr, normalizedImage: image }
+      return { type: 'InterpretedBmdBallot', cvr }
     }
   }
 
