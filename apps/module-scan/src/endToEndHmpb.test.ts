@@ -60,7 +60,7 @@ afterEach(async () => {
 })
 
 test('going through the whole process works', async () => {
-  jest.setTimeout(10000)
+  jest.setTimeout(20000)
 
   await importer.restoreConfig()
 
@@ -94,15 +94,10 @@ test('going through the whole process works', async () => {
     const nextSession = scanner.withNextScannerSession()
 
     // scan some sample ballots
-    for (const [from, to] of [
-      ['filled-in-dual-language-p1.jpg', 'batch-1-ballot-1.jpg'],
-      ['filled-in-dual-language-p2.jpg', 'batch-1-ballot-2.jpg'],
-    ]) {
-      const fromPath = join(electionFixturesRoot, from)
-      const toPath = join(importDirs.paths.ballotImagesPath, to)
-      await fs.copyFile(fromPath, toPath)
-      nextSession.scan(toPath)
-    }
+    nextSession.sheet([
+      join(electionFixturesRoot, 'filled-in-dual-language-p1.jpg'),
+      join(electionFixturesRoot, 'filled-in-dual-language-p2.jpg'),
+    ])
 
     nextSession.end()
 
@@ -194,7 +189,7 @@ test('going through the whole process works', async () => {
 })
 
 test('failed scan with QR code can be adjudicated and exported', async () => {
-  jest.setTimeout(10000)
+  jest.setTimeout(20000)
 
   await importer.restoreConfig()
 
@@ -226,16 +221,17 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
   {
     const nextSession = scanner.withNextScannerSession()
 
-    // move some sample ballots into the ballots directory
-    const from = join(electionFixturesRoot, 'filled-in-dual-language-p3.jpg')
-    const to = join(importDirs.paths.ballotImagesPath, 'batch-1-ballot-1.jpg')
-    await fs.copyFile(from, to)
-    nextSession.scan(to).end()
+    nextSession
+      .sheet([
+        join(electionFixturesRoot, 'filled-in-dual-language-p3.jpg'),
+        join(electionFixturesRoot, 'filled-in-dual-language-p4.jpg'),
+      ])
+      .end()
 
     await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
 
     // check the latest batch has the expected ballots
-    const expectedSampleBallots = 1
+    const expectedSampleBallots = 2
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')

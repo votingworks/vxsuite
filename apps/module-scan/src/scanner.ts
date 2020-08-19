@@ -1,18 +1,16 @@
+import makeDebug from 'debug'
 import { join } from 'path'
 import { streamExecFile } from './exec'
-import makeDebug from 'debug'
 import { StreamLines } from './util/Lines'
+import { dirSync } from 'tmp'
+import { queue } from './util/deferred'
 
 const debug = makeDebug('module-scan:scanner')
 
-export interface ScanIntoOptions {
-  directory: string
-  prefix?: string
-  onFileScanned?: (path: string) => void | Promise<void>
-}
+export type Sheet = [string, string]
 
 export interface Scanner {
-  scanInto(options: ScanIntoOptions): Promise<void>
+  scanSheets(directory?: string): AsyncGenerator<Sheet>
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -39,11 +37,7 @@ export enum ScannerImageFormat {
 export class FujitsuScanner implements Scanner {
   public constructor(private format = ScannerImageFormat.PNG) {}
 
-  public async scanInto({
-    directory,
-    prefix,
-    onFileScanned,
-  }: ScanIntoOptions): Promise<void> {
+  public scanSheets(directory = dirSync().name): AsyncGenerator<Sheet> {
     const args = [
       '-d',
       'fujitsu',
@@ -51,57 +45,110 @@ export class FujitsuScanner implements Scanner {
       '300',
       `--format=${this.format}`,
       '--source=ADF Duplex',
-      '--swskip',
-      '0.5',
       '--dropoutcolor',
       'Red',
-      `--batch=${join(
-        directory,
-        `${prefix}${dateStamp()}-ballot-%04d.${this.format}`
-      )}`,
+      `--batch=${join(directory, `${dateStamp()}-ballot-%04d.${this.format}`)}`,
       `--batch-print`,
+      `--batch-prompt`,
     ]
 
     debug(
-      'Calling scanimage to scan into %s with prefix=%s in format %s; %s',
+      'Calling scanimage to scan into %s in format %s; %s',
       directory,
-      prefix,
       this.format,
       `scanimage ${args.map((arg) => `'${arg}'`).join(' ')}`
     )
 
-    const onFileScannedPromises: (void | Promise<void>)[] = []
+    const scannedFiles: string[] = []
+    const results = queue<Promise<IteratorResult<Sheet>>>()
+    let done = false
+    const scanimage = streamExecFile('scanimage', args)
 
-    await new Promise((resolve, reject) => {
-      const scanimage = streamExecFile('scanimage', args)
+    debug('scanimage [pid=%d] started', scanimage.pid)
 
-      debug('scanimage [pid=%d] started', scanimage.pid)
+    new StreamLines(scanimage.stdout!).on('line', (line: string) => {
+      const path = line.trim()
+      debug(
+        'scanimage [pid=%d] reported a scanned file: %s',
+        scanimage.pid,
+        path
+      )
 
-      new StreamLines(scanimage.stdout!).on('line', (line: string) => {
-        const path = line.trim()
-        debug(
-          'scanimage [pid=%d] reported a scanned file: %s',
-          scanimage.pid,
-          path
+      scannedFiles.push(path)
+      if (scannedFiles.length % 2 === 0) {
+        results.resolve(
+          Promise.resolve({
+            value: scannedFiles.slice(-2) as Sheet,
+            done: false,
+          })
         )
-        onFileScannedPromises.push(onFileScanned?.(path))
-      })
-
-      new StreamLines(scanimage.stderr!).on('line', (line: string) => {
-        debug('scanimage [pid=%d] stderr: %s', scanimage.pid, line.trim())
-      })
-
-      scanimage.once('exit', (code) => {
-        debug('scanimage [pid=%d] exited with code %d', scanimage.pid, code)
-
-        if (code === 0) {
-          resolve()
-        } else {
-          reject(new Error(`scanimage failed with status code ${code}`))
-        }
-      })
+      }
     })
 
-    await Promise.all(onFileScannedPromises)
+    new StreamLines(scanimage.stderr!).on('line', (line: string) => {
+      debug('scanimage [pid=%d] stderr: %s', scanimage.pid, line.trim())
+    })
+
+    scanimage.once('exit', (code) => {
+      debug('scanimage [pid=%d] exited with code %d', scanimage.pid, code)
+      done = true
+      if (code !== 0) {
+        results.rejectAll(new Error(`scanimage exited with code=${code}`))
+      } else {
+        results.resolveAll(Promise.resolve({ value: undefined, done }))
+      }
+    })
+
+    const generator: AsyncGenerator<Sheet> = {
+      async next(): Promise<IteratorResult<Sheet>> {
+        if (results.isEmpty() && !done) {
+          debug(
+            'scanimage [pid=%d] sending RETURN twice to scan another sheet',
+            scanimage.pid
+          )
+          scanimage.stdin?.write('\n\n')
+        }
+
+        return results.get()
+      },
+
+      return(value: unknown): Promise<IteratorResult<Sheet>> {
+        if (!done) {
+          done = true
+          debug(
+            'scanimage [pid=%d] generator return called, stopping scan by closing stdin'
+          )
+          return new Promise((resolve) => {
+            scanimage.stdin?.end(() => {
+              resolve({ value, done: true })
+            })
+          })
+        }
+
+        return Promise.resolve({ value, done })
+      },
+
+      throw(): Promise<IteratorResult<Sheet>> {
+        if (!done) {
+          done = true
+          debug(
+            'scanimage [pid=%d] generator throw called, stopping scan by closing stdin'
+          )
+          return new Promise((resolve) => {
+            scanimage.stdin?.end(() => {
+              resolve({ value: undefined, done: true })
+            })
+          })
+        }
+
+        return Promise.resolve({ value: undefined, done })
+      },
+
+      [Symbol.asyncIterator](): AsyncGenerator<Sheet> {
+        return generator
+      },
+    }
+
+    return generator
   }
 }

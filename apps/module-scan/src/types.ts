@@ -18,6 +18,8 @@ export interface Dictionary<T> {
   [key: string]: T | undefined
 }
 
+export type NonEmptyArray<T> = [T, ...T[]]
+
 export interface CastVoteRecord
   extends Dictionary<string | string[] | boolean | number | BallotLocales> {
   _precinctId: string
@@ -128,4 +130,14 @@ export function isMarginalMark(
     mark.type !== 'stray' &&
     getMarkStatus(mark, markThresholds) === MarkStatus.Marginal
   )
+}
+
+export function isNonEmptyArray<T>(array?: T[]): array is NonEmptyArray<T>
+export function isNonEmptyArray<T>(
+  array?: readonly T[]
+): array is Readonly<NonEmptyArray<T>>
+export function isNonEmptyArray<T>(
+  array?: T[] | readonly T[]
+): array is NonEmptyArray<T> | Readonly<NonEmptyArray<T>> {
+  return array ? array.length > 0 : false
 }

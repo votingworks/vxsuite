@@ -24,8 +24,15 @@ import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import sharp from 'sharp'
 import { decode as quircDecode } from 'node-quirc'
-import { CastVoteRecord } from './types'
+import { CastVoteRecord, BallotMetadata } from './types'
 import { getMachineId } from './util/machineId'
+import threshold from './util/threshold'
+
+const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.005
+const PercentageFormatter = new Intl.NumberFormat(undefined, {
+  style: 'percent',
+  maximumSignificantDigits: 3,
+})
 
 const debug = makeDebug('module-scan:interpreter')
 
@@ -45,6 +52,7 @@ export type InterpretedBallot =
   | InterpretedHmpbBallot
   | UninterpretedHmpbBallot
   | ManualBallot
+  | InvalidTestModeBallot
 
 export interface UninterpretedHmpbBallot {
   type: 'UninterpretedHmpbBallot'
@@ -67,6 +75,11 @@ export interface InterpretedHmpbBallot {
   metadata: BallotPageMetadata
   markInfo: MarkInfo
   cvr: CastVoteRecord
+}
+
+export interface InvalidTestModeBallot {
+  type: 'InvalidTestModeBallot'
+  metadata: BallotMetadata
 }
 
 export interface Interpreter {
@@ -174,8 +187,26 @@ export async function getBallotImageData(
     data,
     info: { width, height },
   } = await img.toBuffer({ resolveWithObject: true })
-  const image = { data: Uint8ClampedArray.from(data), width, height }
 
+  const imageThreshold = threshold(data)
+  if (
+    imageThreshold.foreground.ratio < MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
+  ) {
+    debug(
+      'interpretFile [path=%s] appears to be a blank page, skipping: %O',
+      filename,
+      imageThreshold
+    )
+    throw new Error(
+      `image from ${filename} appears blank (${PercentageFormatter.format(
+        imageThreshold.foreground.ratio
+      )} < ${PercentageFormatter.format(
+        MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
+      )})`
+    )
+  }
+
+  const image = { data: Uint8ClampedArray.from(data), width, height }
   const clipHeight = Math.floor(height / 4)
   const topCrop = img
     .clone()
@@ -269,7 +300,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
         ballotImagePath
       )
     } catch (error) {
-      debug('interpretFile failed with error: %s', error.message)
+      debug('interpretFile failed: %s', error.message)
       return
     }
 
@@ -285,12 +316,28 @@ export default class SummaryBallotInterpreter implements Interpreter {
       if (hmpbResult) {
         return hmpbResult
       }
-    } catch {
-      // ignore for now
+    } catch (error) {
+      debug('interpretHMPBFile failed: %s', error.message)
     }
 
     try {
+      debug(
+        'assuming ballot is a HMPB that could not be interpreted (QR data: %s)',
+        new TextDecoder().decode(ballotImageData.qrcode)
+      )
       const metadata = metadataFromBytes(ballotImageData.qrcode)
+
+      if (metadata.isTestBallot !== this.testMode) {
+        debug(
+          'cannot process a HMPB with isTestBallot=%s when testMode=%s',
+          metadata.isTestBallot,
+          this.testMode
+        )
+        return {
+          type: 'InvalidTestModeBallot',
+          metadata,
+        }
+      }
 
       return {
         type: 'UninterpretedHmpbBallot',
