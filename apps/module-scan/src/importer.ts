@@ -43,14 +43,6 @@ export interface Importer {
     ballotImagePath: string,
     ballotImageFile?: Buffer
   ): Promise<number | undefined>
-
-  /**
-   * Returns a promise that resolves once all currently-running imports finish.
-   * If another import is triggered in the meantime, that import is not
-   * included.
-   */
-  waitForImports(): Promise<void>
-
   getStatus(): Promise<ScanStatus>
   restoreConfig(): Promise<void>
   setTestMode(testMode: boolean): Promise<void>
@@ -67,7 +59,6 @@ export default class SystemImporter implements Importer {
   private scanner: Scanner
   private interpreter: Interpreter
   private manualBatchId?: number
-  private imports: Promise<void>[] = []
 
   public readonly ballotImagesPath: string
   public readonly importedBallotImagesPath: string
@@ -185,10 +176,6 @@ export default class SystemImporter implements Importer {
    */
   public async configure(newElection: Election): Promise<void> {
     await this.store.setElection(newElection)
-  }
-
-  public async waitForImports(): Promise<void> {
-    await Promise.allSettled(this.imports)
   }
 
   public async setTestMode(testMode: boolean): Promise<void> {
