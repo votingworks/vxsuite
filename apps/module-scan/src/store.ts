@@ -204,6 +204,9 @@ export default class Store {
       })
     })
 
+    // enforce foreign key constraints
+    await this.dbRunAsync('pragma foreign_keys = 1')
+
     await this.dbRunAsync(
       `create table if not exists batches (
         id integer primary key autoincrement,
@@ -214,7 +217,7 @@ export default class Store {
     await this.dbRunAsync(
       `create table if not exists ballots (
         id integer primary key autoincrement,
-        batch_id integer references batches,
+        batch_id integer,
         original_filename text unique,
         normalized_filename text unique,
         marks_json text,
@@ -222,7 +225,12 @@ export default class Store {
         metadata_json text,
         adjudication_json text,
         adjudication_info_json text,
-        requires_adjudication boolean
+        requires_adjudication boolean,
+
+        foreign key (batch_id)
+        references batches (id)
+          on update cascade
+          on delete cascade
       )`
     )
     await this.dbRunAsync(
@@ -476,7 +484,6 @@ export default class Store {
   }
 
   public async zero(): Promise<void> {
-    await this.dbRunAsync('delete from ballots')
     await this.dbRunAsync('delete from batches')
   }
 
@@ -784,7 +791,6 @@ export default class Store {
       'select count(*) as count from batches where id = ?',
       batchId
     )
-    await this.dbRunAsync('delete from ballots where batch_id = ?', batchId)
     await this.dbRunAsync('delete from batches where id = ?', batchId)
     return count > 0
   }
