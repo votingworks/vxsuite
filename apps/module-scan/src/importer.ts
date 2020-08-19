@@ -67,9 +67,6 @@ export default class SystemImporter implements Importer {
   private scanner: Scanner
   private interpreter: Interpreter
   private manualBatchId?: number
-  private onBallotAddedCallbacks: ((
-    interpreted: InterpretedBallot
-  ) => void)[] = []
   private imports: Promise<void>[] = []
 
   public readonly ballotImagesPath: string
@@ -376,15 +373,6 @@ export default class SystemImporter implements Importer {
   }
 
   /**
-   * Register a callback to be called when a CVR entry is added.
-   */
-  public addAddBallotCallback(
-    callback: (interpreted: InterpretedBallot) => void
-  ): void {
-    this.onBallotAddedCallbacks.push(callback)
-  }
-
-  /**
    * Add a ballot to the internal store.
    */
   private async addBallot(
@@ -399,14 +387,6 @@ export default class SystemImporter implements Importer {
       normalizedBallotImagePath,
       interpreted
     )
-
-    for (const callback of this.onBallotAddedCallbacks) {
-      try {
-        callback(interpreted)
-      } catch {
-        // ignore failed callbacks
-      }
-    }
 
     return ballotId
   }
