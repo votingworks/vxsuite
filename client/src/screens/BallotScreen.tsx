@@ -28,7 +28,7 @@ const BallotScreen = () => {
     ballotStyleId,
     localeCode: currentLocaleCode,
   } = useParams<BallotScreenProps>()
-  const { election: e, electionHash } = useContext(AppContext)
+  const { election: e, electionHash, addPrintedBallot } = useContext(AppContext)
   const election = e!
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
   const locales: BallotLocale = {
@@ -61,6 +61,18 @@ const BallotScreen = () => {
     locales,
     isLiveMode,
   })
+
+  const afterPrint = () => {
+    if (isLiveMode) {
+      addPrintedBallot({
+        ballotStyleId,
+        precinctId,
+        locales,
+        numCopies: 1,
+        printedAt: new Date().toISOString(),
+      })
+    }
+  }
 
   return (
     <React.Fragment>
@@ -101,7 +113,7 @@ const BallotScreen = () => {
           )}
         </p>
         <p>
-          <PrintButton primary title={filename}>
+          <PrintButton primary title={filename} afterPrint={afterPrint}>
             {availableLocaleCodes.length > 1 && currentLocaleCode
               ? `Print ${
                   isLiveMode ? 'Official Ballot' : 'Test Ballot'

@@ -115,3 +115,13 @@ export type CastVoteRecordFilesDictionary = Dictionary<CastVoteRecordFile>
 
 export type VoteCounts = Dictionary<Dictionary<number>>
 export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>
+
+export type ISO8601Timestamp = string
+
+export interface PrintedBallot {
+  ballotStyleId: BallotStyle['id']
+  precinctId: Precinct['id']
+  locales: BallotLocale
+  numCopies: number
+  printedAt: ISO8601Timestamp
+}

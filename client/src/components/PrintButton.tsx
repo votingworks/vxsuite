@@ -6,10 +6,12 @@ import Loading from './Loading'
 
 interface PrintButtonProps extends ButtonInterface {
   title?: string
+  afterPrint?: () => void
 }
 
 const PrintButton = ({
   title,
+  afterPrint,
   children,
   ...rest
 }: React.PropsWithChildren<PrintButtonProps>) => {
@@ -27,6 +29,10 @@ const PrintButton = ({
     await (window.kiosk ?? window).print()
     if (title) {
       document.title = documentTitle
+    }
+
+    if (afterPrint) {
+      afterPrint()
     }
   }
 
