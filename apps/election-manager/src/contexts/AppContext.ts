@@ -1,6 +1,11 @@
 import { createContext, RefObject } from 'react'
 import { OptionalElection } from '@votingworks/ballot-encoder'
-import { SaveElection, OptionalVoteCounts } from '../config/types'
+import {
+  SaveElection,
+  OptionalVoteCounts,
+  PrintedBallot,
+  ISO8601Timestamp,
+} from '../config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../utils/CastVoteRecordFiles'
@@ -9,6 +14,7 @@ interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles
   election: OptionalElection
   electionHash: string
+  configuredAt: ISO8601Timestamp
   isOfficialResults: boolean
   printBallotRef?: RefObject<HTMLElement>
   saveCastVoteRecordFiles: SaveCastVoteRecordFiles
@@ -21,12 +27,15 @@ interface AppContextInterface {
   voteCounts: OptionalVoteCounts
   usbDriveStatus: string
   usbDriveEject: () => void
+  addPrintedBallot: (printedBallot: PrintedBallot) => void
+  printedBallots: PrintedBallot[]
 }
 
 const appContext: AppContextInterface = {
   castVoteRecordFiles: CastVoteRecordFiles.empty,
   election: undefined,
   electionHash: '',
+  configuredAt: '',
   isOfficialResults: false,
   printBallotRef: undefined,
   saveCastVoteRecordFiles: () => undefined,
@@ -37,6 +46,8 @@ const appContext: AppContextInterface = {
   voteCounts: undefined,
   usbDriveStatus: '',
   usbDriveEject: () => undefined,
+  addPrintedBallot: () => undefined,
+  printedBallots: [],
 }
 
 const AppContext = createContext(appContext)

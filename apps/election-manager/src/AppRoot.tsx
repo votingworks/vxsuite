@@ -25,12 +25,19 @@ import CastVoteRecordFiles, {
 import { Storage } from './utils/Storage'
 
 import ElectionManager from './components/ElectionManager'
-import { SaveElection, OptionalVoteCounts } from './config/types'
+import {
+  SaveElection,
+  OptionalVoteCounts,
+  PrintedBallot,
+  ISO8601Timestamp,
+} from './config/types'
 
 export interface AppStorage {
   election?: Election
   cvrFiles?: string
   isOfficialResults?: boolean
+  printedBallots?: PrintedBallot[]
+  configuredAt?: ISO8601Timestamp
 }
 
 export interface Props extends RouteComponentProps {
@@ -40,6 +47,8 @@ export interface Props extends RouteComponentProps {
 export const electionStorageKey = 'election'
 export const cvrsStorageKey = 'cvrFiles'
 export const isOfficialResultsKey = 'isOfficialResults'
+export const printedBallotsStorageKey = 'printedBallots'
+export const configuredAtStorageKey = 'configuredAt'
 
 const AppRoot = ({ storage }: Props) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
@@ -55,6 +64,8 @@ const AppRoot = ({ storage }: Props) => {
 
   const [election, setElection] = useState<OptionalElection>(undefined)
   const [electionHash, setElectionHash] = useState('')
+  const [configuredAt, setConfiguredAt] = useState<ISO8601Timestamp>('')
+
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
     CastVoteRecordFiles.empty
   )
@@ -98,6 +109,33 @@ const AppRoot = ({ storage }: Props) => {
     ? UsbDriveStatus.recentlyEjected
     : usbStatus
 
+  const [printedBallots, setPrintedBallots] = useState<
+    PrintedBallot[] | undefined
+  >(undefined)
+
+  const getPrintedBallots = async (): Promise<PrintedBallot[]> => {
+    return (await storage.get(printedBallotsStorageKey)) || []
+  }
+
+  const savePrintedBallots = async (printedBallots: PrintedBallot[]) => {
+    return await storage.set(printedBallotsStorageKey, printedBallots)
+  }
+
+  const addPrintedBallot = async (printedBallot: PrintedBallot) => {
+    const ballots = await getPrintedBallots()
+    ballots.push(printedBallot)
+    await savePrintedBallots(ballots)
+    setPrintedBallots(ballots)
+  }
+
+  useEffect(() => {
+    ;(async () => {
+      if (!printedBallots) {
+        setPrintedBallots(await getPrintedBallots())
+      }
+    })()
+  })
+
   useEffect(() => {
     ;(async () => {
       if (!election) {
@@ -105,6 +143,8 @@ const AppRoot = ({ storage }: Props) => {
         if (storageElection) {
           setElection(storageElection)
           setElectionHash(sha256(JSON.stringify(storageElection)))
+
+          setConfiguredAt((await storage.get(configuredAtStorageKey)) || '')
         }
 
         if (castVoteRecordFiles === CastVoteRecordFiles.empty) {
@@ -126,28 +166,34 @@ const AppRoot = ({ storage }: Props) => {
       setIsOfficialResults(false)
     }
     /*
-    // TURNING OFF STORAGE FOR NOW
-    if (newCVRFiles === CastVoteRecordFiles.empty) {
-      storage.remove(cvrsStorageKey)
-      storage.remove(isOfficialResultsKey)
-      setIsOfficialResults(false)
-    } else {
-      storage.set(cvrsStorageKey, newCVRFiles.export())
-    } */
+       // TURNING OFF STORAGE FOR NOW
+       if (newCVRFiles === CastVoteRecordFiles.empty) {
+       storage.remove(cvrsStorageKey)
+       storage.remove(isOfficialResultsKey)
+       setIsOfficialResults(false)
+       } else {
+       storage.set(cvrsStorageKey, newCVRFiles.export())
+       } */
   }
 
   const [voteCounts, setVoteCounts] = useState<OptionalVoteCounts>()
 
   const saveElection: SaveElection = (electionDefinition) => {
+    // we set a new election definition, reset everything
+    storage.clear()
+    setIsOfficialResults(false)
+    setCastVoteRecordFiles(CastVoteRecordFiles.empty)
+    setPrintedBallots([])
+
     setElection(electionDefinition)
     setElectionHash(
       electionDefinition ? sha256(JSON.stringify(electionDefinition)) : ''
     )
     if (electionDefinition) {
       storage.set(electionStorageKey, electionDefinition)
-    } else {
-      storage.remove(electionStorageKey)
-      saveCastVoteRecordFiles()
+      const newConfiguredAt = new Date().toISOString()
+      storage.set(configuredAtStorageKey, newConfiguredAt)
+      setConfiguredAt(newConfiguredAt)
     }
   }
 
@@ -157,6 +203,7 @@ const AppRoot = ({ storage }: Props) => {
         castVoteRecordFiles,
         election,
         electionHash,
+        configuredAt,
         isOfficialResults,
         printBallotRef,
         saveCastVoteRecordFiles,
@@ -167,6 +214,8 @@ const AppRoot = ({ storage }: Props) => {
         voteCounts,
         usbDriveStatus: displayUsbStatus,
         usbDriveEject: doEject,
+        printedBallots: printedBallots || [],
+        addPrintedBallot,
       }}
     >
       <ElectionManager />
