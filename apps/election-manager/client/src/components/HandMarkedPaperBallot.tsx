@@ -850,9 +850,14 @@ const HandMarkedPaperBallot = ({
                             }}
                           />
                           {localeContests && (
-                            <Text small>
-                              {(localeContests[i] as YesNoContest).description}
-                            </Text>
+                            <Text
+                              small
+                              preLine
+                              dangerouslySetInnerHTML={{
+                                __html: (localeContests[i] as YesNoContest)
+                                  .description,
+                              }}
+                            />
                           )}
                           {['Yes', 'No'].map((answer) => (
                             <Text key={answer} bold noWrap>
