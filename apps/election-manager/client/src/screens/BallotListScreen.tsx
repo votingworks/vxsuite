@@ -21,7 +21,7 @@ const Header = styled.div`
 `
 
 const BallotListScreen = () => {
-  const { election: e } = useContext(AppContext)
+  const { election: e, printedBallots, configuredAt } = useContext(AppContext)
   const election = e!
 
   const ballotLists = [
@@ -34,10 +34,19 @@ const BallotListScreen = () => {
 
   const ballots = ballotLists[ballotView]
 
+  const numBallotsPrinted = printedBallots.reduce(
+    (count, ballot) => count + ballot.numCopies,
+    0
+  )
+
   return (
     <NavigationScreen>
       <Header>
         <Prose maxWidth={false}>
+          <p>
+            <strong>{numBallotsPrinted} official ballots</strong> have been
+            printed. Election configured at <strong>{configuredAt}</strong>.
+          </p>
           <p>
             {`Sort ${pluralize('ballot', ballots.length, true)} by: `}
             <SegmentedButton>
