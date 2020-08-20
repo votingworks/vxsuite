@@ -3,7 +3,8 @@ import { Switch, Route, Redirect } from 'react-router-dom'
 
 import AppContext from '../contexts/AppContext'
 
-import ElectionEditDefinitionScreen from '../screens/ElectionEditDefinitionScreen'
+import routerPaths from '../routerPaths'
+import DefinitionScreen from '../screens/DefinitionScreen'
 import BallotListScreen from '../screens/BallotListScreen'
 import BallotScreen from '../screens/BallotScreen'
 import ExportElectionBallotPackageScreen from '../screens/ExportElectionBallotPackageScreen'
@@ -12,9 +13,9 @@ import TestDeckScreen from '../screens/TestDeckScreen'
 import TallyScreen from '../screens/TallyScreen'
 import TallyReportScreen from '../screens/TallyReportScreen'
 import CombineResultsScreen from '../screens/CombineResultsScreen'
-
-import routerPaths from '../routerPaths'
 import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationReportScreen'
+import DefinitionEditorScreen from '../screens/DefinitionEditorScreen'
+import DefinitionContestsScreen from '../screens/DefinitionContestsScreen'
 
 const ElectionManager = () => {
   const { election: e } = useContext(AppContext)
@@ -26,8 +27,14 @@ const ElectionManager = () => {
 
   return (
     <Switch>
-      <Route path={routerPaths.electionDefinition}>
-        <ElectionEditDefinitionScreen />
+      <Route exact path={routerPaths.electionDefinition}>
+        <DefinitionScreen />
+      </Route>
+      <Route path={routerPaths.definitionEditor}>
+        <DefinitionEditorScreen />
+      </Route>
+      <Route path={routerPaths.definitionContest({ contestId: ':contestId' })}>
+        <DefinitionContestsScreen />
       </Route>
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />

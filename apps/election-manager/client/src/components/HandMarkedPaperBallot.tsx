@@ -349,7 +349,7 @@ const Instructions = styled.div`
     margin-top: 0;
   }
 `
-const Contest = styled.div`
+export const Contest = styled.div`
   margin-bottom: 1em;
   border: 0.05em solid #000000;
   border-top-width: 0.2em;
@@ -371,7 +371,7 @@ const WriteInItem = styled.p`
   }
 `
 
-const CandidateContestChoices = ({
+export const CandidateContestChoices = ({
   contest,
   locales,
   parties,
@@ -802,7 +802,7 @@ const HandMarkedPaperBallot = ({
                       </h3>
                       {contest.type === 'candidate' && (
                         <React.Fragment>
-                          <Text bold>
+                          <p>
                             {contest.seats === 1
                               ? dualLanguageWithSlash('Vote for 1', {
                                   normal: true,
@@ -811,7 +811,7 @@ const HandMarkedPaperBallot = ({
                                   'Vote for not more than {{ seats }}',
                                   { seats: contest.seats, normal: true }
                                 )}
-                          </Text>
+                          </p>
                           <CandidateContestChoices
                             contest={contest}
                             parties={parties}

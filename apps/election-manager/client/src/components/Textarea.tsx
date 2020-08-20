@@ -1,17 +1,28 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
+import ReactTextareaAutosize from 'react-textarea-autosize'
 
 interface Props {
-  resize: boolean
+  disabled?: boolean
+  resize?: boolean
 }
 
-const Textarea = styled.textarea<Props>`
-  border: 2px solid #333333;
+const styles = css<Props>`
+  border: 1px solid #cccccc;
+  background: ${({ disabled = undefined }) =>
+    disabled ? '#dddddd' : '#ffffff'};
   width: 100%;
-  min-height: 400px;
-  padding: 0.25rem;
-  font-family: monospace;
+  padding: 0.35rem 0.5rem;
+  line-height: 1.25;
   font-size: 1rem;
-  resize: ${({ resize = true }) => (resize ? undefined : 'none')};
+  resize: ${({ resize = 0 }) => (resize ? undefined : 'none')};
+`
+
+export const TextareaAutosize = styled(ReactTextareaAutosize)<Props>`
+  ${styles}/* stylelint-disable-line value-keyword-case */
+`
+
+const Textarea = styled.textarea<Props>`
+  ${styles}/* stylelint-disable-line value-keyword-case */
 `
 
 export default Textarea

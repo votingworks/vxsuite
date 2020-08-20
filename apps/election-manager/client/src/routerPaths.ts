@@ -7,6 +7,9 @@ import {
 const routerPaths = {
   root: '/',
   electionDefinition: '/definition',
+  definitionEditor: '/definition/editor',
+  definitionContest: ({ contestId }: { contestId: string }) =>
+    `/definition/contests/${contestId}`,
   ballotsList: '/ballots',
   ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps) =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
