@@ -16,6 +16,9 @@ export interface Dictionary<T> {
 export type InputEventFunction = (
   event: React.FormEvent<HTMLInputElement>
 ) => void | Promise<void>
+export type TextareaEventFunction = (
+  event: React.FormEvent<HTMLTextAreaElement>
+) => void | Promise<void>
 export type ButtonEventFunction = (
   event: React.MouseEvent<HTMLButtonElement>
 ) => void | Promise<void>

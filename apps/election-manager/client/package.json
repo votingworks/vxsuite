@@ -58,10 +58,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "statements": 52,
-        "branches": 40,
-        "functions": 49,
-        "lines": 53
+        "statements": 50,
+        "branches": 37,
+        "functions": 46,
+        "lines": 50
       }
     }
   },
@@ -96,6 +96,7 @@
     "react-modal": "^3.11.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
+    "react-textarea-autosize": "^8.2.0",
     "rxjs": "^6.5.5",
     "styled-components": "^5.1.0",
     "typescript": "~3.7.2",
