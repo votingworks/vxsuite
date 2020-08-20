@@ -20,6 +20,7 @@ import { promises as fs } from 'fs'
 import sharp from 'sharp'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
+import { v4 as uuid } from 'uuid'
 import { InterpretedBallot, MarkInfo } from './interpreter'
 import {
   AdjudicationStatus,
@@ -110,8 +111,9 @@ export default class Store {
   ): Promise<void> {
     const db = await this.getDb()
     return new Promise((resolve, reject) => {
-      db.run(sql, ...params, (err: Error) => {
+      db.run(sql, ...params, (err: unknown) => {
         if (err) {
+          debug('failed to execute %s (%o): %s', sql, params, err)
           reject(err)
         } else {
           resolve()
@@ -133,7 +135,7 @@ export default class Store {
   ): Promise<T[]> {
     const db = await this.getDb()
     return new Promise((resolve, reject) => {
-      db.all(sql, params, (err, rows: T[]) => {
+      db.all(sql, params, (err: unknown, rows: T[]) => {
         if (err) {
           reject(err)
         } else {
@@ -156,7 +158,7 @@ export default class Store {
   ): Promise<T> {
     const db = await this.getDb()
     return new Promise<T>((resolve, reject) => {
-      db.get(sql, params, (err, row: T) => {
+      db.get(sql, params, (err: unknown, row: T) => {
         if (err) {
           reject(err)
         } else {
@@ -195,7 +197,7 @@ export default class Store {
   public async dbCreate(): Promise<sqlite3.Database> {
     debug('creating the database at %s', this.dbPath)
     this.db = await new Promise<sqlite3.Database>((resolve, reject) => {
-      const db = new sqlite3.Database(this.dbPath, (err) => {
+      const db = new sqlite3.Database(this.dbPath, (err: unknown) => {
         if (err) {
           reject(err)
         } else {
@@ -209,15 +211,15 @@ export default class Store {
 
     await this.dbRunAsync(
       `create table if not exists batches (
-        id integer primary key autoincrement,
-        startedAt datetime,
-        endedAt datetime
+        id varchar(36) primary key,
+        started_at datetime default current_timestamp not null,
+        ended_at datetime
       )`
     )
     await this.dbRunAsync(
       `create table if not exists ballots (
-        id integer primary key autoincrement,
-        batch_id integer,
+        id varchar(36) primary key,
+        batch_id varchar(36),
         original_filename text unique,
         normalized_filename text unique,
         marks_json text,
@@ -226,6 +228,7 @@ export default class Store {
         adjudication_json text,
         adjudication_info_json text,
         requires_adjudication boolean,
+        created_at datetime default current_timestamp not null,
 
         foreign key (batch_id)
         references batches (id)
@@ -241,13 +244,14 @@ export default class Store {
     )
     await this.dbRunAsync(
       `create table if not exists hmpb_templates (
-        id integer primary key autoincrement,
+        id varchar(36) primary key,
         pdf blob,
         locales varchar(255),
         ballot_style_id varchar(255),
         precinct_id varchar(255),
         is_test_ballot boolean,
-        layouts_json text
+        layouts_json text,
+        created_at datetime default current_timestamp not null
       )`
     )
     await this.dbRunAsync(
@@ -356,38 +360,41 @@ export default class Store {
   /**
    * Adds a batch and returns its id.
    */
-  public async addBatch(): Promise<number> {
-    // FIX: review the possible race condition here.
-    // https://github.com/votingworks/module-scan/issues/115
-    await this.dbRunAsync(
-      "insert into batches (startedAt) values (strftime('%s','now'))"
-    )
-
-    const { rowId } = await this.dbGetAsync(
-      'select last_insert_rowid() as rowId'
-    )
-    return parseInt(rowId, 10)
+  public async addBatch(): Promise<string> {
+    const id = uuid()
+    await this.dbRunAsync('insert into batches (id) values (?)', id)
+    return id
   }
 
   /**
    * Marks the batch with id `batchId` as finished.
    */
-  public async finishBatch(batchId: number): Promise<void> {
+  public async finishBatch(batchId: string): Promise<void> {
     await this.dbRunAsync(
-      "update batches set endedAt = strftime('%s','now') where id = ?",
+      'update batches set ended_at = current_timestamp where id = ?',
       batchId
     )
+  }
+
+  public async addBallotCard(batchId: string): Promise<string> {
+    const id = uuid()
+    await this.dbRunAsync(
+      'insert into ballot_cards (id, batch_id) values (?, ?)',
+      id,
+      batchId
+    )
+    return id
   }
 
   /**
    * Adds a ballot to an existing batch.
    */
   public async addBallot(
-    batchId: number,
+    batchId: string,
     originalFilename: string,
     normalizedFilename: string,
     interpreted: InterpretedBallot
-  ): Promise<number> {
+  ): Promise<string> {
     const cvr = 'cvr' in interpreted ? interpreted.cvr : undefined
     const markInfo =
       'markInfo' in interpreted ? interpreted.markInfo : undefined
@@ -456,10 +463,12 @@ export default class Store {
     }
 
     try {
+      const id = uuid()
       await this.dbRunAsync(
         `insert into ballots
-          (batch_id, original_filename, normalized_filename, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
-          values (?, ?, ?, ?, ?, ?, ?, ?)`,
+          (id, batch_id, original_filename, normalized_filename, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
+          values (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        id,
         batchId,
         originalFilename,
         normalizedFilename,
@@ -480,7 +489,7 @@ export default class Store {
       'select id from ballots where original_filename = ?',
       originalFilename
     )
-    return parseInt(id, 10)
+    return id
   }
 
   public async zero(): Promise<void> {
@@ -488,11 +497,11 @@ export default class Store {
   }
 
   public async getBallotFilenames(
-    ballotId: number
+    ballotId: string
   ): Promise<{ original: string; normalized: string } | undefined> {
     const row = await this.dbGetAsync<
       { original: string; normalized: string } | undefined,
-      [number]
+      [string]
     >(
       `
       select
@@ -513,7 +522,7 @@ export default class Store {
     return row
   }
 
-  public async getBallot(ballotId: number): Promise<ReviewBallot | undefined> {
+  public async getBallot(ballotId: string): Promise<ReviewBallot | undefined> {
     const election = await this.getElection()
 
     if (!election) {
@@ -531,7 +540,7 @@ export default class Store {
           metadataJSON?: string
         }
       | undefined,
-      [number]
+      [string]
     >(
       `
         select
@@ -696,12 +705,12 @@ export default class Store {
   }
 
   public async getNextReviewBallot(): Promise<ReviewBallot | undefined> {
-    const row = await this.dbGetAsync<{ id: number } | undefined, [boolean]>(
+    const row = await this.dbGetAsync<{ id: string } | undefined, [boolean]>(
       `
       select id
       from ballots
       where requires_adjudication = ?
-      order by id asc
+      order by created_at asc
       limit 1
     `,
       true
@@ -716,13 +725,13 @@ export default class Store {
   }
 
   public async saveBallotAdjudication(
-    ballotId: number,
+    ballotId: string,
     change: MarksByContestId
   ): Promise<boolean> {
     const { markThresholds } = (await this.getElection()) ?? {}
     const row = await this.dbGetAsync<
       { adjudicationJSON?: string; marksJSON?: string } | undefined,
-      [number]
+      [string]
     >(
       `
       select
@@ -802,8 +811,8 @@ export default class Store {
     return this.dbAllAsync(`
       select
         batches.id as id,
-        startedAt,
-        endedAt,
+        started_at,
+        ended_at,
         count(*) as count
       from
         ballots,
@@ -812,10 +821,10 @@ export default class Store {
         ballots.batch_id = batches.id
       group by
         batches.id,
-        batches.startedAt,
-        batches.endedAt
+        batches.started_at,
+        batches.ended_at
       order by
-        batches.startedAt desc
+        batches.started_at desc
     `)
   }
 
@@ -893,7 +902,7 @@ export default class Store {
   public async addHmpbTemplate(
     pdf: Buffer,
     layouts: readonly SerializableBallotPageLayout[]
-  ): Promise<void> {
+  ): Promise<string> {
     const { metadata } = layouts[0].ballotImage
 
     debug('storing HMPB template: %O', metadata)
@@ -905,8 +914,23 @@ export default class Store {
       metadata.precinctId,
       metadata.isTestBallot
     )
+
+    const id = uuid()
     await this.dbRunAsync(
-      'insert into hmpb_templates (pdf, locales, ballot_style_id, precinct_id, is_test_ballot, layouts_json) values (?, ?, ?, ?, ?, ?)',
+      `
+      insert into hmpb_templates (
+        id,
+        pdf,
+        locales,
+        ballot_style_id,
+        precinct_id,
+        is_test_ballot,
+        layouts_json
+      ) values (
+        ?, ?, ?, ?, ?, ?, ?
+      )
+      `,
+      id,
       pdf,
       this.serializeLocales(metadata.locales),
       metadata.ballotStyleId,
@@ -914,13 +938,24 @@ export default class Store {
       metadata.isTestBallot,
       JSON.stringify(layouts, undefined, 2)
     )
+    return id
   }
 
   public async getHmpbTemplates(): Promise<
     [Buffer, SerializableBallotPageLayout[]][]
   > {
-    const sql =
-      'select id, pdf, locales, ballot_style_id as ballotStyleId, precinct_id as precinctId, is_test_ballot as isTestBallot, layouts_json as layoutsJSON from hmpb_templates order by id asc'
+    const sql = `
+        select
+          id,
+          pdf,
+          locales,
+          ballot_style_id as ballotStyleId,
+          precinct_id as precinctId,
+          is_test_ballot as isTestBallot,
+          layouts_json as layoutsJSON
+        from hmpb_templates
+        order by created_at asc
+      `
     const rows = await this.dbAllAsync<HmpbTemplatesColumns>(sql)
     const results: [Buffer, SerializableBallotPageLayout[]][] = []
 

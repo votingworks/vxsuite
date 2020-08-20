@@ -238,8 +238,14 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     expect(JSON.parse(status.text).batches[0].count).toBe(expectedSampleBallots)
   }
 
+  const { id } = await store.dbGetAsync<{ id: string }>(`
+    select id
+    from ballots
+    where json_extract(metadata_json, '$.pageNumber') = 3
+  `)
+
   await request(app)
-    .patch('/scan/hmpb/ballot/1')
+    .patch(`/scan/hmpb/ballot/${id}`)
     .send({ 'city-mayor': { seldon: MarkStatus.Marked } })
     .expect(200)
 

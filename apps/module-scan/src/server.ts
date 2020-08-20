@@ -241,7 +241,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   })
 
   app.get('/scan/hmpb/ballot/:ballotId', async (request, response) => {
-    const ballot = await store.getBallot(parseInt(request.params.ballotId, 10))
+    const ballot = await store.getBallot(request.params.ballotId)
 
     if (ballot) {
       response.json(ballot)
@@ -251,10 +251,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   })
 
   app.patch('/scan/hmpb/ballot/:ballotId', async (request, response) => {
-    await store.saveBallotAdjudication(
-      parseInt(request.params.ballotId, 10),
-      request.body
-    )
+    await store.saveBallotAdjudication(request.params.ballotId, request.body)
     response.json({ status: 'ok' })
   })
 
@@ -268,9 +265,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.get(
     '/scan/hmpb/ballot/:ballotId/image/:version',
     async (request, response) => {
-      const filenames = await store.getBallotFilenames(
-        parseInt(request.params.ballotId, 10)
-      )
+      const filenames = await store.getBallotFilenames(request.params.ballotId)
       const version = request.params.version
 
       if (filenames && version in filenames) {
@@ -282,7 +277,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   )
 
   app.delete('/scan/batch/:batchId', async (request, response) => {
-    if (await store.deleteBatch(parseInt(request.params.batchId, 10))) {
+    if (await store.deleteBatch(request.params.batchId)) {
       response.json({ status: 'ok' })
     } else {
       response.status(404).end()
