@@ -15,6 +15,7 @@ import ButtonBar from '../components/ButtonBar'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import NavigationScreen from '../components/NavigationScreen'
+import { TextareaEventFunction } from '../config/types'
 
 const Header = styled.div`
   margin-bottom: 1rem;
@@ -25,10 +26,12 @@ const FlexTextareaWrapper = styled.div`
   flex: 1;
   & > textarea {
     flex: 1;
+    border: 2px solid #333333;
+    min-height: 400px;
+    font-family: monospace;
   }
 `
-
-const ElectionEditDefinitionScreen = () => {
+const DefinitionEditorScreen = () => {
   const history = useHistory()
   const { election: e, saveElection } = useContext(AppContext)
   const election = e!
@@ -59,9 +62,9 @@ const ElectionEditDefinitionScreen = () => {
       return false
     }
   }, [electionString])
-  const editElection = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const editElection: TextareaEventFunction = (event) => {
     setDirty(true)
-    setElectionString(event.target.value)
+    setElectionString(event.currentTarget.value)
   }
   const hanldeSaveElection = () => {
     const newElection = parseElectionString()
@@ -127,11 +130,7 @@ const ElectionEditDefinitionScreen = () => {
           </Button>
         </ButtonBar>
         <FlexTextareaWrapper>
-          <Textarea
-            onChange={editElection}
-            value={electionString}
-            resize={false}
-          />
+          <Textarea onChange={editElection} value={electionString} />
         </FlexTextareaWrapper>
       </NavigationScreen>
       <Modal
@@ -156,4 +155,4 @@ const ElectionEditDefinitionScreen = () => {
   )
 }
 
-export default ElectionEditDefinitionScreen
+export default DefinitionEditorScreen
