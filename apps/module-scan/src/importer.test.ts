@@ -93,7 +93,7 @@ test('unconfigure clears all data.', async () => {
   await importer.addManualBallot(ballotContent)
   const batches = (await importer.getStatus()).batches
   expect(batches).toHaveLength(1)
-  expect(batches[0].id).toEqual(1)
+  expect(typeof batches[0].id).toEqual('string')
 })
 
 test('setTestMode zeroes and sets test mode on the interpreter', async () => {

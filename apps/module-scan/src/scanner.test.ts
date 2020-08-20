@@ -16,6 +16,14 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
   exec.mockReturnValueOnce(scanimage)
   const sheets = scanner.scanSheets()
 
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  )
   scanimage.stdout.append('/tmp/image-0001.png\n')
   scanimage.stdout.append('/tmp/image-0002.png\n')
   expect(exec).toHaveBeenCalledWith(

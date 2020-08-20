@@ -33,16 +33,16 @@ export interface Importer {
     pdf: Buffer,
     metadata: BallotMetadata
   ): Promise<BallotPageLayout[]>
-  addManualBallot(encodedBallot: Uint8Array): Promise<number | undefined>
+  addManualBallot(encodedBallot: Uint8Array): Promise<string | undefined>
   configure(newElection: Election): Promise<void>
   doExport(): Promise<string>
   doImport(): Promise<void>
   doZero(): Promise<void>
   importFile(
-    batchId: number,
+    batchId: string,
     ballotImagePath: string,
     ballotImageFile?: Buffer
-  ): Promise<number | undefined>
+  ): Promise<string | undefined>
   getStatus(): Promise<ScanStatus>
   restoreConfig(): Promise<void>
   setTestMode(testMode: boolean): Promise<void>
@@ -58,7 +58,7 @@ export default class SystemImporter implements Importer {
   private store: Store
   private scanner: Scanner
   private interpreter: Interpreter
-  private manualBatchId?: number
+  private manualBatchId?: string
 
   public readonly ballotImagesPath: string
   public readonly importedBallotImagesPath: string
@@ -142,7 +142,7 @@ export default class SystemImporter implements Importer {
    */
   public async addManualBallot(
     encodedBallot: Uint8Array
-  ): Promise<number | undefined> {
+  ): Promise<string | undefined> {
     const election = await this.store.getElection()
 
     if (!election) {
@@ -220,7 +220,7 @@ export default class SystemImporter implements Importer {
     }
   }
 
-  private async cardAdded(card: Sheet, batchId: number): Promise<void> {
+  private async cardAdded(card: Sheet, batchId: string): Promise<void> {
     const start = Date.now()
     try {
       debug('cardAdded %o batchId=%d STARTING', card, batchId)
@@ -242,7 +242,7 @@ export default class SystemImporter implements Importer {
    */
   private async fileAdded(
     ballotImagePath: string,
-    batchId: number
+    batchId: string
   ): Promise<void> {
     const start = Date.now()
     try {
@@ -260,10 +260,10 @@ export default class SystemImporter implements Importer {
   }
 
   public async importFile(
-    batchId: number,
+    batchId: string,
     ballotImagePath: string,
     ballotImageFile?: Buffer
-  ): Promise<number | undefined> {
+  ): Promise<string | undefined> {
     const election = await this.store.getElection()
 
     if (!election) {
@@ -363,11 +363,11 @@ export default class SystemImporter implements Importer {
    * Add a ballot to the internal store.
    */
   private async addBallot(
-    batchId: number,
+    batchId: string,
     originalBallotImagePath: string,
     normalizedBallotImagePath: string,
     interpreted: InterpretedBallot
-  ): Promise<number> {
+  ): Promise<string> {
     const ballotId = await this.store.addBallot(
       batchId,
       originalBallotImagePath,

@@ -260,8 +260,12 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
     .expect(200, {
       type: 'ReviewMarginalMarksBallot',
       ballot: {
-        url: '/scan/hmpb/ballot/1',
-        image: { url: '/scan/hmpb/ballot/1/image', width: 0, height: 0 },
+        url: `/scan/hmpb/ballot/${ballotId}`,
+        image: {
+          url: `/scan/hmpb/ballot/${ballotId}/image`,
+          width: 0,
+          height: 0,
+        },
       },
       marks: { president: { 'barchi-hallaren': MarkStatus.Marked } },
       contests: [],
