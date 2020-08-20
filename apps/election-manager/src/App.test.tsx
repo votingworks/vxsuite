@@ -34,6 +34,7 @@ it('basic navigation works', async () => {
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('Definition'))
+  fireEvent.click(getByText('JSON Editor'))
 
   // remove the election
   fireEvent.click(getByText('Remove'))
