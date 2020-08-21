@@ -7,6 +7,7 @@ import routerPaths from '../routerPaths'
 import DefinitionScreen from '../screens/DefinitionScreen'
 import BallotListScreen from '../screens/BallotListScreen'
 import BallotScreen from '../screens/BallotScreen'
+import PrintTestDeckScreen from '../screens/PrintTestDeckScreen'
 import ExportElectionBallotPackageScreen from '../screens/ExportElectionBallotPackageScreen'
 import UnconfiguredScreen from '../screens/UnconfiguredScreen'
 import TestDeckScreen from '../screens/TestDeckScreen'
@@ -38,6 +39,14 @@ const ElectionManager = () => {
       </Route>
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
+      </Route>
+      <Route
+        path={[
+          routerPaths.printOneTestDeck({ precinctId: ':precinctId' }),
+          routerPaths.printTestDecks,
+        ]}
+      >
+        <PrintTestDeckScreen />
       </Route>
       <Route
         path={[
