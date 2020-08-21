@@ -392,6 +392,9 @@ const TallyScreen = () => {
             <HorizontalRule />
             <h2>Pre-Election Features</h2>
             <p>
+              <LinkButton to={routerPaths.printTestDecks}>
+                Print Test Decks
+              </LinkButton>
               <LinkButton to={routerPaths.testDecksTally}>
                 View Test Ballot Deck Tally
               </LinkButton>
