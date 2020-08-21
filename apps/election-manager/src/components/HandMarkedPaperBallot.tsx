@@ -384,7 +384,7 @@ export const CandidateContestChoices = ({
 }) => {
   const { t } = useTranslation()
   const writeInCandidates = vote.filter((c) => c.isWriteIn)
-  const remainingChoices = [...Array(contest.seats - vote.length).keys()]
+  const remainingChoices = [...Array(contest.seats).keys()]
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   return (
     <React.Fragment>
