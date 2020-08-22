@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 
-import Button, { ButtonInterface } from './Button'
+import Button, { StyledButtonProps } from './Button'
 import Modal from './Modal'
 import Loading from './Loading'
 
-interface PrintButtonProps extends ButtonInterface {
+interface PrintButtonProps extends StyledButtonProps {
   title?: string
   afterPrint?: () => void
 }
