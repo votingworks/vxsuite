@@ -23,6 +23,11 @@ TESTS = [
         'main': '10_9-22-2020.txt',
         'candmap': '10_CANDMAP_9-22-2020.txt',
         'expected': '10_9-22-2020-expected-election.json'
+    },
+    {
+        'main': '10_8-26-2020.txt',
+        'candmap': '10_CANDMAP_8-26-2020.txt',
+        'expected': '10_8-26-2020-expected-election.json'
     }        
 ]
 

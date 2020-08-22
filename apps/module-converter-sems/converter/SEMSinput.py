@@ -162,16 +162,23 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "id": r[0],
         "section": r[8],
         "districtId": r[3],
-        "type": "candidate" if r[2] == "0" else "yesno",
+        "type": "candidate",
         "partyId": None if r[7] == "0" else r[7],
         "title": r[6].split("\\n")[1],
         "seats": int(r[4]),
         "allowWriteIns": int(r[5]) > 0
+    } if r[2] == "0" else {
+        "id": r[0],
+        "section": r[8],
+        "districtId": r[3],
+        "type": "yesno",
+        "title": r[6].split("\\n")[0] + "\n" + r[1],
+        "description": "\\n".join(r[6].split("\\n")[1:])
     } for r in c.execute(sql).fetchall()]
 
     # remove null partyIds
     for contest in contests:
-        if not contest["partyId"]:
+        if "partyId" in contest and not contest["partyId"]:
             del contest["partyId"]
     
     # candidates
