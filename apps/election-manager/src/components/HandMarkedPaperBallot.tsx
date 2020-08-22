@@ -149,26 +149,22 @@ const BlankPageContent = styled.div`
 `
 
 interface PagedJSPage {
-  element: {
-    dataset: {
-      pageNumber: string
-    }
-  }
+  element: HTMLElement
   id: string
+  pagesArea: HTMLElement
 }
 class PostRenderBallotProcessor extends Handler {
   afterRendered(pages: PagedJSPage[]) {
     // Insert blank page if ballot page count is odd.
     if (pages.length % 2) {
-      const pagedjsPages = document.getElementsByClassName('pagedjs_pages')[0]
+      const pagedjsPages = pages[0].pagesArea
       if (pagedjsPages.lastChild) {
         pagedjsPages.appendChild(pagedjsPages.lastChild.cloneNode(true))
         pagedjsPages.setAttribute(
           'style',
           `--pagedjs-page-count:${pages.length + 1};`
         )
-        const lastPage = document.getElementsByClassName('pagedjs_pages')[0]
-          .lastChild! as Element
+        const lastPage = pagedjsPages.lastChild! as Element
         lastPage.id = `page-${pages.length + 1}`
         lastPage.classList.remove('pagedjs_first_page', 'pagedjs_right_page')
         lastPage.classList.add('pagedjs_left_page')
@@ -181,24 +177,20 @@ class PostRenderBallotProcessor extends Handler {
           </BlankPageContent>,
           lastPage.getElementsByClassName('pagedjs_page_content')[0]
         )
-        pages.push({
-          ...pages[pages.length - 1],
-          element: {
-            dataset: {
-              pageNumber: `${pages.length + 1}`,
-            },
-          },
-          id: `page-${pages.length + 1}`,
-        })
+
+        const newPage = { ...pages[pages.length - 1] }
+        newPage.element.dataset.pageNumber = `${pages.length + 1}`
+        newPage.element.dataset.id = `page-${pages.length + 1}`
+        pages.push(newPage)
       }
     }
 
     // Post-process QR codes in footer.
     pages.forEach((page) => {
       const { pageNumber } = page.element.dataset
-      const qrCodeTarget = document
-        .getElementById(page.id)
-        ?.getElementsByClassName(qrCodeTargetClassName)[0]
+      const qrCodeTarget = (page.element as HTMLElement)?.getElementsByClassName(
+        qrCodeTargetClassName
+      )[0]
       const {
         precinctId = '',
         ballotStyleId = '',
@@ -215,7 +207,7 @@ class PostRenderBallotProcessor extends Handler {
               isLiveMode: isLiveMode === 'true',
               precinctId,
               ballotStyleId,
-              pageNumber: parseInt(pageNumber, 10),
+              pageNumber: parseInt(pageNumber || '', 10),
               pageCount: pages.length,
               primaryLocaleCode,
               secondaryLocaleCode,
