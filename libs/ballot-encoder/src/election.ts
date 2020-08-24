@@ -38,7 +38,7 @@ export interface CandidateContest extends Contest {
 }
 export interface YesNoOption {
   readonly id: string
-  readonly text: string
+  readonly label: string
 }
 export interface YesNoContest extends Contest {
   readonly type: 'yesno'
