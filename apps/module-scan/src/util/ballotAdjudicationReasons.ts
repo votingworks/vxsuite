@@ -68,6 +68,9 @@ export default function* ballotAdjudicationReasons(
     yield {
       type: AdjudicationReason.UninterpretableBallot,
     }
+  } else if (contests.length === 0) {
+    // This page is intentionally blank.
+    return
   } else {
     let isBlankBallot = true
 

@@ -105,6 +105,17 @@ test('a ballot with no marks', () => {
   `)
 })
 
+test('a ballot page with no contests', () => {
+  const reasons = [
+    ...ballotAdjudicationReasons([], {
+      optionMarkStatus: () => MarkStatus.Unmarked,
+    }),
+  ]
+
+  // Notably, there is no BlankBallot adjudication reason.
+  expect(reasons).toEqual([])
+})
+
 test('a ballot with too many marks', () => {
   const reasons = [
     ...ballotAdjudicationReasons([president], {
