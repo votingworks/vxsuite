@@ -17,8 +17,8 @@ export default class DownloadableArchive {
    * making this instance ready to receive files. Resolves when ready to receive
    * files.
    */
-  public async begin(): Promise<void> {
-    const fileWriter = await this.kiosk.saveAs()
+  public async begin(options?: KioskBrowser.SaveAsOptions): Promise<void> {
+    const fileWriter = await this.kiosk.saveAs(options)
 
     if (!fileWriter) {
       throw new Error('could not begin download; no file was chosen')

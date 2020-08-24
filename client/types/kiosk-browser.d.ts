@@ -30,6 +30,19 @@ declare namespace KioskBrowser {
     mountPoint?: string
   }
 
+  export interface SaveAsOptions {
+    title?: string
+    defaultPath?: string
+    buttonLabel?: string
+    filters?: FileFilter[]
+  }
+
+  export interface FileFilter {
+    // Docs: http://electronjs.org/docs/api/structures/file-filter
+    extensions: string[]
+    name: string
+  }
+
   export interface FileWriter {
     /**
      * Writes a chunk to the file. May be called multiple times. Data will be
@@ -61,7 +74,7 @@ declare namespace KioskBrowser {
      * Opens a Save Dialog to allow the user to choose a destination for a file.
      * Once chosen, resolves with a handle to the file to write data to it.
      */
-    saveAs(): Promise<FileWriter | undefined>
+    saveAs(options?: SaveAsOptions): Promise<FileWriter | undefined>
 
     // USB sticks
     getUsbDrives(): Promise<UsbDrive[]>
@@ -70,10 +83,10 @@ declare namespace KioskBrowser {
 
     // storage
     storage: {
-      set<K extends keyof M>(key: string, value: M[K]) : Promise<void>
-      get<K extends keyof M>(key: string) : Promise<M[K] | undefined>
-      remove(key: string) : Promise<void>
-      clear() : Promise<void>
+      set<K extends keyof M>(key: string, value: M[K]): Promise<void>
+      get<K extends keyof M>(key: string): Promise<M[K] | undefined>
+      remove(key: string): Promise<void>
+      clear(): Promise<void>
     }
   }
 }
