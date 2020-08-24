@@ -39,7 +39,12 @@ const ExportElectionBallotPackageScreen = () => {
 
         case 'ArchiveBegin': {
           try {
-            await state.archive.begin()
+            await state.archive.begin({
+              defaultPath: `${`${election.county.name}-${election.title}`
+                .replace(/[^a-z0-9]+/gi, '-')
+                .replace(/(^-|-$)+/g, '')
+                .toLocaleLowerCase()}-${electionHash.slice(0, 10)}.zip`,
+            })
             await state.archive.file(
               'election.json',
               JSON.stringify(election, undefined, 2)
@@ -62,7 +67,7 @@ const ExportElectionBallotPackageScreen = () => {
         }
       }
     })()
-  }, [state, election])
+  }, [state, election, electionHash])
 
   /**
    * Callback from `HandMarkedPaperBallot` to let us know the preview has been
