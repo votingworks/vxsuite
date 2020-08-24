@@ -61,8 +61,8 @@ export interface Batch {
   id: number
   count: number
   ballots: Ballot[]
-  startedAt: number
-  endedAt?: number
+  startedAt: string
+  endedAt?: string
 }
 
 export interface AdjudicationStatus {
