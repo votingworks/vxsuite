@@ -53,6 +53,18 @@ test('zip file containing a file', async () => {
   expect(firstChunk.slice(0, ZIP_MAGIC_BYTES.length)).toEqual(ZIP_MAGIC_BYTES)
 })
 
+test('passes options to kiosk.saveAs', async () => {
+  const kiosk = fakeKiosk()
+  const archive = new DownloadableArchive(kiosk)
+  const fileWriter = fakeFileWriter()
+
+  kiosk.saveAs.mockResolvedValueOnce(fileWriter)
+
+  expect(fileWriter.chunks).toHaveLength(0)
+  await archive.begin({ defaultPath: 'README.md' })
+  expect(kiosk.saveAs).toHaveBeenCalledWith({ defaultPath: 'README.md' })
+})
+
 test('end() before begin()', async () => {
   const archive = new DownloadableArchive(fakeKiosk())
   await expect(archive.end()).rejects.toThrowError(
