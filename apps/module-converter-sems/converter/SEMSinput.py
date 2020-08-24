@@ -98,7 +98,10 @@ FULL_PARTY_NAMES = {
 
 def full_party_name(short_party_name):
     return FULL_PARTY_NAMES.get(short_party_name.lower(), short_party_name + " Party")
-    
+
+def cleanup_text(text):
+    return text.replace("\\n", "\n").strip("\n")
+
 def process_election_files(election_details_file_path, candidate_map_file_path):
     election_details_file = open(election_details_file_path, "r")
     candidate_map_file = open(candidate_map_file_path, "r")
@@ -158,7 +161,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
     # look for either-or contests, which have the same label and description
     sql = "select label, contest_text from contests where type = '1' group by label, contest_text having count(*) = 2"
-    either_or_labels = [r[0] for r in c.execute(sql).fetchall()]
+    either_neither_labels = [r[0] for r in c.execute(sql).fetchall()]
     
     # contests
     sql = "select contest_id, contests.label, type, contests.district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label from contests, districts where contests.district_id = districts.district_id"
@@ -168,7 +171,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "districtId": r[3],
         "type": "candidate",
         "partyId": None if r[7] == "0" else r[7],
-        "title": r[6].split("\\n")[1],
+        "title": cleanup_text(r[6]).split("\n")[1],
         "seats": int(r[4]),
         "allowWriteIns": int(r[5]) > 0
     } if r[2] == "0" else {
@@ -176,27 +179,27 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "section": r[8],
         "districtId": r[3],
         "type": "yesno",
-        "title": r[6].split("\\n")[0] + "\n" + r[1],
-        "description": "\\n".join(r[6].split("\\n")[1:]).strip("\\\\n").strip("\\n").strip("\n")
-    } for r in c.execute(sql).fetchall() if r[1] not in either_or_labels]
+        "title": cleanup_text(r[6]).split("\n")[0] + "\n" + r[1],
+        "description": "\n".join(cleanup_text(r[6]).split("\n")[1:])
+    } for r in c.execute(sql).fetchall() if r[1] not in either_neither_labels]
 
     # either-or-contests
-    either_or_contest_ids = []
-    for label in either_or_labels:
-        sql = "select contest_id, contests.district_id, contest_text, districts.label from contests, districts where contests.district_id = districts.district_id and contests.label = ? order by contest_id"
+    either_neither_contest_ids = []
+    for label in either_neither_labels:
+        sql = "select contest_id, contests.district_id, contest_text, districts.label, contests.label from contests, districts where contests.district_id = districts.district_id and contests.label = ? order by contest_id"
         subcontests = c.execute(sql, [label]).fetchall()
-        text = subcontests[0][2].split("\\n")
-        either_or_contest_ids.append(subcontests[0][0])
-        either_or_contest_ids.append(subcontests[1][0])
+        text = cleanup_text(subcontests[0][2]).split("\n")
+        either_neither_contest_ids.append(subcontests[0][0])
+        either_neither_contest_ids.append(subcontests[1][0])
         new_contest = {
-            "id": subcontests[0][0] + "-eitheror",
+            "id": subcontests[0][0] + "-either-neither",
             "section": subcontests[0][3],
             "districtId": subcontests[0][1],
-            "type": "ms-either-or",
+            "type": "ms-either-neither",
             "title": text[0],
             "eitherNeitherContestId": subcontests[0][0],
             "pickOneContestId": subcontests[1][0],
-            "description": "\\n".join(text[1:]).strip("\\\\n").strip("\\n").strip("\n")
+            "description": f"<b>{subcontests[0][4]}</b>\n\n" + "\n".join(text[1:])
         }
         contests.append(new_contest)
             
@@ -246,13 +249,13 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
             options = [{
                 "id": o[0],
-                "label": o[2].split("\\n")[1]
+                "label": cleanup_text(o[2]).split("\n")[1]
             } for o in c.execute(sql, [contest['id']]).fetchall()]
 
             contest['yesOption'] = options[0]
             contest['noOption'] = options[1]
 
-        if contest['type'] == 'ms-either-or':
+        if contest['type'] == 'ms-either-neither':
             # in either or, we have two contests and each has a yes and a no, in that option order
             sql = """
             select
@@ -263,23 +266,31 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
             order by cast(sort_seq as integer)"""
 
             either_option, neither_option = c.execute(sql, [contest['eitherNeitherContestId']]).fetchall()
+            first_option, second_option = c.execute(sql, [contest['pickOneContestId']]).fetchall()
+            either_option = [cleanup_text(i) for i in either_option]
+            neither_option = [cleanup_text(i) for i in neither_option]
+            first_option = [cleanup_text(i) for i in first_option]
+            second_option = [cleanup_text(i) for i in second_option]
+
+            contest["eitherNeitherLabel"] = either_option[2].split("\n")[0]
+            contest["pickOneLabel"] = first_option[2].split("\n")[0]
+            
             contest["eitherOption"] = {
                 "id": either_option[0],
-                "label": either_option[2].split("\\n")[1]
+                "label": either_option[2].split("\n")[1]
             }
             contest["neitherOption"] = {
                 "id": neither_option[0],
-                "label": neither_option[2].split("\\n")[1]
+                "label": neither_option[2].split("\n")[1]
             }
 
-            first_option, second_option = c.execute(sql, [contest['pickOneContestId']]).fetchall()
             contest["firstOption"] = {
                 "id": first_option[0],
-                "label": first_option[2].split("\\n")[1]
+                "label": first_option[2].split("\n")[1]
             }
             contest["secondOption"] = {
                 "id": second_option[0],
-                "label": second_option[2].split("\\n")[1]
+                "label": second_option[2].split("\n")[1]
             }
             
         
