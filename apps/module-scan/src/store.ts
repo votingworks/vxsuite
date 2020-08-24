@@ -811,8 +811,8 @@ export default class Store {
     return this.dbAllAsync(`
       select
         batches.id as id,
-        started_at,
-        ended_at,
+        started_at || 'Z' as startedAt,
+        (case when ended_at is null then ended_at else ended_at || 'Z' end) as endedAt,
         count(*) as count
       from
         ballots,
