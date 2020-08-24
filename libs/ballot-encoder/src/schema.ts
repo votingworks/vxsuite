@@ -42,6 +42,7 @@ export const OptionalCandidate = Candidate.optional()
 export const ContestTypes = z.union([
   z.literal('candidate'),
   z.literal('yesno'),
+  z.literal('ms-either-or'),
 ])
 
 export const Contest = z.object({
@@ -63,15 +64,37 @@ export const CandidateContest = Contest.merge(
   })
 )
 
+export const YesNoOption = z.object({
+  id: Id,
+  label: z.string().nonempty(),
+})
+
 export const YesNoContest = Contest.merge(
   z.object({
     type: z.literal('yesno'),
     description: z.string().nonempty(),
     shortTitle: z.string().nonempty().optional(),
+    yesOption: YesNoOption.optional(),
+    noOption: YesNoOption.optional(),
   })
 )
 
-export const Contests = z.array(z.union([CandidateContest, YesNoContest]))
+export const MsEitherOrContest = Contest.merge(
+  z.object({
+    type: z.literal('ms-either-or'),
+    eitherNeitherContestId: Id,
+    pickOneContestId: Id,
+    description: z.string().nonempty(),
+    eitherOption: YesNoOption,
+    neitherOption: YesNoOption,
+    firstOption: YesNoOption,
+    secondOption: YesNoOption,
+  })
+)
+
+export const Contests = z.array(
+  z.union([CandidateContest, YesNoContest, MsEitherOrContest])
+)
 
 // Hand-marked paper & adjudication
 export const MarkThresholds = z

@@ -21,7 +21,7 @@ export interface Candidate {
 export type OptionalCandidate = Optional<Candidate>
 
 // Contests
-export type ContestTypes = 'candidate' | 'yesno'
+export type ContestTypes = 'candidate' | 'yesno' | 'ms-either-or'
 export interface Contest {
   readonly id: string
   readonly districtId: string
@@ -36,12 +36,28 @@ export interface CandidateContest extends Contest {
   readonly candidates: Candidate[]
   readonly allowWriteIns: boolean
 }
+export interface YesNoOption {
+  readonly id: string
+  readonly text: string
+}
 export interface YesNoContest extends Contest {
   readonly type: 'yesno'
   readonly description: string
   readonly shortTitle?: string
+  readonly yesOption?: YesNoOption
 }
-export type Contests = (CandidateContest | YesNoContest)[]
+export interface MsEitherOrContest extends Contest {
+  readonly type: 'ms-either-or'
+  readonly eitherNeitherContestId: string
+  readonly pickOneContestId: string
+  readonly description: string
+  readonly shortTitle?: string
+  readonly eitherOption: YesNoOption
+  readonly neitherOption: YesNoOption
+  readonly firstOption: YesNoOption
+  readonly secondOption: YesNoOption
+}
+export type Contests = (CandidateContest | YesNoContest | MsEitherOrContest)[]
 
 // Election
 export interface BallotStyle {
@@ -304,13 +320,30 @@ export function vote(
     const contest = contests.find((c) => c.id === contestId)
 
     if (!contest) {
-      throw new Error(`unknown contest ${contestId}`)
+      // may be an either or contest
+      const eitherOrContest = contests.find(
+        (c) =>
+          c.type === 'ms-either-or' &&
+          (c.eitherNeitherContestId === contestId ||
+            c.pickOneContestId === contestId)
+      )
+
+      if (!eitherOrContest) {
+        throw new Error(`unknown contest ${contestId}`)
+      }
+
+      return { ...result, [contestId]: shorthand[contestId] }
     }
 
     const choice = shorthand[contestId]
 
     if (contest.type === 'yesno') {
       return { ...result, [contestId]: choice }
+    }
+
+    if (contest.type === 'ms-either-or') {
+      // this should not happen, should have been caught above
+      return result
     }
 
     if (Array.isArray(choice) && typeof choice[0] === 'string') {
