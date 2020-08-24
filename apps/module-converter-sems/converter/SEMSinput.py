@@ -156,6 +156,10 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     sql = "select district_id, label from districts"
     districts = [{"id": r[0], "name": r[1]} for r in c.execute(sql).fetchall()]
 
+    # look for either-or contests, which have the same label and description
+    sql = "select label, contest_text from contests where type = '1' group by label, contest_text having count(*) = 2"
+    either_or_labels = [r[0] for r in c.execute(sql).fetchall()]
+    
     # contests
     sql = "select contest_id, contests.label, type, contests.district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label from contests, districts where contests.district_id = districts.district_id"
     contests = [{
@@ -173,36 +177,111 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "districtId": r[3],
         "type": "yesno",
         "title": r[6].split("\\n")[0] + "\n" + r[1],
-        "description": "\\n".join(r[6].split("\\n")[1:])
-    } for r in c.execute(sql).fetchall()]
+        "description": "\\n".join(r[6].split("\\n")[1:]).strip("\\\\n").strip("\\n").strip("\n")
+    } for r in c.execute(sql).fetchall() if r[1] not in either_or_labels]
+
+    # either-or-contests
+    either_or_contest_ids = []
+    for label in either_or_labels:
+        sql = "select contest_id, contests.district_id, contest_text, districts.label from contests, districts where contests.district_id = districts.district_id and contests.label = ? order by contest_id"
+        subcontests = c.execute(sql, [label]).fetchall()
+        text = subcontests[0][2].split("\\n")
+        either_or_contest_ids.append(subcontests[0][0])
+        either_or_contest_ids.append(subcontests[1][0])
+        new_contest = {
+            "id": subcontests[0][0] + "-eitheror",
+            "section": subcontests[0][3],
+            "districtId": subcontests[0][1],
+            "type": "ms-either-or",
+            "title": text[0],
+            "eitherNeitherContestId": subcontests[0][0],
+            "pickOneContestId": subcontests[1][0],
+            "description": "\\n".join(text[1:]).strip("\\\\n").strip("\\n").strip("\n")
+        }
+        contests.append(new_contest)
+            
 
     # remove null partyIds
     for contest in contests:
         if "partyId" in contest and not contest["partyId"]:
             del contest["partyId"]
-    
-    # candidates
-    sql = """
-    select
-    sems_candidates.candidate_sems_id, candidates.label_on_ballot,
-    candidates.party_id from candidates, sems_candidates
-    where
-    candidates.contest_id = ? and
-    sems_candidates.county_code = ? and
-    candidates.contest_id = sems_candidates.contest_id and candidates.candidate_id = sems_candidates.candidate_id
-    order by cast(candidates.sort_seq as integer)"""
 
+    # candidates or options
     for contest in contests:
-        contest["candidates"] = []
-        for r in c.execute(sql, [contest["id"], county_id]):
-            candidate = {
-                "id": r[0],
-                "name": r[1]
-            }
-            if r[2]:
-                candidate["partyId"] = r[2]
+        if contest['type'] == 'candidate':
+            # candidates
+            sql = """
+            select
+            sems_candidates.candidate_sems_id, candidates.label_on_ballot,
+            candidates.party_id from candidates, sems_candidates
+            where
+            candidates.contest_id = ? and
+            sems_candidates.county_code = ? and
+            candidates.contest_id = sems_candidates.contest_id and candidates.candidate_id = sems_candidates.candidate_id
+            order by cast(candidates.sort_seq as integer)"""
 
-            contest["candidates"].append(candidate)
+            candidates = c.execute(sql, [contest['id'], county_id]).fetchall()
+            
+            contest["candidates"] = []
+            for cand in candidates:
+                candidate = {
+                    "id": cand[0],
+                    "name": cand[1]
+                }
+                if cand[2]:
+                    candidate["partyId"] = cand[2]
+                    
+                contest["candidates"].append(candidate)
+                
+        if contest['type'] == 'yesno':
+            # sometimes there are "candidates" for measures in SEMS,
+            # but they carry the right SEMS ID in the main file, no need for the mapping.
+            sql = """
+            select
+            candidate_id, label, label_on_ballot
+            from candidates
+            where
+            contest_id = ? 
+            order by cast(sort_seq as integer)"""
+
+            options = [{
+                "id": o[0],
+                "label": o[2].split("\\n")[1]
+            } for o in c.execute(sql, [contest['id']]).fetchall()]
+
+            contest['yesOption'] = options[0]
+            contest['noOption'] = options[1]
+
+        if contest['type'] == 'ms-either-or':
+            # in either or, we have two contests and each has a yes and a no, in that option order
+            sql = """
+            select
+            candidate_id, label, label_on_ballot
+            from candidates
+            where
+            contest_id = ? 
+            order by cast(sort_seq as integer)"""
+
+            either_option, neither_option = c.execute(sql, [contest['eitherNeitherContestId']]).fetchall()
+            contest["eitherOption"] = {
+                "id": either_option[0],
+                "label": either_option[2].split("\\n")[1]
+            }
+            contest["neitherOption"] = {
+                "id": neither_option[0],
+                "label": neither_option[2].split("\\n")[1]
+            }
+
+            first_option, second_option = c.execute(sql, [contest['pickOneContestId']]).fetchall()
+            contest["firstOption"] = {
+                "id": first_option[0],
+                "label": first_option[2].split("\\n")[1]
+            }
+            contest["secondOption"] = {
+                "id": second_option[0],
+                "label": second_option[2].split("\\n")[1]
+            }
+            
         
     sql = "select precinct_id, precinct_label from splits group by precinct_id, precinct_label"
     precincts = [{"id": r[0], "name": r[1]} for r in c.execute(sql)]

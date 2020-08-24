@@ -291,31 +291,20 @@
       ]
     },
     {
-      "id": "750000015",
-      "section": "State Of Mississippi",
-      "districtId": "100000275",
-      "type": "yesno",
-      "title": "Ballot Measure 1\nInitiated by Petition and Alternative by Legislature",
-      "description": "Initiative Measure No. 65, Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year one (1) to implement a medical marijuana program is $24,068,150 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $16,220,150; and Cost to Collect Revenue: $2,848,000). The anticipated revenue is $13,000,000 (User ID Cards: $2,500,000; Commercial Licenses: $500,000 and Tax Revenue at 7 percent: $10,000,000). The overall cost for year one (1) is anticipated to be $11,068,150.\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year after the first for a medical marijuana program is $15,338,000 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $8,756,000; and Cost to Collect Revenue: $1,582,000). The anticipated revenue is $26,000,000 (User ID Cards: $5,000,000; Commercial Licenses: $1,000,000 and Tax Revenue at 7 percent: $20,000,000). The overall annual revenue is anticipated to be $10,662.000.\n\\nAlternative Measure No. 65 A, Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?\n\nLegislative Budget Office Fiscal Analysis: There is no determinable cost or revenue impact associated with this initiative.\n\n\n\\n\\n",
-      "candidates": []
-    },
-    {
-      "id": "750000016",
-      "section": "State Of Mississippi",
-      "districtId": "100000275",
-      "type": "yesno",
-      "title": "Ballot Measure 1\nInitiated by Petition and Alternative by Legislature",
-      "description": "Initiative Measure No. 65, Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year one (1) to implement a medical marijuana program is $24,068,150 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $16,220,150; and Cost to Collect Revenue: $2,848,000). The anticipated revenue is $13,000,000 (User ID Cards: $2,500,000; Commercial Licenses: $500,000 and Tax Revenue at 7 percent: $10,000,000). The overall cost for year one (1) is anticipated to be $11,068,150.\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year after the first for a medical marijuana program is $15,338,000 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $8,756,000; and Cost to Collect Revenue: $1,582,000). The anticipated revenue is $26,000,000 (User ID Cards: $5,000,000; Commercial Licenses: $1,000,000 and Tax Revenue at 7 percent: $20,000,000). The overall annual revenue is anticipated to be $10,662.000.\n\\nAlternative Measure No. 65 A, Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?\n\nLegislative Budget Office Fiscal Analysis: There is no determinable cost or revenue impact associated with this initiative.\n\n\n\\n\\n",
-      "candidates": []
-    },
-    {
       "id": "750000017",
       "section": "State Of Mississippi",
       "districtId": "100000275",
       "type": "yesno",
       "title": "Ballot Measure 2\nHouse Concurrent Resolution No. 47",
-      "description": "This amendment provides that to be elected Governor, or to any other statewide office, a candidate must receive a majority of the votes in the general election. If no candidate receives a majority of the votes, then a runoff election shall be held as provided by general law. The requirement of receiving the most votes in a majority of Mississippi House of Representative\u2019s districts is removed.\\n\\n\\n",
-      "candidates": []
+      "description": "This amendment provides that to be elected Governor, or to any other statewide office, a candidate must receive a majority of the votes in the general election. If no candidate receives a majority of the votes, then a runoff election shall be held as provided by general law. The requirement of receiving the most votes in a majority of Mississippi House of Representative\u2019s districts is removed.",
+      "yesOption": {
+        "id": "750000094",
+        "label": "YES"
+      },
+      "noOption": {
+        "id": "750000095",
+        "label": "NO"
+      }
     },
     {
       "id": "750000018",
@@ -323,8 +312,41 @@
       "districtId": "100000275",
       "type": "yesno",
       "title": "Ballot Measure 3\nHouse Bill 1796 - Flag Referendum",
-      "description": "Please vote \u2018Yes\u2019 or \u2018No\u2019 on whether the following design shall be the official Mississippi State Flag\n\n\\n\\n\\n",
-      "candidates": []
+      "description": "Please vote \u2018Yes\u2019 or \u2018No\u2019 on whether the following design shall be the official Mississippi State Flag",
+      "yesOption": {
+        "id": "750000092",
+        "label": "YES"
+      },
+      "noOption": {
+        "id": "750000093",
+        "label": "NO"
+      }
+    },
+    {
+      "id": "750000015-eitheror",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "ms-either-or",
+      "title": "Ballot Measure 1",
+      "eitherNeitherContestId": "750000015",
+      "pickOneContestId": "750000016",
+      "description": "Initiative Measure No. 65, Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year one (1) to implement a medical marijuana program is $24,068,150 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $16,220,150; and Cost to Collect Revenue: $2,848,000). The anticipated revenue is $13,000,000 (User ID Cards: $2,500,000; Commercial Licenses: $500,000 and Tax Revenue at 7 percent: $10,000,000). The overall cost for year one (1) is anticipated to be $11,068,150.\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year after the first for a medical marijuana program is $15,338,000 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $8,756,000; and Cost to Collect Revenue: $1,582,000). The anticipated revenue is $26,000,000 (User ID Cards: $5,000,000; Commercial Licenses: $1,000,000 and Tax Revenue at 7 percent: $20,000,000). The overall annual revenue is anticipated to be $10,662.000.\n\\nAlternative Measure No. 65 A, Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?\n\nLegislative Budget Office Fiscal Analysis: There is no determinable cost or revenue impact associated with this initiative.",
+      "eitherOption": {
+        "id": "750000088",
+        "label": "FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A"
+      },
+      "neitherOption": {
+        "id": "750000089",
+        "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A"
+      },
+      "firstOption": {
+        "id": "750000090",
+        "label": "FOR Initiative Measure No. 65"
+      },
+      "secondOption": {
+        "id": "750000091",
+        "label": "FOR Alternative Measure 65 A"
+      }
     }
   ],
   "districts": [
