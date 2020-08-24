@@ -48,7 +48,8 @@ used to represent a completed ballot in memory. Given `E` (an `Election`) and
 - **Roll Call**: Encodes which contests have votes using one bit per contest,
   where a bit at offset `i` from the start of this section is set if and only if
   there is a vote record for `E.contests[i]`, i.e. `V[E.contests[i].id]` has a
-  value.
+  value. In the case of `ms-either-or` contests, two bits are used, one for each
+  of the two subcontests (`eitherNeitherContestId` and `pickOneContestId`).
   - Size: `count(E.contests)` bits.
 - **Vote Data**: Encodes `V[k]` for all keys `k` in `V` ordered by `E.contests`
   they appear in `E.contests`, encoding data for a vote only if its
@@ -57,6 +58,9 @@ used to represent a completed ballot in memory. Given `E` (an `Election`) and
   - **`yesno` contests**: Uses a single bit to represent `"yes"` (bit set) or
     `"no"` (bit unset).
     - Size: 1 bit.
+  - **`ms-either-or` contests**: Use two bits, one to represent
+    `"yes"`/`"either"` and `"no"`/`"neither"`, and a second one to represent
+    `"yes"`/`"in favor of first"` and `"no"`/`"in favor of second"`.
   - **`candidate` contests**: Encodes candidate selection followed by write-ins,
     if applicable:
     - **Selections:** Uses one bit per candidate to indicate whether each
