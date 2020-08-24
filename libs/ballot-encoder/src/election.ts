@@ -21,7 +21,7 @@ export interface Candidate {
 export type OptionalCandidate = Optional<Candidate>
 
 // Contests
-export type ContestTypes = 'candidate' | 'yesno' | 'ms-either-or'
+export type ContestTypes = 'candidate' | 'yesno' | 'ms-either-neither'
 export interface Contest {
   readonly id: string
   readonly districtId: string
@@ -45,19 +45,25 @@ export interface YesNoContest extends Contest {
   readonly description: string
   readonly shortTitle?: string
   readonly yesOption?: YesNoOption
+  readonly noOption?: YesNoOption
 }
-export interface MsEitherOrContest extends Contest {
-  readonly type: 'ms-either-or'
+export interface MsEitherNeitherContest extends Contest {
+  readonly type: 'ms-either-neither'
   readonly eitherNeitherContestId: string
   readonly pickOneContestId: string
   readonly description: string
-  readonly shortTitle?: string
+  readonly eitherNeitherLabel: string
+  readonly pickOneLabel: string
   readonly eitherOption: YesNoOption
   readonly neitherOption: YesNoOption
   readonly firstOption: YesNoOption
   readonly secondOption: YesNoOption
 }
-export type Contests = (CandidateContest | YesNoContest | MsEitherOrContest)[]
+export type Contests = (
+  | CandidateContest
+  | YesNoContest
+  | MsEitherNeitherContest
+)[]
 
 // Election
 export interface BallotStyle {
@@ -215,6 +221,26 @@ export const getBallotStyle = ({
   election.ballotStyles.find((bs) => bs.id === ballotStyleId)
 
 /**
+ * Retrieve a contest from a set of contests based on ID
+ * special-cases Ms Either Neither contests
+ */
+const findContest = ({
+  contests,
+  contestId,
+}: {
+  contests: Contests
+  contestId: string
+}): CandidateContest | YesNoContest | MsEitherNeitherContest | undefined => {
+  return contests.find(
+    (c) =>
+      (c.type === 'ms-either-neither' &&
+        (c.eitherNeitherContestId === contestId ||
+          c.pickOneContestId === contestId)) ||
+      (c.type !== 'ms-either-neither' && c.id === contestId)
+  )
+}
+
+/**
  * Validates the votes for a given ballot style in a given election.
  *
  * @throws When an inconsistency is found.
@@ -231,7 +257,7 @@ export const validateVotes = ({
   const contests = getContests({ election, ballotStyle })
 
   for (const contestId of Object.getOwnPropertyNames(votes)) {
-    const contest = contests.find((c) => c.id === contestId)
+    const contest = findContest({ contests, contestId })
 
     if (!contest) {
       throw new Error(
@@ -317,54 +343,37 @@ export function vote(
   }
 ): VotesDict {
   return Object.getOwnPropertyNames(shorthand).reduce((result, contestId) => {
-    const contest = contests.find((c) => c.id === contestId)
+    const contest = findContest({ contests, contestId })
 
     if (!contest) {
-      // may be an either or contest
-      const eitherOrContest = contests.find(
-        (c) =>
-          c.type === 'ms-either-or' &&
-          (c.eitherNeitherContestId === contestId ||
-            c.pickOneContestId === contestId)
-      )
-
-      if (!eitherOrContest) {
-        throw new Error(`unknown contest ${contestId}`)
-      }
-
-      return { ...result, [contestId]: shorthand[contestId] }
+      throw new Error(`unknown contest ${contestId}`)
     }
 
     const choice = shorthand[contestId]
 
-    if (contest.type === 'yesno') {
+    if (contest.type !== 'candidate') {
       return { ...result, [contestId]: choice }
-    }
+    } else {
+      if (Array.isArray(choice) && typeof choice[0] === 'string') {
+        return {
+          ...result,
+          [contestId]: contest.candidates.filter((c) =>
+            (choice as string[]).includes(c.id)
+          ),
+        }
+      }
 
-    if (contest.type === 'ms-either-or') {
-      // this should not happen, should have been caught above
-      return result
-    }
+      if (typeof choice === 'string') {
+        return {
+          ...result,
+          [contestId]: [contest.candidates.find((c) => c.id === choice)],
+        }
+      }
 
-    if (Array.isArray(choice) && typeof choice[0] === 'string') {
       return {
         ...result,
-        [contestId]: contest.candidates.filter((c) =>
-          (choice as string[]).includes(c.id)
-        ),
+        [contestId]: Array.isArray(choice) ? choice : [choice],
       }
-    }
-
-    if (typeof choice === 'string') {
-      return {
-        ...result,
-        [contestId]: [contest.candidates.find((c) => c.id === choice)],
-      }
-    }
-
-    return {
-      ...result,
-      [contestId]: Array.isArray(choice) ? choice : [choice],
     }
   }, {})
 }

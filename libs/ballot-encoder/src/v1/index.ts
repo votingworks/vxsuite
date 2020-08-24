@@ -4,7 +4,6 @@ import {
   CandidateVote,
   CompletedBallot,
   Contests,
-  Dictionary,
   Election,
   getBallotStyle,
   getContests,
@@ -97,7 +96,7 @@ function encodeBallotVotesInto(
 ): BitWriter {
   // write roll call
   for (const contest of contests) {
-    if (contest.type === 'ms-either-or') {
+    if (contest.type === 'ms-either-neither') {
       bits.writeUint1(
         isVotePresent(votes[contest.eitherNeitherContestId]) ? 1 : 0
       )
@@ -109,14 +108,19 @@ function encodeBallotVotesInto(
 
   // write vote data
   for (const contest of contests) {
-    if (contest.type === 'ms-either-or') {
+    if (contest.type === 'ms-either-neither') {
       const eitherNeitherYnVote = votes[
         contest.eitherNeitherContestId
       ] as YesNoVote
       const pickOneYnVote = votes[contest.pickOneContestId] as YesNoVote
 
-      writeYesNoVote(bits, eitherNeitherYnVote)
-      writeYesNoVote(bits, pickOneYnVote)
+      if (eitherNeitherYnVote) {
+        writeYesNoVote(bits, eitherNeitherYnVote)
+      }
+
+      if (pickOneYnVote) {
+        writeYesNoVote(bits, pickOneYnVote)
+      }
 
       continue
     }
@@ -250,29 +254,30 @@ function readPaddingToEnd(bits: BitReader): void {
 function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   const votes: VotesDict = {}
 
-  const msEitherNeitherPresent: Dictionary<boolean> = {}
-  const msPickOnePresent: Dictionary<boolean> = {}
-
   // read roll call
-  const contestsWithAnswers = contests.filter((c) => {
-    if (c.type === 'ms-either-or') {
-      msEitherNeitherPresent[c.id] = !!bits.readUint1()
-      msPickOnePresent[c.id] = !!bits.readUint1()
-      return msEitherNeitherPresent[c.id] || msPickOnePresent[c.id]
-    } else {
-      return bits.readUint1()
-    }
-  })
+  const contestsWithAnswers = contests
+    .map((c) => {
+      if (c.type === 'ms-either-neither') {
+        const result = {
+          contest: c,
+          meta: [bits.readUint1(), bits.readUint1()],
+        }
+        return result
+      } else {
+        return { contest: c, meta: [bits.readUint1()] }
+      }
+    })
+    .filter(({ meta }) => meta.some((b) => b))
 
   // read vote data
-  for (const contest of contestsWithAnswers) {
-    if (contest.type === 'ms-either-or') {
-      if (msEitherNeitherPresent[contest.id]) {
+  for (const { contest, meta } of contestsWithAnswers) {
+    if (contest.type === 'ms-either-neither') {
+      if (meta[0]) {
         votes[contest.eitherNeitherContestId] = bits.readUint1()
           ? ['yes']
           : ['no']
       }
-      if (msPickOnePresent[contest.id]) {
+      if (meta[1]) {
         votes[contest.pickOneContestId] = bits.readUint1() ? ['yes'] : ['no']
       }
     } else if (contest.type === 'yesno') {

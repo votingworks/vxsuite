@@ -323,14 +323,16 @@
       }
     },
     {
-      "id": "750000015-eitheror",
+      "id": "750000015-either-neither",
       "section": "State Of Mississippi",
       "districtId": "100000275",
-      "type": "ms-either-or",
+      "type": "ms-either-neither",
       "title": "Ballot Measure 1",
       "eitherNeitherContestId": "750000015",
       "pickOneContestId": "750000016",
-      "description": "Initiative Measure No. 65, Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year one (1) to implement a medical marijuana program is $24,068,150 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $16,220,150; and Cost to Collect Revenue: $2,848,000). The anticipated revenue is $13,000,000 (User ID Cards: $2,500,000; Commercial Licenses: $500,000 and Tax Revenue at 7 percent: $10,000,000). The overall cost for year one (1) is anticipated to be $11,068,150.\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year after the first for a medical marijuana program is $15,338,000 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $8,756,000; and Cost to Collect Revenue: $1,582,000). The anticipated revenue is $26,000,000 (User ID Cards: $5,000,000; Commercial Licenses: $1,000,000 and Tax Revenue at 7 percent: $20,000,000). The overall annual revenue is anticipated to be $10,662.000.\n\\nAlternative Measure No. 65 A, Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?\n\nLegislative Budget Office Fiscal Analysis: There is no determinable cost or revenue impact associated with this initiative.",
+      "description": "<b>Initiated by Petition and Alternative by Legislature</b>\n\nInitiative Measure No. 65, Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year one (1) to implement a medical marijuana program is $24,068,150 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $16,220,150; and Cost to Collect Revenue: $2,848,000). The anticipated revenue is $13,000,000 (User ID Cards: $2,500,000; Commercial Licenses: $500,000 and Tax Revenue at 7 percent: $10,000,000). The overall cost for year one (1) is anticipated to be $11,068,150.\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year after the first for a medical marijuana program is $15,338,000 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $8,756,000; and Cost to Collect Revenue: $1,582,000). The anticipated revenue is $26,000,000 (User ID Cards: $5,000,000; Commercial Licenses: $1,000,000 and Tax Revenue at 7 percent: $20,000,000). The overall annual revenue is anticipated to be $10,662.000.\n\nAlternative Measure No. 65 A, Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?\n\nLegislative Budget Office Fiscal Analysis: There is no determinable cost or revenue impact associated with this initiative.",
+      "eitherNeitherLabel": "VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH",
+      "pickOneLabel": "AND VOTE FOR ONE",
       "eitherOption": {
         "id": "750000088",
         "label": "FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A"

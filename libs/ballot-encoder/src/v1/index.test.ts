@@ -2,6 +2,9 @@ import { BitWriter } from '../bits'
 import {
   BallotType,
   BallotTypeMaximumValue,
+  Candidate,
+  Election,
+  Vote,
   electionSampleLongContent as election,
   getContests,
   vote,
@@ -17,6 +20,9 @@ import {
   Prelude,
   WriteInEncoding,
 } from './index'
+
+import electionWithMsEitherNeitherUntyped from '../data/electionWithMsEitherNeither.json'
+const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election
 
 function falses(count: number): boolean[] {
   return new Array(count).fill(false)
@@ -234,6 +240,81 @@ it('encodes & decodes yesno votes correctly', () => {
   expect(encodeBallot(decodeBallot(election, encodedBallot))).toEqual(
     encodedBallot
   )
+})
+
+it('encodes & decodes ms-either-neither votes correctly', () => {
+  const election = electionWithMsEitherNeither
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts.filter(
+    (p) => p.id === ballotStyle.precincts[0]
+  )[0]
+  const ballotId = 'abcde'
+  const contests = getContests({ ballotStyle, election })
+  const votePermutations: {
+    [key: string]: Vote | string | string[] | Candidate
+  }[] = [
+    { '750000015': ['yes'], '750000016': ['no'] },
+    { '750000015': ['yes'], '750000016': ['yes'] },
+    { '750000015': ['no'], '750000016': ['no'] },
+    { '750000015': ['no'], '750000016': ['yes'] },
+    { '750000016': ['yes'] },
+    { '750000015': ['no'] },
+  ]
+
+  for (const rawVote of votePermutations) {
+    const votes = vote(contests, rawVote)
+    const ballot = {
+      election,
+      ballotId,
+      ballotStyle,
+      precinct,
+      votes,
+      isTestBallot: false,
+      ballotType: BallotType.Standard,
+    }
+    const encodedBallotWriter = new BitWriter()
+      // prelude + version number
+      .writeString('VX', { includeLength: false })
+      .writeUint8(1)
+      // ballot style id
+      .writeString('4')
+      // precinct id
+      .writeString('6538')
+      // ballot Id
+      .writeString('abcde')
+    // vote roll call
+    for (const contest of contests) {
+      if (contest.id === '750000015-either-neither') {
+        encodedBallotWriter.writeBoolean('750000015' in rawVote)
+        encodedBallotWriter.writeBoolean('750000016' in rawVote)
+      } else {
+        encodedBallotWriter.writeBoolean(isVotePresent(votes[contest.id]))
+      }
+    }
+    // vote data
+    if (rawVote['750000015']) {
+      encodedBallotWriter.writeBoolean(
+        (rawVote['750000015'] as string[])[0] === 'yes'
+      )
+    }
+    if (rawVote['750000016']) {
+      encodedBallotWriter.writeBoolean(
+        (rawVote['750000016'] as string[])[0] === 'yes'
+      )
+    }
+
+    const encodedBallot = encodedBallotWriter
+      // test ballot?
+      .writeBoolean(false)
+      // ballot type
+      .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+      .toUint8Array()
+
+    expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
+    expect(encodeBallot(decodeBallot(election, encodedBallot))).toEqual(
+      encodedBallot
+    )
+  }
 })
 
 it('throws on trying to encode a bad yes/no vote', () => {

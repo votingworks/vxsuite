@@ -11,8 +11,8 @@ import {
   withLocale,
 } from './election'
 
-import electionWithMsEitherOrUntyped from './data/electionWithMsEitherOr.json'
-const electionWithMsEitherOr = (electionWithMsEitherOrUntyped as unknown) as Election
+import electionWithMsEitherNeitherUntyped from './data/electionWithMsEitherNeither.json'
+const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'president')
@@ -45,7 +45,7 @@ test('can build votes from yesno values', () => {
 
 test('can build votes from ms-either-or yesno values', () => {
   expect(
-    vote(electionWithMsEitherOr.contests, {
+    vote(electionWithMsEitherNeither.contests, {
       '750000015': 'yes',
       '750000016': 'no',
     })
@@ -219,16 +219,24 @@ test('parsing a valid election object succeeds', () => {
   }).not.toThrowError()
 })
 
-test('parsing a valid election with ms either-or succeeds', () => {
+test('parsing a valid election with ms either-neither succeeds', () => {
   expect(() => {
-    const parsed = parseElection(electionWithMsEitherOr as unknown)
+    const parsed = parseElection(electionWithMsEitherNeither as unknown)
 
     // This check is here to prove TS inferred that `parsed` is an `Election`.
-    expect(parsed.title).toEqual(electionWithMsEitherOr.title)
+    expect(parsed.title).toEqual(electionWithMsEitherNeither.title)
 
     // Check the whole thing
-    expect(parsed).toEqual(electionWithMsEitherOr)
+    expect(parsed).toEqual(electionWithMsEitherNeither)
   }).not.toThrowError()
+})
+
+test('trying to vote in the top-level ms-either-neither contest fails', () => {
+  expect(() => {
+    vote(electionWithMsEitherNeither.contests, {
+      '750000015-either-neither': ['yes'],
+    })
+  }).toThrowError()
 })
 
 test('parsing validates district references', () => {

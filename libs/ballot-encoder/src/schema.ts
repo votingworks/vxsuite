@@ -42,7 +42,7 @@ export const OptionalCandidate = Candidate.optional()
 export const ContestTypes = z.union([
   z.literal('candidate'),
   z.literal('yesno'),
-  z.literal('ms-either-or'),
+  z.literal('ms-either-neither'),
 ])
 
 export const Contest = z.object({
@@ -81,10 +81,12 @@ export const YesNoContest = Contest.merge(
 
 export const MsEitherOrContest = Contest.merge(
   z.object({
-    type: z.literal('ms-either-or'),
+    type: z.literal('ms-either-neither'),
     eitherNeitherContestId: Id,
     pickOneContestId: Id,
     description: z.string().nonempty(),
+    eitherNeitherLabel: z.string().nonempty(),
+    pickOneLabel: z.string().nonempty(),
     eitherOption: YesNoOption,
     neitherOption: YesNoOption,
     firstOption: YesNoOption,
