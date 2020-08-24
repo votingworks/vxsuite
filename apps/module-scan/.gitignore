@@ -1,5 +1,6 @@
 node_modules
-cvrs.db
+*.db
+*.db.digest
 tmp
 !tmp/.gitkeep
 hmpb-templates

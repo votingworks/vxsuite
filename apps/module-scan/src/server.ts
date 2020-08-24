@@ -320,17 +320,23 @@ export interface StartOptions {
  */
 export async function start({
   port = process.env.PORT || 3002,
-  store = new Store(path.join(__dirname, '..', 'cvrs.db')),
-  scanner = new FujitsuScanner(),
-  importer = new SystemImporter({
-    store,
-    scanner,
-    ...makeTemporaryBallotImportImageDirectories().paths,
-  }),
-  app = buildApp({ importer, store }),
+  store,
+  scanner,
+  importer,
+  app,
   log = console.log,
 }: Partial<StartOptions> = {}): Promise<void> {
-  await store.init()
+  store =
+    store ?? (await Store.fileStore(path.join(__dirname, '..', 'ballots.db')))
+  scanner = scanner ?? new FujitsuScanner()
+  importer =
+    importer ??
+    new SystemImporter({
+      store,
+      scanner,
+      ...makeTemporaryBallotImportImageDirectories().paths,
+    })
+  app = app ?? buildApp({ importer, store })
   await importer.restoreConfig()
 
   app.listen(port, () => {

@@ -21,6 +21,6 @@ run:
 
 debug-dump:
 	git rev-parse HEAD > REVISION
-	zip -r debug-dump-$(TIMESTAMP).zip REVISION tmp cvrs.db
+	zip -r debug-dump-$(TIMESTAMP).zip REVISION tmp *.db
 	rm REVISION
 	@echo "Debug info dumped to debug-dump-$(TIMESTAMP).zip"

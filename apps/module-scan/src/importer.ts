@@ -452,6 +452,6 @@ export default class SystemImporter implements Importer {
    */
   public async unconfigure(): Promise<void> {
     await this.doZero()
-    await this.store.init(true) // destroy all data
+    await this.store.reset() // destroy all data
   }
 }
