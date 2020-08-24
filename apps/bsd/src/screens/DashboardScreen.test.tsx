@@ -42,15 +42,15 @@ test('shows scanned ballot count', () => {
       {
         id: 1,
         count: 1,
-        startedAt: 0,
-        endedAt: 0,
+        startedAt: new Date(0).toISOString(),
+        endedAt: new Date(0).toISOString(),
         ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
       },
       {
         id: 2,
         count: 3,
-        startedAt: 0,
-        endedAt: 0,
+        startedAt: new Date(0).toISOString(),
+        endedAt: new Date(0).toISOString(),
         ballots: [
           { id: 2, filename: '/tmp/img2.jpg' },
           { id: 3, filename: '/tmp/img3.jpg' },
@@ -85,7 +85,7 @@ test('shows whether a batch is scanning', () => {
       {
         id: 1,
         count: 3,
-        startedAt: 0,
+        startedAt: new Date(0).toISOString(),
         ballots: [
           { id: 2, filename: '/tmp/img2.jpg' },
           { id: 3, filename: '/tmp/img3.jpg' },
@@ -118,15 +118,15 @@ test('allows deleting a batch', async () => {
       {
         id: 1,
         count: 1,
-        startedAt: 0,
-        endedAt: 0,
+        startedAt: new Date(0).toISOString(),
+        endedAt: new Date(0).toISOString(),
         ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
       },
       {
         id: 2,
         count: 3,
-        startedAt: 0,
-        endedAt: 0,
+        startedAt: new Date(0).toISOString(),
+        endedAt: new Date(0).toISOString(),
         ballots: [
           { id: 2, filename: '/tmp/img2.jpg' },
           { id: 3, filename: '/tmp/img3.jpg' },
