@@ -8,3 +8,4 @@ hmpb-templates
 *.log
 coverage/
 .DS_Store
+debug-dump*.zip
