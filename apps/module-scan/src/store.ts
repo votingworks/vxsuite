@@ -15,8 +15,10 @@ import {
   BallotTargetMark,
   Size,
 } from '@votingworks/hmpb-interpreter'
+import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
+import { join } from 'path'
 import sharp from 'sharp'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
@@ -62,6 +64,8 @@ export enum ConfigKey {
   TestMode = 'testMode',
 }
 
+const SchemaPath = join(__dirname, '../schema.sql')
+
 export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey)
 
 /**
@@ -75,7 +79,7 @@ export default class Store {
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
    */
-  public constructor(dbPath: string) {
+  private constructor(dbPath: string) {
     this.dbPath = dbPath
   }
 
@@ -84,16 +88,61 @@ export default class Store {
    */
   public static async memoryStore(): Promise<Store> {
     const store = new Store(':memory:')
-    await store.init()
+    await store.dbCreate()
     return store
   }
 
   /**
-   * Gets the underlying sqlite3 database, creating it if needed.
+   * Builds and returns a new store at `dbPath`.
+   */
+  public static async fileStore(dbPath: string): Promise<Store> {
+    const schemaDigestPath = `${dbPath}.digest`
+    let schemaDigest: string | undefined
+    try {
+      schemaDigest = await fs.readFile(schemaDigestPath, 'utf-8')
+    } catch {
+      debug(
+        'could not read %s, assuming the database needs to be created',
+        schemaDigestPath
+      )
+    }
+    const schemaSql = await fs.readFile(SchemaPath, 'utf-8')
+    const newSchemaDigest = createHash('sha256').update(schemaSql).digest('hex')
+    const shouldResetDatabase = newSchemaDigest !== schemaDigest
+
+    if (shouldResetDatabase) {
+      debug('database schema has changed')
+      try {
+        const backupPath = `${dbPath}.backup-${new Date()
+          .toISOString()
+          .replace(/[^\d]+/g, '-')
+          .replace(/-+$/, '')}`
+        await fs.rename(dbPath, backupPath)
+        debug('backed up database to be reset to %s', backupPath)
+      } catch {
+        // ignore for now
+      }
+    }
+
+    const store = new Store(dbPath)
+
+    if (shouldResetDatabase) {
+      debug('resetting database to updated schema')
+      await store.reset()
+      await fs.writeFile(schemaDigestPath, newSchemaDigest, 'utf-8')
+    } else {
+      debug('database schema appears to be up to date')
+    }
+
+    return store
+  }
+
+  /**
+   * Gets the underlying sqlite3 database.
    */
   private async getDb(): Promise<sqlite3.Database> {
     if (!this.db) {
-      return this.dbCreate()
+      return this.dbConnect()
     }
     return this.db
   }
@@ -114,6 +163,32 @@ export default class Store {
       db.run(sql, ...params, (err: unknown) => {
         if (err) {
           debug('failed to execute %s (%o): %s', sql, params, err)
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
+    })
+  }
+
+  /**
+   * Executes `sql`, which can be multiple statements.
+   *
+   * @example
+   *
+   * await store.dbExecAsync(`
+   *   pragma foreign_keys = 1;
+   *
+   *   create table if not exist muppets (name varchar(255));
+   *   create table if not exist images (url integer unique not null);
+   * `)
+   */
+  public async dbExecAsync(sql: string): Promise<void> {
+    const db = await this.getDb()
+    return new Promise((resolve, reject) => {
+      db.exec(sql, (err: unknown) => {
+        if (err) {
+          debug('failed to execute %s (%o): %s', sql, err)
           reject(err)
         } else {
           resolve()
@@ -191,11 +266,8 @@ export default class Store {
     })
   }
 
-  /**
-   * Creates the database including its tables.
-   */
-  public async dbCreate(): Promise<sqlite3.Database> {
-    debug('creating the database at %s', this.dbPath)
+  public async dbConnect(): Promise<sqlite3.Database> {
+    debug('connecting to the database at %s', this.dbPath)
     this.db = await new Promise<sqlite3.Database>((resolve, reject) => {
       const db = new sqlite3.Database(this.dbPath, (err: unknown) => {
         if (err) {
@@ -205,78 +277,28 @@ export default class Store {
         }
       })
     })
-
-    // enforce foreign key constraints
-    await this.dbRunAsync('pragma foreign_keys = 1')
-
-    await this.dbRunAsync(
-      `create table if not exists batches (
-        id varchar(36) primary key,
-        started_at datetime default current_timestamp not null,
-        ended_at datetime
-      )`
-    )
-    await this.dbRunAsync(
-      `create table if not exists ballots (
-        id varchar(36) primary key,
-        batch_id varchar(36),
-        original_filename text unique,
-        normalized_filename text unique,
-        marks_json text,
-        cvr_json text,
-        metadata_json text,
-        adjudication_json text,
-        adjudication_info_json text,
-        requires_adjudication boolean,
-        created_at datetime default current_timestamp not null,
-
-        foreign key (batch_id)
-        references batches (id)
-          on update cascade
-          on delete cascade
-      )`
-    )
-    await this.dbRunAsync(
-      `create table if not exists configs (
-        key varchar(255) unique,
-        value text
-      )`
-    )
-    await this.dbRunAsync(
-      `create table if not exists hmpb_templates (
-        id varchar(36) primary key,
-        pdf blob,
-        locales varchar(255),
-        ballot_style_id varchar(255),
-        precinct_id varchar(255),
-        is_test_ballot boolean,
-        layouts_json text,
-        created_at datetime default current_timestamp not null
-      )`
-    )
-    await this.dbRunAsync(
-      `create unique index if not exists hmpb_templates_idx on hmpb_templates (
-        locales,
-        ballot_style_id,
-        precinct_id,
-        is_test_ballot
-      )`
-    )
-
     return this.db
   }
 
   /**
-   * Initializes the database by destroying the existing one if needed.
+   * Creates the database including its tables.
    */
-  public async init(resetDB = false): Promise<void> {
-    if (resetDB || !this.db) {
-      if (this.db) {
-        await this.dbDestroy()
-      }
+  public async dbCreate(): Promise<sqlite3.Database> {
+    debug('creating the database at %s', this.dbPath)
+    const db = await this.dbConnect()
+    await this.dbExecAsync(await fs.readFile(SchemaPath, 'utf-8'))
+    return db
+  }
 
-      await this.dbCreate()
+  /**
+   * Resets the database.
+   */
+  public async reset(): Promise<void> {
+    if (this.db) {
+      await this.dbDestroy()
     }
+
+    await this.dbCreate()
   }
 
   /**

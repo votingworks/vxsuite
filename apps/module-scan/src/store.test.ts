@@ -102,9 +102,9 @@ test('HMPB template handling', async () => {
 
 test('destroy database', async () => {
   const dbFile = tmp.fileSync()
-  const store = new Store(dbFile.name)
+  const store = await Store.fileStore(dbFile.name)
 
-  await store.init()
+  await store.reset()
   await fs.access(dbFile.name)
 
   await store.dbDestroy()
