@@ -231,12 +231,11 @@ const findContest = ({
   contests: Contests
   contestId: string
 }): CandidateContest | YesNoContest | MsEitherNeitherContest | undefined => {
-  return contests.find(
-    (c) =>
-      (c.type === 'ms-either-neither' &&
-        (c.eitherNeitherContestId === contestId ||
-          c.pickOneContestId === contestId)) ||
-      (c.type !== 'ms-either-neither' && c.id === contestId)
+  return contests.find((c) =>
+    c.type === 'ms-either-neither'
+      ? c.eitherNeitherContestId === contestId ||
+        c.pickOneContestId === contestId
+      : c.id === contestId
   )
 }
 
