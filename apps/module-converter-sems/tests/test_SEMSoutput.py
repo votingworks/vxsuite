@@ -7,14 +7,29 @@ from converter.SEMSoutput import process_results_file
 PARENT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 SAMPLE_FILES = os.path.join(PARENT_DIR, 'sample_files')
 
-GENERAL_ELECTION_FILE = os.path.join(SAMPLE_FILES, 'general-election.json')
-GENERAL_CVR_FILE = os.path.join(SAMPLE_FILES, '10_cvrs.csv')
-GENERAL_EXPECTED_SEMS_RESULTS_FILE = os.path.join(SAMPLE_FILES, '10_expected-sems-results.txt')
+TESTS = [
+    {
+        'election': 'general-election.json',
+        'cvrs': '10_cvrs.csv',
+        'sems': '10_expected-sems-results.txt'
+    },
+    {
+        'election': '10_8-26-2020-expected-election.json',
+        'cvrs': '10_8-26-2020-cvrs.txt',
+        'sems': '10_8-26-2020-expected-sems-output.txt',
+    }            
+]
+
+def get_sample_file(filename):
+    return os.path.join(SAMPLE_FILES, filename)
 
 def test_general_results():
-    result = process_results_file(GENERAL_ELECTION_FILE, GENERAL_CVR_FILE)
+    for test in TESTS:
+        result = process_results_file(
+            get_sample_file(test['election']),
+            get_sample_file(test['cvrs']))
 
-    expected_result_file = open(GENERAL_EXPECTED_SEMS_RESULTS_FILE, "rb")
-    expected_result = expected_result_file.read().decode('utf-8')
+    expected_result_file = open(get_sample_file(test['sems']), "rb")
+    expected_result = expected_result_file.read()
 
-    assert result == expected_result
+    assert result.encode('utf-8') == expected_result

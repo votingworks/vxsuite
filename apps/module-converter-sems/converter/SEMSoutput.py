@@ -63,6 +63,21 @@ CANDIDATE_FIELDS = ["county_id", "contest_id", "candidate_id"]
 # which precincts do candidates appear in
 CONTEST_PRECINCTS_FIELDS = ["contest_id", "precinct_id"]
 
+def find_contest(contests, contest_id):
+    for c in contests:
+        if c['type'] != 'ms-either-neither' and c['id'] == contest_id:
+            return c
+        if c['type'] == 'ms-either-neither' and c['eitherNeitherContestId'] == contest_id:
+            return {"id": c['eitherNeitherContestId'],
+                    "title": c['title'],
+                    "options": c['eitherNeitherOptions']}
+        if c['type'] == 'ms-either-neither' and c['pickOneContestId'] == contest_id:
+            return {"id": c['pickOneContestId'],
+                    "title": c["title"],
+                    "options": c['pickOneOptions']}
+
+    return None
+    
 
 def process_results_file(election_file_path, vx_results_file_path):
     election = json.loads(open(election_file_path,"r").read())
@@ -170,23 +185,23 @@ def process_results_file(election_file_path, vx_results_file_path):
 
                 if not either_neither_answer:
                     add_entry(precinct_id, either_neither_contest_id, UNDERVOTE_CANDIDATE["id"])
-
-                if len(either_neither_answer) > 1:
-                    add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
                 else:
-                    add_entry(precinct_id,
-                              either_neither_contest_id,
-                              contest["eitherOption"]["id"] if either_neither_answer == ["yes"] else contest["neitherOption"]["id"])
+                    if len(either_neither_answer) > 1:
+                        add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
+                    else:
+                        add_entry(precinct_id,
+                                  either_neither_contest_id,
+                                  contest["eitherOption"]["id"] if either_neither_answer == ["yes"] else contest["neitherOption"]["id"])
 
                 if not pick_one_answer:
                     add_entry(precinct_id, pick_one_contest_id, UNDERVOTE_CANDIDATE["id"])
-
-                if len(pick_one_answer) > 1:
-                    add_entry(precinct_id, pick_one_contest_id, OVERVOTE_CANDIDATE["id"])
                 else:
-                    add_entry(precinct_id,
-                              pick_one_contest_id,
-                              contest["firstOption"]["id"] if pick_one_answer == ["yes"] else contest["secondOption"]["id"])
+                    if len(pick_one_answer) > 1:
+                        add_entry(precinct_id, pick_one_contest_id, OVERVOTE_CANDIDATE["id"])
+                    else:
+                        add_entry(precinct_id,
+                                  pick_one_contest_id,
+                                  contest["firstOption"]["id"] if pick_one_answer == ["yes"] else contest["secondOption"]["id"])
                     
                 continue
             
@@ -230,18 +245,28 @@ def process_results_file(election_file_path, vx_results_file_path):
     
     # add the extra special candidates
     for contest in contests:
-        contest["candidates"] += [UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE, WRITEIN_CANDIDATE]
+        if contest['type'] == "candidate":
+            contest["options"] = contest["candidates"] + [UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE, WRITEIN_CANDIDATE]
+        if contest['type'] == "yesno":
+            contest["options"] = [contest["yesOption"], contest["noOption"], UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
+        if contest['type'] == "ms-either-neither":
+            contest["eitherNeitherOptions"]  = [contest["eitherOption"], contest["neitherOption"], UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
+            contest["pickOneOptions"]  = [contest["firstOption"], contest["secondOption"], UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
         
     for row in c.execute(sems_sql).fetchall():
-        precinct_id, contest_id, candidate_id, CVR_candidate_id, count = row
+        precinct_id, contest_id, option_id, CVR_candidate_id, count = row
         
-        contest = [c for c in contests if c["id"] == contest_id][0]
+        contest = find_contest(contests, contest_id)
+        if not contest:
+            print("oy", contest_id)
+            sys.exit(0)
+                   
         contest_party_id = contest["partyId"] if "partyId" in contest else None
-        candidate = [cand for cand in contest["candidates"] if cand["id"] == candidate_id][0]
-        candidate_party_id = candidate["partyId"] if "partyId" in candidate else None
-
+        option = [o for o in contest["options"] if o["id"] == option_id][0]
+        option_party_id = option["partyId"] if "partyId" in option else None
+        
         contest_party = [p for p in parties if p["id"] == contest_party_id][0] if contest_party_id is not None else None
-        candidate_party = [p for p in parties if p["id"] == candidate_party_id][0] if candidate_party_id is not None else None
+        option_party = [p for p in parties if p["id"] == option_party_id][0] if option_party_id is not None else None
         
         # this is the placeholder row
         if not CVR_candidate_id:
@@ -254,13 +279,13 @@ def process_results_file(election_file_path, vx_results_file_path):
             county_id,
             precinct_id,
             contest_id,
-            contest["title"],
+            contest["title"].replace("\n", "\\n"),
             contest_party_id or "0",
             contest_party["abbrev"] if contest_party is not None else "NP",
-            candidate_id,
-            candidate["name"],
-            candidate_party_id or "0",
-            candidate_party["abbrev"] if candidate_party is not None else "NP",
+            option_id,
+            option.get("name", option.get("label")),
+            option_party_id or "0",
+            option_party["abbrev"] if option_party is not None else "NP",
             count
         ])
         
@@ -270,3 +295,9 @@ def process_results_file(election_file_path, vx_results_file_path):
     return sems_io.getvalue()
         
 
+def main(election_file, cvr_file):
+    sems_value = process_results_file(election_file, cvr_file)
+    return sems_value
+
+if __name__ == "__main__": # pragma: no cover this is the main
+    print(main(sys.argv[1], sys.argv[2]))
