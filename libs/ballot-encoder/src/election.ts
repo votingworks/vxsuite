@@ -59,11 +59,12 @@ export interface MsEitherNeitherContest extends Contest {
   readonly firstOption: YesNoOption
   readonly secondOption: YesNoOption
 }
-export type Contests = (
+export type AnyContest =
   | CandidateContest
   | YesNoContest
   | MsEitherNeitherContest
-)[]
+
+export type Contests = AnyContest[]
 
 // Election
 export interface BallotStyle {
@@ -230,7 +231,7 @@ const findContest = ({
 }: {
   contests: Contests
   contestId: string
-}): CandidateContest | YesNoContest | MsEitherNeitherContest | undefined => {
+}): AnyContest | undefined => {
   return contests.find((c) =>
     c.type === 'ms-either-neither'
       ? c.eitherNeitherContestId === contestId ||

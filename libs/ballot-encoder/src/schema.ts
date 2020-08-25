@@ -94,9 +94,13 @@ export const MsEitherOrContest = Contest.merge(
   })
 )
 
-export const Contests = z.array(
-  z.union([CandidateContest, YesNoContest, MsEitherOrContest])
-)
+export const AnyContest = z.union([
+  CandidateContest,
+  YesNoContest,
+  MsEitherOrContest,
+])
+
+export const Contests = z.array(AnyContest)
 
 // Hand-marked paper & adjudication
 export const MarkThresholds = z
