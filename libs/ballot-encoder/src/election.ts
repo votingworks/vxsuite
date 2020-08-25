@@ -225,7 +225,7 @@ export const getBallotStyle = ({
  * Retrieve a contest from a set of contests based on ID
  * special-cases Ms Either Neither contests
  */
-const findContest = ({
+export const findContest = ({
   contests,
   contestId,
 }: {
