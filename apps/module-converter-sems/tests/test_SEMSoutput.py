@@ -17,6 +17,11 @@ TESTS = [
         'election': '10_8-26-2020-expected-election.json',
         'cvrs': '10_8-26-2020-cvrs.txt',
         'sems': '10_8-26-2020-expected-sems-output.txt',
+    },
+    {
+        'election': '10_8-26-2020-expected-election.json',
+        'cvrs': '10_8-26-2020-b-cvrs.txt',
+        'sems': '10_8-26-2020-b-expected-sems-output.txt',
     }            
 ]
 

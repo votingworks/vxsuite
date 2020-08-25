@@ -35,7 +35,7 @@ NOPARTY_PARTY = {
     "abbrev": "NP"
 }
 
-UNDERVOTE_CANDIDATE = {
+BLANKVOTE_CANDIDATE = {
     "id": "2",
     "name": "Times Blank Voted",
     "partyId": "0"
@@ -75,8 +75,6 @@ def find_contest(contests, contest_id):
             return {"id": c['pickOneContestId'],
                     "title": c["title"],
                     "options": c['pickOneOptions']}
-
-    return None
     
 
 def process_results_file(election_file_path, vx_results_file_path):
@@ -126,7 +124,7 @@ def process_results_file(election_file_path, vx_results_file_path):
                     add_contest_precinct(contest_id, p)
                     
                 # add the special candidates so they can be in the join
-                add_candidate(contest_id, UNDERVOTE_CANDIDATE["id"])
+                add_candidate(contest_id, BLANKVOTE_CANDIDATE["id"])
                 add_candidate(contest_id, OVERVOTE_CANDIDATE["id"])
 
             add_candidate(contest["eitherNeitherContestId"], contest["eitherOption"]["id"]) 
@@ -141,7 +139,7 @@ def process_results_file(election_file_path, vx_results_file_path):
             add_contest_precinct(contest["id"], p)
     
         # add the special candidates so they can be in the join
-        add_candidate(contest["id"], UNDERVOTE_CANDIDATE["id"])
+        add_candidate(contest["id"], BLANKVOTE_CANDIDATE["id"])
         add_candidate(contest["id"], OVERVOTE_CANDIDATE["id"])
 
         if contest["type"] == "yesno":
@@ -184,7 +182,7 @@ def process_results_file(election_file_path, vx_results_file_path):
                 pick_one_answer = cvr_obj.get(pick_one_contest_id, None)
 
                 if not either_neither_answer:
-                    add_entry(precinct_id, either_neither_contest_id, UNDERVOTE_CANDIDATE["id"])
+                    add_entry(precinct_id, either_neither_contest_id, BLANKVOTE_CANDIDATE["id"])
                 else:
                     if len(either_neither_answer) > 1:
                         add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
@@ -194,7 +192,7 @@ def process_results_file(election_file_path, vx_results_file_path):
                                   contest["eitherOption"]["id"] if either_neither_answer == ["yes"] else contest["neitherOption"]["id"])
 
                 if not pick_one_answer:
-                    add_entry(precinct_id, pick_one_contest_id, UNDERVOTE_CANDIDATE["id"])
+                    add_entry(precinct_id, pick_one_contest_id, BLANKVOTE_CANDIDATE["id"])
                 else:
                     if len(pick_one_answer) > 1:
                         add_entry(precinct_id, pick_one_contest_id, OVERVOTE_CANDIDATE["id"])
@@ -209,9 +207,9 @@ def process_results_file(election_file_path, vx_results_file_path):
             if answers != None:
                 num_seats = contest["seats"] if contest['type'] == 'candidate' else 1
 
-                # undervote
-                if len(answers) < num_seats:
-                    add_entry(precinct_id, contest["id"], UNDERVOTE_CANDIDATE["id"])
+                # blank vote
+                if len(answers) == 0:
+                    add_entry(precinct_id, contest["id"], BLANKVOTE_CANDIDATE["id"])
 
                 # overvote & stop
                 if len(answers) > num_seats:
@@ -246,20 +244,17 @@ def process_results_file(election_file_path, vx_results_file_path):
     # add the extra special candidates
     for contest in contests:
         if contest['type'] == "candidate":
-            contest["options"] = contest["candidates"] + [UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE, WRITEIN_CANDIDATE]
+            contest["options"] = contest["candidates"] + [BLANKVOTE_CANDIDATE, OVERVOTE_CANDIDATE, WRITEIN_CANDIDATE]
         if contest['type'] == "yesno":
-            contest["options"] = [contest["yesOption"], contest["noOption"], UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
+            contest["options"] = [contest["yesOption"], contest["noOption"], BLANKVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
         if contest['type'] == "ms-either-neither":
-            contest["eitherNeitherOptions"]  = [contest["eitherOption"], contest["neitherOption"], UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
-            contest["pickOneOptions"]  = [contest["firstOption"], contest["secondOption"], UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
+            contest["eitherNeitherOptions"]  = [contest["eitherOption"], contest["neitherOption"], BLANKVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
+            contest["pickOneOptions"]  = [contest["firstOption"], contest["secondOption"], BLANKVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
         
     for row in c.execute(sems_sql).fetchall():
         precinct_id, contest_id, option_id, CVR_candidate_id, count = row
         
         contest = find_contest(contests, contest_id)
-        if not contest:
-            print("oy", contest_id)
-            sys.exit(0)
                    
         contest_party_id = contest["partyId"] if "partyId" in contest else None
         option = [o for o in contest["options"] if o["id"] == option_id][0]
@@ -295,9 +290,6 @@ def process_results_file(election_file_path, vx_results_file_path):
     return sems_io.getvalue()
         
 
-def main(election_file, cvr_file):
-    sems_value = process_results_file(election_file, cvr_file)
-    return sems_value
-
 if __name__ == "__main__": # pragma: no cover this is the main
-    print(main(sys.argv[1], sys.argv[2]))
+    sems_value = process_results_file(sys.argv[1], sys.argv[2])
+    print(sems_value)
