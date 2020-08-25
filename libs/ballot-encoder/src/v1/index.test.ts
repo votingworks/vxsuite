@@ -292,15 +292,11 @@ it('encodes & decodes ms-either-neither votes correctly', () => {
       }
     }
     // vote data
-    if (rawVote['750000015']) {
-      encodedBallotWriter.writeBoolean(
-        (rawVote['750000015'] as string[])[0] === 'yes'
-      )
+    if (Array.isArray(rawVote['750000015'])) {
+      encodedBallotWriter.writeBoolean(rawVote['750000015'][0] === 'yes')
     }
-    if (rawVote['750000016']) {
-      encodedBallotWriter.writeBoolean(
-        (rawVote['750000016'] as string[])[0] === 'yes'
-      )
+    if (Array.isArray(rawVote['750000016'])) {
+      encodedBallotWriter.writeBoolean(rawVote['750000016'][0] === 'yes')
     }
 
     const encodedBallot = encodedBallotWriter
