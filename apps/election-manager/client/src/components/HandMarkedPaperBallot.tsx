@@ -207,7 +207,7 @@ class PostRenderBallotProcessor extends Handler {
               isLiveMode: isLiveMode === 'true',
               precinctId,
               ballotStyleId,
-              pageNumber: parseInt(pageNumber || '', 10),
+              pageNumber: parseInt(pageNumber!, 10),
               pageCount: pages.length,
               primaryLocaleCode,
               secondaryLocaleCode,
