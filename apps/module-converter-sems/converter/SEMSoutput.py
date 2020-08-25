@@ -189,28 +189,28 @@ def process_results_file(election_file_path, vx_results_file_path):
                 pick_one_answer_valid = False
                 if pick_one_answer == []:
                     add_entry(precinct_id, pick_one_contest_id, BLANKVOTE_CANDIDATE["id"])
+                elif len(pick_one_answer) > 1:
+                    add_entry(precinct_id, pick_one_contest_id, OVERVOTE_CANDIDATE["id"])
                 else:
-                    if len(pick_one_answer) > 1:
-                        add_entry(precinct_id, pick_one_contest_id, OVERVOTE_CANDIDATE["id"])
-                    else:
-                        pick_one_answer_valid = True
-                        add_entry(precinct_id,
-                                  pick_one_contest_id,
-                                  contest["firstOption"]["id"] if pick_one_answer == ["yes"] else contest["secondOption"]["id"])
+                    pick_one_answer_valid = True
+                    option = contest["firstOption" if pick_one_answer == ["yes"] else "secondOption"]
+                    add_entry(precinct_id,
+                              pick_one_contest_id,
+                              option["id"])
 
                 # the validity of either-neither depends on the validity of pick-one.
                 # as per Ms Either Neither rules, if no pick_one answer,
                 # then the either_neither answer cannot be counted.
                 if either_neither_answer == []:
                     add_entry(precinct_id, either_neither_contest_id, BLANKVOTE_CANDIDATE["id"])
-                else:
-                    if len(either_neither_answer) > 1:
-                        add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
-                    else:
-                        if either_neither_answer == ["no"] or pick_one_answer_valid:
-                            add_entry(precinct_id,
-                                      either_neither_contest_id,
-                                      contest["eitherOption"]["id"] if either_neither_answer == ["yes"] else contest["neitherOption"]["id"])
+                elif len(either_neither_answer) > 1:
+                    add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
+                elif either_neither_answer == ["no"] or pick_one_answer_valid:
+                    option = contest["eitherOption" if either_neither_answer == ["yes"] else "neitherOption"]
+                    
+                    add_entry(precinct_id,
+                              either_neither_contest_id,
+                              option["id"])
 
                 continue
             
