@@ -43,7 +43,7 @@ test('can build votes from yesno values', () => {
   })
 })
 
-test('can build votes from ms-either-or yesno values', () => {
+test('can build votes from ms-either-neither yesno values', () => {
   expect(
     vote(electionWithMsEitherNeither.contests, {
       '750000015': 'yes',
@@ -219,7 +219,7 @@ test('parsing a valid election object succeeds', () => {
   }).not.toThrowError()
 })
 
-test('parsing a valid election with ms either-neither succeeds', () => {
+test('parsing a valid election with ms-either-neither succeeds', () => {
   expect(() => {
     const parsed = parseElection(electionWithMsEitherNeither as unknown)
 
