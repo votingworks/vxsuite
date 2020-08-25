@@ -111,6 +111,10 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     candidate_map_csv = csv.reader(candidate_map_file, skipinitialspace=True)
     
     db = sqlite3.connect(":memory:")
+
+    # this returns rows that behave like dictionaries instead of arrays
+    db.row_factory = sqlite3.Row
+    
     c = db.cursor()
     
     for table_def in ELECTION_TABLES.values():
@@ -142,8 +146,8 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     # now it's all in in-memory sqlite
 
     # the county ID is in the sems_candidates table (only stable place it appears)
-    sql = "select distinct(county_code) from sems_candidates"
-    county_id = c.execute(sql).fetchall()[0][0]
+    sql = "select distinct(county_code) as county_code from sems_candidates"
+    county_id = c.execute(sql).fetchone()['county_code']
 
     # basic info
     sql = "select title, date from election"
@@ -151,55 +155,55 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
     # parties
     sql = "select party_id, label, abbrev from parties"
-    parties = [{"id": r[0], "name": r[1], "fullName": full_party_name(r[1]), "abbrev": r[2]} for r in c.execute(sql).fetchall()]
+    parties = [{"id": r['party_id'], "name": r['label'], "fullName": full_party_name(r['label']), "abbrev": r['abbrev']} for r in c.execute(sql).fetchall()]
     parties_by_abbrev = dict([[p["abbrev"], p["id"]] for p in parties])
     parties_by_id = dict([[p["id"], p] for p in parties])
 
     # districts
     sql = "select district_id, label from districts"
-    districts = [{"id": r[0], "name": r[1]} for r in c.execute(sql).fetchall()]
+    districts = [{"id": r['district_id'], "name": r['label']} for r in c.execute(sql).fetchall()]
 
-    # look for either-or contests, which have the same label and description
+    # look for either-neither contests, which have the same label and description
     sql = "select label, contest_text from contests where type = '1' group by label, contest_text having count(*) = 2"
-    either_neither_labels = [r[0] for r in c.execute(sql).fetchall()]
+    either_neither_labels = [r['label'] for r in c.execute(sql).fetchall()]
     
     # contests
-    sql = "select contest_id, contests.label, type, contests.district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label from contests, districts where contests.district_id = districts.district_id"
+    sql = "select contest_id, contests.label as contest_label, type, contests.district_id as district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label as district_label from contests, districts where contests.district_id = districts.district_id"
     contests = [{
-        "id": r[0],
-        "section": r[8],
-        "districtId": r[3],
+        "id": r['contest_id'],
+        "section": r['district_label'],
+        "districtId": r['district_id'],
         "type": "candidate",
-        "partyId": None if r[7] == "0" else r[7],
-        "title": cleanup_text(r[6]).split("\n")[1],
-        "seats": int(r[4]),
-        "allowWriteIns": int(r[5]) > 0
+        "partyId": None if r['party_id'] == "0" else r['party_id'],
+        "title": cleanup_text(r['contest_text']).split("\n")[1],
+        "seats": int(r['num_vote_for']),
+        "allowWriteIns": int(r['num_write_ins']) > 0
     } if r[2] == "0" else {
-        "id": r[0],
-        "section": r[8],
-        "districtId": r[3],
+        "id": r['contest_id'],
+        "section": r['district_label'],
+        "districtId": r['district_id'],
         "type": "yesno",
-        "title": cleanup_text(r[6]).split("\n")[0] + "\n" + r[1],
-        "description": "\n".join(cleanup_text(r[6]).split("\n")[1:])
-    } for r in c.execute(sql).fetchall() if r[1] not in either_neither_labels]
+        "title": cleanup_text(r['contest_text']).split("\n")[0] + "\n" + r[1],
+        "description": "\n".join(cleanup_text(r['contest_text']).split("\n")[1:])
+    } for r in c.execute(sql).fetchall() if r['contest_label'] not in either_neither_labels]
 
-    # either-or-contests
+    # either-neither contests
     either_neither_contest_ids = []
     for label in either_neither_labels:
-        sql = "select contest_id, contests.district_id, contest_text, districts.label, contests.label from contests, districts where contests.district_id = districts.district_id and contests.label = ? order by contest_id"
-        subcontests = c.execute(sql, [label]).fetchall()
-        text = cleanup_text(subcontests[0][2]).split("\n")
-        either_neither_contest_ids.append(subcontests[0][0])
-        either_neither_contest_ids.append(subcontests[1][0])
+        sql = "select contest_id, contests.district_id as district_id, contest_text, districts.label as district_label, contests.label as contest_label from contests, districts where contests.district_id = districts.district_id and contests.label = ? order by contest_id"
+        either_neither_contest, pick_one_contest = c.execute(sql, [label]).fetchall()
+        text = cleanup_text(either_neither_contest['contest_text']).split("\n")
+        either_neither_contest_ids.append(either_neither_contest['contest_id'])
+        either_neither_contest_ids.append(pick_one_contest['contest_id'])
         new_contest = {
-            "id": subcontests[0][0] + "-either-neither",
-            "section": subcontests[0][3],
-            "districtId": subcontests[0][1],
+            "id": either_neither_contest['contest_id'] + "-either-neither",
+            "section": either_neither_contest['district_label'],
+            "districtId": either_neither_contest['district_id'],
             "type": "ms-either-neither",
             "title": text[0],
-            "eitherNeitherContestId": subcontests[0][0],
-            "pickOneContestId": subcontests[1][0],
-            "description": f"<b>{subcontests[0][4]}</b>\n\n" + "\n".join(text[1:])
+            "eitherNeitherContestId": either_neither_contest['contest_id'],
+            "pickOneContestId": pick_one_contest['contest_id'],
+            "description": f"<b>{either_neither_contest['contest_label']}</b>\n\n" + "\n".join(text[1:])
         }
         contests.append(new_contest)
             
@@ -215,8 +219,8 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
             # candidates
             sql = """
             select
-            sems_candidates.candidate_sems_id, candidates.label_on_ballot,
-            candidates.party_id from candidates, sems_candidates
+            sems_candidates.candidate_sems_id as candidate_sems_id, candidates.label_on_ballot as label_on_ballot,
+            candidates.party_id as party_id from candidates, sems_candidates
             where
             candidates.contest_id = ? and
             sems_candidates.county_code = ? and
@@ -228,11 +232,11 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
             contest["candidates"] = []
             for cand in candidates:
                 candidate = {
-                    "id": cand[0],
-                    "name": cand[1]
+                    "id": cand['candidate_sems_id'],
+                    "name": cand['label_on_ballot']
                 }
-                if cand[2]:
-                    candidate["partyId"] = cand[2]
+                if cand['party_id']:
+                    candidate["partyId"] = cand['party_id']
                     
                 contest["candidates"].append(candidate)
                 
@@ -248,8 +252,8 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
             order by cast(sort_seq as integer)"""
 
             options = [{
-                "id": o[0],
-                "label": cleanup_text(o[2]).split("\n")[1]
+                "id": o['candidate_id'],
+                "label": cleanup_text(o['label_on_ballot']).split("\n")[1]
             } for o in c.execute(sql, [contest['id']]).fetchall()]
 
             contest['yesOption'] = options[0]
@@ -267,35 +271,31 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
             either_option, neither_option = c.execute(sql, [contest['eitherNeitherContestId']]).fetchall()
             first_option, second_option = c.execute(sql, [contest['pickOneContestId']]).fetchall()
-            either_option = [cleanup_text(i) for i in either_option]
-            neither_option = [cleanup_text(i) for i in neither_option]
-            first_option = [cleanup_text(i) for i in first_option]
-            second_option = [cleanup_text(i) for i in second_option]
 
-            contest["eitherNeitherLabel"] = either_option[2].split("\n")[0]
-            contest["pickOneLabel"] = first_option[2].split("\n")[0]
+            contest["eitherNeitherLabel"] = cleanup_text(either_option['label_on_ballot']).split("\n")[0]
+            contest["pickOneLabel"] = cleanup_text(first_option['label_on_ballot']).split("\n")[0]
             
             contest["eitherOption"] = {
-                "id": either_option[0],
-                "label": either_option[2].split("\n")[1]
+                "id": either_option['candidate_id'],
+                "label": cleanup_text(either_option['label_on_ballot']).split("\n")[1]
             }
             contest["neitherOption"] = {
-                "id": neither_option[0],
-                "label": neither_option[2].split("\n")[1]
+                "id": neither_option['candidate_id'],
+                "label": cleanup_text(neither_option['label_on_ballot']).split("\n")[1]
             }
 
             contest["firstOption"] = {
-                "id": first_option[0],
-                "label": first_option[2].split("\n")[1]
+                "id": first_option['candidate_id'],
+                "label": cleanup_text(first_option['label_on_ballot']).split("\n")[1]
             }
             contest["secondOption"] = {
-                "id": second_option[0],
-                "label": second_option[2].split("\n")[1]
+                "id": second_option['candidate_id'],
+                "label": cleanup_text(second_option['label_on_ballot']).split("\n")[1]
             }
             
         
     sql = "select precinct_id, precinct_label from splits group by precinct_id, precinct_label"
-    precincts = [{"id": r[0], "name": r[1]} for r in c.execute(sql)]
+    precincts = [{"id": r['precinct_id'], "name": r['precinct_label']} for r in c.execute(sql)]
         
     sql = "select distinct(ballot_style) from splits"
     ballot_styles = [{"id": r[0]} for r in c.execute(sql)]
@@ -308,11 +308,11 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
             if possible_party_abbrev in parties_by_abbrev:
                 ballot_style["partyId"] = parties_by_abbrev[possible_party_abbrev]
 
-    sql_precincts = "select distinct(precinct_id) from splits where ballot_style = ?"
-    sql_districts = "select distinct(district_id) from splits, split_districts where ballot_style = ? and splits.split_id = split_districts.split_id"
+    sql_precincts = "select distinct(precinct_id) as precinct_id from splits where ballot_style = ?"
+    sql_districts = "select distinct(district_id) as district_id from splits, split_districts where ballot_style = ? and splits.split_id = split_districts.split_id"
     for ballot_style in ballot_styles:
-        ballot_style["precincts"] = [r[0] for r in c.execute(sql_precincts, [ballot_style["id"]])]
-        ballot_style["districts"] = [r[0] for r in c.execute(sql_districts, [ballot_style["id"]])]
+        ballot_style["precincts"] = [r['precinct_id'] for r in c.execute(sql_precincts, [ballot_style["id"]])]
+        ballot_style["districts"] = [r['district_id'] for r in c.execute(sql_districts, [ballot_style["id"]])]
     
 
     # set the timezone to be the earliest US timezone (Hawaii standard time)
