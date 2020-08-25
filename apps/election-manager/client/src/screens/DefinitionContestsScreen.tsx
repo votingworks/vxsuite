@@ -7,6 +7,7 @@ import {
 } from '@votingworks/ballot-encoder'
 import styled from 'styled-components'
 
+import readFileAsync from '../lib/readFileAsync'
 import {
   ButtonEventFunction,
   InputEventFunction,
@@ -25,6 +26,7 @@ import Text from '../components/Text'
 import TextInput from '../components/TextInput'
 import { TextareaAutosize } from '../components/Textarea'
 import BubbleMark from '../components/BubbleMark'
+import FileInputButton from '../components/FileInputButton'
 
 const PageHeader = styled.div`
   margin-bottom: 2rem;
@@ -224,6 +226,28 @@ const DefinitionContestsScreen = () => {
     })
   }
 
+  const appendSvgToDescription: InputEventFunction = async (event) => {
+    const { files } = event.currentTarget
+    const file = files && files[0]
+    if (file && file.type === 'image/svg+xml') {
+      const yesNoContest = contest as YesNoContest
+      try {
+        const fileContent = await readFileAsync(file)
+        const description = `${yesNoContest.description}
+
+${fileContent}`
+        saveContest({
+          ...yesNoContest,
+          description,
+        })
+      } catch (error) {
+        console.error('appendSvgToDescription failed', error) // eslint-disable-line no-console
+      }
+    } else {
+      console.error('Only SVG images are supported.') // eslint-disable-line no-console
+    }
+  }
+
   if (contestId && contest) {
     return (
       <NavigationScreen>
@@ -389,13 +413,24 @@ const DefinitionContestsScreen = () => {
                 </ol>
               </React.Fragment>
             ) : (
-              <TextField
-                label="Description"
-                name="description"
-                type="textarea"
-                value={contest.description}
-                onChange={saveTextField}
-              />
+              <React.Fragment>
+                <TextField
+                  label="Description"
+                  name="description"
+                  type="textarea"
+                  value={contest.description}
+                  onChange={saveTextField}
+                />
+                <FileInputButton
+                  buttonProps={{
+                    small: true,
+                  }}
+                  accept="image/svg+xml"
+                  onChange={appendSvgToDescription}
+                >
+                  Append SVG Image to Description
+                </FileInputButton>
+              </React.Fragment>
             )}
           </div>
         </Columns>
