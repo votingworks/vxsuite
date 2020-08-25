@@ -1,5 +1,6 @@
 import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from '../bits'
 import {
+  AnyContest,
   BallotTypeMaximumValue,
   CandidateVote,
   CompletedBallot,
@@ -8,10 +9,11 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
+  isVotePresent,
+  Optional,
   validateVotes,
   VotesDict,
   YesNoVote,
-  isVotePresent,
 } from '../election'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
@@ -97,12 +99,10 @@ function encodeBallotVotesInto(
   // write roll call
   for (const contest of contests) {
     if (contest.type === 'ms-either-neither') {
-      bits.writeUint1(
-        isVotePresent(votes[contest.eitherNeitherContestId]) ? 1 : 0
-      )
-      bits.writeUint1(isVotePresent(votes[contest.pickOneContestId]) ? 1 : 0)
+      bits.writeBoolean(isVotePresent(votes[contest.eitherNeitherContestId]))
+      bits.writeBoolean(isVotePresent(votes[contest.pickOneContestId]))
     } else {
-      bits.writeUint1(isVotePresent(votes[contest.id]) ? 1 : 0)
+      bits.writeBoolean(isVotePresent(votes[contest.id]))
     }
   }
 
@@ -111,8 +111,10 @@ function encodeBallotVotesInto(
     if (contest.type === 'ms-either-neither') {
       const eitherNeitherYnVote = votes[
         contest.eitherNeitherContestId
-      ] as YesNoVote
-      const pickOneYnVote = votes[contest.pickOneContestId] as YesNoVote
+      ] as Optional<YesNoVote>
+      const pickOneYnVote = votes[contest.pickOneContestId] as Optional<
+        YesNoVote
+      >
 
       if (eitherNeitherYnVote) {
         writeYesNoVote(bits, eitherNeitherYnVote)
@@ -255,34 +257,39 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   const votes: VotesDict = {}
 
   // read roll call
-  const contestsWithAnswers = contests
-    .map((c) => {
-      if (c.type === 'ms-either-neither') {
-        const result = {
-          contest: c,
-          meta: [bits.readUint1(), bits.readUint1()],
-        }
-        return result
-      } else {
-        return { contest: c, meta: [bits.readUint1()] }
+  const contestsWithAnswers = contests.flatMap<{
+    contest: AnyContest
+    hasEitherNeither?: boolean
+    hasPickOne?: boolean
+  }>((contest) => {
+    if (contest.type === 'ms-either-neither') {
+      const hasEitherNeither = bits.readBoolean()
+      const hasPickOne = bits.readBoolean()
+
+      if (hasEitherNeither || hasPickOne) {
+        return [{ contest, hasEitherNeither, hasPickOne }]
       }
-    })
-    .filter(({ meta }) => meta.some((b) => b))
+    } else if (bits.readBoolean()) {
+      return [{ contest }]
+    }
+
+    return []
+  })
 
   // read vote data
-  for (const { contest, meta } of contestsWithAnswers) {
+  for (const { contest, hasEitherNeither, hasPickOne } of contestsWithAnswers) {
     if (contest.type === 'ms-either-neither') {
-      if (meta[0]) {
-        votes[contest.eitherNeitherContestId] = bits.readUint1()
+      if (hasEitherNeither) {
+        votes[contest.eitherNeitherContestId] = bits.readBoolean()
           ? ['yes']
           : ['no']
       }
-      if (meta[1]) {
-        votes[contest.pickOneContestId] = bits.readUint1() ? ['yes'] : ['no']
+      if (hasPickOne) {
+        votes[contest.pickOneContestId] = bits.readBoolean() ? ['yes'] : ['no']
       }
     } else if (contest.type === 'yesno') {
       // yesno votes get a single bit
-      votes[contest.id] = bits.readUint1() ? ['yes'] : ['no']
+      votes[contest.id] = bits.readBoolean() ? ['yes'] : ['no']
     } else {
       const contestVote: CandidateVote = []
 

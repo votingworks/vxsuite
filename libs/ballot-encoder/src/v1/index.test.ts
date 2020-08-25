@@ -259,6 +259,7 @@ it('encodes & decodes ms-either-neither votes correctly', () => {
     { '750000015': ['no'], '750000016': ['yes'] },
     { '750000016': ['yes'] },
     { '750000015': ['no'] },
+    {},
   ]
 
   for (const rawVote of votePermutations) {
