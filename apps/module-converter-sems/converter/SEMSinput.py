@@ -196,7 +196,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         either_neither_contest_ids.append(either_neither_contest['contest_id'])
         either_neither_contest_ids.append(pick_one_contest['contest_id'])
         new_contest = {
-            "id": either_neither_contest['contest_id'] + "-either-neither",
+            "id": f"{either_neither_contest['contest_id']}-{pick_one_contest['contest_id']}-either-neither",
             "section": either_neither_contest['district_label'],
             "districtId": either_neither_contest['district_id'],
             "type": "ms-either-neither",
