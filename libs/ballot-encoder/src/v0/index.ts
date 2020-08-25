@@ -93,7 +93,11 @@ function encodeBallotVotes(contests: Contests, votes: VotesDict): string {
         return encodeYesNoVote(contest, contestVote as YesNoVote)
       }
 
-      return encodeCandidateVote(contest, contestVote as CandidateVote)
+      if (contest.type === 'candidate') {
+        return encodeCandidateVote(contest, contestVote as CandidateVote)
+      }
+
+      throw new Error('only yesno and candidate votes are supported')
     })
     .join(VoteSeparator)
 }
@@ -206,8 +210,10 @@ function decodeBallotVotes(
 
     if (contest.type === 'yesno') {
       contestVote = decodeYesNoVote(contest, encodedVote)
-    } else {
+    } else if (contest.type === 'candidate') {
       contestVote = decodeCandidateVote(contest, encodedVote)
+    } else {
+      throw new Error('only yesno and candidate contests supported')
     }
 
     return { ...dict, [contest.id]: contestVote }
