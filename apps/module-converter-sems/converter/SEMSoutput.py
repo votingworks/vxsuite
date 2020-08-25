@@ -177,30 +177,41 @@ def process_results_file(election_file_path, vx_results_file_path):
             if contest['type'] == 'ms-either-neither':
                 either_neither_contest_id = contest["eitherNeitherContestId"]
                 pick_one_contest_id = contest["pickOneContestId"]
-                
+
                 either_neither_answer = cvr_obj.get(either_neither_contest_id, None)
                 pick_one_answer = cvr_obj.get(pick_one_contest_id, None)
 
-                if not either_neither_answer:
-                    add_entry(precinct_id, either_neither_contest_id, BLANKVOTE_CANDIDATE["id"])
-                else:
-                    if len(either_neither_answer) > 1:
-                        add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
-                    else:
-                        add_entry(precinct_id,
-                                  either_neither_contest_id,
-                                  contest["eitherOption"]["id"] if either_neither_answer == ["yes"] else contest["neitherOption"]["id"])
+                # both of these should be present, otherwise it's an invalid CVR and we shouldn't count this contest at all
+                if either_neither_answer == None or pick_one_answer == None:
+                    continue
 
-                if not pick_one_answer:
+                # do the pick-one first, because its validity is self-contained
+                pick_one_answer_valid = False
+                if pick_one_answer == []:
                     add_entry(precinct_id, pick_one_contest_id, BLANKVOTE_CANDIDATE["id"])
                 else:
                     if len(pick_one_answer) > 1:
                         add_entry(precinct_id, pick_one_contest_id, OVERVOTE_CANDIDATE["id"])
                     else:
+                        pick_one_answer_valid = True
                         add_entry(precinct_id,
                                   pick_one_contest_id,
                                   contest["firstOption"]["id"] if pick_one_answer == ["yes"] else contest["secondOption"]["id"])
-                    
+
+                # the validity of either-neither depends on the validity of pick-one.
+                # as per Ms Either Neither rules, if no pick_one answer,
+                # then the either_neither answer cannot be counted.
+                if either_neither_answer == []:
+                    add_entry(precinct_id, either_neither_contest_id, BLANKVOTE_CANDIDATE["id"])
+                else:
+                    if len(either_neither_answer) > 1:
+                        add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
+                    else:
+                        if either_neither_answer == ["no"] or pick_one_answer_valid:
+                            add_entry(precinct_id,
+                                      either_neither_contest_id,
+                                      contest["eitherOption"]["id"] if either_neither_answer == ["yes"] else contest["neitherOption"]["id"])
+
                 continue
             
             answers = cvr_obj.get(contest["id"], None)
