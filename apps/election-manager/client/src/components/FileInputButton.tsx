@@ -10,7 +10,7 @@ import {
 } from './Button'
 
 const HiddenFileInput = styled.input`
-  position: absolute;
+  position: relative;
   opacity: 0;
   z-index: -1;
   width: 0.1px;
