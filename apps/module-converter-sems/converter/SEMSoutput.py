@@ -20,7 +20,7 @@
 # - candidate_party_label
 # - count
 #
-# APPROACH: we'll make a table of all field identiiers, leaving out denormalized labels,
+# APPROACH: we'll make a table of all field identifiers, leaving out denormalized labels,
 # and leaving out the count, and then we'll use group by and joins to get the full rows
 #
 #
@@ -105,21 +105,42 @@ def process_results_file(election_file_path, vx_results_file_path):
 
         contest_precincts = list(contest_precincts)
 
+        if contest["type"] == "ms-either-neither":
+            for contest_id in [contest["eitherNeitherContestId"], contest["pickOneContestId"]]:
+                for p in contest_precincts:
+                    add_contest_precinct(contest_id, p)
+                    
+                # add the special candidates so they can be in the join
+                add_candidate(contest_id, UNDERVOTE_CANDIDATE["id"])
+                add_candidate(contest_id, OVERVOTE_CANDIDATE["id"])
+
+            add_candidate(contest["eitherNeitherContestId"], contest["eitherOption"]["id"]) 
+            add_candidate(contest["eitherNeitherContestId"], contest["neitherOption"]["id"])
+
+            add_candidate(contest["pickOneContestId"], contest["firstOption"]["id"]) 
+            add_candidate(contest["pickOneContestId"], contest["secondOption"]["id"])
+
+            continue
+        
         for p in contest_precincts:
             add_contest_precinct(contest["id"], p)
     
-        if contest["type"] == "yesno": # pragma: no cover
-            ## TODO: implement yesno measures
-            continue
-
-        for candidate in contest["candidates"]:
-            add_candidate(contest["id"], candidate["id"])
-
         # add the special candidates so they can be in the join
         add_candidate(contest["id"], UNDERVOTE_CANDIDATE["id"])
         add_candidate(contest["id"], OVERVOTE_CANDIDATE["id"])
-        if contest["allowWriteIns"]:
-            add_candidate(contest["id"], WRITEIN_CANDIDATE["id"])
+
+        if contest["type"] == "yesno":
+            # 2020-08-24 - we learned that measures actually have option IDs for SEMS
+            # which we store here as candidate IDs.
+            add_candidate(contest["id"], contest["yesOption"]["id"])
+            add_candidate(contest["id"], contest["noOption"]["id"])            
+
+        if contest["type"] == "candidate":
+            for candidate in contest["candidates"]:
+                add_candidate(contest["id"], candidate["id"])
+
+            if contest["allowWriteIns"]:
+                add_candidate(contest["id"], WRITEIN_CANDIDATE["id"])
 
     # create data model for CVRs
     sql = "create table CVRs (%s)" % ",".join(CVR_FIELDS)
@@ -140,29 +161,58 @@ def process_results_file(election_file_path, vx_results_file_path):
         precinct_id = cvr_obj["_precinctId"]
 
         for contest in contests:
+            if contest['type'] == 'ms-either-neither':
+                either_neither_contest_id = contest["eitherNeitherContestId"]
+                pick_one_contest_id = contest["pickOneContestId"]
+                
+                either_neither_answer = cvr_obj.get(either_neither_contest_id, None)
+                pick_one_answer = cvr_obj.get(pick_one_contest_id, None)
+
+                if not either_neither_answer:
+                    add_entry(precinct_id, either_neither_contest_id, UNDERVOTE_CANDIDATE["id"])
+
+                if len(either_neither_answer) > 1:
+                    add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
+                else:
+                    add_entry(precinct_id,
+                              either_neither_contest_id,
+                              contest["eitherOption"]["id"] if either_neither_answer == ["yes"] else contest["neitherOption"]["id"])
+
+                if not pick_one_answer:
+                    add_entry(precinct_id, pick_one_contest_id, UNDERVOTE_CANDIDATE["id"])
+
+                if len(pick_one_answer) > 1:
+                    add_entry(precinct_id, pick_one_contest_id, OVERVOTE_CANDIDATE["id"])
+                else:
+                    add_entry(precinct_id,
+                              pick_one_contest_id,
+                              contest["firstOption"]["id"] if pick_one_answer == ["yes"] else contest["secondOption"]["id"])
+                    
+                continue
+            
             answers = cvr_obj.get(contest["id"], None)
             if answers != None:
-                # blank answer
-                if answers == "":
-                    add_entry(precinct_id, contest["id"], UNDERVOTE_CANDIDATE["id"])
-                    continue
+                num_seats = contest["seats"] if contest['type'] == 'candidate' else 1
 
-                # this condition has not been hit with a Ms sample file yet
-                if len(answers) < contest["seats"]: # pragma: no cover
+                # undervote
+                if len(answers) < num_seats:
                     add_entry(precinct_id, contest["id"], UNDERVOTE_CANDIDATE["id"])
-                    # keep going to count the candidates entered
 
-                # overvote, record only the overvote fact
-                # TODO: consider removing this since there are no overvotes in our system
-                if len(answers) > contest["seats"]: # pragma: no cover
+                # overvote & stop
+                if len(answers) > num_seats:
                     add_entry(precinct_id, contest["id"], OVERVOTE_CANDIDATE["id"])
                     continue
-                
-                for answer in answers:
-                    if answer == '__write-in' or answer == 'writein':
-                        add_entry(precinct_id, contest["id"], WRITEIN_CANDIDATE["id"])
-                    else:
-                        add_entry(precinct_id, contest["id"], answer)
+
+                if contest['type'] == 'candidate':
+                    for answer in answers:
+                        if answer == '__write-in' or answer == 'writein':
+                            add_entry(precinct_id, contest["id"], WRITEIN_CANDIDATE["id"])
+                        else:
+                            add_entry(precinct_id, contest["id"], answer)
+                elif contest['type'] == 'yesno':
+                    add_entry(precinct_id,
+                              contest["id"],
+                              contest["yesOption"]["id"] if answers == ["yes"] else contest["noOption"]["id"])
 
     # now it's all in in-memory sqlite
     sems_sql = """
