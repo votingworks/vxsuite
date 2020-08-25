@@ -89,15 +89,16 @@ function encodeBallotVotes(contests: Contests, votes: VotesDict): string {
         return EmptyVoteValue
       }
 
+      /* istanbul ignore next */
+      if (contest.type === 'ms-either-neither') {
+        throw new Error('only yesno and candidate votes are supported')
+      }
+
       if (contest.type === 'yesno') {
         return encodeYesNoVote(contest, contestVote as YesNoVote)
       }
 
-      if (contest.type === 'candidate') {
-        return encodeCandidateVote(contest, contestVote as CandidateVote)
-      }
-
-      throw new Error('only yesno and candidate votes are supported')
+      return encodeCandidateVote(contest, contestVote as CandidateVote)
     })
     .join(VoteSeparator)
 }
@@ -208,12 +209,15 @@ function decodeBallotVotes(
     const contest = contests[contestIndex]
     let contestVote: Vote
 
+    /* istanbul ignore next */
+    if (contest.type === 'ms-either-neither') {
+      throw new Error('only yesno and candidate votes are supported')
+    }
+
     if (contest.type === 'yesno') {
       contestVote = decodeYesNoVote(contest, encodedVote)
-    } else if (contest.type === 'candidate') {
-      contestVote = decodeCandidateVote(contest, encodedVote)
     } else {
-      throw new Error('only yesno and candidate contests supported')
+      contestVote = decodeCandidateVote(contest, encodedVote)
     }
 
     return { ...dict, [contest.id]: contestVote }
