@@ -394,7 +394,7 @@ const TallyScreen = () => {
             <p>
               <LinkButton to={routerPaths.printTestDecks}>
                 Print Test Decks
-              </LinkButton>
+              </LinkButton>{' '}
               <LinkButton to={routerPaths.testDecksTally}>
                 View Test Ballot Deck Tally
               </LinkButton>
