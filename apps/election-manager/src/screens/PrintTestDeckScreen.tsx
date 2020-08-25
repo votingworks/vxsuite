@@ -31,12 +31,10 @@ const allPrecincts: Precinct = {
   name: 'All Precincts',
 }
 
-type OnAllRenderedFunctionType = () => void
-
 interface TestDeckBallotsParams {
   election: Election
   precinct: Precinct
-  onAllRendered: OnAllRenderedFunctionType
+  onAllRendered: () => void
 }
 
 const TestDeckBallots = ({
