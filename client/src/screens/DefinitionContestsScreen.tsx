@@ -106,7 +106,7 @@ const TextField = ({
         id={name}
         name={name}
         disabled={disabled}
-        value={value}
+        defaultValue={value}
         onChange={onChange as TextareaEventFunction}
       />
     ) : (
@@ -115,7 +115,7 @@ const TextField = ({
         name={name}
         type={type}
         disabled={disabled}
-        value={value}
+        defaultValue={value}
         onChange={onChange as InputEventFunction}
         min={min}
         pattern={pattern}
