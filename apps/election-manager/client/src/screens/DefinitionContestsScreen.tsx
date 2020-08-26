@@ -4,6 +4,7 @@ import {
   Election,
   CandidateContest,
   YesNoContest,
+  AnyContest,
 } from '@votingworks/ballot-encoder'
 import styled from 'styled-components'
 
@@ -175,7 +176,7 @@ const DefinitionContestsScreen = () => {
   const contestIndex = election.contests.findIndex((c) => c.id === contestId)
   const contest = election.contests[contestIndex]
 
-  const saveContest = (newContest: CandidateContest | YesNoContest) => {
+  const saveContest = (newContest: AnyContest) => {
     const newElection: Election = { ...election }
     newElection.contests[contestIndex] = newContest
     saveElection(newElection)
