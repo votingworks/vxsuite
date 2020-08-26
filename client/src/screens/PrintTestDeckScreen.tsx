@@ -129,7 +129,7 @@ const PrintTestDeckScreen = () => {
 
   const [printEnabled, setPrintEnabled] = useState(false)
 
-  const pageTitle = 'Print Test Deck'
+  const pageTitle = 'Test Deck'
   const precinct =
     precinctId === 'all'
       ? allPrecincts
