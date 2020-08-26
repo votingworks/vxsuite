@@ -19,6 +19,7 @@ import HorizontalRule from '../components/HorizontalRule'
 import Prose from '../components/Prose'
 import Loading from '../components/Loading'
 import NavigationScreen from '../components/NavigationScreen'
+import Modal from '../components/Modal'
 
 const Loaded = styled.p`
   line-height: 2.5rem;
@@ -69,8 +70,8 @@ const UnconfiguredScreen = () => {
     (election: Election) => {
       setShowSuccess(true)
       setTimeout(() => {
+        setShowSuccess(false)
         saveElection(election)
-        setShowSuccess(true)
       }, 3000)
     },
     [saveElection, setShowSuccess]
@@ -205,11 +206,17 @@ const UnconfiguredScreen = () => {
 
   if (showSuccess) {
     return (
-      <NavigationScreen mainChildCenter>
-        <Prose textCenter>
-          <h1>Election successfully loaded!</h1>
-          <Loading as="h2">Generating all ballot styles</Loading>
-        </Prose>
+      <NavigationScreen>
+        <Modal
+          isOpen
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>Election successfully loaded!</h1>
+              <Loading as="h2">Generating all ballot styles</Loading>
+            </Prose>
+          }
+        />
       </NavigationScreen>
     )
   }
