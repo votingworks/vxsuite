@@ -22,8 +22,8 @@ const debug = makeDebug('module-scan:importer')
 export interface Options {
   store: Store
   scanner: Scanner
-  ballotImagesPath: string
-  importedBallotImagesPath: string
+  scannedImagesPath: string
+  importedImagesPath: string
   interpreter?: Interpreter
 }
 
@@ -56,31 +56,31 @@ export default class SystemImporter implements Importer {
   private scanner: Scanner
   private interpreter: Interpreter
 
-  public readonly ballotImagesPath: string
-  public readonly importedBallotImagesPath: string
+  public readonly scannedImagesPath: string
+  public readonly importedImagesPath: string
 
   /**
    * @param param0 options for this importer
    * @param param0.store a data store to track scanned ballot images
    * @param param0.scanner a source of ballot images
-   * @param param0.ballotImagesPath a directory to scan ballot images into
-   * @param param0.scannedBallotImagesPath a directory to keep imported ballot images
+   * @param param0.scannedImagesPath a directory to scan ballot images into
+   * @param param0.importedImagesPath a directory to keep imported ballot images
    */
   public constructor({
     store,
     scanner,
-    ballotImagesPath,
-    importedBallotImagesPath,
+    scannedImagesPath,
+    importedImagesPath,
     interpreter = new DefaultInterpreter(),
   }: Options) {
     this.store = store
     this.scanner = scanner
     this.interpreter = interpreter
-    this.ballotImagesPath = ballotImagesPath
-    this.importedBallotImagesPath = importedBallotImagesPath
+    this.scannedImagesPath = scannedImagesPath
+    this.importedImagesPath = importedImagesPath
 
     // make sure those directories exist
-    for (const imagesPath of [ballotImagesPath, importedBallotImagesPath]) {
+    for (const imagesPath of [scannedImagesPath, importedImagesPath]) {
       if (!fs.existsSync(imagesPath)) {
         fs.mkdirSync(imagesPath)
       }
@@ -262,14 +262,14 @@ export default class SystemImporter implements Importer {
 
     const ballotImagePathExt = path.extname(ballotImagePath)
     const originalBallotImagePath = path.join(
-      this.importedBallotImagesPath,
+      this.importedImagesPath,
       `${path.basename(
         ballotImagePath,
         ballotImagePathExt
       )}-${ballotId}-original${ballotImagePathExt}`
     )
     const normalizedBallotImagePath = path.join(
-      this.importedBallotImagesPath,
+      this.importedImagesPath,
       `${path.basename(
         ballotImagePath,
         ballotImagePathExt
@@ -350,7 +350,7 @@ export default class SystemImporter implements Importer {
       // trigger a scan
       debug('scanning starting for batch: %s', batchId)
       for await (const sheet of this.scanner.scanSheets(
-        this.ballotImagesPath
+        this.scannedImagesPath
       )) {
         debug('got a ballot card: %o', sheet)
         await this.cardAdded(sheet, batchId)
@@ -385,8 +385,8 @@ export default class SystemImporter implements Importer {
    */
   public async doZero(): Promise<void> {
     await this.store.zero()
-    fsExtra.emptyDirSync(this.ballotImagesPath)
-    fsExtra.emptyDirSync(this.importedBallotImagesPath)
+    fsExtra.emptyDirSync(this.scannedImagesPath)
+    fsExtra.emptyDirSync(this.importedImagesPath)
   }
 
   /**

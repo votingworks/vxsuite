@@ -4,7 +4,7 @@ import * as tmp from 'tmp'
 import type { Options } from '../importer'
 
 export interface TemporaryBallotImportImageDirectories {
-  paths: Pick<Options, 'ballotImagesPath' | 'importedBallotImagesPath'>
+  paths: Pick<Options, 'scannedImagesPath' | 'importedImagesPath'>
   remove(): void
 }
 
@@ -12,8 +12,8 @@ export default function makeTemporaryBallotImportImageDirectories(): TemporaryBa
   const root = tmp.dirSync({ tmpdir: path.join(__dirname, '../../tmp') })
   return {
     paths: {
-      ballotImagesPath: path.join(root.name, 'to-import'),
-      importedBallotImagesPath: path.join(root.name, 'imported'),
+      scannedImagesPath: path.join(root.name, 'to-import'),
+      importedImagesPath: path.join(root.name, 'imported'),
     },
     remove: (): void => fs.removeSync(root.name),
   }
