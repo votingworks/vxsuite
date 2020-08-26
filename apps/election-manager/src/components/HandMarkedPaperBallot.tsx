@@ -2,6 +2,7 @@ import { strict as assert } from 'assert'
 import React, { useLayoutEffect, useRef, useContext } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
+import DOMPurify from 'dompurify'
 import moment from 'moment'
 import 'moment/min/locales'
 import { Handler, Previewer, registerHandlers } from 'pagedjs'
@@ -18,6 +19,10 @@ import {
   VotesDict,
   withLocale,
   YesNoContest,
+  Dictionary,
+  AnyContest,
+  Vote,
+  Candidate,
 } from '@votingworks/ballot-encoder'
 
 import AppContext from '../contexts/AppContext'
@@ -299,9 +304,13 @@ const PageFooterQRCode = styled.div`
   margin-left: 0.225in;
   width: 0.475in;
 `
-const BallotColumns = styled.div`
+const CandidateContestsLayout = styled.div`
   columns: 3;
   column-gap: 1em;
+`
+const OtherContestsLayout = styled(CandidateContestsLayout)`
+  columns: 2;
+  page-break-before: always;
 `
 const IntroColumn = styled.div`
   break-after: column;
@@ -337,7 +346,7 @@ const Instructions = styled.div`
     margin-top: 0;
   }
 `
-export const Contest = styled.div`
+export const StyledContest = styled.div`
   margin-bottom: 1em;
   border: 0.05em solid #000000;
   border-top-width: 0.2em;
@@ -348,7 +357,23 @@ export const Contest = styled.div`
     margin-top: -0.6em;
   }
 `
-const ColumnFooter = styled.div`
+interface ContestProps {
+  section: React.ReactNode
+  title: React.ReactNode
+  children: React.ReactNode
+}
+export const Contest = ({ section, title, children }: ContestProps) => (
+  <StyledContest>
+    <Prose>
+      <Text small bold>
+        {section}
+      </Text>
+      <h3>{title}</h3>
+      {children}
+    </Prose>
+  </StyledContest>
+)
+const StyledColumnFooter = styled.div`
   page-break-inside: avoid;
 `
 const WriteInItem = styled.p`
@@ -378,7 +403,7 @@ export const CandidateContestChoices = ({
     <React.Fragment>
       {contest.candidates.map((candidate) => (
         <Text key={candidate.id} data-candidate>
-          <BubbleMark checked={vote.some((v) => v.id === candidate.id)}>
+          <BubbleMark checked={hasVote(vote, candidate.id)}>
             <span>
               <strong data-candidate-name={candidate.name}>
                 {candidate.name}
@@ -415,6 +440,14 @@ export const CandidateContestChoices = ({
           </WriteInItem>
         ))}
     </React.Fragment>
+  )
+}
+
+function hasVote(vote: Vote | undefined, optionId: string): boolean {
+  return (
+    vote?.some((choice: Candidate | string) =>
+      typeof choice === 'string' ? choice === optionId : choice.id === optionId
+    ) ?? false
   )
 }
 
@@ -471,8 +504,19 @@ const HandMarkedPaperBallot = ({
     })
   const ballotStyle = getBallotStyle({ ballotStyleId, election })
   const contests = getContests({ ballotStyle, election })
-  const localeContests =
-    localeElection && getContests({ ballotStyle, election: localeElection })
+  const candidateContests = contests.filter((c) => c.type === 'candidate')
+  const otherContests = contests.filter((c) => c.type !== 'candidate')
+  const localeContestsById =
+    localeElection &&
+    getContests({ ballotStyle, election: localeElection }).reduce<
+      Dictionary<AnyContest>
+    >(
+      (prev, curr) => ({
+        ...prev,
+        [curr.id]: curr,
+      }),
+      {}
+    )
   const precinct = getPrecinctById({ election, precinctId })!
 
   const ballotRef = useRef<HTMLDivElement>(null)
@@ -525,6 +569,23 @@ const HandMarkedPaperBallot = ({
 
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   const dualLanguageWithBreak = dualLanguageComposer(t, locales, 'break')
+
+  const columnFooter = (
+    <StyledColumnFooter>
+      <Prose>
+        <h3>
+          {dualLanguageWithBreak('Thank you for voting.', {
+            normal: true,
+          })}
+        </h3>
+        <p>
+          {dualLanguageWithBreak(
+            'You have reached the end of the ballot. Please review your ballot selections.'
+          )}
+        </p>
+      </Prose>
+    </StyledColumnFooter>
+  )
 
   return (
     <React.Fragment>
@@ -630,14 +691,15 @@ const HandMarkedPaperBallot = ({
         </div>
 
         <Content>
-          <BallotColumns>
+          <CandidateContestsLayout>
             <IntroColumn>
               <BallotHeader>
                 {seal ? (
                   <div
                     className="seal"
-                    // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
-                    dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(seal),
+                    }}
                   />
                 ) : sealURL ? (
                   <div className="seal">
@@ -765,121 +827,192 @@ const HandMarkedPaperBallot = ({
                 </Prose>
               </Instructions>
             </IntroColumn>
-            {contests.map(
-              (contest, i) =>
-                i < 999 && (
-                  <Contest
-                    key={contest.id}
-                    data-contest
-                    data-contest-title={contest.title}
-                  >
-                    <Prose>
-                      <Text small bold>
-                        {dualPhraseWithSlash(
-                          contest.section,
-                          localeContests && localeContests[i].section,
-                          { normal: true }
-                        )}
-                      </Text>
-                      <h3>
-                        {dualPhraseWithSlash(
-                          contest.title,
-                          localeContests && localeContests[i].title,
-                          { normal: true }
-                        )}
-                      </h3>
-                      {contest.type === 'candidate' && (
-                        <React.Fragment>
-                          <p>
-                            {contest.seats === 1
-                              ? dualLanguageWithSlash('Vote for 1', {
-                                  normal: true,
-                                })
-                              : dualLanguageWithSlash(
-                                  'Vote for not more than {{ seats }}',
-                                  { seats: contest.seats, normal: true }
-                                )}
-                          </p>
-                          <CandidateContestChoices
-                            contest={contest}
-                            parties={parties}
-                            vote={votes[contest.id] as CandidateVote}
-                            locales={locales}
-                          />
-                        </React.Fragment>
-                      )}
-                      {contest.type === 'yesno' && (
-                        <React.Fragment>
-                          <p>
+            {candidateContests.map((contest) => (
+              <Contest
+                key={contest.id}
+                section={dualPhraseWithSlash(
+                  contest.section,
+                  localeContestsById?.[contest.id]?.section,
+                  { normal: true }
+                )}
+                title={dualPhraseWithSlash(
+                  contest.title,
+                  localeContestsById?.[contest.id]?.title,
+                  { normal: true }
+                )}
+              >
+                {contest.type === 'candidate' && (
+                  <React.Fragment>
+                    <p>
+                      {contest.seats === 1
+                        ? dualLanguageWithSlash('Vote for 1', {
+                            normal: true,
+                          })
+                        : dualLanguageWithSlash(
+                            'Vote for not more than {{ seats }}',
+                            { seats: contest.seats, normal: true }
+                          )}
+                    </p>
+                    <CandidateContestChoices
+                      contest={contest}
+                      parties={parties}
+                      vote={votes[contest.id] as CandidateVote}
+                      locales={locales}
+                    />
+                  </React.Fragment>
+                )}
+              </Contest>
+            ))}
+            {otherContests.length === 0 && columnFooter}
+          </CandidateContestsLayout>
+          {otherContests.length !== 0 && (
+            <OtherContestsLayout>
+              {otherContests.map((contest) => (
+                <Contest
+                  key={contest.id}
+                  data-contest
+                  data-contest-title={contest.title}
+                  section={dualPhraseWithSlash(
+                    contest.section,
+                    localeContestsById?.[contest.id]?.section,
+                    { normal: true }
+                  )}
+                  title={dualPhraseWithSlash(
+                    contest.title,
+                    localeContestsById?.[contest.id]?.title,
+                    { normal: true }
+                  )}
+                >
+                  {contest.type === 'yesno' && (
+                    <React.Fragment>
+                      <p>
+                        <Trans
+                          i18nKey="voteYesOrNo"
+                          tOptions={{ lng: locales.primary }}
+                        >
+                          Vote <strong>Yes</strong> or <strong>No</strong>
+                        </Trans>
+                        {locales.secondary && (
+                          <React.Fragment>
+                            {' / '}
                             <Trans
                               i18nKey="voteYesOrNo"
-                              tOptions={{ lng: locales.primary }}
+                              tOptions={{ lng: locales.secondary }}
                             >
                               Vote <strong>Yes</strong> or <strong>No</strong>
                             </Trans>
-                            {locales.secondary && (
-                              <React.Fragment>
-                                {' / '}
-                                <Trans
-                                  i18nKey="voteYesOrNo"
-                                  tOptions={{ lng: locales.secondary }}
-                                >
-                                  Vote <strong>Yes</strong> or{' '}
-                                  <strong>No</strong>
-                                </Trans>
-                              </React.Fragment>
-                            )}
-                          </p>
-                          <Text
-                            small
-                            preLine
-                            dangerouslySetInnerHTML={{
-                              __html: contest.description,
-                            }}
-                          />
-                          {localeContests && (
-                            <Text
-                              small
-                              preLine
-                              dangerouslySetInnerHTML={{
-                                __html: (localeContests[i] as YesNoContest)
-                                  .description,
-                              }}
-                            />
-                          )}
-                          {['Yes', 'No'].map((answer) => (
-                            <Text key={answer} bold noWrap>
-                              <BubbleMark
-                                checked={
-                                  votes[contest.id] &&
-                                  votes[contest.id]![0] === answer.toLowerCase()
-                                }
-                              >
-                                <span>{dualLanguageWithSlash(answer)}</span>
-                              </BubbleMark>
-                            </Text>
-                          ))}
-                        </React.Fragment>
+                          </React.Fragment>
+                        )}
+                      </p>
+                      <Text
+                        small
+                        preLine
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(contest.description),
+                        }}
+                      />
+                      {localeContestsById && (
+                        <Text
+                          small
+                          preLine
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(
+                              (localeContestsById[contest.id] as YesNoContest)
+                                .description
+                            ),
+                          }}
+                        />
                       )}
-                    </Prose>
-                  </Contest>
-                )
-            )}
-            <ColumnFooter>
-              <Prose>
-                <h3>
-                  {dualLanguageWithBreak('Thank you for voting.', {
-                    normal: true,
-                  })}
-                </h3>
-                <p>
-                  {dualLanguageWithBreak(
-                    'You have reached the end of the ballot. Please review your ballot selections.'
+                      <Text bold noWrap>
+                        <BubbleMark checked={hasVote(votes[contest.id], 'yes')}>
+                          <span>{dualLanguageWithSlash('Yes')}</span>
+                        </BubbleMark>
+                      </Text>
+                      <Text bold noWrap>
+                        <BubbleMark checked={hasVote(votes[contest.id], 'no')}>
+                          <span>{dualLanguageWithSlash('No')}</span>
+                        </BubbleMark>
+                      </Text>
+                    </React.Fragment>
                   )}
-                </p>
-              </Prose>
-            </ColumnFooter>
-          </BallotColumns>
+                  {contest.type === 'ms-either-neither' && (
+                    <React.Fragment>
+                      <Text
+                        small
+                        preLine
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(contest.description),
+                        }}
+                      />
+                      {localeContestsById && (
+                        <Text
+                          small
+                          preLine
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(
+                              (localeContestsById[contest.id] as YesNoContest)
+                                .description
+                            ),
+                          }}
+                        />
+                      )}
+                      <p>{contest.eitherNeitherLabel}</p>
+                      <Text key={contest.eitherOption.id} bold>
+                        <BubbleMark
+                          checked={hasVote(
+                            votes[contest.eitherNeitherContestId],
+                            'yes'
+                          )}
+                        >
+                          <span>
+                            {dualLanguageWithSlash(contest.eitherOption.label)}
+                          </span>
+                        </BubbleMark>
+                      </Text>
+                      <Text key={contest.neitherOption.id} bold>
+                        <BubbleMark
+                          checked={hasVote(
+                            votes[contest.eitherNeitherContestId],
+                            'no'
+                          )}
+                        >
+                          <span>
+                            {dualLanguageWithSlash(contest.neitherOption.label)}
+                          </span>
+                        </BubbleMark>
+                      </Text>
+                      <p>{contest.pickOneLabel}</p>
+                      <Text key={contest.firstOption.id} bold>
+                        <BubbleMark
+                          checked={hasVote(
+                            votes[contest.pickOneContestId],
+                            'yes'
+                          )}
+                        >
+                          <span>
+                            {dualLanguageWithSlash(contest.firstOption.label)}
+                          </span>
+                        </BubbleMark>
+                      </Text>
+                      <Text key={contest.secondOption.id} bold>
+                        <BubbleMark
+                          checked={hasVote(
+                            votes[contest.pickOneContestId],
+                            'no'
+                          )}
+                        >
+                          <span>
+                            {dualLanguageWithSlash(contest.secondOption.label)}
+                          </span>
+                        </BubbleMark>
+                      </Text>
+                    </React.Fragment>
+                  )}
+                </Contest>
+              ))}
+              {columnFooter}
+            </OtherContestsLayout>
+          )}
         </Content>
       </Ballot>
     </React.Fragment>
