@@ -1,10 +1,13 @@
 import {
+  AnyContest,
   BallotStyle,
   Candidate,
   CandidateContest,
   CompletedBallot,
+  MsEitherNeitherContest,
   Precinct,
   YesNoContest,
+  YesNoOption,
 } from '@votingworks/ballot-encoder'
 import { TargetShape } from './hmpb/findTargets'
 
@@ -86,14 +89,17 @@ export type BallotMark = BallotStrayMark | BallotTargetMark
 export interface BallotStrayMark {
   type: 'stray'
   bounds: Rect
-  contest?: YesNoContest | CandidateContest
-  option?: Candidate | 'yes' | 'no'
+  contest?: AnyContest
+  option?: Candidate | 'yes' | 'no' | YesNoOption
 }
 
-export type BallotTargetMark = BallotCandidateTargetMark | BallotYesNoTargetMark
+export type BallotTargetMark =
+  | BallotCandidateTargetMark
+  | BallotYesNoTargetMark
+  | BallotMsEitherNeitherTargetMark
 
 export interface BallotCandidateTargetMark {
-  type: 'candidate'
+  type: CandidateContest['type']
   bounds: Rect
   contest: CandidateContest
   target: TargetShape
@@ -102,11 +108,20 @@ export interface BallotCandidateTargetMark {
 }
 
 export interface BallotYesNoTargetMark {
-  type: 'yesno'
+  type: YesNoContest['type']
   bounds: Rect
   contest: YesNoContest
   target: TargetShape
   option: 'yes' | 'no'
+  score: number
+}
+
+export interface BallotMsEitherNeitherTargetMark {
+  type: MsEitherNeitherContest['type']
+  bounds: Rect
+  contest: MsEitherNeitherContest
+  target: TargetShape
+  option: YesNoOption
   score: number
 }
 

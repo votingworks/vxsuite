@@ -1,8 +1,12 @@
 import {
+  AnyContest,
   Candidate,
   CandidateContest,
+  CandidateVote,
+  MsEitherNeitherContest,
   VotesDict,
   YesNoContest,
+  YesNoOption,
   YesNoVote,
 } from '@votingworks/ballot-encoder'
 import { inspect } from 'util'
@@ -19,21 +23,51 @@ export function addVote(
 ): void
 export function addVote(
   votes: VotesDict,
-  contest: CandidateContest | YesNoContest,
-  candidateOrYesNo: Candidate | 'yes' | 'no'
+  contest: MsEitherNeitherContest,
+  eitherNeither: YesNoOption,
+  pickOne: YesNoOption
+): void
+export function addVote(
+  votes: VotesDict,
+  contest: AnyContest,
+  candidateOrYesNoOrEitherNeither: Candidate | 'yes' | 'no' | YesNoOption
 ): void {
-  if (contest.type === 'candidate' && typeof candidateOrYesNo === 'object') {
-    const contestVotes = (votes[contest.id] ?? []) as Candidate[]
-    contestVotes.push(candidateOrYesNo)
-    votes[contest.id] = contestVotes
-  } else if (contest.type === 'yesno' && typeof candidateOrYesNo === 'string') {
-    const contestVotes = (votes[contest.id] ?? []) as ('yes' | 'no')[]
-    contestVotes.push(candidateOrYesNo)
-    votes[contest.id] = contestVotes as YesNoVote
+  if (
+    contest.type === 'candidate' &&
+    typeof candidateOrYesNoOrEitherNeither === 'object'
+  ) {
+    votes[contest.id] = [
+      ...(votes[contest.id] ?? []),
+      candidateOrYesNoOrEitherNeither,
+    ] as CandidateVote
+  } else if (
+    contest.type === 'yesno' &&
+    typeof candidateOrYesNoOrEitherNeither === 'string'
+  ) {
+    votes[contest.id] = [
+      ...(votes[contest.id] ?? []),
+      candidateOrYesNoOrEitherNeither,
+    ] as YesNoVote
+  } else if (
+    contest.type === 'ms-either-neither' &&
+    typeof candidateOrYesNoOrEitherNeither === 'object'
+  ) {
+    votes[contest.eitherNeitherContestId] = [
+      ...(votes[contest.eitherNeitherContestId] ?? []),
+      candidateOrYesNoOrEitherNeither.id === contest.eitherOption.id
+        ? 'yes'
+        : 'no',
+    ] as YesNoVote
+    votes[contest.pickOneContestId] = [
+      ...(votes[contest.pickOneContestId] ?? []),
+      candidateOrYesNoOrEitherNeither.id === contest.firstOption.id
+        ? 'yes'
+        : 'no',
+    ] as YesNoVote
   } else {
     throw new Error(
       `Invalid vote for '${contest.type}' contest type: ${inspect(
-        candidateOrYesNo
+        candidateOrYesNoOrEitherNeither
       )}`
     )
   }
