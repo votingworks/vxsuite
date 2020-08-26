@@ -137,6 +137,8 @@ function ballotToCastVoteRecord(ballot: CompletedBallot): CastVoteRecord {
           candidate.isWriteIn ? '__write-in' : candidate.id
         )
       }
+    } else {
+      throw new Error(`contest type is not yet supported: ${contest.type}`)
     }
 
     cvr[contest.id] = cvrForContest

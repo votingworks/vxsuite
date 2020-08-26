@@ -31,8 +31,8 @@
   },
   "dependencies": {
     "@types/sharp": "^0.25.1",
-    "@votingworks/ballot-encoder": "^2.2.0",
-    "@votingworks/hmpb-interpreter": "^4.1.1",
+    "@votingworks/ballot-encoder": "^3.0.0",
+    "@votingworks/hmpb-interpreter": "^4.2.0",
     "@votingworks/qrdetect": "^1.0.1",
     "busboy": "^0.3.1",
     "canvas": "^2.6.1",

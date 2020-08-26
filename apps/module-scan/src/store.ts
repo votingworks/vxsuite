@@ -452,6 +452,12 @@ export default class Store {
                     continue
                   }
 
+                  if (mark.type !== 'candidate' && mark.type !== 'yesno') {
+                    throw new Error(
+                      `contest type is not yet supported: ${mark.type}`
+                    )
+                  }
+
                   if (
                     (mark.type === 'candidate' &&
                       mark.option.id === optionId) ||

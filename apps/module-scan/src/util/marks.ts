@@ -66,6 +66,10 @@ export function changesFromMarks(
       continue
     }
 
+    if (mark.type !== 'candidate' && mark.type !== 'yesno') {
+      throw new Error(`contest type is not yet supported: ${mark.type}`)
+    }
+
     result[mark.contest.id] = {
       ...result[mark.contest.id],
       [mark.type === 'candidate' ? mark.option.id : mark.option]: getMarkStatus(
