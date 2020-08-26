@@ -1,4 +1,3 @@
-import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import sharp, { Raw } from 'sharp'
 import * as path from 'path'
@@ -232,9 +231,7 @@ export default class SystemImporter implements Importer {
     }
 
     const ballotImageFile = await fsExtra.readFile(ballotImagePath)
-    const ballotImageHash = createHash('sha256')
-      .update(ballotImageFile)
-      .digest('hex')
+    let ballotId = uuid()
 
     const interpreted = await this.interpreter.interpretFile({
       election,
@@ -269,17 +266,17 @@ export default class SystemImporter implements Importer {
       `${path.basename(
         ballotImagePath,
         ballotImagePathExt
-      )}-${ballotImageHash}-original${ballotImagePathExt}`
+      )}-${ballotId}-original${ballotImagePathExt}`
     )
     const normalizedBallotImagePath = path.join(
       this.importedBallotImagesPath,
       `${path.basename(
         ballotImagePath,
         ballotImagePathExt
-      )}-${ballotImageHash}-normalized${ballotImagePathExt}`
+      )}-${ballotId}-normalized${ballotImagePathExt}`
     )
 
-    const ballotId = await this.addBallot(
+    ballotId = await this.addBallot(
       batchId,
       originalBallotImagePath,
       normalizedBallotImagePath,
