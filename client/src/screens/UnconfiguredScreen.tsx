@@ -52,6 +52,7 @@ const UnconfiguredScreen = () => {
   const { saveElection } = useContext(AppContext)
 
   const [isUploading, setIsUploading] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const [inputConversionFiles, setInputConversionFiles] = useState<VxFile[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -64,6 +65,17 @@ const UnconfiguredScreen = () => {
     history.push(routerPaths.electionDefinition)
   }
 
+  const saveElectionAndShowSuccess = useCallback(
+    (election: Election) => {
+      setShowSuccess(true)
+      setTimeout(() => {
+        saveElection(election)
+        setShowSuccess(true)
+      }, 3000)
+    },
+    [saveElection, setShowSuccess]
+  )
+
   const handleVxElectionFile: InputEventFunction = async (event) => {
     setIsUploading(true)
     const input = event.currentTarget
@@ -73,7 +85,9 @@ const UnconfiguredScreen = () => {
       setVxElectionFileIsInvalid(false)
       try {
         const fileContent = await readFileAsync(file)
-        saveElection(parseElection(JSON.parse(fileContent)))
+        const election = parseElection(JSON.parse(fileContent))
+        setIsUploading(false)
+        saveElectionAndShowSuccess(election)
       } catch (error) {
         setVxElectionFileIsInvalid(true)
         setIsUploading(false)
@@ -95,12 +109,14 @@ const UnconfiguredScreen = () => {
       try {
         const blob = await client.getOutputFile(electionFileName)
         await resetServerFiles()
-        saveElection(await new Response(blob).json())
+        const election = await new Response(blob).json()
+        setIsLoading(false)
+        saveElectionAndShowSuccess(election)
       } catch (error) {
         console.log('failed getOutputFile()', error) // eslint-disable-line no-console
       }
     },
-    [client, resetServerFiles, saveElection]
+    [client, resetServerFiles, saveElectionAndShowSuccess]
   )
 
   const processInputFiles = useCallback(
@@ -183,6 +199,17 @@ const UnconfiguredScreen = () => {
     return (
       <NavigationScreen>
         <Loading isFullscreen />
+      </NavigationScreen>
+    )
+  }
+
+  if (showSuccess) {
+    return (
+      <NavigationScreen mainChildCenter>
+        <Prose textCenter>
+          <h1>Election successfully loaded!</h1>
+          <Loading as="h2">Generating all ballot styles</Loading>
+        </Prose>
       </NavigationScreen>
     )
   }
