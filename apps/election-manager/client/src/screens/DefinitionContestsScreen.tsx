@@ -5,6 +5,7 @@ import {
   CandidateContest,
   YesNoContest,
   AnyContest,
+  MsEitherNeitherContest,
 } from '@votingworks/ballot-encoder'
 import styled from 'styled-components'
 
@@ -19,8 +20,8 @@ import NavigationScreen from '../components/NavigationScreen'
 import AppContext from '../contexts/AppContext'
 import Button, { SegmentedButton } from '../components/Button'
 import {
-  Contest,
   CandidateContestChoices,
+  Contest,
 } from '../components/HandMarkedPaperBallot'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
@@ -49,9 +50,9 @@ const RenderedContest = styled.div`
   position: sticky;
   top: 0;
 `
-const Paper = styled.div`
+const Paper = styled.div<{ isNarrow?: boolean }>`
   background: #ffffff;
-  width: 312px;
+  width: ${({ isNarrow }) => (isNarrow ? '312px' : '477px')};
   font-size: 18px;
   > div {
     margin-bottom: 0;
@@ -227,6 +228,23 @@ const DefinitionContestsScreen = () => {
     })
   }
 
+  const saveMsEitherNeitherOptionLabel: InputEventFunction = (event) => {
+    const { name, value } = event.currentTarget
+    const optionName = name as
+      | 'eitherOption'
+      | 'neitherOption'
+      | 'firstOption'
+      | 'secondOption'
+    const msEitherNeitherContest = contest as MsEitherNeitherContest
+    saveContest({
+      ...msEitherNeitherContest,
+      [optionName]: {
+        ...msEitherNeitherContest[optionName],
+        label: value,
+      },
+    })
+  }
+
   const appendSvgToDescription: InputEventFunction = async (event) => {
     const { files } = event.currentTarget
     const file = files && files[0]
@@ -266,50 +284,77 @@ ${fileContent}`
             <Prose>
               <h3>Sample Render</h3>
             </Prose>
-            <Paper>
-              <Contest>
-                <Prose>
-                  <Text small bold>
-                    {contest.section}
-                  </Text>
-                  <h3>{contest.title}</h3>
-                  {contest.type === 'candidate' && (
-                    <React.Fragment>
-                      <p>
-                        {contest.seats === 1
-                          ? 'Vote for 1'
-                          : `Vote for not more than ${contest.seats}`}
-                      </p>
-                      <CandidateContestChoices
-                        contest={contest}
-                        parties={election.parties}
-                        vote={[]}
-                        locales={{ primary: 'en-US' }}
-                      />
-                    </React.Fragment>
-                  )}
-                  {contest.type === 'yesno' && (
-                    <React.Fragment>
-                      <p>
-                        Vote <strong>Yes</strong> or <strong>No</strong>
-                      </p>
-                      <Text
-                        small
-                        preLine
-                        dangerouslySetInnerHTML={{
-                          __html: contest.description,
-                        }}
-                      />
-                      {['Yes', 'No'].map((answer) => (
-                        <Text key={answer} bold noWrap>
-                          <BubbleMark checked={false}>
-                            <span>{answer}</span>
-                          </BubbleMark>
-                        </Text>
-                      ))}
-                    </React.Fragment>
-                  )}
-                </Prose>
+            <Paper isNarrow={contest.type === 'candidate'}>
+              <Contest section={contest.section} title={contest.title}>
+                {contest.type === 'candidate' && (
+                  <React.Fragment>
+                    <p>
+                      {contest.seats === 1
+                        ? 'Vote for 1'
+                        : `Vote for not more than ${contest.seats}`}
+                    </p>
+                    <CandidateContestChoices
+                      contest={contest}
+                      parties={election.parties}
+                      vote={[]}
+                      locales={{ primary: 'en-US' }}
+                    />
+                  </React.Fragment>
+                )}
+                {contest.type === 'yesno' && (
+                  <React.Fragment>
+                    <p>
+                      Vote <strong>Yes</strong> or <strong>No</strong>
+                    </p>
+                    <Text
+                      small
+                      preLine
+                      dangerouslySetInnerHTML={{
+                        __html: contest.description,
+                      }}
+                    />
+                    {['Yes', 'No'].map((answer) => (
+                      <Text key={answer} bold noWrap>
+                        <BubbleMark checked={false}>
+                          <span>{answer}</span>
+                        </BubbleMark>
+                      </Text>
+                    ))}
+                  </React.Fragment>
+                )}
+                {contest.type === 'ms-either-neither' && (
+                  <React.Fragment>
+                    <Text
+                      small
+                      preLine
+                      dangerouslySetInnerHTML={{
+                        __html: contest.description,
+                      }}
+                    />
+                    <p>{contest.eitherNeitherLabel}</p>
+                    <Text key={contest.eitherOption.id} bold>
+                      <BubbleMark checked={false}>
+                        <span>{contest.eitherOption.label}</span>
+                      </BubbleMark>
+                    </Text>
+                    <Text key={contest.neitherOption.id} bold>
+                      <BubbleMark checked={false}>
+                        <span>{contest.neitherOption.label}</span>
+                      </BubbleMark>
+                    </Text>
+                    <p>{contest.pickOneLabel}</p>
+                    <Text key={contest.firstOption.id} bold>
+                      <BubbleMark checked={false}>
+                        <span>{contest.firstOption.label}</span>
+                      </BubbleMark>
+                    </Text>
+                    <Text key={contest.secondOption.id} bold>
+                      <BubbleMark checked={false}>
+                        <span>{contest.secondOption.label}</span>
+                      </BubbleMark>
+                    </Text>
+                  </React.Fragment>
+                )}
               </Contest>
             </Paper>
           </RenderedContest>
@@ -366,7 +411,7 @@ ${fileContent}`
                 onChange={saveTextField}
               />
             )}
-            {contest.type === 'candidate' ? (
+            {contest.type === 'candidate' && (
               <React.Fragment>
                 <TextField
                   name="seats"
@@ -413,7 +458,8 @@ ${fileContent}`
                   ))}
                 </ol>
               </React.Fragment>
-            ) : (
+            )}
+            {contest.type === 'yesno' && (
               <React.Fragment>
                 <TextField
                   label="Description"
@@ -431,6 +477,53 @@ ${fileContent}`
                 >
                   Append SVG Image to Description
                 </FileInputButton>
+              </React.Fragment>
+            )}
+            {contest.type === 'ms-either-neither' && (
+              <React.Fragment>
+                <TextField
+                  label="Description (Add bold formatting: <b>bold</b>)"
+                  name="description"
+                  type="textarea"
+                  value={contest.description}
+                  onChange={saveTextField}
+                />
+                <TextField
+                  label="Either Neither Instruction Label"
+                  name="eitherNeitherLabel"
+                  value={contest.eitherNeitherLabel}
+                  onChange={saveTextField}
+                />
+                <TextField
+                  label="Either Option Label"
+                  name="eitherOption"
+                  value={contest.eitherOption.label}
+                  onChange={saveMsEitherNeitherOptionLabel}
+                />
+                <TextField
+                  label="Neither Option Label"
+                  name="neitherOption"
+                  value={contest.neitherOption.label}
+                  onChange={saveMsEitherNeitherOptionLabel}
+                />
+                <TextField
+                  label="Pick One Instruction Label"
+                  name="pickOneLabel"
+                  value={contest.pickOneLabel}
+                  onChange={saveTextField}
+                />
+                <TextField
+                  label="First Option Label"
+                  name="firstOption"
+                  value={contest.firstOption.label}
+                  onChange={saveMsEitherNeitherOptionLabel}
+                />
+                <TextField
+                  label="First Option Label"
+                  name="secondOption"
+                  value={contest.secondOption.label}
+                  onChange={saveMsEitherNeitherOptionLabel}
+                />
               </React.Fragment>
             )}
           </div>
