@@ -184,13 +184,13 @@ export default class SystemImporter implements Importer {
   private async cardAdded(card: Sheet, batchId: string): Promise<void> {
     const start = Date.now()
     try {
-      debug('cardAdded %o batchId=%d STARTING', card, batchId)
+      debug('cardAdded %o batchId=%s STARTING', card, batchId)
       await this.fileAdded(card[0], batchId)
       await this.fileAdded(card[1], batchId)
     } finally {
       const end = Date.now()
       debug(
-        'cardAdded %o batchId=%d FINISHED in %dms',
+        'cardAdded %o batchId=%s FINISHED in %dms',
         card,
         batchId,
         Math.round(end - start)
@@ -207,12 +207,12 @@ export default class SystemImporter implements Importer {
   ): Promise<void> {
     const start = Date.now()
     try {
-      debug('fileAdded %s batchId=%d STARTING', ballotImagePath, batchId)
+      debug('fileAdded %s batchId=%s STARTING', ballotImagePath, batchId)
       await this.importFile(batchId, ballotImagePath)
     } finally {
       const end = Date.now()
       debug(
-        'fileAdded %s batchId=%d FINISHED in %dms',
+        'fileAdded %s batchId=%s FINISHED in %dms',
         ballotImagePath,
         batchId,
         Math.round(end - start)
@@ -349,7 +349,7 @@ export default class SystemImporter implements Importer {
 
     try {
       // trigger a scan
-      debug('scanning starting for batch: %d', batchId)
+      debug('scanning starting for batch: %s', batchId)
       for await (const sheet of this.scanner.scanSheets(
         this.ballotImagesPath
       )) {
@@ -361,7 +361,7 @@ export default class SystemImporter implements Importer {
       // node couldn't execute the command
       throw new Error(`problem scanning: ${err.stack}`)
     } finally {
-      debug('closing batch %d', batchId)
+      debug('closing batch %s', batchId)
       await this.store.finishBatch(batchId)
     }
   }
