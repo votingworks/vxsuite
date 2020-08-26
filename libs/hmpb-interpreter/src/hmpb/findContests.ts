@@ -13,17 +13,27 @@ export interface ContestShape {
   corners: Corners
 }
 
+export interface Options {
+  inset?: number
+  columns?: readonly boolean[]
+  minContestWidthPercent?: number
+  minContestHeightPercent?: number
+  maxContestWidthPercent?: number
+  maxContestHeightPercent?: number
+  maxTopContestOffsetPercent?: number
+}
+
 export default function* findContests(
   ballotImage: ImageData,
   {
     inset = 0,
-    minContestWidthPercent = 20,
+    columns = [true, true, true],
+    minContestWidthPercent = Math.floor(100 / columns.length) - 5,
     minContestHeightPercent = 10,
-    maxContestWidthPercent = 40,
+    maxContestWidthPercent = Math.ceil(100 / columns.length) + 5,
     maxContestHeightPercent = 90,
     maxTopContestOffsetPercent = 10,
-    columns = [true, true, true],
-  } = {}
+  }: Options = {}
 ): Generator<ContestShape> {
   const bounds: Rect = {
     x: inset,
