@@ -1,7 +1,9 @@
 import { electionSample as election } from '@votingworks/ballot-encoder'
 import { createImageData } from 'canvas'
 import * as fs from 'fs-extra'
+import { join } from 'path'
 import sharp from 'sharp'
+import { fileSync } from 'tmp'
 import { makeMockInterpreter } from '../test/util/mocks'
 import SystemImporter from './importer'
 import { Scanner, Sheet } from './scanner'
@@ -10,7 +12,6 @@ import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
 import pdfToImages from './util/pdfToImages'
-import { join } from 'path'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
@@ -220,14 +221,15 @@ test('manually importing a buffer as a file', async () => {
       pageCount: 2,
     },
   })
+  const imageFile = fileSync()
+  await sharp({
+    create: { width: 1, height: 1, channels: 3, background: '#000' },
+  })
+    .png()
+    .toFile(imageFile.name)
   const ballotId = (await importer.importFile(
     await store.addBatch(),
-    '/tmp/fake-path.png',
-    await sharp({
-      create: { width: 1, height: 1, channels: 3, background: '#000' },
-    })
-      .png()
-      .toBuffer()
+    imageFile.name
   ))!
 
   const filenames = (await store.getBallotFilenames(ballotId))!

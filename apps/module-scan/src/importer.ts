@@ -38,8 +38,7 @@ export interface Importer {
   doZero(): Promise<void>
   importFile(
     batchId: string,
-    ballotImagePath: string,
-    ballotImageFile?: Buffer
+    ballotImagePath: string
   ): Promise<string | undefined>
   getStatus(): Promise<ScanStatus>
   restoreConfig(): Promise<void>
@@ -209,7 +208,7 @@ export default class SystemImporter implements Importer {
     const start = Date.now()
     try {
       debug('fileAdded %s batchId=%d STARTING', ballotImagePath, batchId)
-      await this.importFile(batchId, ballotImagePath, undefined)
+      await this.importFile(batchId, ballotImagePath)
     } finally {
       const end = Date.now()
       debug(
@@ -223,8 +222,7 @@ export default class SystemImporter implements Importer {
 
   public async importFile(
     batchId: string,
-    ballotImagePath: string,
-    ballotImageFile?: Buffer
+    ballotImagePath: string
   ): Promise<string | undefined> {
     const election = await this.store.getElection()
 
@@ -232,10 +230,7 @@ export default class SystemImporter implements Importer {
       return
     }
 
-    if (!ballotImageFile) {
-      ballotImageFile = await fsExtra.readFile(ballotImagePath)
-    }
-
+    const ballotImageFile = await fsExtra.readFile(ballotImagePath)
     const ballotImageHash = createHash('sha256')
       .update(ballotImageFile)
       .digest('hex')

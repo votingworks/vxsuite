@@ -3,16 +3,17 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
+import { parseElection } from '@votingworks/ballot-encoder'
 import express, { Application, RequestHandler } from 'express'
+import { readFile } from 'fs-extra'
 import multer from 'multer'
 import * as path from 'path'
+import { inspect } from 'util'
 import SystemImporter, { Importer } from './importer'
 import { FujitsuScanner, Scanner } from './scanner'
 import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
 import { BallotConfig } from './types'
 import makeTemporaryBallotImportImageDirectories from './util/makeTemporaryBallotImportImageDirectories'
-import { parseElection } from '@votingworks/ballot-encoder'
-import { inspect } from 'util'
 
 export interface AppOptions {
   store: Store
@@ -25,7 +26,7 @@ export interface AppOptions {
  */
 export function buildApp({ store, importer }: AppOptions): Application {
   const app: Application = express()
-  const upload = multer({ storage: multer.memoryStorage() })
+  const upload = multer({ storage: multer.diskStorage({}) })
 
   app.use(express.json())
 
@@ -121,11 +122,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
           for (const file of files) {
             try {
-              await importer.importFile(
-                batchId,
-                `batch-${batchId}-manual-upload-${file.originalname}`,
-                file.buffer
-              )
+              await importer.importFile(batchId, file.path)
             } catch (error) {
               console.error(
                 `failed to import file ${file.originalname}: ${error.message}`
@@ -197,10 +194,10 @@ export function buildApp({ store, importer }: AppOptions): Application {
           }
 
           const metadata: BallotConfig = JSON.parse(
-            new TextDecoder().decode(metadataFile.buffer)
+            new TextDecoder().decode(await readFile(metadataFile.path))
           )
 
-          await importer.addHmpbTemplates(ballotFile.buffer, {
+          await importer.addHmpbTemplates(await readFile(ballotFile.path), {
             ballotStyleId: metadata.ballotStyleId,
             precinctId: metadata.precinctId,
             isTestBallot: !metadata.isLiveMode,
