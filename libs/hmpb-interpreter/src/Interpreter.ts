@@ -1,11 +1,16 @@
 import {
   BallotType,
+  Candidate,
+  CandidateContest,
   CompletedBallot,
   Contests,
   Election,
   getBallotStyle,
   getContests,
   getPrecinctById,
+  MsEitherNeitherContest,
+  YesNoContest,
+  YesNoOption,
 } from '@votingworks/ballot-encoder'
 import { strict as assert } from 'assert'
 import makeDebug from 'debug'
@@ -20,6 +25,8 @@ import {
   BallotCandidateTargetMark,
   BallotLocales,
   BallotMark,
+  BallotMsEitherNeitherTargetMark,
+  BallotPageContestOptionLayout,
   BallotPageLayout,
   BallotPageMetadata,
   BallotYesNoTargetMark,
@@ -40,8 +47,8 @@ import diff, { countPixels } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
 import KeyedMap from './utils/KeyedMap'
-import outline from './utils/outline'
 import offsets from './utils/offsets'
+import outline from './utils/outline'
 
 const debug = makeDebug('hmpb-interpreter:Interpreter')
 
@@ -495,6 +502,83 @@ export default class Interpreter {
     const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template)
     const marks: BallotMark[] = []
 
+    const addCandidateMark = (
+      contest: CandidateContest,
+      layout: BallotPageContestOptionLayout,
+      option: Candidate
+    ): void => {
+      const score = this.targetMarkScore(
+        template.ballotImage.imageData,
+        mappedBallot,
+        layout.target
+      )
+      debug(`'${option.id}' mark score: %d`, score)
+      const mark: BallotCandidateTargetMark = {
+        type: 'candidate',
+        bounds: layout.target.bounds,
+        contest,
+        option,
+        score,
+        target: layout.target,
+      }
+      marks.push(mark)
+    }
+
+    const addYesNoMark = (
+      contest: YesNoContest,
+      layout: BallotPageContestOptionLayout,
+      option: 'yes' | 'no'
+    ): void => {
+      const score = this.targetMarkScore(
+        template.ballotImage.imageData,
+        mappedBallot,
+        layout.target
+      )
+      debug(`'${option}' mark score: %d`, score)
+      const mark: BallotYesNoTargetMark = {
+        type: 'yesno',
+        bounds: layout.target.bounds,
+        contest,
+        option,
+        score,
+        target: layout.target,
+      }
+      marks.push(mark)
+    }
+
+    const addEitherNeitherMark = (
+      contest: MsEitherNeitherContest,
+      layout: BallotPageContestOptionLayout,
+      option: YesNoOption
+    ): void => {
+      const score = this.targetMarkScore(
+        template.ballotImage.imageData,
+        mappedBallot,
+        layout.target
+      )
+      debug(
+        `'${
+          option === contest.eitherOption
+            ? 'either'
+            : option === contest.neitherOption
+            ? 'neither'
+            : option === contest.firstOption
+            ? 'first'
+            : 'second'
+        }' mark score: %d`,
+        score
+      )
+      const mark: BallotMsEitherNeitherTargetMark = {
+        type: 'ms-either-neither',
+        bounds: layout.target.bounds,
+        contest,
+        option,
+        score,
+        target: layout.target,
+      }
+      marks.push(mark)
+    }
+
     for (const [{ options }, contest] of zip(template.contests, contests)) {
       debug(`getting marks for %s contest '%s'`, contest.type, contest.id)
 
@@ -509,55 +593,33 @@ export default class Interpreter {
           )
         }
 
-        for (const [option, candidate] of zipMin(options, contest.candidates)) {
-          const score = this.targetMarkScore(
-            template.ballotImage.imageData,
-            mappedBallot,
-            option.target
-          )
-          debug(
-            `candidate '%s' target filled in with score %d`,
-            candidate.name,
-            score
-          )
-          const mark: BallotCandidateTargetMark = {
-            type: 'candidate',
-            bounds: option.target.bounds,
-            contest,
-            score,
-            target: option.target,
-            option: candidate,
-          }
-          marks.push(mark)
+        for (const [layout, candidate] of zipMin(options, contest.candidates)) {
+          addCandidateMark(contest, layout, candidate)
         }
 
         if (contest.allowWriteIns) {
           const writeInOptions = options.slice(contest.candidates.length)
 
-          for (const [
-            writeInIndex,
-            writeInOption,
-          ] of writeInOptions.entries()) {
-            const score = this.targetMarkScore(
-              template.ballotImage.imageData,
-              mappedBallot,
-              writeInOption.target
-            )
-            const mark: BallotCandidateTargetMark = {
-              type: 'candidate',
-              bounds: writeInOption.target.bounds,
-              contest,
-              score,
-              target: writeInOption.target,
-              option: {
-                id: `__write-in-${writeInIndex}`,
-                name: 'Write-In',
-                isWriteIn: true,
-              },
-            }
-            marks.push(mark)
+          for (const [index, layout] of writeInOptions.entries()) {
+            addCandidateMark(contest, layout, {
+              id: `__write-in-${index}`,
+              name: 'Write-In',
+              isWriteIn: true,
+            })
           }
         }
+      } else if (contest.type === 'ms-either-neither') {
+        if (options.length !== 4) {
+          throw new Error(
+            `Contest ${contest.id} is supposed to have four options (either/neither/first/second), but found ${options.length}.`
+          )
+        }
+
+        const [eitherLayout, neitherLayout, firstLayout, secondLayout] = options
+        addEitherNeitherMark(contest, eitherLayout, contest.eitherOption)
+        addEitherNeitherMark(contest, neitherLayout, contest.neitherOption)
+        addEitherNeitherMark(contest, firstLayout, contest.firstOption)
+        addEitherNeitherMark(contest, secondLayout, contest.secondOption)
       } else {
         if (options.length !== 2) {
           throw new Error(
@@ -565,38 +627,9 @@ export default class Interpreter {
           )
         }
 
-        const [yesOption, noOption] = options
-        const yesScore = this.targetMarkScore(
-          template.ballotImage.imageData,
-          mappedBallot,
-          yesOption.target
-        )
-        debug(`'yes' mark score: %d`, yesScore)
-        const yesMark: BallotYesNoTargetMark = {
-          type: 'yesno',
-          bounds: yesOption.target.bounds,
-          contest,
-          option: 'yes',
-          score: yesScore,
-          target: yesOption.target,
-        }
-        marks.push(yesMark)
-
-        const noScore = this.targetMarkScore(
-          template.ballotImage.imageData,
-          mappedBallot,
-          noOption.target
-        )
-        debug(`'no' mark score: %d`, noScore)
-        const noMark: BallotYesNoTargetMark = {
-          type: 'yesno',
-          bounds: noOption.target.bounds,
-          contest,
-          option: 'no',
-          score: noScore,
-          target: noOption.target,
-        }
-        marks.push(noMark)
+        const [yesLayout, noLayout] = options
+        addYesNoMark(contest, yesLayout, 'yes')
+        addYesNoMark(contest, noLayout, 'no')
       }
     }
 
