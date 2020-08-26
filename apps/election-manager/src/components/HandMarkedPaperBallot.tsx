@@ -20,6 +20,8 @@ import {
   YesNoContest,
   Dictionary,
   AnyContest,
+  Vote,
+  Candidate,
 } from '@votingworks/ballot-encoder'
 
 import AppContext from '../contexts/AppContext'
@@ -400,7 +402,7 @@ export const CandidateContestChoices = ({
     <React.Fragment>
       {contest.candidates.map((candidate) => (
         <Text key={candidate.id} data-candidate>
-          <BubbleMark checked={vote.some((v) => v.id === candidate.id)}>
+          <BubbleMark checked={hasVote(vote, candidate.id)}>
             <span>
               <strong data-candidate-name={candidate.name}>
                 {candidate.name}
@@ -437,6 +439,14 @@ export const CandidateContestChoices = ({
           </WriteInItem>
         ))}
     </React.Fragment>
+  )
+}
+
+function hasVote(vote: Vote | undefined, optionId: string): boolean {
+  return (
+    vote?.some((choice: Candidate | string) =>
+      typeof choice === 'string' ? choice === optionId : choice.id === optionId
+    ) ?? false
   )
 }
 
@@ -862,13 +872,12 @@ const HandMarkedPaperBallot = ({
                   data-contest-title={contest.title}
                   section={dualPhraseWithSlash(
                     contest.section,
-                    localeContestsById &&
-                      localeContestsById[contest.id]?.section,
+                    localeContestsById?.[contest.id]?.section,
                     { normal: true }
                   )}
                   title={dualPhraseWithSlash(
                     contest.title,
-                    localeContestsById && localeContestsById[contest.id]?.title,
+                    localeContestsById?.[contest.id]?.title,
                     { normal: true }
                   )}
                 >
@@ -911,18 +920,16 @@ const HandMarkedPaperBallot = ({
                           }}
                         />
                       )}
-                      {['Yes', 'No'].map((answer) => (
-                        <Text key={answer} bold noWrap>
-                          <BubbleMark
-                            checked={
-                              votes[contest.id] &&
-                              votes[contest.id]![0] === answer.toLowerCase()
-                            }
-                          >
-                            <span>{dualLanguageWithSlash(answer)}</span>
-                          </BubbleMark>
-                        </Text>
-                      ))}
+                      <Text bold noWrap>
+                        <BubbleMark checked={hasVote(votes[contest.id], 'yes')}>
+                          <span>{dualLanguageWithSlash('Yes')}</span>
+                        </BubbleMark>
+                      </Text>
+                      <Text bold noWrap>
+                        <BubbleMark checked={hasVote(votes[contest.id], 'no')}>
+                          <span>{dualLanguageWithSlash('No')}</span>
+                        </BubbleMark>
+                      </Text>
                     </React.Fragment>
                   )}
                   {contest.type === 'ms-either-neither' && (
@@ -948,11 +955,10 @@ const HandMarkedPaperBallot = ({
                       <p>{contest.eitherNeitherLabel}</p>
                       <Text key={contest.eitherOption.id} bold>
                         <BubbleMark
-                          checked={
-                            votes[contest.eitherNeitherContestId] &&
-                            votes[contest.eitherNeitherContestId]![0] ===
-                              contest.eitherOption.label
-                          }
+                          checked={hasVote(
+                            votes[contest.eitherNeitherContestId],
+                            'yes'
+                          )}
                         >
                           <span>
                             {dualLanguageWithSlash(contest.eitherOption.label)}
@@ -961,11 +967,10 @@ const HandMarkedPaperBallot = ({
                       </Text>
                       <Text key={contest.neitherOption.id} bold>
                         <BubbleMark
-                          checked={
-                            votes[contest.eitherNeitherContestId] &&
-                            votes[contest.eitherNeitherContestId]![0] ===
-                              contest.neitherOption.label
-                          }
+                          checked={hasVote(
+                            votes[contest.eitherNeitherContestId],
+                            'no'
+                          )}
                         >
                           <span>
                             {dualLanguageWithSlash(contest.neitherOption.label)}
@@ -975,11 +980,10 @@ const HandMarkedPaperBallot = ({
                       <p>{contest.pickOneLabel}</p>
                       <Text key={contest.firstOption.id} bold>
                         <BubbleMark
-                          checked={
-                            votes[contest.eitherNeitherContestId] &&
-                            votes[contest.eitherNeitherContestId]![0] ===
-                              contest.firstOption.label
-                          }
+                          checked={hasVote(
+                            votes[contest.pickOneContestId],
+                            'yes'
+                          )}
                         >
                           <span>
                             {dualLanguageWithSlash(contest.firstOption.label)}
@@ -988,11 +992,10 @@ const HandMarkedPaperBallot = ({
                       </Text>
                       <Text key={contest.secondOption.id} bold>
                         <BubbleMark
-                          checked={
-                            votes[contest.eitherNeitherContestId] &&
-                            votes[contest.eitherNeitherContestId]![0] ===
-                              contest.secondOption.label
-                          }
+                          checked={hasVote(
+                            votes[contest.pickOneContestId],
+                            'no'
+                          )}
                         >
                           <span>
                             {dualLanguageWithSlash(contest.secondOption.label)}
