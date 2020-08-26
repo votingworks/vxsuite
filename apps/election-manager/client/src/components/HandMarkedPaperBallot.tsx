@@ -239,10 +239,6 @@ const Content = styled.div`
 const PageFooter = styled.div`
   display: flex;
   justify-content: flex-end;
-  /* stylelint-disable-next-line selector-class-pattern */
-  .pagedjs_left_page & {
-    margin-left: 0.66in;
-  }
 `
 const OfficialInitials = styled.div`
   display: none;
@@ -489,13 +485,13 @@ const HandMarkedPaperBallot = ({
     }
 
     const ballotStylesheets = [
-      `/ballot/layout-${locales.secondary ? 'dual' : 'single'}-language.css`,
+      `/ballot/${
+        locales.secondary
+          ? 'layout-dual-language.css'
+          : 'layout-single-language.css'
+      }`,
       '/ballot/ballot.css',
     ]
-
-    if (process.env.NODE_ENV === 'development') {
-      ballotStylesheets.push('/ballot/ballot-development.css')
-    }
 
     ;(async () => {
       await new Previewer().preview(
