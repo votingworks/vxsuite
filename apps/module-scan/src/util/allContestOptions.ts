@@ -1,7 +1,5 @@
-import { CandidateContest, YesNoContest } from '@votingworks/ballot-encoder'
+import { AnyContest } from '@votingworks/ballot-encoder'
 import { ContestOption } from '../types'
-
-type AnyContest = CandidateContest | YesNoContest
 
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
@@ -29,7 +27,7 @@ export default function* allContestOptions(
         }
       }
     }
-  } else {
+  } else if (contest.type === 'yesno') {
     yield {
       type: 'yesno',
       id: 'yes',
@@ -40,5 +38,7 @@ export default function* allContestOptions(
       id: 'no',
       name: 'No',
     }
+  } else {
+    throw new Error(`contest type is not yet supported: ${contest.type}`)
   }
 }

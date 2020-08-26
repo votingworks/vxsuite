@@ -75,6 +75,10 @@ export default function* ballotAdjudicationReasons(
     let isBlankBallot = true
 
     for (const contest of contests) {
+      if (contest.type !== 'candidate' && contest.type !== 'yesno') {
+        throw new Error(`contest type is not yet supported: ${contest.type}`)
+      }
+
       const selectedOptionIds: ContestOption['id'][] = []
 
       for (const option of allContestOptions(contest)) {
