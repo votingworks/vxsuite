@@ -2,6 +2,7 @@ import { strict as assert } from 'assert'
 import React, { useLayoutEffect, useRef, useContext } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
+import DOMPurify from 'dompurify'
 import moment from 'moment'
 import 'moment/min/locales'
 import { Handler, Previewer, registerHandlers } from 'pagedjs'
@@ -696,8 +697,9 @@ const HandMarkedPaperBallot = ({
                 {seal ? (
                   <div
                     className="seal"
-                    // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
-                    dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(seal),
+                    }}
                   />
                 ) : sealURL ? (
                   <div className="seal">
@@ -906,7 +908,7 @@ const HandMarkedPaperBallot = ({
                         small
                         preLine
                         dangerouslySetInnerHTML={{
-                          __html: contest.description,
+                          __html: DOMPurify.sanitize(contest.description),
                         }}
                       />
                       {localeContestsById && (
@@ -914,9 +916,10 @@ const HandMarkedPaperBallot = ({
                           small
                           preLine
                           dangerouslySetInnerHTML={{
-                            __html: (localeContestsById[
-                              contest.id
-                            ] as YesNoContest).description,
+                            __html: DOMPurify.sanitize(
+                              (localeContestsById[contest.id] as YesNoContest)
+                                .description
+                            ),
                           }}
                         />
                       )}
@@ -938,7 +941,7 @@ const HandMarkedPaperBallot = ({
                         small
                         preLine
                         dangerouslySetInnerHTML={{
-                          __html: contest.description,
+                          __html: DOMPurify.sanitize(contest.description),
                         }}
                       />
                       {localeContestsById && (
@@ -946,9 +949,10 @@ const HandMarkedPaperBallot = ({
                           small
                           preLine
                           dangerouslySetInnerHTML={{
-                            __html: (localeContestsById[
-                              contest.id
-                            ] as YesNoContest).description,
+                            __html: DOMPurify.sanitize(
+                              (localeContestsById[contest.id] as YesNoContest)
+                                .description
+                            ),
                           }}
                         />
                       )}
