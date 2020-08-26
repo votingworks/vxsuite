@@ -494,12 +494,13 @@ export default class Store {
     try {
       await this.dbRunAsync(
         `insert into ballots
-          (id, batch_id, original_filename, normalized_filename, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
-          values (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          (id, batch_id, original_filename, normalized_filename, interpretation_json, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
+          values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         ballotId,
         batchId,
         originalFilename,
         normalizedFilename,
+        JSON.stringify(interpretation),
         JSON.stringify(cvr),
         markInfo ? JSON.stringify(markInfo, undefined, 2) : null,
         metadata ? JSON.stringify(metadata, undefined, 2) : null,
