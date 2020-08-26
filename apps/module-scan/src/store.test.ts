@@ -183,7 +183,7 @@ test('adjudication', async () => {
     '/a/ballot-original.jpg',
     '/a/ballot-normalized.jpg',
     {
-      type: 'InterpretedHmpbBallot',
+      type: 'InterpretedHmpbPage',
       normalizedImage: EMPTY_IMAGE,
       cvr: {
         _ballotId: 'abcde',

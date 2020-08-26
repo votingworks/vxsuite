@@ -23,7 +23,7 @@ import sharp from 'sharp'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
 import { v4 as uuid } from 'uuid'
-import { InterpretedBallot, MarkInfo } from './interpreter'
+import { MarkInfo, PageInterpretation } from './interpreter'
 import {
   AdjudicationStatus,
   BatchInfo,
@@ -416,17 +416,17 @@ export default class Store {
     batchId: string,
     originalFilename: string,
     normalizedFilename: string,
-    interpreted: InterpretedBallot
+    interpretation: PageInterpretation
   ): Promise<string> {
-    const cvr = 'cvr' in interpreted ? interpreted.cvr : undefined
+    const cvr = 'cvr' in interpretation ? interpretation.cvr : undefined
     const markInfo =
-      'markInfo' in interpreted ? interpreted.markInfo : undefined
+      'markInfo' in interpretation ? interpretation.markInfo : undefined
     const metadata =
-      'metadata' in interpreted ? interpreted.metadata : undefined
+      'metadata' in interpretation ? interpretation.metadata : undefined
 
     const canBeAdjudicated =
-      interpreted.type === 'InterpretedHmpbBallot' ||
-      interpreted.type === 'UninterpretedHmpbBallot'
+      interpretation.type === 'InterpretedHmpbPage' ||
+      interpretation.type === 'UninterpretedHmpbPage'
     let requiresAdjudication = false
     let adjudicationInfo: AdjudicationInfo | undefined
 

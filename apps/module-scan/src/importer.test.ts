@@ -101,7 +101,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
     '/tmp/page.png',
     '/tmp/normalized-page.png',
     {
-      type: 'UninterpretedHmpbBallot',
+      type: 'UninterpretedHmpbPage',
       metadata: {
         ballotStyleId: '12',
         precinctId: '23',
@@ -219,7 +219,7 @@ test('manually importing a buffer as a file', async () => {
 
   await store.setElection(election)
   interpreter.interpretFile.mockResolvedValueOnce({
-    type: 'UninterpretedHmpbBallot',
+    type: 'UninterpretedHmpbPage',
     metadata: {
       ballotStyleId: '77',
       precinctId: '42',

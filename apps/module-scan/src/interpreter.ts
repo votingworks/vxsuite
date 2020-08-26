@@ -47,33 +47,44 @@ export interface MarkInfo {
   ballotSize: Size
 }
 
-export type InterpretedBallot =
-  | InterpretedBmdBallot
-  | InterpretedHmpbBallot
-  | UninterpretedHmpbBallot
-  | InvalidTestModeBallot
+export type PageInterpretation =
+  | BlankPage
+  | InterpretedBmdPage
+  | InterpretedHmpbPage
+  | InvalidTestModePage
+  | UninterpretedHmpbPage
+  | UnreadablePage
 
-export interface UninterpretedHmpbBallot {
-  type: 'UninterpretedHmpbBallot'
-  metadata: BallotPageMetadata
+export interface BlankPage {
+  type: 'BlankPage'
 }
 
-export interface InterpretedBmdBallot {
-  type: 'InterpretedBmdBallot'
+export interface InterpretedBmdPage {
+  type: 'InterpretedBmdPage'
   cvr: CastVoteRecord
 }
 
-export interface InterpretedHmpbBallot {
-  type: 'InterpretedHmpbBallot'
+export interface InterpretedHmpbPage {
+  type: 'InterpretedHmpbPage'
   normalizedImage: ImageData
   metadata: BallotPageMetadata
   markInfo: MarkInfo
   cvr: CastVoteRecord
 }
 
-export interface InvalidTestModeBallot {
-  type: 'InvalidTestModeBallot'
+export interface InvalidTestModePage {
+  type: 'InvalidTestModePage'
   metadata: BallotMetadata
+}
+
+export interface UninterpretedHmpbPage {
+  type: 'UninterpretedHmpbPage'
+  metadata: BallotPageMetadata
+}
+
+export interface UnreadablePage {
+  type: 'UnreadablePage'
+  reason?: string
 }
 
 export interface Interpreter {
@@ -88,7 +99,7 @@ export interface Interpreter {
   ): Promise<BallotPageLayout>
   interpretFile(
     interpretFileParams: InterpretFileParams
-  ): Promise<InterpretedBallot | undefined>
+  ): Promise<PageInterpretation | undefined>
   setTestMode(testMode: boolean): void
 }
 
@@ -287,7 +298,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
     election,
     ballotImagePath,
     ballotImageFile,
-  }: InterpretFileParams): Promise<InterpretedBallot | undefined> {
+  }: InterpretFileParams): Promise<PageInterpretation | undefined> {
     let ballotImageData: BallotImageData
 
     try {
@@ -330,17 +341,20 @@ export default class SummaryBallotInterpreter implements Interpreter {
           this.testMode
         )
         return {
-          type: 'InvalidTestModeBallot',
+          type: 'InvalidTestModePage',
           metadata,
         }
       }
 
       return {
-        type: 'UninterpretedHmpbBallot',
+        type: 'UninterpretedHmpbPage',
         metadata,
       }
-    } catch {
-      // ignore for now
+    } catch (error) {
+      return {
+        type: 'UnreadablePage',
+        reason: error.message,
+      }
     }
   }
 
@@ -352,7 +366,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
   private async interpretBMDFile(
     election: Election,
     { qrcode }: BallotImageData
-  ): Promise<InterpretedBmdBallot | undefined> {
+  ): Promise<InterpretedBmdPage | undefined> {
     if (typeof detect(qrcode) === 'undefined') {
       return
     }
@@ -360,14 +374,14 @@ export default class SummaryBallotInterpreter implements Interpreter {
     const cvr = interpretBallotData({ election, encodedBallot: qrcode })
 
     if (cvr) {
-      return { type: 'InterpretedBmdBallot', cvr }
+      return { type: 'InterpretedBmdPage', cvr }
     }
   }
 
   private async interpretHMPBFile(
     election: Election,
     { image }: BallotImageData
-  ): Promise<InterpretedHmpbBallot | undefined> {
+  ): Promise<InterpretedHmpbPage | undefined> {
     const hmpbInterpreter = this.getHmbpInterpreter(election)
     const {
       ballot,
@@ -419,7 +433,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
     }
 
     return {
-      type: 'InterpretedHmpbBallot',
+      type: 'InterpretedHmpbPage',
       cvr,
       normalizedImage: mappedBallot,
       markInfo: {

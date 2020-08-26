@@ -159,7 +159,7 @@ test('POST /scan/scanBatch errors', async () => {
 })
 
 test('POST /scan/scanFiles', async () => {
-  importerMock.importFile.mockResolvedValueOnce(undefined)
+  importerMock.importFile.mockResolvedValueOnce(uuid())
   await request(app)
     .post('/scan/scanFiles')
     .attach('files', Buffer.of(), {
@@ -208,7 +208,7 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
     '/tmp/image.jpg',
     '/tmp/image-normalized.jpg',
     {
-      type: 'InterpretedHmpbBallot',
+      type: 'InterpretedHmpbPage',
       normalizedImage: EMPTY_IMAGE,
       cvr: {
         _ballotId: 'abc',
@@ -293,7 +293,7 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
     '/tmp/image.jpg',
     '/tmp/image-normalized.jpg',
     {
-      type: 'InterpretedHmpbBallot',
+      type: 'InterpretedHmpbPage',
       normalizedImage: EMPTY_IMAGE,
       cvr: {
         _ballotId: 'abc',
@@ -436,7 +436,7 @@ test('GET /scan/hmpb/ballot/:ballotId/image', async () => {
     original,
     normalized,
     {
-      type: 'InterpretedHmpbBallot',
+      type: 'InterpretedHmpbPage',
       normalizedImage: EMPTY_IMAGE,
       metadata: {
         ballotStyleId: '12',

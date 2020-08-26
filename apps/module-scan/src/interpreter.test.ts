@@ -1,12 +1,12 @@
 import { electionSample } from '@votingworks/ballot-encoder'
 import { readFile } from 'fs-extra'
 import { join } from 'path'
-import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
 import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
+import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
 import SummaryBallotInterpreter, {
   getBallotImageData,
-  InterpretedHmpbBallot,
-  UninterpretedHmpbBallot,
+  InterpretedHmpbPage,
+  UninterpretedHmpbPage,
 } from './interpreter'
 import pdfToImages from './util/pdfToImages'
 
@@ -65,7 +65,7 @@ test('extracts a CVR from votes encoded in a QR code', async () => {
       election: electionSample,
       ballotImagePath,
       ballotImageFile: await readFile(ballotImagePath),
-    })) as InterpretedHmpbBallot).cvr
+    })) as InterpretedHmpbPage).cvr
   ).toEqual(
     expect.objectContaining({
       _ballotId: 'r6UYR4t7hEFMz8QlMWf1Sw',
@@ -100,7 +100,7 @@ test('interprets marks on a HMPB', async () => {
     election: stateOfHamiltonElection,
     ballotImagePath,
     ballotImageFile: await readFile(ballotImagePath),
-  })) as InterpretedHmpbBallot).cvr
+  })) as InterpretedHmpbPage).cvr
 
   delete cvr?._ballotId
 
@@ -152,7 +152,7 @@ test('interprets marks on an upside-down HMPB', async () => {
     election: stateOfHamiltonElection,
     ballotImagePath,
     ballotImageFile: await readFile(ballotImagePath),
-  })) as InterpretedHmpbBallot).cvr
+  })) as InterpretedHmpbPage).cvr
 
   delete cvr?._ballotId
 
@@ -200,7 +200,7 @@ test('interprets marks in PNG ballots', async () => {
       election: choctaw2020Election,
       ballotImagePath,
       ballotImageFile: await readFile(ballotImagePath),
-    })) as InterpretedHmpbBallot).cvr
+    })) as InterpretedHmpbPage).cvr
 
     delete cvr?._ballotId
 
@@ -243,7 +243,7 @@ test('interprets marks in PNG ballots', async () => {
       election: choctaw2020Election,
       ballotImagePath,
       ballotImageFile: await readFile(ballotImagePath),
-    })) as InterpretedHmpbBallot).cvr
+    })) as InterpretedHmpbPage).cvr
 
     delete cvr?._ballotId
 
@@ -293,7 +293,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
       election: stateOfHamiltonElection,
       ballotImagePath,
       ballotImageFile: await readFile(ballotImagePath),
-    })) as UninterpretedHmpbBallot
+    })) as UninterpretedHmpbPage
   ).toMatchInlineSnapshot(`
     Object {
       "metadata": Object {
@@ -307,7 +307,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
         "pageNumber": 3,
         "precinctId": "23",
       },
-      "type": "UninterpretedHmpbBallot",
+      "type": "UninterpretedHmpbPage",
     }
   `)
 })

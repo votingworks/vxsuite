@@ -12,7 +12,7 @@ import { BallotMetadata, ScanStatus } from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
-  InterpretedBallot,
+  PageInterpretation,
 } from './interpreter'
 import { Scanner, Sheet } from './scanner'
 import pdfToImages from './util/pdfToImages'
@@ -233,7 +233,7 @@ export default class SystemImporter implements Importer {
     const ballotImageFile = await fsExtra.readFile(ballotImagePath)
     let ballotId = uuid()
 
-    const interpreted = await this.interpreter.interpretFile({
+    const interpretation = await this.interpreter.interpretFile({
       election,
       ballotImagePath,
       ballotImageFile,
@@ -243,21 +243,23 @@ export default class SystemImporter implements Importer {
     // At some point we want to present information to the user that tells them
     // there was a ballot that was did not match the test/live mode of the
     // scanner. For now we just ignore such ballots completely.
-    if (!interpreted || interpreted.type === 'InvalidTestModeBallot') {
+    if (!interpretation || interpretation.type === 'InvalidTestModePage') {
       return
     }
 
-    const cvr = 'cvr' in interpreted ? interpreted.cvr : undefined
+    const cvr = 'cvr' in interpretation ? interpretation.cvr : undefined
     const normalizedImage =
-      'normalizedImage' in interpreted ? interpreted.normalizedImage : undefined
+      'normalizedImage' in interpretation
+        ? interpretation.normalizedImage
+        : undefined
 
     debug(
       'interpreted %s (%s): cvr=%O marks=%O metadata=%O',
       ballotImagePath,
-      interpreted.type,
+      interpretation.type,
       cvr,
-      'markInfo' in interpreted ? interpreted.markInfo : undefined,
-      'metadata' in interpreted ? interpreted.metadata : undefined
+      'markInfo' in interpretation ? interpretation.markInfo : undefined,
+      'metadata' in interpretation ? interpretation.metadata : undefined
     )
 
     const ballotImagePathExt = path.extname(ballotImagePath)
@@ -280,7 +282,7 @@ export default class SystemImporter implements Importer {
       batchId,
       originalBallotImagePath,
       normalizedBallotImagePath,
-      interpreted
+      interpretation
     )
 
     if (ballotImageFile) {
@@ -321,14 +323,14 @@ export default class SystemImporter implements Importer {
     batchId: string,
     originalBallotImagePath: string,
     normalizedBallotImagePath: string,
-    interpreted: InterpretedBallot
+    interpretation: PageInterpretation
   ): Promise<string> {
     const ballotId = await this.store.addBallot(
       uuid(),
       batchId,
       originalBallotImagePath,
       normalizedBallotImagePath,
-      interpreted
+      interpretation
     )
 
     return ballotId
