@@ -5,6 +5,7 @@ import {
 } from '@votingworks/ballot-encoder'
 import { promises as fs } from 'fs'
 import * as tmp from 'tmp'
+import { v4 as uuid } from 'uuid'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import Store from './store'
@@ -177,6 +178,7 @@ test('adjudication', async () => {
   ])
   const batchId = await store.addBatch()
   const ballotId = await store.addBallot(
+    uuid(),
     batchId,
     '/a/ballot-original.jpg',
     '/a/ballot-normalized.jpg',

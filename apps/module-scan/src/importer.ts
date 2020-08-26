@@ -5,6 +5,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
+import { v4 as uuid } from 'uuid'
 import { Election } from '@votingworks/ballot-encoder'
 import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
 
@@ -326,6 +327,7 @@ export default class SystemImporter implements Importer {
     interpreted: InterpretedBallot
   ): Promise<string> {
     const ballotId = await this.store.addBallot(
+      uuid(),
       batchId,
       originalBallotImagePath,
       normalizedBallotImagePath,

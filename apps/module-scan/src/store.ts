@@ -412,6 +412,7 @@ export default class Store {
    * Adds a ballot to an existing batch.
    */
   public async addBallot(
+    ballotId: string,
     batchId: string,
     originalFilename: string,
     normalizedFilename: string,
@@ -491,12 +492,11 @@ export default class Store {
     }
 
     try {
-      const id = uuid()
       await this.dbRunAsync(
         `insert into ballots
           (id, batch_id, original_filename, normalized_filename, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
           values (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        id,
+        ballotId,
         batchId,
         originalFilename,
         normalizedFilename,
