@@ -1,5 +1,7 @@
 import React, { useContext } from 'react'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
+import DOMPurify from 'dompurify'
 import {
   Election,
   CandidateContest,
@@ -7,7 +9,6 @@ import {
   AnyContest,
   MsEitherNeitherContest,
 } from '@votingworks/ballot-encoder'
-import styled from 'styled-components'
 
 import readFileAsync from '../lib/readFileAsync'
 import {
@@ -310,7 +311,7 @@ ${fileContent}`
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: contest.description,
+                        __html: DOMPurify.sanitize(contest.description),
                       }}
                     />
                     {['Yes', 'No'].map((answer) => (
@@ -328,7 +329,7 @@ ${fileContent}`
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: contest.description,
+                        __html: DOMPurify.sanitize(contest.description),
                       }}
                     />
                     <p>{contest.eitherNeitherLabel}</p>
