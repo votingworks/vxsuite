@@ -16,7 +16,6 @@ export function makeMockInterpreter(): jest.Mocked<Interpreter> {
 export function makeMockImporter(): jest.Mocked<Importer> {
   return {
     addHmpbTemplates: jest.fn(),
-    addManualBallot: jest.fn(),
     configure: jest.fn(),
     doExport: jest.fn(),
     doImport: jest.fn(),

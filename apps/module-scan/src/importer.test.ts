@@ -74,44 +74,35 @@ test('unconfigure clears all data.', async () => {
     scanner,
   })
 
-  const ballotContent = new TextEncoder().encode(
-    '12.23.1|0|0|0||||||||||||||||.r6UYR4t7hEFMz8ZlMWf1Sw'
-  )
-
   await importer.configure(election)
-
-  await importer.addManualBallot(ballotContent)
-
-  expect((await importer.getStatus()).batches).toHaveLength(1)
-
+  expect(await store.getElection()).toBeDefined()
   await importer.unconfigure()
-  expect((await importer.getStatus()).batches).toHaveLength(0)
-
-  await importer.configure(election)
-  expect((await importer.getStatus()).batches).toHaveLength(0)
-
-  await importer.addManualBallot(ballotContent)
-  const batches = (await importer.getStatus()).batches
-  expect(batches).toHaveLength(1)
-  expect(typeof batches[0].id).toEqual('string')
+  expect(await store.getElection()).toBeUndefined()
 })
 
 test('setTestMode zeroes and sets test mode on the interpreter', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
+  const store = await Store.memoryStore()
   const importer = new SystemImporter({
     ...importDirs.paths,
-    store: await Store.memoryStore(),
+    store,
     scanner,
   })
 
   await importer.configure(election)
-  await importer.addManualBallot(
-    new TextEncoder().encode(
-      '12.23.1|0|0|0||||||||||||||||.r6UYR4t7hEFMz8ZlMWf1Sw'
-    )
-  )
+  const batchId = await store.addBatch()
+  await store.addBallot(batchId, '/tmp/page.png', '/tmp/normalized-page.png', {
+    type: 'UninterpretedHmpbBallot',
+    metadata: {
+      ballotStyleId: '12',
+      precinctId: '23',
+      isTestBallot: false,
+      pageNumber: 1,
+      pageCount: 2,
+    },
+  })
   expect((await importer.getStatus()).batches).toHaveLength(1)
 
   await importer.setTestMode(true)

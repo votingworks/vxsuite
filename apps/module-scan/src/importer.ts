@@ -12,7 +12,6 @@ import { BallotMetadata, ScanStatus } from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
-  interpretBallotData,
   InterpretedBallot,
 } from './interpreter'
 import { Scanner, Sheet } from './scanner'
@@ -33,7 +32,6 @@ export interface Importer {
     pdf: Buffer,
     metadata: BallotMetadata
   ): Promise<BallotPageLayout[]>
-  addManualBallot(encodedBallot: Uint8Array): Promise<string | undefined>
   configure(newElection: Election): Promise<void>
   doExport(): Promise<string>
   doImport(): Promise<void>
@@ -58,7 +56,6 @@ export default class SystemImporter implements Importer {
   private store: Store
   private scanner: Scanner
   private interpreter: Interpreter
-  private manualBatchId?: string
 
   public readonly ballotImagesPath: string
   public readonly importedBallotImagesPath: string
@@ -134,41 +131,6 @@ export default class SystemImporter implements Importer {
     )
 
     return result
-  }
-
-  /**
-   * Adds a ballot using the data that would have been read from a scan, i.e.
-   * the data encoded by the QR code.
-   */
-  public async addManualBallot(
-    encodedBallot: Uint8Array
-  ): Promise<string | undefined> {
-    const election = await this.store.getElection()
-
-    if (!election) {
-      return
-    }
-
-    if (!this.manualBatchId) {
-      this.manualBatchId = await this.store.addBatch()
-    }
-
-    const cvr = interpretBallotData({
-      election,
-      encodedBallot,
-    })
-
-    if (cvr) {
-      return await this.addBallot(
-        this.manualBatchId!,
-        `manual-${cvr._ballotId}`,
-        `manual-${cvr._ballotId}`,
-        {
-          type: 'ManualBallot',
-          cvr,
-        }
-      )
-    }
   }
 
   /**
@@ -431,7 +393,6 @@ export default class SystemImporter implements Importer {
     await this.store.zero()
     fsExtra.emptyDirSync(this.ballotImagesPath)
     fsExtra.emptyDirSync(this.importedBallotImagesPath)
-    this.manualBatchId = undefined
   }
 
   /**

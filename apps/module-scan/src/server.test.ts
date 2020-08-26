@@ -168,18 +168,6 @@ test('POST /scan/scanFiles', async () => {
     .expect(200, { status: 'ok' })
 })
 
-test('POST /scan/addManualBallot', async () => {
-  importerMock.addManualBallot.mockResolvedValue(undefined)
-  await request(app)
-    .post('/scan/addManualBallot')
-    .send({
-      ballotString: '12.23.1|0|0|0||||||||||||||||.r6UYR4t7hEFMz8ZlMWf1Sw',
-    })
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
-  expect(importer.addManualBallot).toBeCalled()
-})
-
 test('POST /scan/invalidateBatch', async () => {
   await request(app)
     .post('/scan/invalidateBatch')
