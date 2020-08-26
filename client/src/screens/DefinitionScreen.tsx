@@ -44,12 +44,7 @@ const DefinitionScreen = () => {
     <React.Fragment>
       <NavigationScreen mainChildFlex>
         <Prose maxWidth={false}>
-          <p>
-            <LinkButton to={routerPaths.definitionEditor}>
-              JSON Editor
-            </LinkButton>
-          </p>
-          <h2>Metadata</h2>
+          <h2>Election Metadata</h2>
           <p>
             title: <strong>{election.title}</strong>
             <br />
@@ -82,6 +77,12 @@ const DefinitionScreen = () => {
               </p>
             </React.Fragment>
           ))}
+          <h2>Advanced</h2>
+          <p>
+            <LinkButton to={routerPaths.definitionEditor}>
+              JSON Editor
+            </LinkButton>
+          </p>
         </Prose>
       </NavigationScreen>
     </React.Fragment>

@@ -231,10 +231,11 @@ export function tallyVotesByContest({
   const contestTallies: ContestTally[] = []
 
   election.contests.forEach((contest) => {
-    let options: ContestOption[]
+    let options: ContestOption[] = []
     if (contest.type === 'yesno') {
       options = [['yes'], ['no']]
-    } else {
+    }
+    if (contest.type === 'candidate') {
       options = contest.candidates
     }
 
