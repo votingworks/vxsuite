@@ -451,7 +451,7 @@ function hasVote(vote: Vote | undefined, optionId: string): boolean {
   )
 }
 
-interface Props {
+export interface HandMarkedPaperBallotProps {
   ballotStyleId: string
   election: Election
   isLiveMode?: boolean
@@ -459,7 +459,7 @@ interface Props {
   locales: BallotLocale
   ballotId?: string
   votes?: VotesDict
-  onRendered?(props: Omit<Props, 'onRendered'>): void
+  onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void
 }
 
 const HandMarkedPaperBallot = ({
@@ -471,7 +471,7 @@ const HandMarkedPaperBallot = ({
   ballotId,
   votes = {},
   onRendered,
-}: Props) => {
+}: HandMarkedPaperBallotProps) => {
   assert.notEqual(
     locales.primary,
     locales.secondary,
