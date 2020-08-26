@@ -51,17 +51,11 @@ export type InterpretedBallot =
   | InterpretedBmdBallot
   | InterpretedHmpbBallot
   | UninterpretedHmpbBallot
-  | ManualBallot
   | InvalidTestModeBallot
 
 export interface UninterpretedHmpbBallot {
   type: 'UninterpretedHmpbBallot'
   metadata: BallotPageMetadata
-}
-
-export interface ManualBallot {
-  type: 'ManualBallot'
-  cvr: CastVoteRecord
 }
 
 export interface InterpretedBmdBallot {

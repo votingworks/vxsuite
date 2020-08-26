@@ -145,12 +145,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json({ status: 'ok' })
   })
 
-  app.post('/scan/addManualBallot', async (request, response) => {
-    const { ballotString } = request.body
-    await importer.addManualBallot(new TextEncoder().encode(ballotString))
-    response.json({ status: 'ok' })
-  })
-
   app.post(
     '/scan/hmpb/addTemplates',
     upload.fields([

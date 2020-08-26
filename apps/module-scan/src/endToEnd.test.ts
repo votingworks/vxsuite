@@ -2,14 +2,14 @@ import { electionSample as election } from '@votingworks/ballot-encoder'
 import { Application } from 'express'
 import * as path from 'path'
 import request from 'supertest'
+import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import SystemImporter from './importer'
 import { buildApp } from './server'
 import Store from './store'
-import { BatchInfo, CastVoteRecord } from './types'
+import { CastVoteRecord } from './types'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
-import { makeMockScanner, MockScanner } from '../test/util/mocks'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -87,53 +87,6 @@ test('going through the whole process works', async () => {
     expect(JSON.parse(status.text).batches[0].count).toBe(3)
   }
 
-  // a manual ballot
-  await request(app)
-    .post('/scan/addManualBallot')
-    .send({
-      ballotString: '12.23.1|0|0|0||||||||||||||||.manual-test-serial-number',
-    })
-    .set('Accept', 'application/json')
-    .expect(200)
-
-  // a manual ballot - a second time shouldn't affect count
-  await request(app)
-    .post('/scan/addManualBallot')
-    .send({
-      ballotString: '12.23.1|0|0|0||||||||||||||||.manual-test-serial-number',
-    })
-    .set('Accept', 'application/json')
-    .expect(200)
-
-  {
-    // check the latest batch has one ballot in it (the one we just made)
-    const status = await request(app)
-      .get('/scan/status')
-      .set('Accept', 'application/json')
-      .expect(200)
-    expect(JSON.parse(status.text).batches[0].count).toBe(1)
-    expect(JSON.parse(status.text).batches.length).toBe(2)
-  }
-
-  // a second distinct manual ballot
-  await request(app)
-    .post('/scan/addManualBallot')
-    .send({
-      ballotString: '12.23.1|1|0|0||||||||||||||||.manual-test-serial-number-2',
-    })
-    .set('Accept', 'application/json')
-    .expect(200)
-
-  {
-    // check the latest batch has two manual ballots in it
-    const status = await request(app)
-      .get('/scan/status')
-      .set('Accept', 'application/json')
-      .expect(200)
-    expect(JSON.parse(status.text).batches[0].count).toBe(2)
-    expect(JSON.parse(status.text).batches.length).toBe(2)
-  }
-
   {
     const exportResponse = await request(app)
       .post('/scan/export')
@@ -152,65 +105,44 @@ test('going through the whole process works', async () => {
     expect(ballotIds).toEqual([
       '85lnPkvfNEytP3Z8gMoEcA',
       'SAlVfdOQd4G6ALjkH3rlOg', // v1 encoding
-      'manual-test-serial-number',
-      'manual-test-serial-number-2',
       'r6UYR4t7hEFMz8QlMWf1Sw',
     ])
   }
 
-  let batchIdToDelete: number
-  let cvrCountToDelete: number
   {
-    // delete a batch
+    // delete all batches
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
       .expect(200)
-    ;[{ id: batchIdToDelete, count: cvrCountToDelete }] = JSON.parse(
-      status.text
-    ).batches
-    await request(app)
-      .delete(`/scan/batch/${batchIdToDelete}`)
-      .set('Accept', 'application/json')
-      .expect(200)
+    for (const { id } of JSON.parse(status.text).batches) {
+      await request(app)
+        .delete(`/scan/batch/${id}`)
+        .set('Accept', 'application/json')
+        .expect(200)
+
+      // can't delete it again
+      await request(app)
+        .delete(`/scan/batch/${id}`)
+        .set('Accept', 'application/json')
+        .expect(404)
+    }
   }
 
   {
-    // expect that we lost the first batch
+    // expect that we have no batches
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
       .expect(200)
-    expect(
-      JSON.parse(status.text).batches.every(
-        (batch: BatchInfo) => batch.id !== batchIdToDelete
-      )
-    ).toBe(true)
+    expect(JSON.parse(status.text).batches).toEqual([])
   }
 
-  // can't delete it again
+  // no CVRs!
   await request(app)
-    .delete(`/scan/batch/${batchIdToDelete}`)
+    .post('/scan/export')
     .set('Accept', 'application/json')
-    .expect(404)
-
-  {
-    const exportResponse = await request(app)
-      .post('/scan/export')
-      .set('Accept', 'application/json')
-      .expect(200)
-
-    // response is a few lines, each JSON.
-    // can't predict the order so can't compare
-    // to expected outcome as a string directly.
-    const CVRs: CastVoteRecord[] = exportResponse.text
-      .split('\n')
-      .filter(Boolean)
-      .map((line) => JSON.parse(line))
-    const ballotIds = CVRs.map((cvr) => cvr._ballotId)
-    ballotIds.sort()
-    expect(CVRs.length).toBe(5 - cvrCountToDelete)
-  }
+    .expect(200, '')
 
   // clean up
   await request(app).patch('/config').send({ election: null })
