@@ -277,6 +277,11 @@ export default class Store {
         }
       })
     })
+
+    // Enforce foreign key constraints. This is not in schema.sql because that
+    // only runs on db creation.
+    await this.dbRunAsync('pragma foreign_keys = 1')
+
     return this.db
   }
 

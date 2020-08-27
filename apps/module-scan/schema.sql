@@ -1,6 +1,3 @@
--- enforce foreign key constraints
-pragma foreign_keys = 1;
-
 create table batches (
   id varchar(36) primary key,
   started_at datetime default current_timestamp not null,
