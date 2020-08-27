@@ -42,6 +42,7 @@ import Prose from './Prose'
 import Text from './Text'
 import HorizontalRule from './HorizontalRule'
 import { BallotLocale } from '../config/types'
+import { ABSENTEE_TINT_COLOR } from '../config/globals'
 
 const localeDateLong = (dateString: string, locale: string) =>
   moment(new Date(dateString)).locale(locale).format('LL')
@@ -240,6 +241,26 @@ const SealImage = styled.img`
 `
 const Content = styled.div`
   flex: 1;
+`
+const AbsenteeHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.125in;
+  background: ${ABSENTEE_TINT_COLOR};
+  height: 0.25in;
+  text-transform: uppercase;
+  letter-spacing: 0.025in;
+  color: #ffffff;
+`
+const AbsenteeFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.08in;
+  background: ${ABSENTEE_TINT_COLOR};
+  width: 1in;
+  color: #ffffff;
 `
 const PageFooter = styled.div`
   display: flex;
@@ -455,6 +476,7 @@ interface Props {
   ballotStyleId: string
   election: Election
   isLiveMode?: boolean
+  isAbsenteeMode?: boolean
   precinctId: string
   locales: BallotLocale
   ballotId?: string
@@ -466,6 +488,7 @@ const HandMarkedPaperBallot = ({
   ballotStyleId,
   election,
   isLiveMode = true,
+  isAbsenteeMode = true,
   precinctId,
   locales,
   ballotId,
@@ -592,6 +615,11 @@ const HandMarkedPaperBallot = ({
       <Ballot aria-hidden data-ballot ref={ballotRef}>
         <div className="ballot-footer">
           <PageFooter>
+            {isAbsenteeMode && (
+              <AbsenteeFooter>
+                <Text bold>Absentee Ballot</Text>
+              </AbsenteeFooter>
+            )}
             <OfficialInitials>
               <Text as="span" small>
                 <Trans
@@ -693,6 +721,11 @@ const HandMarkedPaperBallot = ({
         <Content>
           <CandidateContestsLayout>
             <IntroColumn>
+              {isAbsenteeMode && (
+                <AbsenteeHeader>
+                  <Text bold>Absentee Ballot</Text>
+                </AbsenteeHeader>
+              )}
               <BallotHeader>
                 {seal ? (
                   <div
