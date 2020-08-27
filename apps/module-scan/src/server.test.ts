@@ -12,7 +12,6 @@ import { Server } from 'http'
 import { join } from 'path'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
-import EMPTY_IMAGE from '../test/fixtures/emptyImage'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import { makeMockImporter } from '../test/util/mocks'
@@ -209,7 +208,6 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
     '/tmp/image-normalized.jpg',
     {
       type: 'InterpretedHmpbPage',
-      normalizedImage: EMPTY_IMAGE,
       cvr: {
         _ballotId: 'abc',
         _ballotStyleId: '12',
@@ -294,7 +292,6 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
     '/tmp/image-normalized.jpg',
     {
       type: 'InterpretedHmpbPage',
-      normalizedImage: EMPTY_IMAGE,
       cvr: {
         _ballotId: 'abc',
         _ballotStyleId: '12',
@@ -437,7 +434,6 @@ test('GET /scan/hmpb/ballot/:ballotId/image', async () => {
     normalized,
     {
       type: 'InterpretedHmpbPage',
-      normalizedImage: EMPTY_IMAGE,
       metadata: {
         ballotStyleId: '12',
         precinctId: '23',

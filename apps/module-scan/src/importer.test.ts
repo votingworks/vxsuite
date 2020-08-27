@@ -219,13 +219,15 @@ test('manually importing a buffer as a file', async () => {
 
   await store.setElection(election)
   interpreter.interpretFile.mockResolvedValueOnce({
-    type: 'UninterpretedHmpbPage',
-    metadata: {
-      ballotStyleId: '77',
-      precinctId: '42',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 2,
+    interpretation: {
+      type: 'UninterpretedHmpbPage',
+      metadata: {
+        ballotStyleId: '77',
+        precinctId: '42',
+        isTestBallot: false,
+        pageNumber: 1,
+        pageCount: 2,
+      },
     },
   })
   const imageFile = fileSync()

@@ -20,6 +20,40 @@ export interface Dictionary<T> {
 
 export type NonEmptyArray<T> = [T, ...T[]]
 
+export type Result<E, T> = ErrorResult<E> | ValueResult<T>
+export interface ErrorResult<E> {
+  error: E
+}
+export interface ValueResult<T> {
+  value: T
+}
+
+export function isValueResult<E, T>(
+  result: Result<E, T>
+): result is ValueResult<T> {
+  return 'value' in result
+}
+
+export function isErrorResult<E, T>(
+  result: Result<E, T>
+): result is ErrorResult<E> {
+  return 'error' in result
+}
+
+export function resultValue<E, T>(result: Result<E, T>): T {
+  if (isErrorResult(result)) {
+    throw new TypeError('cannot extract value from error result')
+  }
+  return result.value
+}
+
+export function resultError<E, T>(result: Result<E, T>): E {
+  if (isValueResult(result)) {
+    throw new TypeError('cannot extract error from value result')
+  }
+  return result.error
+}
+
 export interface CastVoteRecord
   extends Dictionary<string | string[] | boolean | number | BallotLocales> {
   _precinctId: string

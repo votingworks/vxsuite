@@ -24,15 +24,11 @@ import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import sharp from 'sharp'
 import { decode as quircDecode } from 'node-quirc'
-import { CastVoteRecord, BallotMetadata } from './types'
+import { CastVoteRecord, BallotMetadata, Result, isErrorResult } from './types'
 import { getMachineId } from './util/machineId'
 import threshold from './util/threshold'
 
 const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.005
-const PercentageFormatter = new Intl.NumberFormat(undefined, {
-  style: 'percent',
-  maximumSignificantDigits: 3,
-})
 
 const debug = makeDebug('module-scan:interpreter')
 
@@ -40,6 +36,11 @@ export interface InterpretFileParams {
   readonly election: Election
   readonly ballotImagePath: string
   readonly ballotImageFile: Buffer
+}
+
+export interface InterpretFileResult {
+  interpretation: PageInterpretation
+  normalizedImage?: ImageData
 }
 
 export interface MarkInfo {
@@ -66,7 +67,6 @@ export interface InterpretedBmdPage {
 
 export interface InterpretedHmpbPage {
   type: 'InterpretedHmpbPage'
-  normalizedImage: ImageData
   metadata: BallotPageMetadata
   markInfo: MarkInfo
   cvr: CastVoteRecord
@@ -99,7 +99,7 @@ export interface Interpreter {
   ): Promise<BallotPageLayout>
   interpretFile(
     interpretFileParams: InterpretFileParams
-  ): Promise<PageInterpretation | undefined>
+  ): Promise<InterpretFileResult>
   setTestMode(testMode: boolean): void
 }
 
@@ -188,7 +188,7 @@ async function getQRCode(
 export async function getBallotImageData(
   file: Buffer,
   filename: string
-): Promise<BallotImageData> {
+): Promise<Result<PageInterpretation, BallotImageData>> {
   const img = sharp(file).raw().ensureAlpha()
   const {
     data,
@@ -204,13 +204,7 @@ export async function getBallotImageData(
       filename,
       imageThreshold
     )
-    throw new Error(
-      `image from ${filename} appears blank (${PercentageFormatter.format(
-        imageThreshold.foreground.ratio
-      )} < ${PercentageFormatter.format(
-        MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
-      )})`
-    )
+    return { error: { type: 'BlankPage' } }
   }
 
   const image = { data: Uint8ClampedArray.from(data), width, height }
@@ -224,7 +218,7 @@ export async function getBallotImageData(
   const topQrcode = await getQRCode(topImage, topRaw, width, clipHeight)
 
   if (topQrcode) {
-    return { file, image, qrcode: topQrcode }
+    return { value: { file, image, qrcode: topQrcode } }
   }
 
   const bottomCrop = img.clone().extract({
@@ -243,10 +237,15 @@ export async function getBallotImageData(
   )
 
   if (bottomQrcode) {
-    return { file, image, qrcode: bottomQrcode }
+    return { value: { file, image, qrcode: bottomQrcode } }
   }
 
-  throw new Error(`no QR code found in ${filename}`)
+  return {
+    error: {
+      type: 'UnreadablePage',
+      reason: 'No QR code found',
+    },
+  }
 }
 
 export default class SummaryBallotInterpreter implements Interpreter {
@@ -298,19 +297,14 @@ export default class SummaryBallotInterpreter implements Interpreter {
     election,
     ballotImagePath,
     ballotImageFile,
-  }: InterpretFileParams): Promise<PageInterpretation | undefined> {
-    let ballotImageData: BallotImageData
+  }: InterpretFileParams): Promise<InterpretFileResult> {
+    const result = await getBallotImageData(ballotImageFile, ballotImagePath)
 
-    try {
-      ballotImageData = await getBallotImageData(
-        ballotImageFile,
-        ballotImagePath
-      )
-    } catch (error) {
-      debug('interpretFile failed: %s', error.message)
-      return
+    if (isErrorResult(result)) {
+      return { interpretation: result.error }
     }
 
+    const ballotImageData = result.value
     const bmdResult = await this.interpretBMDFile(election, ballotImageData)
 
     if (bmdResult) {
@@ -341,19 +335,25 @@ export default class SummaryBallotInterpreter implements Interpreter {
           this.testMode
         )
         return {
-          type: 'InvalidTestModePage',
-          metadata,
+          interpretation: {
+            type: 'InvalidTestModePage',
+            metadata,
+          },
         }
       }
 
       return {
-        type: 'UninterpretedHmpbPage',
-        metadata,
+        interpretation: {
+          type: 'UninterpretedHmpbPage',
+          metadata,
+        },
       }
     } catch (error) {
       return {
-        type: 'UnreadablePage',
-        reason: error.message,
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: error.message,
+        },
       }
     }
   }
@@ -366,7 +366,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
   private async interpretBMDFile(
     election: Election,
     { qrcode }: BallotImageData
-  ): Promise<InterpretedBmdPage | undefined> {
+  ): Promise<InterpretFileResult | undefined> {
     if (typeof detect(qrcode) === 'undefined') {
       return
     }
@@ -374,14 +374,14 @@ export default class SummaryBallotInterpreter implements Interpreter {
     const cvr = interpretBallotData({ election, encodedBallot: qrcode })
 
     if (cvr) {
-      return { type: 'InterpretedBmdPage', cvr }
+      return { interpretation: { type: 'InterpretedBmdPage', cvr } }
     }
   }
 
   private async interpretHMPBFile(
     election: Election,
     { image }: BallotImageData
-  ): Promise<InterpretedHmpbPage | undefined> {
+  ): Promise<InterpretFileResult | undefined> {
     const hmpbInterpreter = this.getHmbpInterpreter(election)
     const {
       ballot,
@@ -433,17 +433,19 @@ export default class SummaryBallotInterpreter implements Interpreter {
     }
 
     return {
-      type: 'InterpretedHmpbPage',
-      cvr,
-      normalizedImage: mappedBallot,
-      markInfo: {
-        marks,
-        ballotSize: {
-          width: mappedBallot.width,
-          height: mappedBallot.height,
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        cvr,
+        markInfo: {
+          marks,
+          ballotSize: {
+            width: mappedBallot.width,
+            height: mappedBallot.height,
+          },
         },
+        metadata,
       },
-      metadata,
+      normalizedImage: mappedBallot,
     }
   }
 

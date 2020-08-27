@@ -233,25 +233,16 @@ export default class SystemImporter implements Importer {
     const ballotImageFile = await fsExtra.readFile(ballotImagePath)
     let ballotId = uuid()
 
-    const interpretation = await this.interpreter.interpretFile({
+    const {
+      interpretation,
+      normalizedImage,
+    } = await this.interpreter.interpretFile({
       election,
       ballotImagePath,
       ballotImageFile,
     })
 
-    // TODO: Handle invalid test mode ballots more explicitly.
-    // At some point we want to present information to the user that tells them
-    // there was a ballot that was did not match the test/live mode of the
-    // scanner. For now we just ignore such ballots completely.
-    if (!interpretation || interpretation.type === 'InvalidTestModePage') {
-      return
-    }
-
     const cvr = 'cvr' in interpretation ? interpretation.cvr : undefined
-    const normalizedImage =
-      'normalizedImage' in interpretation
-        ? interpretation.normalizedImage
-        : undefined
 
     debug(
       'interpreted %s (%s): cvr=%O marks=%O metadata=%O',
