@@ -221,6 +221,7 @@ def process_results_file(election_file_path, vx_results_file_path):
                 # blank vote
                 if len(answers) == 0:
                     add_entry(precinct_id, contest["id"], BLANKVOTE_CANDIDATE["id"])
+                    continue
 
                 # overvote & stop
                 if len(answers) > num_seats:
