@@ -428,22 +428,16 @@ export const getContestTallyMeta = ({
     )
     const contestVotes = contestCVRs.map((cvr) => cvr[contest.id])
     const overvotes = contestVotes.filter((vote) => {
-      if (contest.type === 'yesno') {
-        return (vote as YesNoVote).length > 1
-      }
       if (contest.type === 'candidate') {
         return ((vote as unknown) as CandidateVote).length > contest.seats
       }
-      return false
+      return (vote as YesNoVote).length > 1
     })
     const undervotes = contestVotes.filter((vote) => {
-      if (contest.type === 'yesno') {
-        return (vote as YesNoVote).length === 0
-      }
       if (contest.type === 'candidate') {
         return ((vote as unknown) as CandidateVote).length < contest.seats
       }
-      return false
+      return (vote as YesNoVote).length === 0
     })
     dictionary[contest.id] = {
       ballots: contestCVRs.length,
