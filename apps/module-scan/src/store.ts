@@ -664,19 +664,18 @@ export default class Store {
   }
 
   public async getNextReviewBallot(): Promise<ReviewBallot | undefined> {
-    const row = await this.dbGetAsync<{ id: string } | undefined, [boolean]>(
+    const row = await this.dbGetAsync<{ id: string } | undefined>(
       `
       select id
       from ballots
-      where requires_adjudication = ?
+      where requires_adjudication = 1 and finished_adjudication_at is null
       order by created_at asc
       limit 1
-    `,
-      true
+    `
     )
 
     if (row) {
-      debug('got next review ballot requiring adjudication (id=%d)', row.id)
+      debug('got next review ballot requiring adjudication (id=%s)', row.id)
       return this.getBallot(row.id)
     } else {
       debug('no review ballots requiring adjudication')
@@ -727,24 +726,27 @@ export default class Store {
         ) ?? []
 
     debug(
-      'saving adjudication changes for ballot %d: %O',
+      'saving adjudication changes for ballot %s: %O',
       ballotId,
       newAdjudication
     )
     debug(
-      'adjudication complete for ballot %d? %s',
+      'adjudication complete for ballot %s? %s',
       ballotId,
       unadjudicatedMarks.length === 0
     )
 
     await this.dbRunAsync(
-      `update ballots
-        set
-          adjudication_json = ?
-        , requires_adjudication = ?
-      where id = ?`,
+      `
+      update
+        ballots
+      set
+        adjudication_json = ?,
+        finished_adjudication_at = ?
+      where id = ?
+    `,
       JSON.stringify(newAdjudication, undefined, 2),
-      unadjudicatedMarks.length > 0,
+      unadjudicatedMarks.length > 0 ? null : new Date().toISOString(),
       ballotId
     )
 
@@ -792,24 +794,20 @@ export default class Store {
    */
   public async adjudicationStatus(): Promise<AdjudicationStatus> {
     const [{ remaining }, { adjudicated }] = await Promise.all([
-      this.dbGetAsync<{ remaining: number }, [boolean]>(
-        `
+      this.dbGetAsync<{ remaining: number }>(`
         select count(*) as remaining
         from ballots
         where
-          requires_adjudication = ?
-          and adjudication_json is null`,
-        true
-      ),
-      this.dbGetAsync<{ adjudicated: number }, [boolean]>(
-        `
+          requires_adjudication = 1
+          and finished_adjudication_at is null
+      `),
+      this.dbGetAsync<{ adjudicated: number }>(`
         select count(*) as adjudicated
         from ballots
         where
-          requires_adjudication = ?
-          and adjudication_json is not null`,
-        false
-      ),
+          requires_adjudication = 1
+          and finished_adjudication_at is not null
+      `),
     ])
     return { adjudicated, remaining }
   }
@@ -825,22 +823,19 @@ export default class Store {
         json_extract(interpretation_json, '$.metadata') as metadataJSON,
         adjudication_json as adjudicationJSON
       from ballots
-      where requires_adjudication = ?
+      where requires_adjudication = 0 or finished_adjudication_at is not null
     `
     for (const {
       id,
       cvrJSON,
       adjudicationJSON,
       metadataJSON,
-    } of await this.dbAllAsync<
-      {
-        id: number
-        cvrJSON?: string
-        adjudicationJSON?: string
-        metadataJSON?: string
-      },
-      [boolean]
-    >(sql, false)) {
+    } of await this.dbAllAsync<{
+      id: number
+      cvrJSON?: string
+      adjudicationJSON?: string
+      metadataJSON?: string
+    }>(sql)) {
       const cvr: CastVoteRecord | undefined = cvrJSON
         ? JSON.parse(cvrJSON)
         : undefined

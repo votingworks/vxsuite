@@ -19,9 +19,11 @@ create table ballots (
   -- @type {MarksByContestId}
   adjudication_json text,
 
-  -- Does this page _currently_ require adjudication? Updated as the page is
-  -- adjudicated.
+  -- Did this page require adjudication? This value should never be updated.
   requires_adjudication boolean,
+
+  -- When adjudication is finished, this value is updated to the current time.
+  finished_adjudication_at datetime,
 
   created_at datetime default current_timestamp not null,
 
