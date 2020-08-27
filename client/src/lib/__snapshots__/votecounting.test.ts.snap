@@ -23795,3 +23795,25 @@ Object {
   },
 }
 `;
+
+exports[`tabulating a set of CVRs gives expected output 2`] = `
+Object {
+  "Precinct": Object {
+    "20": 2478,
+    "21": 5048,
+    "23": 2474,
+  },
+  "Scanner": Object {
+    "scanner-1": 1008,
+    "scanner-10": 1022,
+    "scanner-2": 1015,
+    "scanner-3": 1029,
+    "scanner-4": 1039,
+    "scanner-5": 961,
+    "scanner-6": 973,
+    "scanner-7": 938,
+    "scanner-8": 977,
+    "scanner-9": 1038,
+  },
+}
+`;

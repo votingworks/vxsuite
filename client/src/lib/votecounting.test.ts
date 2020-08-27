@@ -14,6 +14,9 @@ import {
   parseCVRs,
   fullTallyVotes,
   getOvervotePairTallies,
+  voteCountsByCategory,
+  CVRCategorizerByPrecinct,
+  CVRCategorizerByScanner,
 } from './votecounting'
 import { CastVoteRecord } from '../config/types'
 
@@ -43,8 +46,18 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // tabulate it
   const fullTally = fullTallyVotes({ election, castVoteRecords })
-
   expect(fullTally).toMatchSnapshot()
+
+  // also categorize them
+  const countsByCategory = voteCountsByCategory({
+    castVoteRecords: [castVoteRecords],
+    categorizers: {
+      Precinct: CVRCategorizerByPrecinct,
+      Scanner: CVRCategorizerByScanner,
+    },
+  })
+
+  expect(countsByCategory).toMatchSnapshot()
 
   // some specific tallies checked by hand
 
