@@ -241,7 +241,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
   const { id } = await store.dbGetAsync<{ id: string }>(`
     select id
     from ballots
-    where json_extract(metadata_json, '$.pageNumber') = 3
+    where json_extract(interpretation_json, '$.metadata.pageNumber') = 3
   `)
 
   await request(app)

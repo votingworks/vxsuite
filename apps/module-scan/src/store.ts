@@ -423,12 +423,8 @@ export default class Store {
     normalizedFilename: string,
     interpretation: PageInterpretation
   ): Promise<string> {
-    const cvr = 'cvr' in interpretation ? interpretation.cvr : undefined
     const markInfo =
       'markInfo' in interpretation ? interpretation.markInfo : undefined
-    const metadata =
-      'metadata' in interpretation ? interpretation.metadata : undefined
-
     const canBeAdjudicated =
       interpretation.type === 'InterpretedHmpbPage' ||
       interpretation.type === 'UninterpretedHmpbPage'
@@ -499,16 +495,13 @@ export default class Store {
     try {
       await this.dbRunAsync(
         `insert into ballots
-          (id, batch_id, original_filename, normalized_filename, interpretation_json, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
-          values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          (id, batch_id, original_filename, normalized_filename, interpretation_json, requires_adjudication, adjudication_info_json)
+          values (?, ?, ?, ?, ?, ?, ?)`,
         ballotId,
         batchId,
         originalFilename,
         normalizedFilename,
         JSON.stringify(interpretation),
-        JSON.stringify(cvr),
-        markInfo ? JSON.stringify(markInfo, undefined, 2) : null,
-        metadata ? JSON.stringify(metadata, undefined, 2) : null,
         requiresAdjudication,
         adjudicationInfo ? JSON.stringify(adjudicationInfo, undefined, 2) : null
       )
@@ -581,10 +574,10 @@ export default class Store {
           id,
           original_filename as originalFilename,
           normalized_filename as normalizedFilename,
-          marks_json as marksJSON,
+          json_extract(interpretation_json, '$.markInfo') as marksJSON,
+          json_extract(interpretation_json, '$.metadata') as metadataJSON,
           adjudication_json as adjudicationJSON,
-          adjudication_info_json as adjudicationInfoJSON,
-          metadata_json as metadataJSON
+          adjudication_info_json as adjudicationInfoJSON
         from ballots
         where id = ?
       `,
@@ -770,7 +763,7 @@ export default class Store {
       `
       select
         adjudication_json as adjudicationJSON,
-        marks_json as marksJSON
+        json_extract(interpretation_json, '$.markInfo') as marksJSON
       from ballots
       where id = ?
     `,
@@ -893,8 +886,15 @@ export default class Store {
    * Exports all CVR JSON data to a stream.
    */
   public async exportCVRs(writeStream: Writable): Promise<void> {
-    const sql =
-      'select id, cvr_json as cvrJSON, adjudication_json as adjudicationJSON, metadata_json as metadataJSON from ballots where requires_adjudication = ?'
+    const sql = `
+      select
+        id,
+        json_extract(interpretation_json, '$.cvr') as cvrJSON,
+        json_extract(interpretation_json, '$.metadata') as metadataJSON,
+        adjudication_json as adjudicationJSON
+      from ballots
+      where requires_adjudication = ?
+    `
     for (const {
       id,
       cvrJSON,
