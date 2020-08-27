@@ -3,6 +3,7 @@ import {
   BallotStyle,
   Contests,
   MsEitherNeitherContest,
+  YesNoContest,
 } from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
@@ -29,13 +30,14 @@ export const getEitherNeitherContests = (
     .map((c) => c as MsEitherNeitherContest)
 
 export const expandEitherNeitherContests = (contests: Contests): Contests => {
-  const resultSet = new Set(contests)
+  const resultContests = [...contests]
 
   const eitherNeitherContests = getEitherNeitherContests(contests)
-  eitherNeitherContests.forEach((c) => resultSet.delete(c))
 
   eitherNeitherContests.forEach((c) => {
-    resultSet.add({
+    const eitherNeitherIndex = resultContests.findIndex((rc) => rc === c)
+
+    const eitherNeitherContest = {
       id: c.eitherNeitherContestId,
       type: 'yesno',
       title: `${c.title} -- Either/Neither`,
@@ -44,9 +46,9 @@ export const expandEitherNeitherContests = (contests: Contests): Contests => {
       description: c.description,
       yesOption: c.eitherOption,
       noOption: c.neitherOption,
-    })
+    } as YesNoContest
 
-    resultSet.add({
+    const pickOneContest = {
       id: c.pickOneContestId,
       type: 'yesno',
       title: `${c.title} -- Pick One`,
@@ -55,10 +57,17 @@ export const expandEitherNeitherContests = (contests: Contests): Contests => {
       description: c.description,
       yesOption: c.firstOption,
       noOption: c.secondOption,
-    })
+    } as YesNoContest
+
+    resultContests.splice(
+      eitherNeitherIndex,
+      1,
+      eitherNeitherContest,
+      pickOneContest
+    )
   })
 
-  return Array.from(resultSet)
+  return resultContests
 }
 
 export const getPrecinctById = ({
