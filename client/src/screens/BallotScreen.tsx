@@ -42,7 +42,7 @@ const BallotScreen = () => {
 
   const [isLiveMode, setIsLiveMode] = useState(true)
   const toggleLiveMode = () => setIsLiveMode((m) => !m)
-  const [isAbsenteeMode, setIsAbsenteeMode] = useState(false)
+  const [isAbsenteeMode, setIsAbsenteeMode] = useState(true)
   const toggleAbsenteeMode = () => setIsAbsenteeMode((m) => !m)
   const changeLocale = (localeCode: string) =>
     history.replace(
@@ -93,18 +93,18 @@ const BallotScreen = () => {
           </SegmentedButton>{' '}
           <SegmentedButton>
             <Button
-              disabled={!isAbsenteeMode}
-              onPress={toggleAbsenteeMode}
-              small
-            >
-              Normal Mode
-            </Button>
-            <Button
               disabled={isAbsenteeMode}
               onPress={toggleAbsenteeMode}
               small
             >
-              Absentee Ballot
+              Absentee
+            </Button>
+            <Button
+              disabled={!isAbsenteeMode}
+              onPress={toggleAbsenteeMode}
+              small
+            >
+              Default
             </Button>
           </SegmentedButton>{' '}
           {availableLocaleCodes.length > 1 && (
