@@ -238,6 +238,14 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
         pageCount: 1,
         locales: { primary: 'en-US' },
       },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [
+          AdjudicationReason.UninterpretableBallot,
+          AdjudicationReason.MarginalMark,
+        ],
+        allReasonInfos: [],
+      },
     }
   )
   await store.finishBatch(batchId)
@@ -259,6 +267,7 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
       contests: [],
       layout: [],
       adjudicationInfo: {
+        requiresAdjudication: false,
         enabledReasons: [
           AdjudicationReason.UninterpretableBallot,
           AdjudicationReason.MarginalMark,
@@ -330,6 +339,21 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
         pageCount: 1,
         locales: { primary: 'en-US' },
       },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [
+          AdjudicationReason.UninterpretableBallot,
+          AdjudicationReason.MarginalMark,
+        ],
+        allReasonInfos: [
+          {
+            type: AdjudicationReason.Undervote,
+            contestId: yesnoContest.id,
+            expected: 1,
+            optionIds: [],
+          },
+        ],
+      },
     }
   )
   await store.finishBatch(batchId)
@@ -360,6 +384,7 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
     contests: [],
     layout: [],
     adjudicationInfo: {
+      requiresAdjudication: false,
       enabledReasons: [
         AdjudicationReason.UninterpretableBallot,
         AdjudicationReason.MarginalMark,
@@ -401,6 +426,7 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
     contests: [],
     layout: [],
     adjudicationInfo: {
+      requiresAdjudication: false,
       enabledReasons: [
         AdjudicationReason.UninterpretableBallot,
         AdjudicationReason.MarginalMark,
@@ -451,6 +477,11 @@ test('GET /scan/hmpb/ballot/:ballotId/image', async () => {
       markInfo: {
         ballotSize: { width: 0, height: 0 },
         marks: [],
+      },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        allReasonInfos: [],
       },
     }
   )

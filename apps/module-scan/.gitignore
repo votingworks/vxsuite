@@ -1,6 +1,6 @@
 node_modules
 *.db
-*.db.digest
+*.db.*
 tmp
 !tmp/.gitkeep
 hmpb-templates

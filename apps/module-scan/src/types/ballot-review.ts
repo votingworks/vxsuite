@@ -38,6 +38,7 @@ export interface BallotInfo {
 }
 
 export interface AdjudicationInfo {
+  requiresAdjudication: boolean
   enabledReasons: readonly AdjudicationReason[]
   allReasonInfos: readonly AdjudicationReasonInfo[]
 }

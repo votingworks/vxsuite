@@ -4,27 +4,39 @@
 //
 
 import {
+  AdjudicationReason,
   CandidateVote,
   CompletedBallot,
   decodeBallot,
   detect,
   Election,
+  getBallotStyle,
   getContests,
   Optional,
 } from '@votingworks/ballot-encoder'
 import {
-  Interpreter as HMPBInterpreter,
-  BallotPageMetadata,
   BallotMark,
-  Size,
   BallotPageLayout,
+  BallotPageMetadata,
+  Interpreter as HMPBInterpreter,
   metadataFromBytes,
+  Size,
 } from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
-import sharp from 'sharp'
 import { decode as quircDecode } from 'node-quirc'
-import { CastVoteRecord, BallotMetadata, Result, isErrorResult } from './types'
+import sharp from 'sharp'
+import {
+  BallotMetadata,
+  CastVoteRecord,
+  getMarkStatus,
+  isErrorResult,
+  Result,
+} from './types'
+import { AdjudicationInfo, MarkStatus } from './types/ballot-review'
+import ballotAdjudicationReasons, {
+  adjudicationReasonDescription,
+} from './util/ballotAdjudicationReasons'
 import { getMachineId } from './util/machineId'
 import threshold from './util/threshold'
 
@@ -70,6 +82,7 @@ export interface InterpretedHmpbPage {
   metadata: BallotPageMetadata
   markInfo: MarkInfo
   cvr: CastVoteRecord
+  adjudicationInfo: AdjudicationInfo
 }
 
 export interface InvalidTestModePage {
@@ -432,6 +445,62 @@ export default class SummaryBallotInterpreter implements Interpreter {
       }
     }
 
+    let requiresAdjudication = false
+    const enabledReasons = election.adjudicationReasons ?? [
+      AdjudicationReason.UninterpretableBallot,
+      AdjudicationReason.MarginalMark,
+    ]
+    const allReasonInfos = [
+      ...ballotAdjudicationReasons(
+        getContests({
+          ballotStyle: getBallotStyle({
+            ballotStyleId: metadata.ballotStyleId,
+            election,
+          })!,
+          election,
+        }),
+        {
+          optionMarkStatus: (contestId, optionId) => {
+            for (const mark of marks) {
+              if (mark.type === 'stray' || mark.contest.id !== contestId) {
+                continue
+              }
+
+              if (mark.type !== 'candidate' && mark.type !== 'yesno') {
+                throw new Error(
+                  `contest type is not yet supported: ${mark.type}`
+                )
+              }
+
+              if (
+                (mark.type === 'candidate' && mark.option.id === optionId) ||
+                (mark.type === 'yesno' && mark.option === optionId)
+              ) {
+                return getMarkStatus(mark, election.markThresholds!)
+              }
+            }
+
+            return MarkStatus.Unmarked
+          },
+        }
+      ),
+    ]
+
+    for (const reason of allReasonInfos) {
+      if (enabledReasons.includes(reason.type)) {
+        requiresAdjudication = true
+        debug(
+          'Adjudication required for reason: %s',
+          adjudicationReasonDescription(reason)
+        )
+      } else {
+        debug(
+          'Adjudication reason ignored by configuration: %s',
+          adjudicationReasonDescription(reason)
+        )
+      }
+    }
+
     return {
       interpretation: {
         type: 'InterpretedHmpbPage',
@@ -444,6 +513,11 @@ export default class SummaryBallotInterpreter implements Interpreter {
           },
         },
         metadata,
+        adjudicationInfo: {
+          requiresAdjudication,
+          enabledReasons,
+          allReasonInfos,
+        },
       },
       normalizedImage: mappedBallot,
     }

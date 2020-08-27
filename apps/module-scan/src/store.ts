@@ -3,10 +3,9 @@
 //
 
 import {
-  AdjudicationReason,
-  Contests,
   Election,
   getBallotStyle,
+  MarkThresholds,
 } from '@votingworks/ballot-encoder'
 import {
   BallotLocales,
@@ -37,13 +36,9 @@ import {
   Contest,
   ContestLayout,
   MarksByContestId,
-  MarkStatus,
   ReviewBallot,
 } from './types/ballot-review'
 import allContestOptions from './util/allContestOptions'
-import ballotAdjudicationReasons, {
-  adjudicationReasonDescription,
-} from './util/ballotAdjudicationReasons'
 import getBallotPageContests from './util/getBallotPageContests'
 import { changesFromMarks, changesToCVR, mergeChanges } from './util/marks'
 
@@ -67,6 +62,11 @@ export enum ConfigKey {
 const SchemaPath = join(__dirname, '../schema.sql')
 
 export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey)
+
+export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
+  marginal: 0.17,
+  definite: 0.25,
+}
 
 /**
  * Manages a data store for imported ballot image batches and cast vote records
@@ -316,7 +316,7 @@ export default class Store {
 
     if (election) {
       return {
-        markThresholds: { marginal: 0.17, definite: 0.25 },
+        markThresholds: DefaultMarkThresholds,
         ...election,
       }
     }
@@ -423,87 +423,19 @@ export default class Store {
     normalizedFilename: string,
     interpretation: PageInterpretation
   ): Promise<string> {
-    const markInfo =
-      'markInfo' in interpretation ? interpretation.markInfo : undefined
-    const canBeAdjudicated =
-      interpretation.type === 'InterpretedHmpbPage' ||
-      interpretation.type === 'UninterpretedHmpbPage'
-    let requiresAdjudication = false
-    let adjudicationInfo: AdjudicationInfo | undefined
-
-    if (canBeAdjudicated) {
-      const contests = markInfo?.marks.reduce<Contests>(
-        (contests, { contest }) =>
-          contest && contests.every(({ id }) => contest.id !== id)
-            ? [...contests, contest]
-            : contests,
-        []
-      )
-      const election = await this.getElection()
-      adjudicationInfo = {
-        enabledReasons: election?.adjudicationReasons ?? [
-          AdjudicationReason.UninterpretableBallot,
-          AdjudicationReason.MarginalMark,
-        ],
-        allReasonInfos: [
-          ...ballotAdjudicationReasons(contests, {
-            optionMarkStatus: (contestId, optionId) => {
-              if (markInfo?.marks) {
-                for (const mark of markInfo.marks) {
-                  if (mark.type === 'stray' || mark.contest.id !== contestId) {
-                    continue
-                  }
-
-                  if (mark.type !== 'candidate' && mark.type !== 'yesno') {
-                    throw new Error(
-                      `contest type is not yet supported: ${mark.type}`
-                    )
-                  }
-
-                  if (
-                    (mark.type === 'candidate' &&
-                      mark.option.id === optionId) ||
-                    (mark.type === 'yesno' && mark.option === optionId)
-                  ) {
-                    return getMarkStatus(mark, election?.markThresholds!)
-                  }
-                }
-              }
-
-              return MarkStatus.Unmarked
-            },
-          }),
-        ],
-      }
-
-      for (const reason of adjudicationInfo.allReasonInfos) {
-        if (adjudicationInfo.enabledReasons.includes(reason.type)) {
-          requiresAdjudication = true
-          debug(
-            'Adjudication required for reason: %s',
-            adjudicationReasonDescription(reason)
-          )
-        } else {
-          debug(
-            'Adjudication reason ignored by configuration: %s',
-            adjudicationReasonDescription(reason)
-          )
-        }
-      }
-    }
-
     try {
       await this.dbRunAsync(
         `insert into ballots
-          (id, batch_id, original_filename, normalized_filename, interpretation_json, requires_adjudication, adjudication_info_json)
-          values (?, ?, ?, ?, ?, ?, ?)`,
+          (id, batch_id, original_filename, normalized_filename, interpretation_json, requires_adjudication)
+          values (?, ?, ?, ?, ?, ?)`,
         ballotId,
         batchId,
         originalFilename,
         normalizedFilename,
         JSON.stringify(interpretation),
-        requiresAdjudication,
-        adjudicationInfo ? JSON.stringify(adjudicationInfo, undefined, 2) : null
+        'adjudicationInfo' in interpretation
+          ? interpretation.adjudicationInfo.requiresAdjudication
+          : false
       )
     } catch (error) {
       debug(
@@ -577,7 +509,7 @@ export default class Store {
           json_extract(interpretation_json, '$.markInfo') as marksJSON,
           json_extract(interpretation_json, '$.metadata') as metadataJSON,
           adjudication_json as adjudicationJSON,
-          adjudication_info_json as adjudicationInfoJSON
+          json_extract(interpretation_json, '$.adjudicationInfo') as adjudicationInfoJSON
         from ballots
         where id = ?
       `,
@@ -732,19 +664,18 @@ export default class Store {
   }
 
   public async getNextReviewBallot(): Promise<ReviewBallot | undefined> {
-    const row = await this.dbGetAsync<{ id: string } | undefined, [boolean]>(
+    const row = await this.dbGetAsync<{ id: string } | undefined>(
       `
       select id
       from ballots
-      where requires_adjudication = ?
+      where requires_adjudication = 1 and finished_adjudication_at is null
       order by created_at asc
       limit 1
-    `,
-      true
+    `
     )
 
     if (row) {
-      debug('got next review ballot requiring adjudication (id=%d)', row.id)
+      debug('got next review ballot requiring adjudication (id=%s)', row.id)
       return this.getBallot(row.id)
     } else {
       debug('no review ballots requiring adjudication')
@@ -795,24 +726,27 @@ export default class Store {
         ) ?? []
 
     debug(
-      'saving adjudication changes for ballot %d: %O',
+      'saving adjudication changes for ballot %s: %O',
       ballotId,
       newAdjudication
     )
     debug(
-      'adjudication complete for ballot %d? %s',
+      'adjudication complete for ballot %s? %s',
       ballotId,
       unadjudicatedMarks.length === 0
     )
 
     await this.dbRunAsync(
-      `update ballots
-        set
-          adjudication_json = ?
-        , requires_adjudication = ?
-      where id = ?`,
+      `
+      update
+        ballots
+      set
+        adjudication_json = ?,
+        finished_adjudication_at = ?
+      where id = ?
+    `,
       JSON.stringify(newAdjudication, undefined, 2),
-      unadjudicatedMarks.length > 0,
+      unadjudicatedMarks.length > 0 ? null : new Date().toISOString(),
       ballotId
     )
 
@@ -860,24 +794,20 @@ export default class Store {
    */
   public async adjudicationStatus(): Promise<AdjudicationStatus> {
     const [{ remaining }, { adjudicated }] = await Promise.all([
-      this.dbGetAsync<{ remaining: number }, [boolean]>(
-        `
+      this.dbGetAsync<{ remaining: number }>(`
         select count(*) as remaining
         from ballots
         where
-          requires_adjudication = ?
-          and adjudication_json is null`,
-        true
-      ),
-      this.dbGetAsync<{ adjudicated: number }, [boolean]>(
-        `
+          requires_adjudication = 1
+          and finished_adjudication_at is null
+      `),
+      this.dbGetAsync<{ adjudicated: number }>(`
         select count(*) as adjudicated
         from ballots
         where
-          requires_adjudication = ?
-          and adjudication_json is not null`,
-        false
-      ),
+          requires_adjudication = 1
+          and finished_adjudication_at is not null
+      `),
     ])
     return { adjudicated, remaining }
   }
@@ -893,22 +823,19 @@ export default class Store {
         json_extract(interpretation_json, '$.metadata') as metadataJSON,
         adjudication_json as adjudicationJSON
       from ballots
-      where requires_adjudication = ?
+      where requires_adjudication = 0 or finished_adjudication_at is not null
     `
     for (const {
       id,
       cvrJSON,
       adjudicationJSON,
       metadataJSON,
-    } of await this.dbAllAsync<
-      {
-        id: number
-        cvrJSON?: string
-        adjudicationJSON?: string
-        metadataJSON?: string
-      },
-      [boolean]
-    >(sql, false)) {
+    } of await this.dbAllAsync<{
+      id: number
+      cvrJSON?: string
+      adjudicationJSON?: string
+      metadataJSON?: string
+    }>(sql)) {
       const cvr: CastVoteRecord | undefined = cvrJSON
         ? JSON.parse(cvrJSON)
         : undefined

@@ -227,6 +227,26 @@ test('adjudication', async () => {
         pageCount: 2,
         locales: { primary: 'en-US' },
       },
+      adjudicationInfo: {
+        requiresAdjudication: true,
+        enabledReasons: [
+          AdjudicationReason.UninterpretableBallot,
+          AdjudicationReason.MarginalMark,
+        ],
+        allReasonInfos: [
+          {
+            type: AdjudicationReason.MarginalMark,
+            contestId: candidateContest.id,
+            optionId: candidateOption.id,
+          },
+          {
+            type: AdjudicationReason.Undervote,
+            contestId: candidateContest.id,
+            expected: 1,
+            optionIds: [],
+          },
+        ],
+      },
     }
   )
   await store.finishBatch(batchId)
@@ -238,6 +258,7 @@ test('adjudication', async () => {
         [yesnoContest.id]: { [yesnoOption]: MarkStatus.Marked },
       },
       adjudicationInfo: {
+        requiresAdjudication: true,
         enabledReasons: [
           AdjudicationReason.UninterpretableBallot,
           AdjudicationReason.MarginalMark,
@@ -271,6 +292,7 @@ test('adjudication', async () => {
         [yesnoContest.id]: { [yesnoOption]: MarkStatus.Unmarked },
       },
       adjudicationInfo: {
+        requiresAdjudication: true,
         enabledReasons: [
           AdjudicationReason.UninterpretableBallot,
           AdjudicationReason.MarginalMark,
