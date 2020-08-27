@@ -4,8 +4,6 @@ import fakeKiosk from '../test/helpers/fakeKiosk'
 
 import App from './App'
 
-import sleep from './utils/sleep'
-
 jest.mock('./components/HandMarkedPaperBallot')
 
 beforeEach(() => {
@@ -40,9 +38,6 @@ it('basic navigation works', async () => {
   fireEvent.click(getByText('Print Test Decks'))
   fireEvent.click(getByText('All Precincts'))
   await screen.findByText('Generating Test Deck...')
-
-  // a real sleep because the mock is using setTimeout, and that seems to break jest fake timers.
-  await sleep(1000)
 
   await screen.findByText('Print Test Deck')
   fireEvent.click(getByText('Print Test Deck'))
