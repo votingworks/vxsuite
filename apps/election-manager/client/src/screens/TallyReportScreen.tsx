@@ -85,6 +85,8 @@ const TallyReportScreen = () => {
   const contestTallyMeta = getContestTallyMeta({
     election,
     castVoteRecords,
+    precinctId,
+    scannerId,
   })
 
   const electionPrecinctTallies = Object.values(
