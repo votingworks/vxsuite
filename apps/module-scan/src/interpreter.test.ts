@@ -8,7 +8,8 @@ import SummaryBallotInterpreter, {
   InterpretedHmpbPage,
   UninterpretedHmpbPage,
 } from './interpreter'
-import { resultValue, resultError } from './types'
+import { DefaultMarkThresholds } from './store'
+import { resultError, resultValue } from './types'
 import pdfToImages from './util/pdfToImages'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
@@ -203,7 +204,10 @@ test('interprets marks in PNG ballots', async () => {
     const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p1.png')
     const cvr = ((
       await interpreter.interpretFile({
-        election: choctaw2020Election,
+        election: {
+          markThresholds: DefaultMarkThresholds,
+          ...choctaw2020Election,
+        },
         ballotImagePath,
         ballotImageFile: await readFile(ballotImagePath),
       })
@@ -248,7 +252,10 @@ test('interprets marks in PNG ballots', async () => {
     const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p2.png')
     const cvr = ((
       await interpreter.interpretFile({
-        election: choctaw2020Election,
+        election: {
+          markThresholds: DefaultMarkThresholds,
+          ...choctaw2020Election,
+        },
         ballotImagePath,
         ballotImageFile: await readFile(ballotImagePath),
       })

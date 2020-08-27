@@ -9,10 +9,20 @@ create table ballots (
   batch_id varchar(36),
   original_filename text unique,
   normalized_filename text unique,
+
+  -- Original interpretation of the page. This value should never be updated.
+  -- @type {PageInterpretation}
   interpretation_json text not null,
+
+  -- Changes made in adjudication, should be applied on top of the original CVR.
+  -- Updated as the page is adjudicated.
+  -- @type {MarksByContestId}
   adjudication_json text,
-  adjudication_info_json text,
+
+  -- Does this page _currently_ require adjudication? Updated as the page is
+  -- adjudicated.
   requires_adjudication boolean,
+
   created_at datetime default current_timestamp not null,
 
   foreign key (batch_id)
