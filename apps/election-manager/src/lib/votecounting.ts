@@ -5,6 +5,7 @@ import {
   CandidateContest,
   CandidateVote,
   Contest,
+  Contests,
   Election,
   VotesDict,
 } from '@votingworks/ballot-encoder'
@@ -21,7 +22,12 @@ import {
   ContestTally,
   YesNoContestOptionTally,
 } from '../config/types'
-import { getBallotStyle, getContests } from '../utils/election'
+import {
+  getBallotStyle,
+  getContests,
+  getEitherNeitherContests,
+  expandEitherNeitherContests,
+} from '../utils/election'
 
 import find from '../utils/find'
 
@@ -47,8 +53,8 @@ export function* parseCVRs(
   const precinctIds = new Set(election.precincts.map(({ id }) => id))
   const ballotStyleContests = new Set(
     election.ballotStyles.flatMap((ballotStyle) =>
-      getContests({ ballotStyle, election }).map(
-        ({ id }) => `${ballotStyle.id}/${id}`
+      expandEitherNeitherContests(getContests({ ballotStyle, election })).map(
+        ({ id }: { id: string }) => `${ballotStyle.id}/${id}`
       )
     )
   )
@@ -139,34 +145,45 @@ export function* parseCVRs(
   }
 }
 
+const buildVoteFromCvr = ({
+  election,
+  cvr,
+}: {
+  election: Election
+  cvr: CastVoteRecord
+}): VotesDict => {
+  const vote: VotesDict = {}
+  expandEitherNeitherContests(election.contests).forEach((contest) => {
+    if (!cvr[contest.id]) {
+      return
+    }
+
+    if (contest.type === 'yesno') {
+      // the CVR is encoded the same way
+      vote[contest.id] = cvr[contest.id] as YesNoVote
+      return
+    }
+
+    if (contest.type === 'candidate') {
+      vote[contest.id] = (cvr[contest.id] as string[]).map((candidateId) =>
+        find(
+          [writeInCandidate, ...contest.candidates],
+          (c) => c.id === candidateId
+        )
+      )
+    }
+  })
+
+  return vote
+}
+
 export const getVotesByPrecinct: VotesByFunction = ({
   election,
   castVoteRecords,
 }) => {
   const votesByPrecinct: VotesByFilter = {}
   castVoteRecords.forEach((CVR) => {
-    const vote: VotesDict = {}
-    election.contests.forEach((contest) => {
-      if (!CVR[contest.id]) {
-        return
-      }
-
-      if (contest.type === 'yesno') {
-        // the CVR is encoded the same way
-        vote[contest.id] = CVR[contest.id] as YesNoVote
-        return
-      }
-
-      if (contest.type === 'candidate') {
-        vote[contest.id] = (CVR[contest.id] as string[]).map((candidateId) =>
-          find(
-            [writeInCandidate, ...contest.candidates],
-            (c) => c.id === candidateId
-          )
-        )
-      }
-    })
-
+    const vote = buildVoteFromCvr({ election, cvr: CVR })
     let votes = votesByPrecinct[CVR._precinctId]
     if (!votes) {
       votesByPrecinct[CVR._precinctId] = votes = []
@@ -184,27 +201,7 @@ export const getVotesByScanner: VotesByFunction = ({
 }) => {
   const votesByScanner: VotesByFilter = {}
   castVoteRecords.forEach((CVR) => {
-    const vote: VotesDict = {}
-    election.contests.forEach((contest) => {
-      if (!CVR[contest.id]) {
-        return
-      }
-
-      if (contest.type === 'yesno') {
-        // the CVR is encoded the same way
-        vote[contest.id] = CVR[contest.id] as YesNoVote
-        return
-      }
-
-      if (contest.type === 'candidate') {
-        vote[contest.id] = (CVR[contest.id] as string[]).map((candidateId) =>
-          find(
-            [writeInCandidate, ...contest.candidates],
-            (c) => c.id === candidateId
-          )
-        )
-      }
-    })
+    const vote = buildVoteFromCvr({ election, cvr: CVR })
 
     let votes = votesByScanner[CVR._scannerId]
     if (!votes) {
@@ -215,6 +212,35 @@ export const getVotesByScanner: VotesByFunction = ({
   })
 
   return votesByScanner
+}
+
+const correctVoteForMsEitherNeither = ({
+  contests,
+  vote,
+}: {
+  contests: Contests
+  vote: VotesDict
+}): VotesDict => {
+  const eitherNeitherContests = getEitherNeitherContests(contests)
+  if (eitherNeitherContests.length === 0) {
+    return vote
+  }
+
+  const correctVote = { ...vote }
+
+  // if the pick-one contest is under or overvoted, we cancel the either-neither vote if it's either.
+  eitherNeitherContests.forEach((contest) => {
+    if (vote[contest.pickOneContestId]?.length !== 1) {
+      if (
+        Array.isArray(vote[contest.eitherNeitherContestId]) &&
+        vote[contest.eitherNeitherContestId]![0] === 'yes'
+      ) {
+        correctVote[contest.eitherNeitherContestId] = []
+      }
+    }
+  })
+
+  return correctVote
 }
 
 interface TallyParams {
@@ -229,8 +255,8 @@ export function tallyVotesByContest({
   votes,
 }: TallyParams): ContestTally[] {
   const contestTallies: ContestTally[] = []
-
-  election.contests.forEach((contest) => {
+  const { contests } = election
+  expandEitherNeitherContests(contests).forEach((contest) => {
     let options: ContestOption[] = []
     if (contest.type === 'yesno') {
       options = [['yes'], ['no']]
@@ -249,7 +275,11 @@ export function tallyVotesByContest({
           : []
       )
 
-    votes.forEach((vote) => {
+    votes.forEach((precorrectionVote) => {
+      const vote = correctVoteForMsEitherNeither({
+        contests,
+        vote: precorrectionVote,
+      })
       const selected = vote[contest.id]
       if (!selected) {
         return
@@ -306,12 +336,12 @@ export function filterTalliesByParty({
   const districts = election.ballotStyles
     .filter((bs) => bs.partyId === party.id)
     .flatMap((bs) => bs.districts)
-  const contestIds = election.contests
-    .filter(
+  const contestIds = expandEitherNeitherContests(
+    election.contests.filter(
       (contest) =>
         districts.includes(contest.districtId) && contest.partyId === party.id
     )
-    .map((contest) => contest.id)
+  ).map((contest) => contest.id)
 
   return {
     ...electionTally,
@@ -388,39 +418,40 @@ export const getContestTallyMeta = ({
   election,
   castVoteRecords,
 }: FullTallyParams) =>
-  election.contests.reduce<ContestTallyMetaDictionary>(
-    (dictionary, contest) => {
-      const contestCVRs = castVoteRecords.filter(
-        (cvr) => cvr[contest.id] !== undefined
-      )
-      const contestVotes = contestCVRs.map((cvr) => cvr[contest.id])
-      const overvotes = contestVotes.filter((vote) => {
-        if (contest.type === 'yesno') {
-          return (vote as YesNoVote).length > 1
-        }
-        if (contest.type === 'candidate') {
-          return ((vote as unknown) as CandidateVote).length > contest.seats
-        }
-        return false
-      })
-      const undervotes = contestVotes.filter((vote) => {
-        if (contest.type === 'yesno') {
-          return (vote as YesNoVote).length === 0
-        }
-        if (contest.type === 'candidate') {
-          return ((vote as unknown) as CandidateVote).length < contest.seats
-        }
-        return false
-      })
-      dictionary[contest.id] = {
-        ballots: contestCVRs.length,
-        overvotes: overvotes.length,
-        undervotes: undervotes.length,
+  expandEitherNeitherContests(election.contests).reduce<
+    ContestTallyMetaDictionary
+  >((dictionary, contest) => {
+    // explicitly do NOT correct the cvr for either-neither,
+    // because a canceled either vote should not count as an undervote.
+    const contestCVRs = castVoteRecords.filter(
+      (cvr) => cvr[contest.id] !== undefined
+    )
+    const contestVotes = contestCVRs.map((cvr) => cvr[contest.id])
+    const overvotes = contestVotes.filter((vote) => {
+      if (contest.type === 'yesno') {
+        return (vote as YesNoVote).length > 1
       }
-      return dictionary
-    },
-    {}
-  )
+      if (contest.type === 'candidate') {
+        return ((vote as unknown) as CandidateVote).length > contest.seats
+      }
+      return false
+    })
+    const undervotes = contestVotes.filter((vote) => {
+      if (contest.type === 'yesno') {
+        return (vote as YesNoVote).length === 0
+      }
+      if (contest.type === 'candidate') {
+        return ((vote as unknown) as CandidateVote).length < contest.seats
+      }
+      return false
+    })
+    dictionary[contest.id] = {
+      ballots: contestCVRs.length,
+      overvotes: overvotes.length,
+      undervotes: undervotes.length,
+    }
+    return dictionary
+  }, {})
 
 //
 // some different ideas on tabulation, starting with the overvote report
@@ -483,9 +514,9 @@ const processCastVoteRecord = ({
     election,
   })
   if (!ballotStyle.precincts.includes(castVoteRecord._precinctId)) return
-  const contestIds = getContests({ ballotStyle, election }).map(
-    (contest) => contest.id
-  )
+  const contestIds = expandEitherNeitherContests(
+    getContests({ ballotStyle, election })
+  ).map((contest) => contest.id)
   const newCVR: CastVoteRecord = {
     _precinctId: castVoteRecord._precinctId,
     _ballotStyleId: castVoteRecord._ballotStyleId,

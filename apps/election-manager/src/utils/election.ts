@@ -1,4 +1,9 @@
-import { Election, BallotStyle } from '@votingworks/ballot-encoder'
+import {
+  Election,
+  BallotStyle,
+  Contests,
+  MsEitherNeitherContest,
+} from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
 import { BallotLocale } from '../config/types'
@@ -15,6 +20,46 @@ export const getContests = ({
       ballotStyle.districts.includes(c.districtId) &&
       ballotStyle.partyId === c.partyId
   )
+
+export const getEitherNeitherContests = (
+  contests: Contests
+): MsEitherNeitherContest[] =>
+  contests
+    .filter((c) => c.type === 'ms-either-neither')
+    .map((c) => c as MsEitherNeitherContest)
+
+export const expandEitherNeitherContests = (contests: Contests): Contests => {
+  const resultSet = new Set(contests)
+
+  const eitherNeitherContests = getEitherNeitherContests(contests)
+  eitherNeitherContests.forEach((c) => resultSet.delete(c))
+
+  eitherNeitherContests.forEach((c) => {
+    resultSet.add({
+      id: c.eitherNeitherContestId,
+      type: 'yesno',
+      title: `${c.title} -- Either/Neither`,
+      districtId: c.districtId,
+      section: c.section,
+      description: c.description,
+      yesOption: c.eitherOption,
+      noOption: c.neitherOption,
+    })
+
+    resultSet.add({
+      id: c.pickOneContestId,
+      type: 'yesno',
+      title: `${c.title} -- Pick One`,
+      districtId: c.districtId,
+      section: c.section,
+      description: c.description,
+      yesOption: c.firstOption,
+      noOption: c.secondOption,
+    })
+  })
+
+  return Array.from(resultSet)
+}
 
 export const getPrecinctById = ({
   election,
