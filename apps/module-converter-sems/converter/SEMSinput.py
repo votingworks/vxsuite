@@ -138,10 +138,10 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
         sql = "insert into %s values (%s)" % (table_def['name'], ",".join(value_placeholders))
 
-        values = row[1:]
+        id, *values = row
         if fields[-1] == "_sort_index":
-            sort_order[row[0]] += 1
-            values += [str(sort_order[row[0]])]
+            sort_order[id] += 1
+            values += [str(sort_order[id])]
         
         c.execute(sql, values)
 
