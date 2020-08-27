@@ -4,10 +4,13 @@ import {
   Contests,
   AnyContest,
   MsEitherNeitherContest,
+  VotesDict,
 } from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
-import { BallotLocale } from '../config/types'
+import { BallotLocale, Dictionary } from '../config/types'
+
+import find from './find'
 
 export const getContests = ({
   ballotStyle,
@@ -168,4 +171,69 @@ export const getBallotPath = ({
   )}-id-${precinctId}-style-${ballotStyleId}-${getHumanBallotLanguageFormat(
     locales
   ).replace(/[^a-z]+/gi, '-')}.pdf`
+}
+
+interface GenerateTestDeckParams {
+  election: Election
+  precinctId?: string
+}
+
+export const generateTestDeckBallots = ({
+  election,
+  precinctId,
+}: GenerateTestDeckParams) => {
+  const precincts: string[] = precinctId
+    ? [precinctId]
+    : election.precincts.map((p) => p.id)
+
+  const ballots: Dictionary<string | VotesDict>[] = []
+
+  precincts.forEach((precinctId) => {
+    const precinct = find(election.precincts, (p) => p.id === precinctId)
+    const precinctBallotStyles = election.ballotStyles.filter((bs) =>
+      bs.precincts.includes(precinct.id)
+    )
+
+    precinctBallotStyles.forEach((ballotStyle) => {
+      const contests = election.contests.filter(
+        (c) =>
+          ballotStyle.districts.includes(c.districtId) &&
+          ballotStyle.partyId === c.partyId
+      )
+
+      const numBallots = Math.max(
+        ...contests.map((c) =>
+          c.type === 'candidate' ? c.candidates.length : 2
+        )
+      )
+
+      for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
+        const votes: VotesDict = {}
+        contests.forEach((contest) => {
+          if (contest.type === 'yesno') {
+            votes[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no']
+          } else if (contest.type === 'ms-either-neither') {
+            votes[contest.eitherNeitherContestId] =
+              ballotNum % 2 === 0 ? ['yes'] : ['no']
+            votes[contest.pickOneContestId] =
+              ballotNum % 2 === 0 ? ['yes'] : ['no']
+          } else if (
+            contest.type === 'candidate' &&
+            contest.candidates.length > 0 // safety check
+          ) {
+            votes[contest.id] = [
+              contest.candidates[ballotNum % contest.candidates.length],
+            ]
+          }
+        })
+        ballots.push({
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          votes,
+        })
+      }
+    })
+  })
+
+  return ballots
 }
