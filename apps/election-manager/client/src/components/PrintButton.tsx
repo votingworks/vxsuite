@@ -42,9 +42,7 @@ const PrintButton = ({
       document.title = documentTitle
     }
 
-    if (afterPrint) {
-      afterPrint()
-    }
+    afterPrint?.()
   }
 
   return (
