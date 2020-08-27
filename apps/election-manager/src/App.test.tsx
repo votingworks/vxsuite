@@ -1,8 +1,17 @@
 import React from 'react'
+
 import { fireEvent, render, screen } from '@testing-library/react'
+import { Election } from '@votingworks/ballot-encoder'
+import { MemoryStorage } from './utils/Storage'
+import { AppStorage, electionStorageKey } from './AppRoot'
+
 import fakeKiosk from '../test/helpers/fakeKiosk'
 
 import App from './App'
+
+import eitherNeitherElectionUntyped from '../test/fixtures/eitherneither-election.json'
+
+const eitherNeitherElection = (eitherNeitherElectionUntyped as unknown) as Election
 
 jest.mock('./components/HandMarkedPaperBallot')
 
@@ -14,15 +23,29 @@ beforeEach(() => {
   window.kiosk = fakeKiosk()
 })
 
-it('basic navigation works', async () => {
+it('create election works', async () => {
   const { getByText, getAllByText } = render(<App />)
 
   await screen.findByText('Create New Election Definition')
-
   fireEvent.click(getByText('Create New Election Definition'))
+  await screen.findByText('Ballots')
+
+  fireEvent.click(getByText('Ballots'))
+  fireEvent.click(getAllByText('View Ballot')[0])
+  fireEvent.click(getByText('English/Spanish'))
+})
+
+it('basic navigation works', async () => {
+  // mock the election we want
+  const storage = new MemoryStorage<AppStorage>()
+  await storage.set(electionStorageKey, eitherNeitherElection)
+  const { container, getByText, getAllByText } = render(
+    <App storage={storage} />
+  )
+
+  await screen.findByText('0 official ballots')
 
   // go print some ballots
-  fireEvent.click(getByText('Ballots'))
   fireEvent.click(getByText('Export Ballot Package'))
   expect(window.kiosk?.saveAs).toHaveBeenCalledTimes(1)
 
@@ -30,10 +53,7 @@ it('basic navigation works', async () => {
   await screen.findByText('Download Failed')
 
   fireEvent.click(getByText('Ballots'))
-
   fireEvent.click(getAllByText('View Ballot')[0])
-  fireEvent.click(getByText('English/Spanish'))
-  fireEvent.click(getByText('English'))
   fireEvent.click(getByText('Precinct'))
   fireEvent.click(getByText('Absentee'))
   fireEvent.click(getByText('Test'))
@@ -43,12 +63,23 @@ it('basic navigation works', async () => {
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('Print Test Decks'))
+  getByText('Chester')
+  getByText('District 5')
   fireEvent.click(getByText('All Precincts'))
   await screen.findByText('Generating Test Deck...')
 
   await screen.findByText('Print Test Deck')
   fireEvent.click(getByText('Print Test Deck'))
+  expect(container).toMatchSnapshot()
   expect(window.kiosk?.print).toHaveBeenCalledTimes(2)
+
+  fireEvent.click(getByText('Tally'))
+  fireEvent.click(getByText('View Test Ballot Deck Tally'))
+  fireEvent.click(getByText('All Precincts'))
+  await screen.findByText('Print Results Report')
+  expect(container).toMatchSnapshot()
+  fireEvent.click(getByText('Print Results Report'))
+  expect(window.kiosk?.print).toHaveBeenCalledTimes(3)
 
   fireEvent.click(getByText('Definition'))
   fireEvent.click(getByText('JSON Editor'))

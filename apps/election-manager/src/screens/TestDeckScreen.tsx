@@ -2,8 +2,6 @@ import React, { useContext } from 'react'
 import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
 import {
-  CandidateContest,
-  Election,
   getPrecinctById,
   Precinct,
   VotesDict,
@@ -22,68 +20,15 @@ import {
   tallyVotesByContest,
   ContestTallyMetaDictionary,
 } from '../lib/votecounting'
-import find from '../utils/find'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
 import { PrecinctReportScreenProps, Tally } from '../config/types'
 
+import { generateTestDeckBallots } from '../utils/election'
+
 const ElectionTallyReport = styled.div`
   page-break-before: always;
 `
-
-interface GenerateTestDeckParams {
-  election: Election
-  precinctId?: string
-}
-
-const generateTestDeckBallots = ({
-  election,
-  precinctId,
-}: GenerateTestDeckParams) => {
-  const precincts: string[] = precinctId
-    ? [precinctId]
-    : election.precincts.map((p) => p.id)
-
-  const votes: VotesDict[] = []
-
-  precincts.forEach((precinctId) => {
-    const precinct = find(election.precincts, (p) => p.id === precinctId)
-    const precinctBallotStyles = election.ballotStyles.filter((bs) =>
-      bs.precincts.includes(precinct.id)
-    )
-
-    precinctBallotStyles.forEach((ballotStyle) => {
-      const contests = election.contests.filter(
-        (c) =>
-          ballotStyle.districts.includes(c.districtId) &&
-          ballotStyle.partyId === c.partyId
-      )
-
-      const numBallots = Math.max(
-        ...contests.map((c) =>
-          c.type === 'yesno' ? 2 : (c as CandidateContest).candidates.length
-        )
-      )
-
-      for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
-        const oneBallot: VotesDict = {}
-        contests.forEach((contest) => {
-          if (contest.type === 'yesno') {
-            oneBallot[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no']
-          }
-          if (contest.type === 'candidate' && contest.candidates.length > 0) {
-            oneBallot[contest.id] = [
-              contest.candidates[ballotNum % contest.candidates.length],
-            ]
-          }
-        })
-        votes.push(oneBallot)
-      }
-    })
-  })
-
-  return votes
-}
 
 const allPrecincts: Precinct = {
   id: '',
@@ -101,7 +46,11 @@ const TestDeckScreen = () => {
       ? allPrecincts
       : getPrecinctById({ election, precinctId })
 
-  const votes = generateTestDeckBallots({ election, precinctId: precinct?.id })
+  const votes: VotesDict[] = generateTestDeckBallots({
+    election,
+    precinctId: precinct?.id,
+  }).map((ballots) => ballots.votes as VotesDict)
+
   const electionTally: Tally = {
     precinctId: precinct?.id,
     contestTallies: tallyVotesByContest({
