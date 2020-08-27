@@ -7,7 +7,10 @@ const HandMarkedPaperBallot = ({
   precinctId,
   onRendered,
 }: HandMarkedPaperBallotProps) => {
-  setTimeout(onRendered, 1000)
+  if (onRendered) {
+    setImmediate(onRendered)
+  }
+
   return (
     <div>
       <h1>Mocked HMPB</h1>
