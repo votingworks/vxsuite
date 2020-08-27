@@ -2,8 +2,8 @@ import {
   Election,
   BallotStyle,
   Contests,
+  AnyContest,
   MsEitherNeitherContest,
-  YesNoContest,
 } from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
@@ -25,50 +25,39 @@ export const getContests = ({
 export const getEitherNeitherContests = (
   contests: Contests
 ): MsEitherNeitherContest[] =>
-  contests
-    .filter((c) => c.type === 'ms-either-neither')
-    .map((c) => c as MsEitherNeitherContest)
+  contests.filter(
+    (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
+  )
 
-export const expandEitherNeitherContests = (contests: Contests): Contests => {
-  const resultContests = [...contests]
-
-  const eitherNeitherContests = getEitherNeitherContests(contests)
-
-  eitherNeitherContests.forEach((c) => {
-    const eitherNeitherIndex = resultContests.findIndex((rc) => rc === c)
-
-    const eitherNeitherContest = {
-      id: c.eitherNeitherContestId,
-      type: 'yesno',
-      title: `${c.title} -- Either/Neither`,
-      districtId: c.districtId,
-      section: c.section,
-      description: c.description,
-      yesOption: c.eitherOption,
-      noOption: c.neitherOption,
-    } as YesNoContest
-
-    const pickOneContest = {
-      id: c.pickOneContestId,
-      type: 'yesno',
-      title: `${c.title} -- Pick One`,
-      districtId: c.districtId,
-      section: c.section,
-      description: c.description,
-      yesOption: c.firstOption,
-      noOption: c.secondOption,
-    } as YesNoContest
-
-    resultContests.splice(
-      eitherNeitherIndex,
-      1,
-      eitherNeitherContest,
-      pickOneContest
-    )
-  })
-
-  return resultContests
-}
+export const expandEitherNeitherContests = (
+  contests: Contests
+): Exclude<AnyContest, MsEitherNeitherContest>[] =>
+  contests.flatMap((contest) =>
+    contest.type !== 'ms-either-neither'
+      ? [contest]
+      : [
+          {
+            type: 'yesno',
+            id: contest.eitherNeitherContestId,
+            title: `${contest.title} – Either/Neither`,
+            districtId: contest.districtId,
+            section: contest.section,
+            description: contest.description,
+            yesOption: contest.eitherOption,
+            noOption: contest.neitherOption,
+          },
+          {
+            type: 'yesno',
+            id: contest.pickOneContestId,
+            title: `${contest.title} – Pick One`,
+            districtId: contest.districtId,
+            section: contest.section,
+            description: contest.description,
+            yesOption: contest.firstOption,
+            noOption: contest.secondOption,
+          },
+        ]
+  )
 
 export const getPrecinctById = ({
   election,
