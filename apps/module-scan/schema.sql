@@ -12,6 +12,7 @@ create table ballots (
   batch_id varchar(36),
   original_filename text unique,
   normalized_filename text unique,
+  interpretation_json text not null,
   marks_json text,
   cvr_json text,
   metadata_json text,

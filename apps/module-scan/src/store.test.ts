@@ -1,15 +1,15 @@
 import {
+  AdjudicationReason,
   CandidateContest,
   YesNoContest,
-  AdjudicationReason,
 } from '@votingworks/ballot-encoder'
 import { promises as fs } from 'fs'
 import * as tmp from 'tmp'
+import { v4 as uuid } from 'uuid'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import Store from './store'
 import { MarkStatus } from './types/ballot-review'
-import EMPTY_IMAGE from '../test/fixtures/emptyImage'
 
 test('get/set election', async () => {
   const store = await Store.memoryStore()
@@ -177,12 +177,12 @@ test('adjudication', async () => {
   ])
   const batchId = await store.addBatch()
   const ballotId = await store.addBallot(
+    uuid(),
     batchId,
     '/a/ballot-original.jpg',
     '/a/ballot-normalized.jpg',
     {
-      type: 'InterpretedHmpbBallot',
-      normalizedImage: EMPTY_IMAGE,
+      type: 'InterpretedHmpbPage',
       cvr: {
         _ballotId: 'abcde',
         _ballotStyleId: '12',

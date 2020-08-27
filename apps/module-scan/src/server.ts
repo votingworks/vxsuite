@@ -334,7 +334,7 @@ export async function start({
     log(`Listening at http://localhost:${port}/`)
 
     if (importer instanceof SystemImporter) {
-      log(`Scanning ballots into ${importer.ballotImagesPath}`)
+      log(`Scanning ballots into ${importer.scannedImagesPath}`)
     }
   })
 }

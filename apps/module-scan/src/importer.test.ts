@@ -4,6 +4,7 @@ import * as fs from 'fs-extra'
 import { join } from 'path'
 import sharp from 'sharp'
 import { fileSync } from 'tmp'
+import { v4 as uuid } from 'uuid'
 import { makeMockInterpreter } from '../test/util/mocks'
 import SystemImporter from './importer'
 import { Scanner, Sheet } from './scanner'
@@ -94,16 +95,22 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
 
   await importer.configure(election)
   const batchId = await store.addBatch()
-  await store.addBallot(batchId, '/tmp/page.png', '/tmp/normalized-page.png', {
-    type: 'UninterpretedHmpbBallot',
-    metadata: {
-      ballotStyleId: '12',
-      precinctId: '23',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 2,
-    },
-  })
+  await store.addBallot(
+    uuid(),
+    batchId,
+    '/tmp/page.png',
+    '/tmp/normalized-page.png',
+    {
+      type: 'UninterpretedHmpbPage',
+      metadata: {
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestBallot: false,
+        pageNumber: 1,
+        pageCount: 2,
+      },
+    }
+  )
   expect((await importer.getStatus()).batches).toHaveLength(1)
 
   await importer.setTestMode(true)
@@ -212,13 +219,15 @@ test('manually importing a buffer as a file', async () => {
 
   await store.setElection(election)
   interpreter.interpretFile.mockResolvedValueOnce({
-    type: 'UninterpretedHmpbBallot',
-    metadata: {
-      ballotStyleId: '77',
-      precinctId: '42',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 2,
+    interpretation: {
+      type: 'UninterpretedHmpbPage',
+      metadata: {
+        ballotStyleId: '77',
+        precinctId: '42',
+        isTestBallot: false,
+        pageNumber: 1,
+        pageCount: 2,
+      },
     },
   })
   const imageFile = fileSync()

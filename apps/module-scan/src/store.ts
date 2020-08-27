@@ -23,7 +23,7 @@ import sharp from 'sharp'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
 import { v4 as uuid } from 'uuid'
-import { InterpretedBallot, MarkInfo } from './interpreter'
+import { MarkInfo, PageInterpretation } from './interpreter'
 import {
   AdjudicationStatus,
   BatchInfo,
@@ -412,20 +412,21 @@ export default class Store {
    * Adds a ballot to an existing batch.
    */
   public async addBallot(
+    ballotId: string,
     batchId: string,
     originalFilename: string,
     normalizedFilename: string,
-    interpreted: InterpretedBallot
+    interpretation: PageInterpretation
   ): Promise<string> {
-    const cvr = 'cvr' in interpreted ? interpreted.cvr : undefined
+    const cvr = 'cvr' in interpretation ? interpretation.cvr : undefined
     const markInfo =
-      'markInfo' in interpreted ? interpreted.markInfo : undefined
+      'markInfo' in interpretation ? interpretation.markInfo : undefined
     const metadata =
-      'metadata' in interpreted ? interpreted.metadata : undefined
+      'metadata' in interpretation ? interpretation.metadata : undefined
 
     const canBeAdjudicated =
-      interpreted.type === 'InterpretedHmpbBallot' ||
-      interpreted.type === 'UninterpretedHmpbBallot'
+      interpretation.type === 'InterpretedHmpbPage' ||
+      interpretation.type === 'UninterpretedHmpbPage'
     let requiresAdjudication = false
     let adjudicationInfo: AdjudicationInfo | undefined
 
@@ -491,15 +492,15 @@ export default class Store {
     }
 
     try {
-      const id = uuid()
       await this.dbRunAsync(
         `insert into ballots
-          (id, batch_id, original_filename, normalized_filename, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
-          values (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        id,
+          (id, batch_id, original_filename, normalized_filename, interpretation_json, cvr_json, marks_json, metadata_json, requires_adjudication, adjudication_info_json)
+          values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ballotId,
         batchId,
         originalFilename,
         normalizedFilename,
+        JSON.stringify(interpretation),
         JSON.stringify(cvr),
         markInfo ? JSON.stringify(markInfo, undefined, 2) : null,
         metadata ? JSON.stringify(metadata, undefined, 2) : null,

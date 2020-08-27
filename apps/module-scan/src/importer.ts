@@ -1,10 +1,10 @@
-import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import sharp, { Raw } from 'sharp'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
+import { v4 as uuid } from 'uuid'
 import { Election } from '@votingworks/ballot-encoder'
 import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
 
@@ -12,7 +12,7 @@ import { BallotMetadata, ScanStatus } from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
-  InterpretedBallot,
+  PageInterpretation,
 } from './interpreter'
 import { Scanner, Sheet } from './scanner'
 import pdfToImages from './util/pdfToImages'
@@ -22,8 +22,8 @@ const debug = makeDebug('module-scan:importer')
 export interface Options {
   store: Store
   scanner: Scanner
-  ballotImagesPath: string
-  importedBallotImagesPath: string
+  scannedImagesPath: string
+  importedImagesPath: string
   interpreter?: Interpreter
 }
 
@@ -56,31 +56,31 @@ export default class SystemImporter implements Importer {
   private scanner: Scanner
   private interpreter: Interpreter
 
-  public readonly ballotImagesPath: string
-  public readonly importedBallotImagesPath: string
+  public readonly scannedImagesPath: string
+  public readonly importedImagesPath: string
 
   /**
    * @param param0 options for this importer
    * @param param0.store a data store to track scanned ballot images
    * @param param0.scanner a source of ballot images
-   * @param param0.ballotImagesPath a directory to scan ballot images into
-   * @param param0.scannedBallotImagesPath a directory to keep imported ballot images
+   * @param param0.scannedImagesPath a directory to scan ballot images into
+   * @param param0.importedImagesPath a directory to keep imported ballot images
    */
   public constructor({
     store,
     scanner,
-    ballotImagesPath,
-    importedBallotImagesPath,
+    scannedImagesPath,
+    importedImagesPath,
     interpreter = new DefaultInterpreter(),
   }: Options) {
     this.store = store
     this.scanner = scanner
     this.interpreter = interpreter
-    this.ballotImagesPath = ballotImagesPath
-    this.importedBallotImagesPath = importedBallotImagesPath
+    this.scannedImagesPath = scannedImagesPath
+    this.importedImagesPath = importedImagesPath
 
     // make sure those directories exist
-    for (const imagesPath of [ballotImagesPath, importedBallotImagesPath]) {
+    for (const imagesPath of [scannedImagesPath, importedImagesPath]) {
       if (!fs.existsSync(imagesPath)) {
         fs.mkdirSync(imagesPath)
       }
@@ -184,13 +184,13 @@ export default class SystemImporter implements Importer {
   private async cardAdded(card: Sheet, batchId: string): Promise<void> {
     const start = Date.now()
     try {
-      debug('cardAdded %o batchId=%d STARTING', card, batchId)
+      debug('cardAdded %o batchId=%s STARTING', card, batchId)
       await this.fileAdded(card[0], batchId)
       await this.fileAdded(card[1], batchId)
     } finally {
       const end = Date.now()
       debug(
-        'cardAdded %o batchId=%d FINISHED in %dms',
+        'cardAdded %o batchId=%s FINISHED in %dms',
         card,
         batchId,
         Math.round(end - start)
@@ -207,12 +207,12 @@ export default class SystemImporter implements Importer {
   ): Promise<void> {
     const start = Date.now()
     try {
-      debug('fileAdded %s batchId=%d STARTING', ballotImagePath, batchId)
+      debug('fileAdded %s batchId=%s STARTING', ballotImagePath, batchId)
       await this.importFile(batchId, ballotImagePath)
     } finally {
       const end = Date.now()
       debug(
-        'fileAdded %s batchId=%d FINISHED in %dms',
+        'fileAdded %s batchId=%s FINISHED in %dms',
         ballotImagePath,
         batchId,
         Math.round(end - start)
@@ -231,58 +231,49 @@ export default class SystemImporter implements Importer {
     }
 
     const ballotImageFile = await fsExtra.readFile(ballotImagePath)
-    const ballotImageHash = createHash('sha256')
-      .update(ballotImageFile)
-      .digest('hex')
+    let ballotId = uuid()
 
-    const interpreted = await this.interpreter.interpretFile({
+    const {
+      interpretation,
+      normalizedImage,
+    } = await this.interpreter.interpretFile({
       election,
       ballotImagePath,
       ballotImageFile,
     })
 
-    // TODO: Handle invalid test mode ballots more explicitly.
-    // At some point we want to present information to the user that tells them
-    // there was a ballot that was did not match the test/live mode of the
-    // scanner. For now we just ignore such ballots completely.
-    if (!interpreted || interpreted.type === 'InvalidTestModeBallot') {
-      return
-    }
-
-    const cvr = 'cvr' in interpreted ? interpreted.cvr : undefined
-    const normalizedImage =
-      'normalizedImage' in interpreted ? interpreted.normalizedImage : undefined
+    const cvr = 'cvr' in interpretation ? interpretation.cvr : undefined
 
     debug(
       'interpreted %s (%s): cvr=%O marks=%O metadata=%O',
       ballotImagePath,
-      interpreted.type,
+      interpretation.type,
       cvr,
-      'markInfo' in interpreted ? interpreted.markInfo : undefined,
-      'metadata' in interpreted ? interpreted.metadata : undefined
+      'markInfo' in interpretation ? interpretation.markInfo : undefined,
+      'metadata' in interpretation ? interpretation.metadata : undefined
     )
 
     const ballotImagePathExt = path.extname(ballotImagePath)
     const originalBallotImagePath = path.join(
-      this.importedBallotImagesPath,
+      this.importedImagesPath,
       `${path.basename(
         ballotImagePath,
         ballotImagePathExt
-      )}-${ballotImageHash}-original${ballotImagePathExt}`
+      )}-${ballotId}-original${ballotImagePathExt}`
     )
     const normalizedBallotImagePath = path.join(
-      this.importedBallotImagesPath,
+      this.importedImagesPath,
       `${path.basename(
         ballotImagePath,
         ballotImagePathExt
-      )}-${ballotImageHash}-normalized${ballotImagePathExt}`
+      )}-${ballotId}-normalized${ballotImagePathExt}`
     )
 
-    const ballotId = await this.addBallot(
+    ballotId = await this.addBallot(
       batchId,
       originalBallotImagePath,
       normalizedBallotImagePath,
-      interpreted
+      interpretation
     )
 
     if (ballotImageFile) {
@@ -323,13 +314,14 @@ export default class SystemImporter implements Importer {
     batchId: string,
     originalBallotImagePath: string,
     normalizedBallotImagePath: string,
-    interpreted: InterpretedBallot
+    interpretation: PageInterpretation
   ): Promise<string> {
     const ballotId = await this.store.addBallot(
+      uuid(),
       batchId,
       originalBallotImagePath,
       normalizedBallotImagePath,
-      interpreted
+      interpretation
     )
 
     return ballotId
@@ -349,9 +341,9 @@ export default class SystemImporter implements Importer {
 
     try {
       // trigger a scan
-      debug('scanning starting for batch: %d', batchId)
+      debug('scanning starting for batch: %s', batchId)
       for await (const sheet of this.scanner.scanSheets(
-        this.ballotImagesPath
+        this.scannedImagesPath
       )) {
         debug('got a ballot card: %o', sheet)
         await this.cardAdded(sheet, batchId)
@@ -361,7 +353,7 @@ export default class SystemImporter implements Importer {
       // node couldn't execute the command
       throw new Error(`problem scanning: ${err.stack}`)
     } finally {
-      debug('closing batch %d', batchId)
+      debug('closing batch %s', batchId)
       await this.store.finishBatch(batchId)
     }
   }
@@ -386,8 +378,8 @@ export default class SystemImporter implements Importer {
    */
   public async doZero(): Promise<void> {
     await this.store.zero()
-    fsExtra.emptyDirSync(this.ballotImagesPath)
-    fsExtra.emptyDirSync(this.importedBallotImagesPath)
+    fsExtra.emptyDirSync(this.scannedImagesPath)
+    fsExtra.emptyDirSync(this.importedImagesPath)
   }
 
   /**

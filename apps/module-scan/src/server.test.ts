@@ -11,7 +11,7 @@ import { promises as fs } from 'fs'
 import { Server } from 'http'
 import { join } from 'path'
 import request from 'supertest'
-import EMPTY_IMAGE from '../test/fixtures/emptyImage'
+import { v4 as uuid } from 'uuid'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import { makeMockImporter } from '../test/util/mocks'
@@ -158,7 +158,7 @@ test('POST /scan/scanBatch errors', async () => {
 })
 
 test('POST /scan/scanFiles', async () => {
-  importerMock.importFile.mockResolvedValueOnce(undefined)
+  importerMock.importFile.mockResolvedValueOnce(uuid())
   await request(app)
     .post('/scan/scanFiles')
     .attach('files', Buffer.of(), {
@@ -202,12 +202,12 @@ test('GET /scan/hmpb/ballot/:ballotId', async () => {
   const option = contest.candidates[0]
   const batchId = await store.addBatch()
   const ballotId = await store.addBallot(
+    uuid(),
     batchId,
     '/tmp/image.jpg',
     '/tmp/image-normalized.jpg',
     {
-      type: 'InterpretedHmpbBallot',
-      normalizedImage: EMPTY_IMAGE,
+      type: 'InterpretedHmpbPage',
       cvr: {
         _ballotId: 'abc',
         _ballotStyleId: '12',
@@ -286,12 +286,12 @@ test('PATCH /scan/hmpb/ballot/:ballotId', async () => {
   const yesnoOption = 'no'
   const batchId = await store.addBatch()
   const ballotId = await store.addBallot(
+    uuid(),
     batchId,
     '/tmp/image.jpg',
     '/tmp/image-normalized.jpg',
     {
-      type: 'InterpretedHmpbBallot',
-      normalizedImage: EMPTY_IMAGE,
+      type: 'InterpretedHmpbPage',
       cvr: {
         _ballotId: 'abc',
         _ballotStyleId: '12',
@@ -427,28 +427,33 @@ test('GET /scan/hmpb/ballot/:ballotId/image', async () => {
     '../test/fixtures/state-of-hamilton/filled-in-dual-language-p1.jpg'
   )
   const batchId = await store.addBatch()
-  const ballotId = await store.addBallot(batchId, original, normalized, {
-    type: 'InterpretedHmpbBallot',
-    normalizedImage: EMPTY_IMAGE,
-    metadata: {
-      ballotStyleId: '12',
-      precinctId: '23',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 5,
-    },
-    cvr: {
-      _ballotId: 'abc',
-      _ballotStyleId: '12',
-      _precinctId: '23',
-      _scannerId: 'def',
-      _testBallot: false,
-    },
-    markInfo: {
-      ballotSize: { width: 0, height: 0 },
-      marks: [],
-    },
-  })
+  const ballotId = await store.addBallot(
+    uuid(),
+    batchId,
+    original,
+    normalized,
+    {
+      type: 'InterpretedHmpbPage',
+      metadata: {
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestBallot: false,
+        pageNumber: 1,
+        pageCount: 5,
+      },
+      cvr: {
+        _ballotId: 'abc',
+        _ballotStyleId: '12',
+        _precinctId: '23',
+        _scannerId: 'def',
+        _testBallot: false,
+      },
+      markInfo: {
+        ballotSize: { width: 0, height: 0 },
+        marks: [],
+      },
+    }
+  )
   await store.finishBatch(batchId)
 
   await request(app)

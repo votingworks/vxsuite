@@ -1,13 +1,14 @@
 import { electionSample } from '@votingworks/ballot-encoder'
 import { readFile } from 'fs-extra'
 import { join } from 'path'
-import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
 import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
+import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
 import SummaryBallotInterpreter, {
   getBallotImageData,
-  InterpretedHmpbBallot,
-  UninterpretedHmpbBallot,
+  InterpretedHmpbPage,
+  UninterpretedHmpbPage,
 } from './interpreter'
+import { resultValue, resultError } from './types'
 import pdfToImages from './util/pdfToImages'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
@@ -24,9 +25,8 @@ const choctaw2020FixturesRoot = join(
 
 test('reads QR codes from ballot images #1', async () => {
   const filepath = join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg')
-  const { qrcode } = await getBallotImageData(
-    await readFile(filepath),
-    filepath
+  const { qrcode } = resultValue(
+    await getBallotImageData(await readFile(filepath), filepath)
   )
 
   expect(qrcode).toEqual(
@@ -36,9 +36,8 @@ test('reads QR codes from ballot images #1', async () => {
 
 test('reads QR codes from ballot images #2', async () => {
   const filepath = join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.jpg')
-  const { qrcode } = await getBallotImageData(
-    await readFile(filepath),
-    filepath
+  const { qrcode } = resultValue(
+    await getBallotImageData(await readFile(filepath), filepath)
   )
 
   expect(qrcode).toEqual(
@@ -50,9 +49,9 @@ test('reads QR codes from ballot images #2', async () => {
 
 test('does not find QR codes when there are none to find', async () => {
   const filepath = join(sampleBallotImagesPath, 'not-a-ballot.jpg')
-  await expect(
-    getBallotImageData(await readFile(filepath), filepath)
-  ).rejects.toThrowError('no QR code found')
+  expect(
+    resultError(await getBallotImageData(await readFile(filepath), filepath))
+  ).toEqual({ type: 'UnreadablePage', reason: 'No QR code found' })
 })
 
 test('extracts a CVR from votes encoded in a QR code', async () => {
@@ -61,11 +60,13 @@ test('extracts a CVR from votes encoded in a QR code', async () => {
     'sample-batch-1-ballot-1.jpg'
   )
   expect(
-    ((await new SummaryBallotInterpreter().interpretFile({
-      election: electionSample,
-      ballotImagePath,
-      ballotImageFile: await readFile(ballotImagePath),
-    })) as InterpretedHmpbBallot).cvr
+    ((
+      await new SummaryBallotInterpreter().interpretFile({
+        election: electionSample,
+        ballotImagePath,
+        ballotImageFile: await readFile(ballotImagePath),
+      })
+    ).interpretation as InterpretedHmpbPage).cvr
   ).toEqual(
     expect.objectContaining({
       _ballotId: 'r6UYR4t7hEFMz8QlMWf1Sw',
@@ -96,11 +97,13 @@ test('interprets marks on a HMPB', async () => {
     stateOfHamiltonFixturesRoot,
     'filled-in-dual-language-p1.jpg'
   )
-  const cvr = ((await interpreter.interpretFile({
-    election: stateOfHamiltonElection,
-    ballotImagePath,
-    ballotImageFile: await readFile(ballotImagePath),
-  })) as InterpretedHmpbBallot).cvr
+  const cvr = ((
+    await interpreter.interpretFile({
+      election: stateOfHamiltonElection,
+      ballotImagePath,
+      ballotImageFile: await readFile(ballotImagePath),
+    })
+  ).interpretation as InterpretedHmpbPage).cvr
 
   delete cvr?._ballotId
 
@@ -148,11 +151,13 @@ test('interprets marks on an upside-down HMPB', async () => {
     stateOfHamiltonFixturesRoot,
     'filled-in-dual-language-p1-flipped.jpg'
   )
-  const cvr = ((await interpreter.interpretFile({
-    election: stateOfHamiltonElection,
-    ballotImagePath,
-    ballotImageFile: await readFile(ballotImagePath),
-  })) as InterpretedHmpbBallot).cvr
+  const cvr = ((
+    await interpreter.interpretFile({
+      election: stateOfHamiltonElection,
+      ballotImagePath,
+      ballotImageFile: await readFile(ballotImagePath),
+    })
+  ).interpretation as InterpretedHmpbPage).cvr
 
   delete cvr?._ballotId
 
@@ -196,11 +201,13 @@ test('interprets marks in PNG ballots', async () => {
 
   {
     const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p1.png')
-    const cvr = ((await interpreter.interpretFile({
-      election: choctaw2020Election,
-      ballotImagePath,
-      ballotImageFile: await readFile(ballotImagePath),
-    })) as InterpretedHmpbBallot).cvr
+    const cvr = ((
+      await interpreter.interpretFile({
+        election: choctaw2020Election,
+        ballotImagePath,
+        ballotImageFile: await readFile(ballotImagePath),
+      })
+    ).interpretation as InterpretedHmpbPage).cvr
 
     delete cvr?._ballotId
 
@@ -239,11 +246,13 @@ test('interprets marks in PNG ballots', async () => {
 
   {
     const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p2.png')
-    const cvr = ((await interpreter.interpretFile({
-      election: choctaw2020Election,
-      ballotImagePath,
-      ballotImageFile: await readFile(ballotImagePath),
-    })) as InterpretedHmpbBallot).cvr
+    const cvr = ((
+      await interpreter.interpretFile({
+        election: choctaw2020Election,
+        ballotImagePath,
+        ballotImageFile: await readFile(ballotImagePath),
+      })
+    ).interpretation as InterpretedHmpbPage).cvr
 
     delete cvr?._ballotId
 
@@ -289,11 +298,13 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
     'filled-in-dual-language-p3.jpg'
   )
   expect(
-    (await interpreter.interpretFile({
-      election: stateOfHamiltonElection,
-      ballotImagePath,
-      ballotImageFile: await readFile(ballotImagePath),
-    })) as UninterpretedHmpbBallot
+    (
+      await interpreter.interpretFile({
+        election: stateOfHamiltonElection,
+        ballotImagePath,
+        ballotImageFile: await readFile(ballotImagePath),
+      })
+    ).interpretation as UninterpretedHmpbPage
   ).toMatchInlineSnapshot(`
     Object {
       "metadata": Object {
@@ -307,7 +318,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
         "pageNumber": 3,
         "precinctId": "23",
       },
-      "type": "UninterpretedHmpbBallot",
+      "type": "UninterpretedHmpbPage",
     }
   `)
 })
