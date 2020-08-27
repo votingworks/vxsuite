@@ -1,0 +1,1598 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`basic navigation works 1`] = `
+<div
+  aria-hidden="true"
+>
+  <div
+    class="sc-AxjAm isOMPC"
+  >
+    <main
+      class="sc-AxirZ dUjkQS"
+    >
+      <div
+        class="sc-AxiKw gTDzBu"
+      >
+        <div
+          class="sc-fzokOt cibPwK"
+        >
+          <h1>
+            Test Deck
+          </h1>
+          <p>
+            <strong>
+              Election:
+            </strong>
+             
+            Mock General Election Choctaw 2020
+            <br />
+            <strong>
+              Precinct:
+            </strong>
+             
+            All Precincts
+          </p>
+          <p>
+            <button
+              class="sc-fzoLsD dftQGP"
+              type="button"
+            >
+              Print Test Deck
+            </button>
+          </p>
+          <p>
+            <button
+              class="sc-fzoLsD cIOEoD"
+              role="option"
+              type="button"
+            >
+              back to Test Deck list
+            </button>
+          </p>
+        </div>
+      </div>
+    </main>
+    <div
+      class="sc-AxhCb lobKPH"
+    >
+      <div
+        class="sc-AxhUy fjWzfB"
+      >
+        <div
+          class="sc-AxgMl bFBkDf"
+        >
+          VxPaper
+        </div>
+        <div
+          class="sc-AxheI fniENP"
+        >
+          Election Manager
+        </div>
+      </div>
+      <div
+        class="sc-Axmtr jFWbcr"
+      >
+        <button
+          class="sc-fzoLsD ivZRNV"
+          role="option"
+          type="button"
+        >
+          Definition
+        </button>
+        <button
+          class="sc-fzoLsD ivZRNV active-section"
+          role="option"
+          type="button"
+        >
+          Ballots
+        </button>
+        <button
+          class="sc-fzoLsD cIOEoD"
+          role="option"
+          type="button"
+        >
+          Tally
+        </button>
+      </div>
+      <div
+        class="sc-AxmLO jrWrYg"
+      >
+        <p
+          class="sc-fznyAO dooajl"
+        >
+          No USB
+        </p>
+      </div>
+    </div>
+  </div>
+  <div
+    class="print-only"
+  >
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      5
+      , precinct 
+      6522
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      5
+      , precinct 
+      6522
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      5
+      , precinct 
+      6522
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      4
+      , precinct 
+      6524
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      4
+      , precinct 
+      6524
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      4
+      , precinct 
+      6524
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      1
+      , precinct 
+      6525
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      1
+      , precinct 
+      6525
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      1
+      , precinct 
+      6525
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      2
+      , precinct 
+      6526
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      2
+      , precinct 
+      6526
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      2
+      , precinct 
+      6526
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      4
+      , precinct 
+      6527
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      4
+      , precinct 
+      6527
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      4
+      , precinct 
+      6527
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      3
+      , precinct 
+      6528
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      3
+      , precinct 
+      6528
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      3
+      , precinct 
+      6528
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      2
+      , precinct 
+      6529
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      2
+      , precinct 
+      6529
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      2
+      , precinct 
+      6529
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      1
+      , precinct 
+      6532
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      1
+      , precinct 
+      6532
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      1
+      , precinct 
+      6532
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      3
+      , precinct 
+      6534
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      3
+      , precinct 
+      6534
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      3
+      , precinct 
+      6534
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      3
+      , precinct 
+      6536
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      3
+      , precinct 
+      6536
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      3
+      , precinct 
+      6536
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      1
+      , precinct 
+      6537
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      1
+      , precinct 
+      6537
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      1
+      , precinct 
+      6537
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      4
+      , precinct 
+      6538
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      4
+      , precinct 
+      6538
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      4
+      , precinct 
+      6538
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      2
+      , precinct 
+      6539
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      2
+      , precinct 
+      6539
+      .
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      2
+      , precinct 
+      6539
+      .
+    </div>
+  </div>
+  <div />
+</div>
+`;
+
+exports[`basic navigation works 2`] = `
+<div>
+  <div
+    class="sc-AxjAm isOMPC"
+  >
+    <main
+      class="sc-AxirZ dUjkQS"
+    >
+      <div
+        class="sc-AxiKw gTDzBu"
+      >
+        <div
+          class="sc-fzokOt cibPwK"
+        >
+          <h1>
+            Test Ballot Deck Tally
+          </h1>
+          <p>
+            <strong>
+              Election:
+            </strong>
+             
+            Mock General Election Choctaw 2020
+            <br />
+            <strong>
+              Precinct:
+            </strong>
+             
+            All Precincts
+          </p>
+          <p>
+            <button
+              class="sc-fzoLsD dftQGP"
+              type="button"
+            >
+              Print Results Report
+            </button>
+          </p>
+          <p>
+            <button
+              class="sc-fzoLsD cIOEoD"
+              role="option"
+              type="button"
+            >
+              back to Test Deck list
+            </button>
+          </p>
+        </div>
+      </div>
+    </main>
+    <div
+      class="sc-AxhCb lobKPH"
+    >
+      <div
+        class="sc-AxhUy fjWzfB"
+      >
+        <div
+          class="sc-AxgMl bFBkDf"
+        >
+          VxPaper
+        </div>
+        <div
+          class="sc-AxheI fniENP"
+        >
+          Election Manager
+        </div>
+      </div>
+      <div
+        class="sc-Axmtr jFWbcr"
+      >
+        <button
+          class="sc-fzoLsD ivZRNV"
+          role="option"
+          type="button"
+        >
+          Definition
+        </button>
+        <button
+          class="sc-fzoLsD ivZRNV"
+          role="option"
+          type="button"
+        >
+          Ballots
+        </button>
+        <button
+          class="sc-fzoLsD cIOEoD active-section"
+          role="option"
+          type="button"
+        >
+          Tally
+        </button>
+      </div>
+      <div
+        class="sc-AxmLO jrWrYg"
+      >
+        <p
+          class="sc-fznyAO dooajl"
+        >
+          No USB
+        </p>
+      </div>
+    </div>
+  </div>
+  <div
+    class="print-only"
+  >
+    <div
+      class="sc-fznMAR ifQwJL"
+    >
+      <h1>
+        Test Ballot Deck Tally
+      </h1>
+      <p>
+        <strong>
+          Election:
+        </strong>
+         
+         Mock General Election Choctaw 2020
+        <br />
+        <strong>
+          Precinct:
+        </strong>
+         
+        All Precincts
+      </p>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              39 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            United States
+            , 
+            President
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              39 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            United States
+            , 
+            Senate 
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Mike Espy
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Cindy Hyde-Smith
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Jimmy Edwards
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              39 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            US House Of Representatives
+            , 
+            1st Congressional District
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Antonia Eliason
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  26
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Trent Kelly
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              39 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            Northern District
+            , 
+            Supreme Court District 3(Northern) Position 3
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Josiah Dennis Coleman
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  26
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Percy L. Lynchard
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              9 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            Election Commissioner 01
+            , 
+            Election Commissioner  01
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Glynda Chaney Fulce
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  9
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              9 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            Election Commissioner 02
+            , 
+            Election Commissioner 02
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Charles Beck
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  6
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Sharon Brooks
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  3
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              9 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            Election Commissioner 03
+            , 
+            Election Commissioner 03
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Dorothy Anderson
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  9
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              9 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            Election Commissioner 04
+            , 
+            Election Commissioner 04
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Willie Mae Guillory
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  6
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Lewis Wright
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  3
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              3 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            Election Commissioner 05
+            , 
+            Election Commissioner 05
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Ouida A Loper
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  2
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Wayne McLeod
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  1
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              3 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            School Board District 5
+            , 
+            School Board 05
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  Michael D Thomas
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  3
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Write-In
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              0 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            State Of Mississippi
+            , 
+            Ballot Measure 1 – Either/Neither
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  yes
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  26
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  no
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              0 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            State Of Mississippi
+            , 
+            Ballot Measure 1 – Pick One
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  yes
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  26
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  no
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              39 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            State Of Mississippi
+            , 
+            Ballot Measure 2: House Concurrent Resolution No. 47
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  yes
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  26
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  no
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="sc-fznxKY kfzegD"
+      >
+        <div
+          class="sc-fzokOt bcrqaN"
+        >
+          <div
+            class="sc-fzpmMD fvXNsj ignore-prose"
+          >
+            <span
+              class="sc-fznyAO drvcLn"
+            >
+              39 ballots
+               cast /
+               
+              0 overvotes
+               /
+               
+              0 undervotes
+            </span>
+          </div>
+          <h3>
+            State Of Mississippi
+            , 
+            Ballot Measure 3: House Bill 1796 - Flag Referendum
+          </h3>
+          <table
+            class="sc-fzqNJr gbfqYQ"
+          >
+            <tbody>
+              <tr>
+                <td>
+                  yes
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  26
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  no
+                </td>
+                <td
+                  class="sc-fzoyAV hqQnKY"
+                >
+                  13
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div />
+</div>
+`;
