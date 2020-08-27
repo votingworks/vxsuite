@@ -65,7 +65,7 @@ const TestDeckBallots = ({
 
       const numBallots = Math.max(
         ...contests.map((c) =>
-          c.type === 'yesno' ? 2 : (c as CandidateContest).candidates.length
+          c.type === 'candidate' ? (c as CandidateContest).candidates.length : 2
         )
       )
 
@@ -75,6 +75,11 @@ const TestDeckBallots = ({
           /* istanbul ignore else */
           if (contest.type === 'yesno') {
             votes[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no']
+          } else if (contest.type === 'ms-either-neither') {
+            votes[contest.eitherNeitherContestId] =
+              ballotNum % 2 === 0 ? ['yes'] : ['no']
+            votes[contest.pickOneContestId] =
+              ballotNum % 2 === 0 ? ['yes'] : ['no']
           } else if (
             contest.type === 'candidate' &&
             contest.candidates.length > 0 // safety check
