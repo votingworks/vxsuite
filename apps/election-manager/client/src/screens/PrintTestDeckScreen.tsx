@@ -1,7 +1,6 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import {
-  CandidateContest,
   Election,
   getPrecinctById,
   Precinct,
@@ -65,7 +64,7 @@ const TestDeckBallots = ({
 
       const numBallots = Math.max(
         ...contests.map((c) =>
-          c.type === 'candidate' ? (c as CandidateContest).candidates.length : 2
+          c.type === 'candidate' ? c.candidates.length : 2
         )
       )
 
