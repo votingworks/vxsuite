@@ -10,3 +10,4 @@ export const LANGUAGES: Dictionary<string> = {
   en: 'English',
   es: 'Spanish',
 }
+export const ABSENTEE_TINT_COLOR = 'rgb(125, 125, 255)'
