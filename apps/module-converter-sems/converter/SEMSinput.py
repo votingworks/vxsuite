@@ -85,7 +85,7 @@ ELECTION_TABLES = {
     "4": {"name": "splits", "fields": ["location_id", "precinct_id", "split_id", "precinct_label", "num_reg_voters", "ballot_style"]},
     "5": {"name": "split_districts", "fields": ["split_id", "district_id"]},
     "6": {"name": "parties", "fields": ["party_id", "label", "abbrev", "party_id_2", "label_on_ballot"]},
-    "7": {"name": "contests", "fields": ["contest_id", "label", "type", "XXX1", "district_id", "num_vote_for", "num_write_ins", "contest_text", "party_id", "XXX2"]},
+    "7": {"name": "contests", "fields": ["contest_id", "label", "type", "XXX1", "district_id", "num_vote_for", "num_write_ins", "contest_text", "party_id", "XXX2", "_sort_index"]},
     "8": {"name": "candidates", "fields": ["contest_id", "candidate_id", "label", "type", "sort_seq", "party_id", "label_on_ballot"]},
     "9": {"name": "sems_candidates", "fields": ["county_code", "contest_id", "candidate_id", "candidate_sems_id"]}
 }
@@ -117,7 +117,9 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     
     c = db.cursor()
     
-    for table_def in ELECTION_TABLES.values():
+    sort_order = {}
+    for table_key, table_def in ELECTION_TABLES.items():
+        sort_order[table_key] = 0
         fields = ["%s varchar(500)" % f for f in table_def["fields"]]
         sql = "create table %s (%s)" % (table_def["name"], ",".join(fields))
         c.execute(sql)
@@ -131,10 +133,17 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         if not table_def:
             return
 
-        values = ["?"] * len(table_def["fields"])
-        sql = "insert into %s values (%s)" % (table_def['name'], ",".join(values))
+        fields = table_def["fields"]
+        value_placeholders = ["?"] * len(fields)
 
-        c.execute(sql, row[1:])
+        sql = "insert into %s values (%s)" % (table_def['name'], ",".join(value_placeholders))
+
+        values = row[1:]
+        if fields[-1] == "_sort_index":
+            sort_order[row[0]] += 1
+            values += [str(sort_order[row[0]])]
+        
+        c.execute(sql, values)
 
     for row in election_details_csv:
         process_row(row)
@@ -168,7 +177,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     either_neither_labels = [r['label'] for r in c.execute(sql).fetchall()]
     
     # contests
-    sql = "select contest_id, contests.label as contest_label, type, contests.district_id as district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label as district_label from contests, districts where contests.district_id = districts.district_id"
+    sql = "select contest_id, contests.label as contest_label, type, contests.district_id as district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label as district_label from contests, districts where contests.district_id = districts.district_id order by cast(_sort_index as integer)"
     contests = [{
         "id": r['contest_id'],
         "section": r['district_label'],
@@ -183,9 +192,13 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "section": r['district_label'],
         "districtId": r['district_id'],
         "type": "yesno",
-        "title": cleanup_text(r['contest_text']).split("\n")[0] + "\n" + r[1],
+        "title": cleanup_text(r['contest_text']).split("\n")[0] + ": " + r[1],
         "description": "\n".join(cleanup_text(r['contest_text']).split("\n")[1:])
-    } for r in c.execute(sql).fetchall() if r['contest_label'] not in either_neither_labels]
+    } if r['contest_label'] not in either_neither_labels else {
+        "id": r['contest_id'],  ### placeholder, left here for the right order
+        "type": "placeholder",
+        "label": r['contest_label']
+    } for r in c.execute(sql).fetchall()]
 
     # either-neither contests
     either_neither_contest_ids = []
@@ -205,7 +218,13 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
             "pickOneContestId": pick_one_contest['contest_id'],
             "description": f"<b>{either_neither_contest['contest_label']}</b>\n\n" + "\n".join(text[1:])
         }
-        contests.append(new_contest)
+
+        # find where to place this contest
+        # assumes the two placeholders are sequential
+        location = [i for (i,c) in enumerate(contests) if c['type'] == 'placeholder' and c['label'] == label][0]
+        contests.pop(location)
+        contests.pop(location)
+        contests.insert(location, new_contest)
             
 
     # remove null partyIds

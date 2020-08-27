@@ -291,38 +291,6 @@
       ]
     },
     {
-      "id": "750000017",
-      "section": "State Of Mississippi",
-      "districtId": "100000275",
-      "type": "yesno",
-      "title": "Ballot Measure 2\nHouse Concurrent Resolution No. 47",
-      "description": "This amendment provides that to be elected Governor, or to any other statewide office, a candidate must receive a majority of the votes in the general election. If no candidate receives a majority of the votes, then a runoff election shall be held as provided by general law. The requirement of receiving the most votes in a majority of Mississippi House of Representative\u2019s districts is removed.",
-      "yesOption": {
-        "id": "750000094",
-        "label": "YES"
-      },
-      "noOption": {
-        "id": "750000095",
-        "label": "NO"
-      }
-    },
-    {
-      "id": "750000018",
-      "section": "State Of Mississippi",
-      "districtId": "100000275",
-      "type": "yesno",
-      "title": "Ballot Measure 3\nHouse Bill 1796 - Flag Referendum",
-      "description": "Please vote \u2018Yes\u2019 or \u2018No\u2019 on whether the following design shall be the official Mississippi State Flag",
-      "yesOption": {
-        "id": "750000092",
-        "label": "YES"
-      },
-      "noOption": {
-        "id": "750000093",
-        "label": "NO"
-      }
-    },
-    {
       "id": "750000015-750000016-either-neither",
       "section": "State Of Mississippi",
       "districtId": "100000275",
@@ -348,6 +316,38 @@
       "secondOption": {
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A"
+      }
+    },
+    {
+      "id": "750000017",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "yesno",
+      "title": "Ballot Measure 2: House Concurrent Resolution No. 47",
+      "description": "This amendment provides that to be elected Governor, or to any other statewide office, a candidate must receive a majority of the votes in the general election. If no candidate receives a majority of the votes, then a runoff election shall be held as provided by general law. The requirement of receiving the most votes in a majority of Mississippi House of Representative\u2019s districts is removed.",
+      "yesOption": {
+        "id": "750000094",
+        "label": "YES"
+      },
+      "noOption": {
+        "id": "750000095",
+        "label": "NO"
+      }
+    },
+    {
+      "id": "750000018",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "yesno",
+      "title": "Ballot Measure 3: House Bill 1796 - Flag Referendum",
+      "description": "Please vote \u2018Yes\u2019 or \u2018No\u2019 on whether the following design shall be the official Mississippi State Flag",
+      "yesOption": {
+        "id": "750000092",
+        "label": "YES"
+      },
+      "noOption": {
+        "id": "750000093",
+        "label": "NO"
       }
     }
   ],
