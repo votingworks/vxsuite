@@ -417,15 +417,45 @@ export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
 export const getContestTallyMeta = ({
   election,
   castVoteRecords,
-}: FullTallyParams) =>
-  expandEitherNeitherContests(election.contests).reduce<
+  precinctId,
+  scannerId,
+}: {
+  election: Election
+  castVoteRecords: CastVoteRecord[]
+  precinctId?: string
+  scannerId?: string
+}) => {
+  const filteredCVRs = castVoteRecords
+    .filter((cvr) => precinctId === undefined || cvr._precinctId === precinctId)
+    .filter((cvr) => scannerId === undefined || cvr._scannerId === scannerId)
+
+  // For either-neither questions, we don't correct the either question if pick-one is absent
+  // because in the metadata, we don't want that to become an undervote, as it's not.
+  //
+  // However, if the CVR is malformed for this question, say only one of the pair'ed contest IDs
+  // is there, we don't want to count this as a ballot in this contest.
+  getEitherNeitherContests(election.contests).forEach((c) => {
+    filteredCVRs.forEach((cvr) => {
+      const hasEitherNeither = cvr[c.eitherNeitherContestId] !== undefined
+      const hasPickOne = cvr[c.pickOneContestId] !== undefined
+
+      if (
+        (hasEitherNeither || hasPickOne) &&
+        !(hasEitherNeither && hasPickOne)
+      ) {
+        cvr[c.eitherNeitherContestId] = undefined
+        cvr[c.pickOneContestId] = undefined
+      }
+    })
+  })
+
+  return expandEitherNeitherContests(election.contests).reduce<
     ContestTallyMetaDictionary
   >((dictionary, contest) => {
-    // explicitly do NOT correct the cvr for either-neither,
-    // because a canceled either vote should not count as an undervote.
-    const contestCVRs = castVoteRecords.filter(
+    const contestCVRs = filteredCVRs.filter(
       (cvr) => cvr[contest.id] !== undefined
     )
+
     const contestVotes = contestCVRs.map((cvr) => cvr[contest.id])
     const overvotes = contestVotes.filter((vote) => {
       if (contest.type === 'candidate') {
@@ -439,6 +469,7 @@ export const getContestTallyMeta = ({
       }
       return (vote as YesNoVote).length === 0
     })
+
     dictionary[contest.id] = {
       ballots: contestCVRs.length,
       overvotes: overvotes.length,
@@ -446,6 +477,7 @@ export const getContestTallyMeta = ({
     }
     return dictionary
   }, {})
+}
 
 //
 // some different ideas on tabulation, starting with the overvote report
