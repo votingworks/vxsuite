@@ -108,7 +108,8 @@ const TestDeckBallots = ({
           key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
           ballotStyleId={ballot.ballotStyleId as string}
           election={election}
-          isLiveMode
+          isLiveMode={false}
+          isAbsenteeMode={false}
           precinctId={ballot.precinctId as string}
           locales={{ primary: 'en-US' }}
           votes={ballot.votes as VotesDict}
