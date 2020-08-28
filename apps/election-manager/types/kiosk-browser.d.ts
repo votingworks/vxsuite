@@ -4,6 +4,12 @@ declare namespace KioskBrowser {
     level: number // Number between 0–1
   }
 
+  export interface PrintOptions {
+    deviceName?: string
+    paperSource?: string
+    copies?: number
+  }
+
   export interface PrinterInfo {
     // Docs: http://electronjs.org/docs/api/structures/printer-info
     description: string
@@ -58,7 +64,7 @@ declare namespace KioskBrowser {
   }
 
   export interface Kiosk {
-    print(): Promise<void>
+    print(options: PrintOptions): Promise<void>
     getPrinterInfo(): Promise<PrinterInfo[]>
 
     /**

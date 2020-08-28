@@ -7,12 +7,14 @@ import Loading from './Loading'
 interface PrintButtonProps extends StyledButtonProps {
   title?: string
   afterPrint?: () => void
+  copies?: number
 }
 
 const PrintButton = ({
   title,
   afterPrint,
   children,
+  copies,
   ...rest
 }: React.PropsWithChildren<PrintButtonProps>) => {
   const [isPrinting, setIsPrinting] = useState(false)
@@ -26,14 +28,21 @@ const PrintButton = ({
     if (title) {
       document.title = title
     }
-    await (window.kiosk ?? window).print()
+    if (window.kiosk) {
+      await window.kiosk.print({ copies })
+    } else {
+      copies &&
+        copies > 1 &&
+        console.error(
+          'Printing more than 1 copy can only be done with KioskBrowser.'
+        )
+      window.print()
+    }
     if (title) {
       document.title = documentTitle
     }
 
-    if (afterPrint) {
-      afterPrint()
-    }
+    afterPrint?.()
   }
 
   return (

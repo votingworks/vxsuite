@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
+import styled from 'styled-components'
 import {
   getBallotStyle,
   getContests,
@@ -8,7 +9,11 @@ import {
 } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
-import { BallotScreenProps, BallotLocale } from '../config/types'
+import {
+  BallotScreenProps,
+  BallotLocale,
+  InputEventFunction,
+} from '../config/types'
 import AppContext from '../contexts/AppContext'
 
 import Button, { SegmentedButton } from '../components/Button'
@@ -20,6 +25,15 @@ import NavigationScreen from '../components/NavigationScreen'
 import HorizontalRule from '../components/HorizontalRule'
 import { DEFAULT_LOCALE } from '../config/globals'
 import routerPaths from '../routerPaths'
+import TextInput from '../components/TextInput'
+
+const BallotCopiesInput = styled(TextInput)`
+  width: 4em;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+`
 
 const BallotScreen = () => {
   const history = useHistory()
@@ -42,8 +56,14 @@ const BallotScreen = () => {
 
   const [isLiveMode, setIsLiveMode] = useState(true)
   const toggleLiveMode = () => setIsLiveMode((m) => !m)
-  const [isAbsenteeMode, setIsAbsenteeMode] = useState(false)
+  const [isAbsenteeMode, setIsAbsenteeMode] = useState(true)
   const toggleAbsenteeMode = () => setIsAbsenteeMode((m) => !m)
+  const [ballotCopies, setBallotCopies] = useState(1)
+  const updateBallotCopies: InputEventFunction = (event) => {
+    const { value } = event.currentTarget
+    const copies = value ? parseInt(value, 10) : 1
+    setBallotCopies(copies < 1 ? 1 : copies)
+  }
   const changeLocale = (localeCode: string) =>
     history.replace(
       localeCode === DEFAULT_LOCALE
@@ -85,28 +105,38 @@ const BallotScreen = () => {
         <p>
           <SegmentedButton>
             <Button disabled={isLiveMode} onPress={toggleLiveMode} small>
-              Live Mode
+              Official
             </Button>
             <Button disabled={!isLiveMode} onPress={toggleLiveMode} small>
-              Test Mode
+              Test
             </Button>
           </SegmentedButton>{' '}
           <SegmentedButton>
-            <Button
-              disabled={!isAbsenteeMode}
-              onPress={toggleAbsenteeMode}
-              small
-            >
-              Normal Mode
-            </Button>
             <Button
               disabled={isAbsenteeMode}
               onPress={toggleAbsenteeMode}
               small
             >
-              Absentee Ballot
+              Absentee
+            </Button>
+            <Button
+              disabled={!isAbsenteeMode}
+              onPress={toggleAbsenteeMode}
+              small
+            >
+              Default
             </Button>
           </SegmentedButton>{' '}
+          Copies{' '}
+          <BallotCopiesInput
+            name="copies"
+            defaultValue={ballotCopies}
+            type="number"
+            min={1}
+            step={1}
+            pattern="\d*"
+            onChange={updateBallotCopies}
+          />
           {availableLocaleCodes.length > 1 && (
             <SegmentedButton>
               {availableLocaleCodes.map((localeCode) => (
@@ -131,12 +161,20 @@ const BallotScreen = () => {
           )}
         </p>
         <p>
-          <PrintButton primary title={filename} afterPrint={afterPrint}>
-            {availableLocaleCodes.length > 1 && currentLocaleCode
-              ? `Print ${
-                  isLiveMode ? 'Official Ballot' : 'Test Ballot'
-                } in ${getHumanBallotLanguageFormat(locales)}`
-              : `Print ${isLiveMode ? 'Official Ballot' : 'Test Ballot'}`}
+          <PrintButton
+            primary
+            title={filename}
+            afterPrint={afterPrint}
+            copies={ballotCopies}
+            warning={!isLiveMode}
+          >
+            Print {ballotCopies}{' '}
+            {isLiveMode ? 'Official' : <strong>Test</strong>}{' '}
+            {isAbsenteeMode && <strong>Absentee</strong>}{' '}
+            {pluralize('Ballot', ballotCopies)}{' '}
+            {availableLocaleCodes.length > 1 &&
+              currentLocaleCode &&
+              ` in ${getHumanBallotLanguageFormat(locales)}`}
           </PrintButton>
         </p>
         <p>
