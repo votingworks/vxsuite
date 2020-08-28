@@ -1,6 +1,7 @@
 import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from '../bits'
 import {
   AnyContest,
+  BallotLocale,
   BallotTypeMaximumValue,
   CandidateVote,
   CompletedBallot,
@@ -18,15 +19,27 @@ import {
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 
+// pad this locale array so the same code can later be upgraded
+// to support other languages without breaking previously printed ballots
+export const SUPPORTED_LOCALES = ['en-US', 'es-US'].concat(new Array(250))
+
 // TODO: include "magic number" and encoding version
 
 export const WriteInEncoding = new CustomEncoding(
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ \'"-.,'
 )
 
+export const HexEncoding = new CustomEncoding('0123456789abcdef')
+
 export const Prelude: readonly Uint8[] = [
   /* V */ 86,
   /* X */ 88,
+  /* version = */ 1,
+]
+
+export const HMPBPrelude: readonly Uint8[] = [
+  /* V */ 86,
+  /* P = Paper */ 80,
   /* version = */ 1,
 ]
 
@@ -327,4 +340,115 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   }
 
   return votes
+}
+
+interface HMPBBallotPageMetadata {
+  election: Election
+  electionHash: string // a hexadecimal string
+  precinctId: string
+  ballotStyleId: string
+  locales: BallotLocale
+  pageNum: number
+  isLiveMode: boolean
+  isAbsenteeMode: boolean
+  ballotId?: string
+}
+
+export function encodeHMPBBallotPageMetadata({
+  election,
+  electionHash,
+  precinctId,
+  ballotStyleId,
+  locales,
+  pageNum,
+  isLiveMode,
+  isAbsenteeMode,
+  ballotId,
+}: HMPBBallotPageMetadata): Uint8Array {
+  const bits = new BitWriter()
+
+  const precincts = election.precincts
+  const ballotStyles = election.ballotStyles
+
+  const precinctIndex = precincts.findIndex((p) => p.id === precinctId)
+  const ballotStyleIndex = ballotStyles.findIndex(
+    (bs) => bs.id === ballotStyleId
+  )
+  const primaryLocaleIndex = SUPPORTED_LOCALES.indexOf(locales.primary)
+  const secondaryLocaleIndex = locales.secondary
+    ? SUPPORTED_LOCALES.indexOf(locales.secondary)
+    : undefined
+
+  bits
+    .writeUint8(...HMPBPrelude)
+    .writeString(electionHash, { encoding: HexEncoding })
+    .writeUint(precinctIndex, { max: precincts.length })
+    .writeUint(ballotStyleIndex, { max: ballotStyles.length })
+    .writeUint(primaryLocaleIndex, { max: SUPPORTED_LOCALES.length })
+    .writeBoolean(!!secondaryLocaleIndex)
+
+  if (secondaryLocaleIndex) {
+    bits.writeUint(secondaryLocaleIndex, { max: SUPPORTED_LOCALES.length })
+  }
+
+  bits.writeUint(pageNum, { max: 30 })
+
+  bits
+    .writeBoolean(isLiveMode)
+    .writeBoolean(isAbsenteeMode)
+    .writeBoolean(!!ballotId)
+
+  if (ballotId) {
+    bits.writeString(ballotId)
+  }
+
+  return bits.toUint8Array()
+}
+
+export function decodeHMPBBallotPageMetadata({
+  election,
+  data,
+}: {
+  election: Election
+  data: Uint8Array
+}): HMPBBallotPageMetadata {
+  const bits = new BitReader(data)
+
+  if (!bits.skipUint8(...HMPBPrelude)) {
+    throw new Error(
+      "expected leading prelude 'V' 'P' 0b00000001 but it was not found"
+    )
+  }
+
+  const precincts = election.precincts
+  const ballotStyles = election.ballotStyles
+
+  const electionHash = bits.readString({ encoding: HexEncoding })
+  const precinctIndex = bits.readUint({ max: precincts.length })
+  const ballotStyleIndex = bits.readUint({ max: ballotStyles.length })
+  const primaryLocaleIndex = bits.readUint({ max: SUPPORTED_LOCALES.length })
+  const secondaryLocaleIndex = bits.readBoolean()
+    ? bits.readUint({ max: SUPPORTED_LOCALES.length })
+    : undefined
+  const pageNum = bits.readUint({ max: 30 })
+  const isLiveMode = bits.readBoolean()
+  const isAbsenteeMode = bits.readBoolean()
+  const ballotId = bits.readBoolean() ? bits.readString() : undefined
+
+  return {
+    election,
+    electionHash,
+    precinctId: precincts[precinctIndex].id,
+    ballotStyleId: ballotStyles[ballotStyleIndex].id,
+    locales: {
+      primary: SUPPORTED_LOCALES[primaryLocaleIndex],
+      secondary: secondaryLocaleIndex
+        ? SUPPORTED_LOCALES[secondaryLocaleIndex]
+        : undefined,
+    },
+    pageNum,
+    isLiveMode,
+    isAbsenteeMode,
+    ballotId,
+  }
 }

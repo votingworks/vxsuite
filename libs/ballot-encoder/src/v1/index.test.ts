@@ -19,6 +19,8 @@ import {
   MAXIMUM_WRITE_IN_LENGTH,
   Prelude,
   WriteInEncoding,
+  encodeHMPBBallotPageMetadata,
+  decodeHMPBBallotPageMetadata,
 } from './index'
 
 import electionWithMsEitherNeitherUntyped from '../data/electionWithMsEitherNeither.json'
@@ -572,4 +574,52 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
   expect(() => decodeBallot(election, corruptedBallot)).toThrowError(
     'unexpected data found while reading padding, expected EOF'
   )
+})
+
+test('encode and decode HMPB ballot page metadata', () => {
+  const electionHash = 'abc345624cdeff278def'
+  const ballotMetadata = {
+    election,
+    electionHash,
+    precinctId: election.ballotStyles[0].precincts[0],
+    ballotStyleId: election.ballotStyles[0].id,
+    locales: {
+      primary: 'en-US',
+    },
+    pageNum: 3,
+    isLiveMode: true,
+    isAbsenteeMode: false,
+  }
+
+  const encoded = encodeHMPBBallotPageMetadata(ballotMetadata)
+  const decoded = decodeHMPBBallotPageMetadata({ election, data: encoded })
+  expect(decoded).toEqual(ballotMetadata)
+
+  // corrupt the first byte and expect it to fail
+  encoded[0] = 42
+  expect(() =>
+    decodeHMPBBallotPageMetadata({ election, data: encoded })
+  ).toThrowError()
+})
+
+test('encode and decode HMPB ballot page metadata with ballot ID', () => {
+  const electionHash = 'abc345624cdeff278def'
+  const ballotMetadata = {
+    election,
+    electionHash,
+    precinctId: election.ballotStyles[0].precincts[0],
+    ballotStyleId: election.ballotStyles[0].id,
+    locales: {
+      primary: 'en-US',
+      secondary: 'es-US',
+    },
+    pageNum: 3,
+    isLiveMode: true,
+    isAbsenteeMode: false,
+    ballotId: 'foobar',
+  }
+
+  const encoded = encodeHMPBBallotPageMetadata(ballotMetadata)
+  const decoded = decodeHMPBBallotPageMetadata({ election, data: encoded })
+  expect(decoded).toEqual(ballotMetadata)
 })

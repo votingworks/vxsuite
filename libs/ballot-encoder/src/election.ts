@@ -93,6 +93,11 @@ export interface County {
   readonly name: string
 }
 
+export interface BallotLocale {
+  primary: string
+  secondary?: string
+}
+
 export type BallotStrings = Record<string, string | Translations>
 
 export interface Election {
