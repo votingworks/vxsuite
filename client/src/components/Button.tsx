@@ -8,6 +8,7 @@ interface Attrs extends HTMLButtonElement {
 export interface ButtonInterface {
   readonly big?: boolean
   readonly danger?: boolean
+  readonly warning?: boolean
   readonly fullWidth?: boolean
   readonly primary?: boolean
   readonly small?: boolean
@@ -27,9 +28,10 @@ const buttonStyles = css<StyledButtonProps>`
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71, 167, 75, 1);
   box-sizing: border-box;
-  background: ${({ disabled = false, danger = false, primary = false }) =>
+  background: ${({ disabled, danger, warning, primary }) =>
     (disabled && 'rgb(211, 211, 211)') ||
     (danger && 'red') ||
+    (warning && 'darkorange') ||
     (primary && 'rgb(71, 167, 75)') ||
     'rgb(211, 211, 211)'};
   cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
@@ -37,9 +39,10 @@ const buttonStyles = css<StyledButtonProps>`
   padding: ${({ big = false, small = false }) =>
     small ? '0.35rem 0.5rem' : big ? '1rem 1.75rem' : '0.75rem 1rem'};
   line-height: 1.25;
-  color: ${({ disabled = false, danger = false, primary = false }) =>
+  color: ${({ disabled, danger, warning, primary }) =>
     (disabled && 'rgb(160, 160, 160)') ||
     (danger && '#FFFFFF') ||
+    (warning && '#FFFFFF') ||
     (primary && '#FFFFFF') ||
     'black'};
   font-size: ${({ big = false }) => (big ? '1.25rem' : '1rem')};
