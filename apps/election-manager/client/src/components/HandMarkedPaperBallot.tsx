@@ -578,6 +578,9 @@ const HandMarkedPaperBallot = ({
 
     return () => {
       printBallot.innerHTML = ''
+      document.head
+        .querySelectorAll('[data-pagedjs-inserted-styles]')
+        .forEach((e) => e.parentNode?.removeChild(e))
     }
   }, [
     ballotStyleId,
