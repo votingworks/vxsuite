@@ -592,6 +592,28 @@ test('encode and decode HMPB ballot page metadata', () => {
   }
 
   const encoded = encodeHMPBBallotPageMetadata(ballotMetadata)
+
+  expect(encoded).toEqual(
+    Uint8Array.from([
+      86,
+      80,
+      1,
+      20,
+      171,
+      195,
+      69,
+      98,
+      76,
+      222,
+      255,
+      39,
+      141,
+      239,
+      0,
+      0,
+      224,
+    ])
+  )
   const decoded = decodeHMPBBallotPageMetadata({ election, data: encoded })
   expect(decoded).toEqual(ballotMetadata)
 
@@ -603,23 +625,54 @@ test('encode and decode HMPB ballot page metadata', () => {
 })
 
 test('encode and decode HMPB ballot page metadata with ballot ID', () => {
+  const election = electionWithMsEitherNeither
   const electionHash = 'abc345624cdeff278def'
   const ballotMetadata = {
-    election,
+    election: election,
     electionHash,
-    precinctId: election.ballotStyles[0].precincts[0],
-    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.ballotStyles[2].precincts[1],
+    ballotStyleId: election.ballotStyles[2].id,
     locales: {
       primary: 'en-US',
       secondary: 'es-US',
     },
-    pageNum: 3,
-    isLiveMode: true,
-    isAbsenteeMode: false,
+    pageNum: 2,
+    isLiveMode: false,
+    isAbsenteeMode: true,
     ballotId: 'foobar',
   }
 
   const encoded = encodeHMPBBallotPageMetadata(ballotMetadata)
+  expect(encoded).toEqual(
+    Uint8Array.from([
+      86,
+      80,
+      1,
+      20,
+      171,
+      195,
+      69,
+      98,
+      76,
+      222,
+      255,
+      39,
+      141,
+      239,
+      116,
+      1,
+      1,
+      19,
+      6,
+      102,
+      111,
+      111,
+      98,
+      97,
+      114,
+    ])
+  )
+
   const decoded = decodeHMPBBallotPageMetadata({ election, data: encoded })
   expect(decoded).toEqual(ballotMetadata)
 })
