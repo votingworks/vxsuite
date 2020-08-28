@@ -33,6 +33,13 @@ it('basic navigation works', async () => {
 
   fireEvent.click(getAllByText('View Ballot')[0])
   fireEvent.click(getByText('English/Spanish'))
+  fireEvent.click(getByText('English'))
+  fireEvent.click(getByText('Default'))
+  fireEvent.click(getByText('Absentee'))
+  fireEvent.click(getByText('Test'))
+  fireEvent.click(getByText('Official'))
+  fireEvent.click(getByText('Print 1 Official', { exact: false }))
+  expect(window.kiosk?.print).toHaveBeenCalledTimes(1)
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('Print Test Decks'))
@@ -41,7 +48,7 @@ it('basic navigation works', async () => {
 
   await screen.findByText('Print Test Deck')
   fireEvent.click(getByText('Print Test Deck'))
-  expect(window.kiosk?.print).toHaveBeenCalledTimes(1)
+  expect(window.kiosk?.print).toHaveBeenCalledTimes(2)
 
   fireEvent.click(getByText('Definition'))
   fireEvent.click(getByText('JSON Editor'))
