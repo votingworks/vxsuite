@@ -145,6 +145,7 @@ export class FujitsuScanner implements Scanner {
         return Promise.resolve({ value: undefined, done })
       },
 
+      /* istanbul ignore next - required by TS, but unclear of what use it is */
       [Symbol.asyncIterator](): AsyncGenerator<SheetOf<string>> {
         return generator
       },
