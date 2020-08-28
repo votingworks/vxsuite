@@ -5,14 +5,11 @@
 
 import {
   AdjudicationReason,
-  CandidateVote,
-  CompletedBallot,
+  Contests,
   decodeBallot,
   detect,
   Election,
-  getBallotStyle,
-  getContests,
-  Optional,
+  VotesDict,
 } from '@votingworks/ballot-encoder'
 import {
   BallotMark,
@@ -26,18 +23,11 @@ import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import { decode as quircDecode } from 'node-quirc'
 import sharp from 'sharp'
-import {
-  BallotMetadata,
-  CastVoteRecord,
-  getMarkStatus,
-  isErrorResult,
-  Result,
-} from './types'
+import { BallotMetadata, getMarkStatus, isErrorResult, Result } from './types'
 import { AdjudicationInfo, MarkStatus } from './types/ballot-review'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
 } from './util/ballotAdjudicationReasons'
-import { getMachineId } from './util/machineId'
 import threshold from './util/threshold'
 
 const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.005
@@ -74,20 +64,23 @@ export interface BlankPage {
 
 export interface InterpretedBmdPage {
   type: 'InterpretedBmdPage'
-  cvr: CastVoteRecord
+  ballotId: string
+  metadata: BallotMetadata
+  votes: VotesDict
 }
 
 export interface InterpretedHmpbPage {
   type: 'InterpretedHmpbPage'
+  ballotId?: string
   metadata: BallotPageMetadata
   markInfo: MarkInfo
-  cvr: CastVoteRecord
+  votes: VotesDict
   adjudicationInfo: AdjudicationInfo
 }
 
 export interface InvalidTestModePage {
   type: 'InvalidTestModePage'
-  metadata: BallotMetadata
+  metadata: BallotMetadata | BallotPageMetadata
 }
 
 export interface UninterpretedHmpbPage {
@@ -116,62 +109,49 @@ export interface Interpreter {
   setTestMode(testMode: boolean): void
 }
 
-interface InterpretBallotStringParams {
-  readonly election: Election
-  readonly encodedBallot: Uint8Array
-}
+// function ballotToCastVoteRecord(ballot: CompletedBallot): CastVoteRecord {
+//   const { election, ballotStyle, precinct, ballotId, isTestBallot } = ballot
 
-function ballotToCastVoteRecord(ballot: CompletedBallot): CastVoteRecord {
-  const { election, ballotStyle, precinct, ballotId, isTestBallot } = ballot
+//   // figure out the contests
+//   const contests = getContests({ ballotStyle, election })
 
-  // figure out the contests
-  const contests = getContests({ ballotStyle, election })
+//   // prepare the CVR
+//   const cvr: CastVoteRecord = {
+//     _precinctId: precinct.id,
+//     _ballotId: ballotId,
+//     _ballotStyleId: ballotStyle.id,
+//     _testBallot: isTestBallot,
+//     _scannerId: getMachineId(),
+//   }
 
-  // prepare the CVR
-  const cvr: CastVoteRecord = {
-    _precinctId: precinct.id,
-    _ballotId: ballotId,
-    _ballotStyleId: ballotStyle.id,
-    _testBallot: isTestBallot,
-    _scannerId: getMachineId(),
-  }
+//   for (const contest of contests) {
+//     // no answer for a particular contest is recorded in our final dictionary as an empty string
+//     // not the same thing as undefined.
+//     let cvrForContest: string[] = []
+//     const vote = ballot.votes[contest.id]
 
-  for (const contest of contests) {
-    // no answer for a particular contest is recorded in our final dictionary as an empty string
-    // not the same thing as undefined.
-    let cvrForContest: string[] = []
-    const vote = ballot.votes[contest.id]
+//     if (contest.type === 'yesno') {
+//       if (vote) {
+//         cvrForContest = vote as string[]
+//       }
+//     } else if (contest.type === 'candidate') {
+//       // selections for this question
+//       const candidates = vote as Optional<CandidateVote>
 
-    if (contest.type === 'yesno') {
-      if (vote) {
-        cvrForContest = vote as string[]
-      }
-    } else if (contest.type === 'candidate') {
-      // selections for this question
-      const candidates = vote as Optional<CandidateVote>
+//       if (candidates && candidates.length > 0) {
+//         cvrForContest = candidates.map((candidate) =>
+//           candidate.isWriteIn ? '__write-in' : candidate.id
+//         )
+//       }
+//     } else {
+//       throw new Error(`contest type is not yet supported: ${contest.type}`)
+//     }
 
-      if (candidates && candidates.length > 0) {
-        cvrForContest = candidates.map((candidate) =>
-          candidate.isWriteIn ? '__write-in' : candidate.id
-        )
-      }
-    } else {
-      throw new Error(`contest type is not yet supported: ${contest.type}`)
-    }
+//     cvr[contest.id] = cvrForContest
+//   }
 
-    cvr[contest.id] = cvrForContest
-  }
-
-  return cvr
-}
-
-export function interpretBallotData({
-  election,
-  encodedBallot,
-}: InterpretBallotStringParams): CastVoteRecord {
-  const { ballot } = decodeBallot(election, encodedBallot)
-  return ballotToCastVoteRecord(ballot)
-}
+//   return cvr
+// }
 
 interface BallotImageData {
   file: Buffer
@@ -384,10 +364,19 @@ export default class SummaryBallotInterpreter implements Interpreter {
       return
     }
 
-    const cvr = interpretBallotData({ election, encodedBallot: qrcode })
+    const { ballot } = decodeBallot(election, qrcode)
 
-    if (cvr) {
-      return { interpretation: { type: 'InterpretedBmdPage', cvr } }
+    return {
+      interpretation: {
+        type: 'InterpretedBmdPage',
+        ballotId: ballot.ballotId,
+        metadata: {
+          ballotStyleId: ballot.ballotStyle.id,
+          precinctId: ballot.precinct.id,
+          isTestBallot: ballot.isTestBallot,
+        },
+        votes: ballot.votes,
+      },
     }
   }
 
@@ -402,48 +391,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
       mappedBallot,
       metadata,
     } = await hmpbInterpreter.interpretBallot(image)
-    const {
-      _ballotId,
-      _ballotStyleId,
-      _precinctId,
-      _testBallot,
-      _scannerId,
-      _pageNumber,
-      _locales,
-      ...allContestVotes
-    } = ballotToCastVoteRecord(ballot)
-
-    const cvr: CastVoteRecord = {
-      _ballotId,
-      _ballotStyleId,
-      _precinctId,
-      _testBallot,
-      _scannerId,
-      _pageNumber: _pageNumber ?? metadata.pageNumber,
-      _locales: _locales ?? metadata.locales,
-    }
-    const contestIds = marks
-      .filter((mark) => mark.type !== 'stray')
-      .map((mark) => mark.contest?.id)
-
-    for (const key in allContestVotes) {
-      if (
-        Object.prototype.hasOwnProperty.call(allContestVotes, key) &&
-        typeof key === 'string'
-      ) {
-        const votes = allContestVotes[key]
-
-        if (contestIds.includes(key)) {
-          cvr[key] = votes
-        } else if (!Array.isArray(votes) || votes.length > 0) {
-          throw new Error(
-            `Unexpectedly found a CVR entry for contest '${key}', but that contest should not be present on this ballot (${JSON.stringify(
-              metadata
-            )})`
-          )
-        }
-      }
-    }
+    const { votes } = ballot
 
     let requiresAdjudication = false
     const enabledReasons = election.adjudicationReasons ?? [
@@ -452,13 +400,14 @@ export default class SummaryBallotInterpreter implements Interpreter {
     ]
     const allReasonInfos = [
       ...ballotAdjudicationReasons(
-        getContests({
-          ballotStyle: getBallotStyle({
-            ballotStyleId: metadata.ballotStyleId,
-            election,
-          })!,
-          election,
-        }),
+        marks.reduce<Contests>(
+          (contests, mark) =>
+            mark.type === 'stray' ||
+            contests.some(({ id }) => id === mark.contest.id)
+              ? contests
+              : [...contests, mark.contest],
+          []
+        ),
         {
           optionMarkStatus: (contestId, optionId) => {
             for (const mark of marks) {
@@ -504,7 +453,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
     return {
       interpretation: {
         type: 'InterpretedHmpbPage',
-        cvr,
+        metadata,
         markInfo: {
           marks,
           ballotSize: {
@@ -512,7 +461,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
             height: mappedBallot.height,
           },
         },
-        metadata,
+        votes,
         adjudicationInfo: {
           requiresAdjudication,
           enabledReasons,

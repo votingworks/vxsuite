@@ -1,5 +1,5 @@
 import { MarkStatus } from '../types/ballot-review'
-import { mergeChanges, changesToCVR } from './marks'
+import { mergeChanges } from './marks'
 
 test('returns an empty object when no changes are given', () => {
   expect(mergeChanges({ contest: { option: MarkStatus.Marked } })).toEqual({})
@@ -75,90 +75,4 @@ test('removes contests that revert back to the original', () => {
       { contest: { option: MarkStatus.Unmarked } }
     )
   ).toEqual({})
-})
-
-test('changesToCVR does a proper merge', () => {
-  const metadata = {
-    ballotStyleId: '12',
-    isTestBallot: false,
-    locales: {
-      primary: 'en-US',
-      secondary: 'es-US',
-    },
-    pageCount: 5,
-    pageNumber: 1,
-    precinctId: '23',
-  }
-
-  const changes = {
-    congressperson: { 'beyonce-knowles': MarkStatus.Marked },
-  }
-
-  const originalCVR = {
-    _ballotId: '424242',
-    _ballotStyleId: '12',
-    _precinctId: '23',
-    _pageNumber: 1,
-    _locales: {
-      primary: 'en-US',
-      secondary: 'es-US',
-    },
-    _scannerId: '4242',
-    _testBallot: false,
-    president: ['amelia-earhart'],
-    senator: ['marie-curie'],
-    congressperson: [],
-  }
-
-  const newCVR = changesToCVR(changes, metadata, originalCVR)
-
-  expect(newCVR).toEqual({
-    _ballotId: '424242',
-    _ballotStyleId: '12',
-    _precinctId: '23',
-    _pageNumber: 1,
-    _locales: {
-      primary: 'en-US',
-      secondary: 'es-US',
-    },
-    _scannerId: '4242',
-    _testBallot: false,
-    president: ['amelia-earhart'],
-    senator: ['marie-curie'],
-    congressperson: ['beyonce-knowles'],
-  })
-})
-
-test('changesToCVR works without originalCVR', () => {
-  const metadata = {
-    ballotStyleId: '12',
-    isTestBallot: false,
-    locales: {
-      primary: 'en-US',
-      secondary: 'es-US',
-    },
-    pageCount: 5,
-    pageNumber: 1,
-    precinctId: '23',
-  }
-
-  const changes = {
-    congressperson: { 'beyonce-knowles': MarkStatus.Marked },
-  }
-
-  const newCVR = changesToCVR(changes, metadata)
-
-  expect(newCVR).toMatchObject({
-    _ballotId: expect.any(String),
-    _ballotStyleId: '12',
-    _precinctId: '23',
-    _pageNumber: 1,
-    _locales: {
-      primary: 'en-US',
-      secondary: 'es-US',
-    },
-    _scannerId: expect.any(String),
-    _testBallot: false,
-    congressperson: ['beyonce-knowles'],
-  })
 })

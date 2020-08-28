@@ -6,6 +6,8 @@ import {
   Election,
   getBallotStyle,
   MarkThresholds,
+  AnyContest,
+  getContests,
 } from '@votingworks/ballot-encoder'
 import {
   BallotLocales,
@@ -22,14 +24,17 @@ import sharp from 'sharp'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
 import { v4 as uuid } from 'uuid'
+import { buildCastVoteRecord } from './buildCastVoteRecord'
 import { MarkInfo, PageInterpretation } from './interpreter'
 import {
   AdjudicationStatus,
   BatchInfo,
-  CastVoteRecord,
   getMarkStatus,
   isMarginalMark,
   SerializableBallotPageLayout,
+  Side,
+  SheetOf,
+  PageInterpretationWithFiles,
 } from './types'
 import {
   AdjudicationInfo,
@@ -40,7 +45,7 @@ import {
 } from './types/ballot-review'
 import allContestOptions from './util/allContestOptions'
 import getBallotPageContests from './util/getBallotPageContests'
-import { changesFromMarks, changesToCVR, mergeChanges } from './util/marks'
+import { changesFromMarks, mergeChanges } from './util/marks'
 
 const debug = makeDebug('module-scan:store')
 
@@ -70,7 +75,7 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
 
 /**
  * Manages a data store for imported ballot image batches and cast vote records
- * interpreted by reading the ballots.
+ * interpreted by reading the sheets.
  */
 export default class Store {
   private dbPath: string
@@ -414,41 +419,60 @@ export default class Store {
   }
 
   /**
-   * Adds a ballot to an existing batch.
+   * Adds a sheet to an existing batch.
    */
-  public async addBallot(
-    ballotId: string,
+  public async addSheet(
+    sheetId: string,
     batchId: string,
-    originalFilename: string,
-    normalizedFilename: string,
-    interpretation: PageInterpretation
+    [front, back]: SheetOf<PageInterpretationWithFiles>
   ): Promise<string> {
     try {
       await this.dbRunAsync(
-        `insert into ballots
-          (id, batch_id, original_filename, normalized_filename, interpretation_json, requires_adjudication)
-          values (?, ?, ?, ?, ?, ?)`,
-        ballotId,
+        `insert into sheets (
+            id,
+            batch_id,
+            front_original_filename,
+            front_normalized_filename,
+            front_interpretation_json,
+            back_original_filename,
+            back_normalized_filename,
+            back_interpretation_json,
+            requires_adjudication
+          ) values (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?
+          )`,
+        sheetId,
         batchId,
-        originalFilename,
-        normalizedFilename,
-        JSON.stringify(interpretation),
-        'adjudicationInfo' in interpretation
-          ? interpretation.adjudicationInfo.requiresAdjudication
+        front.originalFilename,
+        front.normalizedFilename,
+        JSON.stringify(front.interpretation),
+        back.originalFilename,
+        back.normalizedFilename,
+        JSON.stringify(back.interpretation ?? {}),
+        'adjudicationInfo' in front.interpretation
+          ? front.interpretation.adjudicationInfo.requiresAdjudication
           : false
       )
     } catch (error) {
       debug(
-        'ballot insert failed; maybe a duplicate? filename=%s',
-        originalFilename
+        'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
+        front.originalFilename,
+        back.originalFilename
       )
+
+      const row = await this.dbGetAsync<{ id: string } | undefined, [string]>(
+        'select id from sheets where front_original_filename = ?',
+        front.originalFilename
+      )
+
+      if (row) {
+        return row.id
+      }
+
+      throw error
     }
 
-    const { id } = await this.dbGetAsync(
-      'select id from ballots where original_filename = ?',
-      originalFilename
-    )
-    return id
+    return sheetId
   }
 
   public async zero(): Promise<void> {
@@ -456,7 +480,8 @@ export default class Store {
   }
 
   public async getBallotFilenames(
-    ballotId: string
+    ballotId: string,
+    side: Side
   ): Promise<{ original: string; normalized: string } | undefined> {
     const row = await this.dbGetAsync<
       { original: string; normalized: string } | undefined,
@@ -464,10 +489,10 @@ export default class Store {
     >(
       `
       select
-        original_filename as original,
-        normalized_filename as normalized
+        ${side}_original_filename as original,
+        ${side}_normalized_filename as normalized
       from
-        ballots
+        sheets
       where
         id = ?
     `,
@@ -481,7 +506,10 @@ export default class Store {
     return row
   }
 
-  public async getBallot(ballotId: string): Promise<ReviewBallot | undefined> {
+  public async getPage(
+    sheetId: string,
+    side: Side
+  ): Promise<ReviewBallot | undefined> {
     const election = await this.getElection()
 
     if (!election) {
@@ -504,16 +532,16 @@ export default class Store {
       `
         select
           id,
-          original_filename as originalFilename,
-          normalized_filename as normalizedFilename,
-          json_extract(interpretation_json, '$.markInfo') as marksJSON,
-          json_extract(interpretation_json, '$.metadata') as metadataJSON,
-          adjudication_json as adjudicationJSON,
-          json_extract(interpretation_json, '$.adjudicationInfo') as adjudicationInfoJSON
-        from ballots
+          ${side}_original_filename as originalFilename,
+          ${side}_normalized_filename as normalizedFilename,
+          json_extract(${side}_interpretation_json, '$.markInfo') as marksJSON,
+          json_extract(${side}_interpretation_json, '$.metadata') as metadataJSON,
+          ${side}_adjudication_json as adjudicationJSON,
+          json_extract(${side}_interpretation_json, '$.adjudicationInfo') as adjudicationInfoJSON
+        from sheets
         where id = ?
       `,
-      ballotId
+      sheetId
     )
 
     if (!row) {
@@ -587,9 +615,9 @@ export default class Store {
     })()
 
     const ballot: ReviewBallot['ballot'] = {
-      url: `/scan/hmpb/ballot/${ballotId}`,
+      url: `/scan/hmpb/ballot/${sheetId}/front`,
       image: {
-        url: `/scan/hmpb/ballot/${ballotId}/image`,
+        url: `/scan/hmpb/ballot/${sheetId}/front/image`,
         ...ballotSize,
       },
     }
@@ -664,11 +692,18 @@ export default class Store {
   }
 
   public async getNextReviewBallot(): Promise<ReviewBallot | undefined> {
-    const row = await this.dbGetAsync<{ id: string } | undefined>(
+    const row = await this.dbGetAsync<
+      { id: string; front: boolean; back: boolean } | undefined
+    >(
       `
-      select id
-      from ballots
-      where requires_adjudication = 1 and finished_adjudication_at is null
+      select
+        id,
+        front_finished_adjudication_at is not null as front,
+        back_finished_adjudication_at is not null as back
+      from sheets
+      where
+        requires_adjudication = 1 and
+        (front_finished_adjudication_at is null or back_finished_adjudication_at is null)
       order by created_at asc
       limit 1
     `
@@ -676,26 +711,31 @@ export default class Store {
 
     if (row) {
       debug('got next review ballot requiring adjudication (id=%s)', row.id)
-      return this.getBallot(row.id)
+      return this.getPage(row.id, row.front ? 'front' : 'back')
     } else {
-      debug('no review ballots requiring adjudication')
+      debug('no review sheets requiring adjudication')
     }
   }
 
   public async saveBallotAdjudication(
     ballotId: string,
+    side: Side,
     change: MarksByContestId
   ): Promise<boolean> {
     const { markThresholds } = (await this.getElection()) ?? {}
     const row = await this.dbGetAsync<
-      { adjudicationJSON?: string; marksJSON?: string } | undefined,
+      | {
+          adjudicationJSON?: string
+          marksJSON?: string
+        }
+      | undefined,
       [string]
     >(
       `
       select
-        adjudication_json as adjudicationJSON,
-        json_extract(interpretation_json, '$.markInfo') as marksJSON
-      from ballots
+        ${side}_adjudication_json as adjudicationJSON,
+        json_extract(${side}_interpretation_json, '$.markInfo') as marksJSON
+      from sheets
       where id = ?
     `,
       ballotId
@@ -726,12 +766,13 @@ export default class Store {
         ) ?? []
 
     debug(
-      'saving adjudication changes for ballot %s: %O',
+      'saving adjudication changes for sheet %s: %O',
       ballotId,
       newAdjudication
     )
     debug(
-      'adjudication complete for ballot %s? %s',
+      'adjudication complete for sheet %s %s? %s',
+      side,
       ballotId,
       unadjudicatedMarks.length === 0
     )
@@ -739,10 +780,10 @@ export default class Store {
     await this.dbRunAsync(
       `
       update
-        ballots
+        sheets
       set
-        adjudication_json = ?,
-        finished_adjudication_at = ?
+        ${side}_adjudication_json = ?,
+        ${side}_finished_adjudication_at = ?
       where id = ?
     `,
       JSON.stringify(newAdjudication, undefined, 2),
@@ -766,7 +807,7 @@ export default class Store {
   }
 
   /**
-   * Gets all batches, including their CVR count.
+   * Gets all batches, including their sheet count.
    */
   public async batchStatus(): Promise<BatchInfo[]> {
     return this.dbAllAsync(`
@@ -776,10 +817,10 @@ export default class Store {
         (case when ended_at is null then ended_at else ended_at || 'Z' end) as endedAt,
         count(*) as count
       from
-        ballots,
+        sheets,
         batches
       where
-        ballots.batch_id = batches.id
+        sheets.batch_id = batches.id
       group by
         batches.id,
         batches.started_at,
@@ -796,17 +837,17 @@ export default class Store {
     const [{ remaining }, { adjudicated }] = await Promise.all([
       this.dbGetAsync<{ remaining: number }>(`
         select count(*) as remaining
-        from ballots
+        from sheets
         where
           requires_adjudication = 1
-          and finished_adjudication_at is null
+          and (front_finished_adjudication_at is null or back_finished_adjudication_at is null)
       `),
       this.dbGetAsync<{ adjudicated: number }>(`
         select count(*) as adjudicated
-        from ballots
+        from sheets
         where
           requires_adjudication = 1
-          and finished_adjudication_at is not null
+          and (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null)
       `),
     ])
     return { adjudicated, remaining }
@@ -816,45 +857,86 @@ export default class Store {
    * Exports all CVR JSON data to a stream.
    */
   public async exportCVRs(writeStream: Writable): Promise<void> {
+    const election = await this.getElection()
+
+    if (!election) {
+      throw new Error('no election configured')
+    }
+
     const sql = `
       select
         id,
-        json_extract(interpretation_json, '$.cvr') as cvrJSON,
-        json_extract(interpretation_json, '$.metadata') as metadataJSON,
-        adjudication_json as adjudicationJSON
-      from ballots
-      where requires_adjudication = 0 or finished_adjudication_at is not null
+        front_interpretation_json as frontInterpretationJSON,
+        back_interpretation_json as backInterpretationJSON,
+        front_adjudication_json as frontAdjudicationJSON,
+        back_adjudication_json as backAdjudicationJSON
+      from sheets
+      where
+        requires_adjudication = 0 or
+        (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null)
     `
     for (const {
       id,
-      cvrJSON,
-      adjudicationJSON,
-      metadataJSON,
+      frontInterpretationJSON,
+      backInterpretationJSON,
+      frontAdjudicationJSON,
+      backAdjudicationJSON,
     } of await this.dbAllAsync<{
-      id: number
-      cvrJSON?: string
-      adjudicationJSON?: string
+      id: string
+      votesJSON?: string
+      frontAdjudicationJSON?: string
+      backAdjudicationJSON?: string
       metadataJSON?: string
+      frontInterpretationJSON: string
+      backInterpretationJSON: string
     }>(sql)) {
-      const cvr: CastVoteRecord | undefined = cvrJSON
-        ? JSON.parse(cvrJSON)
+      const frontInterpretation: PageInterpretation = JSON.parse(
+        frontInterpretationJSON
+      )
+      const backInterpretation: PageInterpretation = JSON.parse(
+        backInterpretationJSON
+      )
+      const frontAdjudication: MarksByContestId = frontAdjudicationJSON
+        ? JSON.parse(frontAdjudicationJSON)
         : undefined
-      const changes: MarksByContestId | undefined = adjudicationJSON
-        ? JSON.parse(adjudicationJSON)
+      const backAdjudication: MarksByContestId = backAdjudicationJSON
+        ? JSON.parse(backAdjudicationJSON)
         : undefined
-      const metadata: BallotPageMetadata | undefined = metadataJSON
-        ? JSON.parse(metadataJSON)
-        : undefined
-      const finalCVR =
-        changes && metadata ? changesToCVR(changes, metadata, cvr) : cvr
+      const cvr = buildCastVoteRecord(
+        frontInterpretation.type === 'InterpretedBmdPage'
+          ? frontInterpretation.ballotId
+          : backInterpretation.type === 'InterpretedBmdPage'
+          ? backInterpretation.ballotId
+          : id,
+        election,
+        [
+          {
+            interpretation: frontInterpretation,
+            contestIds:
+              frontInterpretation.type === 'InterpretedHmpbPage' ||
+              frontInterpretation.type === 'UninterpretedHmpbPage'
+                ? await this.getContestIdsForMetadata(
+                    frontInterpretation.metadata
+                  )
+                : undefined,
+            adjudication: frontAdjudication,
+          },
+          {
+            interpretation: backInterpretation,
+            contestIds:
+              backInterpretation.type === 'InterpretedHmpbPage' ||
+              backInterpretation.type === 'UninterpretedHmpbPage'
+                ? await this.getContestIdsForMetadata(
+                    backInterpretation.metadata
+                  )
+                : undefined,
+            adjudication: backAdjudication,
+          },
+        ]
+      )
 
-      if (!finalCVR) {
-        debug(
-          'export skipping ballot %d because a CVR could not be generated',
-          id
-        )
-      } else {
-        writeStream.write(JSON.stringify(finalCVR))
+      if (cvr) {
+        writeStream.write(JSON.stringify(cvr))
         writeStream.write('\n')
       }
     }
@@ -941,6 +1023,63 @@ export default class Store {
     }
 
     return results
+  }
+
+  public async getContestIdsForMetadata(
+    metadata: BallotPageMetadata
+  ): Promise<AnyContest['id'][]> {
+    const election = await this.getElection()
+
+    if (!election) {
+      throw new Error('no election configured')
+    }
+
+    const { layoutsJSON } = await this.dbGetAsync<
+      { layoutsJSON: string },
+      [string | null, string, string, boolean]
+    >(
+      `
+        select
+          layouts_json as layoutsJSON
+        from hmpb_templates
+        where
+          locales = ? and
+          ballot_style_id = ? and
+          precinct_id = ? and
+          is_test_ballot = ?
+      `,
+      this.serializeLocales(metadata.locales),
+      metadata.ballotStyleId,
+      metadata.precinctId,
+      metadata.isTestBallot
+    )
+
+    const layouts: readonly SerializableBallotPageLayout[] = JSON.parse(
+      layoutsJSON
+    )
+    let contestOffset = 0
+
+    for (const layout of layouts) {
+      if (layout.ballotImage.metadata.pageNumber === metadata.pageNumber) {
+        const contests = getContests({
+          election,
+          ballotStyle: getBallotStyle({
+            election,
+            ballotStyleId: metadata.ballotStyleId,
+          })!,
+        })
+
+        return contests
+          .slice(contestOffset, contestOffset + layout.contests.length)
+          .map(({ id }) => id)
+      }
+
+      contestOffset += layout.contests.length
+    }
+
+    throw new Error(
+      `unable to find page with pageNumber=${metadata.pageNumber}`
+    )
   }
 
   private serializeLocales(locales?: BallotLocales): string | null {

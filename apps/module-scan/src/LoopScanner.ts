@@ -1,5 +1,5 @@
-import { Scanner, Sheet } from './scanner'
-import { NonEmptyArray } from './types'
+import { Scanner } from './scanner'
+import { NonEmptyArray, SheetOf } from './types'
 
 /**
  * Provides mock scanning services by copying the same set of images over and
@@ -28,7 +28,7 @@ export default class LoopScanner implements Scanner {
   /**
    * "Scans" the next sheet by returning the paths for the next two images.
    */
-  public async *scanSheets(): AsyncGenerator<Sheet> {
+  public async *scanSheets(): AsyncGenerator<SheetOf<string>> {
     yield [
       this.getImagePathToScanAtOffset(this.id++),
       this.getImagePathToScanAtOffset(this.id++),

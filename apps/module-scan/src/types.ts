@@ -11,8 +11,8 @@ import {
   BallotPageMetadata,
   BallotTargetMark,
 } from '@votingworks/hmpb-interpreter'
-import { MarkInfo } from './interpreter'
-import { MarkStatus } from './types/ballot-review'
+import { MarkInfo, PageInterpretation } from './interpreter'
+import { MarkStatus, MarksByContestId } from './types/ballot-review'
 
 export interface Dictionary<T> {
   [key: string]: T | undefined
@@ -54,14 +54,33 @@ export function resultError<E, T>(result: Result<E, T>): E {
   return result.error
 }
 
+export type SheetOf<T> = [T, T]
+export type Side = 'front' | 'back'
+
+export interface PageInterpretationWithFiles {
+  originalFilename: string
+  normalizedFilename: string
+  interpretation: PageInterpretation
+}
+
+export interface PageInterpretationWithAdjudication<
+  T extends PageInterpretation = PageInterpretation
+> {
+  interpretation: T
+  contestIds?: readonly string[]
+  adjudication?: MarksByContestId
+}
+
 export interface CastVoteRecord
-  extends Dictionary<string | string[] | boolean | number | BallotLocales> {
+  extends Dictionary<
+    string | string[] | boolean | [number, number] | BallotLocales
+  > {
   _precinctId: string
   _ballotStyleId: string
   _ballotId: string
   _testBallot: boolean
   _scannerId: string
-  _pageNumber?: number
+  _pageNumbers?: [number, number]
   _locales?: BallotLocales
 }
 

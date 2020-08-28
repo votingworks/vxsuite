@@ -117,20 +117,39 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
         const { files = [] } = request.files
 
-        if (files.length > 0) {
+        if (files.length % 2 === 1) {
+          response.status(400).json({
+            errors: [
+              {
+                type: 'invalid-page-count',
+                message: `expected an even number of pages for two per sheet, got ${files.length}`,
+              },
+            ],
+          })
+          return
+        } else if (files.length > 0) {
           const batchId = await store.addBatch()
+          let i = 0
 
-          for (const file of files) {
-            try {
-              await importer.importFile(batchId, file.path)
-            } catch (error) {
-              console.error(
-                `failed to import file ${file.originalname}: ${error.message}`
-              )
+          try {
+            for (; i < files.length; i += 2) {
+              const front = files[i].path
+              const back = files[i + 1].path
+
+              await importer.importFile(batchId, front, back)
             }
+          } catch (error) {
+            response.status(400).json([
+              {
+                type: 'import-error',
+                sheet: [files[i].originalname, files[i + 1].originalname],
+                message: error.message,
+              },
+            ])
+            return
+          } finally {
+            await store.finishBatch(batchId)
           }
-
-          await store.finishBatch(batchId)
         }
 
         response.json({ status: 'ok' })
@@ -231,8 +250,15 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json(status)
   })
 
-  app.get('/scan/hmpb/ballot/:ballotId', async (request, response) => {
-    const ballot = await store.getBallot(request.params.ballotId)
+  app.get('/scan/hmpb/ballot/:sheetId/:side', async (request, response) => {
+    const { sheetId, side } = request.params
+
+    if (typeof sheetId !== 'string' || (side !== 'front' && side !== 'back')) {
+      response.status(404)
+      return
+    }
+
+    const ballot = await store.getPage(sheetId, side)
 
     if (ballot) {
       response.json(ballot)
@@ -241,23 +267,52 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
-  app.patch('/scan/hmpb/ballot/:ballotId', async (request, response) => {
-    await store.saveBallotAdjudication(request.params.ballotId, request.body)
+  app.patch('/scan/hmpb/ballot/:sheetId/:side', async (request, response) => {
+    const { sheetId, side } = request.params
+
+    if (typeof sheetId !== 'string' || (side !== 'front' && side !== 'back')) {
+      response.status(404)
+      return
+    }
+
+    await store.saveBallotAdjudication(sheetId, side, request.body)
     response.json({ status: 'ok' })
   })
 
-  app.get('/scan/hmpb/ballot/:ballotId/image', async (request, response) => {
-    response.redirect(
-      301,
-      `/scan/hmpb/ballot/${request.params.ballotId}/image/normalized`
-    )
-  })
+  app.get(
+    '/scan/hmpb/ballot/:sheetId/:side/image',
+    async (request, response) => {
+      const { sheetId, side } = request.params
+
+      if (
+        typeof sheetId !== 'string' ||
+        (side !== 'front' && side !== 'back')
+      ) {
+        response.status(404)
+        return
+      }
+
+      response.redirect(
+        301,
+        `/scan/hmpb/ballot/${sheetId}/${side}/image/normalized`
+      )
+    }
+  )
 
   app.get(
-    '/scan/hmpb/ballot/:ballotId/image/:version',
+    '/scan/hmpb/ballot/:sheetId/:side/image/:version',
     async (request, response) => {
-      const filenames = await store.getBallotFilenames(request.params.ballotId)
-      const version = request.params.version
+      const { sheetId, side, version } = request.params
+
+      if (
+        typeof sheetId !== 'string' ||
+        (side !== 'front' && side !== 'back') ||
+        (version !== 'original' && version !== 'normalized')
+      ) {
+        response.status(404)
+        return
+      }
+      const filenames = await store.getBallotFilenames(sheetId, side)
 
       if (filenames && version in filenames) {
         response.sendFile(filenames[version as keyof typeof filenames])

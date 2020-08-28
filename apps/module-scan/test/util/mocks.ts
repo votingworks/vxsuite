@@ -3,7 +3,8 @@ import { EventEmitter } from 'events'
 import { Readable } from 'stream'
 import { Importer } from '../../src/importer'
 import { Interpreter } from '../../src/interpreter'
-import { Scanner, Sheet } from '../../src/scanner'
+import { Scanner } from '../../src/scanner'
+import { SheetOf } from '../../src/types'
 
 export function makeMockInterpreter(): jest.Mocked<Interpreter> {
   return {
@@ -29,7 +30,7 @@ export function makeMockImporter(): jest.Mocked<Importer> {
 }
 
 type ScanSessionStep =
-  | { type: 'sheet'; sheet: Sheet }
+  | { type: 'sheet'; sheet: SheetOf<string> }
   | { type: 'error'; error: Error }
 
 /**
@@ -46,7 +47,7 @@ class ScannerSessionPlan {
   /**
    * Adds a scanning step to the session.
    */
-  public sheet(sheet: Sheet): this {
+  public sheet(sheet: SheetOf<string>): this {
     if (this.#ended) {
       throw new Error('cannot add a sheet scan step to an ended session')
     }
@@ -101,7 +102,7 @@ export function makeMockScanner(): MockScanner {
   let nextScannerSession: ScannerSessionPlan | undefined
 
   return {
-    async *scanSheets(): AsyncGenerator<Sheet> {
+    async *scanSheets(): AsyncGenerator<SheetOf<string>> {
       const session = nextScannerSession
       nextScannerSession = undefined
 

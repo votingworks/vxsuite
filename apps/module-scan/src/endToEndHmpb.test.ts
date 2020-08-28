@@ -103,14 +103,13 @@ test('going through the whole process works', async () => {
 
     await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
 
-    // check the latest batch has the expected ballots
-    const expectedSampleBallots = 2
+    // check the latest batch has the expected counts
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
       .expect(200)
     expect(JSON.parse(status.text).batches.length).toBe(1)
-    expect(JSON.parse(status.text).batches[0].count).toBe(expectedSampleBallots)
+    expect(JSON.parse(status.text).batches[0].count).toBe(1)
   }
 
   {
@@ -119,52 +118,25 @@ test('going through the whole process works', async () => {
       .set('Accept', 'application/json')
       .expect(200)
 
-    // response is a few lines, each JSON.
-    // can't predict the order so can't compare
-    // to expected outcome as a string directly.
-    const CVRs: CastVoteRecord[] = exportResponse.text
+    const cvrs: CastVoteRecord[] = exportResponse.text
       .split('\n')
       .filter(Boolean)
       .map((line) => JSON.parse(line))
 
-    const p1CVR = CVRs.find(
-      (cvr) => Array.isArray(cvr['president']) && cvr['president'].length > 0
-    )!
-    const p2CVR = CVRs.find((cvr) => cvr !== p1CVR)!
-
-    delete p1CVR._ballotId
-    delete p2CVR._ballotId
-
-    expect(p1CVR).toMatchInlineSnapshot(`
+    expect(cvrs).toHaveLength(1)
+    const [cvr] = cvrs
+    delete cvr._ballotId
+    expect(cvr).toMatchInlineSnapshot(`
       Object {
         "_ballotStyleId": "12",
         "_locales": Object {
           "primary": "en-US",
           "secondary": "es-US",
         },
-        "_pageNumber": 1,
-        "_precinctId": "23",
-        "_scannerId": "000",
-        "_testBallot": false,
-        "president": Array [
-          "barchi-hallaren",
+        "_pageNumbers": Array [
+          1,
+          2,
         ],
-        "representative-district-6": Array [
-          "schott",
-        ],
-        "senator": Array [
-          "brown",
-        ],
-      }
-    `)
-    expect(p2CVR).toMatchInlineSnapshot(`
-      Object {
-        "_ballotStyleId": "12",
-        "_locales": Object {
-          "primary": "en-US",
-          "secondary": "es-US",
-        },
-        "_pageNumber": 2,
         "_precinctId": "23",
         "_scannerId": "000",
         "_testBallot": false,
@@ -174,8 +146,17 @@ test('going through the whole process works', async () => {
         "lieutenant-governor": Array [
           "davis",
         ],
+        "president": Array [
+          "barchi-hallaren",
+        ],
+        "representative-district-6": Array [
+          "schott",
+        ],
         "secretary-of-state": Array [
           "talarico",
+        ],
+        "senator": Array [
+          "brown",
         ],
         "state-assembly-district-54": Array [
           "keller",
@@ -229,24 +210,28 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
 
     // check the latest batch has the expected ballots
-    const expectedSampleBallots = 2
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
       .expect(200)
     expect(JSON.parse(status.text).batches.length).toBe(1)
-    expect(JSON.parse(status.text).batches[0].count).toBe(expectedSampleBallots)
+    expect(JSON.parse(status.text).batches[0].count).toBe(1)
   }
 
   const { id } = await store.dbGetAsync<{ id: string }>(`
     select id
-    from ballots
-    where json_extract(interpretation_json, '$.metadata.pageNumber') = 3
+    from sheets
+    where json_extract(front_interpretation_json, '$.metadata.pageNumber') = 3
   `)
 
   await request(app)
-    .patch(`/scan/hmpb/ballot/${id}`)
+    .patch(`/scan/hmpb/ballot/${id}/front`)
     .send({ 'city-mayor': { seldon: MarkStatus.Marked } })
+    .expect(200)
+
+  await request(app)
+    .patch(`/scan/hmpb/ballot/${id}/back`)
+    .send({ 'question-b': { no: MarkStatus.Marked } })
     .expect(200)
 
   {
@@ -258,26 +243,41 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     // response is a few lines, each JSON.
     // can't predict the order so can't compare
     // to expected outcome as a string directly.
-    const CVRs: CastVoteRecord[] = exportResponse.text
+    const cvrs: CastVoteRecord[] = exportResponse.text
       .split('\n')
       .filter(Boolean)
       .map((line) => JSON.parse(line))
 
-    delete CVRs[0]._ballotId
-    expect(CVRs[0]).toMatchInlineSnapshot(`
+    expect(cvrs).toHaveLength(1)
+    const [cvr] = cvrs
+    delete cvr._ballotId
+    expect(cvr).toMatchInlineSnapshot(`
       Object {
         "_ballotStyleId": "12",
         "_locales": Object {
           "primary": "en-US",
           "secondary": "es-US",
         },
-        "_pageNumber": 3,
+        "_pageNumbers": Array [
+          3,
+          4,
+        ],
         "_precinctId": "23",
         "_scannerId": "000",
         "_testBallot": false,
+        "city-council": Array [],
         "city-mayor": Array [
           "seldon",
         ],
+        "county-commissioners": Array [],
+        "county-registrar-of-wills": Array [],
+        "judicial-elmer-hull": Array [],
+        "judicial-robert-demergue": Array [],
+        "question-a": Array [],
+        "question-b": Array [
+          "no",
+        ],
+        "question-c": Array [],
       }
     `)
   }

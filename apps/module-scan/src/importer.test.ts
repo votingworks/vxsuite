@@ -7,12 +7,13 @@ import { fileSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
 import { makeMockInterpreter } from '../test/util/mocks'
 import SystemImporter from './importer'
-import { Scanner, Sheet } from './scanner'
+import { Scanner } from './scanner'
 import Store from './store'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
 import pdfToImages from './util/pdfToImages'
+import { SheetOf } from './types'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
@@ -45,7 +46,7 @@ test('doImport calls scanner.scanSheet', async () => {
 
   // failed scan
   scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
-    Sheet
+    SheetOf<string>
   > {
     yield Promise.reject(new Error('scanner is a banana'))
   })
@@ -53,7 +54,7 @@ test('doImport calls scanner.scanSheet', async () => {
 
   // successful scan
   scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
-    Sheet
+    SheetOf<string>
   > {
     yield [
       join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg'),
@@ -95,22 +96,36 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
 
   await importer.configure(election)
   const batchId = await store.addBatch()
-  await store.addBallot(
-    uuid(),
-    batchId,
-    '/tmp/page.png',
-    '/tmp/normalized-page.png',
+  await store.addSheet(uuid(), batchId, [
     {
-      type: 'UninterpretedHmpbPage',
-      metadata: {
-        ballotStyleId: '12',
-        precinctId: '23',
-        isTestBallot: false,
-        pageNumber: 1,
-        pageCount: 2,
+      originalFilename: '/tmp/front-page.png',
+      normalizedFilename: '/tmp/front-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: {
+          ballotStyleId: '12',
+          precinctId: '23',
+          isTestBallot: false,
+          pageNumber: 1,
+          pageCount: 2,
+        },
       },
-    }
-  )
+    },
+    {
+      originalFilename: '/tmp/back-page.png',
+      normalizedFilename: '/tmp/back-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: {
+          ballotStyleId: '12',
+          precinctId: '23',
+          isTestBallot: false,
+          pageNumber: 2,
+          pageCount: 2,
+        },
+      },
+    },
+  ])
   expect((await importer.getStatus()).batches).toHaveLength(1)
 
   await importer.setTestMode(true)
@@ -204,7 +219,7 @@ test('cannot add HMPB templates before configuring an election', async () => {
   )
 })
 
-test('manually importing a buffer as a file', async () => {
+test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
@@ -218,30 +233,44 @@ test('manually importing a buffer as a file', async () => {
   })
 
   await store.setElection(election)
-  interpreter.interpretFile.mockResolvedValueOnce({
-    interpretation: {
-      type: 'UninterpretedHmpbPage',
-      metadata: {
-        ballotStyleId: '77',
-        precinctId: '42',
-        isTestBallot: false,
-        pageNumber: 1,
-        pageCount: 2,
+  interpreter.interpretFile
+    .mockResolvedValueOnce({
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: {
+          ballotStyleId: '77',
+          precinctId: '42',
+          isTestBallot: false,
+          pageNumber: 1,
+          pageCount: 2,
+        },
       },
-    },
-  })
+    })
+    .mockResolvedValueOnce({
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: {
+          ballotStyleId: '77',
+          precinctId: '42',
+          isTestBallot: false,
+          pageNumber: 2,
+          pageCount: 2,
+        },
+      },
+    })
   const imageFile = fileSync()
   await sharp({
     create: { width: 1, height: 1, channels: 3, background: '#000' },
   })
     .png()
     .toFile(imageFile.name)
-  const ballotId = (await importer.importFile(
+  const sheetId = await importer.importFile(
     await store.addBatch(),
+    imageFile.name,
     imageFile.name
-  ))!
+  )
 
-  const filenames = (await store.getBallotFilenames(ballotId))!
+  const filenames = (await store.getBallotFilenames(sheetId, 'front'))!
   expect(fs.existsSync(filenames.original)).toBe(true)
   expect(fs.existsSync(filenames.normalized)).toBe(true)
 })
