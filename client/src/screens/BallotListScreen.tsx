@@ -20,6 +20,12 @@ const Header = styled.div`
   margin-bottom: 1rem;
 `
 
+const FloatingLeft = styled.div`
+  float: left;
+  margin-right: 1.5rem;
+  margin-left: 1rem;
+`
+
 const BallotListScreen = () => {
   const { election: e, printedBallots, configuredAt } = useContext(AppContext)
   const election = e!
@@ -39,14 +45,24 @@ const BallotListScreen = () => {
     0
   )
 
+  const configuredAtPretty = new Date(configuredAt).toString()
+
   return (
     <NavigationScreen>
       <Header>
         <Prose maxWidth={false}>
+          <FloatingLeft>
+            <LinkButton to={routerPaths.printedBallotsReport}>
+              Printed Ballots Report
+            </LinkButton>
+          </FloatingLeft>
           <p>
             <strong>{numBallotsPrinted} official ballots</strong> have been
-            printed. Election configured at <strong>{configuredAt}</strong>.
+            printed.
+            <br />
+            Election configured at <strong>{configuredAtPretty}</strong>.
           </p>
+          <hr />
           <p>
             {`Sort ${pluralize('ballot', ballots.length, true)} by: `}
             <SegmentedButton>
