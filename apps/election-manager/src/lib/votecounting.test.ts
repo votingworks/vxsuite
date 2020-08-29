@@ -215,6 +215,49 @@ test('parsing CVRs flags when page number is set but not a number', () => {
   ])
 })
 
+test('parsing CVRs flags when page numbers is set but not an array of numbers', () => {
+  const cvr: CastVoteRecord = {
+    _ballotStyleId: '12',
+    _precinctId: '23',
+    _ballotId: 'abc',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+    // @ts-ignore
+    _pageNumbers: 99,
+  }
+  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+    {
+      cvr,
+      errors: [
+        "Page numbers in CVR must be an array of number if it is set, got '99' (number, not an array of numbers)",
+      ],
+      lineNumber: 1,
+    },
+  ])
+})
+
+test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => {
+  const cvr: CastVoteRecord = {
+    _ballotStyleId: '12',
+    _precinctId: '23',
+    _ballotId: 'abc',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+    // @ts-ignore
+    _pageNumber: 1,
+    _pageNumbers: [1, 2],
+  }
+  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+    {
+      cvr,
+      errors: [
+        'Page number in CVR must be either _pageNumber, or _pageNumbers, but cannot be both.',
+      ],
+      lineNumber: 1,
+    },
+  ])
+})
+
 test('parsing CVRs flags when ballot ID is not a string', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
