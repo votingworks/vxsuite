@@ -3,11 +3,17 @@ import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { Election } from '@votingworks/ballot-encoder'
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage, electionStorageKey } from './AppRoot'
+import {
+  AppStorage,
+  electionStorageKey,
+  configuredAtStorageKey,
+} from './AppRoot'
 
 import fakeKiosk from '../test/helpers/fakeKiosk'
 
 import App from './App'
+
+import sleep from './utils/sleep'
 
 import eitherNeitherElectionUntyped from '../test/fixtures/eitherneither-election.json'
 
@@ -39,7 +45,8 @@ it('basic navigation works', async () => {
   // mock the election we want
   const storage = new MemoryStorage<AppStorage>()
   await storage.set(electionStorageKey, eitherNeitherElection)
-  const { container, getByText, getAllByText } = render(
+  await storage.set(configuredAtStorageKey, new Date().toISOString())
+  const { container, getByText, getAllByText, queryAllByText } = render(
     <App storage={storage} />
   )
 
@@ -61,6 +68,15 @@ it('basic navigation works', async () => {
   fireEvent.click(getByText('Print 1 Official', { exact: false }))
   expect(window.kiosk?.print).toHaveBeenCalledTimes(1)
 
+  // this is ugly but necessary for now to wait just a bit for the data to be stored
+  await sleep(0)
+
+  fireEvent.click(getByText('Ballots'))
+  getByText('1 official ballots', { exact: false })
+  fireEvent.click(getByText('Printed Ballots Report'))
+  fireEvent.click(queryAllByText('Print Report')[0])
+  expect(window.kiosk?.print).toHaveBeenCalledTimes(2)
+
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('Print Test Decks'))
   getByText('Chester')
@@ -71,7 +87,7 @@ it('basic navigation works', async () => {
   await screen.findByText('Print Test Deck')
   fireEvent.click(getByText('Print Test Deck'))
   expect(container).toMatchSnapshot()
-  expect(window.kiosk?.print).toHaveBeenCalledTimes(2)
+  expect(window.kiosk?.print).toHaveBeenCalledTimes(3)
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('View Test Ballot Deck Tally'))
@@ -79,7 +95,7 @@ it('basic navigation works', async () => {
   await screen.findByText('Print Results Report')
   expect(container).toMatchSnapshot()
   fireEvent.click(getByText('Print Results Report'))
-  expect(window.kiosk?.print).toHaveBeenCalledTimes(3)
+  expect(window.kiosk?.print).toHaveBeenCalledTimes(4)
 
   fireEvent.click(getByText('Definition'))
   fireEvent.click(getByText('JSON Editor'))

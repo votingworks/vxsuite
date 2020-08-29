@@ -19,6 +19,7 @@ const routerPaths = {
     localeCode,
   }: BallotScreenProps) =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${localeCode}`,
+  printedBallotsReport: '/ballots/printed-report',
   printTestDecks: '/ballots/print-test-deck',
   printOneTestDeck: ({ precinctId }: PrecinctReportScreenProps) =>
     `/ballots/print-test-deck/${precinctId}`,

@@ -17,6 +17,7 @@ import CombineResultsScreen from '../screens/CombineResultsScreen'
 import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationReportScreen'
 import DefinitionEditorScreen from '../screens/DefinitionEditorScreen'
 import DefinitionContestsScreen from '../screens/DefinitionContestsScreen'
+import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen'
 
 const ElectionManager = () => {
   const { election: e } = useContext(AppContext)
@@ -39,6 +40,9 @@ const ElectionManager = () => {
       </Route>
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
+      </Route>
+      <Route exact path={routerPaths.printedBallotsReport}>
+        <PrintedBallotsReportScreen />
       </Route>
       <Route
         path={[
