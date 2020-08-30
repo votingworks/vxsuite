@@ -85,13 +85,13 @@ const BallotScreen = () => {
     isLiveMode,
   })
 
-  const afterPrint = () => {
+  const afterPrint = (numCopies: number) => {
     if (isLiveMode) {
       addPrintedBallot({
         ballotStyleId,
         precinctId,
         locales,
-        numCopies: 1,
+        numCopies,
         printedAt: new Date().toISOString(),
       })
     }
@@ -165,7 +165,7 @@ const BallotScreen = () => {
           <PrintButton
             primary
             title={filename}
-            afterPrint={afterPrint}
+            afterPrint={() => afterPrint(ballotCopies)}
             copies={ballotCopies}
             warning={!isLiveMode}
           >
