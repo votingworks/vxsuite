@@ -586,9 +586,9 @@ test('encode and decode HMPB ballot page metadata', () => {
     locales: {
       primary: 'en-US',
     },
-    pageNum: 3,
-    isLiveMode: true,
-    isAbsenteeMode: false,
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
   }
 
   const encoded = encodeHMPBBallotPageMetadata(ballotMetadata)
@@ -636,13 +636,14 @@ test('encode and decode HMPB ballot page metadata with ballot ID', () => {
       primary: 'en-US',
       secondary: 'es-US',
     },
-    pageNum: 2,
-    isLiveMode: false,
-    isAbsenteeMode: true,
+    pageNumber: 2,
+    isTestMode: false,
+    ballotType: BallotType.Absentee,
     ballotId: 'foobar',
   }
 
   const encoded = encodeHMPBBallotPageMetadata(ballotMetadata)
+
   expect(encoded).toEqual(
     Uint8Array.from([
       86,
@@ -662,17 +663,99 @@ test('encode and decode HMPB ballot page metadata with ballot ID', () => {
       116,
       1,
       1,
-      19,
-      6,
-      102,
-      111,
-      111,
-      98,
-      97,
-      114,
+      16,
+      96,
+      204,
+      205,
+      237,
+      236,
+      76,
+      46,
+      64,
     ])
   )
 
   const decoded = decodeHMPBBallotPageMetadata({ election, data: encoded })
   expect(decoded).toEqual(ballotMetadata)
+})
+
+test('encode HMPB ballot page metadata with bad precinct fails', () => {
+  const electionHash = 'abc345624cdeff278def'
+  const ballotMetadata = {
+    election,
+    electionHash,
+    precinctId: 'SanDimas', // not an actual precinct ID
+    ballotStyleId: election.ballotStyles[0].id,
+    locales: {
+      primary: 'en-US',
+    },
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  }
+
+  expect(() => encodeHMPBBallotPageMetadata(ballotMetadata)).toThrowError(
+    'precinct ID not found: SanDimas'
+  )
+})
+
+test('encode HMPB ballot page metadata with bad ballot style fails', () => {
+  const electionHash = 'abc345624cdeff278def'
+  const ballotMetadata = {
+    election,
+    electionHash,
+    precinctId: election.ballotStyles[0].precincts[0],
+    ballotStyleId: '42', // not a good ballot style
+    locales: {
+      primary: 'en-US',
+    },
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  }
+
+  expect(() => encodeHMPBBallotPageMetadata(ballotMetadata)).toThrowError(
+    'ballot style ID not found: 42'
+  )
+})
+
+test('encode HMPB ballot page metadata with bad primary locale', () => {
+  const electionHash = 'abc345624cdeff278def'
+  const ballotMetadata = {
+    election,
+    electionHash,
+    precinctId: election.ballotStyles[0].precincts[0],
+    ballotStyleId: election.ballotStyles[0].id,
+    locales: {
+      primary: 'fr-CA', // not a supported locale
+    },
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  }
+
+  expect(() => encodeHMPBBallotPageMetadata(ballotMetadata)).toThrowError(
+    'primary locale not found: fr-CA'
+  )
+})
+
+test('encode HMPB ballot page metadata with bad secondary locale', () => {
+  const electionHash = 'abc345624cdeff278def'
+  const ballotMetadata = {
+    election,
+    electionHash,
+    precinctId: election.ballotStyles[0].precincts[0],
+    ballotStyleId: election.ballotStyles[0].id,
+    locales: {
+      primary: 'en-US',
+      secondary: 'fr-CA', // not a supported locale
+    },
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  }
+
+  expect(() => encodeHMPBBallotPageMetadata(ballotMetadata)).toThrowError(
+    'secondary locale not found: fr-CA'
+  )
 })

@@ -2,6 +2,7 @@ import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from '../bits'
 import {
   AnyContest,
   BallotLocale,
+  BallotType,
   BallotTypeMaximumValue,
   CandidateVote,
   CompletedBallot,
@@ -18,6 +19,7 @@ import {
 } from '../election'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
+export const MAXIMUM_PAGE_NUMBERS = 30
 
 // pad this locale array so the same code can later be upgraded
 // to support other languages without breaking previously printed ballots
@@ -348,9 +350,9 @@ interface HMPBBallotPageMetadata {
   precinctId: string
   ballotStyleId: string
   locales: BallotLocale
-  pageNum: number
-  isLiveMode: boolean
-  isAbsenteeMode: boolean
+  pageNumber: number
+  isTestMode: boolean
+  ballotType: BallotType
   ballotId?: string
 }
 
@@ -360,9 +362,9 @@ export function encodeHMPBBallotPageMetadata({
   precinctId,
   ballotStyleId,
   locales,
-  pageNum,
-  isLiveMode,
-  isAbsenteeMode,
+  pageNumber,
+  isTestMode,
+  ballotType,
   ballotId,
 }: HMPBBallotPageMetadata): Uint8Array {
   const bits = new BitWriter()
@@ -371,13 +373,31 @@ export function encodeHMPBBallotPageMetadata({
   const ballotStyles = election.ballotStyles
 
   const precinctIndex = precincts.findIndex((p) => p.id === precinctId)
+
+  if (precinctIndex === -1) {
+    throw new Error(`precinct ID not found: ${precinctId}`)
+  }
+
   const ballotStyleIndex = ballotStyles.findIndex(
     (bs) => bs.id === ballotStyleId
   )
+
+  if (ballotStyleIndex === -1) {
+    throw new Error(`ballot style ID not found: ${ballotStyleId}`)
+  }
+
   const primaryLocaleIndex = SUPPORTED_LOCALES.indexOf(locales.primary)
   const secondaryLocaleIndex = locales.secondary
     ? SUPPORTED_LOCALES.indexOf(locales.secondary)
     : undefined
+
+  if (primaryLocaleIndex === -1) {
+    throw new Error(`primary locale not found: ${locales.primary}`)
+  }
+
+  if (secondaryLocaleIndex === -1) {
+    throw new Error(`secondary locale not found: ${locales.secondary}`)
+  }
 
   bits
     .writeUint8(...HMPBPrelude)
@@ -391,11 +411,11 @@ export function encodeHMPBBallotPageMetadata({
     bits.writeUint(secondaryLocaleIndex, { max: SUPPORTED_LOCALES.length })
   }
 
-  bits.writeUint(pageNum, { max: 30 })
+  bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS })
 
   bits
-    .writeBoolean(isLiveMode)
-    .writeBoolean(isAbsenteeMode)
+    .writeBoolean(isTestMode)
+    .writeUint(ballotType, { max: BallotTypeMaximumValue })
     .writeBoolean(!!ballotId)
 
   if (ballotId) {
@@ -430,9 +450,9 @@ export function decodeHMPBBallotPageMetadata({
   const secondaryLocaleIndex = bits.readBoolean()
     ? bits.readUint({ max: SUPPORTED_LOCALES.length })
     : undefined
-  const pageNum = bits.readUint({ max: 30 })
-  const isLiveMode = bits.readBoolean()
-  const isAbsenteeMode = bits.readBoolean()
+  const pageNumber = bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
+  const isTestMode = bits.readBoolean()
+  const ballotType = bits.readUint({ max: BallotTypeMaximumValue })
   const ballotId = bits.readBoolean() ? bits.readString() : undefined
 
   return {
@@ -446,9 +466,9 @@ export function decodeHMPBBallotPageMetadata({
         ? SUPPORTED_LOCALES[secondaryLocaleIndex]
         : undefined,
     },
-    pageNum,
-    isLiveMode,
-    isAbsenteeMode,
+    pageNumber,
+    isTestMode,
+    ballotType,
     ballotId,
   }
 }
