@@ -243,7 +243,6 @@ test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => 
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
-    // @ts-ignore
     _pageNumber: 1,
     _pageNumbers: [1, 2],
   }
@@ -253,6 +252,24 @@ test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => 
       errors: [
         'Page number in CVR must be either _pageNumber, or _pageNumbers, but cannot be both.',
       ],
+      lineNumber: 1,
+    },
+  ])
+})
+
+test('parsing CVRs flags with _pageNumbers set properly works', () => {
+  const cvr: CastVoteRecord = {
+    _ballotStyleId: '12',
+    _precinctId: '23',
+    _ballotId: 'abc',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+    _pageNumbers: [1, 2],
+  }
+  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+    {
+      cvr,
+      errors: [],
       lineNumber: 1,
     },
   ])
