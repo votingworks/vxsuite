@@ -157,6 +157,7 @@ const ExportElectionBallotPackageScreen = () => {
           <HandMarkedPaperBallot
             ballotStyleId={ballotStyleId}
             election={election}
+            electionHash={electionHash}
             isLiveMode={isLiveMode}
             precinctId={precinctId}
             onRendered={onRendered}
