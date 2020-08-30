@@ -111,6 +111,7 @@ const dualLanguageComposer = (
 }
 
 const ballotMetadata = ({
+  electionHash,
   isLiveMode,
   precinctId,
   ballotStyleId,
@@ -120,6 +121,7 @@ const ballotMetadata = ({
   secondaryLocaleCode,
   ballotId,
 }: {
+  electionHash: string
   isLiveMode: boolean
   precinctId: Precinct['id']
   ballotStyleId: BallotStyle['id']
@@ -128,21 +130,39 @@ const ballotMetadata = ({
   primaryLocaleCode: string
   secondaryLocaleCode: string
   ballotId?: string
-}): string => {
-  const params = new URLSearchParams([
-    ['t', `${!isLiveMode ? 't' : '_'}`],
-    ['pr', precinctId],
-    ['bs', ballotStyleId],
-    ['l1', primaryLocaleCode],
-    ['l2', secondaryLocaleCode],
-    ['p', `${pageNumber}-${pageCount}`],
+}): Uint8Array => {
+  console.log(
+    electionHash,
+    isLiveMode,
+    precinctId,
+    ballotStyleId,
+    pageNumber,
+    pageCount,
+    primaryLocaleCode,
+    secondaryLocaleCode,
+    ballotId
+  )
+  // TODO: call into ballot-encoder
+  // for now a fixed string
+  return Uint8Array.from([
+    86,
+    80,
+    1,
+    20,
+    171,
+    195,
+    69,
+    98,
+    76,
+    222,
+    255,
+    39,
+    141,
+    239,
+    0,
+    0,
+    224,
   ])
-
-  if (ballotId) {
-    params.append('id', ballotId)
-  }
-
-  return new URL(`https://ballot.page/?${params}`).toString()
 }
 
 const qrCodeTargetClassName = 'qr-code-target'
@@ -198,6 +218,7 @@ class PostRenderBallotProcessor extends Handler {
         qrCodeTargetClassName
       )[0]
       const {
+        electionHash = '',
         precinctId = '',
         ballotStyleId = '',
         isLiveMode = '',
@@ -208,8 +229,9 @@ class PostRenderBallotProcessor extends Handler {
       if (qrCodeTarget) {
         ReactDOM.render(
           <QRCode
-            level="L"
+            level="Q"
             value={ballotMetadata({
+              electionHash,
               isLiveMode: isLiveMode === 'true',
               precinctId,
               ballotStyleId,
@@ -475,6 +497,7 @@ function hasVote(vote: Vote | undefined, optionId: string): boolean {
 export interface HandMarkedPaperBallotProps {
   ballotStyleId: string
   election: Election
+  electionHash: string
   isLiveMode?: boolean
   isAbsenteeMode?: boolean
   precinctId: string
@@ -487,6 +510,7 @@ export interface HandMarkedPaperBallotProps {
 const HandMarkedPaperBallot = ({
   ballotStyleId,
   election,
+  electionHash,
   isLiveMode = true,
   isAbsenteeMode = true,
   precinctId,
@@ -569,6 +593,7 @@ const HandMarkedPaperBallot = ({
       onRendered?.({
         ballotStyleId,
         election,
+        electionHash,
         isLiveMode,
         precinctId,
         votes,
@@ -585,6 +610,7 @@ const HandMarkedPaperBallot = ({
   }, [
     ballotStyleId,
     election,
+    electionHash,
     isLiveMode,
     onRendered,
     precinctId,
@@ -711,6 +737,7 @@ const HandMarkedPaperBallot = ({
             </PageFooterMain>
             <PageFooterQRCode
               className={qrCodeTargetClassName}
+              data-election-hash={electionHash}
               data-is-live-mode={isLiveMode}
               data-precinct-id={precinctId}
               data-ballot-style-id={ballotStyleId}
