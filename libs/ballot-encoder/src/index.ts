@@ -16,15 +16,16 @@ export enum EncoderVersion {
  * Encodes a ballot using the specified encoder version.
  */
 export function encodeBallot(
+  election: Election,
   ballot: CompletedBallot,
   version: EncoderVersion = EncoderVersion.v1
 ): Uint8Array {
   switch (version) {
     case EncoderVersion.v0:
-      return v0.encodeBallot(ballot)
+      return v0.encodeBallot(election, ballot)
 
     case EncoderVersion.v1:
-      return v1.encodeBallot(ballot)
+      return v1.encodeBallot(election, ballot)
 
     default:
       throw new Error(`unexpected encoder version: ${JSON.stringify(version)}`)

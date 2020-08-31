@@ -25,17 +25,16 @@ test('encodes with v1 by default', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(detect(encodeBallot(ballot))).toEqual(EncoderVersion.v1)
+  expect(detect(encodeBallot(election, ballot))).toEqual(EncoderVersion.v1)
 })
 
 test('can encode by version number', () => {
@@ -44,28 +43,27 @@ test('can encode by version number', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(encodeBallot(ballot, EncoderVersion.v0)).toEqual(
-    v0.encodeBallot(ballot)
+  expect(encodeBallot(election, ballot, EncoderVersion.v0)).toEqual(
+    v0.encodeBallot(election, ballot)
   )
 
-  expect(encodeBallot(ballot, EncoderVersion.v1)).toEqual(
-    v1.encodeBallot(ballot)
+  expect(encodeBallot(election, ballot, EncoderVersion.v1)).toEqual(
+    v1.encodeBallot(election, ballot)
   )
 })
 
 test('encoding with an invalid encoder version is an error', () => {
   expect(() =>
-    encodeBallot({} as CompletedBallot, 99 as EncoderVersion)
+    encodeBallot(election, {} as CompletedBallot, 99 as EncoderVersion)
   ).toThrowError('unexpected encoder version: 99')
 })
 
@@ -75,18 +73,17 @@ test('can decode specifying v0', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
   expect(
-    decodeBallot(election, v0.encodeBallot(ballot), EncoderVersion.v0)
+    decodeBallot(election, v0.encodeBallot(election, ballot), EncoderVersion.v0)
   ).toEqual({
     version: EncoderVersion.v0,
     ballot,
@@ -99,18 +96,17 @@ test('can decode specifying v1', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
   expect(
-    decodeBallot(election, v1.encodeBallot(ballot), EncoderVersion.v1)
+    decodeBallot(election, v1.encodeBallot(election, ballot), EncoderVersion.v1)
   ).toEqual({ version: EncoderVersion.v1, ballot })
 })
 
@@ -120,21 +116,20 @@ test('can decode and automatically detect the right version', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(decodeBallot(election, v0.encodeBallot(ballot))).toEqual({
+  expect(decodeBallot(election, v0.encodeBallot(election, ballot))).toEqual({
     version: EncoderVersion.v0,
     ballot,
   })
-  expect(decodeBallot(election, v1.encodeBallot(ballot))).toEqual({
+  expect(decodeBallot(election, v1.encodeBallot(election, ballot))).toEqual({
     version: EncoderVersion.v1,
     ballot,
   })
@@ -152,15 +147,14 @@ test('can detect v0 encoding', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(detect(v0.encodeBallot(ballot))).toEqual(EncoderVersion.v0)
+  expect(detect(v0.encodeBallot(election, ballot))).toEqual(EncoderVersion.v0)
 })

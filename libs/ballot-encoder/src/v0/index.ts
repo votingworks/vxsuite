@@ -57,20 +57,20 @@ export function detectString(data: string): boolean {
 /**
  * Encodes a ballot for transport or storage.
  */
-export function encodeBallot(ballot: CompletedBallot): Uint8Array {
-  return new TextEncoder().encode(encodeBallotAsString(ballot))
+export function encodeBallot(
+  election: Election,
+  ballot: CompletedBallot
+): Uint8Array {
+  return new TextEncoder().encode(encodeBallotAsString(election, ballot))
 }
 
 /**
  * Convenience function for encoding ballot data as a string, for testing.
  */
-export function encodeBallotAsString({
-  election,
-  ballotStyle,
-  precinct,
-  votes,
-  ballotId,
-}: CompletedBallot): string {
+export function encodeBallotAsString(
+  election: Election,
+  { ballotStyle, precinct, votes, ballotId }: CompletedBallot
+): string {
   const contests = getContests({ ballotStyle, election })
 
   return [
@@ -181,10 +181,9 @@ export function decodeBallotFromString(
   return {
     ballotId,
     ballotStyle,
-    election,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 }

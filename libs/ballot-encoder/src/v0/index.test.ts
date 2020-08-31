@@ -4,6 +4,7 @@ import {
   electionSample as election,
   getContests,
   vote,
+  CompletedBallot,
 } from '../election'
 import * as v1 from '../v1'
 import {
@@ -34,17 +35,16 @@ test('does not detect a v1 buffer as v0', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(detect(v1.encodeBallot(ballot))).toBe(false)
+  expect(detect(v1.encodeBallot(election, ballot))).toBe(false)
 })
 
 test('does not detect if the check throws', () => {
@@ -67,17 +67,16 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(decodeBallot(election, encodeBallot(ballot))).toEqual(ballot)
+  expect(decodeBallot(election, encodeBallot(election, ballot))).toEqual(ballot)
 })
 
 test('encodes & decodes empty votes', () => {
@@ -86,18 +85,17 @@ test('encodes & decodes empty votes', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
   const encodedBallot = '12.23.|||||||||||||||||||.abcde'
 
-  expect(encodeBallotAsString(ballot)).toEqual(encodedBallot)
+  expect(encodeBallotAsString(election, ballot)).toEqual(encodedBallot)
   expect(decodeBallotFromString(election, encodedBallot)).toEqual(ballot)
 })
 
@@ -112,20 +110,22 @@ test('encodes & decodes yesno votes', () => {
     [yesnos[2].id]: [],
   })
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
   const encodedBallot = '12.23.||||||||||||1|0||||||.abcde'
 
-  expect(encodeBallotAsString(ballot)).toEqual(encodedBallot)
+  expect(encodeBallotAsString(election, ballot)).toEqual(encodedBallot)
   expect(
-    encodeBallotAsString(decodeBallotFromString(election, encodedBallot))
+    encodeBallotAsString(
+      election,
+      decodeBallotFromString(election, encodedBallot)
+    )
   ).toEqual(encodedBallot)
 })
 
@@ -140,18 +140,17 @@ test('encodes & decodes candidate votes', () => {
     [contest.id]: contest.candidates.slice(0, 2),
   })
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
   const encodedBallot = '12.23.0,1|||||||||||||||||||.abcde'
 
-  expect(encodeBallotAsString(ballot)).toEqual(encodedBallot)
+  expect(encodeBallotAsString(election, ballot)).toEqual(encodedBallot)
   expect(decodeBallotFromString(election, encodedBallot)).toEqual(ballot)
 })
 
@@ -168,18 +167,17 @@ test('encodes write-ins as `W`', () => {
     ],
   })
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
   const encodedBallot = '12.23.W|||||||||||||||||||.abcde'
 
-  expect(encodeBallotAsString(ballot)).toEqual(encodedBallot)
+  expect(encodeBallotAsString(election, ballot)).toEqual(encodedBallot)
 
   expect(decodeBallotFromString(election, encodedBallot)).toEqual({
     ...ballot,
@@ -195,7 +193,7 @@ test('encodes write-ins as `W`', () => {
       ],
     },
     // v0 does not encode whether a ballot is a test ballot
-    isTestBallot: false,
+    isTestMode: false,
     // v0 does not encode ballot type
     ballotType: BallotType.Standard,
   })
@@ -210,17 +208,16 @@ test('cannot encode a yesno contest with an invalid value', () => {
     [yesnos[0].id]: 'YEP',
   })
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(() => encodeBallot(ballot)).toThrowError(
+  expect(() => encodeBallot(election, ballot)).toThrowError(
     "cannot encode yesno vote, expected ['no'] or ['yes'] but got \"YEP\""
   )
 })

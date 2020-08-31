@@ -1,29 +1,32 @@
 import { BitWriter } from '../bits'
+import electionWithMsEitherNeitherUntyped from '../data/electionWithMsEitherNeither.json'
 import {
   BallotType,
   BallotTypeMaximumValue,
   Candidate,
   Election,
-  Vote,
   electionSampleLongContent as election,
   getContests,
-  vote,
   isVotePresent,
+  Vote,
+  vote,
+  CompletedBallot,
 } from '../election'
 import * as v0 from '../v0'
 import {
   decodeBallot,
+  decodeHMPBBallotPageMetadata,
   detect,
   encodeBallot,
   encodeBallotInto,
+  encodeHMPBBallotPageMetadata,
+  HMPBBallotPageMetadata,
   MAXIMUM_WRITE_IN_LENGTH,
   Prelude,
   WriteInEncoding,
-  encodeHMPBBallotPageMetadata,
-  decodeHMPBBallotPageMetadata,
+  decodeHMPBBallotPageMetadataCheckData,
 } from './index'
 
-import electionWithMsEitherNeitherUntyped from '../data/electionWithMsEitherNeither.json'
 const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election
 
 function falses(count: number): boolean[] {
@@ -43,17 +46,16 @@ test('does not detect a v0 buffer as v1', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(detect(v0.encodeBallot(ballot))).toBe(false)
+  expect(detect(v0.encodeBallot(election, ballot))).toBe(false)
 })
 
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
@@ -62,17 +64,16 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(decodeBallot(election, encodeBallot(ballot))).toEqual(ballot)
+  expect(decodeBallot(election, encodeBallot(election, ballot))).toEqual(ballot)
 })
 
 it('encodes & decodes empty votes correctly', () => {
@@ -81,13 +82,12 @@ it('encodes & decodes empty votes correctly', () => {
   const contests = getContests({ ballotStyle, election })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
@@ -108,7 +108,7 @@ it('encodes & decodes empty votes correctly', () => {
     .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
-  expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
+  expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot)
   expect(decodeBallot(election, encodedBallot)).toEqual(ballot)
 })
 
@@ -118,13 +118,12 @@ it('encodes & decodes whether it is a test ballot', () => {
   const contests = getContests({ ballotStyle, election })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: true,
+    isTestMode: true,
     ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
@@ -145,7 +144,7 @@ it('encodes & decodes whether it is a test ballot', () => {
     .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
-  expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
+  expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot)
   expect(decodeBallot(election, encodedBallot)).toEqual(ballot)
 })
 
@@ -155,13 +154,12 @@ it('encodes & decodes the ballot type', () => {
   const contests = getContests({ ballotStyle, election })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: true,
+    isTestMode: true,
     ballotType: BallotType.Absentee,
   }
   const encodedBallot = new BitWriter()
@@ -182,7 +180,7 @@ it('encodes & decodes the ballot type', () => {
     .writeUint(BallotType.Absentee, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
-  expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
+  expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot)
   expect(decodeBallot(election, encodedBallot)).toEqual(ballot)
 })
 
@@ -201,13 +199,12 @@ it('encodes & decodes yesno votes correctly', () => {
     'measure-101': ['no'],
     '102': ['yes'],
   })
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
@@ -238,8 +235,8 @@ it('encodes & decodes yesno votes correctly', () => {
     .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
-  expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
-  expect(encodeBallot(decodeBallot(election, encodedBallot))).toEqual(
+  expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot)
+  expect(encodeBallot(election, decodeBallot(election, encodedBallot))).toEqual(
     encodedBallot
   )
 })
@@ -266,13 +263,12 @@ it('encodes & decodes ms-either-neither votes correctly', () => {
 
   for (const rawVote of votePermutations) {
     const votes = vote(contests, rawVote)
-    const ballot = {
-      election,
+    const ballot: CompletedBallot = {
       ballotId,
       ballotStyle,
       precinct,
       votes,
-      isTestBallot: false,
+      isTestMode: false,
       ballotType: BallotType.Standard,
     }
     const encodedBallotWriter = new BitWriter()
@@ -309,10 +305,10 @@ it('encodes & decodes ms-either-neither votes correctly', () => {
       .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
       .toUint8Array()
 
-    expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
-    expect(encodeBallot(decodeBallot(election, encodedBallot))).toEqual(
-      encodedBallot
-    )
+    expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot)
+    expect(
+      encodeBallot(election, decodeBallot(election, encodedBallot))
+    ).toEqual(encodedBallot)
   }
 })
 
@@ -324,23 +320,22 @@ it('throws on trying to encode a bad yes/no vote', () => {
   const votes = vote(contests, {
     'judicial-robert-demergue': 'yes',
   })
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
-  expect(() => encodeBallot(ballot)).toThrowError(
+  expect(() => encodeBallot(election, ballot)).toThrowError(
     'cannot encode a non-array yes/no vote: "yes"'
   )
 
   // overvotes fail too.
   ballot.votes['judicial-robert-demergue'] = ['yes', 'no']
-  expect(() => encodeBallot(ballot)).toThrowError(
+  expect(() => encodeBallot(election, ballot)).toThrowError(
     'cannot encode a yes/no overvote: ["yes","no"]'
   )
 })
@@ -364,13 +359,12 @@ it('encodes & decodes candidate choice votes correctly', () => {
     'city-mayor': 'white',
     'city-council': 'eagle',
   })
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
@@ -420,7 +414,7 @@ it('encodes & decodes candidate choice votes correctly', () => {
     .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
-  expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
+  expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot)
   expect(decodeBallot(election, encodedBallot)).toEqual(ballot)
 })
 
@@ -434,13 +428,12 @@ it('encodes & decodes write-in votes correctly', () => {
     ],
   })
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
   const encodedBallot = new BitWriter()
@@ -470,7 +463,7 @@ it('encodes & decodes write-in votes correctly', () => {
     .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
     .toUint8Array()
 
-  expect(encodeBallot(ballot)).toEqualBits(encodedBallot)
+  expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot)
   expect(decodeBallot(election, encodedBallot)).toEqual(ballot)
 })
 
@@ -528,19 +521,18 @@ test('cannot decode a ballot that includes extra data at the end', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
   const writer = new BitWriter()
 
-  encodeBallotInto(ballot, writer)
+  encodeBallotInto(election, ballot, writer)
 
   const corruptedBallot = writer.writeBoolean(true).toUint8Array()
 
@@ -555,19 +547,18 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
   const contests = getContests({ election, ballotStyle })
   const votes = vote(contests, {})
   const ballotId = 'abcde'
-  const ballot = {
-    election,
+  const ballot: CompletedBallot = {
     ballotId,
     ballotStyle,
     precinct,
     votes,
-    isTestBallot: false,
+    isTestMode: false,
     ballotType: BallotType.Standard,
   }
 
   const writer = new BitWriter()
 
-  encodeBallotInto(ballot, writer)
+  encodeBallotInto(election, ballot, writer)
 
   const corruptedBallot = writer.writeUint8(0).toUint8Array()
 
@@ -578,8 +569,7 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
 
 test('encode and decode HMPB ballot page metadata', () => {
   const electionHash = 'abc345624cdeff278def'
-  const ballotMetadata = {
-    election,
+  const ballotMetadata: HMPBBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[0].precincts[0],
     ballotStyleId: election.ballotStyles[0].id,
@@ -591,7 +581,7 @@ test('encode and decode HMPB ballot page metadata', () => {
     ballotType: BallotType.Standard,
   }
 
-  const encoded = encodeHMPBBallotPageMetadata(ballotMetadata)
+  const encoded = encodeHMPBBallotPageMetadata(election, ballotMetadata)
 
   expect(encoded).toEqual(
     Uint8Array.of(
@@ -609,26 +599,26 @@ test('encode and decode HMPB ballot page metadata', () => {
       39,
       141,
       239,
+      3,
+      3,
+      22,
       0,
       0,
       224
     )
   )
-  const decoded = decodeHMPBBallotPageMetadata({ election, data: encoded })
+  const decoded = decodeHMPBBallotPageMetadata(election, encoded)
   expect(decoded).toEqual(ballotMetadata)
 
   // corrupt the first byte and expect it to fail
   encoded[0] = 42
-  expect(() =>
-    decodeHMPBBallotPageMetadata({ election, data: encoded })
-  ).toThrowError()
+  expect(() => decodeHMPBBallotPageMetadata(election, encoded)).toThrowError()
 })
 
 test('encode and decode HMPB ballot page metadata with ballot ID', () => {
   const election = electionWithMsEitherNeither
   const electionHash = 'abc345624cdeff278def'
-  const ballotMetadata = {
-    election: election,
+  const ballotMetadata: HMPBBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[2].precincts[1],
     ballotStyleId: election.ballotStyles[2].id,
@@ -642,7 +632,7 @@ test('encode and decode HMPB ballot page metadata with ballot ID', () => {
     ballotId: 'foobar',
   }
 
-  const encoded = encodeHMPBBallotPageMetadata(ballotMetadata)
+  const encoded = encodeHMPBBallotPageMetadata(election, ballotMetadata)
 
   expect(encoded).toEqual(
     Uint8Array.of(
@@ -660,6 +650,9 @@ test('encode and decode HMPB ballot page metadata with ballot ID', () => {
       39,
       141,
       239,
+      13,
+      5,
+      13,
       116,
       1,
       1,
@@ -675,14 +668,13 @@ test('encode and decode HMPB ballot page metadata with ballot ID', () => {
     )
   )
 
-  const decoded = decodeHMPBBallotPageMetadata({ election, data: encoded })
+  const decoded = decodeHMPBBallotPageMetadata(election, encoded)
   expect(decoded).toEqual(ballotMetadata)
 })
 
 test('encode HMPB ballot page metadata with bad precinct fails', () => {
   const electionHash = 'abc345624cdeff278def'
-  const ballotMetadata = {
-    election,
+  const ballotMetadata: HMPBBallotPageMetadata = {
     electionHash,
     precinctId: 'SanDimas', // not an actual precinct ID
     ballotStyleId: election.ballotStyles[0].id,
@@ -694,15 +686,14 @@ test('encode HMPB ballot page metadata with bad precinct fails', () => {
     ballotType: BallotType.Standard,
   }
 
-  expect(() => encodeHMPBBallotPageMetadata(ballotMetadata)).toThrowError(
-    'precinct ID not found: SanDimas'
-  )
+  expect(() =>
+    encodeHMPBBallotPageMetadata(election, ballotMetadata)
+  ).toThrowError('precinct ID not found: SanDimas')
 })
 
 test('encode HMPB ballot page metadata with bad ballot style fails', () => {
   const electionHash = 'abc345624cdeff278def'
-  const ballotMetadata = {
-    election,
+  const ballotMetadata: HMPBBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[0].precincts[0],
     ballotStyleId: '42', // not a good ballot style
@@ -714,15 +705,14 @@ test('encode HMPB ballot page metadata with bad ballot style fails', () => {
     ballotType: BallotType.Standard,
   }
 
-  expect(() => encodeHMPBBallotPageMetadata(ballotMetadata)).toThrowError(
-    'ballot style ID not found: 42'
-  )
+  expect(() =>
+    encodeHMPBBallotPageMetadata(election, ballotMetadata)
+  ).toThrowError('ballot style ID not found: 42')
 })
 
 test('encode HMPB ballot page metadata with bad primary locale', () => {
   const electionHash = 'abc345624cdeff278def'
-  const ballotMetadata = {
-    election,
+  const ballotMetadata: HMPBBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[0].precincts[0],
     ballotStyleId: election.ballotStyles[0].id,
@@ -734,15 +724,14 @@ test('encode HMPB ballot page metadata with bad primary locale', () => {
     ballotType: BallotType.Standard,
   }
 
-  expect(() => encodeHMPBBallotPageMetadata(ballotMetadata)).toThrowError(
-    'primary locale not found: fr-CA'
-  )
+  expect(() =>
+    encodeHMPBBallotPageMetadata(election, ballotMetadata)
+  ).toThrowError('primary locale not found: fr-CA')
 })
 
 test('encode HMPB ballot page metadata with bad secondary locale', () => {
   const electionHash = 'abc345624cdeff278def'
-  const ballotMetadata = {
-    election,
+  const ballotMetadata: HMPBBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[0].precincts[0],
     ballotStyleId: election.ballotStyles[0].id,
@@ -755,7 +744,30 @@ test('encode HMPB ballot page metadata with bad secondary locale', () => {
     ballotType: BallotType.Standard,
   }
 
-  expect(() => encodeHMPBBallotPageMetadata(ballotMetadata)).toThrowError(
-    'secondary locale not found: fr-CA'
-  )
+  expect(() =>
+    encodeHMPBBallotPageMetadata(election, ballotMetadata)
+  ).toThrowError('secondary locale not found: fr-CA')
+})
+
+test('decode HMPB ballot page metadata check data separately', () => {
+  const electionHash = 'abc345624cdeff278def'
+  const ballotMetadata: HMPBBallotPageMetadata = {
+    electionHash,
+    precinctId: election.ballotStyles[0].precincts[0],
+    ballotStyleId: election.ballotStyles[0].id,
+    locales: {
+      primary: 'en-US',
+    },
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  }
+
+  const encoded = encodeHMPBBallotPageMetadata(election, ballotMetadata)
+  expect(decodeHMPBBallotPageMetadataCheckData(encoded)).toEqual({
+    electionHash,
+    precinctCount: election.precincts.length,
+    ballotStyleCount: election.ballotStyles.length,
+    contestCount: election.contests.length,
+  })
 })

@@ -36,6 +36,7 @@ Optionally, deprecate a previous version. For example:
 
 ```ts
 import {
+  CompletedBallot,
   decodeBallot,
   electionSample as election,
   encodeBallot,
@@ -57,8 +58,7 @@ const votes = vote(contests, {
   'measure-101': 'no',
   '102': 'yes',
 })
-const ballot = {
-  election,
+const ballot: CompletedBallot = {
   ballotId,
   ballotStyle,
   precinct,
@@ -91,10 +91,10 @@ console.log(decodeBallot(election, encodeBallot(ballot)).ballot.votes)
 
 ## Usage
 
-To encode a ballot, simply pass a completed ballot object to `encodeBallot`.
-You'll get back a buffer that may be stored or transmitted and later passed to
-`decodeBallot` with the same `election` data that was part of the completed
-ballot object.
+To encode a ballot, simply pass an election and a completed ballot object to
+`encodeBallot`. You'll get back a buffer that may be stored or transmitted and
+later passed to `decodeBallot` with the same `election` data given to
+`encodeBallot`.
 
 There are multiple encoder versions and by default the latest will be used when
 encoding. To specify the version, pass the `EncoderVersion` as the second
