@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
+import moment from 'moment'
 
 import AppContext from '../contexts/AppContext'
 
@@ -24,7 +25,7 @@ const Header = styled.div`
 `
 
 const BallotListScreen = () => {
-  const { election: e, printedBallots } = useContext(AppContext)
+  const { election: e, printedBallots, configuredAt } = useContext(AppContext)
   const election = e!
 
   const ballotLists = [
@@ -50,7 +51,8 @@ const BallotListScreen = () => {
             <strong>
               {pluralize('official ballot', numBallotsPrinted, true)}{' '}
             </strong>{' '}
-            {pluralize('have', numBallotsPrinted)} been printed.
+            printed since configuration at{' '}
+            {moment(new Date(configuredAt)).format('MMM D, YYYY [at] h:mma')}.{' '}
             <LinkButton small to={routerPaths.printedBallotsReport}>
               Printed Ballots Report
             </LinkButton>{' '}
