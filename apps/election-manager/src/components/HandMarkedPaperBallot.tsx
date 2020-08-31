@@ -294,8 +294,8 @@ const PageFooterRow = styled.div`
   }
 `
 const PageFooterQRCode = styled.div`
-  margin-left: 0.15in;
-  width: 0.55in;
+  margin-left: 0.225in;
+  width: 0.475in;
 `
 const CandidateContestsLayout = styled.div`
   columns: 3;
