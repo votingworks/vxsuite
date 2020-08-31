@@ -26,6 +26,7 @@ import HorizontalRule from '../components/HorizontalRule'
 import { DEFAULT_LOCALE } from '../config/globals'
 import routerPaths from '../routerPaths'
 import TextInput from '../components/TextInput'
+import LinkButton from '../components/LinkButton'
 
 const BallotCopiesInput = styled(TextInput)`
   width: 4em;
@@ -176,6 +177,11 @@ const BallotScreen = () => {
               currentLocaleCode &&
               ` in ${getHumanBallotLanguageFormat(locales)}`}
           </PrintButton>
+        </p>
+        <p>
+          <LinkButton small to={routerPaths.ballotsList}>
+            Back to List Ballots
+          </LinkButton>
         </p>
         <p>
           Filename: <Monospace>{filename}</Monospace>
