@@ -617,7 +617,9 @@ const HandMarkedPaperBallot = ({
           <PageFooter>
             {isAbsenteeMode && (
               <AbsenteeFooter>
-                <Text bold>Absentee Ballot</Text>
+                <Text bold as="span">
+                  Absentee Ballot
+                </Text>
               </AbsenteeFooter>
             )}
             <OfficialInitials>
