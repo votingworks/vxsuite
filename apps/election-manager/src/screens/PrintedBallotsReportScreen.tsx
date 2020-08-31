@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import pluralize from 'pluralize'
 
 import { Dictionary } from '../config/types'
 
@@ -59,16 +60,20 @@ const PrintedBallotsReportScreen = () => {
         {electionDate}, {election.county.name}, {election.state}
         <br />
         <Text small as="span">
-          This report was created on {generatedAt}
+          This report was created on {generatedAt}.
+        </Text>
+        <br />
+        <Text small as="span">
+          Configured with the current election at{' '}
+          {localeLongDateAndTime.format(new Date(configuredAt))}.
         </Text>
       </p>
 
       <p>
-        <strong>{totalBallotsPrinted} official ballots</strong> have been
-        printed.
-        <br />
-        Election configured at{' '}
-        <strong>{localeLongDateAndTime.format(new Date(configuredAt))}</strong>.
+        <strong>
+          {pluralize('official ballot', totalBallotsPrinted, true)}{' '}
+        </strong>{' '}
+        {pluralize('have', totalBallotsPrinted)} been printed.
       </p>
 
       <p className="no-print">
@@ -80,7 +85,7 @@ const PrintedBallotsReportScreen = () => {
           <tr>
             <th>Precinct</th>
             <th>Ballot Style</th>
-            <th>Number of Printed Official Ballots</th>
+            <th>Official Ballots Printed</th>
           </tr>
           {Object.keys(counts).flatMap((precinctId) => {
             const precinct = find(

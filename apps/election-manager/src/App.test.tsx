@@ -72,7 +72,7 @@ it('basic navigation works', async () => {
   await sleep(0)
 
   fireEvent.click(getByText('Ballots'))
-  getByText('1 official ballots', { exact: false })
+  getByText('1 official ballot', { exact: false })
   fireEvent.click(getByText('Printed Ballots Report'))
   fireEvent.click(queryAllByText('Print Report')[0])
   expect(window.kiosk?.print).toHaveBeenCalledTimes(2)
