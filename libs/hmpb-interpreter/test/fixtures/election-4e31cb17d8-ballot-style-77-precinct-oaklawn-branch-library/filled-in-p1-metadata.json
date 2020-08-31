@@ -1,7 +1,9 @@
 {
   "ballotStyleId": "77",
-  "isTestBallot": false,
-  "pageCount": 2,
+  "isTestMode": false,
   "pageNumber": 1,
-  "precinctId": "42"
+  "precinctId": "42",
+  "locales": {
+    "primary": "en-US"
+  }
 }

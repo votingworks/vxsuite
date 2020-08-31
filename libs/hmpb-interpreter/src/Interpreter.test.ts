@@ -11,6 +11,7 @@ import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-gener
 import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020'
 import Interpreter from './Interpreter'
 import { DetectQRCodeResult, BallotTargetMark } from './types'
+import { BallotType } from '@votingworks/ballot-encoder'
 
 test('interpret two-column template', async () => {
   const interpreter = new Interpreter(election)
@@ -20,9 +21,12 @@ test('interpret two-column template', async () => {
   expect(template.ballotImage.metadata).toMatchInlineSnapshot(`
     Object {
       "ballotStyleId": "77",
-      "isTestBallot": false,
-      "locales": undefined,
-      "pageCount": 2,
+      "ballotType": 0,
+      "electionHash": "",
+      "isTestMode": false,
+      "locales": Object {
+        "primary": "en-US",
+      },
       "pageNumber": 1,
       "precinctId": "42",
     }
@@ -574,34 +578,6 @@ test('interpret two-column template', async () => {
       },
     ]
   `)
-})
-
-test('missing templates', async () => {
-  const interpreter = new Interpreter(election)
-  const metadataPage1 = await blankPage1.metadata()
-  const metadataPage2 = await blankPage2.metadata()
-
-  expect([...interpreter.getMissingTemplates()]).toEqual([
-    {
-      ballotStyleId: metadataPage1.ballotStyleId,
-      precinctId: metadataPage1.precinctId,
-    },
-  ])
-  expect(interpreter.hasMissingTemplates()).toBe(true)
-
-  await interpreter.addTemplate(await blankPage1.imageData())
-  expect([...interpreter.getMissingTemplates()]).toEqual([
-    {
-      ballotStyleId: metadataPage2.ballotStyleId,
-      precinctId: metadataPage2.precinctId,
-      pageNumber: 2,
-    },
-  ])
-  expect(interpreter.hasMissingTemplates()).toBe(true)
-
-  await interpreter.addTemplate(await blankPage2.imageData())
-  expect([...interpreter.getMissingTemplates()]).toEqual([])
-  expect(interpreter.hasMissingTemplates()).toBe(false)
 })
 
 test('interpret empty ballot', async () => {
@@ -2019,11 +1995,13 @@ test('custom QR code reader', async () => {
   )
 
   expect(template.ballotImage.metadata).toEqual({
+    locales: { primary: 'en-US' },
     ballotStyleId: '22',
     precinctId: '11',
-    isTestBallot: false,
+    isTestMode: false,
     pageNumber: 3,
-    pageCount: 4,
+    electionHash: '',
+    ballotType: BallotType.Standard,
   })
 })
 
@@ -2106,10 +2084,10 @@ test('enforcing test vs live mode', async () => {
   await expect(
     interpreter.addTemplate(
       await blankPage1.imageData(),
-      await blankPage1.metadata({ isTestBallot: true })
+      await blankPage1.metadata({ isTestMode: true })
     )
   ).rejects.toThrowError(
-    'interpreter configured with testMode=false cannot add templates with isTestBallot=true'
+    'interpreter configured with testMode=false cannot add templates with isTestMode=true'
   )
 
   await interpreter.addTemplate(
@@ -2124,10 +2102,10 @@ test('enforcing test vs live mode', async () => {
   await expect(
     interpreter.interpretBallot(
       await blankPage1.imageData(),
-      await blankPage1.metadata({ isTestBallot: true })
+      await blankPage1.metadata({ isTestMode: true })
     )
   ).rejects.toThrowError(
-    'interpreter configured with testMode=false cannot interpret ballots with isTestBallot=true'
+    'interpreter configured with testMode=false cannot interpret ballots with isTestMode=true'
   )
 })
 
@@ -2138,9 +2116,9 @@ test('can interpret a template that is not in the same mode as the interpreter',
     (
       await interpreter.interpretTemplate(
         await blankPage1.imageData(),
-        await blankPage1.metadata({ isTestBallot: false })
+        await blankPage1.metadata({ isTestMode: false })
       )
-    ).ballotImage.metadata.isTestBallot
+    ).ballotImage.metadata.isTestMode
   ).toBe(false)
 })
 

@@ -1,127 +1,174 @@
+import { BallotType } from '@votingworks/ballot-encoder'
 import { croppedQRCode } from '../test/fixtures'
-import { blankPage1 } from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
+import {
+  election as urlQRCodeElection,
+  blankPage1 as urlQRCodePage1,
+} from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
+import {
+  election as binaryQRCodeElection,
+  blankPage1 as binaryQRCodePage1,
+} from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
 import { decodeSearchParams, detect } from './metadata'
 import { jsqr } from './utils/qrcode'
 
-test('URL decoding', () => {
+test('read binary metadata from QR code image', async () => {
   expect(
-    decodeSearchParams(
-      new URLSearchParams([
-        ['t', 'tt'],
-        ['pr', 'Acme & Co'],
-        ['bs', 'Ballot Style Orange'],
-        ['p', '2-3'],
-        ['l1', 'en-US'],
-        ['l2', 'es-US'],
-      ])
-    )
+    await detect(binaryQRCodeElection, await binaryQRCodePage1.imageData())
   ).toEqual({
-    locales: { primary: 'en-US', secondary: 'es-US' },
-    ballotStyleId: 'Ballot Style Orange',
-    precinctId: 'Acme & Co',
-    isTestBallot: true,
-    pageNumber: 2,
-    pageCount: 3,
-  })
-})
-
-test('omitted secondary locale code', () => {
-  expect(
-    decodeSearchParams(
-      new URLSearchParams([
-        ['t', 'tt'],
-        ['pr', 'Acme & Co'],
-        ['bs', 'Ballot Style Orange'],
-        ['p', '2-3'],
-        ['l1', 'en-US'],
-      ])
-    )
-  ).toEqual({
-    locales: { primary: 'en-US' },
-    ballotStyleId: 'Ballot Style Orange',
-    precinctId: 'Acme & Co',
-    isTestBallot: true,
-    pageNumber: 2,
-    pageCount: 3,
-  })
-})
-
-test('live mode', () => {
-  expect(
-    decodeSearchParams(
-      new URLSearchParams([
-        ['t', '_t'],
-        ['pr', ''],
-        ['bs', ''],
-        ['p', '1-1'],
-        ['l1', 'en-US'],
-      ])
-    )
-  ).toEqual(expect.objectContaining({ isTestBallot: false }))
-})
-
-test('cropped QR code', async () => {
-  await expect(detect(await croppedQRCode.imageData())).rejects.toThrow(
-    'Expected QR code not found.'
-  )
-})
-
-test('ballot', async () => {
-  expect(await detect(await blankPage1.imageData())).toEqual({
     metadata: {
-      ballotStyleId: '77',
-      precinctId: '42',
-      isTestBallot: false,
+      locales: { primary: 'en-US', secondary: undefined },
+      ballotStyleId: '1',
+      precinctId: '6525',
+      isTestMode: false,
       pageNumber: 1,
-      pageCount: 2,
+      electionHash:
+        'e87f23ca2cc9feed24cf252920cecd26f1777746c634ea78debd1dc50e48a762',
+      ballotType: BallotType.Standard,
     },
     flipped: false,
   })
 })
 
-test('alternate QR code reader', async () => {
-  expect(
-    await detect(await blankPage1.imageData(), { detectQRCode: jsqr })
-  ).toEqual({
-    metadata: {
-      ballotStyleId: '77',
-      precinctId: '42',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 2,
-    },
-    flipped: false,
-  })
-})
-
-test('custom QR code reader', async () => {
-  expect(
-    await detect(await blankPage1.imageData(), {
-      detectQRCode: async () => ({
-        data: Buffer.from('https://ballot.page?t=_&pr=11&bs=22&p=3-4'),
-      }),
+describe('old-style URL-based metadata', () => {
+  test('URL decoding', () => {
+    expect(
+      decodeSearchParams(
+        new URLSearchParams([
+          ['t', 'tt'],
+          ['pr', 'Acme & Co'],
+          ['bs', 'Ballot Style Orange'],
+          ['p', '2-3'],
+          ['l1', 'en-US'],
+          ['l2', 'es-US'],
+        ])
+      )
+    ).toEqual({
+      locales: { primary: 'en-US', secondary: 'es-US' },
+      ballotStyleId: 'Ballot Style Orange',
+      precinctId: 'Acme & Co',
+      isTestMode: true,
+      pageNumber: 2,
+      electionHash: '',
+      ballotType: BallotType.Standard,
     })
-  ).toEqual({
-    metadata: {
-      ballotStyleId: '22',
-      precinctId: '11',
-      isTestBallot: false,
-      pageNumber: 3,
-      pageCount: 4,
-    },
-    flipped: false,
   })
-})
 
-test('upside-down ballot images', async () => {
-  expect(await detect(await blankPage1.imageData({ flipped: true }))).toEqual({
-    metadata: {
-      ballotStyleId: '77',
-      precinctId: '42',
-      isTestBallot: false,
-      pageNumber: 1,
-      pageCount: 2,
-    },
-    flipped: true,
+  test('omitted secondary locale code', () => {
+    expect(
+      decodeSearchParams(
+        new URLSearchParams([
+          ['t', 'tt'],
+          ['pr', 'Acme & Co'],
+          ['bs', 'Ballot Style Orange'],
+          ['p', '2-3'],
+          ['l1', 'en-US'],
+        ])
+      )
+    ).toEqual({
+      locales: { primary: 'en-US' },
+      ballotStyleId: 'Ballot Style Orange',
+      precinctId: 'Acme & Co',
+      isTestMode: true,
+      pageNumber: 2,
+      electionHash: '',
+      ballotType: BallotType.Standard,
+    })
+  })
+
+  test('live mode', () => {
+    expect(
+      decodeSearchParams(
+        new URLSearchParams([
+          ['t', '_t'],
+          ['pr', ''],
+          ['bs', ''],
+          ['p', '1-1'],
+          ['l1', 'en-US'],
+        ])
+      )
+    ).toEqual(expect.objectContaining({ isTestMode: false }))
+  })
+
+  test('cropped QR code', async () => {
+    await expect(
+      detect(urlQRCodeElection, await croppedQRCode.imageData())
+    ).rejects.toThrow('Expected QR code not found.')
+  })
+
+  test('ballot', async () => {
+    expect(
+      await detect(urlQRCodeElection, await urlQRCodePage1.imageData())
+    ).toEqual({
+      metadata: {
+        locales: { primary: 'en-US' },
+        ballotStyleId: '77',
+        precinctId: '42',
+        isTestMode: false,
+        pageNumber: 1,
+        electionHash: '',
+        ballotType: BallotType.Standard,
+      },
+      flipped: false,
+    })
+  })
+
+  test('alternate QR code reader', async () => {
+    expect(
+      await detect(urlQRCodeElection, await urlQRCodePage1.imageData(), {
+        detectQRCode: jsqr,
+      })
+    ).toEqual({
+      metadata: {
+        locales: { primary: 'en-US' },
+        ballotStyleId: '77',
+        precinctId: '42',
+        isTestMode: false,
+        pageNumber: 1,
+        electionHash: '',
+        ballotType: BallotType.Standard,
+      },
+      flipped: false,
+    })
+  })
+
+  test('custom QR code reader', async () => {
+    expect(
+      await detect(urlQRCodeElection, await urlQRCodePage1.imageData(), {
+        detectQRCode: async () => ({
+          data: Buffer.from('https://ballot.page?t=_&pr=11&bs=22&p=3-4'),
+        }),
+      })
+    ).toEqual({
+      metadata: {
+        locales: { primary: 'en-US' },
+        ballotStyleId: '22',
+        precinctId: '11',
+        isTestMode: false,
+        pageNumber: 3,
+        electionHash: '',
+        ballotType: BallotType.Standard,
+      },
+      flipped: false,
+    })
+  })
+
+  test('upside-down ballot images', async () => {
+    expect(
+      await detect(
+        urlQRCodeElection,
+        await urlQRCodePage1.imageData({ flipped: true })
+      )
+    ).toEqual({
+      metadata: {
+        locales: { primary: 'en-US' },
+        ballotStyleId: '77',
+        precinctId: '42',
+        isTestMode: false,
+        pageNumber: 1,
+        electionHash: '',
+        ballotType: BallotType.Standard,
+      },
+      flipped: true,
+    })
   })
 })

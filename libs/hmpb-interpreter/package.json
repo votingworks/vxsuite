@@ -63,7 +63,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@votingworks/ballot-encoder": "^3.0.0",
+    "@votingworks/ballot-encoder": "^4.0.0",
     "canvas": "^2.6.1",
     "chalk": "^4.0.0",
     "debug": "^4.1.1",

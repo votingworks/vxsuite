@@ -157,10 +157,7 @@ export default async function run(
 
   for (const autoInput of options.autoInputs) {
     const metadata = await autoInput.metadata?.()
-    if (
-      !(metadata && interpreter.canScanBallot(metadata)) ||
-      interpreter.hasMissingTemplates()
-    ) {
+    if (!(metadata && interpreter.canScanBallot(metadata))) {
       await interpreter.addTemplate(await autoInput.imageData(), metadata)
     } else {
       ballotInputs.push(autoInput)

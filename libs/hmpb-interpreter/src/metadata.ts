@@ -1,3 +1,4 @@
+import { BallotType, Election, v1 } from '@votingworks/ballot-encoder'
 import { BallotPageMetadata, DetectQRCode, BallotLocales } from './types'
 import defined from './utils/defined'
 import * as qrcode from './utils/qrcode'
@@ -31,35 +32,46 @@ export function decodeSearchParams(
     } else {
       locales = { primary: primaryLocaleCode }
     }
+  } else {
+    locales = { primary: 'en-US' }
   }
 
-  const [typeTestBallot] = type.split('', 2)
-  const [pageInfoNumber, pageInfoCount] = pageInfo.split('-', 2)
-
-  const isTestBallot = typeTestBallot === 't'
-
+  const [typeTestMode] = type.split('', 2)
+  const [pageInfoNumber] = pageInfo.split('-', 2)
+  const isTestMode = typeTestMode === 't'
   const pageNumber = parseInt(pageInfoNumber, 10)
-  const pageCount = parseInt(pageInfoCount, 10)
 
   return {
+    electionHash: '',
+    ballotType: BallotType.Standard,
     locales,
     ballotStyleId,
     precinctId,
-    isTestBallot,
-    pageCount,
+    isTestMode,
     pageNumber,
   }
 }
 
-export function fromString(text: string): BallotPageMetadata {
+export function fromString(
+  election: Election,
+  text: string
+): BallotPageMetadata {
   return decodeSearchParams(new URL(text).searchParams)
 }
 
-export function fromBytes(data: Buffer): BallotPageMetadata {
-  return fromString(new TextDecoder().decode(data))
+export function fromBytes(
+  election: Election,
+  data: Buffer
+): BallotPageMetadata {
+  if (data[0] === 'V'.charCodeAt(0) && data[1] === 'P'.charCodeAt(0)) {
+    return v1.decodeHMPBBallotPageMetadata(election, data)
+  }
+
+  return fromString(election, new TextDecoder().decode(data))
 }
 
 export async function detect(
+  election: Election,
   imageData: ImageData,
   { detectQRCode = qrcode.default }: DetectOptions = {}
 ): Promise<DetectResult> {
@@ -70,7 +82,7 @@ export async function detect(
   }
 
   return {
-    metadata: fromBytes(result.data),
+    metadata: fromBytes(election, result.data),
     flipped: result.rightSideUp === false,
   }
 }

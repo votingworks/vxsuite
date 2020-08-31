@@ -108,10 +108,12 @@ $ hmpb interpret -e election.json -f json \
     "input": "filled-in-p1.jpg",
     "interpreted": {
       "metadata": {
+        "locales": {
+          "primary": "en-US"
+        },
         "ballotStyleId": "77",
         "precinctId": "42",
-        "isTestBallot": false,
-        "pageCount": 2,
+        "isTestMode": false,
         "pageNumber": 1
       },
       "votes": {
@@ -322,10 +324,12 @@ $ hmpb interpret -e election.json -f json \
     "input": "filled-in-p2.jpg",
     "interpreted": {
       "metadata": {
+        "locales": {
+          "primary": "en-US"
+        },
         "ballotStyleId": "77",
         "precinctId": "42",
-        "isTestBallot": false,
-        "pageCount": 2,
+        "isTestMode": false,
         "pageNumber": 2
       },
       "votes": {
