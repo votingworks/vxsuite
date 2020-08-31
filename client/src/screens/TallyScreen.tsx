@@ -92,6 +92,10 @@ const TallyScreen = () => {
     [setVoteCounts]
   )
 
+  useEffect(() => {
+    computeVoteCounts(castVoteRecordFiles.castVoteRecords)
+  }, [computeVoteCounts, castVoteRecordFiles])
+
   const processCastVoteRecordFiles: InputEventFunction = async (event) => {
     const input = event.currentTarget
     const files = Array.from(input.files || [])
@@ -102,7 +106,6 @@ const TallyScreen = () => {
       election
     )
     saveCastVoteRecordFiles(newCastVoteRecordFiles)
-    computeVoteCounts(newCastVoteRecordFiles.castVoteRecords)
     setIsLoadingCVRFile(false)
 
     input.value = ''
@@ -305,7 +308,9 @@ const TallyScreen = () => {
                     <strong>Total Ballot Count</strong>
                   </TD>
                   <TD>
-                    <strong>{format.count(totalBallots)}</strong>
+                    <strong data-testid="total-ballot-count">
+                      {format.count(totalBallots)}
+                    </strong>
                   </TD>
                   <TD>
                     <LinkButton
