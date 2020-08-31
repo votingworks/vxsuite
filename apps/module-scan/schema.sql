@@ -4,26 +4,33 @@ create table batches (
   ended_at datetime
 );
 
-create table ballots (
+create table sheets (
   id varchar(36) primary key,
   batch_id varchar(36),
-  original_filename text unique,
-  normalized_filename text unique,
 
-  -- Original interpretation of the page. This value should never be updated.
+  -- Filenames for where the sheet images are stored on disk.
+  front_original_filename text unique,
+  back_original_filename text unique,
+  front_normalized_filename text unique,
+  back_normalized_filename text unique,
+
+  -- Original interpretation of the sheet. These values should never be updated.
   -- @type {PageInterpretation}
-  interpretation_json text not null,
+  front_interpretation_json text not null,
+  back_interpretation_json text not null,
 
-  -- Changes made in adjudication, should be applied on top of the original CVR.
-  -- Updated as the page is adjudicated.
-  -- @type {MarksByContestId}
-  adjudication_json text,
-
-  -- Did this page require adjudication? This value should never be updated.
+  -- Did this sheet require adjudication? This value should never be updated.
   requires_adjudication boolean,
 
-  -- When adjudication is finished, this value is updated to the current time.
-  finished_adjudication_at datetime,
+  -- Changes made in adjudication, should be applied on top of the original CVR.
+  -- Updated as the sheet is adjudicated.
+  -- @type {MarksByContestId}
+  front_adjudication_json text,
+  back_adjudication_json text,
+
+  -- When adjudication is finished, these values are updated to now.
+  front_finished_adjudication_at datetime,
+  back_finished_adjudication_at datetime,
 
   created_at datetime default current_timestamp not null,
 
@@ -45,6 +52,7 @@ create table hmpb_templates (
   ballot_style_id varchar(255),
   precinct_id varchar(255),
   is_test_ballot boolean,
+  -- @type {SerializableBallotPageLayout[]}
   layouts_json text,
   created_at datetime default current_timestamp not null
 );

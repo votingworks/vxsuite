@@ -8,13 +8,13 @@ import { v4 as uuid } from 'uuid'
 import { Election } from '@votingworks/ballot-encoder'
 import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
 
-import { BallotMetadata, ScanStatus } from './types'
+import { BallotMetadata, ScanStatus, SheetOf } from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
   PageInterpretation,
 } from './interpreter'
-import { Scanner, Sheet } from './scanner'
+import { Scanner } from './scanner'
 import pdfToImages from './util/pdfToImages'
 
 const debug = makeDebug('module-scan:importer')
@@ -38,8 +38,9 @@ export interface Importer {
   doZero(): Promise<void>
   importFile(
     batchId: string,
-    ballotImagePath: string
-  ): Promise<string | undefined>
+    frontImagePath: string,
+    backImagePath: string
+  ): Promise<string>
   getStatus(): Promise<ScanStatus>
   restoreConfig(): Promise<void>
   setTestMode(testMode: boolean): Promise<void>
@@ -181,39 +182,19 @@ export default class SystemImporter implements Importer {
     }
   }
 
-  private async cardAdded(card: Sheet, batchId: string): Promise<void> {
-    const start = Date.now()
-    try {
-      debug('cardAdded %o batchId=%s STARTING', card, batchId)
-      await this.fileAdded(card[0], batchId)
-      await this.fileAdded(card[1], batchId)
-    } finally {
-      const end = Date.now()
-      debug(
-        'cardAdded %o batchId=%s FINISHED in %dms',
-        card,
-        batchId,
-        Math.round(end - start)
-      )
-    }
-  }
-
-  /**
-   * Callback to inform us that a new file was seen.
-   */
-  private async fileAdded(
-    ballotImagePath: string,
+  private async sheetAdded(
+    paths: SheetOf<string>,
     batchId: string
   ): Promise<void> {
     const start = Date.now()
     try {
-      debug('fileAdded %s batchId=%s STARTING', ballotImagePath, batchId)
-      await this.importFile(batchId, ballotImagePath)
+      debug('sheetAdded %o batchId=%s STARTING', paths, batchId)
+      await this.importFile(batchId, paths[0], paths[1])
     } finally {
       const end = Date.now()
       debug(
-        'fileAdded %s batchId=%s FINISHED in %dms',
-        ballotImagePath,
+        'sheetAdded %o batchId=%s FINISHED in %dms',
+        paths,
         batchId,
         Math.round(end - start)
       )
@@ -222,107 +203,138 @@ export default class SystemImporter implements Importer {
 
   public async importFile(
     batchId: string,
-    ballotImagePath: string
-  ): Promise<string | undefined> {
+    frontImagePath: string,
+    backImagePath: string
+  ): Promise<string> {
     const election = await this.store.getElection()
 
     if (!election) {
-      return
+      throw new Error('no election is configured')
     }
 
-    const ballotImageFile = await fsExtra.readFile(ballotImagePath)
-    let ballotId = uuid()
+    let sheetId = uuid()
+    const frontImageData = await fsExtra.readFile(frontImagePath)
 
-    const {
-      interpretation,
-      normalizedImage,
-    } = await this.interpreter.interpretFile({
+    const frontInterpretFileResult = await this.interpreter.interpretFile({
       election,
-      ballotImagePath,
-      ballotImageFile,
+      ballotImagePath: frontImagePath,
+      ballotImageFile: frontImageData,
     })
 
-    const cvr = 'cvr' in interpretation ? interpretation.cvr : undefined
+    debug(
+      'interpreted %s (%s): %O',
+      frontImagePath,
+      frontInterpretFileResult.interpretation.type,
+      frontInterpretFileResult.interpretation
+    )
+
+    const frontImages = await this.saveImages(
+      sheetId,
+      frontImagePath,
+      frontInterpretFileResult.normalizedImage
+    )
+
+    const backImageData = await fsExtra.readFile(backImagePath)
+
+    const backInterpretFileResult = await this.interpreter.interpretFile({
+      election,
+      ballotImagePath: backImagePath,
+      ballotImageFile: backImageData,
+    })
 
     debug(
-      'interpreted %s (%s): cvr=%O marks=%O metadata=%O',
-      ballotImagePath,
-      interpretation.type,
-      cvr,
-      'markInfo' in interpretation ? interpretation.markInfo : undefined,
-      'metadata' in interpretation ? interpretation.metadata : undefined
+      'interpreted %s (%s): %O',
+      backImagePath,
+      backInterpretFileResult.interpretation.type,
+      backInterpretFileResult.interpretation
     )
 
-    const ballotImagePathExt = path.extname(ballotImagePath)
-    const originalBallotImagePath = path.join(
-      this.importedImagesPath,
-      `${path.basename(
-        ballotImagePath,
-        ballotImagePathExt
-      )}-${ballotId}-original${ballotImagePathExt}`
-    )
-    const normalizedBallotImagePath = path.join(
-      this.importedImagesPath,
-      `${path.basename(
-        ballotImagePath,
-        ballotImagePathExt
-      )}-${ballotId}-normalized${ballotImagePathExt}`
+    const backImages = await this.saveImages(
+      sheetId,
+      backImagePath,
+      backInterpretFileResult.normalizedImage
     )
 
-    ballotId = await this.addBallot(
+    sheetId = await this.addSheet(
       batchId,
-      originalBallotImagePath,
-      normalizedBallotImagePath,
-      interpretation
+      frontImages.original,
+      frontImages.normalized,
+      frontInterpretFileResult.interpretation,
+      backImages.original,
+      backImages.normalized,
+      backInterpretFileResult.interpretation
     )
 
-    if (ballotImageFile) {
-      await fsExtra.writeFile(originalBallotImagePath, ballotImageFile)
-    } else {
-      await fsExtra.copy(ballotImagePath, originalBallotImagePath)
+    return sheetId
+  }
+
+  private async saveImages(
+    id: string,
+    imagePath: string,
+    normalizedImage?: ImageData
+  ): Promise<{
+    original: string
+    normalized: string
+  }> {
+    const ext = path.extname(imagePath)
+    const original = path.join(
+      this.importedImagesPath,
+      `${path.basename(imagePath, ext)}-${id}-original${ext}`
+    )
+
+    await fsExtra.copy(imagePath, original)
+
+    if (normalizedImage) {
+      const normalized = path.join(
+        this.importedImagesPath,
+        `${path.basename(imagePath, ext)}-${id}-normalized${ext}`
+      )
+      debug('about to write normalized ballot image to %s', normalized)
+      await fsExtra.writeFile(
+        normalized,
+        await sharp(Buffer.from(normalizedImage.data.buffer), {
+          raw: {
+            width: normalizedImage.width,
+            height: normalizedImage.height,
+            channels: (normalizedImage.data.length /
+              (normalizedImage.width *
+                normalizedImage.height)) as Raw['channels'],
+          },
+        })
+          .png()
+          .toBuffer()
+      )
+      debug('wrote normalized ballot image to %s', normalized)
+      return { original, normalized }
     }
 
-    debug(
-      'about to write normalized ballot image to %s',
-      normalizedBallotImagePath
-    )
-    await fsExtra.writeFile(
-      normalizedBallotImagePath,
-      normalizedImage
-        ? await sharp(Buffer.from(normalizedImage.data.buffer), {
-            raw: {
-              width: normalizedImage.width,
-              height: normalizedImage.height,
-              channels: (normalizedImage.data.length /
-                (normalizedImage.width *
-                  normalizedImage.height)) as Raw['channels'],
-            },
-          })
-            .png()
-            .toBuffer()
-        : ballotImageFile
-    )
-    debug('wrote normalized ballot image to %s', normalizedBallotImagePath)
-
-    return ballotId
+    return { original, normalized: original }
   }
 
   /**
-   * Add a ballot to the internal store.
+   * Add a sheet to the internal store.
    */
-  private async addBallot(
+  private async addSheet(
     batchId: string,
-    originalBallotImagePath: string,
-    normalizedBallotImagePath: string,
-    interpretation: PageInterpretation
+    frontOriginalBallotImagePath: string,
+    frontNormalizedBallotImagePath: string,
+    frontInterpretation: PageInterpretation,
+    backOriginalBallotImagePath: string,
+    backNormalizedBallotImagePath: string,
+    backInterpretation: PageInterpretation
   ): Promise<string> {
-    const ballotId = await this.store.addBallot(
-      uuid(),
-      batchId,
-      originalBallotImagePath,
-      normalizedBallotImagePath,
-      interpretation
-    )
+    const ballotId = await this.store.addSheet(uuid(), batchId, [
+      {
+        originalFilename: frontOriginalBallotImagePath,
+        normalizedFilename: frontNormalizedBallotImagePath,
+        interpretation: frontInterpretation,
+      },
+      {
+        originalFilename: backOriginalBallotImagePath,
+        normalizedFilename: backNormalizedBallotImagePath,
+        interpretation: backInterpretation,
+      },
+    ])
 
     return ballotId
   }
@@ -346,7 +358,7 @@ export default class SystemImporter implements Importer {
         this.scannedImagesPath
       )) {
         debug('got a ballot card: %o', sheet)
-        await this.cardAdded(sheet, batchId)
+        await this.sheetAdded(sheet, batchId)
       }
       debug('scanning completed successfully')
     } catch (err) {

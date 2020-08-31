@@ -1,16 +1,15 @@
 import makeDebug from 'debug'
 import { join } from 'path'
-import { streamExecFile } from './exec'
-import { StreamLines } from './util/Lines'
 import { dirSync } from 'tmp'
+import { streamExecFile } from './exec'
+import { SheetOf } from './types'
 import { queue } from './util/deferred'
+import { StreamLines } from './util/Lines'
 
 const debug = makeDebug('module-scan:scanner')
 
-export type Sheet = [string, string]
-
 export interface Scanner {
-  scanSheets(directory?: string): AsyncGenerator<Sheet>
+  scanSheets(directory?: string): AsyncGenerator<SheetOf<string>>
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -37,7 +36,9 @@ export enum ScannerImageFormat {
 export class FujitsuScanner implements Scanner {
   public constructor(private format = ScannerImageFormat.PNG) {}
 
-  public scanSheets(directory = dirSync().name): AsyncGenerator<Sheet> {
+  public scanSheets(
+    directory = dirSync().name
+  ): AsyncGenerator<SheetOf<string>> {
     const args = [
       '-d',
       'fujitsu',
@@ -60,7 +61,7 @@ export class FujitsuScanner implements Scanner {
     )
 
     const scannedFiles: string[] = []
-    const results = queue<Promise<IteratorResult<Sheet>>>()
+    const results = queue<Promise<IteratorResult<SheetOf<string>>>>()
     let done = false
     const scanimage = streamExecFile('scanimage', args)
 
@@ -78,7 +79,7 @@ export class FujitsuScanner implements Scanner {
       if (scannedFiles.length % 2 === 0) {
         results.resolve(
           Promise.resolve({
-            value: scannedFiles.slice(-2) as Sheet,
+            value: scannedFiles.slice(-2) as SheetOf<string>,
             done: false,
           })
         )
@@ -99,8 +100,8 @@ export class FujitsuScanner implements Scanner {
       }
     })
 
-    const generator: AsyncGenerator<Sheet> = {
-      async next(): Promise<IteratorResult<Sheet>> {
+    const generator: AsyncGenerator<SheetOf<string>> = {
+      async next(): Promise<IteratorResult<SheetOf<string>>> {
         if (results.isEmpty() && !done) {
           debug(
             'scanimage [pid=%d] sending RETURN twice to scan another sheet',
@@ -112,7 +113,7 @@ export class FujitsuScanner implements Scanner {
         return results.get()
       },
 
-      return(value: unknown): Promise<IteratorResult<Sheet>> {
+      return(value: unknown): Promise<IteratorResult<SheetOf<string>>> {
         if (!done) {
           done = true
           debug(
@@ -128,7 +129,7 @@ export class FujitsuScanner implements Scanner {
         return Promise.resolve({ value, done })
       },
 
-      throw(): Promise<IteratorResult<Sheet>> {
+      throw(): Promise<IteratorResult<SheetOf<string>>> {
         if (!done) {
           done = true
           debug(
@@ -144,7 +145,8 @@ export class FujitsuScanner implements Scanner {
         return Promise.resolve({ value: undefined, done })
       },
 
-      [Symbol.asyncIterator](): AsyncGenerator<Sheet> {
+      /* istanbul ignore next - required by TS, but unclear of what use it is */
+      [Symbol.asyncIterator](): AsyncGenerator<SheetOf<string>> {
         return generator
       },
     }
