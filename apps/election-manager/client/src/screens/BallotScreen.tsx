@@ -124,7 +124,7 @@ const BallotScreen = () => {
               onPress={toggleAbsenteeMode}
               small
             >
-              Default
+              Precinct
             </Button>
           </SegmentedButton>{' '}
           Copies{' '}
@@ -170,7 +170,7 @@ const BallotScreen = () => {
           >
             Print {ballotCopies}{' '}
             {isLiveMode ? 'Official' : <strong>Test</strong>}{' '}
-            {isAbsenteeMode && <strong>Absentee</strong>}{' '}
+            {isAbsenteeMode ? <strong>Absentee</strong> : 'Precinct'}{' '}
             {pluralize('Ballot', ballotCopies)}{' '}
             {availableLocaleCodes.length > 1 &&
               currentLocaleCode &&

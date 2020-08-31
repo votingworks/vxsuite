@@ -34,7 +34,7 @@ it('basic navigation works', async () => {
   fireEvent.click(getAllByText('View Ballot')[0])
   fireEvent.click(getByText('English/Spanish'))
   fireEvent.click(getByText('English'))
-  fireEvent.click(getByText('Default'))
+  fireEvent.click(getByText('Precinct'))
   fireEvent.click(getByText('Absentee'))
   fireEvent.click(getByText('Test'))
   fireEvent.click(getByText('Official'))
