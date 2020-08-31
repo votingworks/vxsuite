@@ -123,3 +123,17 @@ html body .cvox_indicator_container {
   margin: 0.5in;
   size: letter portrait;
 }
+
+/* Layout Utilities */
+
+.w-50 {
+  width: 50%;
+}
+
+.w-66 {
+  width: 66.666%;
+}
+
+.w-75 {
+  width: 75%;
+}
