@@ -165,15 +165,14 @@ const AppRoot = ({ storage }: Props) => {
     if (newCVRFiles === CastVoteRecordFiles.empty) {
       setIsOfficialResults(false)
     }
-    /*
-       // TURNING OFF STORAGE FOR NOW
-       if (newCVRFiles === CastVoteRecordFiles.empty) {
-       storage.remove(cvrsStorageKey)
-       storage.remove(isOfficialResultsKey)
-       setIsOfficialResults(false)
-       } else {
-       storage.set(cvrsStorageKey, newCVRFiles.export())
-       } */
+
+    if (newCVRFiles === CastVoteRecordFiles.empty) {
+      storage.remove(cvrsStorageKey)
+      storage.remove(isOfficialResultsKey)
+      setIsOfficialResults(false)
+    } else {
+      storage.set(cvrsStorageKey, newCVRFiles.export())
+    }
   }
 
   const [voteCounts, setVoteCounts] = useState<OptionalVoteCounts>()

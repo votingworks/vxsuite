@@ -2,12 +2,17 @@ import React from 'react'
 
 import { fireEvent, render, screen } from '@testing-library/react'
 import { Election } from '@votingworks/ballot-encoder'
+import fs from 'fs'
+import path from 'path'
 import { MemoryStorage } from './utils/Storage'
 import {
   AppStorage,
   electionStorageKey,
   configuredAtStorageKey,
+  cvrsStorageKey,
 } from './AppRoot'
+
+import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
 
 import fakeKiosk from '../test/helpers/fakeKiosk'
 
@@ -19,6 +24,18 @@ import eitherNeitherElectionUntyped from '../test/fixtures/eitherneither-electio
 
 const eitherNeitherElection = (eitherNeitherElectionUntyped as unknown) as Election
 
+const EITHER_NEITHER_CVR_PATH = path.join(
+  __dirname,
+  '..',
+  'test',
+  'fixtures',
+  'eitherneither-cvrs.txt'
+)
+const EITHER_NEITHER_CVRS = new File(
+  [fs.readFileSync(EITHER_NEITHER_CVR_PATH)],
+  'cvrs.txt'
+)
+
 jest.mock('./components/HandMarkedPaperBallot')
 
 beforeEach(() => {
@@ -28,6 +45,17 @@ beforeEach(() => {
   window.location.href = '/'
   window.kiosk = fakeKiosk()
 })
+
+const createMemoryStorageWith = async ({
+  election,
+}: {
+  election: Election
+}) => {
+  const storage = new MemoryStorage<AppStorage>()
+  await storage.set(electionStorageKey, election)
+  await storage.set(configuredAtStorageKey, new Date().toISOString())
+  return storage
+}
 
 it('create election works', async () => {
   const { getByText, getAllByText } = render(<App />)
@@ -39,13 +67,22 @@ it('create election works', async () => {
   fireEvent.click(getByText('Ballots'))
   fireEvent.click(getAllByText('View Ballot')[0])
   fireEvent.click(getByText('English/Spanish'))
+
+  fireEvent.click(getByText('Definition'))
+  fireEvent.click(getByText('JSON Editor'))
+
+  // remove the election
+  fireEvent.click(getByText('Remove'))
+  fireEvent.click(getByText('Remove Election Definition'))
+
+  await screen.findByText('Configure Election Manager')
 })
 
-it('basic navigation works', async () => {
-  // mock the election we want
-  const storage = new MemoryStorage<AppStorage>()
-  await storage.set(electionStorageKey, eitherNeitherElection)
-  await storage.set(configuredAtStorageKey, new Date().toISOString())
+it('printing ballots, print report, and test decks', async () => {
+  const storage = await createMemoryStorageWith({
+    election: eitherNeitherElection,
+  })
+
   const { container, getByText, getAllByText, queryAllByText } = render(
     <App storage={storage} />
   )
@@ -96,13 +133,41 @@ it('basic navigation works', async () => {
   expect(container).toMatchSnapshot()
   fireEvent.click(getByText('Print Results Report'))
   expect(window.kiosk?.print).toHaveBeenCalledTimes(4)
+})
 
-  fireEvent.click(getByText('Definition'))
-  fireEvent.click(getByText('JSON Editor'))
+it('tabulating CVRs', async () => {
+  const storage = await createMemoryStorageWith({
+    election: eitherNeitherElection,
+  })
 
-  // remove the election
-  fireEvent.click(getByText('Remove'))
-  fireEvent.click(getByText('Remove Election Definition'))
+  const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
+    EITHER_NEITHER_CVRS,
+    eitherNeitherElection
+  )
+  await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
-  await screen.findByText('Configure Election Manager')
+  const { getByText, getAllByText, getByTestId } = render(
+    <App storage={storage} />
+  )
+
+  await screen.findByText('0 official ballots')
+
+  fireEvent.click(getByText('Tally'))
+  expect(getByTestId('total-ballot-count').textContent).toEqual('100')
+
+  fireEvent.click(getByText('Mark Tally Results as Official…'))
+  getByText('Mark Unofficial Tally Results as Official Tally Results?')
+  fireEvent.click(getByText('Mark Tally Results as Official'))
+
+  fireEvent.click(getByText('View Official Full Election Tally'))
+  getByText('Building Tabulation Report...')
+
+  // wait a little bit for tabulation
+  await sleep(500)
+
+  expect(
+    getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
+      .length > 0
+  ).toBe(true)
+  expect(getByTestId('tally-report-contents')).toMatchSnapshot()
 })

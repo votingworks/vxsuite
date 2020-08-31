@@ -91,10 +91,14 @@ export function* parseCVRs(
 
       for (const contestId in votes as VotesDict) {
         if (Object.prototype.hasOwnProperty.call(votes, contestId)) {
-          if (!ballotStyleContests.has(`${_ballotStyleId}/${contestId}`)) {
-            errors.push(
-              `Contest '${contestId}' in CVR is not in the election definition or is not a valid contest for ballot style '${_ballotStyleId}'`
-            )
+          // let's ignore any fields that start with '_' for some level of
+          // forwards-compatibility
+          if (!contestId.startsWith('_')) {
+            if (!ballotStyleContests.has(`${_ballotStyleId}/${contestId}`)) {
+              errors.push(
+                `Contest '${contestId}' in CVR is not in the election definition or is not a valid contest for ballot style '${_ballotStyleId}'`
+              )
+            }
           }
         }
       }

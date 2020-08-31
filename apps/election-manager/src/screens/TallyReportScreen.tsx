@@ -262,11 +262,13 @@ const TallyReportScreen = () => {
                 </Prose>
               </TallyHeader>
               <HorizontalRule />
-              <ContestTally
-                election={election}
-                electionTally={overallTally}
-                contestTallyMeta={contestTallyMeta}
-              />
+              <div data-testid="tally-report-contents">
+                <ContestTally
+                  election={election}
+                  electionTally={overallTally}
+                  contestTallyMeta={contestTallyMeta}
+                />
+              </div>
             </React.Fragment>
           )
         })}
