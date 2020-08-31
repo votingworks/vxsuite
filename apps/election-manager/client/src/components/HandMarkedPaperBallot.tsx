@@ -9,13 +9,12 @@ import { Handler, Previewer, registerHandlers } from 'pagedjs'
 import { TFunction, StringMap } from 'i18next'
 import { useTranslation, Trans } from 'react-i18next'
 import {
-  BallotStyle,
+  BallotType,
   CandidateContest,
   CandidateVote,
   Election,
   OptionalElection,
   Parties,
-  Precinct,
   VotesDict,
   withLocale,
   YesNoContest,
@@ -23,8 +22,10 @@ import {
   AnyContest,
   Vote,
   Candidate,
+  v1,
 } from '@votingworks/ballot-encoder'
 
+import { HMPBBallotPageMetadata } from '@votingworks/ballot-encoder/src/v1'
 import AppContext from '../contexts/AppContext'
 
 import findPartyById from '../utils/findPartyById'
@@ -110,61 +111,6 @@ const dualLanguageComposer = (
   })
 }
 
-const ballotMetadata = ({
-  electionHash,
-  isLiveMode,
-  precinctId,
-  ballotStyleId,
-  pageNumber,
-  pageCount,
-  primaryLocaleCode,
-  secondaryLocaleCode,
-  ballotId,
-}: {
-  electionHash: string
-  isLiveMode: boolean
-  precinctId: Precinct['id']
-  ballotStyleId: BallotStyle['id']
-  pageNumber: number
-  pageCount: number
-  primaryLocaleCode: string
-  secondaryLocaleCode: string
-  ballotId?: string
-}): Uint8Array => {
-  console.log(
-    electionHash,
-    isLiveMode,
-    precinctId,
-    ballotStyleId,
-    pageNumber,
-    pageCount,
-    primaryLocaleCode,
-    secondaryLocaleCode,
-    ballotId
-  )
-  // TODO: call into ballot-encoder
-  // for now a fixed string
-  return Uint8Array.from([
-    86,
-    80,
-    1,
-    20,
-    171,
-    195,
-    69,
-    98,
-    76,
-    222,
-    255,
-    39,
-    141,
-    239,
-    0,
-    0,
-    224,
-  ])
-}
-
 const qrCodeTargetClassName = 'qr-code-target'
 
 const BlankPageContent = styled.div`
@@ -173,6 +119,8 @@ const BlankPageContent = styled.div`
   justify-content: center;
   height: 100%;
 `
+
+type HMPBBallotMetadata = Omit<HMPBBallotPageMetadata, 'pageNumber'>
 
 interface PagedJSPage {
   element: HTMLElement
@@ -214,31 +162,33 @@ class PostRenderBallotProcessor extends Handler {
     // Post-process QR codes in footer.
     pages.forEach((page) => {
       const { pageNumber } = page.element.dataset
-      const qrCodeTarget = (page.element as HTMLElement)?.getElementsByClassName(
+      const qrCodeTarget = page.element.getElementsByClassName(
         qrCodeTargetClassName
       )[0]
-      const {
-        electionHash = '',
-        precinctId = '',
-        ballotStyleId = '',
-        isLiveMode = '',
-        primaryLocaleCode = '',
-        secondaryLocaleCode = '',
-        ballotId = '',
-      } = (qrCodeTarget as HTMLDivElement)?.dataset
-      if (qrCodeTarget) {
+      if (qrCodeTarget && qrCodeTarget instanceof HTMLElement) {
+        const election: Election = JSON.parse(
+          qrCodeTarget.dataset.election ?? ''
+        )
+        const {
+          electionHash,
+          precinctId,
+          ballotStyleId,
+          isTestMode,
+          locales,
+          ballotType,
+          ballotId,
+        }: HMPBBallotMetadata = JSON.parse(qrCodeTarget.dataset.metadata ?? '')
         ReactDOM.render(
           <QRCode
             level="Q"
-            value={ballotMetadata({
+            value={v1.encodeHMPBBallotPageMetadata(election, {
               electionHash,
-              isLiveMode: isLiveMode === 'true',
-              precinctId,
               ballotStyleId,
+              precinctId,
+              locales,
+              isTestMode,
               pageNumber: parseInt(pageNumber!, 10),
-              pageCount: pages.length,
-              primaryLocaleCode,
-              secondaryLocaleCode,
+              ballotType,
               ballotId,
             })}
           />,
@@ -737,13 +687,20 @@ const HandMarkedPaperBallot = ({
             </PageFooterMain>
             <PageFooterQRCode
               className={qrCodeTargetClassName}
-              data-election-hash={electionHash}
-              data-is-live-mode={isLiveMode}
-              data-precinct-id={precinctId}
-              data-ballot-style-id={ballotStyleId}
-              data-primary-locale-code={locales.primary}
-              data-secondary-locale-code={locales.secondary}
-              data-ballot-id={ballotId}
+              data-election={JSON.stringify(election)}
+              data-metadata={JSON.stringify(
+                ((): HMPBBallotMetadata => ({
+                  electionHash,
+                  ballotStyleId,
+                  precinctId,
+                  locales,
+                  isTestMode: !isLiveMode,
+                  ballotType: isAbsenteeMode
+                    ? BallotType.Absentee
+                    : BallotType.Standard,
+                  ballotId,
+                }))()
+              )}
             />
           </PageFooter>
         </div>
