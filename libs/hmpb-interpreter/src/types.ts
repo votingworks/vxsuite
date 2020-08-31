@@ -1,11 +1,10 @@
 import {
   AnyContest,
-  BallotStyle,
   Candidate,
   CandidateContest,
   CompletedBallot,
   MsEitherNeitherContest,
-  Precinct,
+  v1,
   YesNoContest,
   YesNoOption,
 } from '@votingworks/ballot-encoder'
@@ -45,14 +44,7 @@ export interface BallotLocales {
   secondary?: string
 }
 
-export interface BallotPageMetadata {
-  locales?: BallotLocales
-  ballotStyleId: BallotStyle['id']
-  precinctId: Precinct['id']
-  isTestBallot: boolean
-  pageNumber: number
-  pageCount: number
-}
+export type BallotPageMetadata = v1.HMPBBallotPageMetadata
 
 export interface BallotPageContestLayout {
   bounds: Rect
@@ -144,12 +136,3 @@ export interface DetectQRCodeResult {
   data: Buffer
   rightSideUp?: boolean
 }
-
-export type PartialTemplateSpecifier =
-  | { ballotStyleId: BallotStyle['id'] }
-  | { ballotStyleId: BallotStyle['id']; precinctId: BallotStyle['id'] }
-  | {
-      ballotStyleId: BallotStyle['id']
-      precinctId: BallotStyle['id']
-      pageNumber: number
-    }

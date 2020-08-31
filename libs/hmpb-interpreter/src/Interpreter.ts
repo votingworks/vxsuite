@@ -33,7 +33,6 @@ import {
   DetectQRCode,
   FindMarksResult,
   Interpreted,
-  PartialTemplateSpecifier,
   Point,
   Size,
 } from './types'
@@ -64,7 +63,10 @@ export interface Options {
 
 export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.2
 
-type TemplateKey = Omit<BallotPageMetadata, 'isTestBallot' | 'pageCount'>
+type TemplateKey = Pick<
+  BallotPageMetadata,
+  'ballotStyleId' | 'precinctId' | 'locales' | 'pageNumber'
+>
 
 /**
  * Interprets ballot images based on templates. A template is simply an empty
@@ -151,9 +153,9 @@ export default class Interpreter {
       metadata = template.ballotImage.metadata
     }
 
-    if (metadata.isTestBallot !== this.testMode) {
+    if (metadata.isTestMode !== this.testMode) {
       throw new Error(
-        `interpreter configured with testMode=${this.testMode} cannot add templates with isTestBallot=${metadata.isTestBallot}`
+        `interpreter configured with testMode=${this.testMode} cannot add templates with isTestMode=${metadata.isTestMode}`
       )
     }
 
@@ -240,87 +242,26 @@ export default class Interpreter {
       const pageTemplate = this.getTemplate({ ...metadata, pageNumber })
       if (!pageTemplate) {
         debug(
-          'cannot scan ballot because template page %d of %d is missing',
-          pageNumber,
-          metadata.pageCount
+          'cannot scan ballot because template page %d is missing',
+          pageNumber
         )
         return false
       }
 
       if (
         pageNumber === metadata.pageNumber &&
-        pageTemplate.ballotImage.metadata.isTestBallot !== metadata.isTestBallot
+        pageTemplate.ballotImage.metadata.isTestMode !== metadata.isTestMode
       ) {
         debug(
-          'cannot scan ballot because template page %d of %d does not match the expected test ballot value (%s)',
+          'cannot scan ballot because template page %d does not match the expected test ballot value (%s)',
           pageNumber,
-          metadata.pageCount,
-          metadata.isTestBallot
+          metadata.isTestMode
         )
         return false
       }
     }
 
     return true
-  }
-
-  /**
-   * Gets information about missing templates. As more templates are added to
-   * fill in the gaps, the resulting specifier will become more specific.
-   */
-  public *getMissingTemplates(
-    ballotLocaleConfigs: readonly (BallotLocales | undefined)[] = [undefined]
-  ): Generator<PartialTemplateSpecifier> {
-    for (const locales of ballotLocaleConfigs) {
-      for (const ballotStyle of this.election.ballotStyles) {
-        for (const precinctId of ballotStyle.precincts) {
-          const templatePage1 = this.getTemplate({
-            locales,
-            ballotStyleId: ballotStyle.id,
-            precinctId,
-            pageNumber: 1,
-          })
-
-          if (templatePage1) {
-            for (
-              let pageNumber = 2;
-              pageNumber <= templatePage1.ballotImage.metadata.pageCount;
-              pageNumber += 1
-            ) {
-              if (
-                !this.getTemplate({
-                  locales,
-                  ballotStyleId: ballotStyle.id,
-                  precinctId,
-                  pageNumber,
-                })
-              ) {
-                yield {
-                  ballotStyleId: ballotStyle.id,
-                  precinctId,
-                  pageNumber,
-                }
-              }
-            }
-          } else {
-            yield {
-              ballotStyleId: ballotStyle.id,
-              precinctId,
-            }
-          }
-        }
-      }
-    }
-
-    return false
-  }
-
-  /**
-   * Determines whether there are any templates missing, i.e. the existing
-   * templates do not account for all contests in all ballot styles.
-   */
-  public hasMissingTemplates(): boolean {
-    return !this.getMissingTemplates().next().done
   }
 
   /**
@@ -342,9 +283,9 @@ export default class Interpreter {
       }
     ))
 
-    if (metadata.isTestBallot !== this.testMode) {
+    if (metadata.isTestMode !== this.testMode) {
       throw new Error(
-        `interpreter configured with testMode=${this.testMode} cannot interpret ballots with isTestBallot=${metadata.isTestBallot}`
+        `interpreter configured with testMode=${this.testMode} cannot interpret ballots with isTestMode=${metadata.isTestMode}`
       )
     }
 
@@ -450,8 +391,7 @@ export default class Interpreter {
       ballotId: uuid(),
       ballotStyle,
       ballotType: BallotType.Standard,
-      election,
-      isTestBallot: metadata.isTestBallot,
+      isTestMode: metadata.isTestMode,
       precinct,
       votes: getVotesFromMarks(marks, { markScoreVoteThreshold }),
     }
@@ -469,7 +409,7 @@ export default class Interpreter {
         flipVH(imageData)
       }
     } else {
-      const detectResult = await detect(imageData, {
+      const detectResult = await detect(this.election, imageData, {
         detectQRCode: this.detectQRCode,
       })
       metadata = detectResult.metadata
