@@ -28,7 +28,7 @@ const BallotListScreen = () => {
     getBallotStylesDataByStyle(election),
     getBallotStylesDataByPrecinct(election),
   ]
-  const [ballotView, setBallotView] = useState(0)
+  const [ballotView, setBallotView] = useState(1)
   const sortByStyle = () => setBallotView(0)
   const sortByPrecinct = () => setBallotView(1)
 
@@ -50,15 +50,15 @@ const BallotListScreen = () => {
           <p>
             {`Sort ${pluralize('ballot', ballots.length, true)} by: `}
             <SegmentedButton>
-              <Button small onPress={sortByStyle} disabled={ballotView === 0}>
-                Style
-              </Button>
               <Button
                 small
                 onPress={sortByPrecinct}
                 disabled={ballotView === 1}
               >
                 Precinct
+              </Button>
+              <Button small onPress={sortByStyle} disabled={ballotView === 0}>
+                Style
               </Button>
             </SegmentedButton>{' '}
             <LinkButton small to={routerPaths.export}>
@@ -71,8 +71,8 @@ const BallotListScreen = () => {
         <thead>
           <tr>
             <TD as="th" />
-            <TD as="th">Ballot Style</TD>
             <TD as="th">Precinct</TD>
+            <TD as="th">Ballot Style</TD>
             <TD as="th">Contests</TD>
           </tr>
         </thead>
@@ -92,10 +92,10 @@ const BallotListScreen = () => {
                     View Ballot
                   </LinkButton>
                 </TD>
-                <TD>{ballot.ballotStyleId}</TD>
                 <TD>
                   <NoWrap>{precinctName}</NoWrap>
                 </TD>
+                <TD>{ballot.ballotStyleId}</TD>
                 <TD>{ballot.contestIds.length}</TD>
               </tr>
             )
