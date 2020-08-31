@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
-
 import pluralize from 'pluralize'
+
 import AppContext from '../contexts/AppContext'
 
 import routerPaths from '../routerPaths'
@@ -17,17 +17,14 @@ import {
 import NavigationScreen from '../components/NavigationScreen'
 
 const Header = styled.div`
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
   margin-bottom: 1rem;
 `
 
-const FloatingLeft = styled.div`
-  float: left;
-  margin-right: 1.5rem;
-  margin-left: 1rem;
-`
-
 const BallotListScreen = () => {
-  const { election: e, printedBallots, configuredAt } = useContext(AppContext)
+  const { election: e, printedBallots } = useContext(AppContext)
   const election = e!
 
   const ballotLists = [
@@ -45,24 +42,24 @@ const BallotListScreen = () => {
     0
   )
 
-  const configuredAtPretty = new Date(configuredAt).toString()
-
   return (
     <NavigationScreen>
       <Header>
         <Prose maxWidth={false}>
-          <FloatingLeft>
-            <LinkButton to={routerPaths.printedBallotsReport}>
-              Printed Ballots Report
-            </LinkButton>
-          </FloatingLeft>
           <p>
-            <strong>{numBallotsPrinted} official ballots</strong> have been
-            printed.
-            <br />
-            Election configured at <strong>{configuredAtPretty}</strong>.
+            <strong>
+              {pluralize('official ballot', numBallotsPrinted, true)}{' '}
+            </strong>{' '}
+            {pluralize('have', numBallotsPrinted)} been printed.
+            <LinkButton small to={routerPaths.printedBallotsReport}>
+              Printed Ballots Report
+            </LinkButton>{' '}
+            <LinkButton small to={routerPaths.export}>
+              Export Ballot Package
+            </LinkButton>
           </p>
-          <hr />
+        </Prose>
+        <Prose maxWidth={false}>
           <p>
             {`Sort ${pluralize('ballot', ballots.length, true)} by: `}
             <SegmentedButton>
@@ -76,10 +73,7 @@ const BallotListScreen = () => {
               <Button small onPress={sortByStyle} disabled={ballotView === 0}>
                 Style
               </Button>
-            </SegmentedButton>{' '}
-            <LinkButton small to={routerPaths.export}>
-              Export Ballot Package
-            </LinkButton>
+            </SegmentedButton>
           </p>
         </Prose>
       </Header>

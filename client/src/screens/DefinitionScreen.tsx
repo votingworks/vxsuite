@@ -2,6 +2,8 @@ import React, { useContext } from 'react'
 import { Contest } from '@votingworks/ballot-encoder'
 import styled from 'styled-components'
 
+import { localeLongDateAndTime } from '../utils/IntlDateTimeFormats'
+
 import AppContext from '../contexts/AppContext'
 
 import routerPaths from '../routerPaths'
@@ -9,6 +11,7 @@ import routerPaths from '../routerPaths'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
 import Prose from '../components/Prose'
+import Text from '../components/Text'
 
 const ButtonListItem = styled.span`
   display: block;
@@ -21,7 +24,7 @@ interface ContestSection {
 }
 
 const DefinitionScreen = () => {
-  const { election: e } = useContext(AppContext)
+  const { election: e, configuredAt } = useContext(AppContext)
   const election = e!
 
   const electionsBySection = election.contests.reduce<ContestSection[]>(
@@ -44,6 +47,13 @@ const DefinitionScreen = () => {
     <React.Fragment>
       <NavigationScreen mainChildFlex>
         <Prose maxWidth={false}>
+          <h1>Election Definition</h1>
+          <Text small>
+            Configured with the current election at{' '}
+            <strong>
+              {localeLongDateAndTime.format(new Date(configuredAt))}
+            </strong>
+          </Text>
           <h2>Election Metadata</h2>
           <p>
             title: <strong>{election.title}</strong>
@@ -77,7 +87,7 @@ const DefinitionScreen = () => {
               </p>
             </React.Fragment>
           ))}
-          <h2>Advanced</h2>
+          <h1>Advanced Features</h1>
           <p>
             <LinkButton to={routerPaths.definitionEditor}>
               JSON Editor
