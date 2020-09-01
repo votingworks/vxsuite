@@ -5,7 +5,6 @@ import pluralize from 'pluralize'
 
 import { fetchBallotInfo, fetchNextBallotToReview } from '../api/hmpb'
 import ContestOptionButton from '../components/ContestOptionButton'
-import Prose from '../components/Prose'
 import {
   Contest,
   ContestOption,
@@ -18,12 +17,12 @@ import fetchJSON from '../util/fetchJSON'
 import relativeRect from '../util/relativeRect'
 import * as workflow from '../workflows/BallotReviewScreenWorkflow'
 import Main, { MainChild } from '../components/Main'
-import ButtonBar from '../components/ButtonBar'
-import Brand from '../components/Brand'
+import Prose from '../components/Prose'
 import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Text from '../components/Text'
 import Checkbox from '../components/Checkbox'
+import MainNav from '../components/MainNav'
 
 const BallotReviewColumns = styled.div`
   display: flex;
@@ -188,17 +187,11 @@ export default function BallotReviewScreen({
             </Prose>
           </MainChild>
         </Main>
-        <ButtonBar secondary naturalOrder separatePrimaryButton>
-          <Brand>
-            VxScan
-            {isTestMode && (
-              <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
-            )}
-          </Brand>
+        <MainNav isTestMode={isTestMode}>
           <LinkButton small to="/" primary disabled>
             Dashboard
           </LinkButton>
-        </ButtonBar>
+        </MainNav>
       </React.Fragment>
     )
   }
@@ -213,17 +206,11 @@ export default function BallotReviewScreen({
             </Prose>
           </MainChild>
         </Main>
-        <ButtonBar secondary naturalOrder separatePrimaryButton>
-          <Brand>
-            VxScan
-            {isTestMode && (
-              <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
-            )}
-          </Brand>
+        <MainNav isTestMode={isTestMode}>
           <LinkButton small to="/" primary disabled>
             Back
           </LinkButton>
-        </ButtonBar>
+        </MainNav>
       </React.Fragment>
     )
   }
@@ -324,11 +311,7 @@ export default function BallotReviewScreen({
           </React.Fragment>
         </BallotReviewColumns>
       </Main>
-      <ButtonBar secondary naturalOrder separatePrimaryButton>
-        <Brand>
-          Adjudication
-          {isTestMode && <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>}
-        </Brand>
+      <MainNav isTestMode={isTestMode}>
         <Text white>
           {pluralize('ballot', adjudicationStatus.adjudicated, true)}{' '}
           adjudicated, {adjudicationStatus.remaining - 1} remaining.
@@ -349,7 +332,7 @@ export default function BallotReviewScreen({
         >
           Save &amp; Next
         </Button>
-      </ButtonBar>
+      </MainNav>
     </React.Fragment>
   )
 }

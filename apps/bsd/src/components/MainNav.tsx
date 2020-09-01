@@ -5,12 +5,15 @@ import ButtonBar from './ButtonBar'
 
 interface Props {
   children?: React.ReactNode
-  title?: string
+  isTestMode?: boolean
 }
 
-const MainNav = ({ children, title }: Props) => (
-  <ButtonBar secondary naturalOrder>
-    <Brand>VxScan{title && <span> / {title}</span>}</Brand>
+const MainNav = ({ children, isTestMode = false }: Props) => (
+  <ButtonBar secondary naturalOrder separatePrimaryButton>
+    <Brand>
+      VxScan
+      {isTestMode && <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>}
+    </Brand>
     {children || <div />}
   </ButtonBar>
 )

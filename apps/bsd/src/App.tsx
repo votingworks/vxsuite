@@ -12,9 +12,7 @@ import {
   CardReadResponse,
 } from './config/types'
 
-import Brand from './components/Brand'
 import Button from './components/Button'
-import ButtonBar from './components/ButtonBar'
 import Main, { MainChild } from './components/Main'
 import Screen from './components/Screen'
 import USBController from './components/USBController'
@@ -29,6 +27,7 @@ import './App.css'
 import fetchJSON from './util/fetchJSON'
 import { get as getConfig, patch as patchConfig } from './api/config'
 import LinkButton from './components/LinkButton'
+import MainNav from './components/MainNav'
 
 const App: React.FC = () => {
   const history = useHistory()
@@ -261,13 +260,7 @@ const App: React.FC = () => {
                   />
                 </MainChild>
               </Main>
-              <ButtonBar secondary naturalOrder separatePrimaryButton>
-                <Brand>
-                  VxScan
-                  {isTestMode && (
-                    <React.Fragment>&nbsp;TEST&nbsp;MODE</React.Fragment>
-                  )}
-                </Brand>
+              <MainNav isTestMode={isTestMode}>
                 <USBController />
                 {typeof isTestMode === 'boolean' && (
                   <Button small onPress={toggleTestMode}>
@@ -304,7 +297,7 @@ const App: React.FC = () => {
                 <Button small disabled={isScanning} primary onPress={scanBatch}>
                   Scan New Batch
                 </Button>
-              </ButtonBar>
+              </MainNav>
             </Route>
           </Switch>
         </Screen>
