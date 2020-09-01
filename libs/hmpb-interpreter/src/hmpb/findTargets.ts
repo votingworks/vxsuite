@@ -1,9 +1,9 @@
+import makeDebug from 'debug'
 import { Rect } from '../types'
 import { PIXEL_WHITE } from '../utils/binarize'
 import { rectCenter } from '../utils/geometry'
-import scanColumns from './scanColumns'
-import { findShape, findShapes } from './shapes'
-import makeDebug from 'debug'
+import { VisitedPoints } from '../utils/VisitedPoints'
+import { findShape } from './shapes'
 
 const debug = makeDebug('hmpb-interpreter:findTargets')
 
@@ -16,81 +16,63 @@ export default function* findTargets(
   ballotImage: ImageData,
   bounds: Rect,
   {
+    inset = Math.round(0.0175 * ballotImage.width),
     aspectRatio = 1.5,
     aspectRatioTolerance = 0.1,
-    widthPercentage = 0.085,
-    widthPercentageTolerance = 0.005,
+    expectedWidth = Math.round(0.025 * ballotImage.width),
+    errorMargin = Math.ceil(0.02 * expectedWidth),
   } = {}
 ): Generator<TargetShape> {
-  let nextY: number | undefined
-  const shapeIterator = findShapes(
-    ballotImage,
-    scanColumns(bounds, {
-      columns: [true, false, false, false, false],
-      down: false,
-    })
-  )
+  const visitedPoints = new VisitedPoints(ballotImage.width, ballotImage.height)
   const minAspectRatio = aspectRatio - aspectRatioTolerance
   const maxAspectRatio = aspectRatio + aspectRatioTolerance
-  const minWidth = (widthPercentage - widthPercentageTolerance) * bounds.width
-  const maxWidth = (widthPercentage + widthPercentageTolerance) * bounds.width
 
-  while (true) {
-    const next =
-      typeof nextY === 'number'
-        ? shapeIterator.next(nextY)
-        : shapeIterator.next()
+  const x = bounds.x + Math.round(inset + expectedWidth / 2)
 
-    if (next.done) {
-      break
+  for (let y = bounds.y + bounds.height - inset; y > bounds.y; y--) {
+    const shape = findShape(ballotImage, { x, y }, visitedPoints)
+
+    if (shape.bounds.width === 0 || shape.bounds.height === 0) {
+      continue
     }
 
-    const shape = next.value
     const actualAspectRatio = shape.bounds.width / shape.bounds.height
-
     if (
-      minAspectRatio <= actualAspectRatio &&
-      actualAspectRatio <= maxAspectRatio
+      actualAspectRatio < minAspectRatio ||
+      actualAspectRatio > maxAspectRatio
     ) {
+      debug(
+        'skipping shape because it is the wrong aspect ratio: %d ≉ %d ± %d: %O',
+        actualAspectRatio,
+        aspectRatio,
+        aspectRatioTolerance,
+        shape.bounds
+      )
+    } else if (
+      shape.bounds.width < expectedWidth - errorMargin ||
+      shape.bounds.width > expectedWidth + errorMargin
+    ) {
+      debug(
+        'skipping shape because it is the wrong width: %d ≉ %d ± %d: %O',
+        shape.bounds.width,
+        expectedWidth,
+        errorMargin,
+        shape.bounds
+      )
+    } else {
+      debug('found shape: %O', shape.bounds)
       const innerShape = findShape(
         ballotImage,
         rectCenter(shape.bounds, { round: true }),
         undefined,
         { color: PIXEL_WHITE }
       )
-      const actualWidth = shape.bounds.width
-
-      if (minWidth <= actualWidth && actualWidth <= maxWidth) {
-        debug(
-          'found shape with aspect ratio %d and width %d within expected values: %O',
-          actualAspectRatio,
-          actualWidth,
-          shape.bounds
-        )
-        yield {
-          bounds: shape.bounds,
-          inner: innerShape.bounds,
-        }
-        nextY = shape.bounds.y - 1
-      } else {
-        debug(
-          'skipping shape because it does not have the right width: %d ± %d (expected) ≠ %d (actual width)',
-          widthPercentage * bounds.width,
-          widthPercentageTolerance * bounds.width,
-          actualWidth
-        )
-        nextY = undefined
+      yield {
+        bounds: shape.bounds,
+        inner: innerShape.bounds,
       }
-    } else {
-      if (!isNaN(actualAspectRatio)) {
-        debug(
-          'skipping shape because it does not have the right aspect ratio: %d ± %d (expected) ≠ %d',
-          aspectRatio,
-          aspectRatioTolerance,
-          actualAspectRatio
-        )
-      }
-      nextY = undefined
     }
+
+    y = shape.bounds.y
   }
 }

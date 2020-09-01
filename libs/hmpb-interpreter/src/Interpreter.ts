@@ -18,7 +18,7 @@ import * as jsfeat from 'jsfeat'
 import { v4 as uuid } from 'uuid'
 import getVotesFromMarks from './getVotesFromMarks'
 import findContestOptions from './hmpb/findContestOptions'
-import findContests from './hmpb/findContests'
+import findContests, { ContestShape } from './hmpb/findContests'
 import findTargets, { TargetShape } from './hmpb/findTargets'
 import { detect } from './metadata'
 import {
@@ -214,7 +214,7 @@ export default class Interpreter {
     debug('using metadata for template: %O', metadata)
 
     const contests = findContestOptions([
-      ...map(findContests(imageData), ({ bounds, corners }) => ({
+      ...map(this.findContests(imageData), ({ bounds, corners }) => ({
         bounds,
         corners,
         targets: [...reversed(findTargets(imageData, bounds))],
@@ -225,6 +225,26 @@ export default class Interpreter {
       ballotImage: { imageData, metadata },
       contests,
     }
+  }
+
+  private findContests(imageData: ImageData): ContestShape[] {
+    // Try three columns, i.e. candidate pages.
+    const shapesWithThreeColumns = [
+      ...findContests(imageData, {
+        columns: [true, true, true],
+      }),
+    ]
+
+    if (shapesWithThreeColumns.length > 0) {
+      return shapesWithThreeColumns
+    }
+
+    // Try two columns, i.e. measure pages.
+    return [
+      ...findContests(imageData, {
+        columns: [true, true],
+      }),
+    ]
   }
 
   /**
@@ -307,7 +327,7 @@ export default class Interpreter {
       )
     }
 
-    const contests = findContests(imageData)
+    const contests = this.findContests(imageData)
     const ballotLayout: BallotPageLayout = {
       ballotImage: { imageData, metadata },
       contests: [
