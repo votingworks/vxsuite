@@ -192,11 +192,11 @@ export default class SystemImporter implements Importer {
   private async sheetAdded(
     paths: SheetOf<string>,
     batchId: string
-  ): Promise<void> {
+  ): Promise<string> {
     const start = Date.now()
     try {
       debug('sheetAdded %o batchId=%s STARTING', paths, batchId)
-      await this.importFile(batchId, paths[0], paths[1])
+      return await this.importFile(batchId, paths[0], paths[1])
     } finally {
       const end = Date.now()
       debug(
@@ -346,6 +346,14 @@ export default class SystemImporter implements Importer {
     return ballotId
   }
 
+  private async finishBatch(error?: string): Promise<void> {
+    if (this.batchId) {
+      await this.store.finishBatch({ batchId: this.batchId, error })
+    }
+    this.sheetGenerator = undefined
+    this.batchId = undefined
+  }
+
   /**
    * Scan a single sheet and see how it looks
    */
@@ -353,16 +361,16 @@ export default class SystemImporter implements Importer {
     if (!this.sheetGenerator || !this.batchId) {
       return
     }
+
     const { done, value: sheet } = await this.sheetGenerator.next()
 
     if (done) {
       debug('closing batch %s', this.batchId)
-      await this.store.finishBatch(this.batchId)
-      this.sheetGenerator = undefined
-      this.batchId = undefined
+      await this.finishBatch()
     } else {
       debug('got a ballot card: %o', sheet)
-      await this.sheetAdded(sheet, this.batchId)
+      const sheetId = await this.sheetAdded(sheet, this.batchId)
+      debug('got a ballot card: %o, %s', sheet, sheetId)
       await this.continueImport()
     }
   }
@@ -394,8 +402,10 @@ export default class SystemImporter implements Importer {
    * Continue the existing scanning process
    */
   public async continueImport(): Promise<void> {
-    if (this.sheetGenerator) {
-      setImmediate(() => this.scanOneSheet())
+    if (this.sheetGenerator && this.batchId) {
+      this.scanOneSheet().catch((err) => {
+        this.finishBatch(err.toString())
+      })
     } else {
       throw new Error('no scanning job in progress')
     }

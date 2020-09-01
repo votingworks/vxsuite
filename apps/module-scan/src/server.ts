@@ -148,7 +148,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
             ])
             return
           } finally {
-            await store.finishBatch(batchId)
+            await store.finishBatch({ batchId })
           }
         }
 

@@ -283,7 +283,7 @@ test('GET /scan/hmpb/ballot/:sheetId/:side', async () => {
       },
     },
   ])
-  await store.finishBatch(batchId)
+  await store.finishBatch({ batchId })
 
   await request(app)
     .get(`/scan/hmpb/ballot/${sheetId}/front`)
@@ -422,7 +422,7 @@ test('PATCH /scan/hmpb/ballot/:sheetId/:side', async () => {
       },
     },
   ])
-  await store.finishBatch(batchId)
+  await store.finishBatch({ batchId })
 
   await request(app)
     .patch(`/scan/hmpb/ballot/${sheetId}/front`)
@@ -528,7 +528,7 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
       },
     },
   ])
-  await store.finishBatch(batchId)
+  await store.finishBatch({ batchId })
 
   await request(app)
     .get(`/scan/hmpb/ballot/${sheetId}/front/image`)

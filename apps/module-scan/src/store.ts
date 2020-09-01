@@ -401,9 +401,16 @@ export default class Store {
   /**
    * Marks the batch with id `batchId` as finished.
    */
-  public async finishBatch(batchId: string): Promise<void> {
+  public async finishBatch({
+    batchId,
+    error,
+  }: {
+    batchId: string
+    error?: string
+  }): Promise<void> {
     await this.dbRunAsync(
-      'update batches set ended_at = current_timestamp where id = ?',
+      'update batches set ended_at = current_timestamp, error = ? where id = ?',
+      error,
       batchId
     )
   }
@@ -815,16 +822,17 @@ export default class Store {
         batches.id as id,
         started_at || 'Z' as startedAt,
         (case when ended_at is null then ended_at else ended_at || 'Z' end) as endedAt,
-        count(*) as count
+        error,
+        sum(case when sheets.id is null then 0 else 1 end) as count
       from
-        sheets,
-        batches
-      where
+        batches left join sheets
+      on
         sheets.batch_id = batches.id
       group by
         batches.id,
         batches.started_at,
-        batches.ended_at
+        batches.ended_at,
+        error
       order by
         batches.started_at desc
     `)

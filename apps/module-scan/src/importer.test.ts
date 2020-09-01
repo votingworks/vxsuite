@@ -47,12 +47,17 @@ test('startImport calls scanner.scanSheet', async () => {
   await importer.configure(election)
 
   // failed scan
-  /*  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
+  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
     SheetOf<string>
   > {
     yield Promise.reject(new Error('scanner is a banana'))
   })
-  await expect(importer.startImport()).rejects.toThrow('scanner is a banana')*/
+
+  await importer.startImport()
+  await importer.waitForEndOfBatch()
+
+  const batches = await store.batchStatus()
+  expect(batches[0].error).toEqual('Error: scanner is a banana')
 
   // successful scan
   scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<

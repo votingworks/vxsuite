@@ -80,8 +80,10 @@ test('going through the whole process works', async () => {
       .post('/scan/scanBatch')
       .expect(200)
       .then((response) => {
-        expect(response.body.status).toBe('ok')
-        expect(response.body.batchId).toEqual(expect.any(String))
+        expect(response.body).toEqual({
+          status: 'ok',
+          batchId: expect.any(String),
+        })
       })
 
     await importer.waitForEndOfBatch()

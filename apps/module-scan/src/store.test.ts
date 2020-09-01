@@ -245,7 +245,7 @@ test('adjudication', async () => {
       },
     })) as SheetOf<PageInterpretationWithFiles>
   )
-  await store.finishBatch(batchId)
+  await store.finishBatch({ batchId })
 
   await Promise.all(
     (['front', 'back'] as Side[]).map(async (side, i) => {

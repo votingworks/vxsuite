@@ -94,6 +94,7 @@ export interface BatchInfo {
   id: number
   startedAt: Date
   endedAt: Date
+  error: string
   count: number
 }
 
