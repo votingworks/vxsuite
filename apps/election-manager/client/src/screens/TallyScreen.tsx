@@ -128,6 +128,18 @@ const TallyScreen = () => {
     })()
   }, [])
 
+  const [hasElectionConverter, setHasElectionConverter] = useState(false)
+  useEffect(() => {
+    ;(async () => {
+      try {
+        await new ConverterClient('election').getFiles()
+        setHasElectionConverter(true)
+      } catch {
+        setHasElectionConverter(false)
+      }
+    })()
+  }, [])
+
   const exportResults = async () => {
     const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
       .flat(1)
@@ -406,12 +418,16 @@ const TallyScreen = () => {
             </p>
           </React.Fragment>
         )}
-        <h2>Results Management</h2>
-        <p>
-          <LinkButton to={routerPaths.combineResultsFiles}>
-            Combine Results Files
-          </LinkButton>
-        </p>
+        {hasElectionConverter && (
+          <React.Fragment>
+            <h2>Results Management</h2>
+            <p>
+              <LinkButton to={routerPaths.combineResultsFiles}>
+                Combine Results Files
+              </LinkButton>
+            </p>
+          </React.Fragment>
+        )}
       </NavigationScreen>
       <Modal
         isOpen={isConfimingRemoveCRVs}
