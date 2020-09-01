@@ -23,7 +23,7 @@ import pdfToImages from './util/pdfToImages'
 
 const debug = makeDebug('module-scan:importer')
 
-const sleep = (ms = 1000): Promise<void> =>
+export const sleep = (ms = 1000): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
 export interface Options {
@@ -43,7 +43,7 @@ export interface Importer {
   doExport(): Promise<string>
   startImport(): Promise<string>
   continueImport(): Promise<void>
-  waitForEndOfBatch(): Promise<void>
+  waitForEndOfBatchOrScanningPause(): Promise<void>
   doZero(): Promise<void>
   importFile(
     batchId: string,
@@ -385,7 +385,11 @@ export default class SystemImporter implements Importer {
       debug('got a ballot card: %o', sheet)
       const sheetId = await this.sheetAdded(sheet, this.batchId)
       debug('got a ballot card: %o, %s', sheet, sheetId)
-      await this.continueImport()
+
+      const adjudicationStatus = await this.store.adjudicationStatus()
+      if (adjudicationStatus.remaining === 0) {
+        await this.continueImport()
+      }
     }
   }
 
@@ -417,6 +421,13 @@ export default class SystemImporter implements Importer {
    */
   public async continueImport(): Promise<void> {
     if (this.sheetGenerator && this.batchId) {
+      // if there was a ballot to adjudicate, remove it.
+      const reviewBallot = await this.store.getNextReviewBallot()
+
+      if (reviewBallot?.ballot) {
+        await this.store.deleteSheet(reviewBallot.ballot.id)
+      }
+
       this.scanOneSheet().catch((err) => {
         this.finishBatch(err.toString())
       })
@@ -428,13 +439,18 @@ export default class SystemImporter implements Importer {
   /**
    * this is really for testing
    */
-  public async waitForEndOfBatch(): Promise<void> {
+  public async waitForEndOfBatchOrScanningPause(): Promise<void> {
     if (!this.batchId) {
       return
     }
 
+    const adjudicationStatus = await this.store.adjudicationStatus()
+    if (adjudicationStatus.remaining > 0) {
+      return
+    }
+
     await sleep(200)
-    return this.waitForEndOfBatch()
+    return this.waitForEndOfBatchOrScanningPause()
   }
 
   /**

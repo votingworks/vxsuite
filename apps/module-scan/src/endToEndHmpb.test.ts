@@ -111,7 +111,7 @@ test('going through the whole process works', async () => {
         })
       })
 
-    await importer.waitForEndOfBatch()
+    await importer.waitForEndOfBatchOrScanningPause()
 
     // check the latest batch has the expected counts
     const status = await request(app)
@@ -227,7 +227,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         })
       })
 
-    await importer.waitForEndOfBatch()
+    await importer.waitForEndOfBatchOrScanningPause()
 
     // check the latest batch has the expected ballots
     const status = await request(app)

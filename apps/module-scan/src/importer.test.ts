@@ -9,14 +9,14 @@ import sharp from 'sharp'
 import { fileSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
 import { makeMockInterpreter } from '../test/util/mocks'
-import SystemImporter from './importer'
+import SystemImporter, { sleep } from './importer'
 import { Scanner } from './scanner'
 import Store from './store'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
 import pdfToImages from './util/pdfToImages'
-import { SheetOf } from './types'
+import { SheetOf, ReviewUninterpretableHmpbBallot } from './types'
 import { fromElection } from './util/electionDefinition'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
@@ -33,6 +33,8 @@ beforeEach(() => {
 afterEach(() => {
   importDirs.remove()
 })
+
+jest.setTimeout(10000)
 
 test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
@@ -58,7 +60,7 @@ test('startImport calls scanner.scanSheet', async () => {
   })
 
   await importer.startImport()
-  await importer.waitForEndOfBatch()
+  await importer.waitForEndOfBatchOrScanningPause()
 
   const batches = await store.batchStatus()
   expect(batches[0].error).toEqual('Error: scanner is a banana')
@@ -73,7 +75,7 @@ test('startImport calls scanner.scanSheet', async () => {
     ]
   })
   await importer.startImport()
-  await importer.waitForEndOfBatch()
+  await importer.waitForEndOfBatchOrScanningPause()
   await importer.unconfigure()
 })
 
@@ -308,4 +310,92 @@ test('manually importing files', async () => {
   const filenames = (await store.getBallotFilenames(sheetId, 'front'))!
   expect(fs.existsSync(filenames.original)).toBe(true)
   expect(fs.existsSync(filenames.normalized)).toBe(true)
+})
+
+test('scanning pauses on adjudication then continues', async () => {
+  const scanner: jest.Mocked<Scanner> = {
+    scanSheets: jest.fn(),
+  }
+  const store = await Store.memoryStore()
+
+  const importer = new SystemImporter({
+    ...importDirs.paths,
+    store,
+    scanner,
+  })
+
+  await importer.configure(fromElection(election))
+
+  jest.spyOn(store, 'deleteSheet')
+
+  jest
+    .spyOn(store, 'addSheet')
+    .mockImplementationOnce(async () => {
+      return 'sheet-1'
+    })
+    .mockImplementationOnce(async () => {
+      jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
+        return { adjudicated: 0, remaining: 1 }
+      })
+      return 'sheet-2'
+    })
+    .mockImplementationOnce(async () => {
+      return 'sheet-3'
+    })
+
+  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
+    SheetOf<string>
+  > {
+    yield [
+      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg'),
+      join(sampleBallotImagesPath, 'blank-page.png'),
+    ]
+
+    yield [
+      join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.jpg'),
+      join(sampleBallotImagesPath, 'blank-page.png'),
+    ]
+
+    yield [
+      join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.jpg'),
+      join(sampleBallotImagesPath, 'blank-page.png'),
+    ]
+  })
+
+  await importer.startImport()
+  await importer.waitForEndOfBatchOrScanningPause()
+
+  expect(store.addSheet).toHaveBeenCalledTimes(2)
+
+  // wait a bit and make sure no other call is made
+  await sleep(1)
+  expect(store.addSheet).toHaveBeenCalledTimes(2)
+
+  jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
+    return { adjudicated: 0, remaining: 0 }
+  })
+
+  jest.spyOn(store, 'getNextReviewBallot').mockImplementationOnce(async () => {
+    return {
+      type: 'ReviewUninterpretableHmpbBallot',
+      contests: [],
+      ballot: {
+        id: 'mock-sheet-id',
+        url: '/mock/url',
+        image: {
+          url: '/mock/image/url',
+          width: 100,
+          height: 200,
+        },
+      },
+    } as ReviewUninterpretableHmpbBallot
+  })
+
+  expect(store.deleteSheet).toHaveBeenCalledTimes(0)
+
+  await importer.continueImport()
+  await importer.waitForEndOfBatchOrScanningPause()
+
+  expect(store.addSheet).toHaveBeenCalledTimes(3)
+  expect(store.deleteSheet).toHaveBeenCalledTimes(1)
 })

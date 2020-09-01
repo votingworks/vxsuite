@@ -480,6 +480,16 @@ export default class Store {
     return sheetId
   }
 
+  /**
+   * Mark a sheet as deleted
+   */
+  public async deleteSheet(sheetId: string): Promise<void> {
+    await this.dbRunAsync(
+      'update sheets set deleted_at = current_timestamp where id = ?',
+      sheetId
+    )
+  }
+
   public async zero(): Promise<void> {
     await this.dbRunAsync('delete from batches')
   }
@@ -598,6 +608,7 @@ export default class Store {
     })()
 
     const ballot: ReviewBallot['ballot'] = {
+      id: sheetId,
       url: `/scan/hmpb/ballot/${sheetId}/front`,
       image: {
         url: `/scan/hmpb/ballot/${sheetId}/front/image`,
@@ -690,7 +701,8 @@ export default class Store {
       from sheets
       where
         requires_adjudication = 1 and
-        (front_finished_adjudication_at is null or back_finished_adjudication_at is null)
+        (front_finished_adjudication_at is null or back_finished_adjudication_at is null) and
+        deleted_at is null
       order by created_at asc
       limit 1
     `
@@ -724,7 +736,7 @@ export default class Store {
         ${side}_adjudication_json as adjudicationJSON,
         json_extract(${side}_interpretation_json, '$.markInfo') as marksJSON
       from sheets
-      where id = ?
+      where id = ? and deleted_at is null
     `,
       ballotId
     )
@@ -809,6 +821,8 @@ export default class Store {
         batches left join sheets
       on
         sheets.batch_id = batches.id
+      where
+        deleted_at is null
       group by
         batches.id,
         batches.started_at,
@@ -861,8 +875,9 @@ export default class Store {
         back_adjudication_json as backAdjudicationJSON
       from sheets
       where
-        requires_adjudication = 0 or
-        (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null)
+        (requires_adjudication = 0 or
+        (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null))
+        and deleted_at is null
     `
     for (const {
       id,

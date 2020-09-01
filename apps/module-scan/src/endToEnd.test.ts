@@ -86,7 +86,7 @@ test('going through the whole process works', async () => {
         })
       })
 
-    await importer.waitForEndOfBatch()
+    await importer.waitForEndOfBatchOrScanningPause()
 
     // check the status
     const status = await request(app)

@@ -35,6 +35,8 @@ create table sheets (
 
   created_at datetime default current_timestamp not null,
 
+  deleted_at datetime,
+
   foreign key (batch_id)
   references batches (id)
     on update cascade

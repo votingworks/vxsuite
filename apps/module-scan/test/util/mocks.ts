@@ -21,7 +21,7 @@ export function makeMockImporter(): jest.Mocked<Importer> {
     doExport: jest.fn(),
     startImport: jest.fn(),
     continueImport: jest.fn(),
-    waitForEndOfBatch: jest.fn(),
+    waitForEndOfBatchOrScanningPause: jest.fn(),
     importFile: jest.fn(),
     doZero: jest.fn(),
     getStatus: jest.fn(),

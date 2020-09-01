@@ -33,6 +33,7 @@ export type ReviewBallot =
   | ReviewUninterpretableHmpbBallot
 
 export interface BallotInfo {
+  id: string
   url: string
   image: { url: string; width: number; height: number }
 }

@@ -116,6 +116,15 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
+  app.post('/scan/scanContinue', async (_request, response) => {
+    try {
+      await importer.continueImport()
+      response.json({ status: 'ok' })
+    } catch (err) {
+      response.json({ status: `could not continue scan: ${err.message}` })
+    }
+  })
+
   if (process.env.NODE_ENV !== 'production') {
     app.post(
       '/scan/scanFiles',

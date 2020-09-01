@@ -169,6 +169,15 @@ test('POST /scan/scanBatch', async () => {
   expect(importer.startImport).toBeCalled()
 })
 
+test('POST /scan/scanContinue', async () => {
+  importerMock.continueImport.mockResolvedValue(undefined)
+  await request(app)
+    .post('/scan/scanContinue')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+  expect(importer.continueImport).toBeCalled()
+})
+
 test('POST /scan/scanBatch errors', async () => {
   importerMock.startImport.mockRejectedValue(new Error('scanner is a teapot'))
   await request(app)
@@ -314,6 +323,7 @@ test('GET /scan/hmpb/ballot/:sheetId/:side', async () => {
     .expect(200, {
       type: 'ReviewMarginalMarksBallot',
       ballot: {
+        id: sheetId,
         url: `/scan/hmpb/ballot/${sheetId}/front`,
         image: {
           url: `/scan/hmpb/ballot/${sheetId}/front/image`,
