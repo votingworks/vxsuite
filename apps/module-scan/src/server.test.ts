@@ -140,21 +140,21 @@ test('PATCH /config rejects unknown properties', async () => {
 })
 
 test('POST /scan/scanBatch', async () => {
-  importerMock.doImport.mockResolvedValue(undefined)
+  importerMock.startImport.mockResolvedValue('mock-batch-id')
   await request(app)
     .post('/scan/scanBatch')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
-  expect(importer.doImport).toBeCalled()
+    .expect(200, { status: 'ok', batchId: 'mock-batch-id' })
+  expect(importer.startImport).toBeCalled()
 })
 
 test('POST /scan/scanBatch errors', async () => {
-  importerMock.doImport.mockRejectedValue(new Error('scanner is a teapot'))
+  importerMock.startImport.mockRejectedValue(new Error('scanner is a teapot'))
   await request(app)
     .post('/scan/scanBatch')
     .set('Accept', 'application/json')
     .expect(200, { status: 'could not scan: scanner is a teapot' })
-  expect(importer.doImport).toBeCalled()
+  expect(importer.startImport).toBeCalled()
 })
 
 test('POST /scan/scanFiles', async () => {

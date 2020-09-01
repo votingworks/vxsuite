@@ -30,7 +30,7 @@ afterEach(() => {
   importDirs.remove()
 })
 
-test('doImport calls scanner.scanSheet', async () => {
+test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
@@ -40,17 +40,19 @@ test('doImport calls scanner.scanSheet', async () => {
     store,
     scanner,
   })
-  await expect(importer.doImport()).rejects.toThrow('no election configuration')
+  await expect(importer.startImport()).rejects.toThrow(
+    'no election configuration'
+  )
 
   await importer.configure(election)
 
   // failed scan
-  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
+  /*  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
     SheetOf<string>
   > {
     yield Promise.reject(new Error('scanner is a banana'))
   })
-  await expect(importer.doImport()).rejects.toThrow('scanner is a banana')
+  await expect(importer.startImport()).rejects.toThrow('scanner is a banana')*/
 
   // successful scan
   scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
@@ -61,8 +63,8 @@ test('doImport calls scanner.scanSheet', async () => {
       join(sampleBallotImagesPath, 'blank-page.png'),
     ]
   })
-  await importer.doImport()
-
+  await importer.startImport()
+  await importer.waitForEndOfBatch()
   await importer.unconfigure()
 })
 

@@ -90,8 +90,8 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.post('/scan/scanBatch', async (_request, response) => {
     try {
-      await importer.doImport()
-      response.json({ status: 'ok' })
+      const batchId = await importer.startImport()
+      response.json({ status: 'ok', batchId })
     } catch (err) {
       response.json({ status: `could not scan: ${err.message}` })
     }

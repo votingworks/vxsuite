@@ -76,7 +76,15 @@ test('going through the whole process works', async () => {
         path.join(sampleBallotImagesPath, 'blank-page.png'),
       ])
       .end()
-    await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
+    await request(app)
+      .post('/scan/scanBatch')
+      .expect(200)
+      .then((response) => {
+        expect(response.body.status).toBe('ok')
+        expect(response.body.batchId).toEqual(expect.any(String))
+      })
+
+    await importer.waitForEndOfBatch()
 
     // check the status
     const status = await request(app)

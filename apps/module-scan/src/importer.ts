@@ -19,6 +19,9 @@ import pdfToImages from './util/pdfToImages'
 
 const debug = makeDebug('module-scan:importer')
 
+const sleep = (ms = 1000): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms))
+
 export interface Options {
   store: Store
   scanner: Scanner
@@ -34,7 +37,9 @@ export interface Importer {
   ): Promise<BallotPageLayout[]>
   configure(newElection: Election): Promise<void>
   doExport(): Promise<string>
-  doImport(): Promise<void>
+  startImport(): Promise<string>
+  continueImport(): Promise<void>
+  waitForEndOfBatch(): Promise<void>
   doZero(): Promise<void>
   importFile(
     batchId: string,
@@ -56,6 +61,8 @@ export default class SystemImporter implements Importer {
   private store: Store
   private scanner: Scanner
   private interpreter: Interpreter
+  private sheetGenerator: AsyncGenerator<SheetOf<string>> | undefined
+  private batchId: string | undefined
 
   public readonly scannedImagesPath: string
   public readonly importedImagesPath: string
@@ -340,34 +347,70 @@ export default class SystemImporter implements Importer {
   }
 
   /**
-   * Create a new batch and scan as many images as we can into it.
+   * Scan a single sheet and see how it looks
    */
-  public async doImport(): Promise<void> {
+  private async scanOneSheet(): Promise<void> {
+    if (!this.sheetGenerator || !this.batchId) {
+      return
+    }
+    const { done, value: sheet } = await this.sheetGenerator.next()
+
+    if (done) {
+      debug('closing batch %s', this.batchId)
+      await this.store.finishBatch(this.batchId)
+      this.sheetGenerator = undefined
+      this.batchId = undefined
+    } else {
+      debug('got a ballot card: %o', sheet)
+      await this.sheetAdded(sheet, this.batchId)
+      await this.continueImport()
+    }
+  }
+
+  /**
+   * Create a new batch and begin the scanning process
+   */
+  public async startImport(): Promise<string> {
     const election = await this.store.getElection()
 
     if (!election) {
       throw new Error('no election configuration')
     }
 
-    const batchId = await this.store.addBatch()
-
-    try {
-      // trigger a scan
-      debug('scanning starting for batch: %s', batchId)
-      for await (const sheet of this.scanner.scanSheets(
-        this.scannedImagesPath
-      )) {
-        debug('got a ballot card: %o', sheet)
-        await this.sheetAdded(sheet, batchId)
-      }
-      debug('scanning completed successfully')
-    } catch (err) {
-      // node couldn't execute the command
-      throw new Error(`problem scanning: ${err.stack}`)
-    } finally {
-      debug('closing batch %s', batchId)
-      await this.store.finishBatch(batchId)
+    if (this.sheetGenerator) {
+      throw new Error('scanning already in progess')
     }
+
+    this.batchId = await this.store.addBatch()
+    debug('scanning starting for batch: %s', this.batchId)
+    this.sheetGenerator = this.scanner.scanSheets(this.scannedImagesPath)
+
+    await this.continueImport()
+
+    return this.batchId
+  }
+
+  /**
+   * Continue the existing scanning process
+   */
+  public async continueImport(): Promise<void> {
+    if (this.sheetGenerator) {
+      setImmediate(() => this.scanOneSheet())
+    } else {
+      throw new Error('no scanning job in progress')
+    }
+  }
+
+  /**
+   * this is really for testing
+   */
+  public async waitForEndOfBatch(): Promise<void> {
+    if (!this.batchId) {
+      return
+    }
+
+    await sleep(200)
+    return this.waitForEndOfBatch()
   }
 
   /**

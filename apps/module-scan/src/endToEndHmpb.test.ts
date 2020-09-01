@@ -101,7 +101,15 @@ test('going through the whole process works', async () => {
 
     nextSession.end()
 
-    await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
+    await request(app)
+      .post('/scan/scanBatch')
+      .expect(200)
+      .then((response) => {
+        expect(response.body.status).toBe('ok')
+        expect(response.body.batchId).toEqual(expect.any(String))
+      })
+
+    await importer.waitForEndOfBatch()
 
     // check the latest batch has the expected counts
     const status = await request(app)
@@ -207,7 +215,15 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
       ])
       .end()
 
-    await request(app).post('/scan/scanBatch').expect(200, { status: 'ok' })
+    await request(app)
+      .post('/scan/scanBatch')
+      .expect(200)
+      .then((response) => {
+        expect(response.body.status).toBe('ok')
+        expect(response.body.batchId).toEqual(expect.any(String))
+      })
+
+    await importer.waitForEndOfBatch()
 
     // check the latest batch has the expected ballots
     const status = await request(app)
