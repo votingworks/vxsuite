@@ -21,6 +21,7 @@ import useInterval from './hooks/useInterval'
 import LoadElectionScreen from './screens/LoadElectionScreen'
 import DashboardScreen from './screens/DashboardScreen'
 import BallotReviewScreen from './screens/BallotReviewScreen'
+import BallotEjectScreen from './screens/BallotEjectScreen'
 
 import 'normalize.css'
 import './App.css'
@@ -241,6 +242,14 @@ const App: React.FC = () => {
               <BallotReviewScreen
                 adjudicationStatus={adjudication}
                 isTestMode={isTestMode}
+              />
+            </Route>
+            <Route path="/eject">
+              <BallotEjectScreen
+                continueScanning={() => {
+                  // eslint-disable-next-line no-console
+                  console.log('restart scanning')
+                }}
               />
             </Route>
             <Route path="/">
