@@ -294,8 +294,8 @@ const PageFooterRow = styled.div`
   }
 `
 const PageFooterQRCode = styled.div`
-  margin-left: 0.225in;
-  width: 0.475in;
+  margin-left: 0.15in;
+  width: 0.55in;
 `
 const CandidateContestsLayout = styled.div`
   columns: 3;
@@ -596,7 +596,9 @@ const HandMarkedPaperBallot = ({
           <PageFooter>
             {isAbsenteeMode && (
               <AbsenteeFooter>
-                <Text bold>Absentee Ballot</Text>
+                <Text bold as="span">
+                  Absentee Ballot
+                </Text>
               </AbsenteeFooter>
             )}
             <OfficialInitials>
