@@ -10,6 +10,7 @@ import {
   detect,
   Election,
   VotesDict,
+  BallotType,
 } from '@votingworks/ballot-encoder'
 import {
   BallotMark,
@@ -108,50 +109,6 @@ export interface Interpreter {
   ): Promise<InterpretFileResult>
   setTestMode(testMode: boolean): void
 }
-
-// function ballotToCastVoteRecord(ballot: CompletedBallot): CastVoteRecord {
-//   const { election, ballotStyle, precinct, ballotId, isTestBallot } = ballot
-
-//   // figure out the contests
-//   const contests = getContests({ ballotStyle, election })
-
-//   // prepare the CVR
-//   const cvr: CastVoteRecord = {
-//     _precinctId: precinct.id,
-//     _ballotId: ballotId,
-//     _ballotStyleId: ballotStyle.id,
-//     _testBallot: isTestBallot,
-//     _scannerId: getMachineId(),
-//   }
-
-//   for (const contest of contests) {
-//     // no answer for a particular contest is recorded in our final dictionary as an empty string
-//     // not the same thing as undefined.
-//     let cvrForContest: string[] = []
-//     const vote = ballot.votes[contest.id]
-
-//     if (contest.type === 'yesno') {
-//       if (vote) {
-//         cvrForContest = vote as string[]
-//       }
-//     } else if (contest.type === 'candidate') {
-//       // selections for this question
-//       const candidates = vote as Optional<CandidateVote>
-
-//       if (candidates && candidates.length > 0) {
-//         cvrForContest = candidates.map((candidate) =>
-//           candidate.isWriteIn ? '__write-in' : candidate.id
-//         )
-//       }
-//     } else {
-//       throw new Error(`contest type is not yet supported: ${contest.type}`)
-//     }
-
-//     cvr[contest.id] = cvrForContest
-//   }
-
-//   return cvr
-// }
 
 interface BallotImageData {
   file: Buffer
@@ -270,17 +227,16 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
     ;({ metadata } = layout.ballotImage)
 
-    if (metadata.isTestBallot === this.testMode) {
+    if (metadata.isTestMode === this.testMode) {
       await interpreter.addTemplate(layout)
     }
 
     debug(
-      'Added HMPB template page %d/%d: ballotStyleId=%s precinctId=%s isTestBallot=%s',
+      'Added HMPB template page %d: ballotStyleId=%s precinctId=%s isTestMode=%s',
       metadata.pageNumber,
-      metadata.pageCount,
       metadata.ballotStyleId,
       metadata.precinctId,
-      metadata.isTestBallot
+      metadata.isTestMode
     )
 
     return layout
@@ -319,12 +275,12 @@ export default class SummaryBallotInterpreter implements Interpreter {
         'assuming ballot is a HMPB that could not be interpreted (QR data: %s)',
         new TextDecoder().decode(ballotImageData.qrcode)
       )
-      const metadata = metadataFromBytes(ballotImageData.qrcode)
+      const metadata = metadataFromBytes(election, ballotImageData.qrcode)
 
-      if (metadata.isTestBallot !== this.testMode) {
+      if (metadata.isTestMode !== this.testMode) {
         debug(
-          'cannot process a HMPB with isTestBallot=%s when testMode=%s',
-          metadata.isTestBallot,
+          'cannot process a HMPB with isTestMode=%s when testMode=%s',
+          metadata.isTestMode,
           this.testMode
         )
         return {
@@ -371,9 +327,12 @@ export default class SummaryBallotInterpreter implements Interpreter {
         type: 'InterpretedBmdPage',
         ballotId: ballot.ballotId,
         metadata: {
+          electionHash: '',
+          ballotType: BallotType.Standard,
+          locales: { primary: 'en-US' },
           ballotStyleId: ballot.ballotStyle.id,
           precinctId: ballot.precinct.id,
-          isTestBallot: ballot.isTestBallot,
+          isTestMode: ballot.isTestMode,
         },
         votes: ballot.votes,
       },

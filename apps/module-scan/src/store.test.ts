@@ -1,5 +1,6 @@
 import {
   AdjudicationReason,
+  BallotType,
   CandidateContest,
   YesNoContest,
 } from '@votingworks/ballot-encoder'
@@ -9,19 +10,27 @@ import { v4 as uuid } from 'uuid'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import Store from './store'
+import {
+  BallotMetadata,
+  PageInterpretationWithFiles,
+  SheetOf,
+  Side,
+} from './types'
 import { MarkStatus } from './types/ballot-review'
-import { SheetOf, PageInterpretationWithFiles, Side } from './types'
+import { fromElection } from './util/electionDefinition'
 
 test('get/set election', async () => {
   const store = await Store.memoryStore()
 
-  expect(await store.getElection()).toBeUndefined()
+  expect(await store.getElectionDefinition()).toBeUndefined()
 
-  await store.setElection(election)
-  expect(await store.getElection()).toEqual(expect.objectContaining(election))
+  await store.setElection(fromElection(election))
+  expect(await store.getElectionDefinition()).toEqual(
+    expect.objectContaining({ election })
+  )
 
   await store.setElection(undefined)
-  expect(await store.getElection()).toBeUndefined()
+  expect(await store.getElectionDefinition()).toBeUndefined()
 })
 
 test('get/set test mode', async () => {
@@ -38,18 +47,23 @@ test('get/set test mode', async () => {
 
 test('HMPB template handling', async () => {
   const store = await Store.memoryStore()
+  const metadata: BallotMetadata = {
+    electionHash: '',
+    locales: { primary: 'en-US' },
+    ballotStyleId: '12',
+    precinctId: '23',
+    isTestMode: false,
+    ballotType: BallotType.Standard,
+  }
 
   expect(await store.getHmpbTemplates()).toEqual([])
 
-  await store.addHmpbTemplate(Buffer.of(1, 2, 3), [
+  await store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
     {
       ballotImage: {
         metadata: {
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestBallot: false,
+          ...metadata,
           pageNumber: 1,
-          pageCount: 2,
         },
       },
       contests: [],
@@ -57,11 +71,8 @@ test('HMPB template handling', async () => {
     {
       ballotImage: {
         metadata: {
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestBallot: false,
+          ...metadata,
           pageNumber: 2,
-          pageCount: 2,
         },
       },
       contests: [],
@@ -75,11 +86,13 @@ test('HMPB template handling', async () => {
         {
           ballotImage: {
             metadata: {
+              electionHash: '',
+              ballotType: BallotType.Standard,
+              locales: { primary: 'en-US' },
               ballotStyleId: '12',
               precinctId: '23',
-              isTestBallot: false,
+              isTestMode: false,
               pageNumber: 1,
-              pageCount: 2,
             },
           },
           contests: [],
@@ -87,11 +100,13 @@ test('HMPB template handling', async () => {
         {
           ballotImage: {
             metadata: {
+              electionHash: '',
+              ballotType: BallotType.Standard,
+              locales: { primary: 'en-US' },
               ballotStyleId: '12',
               precinctId: '23',
-              isTestBallot: false,
+              isTestMode: false,
               pageNumber: 2,
-              pageCount: 2,
             },
           },
           contests: [],
@@ -122,18 +137,23 @@ test('adjudication', async () => {
   const yesnoOption = 'yes'
 
   const store = await Store.memoryStore()
-  await store.setElection(election)
+  const metadata: BallotMetadata = {
+    electionHash: '',
+    ballotStyleId: '12',
+    precinctId: '23',
+    isTestMode: false,
+    locales: { primary: 'en-US' },
+    ballotType: BallotType.Standard,
+  }
+  await store.setElection(fromElection(election))
   await store.addHmpbTemplate(
     Buffer.of(),
+    metadata,
     [1, 2].map((pageNumber) => ({
       ballotImage: {
         metadata: {
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestBallot: false,
+          ...metadata,
           pageNumber,
-          pageCount: 2,
-          locales: { primary: 'en-US' },
         },
       },
       contests: [
@@ -215,12 +235,13 @@ test('adjudication', async () => {
           ],
         },
         metadata: {
+          electionHash: '',
           ballotStyleId: '12',
           precinctId: '23',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 1,
-          pageCount: 2,
           locales: { primary: 'en-US' },
+          ballotType: BallotType.Standard,
         },
         adjudicationInfo: {
           requiresAdjudication: true,

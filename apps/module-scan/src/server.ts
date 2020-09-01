@@ -3,7 +3,7 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
-import { parseElection } from '@votingworks/ballot-encoder'
+import { BallotType, Election } from '@votingworks/ballot-encoder'
 import express, { Application, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
@@ -12,7 +12,8 @@ import { inspect } from 'util'
 import SystemImporter, { Importer } from './importer'
 import { FujitsuScanner, Scanner } from './scanner'
 import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
-import { BallotConfig } from './types'
+import { BallotConfig, ElectionDefinition } from './types'
+import { fromElection, validate } from './util/electionDefinition'
 import makeTemporaryBallotImportImageDirectories from './util/makeTemporaryBallotImportImageDirectories'
 
 export interface AppOptions {
@@ -32,7 +33,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.get('/config', async (_request, response) => {
     response.json({
-      election: await store.getElection(),
+      election: (await store.getElectionDefinition())?.election,
       testMode: await store.getTestMode(),
     })
   })
@@ -57,9 +58,27 @@ export function buildApp({ store, importer }: AppOptions): Application {
             if (value === null) {
               await importer.unconfigure()
             } else {
-              const election = parseElection(value)
-              await importer.configure(election)
-              await store.setElection(election)
+              const electionConfig = value as Election | ElectionDefinition
+              const electionDefinition =
+                'election' in electionConfig
+                  ? electionConfig
+                  : fromElection(electionConfig)
+              const errors = [...validate(electionDefinition)]
+
+              if (errors.length > 0) {
+                response.status(400).json({
+                  errors: errors.map((error) => ({
+                    type: error.type,
+                    message: `there was an error with the election definition: ${inspect(
+                      error
+                    )}`,
+                  })),
+                })
+                return
+              }
+
+              await importer.configure(electionDefinition)
+              await store.setElection(electionDefinition)
             }
             break
           }
@@ -217,9 +236,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
           )
 
           await importer.addHmpbTemplates(await readFile(ballotFile.path), {
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId: metadata.ballotStyleId,
             precinctId: metadata.precinctId,
-            isTestBallot: !metadata.isLiveMode,
+            isTestMode: !metadata.isLiveMode,
             locales: metadata.locales,
           })
         }

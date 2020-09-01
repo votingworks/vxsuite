@@ -1,8 +1,9 @@
 import {
   BallotStyle,
   Contest,
-  Precinct,
+  Election,
   MarkThresholds,
+  Precinct,
 } from '@votingworks/ballot-encoder'
 import {
   BallotLocales,
@@ -12,7 +13,7 @@ import {
   BallotTargetMark,
 } from '@votingworks/hmpb-interpreter'
 import { MarkInfo, PageInterpretation } from './interpreter'
-import { MarkStatus, MarksByContestId } from './types/ballot-review'
+import { MarksByContestId, MarkStatus } from './types/ballot-review'
 
 export interface Dictionary<T> {
   [key: string]: T | undefined
@@ -69,6 +70,12 @@ export interface PageInterpretationWithAdjudication<
   interpretation: T
   contestIds?: readonly string[]
   adjudication?: MarksByContestId
+}
+
+export interface ElectionDefinition {
+  election: Election
+  electionData: string
+  electionHash: string
 }
 
 export interface CastVoteRecord
@@ -131,10 +138,7 @@ export interface HmpbTemplateInfo {
   pageCount: number
 }
 
-export type BallotMetadata = Omit<
-  BallotPageMetadata,
-  'pageNumber' | 'pageCount'
->
+export type BallotMetadata = Omit<BallotPageMetadata, 'pageNumber' | 'ballotId'>
 
 export type SerializableBallotPageLayout = Omit<
   BallotPageLayout,
