@@ -127,6 +127,22 @@ test('destroy database', async () => {
   await expect(fs.access(dbFile.name)).rejects.toThrowError('ENOENT')
 })
 
+test('batch cleanup works correctly', async () => {
+  const dbFile = tmp.fileSync()
+  const store = await Store.fileStore(dbFile.name)
+
+  await store.reset()
+
+  const firstBatchId = await store.addBatch()
+  await store.addBatch()
+  await store.finishBatch({ batchId: firstBatchId })
+  await store.cleanupIncompleteBatches()
+
+  const batches = await store.batchStatus()
+  expect(batches.length).toBe(1)
+  expect(batches[0].id).toEqual(firstBatchId)
+})
+
 test('adjudication', async () => {
   const candidateContests = election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
@@ -267,6 +283,9 @@ test('adjudication', async () => {
     })) as SheetOf<PageInterpretationWithFiles>
   )
   await store.finishBatch({ batchId })
+
+  // cleaning up batches now should have no impact
+  await store.cleanupIncompleteBatches()
 
   await Promise.all(
     (['front', 'back'] as Side[]).map(async (side, i) => {

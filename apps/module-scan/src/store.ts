@@ -809,6 +809,14 @@ export default class Store {
   }
 
   /**
+   * Cleanup partial batches
+   */
+  public async cleanupIncompleteBatches(): Promise<void> {
+    // cascades to the sheets
+    await this.dbRunAsync('delete from batches where ended_at is null')
+  }
+
+  /**
    * Gets all batches, including their sheet count.
    */
   public async batchStatus(): Promise<BatchInfo[]> {

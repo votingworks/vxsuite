@@ -453,6 +453,9 @@ export async function start({
   app = app ?? buildApp({ importer, store })
   await importer.restoreConfig()
 
+  // cleanup incomplete batches from before
+  await store.cleanupIncompleteBatches()
+
   app.listen(port, () => {
     log(`Listening at http://localhost:${port}/`)
 
