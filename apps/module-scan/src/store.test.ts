@@ -139,7 +139,7 @@ test('batch cleanup works correctly', async () => {
   await store.cleanupIncompleteBatches()
 
   const batches = await store.batchStatus()
-  expect(batches.length).toBe(1)
+  expect(batches).toHaveLength(1)
   expect(batches[0].id).toEqual(firstBatchId)
 })
 
