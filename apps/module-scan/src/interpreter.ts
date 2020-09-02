@@ -207,7 +207,6 @@ export async function getBallotImageData(
 /**
  * Determine if a sheet needs adjudication.
  */
-
 export function sheetRequiresAdjudication([front, back]: SheetOf<
   PageInterpretation
 >): boolean {

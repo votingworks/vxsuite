@@ -6,8 +6,8 @@ import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election
 import SummaryBallotInterpreter, {
   getBallotImageData,
   InterpretedHmpbPage,
-  UninterpretedHmpbPage,
   sheetRequiresAdjudication,
+  UninterpretedHmpbPage,
 } from './interpreter'
 import { DefaultMarkThresholds } from './store'
 import { resultError, resultValue } from './types'
@@ -2788,7 +2788,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
   `)
 })
 
-const pageInterpretationBoilerplate = {
+const pageInterpretationBoilerplate: InterpretedHmpbPage = {
   type: 'InterpretedHmpbPage',
   metadata: {
     ballotStyleId: '12',
@@ -2809,26 +2809,29 @@ const pageInterpretationBoilerplate = {
     marks: [],
   },
   votes: {},
+  adjudicationInfo: {
+    allReasonInfos: [],
+    enabledReasons: [],
+    requiresAdjudication: false,
+  },
 }
 
 test('sheetRequiresAdjudication triggers if front or back requires adjudication', async () => {
-  const sideYes = {
+  const sideYes: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
+      ...pageInterpretationBoilerplate.adjudicationInfo,
       requiresAdjudication: true,
-      enabledReasons: [],
-      allReasonInfos: [],
     },
-  } as InterpretedHmpbPage
+  }
 
-  const sideNo = {
+  const sideNo: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
+      ...pageInterpretationBoilerplate.adjudicationInfo,
       requiresAdjudication: false,
-      enabledReasons: [],
-      allReasonInfos: [],
     },
-  } as InterpretedHmpbPage
+  }
 
   expect(sheetRequiresAdjudication([sideYes, sideNo])).toBe(true)
   expect(sheetRequiresAdjudication([sideNo, sideYes])).toBe(true)
@@ -2837,7 +2840,7 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
 })
 
 test('sheetRequiresAdjudication triggers only if both sides are blank ballot', async () => {
-  const sideBlank = {
+  const sideBlank: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
       requiresAdjudication: true,
@@ -2847,16 +2850,16 @@ test('sheetRequiresAdjudication triggers only if both sides are blank ballot', a
       ],
       allReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
     },
-  } as InterpretedHmpbPage
+  }
 
-  const sideNotBlank = {
+  const sideNotBlank: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
       requiresAdjudication: false,
       enabledReasons: [],
       allReasonInfos: [],
     },
-  } as InterpretedHmpbPage
+  }
 
   expect(sheetRequiresAdjudication([sideBlank, sideBlank])).toBe(true)
   expect(sheetRequiresAdjudication([sideBlank, sideNotBlank])).toBe(false)
