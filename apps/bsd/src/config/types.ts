@@ -133,3 +133,18 @@ export interface CardReadLongResponse {
 
 // eslint-disable-next-line import/no-cycle
 export * from './types/ballot-review'
+
+// these data structures live here until we can refactor the code
+// to be more sheet-oriented and then place them where they belong.
+interface ImageInfo {
+  url: string
+}
+
+interface BallotPageInfo {
+  image: ImageInfo
+}
+
+export interface BallotSheetInfo {
+  front: BallotPageInfo
+  back: BallotPageInfo
+}

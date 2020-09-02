@@ -145,6 +145,17 @@ const App: React.FC = () => {
     }
   }, [])
 
+  const scanContinue = useCallback(async () => {
+    setIsScanning(true)
+    try {
+      await fetch('/scan/scanContinue', {
+        method: 'post',
+      })
+    } catch (error) {
+      console.log('failed handleFileInput()', error) // eslint-disable-line no-console
+    }
+  }, [])
+
   const invalidateBatch = useCallback(async (event: ButtonEvent) => {
     try {
       const { id } = (event.target as HTMLElement).dataset
@@ -233,7 +244,13 @@ const App: React.FC = () => {
     updateStatus()
   }, [updateStatus])
 
+  const continueScanning = scanContinue
+
   if (election) {
+    if (adjudication.remaining > 0) {
+      return <BallotEjectScreen continueScanning={continueScanning} />
+    }
+
     return (
       <BrowserRouter>
         <Screen>
@@ -242,14 +259,6 @@ const App: React.FC = () => {
               <BallotReviewScreen
                 adjudicationStatus={adjudication}
                 isTestMode={isTestMode}
-              />
-            </Route>
-            <Route path="/eject">
-              <BallotEjectScreen
-                continueScanning={() => {
-                  // eslint-disable-next-line no-console
-                  console.log('restart scanning')
-                }}
               />
             </Route>
             <Route path="/">

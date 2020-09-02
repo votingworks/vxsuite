@@ -1,6 +1,6 @@
 import { Election } from '@votingworks/ballot-encoder'
 import { EventEmitter } from 'events'
-import { ReviewBallot } from '../config/types'
+import { ReviewBallot, BallotSheetInfo } from '../config/types'
 import { BallotPackage, BallotPackageEntry } from '../util/ballot-package'
 import fetchJSON from '../util/fetchJSON'
 import { patch as patchConfig } from './config'
@@ -83,6 +83,16 @@ export async function fetchNextBallotToReview(): Promise<
 > {
   try {
     return await fetchJSON<ReviewBallot>('/scan/hmpb/review/next-ballot')
+  } catch {
+    return undefined
+  }
+}
+
+export async function fetchNextBallotSheetToReview(): Promise<
+  BallotSheetInfo | undefined
+> {
+  try {
+    return await fetchJSON<BallotSheetInfo>('/scan/hmpb/review/next-sheet')
   } catch {
     return undefined
   }

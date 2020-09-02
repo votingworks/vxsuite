@@ -1,5 +1,8 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+
+import { fetchNextBallotSheetToReview } from '../api/hmpb'
+import { BallotSheetInfo } from '../config/types'
 
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
@@ -41,6 +44,18 @@ interface Props {
 }
 
 const BallotEjectScreen = ({ continueScanning }: Props) => {
+  const [sheetInfo, setSheetInfo] = useState<BallotSheetInfo | undefined>()
+
+  useEffect(() => {
+    ;(async () => {
+      setSheetInfo(await fetchNextBallotSheetToReview())
+    })()
+  }, [setSheetInfo])
+
+  if (!sheetInfo) {
+    return null
+  }
+
   return (
     <React.Fragment>
       <MainNav>
@@ -66,13 +81,13 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
               <Prose>
                 <h4>Front</h4>
                 <p>
-                  <img src="/eject/p1.jpg" alt="p1" />
+                  <img src={sheetInfo.front.image.url} alt="p1" />
                 </p>
               </Prose>
               <Prose>
                 <h4>Back</h4>
                 <p>
-                  <img src="/eject/p2.jpg" alt="p2" />
+                  <img src={sheetInfo.back.image.url} alt="p2" />
                 </p>
               </Prose>
             </RectoVerso>
