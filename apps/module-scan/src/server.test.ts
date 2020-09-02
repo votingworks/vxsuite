@@ -701,3 +701,36 @@ test('start reloads configuration from the store', async () => {
   // did we load everything from the store?
   expect(importer.restoreConfig).toHaveBeenCalled()
 })
+
+test('get next sheet', async () => {
+  jest.spyOn(store, 'getNextReviewBallot').mockImplementationOnce(async () => {
+    return {
+      type: 'ReviewUninterpretableHmpbBallot',
+      ballot: {
+        id: 'mock-review-ballot',
+        url: '/foo/bar',
+        image: {
+          url: '/foo/bar/image',
+          width: 100,
+          height: 200,
+        },
+      },
+      contests: [],
+    }
+  })
+
+  await request(app)
+    .get(`/scan/hmpb/review/next-sheet`)
+    .expect(200, {
+      front: {
+        image: {
+          url: '/scan/hmpb/ballot/mock-review-ballot/front/image/normalized',
+        },
+      },
+      back: {
+        image: {
+          url: '/scan/hmpb/ballot/mock-review-ballot/back/image/normalized',
+        },
+      },
+    })
+})
