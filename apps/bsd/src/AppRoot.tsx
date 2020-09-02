@@ -22,6 +22,7 @@ import LoadElectionScreen from './screens/LoadElectionScreen'
 import DashboardScreen from './screens/DashboardScreen'
 import BallotReviewScreen from './screens/BallotReviewScreen'
 import BallotEjectScreen from './screens/BallotEjectScreen'
+import AdvancedOptionsScreen from './screens/AdvancedOptionsScreen'
 
 import 'normalize.css'
 import './App.css'
@@ -259,6 +260,13 @@ const App: React.FC = () => {
             isTestMode={isTestMode}
           />
         </Route>
+        <Route path="/advanced">
+          <AdvancedOptionsScreen
+            unconfigureServer={unconfigureServer}
+            zeroData={zeroData}
+            hasBatches={!!status.batches.length}
+          />
+        </Route>
         <Route path="/">
           <Screen>
             <Main>
@@ -279,17 +287,14 @@ const App: React.FC = () => {
             </Main>
             <MainNav isTestMode={isTestMode}>
               <USBController />
+              <LinkButton small to="/advanced">
+                Advanced
+              </LinkButton>
               {typeof isTestMode === 'boolean' && (
                 <Button small onPress={toggleTestMode}>
                   {isTestMode ? 'Live mode…' : 'Test mode…'}
                 </Button>
               )}
-              <Button small onPress={unconfigureServer}>
-                Factory Reset
-              </Button>
-              <Button small onPress={zeroData}>
-                Zero
-              </Button>
               <LinkButton
                 small
                 to="/review"
