@@ -845,6 +845,7 @@ export default class Store {
         from sheets
         where
           requires_adjudication = 1
+          and deleted_at is null
           and (front_finished_adjudication_at is null or back_finished_adjudication_at is null)
       `),
       this.dbGetAsync<{ adjudicated: number }>(`
