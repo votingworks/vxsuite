@@ -31,8 +31,8 @@
   },
   "dependencies": {
     "@types/sharp": "^0.25.1",
-    "@votingworks/ballot-encoder": "^3.0.0",
-    "@votingworks/hmpb-interpreter": "^4.2.0",
+    "@votingworks/ballot-encoder": "^4.0.0",
+    "@votingworks/hmpb-interpreter": "^5.1.0",
     "@votingworks/qrdetect": "^1.0.1",
     "busboy": "^0.3.1",
     "canvas": "^2.6.1",
@@ -78,7 +78,8 @@
     "supertest": "^4.0.2",
     "ts-jest": "^26.0.0",
     "ts-node": "^8.10.1",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.3",
+    "zod": "^1.11.4"
   },
   "engines": {
     "node": ">= 12"

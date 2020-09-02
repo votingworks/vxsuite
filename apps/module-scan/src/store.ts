@@ -3,14 +3,12 @@
 //
 
 import {
-  Election,
-  getBallotStyle,
-  MarkThresholds,
   AnyContest,
+  getBallotStyle,
   getContests,
+  MarkThresholds,
 } from '@votingworks/ballot-encoder'
 import {
-  BallotLocales,
   BallotMark,
   BallotPageMetadata,
   BallotTargetMark,
@@ -28,13 +26,15 @@ import { buildCastVoteRecord } from './buildCastVoteRecord'
 import { MarkInfo, PageInterpretation } from './interpreter'
 import {
   AdjudicationStatus,
+  BallotMetadata,
   BatchInfo,
   getMarkStatus,
   isMarginalMark,
-  SerializableBallotPageLayout,
-  Side,
-  SheetOf,
   PageInterpretationWithFiles,
+  SerializableBallotPageLayout,
+  SheetOf,
+  Side,
+  ElectionDefinition,
 } from './types'
 import {
   AdjudicationInfo,
@@ -46,18 +46,9 @@ import {
 import allContestOptions from './util/allContestOptions'
 import getBallotPageContests from './util/getBallotPageContests'
 import { changesFromMarks, mergeChanges } from './util/marks'
+import { inspect } from 'util'
 
 const debug = makeDebug('module-scan:store')
-
-interface HmpbTemplatesColumns {
-  id: number
-  pdf: Buffer
-  locales: string | null
-  ballotStyleId: string
-  precinctId: string
-  isTestBallot: number // sqlite doesn't have "boolean", really
-  layoutsJSON: string
-}
 
 export enum ConfigKey {
   Election = 'election',
@@ -314,15 +305,20 @@ export default class Store {
   /**
    * Gets the current election definition.
    */
-  public async getElection(): Promise<Election | undefined> {
-    const election: Election | undefined = await this.getConfig(
-      ConfigKey.Election
-    )
+  public async getElectionDefinition(): Promise<
+    ElectionDefinition | undefined
+  > {
+    const electionDefinition:
+      | ElectionDefinition
+      | undefined = await this.getConfig(ConfigKey.Election)
 
-    if (election) {
+    if (electionDefinition) {
       return {
-        markThresholds: DefaultMarkThresholds,
-        ...election,
+        ...electionDefinition,
+        election: {
+          markThresholds: DefaultMarkThresholds,
+          ...electionDefinition.election,
+        },
       }
     }
 
@@ -332,8 +328,10 @@ export default class Store {
   /**
    * Sets the current election definition.
    */
-  public async setElection(election?: Election): Promise<void> {
-    await this.setConfig(ConfigKey.Election, election)
+  public async setElection(
+    electionDefinition?: ElectionDefinition
+  ): Promise<void> {
+    await this.setConfig(ConfigKey.Election, electionDefinition)
   }
 
   /**
@@ -517,9 +515,9 @@ export default class Store {
     sheetId: string,
     side: Side
   ): Promise<ReviewBallot | undefined> {
-    const election = await this.getElection()
+    const electionDefinition = await this.getElectionDefinition()
 
-    if (!election) {
+    if (!electionDefinition) {
       return
     }
 
@@ -572,33 +570,11 @@ export default class Store {
       return
     }
 
-    const hmpbTemplateRow = await this.dbGetAsync<
-      { layoutsJSON: string },
-      [string | null, string, string, boolean]
-    >(
-      `
-      select
-        layouts_json as layoutsJSON
-      from hmpb_templates
-      where
-        locales = ?
-        and ballot_style_id = ?
-        and precinct_id = ?
-        and is_test_ballot = ?
-      `,
-      this.serializeLocales(metadata.locales),
-      metadata.ballotStyleId,
-      metadata.precinctId,
-      metadata.isTestBallot
-    )
-
-    const layouts: SerializableBallotPageLayout[] = JSON.parse(
-      hmpbTemplateRow.layoutsJSON
-    )
+    const layouts = await this.getBallotLayoutsForMetadata(metadata)
     const layout = layouts[metadata.pageNumber - 1]
     const ballotStyle = getBallotStyle({
       ballotStyleId: metadata.ballotStyleId,
-      election,
+      election: electionDefinition.election,
     })
 
     if (!ballotStyle) {
@@ -630,7 +606,7 @@ export default class Store {
     }
 
     const ballotPageContests = getBallotPageContests(
-      election,
+      electionDefinition.election,
       metadata,
       layouts
     )
@@ -668,7 +644,11 @@ export default class Store {
                     typeof mark.option === 'string'
                       ? mark.option
                       : mark.option.id
-                  ] ?? getMarkStatus(mark, election.markThresholds!),
+                  ] ??
+                  getMarkStatus(
+                    mark,
+                    electionDefinition.election.markThresholds!
+                  ),
               },
             },
       {}
@@ -729,7 +709,8 @@ export default class Store {
     side: Side,
     change: MarksByContestId
   ): Promise<boolean> {
-    const { markThresholds } = (await this.getElection()) ?? {}
+    const markThresholds = (await this.getElectionDefinition())?.election
+      .markThresholds
     const row = await this.dbGetAsync<
       | {
           adjudicationJSON?: string
@@ -865,9 +846,9 @@ export default class Store {
    * Exports all CVR JSON data to a stream.
    */
   public async exportCVRs(writeStream: Writable): Promise<void> {
-    const election = await this.getElection()
+    const electionDefinition = await this.getElectionDefinition()
 
-    if (!election) {
+    if (!electionDefinition) {
       throw new Error('no election configured')
     }
 
@@ -916,7 +897,7 @@ export default class Store {
           : backInterpretation.type === 'InterpretedBmdPage'
           ? backInterpretation.ballotId
           : id,
-        election,
+        electionDefinition.election,
         [
           {
             interpretation: frontInterpretation,
@@ -952,18 +933,25 @@ export default class Store {
 
   public async addHmpbTemplate(
     pdf: Buffer,
+    metadata: BallotMetadata,
     layouts: readonly SerializableBallotPageLayout[]
   ): Promise<string> {
-    const { metadata } = layouts[0].ballotImage
-
     debug('storing HMPB template: %O', metadata)
 
     await this.dbRunAsync(
-      'delete from hmpb_templates where locales = ? and ballot_style_id = ? and precinct_id = ? and is_test_ballot = ?',
-      this.serializeLocales(metadata.locales),
+      `
+      delete from hmpb_templates
+      where json_extract(metadata_json, '$.locales.primary') = ?
+      and json_extract(metadata_json, '$.locales.secondary') = ?
+      and json_extract(metadata_json, '$.ballotStyleId') = ?
+      and json_extract(metadata_json, '$.precinctId') = ?
+      and json_extract(metadata_json, '$.isTestMode') = ?
+      `,
+      metadata.locales.primary,
+      metadata.locales.secondary,
       metadata.ballotStyleId,
       metadata.precinctId,
-      metadata.isTestBallot
+      metadata.isTestMode
     )
 
     const id = uuid()
@@ -972,22 +960,16 @@ export default class Store {
       insert into hmpb_templates (
         id,
         pdf,
-        locales,
-        ballot_style_id,
-        precinct_id,
-        is_test_ballot,
+        metadata_json,
         layouts_json
       ) values (
-        ?, ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?
       )
       `,
       id,
       pdf,
-      this.serializeLocales(metadata.locales),
-      metadata.ballotStyleId,
-      metadata.precinctId,
-      metadata.isTestBallot,
-      JSON.stringify(layouts, undefined, 2)
+      JSON.stringify(metadata),
+      JSON.stringify(layouts)
     )
     return id
   }
@@ -995,23 +977,25 @@ export default class Store {
   public async getHmpbTemplates(): Promise<
     [Buffer, SerializableBallotPageLayout[]][]
   > {
-    const sql = `
+    const rows = await this.dbAllAsync<
+      { id: string; pdf: Buffer; layoutsJSON: string; metadataJSON: string },
+      []
+    >(
+      `
         select
           id,
           pdf,
-          locales,
-          ballot_style_id as ballotStyleId,
-          precinct_id as precinctId,
-          is_test_ballot as isTestBallot,
+          metadata_json as metadataJSON,
           layouts_json as layoutsJSON
         from hmpb_templates
         order by created_at asc
       `
-    const rows = await this.dbAllAsync<HmpbTemplatesColumns>(sql)
+    )
     const results: [Buffer, SerializableBallotPageLayout[]][] = []
 
-    for (const { id, pdf, layoutsJSON, ...metadata } of rows) {
-      debug('loading stored HMPB template id=%d: %O', id, metadata)
+    for (const { id, pdf, metadataJSON, layoutsJSON } of rows) {
+      const metadata: BallotMetadata = JSON.parse(metadataJSON)
+      debug('loading stored HMPB template id=%s: %O', id, metadata)
       const layouts: SerializableBallotPageLayout[] = JSON.parse(layoutsJSON)
       results.push([
         pdf,
@@ -1020,10 +1004,7 @@ export default class Store {
           ballotImage: {
             metadata: {
               ...metadata,
-              locales: this.parseLocales(metadata.locales),
-              isTestBallot: metadata.isTestBallot !== 0,
               pageNumber: i + 1,
-              pageCount: layouts.length,
             },
           },
         })),
@@ -1033,46 +1014,63 @@ export default class Store {
     return results
   }
 
+  public async getBallotLayoutsForMetadata(
+    metadata: BallotPageMetadata
+  ): Promise<SerializableBallotPageLayout[]> {
+    const rows = await this.dbAllAsync<{
+      layoutsJSON: string
+      metadataJSON: string
+    }>(
+      `
+        select
+          layouts_json as layoutsJSON,
+          metadata_json as metadataJSON
+        from hmpb_templates
+      `
+    )
+
+    for (const row of rows) {
+      const {
+        locales,
+        ballotStyleId,
+        precinctId,
+        isTestMode,
+      }: BallotMetadata = JSON.parse(row.metadataJSON)
+
+      if (
+        metadata.locales.primary === locales.primary &&
+        metadata.locales.secondary === locales.secondary &&
+        metadata.ballotStyleId === ballotStyleId &&
+        metadata.precinctId === precinctId &&
+        metadata.isTestMode === isTestMode
+      ) {
+        return JSON.parse(row.layoutsJSON)
+      }
+    }
+
+    throw new Error(
+      `no ballot layouts found matching metadata: ${inspect(metadata)}`
+    )
+  }
+
   public async getContestIdsForMetadata(
     metadata: BallotPageMetadata
   ): Promise<AnyContest['id'][]> {
-    const election = await this.getElection()
+    const electionDefinition = await this.getElectionDefinition()
 
-    if (!election) {
+    if (!electionDefinition) {
       throw new Error('no election configured')
     }
 
-    const { layoutsJSON } = await this.dbGetAsync<
-      { layoutsJSON: string },
-      [string | null, string, string, boolean]
-    >(
-      `
-        select
-          layouts_json as layoutsJSON
-        from hmpb_templates
-        where
-          locales = ? and
-          ballot_style_id = ? and
-          precinct_id = ? and
-          is_test_ballot = ?
-      `,
-      this.serializeLocales(metadata.locales),
-      metadata.ballotStyleId,
-      metadata.precinctId,
-      metadata.isTestBallot
-    )
-
-    const layouts: readonly SerializableBallotPageLayout[] = JSON.parse(
-      layoutsJSON
-    )
+    const layouts = await this.getBallotLayoutsForMetadata(metadata)
     let contestOffset = 0
 
     for (const layout of layouts) {
       if (layout.ballotImage.metadata.pageNumber === metadata.pageNumber) {
         const contests = getContests({
-          election,
+          election: electionDefinition.election,
           ballotStyle: getBallotStyle({
-            election,
+            election: electionDefinition.election,
             ballotStyleId: metadata.ballotStyleId,
           })!,
         })
@@ -1088,26 +1086,5 @@ export default class Store {
     throw new Error(
       `unable to find page with pageNumber=${metadata.pageNumber}`
     )
-  }
-
-  private serializeLocales(locales?: BallotLocales): string | null {
-    if (!locales) {
-      return null
-    }
-
-    if (!locales.secondary) {
-      return locales.primary
-    }
-
-    return `${locales.primary},${locales.secondary}`
-  }
-
-  private parseLocales(value: string | null): BallotLocales | undefined {
-    if (!value) {
-      return undefined
-    }
-
-    const [primary, secondary] = value.split(',')
-    return { primary, secondary }
   }
 }

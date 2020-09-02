@@ -4,7 +4,7 @@
   },
   "ballotStyleId": "1",
   "precinctId": "6526",
-  "isTestBallot": false,
+  "isTestMode": false,
   "pageCount": 2,
   "pageNumber": 2
 }

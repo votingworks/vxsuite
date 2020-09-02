@@ -5,10 +5,14 @@ import * as fs from 'fs'
 import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
 import { v4 as uuid } from 'uuid'
-import { Election } from '@votingworks/ballot-encoder'
 import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
 
-import { BallotMetadata, ScanStatus, SheetOf } from './types'
+import {
+  BallotMetadata,
+  ScanStatus,
+  SheetOf,
+  ElectionDefinition,
+} from './types'
 import Store from './store'
 import DefaultInterpreter, {
   Interpreter,
@@ -35,7 +39,7 @@ export interface Importer {
     pdf: Buffer,
     metadata: BallotMetadata
   ): Promise<BallotPageLayout[]>
-  configure(newElection: Election): Promise<void>
+  configure(electionDefinition: ElectionDefinition): Promise<void>
   doExport(): Promise<string>
   startImport(): Promise<string>
   continueImport(): Promise<void>
@@ -99,25 +103,28 @@ export default class SystemImporter implements Importer {
     pdf: Buffer,
     metadata: BallotMetadata
   ): Promise<BallotPageLayout[]> {
-    const election = await this.store.getElection()
+    const electionDefinition = await this.store.getElectionDefinition()
     const result: BallotPageLayout[] = []
 
-    if (!election) {
+    if (!electionDefinition) {
       throw new HmpbInterpretationError(
         `cannot add a HMPB template without a configured election`
       )
     }
 
-    for await (const { page, pageCount, pageNumber } of pdfToImages(pdf, {
+    for await (const { page, pageNumber } of pdfToImages(pdf, {
       scale: 2,
     })) {
       try {
         result.push(
-          await this.interpreter.addHmpbTemplate(election, page, {
-            ...metadata,
-            pageNumber,
-            pageCount,
-          })
+          await this.interpreter.addHmpbTemplate(
+            electionDefinition.election,
+            page,
+            {
+              ...metadata,
+              pageNumber,
+            }
+          )
         )
       } catch (error) {
         throw new HmpbInterpretationError(
@@ -128,6 +135,7 @@ export default class SystemImporter implements Importer {
 
     this.store.addHmpbTemplate(
       pdf,
+      result[0].ballotImage.metadata,
       // remove ballot image for storage
       result.map((layout) => ({
         ...layout,
@@ -143,8 +151,10 @@ export default class SystemImporter implements Importer {
   /**
    * Sets the election information used to encode and decode ballots.
    */
-  public async configure(newElection: Election): Promise<void> {
-    await this.store.setElection(newElection)
+  public async configure(
+    electionDefinition: ElectionDefinition
+  ): Promise<void> {
+    await this.store.setElection(electionDefinition)
   }
 
   public async setTestMode(testMode: boolean): Promise<void> {
@@ -161,14 +171,18 @@ export default class SystemImporter implements Importer {
     debug('restoring test mode (%s)', testMode)
     this.interpreter.setTestMode(testMode)
 
-    const election = await this.store.getElection()
-    if (!election) {
+    const electionDefinition = await this.store.getElectionDefinition()
+    if (!electionDefinition) {
       debug('skipping election restore because there is no stored election')
       return
     }
 
-    debug('restoring election (%O)', election)
-    await this.configure(election)
+    debug(
+      'restoring election (sha256=%s): %O',
+      electionDefinition.electionHash,
+      electionDefinition.election
+    )
+    await this.configure(electionDefinition)
 
     for (const [pdf, layouts] of await this.store.getHmpbTemplates()) {
       debug('restoring ballot: %O', layouts)
@@ -178,7 +192,7 @@ export default class SystemImporter implements Importer {
         debug('restoring page %d/%d', pageNumber, pageCount)
         const layout = layouts[pageNumber - 1]
 
-        await this.interpreter.addHmpbTemplate(election, {
+        await this.interpreter.addHmpbTemplate(electionDefinition.election, {
           ...layout,
           ballotImage: {
             ...layout.ballotImage,
@@ -213,9 +227,9 @@ export default class SystemImporter implements Importer {
     frontImagePath: string,
     backImagePath: string
   ): Promise<string> {
-    const election = await this.store.getElection()
+    const electionDefinition = await this.store.getElectionDefinition()
 
-    if (!election) {
+    if (!electionDefinition) {
       throw new Error('no election is configured')
     }
 
@@ -223,7 +237,7 @@ export default class SystemImporter implements Importer {
     const frontImageData = await fsExtra.readFile(frontImagePath)
 
     const frontInterpretFileResult = await this.interpreter.interpretFile({
-      election,
+      election: electionDefinition.election,
       ballotImagePath: frontImagePath,
       ballotImageFile: frontImageData,
     })
@@ -244,7 +258,7 @@ export default class SystemImporter implements Importer {
     const backImageData = await fsExtra.readFile(backImagePath)
 
     const backInterpretFileResult = await this.interpreter.interpretFile({
-      election,
+      election: electionDefinition.election,
       ballotImagePath: backImagePath,
       ballotImageFile: backImageData,
     })
@@ -379,7 +393,7 @@ export default class SystemImporter implements Importer {
    * Create a new batch and begin the scanning process
    */
   public async startImport(): Promise<string> {
-    const election = await this.store.getElection()
+    const election = await this.store.getElectionDefinition()
 
     if (!election) {
       throw new Error('no election configuration')
@@ -427,7 +441,7 @@ export default class SystemImporter implements Importer {
    * Export the current CVRs to a string.
    */
   public async doExport(): Promise<string> {
-    const election = await this.store.getElection()
+    const election = await this.store.getElectionDefinition()
 
     if (!election) {
       return ''
@@ -451,11 +465,11 @@ export default class SystemImporter implements Importer {
    * Get the imported batches and current election info, if any.
    */
   public async getStatus(): Promise<ScanStatus> {
-    const election = await this.store.getElection()
+    const election = await this.store.getElectionDefinition()
     const batches = await this.store.batchStatus()
     const adjudication = await this.store.adjudicationStatus()
     if (election) {
-      return { electionHash: 'hashgoeshere', batches, adjudication }
+      return { electionHash: election.electionHash, batches, adjudication }
     }
     return { batches, adjudication }
   }

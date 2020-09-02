@@ -34,7 +34,7 @@ export function buildCastVoteRecordMetadataEntries(
     _ballotStyleId: metadata.ballotStyleId,
     _precinctId: metadata.precinctId,
     _scannerId: getMachineId(),
-    _testBallot: metadata.isTestBallot,
+    _testBallot: metadata.isTestMode,
     _locales: metadata.locales,
   }
 }
@@ -154,15 +154,6 @@ export function buildCastVoteRecordFromHmpbPage(
   ) {
     throw new Error(
       `expected a sheet to have the same precinct, but got front=${front.interpretation.metadata.precinctId} back=${back.interpretation.metadata.precinctId}`
-    )
-  }
-
-  if (
-    front.interpretation.metadata.pageCount !==
-    back.interpretation.metadata.pageCount
-  ) {
-    throw new Error(
-      `expected a sheet to have the same page count, but got front=${front.interpretation.metadata.pageCount} back=${back.interpretation.metadata.pageCount}`
     )
   }
 

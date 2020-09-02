@@ -3,6 +3,7 @@ import {
   getBallotStyle,
   getContests,
   vote,
+  BallotType,
 } from '@votingworks/ballot-encoder'
 import election from '../test/fixtures/2020-choctaw/election'
 import { buildCastVoteRecord } from './buildCastVoteRecord'
@@ -22,9 +23,12 @@ test('generates a CVR from a completed BMD ballot', () => {
           type: 'InterpretedBmdPage',
           ballotId,
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
           },
           votes: vote(contests, {
             '1': '1',
@@ -51,7 +55,9 @@ test('generates a CVR from a completed BMD ballot', () => {
       "4": Array [],
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
-      "_locales": undefined,
+      "_locales": Object {
+        "primary": "en-US",
+      },
       "_precinctId": "6522",
       "_scannerId": "000",
       "_testBallot": false,
@@ -80,11 +86,13 @@ test('generates a CVR from a completed HMPB page', () => {
           type: 'InterpretedHmpbPage',
           ballotId: 'abcdefg',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 1,
-            pageCount: 2,
           },
           markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
           adjudicationInfo: {
@@ -104,11 +112,13 @@ test('generates a CVR from a completed HMPB page', () => {
           type: 'InterpretedHmpbPage',
           ballotId: 'abcdefg',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 2,
-            pageCount: 2,
           },
           markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
           adjudicationInfo: {
@@ -133,7 +143,9 @@ test('generates a CVR from a completed HMPB page', () => {
       ],
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
-      "_locales": undefined,
+      "_locales": Object {
+        "primary": "en-US",
+      },
       "_pageNumbers": Array [
         1,
         2,
@@ -163,11 +175,13 @@ test('generates a CVR from an adjudicated HMPB page', () => {
           type: 'InterpretedHmpbPage',
           ballotId: 'abcdefg',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 2,
-            pageCount: 2,
           },
           markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
           adjudicationInfo: {
@@ -198,11 +212,13 @@ test('generates a CVR from an adjudicated HMPB page', () => {
           type: 'InterpretedHmpbPage',
           ballotId: 'abcdefg',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 1,
-            pageCount: 2,
           },
           markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
           adjudicationInfo: {
@@ -228,7 +244,9 @@ test('generates a CVR from an adjudicated HMPB page', () => {
       ],
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
-      "_locales": undefined,
+      "_locales": Object {
+        "primary": "en-US",
+      },
       "_pageNumbers": Array [
         1,
         2,
@@ -254,11 +272,13 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 1,
-            pageCount: 2,
           },
           adjudicationInfo: {
             requiresAdjudication: false,
@@ -276,11 +296,13 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
         interpretation: {
           type: 'UninterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 1,
-            pageCount: 2,
           },
         },
       },
@@ -301,11 +323,13 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 1,
-            pageCount: 2,
           },
           adjudicationInfo: {
             requiresAdjudication: false,
@@ -323,64 +347,19 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
         interpretation: {
           type: 'UninterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 3,
-            pageCount: 2,
           },
         },
       },
     ])
   ).toThrowError(
     'expected a sheet to have consecutive page numbers, but got front=1 back=3'
-  )
-})
-
-test('fails to generate a CVR from an invalid HMPB sheet with different page counts', () => {
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-
-  expect(() =>
-    buildCastVoteRecord(ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            ballotStyleId,
-            precinctId,
-            isTestBallot: false,
-            pageNumber: 1,
-            pageCount: 2,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            allReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {},
-        },
-      },
-      {
-        interpretation: {
-          type: 'UninterpretedHmpbPage',
-          metadata: {
-            ballotStyleId,
-            precinctId,
-            isTestBallot: false,
-            pageNumber: 2,
-            pageCount: 3,
-          },
-        },
-      },
-    ])
-  ).toThrowError(
-    'expected a sheet to have the same page count, but got front=2 back=3'
   )
 })
 
@@ -394,11 +373,13 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId: '1',
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 1,
-            pageCount: 2,
           },
           adjudicationInfo: {
             requiresAdjudication: false,
@@ -416,11 +397,13 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
         interpretation: {
           type: 'UninterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId: '2',
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 2,
-            pageCount: 2,
           },
         },
       },
@@ -440,11 +423,13 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId: '6522',
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 1,
-            pageCount: 2,
           },
           adjudicationInfo: {
             requiresAdjudication: false,
@@ -462,11 +447,13 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
         interpretation: {
           type: 'UninterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId: '6523',
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 2,
-            pageCount: 2,
           },
         },
       },
@@ -487,12 +474,13 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 1,
-            pageCount: 2,
-            locales: { primary: 'en-US' },
           },
           adjudicationInfo: {
             requiresAdjudication: false,
@@ -522,12 +510,13 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
         interpretation: {
           type: 'UninterpretedHmpbPage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
+            isTestMode: false,
             pageNumber: 2,
-            pageCount: 2,
-            locales: { primary: 'en-US' },
           },
         },
         contestIds: ['initiative-65'],
@@ -587,10 +576,12 @@ test('fails to generate CVRs from invalid test mode pages', () => {
         interpretation: {
           type: 'InvalidTestModePage',
           metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
-            isTestBallot: false,
-            locales: { primary: 'en-US' },
+            isTestMode: false,
           },
         },
       },

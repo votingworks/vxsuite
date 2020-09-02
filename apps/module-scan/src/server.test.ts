@@ -4,6 +4,7 @@ import {
   AdjudicationReason,
   CandidateContest,
   YesNoContest,
+  BallotType,
 } from '@votingworks/ballot-encoder'
 import { createImageData } from 'canvas'
 import { Application } from 'express'
@@ -20,6 +21,7 @@ import { buildApp, start } from './server'
 import Store from './store'
 import { ScanStatus } from './types'
 import { MarkStatus } from './types/ballot-review'
+import { fromElection } from './util/electionDefinition'
 
 jest.mock('./importer')
 
@@ -32,35 +34,52 @@ beforeEach(async () => {
   importer = makeMockImporter()
   importerMock = importer as jest.Mocked<Importer>
   store = await Store.memoryStore()
-  await store.setElection(election)
-  await store.addHmpbTemplate(Buffer.of(), [
+  await store.setElection({
+    election,
+    electionData: JSON.stringify(election),
+    electionHash: '',
+  })
+  await store.addHmpbTemplate(
+    Buffer.of(),
     {
-      ballotImage: {
-        metadata: {
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestBallot: false,
-          pageNumber: 1,
-          pageCount: 2,
-          locales: { primary: 'en-US' },
-        },
-      },
-      contests: [],
+      locales: { primary: 'en-US' },
+      electionHash: '',
+      ballotType: BallotType.Standard,
+      ballotStyleId: '12',
+      precinctId: '23',
+      isTestMode: false,
     },
-    {
-      ballotImage: {
-        metadata: {
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestBallot: false,
-          pageNumber: 2,
-          pageCount: 2,
-          locales: { primary: 'en-US' },
+    [
+      {
+        ballotImage: {
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId: '12',
+            precinctId: '23',
+            isTestMode: false,
+            pageNumber: 1,
+          },
         },
+        contests: [],
       },
-      contests: [],
-    },
-  ])
+      {
+        ballotImage: {
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId: '12',
+            precinctId: '23',
+            isTestMode: false,
+            pageNumber: 2,
+          },
+        },
+        contests: [],
+      },
+    ]
+  )
   app = buildApp({ importer, store })
 })
 
@@ -78,7 +97,7 @@ test('GET /scan/status', async () => {
 })
 
 test('GET /config', async () => {
-  await store.setElection(election)
+  await store.setElection(fromElection(election))
   await store.setTestMode(true)
   await request(app).get('/config').expect(200, { election, testMode: true })
 })
@@ -92,7 +111,9 @@ test('PATCH /config to set election', async () => {
     .expect(200, { status: 'ok' })
   expect(importer.configure).toBeCalledWith(
     expect.objectContaining({
-      title: 'General Election',
+      election: expect.objectContaining({
+        title: 'General Election',
+      }),
     })
   )
 })
@@ -228,12 +249,13 @@ test('GET /scan/hmpb/ballot/:sheetId/:side', async () => {
           ],
         },
         metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 1,
-          pageCount: 2,
-          locales: { primary: 'en-US' },
         },
         adjudicationInfo: {
           requiresAdjudication: false,
@@ -265,12 +287,13 @@ test('GET /scan/hmpb/ballot/:sheetId/:side', async () => {
           ],
         },
         metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 2,
-          pageCount: 2,
-          locales: { primary: 'en-US' },
         },
         adjudicationInfo: {
           requiresAdjudication: false,
@@ -352,12 +375,13 @@ test('PATCH /scan/hmpb/ballot/:sheetId/:side', async () => {
           ],
         },
         metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 1,
-          pageCount: 2,
-          locales: { primary: 'en-US' },
         },
         adjudicationInfo: {
           requiresAdjudication: true,
@@ -396,12 +420,13 @@ test('PATCH /scan/hmpb/ballot/:sheetId/:side', async () => {
           ],
         },
         metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 2,
-          pageCount: 2,
-          locales: { primary: 'en-US' },
         },
         adjudicationInfo: {
           requiresAdjudication: true,
@@ -485,11 +510,13 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 1,
-          pageCount: 5,
         },
         votes: {},
         markInfo: {
@@ -509,11 +536,13 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 2,
-          pageCount: 5,
         },
         votes: {},
         markInfo: {
@@ -612,11 +641,13 @@ test('POST /scan/hmpb/addTemplates', async () => {
       ballotImage: {
         imageData: createImageData(Uint8ClampedArray.of(0, 0, 0, 0), 1, 1),
         metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
           ballotStyleId: '77',
           precinctId: '42',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 1,
-          pageCount: 2,
         },
       },
       contests: [],
@@ -636,7 +667,7 @@ test('POST /scan/hmpb/addTemplates', async () => {
           JSON.stringify({
             ballotStyleId: '77',
             precinctId: '42',
-            isTestBallot: false,
+            isTestMode: false,
           })
         )
       ),

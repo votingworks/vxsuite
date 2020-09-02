@@ -73,7 +73,12 @@ test('extracts votes encoded in a QR code', async () => {
       "ballotId": "r6UYR4t7hEFMz8QlMWf1Sw",
       "metadata": Object {
         "ballotStyleId": "12",
-        "isTestBallot": false,
+        "ballotType": 0,
+        "electionHash": "",
+        "isTestMode": false,
+        "locales": Object {
+          "primary": "en-US",
+        },
         "precinctId": "23",
       },
       "type": "InterpretedBmdPage",
@@ -1571,12 +1576,13 @@ test('interprets marks on an upside-down HMPB', async () => {
       },
       "metadata": Object {
         "ballotStyleId": "12",
-        "isTestBallot": false,
+        "ballotType": 0,
+        "electionHash": "",
+        "isTestMode": false,
         "locales": Object {
           "primary": "en-US",
           "secondary": "es-US",
         },
-        "pageCount": 5,
         "pageNumber": 1,
         "precinctId": "23",
       },
@@ -2487,11 +2493,12 @@ test('interprets marks in PNG ballots', async () => {
         },
         "metadata": Object {
           "ballotStyleId": "1",
-          "isTestBallot": false,
+          "ballotType": 0,
+          "electionHash": "",
+          "isTestMode": false,
           "locales": Object {
             "primary": "en-US",
           },
-          "pageCount": 2,
           "pageNumber": 1,
           "precinctId": "6526",
         },
@@ -2710,11 +2717,12 @@ test('interprets marks in PNG ballots', async () => {
         },
         "metadata": Object {
           "ballotStyleId": "1",
-          "isTestBallot": false,
+          "ballotType": 0,
+          "electionHash": "",
+          "isTestMode": false,
           "locales": Object {
             "primary": "en-US",
           },
-          "pageCount": 2,
           "pageNumber": 2,
           "precinctId": "6526",
         },
@@ -2764,12 +2772,13 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
     Object {
       "metadata": Object {
         "ballotStyleId": "12",
-        "isTestBallot": false,
+        "ballotType": 0,
+        "electionHash": "",
+        "isTestMode": false,
         "locales": Object {
           "primary": "en-US",
           "secondary": "es-US",
         },
-        "pageCount": 5,
         "pageNumber": 3,
         "precinctId": "23",
       },

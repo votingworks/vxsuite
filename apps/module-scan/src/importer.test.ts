@@ -1,4 +1,7 @@
-import { electionSample as election } from '@votingworks/ballot-encoder'
+import {
+  electionSample as election,
+  BallotType,
+} from '@votingworks/ballot-encoder'
 import { createImageData } from 'canvas'
 import * as fs from 'fs-extra'
 import { join } from 'path'
@@ -14,6 +17,7 @@ import makeTemporaryBallotImportImageDirectories, {
 } from './util/makeTemporaryBallotImportImageDirectories'
 import pdfToImages from './util/pdfToImages'
 import { SheetOf } from './types'
+import { fromElection } from './util/electionDefinition'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
@@ -44,7 +48,7 @@ test('startImport calls scanner.scanSheet', async () => {
     'no election configuration'
   )
 
-  await importer.configure(election)
+  await importer.configure(fromElection(election))
 
   // failed scan
   scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
@@ -84,10 +88,10 @@ test('unconfigure clears all data.', async () => {
     scanner,
   })
 
-  await importer.configure(election)
-  expect(await store.getElection()).toBeDefined()
+  await importer.configure(fromElection(election))
+  expect(await store.getElectionDefinition()).toBeDefined()
   await importer.unconfigure()
-  expect(await store.getElection()).toBeUndefined()
+  expect(await store.getElectionDefinition()).toBeUndefined()
 })
 
 test('setTestMode zeroes and sets test mode on the interpreter', async () => {
@@ -101,7 +105,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
     scanner,
   })
 
-  await importer.configure(election)
+  await importer.configure(fromElection(election))
   const batchId = await store.addBatch()
   await store.addSheet(uuid(), batchId, [
     {
@@ -110,11 +114,13 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 1,
-          pageCount: 2,
         },
       },
     },
@@ -124,11 +130,13 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 2,
-          pageCount: 2,
         },
       },
     },
@@ -153,34 +161,49 @@ test('restoreConfig reads config data from the store', async () => {
     interpreter,
   })
 
-  await store.setElection(election)
+  await importer.configure(fromElection(election))
   await store.setTestMode(true)
-  await store.addHmpbTemplate(Buffer.of(1), [
+  await store.addHmpbTemplate(
+    Buffer.of(1),
     {
-      ballotImage: {
-        metadata: {
-          ballotStyleId: '77',
-          precinctId: '42',
-          isTestBallot: true,
-          pageNumber: 1,
-          pageCount: 2,
-        },
-      },
-      contests: [],
+      locales: { primary: 'en-US' },
+      electionHash: '',
+      ballotType: BallotType.Standard,
+      ballotStyleId: '77',
+      precinctId: '42',
+      isTestMode: true,
     },
-    {
-      ballotImage: {
-        metadata: {
-          ballotStyleId: '77',
-          precinctId: '43',
-          isTestBallot: true,
-          pageNumber: 2,
-          pageCount: 2,
+    [
+      {
+        ballotImage: {
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId: '77',
+            precinctId: '42',
+            isTestMode: true,
+            pageNumber: 1,
+          },
         },
+        contests: [],
       },
-      contests: [],
-    },
-  ])
+      {
+        ballotImage: {
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId: '77',
+            precinctId: '43',
+            isTestMode: true,
+            pageNumber: 2,
+          },
+        },
+        contests: [],
+      },
+    ]
+  )
 
   jest.spyOn(importer, 'configure').mockResolvedValue()
   pdfToImagesMock.mockImplementationOnce(async function* () {
@@ -197,9 +220,7 @@ test('restoreConfig reads config data from the store', async () => {
   })
 
   await importer.restoreConfig()
-  expect(importer.configure).toHaveBeenCalledWith(
-    expect.objectContaining(election)
-  )
+  expect(importer.configure).toHaveBeenCalled()
   expect(interpreter.addHmpbTemplate).toHaveBeenCalledTimes(2)
   expect(interpreter.setTestMode).toHaveBeenCalledWith(true)
   await importer.unconfigure()
@@ -217,9 +238,12 @@ test('cannot add HMPB templates before configuring an election', async () => {
 
   await expect(
     importer.addHmpbTemplates(Buffer.of(), {
+      electionHash: '',
+      ballotType: BallotType.Standard,
+      locales: { primary: 'en-US' },
       ballotStyleId: '77',
       precinctId: '42',
-      isTestBallot: false,
+      isTestMode: false,
     })
   ).rejects.toThrowError(
     'cannot add a HMPB template without a configured election'
@@ -239,17 +263,19 @@ test('manually importing files', async () => {
     interpreter,
   })
 
-  await store.setElection(election)
+  await store.setElection(fromElection(election))
   interpreter.interpretFile
     .mockResolvedValueOnce({
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
+          electionHash: '',
+          ballotType: BallotType.Standard,
+          locales: { primary: 'en-US' },
           ballotStyleId: '77',
           precinctId: '42',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 1,
-          pageCount: 2,
         },
       },
     })
@@ -257,11 +283,13 @@ test('manually importing files', async () => {
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
+          electionHash: '',
+          ballotType: BallotType.Standard,
+          locales: { primary: 'en-US' },
           ballotStyleId: '77',
           precinctId: '42',
-          isTestBallot: false,
+          isTestMode: false,
           pageNumber: 2,
-          pageCount: 2,
         },
       },
     })

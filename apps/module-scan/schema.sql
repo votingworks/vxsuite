@@ -48,19 +48,10 @@ create table configs (
 
 create table hmpb_templates (
   id varchar(36) primary key,
-  pdf blob,
-  locales varchar(255),
-  ballot_style_id varchar(255),
-  precinct_id varchar(255),
-  is_test_ballot boolean,
+  pdf blob not null,
+  -- @type {BallotMetadata}
+  metadata_json text not null,
   -- @type {SerializableBallotPageLayout[]}
-  layouts_json text,
+  layouts_json text not null,
   created_at datetime default current_timestamp not null
-);
-
-create unique index hmpb_templates_idx on hmpb_templates (
-  locales,
-  ballot_style_id,
-  precinct_id,
-  is_test_ballot
 );

@@ -1,4 +1,8 @@
-import { getBallotStyle, getContests } from '@votingworks/ballot-encoder'
+import {
+  BallotType,
+  getBallotStyle,
+  getContests,
+} from '@votingworks/ballot-encoder'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import election from '../../test/fixtures/state-of-hamilton/election'
 import { SerializableBallotPageLayout } from '../types'
@@ -8,10 +12,11 @@ function metadataForPage(pageNumber: number): BallotPageMetadata {
   return {
     ballotStyleId: '12',
     precinctId: '23',
-    isTestBallot: false,
+    isTestMode: false,
     pageNumber,
-    pageCount: 5,
     locales: { primary: 'en-US', secondary: 'es-US' },
+    ballotType: BallotType.Standard,
+    electionHash: '',
   }
 }
 test('gets contests broken across pages according to the layout', () => {
