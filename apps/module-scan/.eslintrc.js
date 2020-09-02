@@ -70,4 +70,12 @@ module.exports = {
     'lines-between-class-members': 'off',
     strict: 0,
   },
+  overrides: [
+    {
+      files: '**/*.d.ts',
+      rules: {
+        'import/no-extraneous-dependencies': 'off',
+      },
+    },
+  ],
 }

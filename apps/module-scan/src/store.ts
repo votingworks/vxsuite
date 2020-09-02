@@ -296,6 +296,13 @@ export default class Store {
   }
 
   /**
+   * Writes a copy of the database to the given path.
+   */
+  public async backup(filepath: string): Promise<void> {
+    await this.dbRunAsync('vacuum into ?', filepath)
+  }
+
+  /**
    * Resets the database.
    */
   public async reset(): Promise<void> {
@@ -715,6 +722,47 @@ export default class Store {
       return this.getPage(row.id, row.front ? 'front' : 'back')
     } else {
       debug('no review sheets requiring adjudication')
+    }
+  }
+
+  public async *getSheets(): AsyncGenerator<{
+    id: string
+    front: { original: string; normalized: string }
+    back: { original: string; normalized: string }
+  }> {
+    for (const {
+      id,
+      frontOriginalFilename,
+      frontNormalizedFilename,
+      backOriginalFilename,
+      backNormalizedFilename,
+    } of await this.dbAllAsync<{
+      id: string
+      frontOriginalFilename: string
+      frontNormalizedFilename: string
+      backOriginalFilename: string
+      backNormalizedFilename: string
+    }>(`
+      select
+        id,
+        front_original_filename as frontOriginalFilename,
+        front_normalized_filename as frontNormalizedFilename,
+        back_original_filename as backOriginalFilename,
+        back_normalized_filename as backNormalizedFilename
+      from sheets
+      order by created_at asc
+    `)) {
+      yield {
+        id,
+        front: {
+          original: frontOriginalFilename,
+          normalized: frontNormalizedFilename,
+        },
+        back: {
+          original: backOriginalFilename,
+          normalized: backNormalizedFilename,
+        },
+      }
     }
   }
 

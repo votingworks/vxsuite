@@ -9,6 +9,7 @@ import { readFile } from 'fs-extra'
 import multer from 'multer'
 import * as path from 'path'
 import { inspect } from 'util'
+import backup from './backup'
 import SystemImporter, { Importer } from './importer'
 import { FujitsuScanner, Scanner } from './scanner'
 import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
@@ -411,6 +412,48 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.post('/scan/zero', async (_request, response) => {
     await importer.doZero()
     response.json({ status: 'ok' })
+  })
+
+  app.get('/scan/backup', async (_request, response) => {
+    const electionDefinition = await store.getElectionDefinition()
+
+    if (!electionDefinition) {
+      response.status(500).json({
+        errors: [
+          {
+            type: 'unconfigured',
+            message: 'cannot backup an unconfigured server',
+          },
+        ],
+      })
+      return
+    }
+
+    response
+      .header('Content-Type', 'application/zip')
+      .header(
+        'Content-Disposition',
+        `attachment; filename="election-${electionDefinition.electionHash.slice(
+          0,
+          10
+        )}-${new Date()
+          .toISOString()
+          .replace(/[^-a-z0-9]+/gi, '-')}-backup.zip"`
+      )
+      .flushHeaders()
+
+    backup(store)
+      .on('error', (error: Error) => {
+        response.status(500).json({
+          errors: [
+            {
+              type: 'error',
+              message: error.toString(),
+            },
+          ],
+        })
+      })
+      .pipe(response)
   })
 
   app.get('/', (_request, response) => {
