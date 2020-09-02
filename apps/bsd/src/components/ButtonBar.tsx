@@ -10,7 +10,7 @@ interface Props {
 
 const ButtonBar = styled('nav')<Props>`
   display: flex;
-  flex-wrap: wrap-reverse;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   order: ${({ secondary }) => (secondary ? '-1' : undefined)};

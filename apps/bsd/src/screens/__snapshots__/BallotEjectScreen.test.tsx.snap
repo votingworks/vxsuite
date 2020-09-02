@@ -3,12 +3,24 @@
 exports[`renders properly 1`] = `
 <div>
   <nav
-    class="sc-gzVnrw jUQLnv"
+    class="sc-bZQynM kuROSm"
   >
     <div
-      class="sc-bZQynM bdLWKg"
+      class="sc-gzVnrw hJJwtK"
     >
-      VxScan
+      <div
+        class="sc-htoDjs gMVLox"
+      >
+        Voting
+        <span>
+          Works
+        </span>
+      </div>
+      <div
+        class="sc-dnqmqq bDsesi"
+      >
+        Ballot Scanner
+      </div>
     </div>
     <button
       class="sc-ifAKCX pmhyu"
@@ -24,7 +36,7 @@ exports[`renders properly 1`] = `
       class="sc-bwzfXH hLOwzs"
     >
       <div
-        class="sc-htoDjs fhkSyD"
+        class="sc-iwsKbI biaVij"
       >
         <div
           class="sc-htpNat eawaaV"
@@ -44,7 +56,7 @@ exports[`renders properly 1`] = `
           </p>
         </div>
         <div
-          class="sc-dnqmqq cFsCVj"
+          class="sc-gZMcBi jOljIC"
         >
           <div
             class="sc-htpNat fZPvKh"
