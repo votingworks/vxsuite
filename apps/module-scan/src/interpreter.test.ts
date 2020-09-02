@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/ballot-encoder'
+import { AdjudicationReason, electionSample } from '@votingworks/ballot-encoder'
 import { readFile } from 'fs-extra'
 import { join } from 'path'
 import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
@@ -7,6 +7,7 @@ import SummaryBallotInterpreter, {
   getBallotImageData,
   InterpretedHmpbPage,
   UninterpretedHmpbPage,
+  sheetRequiresAdjudication,
 } from './interpreter'
 import { DefaultMarkThresholds } from './store'
 import { resultError, resultValue } from './types'
@@ -2785,4 +2786,80 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
       "type": "UninterpretedHmpbPage",
     }
   `)
+})
+
+const pageInterpretationBoilerplate = {
+  type: 'InterpretedHmpbPage',
+  metadata: {
+    ballotStyleId: '12',
+    ballotType: 0,
+    electionHash: '',
+    isTestMode: false,
+    locales: {
+      primary: 'en-US',
+    },
+    pageNumber: 3,
+    precinctId: '23',
+  },
+  markInfo: {
+    ballotSize: {
+      height: 1584,
+      width: 1224,
+    },
+    marks: [],
+  },
+  votes: {},
+}
+
+test('sheetRequiresAdjudication triggers if front or back requires adjudication', async () => {
+  const sideYes = {
+    ...pageInterpretationBoilerplate,
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      enabledReasons: [],
+      allReasonInfos: [],
+    },
+  } as InterpretedHmpbPage
+
+  const sideNo = {
+    ...pageInterpretationBoilerplate,
+    adjudicationInfo: {
+      requiresAdjudication: false,
+      enabledReasons: [],
+      allReasonInfos: [],
+    },
+  } as InterpretedHmpbPage
+
+  expect(sheetRequiresAdjudication([sideYes, sideNo])).toBe(true)
+  expect(sheetRequiresAdjudication([sideNo, sideYes])).toBe(true)
+  expect(sheetRequiresAdjudication([sideYes, sideYes])).toBe(true)
+  expect(sheetRequiresAdjudication([sideNo, sideNo])).toBe(false)
+})
+
+test('sheetRequiresAdjudication triggers only if both sides are blank ballot', async () => {
+  const sideBlank = {
+    ...pageInterpretationBoilerplate,
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      enabledReasons: [
+        AdjudicationReason.BlankBallot,
+        AdjudicationReason.UninterpretableBallot,
+      ],
+      allReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+    },
+  } as InterpretedHmpbPage
+
+  const sideNotBlank = {
+    ...pageInterpretationBoilerplate,
+    adjudicationInfo: {
+      requiresAdjudication: false,
+      enabledReasons: [],
+      allReasonInfos: [],
+    },
+  } as InterpretedHmpbPage
+
+  expect(sheetRequiresAdjudication([sideBlank, sideBlank])).toBe(true)
+  expect(sheetRequiresAdjudication([sideBlank, sideNotBlank])).toBe(false)
+  expect(sheetRequiresAdjudication([sideNotBlank, sideNotBlank])).toBe(false)
+  expect(sheetRequiresAdjudication([sideNotBlank, sideNotBlank])).toBe(false)
 })

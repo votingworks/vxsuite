@@ -23,7 +23,11 @@ import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
 import { v4 as uuid } from 'uuid'
 import { buildCastVoteRecord } from './buildCastVoteRecord'
-import { MarkInfo, PageInterpretation } from './interpreter'
+import {
+  MarkInfo,
+  PageInterpretation,
+  sheetRequiresAdjudication,
+} from './interpreter'
 import {
   AdjudicationStatus,
   BallotMetadata,
@@ -454,9 +458,7 @@ export default class Store {
         back.originalFilename,
         back.normalizedFilename,
         JSON.stringify(back.interpretation ?? {}),
-        'adjudicationInfo' in front.interpretation
-          ? front.interpretation.adjudicationInfo.requiresAdjudication
-          : false
+        sheetRequiresAdjudication([front.interpretation, back.interpretation])
       )
     } catch (error) {
       debug(

@@ -24,7 +24,13 @@ import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import { decode as quircDecode } from 'node-quirc'
 import sharp from 'sharp'
-import { BallotMetadata, getMarkStatus, isErrorResult, Result } from './types'
+import {
+  BallotMetadata,
+  getMarkStatus,
+  isErrorResult,
+  Result,
+  SheetOf,
+} from './types'
 import { AdjudicationInfo, MarkStatus } from './types/ballot-review'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
@@ -196,6 +202,45 @@ export async function getBallotImageData(
       reason: 'No QR code found',
     },
   }
+}
+
+/**
+ * Determine if a sheet needs adjudication.
+ */
+
+export function sheetRequiresAdjudication([front, back]: SheetOf<
+  PageInterpretation
+>): boolean {
+  const [frontRequiresAdjudication, backRequiresAdjudication] = [
+    front,
+    back,
+  ].map(
+    (pi) =>
+      pi.type === 'UninterpretedHmpbPage' ||
+      pi.type === 'UnreadablePage' ||
+      pi.type === 'InvalidTestModePage' ||
+      (pi.type === 'InterpretedHmpbPage' &&
+        pi.adjudicationInfo.requiresAdjudication)
+  )
+
+  const [frontIsBlankHmpbPage, backIsBlankHmpbPage] = [front, back].map(
+    (pi) =>
+      pi.type === 'InterpretedHmpbPage' &&
+      pi.adjudicationInfo.requiresAdjudication &&
+      pi.adjudicationInfo.allReasonInfos.some(
+        (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
+      )
+  )
+
+  // if it's an HMPB with only one side blank, it doesn't require adjudication
+  if (
+    (frontIsBlankHmpbPage || backIsBlankHmpbPage) &&
+    !(frontIsBlankHmpbPage && backIsBlankHmpbPage)
+  ) {
+    return false
+  }
+
+  return frontRequiresAdjudication || backRequiresAdjudication
 }
 
 export default class SummaryBallotInterpreter implements Interpreter {
