@@ -1,6 +1,11 @@
 import { electionSample as election } from '@votingworks/ballot-encoder'
 import fetchMock from 'fetch-mock'
-import { addTemplates, fetchBallotInfo, fetchNextBallotToReview } from './hmpb'
+import {
+  addTemplates,
+  fetchBallotInfo,
+  fetchNextBallotToReview,
+  fetchNextBallotSheetToReview,
+} from './hmpb'
 
 test('configures the server with the contained election', async () => {
   fetchMock.patchOnce('/config', { body: { status: 'ok' } })
@@ -95,4 +100,14 @@ test('can fetch the next ballot needing review', async () => {
 test('returns undefined if there are no ballots to review', async () => {
   fetchMock.getOnce('/scan/hmpb/review/next-ballot', { status: 404, body: {} })
   await expect(fetchNextBallotToReview()).resolves.toBeUndefined()
+})
+
+test('can fetch the next ballot sheet needing review', async () => {
+  fetchMock.getOnce('/scan/hmpb/review/next-sheet', { status: 200, body: {} })
+  await expect(fetchNextBallotSheetToReview()).resolves.toBeDefined()
+})
+
+test('returns undefined if there are no ballot sheets to review', async () => {
+  fetchMock.getOnce('/scan/hmpb/review/next-sheet', { status: 404, body: {} })
+  await expect(fetchNextBallotSheetToReview()).resolves.toBeUndefined()
 })
