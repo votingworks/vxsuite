@@ -388,12 +388,16 @@ const TallyScreen = () => {
                 </tr>
               </tbody>
             </Table>
-            <h2>Additional Reports</h2>
-            <p>
-              <LinkButton to={routerPaths.overvoteCombinationReport}>
-                {statusPrefix} Overvote Combination Report
-              </LinkButton>
-            </p>
+            {false && (
+              <React.Fragment>
+                <h2>Additional Reports</h2>
+                <p>
+                  <LinkButton to={routerPaths.overvoteCombinationReport}>
+                    {statusPrefix} Overvote Combination Report
+                  </LinkButton>
+                </p>
+              </React.Fragment>
+            )}
           </React.Fragment>
         )}
         {hasConverter && hasCastVoteRecordFiles && (
