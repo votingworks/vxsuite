@@ -51,15 +51,18 @@ exports[`printing ballots, print report, and test decks 1`] = `
       </div>
     </main>
     <div
-      class="sc-AxhCb lobKPH"
+      class="sc-AxhCb jCsQIQ"
     >
       <div
-        class="sc-AxhUy fjWzfB"
+        class="sc-AxhUy dDNKfK"
       >
         <div
-          class="sc-AxgMl bFBkDf"
+          class="sc-AxgMl gbnBOY"
         >
-          VxPaper
+          Voting
+          <span>
+            Works
+          </span>
         </div>
         <div
           class="sc-AxheI fniENP"
@@ -669,15 +672,18 @@ exports[`printing ballots, print report, and test decks 2`] = `
       </div>
     </main>
     <div
-      class="sc-AxhCb lobKPH"
+      class="sc-AxhCb jCsQIQ"
     >
       <div
-        class="sc-AxhUy fjWzfB"
+        class="sc-AxhUy dDNKfK"
       >
         <div
-          class="sc-AxgMl bFBkDf"
+          class="sc-AxgMl gbnBOY"
         >
-          VxPaper
+          Voting
+          <span>
+            Works
+          </span>
         </div>
         <div
           class="sc-AxheI fniENP"

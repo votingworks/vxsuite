@@ -10,7 +10,7 @@ interface Props {
 const NavBar = styled.div`
   display: flex;
   align-items: flex-end;
-  background-color: #333333;
+  background: #455a64;
   min-height: 3rem;
   color: #ffffff;
 `
@@ -19,14 +19,15 @@ const Brand = styled.div`
   margin: 0 1rem 0.35rem;
   white-space: nowrap;
   color: #ffffff;
-  font-family: 'Vx Helvetica Neue Condensed'; /* stylelint-disable-line font-family-no-missing-generic-family-keyword */
-  & span {
-    font-weight: 400;
-  }
+
+  /* font-family: 'Vx Helvetica Neue Condensed'; */ /* stylelint-disable-line font-family-no-missing-generic-family-keyword */
 `
 const MakeName = styled.div`
   font-size: 0.75rem;
   font-weight: 700;
+  span {
+    font-weight: 400;
+  }
 `
 
 const ModelName = styled.div``
@@ -78,7 +79,9 @@ const Navigation = ({
   return (
     <NavBar>
       <Brand>
-        <MakeName>VxPaper</MakeName>
+        <MakeName>
+          Voting<span>Works</span>
+        </MakeName>
         <ModelName>Election Manager</ModelName>
       </Brand>
       <PrimaryNav>{primaryNav}</PrimaryNav>
