@@ -212,7 +212,7 @@ const UnconfiguredScreen = () => {
           centerContent
           content={
             <Prose textCenter>
-              <Loading as="h1">Building ballot styles</Loading>
+              <Loading as="h1">Election loading</Loading>
             </Prose>
           }
         />
