@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { Election, parseElection } from '@votingworks/ballot-encoder'
+import { parseElection } from '@votingworks/ballot-encoder'
 
 import ConverterClient, { VxFile } from '../lib/ConverterClient'
 import readFileAsync from '../lib/readFileAsync'
@@ -44,7 +44,7 @@ interface InputFile {
 const allFilesExist = (files: VxFile[]) => files.every((f) => !!f.path)
 const someFilesExist = (files: VxFile[]) => files.some((f) => !!f.path)
 
-const newElection = (defaultElection as unknown) as Election
+const newElection = JSON.stringify(defaultElection)
 
 const UnconfiguredScreen = () => {
   const history = useHistory()
@@ -67,11 +67,12 @@ const UnconfiguredScreen = () => {
   }
 
   const saveElectionAndShowSuccess = useCallback(
-    (election: Election) => {
+    (electionJSON: string) => {
+      parseElection(JSON.parse(electionJSON))
       setShowSuccess(true)
       setTimeout(() => {
         setShowSuccess(false)
-        saveElection(election)
+        saveElection(electionJSON)
       }, 3000)
     },
     [saveElection, setShowSuccess]
@@ -86,13 +87,12 @@ const UnconfiguredScreen = () => {
       setVxElectionFileIsInvalid(false)
       try {
         const fileContent = await readFileAsync(file)
-        const election = parseElection(JSON.parse(fileContent))
-        setIsUploading(false)
-        saveElectionAndShowSuccess(election)
+        saveElectionAndShowSuccess(fileContent)
       } catch (error) {
         setVxElectionFileIsInvalid(true)
-        setIsUploading(false)
         console.error('handleVxElectionFile failed', error) // eslint-disable-line no-console
+      } finally {
+        setIsUploading(false)
       }
     }
   }
@@ -110,11 +110,12 @@ const UnconfiguredScreen = () => {
       try {
         const blob = await client.getOutputFile(electionFileName)
         await resetServerFiles()
-        const election = await new Response(blob).json()
-        setIsLoading(false)
-        saveElectionAndShowSuccess(election)
+        const electionJSON = await new Response(blob).text()
+        saveElectionAndShowSuccess(electionJSON)
       } catch (error) {
         console.log('failed getOutputFile()', error) // eslint-disable-line no-console
+      } finally {
+        setIsLoading(false)
       }
     },
     [client, resetServerFiles, saveElectionAndShowSuccess]

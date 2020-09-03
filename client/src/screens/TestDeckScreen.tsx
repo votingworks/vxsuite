@@ -36,8 +36,8 @@ const allPrecincts: Precinct = {
 }
 
 const TestDeckScreen = () => {
-  const { election: e } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition } = useContext(AppContext)
+  const { election } = electionDefinition!
   const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
   const precinctId = p.trim()
 
