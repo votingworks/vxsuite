@@ -127,9 +127,11 @@ const UnconfiguredScreen = () => {
         await getOutputFile(electionFileName)
       } catch (error) {
         console.log('failed processInputFiles()', error) // eslint-disable-line no-console
+        await client.reset()
+        setIsLoading(false)
       }
     },
-    [client, getOutputFile]
+    [client, getOutputFile, setIsLoading]
   )
 
   const updateStatus = useCallback(async () => {
