@@ -40,6 +40,7 @@ const App: React.FC = () => {
     []
   )
   const [isTestMode, setTestMode] = useState(false)
+  const [togglingTestMode, setTogglingTestMode] = useState(false)
   const [status, setStatus] = useState<ScanStatusResponse>({
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
@@ -49,12 +50,15 @@ const App: React.FC = () => {
 
   const [isScanning, setIsScanning] = useState(false)
 
-  useEffect(() => {
-    getConfig().then((config) => {
-      setElection(config.election)
-      setTestMode(config.testMode)
-    })
+  const refreshConfig = useCallback(async () => {
+    const config = await getConfig()
+    setElection(config.election)
+    setTestMode(config.testMode)
   }, [])
+
+  useEffect(() => {
+    refreshConfig()
+  }, [refreshConfig])
 
   const updateStatus = useCallback(async () => {
     try {
@@ -183,11 +187,16 @@ const App: React.FC = () => {
   const toggleTestMode = useCallback(async () => {
     // eslint-disable-next-line no-restricted-globals, no-alert
     if (confirm('Toggling test mode will zero out your scans. Are you sure?')) {
-      setTestMode(!isTestMode)
-      await patchConfig({ testMode: !isTestMode })
-      history.replace('/')
+      try {
+        setTogglingTestMode(true)
+        await patchConfig({ testMode: !isTestMode })
+        await refreshConfig()
+        history.replace('/')
+      } finally {
+        setTogglingTestMode(false)
+      }
     }
-  }, [history, isTestMode, setTestMode])
+  }, [history, isTestMode, refreshConfig])
 
   const exportResults = useCallback(async () => {
     try {
@@ -291,8 +300,16 @@ const App: React.FC = () => {
                 Advanced
               </LinkButton>
               {typeof isTestMode === 'boolean' && (
-                <Button small onPress={toggleTestMode}>
-                  {isTestMode ? 'Live mode…' : 'Test mode…'}
+                <Button
+                  small
+                  onPress={toggleTestMode}
+                  disabled={togglingTestMode}
+                >
+                  {togglingTestMode
+                    ? 'Switching…'
+                    : isTestMode
+                    ? 'Live mode…'
+                    : 'Test mode…'}
                 </Button>
               )}
               <LinkButton
