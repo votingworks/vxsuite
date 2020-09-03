@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
@@ -11,21 +11,36 @@ import Button from '../components/Button'
 interface Props {
   unconfigureServer: () => Promise<void>
   zeroData: () => Promise<void>
+  backup: () => Promise<void>
   hasBatches: boolean
 }
 
 const AdvancedOptionsScreen = ({
   unconfigureServer,
   zeroData,
+  backup,
   hasBatches,
 }: Props) => {
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
   )
+  const [isBackingUp, setIsBackingUp] = useState(false)
+  const [backupError, setBackupError] = useState('')
   const toggleIsConfirmingFactoryReset = () =>
     setIsConfirmingFactoryReset((s) => !s)
   const [isConfirmingZero, setIsConfirmingZero] = useState(false)
   const toggleIsConfirmingZero = () => setIsConfirmingZero((s) => !s)
+  const exportBackup = useCallback(async () => {
+    try {
+      setBackupError('')
+      setIsBackingUp(true)
+      await backup()
+    } catch (error) {
+      setBackupError(error.toString())
+    } finally {
+      setIsBackingUp(false)
+    }
+  }, [backup])
   return (
     <React.Fragment>
       <Screen>
@@ -40,6 +55,12 @@ const AdvancedOptionsScreen = ({
             <p>
               <Button onPress={toggleIsConfirmingFactoryReset}>
                 Factory Reset…
+              </Button>
+            </p>
+            {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
+            <p>
+              <Button onPress={exportBackup} disabled={isBackingUp}>
+                {isBackingUp ? 'Exporting…' : 'Export Backup…'}
               </Button>
             </p>
           </MainChild>
