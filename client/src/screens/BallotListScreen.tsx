@@ -12,8 +12,9 @@ import Table, { TD } from '../components/Table'
 import { NoWrap } from '../components/Text'
 import Prose from '../components/Prose'
 import {
-  getBallotStylesDataByStyle,
-  getBallotStylesDataByPrecinct,
+  getBallotStylesData,
+  sortBallotStyleDataByPrecinct,
+  sortBallotStyleDataByStyle,
 } from '../utils/election'
 import NavigationScreen from '../components/NavigationScreen'
 
@@ -28,9 +29,10 @@ const BallotListScreen = () => {
   const { election: e, printedBallots, configuredAt } = useContext(AppContext)
   const election = e!
 
+  const allBallotStyles = getBallotStylesData(election)
   const ballotLists = [
-    getBallotStylesDataByStyle(election),
-    getBallotStylesDataByPrecinct(election),
+    sortBallotStyleDataByStyle(election, allBallotStyles),
+    sortBallotStyleDataByPrecinct(election, allBallotStyles),
   ]
   const [ballotView, setBallotView] = useState(1)
   const sortByStyle = () => setBallotView(0)
