@@ -180,9 +180,9 @@ class PostRenderBallotProcessor extends Handler {
         }: HMPBBallotMetadata = JSON.parse(qrCodeTarget.dataset.metadata ?? '')
         ReactDOM.render(
           <QRCode
-            level="Q"
+            level="H"
             value={v1.encodeHMPBBallotPageMetadata(election, {
-              electionHash,
+              electionHash: electionHash.substring(0, 20),
               ballotStyleId,
               precinctId,
               locales,
