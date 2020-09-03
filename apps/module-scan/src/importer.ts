@@ -160,7 +160,8 @@ export default class SystemImporter implements Importer {
   public async setTestMode(testMode: boolean): Promise<void> {
     debug('setting test mode to %s', testMode)
     await this.doZero()
-    this.interpreter.setTestMode(testMode)
+    await this.store.setTestMode(testMode)
+    await this.restoreConfig()
   }
 
   /**
