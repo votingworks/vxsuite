@@ -1,6 +1,11 @@
 import fetchMock from 'fetch-mock'
 import React from 'react'
-import { render, waitFor, RenderResult } from '@testing-library/react'
+import {
+  render,
+  waitFor,
+  RenderResult,
+  fireEvent,
+} from '@testing-library/react'
 import { act } from 'react-dom/test-utils'
 import { electionSample } from '@votingworks/ballot-encoder'
 import App from './App'
@@ -27,10 +32,16 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
     { overwriteRoutes: true }
   )
 
+  let result!: RenderResult
+
   await act(async () => {
-    render(<App />)
+    result = render(<App />)
     await waitFor(() => fetchMock.called)
   })
+
+  fireEvent.click(result.getByText!('Advanced'))
+
+  result.getByText('Toggle to Test Mode')
 })
 
 test('shows a "Live mode" button if the app is in Test Mode', async () => {
@@ -47,5 +58,5 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
     await waitFor(() => fetchMock.called)
   })
 
-  result.getByText('Live mode…')
+  result.getByText('Toggle to Live Mode')
 })
