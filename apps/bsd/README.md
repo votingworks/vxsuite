@@ -1,4 +1,6 @@
-# VotingWorks Ballot Scanning Device (BSD) or VxScan
+# VotingWorks Ballot Scanner
+
+Previously known as Ballot Scanning Device (BSD) or VxScan.
 
 ## Public Demo
 
