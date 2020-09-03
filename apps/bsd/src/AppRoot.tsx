@@ -27,6 +27,7 @@ import AdvancedOptionsScreen from './screens/AdvancedOptionsScreen'
 import 'normalize.css'
 import './App.css'
 import fetchJSON from './util/fetchJSON'
+import download from './util/download'
 import { get as getConfig, patch as patchConfig } from './api/config'
 import LinkButton from './components/LinkButton'
 import MainNav from './components/MainNav'
@@ -180,6 +181,10 @@ const App: React.FC = () => {
     }
   }, [history])
 
+  const backup = useCallback(async () => {
+    await download('/scan/backup')
+  }, [])
+
   const toggleTestMode = useCallback(async () => {
     // eslint-disable-next-line no-restricted-globals, no-alert
     if (confirm('Toggling test mode will zero out your scans. Are you sure?')) {
@@ -264,6 +269,7 @@ const App: React.FC = () => {
           <AdvancedOptionsScreen
             unconfigureServer={unconfigureServer}
             zeroData={zeroData}
+            backup={backup}
             hasBatches={!!status.batches.length}
           />
         </Route>
