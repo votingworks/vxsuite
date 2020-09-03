@@ -356,7 +356,8 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
         "ballotStrings": {
             "officialInitials": "Initialing Manager"
-        }
+        },
+        "adjudicationReasons": ["UninterpretableBallot", "Overvote", "BlankBallot"]
     }
 
     return(vx_election)
