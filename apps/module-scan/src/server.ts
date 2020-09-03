@@ -104,7 +104,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
               throw new TypeError()
             }
             await importer.setTestMode(value)
-            await store.setTestMode(value)
             break
           }
         }
