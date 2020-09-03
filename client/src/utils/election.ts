@@ -11,6 +11,7 @@ import { LANGUAGES } from '../config/globals'
 import { BallotLocale, Dictionary } from '../config/types'
 
 import find from './find'
+import sortBy from './sortBy'
 
 export const getContests = ({
   ballotStyle,
@@ -101,37 +102,44 @@ const sortOptions = {
   numeric: true,
 }
 
-export const getBallotStylesData = (election: Election) =>
-  election.ballotStyles
-    .map((ballotStyle) => ({
+export const getBallotStylesData = (election: Election): BallotStyleData[] =>
+  election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.map<BallotStyleData>((precinctId) => ({
       ballotStyleId: ballotStyle.id,
-      precinctIds: ballotStyle.precincts,
-      contestIds: election.contests
-        .filter((c) => ballotStyle.districts.includes(c.districtId))
-        .map((c) => c.id),
+      precinctId,
+      contestIds: getContests({ ballotStyle, election }).map((c) => c.id),
     }))
-    .sort((a, b) =>
-      a.ballotStyleId.localeCompare(b.ballotStyleId, undefined, sortOptions)
-    )
-
-export const getBallotStylesDataByStyle = (election: Election) =>
-  getBallotStylesData(election).reduce<BallotStyleData[]>(
-    (accumulator, currentValue) =>
-      accumulator.concat(
-        currentValue.precinctIds.map((precinctId) => ({
-          ...currentValue,
-          precinctId,
-        }))
-      ),
-    []
   )
 
-export const getBallotStylesDataByPrecinct = (election: Election) =>
-  [...getBallotStylesDataByStyle(election)].sort((a, b) => {
-    const nameA = election.precincts.find((p) => p.id === a.precinctId)!.name
-    const nameB = election.precincts.find((p) => p.id === b.precinctId)!.name
-    return nameA.localeCompare(nameB, undefined, sortOptions)
-  })
+const ballotStyleComparator = (a: BallotStyleData, b: BallotStyleData) =>
+  a.ballotStyleId.localeCompare(b.ballotStyleId, undefined, sortOptions)
+
+const makePrecinctComparator = (election: Election) => (
+  a: BallotStyleData,
+  b: BallotStyleData
+) =>
+  election.precincts
+    .find((p) => p.id === a.precinctId)!
+    .name.localeCompare(
+      election.precincts.find((p) => p.id === b.precinctId)!.name,
+      undefined,
+      sortOptions
+    )
+
+export const sortBallotStyleDataByStyle = (
+  election: Election,
+  styles: readonly BallotStyleData[]
+) => sortBy(styles, ballotStyleComparator, makePrecinctComparator(election))
+
+export const sortBallotStyleDataByPrecinct = (
+  election: Election,
+  styles: readonly BallotStyleData[]
+) => sortBy(styles, makePrecinctComparator(election), ballotStyleComparator)
+
+export const getBallotStylesDataByStyle = (
+  election: Election
+): BallotStyleData[] =>
+  sortBallotStyleDataByStyle(election, getBallotStylesData(election))
 
 export const getLanguageByLocaleCode = (localeCode: string) =>
   LANGUAGES[localeCode.split('-')[0]] ?? localeCode
