@@ -64,7 +64,7 @@ declare namespace KioskBrowser {
   }
 
   export interface Kiosk {
-    print(options: PrintOptions): Promise<void>
+    print(options?: PrintOptions): Promise<void>
     getPrinterInfo(): Promise<PrinterInfo[]>
 
     /**
