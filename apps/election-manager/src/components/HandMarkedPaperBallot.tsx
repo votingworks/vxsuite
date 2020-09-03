@@ -133,28 +133,39 @@ class PostRenderBallotProcessor extends Handler {
     if (pages.length % 2) {
       const pagedjsPages = pages[0].pagesArea
       if (pagedjsPages.lastChild) {
-        pagedjsPages.appendChild(pagedjsPages.lastChild.cloneNode(true))
+        const newLastPageElement = pagedjsPages.lastChild.cloneNode(
+          true
+        ) as HTMLElement
+        pagedjsPages.appendChild(newLastPageElement)
         pagedjsPages.setAttribute(
           'style',
           `--pagedjs-page-count:${pages.length + 1};`
         )
-        const lastPage = pagedjsPages.lastChild! as Element
-        lastPage.id = `page-${pages.length + 1}`
-        lastPage.classList.remove('pagedjs_first_page', 'pagedjs_right_page')
-        lastPage.classList.add('pagedjs_left_page')
-        lastPage.setAttribute('data-page-number', `${pages.length + 1}`)
+        newLastPageElement.id = `page-${pages.length + 1}`
+        newLastPageElement.classList.remove(
+          'pagedjs_first_page',
+          'pagedjs_right_page'
+        )
+        newLastPageElement.classList.add('pagedjs_left_page')
+        newLastPageElement.setAttribute(
+          'data-page-number',
+          `${pages.length + 1}`
+        )
+        newLastPageElement.setAttribute('data-id', `page-${pages.length + 1}`)
         ReactDOM.render(
           <BlankPageContent>
             <Prose>
               <p>This ballot page is intentionally blank.</p>
             </Prose>
           </BlankPageContent>,
-          lastPage.getElementsByClassName('pagedjs_page_content')[0]
+          newLastPageElement.getElementsByClassName('pagedjs_page_content')[0]
         )
 
-        const newPage = { ...pages[pages.length - 1] }
-        newPage.element.dataset.pageNumber = `${pages.length + 1}`
-        newPage.element.dataset.id = `page-${pages.length + 1}`
+        const newPage = {
+          ...pages[pages.length - 1],
+          element: newLastPageElement,
+        }
+
         pages.push(newPage)
       }
     }
@@ -178,22 +189,19 @@ class PostRenderBallotProcessor extends Handler {
           ballotType,
           ballotId,
         }: HMPBBallotMetadata = JSON.parse(qrCodeTarget.dataset.metadata ?? '')
-        ReactDOM.render(
-          <QRCode
-            level="H"
-            value={v1.encodeHMPBBallotPageMetadata(election, {
-              electionHash: electionHash.substring(0, 20),
-              ballotStyleId,
-              precinctId,
-              locales,
-              isTestMode,
-              pageNumber: parseInt(pageNumber!, 10),
-              ballotType,
-              ballotId,
-            })}
-          />,
-          qrCodeTarget
-        )
+
+        const encoded = v1.encodeHMPBBallotPageMetadata(election, {
+          electionHash: electionHash.substring(0, 20),
+          ballotStyleId,
+          precinctId,
+          locales,
+          isTestMode,
+          pageNumber: parseInt(pageNumber!, 10),
+          ballotType,
+          ballotId,
+        })
+
+        ReactDOM.render(<QRCode level="H" value={encoded} />, qrCodeTarget)
       }
     })
   }
