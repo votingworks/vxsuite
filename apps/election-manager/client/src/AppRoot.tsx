@@ -1,14 +1,11 @@
+import { strict as assert } from 'assert'
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { useInterval } from 'use-interval'
 import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import { sha256 } from 'js-sha256'
 
-import {
-  Election,
-  OptionalElection,
-  parseElection,
-} from '@votingworks/ballot-encoder'
+import { parseElection } from '@votingworks/ballot-encoder'
 
 import {
   getStatus as usbDriveGetStatus,
@@ -26,6 +23,7 @@ import { Storage } from './utils/Storage'
 
 import ElectionManager from './components/ElectionManager'
 import {
+  ElectionDefinition,
   SaveElection,
   OptionalVoteCounts,
   PrintedBallot,
@@ -33,7 +31,7 @@ import {
 } from './config/types'
 
 export interface AppStorage {
-  election?: Election
+  electionDefinition?: ElectionDefinition
   cvrFiles?: string
   isOfficialResults?: boolean
   printedBallots?: PrintedBallot[]
@@ -44,7 +42,7 @@ export interface Props extends RouteComponentProps {
   storage: Storage<AppStorage>
 }
 
-export const electionStorageKey = 'election'
+export const electionDefinitionStorageKey = 'electionDefinition'
 export const cvrsStorageKey = 'cvrFiles'
 export const isOfficialResultsKey = 'isOfficialResults'
 export const printedBallotsStorageKey = 'printedBallots'
@@ -53,17 +51,22 @@ export const configuredAtStorageKey = 'configuredAt'
 const AppRoot = ({ storage }: Props) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
-  const getElection = async () => {
-    const election = await storage.get(electionStorageKey)
+  const getElectionDefinition = useCallback(async () => {
+    const electionDefinition = await storage.get(electionDefinitionStorageKey)
 
-    return election ? parseElection(election) : undefined
-  }
+    if (electionDefinition) {
+      const { electionData, electionHash } = electionDefinition
+      assert.equal(sha256(electionData), electionHash)
+      return electionDefinition
+    }
+  }, [storage])
 
   const getCVRFiles = async () => storage.get(cvrsStorageKey)
   const getIsOfficialResults = async () => storage.get(isOfficialResultsKey)
 
-  const [election, setElection] = useState<OptionalElection>(undefined)
-  const [electionHash, setElectionHash] = useState('')
+  const [electionDefinition, setElectionDefinition] = useState<
+    ElectionDefinition
+  >()
   const [configuredAt, setConfiguredAt] = useState<ISO8601Timestamp>('')
 
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
@@ -138,12 +141,10 @@ const AppRoot = ({ storage }: Props) => {
 
   useEffect(() => {
     ;(async () => {
-      if (!election) {
-        const storageElection = await getElection()
-        if (storageElection) {
-          setElection(storageElection)
-          setElectionHash(sha256(JSON.stringify(storageElection)))
-
+      if (!electionDefinition) {
+        const storageElectionDefinition = await getElectionDefinition()
+        if (storageElectionDefinition) {
+          setElectionDefinition(storageElectionDefinition)
           setConfiguredAt((await storage.get(configuredAtStorageKey)) || '')
         }
 
@@ -177,22 +178,34 @@ const AppRoot = ({ storage }: Props) => {
 
   const [voteCounts, setVoteCounts] = useState<OptionalVoteCounts>()
 
-  const saveElection: SaveElection = (electionDefinition) => {
+  const saveElection: SaveElection = async (electionJSON) => {
     // we set a new election definition, reset everything
     storage.clear()
     setIsOfficialResults(false)
     setCastVoteRecordFiles(CastVoteRecordFiles.empty)
     setPrintedBallots([])
+    setElectionDefinition(undefined)
 
-    setElection(electionDefinition)
-    setElectionHash(
-      electionDefinition ? sha256(JSON.stringify(electionDefinition)) : ''
-    )
-    if (electionDefinition) {
-      storage.set(electionStorageKey, electionDefinition)
+    if (electionJSON) {
+      const electionData = electionJSON
+      const electionHash = sha256(electionData)
+      const election = parseElection(JSON.parse(electionData))
+
+      setElectionDefinition({
+        electionData,
+        electionHash,
+        election,
+      })
+
       const newConfiguredAt = new Date().toISOString()
-      storage.set(configuredAtStorageKey, newConfiguredAt)
       setConfiguredAt(newConfiguredAt)
+
+      await storage.set(configuredAtStorageKey, newConfiguredAt)
+      await storage.set(electionDefinitionStorageKey, {
+        election,
+        electionData,
+        electionHash,
+      })
     }
   }
 
@@ -200,8 +213,7 @@ const AppRoot = ({ storage }: Props) => {
     <AppContext.Provider
       value={{
         castVoteRecordFiles,
-        election,
-        electionHash,
+        electionDefinition,
         configuredAt,
         isOfficialResults,
         printBallotRef,

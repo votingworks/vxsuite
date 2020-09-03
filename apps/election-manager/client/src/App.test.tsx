@@ -1,15 +1,16 @@
+import * as fs from 'fs'
+import { sha256 } from 'js-sha256'
+import { join } from 'path'
 import React from 'react'
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { Election } from '@votingworks/ballot-encoder'
-import fs from 'fs'
-import path from 'path'
+import { parseElection } from '@votingworks/ballot-encoder'
 import { MemoryStorage } from './utils/Storage'
 import {
   AppStorage,
-  electionStorageKey,
   configuredAtStorageKey,
   cvrsStorageKey,
+  electionDefinitionStorageKey,
 } from './AppRoot'
 
 import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
@@ -19,12 +20,18 @@ import fakeKiosk from '../test/helpers/fakeKiosk'
 import App from './App'
 
 import sleep from './utils/sleep'
+import { ElectionDefinition } from './config/types'
 
-import eitherNeitherElectionUntyped from '../test/fixtures/eitherneither-election.json'
+const eitherNeitherElectionData = fs.readFileSync(
+  join(__dirname, '../test/fixtures/eitherneither-election.json'),
+  'utf-8'
+)
+const eitherNeitherElectionHash = sha256(eitherNeitherElectionData)
+const eitherNeitherElection = parseElection(
+  JSON.parse(eitherNeitherElectionData)
+)
 
-const eitherNeitherElection = (eitherNeitherElectionUntyped as unknown) as Election
-
-const EITHER_NEITHER_CVR_PATH = path.join(
+const EITHER_NEITHER_CVR_PATH = join(
   __dirname,
   '..',
   'test',
@@ -61,12 +68,12 @@ afterEach(() => {
 })
 
 const createMemoryStorageWith = async ({
-  election,
+  electionDefinition,
 }: {
-  election: Election
+  electionDefinition: ElectionDefinition
 }) => {
   const storage = new MemoryStorage<AppStorage>()
-  await storage.set(electionStorageKey, election)
+  await storage.set(electionDefinitionStorageKey, electionDefinition)
   await storage.set(configuredAtStorageKey, new Date().toISOString())
   return storage
 }
@@ -95,7 +102,11 @@ it('create election works', async () => {
 it('printing ballots, print report, and test decks', async () => {
   const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>
   const storage = await createMemoryStorageWith({
-    election: eitherNeitherElection,
+    electionDefinition: {
+      election: eitherNeitherElection,
+      electionData: eitherNeitherElectionData,
+      electionHash: eitherNeitherElectionHash,
+    },
   })
 
   const { container, getByText, getAllByText, queryAllByText } = render(
@@ -160,7 +171,11 @@ it('printing ballots, print report, and test decks', async () => {
 
 it('tabulating CVRs', async () => {
   const storage = await createMemoryStorageWith({
-    election: eitherNeitherElection,
+    electionDefinition: {
+      election: eitherNeitherElection,
+      electionData: eitherNeitherElectionData,
+      electionHash: eitherNeitherElectionHash,
+    },
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(

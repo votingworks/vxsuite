@@ -24,8 +24,8 @@ interface ContestSection {
 }
 
 const DefinitionScreen = () => {
-  const { election: e, configuredAt } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition, configuredAt } = useContext(AppContext)
+  const { election } = electionDefinition!
 
   const electionsBySection = election.contests.reduce<ContestSection[]>(
     (prev, curr) => {
