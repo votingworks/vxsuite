@@ -44,6 +44,17 @@ export interface ParseCastVoteRecordResult {
   lineNumber: number
 }
 
+export function normalizeWriteInId(candidateId: string): string {
+  if (
+    candidateId.startsWith('__writein') ||
+    candidateId.startsWith('__write-in')
+  ) {
+    return writeInCandidate.id
+  }
+
+  return candidateId
+}
+
 // CVRs are newline-separated JSON objects
 export function* parseCVRs(
   castVoteRecordsString: string,
@@ -189,12 +200,14 @@ const buildVoteFromCvr = ({
     }
 
     if (contest.type === 'candidate') {
-      vote[contest.id] = (cvr[contest.id] as string[]).map((candidateId) =>
-        find(
-          [writeInCandidate, ...contest.candidates],
-          (c) => c.id === candidateId
+      vote[contest.id] = (cvr[contest.id] as string[])
+        .map((candidateId) => normalizeWriteInId(candidateId))
+        .map((candidateId) =>
+          find(
+            [writeInCandidate, ...contest.candidates],
+            (c) => c.id === candidateId
+          )
         )
-      )
     }
   })
 
