@@ -109,7 +109,9 @@ const TallyReportScreen = () => {
     const data = await window.kiosk!.printToPDF()
     const fileWriter = await window.kiosk!.saveAs()
     if (!fileWriter) {
-      window.alert('could not download, no appropriate file was chosen.')
+      window.alert(
+        'Could not save PDF, it can only be saved to a USB device. (Or if "Cancel" was selected, ignore this message.)'
+      )
       return
     }
     fileWriter.write(data)
