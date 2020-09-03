@@ -2,91 +2,95 @@
 
 exports[`renders properly 1`] = `
 <div>
-  <nav
-    class="sc-bZQynM kuROSm"
+  <div
+    class="sc-iwsKbI csCzPK"
   >
-    <div
-      class="sc-gzVnrw hJJwtK"
+    <nav
+      class="sc-bZQynM kuROSm"
     >
       <div
-        class="sc-htoDjs gMVLox"
-      >
-        Voting
-        <span>
-          Works
-        </span>
-      </div>
-      <div
-        class="sc-dnqmqq bDsesi"
-      >
-        Ballot Scanner
-      </div>
-    </div>
-    <button
-      class="sc-ifAKCX pmhyu"
-      type="button"
-    >
-      Continue Scanning Batch
-    </button>
-  </nav>
-  <main
-    class="sc-bdVaJa kYuSve"
-  >
-    <div
-      class="sc-bwzfXH hLOwzs"
-    >
-      <div
-        class="sc-iwsKbI biaVij"
+        class="sc-gzVnrw hJJwtK"
       >
         <div
-          class="sc-htpNat eawaaV"
+          class="sc-htoDjs gMVLox"
         >
-          <h1>
-            Remove This Ballot
-          </h1>
-          <p>
-            Human review is required for this last scanned ballot.
-             
-            <strong>
-              This ballot was not tabulated.
-            </strong>
-          </p>
-          <p>
-            Once this ballot has been removed, press the button to continue scanning.
-          </p>
+          Voting
+          <span>
+            Works
+          </span>
         </div>
         <div
-          class="sc-gZMcBi jOljIC"
+          class="sc-dnqmqq bDsesi"
+        >
+          Ballot Scanner
+        </div>
+      </div>
+      <button
+        class="sc-ifAKCX pmhyu"
+        type="button"
+      >
+        Continue Scanning Batch
+      </button>
+    </nav>
+    <main
+      class="sc-bdVaJa kYuSve"
+    >
+      <div
+        class="sc-bwzfXH hLOwzs"
+      >
+        <div
+          class="sc-gZMcBi flNljd"
         >
           <div
-            class="sc-htpNat fZPvKh"
+            class="sc-htpNat eawaaV"
           >
-            <h4>
-              Front
-            </h4>
+            <h1>
+              Remove This Ballot
+            </h1>
             <p>
-              <img
-                alt="p1"
-                src="/front/url"
-              />
+              Human review is required for this last scanned ballot.
+               
+              <strong>
+                This ballot was not tabulated.
+              </strong>
+            </p>
+            <p>
+              Once this ballot has been removed, press the button to continue scanning.
             </p>
           </div>
           <div
-            class="sc-htpNat fZPvKh"
+            class="sc-gqjmRU egwQTy"
           >
-            <h4>
-              Back
-            </h4>
-            <p>
-              <img
-                alt="p2"
-                src="/back/url"
-              />
-            </p>
+            <div
+              class="sc-htpNat fZPvKh"
+            >
+              <h4>
+                Front
+              </h4>
+              <p>
+                <img
+                  alt="p1"
+                  src="/front/url"
+                />
+              </p>
+            </div>
+            <div
+              class="sc-htpNat fZPvKh"
+            >
+              <h4>
+                Back
+              </h4>
+              <p>
+                <img
+                  alt="p2"
+                  src="/back/url"
+                />
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 </div>
 `;
