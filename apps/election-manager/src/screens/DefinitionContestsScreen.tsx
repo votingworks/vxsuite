@@ -172,16 +172,22 @@ const ToggleField = ({
 )
 
 const DefinitionContestsScreen = () => {
-  const { election: e, saveElection } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition, saveElection } = useContext(AppContext)
+  const { election } = electionDefinition!
   const { contestId } = useParams<{ contestId: string }>()
   const contestIndex = election.contests.findIndex((c) => c.id === contestId)
   const contest = election.contests[contestIndex]
 
   const saveContest = (newContest: AnyContest) => {
-    const newElection: Election = { ...election }
-    newElection.contests[contestIndex] = newContest
-    saveElection(newElection)
+    const newElection: Election = {
+      ...election,
+      contests: [
+        ...election.contests.slice(0, contestIndex),
+        newContest,
+        ...election.contests.slice(contestIndex + 1),
+      ],
+    }
+    saveElection(JSON.stringify(newElection))
   }
 
   const saveTextField: InputEventFunction = (event) => {

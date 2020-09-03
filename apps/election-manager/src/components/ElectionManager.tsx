@@ -20,8 +20,8 @@ import DefinitionContestsScreen from '../screens/DefinitionContestsScreen'
 import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen'
 
 const ElectionManager = () => {
-  const { election: e } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition } = useContext(AppContext)
+  const election = electionDefinition?.election
 
   if (!election) {
     return <UnconfiguredScreen />

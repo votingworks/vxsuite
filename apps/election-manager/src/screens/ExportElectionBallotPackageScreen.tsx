@@ -17,8 +17,8 @@ import { Monospace } from '../components/Text'
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
 
 const ExportElectionBallotPackageScreen = () => {
-  const { election: e, electionHash } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition } = useContext(AppContext)
+  const { election, electionData, electionHash } = electionDefinition!
   const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
 
   const [state, setState] = useState<workflow.State>(
@@ -45,10 +45,7 @@ const ExportElectionBallotPackageScreen = () => {
                 .replace(/(^-|-$)+/g, '')
                 .toLocaleLowerCase()}-${electionHash.slice(0, 10)}.zip`,
             })
-            await state.archive.file(
-              'election.json',
-              JSON.stringify(election, undefined, 2)
-            )
+            await state.archive.file('election.json', electionData)
             await state.archive.file(
               'manifest.json',
               JSON.stringify({ ballots: state.ballotConfigs }, undefined, 2)
@@ -67,7 +64,7 @@ const ExportElectionBallotPackageScreen = () => {
         }
       }
     })()
-  }, [state, election, electionHash])
+  }, [state, election, electionData, electionHash])
 
   /**
    * Callback from `HandMarkedPaperBallot` to let us know the preview has been

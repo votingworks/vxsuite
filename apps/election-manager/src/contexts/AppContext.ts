@@ -1,6 +1,6 @@
 import { createContext, RefObject } from 'react'
-import { OptionalElection } from '@votingworks/ballot-encoder'
 import {
+  ElectionDefinition,
   SaveElection,
   OptionalVoteCounts,
   PrintedBallot,
@@ -12,8 +12,7 @@ import CastVoteRecordFiles, {
 
 interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles
-  election: OptionalElection
-  electionHash: string
+  electionDefinition?: ElectionDefinition
   configuredAt: ISO8601Timestamp
   isOfficialResults: boolean
   printBallotRef?: RefObject<HTMLElement>
@@ -33,8 +32,7 @@ interface AppContextInterface {
 
 const appContext: AppContextInterface = {
   castVoteRecordFiles: CastVoteRecordFiles.empty,
-  election: undefined,
-  electionHash: '',
+  electionDefinition: undefined,
   configuredAt: '',
   isOfficialResults: false,
   printBallotRef: undefined,
