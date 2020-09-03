@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import Button, { StyledButtonProps } from './Button'
 import Modal from './Modal'
 import Loading from './Loading'
+import Prose from './Prose'
 
 interface PrintButtonProps extends StyledButtonProps {
   title?: string
@@ -71,10 +72,10 @@ const PrintButton = ({
       <Modal
         isOpen={showPrintingError}
         content={
-          <React.Fragment>
+          <Prose>
             <h2>The printer is not connected.</h2>
-            Please connect the printer and try again.
-          </React.Fragment>
+            <p>Please connect the printer and try again.</p>
+          </Prose>
         }
         actions={
           <React.Fragment>
