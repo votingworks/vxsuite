@@ -6,12 +6,23 @@
 /* istanbul ignore file */
 
 const express = require('express')
-const proxy = require('../src/setupProxy')
+const path = require('path')
 
+const proxy = require('../src/setupProxy')
 const app = express()
 const port = 3000
 
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+  next()
+})
+
 proxy(app)
-app.use('/', express.static('../build'))
+
+app.use('/', express.static(path.join(__dirname, '../build')))
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build/index.html'))
+})
+
 
 app.listen(port, () => console.log(`BSD listening on port ${port}!`))
