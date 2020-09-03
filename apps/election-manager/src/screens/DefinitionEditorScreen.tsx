@@ -33,8 +33,8 @@ const FlexTextareaWrapper = styled.div`
 `
 const DefinitionEditorScreen = () => {
   const history = useHistory()
-  const { election: e, saveElection } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition, saveElection } = useContext(AppContext)
+  const { election, electionData } = electionDefinition!
   const stringifiedElection = JSON.stringify(election, undefined, 2)
   const [electionString, setElectionString] = useState(stringifiedElection)
   const [dirty, setDirty] = useState(false)
@@ -52,11 +52,11 @@ const DefinitionEditorScreen = () => {
     history.push(routerPaths.root)
   }
 
-  const parseElectionString = useCallback(() => {
+  const validateElectionDefinition = useCallback(() => {
     try {
       setError('')
-      const newElection = parseElection(JSON.parse(electionString))
-      return newElection
+      parseElection(JSON.parse(electionString))
+      return true
     } catch (error) {
       setError(error.toString())
       return false
@@ -66,10 +66,10 @@ const DefinitionEditorScreen = () => {
     setDirty(true)
     setElectionString(event.currentTarget.value)
   }
-  const hanldeSaveElection = () => {
-    const newElection = parseElectionString()
-    if (newElection) {
-      saveElection(newElection)
+  const handleSaveElection = () => {
+    const valid = validateElectionDefinition()
+    if (valid) {
+      saveElection(electionString)
       setDirty(false)
       setError('')
     }
@@ -82,7 +82,7 @@ const DefinitionEditorScreen = () => {
 
   const downloadElectionDefinition = () => {
     fileDownload(
-      JSON.stringify(election, undefined, 2),
+      electionData,
       `${dashify(election.date)}-${dashify(election.county.name)}-${dashify(
         election.title
       )}-vx-election-definition.json`,
@@ -91,8 +91,8 @@ const DefinitionEditorScreen = () => {
   }
 
   useEffect(() => {
-    parseElectionString()
-  }, [parseElectionString, electionString])
+    validateElectionDefinition()
+  }, [validateElectionDefinition, electionString])
 
   return (
     <React.Fragment>
@@ -106,7 +106,7 @@ const DefinitionEditorScreen = () => {
           <Button
             small
             primary={dirty && !error}
-            onPress={hanldeSaveElection}
+            onPress={handleSaveElection}
             disabled={!dirty || !!error}
           >
             Save

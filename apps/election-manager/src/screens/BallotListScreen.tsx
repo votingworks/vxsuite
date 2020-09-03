@@ -26,8 +26,10 @@ const Header = styled.div`
 `
 
 const BallotListScreen = () => {
-  const { election: e, printedBallots, configuredAt } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition, printedBallots, configuredAt } = useContext(
+    AppContext
+  )
+  const { election } = electionDefinition!
 
   const allBallotStyles = getBallotStylesData(election)
   const ballotLists = [

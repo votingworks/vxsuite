@@ -25,8 +25,8 @@ const NavigationScreen = ({
   const isActiveSection = (path: string) =>
     new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : ''
 
-  const { election: e } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition } = useContext(AppContext)
+  const election = electionDefinition?.election
 
   return (
     <Screen>

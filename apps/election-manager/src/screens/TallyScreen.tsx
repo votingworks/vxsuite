@@ -29,14 +29,14 @@ import Prose from '../components/Prose'
 const TallyScreen = () => {
   const {
     castVoteRecordFiles,
-    election: e,
+    electionDefinition,
     isOfficialResults,
     saveCastVoteRecordFiles,
     saveIsOfficialResults,
     setVoteCounts,
     voteCounts,
   } = useContext(AppContext)
-  const election = e!
+  const { election } = electionDefinition!
 
   const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
   const [isConfimingRemoveCRVs, setIsConfirmingRemoveCRVs] = useState(false)
@@ -154,9 +154,13 @@ const TallyScreen = () => {
 
     await client.setInputFile(
       electionDefinitionFile.name,
-      new File([JSON.stringify(election)], electionDefinitionFile.name, {
-        type: 'application/json',
-      })
+      new File(
+        [electionDefinition!.electionData],
+        electionDefinitionFile.name,
+        {
+          type: 'application/json',
+        }
+      )
     )
     await client.setInputFile(
       cvrFile.name,

@@ -21,8 +21,10 @@ import find from '../utils/find'
 type PrintCounts = Dictionary<Dictionary<number>>
 
 const PrintedBallotsReportScreen = () => {
-  const { election: e, printedBallots, configuredAt } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition, printedBallots, configuredAt } = useContext(
+    AppContext
+  )
+  const { election } = electionDefinition!
 
   const totalBallotsPrinted = printedBallots.reduce(
     (count, ballot) => count + ballot.numCopies,
