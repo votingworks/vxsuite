@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`printing ballots, print report, and test decks 1`] = `
-<div
-  aria-hidden="true"
->
+<div>
   <div
     class="sc-AxjAm isOMPC"
   >

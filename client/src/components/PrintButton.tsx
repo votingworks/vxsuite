@@ -18,8 +18,17 @@ const PrintButton = ({
   ...rest
 }: React.PropsWithChildren<PrintButtonProps>) => {
   const [isPrinting, setIsPrinting] = useState(false)
+  const [showPrintingError, setShowPrintingError] = useState(false)
 
   const print = async () => {
+    if (window.kiosk) {
+      const printers = await window.kiosk.getPrinterInfo()
+      if (!printers.some((p) => p.connected)) {
+        setShowPrintingError(true)
+        return
+      }
+    }
+
     setIsPrinting(true)
     setTimeout(() => {
       setIsPrinting(false)
@@ -45,6 +54,10 @@ const PrintButton = ({
     afterPrint?.()
   }
 
+  const donePrintingError = () => {
+    setShowPrintingError(false)
+  }
+
   return (
     <React.Fragment>
       <Button onPress={print} {...rest}>
@@ -54,6 +67,20 @@ const PrintButton = ({
         isOpen={isPrinting}
         centerContent
         content={<Loading>Printing</Loading>}
+      />
+      <Modal
+        isOpen={showPrintingError}
+        content={
+          <React.Fragment>
+            <h2>The printer is not connected.</h2>
+            Please connect the printer and try again.
+          </React.Fragment>
+        }
+        actions={
+          <React.Fragment>
+            <Button onPress={donePrintingError}>OK</Button>
+          </React.Fragment>
+        }
       />
     </React.Fragment>
   )
