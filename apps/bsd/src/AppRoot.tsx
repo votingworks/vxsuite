@@ -314,15 +314,6 @@ const App: React.FC = () => {
               <LinkButton small to="/advanced">
                 Advanced
               </LinkButton>
-              <LinkButton
-                small
-                to="/review"
-                disabled={adjudication.remaining === 0}
-              >
-                Review{' '}
-                {!!adjudication.remaining &&
-                  pluralize('ballots', adjudication.remaining, true)}
-              </LinkButton>
               <Button
                 small
                 onPress={exportResults}
@@ -335,6 +326,17 @@ const App: React.FC = () => {
               >
                 Export
               </Button>
+              {false && (
+                <LinkButton
+                  small
+                  to="/review"
+                  disabled={adjudication.remaining === 0}
+                >
+                  Review{' '}
+                  {!!adjudication.remaining &&
+                    pluralize('ballots', adjudication.remaining, true)}
+                </LinkButton>
+              )}
               <Button small disabled={isScanning} primary onPress={scanBatch}>
                 Scan New Batch
               </Button>
