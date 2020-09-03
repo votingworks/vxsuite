@@ -43,8 +43,8 @@ const BallotScreen = () => {
     ballotStyleId,
     localeCode: currentLocaleCode,
   } = useParams<BallotScreenProps>()
-  const { election: e, electionHash, addPrintedBallot } = useContext(AppContext)
-  const election = e!
+  const { electionDefinition, addPrintedBallot } = useContext(AppContext)
+  const { election, electionHash } = electionDefinition!
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
   const locales: BallotLocale = {
     primary: DEFAULT_LOCALE,

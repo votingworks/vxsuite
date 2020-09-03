@@ -1,9 +1,4 @@
-import {
-  OptionalElection,
-  BallotStyle,
-  Precinct,
-  Election,
-} from '@votingworks/ballot-encoder'
+import { BallotStyle, Precinct, Election } from '@votingworks/ballot-encoder'
 import { Candidate, Contest, VotesDict } from '@votingworks/ballot-encoder'
 
 // Generic
@@ -24,7 +19,13 @@ export type ButtonEventFunction = (
 ) => void | Promise<void>
 
 // Election
-export type SaveElection = (value: OptionalElection) => void
+export type SaveElection = (electionJSON?: string) => void
+
+export interface ElectionDefinition {
+  election: Election
+  electionData: string
+  electionHash: string
+}
 
 export interface BallotStyleData {
   ballotStyleId: BallotStyle['id']

@@ -39,9 +39,11 @@ const TallyReportScreen = () => {
 
   const { precinctId } = useParams<PrecinctReportScreenProps>()
   const { scannerId } = useParams<ScannerReportScreenProps>()
-  const { castVoteRecordFiles, election: e, isOfficialResults } = useContext(
-    AppContext
-  )
+  const {
+    castVoteRecordFiles,
+    electionDefinition,
+    isOfficialResults,
+  } = useContext(AppContext)
 
   // the point of this state and effect is to show a loading screen
   // and almost immediately trigger removing the loading screen,
@@ -68,7 +70,7 @@ const TallyReportScreen = () => {
     )
   }
 
-  const election = e!
+  const { election } = electionDefinition!
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
 
   const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1)
