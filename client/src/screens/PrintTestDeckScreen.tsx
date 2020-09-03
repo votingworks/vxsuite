@@ -43,8 +43,6 @@ const TestDeckBallots = ({
   precinct,
   onAllRendered,
 }: TestDeckBallotsParams) => {
-  console.log('rendering testdeck')
-
   // generate the possibilities
   const precinctIds: string[] = precinct.id
     ? [precinct.id]
@@ -130,9 +128,8 @@ const TestDeckBallots = ({
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots)
 
 const PrintTestDeckScreen = () => {
-  const { election: e, electionHash: eHash } = useContext(AppContext)
-  const election = e!
-  const electionHash = eHash!
+  const { electionDefinition } = useContext(AppContext)
+  const { election, electionHash } = electionDefinition!
   const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
   const precinctId = p.trim()
 

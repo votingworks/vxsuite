@@ -43,10 +43,12 @@ const Contest = styled.div`
 `
 
 const PairsReportScreen = () => {
-  const { castVoteRecordFiles, election: e, isOfficialResults } = useContext(
-    AppContext
-  )
-  const election = e!
+  const {
+    castVoteRecordFiles,
+    electionDefinition,
+    isOfficialResults,
+  } = useContext(AppContext)
+  const { election } = electionDefinition!
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
   const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1)
   const overvotePairTallies = getOvervotePairTallies({
