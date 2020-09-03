@@ -252,15 +252,15 @@ const App: React.FC = () => {
     }
 
     return (
-      <Screen>
-        <Switch>
-          <Route path="/review">
-            <BallotReviewScreen
-              adjudicationStatus={adjudication}
-              isTestMode={isTestMode}
-            />
-          </Route>
-          <Route path="/">
+      <Switch>
+        <Route path="/review">
+          <BallotReviewScreen
+            adjudicationStatus={adjudication}
+            isTestMode={isTestMode}
+          />
+        </Route>
+        <Route path="/">
+          <Screen>
             <Main>
               <MainChild maxWidth={false}>
                 <DashboardScreen
@@ -315,9 +315,9 @@ const App: React.FC = () => {
                 Scan New Batch
               </Button>
             </MainNav>
-          </Route>
-        </Switch>
-      </Screen>
+          </Screen>
+        </Route>
+      </Switch>
     )
   }
 

@@ -23,6 +23,7 @@ import LinkButton from '../components/LinkButton'
 import Text from '../components/Text'
 import Checkbox from '../components/Checkbox'
 import MainNav from '../components/MainNav'
+import Screen from '../components/Screen'
 
 const BallotReviewColumns = styled.div`
   display: flex;
@@ -179,7 +180,7 @@ export default function BallotReviewScreen({
 
   if (state.type === 'failed') {
     return (
-      <React.Fragment>
+      <Screen>
         <Main>
           <MainChild maxWidth={false}>
             <Prose maxWidth={false}>
@@ -192,13 +193,13 @@ export default function BallotReviewScreen({
             Dashboard
           </LinkButton>
         </MainNav>
-      </React.Fragment>
+      </Screen>
     )
   }
 
   if (state.type === 'init' || !ballot) {
     return (
-      <React.Fragment>
+      <Screen>
         <Main>
           <MainChild maxWidth={false}>
             <Prose maxWidth={false}>
@@ -211,14 +212,14 @@ export default function BallotReviewScreen({
             Back
           </LinkButton>
         </MainNav>
-      </React.Fragment>
+      </Screen>
     )
   }
 
   const canSave = state.type === 'review' ? state.reviewComplete : false
 
   return (
-    <React.Fragment>
+    <Screen>
       <Main>
         <BallotReviewColumns>
           <React.Fragment>
@@ -333,6 +334,6 @@ export default function BallotReviewScreen({
           Save &amp; Next
         </Button>
       </MainNav>
-    </React.Fragment>
+    </Screen>
   )
 }

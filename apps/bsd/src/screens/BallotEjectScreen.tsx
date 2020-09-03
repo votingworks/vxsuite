@@ -8,6 +8,7 @@ import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Button from '../components/Button'
 import MainNav from '../components/MainNav'
+import Screen from '../components/Screen'
 
 const Columns = styled.div`
   display: flex;
@@ -57,7 +58,7 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
   }
 
   return (
-    <React.Fragment>
+    <Screen>
       <MainNav>
         <Button small onPress={continueScanning}>
           Continue Scanning Batch
@@ -94,7 +95,7 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
           </Columns>
         </MainChild>
       </Main>
-    </React.Fragment>
+    </Screen>
   )
 }
 export default BallotEjectScreen
