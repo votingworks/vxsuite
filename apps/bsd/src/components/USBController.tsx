@@ -37,8 +37,6 @@ const USBController = () => {
     return <Text>No USB</Text>
   }
 
-  console.log('rendering')
-
   return (
     <React.Fragment>
       {mounted ? (

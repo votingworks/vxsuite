@@ -3,16 +3,16 @@
 exports[`renders properly 1`] = `
 <div>
   <div
-    class="sc-iwsKbI csCzPK"
+    class="sc-jTzLTM eOyjnu"
   >
-    <nav
-      class="sc-bZQynM kuROSm"
+    <div
+      class="sc-gzVnrw btDcsf"
     >
       <div
-        class="sc-gzVnrw hJJwtK"
+        class="sc-htoDjs fdtLZY"
       >
         <div
-          class="sc-htoDjs gMVLox"
+          class="sc-dnqmqq kKbVPv"
         >
           Voting
           <span>
@@ -20,18 +20,22 @@ exports[`renders properly 1`] = `
           </span>
         </div>
         <div
-          class="sc-dnqmqq bDsesi"
+          class="sc-iwsKbI jQhHGA"
         >
           Ballot Scanner
         </div>
       </div>
-      <button
-        class="sc-ifAKCX pmhyu"
-        type="button"
+      <div
+        class="sc-gqjmRU etjyPA"
       >
-        Continue Scanning Batch
-      </button>
-    </nav>
+        <button
+          class="sc-ifAKCX pmhyu"
+          type="button"
+        >
+          Continue Scanning Batch
+        </button>
+      </div>
+    </div>
     <main
       class="sc-bdVaJa kYuSve"
     >
@@ -39,7 +43,7 @@ exports[`renders properly 1`] = `
         class="sc-bwzfXH hLOwzs"
       >
         <div
-          class="sc-gZMcBi flNljd"
+          class="sc-fjdhpX fgavdG"
         >
           <div
             class="sc-htpNat eawaaV"
@@ -59,7 +63,7 @@ exports[`renders properly 1`] = `
             </p>
           </div>
           <div
-            class="sc-gqjmRU egwQTy"
+            class="sc-jzJRlG fqkwGB"
           >
             <div
               class="sc-htpNat fZPvKh"

@@ -36,6 +36,7 @@ const App: React.FC = () => {
   const history = useHistory()
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
   const [election, setElection] = useState<OptionalElection>()
+  const [electionHash, setElectionHash] = useState<string>()
   // used to hide batches while they're being deleted
   const [pendingDeleteBatchIds, setPendingDeleteBatchIds] = useState<number[]>(
     []
@@ -64,6 +65,7 @@ const App: React.FC = () => {
   const updateStatus = useCallback(async () => {
     try {
       const newStatus = await fetchJSON<ScanStatusResponse>('/scan/status')
+      setElectionHash(newStatus.electionHash)
       setStatus((prevStatus) => {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
           return prevStatus
@@ -300,7 +302,11 @@ const App: React.FC = () => {
                 />
               </MainChild>
             </Main>
-            <MainNav isTestMode={isTestMode}>
+            <MainNav
+              isTestMode={isTestMode}
+              election={election}
+              electionHash={electionHash}
+            >
               <USBController />
               <LinkButton small to="/advanced">
                 Advanced
