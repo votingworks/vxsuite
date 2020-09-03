@@ -13,6 +13,9 @@ interface Props {
   zeroData: () => Promise<void>
   backup: () => Promise<void>
   hasBatches: boolean
+  isTestMode: boolean
+  togglingTestMode: boolean
+  toggleTestMode: () => Promise<void>
 }
 
 const AdvancedOptionsScreen = ({
@@ -20,6 +23,9 @@ const AdvancedOptionsScreen = ({
   zeroData,
   backup,
   hasBatches,
+  isTestMode,
+  togglingTestMode,
+  toggleTestMode,
 }: Props) => {
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
@@ -46,23 +52,36 @@ const AdvancedOptionsScreen = ({
       <Screen>
         <Main>
           <MainChild>
-            <h1>Advanced Options</h1>
-            <p>
-              <Button disabled={!hasBatches} onPress={toggleIsConfirmingZero}>
-                Delete Ballot Data…
-              </Button>
-            </p>
-            <p>
-              <Button onPress={toggleIsConfirmingFactoryReset}>
-                Factory Reset…
-              </Button>
-            </p>
-            {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
-            <p>
-              <Button onPress={exportBackup} disabled={isBackingUp}>
-                {isBackingUp ? 'Exporting…' : 'Export Backup…'}
-              </Button>
-            </p>
+            <Prose>
+              <h1>Advanced Options</h1>
+              {typeof isTestMode === 'boolean' && (
+                <p>
+                  <Button onPress={toggleTestMode} disabled={togglingTestMode}>
+                    {togglingTestMode
+                      ? 'Switching…'
+                      : isTestMode
+                      ? 'Toggle to Live Mode'
+                      : 'Toggle to Test Mode'}
+                  </Button>
+                </p>
+              )}
+              <p>
+                <Button disabled={!hasBatches} onPress={toggleIsConfirmingZero}>
+                  Delete Ballot Data…
+                </Button>
+              </p>
+              <p>
+                <Button onPress={toggleIsConfirmingFactoryReset}>
+                  Factory Reset…
+                </Button>
+              </p>
+              {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
+              <p>
+                <Button onPress={exportBackup} disabled={isBackingUp}>
+                  {isBackingUp ? 'Exporting…' : 'Export Backup…'}
+                </Button>
+              </p>
+            </Prose>
           </MainChild>
         </Main>
         <MainNav>

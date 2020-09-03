@@ -14,6 +14,9 @@ test('clicking "Export Backup…" shows progress', async () => {
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={backup}
+        isTestMode={false}
+        togglingTestMode={false}
+        toggleTestMode={jest.fn()}
       />
     </Router>
   )
@@ -50,6 +53,9 @@ test('backup error shows message', async () => {
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={backup}
+        isTestMode={false}
+        togglingTestMode={false}
+        toggleTestMode={jest.fn()}
       />
     </Router>
   )

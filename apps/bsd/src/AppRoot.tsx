@@ -282,6 +282,9 @@ const App: React.FC = () => {
             zeroData={zeroData}
             backup={backup}
             hasBatches={!!status.batches.length}
+            isTestMode={isTestMode}
+            toggleTestMode={toggleTestMode}
+            togglingTestMode={togglingTestMode}
           />
         </Route>
         <Route path="/">
@@ -311,19 +314,6 @@ const App: React.FC = () => {
               <LinkButton small to="/advanced">
                 Advanced
               </LinkButton>
-              {typeof isTestMode === 'boolean' && (
-                <Button
-                  small
-                  onPress={toggleTestMode}
-                  disabled={togglingTestMode}
-                >
-                  {togglingTestMode
-                    ? 'Switching…'
-                    : isTestMode
-                    ? 'Live mode…'
-                    : 'Test mode…'}
-                </Button>
-              )}
               <LinkButton
                 small
                 to="/review"
