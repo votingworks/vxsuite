@@ -52,10 +52,17 @@ export function decodeSearchParams(
   }
 }
 
+function isBase64(string: string): boolean {
+  return Buffer.from(string, 'base64').toString('base64') === string
+}
+
 export function fromString(
   election: Election,
   text: string
 ): BallotPageMetadata {
+  if (isBase64(text)) {
+    return fromBytes(election, Buffer.from(text, 'base64'))
+  }
   return decodeSearchParams(new URL(text).searchParams)
 }
 
