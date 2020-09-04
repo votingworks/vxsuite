@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import DOMPurify from 'dompurify'
 import moment from 'moment'
 import 'moment/min/locales'
+import { fromByteArray } from 'base64-js'
 import { Handler, Previewer, registerHandlers } from 'pagedjs'
 import { TFunction, StringMap } from 'i18next'
 import { useTranslation, Trans } from 'react-i18next'
@@ -201,7 +202,10 @@ class PostRenderBallotProcessor extends Handler {
           ballotId,
         })
 
-        ReactDOM.render(<QRCode level="H" value={encoded} />, qrCodeTarget)
+        ReactDOM.render(
+          <QRCode level="L" value={fromByteArray(encoded)} />,
+          qrCodeTarget
+        )
       }
     })
   }
