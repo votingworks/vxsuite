@@ -148,14 +148,15 @@ it('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Print Test Decks'))
   getByText('Chester')
   getByText('District 5')
-  fireEvent.click(getByText('All Precincts'))
-  await screen.findByText('Generating Test Deck...')
+  fireEvent.click(getByText('District 5'))
 
   await screen.findByText('Print Test Deck')
   fireEvent.click(getByText('Print Test Deck'))
+  await screen.findByText('Printing Test Ballots for District 5', {
+    exact: false,
+  })
   expect(container).toMatchSnapshot()
 
-  await waitFor(() => getByText('Printing'))
   expect(mockKiosk.print).toHaveBeenCalledTimes(3)
 
   fireEvent.click(getByText('Tally'))
