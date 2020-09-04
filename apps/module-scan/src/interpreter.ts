@@ -122,6 +122,30 @@ interface BallotImageData {
   qrcode: Buffer
 }
 
+function isBase64(string: string): boolean {
+  return Buffer.from(string, 'base64').toString('base64') === string
+}
+
+function maybeDecodeBase64(data: Buffer): Buffer {
+  try {
+    if (typeof detect(data) !== 'undefined') {
+      // BMD ballot, leave it
+      return data
+    }
+
+    const base64string = new TextDecoder().decode(data)
+
+    if (!isBase64(base64string)) {
+      // not base64, leave it
+      return data
+    }
+    const decodedData = Buffer.from(base64string, 'base64')
+    return decodedData
+  } catch {
+    return data
+  }
+}
+
 async function getQRCode(
   encodedImageData: Buffer,
   decodedImageData: Buffer,
@@ -131,13 +155,13 @@ async function getQRCode(
   const [quircCode] = await quircDecode(encodedImageData)
 
   if (quircCode && 'data' in quircCode) {
-    return quircCode.data
+    return maybeDecodeBase64(quircCode.data)
   }
 
   const qrdetectCodes = qrdetect(decodedImageData, width, height)
 
   if (qrdetectCodes.length > 0) {
-    return qrdetectCodes[0].data
+    return maybeDecodeBase64(qrdetectCodes[0].data)
   }
 }
 

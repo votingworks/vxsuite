@@ -2,6 +2,8 @@ import { AdjudicationReason, electionSample } from '@votingworks/ballot-encoder'
 import { readFile } from 'fs-extra'
 import { join } from 'path'
 import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
+import choctaw2020SpecialElection from '../test/fixtures/choctaw-2020-09-22-02f807b005/election'
+import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-02f807b005/fixtures'
 import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
 import SummaryBallotInterpreter, {
   getBallotImageData,
@@ -12,6 +14,7 @@ import SummaryBallotInterpreter, {
 import { DefaultMarkThresholds } from './store'
 import { resultError, resultValue } from './types'
 import pdfToImages from './util/pdfToImages'
+import { metadataFromBytes } from '@votingworks/hmpb-interpreter'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 const stateOfHamiltonFixturesRoot = join(
@@ -92,6 +95,32 @@ test('extracts votes encoded in a QR code', async () => {
           },
         ],
       },
+    }
+  `)
+})
+
+test('can read metadata encoded in a QR code with base64', async () => {
+  const { qrcode } = resultValue(
+    await getBallotImageData(
+      await readFile(choctaw2020SpecialFixtures.blankPage1),
+      choctaw2020SpecialFixtures.blankPage1
+    )
+  )
+
+  expect(metadataFromBytes(choctaw2020SpecialElection, qrcode))
+    .toMatchInlineSnapshot(`
+    Object {
+      "ballotId": undefined,
+      "ballotStyleId": "1",
+      "ballotType": 0,
+      "electionHash": "02f807b005e006da160b",
+      "isTestMode": false,
+      "locales": Object {
+        "primary": "en-US",
+        "secondary": undefined,
+      },
+      "pageNumber": 1,
+      "precinctId": "6538",
     }
   `)
 })
