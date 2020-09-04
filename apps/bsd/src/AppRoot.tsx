@@ -76,6 +76,7 @@ const App: React.FC = () => {
         return newStatus
       })
     } catch (error) {
+      setIsScanning(false)
       console.log('failed updateStatus()', error) // eslint-disable-line no-console
     }
   }, [setStatus])
