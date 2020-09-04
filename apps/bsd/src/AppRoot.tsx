@@ -15,7 +15,7 @@ import {
 import Button from './components/Button'
 import Main, { MainChild } from './components/Main'
 import Screen from './components/Screen'
-import USBController from './components/USBController'
+import USBControllerButton from './components/USBControllerButton'
 import useInterval from './hooks/useInterval'
 
 import LoadElectionScreen from './screens/LoadElectionScreen'
@@ -311,7 +311,7 @@ const App: React.FC = () => {
               election={election}
               electionHash={electionHash}
             >
-              <USBController />
+              <USBControllerButton />
               <LinkButton small to="/advanced">
                 Advanced
               </LinkButton>

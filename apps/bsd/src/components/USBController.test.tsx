@@ -4,7 +4,7 @@ import React from 'react'
 
 import fakeKiosk from '../../test/helpers/fakeKiosk'
 import { isAvailable } from '../lib/usbstick'
-import USBController from './USBController'
+import USBControllerButton from './USBControllerButton'
 
 jest.mock('../lib/usbstick')
 
@@ -19,14 +19,14 @@ afterAll(() => {
 })
 
 test('shows nothing if no kiosk', () => {
-  const { container } = render(<USBController />)
+  const { container } = render(<USBControllerButton />)
 
   expect(container.firstChild).toMatchInlineSnapshot(`null`)
 })
 
 test('shows something if kiosk', () => {
   mocked(isAvailable).mockReturnValue(true)
-  const { container } = render(<USBController />)
+  const { container } = render(<USBControllerButton />)
 
   expect(container.firstChild!.firstChild).toMatchInlineSnapshot(`No USB`)
 })

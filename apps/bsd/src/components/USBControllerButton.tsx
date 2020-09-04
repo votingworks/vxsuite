@@ -1,9 +1,6 @@
 import React, { useState } from 'react'
-
 import useInterval from 'use-interval'
 
-import Button from './Button'
-import Text from './Text'
 import {
   isPresent,
   isMounted,
@@ -11,6 +8,8 @@ import {
   doUnmount,
   isAvailable,
 } from '../lib/usbstick'
+
+import Button from './Button'
 
 const USBController = () => {
   const available = isAvailable()
@@ -34,17 +33,31 @@ const USBController = () => {
   }
 
   if (!present) {
-    return <Text>No USB</Text>
+    return (
+      <Button
+        small
+        disabled
+        onPress={() => {
+          console.log('No USB')
+        }}
+      >
+        No USB
+      </Button>
+    )
+  }
+
+  if (mounted) {
+    return (
+      <Button small onPress={doUnmount}>
+        Eject USB
+      </Button>
+    )
   }
 
   return (
-    <React.Fragment>
-      {mounted ? (
-        <Button onPress={doUnmount}>Eject USB</Button>
-      ) : (
-        <Button onPress={doMount}>Mount USB</Button>
-      )}
-    </React.Fragment>
+    <Button small onPress={doMount}>
+      Mount USB
+    </Button>
   )
 }
 
