@@ -108,8 +108,14 @@ const TallyReportScreen = () => {
   const generatedAt = localeLongDateAndTime.format(new Date())
 
   const saveAsPDF = async () => {
+    const precinctNameInFileName = precinctName || 'all-precincts'
     const data = await window.kiosk!.printToPDF()
-    const fileWriter = await window.kiosk!.saveAs()
+    const fileWriter = await window.kiosk!.saveAs({
+      defaultPath: `${`tabulation-report-${election.county.name}-${election.title}`
+        .replace(/[^a-z0-9]+/gi, '-')
+        .replace(/(^-|-$)+/g, '')
+        .toLocaleLowerCase()}-${precinctNameInFileName}.pdf`,
+    })
     if (!fileWriter) {
       window.alert(
         'Could not save PDF, it can only be saved to a USB device. (Or if "Cancel" was selected, ignore this message.)'
