@@ -8,8 +8,33 @@ import {
   election as binaryQRCodeElection,
   blankPage1 as binaryQRCodePage1,
 } from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
+import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-02f807b005'
 import { decodeSearchParams, detect } from './metadata'
 import { jsqr } from './utils/qrcode'
+
+test('read base64-encoded binary metadata from QR code image', async () => {
+  expect(
+    await detect(
+      choctaw2020Special.election,
+      await choctaw2020Special.blankPage1.imageData()
+    )
+  ).toEqual({
+    metadata: {
+      ballotId: undefined,
+      ballotStyleId: '1',
+      ballotType: 0,
+      electionHash: '02f807b005e006da160b',
+      isTestMode: false,
+      locales: {
+        primary: 'en-US',
+        secondary: undefined,
+      },
+      pageNumber: 1,
+      precinctId: '6538',
+    },
+    flipped: false,
+  })
+})
 
 test('read binary metadata from QR code image', async () => {
   expect(
