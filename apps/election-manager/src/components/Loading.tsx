@@ -12,7 +12,7 @@ const Fullscreen = styled.div`
 `
 
 interface Props {
-  children?: string
+  children?: string | string[]
   isFullscreen?: boolean
   as?: keyof JSX.IntrinsicElements
 }
