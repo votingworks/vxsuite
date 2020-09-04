@@ -12,6 +12,7 @@ interface Props {
   muted?: boolean
   narrow?: boolean
   small?: boolean
+  tiny?: boolean
   warning?: boolean
   warningIcon?: boolean
   wordBreak?: boolean
@@ -61,7 +62,8 @@ const Text = styled('p')<Props>`
       (muted && 'black') ||
       undefined};
   }
-  font-size: ${({ small }) => (small ? '0.8rem' : undefined)};
+  font-size: ${({ small, tiny }) =>
+    small ? '0.8rem' : tiny ? '0.65rem' : undefined};
   font-weight: ${({ bold }) => (bold ? '600' : undefined)};
   font-style: ${({ italic }) => (italic ? 'italic' : undefined)};
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};

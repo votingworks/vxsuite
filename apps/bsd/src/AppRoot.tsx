@@ -31,6 +31,7 @@ import download from './util/download'
 import { get as getConfig, patch as patchConfig } from './api/config'
 import LinkButton from './components/LinkButton'
 import MainNav from './components/MainNav'
+import StatusFooter from './components/StatusFooter'
 
 const App: React.FC = () => {
   const history = useHistory()
@@ -306,11 +307,7 @@ const App: React.FC = () => {
                 />
               </MainChild>
             </Main>
-            <MainNav
-              isTestMode={isTestMode}
-              election={election}
-              electionHash={electionHash}
-            >
+            <MainNav isTestMode={isTestMode}>
               <USBControllerButton />
               <LinkButton small to="/advanced">
                 Advanced
@@ -342,6 +339,7 @@ const App: React.FC = () => {
                 Scan New Batch
               </Button>
             </MainNav>
+            <StatusFooter election={election} electionHash={electionHash} />
           </Screen>
         </Route>
       </Switch>

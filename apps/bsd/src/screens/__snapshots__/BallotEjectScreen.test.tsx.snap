@@ -3,37 +3,41 @@
 exports[`renders properly 1`] = `
 <div>
   <div
-    class="sc-jTzLTM eOyjnu"
+    class="sc-VigVT djCdRx"
   >
     <div
-      class="sc-gzVnrw btDcsf"
+      class="sc-bZQynM cWyHmc"
     >
       <div
-        class="sc-htoDjs fdtLZY"
+        class="sc-gzVnrw iMtlFY"
       >
         <div
-          class="sc-dnqmqq kKbVPv"
+          class="sc-htoDjs fdtLZY"
         >
-          Voting
-          <span>
-            Works
-          </span>
+          <div
+            class="sc-dnqmqq kKbVPv"
+          >
+            Voting
+            <span>
+              Works
+            </span>
+          </div>
+          <div
+            class="sc-iwsKbI jQhHGA"
+          >
+            Ballot Scanner
+          </div>
         </div>
         <div
-          class="sc-iwsKbI jQhHGA"
+          class="sc-gZMcBi idZcZf"
         >
-          Ballot Scanner
+          <button
+            class="sc-ifAKCX pmhyu"
+            type="button"
+          >
+            Continue Scanning Batch
+          </button>
         </div>
-      </div>
-      <div
-        class="sc-gqjmRU etjyPA"
-      >
-        <button
-          class="sc-ifAKCX pmhyu"
-          type="button"
-        >
-          Continue Scanning Batch
-        </button>
       </div>
     </div>
     <main
@@ -43,7 +47,7 @@ exports[`renders properly 1`] = `
         class="sc-bwzfXH hLOwzs"
       >
         <div
-          class="sc-fjdhpX fgavdG"
+          class="sc-jTzLTM hwpJGC"
         >
           <div
             class="sc-htpNat eawaaV"
@@ -63,7 +67,7 @@ exports[`renders properly 1`] = `
             </p>
           </div>
           <div
-            class="sc-jzJRlG fqkwGB"
+            class="sc-fjdhpX YZBFj"
           >
             <div
               class="sc-htpNat fZPvKh"
