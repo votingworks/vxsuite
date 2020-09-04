@@ -3,105 +3,54 @@ import { useParams } from 'react-router-dom'
 import {
   Election,
   getPrecinctById,
-  Precinct,
   VotesDict,
 } from '@votingworks/ballot-encoder'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
 
-import PrintButton from '../components/PrintButton'
+import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
 import Prose from '../components/Prose'
+import Modal from '../components/Modal'
+import Loading from '../components/Loading'
 
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
-import { Dictionary, PrecinctReportScreenProps } from '../config/types'
+import { PrecinctReportScreenProps } from '../config/types'
+
+import sleep from '../utils/sleep'
 
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
+
+import { generateTestDeckBallots } from '../utils/election'
 
 interface GenerateTestDeckParams {
   election: Election
   precinctId?: string
 }
 
-const allPrecincts: Precinct = {
-  id: '',
-  name: 'All Precincts',
-}
-
 interface TestDeckBallotsParams {
   election: Election
   electionHash: string
-  precinct: Precinct
-  onAllRendered: () => void
+  precinctId: string
+  onAllRendered: (numBallots: number) => void
 }
 
 const TestDeckBallots = ({
   election,
   electionHash,
-  precinct,
+  precinctId,
   onAllRendered,
 }: TestDeckBallotsParams) => {
-  // generate the possibilities
-  const precinctIds: string[] = precinct.id
-    ? [precinct.id]
-    : election.precincts.map((p) => p.id)
-  const ballots: Dictionary<string | VotesDict>[] = []
-
-  precinctIds.forEach((precinctId) => {
-    const precinct = election.precincts.find((p) => p.id === precinctId)!
-    const precinctBallotStyles = election.ballotStyles.filter((bs) =>
-      bs.precincts.includes(precinct.id)
-    )
-
-    precinctBallotStyles.forEach((ballotStyle) => {
-      const contests = election.contests.filter(
-        (c) =>
-          ballotStyle.districts.includes(c.districtId) &&
-          ballotStyle.partyId === c.partyId
-      )
-
-      const numBallots = Math.max(
-        ...contests.map((c) =>
-          c.type === 'candidate' ? c.candidates.length : 2
-        )
-      )
-
-      for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
-        const votes: VotesDict = {}
-        contests.forEach((contest) => {
-          /* istanbul ignore else */
-          if (contest.type === 'yesno') {
-            votes[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no']
-          } else if (contest.type === 'ms-either-neither') {
-            votes[contest.eitherNeitherContestId] =
-              ballotNum % 2 === 0 ? ['yes'] : ['no']
-            votes[contest.pickOneContestId] =
-              ballotNum % 2 === 0 ? ['yes'] : ['no']
-          } else if (
-            contest.type === 'candidate' &&
-            contest.candidates.length > 0 // safety check
-          ) {
-            votes[contest.id] = [
-              contest.candidates[ballotNum % contest.candidates.length],
-            ]
-          }
-        })
-        ballots.push({
-          ballotStyleId: ballotStyle.id,
-          precinctId,
-          votes,
-        })
-      }
-    })
-  })
+  const ballots = generateTestDeckBallots({ election, precinctId })
+  console.log(ballots)
 
   let numRendered = 0
-  const onRendered = () => {
+  const onRendered = async () => {
     numRendered += 1
     if (numRendered === ballots.length) {
-      onAllRendered()
+      onAllRendered(ballots.length)
     }
   }
 
@@ -130,44 +79,105 @@ const TestDeckBallotsMemoized = React.memo(TestDeckBallots)
 const PrintTestDeckScreen = () => {
   const { electionDefinition } = useContext(AppContext)
   const { election, electionHash } = electionDefinition!
+  const [precinctIds, setPrecinctIds] = useState<string[]>([])
+  const [precinctIndex, setPrecinctIndex] = useState<number | undefined>(
+    undefined
+  )
+
   const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
   const precinctId = p.trim()
 
-  const [printEnabled, setPrintEnabled] = useState(false)
-
   const pageTitle = 'Test Deck'
-  const precinct =
+  const precinctName =
     precinctId === 'all'
-      ? allPrecincts
-      : getPrecinctById({ election, precinctId })
+      ? 'All'
+      : getPrecinctById({ election, precinctId })?.name
 
   useEffect(() => {
-    setPrintEnabled(false)
-  }, [precinctId])
+    if (precinctId) {
+      console.log('got precinctId', precinctId)
+      const precinctIds =
+        precinctId === 'all'
+          ? election.precincts.map((p) => p.id)
+          : [precinctId]
+      console.log('precinctIds are', precinctIds)
+      setPrecinctIds(precinctIds)
+    } else {
+      setPrecinctIds([])
+      setPrecinctIndex(undefined)
+    }
+  }, [precinctId, election.precincts])
 
-  const onAllRendered = useCallback(() => {
-    setPrintEnabled(true)
-  }, [])
+  const startPrint = async () => {
+    if (window.kiosk) {
+      const printers = await window.kiosk.getPrinterInfo()
+      if (printers.some((p) => p.connected)) {
+        setPrecinctIndex(0)
+      } else {
+        window.alert('please connect the printer.')
+      }
+    } else {
+      // plain browser
+      setPrecinctIndex(0)
+    }
+  }
 
-  if (precinct) {
+  const onAllRendered = useCallback(
+    async (pIndex, numBallots) => {
+      if (window.kiosk) {
+        await window.kiosk.print()
+      } else {
+        await window.print()
+      }
+
+      if (pIndex < precinctIds.length - 1) {
+        // wait 5s per ballot printed
+        // that's how long printing takes in duplex, no reason to get ahead of it.
+        await sleep(numBallots * 5000)
+        setPrecinctIndex(pIndex + 1)
+      } else {
+        await sleep(3000)
+        setPrecinctIndex(undefined)
+      }
+    },
+    [setPrecinctIndex, precinctIds]
+  )
+
+  const currentPrecinct =
+    precinctIndex === undefined
+      ? undefined
+      : getPrecinctById({ election, precinctId: precinctIds[precinctIndex] })
+
+  if (precinctIds.length > 0) {
     return (
       <React.Fragment>
+        {precinctIndex !== undefined && currentPrecinct && (
+          <Modal
+            isOpen
+            centerContent
+            content={
+              <Prose>
+                <Loading as="h2">
+                  Printing Test Ballots for {currentPrecinct.name} (#
+                  {(precinctIndex + 1).toString()} of{' '}
+                  {precinctIds.length.toString()})
+                </Loading>
+              </Prose>
+            }
+          />
+        )}
         <NavigationScreen>
           <Prose>
             <h1>{pageTitle}</h1>
             <p>
               <strong>Election:</strong> {election.title}
               <br />
-              <strong>Precinct:</strong> {precinct.name}
+              <strong>Precinct:</strong> {precinctName}
             </p>
             <p>
-              {printEnabled ? (
-                <PrintButton primary>Print Test Deck</PrintButton>
-              ) : (
-                <PrintButton primary disabled>
-                  Generating Test Deck...
-                </PrintButton>
-              )}
+              <Button onPress={startPrint} primary>
+                Print Test Deck
+              </Button>
             </p>
             <p>
               <LinkButton small to={routerPaths.printTestDecks}>
@@ -176,12 +186,16 @@ const PrintTestDeckScreen = () => {
             </p>
           </Prose>
         </NavigationScreen>
-        <TestDeckBallotsMemoized
-          election={election}
-          electionHash={electionHash}
-          precinct={precinct}
-          onAllRendered={onAllRendered}
-        />
+        {precinctIndex !== undefined && (
+          <TestDeckBallotsMemoized
+            election={election}
+            electionHash={electionHash}
+            precinctId={precinctIds[precinctIndex]}
+            onAllRendered={(numBallots) =>
+              onAllRendered(precinctIndex, numBallots)
+            }
+          />
+        )}
       </React.Fragment>
     )
   }
