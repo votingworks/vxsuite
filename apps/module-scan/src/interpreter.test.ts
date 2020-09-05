@@ -2835,7 +2835,43 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
       height: 1584,
       width: 1224,
     },
-    marks: [],
+    marks: [
+      {
+        type: 'candidate',
+        bounds: {
+          height: 20,
+          width: 31,
+          x: 451,
+          y: 645,
+        },
+        contest: {
+          id: 'contest-id',
+          type: 'candidate',
+          candidates: [],
+          seats: 1,
+          allowWriteIns: true,
+          districtId: 'foo',
+          section: 'section',
+          title: 'contest title',
+        },
+        target: {
+          bounds: {
+            height: 20,
+            width: 31,
+            x: 451,
+            y: 645,
+          },
+          inner: {
+            height: 16,
+            width: 27,
+            x: 453,
+            y: 647,
+          },
+        },
+        option: { id: '42', name: 'the meaning of life' },
+        score: 0.8,
+      },
+    ],
   },
   votes: {},
   adjudicationInfo: {
@@ -2850,6 +2886,14 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
       ...pageInterpretationBoilerplate.adjudicationInfo,
+      allReasonInfos: [
+        {
+          type: AdjudicationReason.Overvote,
+          contestId: '42',
+          optionIds: ['27', '28'],
+          expected: 1,
+        },
+      ],
       requiresAdjudication: true,
     },
   }

@@ -234,36 +234,38 @@ export async function getBallotImageData(
 export function sheetRequiresAdjudication([front, back]: SheetOf<
   PageInterpretation
 >): boolean {
-  const [frontRequiresAdjudication, backRequiresAdjudication] = [
-    front,
-    back,
-  ].map(
+  const [
+    frontRequiresAdjudicationNonBlank,
+    backRequiresAdjudicationNonBlank,
+  ] = [front, back].map(
     (pi) =>
       pi.type === 'UninterpretedHmpbPage' ||
       pi.type === 'UnreadablePage' ||
       pi.type === 'InvalidTestModePage' ||
       (pi.type === 'InterpretedHmpbPage' &&
-        pi.adjudicationInfo.requiresAdjudication)
+        pi.adjudicationInfo.requiresAdjudication &&
+        !pi.adjudicationInfo.allReasonInfos.some(
+          (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
+        ))
   )
+
+  // non-blank adjudication reasons are "dominant" traits: one page triggers adjudication
+  if (frontRequiresAdjudicationNonBlank || backRequiresAdjudicationNonBlank) {
+    return true
+  }
 
   const [frontIsBlankHmpbPage, backIsBlankHmpbPage] = [front, back].map(
     (pi) =>
       pi.type === 'InterpretedHmpbPage' &&
-      pi.adjudicationInfo.requiresAdjudication &&
-      pi.adjudicationInfo.allReasonInfos.some(
-        (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
-      )
+      (pi.markInfo.marks.length === 0 || // no potential marks == automatic blank
+        (pi.adjudicationInfo.requiresAdjudication &&
+          pi.adjudicationInfo.allReasonInfos.some(
+            (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
+          )))
   )
 
-  // if it's an HMPB with only one side blank, it doesn't require adjudication
-  if (
-    (frontIsBlankHmpbPage || backIsBlankHmpbPage) &&
-    !(frontIsBlankHmpbPage && backIsBlankHmpbPage)
-  ) {
-    return false
-  }
-
-  return frontRequiresAdjudication || backRequiresAdjudication
+  // blank-page adjudication is a "recessive" trait: both pages need to be blank to trigger
+  return frontIsBlankHmpbPage && backIsBlankHmpbPage
 }
 
 export default class SummaryBallotInterpreter implements Interpreter {
