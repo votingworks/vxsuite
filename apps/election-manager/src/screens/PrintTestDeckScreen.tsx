@@ -44,7 +44,6 @@ const TestDeckBallots = ({
   onAllRendered,
 }: TestDeckBallotsParams) => {
   const ballots = generateTestDeckBallots({ election, precinctId })
-  console.log(ballots)
 
   let numRendered = 0
   const onRendered = async () => {
@@ -90,17 +89,15 @@ const PrintTestDeckScreen = () => {
   const pageTitle = 'Test Deck'
   const precinctName =
     precinctId === 'all'
-      ? 'All'
+      ? 'All Precincts'
       : getPrecinctById({ election, precinctId })?.name
 
   useEffect(() => {
     if (precinctId) {
-      console.log('got precinctId', precinctId)
       const precinctIds =
         precinctId === 'all'
           ? election.precincts.map((p) => p.id)
           : [precinctId]
-      console.log('precinctIds are', precinctIds)
       setPrecinctIds(precinctIds)
     } else {
       setPrecinctIds([])
@@ -117,7 +114,6 @@ const PrintTestDeckScreen = () => {
         window.alert('please connect the printer.')
       }
     } else {
-      // plain browser
       setPrecinctIndex(0)
     }
   }
@@ -156,13 +152,13 @@ const PrintTestDeckScreen = () => {
             isOpen
             centerContent
             content={
-              <Prose>
-                <Loading as="h2">
-                  Printing Test Ballots for {currentPrecinct.name} (#
-                  {(precinctIndex + 1).toString()} of{' '}
-                  {precinctIds.length.toString()})
-                </Loading>
-              </Prose>
+              <Loading as="p">
+                Printing Test Deck
+                {precinctIds.length > 1
+                  ? ` (${precinctIndex + 1} of ${precinctIds.length})`
+                  : ''}
+                : {currentPrecinct.name}
+              </Loading>
             }
           />
         )}
