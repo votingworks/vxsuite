@@ -208,14 +208,25 @@ const App: React.FC = () => {
   }, [history, isTestMode, refreshConfig])
 
   const exportResults = useCallback(async () => {
+    if (!election) {
+      return
+    }
+
     try {
       const response = await fetch(`/scan/export`, {
         method: 'post',
       })
       const blob = await response.blob()
 
+      const cvrFilename = `${`cvrs-${election.county.name}-${election.title}`
+        .replace(/[^a-z0-9]+/gi, '-')
+        .replace(/(^-|-$)+/g, '')
+        .toLocaleLowerCase()}.jsonl`
+
       if (window.kiosk) {
-        const fileWriter = await window.kiosk.saveAs()
+        const fileWriter = await window.kiosk.saveAs({
+          defaultPath: cvrFilename,
+        })
 
         if (!fileWriter) {
           throw new Error('could not begin download; no file was chosen')
@@ -224,12 +235,12 @@ const App: React.FC = () => {
         await fileWriter.write(await blob.text())
         await fileWriter.end()
       } else {
-        fileDownload(blob, 'vx-results.csv', 'text/csv')
+        fileDownload(blob, cvrFilename, 'application/x-jsonlines')
       }
     } catch (error) {
       console.log('failed getOutputFile()', error) // eslint-disable-line no-console
     }
-  }, [])
+  }, [election])
 
   const deleteBatch = useCallback(
     async (id: number) => {
