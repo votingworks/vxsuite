@@ -25,13 +25,13 @@ const StatusFooter = ({ election, electionHash }: Props) => {
   return (
     <StatusBar>
       {election && (
-        <Text tiny white center as="div">
+        <Text small white center as="div">
           <strong>{election.title}</strong> — {electionDate} —{' '}
           {election.county.name}, {election.state}
         </Text>
       )}
       {electionHash && (
-        <Text tiny white center as="div">
+        <Text small white center as="div">
           Election Hash: <strong>{electionHash.slice(0, 10)}</strong>
         </Text>
       )}
