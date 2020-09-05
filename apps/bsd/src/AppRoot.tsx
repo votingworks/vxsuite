@@ -155,11 +155,18 @@ const App: React.FC = () => {
     }
   }, [])
 
-  const scanContinue = useCallback(async () => {
+  const continueScanning = useCallback(async (override = false) => {
     setIsScanning(true)
     try {
       await fetch('/scan/scanContinue', {
         method: 'post',
+        body: override
+          ? (() => {
+              const data = new URLSearchParams()
+              data.append('override', '1')
+              return data
+            })()
+          : undefined,
       })
     } catch (error) {
       console.log('failed handleFileInput()', error) // eslint-disable-line no-console
@@ -273,8 +280,6 @@ const App: React.FC = () => {
   useEffect(() => {
     updateStatus()
   }, [updateStatus])
-
-  const continueScanning = scanContinue
 
   if (election) {
     if (adjudication.remaining > 0) {

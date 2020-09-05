@@ -33,5 +33,10 @@ test('renders properly', async () => {
   expect(container).toMatchSnapshot()
 
   fireEvent.click(getByText!('Continue Scanning Batch'))
-  expect(continueScanning).toHaveBeenCalledTimes(1)
+  expect(continueScanning).toHaveBeenCalledWith()
+
+  continueScanning.mockClear()
+
+  fireEvent.click(getByText!('Override'))
+  expect(continueScanning).toHaveBeenCalledWith(true)
 })

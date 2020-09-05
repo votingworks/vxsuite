@@ -35,6 +35,12 @@ exports[`renders properly 1`] = `
             class="sc-ifAKCX pmhyu"
             type="button"
           >
+            Override
+          </button>
+          <button
+            class="sc-ifAKCX pmhyu"
+            type="button"
+          >
             Continue Scanning Batch
           </button>
         </div>

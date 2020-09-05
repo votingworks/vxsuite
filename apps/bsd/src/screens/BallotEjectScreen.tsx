@@ -41,7 +41,7 @@ const RectoVerso = styled.div`
 `
 
 interface Props {
-  continueScanning: () => void
+  continueScanning: (override?: boolean) => void
 }
 
 const BallotEjectScreen = ({ continueScanning }: Props) => {
@@ -60,7 +60,10 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
   return (
     <Screen>
       <MainNav>
-        <Button small onPress={continueScanning}>
+        <Button small onPress={() => continueScanning(true)}>
+          Override
+        </Button>
+        <Button small onPress={() => continueScanning()}>
           Continue Scanning Batch
         </Button>
       </MainNav>
