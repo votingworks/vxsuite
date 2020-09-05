@@ -28,6 +28,8 @@ const choctaw2020FixturesRoot = join(
   'test/fixtures/2020-choctaw'
 )
 
+jest.setTimeout(10000)
+
 test('reads QR codes from ballot images #1', async () => {
   const filepath = join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg')
   const { qrcode } = resultValue(
@@ -1645,8 +1647,6 @@ test('interprets marks on an upside-down HMPB', async () => {
 })
 
 test('interprets marks in PNG ballots', async () => {
-  jest.setTimeout(10000)
-
   const interpreter = new SummaryBallotInterpreter()
 
   interpreter.setTestMode(false)

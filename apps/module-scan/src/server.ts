@@ -5,6 +5,7 @@
 
 import { BallotType, Election } from '@votingworks/ballot-encoder'
 import express, { Application, RequestHandler } from 'express'
+import bodyParser from 'body-parser'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
 import * as path from 'path'
@@ -46,6 +47,8 @@ export function buildApp({ store, importer }: AppOptions): Application {
   const upload = multer({ storage: multer.diskStorage({}) })
 
   app.use(express.json())
+
+  app.use(bodyParser.urlencoded({ extended: false }))
 
   app.get('/config', async (_request, response) => {
     response.json({
@@ -131,9 +134,9 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
-  app.post('/scan/scanContinue', async (_request, response) => {
+  app.post('/scan/scanContinue', async (request, response) => {
     try {
-      await importer.continueImport()
+      await importer.continueImport(!!request.body.override)
       response.json({ status: 'ok' })
     } catch (err) {
       response.json({ status: `could not continue scan: ${err.message}` })

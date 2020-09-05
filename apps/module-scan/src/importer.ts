@@ -12,6 +12,7 @@ import {
   ScanStatus,
   SheetOf,
   ElectionDefinition,
+  Side,
 } from './types'
 import Store from './store'
 import DefaultInterpreter, {
@@ -42,7 +43,7 @@ export interface Importer {
   configure(electionDefinition: ElectionDefinition): Promise<void>
   doExport(): Promise<string>
   startImport(): Promise<string>
-  continueImport(): Promise<void>
+  continueImport(override?: boolean): Promise<void>
   waitForEndOfBatchOrScanningPause(): Promise<void>
   doZero(): Promise<void>
   importFile(
@@ -420,13 +421,23 @@ export default class SystemImporter implements Importer {
   /**
    * Continue the existing scanning process
    */
-  public async continueImport(): Promise<void> {
+  public async continueImport(override = false): Promise<void> {
     if (this.sheetGenerator && this.batchId) {
       // if there was a ballot to adjudicate, remove it.
       const reviewBallot = await this.store.getNextReviewBallot()
 
       if (reviewBallot?.ballot) {
-        await this.store.deleteSheet(reviewBallot.ballot.id)
+        if (override) {
+          for (const side of ['front', 'back'] as Side[]) {
+            await this.store.saveBallotAdjudication(
+              reviewBallot.ballot.id,
+              side,
+              {}
+            )
+          }
+        } else {
+          await this.store.deleteSheet(reviewBallot.ballot.id)
+        }
       }
 
       this.scanOneSheet().catch((err) => {

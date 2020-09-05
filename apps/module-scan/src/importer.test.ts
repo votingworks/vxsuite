@@ -32,6 +32,7 @@ beforeEach(() => {
 
 afterEach(() => {
   importDirs.remove()
+  jest.restoreAllMocks()
 })
 
 jest.setTimeout(10000)
@@ -316,6 +317,24 @@ test('scanning pauses on adjudication then continues', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
+  const mockGetNextReviewBallot = async (): Promise<
+    ReviewUninterpretableHmpbBallot
+  > => {
+    return {
+      type: 'ReviewUninterpretableHmpbBallot',
+      contests: [],
+      ballot: {
+        id: 'mock-sheet-id',
+        url: '/mock/url',
+        image: {
+          url: '/mock/image/url',
+          width: 100,
+          height: 200,
+        },
+      },
+    }
+  }
+
   const store = await Store.memoryStore()
 
   const importer = new SystemImporter({
@@ -327,6 +346,7 @@ test('scanning pauses on adjudication then continues', async () => {
   await importer.configure(fromElection(election))
 
   jest.spyOn(store, 'deleteSheet')
+  jest.spyOn(store, 'saveBallotAdjudication')
 
   jest
     .spyOn(store, 'addSheet')
@@ -340,6 +360,9 @@ test('scanning pauses on adjudication then continues', async () => {
       return 'sheet-2'
     })
     .mockImplementationOnce(async () => {
+      jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
+        return { adjudicated: 0, remaining: 1 }
+      })
       return 'sheet-3'
     })
 
@@ -371,31 +394,34 @@ test('scanning pauses on adjudication then continues', async () => {
   await sleep(1)
   expect(store.addSheet).toHaveBeenCalledTimes(2)
 
+  expect(store.deleteSheet).toHaveBeenCalledTimes(0)
+
+  jest
+    .spyOn(store, 'getNextReviewBallot')
+    .mockImplementationOnce(mockGetNextReviewBallot)
+
   jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
     return { adjudicated: 0, remaining: 0 }
   })
-
-  jest.spyOn(store, 'getNextReviewBallot').mockImplementationOnce(async () => {
-    return {
-      type: 'ReviewUninterpretableHmpbBallot',
-      contests: [],
-      ballot: {
-        id: 'mock-sheet-id',
-        url: '/mock/url',
-        image: {
-          url: '/mock/image/url',
-          width: 100,
-          height: 200,
-        },
-      },
-    } as ReviewUninterpretableHmpbBallot
-  })
-
-  expect(store.deleteSheet).toHaveBeenCalledTimes(0)
 
   await importer.continueImport()
   await importer.waitForEndOfBatchOrScanningPause()
 
   expect(store.addSheet).toHaveBeenCalledTimes(3)
   expect(store.deleteSheet).toHaveBeenCalledTimes(1)
+
+  jest
+    .spyOn(store, 'getNextReviewBallot')
+    .mockImplementationOnce(mockGetNextReviewBallot)
+
+  jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
+    return { adjudicated: 0, remaining: 0 }
+  })
+
+  await importer.continueImport(true) // override
+  await importer.waitForEndOfBatchOrScanningPause()
+
+  expect(store.addSheet).toHaveBeenCalledTimes(3) // no more of these
+  expect(store.deleteSheet).toHaveBeenCalledTimes(1) // no more deletes
+  expect(store.saveBallotAdjudication).toHaveBeenCalledTimes(2)
 })
