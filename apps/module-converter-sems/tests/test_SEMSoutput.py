@@ -22,7 +22,7 @@ TESTS = [
         'election': '10_8-26-2020-expected-election.json',
         'cvrs': '10_8-26-2020-b-cvrs.txt',
         'sems': '10_8-26-2020-b-expected-sems-output.txt',
-    }            
+    }
 ]
 
 def get_sample_file(filename):
@@ -30,11 +30,12 @@ def get_sample_file(filename):
 
 def test_general_results():
     for test in TESTS:
+        print("testing", test)
         result = process_results_file(
             get_sample_file(test['election']),
             get_sample_file(test['cvrs']))
 
-    expected_result_file = open(get_sample_file(test['sems']), "rb")
-    expected_result = expected_result_file.read()
-
-    assert result.encode('utf-8') == expected_result
+        expected_result_file = open(get_sample_file(test['sems']), "rb")
+        expected_result = expected_result_file.read()
+        
+        assert result.encode('utf-8') == expected_result
