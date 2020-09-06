@@ -16,7 +16,8 @@ import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
 import pdfToImages from './util/pdfToImages'
-import { SheetOf, ReviewUninterpretableHmpbBallot } from './types'
+import { SheetOf } from './types'
+import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { fromElection } from './util/electionDefinition'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
@@ -317,19 +318,17 @@ test('scanning pauses on adjudication then continues', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const mockGetNextReviewBallot = async (): Promise<
-    ReviewUninterpretableHmpbBallot
-  > => {
+  const mockGetNextAdjudicationSheet = async (): Promise<BallotSheetInfo> => {
     return {
-      type: 'ReviewUninterpretableHmpbBallot',
-      contests: [],
-      ballot: {
-        id: 'mock-sheet-id',
-        url: '/mock/url',
+      id: 'mock-sheet-id',
+      front: {
         image: {
-          url: '/mock/image/url',
-          width: 100,
-          height: 200,
+          url: '/url/front',
+        },
+      },
+      back: {
+        image: {
+          url: '/url/back',
         },
       },
     }
@@ -397,8 +396,8 @@ test('scanning pauses on adjudication then continues', async () => {
   expect(store.deleteSheet).toHaveBeenCalledTimes(0)
 
   jest
-    .spyOn(store, 'getNextReviewBallot')
-    .mockImplementationOnce(mockGetNextReviewBallot)
+    .spyOn(store, 'getNextAdjudicationSheet')
+    .mockImplementationOnce(mockGetNextAdjudicationSheet)
 
   jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
     return { adjudicated: 0, remaining: 0 }
@@ -411,8 +410,8 @@ test('scanning pauses on adjudication then continues', async () => {
   expect(store.deleteSheet).toHaveBeenCalledTimes(1)
 
   jest
-    .spyOn(store, 'getNextReviewBallot')
-    .mockImplementationOnce(mockGetNextReviewBallot)
+    .spyOn(store, 'getNextAdjudicationSheet')
+    .mockImplementationOnce(mockGetNextAdjudicationSheet)
 
   jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
     return { adjudicated: 0, remaining: 0 }

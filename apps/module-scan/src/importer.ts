@@ -423,20 +423,15 @@ export default class SystemImporter implements Importer {
    */
   public async continueImport(override = false): Promise<void> {
     if (this.sheetGenerator && this.batchId) {
-      // if there was a ballot to adjudicate, remove it.
-      const reviewBallot = await this.store.getNextReviewBallot()
+      const sheet = await this.store.getNextAdjudicationSheet()
 
-      if (reviewBallot?.ballot) {
+      if (sheet) {
         if (override) {
           for (const side of ['front', 'back'] as Side[]) {
-            await this.store.saveBallotAdjudication(
-              reviewBallot.ballot.id,
-              side,
-              {}
-            )
+            await this.store.saveBallotAdjudication(sheet.id, side, {})
           }
         } else {
-          await this.store.deleteSheet(reviewBallot.ballot.id)
+          await this.store.deleteSheet(sheet.id)
         }
       }
 

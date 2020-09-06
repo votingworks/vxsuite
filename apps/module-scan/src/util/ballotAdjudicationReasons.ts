@@ -55,6 +55,23 @@ export interface Options {
   ) => MarkStatus
 }
 
+// these data structures live here until we can refactor the code
+// to be more sheet-oriented and then place them where they belong.
+interface ImageInfo {
+  url: string
+}
+
+interface BallotPageInfo {
+  image: ImageInfo
+}
+
+export interface BallotSheetInfo {
+  id: string
+  front: BallotPageInfo
+  back: BallotPageInfo
+  adjudicationReason?: AdjudicationReason
+}
+
 /**
  * Enumerates all the reasons a series of contests might need adjudication.
  * Callers must provide a function that can get the mark status for any contest

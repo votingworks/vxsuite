@@ -47,6 +47,7 @@ import {
   MarksByContestId,
   ReviewBallot,
 } from './types/ballot-review'
+import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import allContestOptions from './util/allContestOptions'
 import getBallotPageContests from './util/getBallotPageContests'
 import { changesFromMarks, mergeChanges } from './util/marks'
@@ -720,6 +721,45 @@ export default class Store {
     if (row) {
       debug('got next review ballot requiring adjudication (id=%s)', row.id)
       return this.getPage(row.id, row.front ? 'front' : 'back')
+    } else {
+      debug('no review sheets requiring adjudication')
+    }
+  }
+
+  public async getNextAdjudicationSheet(): Promise<
+    BallotSheetInfo | undefined
+  > {
+    const row = await this.dbGetAsync<{ id: string } | undefined>(
+      `
+      select
+        id
+      from sheets
+      where
+        requires_adjudication = 1 and
+        (front_finished_adjudication_at is null or back_finished_adjudication_at is null) and
+        deleted_at is null
+      order by created_at asc
+      limit 1
+      `
+    )
+
+    // TODO: these URLs and others in this file probably don't belong
+    //       in this file, which shouldn't deal with the URL API.
+    if (row) {
+      debug('got next review sheet requiring adjudication (id=%s)', row.id)
+      return {
+        id: row.id,
+        front: {
+          image: {
+            url: `/scan/hmpb/ballot/${row.id}/front/image/normalized`,
+          },
+        },
+        back: {
+          image: {
+            url: `/scan/hmpb/ballot/${row.id}/back/image/normalized`,
+          },
+        },
+      }
     } else {
       debug('no review sheets requiring adjudication')
     }

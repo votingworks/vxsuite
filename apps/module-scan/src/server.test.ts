@@ -703,33 +703,36 @@ test('start reloads configuration from the store', async () => {
 })
 
 test('get next sheet', async () => {
-  jest.spyOn(store, 'getNextReviewBallot').mockImplementationOnce(async () => {
-    return {
-      type: 'ReviewUninterpretableHmpbBallot',
-      ballot: {
-        id: 'mock-review-ballot',
-        url: '/foo/bar',
-        image: {
-          url: '/foo/bar/image',
-          width: 100,
-          height: 200,
+  jest
+    .spyOn(store, 'getNextAdjudicationSheet')
+    .mockImplementationOnce(async () => {
+      return {
+        id: 'mock-review-sheet',
+        front: {
+          image: {
+            url: '/url/front',
+          },
         },
-      },
-      contests: [],
-    }
-  })
+        back: {
+          image: {
+            url: '/url/back',
+          },
+        },
+      }
+    })
 
   await request(app)
     .get(`/scan/hmpb/review/next-sheet`)
     .expect(200, {
+      id: 'mock-review-sheet',
       front: {
         image: {
-          url: '/scan/hmpb/ballot/mock-review-ballot/front/image/normalized',
+          url: '/url/front',
         },
       },
       back: {
         image: {
-          url: '/scan/hmpb/ballot/mock-review-ballot/back/image/normalized',
+          url: '/url/back',
         },
       },
     })

@@ -23,21 +23,6 @@ export interface AppOptions {
   importer: Importer
 }
 
-// these data structures live here until we can refactor the code
-// to be more sheet-oriented and then place them where they belong.
-interface ImageInfo {
-  url: string
-}
-
-interface BallotPageInfo {
-  image: ImageInfo
-}
-
-interface BallotSheetInfo {
-  front: BallotPageInfo
-  back: BallotPageInfo
-}
-
 /**
  * Builds an express application, using `store` and `importer` to do the heavy
  * lifting.
@@ -389,23 +374,10 @@ export function buildApp({ store, importer }: AppOptions): Application {
   })
 
   app.get('/scan/hmpb/review/next-sheet', async (_request, response) => {
-    const ballot = await store.getNextReviewBallot()
+    const sheet = await store.getNextAdjudicationSheet()
 
-    if (ballot) {
-      const sheetInfo: BallotSheetInfo = {
-        front: {
-          image: {
-            url: `/scan/hmpb/ballot/${ballot.ballot.id}/front/image/normalized`,
-          },
-        },
-        back: {
-          image: {
-            url: `/scan/hmpb/ballot/${ballot.ballot.id}/back/image/normalized`,
-          },
-        },
-      }
-
-      response.json(sheetInfo)
+    if (sheet) {
+      response.json(sheet)
     } else {
       response.status(404).end()
     }
