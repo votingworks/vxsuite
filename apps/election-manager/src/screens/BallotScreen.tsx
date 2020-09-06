@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components'
+import DOMPurify from 'dompurify'
 import {
   getBallotStyle,
   getContests,
@@ -19,7 +20,7 @@ import AppContext from '../contexts/AppContext'
 import Button, { SegmentedButton } from '../components/Button'
 import PrintButton from '../components/PrintButton'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
-import { Monospace } from '../components/Text'
+import Text, { Monospace } from '../components/Text'
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
 import NavigationScreen from '../components/NavigationScreen'
 import HorizontalRule from '../components/HorizontalRule'
@@ -200,12 +201,41 @@ const BallotScreen = () => {
                   <li key={candidate.id}>{candidate.name}</li>
                 ))}
               </ul>
-            ) : (
-              <ul>
-                <li>Yes</li>
-                <li>No</li>
-              </ul>
-            )}
+            ) : null}
+            {contest.type === 'yesno' ? (
+              <React.Fragment>
+                <Text
+                  preLine
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(contest.description),
+                  }}
+                />
+                <ul>
+                  <li>Yes</li>
+                  <li>No</li>
+                </ul>
+              </React.Fragment>
+            ) : null}
+            {contest.type === 'ms-either-neither' ? (
+              <React.Fragment>
+                <Text
+                  preLine
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(contest.description),
+                  }}
+                />
+                <Text>{contest.eitherNeitherLabel}</Text>
+                <ul>
+                  <li>{contest.eitherOption.label}</li>
+                  <li>{contest.neitherOption.label}</li>
+                </ul>
+                <Text>{contest.pickOneLabel}</Text>
+                <ul>
+                  <li>{contest.firstOption.label}</li>
+                  <li>{contest.secondOption.label}</li>
+                </ul>
+              </React.Fragment>
+            ) : null}
           </React.Fragment>
         ))}
         <HorizontalRule />
