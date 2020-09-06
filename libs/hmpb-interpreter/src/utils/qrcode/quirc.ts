@@ -1,6 +1,5 @@
 import { createCanvas } from 'canvas'
 import makeDebug from 'debug'
-import * as quirc from 'node-quirc'
 import { DetectQRCodeResult } from '../../types'
 import { withCropping } from './withCropping'
 
@@ -36,6 +35,7 @@ export async function detect(
 
   // Unfortunately, quirc requires either JPEG or PNG encoded images and can't
   // handle raw bitmaps.
+  const quirc = await import('node-quirc')
   const result = await quirc.decode(toPNGData(imageData))
 
   for (const symbol of result) {
