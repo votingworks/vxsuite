@@ -132,3 +132,36 @@ test('records identical uploaded files', async () => {
   ])
   expect(added.lastError).toBeUndefined()
 })
+
+test('refuses to tabulate both live and test CVRs', async () => {
+  const cvr: CastVoteRecord = {
+    _ballotId: 'abc',
+    _ballotStyleId: '12',
+    _precinctId: '23',
+    _testBallot: false,
+    _scannerId: 'abc',
+  }
+
+  const otherCvr = {
+    ...cvr,
+    _testBallot: true,
+  }
+
+  const added = await CastVoteRecordFiles.empty.addAll(
+    [
+      new File([JSON.stringify(cvr)], 'cvrs.txt'),
+      new File([JSON.stringify(otherCvr)], 'cvrs2.txt'),
+    ],
+    electionSample
+  )
+
+  expect(added.castVoteRecords).toEqual([[cvr]])
+  expect(added.fileList).toEqual([
+    { name: 'cvrs.txt', count: 1, precinctIds: ['23'] },
+  ])
+  expect(added.lastError).toEqual({
+    filename: 'cvrs2.txt',
+    message:
+      'These CVRs cannot be tabulated together because they mix live and test ballots',
+  })
+})
