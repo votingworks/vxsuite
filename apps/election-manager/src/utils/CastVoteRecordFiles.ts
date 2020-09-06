@@ -50,6 +50,23 @@ function mapAdd<K, V>(
   return result
 }
 
+function mixedTestModeCVRs(castVoteRecords: CastVoteRecord[][]) {
+  let liveSeen = false
+  let testSeen = false
+  for (const cvrs of castVoteRecords) {
+    for (const cvr of cvrs) {
+      liveSeen = liveSeen || !cvr._testBallot
+      testSeen = testSeen || cvr._testBallot
+
+      if (liveSeen && testSeen) {
+        return true
+      }
+    }
+  }
+
+  return false
+}
+
 /**
  * Tracks files containing cast vote records (CVRs). Has special handling for
  * duplicate files, files that fail to parse as CVRs, etc.
@@ -200,6 +217,17 @@ export default class CastVoteRecordFiles {
         fileCastVoteRecords.map((cvr) => cvr._precinctId)
       )
 
+      const newCastVoteRecords = [
+        ...this.allCastVoteRecords,
+        fileCastVoteRecords,
+      ]
+
+      if (mixedTestModeCVRs(newCastVoteRecords)) {
+        throw new Error(
+          'These CVRs cannot be tabulated together because they mix live and test ballots'
+        )
+      }
+
       return new CastVoteRecordFiles(
         setAdd(this.signatures, signature),
         setAdd(this.files, {
@@ -209,7 +237,7 @@ export default class CastVoteRecordFiles {
         }),
         this.duplicateFilenames,
         this.parseFailedErrors,
-        [...this.allCastVoteRecords, fileCastVoteRecords]
+        newCastVoteRecords
       )
     } catch (error) {
       return new CastVoteRecordFiles(
