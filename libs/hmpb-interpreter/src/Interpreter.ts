@@ -671,17 +671,29 @@ export default class Interpreter {
     fromPoints: Point[],
     toPoints: Point[]
   ): ImageData {
-    const homography = new jsfeat.motion_model.homography2d()
-    const transform = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t)
-
-    homography.run(toPoints, fromPoints, transform, toPoints.length)
-
     const mappedImage = new jsfeat.matrix_t(
       mappedSize.width,
       mappedSize.height,
       jsfeat.U8C1_t
     )
-    jsfeat.imgproc.warp_perspective(imageMat, mappedImage, transform, 255)
+
+    if (fromPoints.length === 0) {
+      // Nothing to guide mapping, so all we actually want to do is resize.
+      // Note also that jsfeat generates a blank image if we try to do a warp
+      // perspective with a homography containing no points.
+      jsfeat.imgproc.resample(
+        imageMat,
+        mappedImage,
+        mappedSize.width,
+        mappedSize.height
+      )
+    } else {
+      const homography = new jsfeat.motion_model.homography2d()
+      const transform = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t)
+
+      homography.run(toPoints, fromPoints, transform, toPoints.length)
+      jsfeat.imgproc.warp_perspective(imageMat, mappedImage, transform, 255)
+    }
 
     return matToImageData(mappedImage)
   }

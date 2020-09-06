@@ -10,6 +10,7 @@ import * as hamilton from '../test/fixtures/election-5c6e578acf-state-of-hamilto
 import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-general-2019'
 import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020'
 import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
+import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-02f807b005'
 import Interpreter from './Interpreter'
 import { DetectQRCodeResult, BallotTargetMark } from './types'
 import { BallotType } from '@votingworks/ballot-encoder'
@@ -3467,4 +3468,27 @@ test('choctaw 2020 general', async () => {
       },
     ]
   `)
+})
+
+test('normalizes intentionally empty pages correctly', async () => {
+  const fixtures = choctaw2020Special
+  const { election } = fixtures
+  const interpreter = new Interpreter(election)
+
+  await interpreter.addTemplate(await fixtures.blankPage1.imageData())
+  const page2Template = await interpreter.addTemplate(
+    await fixtures.blankPage2.imageData()
+  )
+  const { mappedBallot } = await interpreter.interpretBallot(
+    await fixtures.absenteePage2.imageData()
+  )
+
+  // there was a bug where all pixels were white
+  expect(mappedBallot.data.some((px) => px !== 0xff)).toBe(true)
+
+  // ensure the size is the same as the template
+  expect(mappedBallot.width).toEqual(page2Template.ballotImage.imageData.width)
+  expect(mappedBallot.height).toEqual(
+    page2Template.ballotImage.imageData.height
+  )
 })
