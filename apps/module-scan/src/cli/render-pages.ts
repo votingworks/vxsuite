@@ -3,7 +3,7 @@ import type { Channels } from 'sharp'
 import { join, dirname, extname, basename } from 'path'
 import chalk from 'chalk'
 
-function printHelp(out = process.stdout): void {
+export function printHelp(out: typeof process.stdout): void {
   out.write(`${chalk.bold('render-pages')} PDF ${chalk.italic('[PDF …]')}\n`)
   out.write('\n')
   out.write(chalk.bold('Description\n'))
@@ -16,9 +16,12 @@ function printHelp(out = process.stdout): void {
   out.write('📝 ballot-p3.png\n')
 }
 
-async function main(args: readonly string[]): Promise<number> {
+export default async function main(
+  args: readonly string[],
+  { stdout = process.stdout, stderr = process.stderr } = {}
+): Promise<number> {
   if (args.length === 0) {
-    printHelp(process.stderr)
+    printHelp(stderr)
     return -1
   }
 
@@ -30,7 +33,7 @@ async function main(args: readonly string[]): Promise<number> {
     switch (arg) {
       case '-h':
       case '--help':
-        printHelp()
+        printHelp(stdout)
         return 0
 
       default:
@@ -50,7 +53,7 @@ async function main(args: readonly string[]): Promise<number> {
 
     for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
       const pngPath = join(pdfDir, `${pdfBase}-p${pageNumber}.png`)
-      process.stdout.write(`📝 ${pngPath}\n`)
+      stdout.write(`📝 ${pngPath}\n`)
       await sharp(Buffer.from(page.data), {
         raw: {
           channels: (page.data.length / page.width / page.height) as Channels,
@@ -66,11 +69,14 @@ async function main(args: readonly string[]): Promise<number> {
   return 0
 }
 
-main(process.argv.slice(2))
-  .catch((error) => {
-    console.error(error)
-    return 1
-  })
-  .then((code) => {
-    process.exitCode = code
-  })
+/* istanbul ignore next */
+if (require.main === module) {
+  main(process.argv.slice(2))
+    .catch((error) => {
+      console.error(error)
+      return 1
+    })
+    .then((code) => {
+      process.exitCode = code
+    })
+}
