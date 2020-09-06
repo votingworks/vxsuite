@@ -8,6 +8,7 @@ import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election
 import SummaryBallotInterpreter, {
   getBallotImageData,
   InterpretedHmpbPage,
+  BlankPage,
   sheetRequiresAdjudication,
   UninterpretedHmpbPage,
 } from './interpreter'
@@ -2925,6 +2926,10 @@ test('sheetRequiresAdjudication triggers only if both sides are blank ballot', a
     },
   }
 
+  const sideTrulyBlank: BlankPage = {
+    type: 'BlankPage',
+  }
+
   const sideNotBlank: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
@@ -2938,4 +2943,8 @@ test('sheetRequiresAdjudication triggers only if both sides are blank ballot', a
   expect(sheetRequiresAdjudication([sideBlank, sideNotBlank])).toBe(false)
   expect(sheetRequiresAdjudication([sideNotBlank, sideNotBlank])).toBe(false)
   expect(sheetRequiresAdjudication([sideNotBlank, sideNotBlank])).toBe(false)
+
+  expect(sheetRequiresAdjudication([sideBlank, sideTrulyBlank])).toBe(true)
+  expect(sheetRequiresAdjudication([sideTrulyBlank, sideTrulyBlank])).toBe(true)
+  expect(sheetRequiresAdjudication([sideNotBlank, sideTrulyBlank])).toBe(false)
 })

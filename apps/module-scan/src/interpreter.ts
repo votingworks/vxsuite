@@ -256,12 +256,13 @@ export function sheetRequiresAdjudication([front, back]: SheetOf<
 
   const [frontIsBlankHmpbPage, backIsBlankHmpbPage] = [front, back].map(
     (pi) =>
-      pi.type === 'InterpretedHmpbPage' &&
-      (pi.markInfo.marks.length === 0 || // no potential marks == automatic blank
-        (pi.adjudicationInfo.requiresAdjudication &&
-          pi.adjudicationInfo.allReasonInfos.some(
-            (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
-          )))
+      pi.type === 'BlankPage' || // truly blank page matters whether or not it's an adjudication reason.
+      (pi.type === 'InterpretedHmpbPage' &&
+        (pi.markInfo.marks.length === 0 || // no potential marks == automatic blank
+          (pi.adjudicationInfo.requiresAdjudication &&
+            pi.adjudicationInfo.allReasonInfos.some(
+              (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
+            ))))
   )
 
   // blank-page adjudication is a "recessive" trait: both pages need to be blank to trigger
