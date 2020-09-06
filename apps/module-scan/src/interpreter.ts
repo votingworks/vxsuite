@@ -115,6 +115,7 @@ export interface Interpreter {
     interpretFileParams: InterpretFileParams
   ): Promise<InterpretFileResult>
   setTestMode(testMode: boolean): void
+  electionDidChange(): void
 }
 
 interface BallotImageData {
@@ -401,6 +402,10 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
   public setTestMode(testMode: boolean): void {
     this.testMode = testMode
+    this.hmpbInterpreter = undefined
+  }
+
+  public electionDidChange(): void {
     this.hmpbInterpreter = undefined
   }
 
