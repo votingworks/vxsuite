@@ -11,6 +11,7 @@ export function makeMockInterpreter(): jest.Mocked<Interpreter> {
     addHmpbTemplate: jest.fn(),
     interpretFile: jest.fn(),
     setTestMode: jest.fn(),
+    electionDidChange: jest.fn(),
   }
 }
 

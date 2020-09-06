@@ -1,5 +1,7 @@
 import { join } from 'path'
+import election from './election'
 
+export { election }
 export const ballotPdf = join(__dirname, 'ballot.pdf')
 export const ballot6522Pdf = join(__dirname, 'ballot-6522.pdf')
 export const blankPage1 = join(__dirname, 'blank-p1.png')
