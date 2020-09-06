@@ -3,7 +3,7 @@ import { readFile } from 'fs-extra'
 import { join } from 'path'
 import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
 import choctaw2020SpecialElection from '../test/fixtures/choctaw-2020-09-22-02f807b005/election'
-import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-02f807b005/fixtures'
+import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-02f807b005'
 import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
 import SummaryBallotInterpreter, {
   getBallotImageData,
