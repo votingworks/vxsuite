@@ -5,17 +5,18 @@
 
 import {
   AdjudicationReason,
+  BallotType,
   Contests,
   decodeBallot,
   detect,
   Election,
   VotesDict,
-  BallotType,
 } from '@votingworks/ballot-encoder'
 import {
   BallotMark,
   BallotPageLayout,
   BallotPageMetadata,
+  DetectQRCodeResult,
   Interpreter as HMPBInterpreter,
   metadataFromBytes,
   Size,
@@ -23,7 +24,7 @@ import {
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import { decode as quircDecode } from 'node-quirc'
-import sharp from 'sharp'
+import sharp, { Channels } from 'sharp'
 import {
   BallotMetadata,
   getMarkStatus,
@@ -165,6 +166,52 @@ async function getQRCode(
   }
 }
 
+const detectQRCode = async (
+  imageData: ImageData
+): Promise<{ data: Buffer; position: 'top' | 'bottom' } | undefined> => {
+  const { data, width, height } = imageData
+  const clipHeight = Math.floor(height / 4)
+  const img = sharp(Buffer.from(data), {
+    raw: {
+      channels: (data.length / width / height) as Channels,
+      width,
+      height,
+    },
+  })
+    .raw()
+    .ensureAlpha()
+  const topCrop = img
+    .clone()
+    .extract({ left: 0, top: 0, width, height: clipHeight })
+
+  const topRaw = await topCrop.toBuffer()
+  const topImage = await topCrop.png().toBuffer()
+  const topQrcode = await getQRCode(topImage, topRaw, width, clipHeight)
+
+  if (topQrcode) {
+    return { data: topQrcode, position: 'top' }
+  }
+
+  const bottomCrop = img.clone().extract({
+    left: 0,
+    top: height - clipHeight,
+    width,
+    height: clipHeight,
+  })
+  const bottomRaw = await bottomCrop.toBuffer()
+  const bottomImage = await bottomCrop.png().toBuffer()
+  const bottomQrcode = await getQRCode(
+    bottomImage,
+    bottomRaw,
+    width,
+    clipHeight
+  )
+
+  if (bottomQrcode) {
+    return { data: bottomQrcode, position: 'bottom' }
+  }
+}
+
 export async function getBallotImageData(
   file: Buffer,
   filename: string
@@ -188,36 +235,10 @@ export async function getBallotImageData(
   }
 
   const image = { data: Uint8ClampedArray.from(data), width, height }
-  const clipHeight = Math.floor(height / 4)
-  const topCrop = img
-    .clone()
-    .extract({ left: 0, top: 0, width, height: clipHeight })
+  const qrcode = await detectQRCode(image)
 
-  const topRaw = await topCrop.toBuffer()
-  const topImage = await topCrop.png().toBuffer()
-  const topQrcode = await getQRCode(topImage, topRaw, width, clipHeight)
-
-  if (topQrcode) {
-    return { value: { file, image, qrcode: topQrcode } }
-  }
-
-  const bottomCrop = img.clone().extract({
-    left: 0,
-    top: height - clipHeight,
-    width,
-    height: clipHeight,
-  })
-  const bottomRaw = await bottomCrop.toBuffer()
-  const bottomImage = await bottomCrop.png().toBuffer()
-  const bottomQrcode = await getQRCode(
-    bottomImage,
-    bottomRaw,
-    width,
-    clipHeight
-  )
-
-  if (bottomQrcode) {
-    return { value: { file, image, qrcode: bottomQrcode } }
+  if (qrcode) {
+    return { value: { file, image, qrcode: qrcode.data } }
   }
 
   return {
@@ -513,6 +534,18 @@ export default class SummaryBallotInterpreter implements Interpreter {
       this.hmpbInterpreter = new HMPBInterpreter({
         election,
         testMode: this.testMode,
+        detectQRCode: async (
+          imageData
+        ): Promise<DetectQRCodeResult | undefined> => {
+          const result = await detectQRCode(imageData)
+
+          if (result) {
+            return {
+              data: result.data,
+              rightSideUp: result.position === 'bottom',
+            }
+          }
+        },
       })
     }
     return this.hmpbInterpreter

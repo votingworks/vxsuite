@@ -1648,6 +1648,8 @@ test('interprets marks on an upside-down HMPB', async () => {
 })
 
 test('interprets marks in PNG ballots', async () => {
+  jest.setTimeout(15000)
+
   const interpreter = new SummaryBallotInterpreter()
 
   interpreter.setTestMode(false)
@@ -2814,6 +2816,43 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
         "precinctId": "23",
       },
       "type": "UninterpretedHmpbPage",
+    }
+  `)
+})
+
+test('scans images where quirc and jsqr cannot find the QR code by providing QR code reading for hmpb-interpreter', async () => {
+  const election = choctaw2020SpecialElection
+  const fixtures = choctaw2020SpecialFixtures
+  const interpreter = new SummaryBallotInterpreter()
+
+  interpreter.setTestMode(false)
+
+  for await (const { page } of pdfToImages(
+    await readFile(fixtures.ballot6522Pdf),
+    {
+      scale: 2,
+    }
+  )) {
+    await interpreter.addHmpbTemplate(election, page)
+  }
+
+  expect(
+    ((
+      await interpreter.interpretFile({
+        election: stateOfHamiltonElection,
+        ballotImagePath: fixtures.hardQRCodePage1,
+        ballotImageFile: await readFile(fixtures.hardQRCodePage1),
+      })
+    ).interpretation as InterpretedHmpbPage).votes
+  ).toMatchInlineSnapshot(`
+    Object {
+      "775020858": Array [
+        Object {
+          "id": "__write-in-0",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
     }
   `)
 })
