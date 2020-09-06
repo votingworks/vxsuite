@@ -7,6 +7,8 @@ import MainNav from './MainNav'
 import Screen from './Screen'
 import Text from './Text'
 
+import USBControllerButton from './USBControllerButton'
+
 export interface Props {
   acceptFiles(files: readonly File[]): void
 }
@@ -44,7 +46,9 @@ const ElectionConfiguration = ({ acceptFiles }: Props) => {
           </Prose>
         </MainChild>
       </Main>
-      <MainNav />
+      <MainNav isTestMode={false}>
+        <USBControllerButton />
+      </MainNav>
     </Screen>
   )
 }
