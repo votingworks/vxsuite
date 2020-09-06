@@ -7,6 +7,7 @@ import BallotEjectScreen from './BallotEjectScreen'
 
 test('renders properly', async () => {
   const response: BallotSheetInfo = {
+    id: 'mock-sheet-id',
     front: {
       image: {
         url: '/front/url',

@@ -1,4 +1,8 @@
-import type { Election, OptionalElection } from '@votingworks/ballot-encoder'
+import type {
+  Election,
+  OptionalElection,
+  AdjudicationReason,
+} from '@votingworks/ballot-encoder'
 import type {
   BallotMark,
   BallotPageLayout,
@@ -145,6 +149,8 @@ interface BallotPageInfo {
 }
 
 export interface BallotSheetInfo {
+  id: string
   front: BallotPageInfo
   back: BallotPageInfo
+  adjudicationReason?: AdjudicationReason
 }
