@@ -1,24 +1,22 @@
 import {
-  electionSample as election,
   BallotType,
+  electionSample as election,
 } from '@votingworks/ballot-encoder'
 import { createImageData } from 'canvas'
 import * as fs from 'fs-extra'
 import { join } from 'path'
-import sharp from 'sharp'
-import { fileSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
-import { makeMockInterpreter } from '../test/util/mocks'
+import { makeImageFile, makeMockInterpreter } from '../test/util/mocks'
 import SystemImporter, { sleep } from './importer'
 import { Scanner } from './scanner'
 import Store from './store'
+import { SheetOf } from './types'
+import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
+import { fromElection } from './util/electionDefinition'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
 import pdfToImages from './util/pdfToImages'
-import { SheetOf } from './types'
-import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
-import { fromElection } from './util/electionDefinition'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
@@ -297,16 +295,11 @@ test('manually importing files', async () => {
         },
       },
     })
-  const imageFile = fileSync()
-  await sharp({
-    create: { width: 1, height: 1, channels: 3, background: '#000' },
-  })
-    .png()
-    .toFile(imageFile.name)
+  const imageFile = await makeImageFile()
   const sheetId = await importer.importFile(
     await store.addBatch(),
-    imageFile.name,
-    imageFile.name
+    imageFile,
+    imageFile
   )
 
   const filenames = (await store.getBallotFilenames(sheetId, 'front'))!
@@ -423,4 +416,69 @@ test('scanning pauses on adjudication then continues', async () => {
   expect(store.addSheet).toHaveBeenCalledTimes(3) // no more of these
   expect(store.deleteSheet).toHaveBeenCalledTimes(1) // no more deletes
   expect(store.saveBallotAdjudication).toHaveBeenCalledTimes(2)
+})
+
+test('importing a sheet orders HMPB pages', async () => {
+  const store = await Store.memoryStore()
+  const scanner: jest.Mocked<Scanner> = {
+    scanSheets: jest.fn(),
+  }
+  const interpreter = makeMockInterpreter()
+
+  const importer = new SystemImporter({
+    ...importDirs.paths,
+    store,
+    scanner,
+    interpreter,
+  })
+
+  importer.configure(fromElection(election))
+  jest.spyOn(store, 'addSheet').mockResolvedValueOnce('sheet-id')
+
+  for (const pageNumber of [2, 1]) {
+    interpreter.interpretFile.mockResolvedValueOnce({
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        metadata: {
+          ballotStyleId: '1',
+          precinctId: '1',
+          ballotType: BallotType.Standard,
+          electionHash: '',
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber,
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          allReasonInfos: [],
+          enabledReasons: [],
+        },
+        votes: {},
+      },
+    })
+  }
+
+  const imageFile = await makeImageFile()
+  await importer.importFile('batch-id', imageFile, imageFile)
+
+  expect(store.addSheet).toHaveBeenCalledWith(expect.any(String), 'batch-id', [
+    expect.objectContaining({
+      interpretation: expect.objectContaining({
+        metadata: expect.objectContaining({
+          pageNumber: 1,
+        }),
+      }),
+    }),
+    expect.objectContaining({
+      interpretation: expect.objectContaining({
+        metadata: expect.objectContaining({
+          pageNumber: 2,
+        }),
+      }),
+    }),
+  ])
 })

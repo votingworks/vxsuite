@@ -1,6 +1,8 @@
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
+import sharp from 'sharp'
 import { Readable, Writable } from 'stream'
+import { fileSync } from 'tmp'
 import { Importer } from '../../src/importer'
 import { Interpreter } from '../../src/interpreter'
 import { Scanner } from '../../src/scanner'
@@ -256,4 +258,14 @@ export function makeMockChildProcess(): MockChildProcess {
   }
 
   return Object.assign(new EventEmitter(), result) as MockChildProcess
+}
+
+export async function makeImageFile(): Promise<string> {
+  const imageFile = fileSync()
+  await sharp({
+    create: { width: 1, height: 1, channels: 3, background: '#000' },
+  })
+    .png()
+    .toFile(imageFile.name)
+  return imageFile.name
 }
