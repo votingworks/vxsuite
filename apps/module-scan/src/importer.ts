@@ -346,6 +346,31 @@ export default class SystemImporter implements Importer {
     backNormalizedBallotImagePath: string,
     backInterpretation: PageInterpretation
   ): Promise<string> {
+    if ('metadata' in frontInterpretation && 'metadata' in backInterpretation) {
+      if (
+        'pageNumber' in frontInterpretation.metadata &&
+        'pageNumber' in backInterpretation.metadata
+      ) {
+        if (
+          frontInterpretation.metadata.pageNumber >
+          backInterpretation.metadata.pageNumber
+        ) {
+          ;[frontInterpretation, backInterpretation] = [
+            backInterpretation,
+            frontInterpretation,
+          ]
+          ;[frontOriginalBallotImagePath, backOriginalBallotImagePath] = [
+            backOriginalBallotImagePath,
+            frontOriginalBallotImagePath,
+          ]
+          ;[frontNormalizedBallotImagePath, backNormalizedBallotImagePath] = [
+            backNormalizedBallotImagePath,
+            frontNormalizedBallotImagePath,
+          ]
+        }
+      }
+    }
+
     const ballotId = await this.store.addSheet(uuid(), batchId, [
       {
         originalFilename: frontOriginalBallotImagePath,
