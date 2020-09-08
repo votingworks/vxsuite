@@ -3,6 +3,7 @@ import {
   Contest,
   Contests,
 } from '@votingworks/ballot-encoder'
+import { PageInterpretation } from '../interpreter'
 import { ContestOption, MarkStatus } from '../types'
 import allContestOptions from './allContestOptions'
 
@@ -63,6 +64,7 @@ interface ImageInfo {
 
 interface BallotPageInfo {
   image: ImageInfo
+  interpretation: PageInterpretation
 }
 
 export interface BallotSheetInfo {

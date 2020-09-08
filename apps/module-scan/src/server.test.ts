@@ -709,14 +709,12 @@ test('get next sheet', async () => {
       return {
         id: 'mock-review-sheet',
         front: {
-          image: {
-            url: '/url/front',
-          },
+          image: { url: '/url/front' },
+          interpretation: { type: 'BlankPage' },
         },
         back: {
-          image: {
-            url: '/url/back',
-          },
+          image: { url: '/url/back' },
+          interpretation: { type: 'BlankPage' },
         },
       }
     })
@@ -726,14 +724,12 @@ test('get next sheet', async () => {
     .expect(200, {
       id: 'mock-review-sheet',
       front: {
-        image: {
-          url: '/url/front',
-        },
+        image: { url: '/url/front' },
+        interpretation: { type: 'BlankPage' },
       },
       back: {
-        image: {
-          url: '/url/back',
-        },
+        image: { url: '/url/back' },
+        interpretation: { type: 'BlankPage' },
       },
     })
 })
