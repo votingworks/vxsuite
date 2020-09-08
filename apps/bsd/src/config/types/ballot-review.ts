@@ -1,5 +1,5 @@
 import * as t from '@votingworks/ballot-encoder'
-import { Rect } from '@votingworks/hmpb-interpreter'
+import type { Rect } from '@votingworks/hmpb-interpreter'
 import { OkResponse, AdjudicationReasonInfo } from '../types'
 import { AdjudicationReason } from '@votingworks/ballot-encoder'
 

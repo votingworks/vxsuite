@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Rect } from '@votingworks/hmpb-interpreter'
+import type { Rect } from '@votingworks/hmpb-interpreter'
 import { MarkStatus } from '../config/types'
 
 const GREEN_BG = 'rgba(71,167,75,.4)'
