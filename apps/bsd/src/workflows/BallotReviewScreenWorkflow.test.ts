@@ -13,6 +13,7 @@ test('can mark an option', () => {
   const response: GetBallotResponse = {
     type: 'ReviewMarginalMarksBallot',
     ballot: {
+      id: 'ballot-id',
       image: { url: '/ballot.jpg', width: 850, height: 1100 },
       url: '/ballot',
     },
@@ -27,18 +28,25 @@ test('can mark an option', () => {
             id: 'george-washington',
             name: 'George Washington',
             bounds: { x: 0, y: 150, width: 200, height: 100 },
+            isWriteIn: false,
           },
           {
             type: 'candidate',
             id: 'thomas-jefferson',
             name: 'Thomas Jefferson',
             bounds: { x: 0, y: 250, width: 200, height: 100 },
+            isWriteIn: false,
           },
         ],
       },
     ],
     layout: [],
     marks: {},
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      allReasonInfos: [],
+      enabledReasons: [],
+    },
   }
 
   let state: workflow.State = workflow.fetchedBallotInfo(
@@ -64,6 +72,7 @@ test('can unmark an option', () => {
   const response: GetBallotResponse = {
     type: 'ReviewMarginalMarksBallot',
     ballot: {
+      id: 'ballot-id',
       image: { url: '/ballot.jpg', width: 850, height: 1100 },
       url: '/ballot',
     },
@@ -78,18 +87,25 @@ test('can unmark an option', () => {
             id: 'george-washington',
             name: 'George Washington',
             bounds: { x: 0, y: 150, width: 200, height: 100 },
+            isWriteIn: false,
           },
           {
             type: 'candidate',
             id: 'thomas-jefferson',
             name: 'Thomas Jefferson',
             bounds: { x: 0, y: 250, width: 200, height: 100 },
+            isWriteIn: false,
           },
         ],
       },
     ],
     layout: [],
     marks: { president: { 'george-washington': MarkStatus.Marked } },
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      allReasonInfos: [],
+      enabledReasons: [],
+    },
   }
 
   let state: workflow.State = workflow.fetchedBallotInfo(
@@ -125,12 +141,14 @@ test('changes can only happen while in review', () => {
         id: 'george-washington',
         name: 'George Washington',
         bounds: { x: 0, y: 150, width: 200, height: 100 },
+        isWriteIn: false,
       },
       {
         type: 'candidate',
         id: 'thomas-jefferson',
         name: 'Thomas Jefferson',
         bounds: { x: 0, y: 250, width: 200, height: 100 },
+        isWriteIn: false,
       },
     ],
   }
@@ -145,6 +163,7 @@ test('can toggle an option off and back on', () => {
   const response: GetBallotResponse = {
     type: 'ReviewMarginalMarksBallot',
     ballot: {
+      id: 'ballot-id',
       image: { url: '/ballot.jpg', width: 850, height: 1100 },
       url: '/ballot',
     },
@@ -159,18 +178,25 @@ test('can toggle an option off and back on', () => {
             id: 'george-washington',
             name: 'George Washington',
             bounds: { x: 0, y: 150, width: 200, height: 100 },
+            isWriteIn: false,
           },
           {
             type: 'candidate',
             id: 'thomas-jefferson',
             name: 'Thomas Jefferson',
             bounds: { x: 0, y: 250, width: 200, height: 100 },
+            isWriteIn: false,
           },
         ],
       },
     ],
     layout: [],
     marks: { president: { 'george-washington': MarkStatus.Marked } },
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      allReasonInfos: [],
+      enabledReasons: [],
+    },
   }
 
   let state: workflow.State = workflow.fetchedBallotInfo(
@@ -210,12 +236,14 @@ test('toggle can only happen while in review', () => {
         id: 'george-washington',
         name: 'George Washington',
         bounds: { x: 0, y: 150, width: 200, height: 100 },
+        isWriteIn: false,
       },
       {
         type: 'candidate',
         id: 'thomas-jefferson',
         name: 'Thomas Jefferson',
         bounds: { x: 0, y: 250, width: 200, height: 100 },
+        isWriteIn: false,
       },
     ],
   }
@@ -228,6 +256,7 @@ test('finalize moves out of review preserving the adjudication changes', () => {
   const response: GetBallotResponse = {
     type: 'ReviewMarginalMarksBallot',
     ballot: {
+      id: 'ballot-id',
       image: { url: '/ballot.jpg', width: 850, height: 1100 },
       url: '/ballot',
     },
@@ -242,18 +271,25 @@ test('finalize moves out of review preserving the adjudication changes', () => {
             id: 'george-washington',
             name: 'George Washington',
             bounds: { x: 0, y: 150, width: 200, height: 100 },
+            isWriteIn: false,
           },
           {
             type: 'candidate',
             id: 'thomas-jefferson',
             name: 'Thomas Jefferson',
             bounds: { x: 0, y: 250, width: 200, height: 100 },
+            isWriteIn: false,
           },
         ],
       },
     ],
     layout: [],
     marks: { president: { 'george-washington': MarkStatus.Marked } },
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      allReasonInfos: [],
+      enabledReasons: [],
+    },
   }
 
   let state: workflow.State = workflow.fetchedBallotInfo(

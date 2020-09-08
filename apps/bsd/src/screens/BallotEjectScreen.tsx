@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
+import { AdjudicationReason } from '@votingworks/ballot-encoder'
 import { fetchNextBallotSheetToReview } from '../api/hmpb'
 import { BallotSheetInfo } from '../config/types'
 
@@ -57,6 +58,28 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
     return null
   }
 
+  let isOvervotedSheet = false
+  let isBlankSheet = false
+  let isUnreadableSheet = false
+
+  for (const { interpretation } of [sheetInfo.front, sheetInfo.back]) {
+    if (interpretation.type === 'InterpretedHmpbPage') {
+      if (interpretation.adjudicationInfo.requiresAdjudication) {
+        for (const { type } of interpretation.adjudicationInfo.allReasonInfos) {
+          if (interpretation.adjudicationInfo.enabledReasons.includes(type)) {
+            if (type === AdjudicationReason.Overvote) {
+              isOvervotedSheet = true
+            } else if (type === AdjudicationReason.BlankBallot) {
+              isBlankSheet = true
+            }
+          }
+        }
+      }
+    } else {
+      isUnreadableSheet = true
+    }
+  }
+
   return (
     <Screen>
       <MainNav>
@@ -71,10 +94,26 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
         <MainChild maxWidth={false}>
           <Columns>
             <Prose maxWidth={false}>
-              <h1>Remove This Ballot</h1>
+              <h1>Remove This Sheet</h1>
               <p>
-                Human review is required for this last scanned ballot.{' '}
-                <strong>This ballot was not tabulated.</strong>
+                Human review is required for this last scanned sheet.{' '}
+                <strong>This sheet was not tabulated.</strong>
+              </p>
+              <p>
+                {isUnreadableSheet ? (
+                  <span>This sheet was unreadable by the scanner.</span>
+                ) : isOvervotedSheet ? (
+                  <span>
+                    This ballot sheet contains an <strong>overvote</strong>.
+                  </span>
+                ) : isBlankSheet ? (
+                  <span>
+                    This ballot sheet is <strong>blank</strong> and has no
+                    votes.
+                  </span>
+                ) : (
+                  <span>Reason could not be determined.</span>
+                )}
               </p>
               <p>
                 Once this ballot has been removed, press the button to continue

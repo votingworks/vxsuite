@@ -16,12 +16,18 @@ test('renders an image of the ballot', async () => {
   const response: GetBallotResponse = {
     type: 'ReviewMarginalMarksBallot',
     ballot: {
+      id: 'ballot-id',
       image: { url: '/scan/hmpb/ballot/2/image', width: 850, height: 1100 },
       url: '/scan/hmpb/ballot/2',
     },
     contests: [],
     layout: [],
     marks: {},
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      allReasonInfos: [],
+      enabledReasons: [],
+    },
   }
   fetchMock.getOnce('/scan/hmpb/ballot/2', response)
 
@@ -54,6 +60,7 @@ test('renders ballot options for each contest option', async () => {
   const response: GetBallotResponse = {
     type: 'ReviewMarginalMarksBallot',
     ballot: {
+      id: 'ballot-id',
       image: { url: '/scan/hmpb/ballot/2/image', width: 800, height: 1000 },
       url: '/scan/hmpb/ballot/2',
     },
@@ -68,6 +75,7 @@ test('renders ballot options for each contest option', async () => {
             type: 'candidate',
             name: 'Candidate #1',
             bounds: { x: 0, y: 50, width: 250, height: 100 }, // this one matters
+            isWriteIn: false,
           },
         ],
       },
@@ -83,6 +91,11 @@ test('renders ballot options for each contest option', async () => {
       },
     ],
     marks: {},
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      allReasonInfos: [],
+      enabledReasons: [],
+    },
   }
   fetchMock.getOnce('/scan/hmpb/ballot/2', response)
 

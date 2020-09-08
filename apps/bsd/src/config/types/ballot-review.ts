@@ -1,6 +1,7 @@
 import * as t from '@votingworks/ballot-encoder'
 import { Rect } from '@votingworks/hmpb-interpreter'
-import { OkResponse } from '../types'
+import { OkResponse, AdjudicationReasonInfo } from '../types'
+import { AdjudicationReason } from '@votingworks/ballot-encoder'
 
 type ContestId = t.Contest['id']
 
@@ -11,12 +12,12 @@ export interface PutBallotRequest {
   contests: MarksByContestId
 }
 
-export interface PerContestAndOption<T> {
-  [key: string]: PerOption<T> | undefined
+export interface MarksByContestId {
+  [key: string]: MarksByOptionId | undefined
 }
 
-export interface PerOption<T> {
-  [key: string]: T | undefined
+export interface MarksByOptionId {
+  [key: string]: MarkStatus | undefined
 }
 
 export type PutBallotResponse = OkResponse
@@ -32,9 +33,6 @@ export interface ContestOptionLayout {
   bounds: Rect
 }
 
-export type MarksByContestId = PerContestAndOption<MarkStatus>
-export type MarksByOptionId = PerOption<MarkStatus>
-
 export enum MarkStatus {
   Marked = 'marked',
   Unmarked = 'unmarked',
@@ -46,8 +44,15 @@ export type ReviewBallot =
   | ReviewUninterpretableHmpbBallot
 
 export interface BallotInfo {
+  id: string
   url: string
   image: { url: string; width: number; height: number }
+}
+
+export interface AdjudicationInfo {
+  requiresAdjudication: boolean
+  enabledReasons: readonly AdjudicationReason[]
+  allReasonInfos: readonly AdjudicationReasonInfo[]
 }
 
 export interface ReviewMarginalMarksBallot {
@@ -56,6 +61,7 @@ export interface ReviewMarginalMarksBallot {
   contests: readonly Contest[]
   layout: readonly ContestLayout[]
   marks: MarksByContestId
+  adjudicationInfo: AdjudicationInfo
 }
 
 export interface ReviewUninterpretableHmpbBallot {
@@ -78,6 +84,7 @@ export interface CandidateContestOption {
   id: t.CandidateContest['id']
   name: t.Candidate['name']
   bounds: Rect
+  isWriteIn: boolean
 }
 
 export interface YesNoContestOption {

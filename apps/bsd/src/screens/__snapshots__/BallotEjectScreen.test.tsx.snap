@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders properly 1`] = `
+exports[`says the ballot sheet is blank if it is 1`] = `
 <div>
   <div
     class="sc-VigVT djCdRx"
@@ -59,14 +59,251 @@ exports[`renders properly 1`] = `
             class="sc-htpNat eawaaV"
           >
             <h1>
-              Remove This Ballot
+              Remove This Sheet
             </h1>
             <p>
-              Human review is required for this last scanned ballot.
+              Human review is required for this last scanned sheet.
                
               <strong>
-                This ballot was not tabulated.
+                This sheet was not tabulated.
               </strong>
+            </p>
+            <p>
+              <span>
+                Reason could not be determined.
+              </span>
+            </p>
+            <p>
+              Once this ballot has been removed, press the button to continue scanning.
+            </p>
+          </div>
+          <div
+            class="sc-fjdhpX YZBFj"
+          >
+            <div
+              class="sc-htpNat fZPvKh"
+            >
+              <h4>
+                Front
+              </h4>
+              <p>
+                <img
+                  alt="p1"
+                  src="/front/url"
+                />
+              </p>
+            </div>
+            <div
+              class="sc-htpNat fZPvKh"
+            >
+              <h4>
+                Back
+              </h4>
+              <p>
+                <img
+                  alt="p2"
+                  src="/back/url"
+                />
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+`;
+
+exports[`says the ballot sheet is overvoted if it is 1`] = `
+<div>
+  <div
+    class="sc-VigVT djCdRx"
+  >
+    <div
+      class="sc-bZQynM cWyHmc"
+    >
+      <div
+        class="sc-gzVnrw iMtlFY"
+      >
+        <div
+          class="sc-htoDjs fdtLZY"
+        >
+          <div
+            class="sc-dnqmqq kKbVPv"
+          >
+            Voting
+            <span>
+              Works
+            </span>
+          </div>
+          <div
+            class="sc-iwsKbI jQhHGA"
+          >
+            Ballot Scanner
+          </div>
+        </div>
+        <div
+          class="sc-gZMcBi idZcZf"
+        >
+          <button
+            class="sc-ifAKCX pmhyu"
+            type="button"
+          >
+            Override
+          </button>
+          <button
+            class="sc-ifAKCX pmhyu"
+            type="button"
+          >
+            Continue Scanning Batch
+          </button>
+        </div>
+      </div>
+    </div>
+    <main
+      class="sc-bdVaJa kYuSve"
+    >
+      <div
+        class="sc-bwzfXH hLOwzs"
+      >
+        <div
+          class="sc-jTzLTM hwpJGC"
+        >
+          <div
+            class="sc-htpNat eawaaV"
+          >
+            <h1>
+              Remove This Sheet
+            </h1>
+            <p>
+              Human review is required for this last scanned sheet.
+               
+              <strong>
+                This sheet was not tabulated.
+              </strong>
+            </p>
+            <p>
+              <span>
+                This ballot sheet contains an 
+                <strong>
+                  overvote
+                </strong>
+                .
+              </span>
+            </p>
+            <p>
+              Once this ballot has been removed, press the button to continue scanning.
+            </p>
+          </div>
+          <div
+            class="sc-fjdhpX YZBFj"
+          >
+            <div
+              class="sc-htpNat fZPvKh"
+            >
+              <h4>
+                Front
+              </h4>
+              <p>
+                <img
+                  alt="p1"
+                  src="/front/url"
+                />
+              </p>
+            </div>
+            <div
+              class="sc-htpNat fZPvKh"
+            >
+              <h4>
+                Back
+              </h4>
+              <p>
+                <img
+                  alt="p2"
+                  src="/back/url"
+                />
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+`;
+
+exports[`says the sheet is unreadable if it is 1`] = `
+<div>
+  <div
+    class="sc-VigVT djCdRx"
+  >
+    <div
+      class="sc-bZQynM cWyHmc"
+    >
+      <div
+        class="sc-gzVnrw iMtlFY"
+      >
+        <div
+          class="sc-htoDjs fdtLZY"
+        >
+          <div
+            class="sc-dnqmqq kKbVPv"
+          >
+            Voting
+            <span>
+              Works
+            </span>
+          </div>
+          <div
+            class="sc-iwsKbI jQhHGA"
+          >
+            Ballot Scanner
+          </div>
+        </div>
+        <div
+          class="sc-gZMcBi idZcZf"
+        >
+          <button
+            class="sc-ifAKCX pmhyu"
+            type="button"
+          >
+            Override
+          </button>
+          <button
+            class="sc-ifAKCX pmhyu"
+            type="button"
+          >
+            Continue Scanning Batch
+          </button>
+        </div>
+      </div>
+    </div>
+    <main
+      class="sc-bdVaJa kYuSve"
+    >
+      <div
+        class="sc-bwzfXH hLOwzs"
+      >
+        <div
+          class="sc-jTzLTM hwpJGC"
+        >
+          <div
+            class="sc-htpNat eawaaV"
+          >
+            <h1>
+              Remove This Sheet
+            </h1>
+            <p>
+              Human review is required for this last scanned sheet.
+               
+              <strong>
+                This sheet was not tabulated.
+              </strong>
+            </p>
+            <p>
+              <span>
+                This sheet was unreadable by the scanner.
+              </span>
             </p>
             <p>
               Once this ballot has been removed, press the button to continue scanning.
