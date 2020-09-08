@@ -729,10 +729,19 @@ export default class Store {
   public async getNextAdjudicationSheet(): Promise<
     BallotSheetInfo | undefined
   > {
-    const row = await this.dbGetAsync<{ id: string } | undefined>(
+    const row = await this.dbGetAsync<
+      | {
+          id: string
+          frontInterpretationJSON: string
+          backInterpretationJSON: string
+        }
+      | undefined
+    >(
       `
       select
-        id
+        id,
+        front_interpretation_json as frontInterpretationJSON,
+        back_interpretation_json as backInterpretationJSON
       from sheets
       where
         requires_adjudication = 1 and
@@ -753,11 +762,13 @@ export default class Store {
           image: {
             url: `/scan/hmpb/ballot/${row.id}/front/image/normalized`,
           },
+          interpretation: JSON.parse(row.frontInterpretationJSON),
         },
         back: {
           image: {
             url: `/scan/hmpb/ballot/${row.id}/back/image/normalized`,
           },
+          interpretation: JSON.parse(row.backInterpretationJSON),
         },
       }
     } else {

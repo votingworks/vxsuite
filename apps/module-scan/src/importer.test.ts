@@ -315,14 +315,12 @@ test('scanning pauses on adjudication then continues', async () => {
     return {
       id: 'mock-sheet-id',
       front: {
-        image: {
-          url: '/url/front',
-        },
+        image: { url: '/url/front' },
+        interpretation: { type: 'BlankPage' },
       },
       back: {
-        image: {
-          url: '/url/back',
-        },
+        image: { url: '/url/back' },
+        interpretation: { type: 'BlankPage' },
       },
     }
   }
