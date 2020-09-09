@@ -32,16 +32,11 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           class="sc-gZMcBi idZcZf"
         >
           <button
-            class="sc-ifAKCX pmhyu"
+            class="sc-ifAKCX cAdBCb"
+            disabled=""
             type="button"
           >
-            Override
-          </button>
-          <button
-            class="sc-ifAKCX pmhyu"
-            type="button"
-          >
-            Continue Scanning Batch
+            Continue Scanning
           </button>
         </div>
       </div>
@@ -53,58 +48,71 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         class="sc-bwzfXH hLOwzs"
       >
         <div
-          class="sc-jTzLTM hwpJGC"
+          class="sc-jTzLTM TMzWq"
         >
           <div
             class="sc-htpNat eawaaV"
           >
             <h1>
-              Remove This Sheet
+              Review Required
             </h1>
             <p>
-              Human review is required for this last scanned sheet.
+              This last scanned sheet requires human review and
                
               <strong>
-                This sheet was not tabulated.
+                was not tabulated
               </strong>
+              .
             </p>
+            <h4>
+              Reason
+            </h4>
             <p>
               <span>
                 Reason could not be determined.
               </span>
             </p>
+            <h4>
+              Original Ballot Scan
+            </h4>
             <p>
-              Once this ballot has been removed, press the button to continue scanning.
+              Remove ballot and create a duplicate ballot for the Resolution Board to review.
+              <br />
+              <button
+                class="sc-ifAKCX hViQmt"
+                type="button"
+              >
+                Original Ballot Removed
+              </button>
+            </p>
+            <h4>
+              Duplicate Ballot Scan
+            </h4>
+            <p>
+              Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballow with issue which could not be determined.
+              <br />
+              <button
+                class="sc-ifAKCX hViQmt"
+                type="button"
+              >
+                Tabulate Duplicate Ballot
+              </button>
             </p>
           </div>
           <div
-            class="sc-fjdhpX YZBFj"
+            class="sc-fjdhpX bnPSvT"
           >
-            <div
-              class="sc-htpNat fZPvKh"
-            >
-              <h4>
-                Front
-              </h4>
-              <p>
-                <img
-                  alt="p1"
-                  src="/front/url"
-                />
-              </p>
+            <div>
+              <img
+                alt="front"
+                src="/front/url"
+              />
             </div>
-            <div
-              class="sc-htpNat fZPvKh"
-            >
-              <h4>
-                Back
-              </h4>
-              <p>
-                <img
-                  alt="p2"
-                  src="/back/url"
-                />
-              </p>
+            <div>
+              <img
+                alt="back"
+                src="/back/url"
+              />
             </div>
           </div>
         </div>
@@ -146,16 +154,11 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           class="sc-gZMcBi idZcZf"
         >
           <button
-            class="sc-ifAKCX pmhyu"
+            class="sc-ifAKCX cAdBCb"
+            disabled=""
             type="button"
           >
-            Override
-          </button>
-          <button
-            class="sc-ifAKCX pmhyu"
-            type="button"
-          >
-            Continue Scanning Batch
+            Continue Scanning
           </button>
         </div>
       </div>
@@ -167,21 +170,25 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         class="sc-bwzfXH hLOwzs"
       >
         <div
-          class="sc-jTzLTM hwpJGC"
+          class="sc-jTzLTM TMzWq"
         >
           <div
             class="sc-htpNat eawaaV"
           >
             <h1>
-              Remove This Sheet
+              Review Required
             </h1>
             <p>
-              Human review is required for this last scanned sheet.
+              This last scanned sheet requires human review and
                
               <strong>
-                This sheet was not tabulated.
+                was not tabulated
               </strong>
+              .
             </p>
+            <h4>
+              Reason
+            </h4>
             <p>
               <span>
                 This ballot sheet contains an 
@@ -191,38 +198,52 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
                 .
               </span>
             </p>
+            <h4>
+              Original Ballot Scan
+            </h4>
             <p>
-              Once this ballot has been removed, press the button to continue scanning.
+              Remove ballot and create a duplicate ballot for the Resolution Board to review.
+              <br />
+              <button
+                class="sc-ifAKCX hViQmt"
+                type="button"
+              >
+                Original Ballot Removed
+              </button>
+            </p>
+            <h4>
+              Duplicate Ballot Scan
+            </h4>
+            <p>
+              Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot sheet with an
+               
+              <strong>
+                ovevote
+              </strong>
+              .
+              <br />
+              <button
+                class="sc-ifAKCX hViQmt"
+                type="button"
+              >
+                Tabulate Duplicate Ballot
+              </button>
             </p>
           </div>
           <div
-            class="sc-fjdhpX YZBFj"
+            class="sc-fjdhpX bnPSvT"
           >
-            <div
-              class="sc-htpNat fZPvKh"
-            >
-              <h4>
-                Front
-              </h4>
-              <p>
-                <img
-                  alt="p1"
-                  src="/front/url"
-                />
-              </p>
+            <div>
+              <img
+                alt="front"
+                src="/front/url"
+              />
             </div>
-            <div
-              class="sc-htpNat fZPvKh"
-            >
-              <h4>
-                Back
-              </h4>
-              <p>
-                <img
-                  alt="p2"
-                  src="/back/url"
-                />
-              </p>
+            <div>
+              <img
+                alt="back"
+                src="/back/url"
+              />
             </div>
           </div>
         </div>
@@ -264,16 +285,11 @@ exports[`says the sheet is unreadable if it is 1`] = `
           class="sc-gZMcBi idZcZf"
         >
           <button
-            class="sc-ifAKCX pmhyu"
+            class="sc-ifAKCX cAdBCb"
+            disabled=""
             type="button"
           >
-            Override
-          </button>
-          <button
-            class="sc-ifAKCX pmhyu"
-            type="button"
-          >
-            Continue Scanning Batch
+            Continue Scanning
           </button>
         </div>
       </div>
@@ -285,58 +301,79 @@ exports[`says the sheet is unreadable if it is 1`] = `
         class="sc-bwzfXH hLOwzs"
       >
         <div
-          class="sc-jTzLTM hwpJGC"
+          class="sc-jTzLTM TMzWq"
         >
           <div
             class="sc-htpNat eawaaV"
           >
             <h1>
-              Remove This Sheet
+              Review Required
             </h1>
             <p>
-              Human review is required for this last scanned sheet.
+              This last scanned sheet requires human review and
                
               <strong>
-                This sheet was not tabulated.
+                was not tabulated
               </strong>
+              .
             </p>
+            <h4>
+              Reason
+            </h4>
             <p>
               <span>
-                This sheet was unreadable by the scanner.
+                This sheet was 
+                <strong>
+                  unreadable
+                </strong>
+                 by the scanner.
               </span>
             </p>
+            <h4>
+              Original Ballot Scan
+            </h4>
             <p>
-              Once this ballot has been removed, press the button to continue scanning.
+              Remove ballot and create a duplicate ballot for the Resolution Board to review.
+              <br />
+              <button
+                class="sc-ifAKCX hViQmt"
+                type="button"
+              >
+                Original Ballot Removed
+              </button>
+            </p>
+            <h4>
+              Duplicate Ballot Scan
+            </h4>
+            <p>
+              Confirm sheet was reviewed by the Resolution Board and tabulate as 
+              <strong>
+                unreadable
+              </strong>
+              .
+              <br />
+              <button
+                class="sc-ifAKCX hViQmt"
+                type="button"
+              >
+                Tabulate Duplicate Ballot
+              </button>
             </p>
           </div>
           <div
-            class="sc-fjdhpX YZBFj"
+            class="sc-fjdhpX bnPSvT"
           >
-            <div
-              class="sc-htpNat fZPvKh"
-            >
-              <h4>
-                Front
-              </h4>
-              <p>
-                <img
-                  alt="p1"
-                  src="/front/url"
-                />
-              </p>
+            <div>
+              <img
+                alt="front"
+                src="/front/url"
+              />
             </div>
-            <div
-              class="sc-htpNat fZPvKh"
-            >
-              <h4>
-                Back
-              </h4>
-              <p>
-                <img
-                  alt="p2"
-                  src="/back/url"
-                />
-              </p>
+            <div>
+              <img
+                alt="back"
+                src="/back/url"
+              />
             </div>
           </div>
         </div>
