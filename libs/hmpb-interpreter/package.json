@@ -2,27 +2,27 @@
   "name": "@votingworks/hmpb-interpreter",
   "version": "5.1.2",
   "description": "Interprets hand-marked paper ballots.",
+  "repository": "https://github.com/votingworks/hmpb-interpreter",
+  "license": "GPL-3.0",
+  "author": "Brian Donovan <brian@voting.works>",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
-  "repository": "https://github.com/votingworks/hmpb-interpreter",
-  "author": "Brian Donovan <brian@voting.works>",
-  "license": "GPL-3.0",
-  "scripts": {
-    "prepare": "tsc",
-    "lint": "eslint '{src,test}/**/*.ts'",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:all": "REGRESSION_TESTS=1 jest"
+  "bin": {
+    "hmpb": "bin/hmpb-interpreter.js",
+    "hmpb-interpreter": "bin/hmpb-interpreter.js"
   },
   "files": [
     "dist",
     "!*.test.{js,d.ts}",
     "!dist/test"
   ],
-  "bin": {
-    "hmpb": "bin/hmpb-interpreter.js",
-    "hmpb-interpreter": "bin/hmpb-interpreter.js"
+  "scripts": {
+    "lint": "eslint '{src,test}/**/*.ts'",
+    "prepare": "tsc",
+    "test": "jest",
+    "test:all": "REGRESSION_TESTS=1 jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "husky": {
     "hooks": {
@@ -30,12 +30,26 @@
     }
   },
   "lint-staged": {
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
     "*.+(js|jsx|ts|tsx)": [
       "eslint --quiet --fix"
     ],
-    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
+    "package.json": [
+      "sort-package-json"
     ]
+  },
+  "dependencies": {
+    "@votingworks/ballot-encoder": "^4.0.0",
+    "canvas": "^2.6.1",
+    "chalk": "^4.0.0",
+    "debug": "^4.1.1",
+    "jsfeat": "^0.0.8",
+    "jsqr": "^1.3.1",
+    "node-quirc": "^2.2.1",
+    "table": "^5.4.6",
+    "uuid": "^7.0.3"
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",
@@ -62,16 +76,5 @@
     "ts-jest": "^26.3.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.2"
-  },
-  "dependencies": {
-    "@votingworks/ballot-encoder": "^4.0.0",
-    "canvas": "^2.6.1",
-    "chalk": "^4.0.0",
-    "debug": "^4.1.1",
-    "jsfeat": "^0.0.8",
-    "jsqr": "^1.3.1",
-    "node-quirc": "^2.2.1",
-    "table": "^5.4.6",
-    "uuid": "^7.0.3"
   }
 }
