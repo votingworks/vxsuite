@@ -71,9 +71,7 @@ const App: React.FC = () => {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
           return prevStatus
         }
-        if (newStatus.batches[0]?.endedAt) {
-          setIsScanning(false)
-        }
+        setIsScanning(newStatus.batches.some(({ endedAt }) => !endedAt))
         return newStatus
       })
     } catch (error) {
