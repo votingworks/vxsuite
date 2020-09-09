@@ -205,5 +205,10 @@
   "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
   "ballotStrings": {
     "officialInitials": "Initialing Manager"
+  },
+  "adjudicationReasons": ["UninterpretableBallot", "Overvote", "BlankBallot"],
+  "markThresholds": {
+    "definite": 0.17,
+    "marginal": 0.17
   }
 }

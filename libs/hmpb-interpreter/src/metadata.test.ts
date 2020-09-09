@@ -8,7 +8,7 @@ import {
   election as binaryQRCodeElection,
   blankPage1 as binaryQRCodePage1,
 } from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
-import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-02f807b005'
+import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import { decodeSearchParams, detect } from './metadata'
 import { jsqr } from './utils/qrcode'
 
