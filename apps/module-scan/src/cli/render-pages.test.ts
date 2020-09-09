@@ -1,6 +1,6 @@
 import main from './render-pages'
 import { WritableStream } from 'memory-streams'
-import { ballotPdf } from '../../test/fixtures/choctaw-2020-09-22-02f807b005'
+import { ballotPdf } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import { promises as fs } from 'fs'
 import sharp from 'sharp'
 import { join } from 'path'
