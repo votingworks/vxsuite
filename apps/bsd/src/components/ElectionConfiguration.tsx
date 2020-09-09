@@ -22,8 +22,8 @@ const ElectionConfiguration = ({ acceptFiles }: Props) => {
   })
 
   return (
-    <Screen {...getRootProps()}>
-      <Main noPadding>
+    <Screen>
+      <Main noPadding {...getRootProps()}>
         <MainChild center padded>
           <input
             {...getInputProps({
