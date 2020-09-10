@@ -2,8 +2,7 @@ import { AdjudicationReason, electionSample } from '@votingworks/ballot-encoder'
 import { readFile } from 'fs-extra'
 import { join } from 'path'
 import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
-import choctaw2020SpecialElection from '../test/fixtures/choctaw-2020-09-22-02f807b005/election'
-import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-02f807b005'
+import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
 import SummaryBallotInterpreter, {
   getBallotImageData,
@@ -103,15 +102,16 @@ test('extracts votes encoded in a QR code', async () => {
 })
 
 test('can read metadata encoded in a QR code with base64', async () => {
+  const fixtures = choctaw2020SpecialFixtures
+  const { election } = fixtures
   const { qrcode } = resultValue(
     await getBallotImageData(
-      await readFile(choctaw2020SpecialFixtures.blankPage1),
-      choctaw2020SpecialFixtures.blankPage1
+      await readFile(fixtures.blankPage1),
+      fixtures.blankPage1
     )
   )
 
-  expect(metadataFromBytes(choctaw2020SpecialElection, qrcode))
-    .toMatchInlineSnapshot(`
+  expect(metadataFromBytes(election, qrcode)).toMatchInlineSnapshot(`
     Object {
       "ballotId": undefined,
       "ballotStyleId": "1",
@@ -2821,8 +2821,8 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
 })
 
 test('scans images where quirc and jsqr cannot find the QR code by providing QR code reading for hmpb-interpreter', async () => {
-  const election = choctaw2020SpecialElection
   const fixtures = choctaw2020SpecialFixtures
+  const { election } = fixtures
   const interpreter = new SummaryBallotInterpreter()
 
   interpreter.setTestMode(false)
