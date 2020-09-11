@@ -7,8 +7,17 @@
 
 const express = require('express')
 const path = require('path')
+const fs = require('fs')
 
-const proxy = require('../client/src/setupProxy')
+const appRoot = process.argv[2]
+
+if (!appRoot || !fs.statSync(appRoot).isDirectory()) {
+  process.stderr.write('node ./prodserver APPROOT\n')
+  process.exit(1)
+}
+
+const proxy = require(path.join(appRoot, 'src/setupProxy'))
+const pkg = require(path.join(appRoot, 'package.json'))
 const app = express()
 const port = 3000
 
@@ -19,9 +28,9 @@ app.use((req, res, next) => {
 
 proxy(app)
 
-app.use(express.static(path.join(__dirname, '../client/build')))
+app.use(express.static(path.join(appRoot, 'build')))
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'))
+  res.sendFile(path.join(appRoot, 'build/index.html'))
 })
 
-app.listen(port, () => console.log(`Election Manager listening on port ${port}!`))
+app.listen(port, () => console.log(`${pkg.name} listening on port ${port}!`))
