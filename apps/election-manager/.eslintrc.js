@@ -53,6 +53,9 @@ module.exports = {
       node: {
         extensions: allExtensions,
       },
+      typescript: {
+        alwaysTryTypes: true,
+      },
     },
   },
   rules: {
