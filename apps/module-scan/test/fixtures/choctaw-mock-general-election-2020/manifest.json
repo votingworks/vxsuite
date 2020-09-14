@@ -1,0 +1,23 @@
+{
+  "ballots": [
+    {
+      "ballotStyleId": "4",
+      "precinctId": "6538",
+      "contestIds": [
+        "775020876",
+        "775020877",
+        "775020872",
+        "775020870",
+        "775020899",
+        "750000015-750000016-either-neither",
+        "750000017",
+        "750000018"
+      ],
+      "isLiveMode": true,
+      "locales": {
+        "primary": "en-US"
+      },
+      "filename": "ballot.pdf"
+    }
+  ]
+}

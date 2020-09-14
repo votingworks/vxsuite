@@ -471,17 +471,25 @@ export default class SummaryBallotInterpreter implements Interpreter {
                 continue
               }
 
-              if (mark.type !== 'candidate' && mark.type !== 'yesno') {
-                throw new Error(
-                  `contest type is not yet supported: ${mark.type}`
-                )
-              }
+              switch (mark.type) {
+                case 'candidate':
+                case 'ms-either-neither':
+                  if (mark.option.id === optionId) {
+                    return getMarkStatus(mark, election.markThresholds!)
+                  }
+                  break
 
-              if (
-                (mark.type === 'candidate' && mark.option.id === optionId) ||
-                (mark.type === 'yesno' && mark.option === optionId)
-              ) {
-                return getMarkStatus(mark, election.markThresholds!)
+                case 'yesno':
+                  if (mark.option === optionId) {
+                    return getMarkStatus(mark, election.markThresholds!)
+                  }
+                  break
+
+                default:
+                  throw new Error(
+                    // @ts-expect-error - `mark` is of type `never` since we exhausted all branches, in theory
+                    `contest type is not yet supported: ${mark.type}`
+                  )
               }
             }
 

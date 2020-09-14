@@ -94,18 +94,21 @@ export default function* ballotAdjudicationReasons(
     let isBlankBallot = true
 
     for (const contest of contests) {
-      if (contest.type !== 'candidate' && contest.type !== 'yesno') {
-        throw new Error(`contest type is not yet supported: ${contest.type}`)
-      }
-
-      const selectedOptionIds: ContestOption['id'][] = []
+      const selectedOptionIdsByContestId = new Map<
+        Contest['id'],
+        ContestOption['id'][]
+      >()
 
       for (const option of allContestOptions(contest)) {
-        switch (optionMarkStatus(contest.id, option.id)) {
+        const selectedOptionIds =
+          selectedOptionIdsByContestId.get(option.contestId) ?? []
+        selectedOptionIdsByContestId.set(option.contestId, selectedOptionIds)
+
+        switch (optionMarkStatus(option.contestId, option.id)) {
           case MarkStatus.Marginal:
             yield {
               type: AdjudicationReason.MarginalMark,
-              contestId: contest.id,
+              contestId: option.contestId,
               optionId: option.id,
             }
             break
@@ -117,29 +120,50 @@ export default function* ballotAdjudicationReasons(
             if (option.type === 'candidate' && option.isWriteIn) {
               yield {
                 type: AdjudicationReason.WriteIn,
-                contestId: contest.id,
+                contestId: option.contestId,
                 optionId: option.id,
               }
             }
         }
       }
 
-      const expectedSelectionCount =
-        contest.type === 'candidate' ? contest.seats : 1 // yes or no
+      for (const [
+        contestId,
+        selectedOptionIds,
+      ] of selectedOptionIdsByContestId) {
+        let expectedSelectionCount: number
 
-      if (selectedOptionIds.length < expectedSelectionCount) {
-        yield {
-          type: AdjudicationReason.Undervote,
-          contestId: contest.id,
-          optionIds: selectedOptionIds,
-          expected: expectedSelectionCount,
+        switch (contest.type) {
+          case 'candidate':
+            expectedSelectionCount = contest.seats
+            break
+
+          case 'yesno': // yes or no
+          case 'ms-either-neither': // either or neither, first or second
+            expectedSelectionCount = 1
+            break
+
+          default:
+            throw new Error(
+              // @ts-expect-error - `contest` is of type `never` since we exhausted all branches, in theory
+              `contest type is not yet supported: ${contest.type}`
+            )
         }
-      } else if (selectedOptionIds.length > expectedSelectionCount) {
-        yield {
-          type: AdjudicationReason.Overvote,
-          contestId: contest.id,
-          optionIds: selectedOptionIds,
-          expected: expectedSelectionCount,
+
+        if (selectedOptionIds.length < expectedSelectionCount) {
+          yield {
+            type: AdjudicationReason.Undervote,
+            contestId: contestId,
+            optionIds: selectedOptionIds,
+            expected: expectedSelectionCount,
+          }
+        } else if (selectedOptionIds.length > expectedSelectionCount) {
+          yield {
+            type: AdjudicationReason.Overvote,
+            contestId: contestId,
+            optionIds: selectedOptionIds,
+            expected: expectedSelectionCount,
+          }
         }
       }
     }

@@ -6,9 +6,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  Vote,
   VotesDict,
-  YesNoVote,
 } from '@votingworks/ballot-encoder'
 import {
   InterpretedBmdPage,
@@ -39,17 +37,29 @@ export function buildCastVoteRecordMetadataEntries(
   }
 }
 
-export function getOptionIdsForVote(
+type ContestOptionPair = [string, string]
+
+export function getOptionIdsForContestVote(
   contest: AnyContest,
-  vote?: Vote
-): string[] {
-  if (!vote) {
-    return []
-  } else if (contest.type === 'candidate') {
-    return (vote as CandidateVote).map(({ id }) => id)
+  votes: VotesDict
+): ContestOptionPair[] {
+  if (contest.type === 'candidate') {
+    const vote = votes[contest.id]
+    return vote ? (vote as CandidateVote).map(({ id }) => [contest.id, id]) : []
   } else if (contest.type === 'yesno') {
-    return (vote as YesNoVote).slice()
+    const vote = votes[contest.id]
+    return vote ? (vote as string[]).map((id) => [contest.id, id]) : []
+  } else if (contest.type === 'ms-either-neither') {
+    return [
+      ...((votes[contest.eitherNeitherContestId] ?? []) as string[]).map<
+        [string, string]
+      >((id) => [contest.eitherNeitherContestId, id]),
+      ...((votes[contest.pickOneContestId] ?? []) as string[]).map<
+        [string, string]
+      >((id) => [contest.pickOneContestId, id]),
+    ]
   } else {
+    // @ts-expect-error -- `contest` has type `never` since all known branches are covered
     throw new TypeError(`contest type not yet supported: ${contest.type}`)
   }
 }
@@ -62,22 +72,30 @@ export function buildCastVoteRecordVotesEntries(
   const result: Dictionary<string[]> = {}
 
   for (const contest of contests) {
-    const resolvedOptionIds: string[] = []
-    const interpretedOptionIds = getOptionIdsForVote(contest, votes[contest.id])
+    const resolvedOptionIds: ContestOptionPair[] = []
+    const interpretedOptionIds = getOptionIdsForContestVote(contest, votes)
 
     for (const option of allContestOptions(contest)) {
-      const optionAdjudication = adjudication?.[contest.id]?.[option.id]
+      const optionAdjudication = adjudication?.[option.contestId]?.[option.id]
 
       if (
-        (interpretedOptionIds.includes(option.id) &&
-          optionAdjudication !== MarkStatus.Unmarked) ||
-        optionAdjudication === MarkStatus.Marked
+        optionAdjudication === MarkStatus.Marked ||
+        (interpretedOptionIds.some(
+          ([contestId, optionId]) =>
+            contestId === option.contestId && option.id === optionId
+        ) &&
+          optionAdjudication !== MarkStatus.Unmarked)
       ) {
-        resolvedOptionIds.push(option.id)
+        resolvedOptionIds.push([option.contestId, option.id])
       }
+
+      // Ensure all contests end up with an empty array if they have no votes.
+      result[option.contestId] = result[option.contestId] ?? []
     }
 
-    result[contest.id] = resolvedOptionIds
+    for (const [contestId, optionId] of resolvedOptionIds) {
+      result[contestId] = [...(result[contestId] ?? []), optionId]
+    }
   }
 
   return result
