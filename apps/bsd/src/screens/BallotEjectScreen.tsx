@@ -155,7 +155,7 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
                   <React.Fragment>
                     Confirm ballot sheet was reviewed by the Resolution Board
                     and tabulate as ballot sheet with an{' '}
-                    <strong>ovevote</strong>.
+                    <strong>overvote</strong>.
                   </React.Fragment>
                 ) : isBlankSheet ? (
                   <React.Fragment>
