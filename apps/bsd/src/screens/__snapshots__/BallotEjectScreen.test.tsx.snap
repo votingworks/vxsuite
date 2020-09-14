@@ -218,7 +218,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
               Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot sheet with an
                
               <strong>
-                ovevote
+                overvote
               </strong>
               .
               <br />
