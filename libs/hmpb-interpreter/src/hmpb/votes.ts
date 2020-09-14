@@ -24,8 +24,7 @@ export function addVote(
 export function addVote(
   votes: VotesDict,
   contest: MsEitherNeitherContest,
-  eitherNeither: YesNoOption,
-  pickOne: YesNoOption
+  option: YesNoOption
 ): void
 export function addVote(
   votes: VotesDict,
@@ -52,18 +51,40 @@ export function addVote(
     contest.type === 'ms-either-neither' &&
     typeof candidateOrYesNoOrEitherNeither === 'object'
   ) {
-    votes[contest.eitherNeitherContestId] = [
-      ...(votes[contest.eitherNeitherContestId] ?? []),
-      candidateOrYesNoOrEitherNeither.id === contest.eitherOption.id
-        ? 'yes'
-        : 'no',
-    ] as YesNoVote
-    votes[contest.pickOneContestId] = [
-      ...(votes[contest.pickOneContestId] ?? []),
-      candidateOrYesNoOrEitherNeither.id === contest.firstOption.id
-        ? 'yes'
-        : 'no',
-    ] as YesNoVote
+    switch (candidateOrYesNoOrEitherNeither.id) {
+      case contest.eitherOption.id:
+        votes[contest.eitherNeitherContestId] = [
+          ...(votes[contest.eitherNeitherContestId] ?? []),
+          'yes',
+        ] as YesNoVote
+        break
+
+      case contest.neitherOption.id:
+        votes[contest.eitherNeitherContestId] = [
+          ...(votes[contest.eitherNeitherContestId] ?? []),
+          'no',
+        ] as YesNoVote
+        break
+
+      case contest.firstOption.id:
+        votes[contest.pickOneContestId] = [
+          ...(votes[contest.pickOneContestId] ?? []),
+          'yes',
+        ] as YesNoVote
+        break
+
+      case contest.secondOption.id:
+        votes[contest.pickOneContestId] = [
+          ...(votes[contest.pickOneContestId] ?? []),
+          'no',
+        ] as YesNoVote
+        break
+
+      default:
+        throw new Error(
+          `unexpected option in ${contest.type} contest: ${candidateOrYesNoOrEitherNeither.id}`
+        )
+    }
   } else {
     throw new Error(
       `Invalid vote for '${contest.type}' contest type: ${inspect(
