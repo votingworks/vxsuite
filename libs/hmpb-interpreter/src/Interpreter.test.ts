@@ -1465,6 +1465,12 @@ test('interpret two-column template', async () => {
     )
     expect(votes).toMatchInlineSnapshot(`
       Object {
+        "750000015": Array [
+          "yes",
+        ],
+        "750000016": Array [
+          "yes",
+        ],
         "750000017": Array [
           "no",
         ],

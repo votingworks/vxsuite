@@ -46,9 +46,27 @@ export default function getVotesFromMarks(
         }
         break
 
+      case 'ms-either-neither':
+        if (mark.score >= markScoreVoteThreshold) {
+          debug(
+            `'%s' contest '%s' mark score (%d) for '%s' meets vote threshold (%d)`,
+            mark.type,
+            mark.contest.id,
+            mark.score,
+            mark.option.label,
+            markScoreVoteThreshold
+          )
+          addVote(votes, mark.contest, mark.option)
+        }
+        break
+
       case 'stray':
         // TODO
         break
+
+      default:
+        // @ts-expect-error - `mark` is `never` because the types say there are no other options
+        throw new Error(`mark type '${mark.type}' is not yet supported`)
     }
   }
 
