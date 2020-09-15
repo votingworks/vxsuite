@@ -389,6 +389,10 @@ const WriteInItem = styled.p`
   }
 `
 
+const CandidateDescription = styled.span<{ isSmall?: boolean }>`
+  font-size: ${({ isSmall }) => (isSmall ? '0.9em' : undefined)};
+`
+
 export const CandidateContestChoices = ({
   contest,
   locales,
@@ -406,10 +410,10 @@ export const CandidateContestChoices = ({
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   return (
     <React.Fragment>
-      {contest.candidates.map((candidate) => (
+      {contest.candidates.map((candidate, _, array) => (
         <Text key={candidate.id} data-candidate>
           <BubbleMark checked={hasVote(vote, candidate.id)}>
-            <span>
+            <CandidateDescription isSmall={array.length > 5}>
               <strong data-candidate-name={candidate.name}>
                 {candidate.name}
               </strong>
@@ -419,7 +423,7 @@ export const CandidateContestChoices = ({
                   {findPartyById(parties, candidate.partyId)!.name}
                 </React.Fragment>
               )}
-            </span>
+            </CandidateDescription>
           </BubbleMark>
         </Text>
       ))}
