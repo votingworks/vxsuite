@@ -3,7 +3,8 @@ import { Application } from 'express'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import request from 'supertest'
-import election from '../test/fixtures/state-of-hamilton/election'
+import * as stateOfHamilton from '../test/fixtures/state-of-hamilton'
+import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-general-election-2020'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import SystemImporter, { Importer } from './importer'
 import { buildApp } from './server'
@@ -62,6 +63,7 @@ afterEach(async () => {
 test('going through the whole process works', async () => {
   jest.setTimeout(20000)
 
+  const { election } = stateOfHamilton
   await importer.restoreConfig()
 
   await request(app)
@@ -135,9 +137,10 @@ test('going through the whole process works', async () => {
 
     expect(cvrs).toHaveLength(1)
     const [cvr] = cvrs
-    delete cvr._ballotId
+    cvr._ballotId = ''
     expect(cvr).toMatchInlineSnapshot(`
       Object {
+        "_ballotId": "",
         "_ballotStyleId": "12",
         "_locales": Object {
           "primary": "en-US",
@@ -180,6 +183,7 @@ test('going through the whole process works', async () => {
 test('failed scan with QR code can be adjudicated and exported', async () => {
   jest.setTimeout(20000)
 
+  const { election } = stateOfHamilton
   await importer.restoreConfig()
 
   await request(app)
@@ -270,9 +274,10 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 
     expect(cvrs).toHaveLength(1)
     const [cvr] = cvrs
-    delete cvr._ballotId
+    cvr._ballotId = ''
     expect(cvr).toMatchInlineSnapshot(`
       Object {
+        "_ballotId": "",
         "_ballotStyleId": "12",
         "_locales": Object {
           "primary": "en-US",
@@ -299,6 +304,128 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         ],
         "question-c": Array [],
       }
-      `)
+    `)
+  }
+})
+
+test('ms-either-neither end-to-end', async () => {
+  jest.setTimeout(20000)
+
+  const {
+    election,
+    manifest,
+    root,
+    filledInPage1,
+    filledInPage2,
+  } = choctawMockGeneral2020Fixtures
+  await importer.restoreConfig()
+
+  await request(app)
+    .patch('/config')
+    .send({ election })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+
+  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates')
+
+  for (const config of manifest.ballots) {
+    addTemplatesRequest
+      .attach('ballots', join(root, config.filename))
+      .attach(
+        'metadatas',
+        Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
+        { filename: 'config.json', contentType: 'application/json' }
+      )
+  }
+
+  await addTemplatesRequest.expect(200, { status: 'ok' })
+
+  {
+    const nextSession = scanner.withNextScannerSession()
+
+    nextSession.sheet([filledInPage1, filledInPage2]).end()
+
+    await request(app)
+      .post('/scan/scanBatch')
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toEqual({
+          status: 'ok',
+          batchId: expect.any(String),
+        })
+      })
+
+    await importer.waitForEndOfBatchOrScanningPause()
+
+    // check the latest batch has the expected ballots
+    const status = await request(app)
+      .get('/scan/status')
+      .set('Accept', 'application/json')
+      .expect(200)
+    expect(JSON.parse(status.text).batches.length).toBe(1)
+    expect(JSON.parse(status.text).batches[0].count).toBe(1)
+  }
+
+  {
+    const exportResponse = await request(app)
+      .post('/scan/export')
+      .set('Accept', 'application/json')
+      .expect(200)
+
+    // response is a few lines, each JSON.
+    // can't predict the order so can't compare
+    // to expected outcome as a string directly.
+    const cvrs: CastVoteRecord[] = exportResponse.text
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => JSON.parse(line))
+
+    expect(cvrs).toHaveLength(1)
+    const [cvr] = cvrs
+    cvr._ballotId = ''
+    expect(cvr).toMatchInlineSnapshot(`
+      Object {
+        "750000015": Array [
+          "yes",
+        ],
+        "750000016": Array [
+          "yes",
+        ],
+        "750000017": Array [
+          "no",
+        ],
+        "750000018": Array [
+          "yes",
+        ],
+        "775020870": Array [
+          "__write-in-0",
+        ],
+        "775020872": Array [
+          "775031978",
+        ],
+        "775020876": Array [
+          "775031988",
+        ],
+        "775020877": Array [
+          "775031986",
+        ],
+        "775020899": Array [
+          "775032015",
+        ],
+        "_ballotId": "",
+        "_ballotStyleId": "4",
+        "_locales": Object {
+          "primary": "en-US",
+        },
+        "_pageNumbers": Array [
+          1,
+          2,
+        ],
+        "_precinctId": "6538",
+        "_scannerId": "000",
+        "_testBallot": false,
+      }
+    `)
   }
 })

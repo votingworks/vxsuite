@@ -65,11 +65,15 @@ export interface Contest {
   options: readonly ContestOption[]
 }
 
-export type ContestOption = CandidateContestOption | YesNoContestOption
+export type ContestOption =
+  | CandidateContestOption
+  | YesNoContestOption
+  | MsEitherNeitherContestOption
 
 export interface CandidateContestOption {
   type: t.CandidateContest['type']
-  id: t.CandidateContest['id']
+  id: t.Candidate['id']
+  contestId: t.CandidateContest['id']
   name: t.Candidate['name']
   isWriteIn: boolean
 }
@@ -77,5 +81,19 @@ export interface CandidateContestOption {
 export interface YesNoContestOption {
   type: t.YesNoContest['type']
   id: Exclude<t.YesNoVote[0] | t.YesNoVote[1], undefined>
+  contestId: t.YesNoContest['id']
+  name: string
+}
+
+export interface MsEitherNeitherContestOption {
+  type: t.MsEitherNeitherContest['type']
+  id:
+    | t.MsEitherNeitherContest['eitherOption']['id']
+    | t.MsEitherNeitherContest['neitherOption']['id']
+    | t.MsEitherNeitherContest['firstOption']['id']
+    | t.MsEitherNeitherContest['secondOption']['id']
+  contestId:
+    | t.MsEitherNeitherContest['eitherNeitherContestId']
+    | t.MsEitherNeitherContest['pickOneContestId']
   name: string
 }

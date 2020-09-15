@@ -1,19 +1,20 @@
 import {
   AdjudicationReason,
   CandidateContest,
+  MsEitherNeitherContest,
   YesNoContest,
 } from '@votingworks/ballot-encoder'
-import election from '../../test/fixtures/2020-choctaw/election'
+import * as choctawMockGeneral2020 from '../../test/fixtures/choctaw-mock-general-election-2020'
 import { MarkStatus } from '../types/ballot-review'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
 } from './ballotAdjudicationReasons'
 
-const president = election.contests.find(
-  ({ id }) => id === '1'
+const president = choctawMockGeneral2020.election.contests.find(
+  ({ id }) => id === '775020876'
 ) as CandidateContest
-const senator = election.contests.find(
-  ({ id }) => id === '2'
+const senator = choctawMockGeneral2020.election.contests.find(
+  ({ id }) => id === '775020877'
 ) as CandidateContest
 const [presidentialCandidate1, presidentialCandidate2] = president.candidates
 const [
@@ -21,9 +22,12 @@ const [
   senatorialCandidate2,
   senatorialCandidate3,
 ] = senator.candidates
-const initiative65 = election.contests.find(
-  ({ id }) => id === 'initiative-65'
+const flagInitiative = choctawMockGeneral2020.election.contests.find(
+  ({ id }) => id === '750000018'
 ) as YesNoContest
+const eitherNeitherQuestion = choctawMockGeneral2020.election.contests.find(
+  ({ id }) => id === '750000015-750000016-either-neither'
+) as MsEitherNeitherContest
 
 test('an uninterpretable ballot', () => {
   expect([
@@ -73,7 +77,7 @@ test('a ballot with marginal marks', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest '1' has a marginal mark for option '2'.",
+      "Contest '775020876' has a marginal mark for option '775031987'.",
     ]
   `)
 })
@@ -99,7 +103,7 @@ test('a ballot with no marks', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest '1' is undervoted, expected 1 but got none.",
+      "Contest '775020876' is undervoted, expected 1 but got none.",
       "Ballot has no votes.",
     ]
   `)
@@ -144,7 +148,7 @@ test('a ballot with too many marks', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest '1' is overvoted, expected 1 but got 2: '1', '2'.",
+      "Contest '775020876' is overvoted, expected 1 but got 2: '775031988', '775031987'.",
     ]
   `)
 })
@@ -196,17 +200,17 @@ test('multiple contests with issues', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest '1' has a marginal mark for option '1'.",
-      "Contest '1' is undervoted, expected 1 but got none.",
-      "Contest '2' has a write-in.",
-      "Contest '2' is overvoted, expected 1 but got 4: '21', '22', '23', '__write-in-0'.",
+      "Contest '775020876' has a marginal mark for option '775031988'.",
+      "Contest '775020876' is undervoted, expected 1 but got none.",
+      "Contest '775020877' has a write-in.",
+      "Contest '775020877' is overvoted, expected 1 but got 4: '775031985', '775031986', '775031990', '__write-in-0'.",
     ]
   `)
 })
 
 test('yesno contest overvotes', () => {
   const reasons = [
-    ...ballotAdjudicationReasons([initiative65], {
+    ...ballotAdjudicationReasons([flagInitiative], {
       optionMarkStatus: () => MarkStatus.Marked,
     }),
   ]
@@ -214,7 +218,7 @@ test('yesno contest overvotes', () => {
   expect(reasons).toEqual([
     {
       type: AdjudicationReason.Overvote,
-      contestId: initiative65.id,
+      contestId: flagInitiative.id,
       optionIds: ['yes', 'no'],
       expected: 1,
     },
@@ -222,12 +226,12 @@ test('yesno contest overvotes', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest 'initiative-65' is overvoted, expected 1 but got 2: 'yes', 'no'.",
+      "Contest '750000018' is overvoted, expected 1 but got 2: 'yes', 'no'.",
     ]
   `)
 })
 
-test('a ballot with a just a write-in', () => {
+test('a ballot with just a write-in', () => {
   const reasons = [
     ...ballotAdjudicationReasons([president], {
       optionMarkStatus: (contestId, optionId) =>
@@ -244,4 +248,70 @@ test('a ballot with a just a write-in', () => {
       optionId: '__write-in-0',
     },
   ])
+})
+
+test('a ballot with an ms-either-neither happy path', () => {
+  const reasons = [
+    ...ballotAdjudicationReasons([eitherNeitherQuestion], {
+      optionMarkStatus: (contestId, optionId) => {
+        // either
+        if (
+          contestId === eitherNeitherQuestion.eitherNeitherContestId &&
+          optionId === 'yes'
+        ) {
+          return MarkStatus.Marked
+        }
+
+        // second
+        if (
+          contestId === eitherNeitherQuestion.pickOneContestId &&
+          optionId === 'no'
+        ) {
+          return MarkStatus.Marked
+        }
+
+        return MarkStatus.Unmarked
+      },
+    }),
+  ]
+
+  expect(reasons).toEqual([])
+})
+
+test('a ballot with an ms-either-neither either-neither overvote', () => {
+  const reasons = [
+    ...ballotAdjudicationReasons([eitherNeitherQuestion], {
+      optionMarkStatus: (contestId) =>
+        // neither & either
+        contestId === eitherNeitherQuestion.eitherNeitherContestId
+          ? MarkStatus.Marked
+          : MarkStatus.Unmarked,
+    }),
+  ]
+
+  expect(reasons).toContainEqual({
+    type: AdjudicationReason.Overvote,
+    contestId: eitherNeitherQuestion.eitherNeitherContestId,
+    optionIds: ['yes', 'no'],
+    expected: 1,
+  })
+})
+
+test('a ballot with an ms-either-neither pick-one overvote', () => {
+  const reasons = [
+    ...ballotAdjudicationReasons([eitherNeitherQuestion], {
+      optionMarkStatus: (contestId) =>
+        // first & second
+        contestId === eitherNeitherQuestion.pickOneContestId
+          ? MarkStatus.Marked
+          : MarkStatus.Unmarked,
+    }),
+  ]
+
+  expect(reasons).toContainEqual({
+    type: AdjudicationReason.Overvote,
+    contestId: eitherNeitherQuestion.pickOneContestId,
+    optionIds: ['yes', 'no'],
+    expected: 1,
+  })
 })
