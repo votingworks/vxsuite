@@ -315,7 +315,7 @@ const CandidateContestsLayout = styled.div`
 `
 const OtherContestsLayout = styled(CandidateContestsLayout)`
   columns: 2;
-  page-break-before: always;
+  break-before: column;
 `
 const IntroColumn = styled.div`
   break-after: column;
