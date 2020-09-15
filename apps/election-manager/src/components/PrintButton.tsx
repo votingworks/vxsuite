@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 
+import { Prose } from '@votingworks/hmpb-ui'
 import Button, { StyledButtonProps } from './Button'
 import Modal from './Modal'
 import Loading from './Loading'
-import Prose from './Prose'
 
 interface PrintButtonProps extends StyledButtonProps {
   title?: string

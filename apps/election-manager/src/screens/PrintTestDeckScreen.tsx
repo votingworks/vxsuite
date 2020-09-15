@@ -5,13 +5,13 @@ import {
   getPrecinctById,
   VotesDict,
 } from '@votingworks/ballot-encoder'
+import { Prose } from '@votingworks/hmpb-ui'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
-import Prose from '../components/Prose'
 import Modal from '../components/Modal'
 import Loading from '../components/Loading'
 

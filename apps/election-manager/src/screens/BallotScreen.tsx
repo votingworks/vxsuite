@@ -10,6 +10,7 @@ import {
 } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
+import { Text, Monospace, HorizontalRule } from '@votingworks/hmpb-ui'
 import {
   BallotScreenProps,
   BallotLocale,
@@ -20,10 +21,8 @@ import AppContext from '../contexts/AppContext'
 import Button, { SegmentedButton } from '../components/Button'
 import PrintButton from '../components/PrintButton'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
-import Text, { Monospace } from '../components/Text'
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
 import NavigationScreen from '../components/NavigationScreen'
-import HorizontalRule from '../components/HorizontalRule'
 import { DEFAULT_LOCALE } from '../config/globals'
 import routerPaths from '../routerPaths'
 import TextInput from '../components/TextInput'

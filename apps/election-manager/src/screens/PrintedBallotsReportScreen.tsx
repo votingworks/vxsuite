@@ -1,13 +1,12 @@
 import React, { useContext } from 'react'
 import pluralize from 'pluralize'
 
+import { Prose, Text } from '@votingworks/hmpb-ui'
 import { Dictionary } from '../config/types'
 
 import AppContext from '../contexts/AppContext'
 
 import PrintButton from '../components/PrintButton'
-import Prose from '../components/Prose'
-import Text from '../components/Text'
 import Table, { TD } from '../components/Table'
 
 import NavigationScreen from '../components/NavigationScreen'

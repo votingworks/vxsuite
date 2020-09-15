@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect, useCallback } from 'react'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 
+import { Prose, Text, HorizontalRule } from '@votingworks/hmpb-ui'
 import { CastVoteRecordLists, InputEventFunction } from '../config/types'
 
 import {
@@ -16,15 +17,12 @@ import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'
 import FileInputButton from '../components/FileInputButton'
-import Text from '../components/Text'
 import Loading from '../components/Loading'
 import Table, { TD } from '../components/Table'
 import NavigationScreen from '../components/NavigationScreen'
 import routerPaths from '../routerPaths'
 import LinkButton from '../components/LinkButton'
-import HorizontalRule from '../components/HorizontalRule'
 import Modal from '../components/Modal'
-import Prose from '../components/Prose'
 
 const TallyScreen = () => {
   const {

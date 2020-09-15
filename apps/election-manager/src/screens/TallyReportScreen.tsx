@@ -2,9 +2,14 @@ import React, { useContext, useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 import { useParams, useHistory } from 'react-router-dom'
+import { HorizontalRule, Prose, Text } from '@votingworks/hmpb-ui'
 import find from '../utils/find'
 
-import { fullTallyVotes, getContestTallyMeta } from '../lib/votecounting'
+import {
+  fullTallyVotes,
+  getContestTallyMeta,
+  filterTalliesByParty,
+} from '../lib/votecounting'
 
 import {
   PrecinctReportScreenProps,
@@ -14,14 +19,10 @@ import AppContext from '../contexts/AppContext'
 
 import PrintButton from '../components/PrintButton'
 import Button from '../components/Button'
-import HorizontalRule from '../components/HorizontalRule'
 import ContestTally from '../components/ContestTally'
 import NavigationScreen from '../components/NavigationScreen'
-import Prose from '../components/Prose'
-import Text from '../components/Text'
 import LinkButton from '../components/LinkButton'
 import routerPaths from '../routerPaths'
-import { filterTalliesByParty } from '../lib/votecounting'
 import {
   localeWeedkayAndDate,
   localeLongDateAndTime,

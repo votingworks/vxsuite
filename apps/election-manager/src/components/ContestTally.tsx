@@ -3,10 +3,9 @@ import styled from 'styled-components'
 import { Election, Candidate } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
+import { Text, Prose } from '@votingworks/hmpb-ui'
 import { Tally } from '../config/types'
 
-import Prose from './Prose'
-import Text from './Text'
 import Table, { TD } from './Table'
 import {
   ContestTallyMeta,

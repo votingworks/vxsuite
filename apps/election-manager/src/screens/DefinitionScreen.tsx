@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import { Contest } from '@votingworks/ballot-encoder'
 import styled from 'styled-components'
 
+import { Prose, Text } from '@votingworks/hmpb-ui'
 import { localeLongDateAndTime } from '../utils/IntlDateTimeFormats'
 
 import AppContext from '../contexts/AppContext'
@@ -10,8 +11,6 @@ import routerPaths from '../routerPaths'
 
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
-import Prose from '../components/Prose'
-import Text from '../components/Text'
 
 const ButtonListItem = styled.span`
   display: block;

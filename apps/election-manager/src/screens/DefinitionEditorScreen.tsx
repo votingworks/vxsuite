@@ -6,6 +6,7 @@ import fileDownload from 'js-file-download'
 import dashify from 'dashify'
 
 import { parseElection } from '@votingworks/ballot-encoder'
+import { Prose } from '@votingworks/hmpb-ui'
 import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'
@@ -13,7 +14,6 @@ import Textarea from '../components/Textarea'
 import routerPaths from '../routerPaths'
 import ButtonBar from '../components/ButtonBar'
 import Modal from '../components/Modal'
-import Prose from '../components/Prose'
 import NavigationScreen from '../components/NavigationScreen'
 import { TextareaEventFunction } from '../config/types'
 
