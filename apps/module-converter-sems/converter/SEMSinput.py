@@ -272,7 +272,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
             options = [{
                 "id": o['candidate_id'],
-                "label": cleanup_text(o['label_on_ballot']).split("\n")[1]
+                "label": cleanup_text(o['label'])
             } for o in c.execute(sql, [contest['id']]).fetchall()]
 
             contest['yesOption'] = options[0]
