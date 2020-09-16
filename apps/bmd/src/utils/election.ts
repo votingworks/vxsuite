@@ -9,7 +9,7 @@ export const getContests = ({
   election: Election
 }) =>
   election.contests.filter(
-    c =>
+    (c) =>
       ballotStyle.districts.includes(c.districtId) &&
       ballotStyle.partyId === c.partyId
   )
@@ -20,7 +20,7 @@ export const getPrecinctById = ({
 }: {
   election: Election
   precinctId: string
-}) => election.precincts.find(p => p.id === precinctId)
+}) => election.precincts.find((p) => p.id === precinctId)
 
 export const getBallotStyle = ({
   ballotStyleId,
@@ -28,7 +28,7 @@ export const getBallotStyle = ({
 }: {
   ballotStyleId: string
   election: Election
-}) => election.ballotStyles.find(bs => bs.id === ballotStyleId) as BallotStyle
+}) => election.ballotStyles.find((bs) => bs.id === ballotStyleId) as BallotStyle
 
 export const getPartyPrimaryAdjectiveFromBallotStyle = ({
   ballotStyleId,
@@ -39,13 +39,13 @@ export const getPartyPrimaryAdjectiveFromBallotStyle = ({
 }): string => {
   const parts = ballotStyleId?.match(/(\d+)(\w+)/i)
   const abbrev = parts?.[2]
-  const party = election.parties.find(p => p.abbrev === abbrev)
+  const party = election.parties.find((p) => p.abbrev === abbrev)
   const name = party?.name
   return name === 'Democrat' ? 'Democratic' : name ?? ''
 }
 
 export const getZeroTally = (election: Election): Tally =>
-  election.contests.map(contest => {
+  election.contests.map((contest) => {
     /* istanbul ignore else */
     if (contest.type === 'yesno') {
       return { yes: 0, no: 0 }

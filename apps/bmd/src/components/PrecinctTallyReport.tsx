@@ -42,18 +42,18 @@ const PrecinctTallyReport = ({
   reportPurpose,
 }: Props) => {
   const { ballotStyles, contests, precincts } = election
-  const precinct = precincts.find(p => p.id === precinctId) as Precinct
+  const precinct = precincts.find((p) => p.id === precinctId) as Precinct
 
-  const precinctBalotStyles = ballotStyles.filter(bs =>
+  const precinctBalotStyles = ballotStyles.filter((bs) =>
     bs.precincts.includes(precinctId)
   )
   const precinctContestIds = contests
-    .filter(c =>
+    .filter((c) =>
       precinctBalotStyles.find(
-        bs => bs.partyId === c.partyId && bs.districts.includes(c.districtId)
+        (bs) => bs.partyId === c.partyId && bs.districts.includes(c.districtId)
       )
     )
-    .map(c => c.id)
+    .map((c) => c.id)
   return (
     <Report>
       <h1>

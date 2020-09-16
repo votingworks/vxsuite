@@ -20,7 +20,7 @@ describe('getUSEnglishVoice', () => {
   it.each([
     'cmu_us_slt_arctic_hts festival',
     'cmu_us_slt_arctic_clunits festival',
-  ])('prefers the CMU voice "%s"', name => {
+  ])('prefers the CMU voice "%s"', (name) => {
     mockOf(speechSynthesis.getVoices).mockReturnValue([
       // Preferred over default
       fakeVoice({ default: true }),

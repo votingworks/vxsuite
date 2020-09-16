@@ -42,7 +42,7 @@ const PollWorkerScreen = ({
   togglePollsOpen,
 }: Props) => {
   const precinct = election.precincts.find(
-    p => p.id === appPrecinctId
+    (p) => p.id === appPrecinctId
   ) as Precinct
   const [isConfirmingPrintReport, setIsConfirmingPrintReport] = useState(false)
   const [isPrintingReport, setIsPrintingReport] = useState(false)
@@ -162,7 +162,7 @@ const PollWorkerScreen = ({
         />
       </Screen>
       {isPrintMode &&
-        reportPurposes.map(reportPurpose => (
+        reportPurposes.map((reportPurpose) => (
           <React.Fragment key={reportPurpose}>
             <PollsReport
               key={`polls-report-${reportPurpose}`}

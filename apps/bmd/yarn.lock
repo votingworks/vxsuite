@@ -11217,10 +11217,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^2.0.5:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.5.tgz#d6d56282455243f2f92cc1716692c08aa31522d4"
-  integrity sha512-7PtVymN48hGcO4fGjybyBSIWDsLU4H4XlvOHfq91pz9kkGlonzwTfYkaIEwiRg/dAJF9YlbsduBAgtYLi+8cFg==
+prettier@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.1.1.tgz#d9485dd5e499daa6cb547023b87a6cf51bee37d6"
+  integrity sha512-9bY+5ZWCfqj3ghYBLxApy2zf6m+NJo5GzmLTpr9FsApsfjriNnS2dahWReHMi7qNPhhHl9SYHJs2cHZLgexNIw==
 
 pretty-bytes@5.3.0, pretty-bytes@^5.1.0:
   version "5.3.0"
@@ -12006,7 +12006,6 @@ request-promise-native@^1.0.8:
 
 request@^2.87.0, request@^2.88.0:
   version "2.88.1"
-  uid b5af0d1fa47eec97ba980cde90a13e69a2afcd16
   resolved "https://codeload.github.com/cypress-io/request/tar.gz/b5af0d1fa47eec97ba980cde90a13e69a2afcd16"
   dependencies:
     aws-sign2 "~0.7.0"

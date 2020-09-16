@@ -43,7 +43,7 @@ interface Props {
 }
 
 const SettingsTextSize = ({ userSettings, setUserSettings }: Props) => {
-  const adjustFontSize: PointerEventHandler = event => {
+  const adjustFontSize: PointerEventHandler = (event) => {
     const target = event.currentTarget as HTMLButtonElement
     const textSize = +target.value as TextSizeSetting
     setUserSettings({ textSize })

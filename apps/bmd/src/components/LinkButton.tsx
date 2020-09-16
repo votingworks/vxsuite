@@ -27,7 +27,7 @@ const LinkButton = (props: Props) => {
     // ⬆ filtering out props which are not intrinsic to `<button>` element.
     ...rest
   } = props
-  const handleOnPress: PointerEventHandler = event => {
+  const handleOnPress: PointerEventHandler = (event) => {
     /* istanbul ignore else */
     if (onPress) {
       onPress(event)

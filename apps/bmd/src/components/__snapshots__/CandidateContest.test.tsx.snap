@@ -33,7 +33,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   border-right: 1px solid;
   border-color: rgb(211,211,211);
   border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
+  background: #ffffff;
   width: 3rem;
   text-align: center;
   color: #028099;
@@ -75,7 +75,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
   border-right: 1px solid;
   border-color: #028099;
   border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
+  background: #ffffff;
   width: 3rem;
   text-align: center;
   color: #028099;
@@ -415,7 +415,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
   border-right: 1px solid;
   border-color: rgb(211,211,211);
   border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
+  background: #ffffff;
   width: 3rem;
   text-align: center;
   color: #028099;
@@ -738,7 +738,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   border-right: 1px solid;
   border-color: rgb(211,211,211);
   border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
+  background: #ffffff;
   width: 3rem;
   text-align: center;
   color: #028099;
@@ -780,7 +780,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
   border-right: 1px solid;
   border-color: #028099;
   border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
+  background: #ffffff;
   width: 3rem;
   text-align: center;
   color: #028099;

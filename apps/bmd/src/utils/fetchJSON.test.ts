@@ -2,7 +2,7 @@ import fetchMock from 'fetch-mock'
 import fetchJSON from './fetchJSON'
 
 test('passes the URL through as-is to fetch', async () => {
-  fetchMock.getOnce(url => {
+  fetchMock.getOnce((url) => {
     expect(url).toEqual('/example')
     return true
   }, {})

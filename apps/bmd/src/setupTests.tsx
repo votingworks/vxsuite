@@ -28,7 +28,7 @@ function mockSpeechSynthesis() {
   globalThis.speechSynthesis = makeSpeechSynthesisDouble()
   globalThis.SpeechSynthesisUtterance = jest
     .fn()
-    .mockImplementation(text => ({ text }))
+    .mockImplementation((text) => ({ text }))
   globalThis.SpeechSynthesisEvent = jest.fn()
 }
 
@@ -44,7 +44,7 @@ function makeSpeechSynthesisDouble(): typeof speechSynthesis {
     pending: false,
     removeEventListener: jest.fn(),
     resume: jest.fn(),
-    speak: jest.fn(async utterance =>
+    speak: jest.fn(async (utterance) =>
       utterance.onend?.(new SpeechSynthesisEvent('end', { utterance }))
     ),
     speaking: false,

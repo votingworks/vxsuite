@@ -212,7 +212,9 @@ class AppRoot extends React.Component<Props, State> {
       ballotStyleId: voterCardData.bs,
       election,
     })
-    const precinct = election.precincts.find(pr => pr.id === voterCardData.pr)!
+    const precinct = election.precincts.find(
+      (pr) => pr.id === voterCardData.pr
+    )!
     this.activateBallot({
       ballotCreatedAt: voterCardData.c,
       ballotStyle,
@@ -300,7 +302,7 @@ class AppRoot extends React.Component<Props, State> {
           {}
 
         this.setState(
-          prevState => {
+          (prevState) => {
             const isVoterCardExpired = this.isVoterCardExpired(
               prevState.voterCardCreatedAt,
               voterCardCreatedAt
@@ -547,8 +549,8 @@ class AppRoot extends React.Component<Props, State> {
 
       // watch for changes
       this.onDeviceChangeSubscription = hardware.devices
-        .pipe(map(devices => Array.from(devices)))
-        .subscribe(async devices => {
+        .pipe(map((devices) => Array.from(devices)))
+        .subscribe(async (devices) => {
           const hasAccessibleControllerAttached = devices.some(
             isAccessibleController
           )
@@ -721,7 +723,7 @@ class AppRoot extends React.Component<Props, State> {
 
   public updateVote = (contestId: string, vote: OptionalVote) => {
     this.setState(
-      prevState => ({
+      (prevState) => ({
         votes: { ...prevState.votes, [contestId]: vote },
       }),
       () => {
@@ -758,7 +760,7 @@ class AppRoot extends React.Component<Props, State> {
       ballotStyleId: ballotStyle.id,
       precinctId: precinct.id,
     })
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       ballotStyleId: ballotStyle.id,
       contests: getContests({ ballotStyle, election: prevState.election! }),
       precinctId: precinct.id,
@@ -767,7 +769,7 @@ class AppRoot extends React.Component<Props, State> {
 
   public setUserSettings = (partial: PartialUserSettings) => {
     this.setState(
-      prevState => ({
+      (prevState) => ({
         userSettings: { ...prevState.userSettings, ...partial },
       }),
       () => {
@@ -797,7 +799,7 @@ class AppRoot extends React.Component<Props, State> {
 
   public toggleLiveMode = () => {
     this.setState(
-      prevState => ({
+      (prevState) => ({
         isLiveMode: !prevState.isLiveMode,
         isPollsOpen: this.initialState.isPollsOpen,
       }),
@@ -807,7 +809,7 @@ class AppRoot extends React.Component<Props, State> {
 
   public togglePollsOpen = () => {
     this.setState(
-      prevState => ({ isPollsOpen: !prevState.isPollsOpen }),
+      (prevState) => ({ isPollsOpen: !prevState.isPollsOpen }),
       this.setStoredState
     )
   }
@@ -829,7 +831,7 @@ class AppRoot extends React.Component<Props, State> {
         const election = e!
         for (const contestId in votes) {
           const contestIndex = election.contests.findIndex(
-            c => c.id === contestId
+            (c) => c.id === contestId
           )
           /* istanbul ignore next */
           if (contestIndex < 0) {
@@ -845,11 +847,11 @@ class AppRoot extends React.Component<Props, State> {
           } else if (contest.type === 'candidate') {
             const candidateContestTally = contestTally as CandidateVoteTally
             const vote = votes[contestId] as CandidateVote
-            vote.forEach(candidate => {
+            vote.forEach((candidate) => {
               if (candidate.isWriteIn) {
                 const tallyContestWriteIns = candidateContestTally.writeIns
                 const writeIn = tallyContestWriteIns.find(
-                  c => c.name === candidate.name
+                  (c) => c.name === candidate.name
                 )
                 if (typeof writeIn === 'undefined') {
                   tallyContestWriteIns.push({
@@ -861,7 +863,7 @@ class AppRoot extends React.Component<Props, State> {
                 }
               } else {
                 const candidateIndex = contest.candidates.findIndex(
-                  c => c.id === candidate.id
+                  (c) => c.id === candidate.id
                 )
                 if (
                   candidateIndex < 0 ||

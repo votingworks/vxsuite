@@ -235,7 +235,7 @@ class CandidateContest extends React.Component<Props, State> {
   }
 
   public findCandidateById = (candidates: Candidate[], id: string) =>
-    candidates.find(c => c.id === id)
+    candidates.find((c) => c.id === id)
 
   public addCandidateToVote = (id: string) => {
     const { contest, vote } = this.props
@@ -246,11 +246,11 @@ class CandidateContest extends React.Component<Props, State> {
 
   public removeCandidateFromVote = (id: string) => {
     const { contest, vote } = this.props
-    const newVote = vote.filter(c => c.id !== id)
+    const newVote = vote.filter((c) => c.id !== id)
     this.props.updateVote(contest.id, newVote)
   }
 
-  public handleUpdateSelection: EventTargetFunction = event => {
+  public handleUpdateSelection: EventTargetFunction = (event) => {
     const { vote } = this.props
     const candidateId = (event.currentTarget as HTMLInputElement).dataset.choice
     /* istanbul ignore else */
@@ -292,10 +292,7 @@ class CandidateContest extends React.Component<Props, State> {
   }
 
   public normalizeName = (name: string) =>
-    name
-      .trim()
-      .replace(/\t+/g, ' ')
-      .replace(/\s+/g, ' ')
+    name.trim().replace(/\t+/g, ' ').replace(/\s+/g, ' ')
 
   public addWriteInCandidate = () => {
     const { contest, vote } = this.props
@@ -323,9 +320,9 @@ class CandidateContest extends React.Component<Props, State> {
     this.setState({ writeInCandateModalIsOpen })
   }
 
-  public onKeyboardInput: PointerEventHandler = event => {
+  public onKeyboardInput: PointerEventHandler = (event) => {
     const { key } = (event.target as HTMLElement).dataset
-    this.setState(prevState => {
+    this.setState((prevState) => {
       let writeInCandidateName = prevState.writeInCandidateName
       if (key === 'space') {
         writeInCandidateName += ' '
@@ -375,7 +372,9 @@ class CandidateContest extends React.Component<Props, State> {
     })
   }
 
-  public scrollContestChoices: PointerEventHandler /* istanbul ignore next: Tested by Cypress */ = event => {
+  public scrollContestChoices: PointerEventHandler /* istanbul ignore next: Tested by Cypress */ = (
+    event
+  ) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
     const scrollContainer = this.scrollContainer.current!
@@ -456,7 +455,7 @@ class CandidateContest extends React.Component<Props, State> {
             >
               <ScrollableContentWrapper isScrollable={isScrollable}>
                 <ChoicesGrid>
-                  {contest.candidates.map(candidate => {
+                  {contest.candidates.map((candidate) => {
                     const isChecked = !!this.findCandidateById(
                       vote,
                       candidate.id
@@ -500,8 +499,8 @@ class CandidateContest extends React.Component<Props, State> {
                   })}
                   {contest.allowWriteIns &&
                     vote
-                      .filter(c => c.isWriteIn)
-                      .map(candidate => {
+                      .filter((c) => c.isWriteIn)
+                      .map((candidate) => {
                         return (
                           <ChoiceButton
                             key={candidate.id}

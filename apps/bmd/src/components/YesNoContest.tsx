@@ -186,7 +186,7 @@ export default class YesNoContest extends React.Component<Props> {
     }
   }
 
-  public handleUpdateSelection: EventTargetFunction = event => {
+  public handleUpdateSelection: EventTargetFunction = (event) => {
     const { vote } = this.props
     const newVote = (event.currentTarget as HTMLInputElement).dataset
       .choice as YesNoVote
@@ -225,7 +225,9 @@ export default class YesNoContest extends React.Component<Props> {
     })
   }
 
-  public scrollContestChoices: PointerEventHandler = /* istanbul ignore next: Tested by Cypress */ event => {
+  public scrollContestChoices: PointerEventHandler = /* istanbul ignore next: Tested by Cypress */ (
+    event
+  ) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
     const scrollContainer = this.scrollContainer.current!
@@ -325,7 +327,7 @@ export default class YesNoContest extends React.Component<Props> {
           </VariableContentContainer>
           <ContestFooter>
             <ChoicesGrid data-testid="contest-choices">
-              {['Yes', 'No'].map(answer => {
+              {['Yes', 'No'].map((answer) => {
                 const answerLowerCase = answer.toLowerCase()
                 const isChecked = vote === answerLowerCase
                 const isDisabled = !isChecked && !!vote

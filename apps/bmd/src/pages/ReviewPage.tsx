@@ -303,7 +303,9 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
     })
   }
 
-  public scrollContestChoices: PointerEventHandler = /* istanbul ignore next: Tested by Cypress */ event => {
+  public scrollContestChoices: PointerEventHandler = /* istanbul ignore next: Tested by Cypress */ (
+    event
+  ) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
     const scrollContainer = this.scrollContainer.current!

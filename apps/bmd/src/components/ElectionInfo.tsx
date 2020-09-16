@@ -46,7 +46,9 @@ const ElectionInfo = ({
   horizontal = false,
 }: Props) => {
   const { title: t, state, county, date, seal, sealURL } = election
-  const precinct = election.precincts.find(p => p.id === precinctId) as Precinct
+  const precinct = election.precincts.find(
+    (p) => p.id === precinctId
+  ) as Precinct
   const partyPrimaryAdjective = ballotStyleId
     ? getPartyPrimaryAdjectiveFromBallotStyle({
         election,

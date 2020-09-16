@@ -6,9 +6,7 @@ describe('Review Page', () => {
   it('When navigating from contest, scroll to contest and place focus on contest.', () => {
     cy.visit('/#sample')
     cy.wait(waitTime)
-    cy.get('nav')
-      .contains('Start Voting')
-      .click()
+    cy.get('nav').contains('Start Voting').click()
     cy.wrap(clickThoughPages).each(() => {
       cy.contains('Next').click()
       cy.wait(waitTime)

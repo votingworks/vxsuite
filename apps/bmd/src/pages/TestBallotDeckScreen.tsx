@@ -35,32 +35,32 @@ const generateTestDeckBallots = ({
 }: GenerateTestDeckParams) => {
   const precincts: string[] = precinctId
     ? [precinctId]
-    : election.precincts.map(p => p.id)
+    : election.precincts.map((p) => p.id)
 
   const ballots: Ballot[] = []
 
-  precincts.forEach(precinctId => {
-    const precinct = election.precincts.find(p => p.id === precinctId)!
-    const precinctBallotStyles = election.ballotStyles.filter(bs =>
+  precincts.forEach((precinctId) => {
+    const precinct = election.precincts.find((p) => p.id === precinctId)!
+    const precinctBallotStyles = election.ballotStyles.filter((bs) =>
       bs.precincts.includes(precinct.id)
     )
 
-    precinctBallotStyles.forEach(ballotStyle => {
+    precinctBallotStyles.forEach((ballotStyle) => {
       const contests = election.contests.filter(
-        c =>
+        (c) =>
           ballotStyle.districts.includes(c.districtId) &&
           ballotStyle.partyId === c.partyId
       )
 
       const numBallots = Math.max(
-        ...contests.map(c =>
+        ...contests.map((c) =>
           c.type === 'yesno' ? 2 : (c as CandidateContest).candidates.length
         )
       )
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
         const votes: VotesDict = {}
-        contests.forEach(contest => {
+        contests.forEach((contest) => {
           /* istanbul ignore else */
           if (contest.type === 'yesno') {
             votes[contest.id] = ballotNum % 2 === 0 ? 'yes' : 'no'
@@ -110,7 +110,7 @@ const TestBallotDeckScreen = ({
   const [ballots, setBallots] = useState<Ballot[]>([])
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
 
-  const selectPrecinct: PointerEventHandler = event => {
+  const selectPrecinct: PointerEventHandler = (event) => {
     const { id = '', name = '' } = (event.target as HTMLElement).dataset
     setPrecinct({ name, id })
     const selectedBallots = generateTestDeckBallots({
@@ -167,7 +167,7 @@ const TestBallotDeckScreen = ({
                   </Button>
                 </p>
                 <ButtonList data-testid="precincts">
-                  {election.precincts.map(p => (
+                  {election.precincts.map((p) => (
                     <Button
                       data-id={p.id}
                       data-name={p.name}

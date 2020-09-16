@@ -13,7 +13,7 @@ function getFocusableElements(): HTMLElement[] {
     document.querySelectorAll('[aria-hidden="true"] button')
   )
   return tabbableElements.filter(
-    element => ariaHiddenTabbableElements.indexOf(element) === -1
+    (element) => ariaHiddenTabbableElements.indexOf(element) === -1
   ) as HTMLElement[]
 }
 

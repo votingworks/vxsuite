@@ -5,7 +5,7 @@ import { CandidateContest as CandidateContestInterface } from '@votingworks/ball
 
 import CandidateContest from './CandidateContest'
 
-const parties = [0, 1].map(i => ({
+const parties = [0, 1].map((i) => ({
   abbrev: `${i}`,
   id: `party-${i}`,
   name: `Party ${i}`,
@@ -13,7 +13,7 @@ const parties = [0, 1].map(i => ({
 
 const contest: CandidateContestInterface = {
   allowWriteIns: false,
-  candidates: [0, 1, 2].map(i => ({
+  candidates: [0, 1, 2].map((i) => ({
     id: `name-${i}`,
     name: `Name ${i}`,
     partyId: `party-${i % 2}`,
@@ -176,11 +176,9 @@ describe('supports write-in candidates', () => {
     typeKeysInVirtualKeyboard(getByText, writeInCandidate)
     getByText('You have entered 40 of maximum 40 characters.')
 
-    expect(
-      getByText('space')
-        .closest('button')!
-        .hasAttribute('disabled')
-    ).toBe(true)
+    expect(getByText('space').closest('button')!.hasAttribute('disabled')).toBe(
+      true
+    )
     fireEvent.click(getByText('Accept'))
     expect(queryByText('Write-In Candidate')).toBeFalsy()
 
@@ -197,7 +195,7 @@ describe('supports write-in candidates', () => {
     getByText: (text: string) => HTMLElement,
     chars: string
   ): void {
-    Array.from(chars).forEach(i => {
+    Array.from(chars).forEach((i) => {
       const key = i === ' ' ? 'space' : i
       fireEvent.click(getByText(key).closest('button')!)
     })
