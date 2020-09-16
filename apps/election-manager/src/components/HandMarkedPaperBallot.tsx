@@ -928,7 +928,9 @@ const HandMarkedPaperBallot = ({
                           i18nKey="voteYesOrNo"
                           tOptions={{ lng: locales.primary }}
                         >
-                          Vote <strong>Yes</strong> or <strong>No</strong>
+                          Vote{' '}
+                          <strong>{contest.yesOption?.label || 'Yes'}</strong>{' '}
+                          or <strong>{contest.noOption?.label || 'No'}</strong>
                         </Trans>
                         {locales.secondary && (
                           <React.Fragment>
@@ -937,7 +939,12 @@ const HandMarkedPaperBallot = ({
                               i18nKey="voteYesOrNo"
                               tOptions={{ lng: locales.secondary }}
                             >
-                              Vote <strong>Yes</strong> or <strong>No</strong>
+                              Vote{' '}
+                              <strong>
+                                {contest.yesOption?.label || 'Yes'}
+                              </strong>{' '}
+                              or{' '}
+                              <strong>{contest.noOption?.label || 'No'}</strong>
                             </Trans>
                           </React.Fragment>
                         )}
@@ -963,12 +970,20 @@ const HandMarkedPaperBallot = ({
                       )}
                       <Text bold noWrap>
                         <BubbleMark checked={hasVote(votes[contest.id], 'yes')}>
-                          <span>{dualLanguageWithSlash('Yes')}</span>
+                          <span>
+                            {dualLanguageWithSlash(
+                              contest.yesOption?.label || 'Yes'
+                            )}
+                          </span>
                         </BubbleMark>
                       </Text>
                       <Text bold noWrap>
                         <BubbleMark checked={hasVote(votes[contest.id], 'no')}>
-                          <span>{dualLanguageWithSlash('No')}</span>
+                          <span>
+                            {dualLanguageWithSlash(
+                              contest.noOption?.label || 'No'
+                            )}
+                          </span>
                         </BubbleMark>
                       </Text>
                     </React.Fragment>

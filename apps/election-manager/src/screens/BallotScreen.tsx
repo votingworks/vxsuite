@@ -211,8 +211,8 @@ const BallotScreen = () => {
                   }}
                 />
                 <ul>
-                  <li>Yes</li>
-                  <li>No</li>
+                  <li>{contest.yesOption?.label || 'Yes'}</li>
+                  <li>{contest.noOption?.label || 'No'}</li>
                 </ul>
               </React.Fragment>
             ) : null}
