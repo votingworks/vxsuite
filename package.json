@@ -1,0 +1,9 @@
+{
+  "name": "vxsuite",
+  "license": "GPL-3.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "prodserver"
+  ]
+}
