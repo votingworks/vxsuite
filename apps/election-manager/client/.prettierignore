@@ -1,8 +1,0 @@
-.build
-android
-build
-coverage
-dist
-ios
-node_modules
-src/data/invalidElection.json
