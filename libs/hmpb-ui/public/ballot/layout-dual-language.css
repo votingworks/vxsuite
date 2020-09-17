@@ -4,7 +4,7 @@
 
 @media print {
   @page {
-    size: letter portrait;
+    size: legal portrait;
     margin: 0.3in 0.3in 1.05in;
 
     @bottom-center {

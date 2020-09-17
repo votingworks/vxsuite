@@ -102,7 +102,7 @@ html {
 /* Adjust printed ballot paper settings */
 @page {
   margin: 0.5in;
-  size: letter portrait;
+  size: legal portrait;
 }
 
 /* Layout Utilities */
