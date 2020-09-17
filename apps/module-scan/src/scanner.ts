@@ -30,16 +30,35 @@ export enum ScannerImageFormat {
   TIFF = 'tiff',
 }
 
+export enum ScannerPageSize {
+  Letter = 'letter',
+  Legal = 'legal',
+}
+
+export interface Options {
+  format?: ScannerImageFormat
+  pageSize?: ScannerPageSize
+}
+
 /**
  * Scans duplex images in batch mode from a Fujitsu scanner.
  */
 export class FujitsuScanner implements Scanner {
-  public constructor(private format = ScannerImageFormat.PNG) {}
+  private readonly format: ScannerImageFormat
+  private readonly pageSize: ScannerPageSize
+
+  public constructor({
+    format = ScannerImageFormat.PNG,
+    pageSize = ScannerPageSize.Legal,
+  }: Options = {}) {
+    this.format = format
+    this.pageSize = pageSize
+  }
 
   public scanSheets(
     directory = dirSync().name
   ): AsyncGenerator<SheetOf<string>> {
-    const args = [
+    const args: string[] = [
       '-d',
       'fujitsu',
       '--resolution',
@@ -52,6 +71,10 @@ export class FujitsuScanner implements Scanner {
       `--batch-print`,
       `--batch-prompt`,
     ]
+
+    if (this.pageSize === ScannerPageSize.Legal) {
+      args.push('--page-width', '215.872', '--page-height', '355.6')
+    }
 
     debug(
       'Calling scanimage to scan into %s in format %s; %s',
