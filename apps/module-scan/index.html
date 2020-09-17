@@ -1,0 +1,92 @@
+<html>
+  <head>
+    <title>Test Page for Scan</title>
+  </head>
+  <script>
+    // @ts-check
+
+    async function getStatus() {
+      const textArea = /** @type {HTMLTextAreaElement} */ (document.getElementById(
+        'result'
+      ))
+      textArea.value = await (await fetch('/scan/status')).text()
+    }
+
+    window.setInterval(getStatus, 2000)
+
+    function doScan() {
+      fetch('/scan/scanBatch', {
+        method: 'POST',
+      })
+    }
+
+    function browseFileImagesToScan() {
+      const scanFilesInput = document.getElementById('scan-files-input')
+      scanFilesInput.click()
+    }
+
+    async function scanFromFiles() {
+      const scanFilesInput = /** @type {HTMLInputElement} */ (document.getElementById(
+        'scan-files-input'
+      ))
+      const scanFilesButton = /** @type {HTMLButtonElement} */ (document.getElementById(
+        'scan-files-button'
+      ))
+      const scanFilesButtonText = scanFilesButton.textContent
+
+      scanFilesButton.textContent = 'Uploading…'
+      scanFilesButton.disabled = true
+
+      try {
+        const formData = new FormData()
+
+        for (const file of scanFilesInput.files) {
+          formData.append(
+            'files',
+            new Blob([await file.arrayBuffer()], { type: file.type }),
+            file.name
+          )
+        }
+
+        await fetch('/scan/scanFiles', {
+          method: 'POST',
+          body: formData,
+        })
+      } catch (error) {
+        console.error(error)
+        alert(error.message)
+      }
+
+      scanFilesButton.textContent = scanFilesButtonText
+      scanFilesButton.disabled = false
+      scanFilesInput.value = null
+    }
+  </script>
+
+  <body>
+    <h1>Test Page for Scan</h1>
+
+    <form>
+      <textarea id="result" style="font-family: monospace;" cols="80" rows="10">
+      </textarea>
+    </form>
+
+    <button onclick="doScan()">Scan</button>
+
+    <form method="post" action="/scan/export">
+      <input type="submit" value="export" />
+    </form>
+
+    <button id="scan-files-button" onclick="browseFileImagesToScan()">
+      Scan file(s)…
+    </button>
+    <input
+      id="scan-files-input"
+      type="file"
+      onchange="scanFromFiles()"
+      accept="image/jpeg,image/png,image/tiff"
+      multiple
+      style="opacity: 0;"
+    />
+  </body>
+</html>
