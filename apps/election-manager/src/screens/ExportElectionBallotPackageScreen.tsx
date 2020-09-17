@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react'
 import pluralize from 'pluralize'
 import { getElectionLocales } from '@votingworks/ballot-encoder'
 
+import { Monospace } from '@votingworks/hmpb-ui'
 import { DEFAULT_LOCALE } from '../config/globals'
 import {
   getBallotPath,
@@ -12,7 +13,6 @@ import {
 import AppContext from '../contexts/AppContext'
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import NavigationScreen from '../components/NavigationScreen'
-import { Monospace } from '../components/Text'
 
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
 

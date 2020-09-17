@@ -11,6 +11,7 @@
 const path = require('path')
 const { TsconfigPathsPlugin } = require('tsconfig-paths-webpack-plugin')
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
+const CopyPlugin = require('copy-webpack-plugin')
 const { pathsToModuleNameMapper } = require('ts-jest/utils')
 const { loadConfig } = require('tsconfig-paths')
 const { join } = require('path')
@@ -20,30 +21,50 @@ module.exports = {
    * @param {import('webpack').Configuration} config
    */
   webpack(config) {
-    // Remove guard against importing modules outside of `src`.
-    // Needed for workspace projects.
-    config.resolve.plugins = config.resolve.plugins.filter(
-      (plugin) => !(plugin instanceof ModuleScopePlugin)
-    )
+    config.plugins = [
+      ...(config.plugins || []),
 
-    // Add support for importing workspace projects.
-    config.resolve.plugins.push(
-      new TsconfigPathsPlugin({
-        configFile: path.resolve(__dirname, 'tsconfig.json'),
-        extensions: ['.ts', '.tsx', '.js', '.jsx'],
-        mainFields: ['module', 'main'],
-      })
-    )
+      // Add fonts, seals, and ballot styles from hmpb-ui.
+      new CopyPlugin({
+        patterns: [{ from: join(__dirname, '../../libs/hmpb-ui/public') }],
+      }),
+    ]
 
-    // Replace include option for babel loader with exclude
+    const resolvePlugins = (config.resolve && config.resolve.plugins) || []
+
+    config.resolve = {
+      ...config.resolve,
+      plugins: [
+        // Remove guard against importing modules outside of `src`.
+        // Needed for workspace projects.
+        ...resolvePlugins.filter(
+          (plugin) => !(plugin instanceof ModuleScopePlugin)
+        ),
+
+        // Add support for importing workspace projects.
+        new TsconfigPathsPlugin({
+          configFile: path.resolve(__dirname, 'tsconfig.json'),
+          extensions: ['.ts', '.tsx', '.js', '.jsx'],
+          mainFields: ['module', 'main'],
+        }),
+      ],
+    }
+
+    // Replace include option for babel-loader with exclude
     // so babel will handle workspace projects as well.
-    for (const r of config.module.rules) {
+    const moduleRules = (config.module && config.module.rules) || []
+    for (const r of moduleRules) {
       if (r.oneOf) {
         const babelLoader = r.oneOf.find(
           (rr) =>
             (Array.isArray(rr.loader) || typeof rr.loader === 'string') &&
             rr.loader.indexOf('babel-loader') !== -1
         )
+
+        if (!babelLoader) {
+          throw new Error('could not find babel-loader module rule')
+        }
+
         babelLoader.exclude = /node_modules/
         delete babelLoader.include
       }

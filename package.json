@@ -2,8 +2,15 @@
   "name": "vxsuite",
   "license": "GPL-3.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "libs/*"
-  ]
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "libs/*"
+    ],
+    "nohoist": [
+      "**/ts-jest",
+      "**/ts-jest/**",
+      "**/jest"
+    ]
+  }
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { HandMarkedPaperBallotProps } from '../HandMarkedPaperBallot'
+import { HandMarkedPaperBallotProps } from '@votingworks/hmpb-ui'
 
 const HandMarkedPaperBallot = ({
   ballotStyleId,

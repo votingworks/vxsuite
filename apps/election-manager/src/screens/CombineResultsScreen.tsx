@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import fileDownload from 'js-file-download'
 import styled from 'styled-components'
 
+import { HorizontalRule, Prose } from '@votingworks/hmpb-ui'
 import ConverterClient from '../lib/ConverterClient'
 
 import { InputEventFunction } from '../config/types'
@@ -10,8 +11,6 @@ import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import routerPaths from '../routerPaths'
 import FileInputButton from '../components/FileInputButton'
-import HorizontalRule from '../components/HorizontalRule'
-import Prose from '../components/Prose'
 import Loading from '../components/Loading'
 import NavigationScreen from '../components/NavigationScreen'
 

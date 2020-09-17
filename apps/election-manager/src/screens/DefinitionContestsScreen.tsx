@@ -10,6 +10,14 @@ import {
   MsEitherNeitherContest,
 } from '@votingworks/ballot-encoder'
 
+import {
+  Prose,
+  Text,
+  BubbleMark,
+  CandidateContestChoices,
+  Contest,
+} from '@votingworks/hmpb-ui'
+import { useTranslation } from 'react-i18next'
 import readFileAsync from '../lib/readFileAsync'
 import {
   ButtonEventFunction,
@@ -20,15 +28,8 @@ import {
 import NavigationScreen from '../components/NavigationScreen'
 import AppContext from '../contexts/AppContext'
 import Button, { SegmentedButton } from '../components/Button'
-import {
-  CandidateContestChoices,
-  Contest,
-} from '../components/HandMarkedPaperBallot'
-import Prose from '../components/Prose'
-import Text from '../components/Text'
 import TextInput from '../components/TextInput'
 import { TextareaAutosize } from '../components/Textarea'
-import BubbleMark from '../components/BubbleMark'
 import FileInputButton from '../components/FileInputButton'
 
 const PageHeader = styled.div`
@@ -173,6 +174,7 @@ const ToggleField = ({
 
 const DefinitionContestsScreen = () => {
   const { electionDefinition, saveElection } = useContext(AppContext)
+  const { t } = useTranslation()
   const { election } = electionDefinition!
   const { contestId } = useParams<{ contestId: string }>()
   const contestIndex = election.contests.findIndex((c) => c.id === contestId)
@@ -305,6 +307,7 @@ ${fileContent}`
                       parties={election.parties}
                       vote={[]}
                       locales={{ primary: 'en-US' }}
+                      t={t}
                     />
                   </React.Fragment>
                 )}

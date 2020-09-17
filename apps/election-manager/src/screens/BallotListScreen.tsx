@@ -3,14 +3,13 @@ import styled from 'styled-components'
 import pluralize from 'pluralize'
 import moment from 'moment'
 
+import { NoWrap, Prose } from '@votingworks/hmpb-ui'
 import AppContext from '../contexts/AppContext'
 
 import routerPaths from '../routerPaths'
 import Button, { SegmentedButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Table, { TD } from '../components/Table'
-import { NoWrap } from '../components/Text'
-import Prose from '../components/Prose'
 import {
   getBallotStylesData,
   sortBallotStyleDataByPrecinct,

@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  test-frontend-and-server:
+  test-packages:
     docker:
       - image: circleci/node:12.10.0-browsers
     steps:
@@ -8,7 +8,7 @@ jobs:
       - restore_cache:
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "apps/election-manager/package.json" }}
+            "yarn.lock" }}
       - run:
           name: Setup Dependencies
           command: yarn install --frozen-lockfile
@@ -20,16 +20,22 @@ jobs:
       - save_cache: # special step to save the dependency cache
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "apps/election-manager/package.json" }}
+            "yarn.lock" }}
           paths:
             - ~/.cache
-      - run: # run tests
-          name: Run Front-End Test and Coverage
+
+      # TODO: run these in parallel
+      - run:
+          name: election-manager
           command: |
             yarn --cwd apps/election-manager test:coverage
+      - run:
+          name: hmpb-ui
+          command: |
+            yarn --cwd libs/hmpb-ui test:coverage
 
 workflows:
   version: 2
-  test-frontend-and-server:
+  test-packages:
     jobs:
-      - test-frontend-and-server
+      - test-packages

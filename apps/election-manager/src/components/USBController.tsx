@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
+import { Text } from '@votingworks/hmpb-ui'
 import AppContext from '../contexts/AppContext'
 
 import Button from './Button'
-import Text from './Text'
 
 import { UsbDriveStatus } from '../lib/usbstick'
 

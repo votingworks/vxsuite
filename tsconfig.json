@@ -22,6 +22,9 @@
     "paths": {
       "@votingworks/election-manager": [
         "apps/client/src/index.tsx"
+      ],
+      "@votingworks/hmpb-ui": [
+        "libs/hmpb-ui/src/index.ts"
       ]
     }
   }

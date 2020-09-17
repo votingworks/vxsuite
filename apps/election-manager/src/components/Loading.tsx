@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
+import { Prose } from '@votingworks/hmpb-ui'
 import ProgressEllipsis from './ProgressEllipsis'
-import Prose from './Prose'
 
 const Fullscreen = styled.div`
   display: flex;
