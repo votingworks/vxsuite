@@ -6,3 +6,4 @@
 /src/**/*.js
 *.d.ts
 /src/serviceWorker.ts
+config-overrides.js
