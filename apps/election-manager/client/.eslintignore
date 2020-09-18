@@ -1,8 +1,0 @@
-/build
-/coverage
-/cypress/plugins
-/cypress/integration/examples
-/cypress/support
-/src/**/*.js
-*.d.ts
-/src/serviceWorker.ts
