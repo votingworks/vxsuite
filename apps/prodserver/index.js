@@ -16,8 +16,8 @@ if (!appRoot || !fs.statSync(appRoot).isDirectory()) {
   process.exit(1)
 }
 
-const proxy = require(path.join(appRoot, 'src/setupProxy'))
-const pkg = require(path.join(appRoot, 'package.json'))
+const proxy = require(path.resolve(appRoot, 'src/setupProxy'))
+const pkg = require(path.resolve(appRoot, 'package.json'))
 const app = express()
 const port = 3000
 
@@ -28,9 +28,9 @@ app.use((req, res, next) => {
 
 proxy(app)
 
-app.use(express.static(path.join(appRoot, 'build')))
+app.use(express.static(path.resolve(appRoot, 'build')))
 app.get('*', (req, res) => {
-  res.sendFile(path.join(appRoot, 'build/index.html'))
+  res.sendFile(path.resolve(appRoot, 'build/index.html'))
 })
 
 app.listen(port, () => console.log(`${pkg.name} listening on port ${port}!`))
