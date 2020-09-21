@@ -328,8 +328,8 @@ export default class YesNoContest extends React.Component<Props, State> {
           <ContestFooter>
             <ChoicesGrid data-testid="contest-choices">
               {[
-                { title: 'Yes', vote: 'yes' } as const,
-                { title: 'No', vote: 'no' } as const,
+                { label: 'Yes', vote: 'yes' } as const,
+                { label: 'No', vote: 'no' } as const,
               ].map((answer) => {
                 const isChecked = getSingleYesNoVote(vote) === answer.vote
                 const isDisabled = !isChecked && !!vote
@@ -350,11 +350,11 @@ export default class YesNoContest extends React.Component<Props, State> {
                     <Prose>
                       <Text
                         aria-label={`${isChecked ? 'Selected, ' : ''} ${
-                          answer.title
+                          answer.label
                         } on ${contest.shortTitle ?? contest.title}`}
                         wordBreak
                       >
-                        {answer.title}
+                        {answer.label}
                       </Text>
                     </Prose>
                   </ChoiceButton>
