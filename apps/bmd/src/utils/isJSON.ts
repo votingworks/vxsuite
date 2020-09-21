@@ -30,7 +30,7 @@ function isJSON(value: unknown, passObject = false): boolean {
       .replace(/\]$/, '')
       .replace(/},{/g, '}\n{')
       .split(/\n/)
-      .every(s => isJSON(s))
+      .every((s) => isJSON(s))
   }
 
   return false

@@ -46,7 +46,7 @@ const StyledChoiceButton = styled('button').attrs((props: Attrs) => ({
     border-color: ${({ isSelected }) =>
       isSelected ? '#028099' : 'rgb(211, 211, 211)'};
     border-radius: 0.125rem 0 0 0.125rem;
-    background: #FFFFFF;
+    background: #ffffff;
     width: 3rem;
     text-align: center;
     color: #028099;

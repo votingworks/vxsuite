@@ -62,12 +62,12 @@ describe('KioskHardware', () => {
 })
 
 describe('MemoryHardware', () => {
-  it('has a standard config with all the typical hardware', done => {
+  it('has a standard config with all the typical hardware', (done) => {
     const hardware = MemoryHardware.standard
 
-    hardware.devices.subscribe(devices => {
+    hardware.devices.subscribe((devices) => {
       expect(
-        new Set(Array.from(devices).map(device => device.deviceName))
+        new Set(Array.from(devices).map((device) => device.deviceName))
       ).toEqual(
         new Set([
           OmniKeyCardReaderDeviceName,
@@ -80,10 +80,10 @@ describe('MemoryHardware', () => {
     })
   })
 
-  it('has no connected devices by default', done => {
+  it('has no connected devices by default', (done) => {
     const hardware = new MemoryHardware()
 
-    hardware.devices.subscribe(devices => {
+    hardware.devices.subscribe((devices) => {
       expect(Array.from(devices)).toEqual([])
       done()
     })

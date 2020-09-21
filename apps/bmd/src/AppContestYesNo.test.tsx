@@ -77,9 +77,8 @@ it('Single Seat Contest', async () => {
   // Select No
   fireEvent.click(getByText('No'))
   expect(
-    within(getByTestId('contest-choices'))
-      .getByText('No')
-      .closest('button')!.dataset.selected
+    within(getByTestId('contest-choices')).getByText('No').closest('button')!
+      .dataset.selected
   ).toBe('false')
 
   // Overvote modal is displayed

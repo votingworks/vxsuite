@@ -17,11 +17,11 @@ import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 const election = electionSample as Election
 const electionWithNoPartyCandidateContests: Election = {
   ...election,
-  contests: election.contests.map(contest => {
+  contests: election.contests.map((contest) => {
     if (contest.type === 'candidate') {
       const noPartyCandidateContest = {
         ...contest,
-        candidates: contest.candidates.map(candidate => ({
+        candidates: contest.candidates.map((candidate) => ({
           ...candidate,
           partyId: undefined,
         })),

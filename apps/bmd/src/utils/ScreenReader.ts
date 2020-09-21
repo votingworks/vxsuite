@@ -302,7 +302,7 @@ export class AriaScreenReader implements ScreenReader {
 
     return (
       Array.from(node.childNodes)
-        .map(child => this.describeNode(child))
+        .map((child) => this.describeNode(child))
         .filter(Boolean)
         .join(' ') + terminator
     )
@@ -364,7 +364,7 @@ export class SpeechSynthesisTextToSpeech implements TextToSpeech {
       return
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const utterance = new SpeechSynthesisUtterance(text)
       const { getVoice } = this
       const voice = getVoice?.()

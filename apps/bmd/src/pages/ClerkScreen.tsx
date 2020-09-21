@@ -39,7 +39,7 @@ const ClerkScreen = ({
   toggleLiveMode,
   unconfigure,
 }: Props) => {
-  const changeAppPrecinctId: EventTargetFunction = event => {
+  const changeAppPrecinctId: EventTargetFunction = (event) => {
     const currentTarget = event.currentTarget as HTMLInputElement
     const appPrecinctId = currentTarget.value
     setAppPrecinctId(appPrecinctId)
@@ -87,7 +87,7 @@ const ClerkScreen = ({
                           ignorePunctuation: true,
                         })
                       )
-                      .map(precinct => (
+                      .map((precinct) => (
                         <option key={precinct.id} value={precinct.id}>
                           {precinct.name}
                         </option>

@@ -277,7 +277,7 @@ export class KioskHardware extends MemoryHardware {
    */
   public async readPrinterStatus(): Promise<PrinterStatus> {
     const printers = await this.kiosk.getPrinterInfo()
-    return { connected: printers.some(printer => printer.connected) }
+    return { connected: printers.some((printer) => printer.connected) }
   }
 
   /**

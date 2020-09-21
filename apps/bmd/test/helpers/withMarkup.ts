@@ -9,7 +9,7 @@ const hasText = (text: string, node: HTMLElement) => node.textContent === text
 const withMarkup = <T>(query: Query<T>) => (text: string): T =>
   query((content: string, node: HTMLElement) => {
     const childrenDontHaveText = Array.from(node.children).every(
-      child => !hasText(text, child as HTMLElement)
+      (child) => !hasText(text, child as HTMLElement)
     )
     return hasText(text, node) && childrenDontHaveText
   })

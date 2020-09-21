@@ -104,7 +104,7 @@ exports[`Single Seat Contest 1`] = `
   border-right: 1px solid;
   border-color: rgb(211,211,211);
   border-radius: 0.125rem 0 0 0.125rem;
-  background: #FFFFFF;
+  background: #ffffff;
   width: 3rem;
   text-align: center;
   color: #028099;

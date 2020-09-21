@@ -135,7 +135,7 @@ const CandidateContestResult = ({
     <NoSelection />
   ) : (
     <React.Fragment>
-      {vote.map(candidate => (
+      {vote.map((candidate) => (
         <Text bold key={candidate.id} wordBreak>
           <strong>{candidate.name}</strong>{' '}
           {candidate.partyId &&
@@ -250,7 +250,7 @@ const PrintBallot = ({
       </Header>
       <Content>
         <BallotSelections>
-          {(contests as Contests).map(contest => (
+          {(contests as Contests).map((contest) => (
             <Contest key={contest.id}>
               <ContestProse compact>
                 <h3>{contest.title}</h3>

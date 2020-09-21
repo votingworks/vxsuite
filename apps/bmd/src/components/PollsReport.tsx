@@ -89,34 +89,40 @@ const PollsReport = ({
   reportPurpose,
 }: Props) => {
   const { title, date, county, precincts, state, seal, sealURL } = election
-  const precinct = precincts.find(p => p.id === precinctId) as Precinct
+  const precinct = precincts.find((p) => p.id === precinctId) as Precinct
   return (
     <Report>
       <Header>
-        {/* istanbul ignore next */
-        seal && !sealURL ? (
-          <div
-            className="seal"
-            // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: seal }}
-          />
-        ) : (
-          <React.Fragment />
-        )}
-        {/* istanbul ignore next */
-        sealURL && !seal ? (
-          <div className="seal">
-            <SealImage src={sealURL} alt="" />
-          </div>
-        ) : (
-          <React.Fragment />
-        )}
+        {
+          /* istanbul ignore next */
+          seal && !sealURL ? (
+            <div
+              className="seal"
+              // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: seal }}
+            />
+          ) : (
+            <React.Fragment />
+          )
+        }
+        {
+          /* istanbul ignore next */
+          sealURL && !seal ? (
+            <div className="seal">
+              <SealImage src={sealURL} alt="" />
+            </div>
+          ) : (
+            <React.Fragment />
+          )
+        }
         <Prose className="ballot-header-content">
           <h2>
             {precinct.name}{' '}
-            {/* istanbul ignore next */
-            !isLiveMode ? 'Unofficial TEST' : 'Official'}{' '}
+            {
+              /* istanbul ignore next */
+              !isLiveMode ? 'Unofficial TEST' : 'Official'
+            }{' '}
             {isPollsOpen ? 'Polls Closed Report' : 'Polls Opened Report'}
           </h2>
           <h3>{title}</h3>
