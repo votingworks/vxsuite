@@ -62,7 +62,7 @@ export class FujitsuScanner implements Scanner {
       '-d',
       'fujitsu',
       '--resolution',
-      '300',
+      '200',
       `--format=${this.format}`,
       '--source=ADF Duplex',
       '--dropoutcolor',
