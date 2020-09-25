@@ -171,7 +171,7 @@ const detectQRCode = async (
   imageData: ImageData
 ): Promise<{ data: Buffer; position: 'top' | 'bottom' } | undefined> => {
   const { data, width, height } = imageData
-  const clipHeight = Math.floor(height / 4)
+  const clipHeight = Math.floor(height / 2.5)
   const img = sharp(Buffer.from(data), {
     raw: {
       channels: (data.length / width / height) as Channels,
