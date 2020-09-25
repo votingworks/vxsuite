@@ -14,6 +14,7 @@ import {
   Election,
 } from '@votingworks/ballot-encoder'
 
+import { fromByteArray } from 'base64-js'
 import * as GLOBALS from '../config/globals'
 
 import { randomBase64 } from '../utils/random'
@@ -229,7 +230,7 @@ const PrintBallot = ({
           </p>
         </Prose>
         <QRCodeContainer>
-          <QRCode value={encodedBallot} />
+          <QRCode value={fromByteArray(encodedBallot)} />
           <div>
             <div>
               <div>
