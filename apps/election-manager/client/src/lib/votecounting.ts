@@ -411,8 +411,8 @@ export function fullTallyVotes({
 
   let allVotes: VotesDict[] = []
 
-  for (const precinctId in votesByPrecinct) {
-    const votes = votesByPrecinct[precinctId]!
+  for (const precinctId of election.precincts.map((p) => p.id)) {
+    const votes = votesByPrecinct[precinctId] || []
     precinctTallies[precinctId] = {
       precinctId,
       contestTallies: tallyVotesByContest({
@@ -422,6 +422,7 @@ export function fullTallyVotes({
     }
     allVotes = [...allVotes, ...votes]
   }
+
   for (const scannerId in votesByScanner) {
     const votes = votesByScanner[scannerId]!
     scannerTallies[scannerId] = {

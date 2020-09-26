@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react'
 import styled from 'styled-components'
 
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import find from '../utils/find'
 
 import { fullTallyVotes, getContestTallyMeta } from '../lib/votecounting'
@@ -35,8 +35,6 @@ const TallyHeader = styled.div`
 `
 
 const TallyReportScreen = () => {
-  const history = useHistory()
-
   const { precinctId } = useParams<PrecinctReportScreenProps>()
   const { scannerId } = useParams<ScannerReportScreenProps>()
   const {
@@ -74,10 +72,6 @@ const TallyReportScreen = () => {
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
 
   const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1)
-
-  if (castVoteRecords.length === 0) {
-    history.replace(routerPaths.tally)
-  }
 
   const fullElectionTally = fullTallyVotes({
     election,
