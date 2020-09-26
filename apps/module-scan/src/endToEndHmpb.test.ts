@@ -61,7 +61,7 @@ afterEach(async () => {
 })
 
 test('going through the whole process works', async () => {
-  jest.setTimeout(20000)
+  jest.setTimeout(25000)
 
   const { election } = stateOfHamilton
   await importer.restoreConfig()
@@ -181,7 +181,7 @@ test('going through the whole process works', async () => {
 })
 
 test('failed scan with QR code can be adjudicated and exported', async () => {
-  jest.setTimeout(20000)
+  jest.setTimeout(25000)
 
   const { election } = stateOfHamilton
   await importer.restoreConfig()
@@ -309,7 +309,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 })
 
 test('ms-either-neither end-to-end', async () => {
-  jest.setTimeout(20000)
+  jest.setTimeout(25000)
 
   const {
     election,
