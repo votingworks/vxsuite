@@ -277,7 +277,7 @@ const TallyScreen = () => {
             Remove CVR Files…
           </Button>
         </p>
-        {hasCastVoteRecordFiles && voteCounts && (
+        {voteCounts && (
           <React.Fragment>
             <h2>Ballot Count By Precinct</h2>
             <Table>
@@ -305,16 +305,14 @@ const TallyScreen = () => {
                         </TD>
                         <TD>{format.count(precinctBallotsCount)}</TD>
                         <TD>
-                          {!!precinctBallotsCount && (
-                            <LinkButton
-                              small
-                              to={routerPaths.tallyPrecinctReport({
-                                precinctId: precinct.id,
-                              })}
-                            >
-                              View {statusPrefix} {precinct.name} Tally Report
-                            </LinkButton>
-                          )}
+                          <LinkButton
+                            small
+                            to={routerPaths.tallyPrecinctReport({
+                              precinctId: precinct.id,
+                            })}
+                          >
+                            View {statusPrefix} {precinct.name} Tally Report
+                          </LinkButton>
                         </TD>
                       </tr>
                     )
@@ -329,10 +327,7 @@ const TallyScreen = () => {
                     </strong>
                   </TD>
                   <TD>
-                    <LinkButton
-                      disabled={!hasCastVoteRecordFiles}
-                      to={routerPaths.tallyFullReport}
-                    >
+                    <LinkButton to={routerPaths.tallyFullReport}>
                       View {statusPrefix} Full Election Tally
                     </LinkButton>
                   </TD>
