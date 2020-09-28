@@ -1,0 +1,236 @@
+{
+  "title": "General Election",
+  "state": "State of Sample",
+  "county": {
+    "id": "sample-county",
+    "name": "Sample County",
+    "_lang": {
+      "es-US": {
+        "name": "Condado de Muestra"
+      }
+    }
+  },
+  "date": "2020-11-03T00:00:00-08:00",
+  "_lang": {
+    "es-US": {
+      "title": "Eleccion General",
+      "state": "Estado de Muestra"
+    }
+  },
+  "districts": [
+    {
+      "id": "district-1",
+      "name": "District 1"
+    },
+    {
+      "id": "district-2",
+      "name": "District 2"
+    }
+  ],
+  "parties": [
+    {
+      "id": "0",
+      "name": "Liberty",
+      "fullName": "Liberty Party",
+      "abbrev": "Li",
+      "_lang": {
+        "es-US": {
+          "name": "Libertad",
+          "fullName": "Partido de la Libertad",
+          "abbrev": "Li"
+        }
+      }
+    },
+    {
+      "id": "1",
+      "name": "Democrat",
+      "fullName": "Democratic Party",
+      "abbrev": "D",
+      "_lang": {
+        "es-US": {
+          "name": "Demócrata",
+          "fullName": "Partido Democrático",
+          "abbrev": "D"
+        }
+      }
+    },
+    {
+      "id": "2",
+      "name": "Republican",
+      "fullName": "Republican Party",
+      "abbrev": "R",
+      "_lang": {
+        "es-US": {
+          "name": "Republicano",
+          "fullName": "Partido Republicano",
+          "abbrev": "R"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "Constitution",
+      "fullName": "Constitution Party",
+      "abbrev": "C",
+      "_lang": {
+        "es-US": {
+          "name": "Constitución",
+          "fullName": "Partido de la Constitución",
+          "abbrev": "C"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "name": "Federalist",
+      "fullName": "Federalist Party",
+      "abbrev": "F",
+      "_lang": {
+        "es-US": {
+          "name": "Federalista",
+          "fullName": "Partido Federalista",
+          "abbrev": "F"
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "Labor",
+      "fullName": "Labor Party",
+      "abbrev": "La",
+      "_lang": {
+        "es-US": {
+          "name": "Trabajo",
+          "fullName": "Partido del Trabajo",
+          "abbrev": "PT"
+        }
+      }
+    },
+    {
+      "id": "6",
+      "name": "Independent",
+      "fullName": "Independent Party",
+      "abbrev": "I",
+      "_lang": {
+        "es-US": {
+          "name": "Independiente",
+          "fullName": "Partido Independiente",
+          "abbrev": "I"
+        }
+      }
+    }
+  ],
+  "contests": [
+    {
+      "id": "mayor-contest",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "City",
+      "title": "Mayor",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "aaron-aligator",
+          "name": "Aaron Aligator",
+          "partyId": "0"
+        },
+        {
+          "id": "peter-pigeon",
+          "name": "Peter Pigeon",
+          "partyId": "1"
+        }
+      ],
+      "allowWriteIns": false,
+      "_lang": {
+        "es-US": {
+          "section": "Ciudad",
+          "title": "Alcalde"
+        }
+      }
+    },
+    {
+      "id": "proposition-r",
+      "districtId": "district-2",
+      "type": "yesno",
+      "section": "City",
+      "title": "Prop R: City Recycling Program",
+      "shortTitle": "Prop R",
+      "description": "Shall the city start a recycling program?",
+      "_lang": {
+        "es-US": {
+          "section": "Ciudad",
+          "title": "Prop R: Programa de reciclaje de la ciudad",
+          "shortTitle": "Prop R",
+          "description": "¿Deberá la ciudad comenzar un programa de reciclaje?"
+        }
+      }
+    }
+  ],
+  "precincts": [
+    {
+      "id": "precinct-1",
+      "name": "Precinct 1"
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "1",
+      "precincts": ["precinct-1"],
+      "districts": ["district-1", "district-2"]
+    },
+    {
+      "id": "2",
+      "precincts": ["precinct-1"],
+      "districts": ["district-1"]
+    }
+  ],
+  "sealURL": "/seals/Sample-Seal.svg",
+  "ballotStrings": {
+    "Official Ballot": "Official Ballot",
+    "TEST BALLOT": "TEST BALLOT",
+    "Yes": "Yes",
+    "No": "No",
+    "Precinct": "Precinct",
+    "Style": "Style",
+    "Page": "Page",
+    "Pages": "Pages",
+    "{{primaryPartyName}} {{electionTitle}}": "{{primaryPartyName}} {{electionTitle}}",
+    "write-in": "write-in",
+    "Vote for 1": "Vote for 1",
+    "Vote for not more than {{ seats }}": "Vote for not more than {{ seats }}",
+    "voteYesOrNo": "Vote <strong>Yes</strong> or <strong>No</strong>",
+    "Instructions": "Instructions",
+    "To vote, use a black pen to completely fill in the oval to the left of your choice.": "To vote, use a black pen to completely fill in the oval to the left of your choice.",
+    "To Vote for a Write-In": "To Vote for a Write-In",
+    "To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.": "To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.",
+    "To correct a mistake": "To correct a mistake",
+    "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.": "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.",
+    "Thank you for voting.": "Thank you for voting.",
+    "You have reached the end of the ballot. Please review your ballot selections.": "You have reached the end of the ballot. Please review your ballot selections.",
+    "_lang": {
+      "es-US": {
+        "Official Ballot": "Boleta Oficial",
+        "TEST BALLOT": "BOLETA DE PRUEBA",
+        "Yes": "Sí",
+        "No": "No",
+        "Precinct": "Recinto",
+        "Style": "Estilo",
+        "Page": "Página",
+        "Pages": "Paginas",
+        "{{primaryPartyName}} {{electionTitle}}": "{{electionTitle}} del {{primaryPartyName}}",
+        "write-in": "voto por",
+        "Vote for 1": "Voto por 1",
+        "Vote for not more than {{ seats }}": "Voto por no más de {{ seats }}",
+        "voteYesOrNo": "Voto <strong>Sí</strong> o <strong>No</strong>",
+        "Instructions": "Instrucciones",
+        "To vote, use a black pen to completely fill in the oval to the left of your choice.": "Para votar, use un bolígrafo negro para rellenar completamente el óvalo a la izquierda de su selección.",
+        "To Vote for a Write-In": "Para asignar un voto",
+        "To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.": "Para votar para una persona que no figura en la boleta electoral, rellena completamente el óvalo a la izquierda de la línea de “voto por” y escriba el nombre de la persona en la línea.",
+        "To correct a mistake": "Para corregir un error",
+        "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.": "Para hacer una corrección, solicite una boleta nueva. Cualquier marca que no sea óvalos llenos puede hacer que su boleta no se cuente.",
+        "Thank you for voting.": "Gracias por votar.",
+        "You have reached the end of the ballot. Please review your ballot selections.": "Ha llegado al final de la votación. Por favor revise las opciones seleccionadas en su boleta."
+      }
+    }
+  }
+}
