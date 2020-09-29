@@ -1,6 +1,6 @@
-import { createImageData } from 'canvas'
 import { croppedQRCode } from '../../test/fixtures'
 import { binarize, RGBA_BLACK, RGBA_WHITE } from './binarize'
+import { createImageData } from './canvas'
 
 test('binarize grayscale', async () => {
   const imageData = createImageData(2, 2)

@@ -1,4 +1,4 @@
-import { createImageData } from 'canvas'
+import { createImageData } from './canvas'
 import { vh } from './flip'
 
 test('vh does nothing to 1x1 image (rgba)', () => {

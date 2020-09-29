@@ -1,11 +1,12 @@
 import { strict as assert } from 'assert'
-import { createCanvas, createImageData, ImageData } from 'canvas'
 import { randomBytes } from 'crypto'
-import { promises as fs } from 'fs'
+import sharp, { Channels, Sharp } from 'sharp'
 import { Rect } from '../src/types'
+import { createImageData } from '../src/utils/canvas'
+import crop from '../src/utils/crop'
 import {
-  makeImageTransform,
   assertGrayscaleImage,
+  makeImageTransform,
 } from '../src/utils/imageFormatUtils'
 
 export function randomImage({
@@ -77,11 +78,7 @@ export function randomInt(
 /**
  * Converts an image to an RGBA image.
  */
-export const toRGBA = makeImageTransform(grayToRGBA, (imageData) =>
-  imageData instanceof ImageData
-    ? imageData
-    : createImageData(imageData.data, imageData.width, imageData.height)
-)
+export const toRGBA = makeImageTransform(grayToRGBA, (imageData) => imageData)
 
 /**
  * Converts a grayscale image to an RGBA image.
@@ -112,11 +109,28 @@ export async function writeImageToFile(
   filePath: string,
   bounds?: Rect
 ): Promise<void> {
-  const canvas = createCanvas(
-    bounds?.width ?? imageData.width,
-    bounds?.height ?? imageData.height
-  )
-  const context = canvas.getContext('2d')
-  context.putImageData(toRGBA(imageData), -(bounds?.x ?? 0), -(bounds?.y ?? 0))
-  await fs.writeFile(filePath, canvas.toBuffer())
+  let img: Sharp
+  const channels = (imageData.data.length /
+    imageData.width /
+    imageData.height) as Channels
+
+  if (bounds) {
+    img = sharp(Buffer.from(crop(imageData, bounds)), {
+      raw: {
+        width: bounds.width,
+        height: bounds.height,
+        channels,
+      },
+    })
+  } else {
+    img = sharp(Buffer.from(imageData), {
+      raw: {
+        width: imageData.width,
+        height: imageData.height,
+        channels,
+      },
+    })
+  }
+
+  await img.toFile(filePath)
 }

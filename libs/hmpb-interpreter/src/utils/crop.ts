@@ -1,5 +1,5 @@
-import { createImageData } from 'canvas'
 import { Rect } from '../types'
+import { createImageData } from './canvas'
 
 /**
  * Returns a new image cropped to the specified bounds.
