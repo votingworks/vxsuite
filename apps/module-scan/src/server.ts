@@ -468,10 +468,6 @@ export async function start({
       ...makeTemporaryBallotImportImageDirectories().paths,
     })
   app = app ?? buildApp({ importer, store })
-  await importer.restoreConfig()
-
-  // cleanup incomplete batches from before
-  await store.cleanupIncompleteBatches()
 
   app.listen(port, () => {
     log(`Listening at http://localhost:${port}/`)
@@ -480,4 +476,14 @@ export async function start({
       log(`Scanning ballots into ${importer.scannedImagesPath}`)
     }
   })
+
+  // NOTE: this appears to cause web requests to block until restoreConfig is done.
+  // if restoreConfig ends up on a background thread, we'll want to explicitly
+  // return a "status: notready" or something like it.
+  //
+  // but for now, this seems to be fine, the front-end just waits.
+  await importer.restoreConfig()
+
+  // cleanup incomplete batches from before
+  await store.cleanupIncompleteBatches()
 }
