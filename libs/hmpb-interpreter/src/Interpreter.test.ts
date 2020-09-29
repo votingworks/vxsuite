@@ -1,3 +1,6 @@
+import { BallotType } from '@votingworks/ballot-encoder'
+import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
+import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
 import {
   blankPage1,
   blankPage2,
@@ -7,13 +10,10 @@ import {
   partialBorderPage2,
 } from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
 import * as hamilton from '../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
-import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-general-2019'
 import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020'
-import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
-import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
+import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-general-2019'
 import Interpreter from './Interpreter'
-import { DetectQRCodeResult, BallotTargetMark } from './types'
-import { BallotType } from '@votingworks/ballot-encoder'
+import { BallotTargetMark, DetectQRCodeResult } from './types'
 
 test('interpret three-column template with instructions', async () => {
   const interpreter = new Interpreter(election)
@@ -1614,7 +1614,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.5717884130982368,
+        "score": 0.5714285714285714,
         "type": "candidate",
       },
       Object {
@@ -1629,12 +1629,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.66,
+        "score": 0.6567164179104478,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.7860824742268041,
+        "score": 0.7866323907455013,
         "type": "candidate",
       },
       Object {
@@ -1649,7 +1649,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.601010101010101,
+        "score": 0.5989974937343359,
         "type": "candidate",
       },
       Object {
@@ -1985,7 +1985,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.14910025706940874,
+        "score": 0.1483375959079284,
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2037,10 +2037,10 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
+          "height": 21,
           "width": 32,
           "x": 470,
-          "y": 315,
+          "y": 316,
         },
         "contest": Object {
           "description": "Shall the Dallas County extend the Recycling Program countywide?",
@@ -2054,10 +2054,10 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 22,
+            "height": 21,
             "width": 32,
             "x": 470,
-            "y": 315,
+            "y": 316,
           },
           "inner": Object {
             "height": 18,
@@ -2070,10 +2070,10 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
+          "height": 21,
           "width": 32,
           "x": 470,
-          "y": 365,
+          "y": 366,
         },
         "contest": Object {
           "description": "Shall the Dallas County extend the Recycling Program countywide?",
@@ -2087,10 +2087,10 @@ test('invalid marks', async () => {
         "score": 0.7455470737913485,
         "target": Object {
           "bounds": Object {
-            "height": 22,
+            "height": 21,
             "width": 32,
             "x": 470,
-            "y": 365,
+            "y": 366,
           },
           "inner": Object {
             "height": 18,
@@ -2523,7 +2523,7 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
+          "height": 21,
           "width": 32,
           "x": 470,
           "y": 1037,
@@ -2577,7 +2577,7 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 22,
+            "height": 21,
             "width": 32,
             "x": 470,
             "y": 1037,
@@ -2663,7 +2663,7 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
+          "height": 21,
           "width": 32,
           "x": 470,
           "y": 1137,
@@ -2717,7 +2717,7 @@ test('invalid marks', async () => {
         "score": 0,
         "target": Object {
           "bounds": Object {
-            "height": 22,
+            "height": 21,
             "width": 32,
             "x": 470,
             "y": 1137,
@@ -2873,10 +2873,10 @@ test('invalid marks', async () => {
             "y": 333,
           },
           "inner": Object {
-            "height": 17,
+            "height": 18,
             "width": 28,
             "x": 874,
-            "y": 335,
+            "y": 334,
           },
         },
         "type": "candidate",

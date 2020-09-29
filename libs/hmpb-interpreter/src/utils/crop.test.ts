@@ -1,6 +1,6 @@
-import { createImageData } from 'canvas'
 import { randomImage, randomInset } from '../../test/utils'
 import { Rect } from '../types'
+import { createImageData } from './canvas'
 import crop from './crop'
 
 /**

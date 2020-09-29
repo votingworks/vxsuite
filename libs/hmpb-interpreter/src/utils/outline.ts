@@ -1,5 +1,5 @@
-import { createImageData } from 'canvas'
 import { PIXEL_BLACK } from './binarize'
+import { createImageData } from './canvas'
 import { getImageChannelCount } from './imageFormatUtils'
 
 /**
