@@ -91,6 +91,7 @@
     "history": "^4.10.1",
     "http-proxy-middleware": "^1.0.3",
     "lodash.camelcase": "^4.3.0",
+    "moment": "^2.29.0",
     "normalize.css": "^8.0.1",
     "pluralize": "^8.0.0",
     "react": "^16.13.1",

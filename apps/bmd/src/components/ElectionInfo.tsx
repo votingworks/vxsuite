@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { Precinct, Election } from '@votingworks/ballot-encoder'
+import { dateLong } from '../utils/date'
+
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '../utils/election'
 
 import Seal from './Seal'
@@ -64,7 +66,7 @@ const ElectionInfo = ({
           <Prose compact>
             <h5 aria-label={`${title}.`}>{title}</h5>
             <Text small>
-              {date}
+              {dateLong(date)}
               <br />
               <NoWrap>{county.name},</NoWrap> <NoWrap>{state}</NoWrap>
             </Text>
@@ -88,7 +90,7 @@ const ElectionInfo = ({
       <Prose textCenter>
         <h1 aria-label={`${title}.`}>{title}</h1>
         <p>
-          {date}
+          {dateLong(date)}
           <br />
           {county.name}
           <br />

@@ -1,6 +1,7 @@
 import { fromByteArray } from 'base64-js'
 import React from 'react'
 import styled from 'styled-components'
+
 import {
   encodeBallot,
   BallotType,
@@ -30,6 +31,8 @@ import {
 import QRCode from './QRCode'
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
+
+import { dateLong } from '../utils/date'
 
 const Ballot = styled.div`
   page-break-after: always;
@@ -226,7 +229,7 @@ const PrintBallot = ({
             {partyPrimaryAdjective} {title}
           </h3>
           <p>
-            {date}
+            {dateLong(date)}
             <br />
             {county.name}, {state}
           </p>

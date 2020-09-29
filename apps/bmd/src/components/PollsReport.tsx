@@ -4,6 +4,8 @@ import { Precinct, Election } from '@votingworks/ballot-encoder'
 import { AppModeNames, MachineConfig } from '../config/types'
 import Prose from './Prose'
 
+import { dateLong } from '../utils/date'
+
 const Report = styled.div`
   margin: 0;
   page-break-after: always;
@@ -127,7 +129,7 @@ const PollsReport = ({
           </h2>
           <h3>{title}</h3>
           <p>
-            {date}
+            {dateLong(date)}
             <br />
             {county.name}, {state}
           </p>
