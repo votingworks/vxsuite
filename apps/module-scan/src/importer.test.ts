@@ -2,7 +2,6 @@ import {
   BallotType,
   electionSample as election,
 } from '@votingworks/ballot-encoder'
-import { createImageData } from 'canvas'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import { v4 as uuid } from 'uuid'
@@ -212,12 +211,12 @@ test('restoreConfig reads config data from the store', async () => {
     yield {
       pageNumber: 1,
       pageCount: 2,
-      page: createImageData(Uint8ClampedArray.of(0, 0, 0, 1), 1, 1),
+      page: { data: Uint8ClampedArray.of(0, 0, 0, 1), width: 1, height: 1 },
     }
     yield {
       pageNumber: 2,
       pageCount: 2,
-      page: createImageData(Uint8ClampedArray.of(0, 0, 0, 2), 1, 1),
+      page: { data: Uint8ClampedArray.of(0, 0, 0, 2), width: 1, height: 1 },
     }
   })
 

@@ -6,7 +6,6 @@ import {
   YesNoContest,
   BallotType,
 } from '@votingworks/ballot-encoder'
-import { createImageData } from 'canvas'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'
@@ -649,7 +648,11 @@ test('POST /scan/hmpb/addTemplates', async () => {
   importerMock.addHmpbTemplates.mockResolvedValueOnce([
     {
       ballotImage: {
-        imageData: createImageData(Uint8ClampedArray.of(0, 0, 0, 0), 1, 1),
+        imageData: {
+          data: Uint8ClampedArray.of(0, 0, 0, 0),
+          width: 1,
+          height: 1,
+        },
         metadata: {
           locales: { primary: 'en-US' },
           electionHash: '',
