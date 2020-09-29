@@ -34,7 +34,7 @@ export default function* findContests(
         columns.length
     ),
     minExpectedHeight = Math.floor(0.1 * ballotImage.height),
-    maxExpectedHeight = Math.ceil(0.85 * ballotImage.height),
+    maxExpectedHeight = Math.ceil(0.9 * ballotImage.height),
     errorMargin = Math.ceil(0.025 * ballotImage.width),
   }: Options = {}
 ): Generator<ContestShape> {
@@ -97,7 +97,16 @@ export default function* findContests(
         shape.bounds.width < expectedWidth - errorMargin ||
         shape.bounds.width > expectedWidth + errorMargin
       ) {
-        debug('skipping shape because it is the wrong height: %O', shape.bounds)
+        debug(
+          'skipping shape because it is the wrong size: bounds=%O, actual=%dˣ%d, min=%dˣ%d, max=%dˣ%d',
+          shape.bounds,
+          shape.bounds.width,
+          shape.bounds.height,
+          expectedWidth - errorMargin,
+          minExpectedHeight,
+          expectedWidth + errorMargin,
+          maxExpectedHeight
+        )
       } else {
         debug('found contest shape: %O', shape.bounds)
         yield {
