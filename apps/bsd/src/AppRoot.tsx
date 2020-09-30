@@ -36,6 +36,7 @@ import StatusFooter from './components/StatusFooter'
 const App: React.FC = () => {
   const history = useHistory()
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
+  const [isConfigLoaded, setIsConfigLoaded] = useState(false)
   const [election, setElection] = useState<OptionalElection>()
   const [electionHash, setElectionHash] = useState<string>()
   // used to hide batches while they're being deleted
@@ -60,7 +61,10 @@ const App: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    refreshConfig()
+    ;(async () => {
+      await refreshConfig()
+      setIsConfigLoaded(true)
+    })()
   }, [refreshConfig])
 
   const updateStatus = useCallback(async () => {
@@ -360,7 +364,18 @@ const App: React.FC = () => {
     )
   }
 
-  return <LoadElectionScreen setElection={setElection} />
+  if (isConfigLoaded) {
+    return <LoadElectionScreen setElection={setElection} />
+  }
+  return (
+    <Screen>
+      <Main>
+        <MainChild maxWidth={false}>
+          <h1>Loading Configuration...</h1>
+        </MainChild>
+      </Main>
+    </Screen>
+  )
 }
 
 export default App
