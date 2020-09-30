@@ -434,7 +434,6 @@ class AppRoot extends React.Component<Props, State> {
 
           const election = this.state.election!
           const ballot: CompletedBallot = {
-            election,
             ballotId: '',
             ballotStyle: getBallotStyle({
               election,
@@ -445,10 +444,10 @@ class AppRoot extends React.Component<Props, State> {
               precinctId: this.state.precinctId,
             })!,
             votes: this.state.votes ?? blankBallotVotes,
-            isTestBallot: !this.state.isLiveMode,
+            isTestMode: !this.state.isLiveMode,
             ballotType: BallotType.Standard,
           }
-          const longValue = encodeBallot(ballot)
+          const longValue = encodeBallot(election, ballot)
 
           this.writingVoteToCard = true
           try {

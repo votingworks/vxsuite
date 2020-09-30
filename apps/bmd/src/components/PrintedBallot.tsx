@@ -1,3 +1,4 @@
+import { fromByteArray } from 'base64-js'
 import React from 'react'
 import styled from 'styled-components'
 import {
@@ -14,7 +15,6 @@ import {
   Election,
 } from '@votingworks/ballot-encoder'
 
-import { fromByteArray } from 'base64-js'
 import * as GLOBALS from '../config/globals'
 
 import { randomBase64 } from '../utils/random'
@@ -195,13 +195,12 @@ const PrintBallot = ({
   const ballotStyle = getBallotStyle({ ballotStyleId, election })
   const contests = getContests({ ballotStyle, election })
   const precinct = getPrecinctById({ election, precinctId })!
-  const encodedBallot = encodeBallot({
-    election,
+  const encodedBallot = encodeBallot(election, {
     precinct,
     ballotId: '',
     ballotStyle,
     votes,
-    isTestBallot: !isLiveMode,
+    isTestMode: !isLiveMode,
     ballotType: BallotType.Standard,
   })
 

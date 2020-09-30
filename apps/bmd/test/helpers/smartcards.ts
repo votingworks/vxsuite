@@ -1,11 +1,9 @@
 import { act, wait } from '@testing-library/react'
 import {
   CandidateContest,
-  CompletedBallot,
   electionSample as election,
   vote,
   getContests,
-  BallotType,
   VotesDict,
 } from '@votingworks/ballot-encoder'
 import * as GLOBALS from '../../src/config/globals'
@@ -122,16 +120,6 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
     'measure-101': ['yes'],
   }
 )
-
-export const sampleBallot: Readonly<CompletedBallot> = {
-  ballotId: 'test-ballot-id',
-  ballotStyle: election.ballotStyles[0],
-  election,
-  precinct: election.precincts[0],
-  votes: sampleVotes0,
-  isTestBallot: true,
-  ballotType: BallotType.Standard,
-}
 
 export const adminCard = JSON.stringify({
   t: 'clerk',

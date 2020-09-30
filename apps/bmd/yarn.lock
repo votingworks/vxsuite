@@ -2690,10 +2690,10 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@votingworks/ballot-encoder@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-2.0.0.tgz#89888cb34acf845c99f54c170ee276d0aa4d4109"
-  integrity sha512-htqT7y8YWzfBE1L/uj9ViX62M50g6FjhffeD/yHYv7ggFcMMDK35jMQUNs1ML67lgGee7ZO/q7aqkUN3nFdt1Q==
+"@votingworks/ballot-encoder@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-4.0.0.tgz#f87152e962110e56c37985547e702f39bc8639f8"
+  integrity sha512-sC3m6J6MuUgvb5qq5avppaimCKX0wLFkoFakH1B1MM8F91Sx3Jq5GqvkNuDgs8iRPgTOAJS83ayKxSCPsq9NeA==
   dependencies:
     "@antongolub/iso8601" "^1.2.1"
     zod "^1.7.1"
