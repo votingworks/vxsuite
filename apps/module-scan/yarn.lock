@@ -4583,14 +4583,6 @@ node-pre-gyp@^0.11.0:
     semver "^5.3.0"
     tar "^4"
 
-node-quirc@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/node-quirc/-/node-quirc-2.1.0.tgz#b5c83deb0cabf6cd16d20e84a668927edac364ab"
-  integrity sha512-7S0ICpsXjumKUuVi1NalqEAkaI3FjBtrpwQ+2HVoVWKUoDrSQFRrS30n5rAe1QMMClqz2o92Mk3V96nfq5am3g==
-  dependencies:
-    bindings "^1.5.0"
-    nan "^2.14.0"
-
 node-quirc@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/node-quirc/-/node-quirc-2.2.1.tgz#e56b71b2de7a6f6754fddc3ea7defa054e1d036b"

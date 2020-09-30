@@ -30,30 +30,6 @@ const choctaw2020FixturesRoot = join(
 
 jest.setTimeout(10000)
 
-test('reads QR codes from ballot images #1', async () => {
-  const filepath = join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg')
-  const { qrcode } = resultValue(
-    await getBallotImageData(await readFile(filepath), filepath)
-  )
-
-  expect(qrcode).toEqual(
-    Buffer.from('12.23.1|||||||||||||||||||.r6UYR4t7hEFMz8QlMWf1Sw')
-  )
-})
-
-test('reads QR codes from ballot images #2', async () => {
-  const filepath = join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.jpg')
-  const { qrcode } = resultValue(
-    await getBallotImageData(await readFile(filepath), filepath)
-  )
-
-  expect(qrcode).toEqual(
-    Buffer.from(
-      '12.23.3|1|1|1|0|0|||0,2,W||1|2|1|0||||1||0.85lnPkvfNEytP3Z8gMoEcA'
-    )
-  )
-})
-
 test('does not find QR codes when there are none to find', async () => {
   const filepath = join(sampleBallotImagesPath, 'not-a-ballot.jpg')
   expect(
@@ -64,7 +40,7 @@ test('does not find QR codes when there are none to find', async () => {
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = join(
     sampleBallotImagesPath,
-    'sample-batch-1-ballot-1.jpg'
+    'sample-batch-1-ballot-1.png'
   )
   expect(
     (
@@ -76,12 +52,12 @@ test('extracts votes encoded in a QR code', async () => {
     ).interpretation
   ).toMatchInlineSnapshot(`
     Object {
-      "ballotId": "r6UYR4t7hEFMz8QlMWf1Sw",
+      "ballotId": "",
       "metadata": Object {
         "ballotStyleId": "12",
         "ballotType": 0,
         "electionHash": "",
-        "isTestMode": false,
+        "isTestMode": true,
         "locales": Object {
           "primary": "en-US",
         },

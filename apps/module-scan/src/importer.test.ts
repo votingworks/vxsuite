@@ -69,7 +69,7 @@ test('startImport calls scanner.scanSheet', async () => {
     SheetOf<string>
   > {
     yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg'),
+      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
       join(sampleBallotImagesPath, 'blank-page.png'),
     ]
   })
@@ -359,17 +359,17 @@ test('scanning pauses on adjudication then continues', async () => {
     SheetOf<string>
   > {
     yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg'),
+      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
       join(sampleBallotImagesPath, 'blank-page.png'),
     ]
 
     yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.jpg'),
+      join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.png'),
       join(sampleBallotImagesPath, 'blank-page.png'),
     ]
 
     yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.jpg'),
+      join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
       join(sampleBallotImagesPath, 'blank-page.png'),
     ]
   })

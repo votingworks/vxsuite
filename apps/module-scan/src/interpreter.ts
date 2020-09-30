@@ -21,10 +21,8 @@ import {
   metadataFromBytes,
   Size,
 } from '@votingworks/hmpb-interpreter'
-import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
-import { decode as quircDecode } from 'node-quirc'
-import sharp, { Channels } from 'sharp'
+import sharp from 'sharp'
 import {
   BallotMetadata,
   getMarkStatus,
@@ -36,6 +34,7 @@ import { AdjudicationInfo, MarkStatus } from './types/ballot-review'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
 } from './util/ballotAdjudicationReasons'
+import { detectQRCode } from './util/qrcode'
 import threshold from './util/threshold'
 
 const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.005
@@ -122,95 +121,6 @@ interface BallotImageData {
   file: Buffer
   image: ImageData
   qrcode: Buffer
-}
-
-function isBase64(string: string): boolean {
-  return Buffer.from(string, 'base64').toString('base64') === string
-}
-
-function maybeDecodeBase64(data: Buffer): Buffer {
-  try {
-    if (typeof detect(data) !== 'undefined') {
-      // BMD ballot, leave it
-      return data
-    }
-
-    const base64string = new TextDecoder().decode(data)
-
-    if (!isBase64(base64string)) {
-      // not base64, leave it
-      return data
-    }
-    const decodedData = Buffer.from(base64string, 'base64')
-    return decodedData
-  } catch {
-    return data
-  }
-}
-
-async function getQRCode(
-  encodedImageData: Buffer,
-  decodedImageData: Buffer,
-  width: number,
-  height: number
-): Promise<Buffer | undefined> {
-  const [quircCode] = await quircDecode(encodedImageData)
-
-  if (quircCode && 'data' in quircCode) {
-    return maybeDecodeBase64(quircCode.data)
-  }
-
-  const qrdetectCodes = qrdetect(decodedImageData, width, height)
-
-  if (qrdetectCodes.length > 0) {
-    return maybeDecodeBase64(qrdetectCodes[0].data)
-  }
-}
-
-const detectQRCode = async (
-  imageData: ImageData
-): Promise<{ data: Buffer; position: 'top' | 'bottom' } | undefined> => {
-  const { data, width, height } = imageData
-  const clipHeight = Math.floor(height / 2.5)
-  const img = sharp(Buffer.from(data), {
-    raw: {
-      channels: (data.length / width / height) as Channels,
-      width,
-      height,
-    },
-  })
-    .raw()
-    .ensureAlpha()
-  const topCrop = img
-    .clone()
-    .extract({ left: 0, top: 0, width, height: clipHeight })
-
-  const topRaw = await topCrop.toBuffer()
-  const topImage = await topCrop.png().toBuffer()
-  const topQrcode = await getQRCode(topImage, topRaw, width, clipHeight)
-
-  if (topQrcode) {
-    return { data: topQrcode, position: 'top' }
-  }
-
-  const bottomCrop = img.clone().extract({
-    left: 0,
-    top: height - clipHeight,
-    width,
-    height: clipHeight,
-  })
-  const bottomRaw = await bottomCrop.toBuffer()
-  const bottomImage = await bottomCrop.png().toBuffer()
-  const bottomQrcode = await getQRCode(
-    bottomImage,
-    bottomRaw,
-    width,
-    clipHeight
-  )
-
-  if (bottomQrcode) {
-    return { data: bottomQrcode, position: 'bottom' }
-  }
 }
 
 export async function getBallotImageData(
@@ -417,7 +327,9 @@ export default class SummaryBallotInterpreter implements Interpreter {
       return
     }
 
+    debug('decoding BMD ballot: %o', qrcode)
     const { ballot } = decodeBallot(election, qrcode)
+    debug('decoded BMD ballot: %o', ballot.votes)
 
     return {
       interpretation: {
