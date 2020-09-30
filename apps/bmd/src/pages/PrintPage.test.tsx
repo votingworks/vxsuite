@@ -41,8 +41,8 @@ it('renders PrintPage with votes', () => {
       }),
       {
         president: 'barchi-hallaren',
-        'question-a': 'no',
-        'question-b': 'yes',
+        'question-a': ['no'],
+        'question-b': ['yes'],
         'lieutenant-governor': 'norberg',
       }
     ),

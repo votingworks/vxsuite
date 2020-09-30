@@ -36,7 +36,7 @@ describe('supports yes/no contest', () => {
   it('displays warning when attempting to change vote', () => {
     const updateVote = jest.fn()
     const { container, getByText, getAllByText } = render(
-      <YesNoContest contest={contest} vote="yes" updateVote={updateVote} />
+      <YesNoContest contest={contest} vote={['yes']} updateVote={updateVote} />
     )
     expect(container).toMatchSnapshot()
     fireEvent.click(getByText('No').closest('button')!)

@@ -4,6 +4,7 @@ import {
   YesNoVote,
   OptionalYesNoVote,
   YesNoContest as YesNoContestInterface,
+  Optional,
 } from '@votingworks/ballot-encoder'
 
 import {
@@ -12,6 +13,7 @@ import {
   ScrollDirections,
   ScrollShadows,
   UpdateVoteFunction,
+  YesOrNo,
 } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
@@ -23,6 +25,7 @@ import Main from './Main'
 import Modal from './Modal'
 import Prose from './Prose'
 import Text, { TextWithLineBreaks } from './Text'
+import { getSingleYesNoVote } from '../utils/votes'
 
 const ContentHeader = styled.div`
   margin: 0 auto;
@@ -160,7 +163,7 @@ interface State {
   isScrollable: boolean
   isScrollAtBottom: boolean
   isScrollAtTop: boolean
-  overvoteSelection: OptionalYesNoVote
+  overvoteSelection: Optional<YesOrNo>
 }
 
 const initialState: State = {
@@ -170,7 +173,7 @@ const initialState: State = {
   overvoteSelection: undefined,
 }
 
-export default class YesNoContest extends React.Component<Props> {
+export default class YesNoContest extends React.Component<Props, State> {
   public context!: React.ContextType<typeof BallotContext>
   public state = initialState
   private scrollContainer = React.createRef<HTMLDivElement>()
@@ -189,15 +192,15 @@ export default class YesNoContest extends React.Component<Props> {
   public handleUpdateSelection: EventTargetFunction = (event) => {
     const { vote } = this.props
     const newVote = (event.currentTarget as HTMLInputElement).dataset
-      .choice as YesNoVote
-    if (vote === newVote) {
+      .choice as YesOrNo
+    if ((vote as string[] | undefined)?.includes(newVote)) {
       this.props.updateVote(this.props.contest.id, undefined)
     } else {
-      this.props.updateVote(this.props.contest.id, newVote)
+      this.props.updateVote(this.props.contest.id, [newVote] as YesNoVote)
     }
   }
 
-  public handleChangeVoteAlert = (overvoteSelection: YesNoVote) => {
+  public handleChangeVoteAlert = (overvoteSelection: YesOrNo) => {
     this.setState({ overvoteSelection })
   }
 
@@ -254,10 +257,7 @@ export default class YesNoContest extends React.Component<Props> {
   }
 
   public closeOvervoteAlert = () => {
-    // Delay to avoid passing tap to next screen
-    window.setTimeout(() => {
-      this.setState({ overvoteSelection: initialState.overvoteSelection })
-    }, 200)
+    this.setState({ overvoteSelection: initialState.overvoteSelection })
   }
 
   public static contextType = BallotContext
@@ -327,17 +327,19 @@ export default class YesNoContest extends React.Component<Props> {
           </VariableContentContainer>
           <ContestFooter>
             <ChoicesGrid data-testid="contest-choices">
-              {['Yes', 'No'].map((answer) => {
-                const answerLowerCase = answer.toLowerCase()
-                const isChecked = vote === answerLowerCase
+              {[
+                { label: 'Yes', vote: 'yes' } as const,
+                { label: 'No', vote: 'no' } as const,
+              ].map((answer) => {
+                const isChecked = getSingleYesNoVote(vote) === answer.vote
                 const isDisabled = !isChecked && !!vote
                 const handleDisabledClick = () => {
-                  this.handleChangeVoteAlert(answer.toLowerCase() as YesNoVote)
+                  this.handleChangeVoteAlert(answer.vote)
                 }
                 return (
                   <ChoiceButton
-                    key={answer}
-                    choice={answerLowerCase}
+                    key={answer.vote}
+                    choice={answer.vote}
                     isSelected={isChecked}
                     onPress={
                       isDisabled
@@ -347,12 +349,12 @@ export default class YesNoContest extends React.Component<Props> {
                   >
                     <Prose>
                       <Text
-                        aria-label={`${
-                          isChecked ? 'Selected, ' : ''
-                        } ${answer} on ${contest.shortTitle ?? contest.title}`}
+                        aria-label={`${isChecked ? 'Selected, ' : ''} ${
+                          answer.label
+                        } on ${contest.shortTitle ?? contest.title}`}
                         wordBreak
                       >
-                        {answer}
+                        {answer.label}
                       </Text>
                     </Prose>
                   </ChoiceButton>

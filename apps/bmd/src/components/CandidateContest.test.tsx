@@ -1,14 +1,18 @@
 import React from 'react'
 import { fireEvent, render } from '@testing-library/react'
 
-import { CandidateContest as CandidateContestInterface } from '@votingworks/ballot-encoder'
+import {
+  CandidateContest as CandidateContestInterface,
+  Parties,
+} from '@votingworks/ballot-encoder'
 
 import CandidateContest from './CandidateContest'
 
-const parties = [0, 1].map((i) => ({
+const parties: Parties = [0, 1].map((i) => ({
   abbrev: `${i}`,
   id: `party-${i}`,
   name: `Party ${i}`,
+  fullName: `Party ${i}`,
 }))
 
 const contest: CandidateContestInterface = {

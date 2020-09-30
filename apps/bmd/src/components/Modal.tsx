@@ -40,6 +40,7 @@ const Modal: React.FC<Props> = ({
   content,
   isOpen,
   onAfterOpen = () => {
+    /* istanbul ignore next - unclear why this isn't covered */
     window.setTimeout(() => {
       const element = document.getElementById('modalaudiofocus')
       if (element) {

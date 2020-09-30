@@ -69,6 +69,7 @@ import {
   isAccessibleController,
   isCardReader,
 } from './utils/Hardware'
+import { getSingleYesNoVote } from './utils/votes'
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -433,7 +434,6 @@ class AppRoot extends React.Component<Props, State> {
 
           const election = this.state.election!
           const ballot: CompletedBallot = {
-            election,
             ballotId: '',
             ballotStyle: getBallotStyle({
               election,
@@ -444,10 +444,10 @@ class AppRoot extends React.Component<Props, State> {
               precinctId: this.state.precinctId,
             })!,
             votes: this.state.votes ?? blankBallotVotes,
-            isTestBallot: !this.state.isLiveMode,
+            isTestMode: !this.state.isLiveMode,
             ballotType: BallotType.Standard,
           }
-          const longValue = encodeBallot(ballot)
+          const longValue = encodeBallot(election, ballot)
 
           this.writingVoteToCard = true
           try {
@@ -843,7 +843,7 @@ class AppRoot extends React.Component<Props, State> {
           if (contest.type === 'yesno') {
             const yesnoContestTally = contestTally as YesNoVoteTally
             const vote = votes[contestId] as YesNoVote
-            yesnoContestTally[vote]++
+            yesnoContestTally[getSingleYesNoVote(vote)!]++
           } else if (contest.type === 'candidate') {
             const candidateContestTally = contestTally as CandidateVoteTally
             const vote = votes[contestId] as CandidateVote

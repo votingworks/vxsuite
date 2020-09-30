@@ -207,13 +207,12 @@ test('VxPrintOnly flow', async () => {
   // Voter 1 Prints Ballot
   card.insertCard(
     createVoterCard(),
-    encodeBallot({
-      election: electionSample,
+    encodeBallot(electionSample, {
       ballotId: 'test-ballot-id',
       ballotStyle: electionSample.ballotStyles[0],
       precinct: electionSample.precincts[0],
       votes: sampleVotes1,
-      isTestBallot: true,
+      isTestMode: true,
       ballotType: BallotType.Standard,
     })
   )
@@ -240,13 +239,12 @@ test('VxPrintOnly flow', async () => {
   // Voter 2 Prints Ballot
   card.insertCard(
     createVoterCard(),
-    encodeBallot({
-      election: electionSample,
+    encodeBallot(electionSample, {
       ballotId: 'test-ballot-id',
       ballotStyle: electionSample.ballotStyles[0],
       precinct: electionSample.precincts[0],
       votes: sampleVotes2,
-      isTestBallot: true,
+      isTestMode: true,
       ballotType: BallotType.Standard,
     })
   )
@@ -273,13 +271,12 @@ test('VxPrintOnly flow', async () => {
   // Voter 3 Prints Ballot
   card.insertCard(
     createVoterCard(),
-    encodeBallot({
-      election: electionSample,
+    encodeBallot(electionSample, {
       ballotId: 'test-ballot-id',
       ballotStyle: electionSample.ballotStyles[0],
       precinct: electionSample.precincts[0],
       votes: sampleVotes3,
-      isTestBallot: true,
+      isTestMode: true,
       ballotType: BallotType.Standard,
     })
   )
@@ -304,13 +301,12 @@ test('VxPrintOnly flow', async () => {
   // Blank Ballot, i.e. a ballot that deliberately is left empty by the voter, should still print
   card.insertCard(
     createVoterCard(),
-    encodeBallot({
-      election: electionSample,
+    encodeBallot(electionSample, {
       ballotId: 'test-ballot-id',
       ballotStyle: electionSample.ballotStyles[0],
       precinct: electionSample.precincts[0],
       votes: {},
-      isTestBallot: true,
+      isTestMode: true,
       ballotType: BallotType.Standard,
     })
   )

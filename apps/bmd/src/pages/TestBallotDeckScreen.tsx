@@ -63,7 +63,7 @@ const generateTestDeckBallots = ({
         contests.forEach((contest) => {
           /* istanbul ignore else */
           if (contest.type === 'yesno') {
-            votes[contest.id] = ballotNum % 2 === 0 ? 'yes' : 'no'
+            votes[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no']
           } else if (
             contest.type === 'candidate' &&
             contest.candidates.length > 0 // safety check
