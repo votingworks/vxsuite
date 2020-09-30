@@ -64,15 +64,15 @@ test('going through the whole process works', async () => {
     scanner
       .withNextScannerSession()
       .sheet([
-        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.jpg'),
+        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
         path.join(sampleBallotImagesPath, 'blank-page.png'),
       ])
       .sheet([
-        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.jpg'),
+        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.png'),
         path.join(sampleBallotImagesPath, 'blank-page.png'),
       ])
       .sheet([
-        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.jpg'),
+        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
         path.join(sampleBallotImagesPath, 'blank-page.png'),
       ])
       .end()
@@ -103,19 +103,17 @@ test('going through the whole process works', async () => {
       .set('Accept', 'application/json')
       .expect(200)
 
-    // response is a few lines, each JSON.
-    // can't predict the order so can't compare
-    // to expected outcome as a string directly.
     const CVRs: CastVoteRecord[] = exportResponse.text
       .split('\n')
       .filter(Boolean)
       .map((line) => JSON.parse(line))
-    const ballotIds = CVRs.map((cvr) => cvr._ballotId)
-    ballotIds.sort()
-    expect(ballotIds).toEqual([
-      '85lnPkvfNEytP3Z8gMoEcA',
-      'SAlVfdOQd4G6ALjkH3rlOg', // v1 encoding
-      'r6UYR4t7hEFMz8QlMWf1Sw',
+    expect(CVRs).toEqual([
+      // sample-batch-1-ballot-1.png
+      expect.objectContaining({ president: ['cramer-vuocolo'] }),
+      // sample-batch-1-ballot-2.png
+      expect.objectContaining({ president: ['boone-lian'] }),
+      // sample-batch-1-ballot-3.png
+      expect.objectContaining({ president: ['barchi-hallaren'] }),
     ])
   }
 
