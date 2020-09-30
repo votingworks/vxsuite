@@ -72,7 +72,7 @@ export interface SerializableActivationData {
 }
 
 // Votes
-export type YesNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>
+export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>
 export interface WriteInCandidateTally {
   name: string
   tally: number

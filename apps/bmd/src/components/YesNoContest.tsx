@@ -13,7 +13,7 @@ import {
   ScrollDirections,
   ScrollShadows,
   UpdateVoteFunction,
-  YesNo,
+  YesOrNo,
 } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
@@ -163,7 +163,7 @@ interface State {
   isScrollable: boolean
   isScrollAtBottom: boolean
   isScrollAtTop: boolean
-  overvoteSelection: Optional<YesNo>
+  overvoteSelection: Optional<YesOrNo>
 }
 
 const initialState: State = {
@@ -192,7 +192,7 @@ export default class YesNoContest extends React.Component<Props, State> {
   public handleUpdateSelection: EventTargetFunction = (event) => {
     const { vote } = this.props
     const newVote = (event.currentTarget as HTMLInputElement).dataset
-      .choice as YesNo
+      .choice as YesOrNo
     if ((vote as string[] | undefined)?.includes(newVote)) {
       this.props.updateVote(this.props.contest.id, undefined)
     } else {
@@ -200,7 +200,7 @@ export default class YesNoContest extends React.Component<Props, State> {
     }
   }
 
-  public handleChangeVoteAlert = (overvoteSelection: YesNo) => {
+  public handleChangeVoteAlert = (overvoteSelection: YesOrNo) => {
     this.setState({ overvoteSelection })
   }
 
