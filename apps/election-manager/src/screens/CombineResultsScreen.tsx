@@ -52,11 +52,15 @@ const CombineResultsScreen = () => {
 
   const combine = async () => {
     setIsCombining(true)
-    const results = await client.combineResultsFiles(
-      resultsOneFile!,
-      resultsTwoFile!
-    )
-    fileDownload(results, 'combined-results.csv', 'text/csv')
+    try {
+      const results = await client.combineResultsFiles(
+        resultsOneFile!,
+        resultsTwoFile!
+      )
+      fileDownload(results, 'combined-results.csv', 'text/csv')
+    } catch (e) {
+      alert(`there was an error combining results files: ${e.toString()}`)
+    }
     setIsCombining(false)
   }
 

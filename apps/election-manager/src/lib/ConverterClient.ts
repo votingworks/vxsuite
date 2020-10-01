@@ -72,7 +72,10 @@ export default class ConverterClient {
       body: formData,
     })
 
-    return await response.blob()
+    if (response.status === 200) {
+      return await response.blob()
+    }
+    throw new Error('Error combining results files')
   }
 
   public async reset(): Promise<void> {
