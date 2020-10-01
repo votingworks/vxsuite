@@ -306,7 +306,7 @@ class CandidateContest extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <Main>
-          <ContentHeader id="contest-header">
+          <ContentHeader isCandidateStyle id="contest-header">
             <Prose id="audiofocus">
               <h1 aria-label={`${contest.title}.`}>
                 <ContestSection>{contest.section}</ContestSection>

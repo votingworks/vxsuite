@@ -1,17 +1,18 @@
 import styled from 'styled-components'
 import { Scrollable, ScrollShadows } from '../config/types'
 
-export const ContentHeader = styled.div`
+export const ContentHeader = styled.div<{ isCandidateStyle?: boolean }>`
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem 9rem;
+  padding: 1rem 2rem 0.5rem;
+  padding-left: ${({ isCandidateStyle }) =>
+    isCandidateStyle ? '6rem' : undefined};
 `
 export const ContestFooter = styled.div`
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem;
+  padding: 1rem 2rem;
 `
-
 export const ContestSection = styled.div`
   text-transform: uppercase;
   font-size: 0.85rem;
@@ -116,7 +117,7 @@ export const ScrollContainer = styled.div`
 export const ScrollableContentWrapper = styled.div<Scrollable>`
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem;
+  padding: 0.5rem 2rem 2rem;
   padding-right: ${({ isScrollable }) =>
     isScrollable
       ? /* istanbul ignore next: Tested by Cypress */ '11rem'

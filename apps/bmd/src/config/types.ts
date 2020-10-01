@@ -86,7 +86,7 @@ export interface YesNoVoteTally {
   yes: TallyCount
   no: TallyCount
 }
-export interface MSEitherNeitherTally {
+export interface MsEitherNeitherTally {
   eitherOption: TallyCount
   neitherOption: TallyCount
   firstOption: TallyCount
@@ -95,7 +95,7 @@ export interface MSEitherNeitherTally {
 export type Tally = (
   | CandidateVoteTally
   | YesNoVoteTally
-  | MSEitherNeitherTally
+  | MsEitherNeitherTally
 )[]
 
 // Ballot

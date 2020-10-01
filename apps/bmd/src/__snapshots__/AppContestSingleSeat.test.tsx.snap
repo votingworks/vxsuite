@@ -320,7 +320,8 @@ exports[`Single Seat Contest 1`] = `
 .c3 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem 9rem;
+  padding: 1rem 2rem 0.5rem;
+  padding-left: 6rem;
 }
 
 .c5 {
@@ -374,7 +375,7 @@ exports[`Single Seat Contest 1`] = `
 .c9 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem;
+  padding: 0.5rem 2rem 2rem;
 }
 
 .c10 {
@@ -502,7 +503,7 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c25 button {
-  min-width: 120px;
+  min-width: 112px;
 }
 
 .c25 button[data-size='0'] {
@@ -510,7 +511,7 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c25 button[data-size='1'] {
-  font-size: 30px !important;
+  font-size: 28px !important;
 }
 
 .c25 button[data-size='2'] {

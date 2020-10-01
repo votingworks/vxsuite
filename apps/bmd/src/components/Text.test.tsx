@@ -46,15 +46,25 @@ it('converts line-breaks into <p> and <br/> tags', () => {
     />
   )
   expect(container).toMatchInlineSnapshot(`
-<div>
-  <p>
-    I’m a paragraph.
-  </p>
-  <p>
-    And I’m a paragraph with a
-    <br />
-    line break.
-  </p>
-</div>
-`)
+    <div>
+      <p
+        class=""
+      >
+        <span>
+          I’m a paragraph.
+        </span>
+      </p>
+      <p
+        class=""
+      >
+        <span>
+          And I’m a paragraph with a
+        </span>
+        <br />
+        <span>
+          line break.
+        </span>
+      </p>
+    </div>
+  `)
 })

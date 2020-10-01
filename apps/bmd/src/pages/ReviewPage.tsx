@@ -10,6 +10,7 @@ import {
   YesNoContest,
   Contests,
   Parties,
+  MsEitherNeitherContest,
 } from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
@@ -250,6 +251,39 @@ const YesNoContestResult = (props: {
   )
 }
 
+const MsEitherNeitherContestResult = (props: {
+  contest: MsEitherNeitherContest
+  eitherNeitherContestVote: OptionalYesNoVote
+  pickOneContestVote: OptionalYesNoVote
+}) => {
+  const forEither = 'FOR Approval of Either'
+  const againstBoth = 'AGAINST Both'
+  const eitherNeitherVote = props.eitherNeitherContestVote?.[0]
+  const pickOneVote = props.pickOneContestVote?.[0]
+  return eitherNeitherVote || pickOneVote ? (
+    <React.Fragment>
+      {eitherNeitherVote ? (
+        <Text bold wordBreak voteIcon>
+          {eitherNeitherVote === 'yes' ? forEither : againstBoth}
+        </Text>
+      ) : (
+        <NoSelection />
+      )}
+      {pickOneVote ? (
+        <Text bold wordBreak voteIcon>
+          {pickOneVote === 'yes'
+            ? props.contest.firstOption.label
+            : props.contest.secondOption.label}
+        </Text>
+      ) : (
+        <NoSelection />
+      )}
+    </React.Fragment>
+  ) : (
+    <NoSelection />
+  )
+}
+
 const SidebarSpacer = styled.div`
   height: 90px;
 `
@@ -394,6 +428,19 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                         <YesNoContestResult
                           contest={contest}
                           vote={votes[contest.id] as YesNoVote}
+                        />
+                      )}
+                      {contest.type === 'ms-either-neither' && (
+                        <MsEitherNeitherContestResult
+                          contest={contest}
+                          eitherNeitherContestVote={
+                            votes[
+                              contest.eitherNeitherContestId
+                            ] as OptionalYesNoVote
+                          }
+                          pickOneContestVote={
+                            votes[contest.pickOneContestId] as OptionalYesNoVote
+                          }
                         />
                       )}
                     </ContestProse>

@@ -67,17 +67,31 @@ const Text = styled('p')<Props>`
   ${({ warningIcon, voteIcon }) => (warningIcon ?? voteIcon) && iconStyles}
 `
 
-export const TextWithLineBreaks = ({ text }: { text: string }) => (
+interface TextWithLineBreaksProps extends Props {
+  text: string
+  style?: React.CSSProperties
+}
+
+export const TextWithLineBreaks = ({
+  text,
+  ...rest
+}: TextWithLineBreaksProps) => (
   <React.Fragment>
     {text.split(/[\n\r]{2}/g).map((x) => (
-      <p key={x}>
+      <Text {...rest} key={x}>
         {x.split(/[\n\r]/g).map((y, i, arr) => (
           <React.Fragment key={y}>
-            {y}
+            <span
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{
+                __html: y,
+              }}
+            />
+
             {i !== arr.length - 1 && <br />}
           </React.Fragment>
         ))}
-      </p>
+      </Text>
     ))}
   </React.Fragment>
 )

@@ -19,21 +19,3 @@ it('Renders ContestPage', () => {
   getByText(firstContestTitle)
   expect(container).toMatchSnapshot()
 })
-
-it('Redirects to top-level page if no contest number match', () => {
-  const resetBallot = jest.fn()
-  const homeMock = () => <div>Home Mock</div>
-  const { getByText } = render(
-    <>
-      <Route path="/contests/:contestNumber" component={ContestPage} />
-      <Route exact path="/" render={homeMock} />
-    </>,
-    {
-      resetBallot,
-      route: '/contests/666666',
-    }
-  )
-
-  expect(resetBallot).toBeCalled()
-  getByText('Home Mock')
-})
