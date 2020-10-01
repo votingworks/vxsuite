@@ -28,36 +28,43 @@
     {
       "id": "0",
       "name": "Federalist",
+      "fullName": "Federalist Party",
       "abbrev": "F"
     },
     {
       "id": "1",
       "name": "People's",
+      "fullName": "People's Party",
       "abbrev": "P"
     },
     {
       "id": "2",
       "name": "Liberty",
+      "fullName": "Liberty Party",
       "abbrev": "Li"
     },
     {
       "id": "3",
       "name": "Constitution",
+      "fullName": "Constitution Party",
       "abbrev": "C"
     },
     {
       "id": "4",
       "name": "Whig",
+      "fullName": "Whig Party",
       "abbrev": "W"
     },
     {
       "id": "5",
       "name": "Labor",
+      "fullName": "Labor Party",
       "abbrev": "La"
     },
     {
       "id": "6",
       "name": "Independent",
+      "fullName": "Independent Party",
       "abbrev": "I"
     }
   ],
@@ -678,6 +685,34 @@
       "shortTitle": "Measure 102",
       "title": "Measure 102: Vehicle Abatement Program",
       "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
+    },
+    {
+      "id": "measure-420",
+      "districtId": "district-1",
+      "type": "ms-either-neither",
+      "section": "State of Hamilton",
+      "title": "Measure 420A/420B: Medical Marijuana Initiative",
+      "eitherNeitherContestId": "420A",
+      "pickOneContestId": "420B",
+      "description": "<strong>Measure 420A</strong>\n\n Description of Measure 420A here.\n\n<strong>Measure 420B</strong>\n\n Description of Measure 420B here.\n\n",
+      "eitherNeitherLabel": "Vote for either or against both",
+      "pickOneLabel": "Vote for your preferred option",
+      "eitherOption": {
+        "id": "420-either",
+        "label": "For either"
+      },
+      "neitherOption": {
+        "id": "420-neither",
+        "label": "Against both"
+      },
+      "firstOption": {
+        "id": "420A-option",
+        "label": "FOR Measure 420A"
+      },
+      "secondOption": {
+        "id": "420B-option",
+        "label": "FOR Measure 420B"
+      }
     },
     {
       "id": "measure-666",

@@ -50,17 +50,16 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
 
   useEffect(() => {
     const calculateIsVoteComplete = () => {
+      /* istanbul ignore else */
       if (contest.type === 'yesno') {
         setIsVoteComplete(!!vote)
         return
-      }
-      if (contest.type === 'candidate') {
+      } else if (contest.type === 'candidate') {
         setIsVoteComplete(
           contest.seats === ((vote as CandidateVote) ?? []).length
         )
         return
-      }
-      if (contest.type === 'ms-either-neither') {
+      } else if (contest.type === 'ms-either-neither') {
         setIsVoteComplete(
           votes[contest.pickOneContestId]?.length === 1 ||
             votes[contest.eitherNeitherContestId]?.[0] === 'no'

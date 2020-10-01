@@ -53,9 +53,16 @@ const generateTestDeckBallots = ({
       )
 
       const numBallots = Math.max(
-        ...contests.map((c) =>
-          c.type === 'yesno' ? 2 : (c as CandidateContest).candidates.length
-        )
+        ...contests.map((c) => {
+          return c.type === 'yesno'
+            ? 2
+            : c.type === 'candidate'
+            ? (c as CandidateContest).candidates.length
+            : /* istanbul ignore next - TODO: Tally: Remove this line once tally code is completed */
+            c.type === 'ms-either-neither'
+            ? 9 // TODO: Tally: 9 because: no vote + A + B
+            : 0
+        })
       )
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
@@ -72,6 +79,7 @@ const generateTestDeckBallots = ({
               contest.candidates[ballotNum % contest.candidates.length],
             ]
           }
+          // TODO: Tally: add case for MsEitherNeither
         })
         ballots.push({
           ballotStyleId: ballotStyle.id,

@@ -2,6 +2,8 @@ import {
   CandidateContest,
   YesNoContest,
   Election,
+  MsEitherNeitherContest,
+  // electionSample,
 } from '@votingworks/ballot-encoder'
 import electionSample from '../../src/data/electionSample.json'
 import {
@@ -49,6 +51,10 @@ export const measure102Contest = election.contests.find(
   (c) =>
     c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'yesno'
 ) as YesNoContest
+
+export const measure420Contest = election.contests.find(
+  (c) => c.title === 'Measure 420A/420B: Medical Marijuana Initiative'
+) as MsEitherNeitherContest
 
 export const singleSeatContestWithWriteIn = election.contests.find(
   (c) => c.type === 'candidate' && !!c.allowWriteIns && c.seats === 1
