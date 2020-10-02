@@ -108,7 +108,8 @@ const PrecinctTallyReport = ({
                                 (tally[contestIndex] as MsEitherNeitherTally)
                                   .eitherOption
                               )
-                            : 'X'}
+                            : /* istanbul ignore next */
+                              'X'}
                         </TD>
                       </tr>
                       <tr>
@@ -119,12 +120,15 @@ const PrecinctTallyReport = ({
                           }
                         </td>
                         <TD narrow textAlign="right">
-                          {isContestInPrecinct
-                            ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
-                                  .neitherOption
-                              )
-                            : 'X'}
+                          {
+                            /* istanbul ignore else */ isContestInPrecinct
+                              ? numberWithCommas(
+                                  (tally[contestIndex] as MsEitherNeitherTally)
+                                    .neitherOption
+                                )
+                              : /* istanbul ignore next */
+                                'X'
+                          }
                         </TD>
                       </tr>
                       <tr>
@@ -140,7 +144,8 @@ const PrecinctTallyReport = ({
                                 (tally[contestIndex] as MsEitherNeitherTally)
                                   .firstOption
                               )
-                            : 'X'}
+                            : /* istanbul ignore next */
+                              'X'}
                         </TD>
                       </tr>
                       <tr>
@@ -156,7 +161,8 @@ const PrecinctTallyReport = ({
                                 (tally[contestIndex] as MsEitherNeitherTally)
                                   .secondOption
                               )
-                            : 'X'}
+                            : /* istanbul ignore next */
+                              'X'}
                         </TD>
                       </tr>
                     </React.Fragment>
