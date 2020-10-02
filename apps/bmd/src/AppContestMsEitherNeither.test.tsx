@@ -1,10 +1,21 @@
 import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
+import { Route } from 'react-router-dom'
+import {
+  Election,
+  // electionSample,
+  getBallotStyle,
+  getContests,
+  vote,
+} from '@votingworks/ballot-encoder'
+// TODO: Tally: Use electionSample from ballot-encoder once published.
+import electionSample from './data/electionSample.json'
 
 import App from './App'
+import PrintPage from './pages/PrintPage'
 
+import { render as renderWithBallotContext } from '../test/testUtils'
 import withMarkup from '../test/helpers/withMarkup'
-
 import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
 
 import {
@@ -18,13 +29,142 @@ import { AppStorage } from './AppRoot'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
+test('Renders Ballot with EitherNeither: blank', () => {
+  const { getByText } = renderWithBallotContext(
+    <Route path="/print" component={PrintPage} />,
+    {
+      ballotStyleId: '12',
+      precinctId: '23',
+      route: '/print',
+      election: electionSample,
+      votes: vote(
+        getContests({
+          ballotStyle: getBallotStyle({
+            election: electionSample as Election,
+            ballotStyleId: '12',
+          })!,
+          election: electionSample as Election,
+        }),
+        {
+          '420A': [],
+          '420B': [],
+        }
+      ),
+    }
+  )
+  const getByTextWithMarkup = withMarkup(getByText)
+  const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
+  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+    '[no selection]'
+  )
+})
+
+test('Renders Ballot with EitherNeither: Either & blank', () => {
+  const { getByText } = renderWithBallotContext(
+    <Route path="/print" component={PrintPage} />,
+    {
+      ballotStyleId: '12',
+      precinctId: '23',
+      route: '/print',
+      election: electionSample,
+      votes: vote(
+        getContests({
+          ballotStyle: getBallotStyle({
+            election: electionSample as Election,
+            ballotStyleId: '12',
+          })!,
+          election: electionSample as Election,
+        }),
+        {
+          '420A': ['yes'],
+          '420B': [],
+        }
+      ),
+    }
+  )
+  const getByTextWithMarkup = withMarkup(getByText)
+  const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
+  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+    `• ${measure420Contest.eitherOption.label}`
+  )
+  expect(
+    contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
+  ).toBe('• [no selection]')
+})
+
+test('Renders Ballot with EitherNeither: Neither & firstOption', () => {
+  const { getByText } = renderWithBallotContext(
+    <Route path="/print" component={PrintPage} />,
+    {
+      ballotStyleId: '12',
+      precinctId: '23',
+      route: '/print',
+      election: electionSample,
+      votes: vote(
+        getContests({
+          ballotStyle: getBallotStyle({
+            election: electionSample as Election,
+            ballotStyleId: '12',
+          })!,
+          election: electionSample as Election,
+        }),
+        {
+          '420A': ['no'],
+          '420B': ['yes'],
+        }
+      ),
+    }
+  )
+  const getByTextWithMarkup = withMarkup(getByText)
+  const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
+  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+    `• ${measure420Contest.neitherOption.label}`
+  )
+  expect(
+    contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
+  ).toBe(`• ${measure420Contest.firstOption.label}`)
+})
+
+test('Renders Ballot with EitherNeither: blank & secondOption', () => {
+  const { getByText } = renderWithBallotContext(
+    <Route path="/print" component={PrintPage} />,
+    {
+      ballotStyleId: '12',
+      precinctId: '23',
+      route: '/print',
+      election: electionSample,
+      votes: vote(
+        getContests({
+          ballotStyle: getBallotStyle({
+            election: electionSample as Election,
+            ballotStyleId: '12',
+          })!,
+          election: electionSample as Election,
+        }),
+        {
+          '420A': [],
+          '420B': ['no'],
+        }
+      ),
+    }
+  )
+  const getByTextWithMarkup = withMarkup(getByText)
+  const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
+  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+    '• [no selection]'
+  )
+  expect(
+    contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
+  ).toBe(`• ${measure420Contest.secondOption.label}`)
+})
+
 jest.useFakeTimers()
 
 beforeEach(() => {
   window.location.href = '/'
 })
 
-it('Single Seat Contest', async () => {
+test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()

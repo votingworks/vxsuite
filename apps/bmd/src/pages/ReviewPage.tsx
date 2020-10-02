@@ -6,15 +6,18 @@ import {
   CandidateVote,
   YesNoVote,
   OptionalYesNoVote,
-  CandidateContest,
-  YesNoContest,
   Contests,
-  Parties,
-  MsEitherNeitherContest,
 } from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
-import { Scrollable, ScrollDirections, ScrollShadows } from '../config/types'
+import {
+  CandidateContestResultInterface,
+  MsEitherNeitherContestResultInterface,
+  Scrollable,
+  ScrollDirections,
+  ScrollShadows,
+  YesNoContestResultInterface,
+} from '../config/types'
 
 import Button, { DecoyButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
@@ -199,11 +202,7 @@ const CandidateContestResult = ({
   contest,
   parties,
   vote = [],
-}: {
-  contest: CandidateContest
-  parties: Parties
-  vote: CandidateVote
-}) => {
+}: CandidateContestResultInterface) => {
   const remainingChoices = contest.seats - vote.length
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
@@ -236,35 +235,31 @@ const CandidateContestResult = ({
   )
 }
 
-const YesNoContestResult = (props: {
-  contest: YesNoContest
-  vote: OptionalYesNoVote
-}) => {
-  const yesNo = getSingleYesNoVote(props.vote)
+const YesNoContestResult = ({ contest, vote }: YesNoContestResultInterface) => {
+  const yesNo = getSingleYesNoVote(vote)
   return yesNo ? (
     <Text bold wordBreak voteIcon>
-      {YES_NO_VOTES[yesNo]}{' '}
-      {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
+      {YES_NO_VOTES[yesNo]} {!!contest.shortTitle && `on ${contest.shortTitle}`}
     </Text>
   ) : (
     <NoSelection />
   )
 }
 
-const MsEitherNeitherContestResult = (props: {
-  contest: MsEitherNeitherContest
-  eitherNeitherContestVote: OptionalYesNoVote
-  pickOneContestVote: OptionalYesNoVote
-}) => {
-  const forEither = 'FOR Approval of Either'
-  const againstBoth = 'AGAINST Both'
-  const eitherNeitherVote = props.eitherNeitherContestVote?.[0]
-  const pickOneVote = props.pickOneContestVote?.[0]
+const MsEitherNeitherContestResult = ({
+  contest,
+  eitherNeitherContestVote,
+  pickOneContestVote,
+}: MsEitherNeitherContestResultInterface) => {
+  const eitherNeitherVote = eitherNeitherContestVote?.[0]
+  const pickOneVote = pickOneContestVote?.[0]
   return eitherNeitherVote || pickOneVote ? (
     <React.Fragment>
       {eitherNeitherVote ? (
         <Text bold wordBreak voteIcon>
-          {eitherNeitherVote === 'yes' ? forEither : againstBoth}
+          {eitherNeitherVote === 'yes'
+            ? contest.eitherOption.label
+            : contest.neitherOption.label}
         </Text>
       ) : (
         <NoSelection />
@@ -272,8 +267,8 @@ const MsEitherNeitherContestResult = (props: {
       {pickOneVote ? (
         <Text bold wordBreak voteIcon>
           {pickOneVote === 'yes'
-            ? props.contest.firstOption.label
-            : props.contest.secondOption.label}
+            ? contest.firstOption.label
+            : contest.secondOption.label}
         </Text>
       ) : (
         <NoSelection />

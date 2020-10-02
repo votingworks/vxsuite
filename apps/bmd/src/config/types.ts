@@ -1,10 +1,16 @@
 import {
-  OptionalVote,
-  VotesDict,
-  Contests,
   BallotStyle,
-  Precinct,
+  CandidateContest,
+  CandidateVote,
+  Contests,
   Election,
+  MsEitherNeitherContest,
+  OptionalVote,
+  OptionalYesNoVote,
+  Parties,
+  Precinct,
+  VotesDict,
+  YesNoContest,
   YesNoVote,
 } from '@votingworks/ballot-encoder'
 import { Printer } from '../utils/printer'
@@ -119,6 +125,22 @@ export interface BallotContextInterface {
   forceSaveVote: () => void
   userSettings: UserSettings
   votes: VotesDict
+}
+
+// Review and Printed Ballot
+export interface CandidateContestResultInterface {
+  contest: CandidateContest
+  parties: Parties
+  vote: CandidateVote
+}
+export interface YesNoContestResultInterface {
+  contest: YesNoContest
+  vote: OptionalYesNoVote
+}
+export interface MsEitherNeitherContestResultInterface {
+  contest: MsEitherNeitherContest
+  eitherNeitherContestVote: OptionalYesNoVote
+  pickOneContestVote: OptionalYesNoVote
 }
 
 // Smart Card Content

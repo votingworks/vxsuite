@@ -6,12 +6,8 @@ import {
   BallotType,
   CandidateVote,
   YesNoVote,
-  OptionalYesNoVote,
   VotesDict,
-  CandidateContest,
-  YesNoContest,
   Contests,
-  Parties,
   Election,
 } from '@votingworks/ballot-encoder'
 
@@ -30,6 +26,11 @@ import {
 import QRCode from './QRCode'
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
+import {
+  CandidateContestResultInterface,
+  MsEitherNeitherContestResultInterface,
+  YesNoContestResultInterface,
+} from '../config/types'
 
 const Ballot = styled.div`
   page-break-after: always;
@@ -117,9 +118,9 @@ const ContestProse = styled(Prose)`
     font-weight: 400;
   }
 `
-const NoSelection = () => (
+const NoSelection = ({ prefix }: { prefix?: string }) => (
   <Text italic muted>
-    [no selection]
+    {prefix}[no selection]
   </Text>
 )
 
@@ -127,19 +128,17 @@ const CandidateContestResult = ({
   contest,
   parties,
   vote = [],
-}: {
-  contest: CandidateContest
-  parties: Parties
-  vote: CandidateVote
-}) => {
+}: CandidateContestResultInterface) => {
   const remainingChoices = contest.seats - vote.length
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
   ) : (
     <React.Fragment>
       {vote.map((candidate) => (
-        <Text bold key={candidate.id} wordBreak>
-          <strong>{candidate.name}</strong>{' '}
+        <Text key={candidate.id} wordBreak>
+          <Text bold as="span">
+            {candidate.name}
+          </Text>{' '}
           {candidate.partyId &&
             `/ ${findPartyById(parties, candidate.partyId)!.name}`}
           {candidate.isWriteIn && '(write-in)'}
@@ -154,18 +153,49 @@ const CandidateContestResult = ({
   )
 }
 
-const YesNoContestResult = (props: {
-  contest: YesNoContest
-  vote: OptionalYesNoVote
-}) => {
-  const yesNo = getSingleYesNoVote(props.vote)
+const YesNoContestResult = ({ contest, vote }: YesNoContestResultInterface) => {
+  const yesNo = getSingleYesNoVote(vote)
   return yesNo ? (
     <Text bold wordBreak>
-      <strong>
-        {GLOBALS.YES_NO_VOTES[yesNo]}{' '}
-        {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
-      </strong>
+      {GLOBALS.YES_NO_VOTES[yesNo]}{' '}
+      {!!contest.shortTitle && `on ${contest.shortTitle}`}
     </Text>
+  ) : (
+    <NoSelection />
+  )
+}
+
+const MsEitherNeitherContestResult = ({
+  contest,
+  eitherNeitherContestVote,
+  pickOneContestVote,
+}: MsEitherNeitherContestResultInterface) => {
+  const eitherNeitherVote = eitherNeitherContestVote?.[0]
+  const pickOneVote = pickOneContestVote?.[0]
+
+  return eitherNeitherVote || pickOneVote ? (
+    <React.Fragment>
+      {eitherNeitherVote ? (
+        <Text bold wordBreak>
+          •{' '}
+          {eitherNeitherVote === 'yes'
+            ? contest.eitherOption.label
+            : contest.neitherOption.label}
+        </Text>
+      ) : (
+        <NoSelection prefix="• " />
+      )}
+      {pickOneVote ? (
+        <Text bold wordBreak>
+          •{' '}
+          {pickOneVote === 'yes'
+            ? contest.firstOption.label
+            : contest.secondOption.label}
+        </Text>
+      ) : (
+        <NoSelection prefix="• " />
+      )}
+    </React.Fragment>
   ) : (
     <NoSelection />
   )
@@ -268,6 +298,17 @@ const PrintBallot = ({
                   <YesNoContestResult
                     contest={contest}
                     vote={votes[contest.id] as YesNoVote}
+                  />
+                )}
+                {contest.type === 'ms-either-neither' && (
+                  <MsEitherNeitherContestResult
+                    contest={contest}
+                    eitherNeitherContestVote={
+                      votes[contest.eitherNeitherContestId] as YesNoVote
+                    }
+                    pickOneContestVote={
+                      votes[contest.pickOneContestId] as YesNoVote
+                    }
                   />
                 )}
               </ContestProse>
