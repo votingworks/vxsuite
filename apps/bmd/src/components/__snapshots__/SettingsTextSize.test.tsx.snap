@@ -84,7 +84,7 @@ exports[`renders SettingsTextSize 1`] = `
 }
 
 .c3 button {
-  min-width: 120px;
+  min-width: 112px;
 }
 
 .c3 button[data-size='0'] {
@@ -92,7 +92,7 @@ exports[`renders SettingsTextSize 1`] = `
 }
 
 .c3 button[data-size='1'] {
-  font-size: 30px !important;
+  font-size: 28px !important;
 }
 
 .c3 button[data-size='2'] {

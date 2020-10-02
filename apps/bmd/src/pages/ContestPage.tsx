@@ -1,5 +1,5 @@
-import React, { useContext } from 'react'
-import { Redirect, RouteComponentProps } from 'react-router-dom'
+import React, { useContext, useEffect, useState } from 'react'
+import { RouteComponentProps } from 'react-router-dom'
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/ballot-encoder'
 
 import ordinal from '../utils/ordinal'
@@ -16,46 +16,59 @@ import Text from '../components/Text'
 import YesNoContest from '../components/YesNoContest'
 import SettingsTextSize from '../components/SettingsTextSize'
 import TextIcon from '../components/TextIcon'
+import MsEitherNeitherContest from '../components/MsEitherNeitherContest'
 
 interface ContestParams {
   contestNumber: string
 }
 
 const ContestPage = (props: RouteComponentProps<ContestParams>) => {
+  const isReviewMode = window.location.hash === '#review'
   const { contestNumber } = props.match.params
   const {
     ballotStyleId,
     contests,
     election,
     precinctId,
-    resetBallot,
     setUserSettings,
     updateVote,
     userSettings,
     votes,
   } = useContext(BallotContext)
-
   const currentContestIndex = parseInt(contestNumber, 10)
   const contest = contests[currentContestIndex]
 
-  if (!contest) {
-    resetBallot()
-    return <Redirect to="/" />
-  }
+  const vote = votes[contest.id]
+
+  const [isVoteComplete, setIsVoteComplete] = useState(false)
 
   const prevContestIndex = currentContestIndex - 1
   const prevContest = contests[prevContestIndex]
 
   const nextContestIndex = currentContestIndex + 1
   const nextContest = contests[nextContestIndex]
-  const vote = votes[contest.id]
-  let isVoteComplete = !!vote
-  if (contest.type === 'candidate') {
-    isVoteComplete = contest.seats === ((vote as CandidateVote) ?? []).length
-  }
-  const isReviewMode = window.location.hash === '#review'
-  // TODO:
-  // - confirm intent when navigating away without selecting a candidate
+
+  useEffect(() => {
+    const calculateIsVoteComplete = () => {
+      /* istanbul ignore else */
+      if (contest.type === 'yesno') {
+        setIsVoteComplete(!!vote)
+        return
+      } else if (contest.type === 'candidate') {
+        setIsVoteComplete(
+          contest.seats === ((vote as CandidateVote) ?? []).length
+        )
+        return
+      } else if (contest.type === 'ms-either-neither') {
+        setIsVoteComplete(
+          votes[contest.pickOneContestId]?.length === 1 ||
+            votes[contest.eitherNeitherContestId]?.[0] === 'no'
+        )
+        return
+      }
+    }
+    calculateIsVoteComplete()
+  }, [contest, vote, votes])
 
   return (
     <Screen>
@@ -74,6 +87,19 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
           key={contest.id}
           contest={contest}
           vote={vote as OptionalYesNoVote}
+          updateVote={updateVote}
+        />
+      )}
+      {contest.type === 'ms-either-neither' && (
+        <MsEitherNeitherContest
+          key={contest.id}
+          contest={contest}
+          eitherNeitherContestVote={
+            votes[contest.eitherNeitherContestId] as OptionalYesNoVote
+          }
+          pickOneContestVote={
+            votes[contest.pickOneContestId] as OptionalYesNoVote
+          }
           updateVote={updateVote}
         />
       )}

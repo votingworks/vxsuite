@@ -274,7 +274,8 @@ exports[`Single Seat Contest 1`] = `
 .c3 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem 9rem;
+  padding: 1rem 2rem 0.5rem;
+  padding-left: 6rem;
 }
 
 .c5 {
@@ -328,7 +329,7 @@ exports[`Single Seat Contest 1`] = `
 .c8 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem;
+  padding: 0.5rem 2rem 2rem;
 }
 
 .c9 {
@@ -456,7 +457,7 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c23 button {
-  min-width: 120px;
+  min-width: 112px;
 }
 
 .c23 button[data-size='0'] {
@@ -464,7 +465,7 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c23 button[data-size='1'] {
-  font-size: 30px !important;
+  font-size: 28px !important;
 }
 
 .c23 button[data-size='2'] {
@@ -728,7 +729,7 @@ exports[`Single Seat Contest 1`] = `
             </strong>
              of
              
-            20
+            21
              contests.
           </p>
           <p>

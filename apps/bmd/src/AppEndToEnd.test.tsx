@@ -2,7 +2,8 @@ import React from 'react'
 import { fireEvent, render, wait, within } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
 
-import { electionSample } from '@votingworks/ballot-encoder'
+// import { electionSample } from '@votingworks/ballot-encoder'
+import electionSample from './data/electionSample.json'
 import { printerMessageTimeoutSeconds } from './pages/PrintPage'
 
 import App from './App'
@@ -22,6 +23,7 @@ import {
   presidentContest,
   countyCommissionersContest,
   measure102Contest,
+  measure420Contest,
   voterContests,
 } from '../test/helpers/election'
 import { MemoryStorage } from './utils/Storage'
@@ -136,7 +138,7 @@ it('VxMark+Print end-to-end flow', async () => {
   await advanceTimersAndPromises()
   await wait(() => getByText(/Center Springfield/))
   getByText(/ballot style 12/)
-  getByTextWithMarkup('Your ballot has 20 contests.')
+  getByTextWithMarkup('Your ballot has 21 contests.')
 
   // Remove card
   card.removeCard()
@@ -165,7 +167,7 @@ it('VxMark+Print end-to-end flow', async () => {
   await advanceTimersAndPromises()
   getByText(/Center Springfield/)
   getByText(/ballot style 12/)
-  getByTextWithMarkup('Your ballot has 20 contests.')
+  getByTextWithMarkup('Your ballot has 21 contests.')
 
   // Adjust Text Size
   const changeTextSize = within(getByTestId('change-text-size-buttons'))
@@ -210,6 +212,12 @@ it('VxMark+Print end-to-end flow', async () => {
     // Vote for yesno contest
     else if (title === measure102Contest.title) {
       fireEvent.click(getByText('Yes'))
+    }
+
+    // Vote for MsEitherNeither contest
+    else if (title === measure420Contest.title) {
+      fireEvent.click(getByText(measure420Contest.neitherOption.label))
+      fireEvent.click(getByText(measure420Contest.firstOption.label))
     }
 
     fireEvent.click(getByText('Next'))

@@ -169,7 +169,8 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 .c1 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem 9rem;
+  padding: 1rem 2rem 0.5rem;
+  padding-left: 6rem;
 }
 
 .c3 {
@@ -223,7 +224,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 .c7 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem;
+  padding: 0.5rem 2rem 2rem;
 }
 
 .c8 {
@@ -505,7 +506,8 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 .c1 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem 9rem;
+  padding: 1rem 2rem 0.5rem;
+  padding-left: 6rem;
 }
 
 .c3 {
@@ -559,7 +561,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 .c6 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem;
+  padding: 0.5rem 2rem 2rem;
 }
 
 .c7 {
@@ -874,7 +876,8 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 .c1 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem 9rem;
+  padding: 1rem 2rem 0.5rem;
+  padding-left: 6rem;
 }
 
 .c3 {
@@ -928,7 +931,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 .c7 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem;
+  padding: 0.5rem 2rem 2rem;
 }
 
 .c8 {

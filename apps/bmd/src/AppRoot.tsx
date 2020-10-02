@@ -830,6 +830,10 @@ class AppRoot extends React.Component<Props, State> {
         const tally = prevTally
         const election = e!
         for (const contestId in votes) {
+          // TODO: Tally: Remove after tally work is complete.
+          if (contestId === '420A' || contestId === '420B') {
+            continue
+          }
           const contestIndex = election.contests.findIndex(
             (c) => c.id === contestId
           )

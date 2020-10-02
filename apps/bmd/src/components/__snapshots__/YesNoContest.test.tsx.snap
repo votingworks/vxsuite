@@ -123,19 +123,19 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 .c1 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem;
+  padding: 1rem 2rem 0.5rem;
+}
+
+.c7 {
+  margin: 0 auto;
+  width: 100%;
+  padding: 1rem 2rem;
 }
 
 .c3 {
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-}
-
-.c7 {
-  margin: 0 auto;
-  width: 100%;
-  padding: 1rem 5rem;
 }
 
 .c4 {
@@ -183,7 +183,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 .c6 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem;
+  padding: 0.5rem 2rem 2rem;
 }
 
 .c8 {
@@ -250,8 +250,12 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           <div
             class="c2"
           >
-            <p>
-              description
+            <p
+              class=""
+            >
+              <span>
+                description
+              </span>
             </p>
           </div>
         </div>
@@ -471,19 +475,19 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 .c1 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem;
+  padding: 1rem 2rem 0.5rem;
+}
+
+.c7 {
+  margin: 0 auto;
+  width: 100%;
+  padding: 1rem 2rem;
 }
 
 .c3 {
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-}
-
-.c7 {
-  margin: 0 auto;
-  width: 100%;
-  padding: 1rem 5rem;
 }
 
 .c4 {
@@ -531,7 +535,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 .c6 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem;
+  padding: 0.5rem 2rem 2rem;
 }
 
 .c8 {
@@ -604,8 +608,12 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           <div
             class="c2"
           >
-            <p>
-              description
+            <p
+              class=""
+            >
+              <span>
+                description
+              </span>
             </p>
           </div>
         </div>

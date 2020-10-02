@@ -70,12 +70,20 @@ exports[`renders PrintPage with votes 1`] = `
   height: auto;
 }
 
-.c11 {
+.c12 {
   color: gray;
   font-style: italic;
 }
 
 .c10 {
+  word-break: break-word;
+}
+
+.c11 {
+  font-weight: 600;
+}
+
+.c13 {
   font-weight: 600;
   word-break: break-word;
 }
@@ -285,7 +293,7 @@ exports[`renders PrintPage with votes 1`] = `
 }
 
 @media print {
-  .c11 {
+  .c12 {
     color: black;
   }
 }
@@ -400,9 +408,11 @@ exports[`renders PrintPage with votes 1`] = `
           <p
             class="c10"
           >
-            <strong>
+            <span
+              class="c11"
+            >
               Joseph Barchi and Joseph Hallaren
-            </strong>
+            </span>
              
             / Federalist
           </p>
@@ -418,7 +428,7 @@ exports[`renders PrintPage with votes 1`] = `
             Representative, District 6
           </h3>
           <p
-            class="c11"
+            class="c12"
           >
             [no selection]
           </p>
@@ -436,9 +446,11 @@ exports[`renders PrintPage with votes 1`] = `
           <p
             class="c10"
           >
-            <strong>
+            <span
+              class="c11"
+            >
               Chris Norberg
-            </strong>
+            </span>
              
             / Federalist
           </p>
@@ -454,7 +466,7 @@ exports[`renders PrintPage with votes 1`] = `
             Senator, District 31
           </h3>
           <p
-            class="c11"
+            class="c12"
           >
             [no selection]
           </p>
@@ -470,7 +482,7 @@ exports[`renders PrintPage with votes 1`] = `
             Assembly Member, District 54
           </h3>
           <p
-            class="c11"
+            class="c12"
           >
             [no selection]
           </p>
@@ -486,7 +498,7 @@ exports[`renders PrintPage with votes 1`] = `
             Registrar of Wills
           </h3>
           <p
-            class="c11"
+            class="c12"
           >
             [no selection]
           </p>
@@ -502,7 +514,7 @@ exports[`renders PrintPage with votes 1`] = `
             Retain Robert Demergue as Chief Justice?
           </h3>
           <p
-            class="c11"
+            class="c12"
           >
             [no selection]
           </p>
@@ -518,13 +530,11 @@ exports[`renders PrintPage with votes 1`] = `
             Question A: Recovery of Property Damages
           </h3>
           <p
-            class="c10"
+            class="c13"
           >
-            <strong>
-              No
-               
-              on Question A
-            </strong>
+            No
+             
+            on Question A
           </p>
         </div>
       </div>
@@ -538,13 +548,11 @@ exports[`renders PrintPage with votes 1`] = `
             Question B: Separation of Powers
           </h3>
           <p
-            class="c10"
+            class="c13"
           >
-            <strong>
-              Yes
-               
-              on Question B
-            </strong>
+            Yes
+             
+            on Question B
           </p>
         </div>
       </div>
@@ -558,7 +566,7 @@ exports[`renders PrintPage with votes 1`] = `
             Proposition 1: Gambling in Franklin and Fromwit Counties
           </h3>
           <p
-            class="c11"
+            class="c12"
           >
             [no selection]
           </p>
@@ -574,7 +582,7 @@ exports[`renders PrintPage with votes 1`] = `
             Measure 102: Vehicle Abatement Program
           </h3>
           <p
-            class="c11"
+            class="c12"
           >
             [no selection]
           </p>

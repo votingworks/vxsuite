@@ -49,6 +49,13 @@ export const getZeroTally = (election: Election): Tally =>
     /* istanbul ignore else */
     if (contest.type === 'yesno') {
       return { yes: 0, no: 0 }
+    } else if (contest.type === 'ms-either-neither') {
+      return {
+        eitherOption: 0,
+        neitherOption: 0,
+        firstOption: 0,
+        secondOption: 0,
+      }
     } else if (contest.type === 'candidate') {
       return {
         candidates: contest.candidates.map(() => 0),

@@ -274,7 +274,8 @@ exports[`Renders ContestPage 1`] = `
 .c2 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem 9rem;
+  padding: 1rem 2rem 0.5rem;
+  padding-left: 6rem;
 }
 
 .c4 {
@@ -328,7 +329,7 @@ exports[`Renders ContestPage 1`] = `
 .c7 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem;
+  padding: 0.5rem 2rem 2rem;
 }
 
 .c8 {
@@ -452,7 +453,7 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c22 button {
-  min-width: 120px;
+  min-width: 112px;
 }
 
 .c22 button[data-size='0'] {
@@ -460,7 +461,7 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c22 button[data-size='1'] {
-  font-size: 30px !important;
+  font-size: 28px !important;
 }
 
 .c22 button[data-size='2'] {

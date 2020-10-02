@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, within } from '@testing-library/react'
-import { electionSample } from '@votingworks/ballot-encoder'
+// import { electionSample } from '@votingworks/ballot-encoder'
+import electionSample from './data/electionSample.json'
 
 import App from './App'
 
@@ -140,7 +141,7 @@ it('VxMarkOnly flow', async () => {
   await advanceTimersAndPromises()
   getByText(/Center Springfield/)
   getByText(/ballot style 12/)
-  getByTextWithMarkup('Your ballot has 20 contests.')
+  getByTextWithMarkup('Your ballot has 21 contests.')
   fireEvent.click(getByText('Start Voting'))
 
   // Advance through every contest

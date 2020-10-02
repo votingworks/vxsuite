@@ -6,14 +6,18 @@ import {
   CandidateVote,
   YesNoVote,
   OptionalYesNoVote,
-  CandidateContest,
-  YesNoContest,
   Contests,
-  Parties,
 } from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
-import { Scrollable, ScrollDirections, ScrollShadows } from '../config/types'
+import {
+  CandidateContestResultInterface,
+  MsEitherNeitherContestResultInterface,
+  Scrollable,
+  ScrollDirections,
+  ScrollShadows,
+  YesNoContestResultInterface,
+} from '../config/types'
 
 import Button, { DecoyButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
@@ -198,11 +202,7 @@ const CandidateContestResult = ({
   contest,
   parties,
   vote = [],
-}: {
-  contest: CandidateContest
-  parties: Parties
-  vote: CandidateVote
-}) => {
+}: CandidateContestResultInterface) => {
   const remainingChoices = contest.seats - vote.length
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
@@ -235,16 +235,45 @@ const CandidateContestResult = ({
   )
 }
 
-const YesNoContestResult = (props: {
-  contest: YesNoContest
-  vote: OptionalYesNoVote
-}) => {
-  const yesNo = getSingleYesNoVote(props.vote)
+const YesNoContestResult = ({ contest, vote }: YesNoContestResultInterface) => {
+  const yesNo = getSingleYesNoVote(vote)
   return yesNo ? (
     <Text bold wordBreak voteIcon>
-      {YES_NO_VOTES[yesNo]}{' '}
-      {!!props.contest.shortTitle && `on ${props.contest.shortTitle}`}
+      {YES_NO_VOTES[yesNo]} {!!contest.shortTitle && `on ${contest.shortTitle}`}
     </Text>
+  ) : (
+    <NoSelection />
+  )
+}
+
+const MsEitherNeitherContestResult = ({
+  contest,
+  eitherNeitherContestVote,
+  pickOneContestVote,
+}: MsEitherNeitherContestResultInterface) => {
+  const eitherNeitherVote = eitherNeitherContestVote?.[0]
+  const pickOneVote = pickOneContestVote?.[0]
+  return eitherNeitherVote || pickOneVote ? (
+    <React.Fragment>
+      {eitherNeitherVote ? (
+        <Text bold wordBreak voteIcon>
+          {eitherNeitherVote === 'yes'
+            ? contest.eitherOption.label
+            : contest.neitherOption.label}
+        </Text>
+      ) : (
+        <NoSelection />
+      )}
+      {pickOneVote ? (
+        <Text bold wordBreak voteIcon>
+          {pickOneVote === 'yes'
+            ? contest.firstOption.label
+            : contest.secondOption.label}
+        </Text>
+      ) : (
+        <NoSelection />
+      )}
+    </React.Fragment>
   ) : (
     <NoSelection />
   )
@@ -394,6 +423,19 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
                         <YesNoContestResult
                           contest={contest}
                           vote={votes[contest.id] as YesNoVote}
+                        />
+                      )}
+                      {contest.type === 'ms-either-neither' && (
+                        <MsEitherNeitherContestResult
+                          contest={contest}
+                          eitherNeitherContestVote={
+                            votes[
+                              contest.eitherNeitherContestId
+                            ] as OptionalYesNoVote
+                          }
+                          pickOneContestVote={
+                            votes[contest.pickOneContestId] as OptionalYesNoVote
+                          }
                         />
                       )}
                     </ContestProse>

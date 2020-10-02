@@ -416,7 +416,7 @@ exports[`renders StartPage 1`] = `
 }
 
 .c14 button {
-  min-width: 120px;
+  min-width: 112px;
 }
 
 .c14 button[data-size='0'] {
@@ -424,7 +424,7 @@ exports[`renders StartPage 1`] = `
 }
 
 .c14 button[data-size='1'] {
-  font-size: 30px !important;
+  font-size: 28px !important;
 }
 
 .c14 button[data-size='2'] {
@@ -1062,7 +1062,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 .c14 button {
-  min-width: 120px;
+  min-width: 112px;
 }
 
 .c14 button[data-size='0'] {
@@ -1070,7 +1070,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 .c14 button[data-size='1'] {
-  font-size: 30px !important;
+  font-size: 28px !important;
 }
 
 .c14 button[data-size='2'] {
@@ -1861,7 +1861,7 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 .c14 button {
-  min-width: 120px;
+  min-width: 112px;
 }
 
 .c14 button[data-size='0'] {
@@ -1869,7 +1869,7 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 .c14 button[data-size='1'] {
-  font-size: 30px !important;
+  font-size: 28px !important;
 }
 
 .c14 button[data-size='2'] {
