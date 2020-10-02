@@ -3,6 +3,7 @@ import fileDownload from 'js-file-download'
 import styled from 'styled-components'
 
 import ConverterClient from '../lib/ConverterClient'
+import { copyFile } from '../utils/file'
 
 import { InputEventFunction } from '../config/types'
 
@@ -36,13 +37,17 @@ const CombineResultsScreen = () => {
   const handleFirstFileInput: InputEventFunction = async (event) => {
     const input = event.currentTarget
     const file = input.files && input.files[0]
-    setResultsOneFile(file!)
+    if (file) {
+      setResultsOneFile(await copyFile(file))
+    }
   }
 
   const handleSecondFileInput: InputEventFunction = async (event) => {
     const input = event.currentTarget
     const file = input.files && input.files[0]
-    setResultsTwoFile(file!)
+    if (file) {
+      setResultsTwoFile(await copyFile(file))
+    }
   }
 
   const reset = () => {
