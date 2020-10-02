@@ -40,7 +40,7 @@ beforeEach(() => {
 
 jest.useFakeTimers()
 
-jest.setTimeout(10000)
+jest.setTimeout(12000)
 
 test('VxPrintOnly flow', async () => {
   const card = new MemoryCard()

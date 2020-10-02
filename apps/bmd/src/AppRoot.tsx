@@ -1,5 +1,6 @@
 import {
   CompletedBallot,
+  Dictionary,
   decodeBallot,
   encodeBallot,
   getPrecinctById,
@@ -11,6 +12,7 @@ import {
   Contests,
   Election,
   OptionalElection,
+  MsEitherNeitherContest,
 } from '@votingworks/ballot-encoder'
 import 'normalize.css'
 import React from 'react'
@@ -36,6 +38,7 @@ import {
   Tally,
   CandidateVoteTally,
   YesNoVoteTally,
+  MsEitherNeitherTally,
   SerializableActivationData,
   Provider,
   MachineConfig,
@@ -829,11 +832,54 @@ class AppRoot extends React.Component<Props, State> {
       ({ ballotsPrintedCount, election: e, tally: prevTally, votes }) => {
         const tally = prevTally
         const election = e!
+
+        // extract the either-neither contests
+        const eitherNeitherContestMappings: Dictionary<MsEitherNeitherContest> = {}
+        election.contests
+          .filter((c) => c.type === 'ms-either-neither')
+          .forEach((c) => {
+            const eitherNeitherContest = c as MsEitherNeitherContest
+            eitherNeitherContestMappings[
+              eitherNeitherContest.eitherNeitherContestId
+            ] = eitherNeitherContest
+            eitherNeitherContestMappings[
+              eitherNeitherContest.pickOneContestId
+            ] = eitherNeitherContest
+          })
+
         for (const contestId in votes) {
-          // TODO: Tally: Remove after tally work is complete.
-          if (contestId === '420A' || contestId === '420B') {
+          const outerContest = eitherNeitherContestMappings[contestId]
+          if (outerContest) {
+            const contestIndex = election.contests.findIndex(
+              (c) => c.id === outerContest.id
+            )
+            const eitherNeitherTally = tally[
+              contestIndex
+            ] as MsEitherNeitherTally
+            const vote = votes[contestId] as YesNoVote
+            const singleVote = getSingleYesNoVote(vote)
+
+            if (singleVote) {
+              if (outerContest.eitherNeitherContestId === contestId) {
+                // special tabulation rule: if this is 'yes' but no option selected, we cancel the vote.
+                if (
+                  singleVote === 'no' ||
+                  outerContest.pickOneContestId in votes
+                ) {
+                  eitherNeitherTally[
+                    singleVote === 'yes' ? 'eitherOption' : 'neitherOption'
+                  ]++
+                }
+              } else {
+                eitherNeitherTally[
+                  singleVote === 'yes' ? 'firstOption' : 'secondOption'
+                ]++
+              }
+            }
+
             continue
           }
+
           const contestIndex = election.contests.findIndex(
             (c) => c.id === contestId
           )

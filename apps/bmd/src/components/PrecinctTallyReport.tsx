@@ -1,7 +1,16 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Precinct, Election } from '@votingworks/ballot-encoder'
-import { Tally, CandidateVoteTally, YesNoVoteTally } from '../config/types'
+import {
+  Precinct,
+  Election,
+  MsEitherNeitherContest,
+} from '@votingworks/ballot-encoder'
+import {
+  Tally,
+  CandidateVoteTally,
+  YesNoVoteTally,
+  MsEitherNeitherTally,
+} from '../config/types'
 
 import numberWithCommas from '../utils/numberWithCommas'
 
@@ -74,6 +83,8 @@ const PrecinctTallyReport = ({
         const isContestInPrecinct = precinctContestIds.includes(contest.id)
         const candidateContest = contest.type === 'candidate' && contest
         const yesnoContest = contest.type === 'yesno' && contest
+        const eitherNeitherContest =
+          contest.type === 'ms-either-neither' && contest
         return (
           <Contest key={contest.id}>
             <Prose>
@@ -82,6 +93,74 @@ const PrecinctTallyReport = ({
               </h2>
               <Table>
                 <tbody>
+                  {eitherNeitherContest && (
+                    <React.Fragment>
+                      <tr>
+                        <td>
+                          {
+                            (contest as MsEitherNeitherContest).eitherOption
+                              .label
+                          }
+                        </td>
+                        <TD narrow textAlign="right">
+                          {isContestInPrecinct
+                            ? numberWithCommas(
+                                (tally[contestIndex] as MsEitherNeitherTally)
+                                  .eitherOption
+                              )
+                            : 'X'}
+                        </TD>
+                      </tr>
+                      <tr>
+                        <td>
+                          {
+                            (contest as MsEitherNeitherContest).neitherOption
+                              .label
+                          }
+                        </td>
+                        <TD narrow textAlign="right">
+                          {isContestInPrecinct
+                            ? numberWithCommas(
+                                (tally[contestIndex] as MsEitherNeitherTally)
+                                  .neitherOption
+                              )
+                            : 'X'}
+                        </TD>
+                      </tr>
+                      <tr>
+                        <td>
+                          {
+                            (contest as MsEitherNeitherContest).firstOption
+                              .label
+                          }
+                        </td>
+                        <TD narrow textAlign="right">
+                          {isContestInPrecinct
+                            ? numberWithCommas(
+                                (tally[contestIndex] as MsEitherNeitherTally)
+                                  .firstOption
+                              )
+                            : 'X'}
+                        </TD>
+                      </tr>
+                      <tr>
+                        <td>
+                          {
+                            (contest as MsEitherNeitherContest).secondOption
+                              .label
+                          }
+                        </td>
+                        <TD narrow textAlign="right">
+                          {isContestInPrecinct
+                            ? numberWithCommas(
+                                (tally[contestIndex] as MsEitherNeitherTally)
+                                  .secondOption
+                              )
+                            : 'X'}
+                        </TD>
+                      </tr>
+                    </React.Fragment>
+                  )}
                   {candidateContest &&
                     candidateContest.candidates.map(
                       (candidate, candidateIndex) => (
