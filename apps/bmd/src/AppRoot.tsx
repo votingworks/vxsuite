@@ -1,6 +1,5 @@
 import {
   CompletedBallot,
-  Dictionary,
   decodeBallot,
   encodeBallot,
   getPrecinctById,
@@ -12,7 +11,6 @@ import {
   Contests,
   Election,
   OptionalElection,
-  MsEitherNeitherContest,
 } from '@votingworks/ballot-encoder'
 import 'normalize.css'
 import React from 'react'
@@ -38,7 +36,6 @@ import {
   Tally,
   CandidateVoteTally,
   YesNoVoteTally,
-  MsEitherNeitherTally,
   SerializableActivationData,
   Provider,
   MachineConfig,
@@ -62,6 +59,7 @@ import UsedCardScreen from './pages/UsedCardScreen'
 import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
 import { getBallotStyle, getContests, getZeroTally } from './utils/election'
+import { computeTallyForEitherNeitherContests } from './utils/eitherNeither'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
 import { Card } from './utils/Card'
@@ -830,53 +828,20 @@ class AppRoot extends React.Component<Props, State> {
   public updateTally = () => {
     this.setState(
       ({ ballotsPrintedCount, election: e, tally: prevTally, votes }) => {
-        const tally = prevTally
         const election = e!
 
-        // extract the either-neither contests
-        const eitherNeitherContestMappings: Dictionary<MsEitherNeitherContest> = {}
-        election.contests
-          .filter((c) => c.type === 'ms-either-neither')
-          .forEach((c) => {
-            const eitherNeitherContest = c as MsEitherNeitherContest
-            eitherNeitherContestMappings[
-              eitherNeitherContest.eitherNeitherContestId
-            ] = eitherNeitherContest
-            eitherNeitherContestMappings[
-              eitherNeitherContest.pickOneContestId
-            ] = eitherNeitherContest
-          })
+        // first update the tally for either-neither contests
+        const {
+          tally,
+          contestIds: eitherNeitherContestIds,
+        } = computeTallyForEitherNeitherContests({
+          election,
+          tally: prevTally,
+          votes: votes,
+        })
 
         for (const contestId in votes) {
-          const outerContest = eitherNeitherContestMappings[contestId]
-          if (outerContest) {
-            const contestIndex = election.contests.findIndex(
-              (c) => c.id === outerContest.id
-            )
-            const eitherNeitherTally = tally[
-              contestIndex
-            ] as MsEitherNeitherTally
-            const vote = votes[contestId] as YesNoVote
-            const singleVote = getSingleYesNoVote(vote)
-
-            if (singleVote) {
-              if (outerContest.eitherNeitherContestId === contestId) {
-                // special tabulation rule: if this is 'yes' but no option selected, we cancel the vote.
-                if (
-                  singleVote === 'no' ||
-                  outerContest.pickOneContestId in votes
-                ) {
-                  eitherNeitherTally[
-                    singleVote === 'yes' ? 'eitherOption' : 'neitherOption'
-                  ]++
-                }
-              } else {
-                eitherNeitherTally[
-                  singleVote === 'yes' ? 'firstOption' : 'secondOption'
-                ]++
-              }
-            }
-
+          if (eitherNeitherContestIds.includes(contestId)) {
             continue
           }
 
