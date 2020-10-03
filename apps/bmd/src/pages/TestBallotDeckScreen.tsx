@@ -58,10 +58,7 @@ const generateTestDeckBallots = ({
             ? 2
             : c.type === 'candidate'
             ? (c as CandidateContest).candidates.length
-            : /* istanbul ignore next - TODO: Tally: Remove this line once tally code is completed */
-            c.type === 'ms-either-neither'
-            ? 9 // TODO: Tally: 9 because: no vote + A + B
-            : 0
+            : 2 // ms-either-neither
         })
       )
 
@@ -78,8 +75,12 @@ const generateTestDeckBallots = ({
             votes[contest.id] = [
               contest.candidates[ballotNum % contest.candidates.length],
             ]
+          } else if (contest.type === 'ms-either-neither') {
+            votes[contest.eitherNeitherContestId] =
+              ballotNum % 2 === 0 ? ['yes'] : ['no']
+            votes[contest.pickOneContestId] =
+              votes[contest.eitherNeitherContestId]
           }
-          // TODO: Tally: add case for MsEitherNeither
         })
         ballots.push({
           ballotStyleId: ballotStyle.id,
