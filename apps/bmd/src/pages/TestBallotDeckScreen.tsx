@@ -58,7 +58,10 @@ const generateTestDeckBallots = ({
             ? 2
             : c.type === 'candidate'
             ? (c as CandidateContest).candidates.length
-            : 2 // ms-either-neither
+            : c.type === 'ms-either-neither'
+            ? 2
+            : /* istanbul ignore next */
+              0
         })
       )
 
