@@ -17,7 +17,7 @@ const randomBase64Mock = mockOf(randomBase64)
 randomBase64Mock.mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w')
 
 it('renders test decks appropriately', () => {
-  const { container, getByText } = render(
+  const { getAllByText, getByText } = render(
     <TestBallotDeckScreen
       appName="VxPrint"
       appPrecinctId="23"
@@ -29,5 +29,8 @@ it('renders test decks appropriately', () => {
 
   fireEvent.click(getByText('All Precincts'))
 
-  expect(container.firstChild).toMatchSnapshot()
+  expect(getAllByText('Unofficial TEST Ballot')).toHaveLength(63)
+  expect(getAllByText('For either', { exact: false })).toHaveLength(31)
+  expect(getAllByText('FOR Measure 420A', { exact: false })).toHaveLength(31)
+  expect(getAllByText('County Commissioners')).toHaveLength(52)
 })
