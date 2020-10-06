@@ -18,3 +18,12 @@ export enum YES_NO_VOTES {
 export const WRITE_IN_CANDIDATE_MAX_LENGTH = 40
 export const LOW_BATTERY_THRESHOLD = 0.25
 export const QUIT_KIOSK_IDLE_SECONDS = 5 * 60 // 5 minutes
+export const AMERICA_TIMEZONES = [
+  { label: 'Hawaii-Aleutian Time', IANAZone: 'America/Honolulu' },
+  { label: 'Alaska Time', IANAZone: 'America/Anchorage' },
+  { label: 'Pacific Time', IANAZone: 'America/Los_Angeles' },
+  { label: 'Mountain Time (Phoenix)', IANAZone: 'America/Phoenix' },
+  { label: 'Mountain Time (Denver)', IANAZone: 'America/Denver' },
+  { label: 'Central Time', IANAZone: 'America/Chicago' },
+  { label: 'Eastern Time', IANAZone: 'America/New_York' },
+]

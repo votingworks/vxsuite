@@ -1,7 +1,12 @@
 import React, { useState } from 'react'
 import { OptionalElection } from '@votingworks/ballot-encoder'
 
-import { AppMode, EventTargetFunction, VoidFunction } from '../config/types'
+import {
+  AppMode,
+  InputChangeEventFunction,
+  SelectChangeEventFunction,
+  VoidFunction,
+} from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
@@ -13,6 +18,16 @@ import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import Screen from '../components/Screen'
 import Select from '../components/Select'
+import TextInput from '../components/TextInput'
+import {
+  twelveHourTime,
+  weekdayAndDate,
+  inputDate,
+  inputTime,
+} from '../utils/date'
+import { AMERICA_TIMEZONES } from '../config/globals'
+import InputGroup from '../components/InputGroup'
+import Modal from '../components/Modal'
 
 interface Props {
   appMode: AppMode
@@ -27,6 +42,13 @@ interface Props {
   unconfigure: VoidFunction
 }
 
+const getMachineTimezone = () =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone
+const getLabelByIANAZone = (IANAZone: string) =>
+  AMERICA_TIMEZONES.find((tz) => tz.IANAZone === IANAZone)?.label || ''
+const getIANAZoneByLabel = (label: string) =>
+  AMERICA_TIMEZONES.find((tz) => tz.label === label)?.IANAZone || 'unknown'
+
 const ClerkScreen = ({
   appMode,
   appPrecinctId,
@@ -39,15 +61,66 @@ const ClerkScreen = ({
   toggleLiveMode,
   unconfigure,
 }: Props) => {
-  const changeAppPrecinctId: EventTargetFunction = (event) => {
-    const currentTarget = event.currentTarget as HTMLInputElement
-    const appPrecinctId = currentTarget.value
-    setAppPrecinctId(appPrecinctId)
+  const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
+    setAppPrecinctId(event.currentTarget.value)
   }
 
   const [isTestDeck, setIsTestDeck] = useState(false)
   const showTestDeck = () => setIsTestDeck(true)
   const hideTestDeck = () => setIsTestDeck(false)
+
+  const [isSavingDate, setIsSavingDate] = useState(false)
+  const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
+  const [systemDate, setSystemDate] = useState(new Date())
+  const [systemTimezoneLabel, setSystemTimezoneLabel] = useState(
+    getLabelByIANAZone(getMachineTimezone())
+  )
+  const cancelSystemDateEdit = () => {
+    setSystemDate(new Date())
+    setSystemTimezoneLabel(getLabelByIANAZone(getMachineTimezone()))
+    setIsSystemDateModalActive(false)
+  }
+  const updateSystemDate: InputChangeEventFunction = (event) => {
+    const datePart = new Date(event.currentTarget.value)
+    setSystemDate(
+      new Date(
+        datePart.getFullYear(),
+        datePart.getMonth(),
+        datePart.getDate(),
+        systemDate.getHours(),
+        systemDate.getMinutes()
+      )
+    )
+  }
+  const updateSystemTime: InputChangeEventFunction = (event) => {
+    const [hours, minutes] = event.currentTarget.value.split(':')
+    setSystemDate(
+      new Date(
+        systemDate.getFullYear(),
+        systemDate.getMonth(),
+        systemDate.getDate(),
+        parseInt(hours, 10),
+        parseInt(minutes, 10)
+      )
+    )
+  }
+  const updateTimeZone: SelectChangeEventFunction = (event) => {
+    setSystemTimezoneLabel(event.currentTarget.value)
+  }
+  const saveDateAndZone = async () => {
+    setIsSavingDate(true)
+    try {
+      await window.kiosk?.setClock({
+        isoDatetime: systemDate.toISOString(),
+        IANAZone: getIANAZoneByLabel(systemTimezoneLabel),
+      })
+      setIsSavingDate(false)
+      setIsSystemDateModalActive(false)
+    } catch (error) {
+      setIsSavingDate(false)
+    }
+  }
+
   if (isTestDeck && election) {
     return (
       <TestBallotDeckScreen
@@ -136,6 +209,19 @@ const ClerkScreen = ({
                     </Text>
                   </React.Fragment>
                 )}
+                <h1>Current Time, Date, and Timezone</h1>
+                <p>
+                  Time: <strong>{twelveHourTime(systemDate.toString())}</strong>
+                  <br />
+                  Date: <strong>{weekdayAndDate(systemDate.toString())}</strong>
+                  <br />
+                  Timezone: <strong>{systemTimezoneLabel || 'unknown'}</strong>
+                </p>
+                <p>
+                  <Button onPress={() => setIsSystemDateModalActive(true)}>
+                    Update Time, Date, and Timezone
+                  </Button>
+                </p>
               </React.Fragment>
             )}
             <h1>Configuration</h1>
@@ -188,6 +274,65 @@ const ClerkScreen = ({
           </Prose>
         )}
       </Sidebar>
+      <Modal
+        isOpen={isSystemDateModalActive}
+        centerContent
+        content={
+          <Prose textCenter>
+            <h1>
+              {twelveHourTime(systemDate.toString())},{' '}
+              {weekdayAndDate(systemDate.toString())}
+            </h1>
+            <div>
+              <InputGroup>
+                <TextInput
+                  type="time"
+                  value={inputTime(systemDate)}
+                  disabled={isSavingDate}
+                  onChange={updateSystemTime}
+                />
+                <TextInput
+                  type="date"
+                  min="2020-10-01"
+                  value={inputDate(systemDate)}
+                  disabled={isSavingDate}
+                  onChange={updateSystemDate}
+                />
+                <Select
+                  id="datetime"
+                  value={systemTimezoneLabel}
+                  onBlur={updateTimeZone}
+                  disabled={isSavingDate}
+                  onChange={updateTimeZone}
+                >
+                  <option value="" disabled>
+                    Select timezone…
+                  </option>
+                  {AMERICA_TIMEZONES.map((timezone) => (
+                    <option key={timezone.label} value={timezone.label}>
+                      {timezone.label}
+                    </option>
+                  ))}
+                </Select>
+              </InputGroup>
+            </div>
+          </Prose>
+        }
+        actions={
+          <React.Fragment>
+            <Button
+              disabled={!systemTimezoneLabel || isSavingDate}
+              primary={!isSavingDate}
+              onPress={saveDateAndZone}
+            >
+              {isSavingDate ? 'Saving…' : 'Save'}
+            </Button>
+            <Button disabled={isSavingDate} onPress={cancelSystemDateEdit}>
+              Cancel
+            </Button>
+          </React.Fragment>
+        }
+      />
     </Screen>
   )
 }

@@ -47,6 +47,7 @@ export default function fakeKiosk({
   printers = printers.map(fakePrinterInfo)
 
   return {
+    setClock: jest.fn().mockResolvedValue(undefined),
     print: jest.fn().mockResolvedValue(undefined),
     getBatteryInfo: jest.fn().mockResolvedValue({ level, discharging }),
     getPrinterInfo: jest.fn().mockResolvedValue(printers),

@@ -18,6 +18,10 @@ const Select = styled.select<Props>`
   padding: 0.75rem 1.75rem 0.75rem 1rem;
   line-height: 1.25;
   appearance: none;
+  &:disabled {
+    background: #dddddd;
+    color: rgb(170, 170, 170);
+  }
 `
 
 export default Select
