@@ -186,6 +186,44 @@ export function buildApp({ store, importer }: AppOptions): Application {
         response.json({ status: 'ok' })
       }
     )
+
+    app.get('/scan/sheets', async (_request, response) => {
+      const sheets = await store.dbAllAsync<{
+        id: string
+        batchId: string
+        frontInterpretationJSON: string
+        backInterpretationJSON: string
+        requiresAdjudication: boolean
+        frontAdjudicationJSON: string
+        backAdjudicationJSON: string
+        deletedAt: string
+      }>(`
+        select
+          id,
+          batch_id as batchId,
+          front_interpretation_json as frontInterpretationJSON,
+          back_interpretation_json as backInterpretationJSON,
+          requires_adjudication as requiresAdjudication,
+          front_adjudication_json as frontAdjudicationJSON,
+          back_adjudication_json as backAdjudicationJSON,
+          deleted_at as deletedAt
+        from sheets
+        order by created_at desc
+      `)
+
+      response.json(
+        sheets.map((sheet) => ({
+          id: sheet.id,
+          batchId: sheet.batchId,
+          frontInterpretation: JSON.parse(sheet.frontInterpretationJSON),
+          backInterpretation: JSON.parse(sheet.backInterpretationJSON),
+          requiresAdjudication: sheet.requiresAdjudication,
+          frontAdjudication: JSON.parse(sheet.frontAdjudicationJSON),
+          backAdjudication: JSON.parse(sheet.backAdjudicationJSON),
+          deletedAt: sheet.deletedAt,
+        }))
+      )
+    })
   }
 
   app.post('/scan/invalidateBatch', (_request, response) => {
@@ -430,8 +468,9 @@ export function buildApp({ store, importer }: AppOptions): Application {
       .pipe(response)
   })
 
-  app.get('/', (_request, response) => {
-    response.sendFile(path.join(__dirname, '..', 'index.html'))
+  app.use(express.static(path.join(__dirname, '..', 'public')))
+  app.get('/*', (_request, response) => {
+    response.sendFile(path.join(__dirname, '..', 'public', 'index.html'))
   })
 
   return app

@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <title>Test Page for Scan</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .sheet-list {
+        border-collapse: collapse;
+      }
+
+      .sheet-list thead tr {
+        border-left-color: #00000000;
+      }
+
+      .sheet-list thead th {
+        text-align: left;
+      }
+
+      .sheet-list tr {
+        border-left-style: solid;
+        border-left-width: 5px;
+      }
+
+      .sheet-list td, .sheet-list th {
+        padding: 10px;
+      }
+
+      .sheet-list .sheet-page-cell {
+        padding-left: 30px;
+        background-repeat: no-repeat;
+        background-image: url(task-sheet.svg);
+        background-position: 5px, 0;
+        background-size: 20px;
+      }
+
+      .sheet-page-cell--title {
+        font-weight: bold;
+      }
+
+      .sheet-page-cell--subtitle {
+        color: #666;
+        font-size: 0.6em;
+      }
+    </style>
+  </head>
+  <script src="vendor/react.js" defer></script>
+  <script src="vendor/react-dom.js" defer></script>
+  <script src="index.js" type="module" defer></script>
+    <div id="app-root"></div>
+  </body>
+</html>
