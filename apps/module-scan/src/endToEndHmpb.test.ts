@@ -3,8 +3,9 @@ import { Application } from 'express'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import request from 'supertest'
-import * as stateOfHamilton from '../test/fixtures/state-of-hamilton'
+import { fileSync } from 'tmp'
 import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-general-election-2020'
+import * as stateOfHamilton from '../test/fixtures/state-of-hamilton'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import SystemImporter, { Importer } from './importer'
 import { buildApp } from './server'
@@ -49,7 +50,7 @@ let app: Application
 
 beforeEach(async () => {
   importDirs = makeTemporaryBallotImportImageDirectories()
-  store = await Store.memoryStore()
+  store = await Store.fileStore(fileSync().name)
   scanner = makeMockScanner()
   importer = new SystemImporter({ store, scanner, ...importDirs.paths })
   app = buildApp({ importer, store })
@@ -296,13 +297,20 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         ],
         "county-commissioners": Array [],
         "county-registrar-of-wills": Array [],
-        "judicial-elmer-hull": Array [],
+        "judicial-elmer-hull": Array [
+          "yes",
+        ],
         "judicial-robert-demergue": Array [],
-        "question-a": Array [],
-        "question-b": Array [
+        "question-a": Array [
           "no",
         ],
-        "question-c": Array [],
+        "question-b": Array [
+          "yes",
+          "no",
+        ],
+        "question-c": Array [
+          "no",
+        ],
       }
     `)
   }

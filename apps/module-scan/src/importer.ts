@@ -1,26 +1,23 @@
+import { BallotPageLayout, Interpreter } from '@votingworks/hmpb-interpreter'
 import makeDebug from 'debug'
-import sharp, { Raw } from 'sharp'
-import * as path from 'path'
 import * as fs from 'fs'
-import * as streams from 'memory-streams'
 import * as fsExtra from 'fs-extra'
+import * as streams from 'memory-streams'
+import sharp, { Raw } from 'sharp'
 import { v4 as uuid } from 'uuid'
-import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
-
+import { PageInterpretation } from './interpreter'
+import { Scanner } from './scanner'
+import Store from './store'
 import {
   BallotMetadata,
+  ElectionDefinition,
   ScanStatus,
   SheetOf,
-  ElectionDefinition,
   Side,
 } from './types'
-import Store from './store'
-import DefaultInterpreter, {
-  Interpreter,
-  PageInterpretation,
-} from './interpreter'
-import { Scanner } from './scanner'
 import pdfToImages from './util/pdfToImages'
+import { call, Input, InterpretOutput, Output } from './workers/interpret'
+import { inlinePool, WorkerPool } from './workers/pool'
 
 const debug = makeDebug('module-scan:importer')
 
@@ -32,7 +29,7 @@ export interface Options {
   scanner: Scanner
   scannedImagesPath: string
   importedImagesPath: string
-  interpreter?: Interpreter
+  interpreterWorkerPoolProvider?: () => WorkerPool<Input, Output>
 }
 
 export interface Importer {
@@ -59,15 +56,50 @@ export interface Importer {
 
 export class HmpbInterpretationError extends Error {}
 
+export async function saveImages(
+  imagePath: string,
+  originalImagePath: string,
+  normalizedImagePath: string,
+  normalizedImage?: ImageData
+): Promise<{
+  original: string
+  normalized: string
+}> {
+  await fsExtra.copy(imagePath, originalImagePath)
+
+  if (normalizedImage) {
+    debug('about to write normalized ballot image to %s', normalizedImagePath)
+    await fsExtra.writeFile(
+      normalizedImagePath,
+      await sharp(Buffer.from(normalizedImage.data.buffer), {
+        raw: {
+          width: normalizedImage.width,
+          height: normalizedImage.height,
+          channels: (normalizedImage.data.length /
+            (normalizedImage.width *
+              normalizedImage.height)) as Raw['channels'],
+        },
+      })
+        .png()
+        .toBuffer()
+    )
+    debug('wrote normalized ballot image to %s', normalizedImagePath)
+    return { original: originalImagePath, normalized: normalizedImagePath }
+  }
+
+  return { original: originalImagePath, normalized: originalImagePath }
+}
+
 /**
  * Imports ballot images from a `Scanner` and stores them in a `Store`.
  */
 export default class SystemImporter implements Importer {
   private store: Store
   private scanner: Scanner
-  private interpreter: Interpreter
   private sheetGenerator: AsyncGenerator<SheetOf<string>> | undefined
   private batchId: string | undefined
+  private interpreterWorkerPool?: WorkerPool<Input, Output>
+  private interpreterWorkerPoolProvider: () => WorkerPool<Input, Output>
 
   public readonly scannedImagesPath: string
   public readonly importedImagesPath: string
@@ -84,13 +116,14 @@ export default class SystemImporter implements Importer {
     scanner,
     scannedImagesPath,
     importedImagesPath,
-    interpreter = new DefaultInterpreter(),
+    interpreterWorkerPoolProvider = (): WorkerPool<Input, Output> =>
+      inlinePool<Input, Output>(call),
   }: Options) {
     this.store = store
     this.scanner = scanner
-    this.interpreter = interpreter
     this.scannedImagesPath = scannedImagesPath
     this.importedImagesPath = importedImagesPath
+    this.interpreterWorkerPoolProvider = interpreterWorkerPoolProvider
 
     // make sure those directories exist
     for (const imagesPath of [scannedImagesPath, importedImagesPath]) {
@@ -98,6 +131,23 @@ export default class SystemImporter implements Importer {
         fs.mkdirSync(imagesPath)
       }
     }
+  }
+
+  private invalidateInterpreterConfig(): void {
+    this.interpreterWorkerPool?.stop()
+    this.interpreterWorkerPool = undefined
+  }
+
+  private async getInterpreterWorkerPool(): Promise<WorkerPool<Input, Output>> {
+    if (!this.interpreterWorkerPool) {
+      this.interpreterWorkerPool = this.interpreterWorkerPoolProvider()
+      this.interpreterWorkerPool.start()
+      await this.interpreterWorkerPool.callAll({
+        action: 'configure',
+        dbPath: this.store.dbPath,
+      })
+    }
+    return this.interpreterWorkerPool
   }
 
   public async addHmpbTemplates(
@@ -113,19 +163,16 @@ export default class SystemImporter implements Importer {
       )
     }
 
+    const interpreter = new Interpreter(electionDefinition.election)
     for await (const { page, pageNumber } of pdfToImages(pdf, {
       scale: 2,
     })) {
       try {
         result.push(
-          await this.interpreter.addHmpbTemplate(
-            electionDefinition.election,
-            page,
-            {
-              ...metadata,
-              pageNumber,
-            }
-          )
+          await interpreter.interpretTemplate(page, {
+            ...metadata,
+            pageNumber,
+          })
         )
       } catch (error) {
         throw new HmpbInterpretationError(
@@ -145,6 +192,8 @@ export default class SystemImporter implements Importer {
         },
       }))
     )
+
+    this.invalidateInterpreterConfig()
 
     return result
   }
@@ -169,40 +218,8 @@ export default class SystemImporter implements Importer {
    * Restore configuration from the store.
    */
   public async restoreConfig(): Promise<void> {
-    const testMode = await this.store.getTestMode()
-    debug('restoring test mode (%s)', testMode)
-    this.interpreter.setTestMode(testMode)
-
-    const electionDefinition = await this.store.getElectionDefinition()
-    if (!electionDefinition) {
-      debug('skipping election restore because there is no stored election')
-      return
-    }
-
-    debug(
-      'restoring election (sha256=%s): %O',
-      electionDefinition.electionHash,
-      electionDefinition.election
-    )
-    await this.configure(electionDefinition)
-
-    for (const [pdf, layouts] of await this.store.getHmpbTemplates()) {
-      debug('restoring ballot: %O', layouts)
-      for await (const { page, pageCount, pageNumber } of pdfToImages(pdf, {
-        scale: 2,
-      })) {
-        debug('restoring page %d/%d', pageNumber, pageCount)
-        const layout = layouts[pageNumber - 1]
-
-        await this.interpreter.addHmpbTemplate(electionDefinition.election, {
-          ...layout,
-          ballotImage: {
-            ...layout.ballotImage,
-            imageData: page,
-          },
-        })
-      }
-    }
+    this.invalidateInterpreterConfig()
+    await this.getInterpreterWorkerPool()
   }
 
   private async sheetAdded(
@@ -229,109 +246,50 @@ export default class SystemImporter implements Importer {
     frontImagePath: string,
     backImagePath: string
   ): Promise<string> {
-    const electionDefinition = await this.store.getElectionDefinition()
-
-    if (!electionDefinition) {
-      throw new Error('no election is configured')
-    }
-
     let sheetId = uuid()
-    const frontImageData = await fsExtra.readFile(frontImagePath)
-
-    const frontInterpretFileResult = await this.interpreter.interpretFile({
-      election: electionDefinition.election,
-      ballotImagePath: frontImagePath,
-      ballotImageFile: frontImageData,
+    const interpreterWorkerPool = await this.getInterpreterWorkerPool()
+    const frontWorkerPromise = interpreterWorkerPool.call({
+      action: 'interpret',
+      dbPath: this.store.dbPath,
+      imagePath: frontImagePath,
+      sheetId,
+      importedImagesPath: this.importedImagesPath,
     })
+    const backWorkerPromise = interpreterWorkerPool.call({
+      action: 'interpret',
+      dbPath: this.store.dbPath,
+      imagePath: backImagePath,
+      sheetId,
+      importedImagesPath: this.importedImagesPath,
+    })
+
+    const frontWorkerOutput = (await frontWorkerPromise) as InterpretOutput
+    const backWorkerOutput = (await backWorkerPromise) as InterpretOutput
 
     debug(
       'interpreted %s (%s): %O',
       frontImagePath,
-      frontInterpretFileResult.interpretation.type,
-      frontInterpretFileResult.interpretation
+      frontWorkerOutput.interpretation.type,
+      frontWorkerOutput.interpretation
     )
-
-    const frontImages = await this.saveImages(
-      sheetId,
-      frontImagePath,
-      frontInterpretFileResult.normalizedImage
-    )
-
-    const backImageData = await fsExtra.readFile(backImagePath)
-
-    const backInterpretFileResult = await this.interpreter.interpretFile({
-      election: electionDefinition.election,
-      ballotImagePath: backImagePath,
-      ballotImageFile: backImageData,
-    })
-
     debug(
       'interpreted %s (%s): %O',
       backImagePath,
-      backInterpretFileResult.interpretation.type,
-      backInterpretFileResult.interpretation
-    )
-
-    const backImages = await this.saveImages(
-      sheetId,
-      backImagePath,
-      backInterpretFileResult.normalizedImage
+      backWorkerOutput.interpretation.type,
+      backWorkerOutput.interpretation
     )
 
     sheetId = await this.addSheet(
       batchId,
-      frontImages.original,
-      frontImages.normalized,
-      frontInterpretFileResult.interpretation,
-      backImages.original,
-      backImages.normalized,
-      backInterpretFileResult.interpretation
+      frontWorkerOutput.originalImagePath,
+      frontWorkerOutput.normalizedImagePath,
+      frontWorkerOutput.interpretation,
+      backWorkerOutput.originalImagePath,
+      backWorkerOutput.normalizedImagePath,
+      backWorkerOutput.interpretation
     )
 
     return sheetId
-  }
-
-  private async saveImages(
-    id: string,
-    imagePath: string,
-    normalizedImage?: ImageData
-  ): Promise<{
-    original: string
-    normalized: string
-  }> {
-    const ext = path.extname(imagePath)
-    const original = path.join(
-      this.importedImagesPath,
-      `${path.basename(imagePath, ext)}-${id}-original${ext}`
-    )
-
-    await fsExtra.copy(imagePath, original)
-
-    if (normalizedImage) {
-      const normalized = path.join(
-        this.importedImagesPath,
-        `${path.basename(imagePath, ext)}-${id}-normalized${ext}`
-      )
-      debug('about to write normalized ballot image to %s', normalized)
-      await fsExtra.writeFile(
-        normalized,
-        await sharp(Buffer.from(normalizedImage.data.buffer), {
-          raw: {
-            width: normalizedImage.width,
-            height: normalizedImage.height,
-            channels: (normalizedImage.data.length /
-              (normalizedImage.width *
-                normalizedImage.height)) as Raw['channels'],
-          },
-        })
-          .png()
-          .toBuffer()
-      )
-      debug('wrote normalized ballot image to %s', normalized)
-      return { original, normalized }
-    }
-
-    return { original, normalized: original }
   }
 
   /**
@@ -526,8 +484,8 @@ export default class SystemImporter implements Importer {
    * Resets all data like `doZero`, removes election info, and stops importing.
    */
   public async unconfigure(): Promise<void> {
+    this.invalidateInterpreterConfig()
     await this.doZero()
     await this.store.reset() // destroy all data
-    this.interpreter.electionDidChange()
   }
 }

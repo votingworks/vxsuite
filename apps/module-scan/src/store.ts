@@ -74,15 +74,12 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
  * interpreted by reading the sheets.
  */
 export default class Store {
-  private dbPath: string
   private db?: sqlite3.Database
 
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
    */
-  private constructor(dbPath: string) {
-    this.dbPath = dbPath
-  }
+  private constructor(public readonly dbPath: string) {}
 
   /**
    * Builds and returns a new store whose data is kept in memory.
@@ -867,7 +864,8 @@ export default class Store {
         ) ?? []
 
     debug(
-      'saving adjudication changes for sheet %s: %O',
+      'saving adjudication changes for sheet %s %s: %O',
+      side,
       ballotId,
       newAdjudication
     )

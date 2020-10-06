@@ -963,5 +963,5 @@
       }
     }
   },
-  "markThresholds": { "definite": 0.25, "marginal": 0.17 }
+  "markThresholds": { "definite": 0.17, "marginal": 0.12 }
 }

@@ -10,6 +10,7 @@ import {
   decodeBallot,
   detect,
   Election,
+  MarkThresholds,
   VotesDict,
 } from '@votingworks/ballot-encoder'
 import {
@@ -42,7 +43,6 @@ const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.005
 const debug = makeDebug('module-scan:interpreter')
 
 export interface InterpretFileParams {
-  readonly election: Election
   readonly ballotImagePath: string
   readonly ballotImageFile: Buffer
 }
@@ -102,19 +102,13 @@ export interface UnreadablePage {
 
 export interface Interpreter {
   addHmpbTemplate(
-    election: Election,
     imageData: ImageData,
     metadata?: BallotPageMetadata
   ): Promise<BallotPageLayout>
-  addHmpbTemplate(
-    election: Election,
-    layout: BallotPageLayout
-  ): Promise<BallotPageLayout>
+  addHmpbTemplate(layout: BallotPageLayout): Promise<BallotPageLayout>
   interpretFile(
     interpretFileParams: InterpretFileParams
   ): Promise<InterpretFileResult>
-  setTestMode(testMode: boolean): void
-  electionDidChange(): void
 }
 
 interface BallotImageData {
@@ -203,23 +197,33 @@ export function sheetRequiresAdjudication([front, back]: SheetOf<
 
 export default class SummaryBallotInterpreter implements Interpreter {
   private hmpbInterpreter?: HMPBInterpreter
-  private testMode?: boolean
+  private election: Election
+  private testMode: boolean
+  private markThresholds: MarkThresholds
+
+  public constructor(election: Election, testMode: boolean) {
+    this.election = election
+    this.testMode = testMode
+
+    const { markThresholds } = election
+
+    if (!markThresholds) {
+      throw new Error('missing mark thresholds')
+    }
+
+    this.markThresholds = markThresholds
+  }
 
   async addHmpbTemplate(
-    election: Election,
     imageData: ImageData,
     metadata?: BallotPageMetadata
   ): Promise<BallotPageLayout>
+  async addHmpbTemplate(layout: BallotPageLayout): Promise<BallotPageLayout>
   async addHmpbTemplate(
-    election: Election,
-    layout: BallotPageLayout
-  ): Promise<BallotPageLayout>
-  async addHmpbTemplate(
-    election: Election,
     imageDataOrLayout: ImageData | BallotPageLayout,
     metadata?: BallotPageMetadata
   ): Promise<BallotPageLayout> {
-    const interpreter = this.getHmbpInterpreter(election)
+    const interpreter = this.getHmbpInterpreter()
     let layout: BallotPageLayout
 
     if ('data' in imageDataOrLayout) {
@@ -246,7 +250,6 @@ export default class SummaryBallotInterpreter implements Interpreter {
   }
 
   public async interpretFile({
-    election,
     ballotImagePath,
     ballotImageFile,
   }: InterpretFileParams): Promise<InterpretFileResult> {
@@ -257,14 +260,14 @@ export default class SummaryBallotInterpreter implements Interpreter {
     }
 
     const ballotImageData = result.value
-    const bmdResult = await this.interpretBMDFile(election, ballotImageData)
+    const bmdResult = await this.interpretBMDFile(ballotImageData)
 
     if (bmdResult) {
       return bmdResult
     }
 
     try {
-      const hmpbResult = await this.interpretHMPBFile(election, ballotImageData)
+      const hmpbResult = await this.interpretHMPBFile(ballotImageData)
 
       if (hmpbResult) {
         return hmpbResult
@@ -278,7 +281,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
         'assuming ballot is a HMPB that could not be interpreted (QR data: %s)',
         new TextDecoder().decode(ballotImageData.qrcode)
       )
-      const metadata = metadataFromBytes(election, ballotImageData.qrcode)
+      const metadata = metadataFromBytes(this.election, ballotImageData.qrcode)
 
       if (metadata.isTestMode !== this.testMode) {
         debug(
@@ -310,25 +313,19 @@ export default class SummaryBallotInterpreter implements Interpreter {
     }
   }
 
-  public setTestMode(testMode: boolean): void {
-    this.testMode = testMode
-    this.hmpbInterpreter = undefined
-  }
-
   public electionDidChange(): void {
     this.hmpbInterpreter = undefined
   }
 
-  private async interpretBMDFile(
-    election: Election,
-    { qrcode }: BallotImageData
-  ): Promise<InterpretFileResult | undefined> {
+  private async interpretBMDFile({
+    qrcode,
+  }: BallotImageData): Promise<InterpretFileResult | undefined> {
     if (typeof detect(qrcode) === 'undefined') {
       return
     }
 
     debug('decoding BMD ballot: %o', qrcode)
-    const { ballot } = decodeBallot(election, qrcode)
+    const { ballot } = decodeBallot(this.election, qrcode)
     debug('decoded BMD ballot: %o', ballot.votes)
 
     return {
@@ -348,11 +345,10 @@ export default class SummaryBallotInterpreter implements Interpreter {
     }
   }
 
-  private async interpretHMPBFile(
-    election: Election,
-    { image }: BallotImageData
-  ): Promise<InterpretFileResult | undefined> {
-    const hmpbInterpreter = this.getHmbpInterpreter(election)
+  private async interpretHMPBFile({
+    image,
+  }: BallotImageData): Promise<InterpretFileResult | undefined> {
+    const hmpbInterpreter = this.getHmbpInterpreter()
     const {
       ballot,
       marks,
@@ -362,7 +358,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
     const { votes } = ballot
 
     let requiresAdjudication = false
-    const enabledReasons = election.adjudicationReasons ?? [
+    const enabledReasons = this.election.adjudicationReasons ?? [
       AdjudicationReason.UninterpretableBallot,
       AdjudicationReason.MarginalMark,
     ]
@@ -387,13 +383,13 @@ export default class SummaryBallotInterpreter implements Interpreter {
                 case 'candidate':
                 case 'ms-either-neither':
                   if (mark.option.id === optionId) {
-                    return getMarkStatus(mark, election.markThresholds!)
+                    return getMarkStatus(mark, this.markThresholds)
                   }
                   break
 
                 case 'yesno':
                   if (mark.option === optionId) {
-                    return getMarkStatus(mark, election.markThresholds!)
+                    return getMarkStatus(mark, this.markThresholds)
                   }
                   break
 
@@ -448,7 +444,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
     }
   }
 
-  private getHmbpInterpreter(election: Election): HMPBInterpreter {
+  private getHmbpInterpreter(): HMPBInterpreter {
     if (!this.hmpbInterpreter) {
       if (typeof this.testMode === 'undefined') {
         throw new Error(
@@ -457,7 +453,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
       }
 
       this.hmpbInterpreter = new HMPBInterpreter({
-        election,
+        election: this.election,
         testMode: this.testMode,
         detectQRCode: async (
           imageData

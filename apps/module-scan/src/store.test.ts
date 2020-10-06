@@ -230,7 +230,7 @@ test('adjudication', async () => {
               type: 'candidate',
               contest: candidateContests[i],
               option: candidateContests[i].candidates[0],
-              score: 0.2, // marginal
+              score: 0.12, // marginal
               bounds: zeroRect,
               target: {
                 bounds: zeroRect,

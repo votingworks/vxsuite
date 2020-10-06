@@ -4,8 +4,8 @@
 //
 
 import { BallotType, Election } from '@votingworks/ballot-encoder'
-import express, { Application, RequestHandler } from 'express'
 import bodyParser from 'body-parser'
+import express, { Application, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
 import * as path from 'path'
@@ -17,6 +17,8 @@ import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
 import { BallotConfig, ElectionDefinition } from './types'
 import { fromElection, validate } from './util/electionDefinition'
 import makeTemporaryBallotImportImageDirectories from './util/makeTemporaryBallotImportImageDirectories'
+import { Input, Output } from './workers/interpret'
+import { childProcessPool, WorkerPool } from './workers/pool'
 
 export interface AppOptions {
   store: Store
@@ -82,7 +84,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
               }
 
               await importer.configure(electionDefinition)
-              await store.setElection(electionDefinition)
             }
             break
           }
@@ -466,6 +467,11 @@ export async function start({
       store,
       scanner,
       ...makeTemporaryBallotImportImageDirectories().paths,
+      interpreterWorkerPoolProvider: (): WorkerPool<Input, Output> =>
+        childProcessPool(
+          path.join(__dirname, 'workers/interpret.ts'),
+          2 /* front and back */
+        ),
     })
   app = app ?? buildApp({ importer, store })
 
