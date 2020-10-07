@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import { ChildProcess, fork } from 'child_process'
 import makeDebug from 'debug'
 import { EventEmitter } from 'events'
@@ -10,7 +11,7 @@ import deferred, { Deferred } from '../util/deferred'
 
 const debug = makeDebug('module-scan:pool')
 
-export interface WorkerOps<I, W extends EventEmitter> {
+export interface WorkerOps<I, W extends EventEmitter = EventEmitter> {
   start(): W
   stop(worker: W): void
   send(
@@ -79,14 +80,12 @@ export class InlineWorkerOps<I, O> implements WorkerOps<I, EventEmitter> {
   }
 
   public stop(worker: EventEmitter): void {
-    if (worker !== this.workerInstance) {
-      throw new Error('worker is not owned by this instance')
-    }
-
+    assert.strictEqual(worker, this.workerInstance)
     worker.removeAllListeners()
   }
 
   public async send(worker: EventEmitter, message: I): Promise<void> {
+    assert.strictEqual(worker, this.workerInstance)
     try {
       const output = await this.call(message)
       worker.emit('message', { output })

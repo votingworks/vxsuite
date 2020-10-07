@@ -6,12 +6,21 @@ import { fileSync } from 'tmp'
 import { Importer } from '../../src/importer'
 import { Scanner } from '../../src/scanner'
 import { SheetOf } from '../../src/types'
-import { inlinePool, WorkerPool } from '../../src/workers/pool'
+import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
 
 export function mockWorkerPoolProvider<I, O>(
   call: (input: I) => Promise<O>
 ): () => WorkerPool<I, O> {
   return (): WorkerPool<I, O> => inlinePool(call)
+}
+
+export function makeMockWorkerOps<I>(): jest.Mocked<WorkerOps<I>> {
+  return {
+    start: jest.fn(),
+    stop: jest.fn(),
+    send: jest.fn(),
+    describe: jest.fn(),
+  }
 }
 
 export function makeMockImporter(): jest.Mocked<Importer> {

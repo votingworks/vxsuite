@@ -1,4 +1,4 @@
-/* istanbul ignore - this file is a demo */
+/* istanbul ignore file - this file is a demo, and used only in tests */
 
 export type Input = unknown
 export type Output = unknown
