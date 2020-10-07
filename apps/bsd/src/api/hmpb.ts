@@ -1,14 +1,20 @@
-import { Election } from '@votingworks/ballot-encoder'
 import { EventEmitter } from 'events'
 import { ReviewBallot, BallotSheetInfo } from '../config/types'
-import { BallotPackage, BallotPackageEntry } from '../util/ballot-package'
+import {
+  BallotPackage,
+  BallotPackageEntry,
+  ElectionDefinition,
+} from '../util/ballot-package'
 import fetchJSON from '../util/fetchJSON'
 import { patch as patchConfig } from './config'
 
 export interface AddTemplatesEvents extends EventEmitter {
   on(
     event: 'configuring',
-    callback: (pkg: BallotPackage, election: Election) => void
+    callback: (
+      pkg: BallotPackage,
+      electionDefinition: ElectionDefinition
+    ) => void
   ): this
   on(
     event: 'uploading',
@@ -18,7 +24,10 @@ export interface AddTemplatesEvents extends EventEmitter {
   on(event: 'error', callback: (error: Error) => void): this
   off(
     event: 'configuring',
-    callback: (pkg: BallotPackage, election: Election) => void
+    callback: (
+      pkg: BallotPackage,
+      electionDefinition: ElectionDefinition
+    ) => void
   ): this
   off(
     event: 'uploading',
@@ -26,7 +35,11 @@ export interface AddTemplatesEvents extends EventEmitter {
   ): this
   off(event: 'completed', callback: (pkg: BallotPackage) => void): this
   off(event: 'error', callback: (error: Error) => void): this
-  emit(event: 'configuring', pkg: BallotPackage, election: Election): boolean
+  emit(
+    event: 'configuring',
+    pkg: BallotPackage,
+    electionDefinition: ElectionDefinition
+  ): boolean
   emit(
     event: 'uploading',
     pkg: BallotPackage,
@@ -41,8 +54,8 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
 
   setImmediate(async () => {
     try {
-      result.emit('configuring', pkg, pkg.election)
-      await patchConfig({ election: pkg.election })
+      result.emit('configuring', pkg, pkg.electionDefinition)
+      await patchConfig({ election: pkg.electionDefinition })
 
       for (const ballot of pkg.ballots) {
         result.emit('uploading', pkg, ballot)

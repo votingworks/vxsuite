@@ -10,6 +10,7 @@ import type {
   BallotPageMetadata,
   Size,
 } from '@votingworks/hmpb-interpreter'
+import { ElectionDefinition } from '../util/ballot-package'
 import type { AdjudicationInfo } from './types/ballot-review'
 
 export interface Dictionary<T> {
@@ -123,7 +124,7 @@ export interface GetConfigResponse {
 }
 
 export interface PatchConfigRequest {
-  election?: Election | null
+  election?: Election | ElectionDefinition | null
   testMode?: boolean
 }
 export type PatchConfigResponse = OkResponse

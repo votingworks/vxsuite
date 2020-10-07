@@ -2,15 +2,23 @@ import {
   BallotStyle,
   Contest,
   Election,
+  parseElection,
   Precinct,
 } from '@votingworks/ballot-encoder'
 import type { BallotLocales } from '@votingworks/hmpb-interpreter'
 import 'fast-text-encoding'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'
+import { sha256 } from 'js-sha256'
 
 export interface BallotPackage {
-  election: Election
+  electionDefinition: ElectionDefinition
   ballots: BallotPackageEntry[]
+}
+
+export interface ElectionDefinition {
+  election: Election
+  electionData: string
+  electionHash: string
 }
 
 export interface BallotPackageEntry {
@@ -115,10 +123,13 @@ async function readEntry(zipfile: ZipFile, entry: Entry): Promise<Buffer> {
   })
 }
 
-async function readJSONEntry<T>(zipfile: ZipFile, entry: Entry): Promise<T> {
+async function readTextEntry(zipfile: ZipFile, entry: Entry): Promise<string> {
   const bytes = await readEntry(zipfile, entry)
-  const string = new TextDecoder().decode(bytes)
-  return JSON.parse(string)
+  return new TextDecoder().decode(bytes)
+}
+
+async function readJSONEntry<T>(zipfile: ZipFile, entry: Entry): Promise<T> {
+  return JSON.parse(await readTextEntry(zipfile, entry))
 }
 
 export async function readBallotPackage(file: File): Promise<BallotPackage> {
@@ -143,7 +154,7 @@ export async function readBallotPackage(file: File): Promise<BallotPackage> {
     )
   }
 
-  const election: Election = await readJSONEntry(zipfile, electionEntry)
+  const electionData = await readTextEntry(zipfile, electionEntry)
   const manifest: BallotPackageManifest = await readJSONEntry(
     zipfile,
     manifestEntry
@@ -169,5 +180,12 @@ export async function readBallotPackage(file: File): Promise<BallotPackage> {
     )
   }
 
-  return { election, ballots }
+  return {
+    electionDefinition: {
+      election: parseElection(JSON.parse(electionData)),
+      electionData,
+      electionHash: sha256(electionData),
+    },
+    ballots,
+  }
 }

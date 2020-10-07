@@ -53,7 +53,7 @@ const LoadElectionScreen = ({ setElection }: Props) => {
                 ballotStyle: ballot.ballotConfig.ballotStyleId,
                 precinct:
                   getPrecinctById({
-                    election: pkg.election,
+                    election: pkg.electionDefinition.election,
                     precinctId: ballot.ballotConfig.precinctId,
                   })?.name ?? ballot.ballotConfig.precinctId,
                 isLiveMode: ballot.ballotConfig.isLiveMode,
@@ -64,7 +64,7 @@ const LoadElectionScreen = ({ setElection }: Props) => {
               setCurrentUploadingBallotIndex(pkg.ballots.indexOf(ballot))
             })
             .on('completed', () => {
-              setElection(pkg.election)
+              setElection(pkg.electionDefinition.election)
             })
         })
 

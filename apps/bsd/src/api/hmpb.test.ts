@@ -1,17 +1,27 @@
 import { electionSample as election } from '@votingworks/ballot-encoder'
 import fetchMock from 'fetch-mock'
+import { sha256 } from 'js-sha256'
+import { ElectionDefinition } from '../util/ballot-package'
 import {
   addTemplates,
   fetchBallotInfo,
-  fetchNextBallotToReview,
   fetchNextBallotSheetToReview,
+  fetchNextBallotToReview,
 } from './hmpb'
+
+const electionData = JSON.stringify(election)
+const electionHash = sha256(electionData)
+const electionDefinition: ElectionDefinition = {
+  election,
+  electionData,
+  electionHash,
+}
 
 test('configures the server with the contained election', async () => {
   fetchMock.patchOnce('/config', { body: { status: 'ok' } })
 
   await new Promise((resolve, reject) => {
-    addTemplates({ election, ballots: [] })
+    addTemplates({ electionDefinition, ballots: [] })
       .on('error', (error) => {
         reject(error)
       })
@@ -22,7 +32,7 @@ test('configures the server with the contained election', async () => {
 
   expect(
     JSON.parse(fetchMock.lastCall('/config')?.[1]?.body as string)
-  ).toEqual({ election })
+  ).toEqual({ election: electionDefinition })
 })
 
 test('emits an event each time a ballot begins uploading', async () => {
@@ -33,7 +43,7 @@ test('emits an event each time a ballot begins uploading', async () => {
 
   await new Promise((resolve, reject) => {
     addTemplates({
-      election,
+      electionDefinition,
       ballots: [
         {
           ballotConfig: {
@@ -76,7 +86,7 @@ test('emits error on API failure', async () => {
 
   await expect(
     new Promise((resolve, reject) => {
-      addTemplates({ election, ballots: [] })
+      addTemplates({ electionDefinition, ballots: [] })
         .on('error', (error) => {
           reject(error)
         })
