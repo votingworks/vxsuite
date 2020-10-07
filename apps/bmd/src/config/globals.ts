@@ -27,3 +27,17 @@ export const AMERICA_TIMEZONES = [
   { label: 'Central Time', IANAZone: 'America/Chicago' },
   { label: 'Eastern Time', IANAZone: 'America/New_York' },
 ]
+export const MONTHS_SHORT = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]

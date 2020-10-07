@@ -10,5 +10,21 @@ export const weekdayAndDate = (dateString: string) =>
 export const twelveHourTime = (dateString: string) =>
   moment(new Date(dateString)).format('LT')
 
-export const inputDate = (date: Date) => moment(date).format('YYYY-MM-DD')
-export const inputTime = (date: Date) => moment(date).format('HH:mm')
+/**
+ * Get days in given month and year.
+ *
+ * @param year
+ * @param month
+ *
+ * @return Date[]
+ *
+ */
+export function getDaysInMonth(year: number, month: number) {
+  const date = new Date(year, month, 1)
+  const days = []
+  while (date.getMonth() === month) {
+    days.push(new Date(date))
+    date.setDate(date.getDate() + 1)
+  }
+  return days
+}
