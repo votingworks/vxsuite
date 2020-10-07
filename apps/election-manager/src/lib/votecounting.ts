@@ -47,7 +47,9 @@ export interface ParseCastVoteRecordResult {
 export function normalizeWriteInId(candidateId: string): string {
   if (
     candidateId.startsWith('__writein') ||
-    candidateId.startsWith('__write-in')
+    candidateId.startsWith('__write-in') ||
+    candidateId.startsWith('writein') ||
+    candidateId.startsWith('write-in')
   ) {
     return writeInCandidate.id
   }
