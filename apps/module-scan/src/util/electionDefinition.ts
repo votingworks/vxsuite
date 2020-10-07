@@ -3,12 +3,8 @@ import { ElectionDefinition } from '../types'
 import { createHash } from 'crypto'
 import type * as z from 'zod'
 
-export function hash(election: Election): string
-export function hash(electionData: string): string
-export function hash(election: Election | string): string {
-  return createHash('sha256')
-    .update(typeof election === 'string' ? election : JSON.stringify(election))
-    .digest('hex')
+export function hash(electionData: string): string {
+  return createHash('sha256').update(electionData).digest('hex')
 }
 
 export function fromElection(election: Election): ElectionDefinition {
@@ -31,9 +27,9 @@ export type ValidationError =
 export function* validate(
   electionDefinition: ElectionDefinition
 ): Generator<ValidationError> {
-  const actualJSON = electionDefinition.electionData
+  const actualJSON = JSON.stringify(JSON.parse(electionDefinition.electionData))
   const expectedJSON = JSON.stringify(electionDefinition.election)
-  if (expectedJSON !== electionDefinition.electionData) {
+  if (expectedJSON !== actualJSON) {
     yield {
       type: ValidationErrorType.JSONMismatch,
       actual: actualJSON,
@@ -42,7 +38,7 @@ export function* validate(
   }
 
   const actualHash = electionDefinition.electionHash
-  const expectedHash = hash(electionDefinition.election)
+  const expectedHash = hash(electionDefinition.electionData)
   if (expectedHash !== actualHash) {
     yield {
       type: ValidationErrorType.HashMismatch,
