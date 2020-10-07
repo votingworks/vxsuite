@@ -44,6 +44,10 @@ img {
   outline: rgb(77, 144, 254) dashed 0.25rem;
 }
 
+select:disabled {
+  opacity: 1;
+}
+
 /* Foundational */
 html,
 body,
