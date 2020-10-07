@@ -2,6 +2,7 @@ import { electionSample as election } from '@votingworks/ballot-encoder'
 import { Application } from 'express'
 import * as path from 'path'
 import request from 'supertest'
+import { fileSync } from 'tmp'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import SystemImporter from './importer'
 import { buildApp } from './server'
@@ -27,7 +28,7 @@ let scanner: MockScanner
 let importDirs: TemporaryBallotImportImageDirectories
 
 beforeEach(async () => {
-  store = await Store.memoryStore()
+  store = await Store.fileStore(fileSync().name)
   scanner = makeMockScanner()
   importDirs = makeTemporaryBallotImportImageDirectories()
   importer = new SystemImporter({

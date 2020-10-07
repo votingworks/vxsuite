@@ -2,10 +2,10 @@ import {
   BallotType,
   electionSample as election,
 } from '@votingworks/ballot-encoder'
-import * as fs from 'fs-extra'
 import { join } from 'path'
+import { fileSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
-import { makeImageFile, makeMockInterpreter } from '../test/util/mocks'
+import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks'
 import SystemImporter, { sleep } from './importer'
 import { Scanner } from './scanner'
 import Store from './store'
@@ -15,12 +15,9 @@ import { fromElection } from './util/electionDefinition'
 import makeTemporaryBallotImportImageDirectories, {
   TemporaryBallotImportImageDirectories,
 } from './util/makeTemporaryBallotImportImageDirectories'
-import pdfToImages from './util/pdfToImages'
+import { Input, Output } from './workers/interpret'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
-
-jest.mock('./util/pdfToImages')
-const pdfToImagesMock = pdfToImages as jest.MockedFunction<typeof pdfToImages>
 
 let importDirs: TemporaryBallotImportImageDirectories
 
@@ -39,7 +36,7 @@ test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.memoryStore()
+  const store = await Store.fileStore(fileSync().name)
   const importer = new SystemImporter({
     ...importDirs.paths,
     store,
@@ -82,7 +79,7 @@ test('unconfigure clears all data.', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.memoryStore()
+  const store = await Store.fileStore(fileSync().name)
   const importer = new SystemImporter({
     ...importDirs.paths,
     store,
@@ -99,7 +96,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.memoryStore()
+  const store = await Store.fileStore(fileSync().name)
   const importer = new SystemImporter({
     ...importDirs.paths,
     store,
@@ -149,81 +146,27 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
   await importer.unconfigure()
 })
 
-test('restoreConfig reads config data from the store', async () => {
+test('restoreConfig reconfigures the interpreter worker', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.memoryStore()
-  const interpreter = makeMockInterpreter()
+  const store = await Store.fileStore(fileSync().name)
+  const workerCall = jest.fn()
+  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
+    workerCall
+  )
   const importer = new SystemImporter({
     ...importDirs.paths,
     store,
     scanner,
-    interpreter,
-  })
-
-  await importer.configure(fromElection(election))
-  await store.setTestMode(true)
-  await store.addHmpbTemplate(
-    Buffer.of(1),
-    {
-      locales: { primary: 'en-US' },
-      electionHash: '',
-      ballotType: BallotType.Standard,
-      ballotStyleId: '77',
-      precinctId: '42',
-      isTestMode: true,
-    },
-    [
-      {
-        ballotImage: {
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: '',
-            ballotType: BallotType.Standard,
-            ballotStyleId: '77',
-            precinctId: '42',
-            isTestMode: true,
-            pageNumber: 1,
-          },
-        },
-        contests: [],
-      },
-      {
-        ballotImage: {
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: '',
-            ballotType: BallotType.Standard,
-            ballotStyleId: '77',
-            precinctId: '43',
-            isTestMode: true,
-            pageNumber: 2,
-          },
-        },
-        contests: [],
-      },
-    ]
-  )
-
-  jest.spyOn(importer, 'configure').mockResolvedValue()
-  pdfToImagesMock.mockImplementationOnce(async function* () {
-    yield {
-      pageNumber: 1,
-      pageCount: 2,
-      page: { data: Uint8ClampedArray.of(0, 0, 0, 1), width: 1, height: 1 },
-    }
-    yield {
-      pageNumber: 2,
-      pageCount: 2,
-      page: { data: Uint8ClampedArray.of(0, 0, 0, 2), width: 1, height: 1 },
-    }
+    interpreterWorkerPoolProvider,
   })
 
   await importer.restoreConfig()
-  expect(importer.configure).toHaveBeenCalled()
-  expect(interpreter.addHmpbTemplate).toHaveBeenCalledTimes(2)
-  expect(interpreter.setTestMode).toHaveBeenCalledWith(true)
+  expect(workerCall).toHaveBeenCalledWith({
+    action: 'configure',
+    dbPath: store.dbPath,
+  })
   await importer.unconfigure()
 })
 
@@ -231,9 +174,10 @@ test('cannot add HMPB templates before configuring an election', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
+  const store = await Store.fileStore(fileSync().name)
   const importer = new SystemImporter({
     ...importDirs.paths,
-    store: await Store.memoryStore(),
+    store,
     scanner,
   })
 
@@ -255,17 +199,25 @@ test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.memoryStore()
-  const interpreter = makeMockInterpreter()
+  const store = await Store.fileStore(fileSync().name)
+  const workerCall = jest.fn<Promise<Output>, [Input]>()
+  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
+    workerCall
+  )
   const importer = new SystemImporter({
     ...importDirs.paths,
     store,
     scanner,
-    interpreter,
+    interpreterWorkerPoolProvider,
   })
 
   await store.setElection(fromElection(election))
-  interpreter.interpretFile
+  workerCall
+    // configure
+    .mockImplementationOnce(async (input) => {
+      expect(input.action).toEqual('configure')
+    })
+    // interpret front
     .mockResolvedValueOnce({
       interpretation: {
         type: 'UninterpretedHmpbPage',
@@ -279,7 +231,10 @@ test('manually importing files', async () => {
           pageNumber: 1,
         },
       },
+      originalImagePath: '/tmp/original.png',
+      normalizedImagePath: '/tmp/normalized.png',
     })
+    // interpret back
     .mockResolvedValueOnce({
       interpretation: {
         type: 'UninterpretedHmpbPage',
@@ -293,6 +248,8 @@ test('manually importing files', async () => {
           pageNumber: 2,
         },
       },
+      originalImagePath: '/tmp/original.png',
+      normalizedImagePath: '/tmp/normalized.png',
     })
   const imageFile = await makeImageFile()
   const sheetId = await importer.importFile(
@@ -302,8 +259,8 @@ test('manually importing files', async () => {
   )
 
   const filenames = (await store.getBallotFilenames(sheetId, 'front'))!
-  expect(fs.existsSync(filenames.original)).toBe(true)
-  expect(fs.existsSync(filenames.normalized)).toBe(true)
+  expect(filenames.original).toBe('/tmp/original.png')
+  expect(filenames.normalized).toBe('/tmp/normalized.png')
 })
 
 test('scanning pauses on adjudication then continues', async () => {
@@ -324,7 +281,7 @@ test('scanning pauses on adjudication then continues', async () => {
     }
   }
 
-  const store = await Store.memoryStore()
+  const store = await Store.fileStore(fileSync().name)
 
   const importer = new SystemImporter({
     ...importDirs.paths,
@@ -416,24 +373,31 @@ test('scanning pauses on adjudication then continues', async () => {
 })
 
 test('importing a sheet orders HMPB pages', async () => {
-  const store = await Store.memoryStore()
+  const store = await Store.fileStore(fileSync().name)
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const interpreter = makeMockInterpreter()
+  const workerCall = jest.fn<Promise<Output>, [Input]>()
+  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
+    workerCall
+  )
 
   const importer = new SystemImporter({
     ...importDirs.paths,
     store,
     scanner,
-    interpreter,
+    interpreterWorkerPoolProvider,
   })
 
   importer.configure(fromElection(election))
   jest.spyOn(store, 'addSheet').mockResolvedValueOnce('sheet-id')
 
+  workerCall.mockImplementationOnce(async (input) => {
+    expect(input.action).toEqual('configure')
+  })
+
   for (const pageNumber of [2, 1]) {
-    interpreter.interpretFile.mockResolvedValueOnce({
+    workerCall.mockResolvedValueOnce({
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {
@@ -456,6 +420,8 @@ test('importing a sheet orders HMPB pages', async () => {
         },
         votes: {},
       },
+      originalImagePath: '/tmp/original.png',
+      normalizedImagePath: '/tmp/normalized.png',
     })
   }
 

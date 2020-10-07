@@ -4,16 +4,22 @@ import sharp from 'sharp'
 import { Readable, Writable } from 'stream'
 import { fileSync } from 'tmp'
 import { Importer } from '../../src/importer'
-import { Interpreter } from '../../src/interpreter'
 import { Scanner } from '../../src/scanner'
 import { SheetOf } from '../../src/types'
+import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
 
-export function makeMockInterpreter(): jest.Mocked<Interpreter> {
+export function mockWorkerPoolProvider<I, O>(
+  call: (input: I) => Promise<O>
+): () => WorkerPool<I, O> {
+  return (): WorkerPool<I, O> => inlinePool(call)
+}
+
+export function makeMockWorkerOps<I>(): jest.Mocked<WorkerOps<I>> {
   return {
-    addHmpbTemplate: jest.fn(),
-    interpretFile: jest.fn(),
-    setTestMode: jest.fn(),
-    electionDidChange: jest.fn(),
+    start: jest.fn(),
+    stop: jest.fn(),
+    send: jest.fn(),
+    describe: jest.fn(),
   }
 }
 
