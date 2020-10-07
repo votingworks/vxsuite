@@ -230,7 +230,7 @@ def process_results_file(election_file_path, vx_results_file_path):
 
                 if contest['type'] == 'candidate':
                     for answer in answers:
-                        if answer.startswith('__write-in') or answer.startswith('__writein') or answer.startswith('writein'):
+                        if answer.startswith('__write-in') or answer.startswith('__writein') or answer.startswith('writein') or answer.startswith('write-in'):
                             add_entry(precinct_id, contest["id"], WRITEIN_CANDIDATE["id"])
                         else:
                             add_entry(precinct_id, contest["id"], answer)
