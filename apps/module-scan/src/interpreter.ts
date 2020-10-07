@@ -234,17 +234,28 @@ export default class SummaryBallotInterpreter implements Interpreter {
 
     ;({ metadata } = layout.ballotImage)
 
-    if (metadata.isTestMode === this.testMode) {
-      await interpreter.addTemplate(layout)
-    }
-
     debug(
-      'Added HMPB template page %d: ballotStyleId=%s precinctId=%s isTestMode=%s',
+      'Adding HMPB template page %d: ballotStyleId=%s precinctId=%s isTestMode=%s',
       metadata.pageNumber,
       metadata.ballotStyleId,
       metadata.precinctId,
       metadata.isTestMode
     )
+
+    if (metadata.isTestMode === this.testMode) {
+      debug(
+        'template test mode (%s) matches current test mode (%s), adding to underlying interpreter',
+        metadata.isTestMode,
+        this.testMode
+      )
+      await interpreter.addTemplate(layout)
+    } else {
+      debug(
+        'template test mode (%s) does not match current test mode (%s), skipping',
+        metadata.isTestMode,
+        this.testMode
+      )
+    }
 
     return layout
   }

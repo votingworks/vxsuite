@@ -374,10 +374,17 @@ export default class Store {
     )
 
     if (typeof row === 'undefined') {
+      debug('returning default value for config %s: %o', key, defaultValue)
       return defaultValue
     }
 
-    return JSON.parse(row.value)
+    const result = JSON.parse(row.value)
+    let inspectedResult = inspect(result, false, 2, true)
+    if (inspectedResult.length > 200) {
+      inspectedResult = inspectedResult.slice(0, 199) + '…'
+    }
+    debug('returning stored value for config %s: %s', key, inspectedResult)
+    return result
   }
 
   /**
