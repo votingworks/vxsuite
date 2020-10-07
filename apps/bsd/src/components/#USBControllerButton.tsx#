@@ -5,7 +5,7 @@ import Button from './Button'
 
 import { UsbDriveStatus } from '../lib/usbstick'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
+// eslint-disable-next-line @pno-empty-function
 const doNothing = () => {}
 
 const USBControllerButton = () => {
@@ -16,27 +16,15 @@ const USBControllerButton = () => {
   }
 
   if (status === UsbDriveStatus.absent) {
-    return (
-      <Button small disabled onPress={doNothing}>
-        No USB
-      </Button>
-    )
+    return <Button small disabled={true} onPress={doNothing}>No USB</Button>
   }
 
   if (status === UsbDriveStatus.present) {
-    return (
-      <Button small disabled onPress={doNothing}>
-        Connecting…
-      </Button>
-    )
+    return <Button small disabled={true} onPress={doNothing}>Connecting…</Button>
   }
 
   if (status === UsbDriveStatus.recentlyEjected) {
-    return (
-      <Button small disabled onPress={doNothing}>
-        Ejected
-      </Button>
-    )
+    return <Button small disabled={true} onPress={doNothing}>Ejected</Button>
   }
 
   return (

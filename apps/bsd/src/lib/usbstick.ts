@@ -1,30 +1,34 @@
-export const isAvailable = () => {
+const isAvailable = () => {
   return !!window.kiosk
 }
 
-export const isPresent = async () => {
-  return isAvailable() && (await window.kiosk!.getUsbDrives()).length > 0
+export enum UsbDriveStatus {
+  notavailable = 'notavailable',
+  absent = 'absent',
+  present = 'present',
+  mounted = 'mounted',
+  recentlyEjected = 'recentlyEjected',
 }
 
 const getDevice = async () => {
-  if (!window.kiosk) {
-    return
-  }
-
-  return (await window.kiosk.getUsbDrives())[0]
+  return (await window.kiosk!.getUsbDrives())[0]
 }
 
-const isDeviceMounted = (device?: KioskBrowser.UsbDrive) => {
-  return !!(device && device.mountPoint)
-}
-
-export const isMounted = async (): Promise<boolean> => {
+export const getStatus = async (): Promise<UsbDriveStatus> => {
   if (!isAvailable()) {
-    return false
+    return UsbDriveStatus.notavailable
   }
 
   const device = await getDevice()
-  return isDeviceMounted(device)
+
+  if (!device) {
+    return UsbDriveStatus.absent
+  }
+
+  if (device.mountPoint) {
+    return UsbDriveStatus.mounted
+  }
+  return UsbDriveStatus.present
 }
 
 export const doMount = async () => {
@@ -33,11 +37,11 @@ export const doMount = async () => {
   }
 
   const device = await getDevice()
-  if (!device || isDeviceMounted(device)) {
+  if (device.mountPoint) {
     return
   }
 
-  await window.kiosk!.mountUsbDrive(device.deviceName)
+  window.kiosk!.mountUsbDrive(device.deviceName)
 }
 
 export const doUnmount = async () => {
@@ -46,9 +50,9 @@ export const doUnmount = async () => {
   }
 
   const device = await getDevice()
-  if (!device || !isDeviceMounted(device)) {
+  if (!device.mountPoint) {
     return
   }
 
-  await window.kiosk!.unmountUsbDrive(device.deviceName)
+  window.kiosk!.unmountUsbDrive(device.deviceName)
 }

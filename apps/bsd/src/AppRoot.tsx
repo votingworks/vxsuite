@@ -12,6 +12,15 @@ import {
   CardReadResponse,
 } from './config/types'
 
+import AppContext from './contexts/AppContext'
+
+import {
+  getStatus as usbDriveGetStatus,
+  doMount,
+  doUnmount,
+  UsbDriveStatus,
+} from './lib/usbstick'
+
 import Button from './components/Button'
 import Main, { MainChild } from './components/Main'
 import Screen from './components/Screen'
@@ -50,6 +59,10 @@ const App: React.FC = () => {
     adjudication: { remaining: 0, adjudicated: 0 },
   })
   const [loadingElection, setLoadingElection] = useState(false)
+
+  const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)
+  const [recentlyEjected, setRecentlyEjected] = useState(false)
+
   const { adjudication } = status
 
   const [isScanning, setIsScanning] = useState(false)
@@ -279,6 +292,36 @@ const App: React.FC = () => {
     1000
   )
 
+  const doMountIfNotRecentlyEjected = useCallback(async () => {
+    if (!recentlyEjected) {
+      await doMount()
+    }
+  }, [recentlyEjected])
+
+  const doEject = async () => {
+    setRecentlyEjected(true)
+    await doUnmount()
+  }
+
+  useInterval(
+    () => {
+      ;(async () => {
+        const usbDriveStatus = await usbDriveGetStatus()
+        setUsbStatus(usbDriveStatus)
+        if (usbDriveStatus === UsbDriveStatus.present) {
+          await doMountIfNotRecentlyEjected()
+        } else {
+          setRecentlyEjected(false)
+        }
+      })()
+    },
+    usbStatus === UsbDriveStatus.notavailable ? 0 : 2000
+  )
+
+  const displayUsbStatus = recentlyEjected
+    ? UsbDriveStatus.recentlyEjected
+    : usbStatus
+
   useEffect(() => {
     updateStatus()
   }, [updateStatus])
@@ -289,84 +332,101 @@ const App: React.FC = () => {
     }
 
     return (
-      <Switch>
-        <Route path="/review">
-          <BallotReviewScreen
-            adjudicationStatus={adjudication}
-            isTestMode={isTestMode}
-          />
-        </Route>
-        <Route path="/advanced">
-          <AdvancedOptionsScreen
-            unconfigureServer={unconfigureServer}
-            zeroData={zeroData}
-            backup={backup}
-            hasBatches={!!status.batches.length}
-            isTestMode={isTestMode}
-            toggleTestMode={toggleTestMode}
-            togglingTestMode={togglingTestMode}
-          />
-        </Route>
-        <Route path="/">
-          <Screen>
-            <Main>
-              <MainChild maxWidth={false}>
-                <DashboardScreen
-                  adjudicationStatus={adjudication}
-                  invalidateBatch={invalidateBatch}
-                  isScanning={isScanning}
-                  status={{
-                    ...status,
-                    batches: status.batches.filter(
-                      (batch) => !pendingDeleteBatchIds.includes(batch.id)
-                    ),
-                  }}
-                  deleteBatch={deleteBatch}
-                />
-              </MainChild>
-            </Main>
-            <MainNav isTestMode={isTestMode}>
-              <USBControllerButton />
-              <LinkButton small to="/advanced">
-                Advanced
-              </LinkButton>
-              <Button
-                small
-                onPress={exportResults}
-                disabled={adjudication.remaining > 0}
-                title={
-                  adjudication.remaining > 0
-                    ? 'You cannot export results until all ballots have been adjudicated.'
-                    : undefined
-                }
-              >
-                Export
-              </Button>
-              {false && (
-                <LinkButton
-                  small
-                  to="/review"
-                  disabled={adjudication.remaining === 0}
-                >
-                  Review{' '}
-                  {!!adjudication.remaining &&
-                    pluralize('ballots', adjudication.remaining, true)}
+      <AppContext.Provider
+        value={{
+          usbDriveStatus: displayUsbStatus,
+          usbDriveEject: doEject,
+        }}
+      >
+        <Switch>
+          <Route path="/review">
+            <BallotReviewScreen
+              adjudicationStatus={adjudication}
+              isTestMode={isTestMode}
+            />
+          </Route>
+          <Route path="/advanced">
+            <AdvancedOptionsScreen
+              unconfigureServer={unconfigureServer}
+              zeroData={zeroData}
+              backup={backup}
+              hasBatches={!!status.batches.length}
+              isTestMode={isTestMode}
+              toggleTestMode={toggleTestMode}
+              togglingTestMode={togglingTestMode}
+            />
+          </Route>
+          <Route path="/">
+            <Screen>
+              <Main>
+                <MainChild maxWidth={false}>
+                  <DashboardScreen
+                    adjudicationStatus={adjudication}
+                    invalidateBatch={invalidateBatch}
+                    isScanning={isScanning}
+                    status={{
+                      ...status,
+                      batches: status.batches.filter(
+                        (batch) => !pendingDeleteBatchIds.includes(batch.id)
+                      ),
+                    }}
+                    deleteBatch={deleteBatch}
+                  />
+                </MainChild>
+              </Main>
+              <MainNav isTestMode={isTestMode}>
+                <USBControllerButton />
+                <LinkButton small to="/advanced">
+                  Advanced
                 </LinkButton>
-              )}
-              <Button small disabled={isScanning} primary onPress={scanBatch}>
-                Scan New Batch
-              </Button>
-            </MainNav>
-            <StatusFooter election={election} electionHash={electionHash} />
-          </Screen>
-        </Route>
-      </Switch>
+                <Button
+                  small
+                  onPress={exportResults}
+                  disabled={adjudication.remaining > 0}
+                  title={
+                    adjudication.remaining > 0
+                      ? 'You cannot export results until all ballots have been adjudicated.'
+                      : undefined
+                  }
+                >
+                  Export
+                </Button>
+                {false && (
+                  <LinkButton
+                    small
+                    to="/review"
+                    disabled={adjudication.remaining === 0}
+                  >
+                    Review{' '}
+                    {!!adjudication.remaining &&
+                      pluralize('ballots', adjudication.remaining, true)}
+                  </LinkButton>
+                )}
+                <Button small disabled={isScanning} primary onPress={scanBatch}>
+                  Scan New Batch
+                </Button>
+              </MainNav>
+              <StatusFooter election={election} electionHash={electionHash} />
+            </Screen>
+          </Route>
+        </Switch>
+      </AppContext.Provider>
     )
   }
 
   if (isConfigLoaded) {
-    return <LoadElectionScreen setElection={setElection} />
+    return (
+      <AppContext.Provider
+        value={{
+          usbDriveStatus: displayUsbStatus,
+          usbDriveEject: doEject,
+        }}
+      >
+        <LoadElectionScreen setElection={setElection} />
+      </AppContext.Provider>
+    )
   }
+
   return (
     <Screen>
       <Main>

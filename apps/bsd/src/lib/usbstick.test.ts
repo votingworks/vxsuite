@@ -1,11 +1,5 @@
 import fakeKiosk from '../../test/helpers/fakeKiosk'
-import {
-  isAvailable,
-  isPresent,
-  isMounted,
-  doMount,
-  doUnmount,
-} from './usbstick'
+import { UsbDriveStatus, getStatus, doMount, doUnmount } from './usbstick'
 
 const mountedDevices = [
   {
@@ -20,9 +14,12 @@ const unmountedDevices = [
   },
 ]
 
-test('knows USB is available', () => {
-  window.kiosk = fakeKiosk()
-  expect(isAvailable()).toBe(true)
+test('knows USB is available', async () => {
+  expect(await getStatus()).toBe(UsbDriveStatus.notavailable)
+  const mockedKiosk = fakeKiosk()
+  window.kiosk = mockedKiosk
+  mockedKiosk.getUsbDrives.mockResolvedValue([])
+  expect(await getStatus()).toBe(UsbDriveStatus.absent)
 })
 
 test('sees mounted USB drive', async () => {
@@ -30,12 +27,10 @@ test('sees mounted USB drive', async () => {
   window.kiosk = fKiosk
 
   fKiosk.getUsbDrives.mockResolvedValue(mountedDevices)
-  expect(await isPresent()).toBe(true)
-  expect(await isMounted()).toBe(true)
+  expect(await getStatus()).toBe(UsbDriveStatus.mounted)
 
   fKiosk.getUsbDrives.mockResolvedValue(unmountedDevices)
-  expect(await isPresent()).toBe(true)
-  expect(await isMounted()).toBe(false)
+  expect(await getStatus()).toBe(UsbDriveStatus.present)
 })
 
 test('can mount and unmount USB drive', async () => {
@@ -65,9 +60,7 @@ test('can mount and unmount USB drive', async () => {
 
 test('without a kiosk, calls do not crash', async () => {
   window.kiosk = undefined
-  expect(isAvailable()).toBe(false)
-  expect(await isPresent()).toBe(false)
-  expect(await isMounted()).toBe(false)
+  expect(await getStatus()).toBe(UsbDriveStatus.notavailable)
 
   await doMount()
   await doUnmount()
