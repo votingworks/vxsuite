@@ -10,27 +10,27 @@ export const AMERICA_TIMEZONES = [
   { label: 'Eastern Time', IANAZone: 'America/New_York' },
 ]
 
-export const MONTHS_SHORT = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-]
+function* getShortMonthNames(): Generator<string> {
+  const monthShortNameFormatter = new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+  })
+  const year = new Date().getFullYear()
+  for (
+    let month = 0;
+    new Date(year, month, 1).getFullYear() === year;
+    month++
+  ) {
+    yield monthShortNameFormatter.format(new Date(year, month, 1))
+  }
+}
+export const MONTHS_SHORT = [...getShortMonthNames()]
 
 // eslint-disable-next-line import/prefer-default-export
 export const dateLong = (dateString: string) =>
   moment(new Date(dateString)).format('LL')
 
-export const weekdayAndDate = (dateString: string) =>
-  moment(new Date(dateString)).format('dddd, MMMM D, YYYY')
+export const shortWeekdayAndDate = (dateString: string) =>
+  moment(new Date(dateString)).format('ddd, MMMM D, YYYY')
 
 export const twelveHourTime = (dateString: string) =>
   moment(new Date(dateString)).format('LT')
