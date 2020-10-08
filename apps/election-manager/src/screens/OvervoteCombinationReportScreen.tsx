@@ -20,6 +20,7 @@ import {
   localeLongDateAndTime,
 } from '../utils/IntlDateTimeFormats'
 import HorizontalRule from '../components/HorizontalRule'
+import LogoMark from '../components/LogoMark'
 
 const ContestMeta = styled.div`
   float: right;
@@ -98,6 +99,7 @@ const PairsReportScreen = () => {
         </Prose>
       </NavigationScreen>
       <div className="print-only">
+        <LogoMark />
         <TallyHeader>
           <Prose maxWidth={false}>{reportHeader}</Prose>
         </TallyHeader>
