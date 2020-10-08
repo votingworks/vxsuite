@@ -120,12 +120,12 @@ const App: React.FC = () => {
   const unconfigureServer = useCallback(async () => {
     try {
       await patchConfig({ election: null })
-      setElection(undefined)
+      await refreshConfig()
       history.replace('/')
     } catch (error) {
       console.log('failed unconfigureServer()', error) // eslint-disable-line no-console
     }
-  }, [history, setElection])
+  }, [history, refreshConfig])
 
   const loadElectionFromCard = useCallback(async () => {
     const card = await fetchJSON<CardReadLongResponse>('/card/read_long')
