@@ -26,6 +26,7 @@ import {
   localeWeedkayAndDate,
   localeLongDateAndTime,
 } from '../utils/IntlDateTimeFormats'
+import LogoMark from '../components/LogoMark'
 
 const TallyHeader = styled.div`
   page-break-before: always;
@@ -164,6 +165,7 @@ const TallyReportScreen = () => {
         </Prose>
       </NavigationScreen>
       <div className="print-only">
+        <LogoMark />
         {ballotStylePartyIds.map((partyId) => {
           let precinctTallies = electionPrecinctTallies
           let scannerTallies = electionScannerTallies
