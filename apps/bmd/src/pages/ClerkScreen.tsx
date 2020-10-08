@@ -78,34 +78,39 @@ const ClerkScreen = ({
     setIsSystemDateModalActive(false)
   }
   const updateSystemTime: SelectChangeEventFunction = (event) => {
-    const {
-      value,
-      dataset: { label },
-    } = event.currentTarget
+    const { name, value: stringValue } = event.currentTarget
+    const value = parseInt(stringValue, 10)
     let hour = systemDate.getHours()
-    if (label === 'hour') {
+    if (name === 'hour') {
       if (systemMeridian === 'AM') {
-        hour = parseInt(value, 10) % 12
+        hour = value % 12
       } else {
-        hour = (parseInt(value, 10) % 12) + 12
+        hour = (value % 12) + 12
       }
     }
-    if (label === 'meridian') {
-      setSystemMeridan(value as Meridian)
-      if (value === 'AM' && systemDate.getHours() >= 12) {
+    if (name === 'meridian') {
+      setSystemMeridan(stringValue as Meridian)
+      if (stringValue === 'AM' && systemDate.getHours() >= 12) {
         hour = systemDate.getHours() - 12
       }
-      if (value === 'PM' && systemDate.getHours() < 12) {
+      if (stringValue === 'PM' && systemDate.getHours() < 12) {
         hour = systemDate.getHours() + 12
       }
     }
+    const year = name === 'year' ? value : systemDate.getFullYear()
+    const month = name === 'month' ? value : systemDate.getMonth()
+    const lastDayOfMonth = getDaysInMonth(year, month)
+      .slice(-1)
+      .pop()
+      ?.getDate()
+    const day = name === 'day' ? value : systemDate.getDate()
     setSystemDate(
       new Date(
-        label === 'year' ? parseInt(value, 10) : systemDate.getFullYear(),
-        label === 'month' ? parseInt(value, 10) : systemDate.getMonth(),
-        label === 'day' ? parseInt(value, 10) : systemDate.getDate(),
+        year,
+        month,
+        lastDayOfMonth && day > lastDayOfMonth ? lastDayOfMonth : day,
         hour,
-        label === 'minute' ? parseInt(value, 10) : systemDate.getMinutes()
+        name === 'minute' ? value : systemDate.getMinutes()
       )
     )
   }
@@ -286,7 +291,7 @@ const ClerkScreen = ({
                 <InputGroup as="span">
                   <Select
                     value={systemDate.getFullYear()}
-                    data-label="year"
+                    name="year"
                     disabled={isSavingDate}
                     onBlur={updateSystemTime}
                     onChange={updateSystemTime}
@@ -302,12 +307,12 @@ const ClerkScreen = ({
                   </Select>
                   <Select
                     value={systemDate.getMonth()}
-                    data-label="month"
+                    name="month"
                     disabled={isSavingDate}
                     onBlur={updateSystemTime}
                     onChange={updateSystemTime}
                     style={{
-                      width: '5rem',
+                      width: '4.7rem',
                     }}
                   >
                     <option value="" disabled>
@@ -321,12 +326,12 @@ const ClerkScreen = ({
                   </Select>
                   <Select
                     value={systemDate.getDate()}
-                    data-label="day"
+                    name="day"
                     disabled={isSavingDate}
                     onBlur={updateSystemTime}
                     onChange={updateSystemTime}
                     style={{
-                      width: '4.5rem',
+                      width: '4.15rem',
                     }}
                   >
                     <option value="" disabled>
@@ -347,12 +352,12 @@ const ClerkScreen = ({
                 <InputGroup as="span">
                   <Select
                     value={systemDate.getHours() % 12 || 12}
-                    data-label="hour"
+                    name="hour"
                     disabled={isSavingDate}
                     onBlur={updateSystemTime}
                     onChange={updateSystemTime}
                     style={{
-                      width: '4.5rem',
+                      width: '4rem',
                     }}
                   >
                     <option value="" disabled>
@@ -366,12 +371,12 @@ const ClerkScreen = ({
                   </Select>
                   <Select
                     value={systemDate.getMinutes()}
-                    data-label="minute"
+                    name="minute"
                     disabled={isSavingDate}
                     onBlur={updateSystemTime}
                     onChange={updateSystemTime}
                     style={{
-                      width: '4.5rem',
+                      width: '4.15rem',
                     }}
                   >
                     <option value="" disabled>
@@ -385,7 +390,7 @@ const ClerkScreen = ({
                   </Select>
                   <Select
                     value={systemMeridian}
-                    data-label="meridian"
+                    name="meridian"
                     disabled={isSavingDate}
                     onBlur={updateSystemTime}
                     onChange={updateSystemTime}
