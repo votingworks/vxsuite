@@ -17,6 +17,7 @@ import {
 } from '../utils/IntlDateTimeFormats'
 
 import find from '../utils/find'
+import LogoMark from '../components/LogoMark'
 
 type PrintCounts = Dictionary<Dictionary<number>>
 
@@ -114,7 +115,10 @@ const PrintedBallotsReportScreen = () => {
   return (
     <React.Fragment>
       <NavigationScreen>{reportContent}</NavigationScreen>
-      <div className="print-only">{reportContent}</div>
+      <div className="print-only">
+        <LogoMark />
+        {reportContent}
+      </div>
     </React.Fragment>
   )
 }
