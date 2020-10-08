@@ -2,15 +2,17 @@ import {
   BitReader,
   BitWriter,
   CustomEncoding,
+  toUint8,
   Uint8,
   Uint8Size,
-  toUint8,
 } from '../bits'
 import {
   AnyContest,
   BallotLocale,
+  BallotStyle,
   BallotType,
   BallotTypeMaximumValue,
+  Candidate,
   CandidateVote,
   CompletedBallot,
   Contests,
@@ -20,11 +22,10 @@ import {
   getPrecinctById,
   isVotePresent,
   Optional,
+  Precinct,
   validateVotes,
   VotesDict,
   YesNoVote,
-  Precinct,
-  BallotStyle,
 } from '../election'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
@@ -317,7 +318,7 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
       // yesno votes get a single bit
       votes[contest.id] = bits.readBoolean() ? ['yes'] : ['no']
     } else {
-      const contestVote: CandidateVote = []
+      const contestVote: Candidate[] = []
 
       // candidate choices get one bit per candidate
       for (const candidate of contest.candidates) {

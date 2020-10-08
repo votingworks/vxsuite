@@ -16,7 +16,7 @@ export interface Candidate {
   readonly id: string
   readonly name: string
   readonly partyId?: string
-  isWriteIn?: boolean
+  readonly isWriteIn?: boolean
 }
 export type OptionalCandidate = Optional<Candidate>
 
@@ -33,7 +33,7 @@ export interface Contest {
 export interface CandidateContest extends Contest {
   readonly type: 'candidate'
   readonly seats: number
-  readonly candidates: Candidate[]
+  readonly candidates: readonly Candidate[]
   readonly allowWriteIns: boolean
 }
 export interface YesNoOption {
@@ -64,13 +64,13 @@ export type AnyContest =
   | YesNoContest
   | MsEitherNeitherContest
 
-export type Contests = AnyContest[]
+export type Contests = readonly AnyContest[]
 
 // Election
 export interface BallotStyle {
   readonly id: string
-  readonly precincts: string[]
-  readonly districts: string[]
+  readonly precincts: readonly string[]
+  readonly districts: readonly string[]
   readonly partyId?: string
 }
 export interface Party {
@@ -79,7 +79,7 @@ export interface Party {
   readonly fullName: string
   readonly abbrev: string
 }
-export type Parties = Party[]
+export type Parties = readonly Party[]
 export interface Precinct {
   readonly id: string
   readonly name: string
@@ -94,19 +94,19 @@ export interface County {
 }
 
 export interface BallotLocale {
-  primary: string
-  secondary?: string
+  readonly primary: string
+  readonly secondary?: string
 }
 
 export type BallotStrings = Record<string, string | Translations>
 
 export interface Election {
   readonly _lang?: Translations
-  readonly ballotStyles: BallotStyle[]
+  readonly ballotStyles: readonly BallotStyle[]
   readonly county: County
   readonly parties: Parties
-  readonly precincts: Precinct[]
-  readonly districts: District[]
+  readonly precincts: readonly Precinct[]
+  readonly districts: readonly District[]
   readonly contests: Contests
   readonly date: string
   readonly seal?: string
@@ -120,8 +120,13 @@ export interface Election {
 export type OptionalElection = Optional<Election>
 
 // Votes
-export type CandidateVote = Candidate[]
-export type YesNoVote = ['yes'] | ['no'] | ['yes', 'no'] | ['no', 'yes'] | []
+export type CandidateVote = readonly Candidate[]
+export type YesNoVote =
+  | readonly ['yes']
+  | readonly ['no']
+  | readonly ['yes', 'no']
+  | readonly ['no', 'yes']
+  | readonly []
 export type OptionalYesNoVote = Optional<YesNoVote>
 export type Vote = CandidateVote | YesNoVote
 export type OptionalVote = Optional<Vote>
@@ -153,12 +158,12 @@ export enum AdjudicationReason {
 export const BallotTypeMaximumValue = (1 << 4) - 1
 
 export interface CompletedBallot {
-  ballotStyle: BallotStyle
-  precinct: Precinct
-  ballotId: string
-  votes: VotesDict
-  isTestMode: boolean
-  ballotType: BallotType
+  readonly ballotStyle: BallotStyle
+  readonly precinct: Precinct
+  readonly ballotId: string
+  readonly votes: VotesDict
+  readonly isTestMode: boolean
+  readonly ballotType: BallotType
 }
 
 // Smart Card Content
@@ -343,7 +348,7 @@ export const getPartyFullNameFromBallotStyle = ({
 export function vote(
   contests: Contests,
   shorthand: {
-    [key: string]: Vote | string | string[] | Candidate
+    [key: string]: Vote | string | readonly string[] | Candidate
   }
 ): VotesDict {
   return Object.getOwnPropertyNames(shorthand).reduce((result, contestId) => {
@@ -362,7 +367,7 @@ export function vote(
         return {
           ...result,
           [contestId]: contest.candidates.filter((c) =>
-            (choice as string[]).includes(c.id)
+            (choice as readonly string[]).includes(c.id)
           ),
         }
       }
@@ -403,7 +408,7 @@ export function withLocale(election: Election, locale: string): Election {
 }
 
 function copyWithLocale<T>(value: T, locale: string): T
-function copyWithLocale<T>(value: T[], locale: string): T[]
+function copyWithLocale<T>(value: readonly T[], locale: string): readonly T[]
 function copyWithLocale<T>(value: T, locale: string): T {
   if (Array.isArray(value)) {
     return (value.map((element) =>
