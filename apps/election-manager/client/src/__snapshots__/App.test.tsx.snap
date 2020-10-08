@@ -945,7 +945,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
             <tbody>
               <tr>
                 <td>
-                  yes
+                  FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
                 </td>
                 <td
                   class="sc-fzoyAV hqQnKY"
@@ -955,7 +955,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
               </tr>
               <tr>
                 <td>
-                  no
+                  AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
                 </td>
                 <td
                   class="sc-fzoyAV hqQnKY"
@@ -999,7 +999,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
             <tbody>
               <tr>
                 <td>
-                  yes
+                  FOR Initiative Measure No. 65
                 </td>
                 <td
                   class="sc-fzoyAV hqQnKY"
@@ -1009,7 +1009,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
               </tr>
               <tr>
                 <td>
-                  no
+                  FOR Alternative Measure 65 A
                 </td>
                 <td
                   class="sc-fzoyAV hqQnKY"
@@ -1053,7 +1053,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
             <tbody>
               <tr>
                 <td>
-                  yes
+                  YES
                 </td>
                 <td
                   class="sc-fzoyAV hqQnKY"
@@ -1063,7 +1063,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
               </tr>
               <tr>
                 <td>
-                  no
+                  NO
                 </td>
                 <td
                   class="sc-fzoyAV hqQnKY"
@@ -1107,7 +1107,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
             <tbody>
               <tr>
                 <td>
-                  yes
+                  YES
                 </td>
                 <td
                   class="sc-fzoyAV hqQnKY"
@@ -1117,7 +1117,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
               </tr>
               <tr>
                 <td>
-                  no
+                  NO
                 </td>
                 <td
                   class="sc-fzoyAV hqQnKY"
@@ -1801,7 +1801,7 @@ exports[`tabulating CVRs 1`] = `
         <tbody>
           <tr>
             <td>
-              yes
+              FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
             </td>
             <td
               class="sc-fzoyAV hqQnKY"
@@ -1811,7 +1811,7 @@ exports[`tabulating CVRs 1`] = `
           </tr>
           <tr>
             <td>
-              no
+              AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
             </td>
             <td
               class="sc-fzoyAV hqQnKY"
@@ -1855,7 +1855,7 @@ exports[`tabulating CVRs 1`] = `
         <tbody>
           <tr>
             <td>
-              yes
+              FOR Initiative Measure No. 65
             </td>
             <td
               class="sc-fzoyAV hqQnKY"
@@ -1865,7 +1865,7 @@ exports[`tabulating CVRs 1`] = `
           </tr>
           <tr>
             <td>
-              no
+              FOR Alternative Measure 65 A
             </td>
             <td
               class="sc-fzoyAV hqQnKY"
@@ -1909,7 +1909,7 @@ exports[`tabulating CVRs 1`] = `
         <tbody>
           <tr>
             <td>
-              yes
+              YES
             </td>
             <td
               class="sc-fzoyAV hqQnKY"
@@ -1919,7 +1919,7 @@ exports[`tabulating CVRs 1`] = `
           </tr>
           <tr>
             <td>
-              no
+              NO
             </td>
             <td
               class="sc-fzoyAV hqQnKY"
@@ -1963,7 +1963,7 @@ exports[`tabulating CVRs 1`] = `
         <tbody>
           <tr>
             <td>
-              yes
+              YES
             </td>
             <td
               class="sc-fzoyAV hqQnKY"
@@ -1973,7 +1973,7 @@ exports[`tabulating CVRs 1`] = `
           </tr>
           <tr>
             <td>
-              no
+              NO
             </td>
             <td
               class="sc-fzoyAV hqQnKY"
