@@ -289,7 +289,7 @@ const TallyScreen = () => {
                   <TD as="th">Ballot Count</TD>
                   <TD as="th">View Tally</TD>
                 </tr>
-                {election.precincts
+                {[...election.precincts]
                   .sort((a, b) =>
                     a.name.localeCompare(b.name, undefined, {
                       ignorePunctuation: true,
