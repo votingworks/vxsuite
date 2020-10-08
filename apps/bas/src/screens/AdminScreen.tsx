@@ -11,6 +11,7 @@ import MainNav from '../components/MainNav'
 import Screen from '../components/Screen'
 import Select from '../components/Select'
 import Text from '../components/Text'
+import { formatFullDateTimeZone } from '../utils/date'
 
 interface Props {
   election: OptionalElection
@@ -28,6 +29,9 @@ interface Props {
   setIsSinglePrecinctMode: (enabled: boolean) => void
   precinctBallotStyles: BallotStyle[]
 }
+
+const getMachineTimezone = () =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone
 
 const AdminScreen = ({
   election,
@@ -125,6 +129,10 @@ const AdminScreen = ({
                     <em>Single Precinct Mode is disabled.</em>
                   </p>
                 )}
+                <h1>Current Date and Time</h1>
+                <p>
+                  {formatFullDateTimeZone(new Date(), getMachineTimezone())}
+                </p>
               </React.Fragment>
             )}
             <h1>Configuration</h1>
