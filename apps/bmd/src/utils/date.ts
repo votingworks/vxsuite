@@ -42,7 +42,7 @@ export const formatFullDateTimeZone = (date: Date, timeZone?: string) =>
     year: 'numeric',
     hour: 'numeric',
     minute: 'numeric',
-    timeZoneName: 'short',
+    timeZoneName: timeZone ? 'short' : undefined,
   }).format(date)
 
 export const formatShortWeekdayLongDate = (date: Date, timeZone?: string) =>

@@ -224,7 +224,7 @@ const ClerkScreen = ({
                   </React.Fragment>
                 )}
                 <h1>Current Date and Time</h1>
-                <p>{formatFullDateTimeZone(systemDate)}</p>
+                <p>{formatFullDateTimeZone(systemDate, timezone)}</p>
                 <p>
                   <Button onPress={() => setIsSystemDateModalActive(true)}>
                     Update Date and Time
@@ -287,7 +287,7 @@ const ClerkScreen = ({
         centerContent
         content={
           <Prose textCenter>
-            <h1>{formatFullDateTimeZone(systemDate, timezone)}</h1>
+            <h1>{formatFullDateTimeZone(systemDate)}</h1>
             <div>
               <p>
                 <InputGroup as="span">
