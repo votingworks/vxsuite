@@ -17,8 +17,13 @@ import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import Screen from '../components/Screen'
 import Select from '../components/Select'
-import { twelveHourTime, weekdayAndDate, getDaysInMonth } from '../utils/date'
-import { AMERICA_TIMEZONES, MONTHS_SHORT } from '../config/globals'
+import {
+  AMERICA_TIMEZONES,
+  MONTHS_SHORT,
+  twelveHourTime,
+  weekdayAndDate,
+  getDaysInMonth,
+} from '../utils/date'
 import InputGroup from '../components/InputGroup'
 import Modal from '../components/Modal'
 
