@@ -33,6 +33,7 @@ import {
   DetectQRCode,
   FindMarksResult,
   Interpreted,
+  Offset,
   Point,
   Size,
 } from './types'
@@ -295,6 +296,11 @@ export default class Interpreter {
       markScoreVoteThreshold = this.markScoreVoteThreshold,
     } = {}
   ): Promise<Interpreted> {
+    debug(
+      'interpretBallot: looking in %d×%d image',
+      imageData.width,
+      imageData.height
+    )
     ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
       imageData,
       metadata,
@@ -467,7 +473,7 @@ export default class Interpreter {
       layout: BallotPageContestOptionLayout,
       option: Candidate
     ): void => {
-      const score = this.targetMarkScore(
+      const { score, offset } = this.targetMarkScore(
         template.ballotImage.imageData,
         mappedBallot,
         layout.target
@@ -479,6 +485,7 @@ export default class Interpreter {
         contest,
         option,
         score,
+        scoredOffset: offset,
         target: layout.target,
       }
       marks.push(mark)
@@ -489,7 +496,7 @@ export default class Interpreter {
       layout: BallotPageContestOptionLayout,
       option: 'yes' | 'no'
     ): void => {
-      const score = this.targetMarkScore(
+      const { score, offset } = this.targetMarkScore(
         template.ballotImage.imageData,
         mappedBallot,
         layout.target
@@ -501,6 +508,7 @@ export default class Interpreter {
         contest,
         option,
         score,
+        scoredOffset: offset,
         target: layout.target,
       }
       marks.push(mark)
@@ -511,7 +519,7 @@ export default class Interpreter {
       layout: BallotPageContestOptionLayout,
       option: YesNoOption
     ): void => {
-      const score = this.targetMarkScore(
+      const { score, offset } = this.targetMarkScore(
         template.ballotImage.imageData,
         mappedBallot,
         layout.target
@@ -534,6 +542,7 @@ export default class Interpreter {
         contest,
         option,
         score,
+        scoredOffset: offset,
         target: layout.target,
       }
       marks.push(mark)
@@ -601,7 +610,7 @@ export default class Interpreter {
     ballot: ImageData,
     target: TargetShape,
     { zeroScoreThreshold = 0, maximumCorrectionPixels = 3 } = {}
-  ): number {
+  ): { offset: Offset; score: number } {
     debug(
       'computing target mark score for target at (x=%d, y=%d) with zero threshold %d',
       target.inner.x,
@@ -645,7 +654,7 @@ export default class Interpreter {
           score,
           zeroScoreThreshold
         )
-        return score
+        return { offset: { x, y }, score }
       }
       offsetAndScore.set({ x, y }, score)
 
@@ -662,7 +671,7 @@ export default class Interpreter {
       minOffset.x,
       minOffset.y
     )
-    return minScore
+    return { offset: minOffset, score: minScore }
   }
 
   private mapImageWithPoints(

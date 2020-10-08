@@ -15,6 +15,11 @@ export interface Point {
   y: number
 }
 
+export interface Offset {
+  x: number
+  y: number
+}
+
 export interface Rect {
   x: number
   y: number
@@ -97,6 +102,7 @@ export interface BallotCandidateTargetMark {
   target: TargetShape
   option: Candidate
   score: number
+  scoredOffset: Offset
 }
 
 export interface BallotYesNoTargetMark {
@@ -106,6 +112,7 @@ export interface BallotYesNoTargetMark {
   target: TargetShape
   option: 'yes' | 'no'
   score: number
+  scoredOffset: Offset
 }
 
 export interface BallotMsEitherNeitherTargetMark {
@@ -115,6 +122,7 @@ export interface BallotMsEitherNeitherTargetMark {
   target: TargetShape
   option: YesNoOption
   score: number
+  scoredOffset: Offset
 }
 
 export interface UninterpretedBallot {

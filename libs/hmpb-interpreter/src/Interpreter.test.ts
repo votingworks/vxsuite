@@ -1733,6 +1733,10 @@ test('invalid marks', async () => {
           "partyId": "2",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 1,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -1788,6 +1792,10 @@ test('invalid marks', async () => {
           "partyId": "3",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 1,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -1843,6 +1851,10 @@ test('invalid marks', async () => {
           "partyId": "7",
         },
         "score": 0.6624685138539043,
+        "scoredOffset": Object {
+          "x": -3,
+          "y": 3,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -1898,6 +1910,10 @@ test('invalid marks', async () => {
           "name": "Write-In",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 22,
@@ -1953,6 +1969,10 @@ test('invalid marks', async () => {
           "name": "Write-In",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 22,
@@ -1986,6 +2006,10 @@ test('invalid marks', async () => {
         },
         "option": "yes",
         "score": 0.1483375959079284,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2019,6 +2043,10 @@ test('invalid marks', async () => {
         },
         "option": "no",
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2052,6 +2080,10 @@ test('invalid marks', async () => {
         },
         "option": "yes",
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2085,6 +2117,10 @@ test('invalid marks', async () => {
         },
         "option": "no",
         "score": 0.7455470737913485,
+        "scoredOffset": Object {
+          "x": 3,
+          "y": 3,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2155,6 +2191,10 @@ test('invalid marks', async () => {
           "partyId": "2",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2225,6 +2265,10 @@ test('invalid marks', async () => {
           "partyId": "2",
         },
         "score": 0.13110539845758354,
+        "scoredOffset": Object {
+          "x": -1,
+          "y": -1,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2295,6 +2339,10 @@ test('invalid marks', async () => {
           "partyId": "2",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2365,6 +2413,10 @@ test('invalid marks', async () => {
           "partyId": "3",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2435,6 +2487,10 @@ test('invalid marks', async () => {
           "partyId": "3",
         },
         "score": 0.12953367875647667,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": -2,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2505,6 +2561,10 @@ test('invalid marks', async () => {
           "partyId": "3",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": -1,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2575,6 +2635,10 @@ test('invalid marks', async () => {
           "name": "Write-In",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": -1,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2645,6 +2709,10 @@ test('invalid marks', async () => {
           "name": "Write-In",
         },
         "score": 0.09090909090909091,
+        "scoredOffset": Object {
+          "x": 1,
+          "y": -1,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2715,6 +2783,10 @@ test('invalid marks', async () => {
           "name": "Write-In",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 1,
+          "y": -1,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2765,6 +2837,10 @@ test('invalid marks', async () => {
           "partyId": "2",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 22,
@@ -2815,6 +2891,10 @@ test('invalid marks', async () => {
           "partyId": "3",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
@@ -2865,6 +2945,10 @@ test('invalid marks', async () => {
           "name": "Write-In",
         },
         "score": 0,
+        "scoredOffset": Object {
+          "x": 0,
+          "y": 0,
+        },
         "target": Object {
           "bounds": Object {
             "height": 21,
