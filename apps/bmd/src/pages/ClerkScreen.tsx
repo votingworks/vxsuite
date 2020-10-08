@@ -118,6 +118,7 @@ const ClerkScreen = ({
     setTimezone(event.currentTarget.value)
   }
   const saveDateAndZone = async () => {
+    /* istanbul ignore else */
     if (timezone) {
       try {
         setIsSavingDate(true)
@@ -127,9 +128,8 @@ const ClerkScreen = ({
         })
         setSystemDate(new Date())
         setTimezone(getMachineTimezone())
-        setIsSavingDate(false)
         setIsSystemDateModalActive(false)
-      } catch (error) {
+      } finally {
         setIsSavingDate(false)
       }
     }
@@ -292,6 +292,7 @@ const ClerkScreen = ({
               <p>
                 <InputGroup as="span">
                   <Select
+                    data-testid="selectYear"
                     value={systemDate.getFullYear()}
                     name="year"
                     disabled={isSavingDate}
@@ -308,6 +309,7 @@ const ClerkScreen = ({
                     ))}
                   </Select>
                   <Select
+                    data-testid="selectMonth"
                     value={systemDate.getMonth()}
                     name="month"
                     disabled={isSavingDate}
@@ -327,6 +329,7 @@ const ClerkScreen = ({
                     ))}
                   </Select>
                   <Select
+                    data-testid="selectDay"
                     value={systemDate.getDate()}
                     name="day"
                     disabled={isSavingDate}
@@ -353,6 +356,7 @@ const ClerkScreen = ({
               <p>
                 <InputGroup as="span">
                   <Select
+                    data-testid="selectHour"
                     value={systemDate.getHours() % 12 || 12}
                     name="hour"
                     disabled={isSavingDate}
@@ -372,6 +376,7 @@ const ClerkScreen = ({
                     ))}
                   </Select>
                   <Select
+                    data-testid="selectMinute"
                     value={systemDate.getMinutes()}
                     name="minute"
                     disabled={isSavingDate}
@@ -391,6 +396,7 @@ const ClerkScreen = ({
                     ))}
                   </Select>
                   <Select
+                    data-testid="selectMeridian"
                     value={systemMeridian}
                     name="meridian"
                     disabled={isSavingDate}
@@ -411,12 +417,13 @@ const ClerkScreen = ({
               <p>
                 <InputGroup as="span">
                   <Select
+                    data-testid="selectTimezone"
                     value={timezone}
                     disabled={isSavingDate}
                     onBlur={updateTimeZone}
                     onChange={updateTimeZone}
                   >
-                    <option value="" disabled>
+                    <option value="UTC" disabled>
                       Select timezone…
                     </option>
                     {AMERICA_TIMEZONES.map((tz) => (

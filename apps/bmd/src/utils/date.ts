@@ -45,29 +45,13 @@ export const formatFullDateTimeZone = (date: Date, timeZone?: string) =>
     timeZoneName: timeZone ? 'short' : undefined,
   }).format(date)
 
-export const formatShortWeekdayLongDate = (date: Date, timeZone?: string) =>
-  new Intl.DateTimeFormat(undefined, {
-    timeZone,
-    weekday: 'short',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
-
-export const formatShortTime = (date: Date, timeZone?: string) =>
-  new Intl.DateTimeFormat(undefined, {
-    timeZone,
-    hour: 'numeric',
-    minute: 'numeric',
-  }).format(date)
-
-export const formatLongDate = (date: Date, timeZone?: string) =>
-  new Intl.DateTimeFormat(undefined, {
-    timeZone,
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
+// export const formatLongDate = (date: Date, timeZone?: string) =>
+//   new Intl.DateTimeFormat(undefined, {
+//     timeZone,
+//     month: 'long',
+//     day: 'numeric',
+//     year: 'numeric',
+//   }).format(date)
 
 // TODO: replace `dateLong` with `formatLongDate`
 export const dateLong = (dateString: string) =>
