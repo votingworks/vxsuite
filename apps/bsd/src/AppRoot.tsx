@@ -88,7 +88,10 @@ const App: React.FC = () => {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
           return prevStatus
         }
-        setIsScanning(newStatus.batches.some(({ endedAt }) => !endedAt))
+        setIsScanning(
+          newStatus.adjudication.remaining === 0 &&
+            newStatus.batches.some(({ endedAt }) => !endedAt)
+        )
         return newStatus
       })
     } catch (error) {
@@ -327,7 +330,7 @@ const App: React.FC = () => {
   }, [updateStatus])
 
   if (election) {
-    if (adjudication.remaining > 0) {
+    if (adjudication.remaining > 0 && !isScanning) {
       return <BallotEjectScreen continueScanning={continueScanning} />
     }
 
