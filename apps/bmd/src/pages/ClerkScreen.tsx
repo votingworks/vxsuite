@@ -20,8 +20,8 @@ import Select from '../components/Select'
 import {
   AMERICA_TIMEZONES,
   MONTHS_SHORT,
-  twelveHourTime,
-  shortWeekdayAndDate,
+  formatTimeZoneName,
+  formatFullDateTimeZone,
   getDaysInMonth,
 } from '../utils/date'
 import InputGroup from '../components/InputGroup'
@@ -44,8 +44,6 @@ interface Props {
 
 const getMachineTimezone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone
-const getTimezoneByIANAZone = (IANAZone: string) =>
-  AMERICA_TIMEZONES.find((tz) => tz.IANAZone === IANAZone)
 
 const ClerkScreen = ({
   appMode,
@@ -73,12 +71,10 @@ const ClerkScreen = ({
   const [systemMeridian, setSystemMeridan] = useState<Meridian>(
     systemDate.getHours() < 12 ? 'AM' : 'PM'
   )
-  const [timezone, setTimezone] = useState(
-    getTimezoneByIANAZone(getMachineTimezone())
-  )
+  const [timezone, setTimezone] = useState(getMachineTimezone())
   const cancelSystemDateEdit = () => {
     setSystemDate(new Date())
-    setTimezone(getTimezoneByIANAZone(getMachineTimezone()))
+    setTimezone(getMachineTimezone())
     setIsSystemDateModalActive(false)
   }
   const updateSystemTime: SelectChangeEventFunction = (event) => {
@@ -114,7 +110,7 @@ const ClerkScreen = ({
     )
   }
   const updateTimeZone: SelectChangeEventFunction = (event) => {
-    setTimezone(getTimezoneByIANAZone(event.currentTarget.value))
+    setTimezone(event.currentTarget.value)
   }
   const saveDateAndZone = async () => {
     if (timezone) {
@@ -122,7 +118,7 @@ const ClerkScreen = ({
         setIsSavingDate(true)
         await window.kiosk?.setClock({
           isoDatetime: systemDate.toISOString(),
-          IANAZone: timezone.IANAZone,
+          IANAZone: timezone,
         })
         setIsSavingDate(false)
         setIsSystemDateModalActive(false)
@@ -220,18 +216,11 @@ const ClerkScreen = ({
                     </Text>
                   </React.Fragment>
                 )}
-                <h1>Current Time, Date, and Timezone</h1>
-                <p>
-                  Time: <strong>{twelveHourTime(systemDate.toString())}</strong>
-                  <br />
-                  Date:{' '}
-                  <strong>{shortWeekdayAndDate(systemDate.toString())}</strong>
-                  <br />
-                  Timezone: <strong>{timezone?.label || 'unknown'}</strong>
-                </p>
+                <h1>Current Date and Time</h1>
+                <p>{formatFullDateTimeZone(systemDate)}</p>
                 <p>
                   <Button onPress={() => setIsSystemDateModalActive(true)}>
-                    Update Time, Date, and Timezone
+                    Update Date and Time
                   </Button>
                 </p>
               </React.Fragment>
@@ -291,10 +280,7 @@ const ClerkScreen = ({
         centerContent
         content={
           <Prose textCenter>
-            <h1>
-              {shortWeekdayAndDate(systemDate.toString())},{' '}
-              {twelveHourTime(systemDate.toString())}
-            </h1>
+            <h1>{formatFullDateTimeZone(systemDate, timezone)}</h1>
             <div>
               <p>
                 <InputGroup as="span">
@@ -418,7 +404,7 @@ const ClerkScreen = ({
               <p>
                 <InputGroup as="span">
                   <Select
-                    value={timezone?.IANAZone}
+                    value={timezone}
                     disabled={isSavingDate}
                     onBlur={updateTimeZone}
                     onChange={updateTimeZone}
@@ -427,8 +413,9 @@ const ClerkScreen = ({
                       Select timezone…
                     </option>
                     {AMERICA_TIMEZONES.map((tz) => (
-                      <option key={tz.label} value={tz.IANAZone}>
-                        {tz.label}
+                      <option key={tz} value={tz}>
+                        {formatTimeZoneName(systemDate, tz)} (
+                        {tz.split('/')[1].replace(/_/gi, ' ')})
                       </option>
                     ))}
                   </Select>
