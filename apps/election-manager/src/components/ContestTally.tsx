@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election, Candidate } from '@votingworks/ballot-encoder'
+import { Election, Candidate, YesNoContest } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
-import { Tally } from '../config/types'
+import { Tally, YesNoContestOptionTally } from '../config/types'
 
 import Prose from './Prose'
 import Text from './Text'
@@ -77,10 +77,13 @@ const ContestTally = ({ election, electionTally, contestTallyMeta }: Props) => {
                         ? (tally.option as Candidate).id
                         : tally.option
                     }`
+
                     const choice =
                       contest.type === 'candidate'
                         ? (tally.option as Candidate).name
-                        : tally.option
+                        : (tally as YesNoContestOptionTally).option[0] === 'yes'
+                        ? (contest as YesNoContest).yesOption?.label || 'Yes'
+                        : (contest as YesNoContest).noOption?.label || 'No'
                     return (
                       <tr key={key}>
                         <td>{choice}</td>
