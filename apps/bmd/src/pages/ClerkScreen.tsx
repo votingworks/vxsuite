@@ -125,6 +125,8 @@ const ClerkScreen = ({
           isoDatetime: systemDate.toISOString(),
           IANAZone: timezone,
         })
+        setSystemDate(new Date())
+        setTimezone(getMachineTimezone())
         setIsSavingDate(false)
         setIsSystemDateModalActive(false)
       } catch (error) {
