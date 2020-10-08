@@ -85,6 +85,27 @@ test('extracts votes encoded in a QR code', async () => {
   `)
 })
 
+test('properly detects test ballot in live mode', async () => {
+  const ballotImagePath = join(
+    sampleBallotImagesPath,
+    'sample-batch-1-ballot-1.png'
+  )
+  const interpretationResult = await new SummaryBallotInterpreter(
+    {
+      ...electionSample,
+      markThresholds: { definite: 0.2, marginal: 0.17 },
+    },
+    false // this is the test mode
+  ).interpretFile({
+    ballotImagePath,
+    ballotImageFile: await readFile(ballotImagePath),
+  })
+
+  expect(interpretationResult.interpretation.type).toEqual(
+    'InvalidTestModePage'
+  )
+})
+
 test('can read metadata encoded in a QR code with base64', async () => {
   const fixtures = choctaw2020SpecialFixtures
   const { election } = fixtures

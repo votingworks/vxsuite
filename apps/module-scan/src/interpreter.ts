@@ -274,7 +274,18 @@ export default class SummaryBallotInterpreter implements Interpreter {
     const bmdResult = await this.interpretBMDFile(ballotImageData)
 
     if (bmdResult) {
-      return bmdResult
+      const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
+        .metadata
+      if (bmdMetadata.isTestMode === this.testMode) {
+        return bmdResult
+      } else {
+        return {
+          interpretation: {
+            type: 'InvalidTestModePage',
+            metadata: bmdMetadata,
+          },
+        }
+      }
     }
 
     try {

@@ -55,7 +55,7 @@ test('going through the whole process works', async () => {
 
   await request(app)
     .patch('/config')
-    .send({ election })
+    .send({ election, testMode: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
