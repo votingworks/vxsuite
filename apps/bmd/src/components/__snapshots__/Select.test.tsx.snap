@@ -17,6 +17,11 @@ exports[`Full-width select 1`] = `
   appearance: none;
 }
 
+.c0:disabled {
+  background: #dddddd;
+  color: rgb(170,170,170);
+}
+
 <select
   class="c0"
 >
@@ -52,6 +57,11 @@ exports[`Inline select 1`] = `
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+}
+
+.c0:disabled {
+  background: #dddddd;
+  color: rgb(170,170,170);
 }
 
 <select

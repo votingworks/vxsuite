@@ -25,7 +25,13 @@ declare namespace KioskBrowser {
     deviceAddress: number
   }
 
+  export interface SetClockParams {
+    isoDatetime: string
+    IANAZone: string
+  }
+
   export interface Kiosk {
+    setClock(params: SetClockParams): Promise<void>
     print(): Promise<void>
     getPrinterInfo(): Promise<PrinterInfo[]>
     getBatteryInfo(): Promise<BatteryInfo>
