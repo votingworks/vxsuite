@@ -213,15 +213,21 @@ const PrintTestDeckScreen = () => {
         </LinkButton>
       </p>
       <ButtonList>
-        {election.precincts.map((p) => (
-          <LinkButton
-            key={p.id}
-            to={routerPaths.printOneTestDeck({ precinctId: p.id })}
-            fullWidth
-          >
-            {p.name}
-          </LinkButton>
-        ))}
+        {[...election.precincts]
+          .sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, {
+              ignorePunctuation: true,
+            })
+          )
+          .map((p) => (
+            <LinkButton
+              key={p.id}
+              to={routerPaths.printOneTestDeck({ precinctId: p.id })}
+              fullWidth
+            >
+              {p.name}
+            </LinkButton>
+          ))}
       </ButtonList>
     </NavigationScreen>
   )
