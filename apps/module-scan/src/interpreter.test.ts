@@ -7,6 +7,7 @@ import { readFile } from 'fs-extra'
 import { join } from 'path'
 import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
 import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
+import * as general2020Fixtures from '../test/fixtures/2020-general'
 import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
 import SummaryBallotInterpreter, {
   getBallotImageData,
@@ -129,6 +130,45 @@ test('can read metadata encoded in a QR code with base64', async () => {
       },
       "pageNumber": 1,
       "precinctId": "6538",
+    }
+  `)
+})
+
+test('can read metadata in QR code with skewed / dirty ballot', async () => {
+  const fixtures = general2020Fixtures
+  const { qrcode } = resultValue(
+    await getBallotImageData(
+      await readFile(fixtures.skewedQRCodeBallotPage),
+      fixtures.skewedQRCodeBallotPage
+    )
+  )
+
+  expect(qrcode).toMatchInlineSnapshot(`
+    Object {
+      "data": Array [
+        86,
+        80,
+        1,
+        20,
+        111,
+        111,
+        156,
+        219,
+        48,
+        24,
+        169,
+        41,
+        115,
+        168,
+        20,
+        5,
+        17,
+        0,
+        0,
+        6,
+        0,
+      ],
+      "type": "Buffer",
     }
   `)
 })
