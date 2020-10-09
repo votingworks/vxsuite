@@ -115,7 +115,7 @@ export async function writeImageToFile(
     imageData.height) as Channels
 
   if (bounds) {
-    img = sharp(Buffer.from(crop(imageData, bounds)), {
+    img = sharp(Buffer.from(crop(imageData, bounds).data), {
       raw: {
         width: bounds.width,
         height: bounds.height,
@@ -123,7 +123,7 @@ export async function writeImageToFile(
       },
     })
   } else {
-    img = sharp(Buffer.from(imageData), {
+    img = sharp(Buffer.from(imageData.data), {
       raw: {
         width: imageData.width,
         height: imageData.height,
