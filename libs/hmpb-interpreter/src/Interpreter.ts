@@ -609,7 +609,7 @@ export default class Interpreter {
     template: ImageData,
     ballot: ImageData,
     target: TargetShape,
-    { zeroScoreThreshold = 0, maximumCorrectionPixels = 3 } = {}
+    { zeroScoreThreshold = 0, maximumCorrectionPixels = 2 } = {}
   ): { offset: Offset; score: number } {
     debug(
       'computing target mark score for target at (x=%d, y=%d) with zero threshold %d',
