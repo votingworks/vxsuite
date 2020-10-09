@@ -720,10 +720,10 @@ export default class Interpreter {
     const templatePoints: Point[] = []
 
     for (const [
-      { bounds: ballotContestBounds },
+      { corners: ballotContestCorners },
       { bounds: templateContestBounds },
     ] of zip(ballot.contests, template.contests)) {
-      ballotPoints.push(...rectCorners(ballotContestBounds))
+      ballotPoints.push(...ballotContestCorners)
       templatePoints.push(...rectCorners(templateContestBounds))
     }
 

@@ -1,7 +1,7 @@
 import makeDebug from 'debug'
-import { Corners, Point, Rect } from '../types'
+import { Corners, Rect } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
-import { rectCorners } from '../utils/geometry'
+import { getCorners } from '../utils/corners'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { VisitedPoints } from '../utils/VisitedPoints'
 import { findShape, Shape } from './shapes'
@@ -190,42 +190,4 @@ function findTopBorderInset(
     y - consecutiveWhitePixels
   )
   return y - consecutiveWhitePixels
-}
-
-function getCorners(imageData: ImageData, shape: Shape): Corners {
-  const [topLeft, topRight, bottomLeft, bottomRight] = rectCorners(shape.bounds)
-
-  return [
-    findCorner(imageData, topLeft, { x: 1, y: 1 }),
-    findCorner(imageData, topRight, { x: -1, y: 1 }),
-    findCorner(imageData, bottomLeft, { x: 1, y: -1 }),
-    findCorner(imageData, bottomRight, { x: -1, y: -1 }),
-  ]
-}
-
-function findCorner(
-  { data, width, height }: ImageData,
-  { x: startX, y: startY }: Point,
-  direction: Point
-): Point {
-  const channels = getImageChannelCount({ data, width, height })
-
-  for (let step = 0; ; step += 1) {
-    {
-      const x = startX + step * direction.x
-      const y = startY
-
-      if (data[(y * width + x) * channels] === PIXEL_BLACK) {
-        return { x, y }
-      }
-    }
-    {
-      const x = startX
-      const y = startY + step * direction.y
-
-      if (data[(y * width + x) * channels] === PIXEL_BLACK) {
-        return { x, y }
-      }
-    }
-  }
 }
