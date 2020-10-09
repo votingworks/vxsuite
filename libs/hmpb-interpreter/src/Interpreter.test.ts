@@ -1588,7 +1588,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.8082901554404145,
+        "score": 0.8652849740932642,
         "type": "candidate",
       },
       Object {
@@ -1603,7 +1603,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Eddie Bernice Johnson",
-        "score": 0.7020725388601037,
+        "score": 0.7305699481865285,
         "type": "candidate",
       },
       Object {
@@ -1613,7 +1613,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.5664160401002506,
+        "score": 0.6090225563909775,
         "type": "candidate",
       },
       Object {
@@ -1628,12 +1628,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.6442786069651741,
+        "score": 0.6865671641791045,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.7789203084832905,
+        "score": 0.8354755784061697,
         "type": "candidate",
       },
       Object {
@@ -1648,7 +1648,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.581453634085213,
+        "score": 0.5839598997493735,
         "type": "candidate",
       },
       Object {
@@ -1849,10 +1849,10 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.6297229219143576,
+        "score": 0.690176322418136,
         "scoredOffset": Object {
-          "x": -3,
-          "y": 3,
+          "x": -2,
+          "y": 2,
         },
         "target": Object {
           "bounds": Object {
@@ -2115,10 +2115,10 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "no",
-        "score": 0.732824427480916,
+        "score": 0.7938931297709924,
         "scoredOffset": Object {
-          "x": 3,
-          "y": 3,
+          "x": 2,
+          "y": 2,
         },
         "target": Object {
           "bounds": Object {
@@ -3461,7 +3461,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "2",
         "option": "23",
-        "score": 0.3936781609195402,
+        "score": 0.4339080459770115,
       },
       Object {
         "contest": "2",
@@ -3476,7 +3476,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "3",
         "option": "32",
-        "score": 0.6823204419889503,
+        "score": 0.7513812154696132,
       },
       Object {
         "contest": "3",
@@ -3496,7 +3496,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "4",
         "option": "__write-in-0",
-        "score": 0.5677966101694916,
+        "score": 0.6497175141242938,
       },
       Object {
         "contest": "initiative-65",
@@ -3538,7 +3538,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "flag-question",
         "option": "yes",
-        "score": 0.4005681818181818,
+        "score": 0.4460227272727273,
       },
       Object {
         "contest": "flag-question",
