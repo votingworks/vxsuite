@@ -231,6 +231,7 @@ test('adjudication', async () => {
               contest: candidateContests[i],
               option: candidateContests[i].candidates[0],
               score: 0.12, // marginal
+              scoredOffset: { x: 0, y: 0 },
               bounds: zeroRect,
               target: {
                 bounds: zeroRect,
@@ -242,6 +243,7 @@ test('adjudication', async () => {
               contest: yesnoContests[i],
               option: yesnoOption,
               score: 1, // definite
+              scoredOffset: { x: 0, y: 0 },
               bounds: zeroRect,
               target: {
                 bounds: zeroRect,
