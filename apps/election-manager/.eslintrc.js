@@ -40,7 +40,14 @@ module.exports = {
     project: './tsconfig.json',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'jest', 'react', 'cypress', 'jsx-a11y'],
+  plugins: [
+    '@typescript-eslint',
+    'jest',
+    'react',
+    'cypress',
+    'jsx-a11y',
+    'no-array-sort-mutation',
+  ],
   settings: {
     react: {
       version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
@@ -62,6 +69,7 @@ module.exports = {
         assert: 'htmlFor',
       },
     ],
+    'no-array-sort-mutation/no-array-sort-mutation': 'error',
     camelcase: 'error',
     'import/no-extraneous-dependencies': [
       'error',
@@ -134,6 +142,12 @@ module.exports = {
       files: '**/*.{jsx,tsx}',
       rules: {
         'no-restricted-syntax': 'off',
+      },
+    },
+    {
+      files: 'test/eslint-rules/**/*',
+      rules: {
+        'global-require': 'off',
       },
     },
   ],
