@@ -20,10 +20,10 @@ const routerPaths = {
   }: BallotScreenProps) =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${localeCode}`,
   printedBallotsReport: '/ballots/printed-report',
-  printTestDecks: '/ballots/print-test-deck',
-  printOneTestDeck: ({ precinctId }: PrecinctReportScreenProps) =>
-    `/ballots/print-test-deck/${precinctId}`,
   tally: '/tally',
+  printTestDecks: '/tally/print-test-deck',
+  printOneTestDeck: ({ precinctId }: PrecinctReportScreenProps) =>
+    `/tally/print-test-deck/${precinctId}`,
   tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps) =>
     `/tally/precinct/${precinctId}`,
   tallyScannerReport: ({ scannerId }: ScannerReportScreenProps) =>
