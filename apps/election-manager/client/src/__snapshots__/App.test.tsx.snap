@@ -83,14 +83,14 @@ exports[`printing ballots, print report, and test decks 1`] = `
           Definition
         </button>
         <button
-          class="sc-fzoLsD ivZRNV active-section"
+          class="sc-fzoLsD ivZRNV"
           role="option"
           type="button"
         >
           Ballots
         </button>
         <button
-          class="sc-fzoLsD cIOEoD"
+          class="sc-fzoLsD cIOEoD active-section"
           role="option"
           type="button"
         >
