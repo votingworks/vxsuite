@@ -168,7 +168,7 @@ const ClerkScreen = ({
                     <option value="" disabled>
                       Select a precinct for this device…
                     </option>
-                    {election.precincts
+                    {[...election.precincts]
                       .sort((a, b) =>
                         a.name.localeCompare(b.name, undefined, {
                           ignorePunctuation: true,
