@@ -348,9 +348,15 @@ export default class SystemImporter implements Importer {
   private async finishBatch(error?: string): Promise<void> {
     if (this.batchId) {
       await this.store.finishBatch({ batchId: this.batchId, error })
+      this.batchId = undefined
     }
-    this.sheetGenerator = undefined
-    this.batchId = undefined
+
+    if (this.sheetGenerator) {
+      if (error) {
+        await this.sheetGenerator.throw(new Error(error))
+      }
+      this.sheetGenerator = undefined
+    }
   }
 
   /**
