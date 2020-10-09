@@ -1510,7 +1510,6 @@ test('interpret votes', async () => {
   const interpreter = new Interpreter(election)
 
   await interpreter.addTemplate(await blankPage1.imageData())
-  await interpreter.addTemplate(await blankPage2.imageData())
 
   const { ballot, marks } = await interpreter.interpretBallot(
     await filledInPage1.imageData()
@@ -1589,7 +1588,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.7901554404145078,
+        "score": 0.8082901554404145,
         "type": "candidate",
       },
       Object {
@@ -1604,7 +1603,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Eddie Bernice Johnson",
-        "score": 0.6709844559585493,
+        "score": 0.7020725388601037,
         "type": "candidate",
       },
       Object {
@@ -1614,7 +1613,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.5714285714285714,
+        "score": 0.5664160401002506,
         "type": "candidate",
       },
       Object {
@@ -1629,12 +1628,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.6567164179104478,
+        "score": 0.6442786069651741,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.7866323907455013,
+        "score": 0.7789203084832905,
         "type": "candidate",
       },
       Object {
@@ -1649,7 +1648,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.5989974937343359,
+        "score": 0.581453634085213,
         "type": "candidate",
       },
       Object {
@@ -1734,8 +1733,8 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 1,
-          "y": 0,
+          "x": 0,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
@@ -1794,7 +1793,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": 1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -1850,7 +1849,7 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.6624685138539043,
+        "score": 0.6297229219143576,
         "scoredOffset": Object {
           "x": -3,
           "y": 3,
@@ -2005,7 +2004,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.1483375959079284,
+        "score": 0.14578005115089515,
         "scoredOffset": Object {
           "x": 0,
           "y": 0,
@@ -2116,7 +2115,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "no",
-        "score": 0.7455470737913485,
+        "score": 0.732824427480916,
         "scoredOffset": Object {
           "x": 3,
           "y": 3,
@@ -2264,7 +2263,7 @@ test('invalid marks', async () => {
           "name": "Randall Rupp",
           "partyId": "2",
         },
-        "score": 0.13110539845758354,
+        "score": 0.13881748071979436,
         "scoredOffset": Object {
           "x": -1,
           "y": -1,
@@ -2489,7 +2488,7 @@ test('invalid marks', async () => {
         "score": 0.12953367875647667,
         "scoredOffset": Object {
           "x": 0,
-          "y": -2,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2636,7 +2635,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 0,
+          "x": -1,
           "y": -1,
         },
         "target": Object {
@@ -2708,9 +2707,9 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0.09090909090909091,
+        "score": 0.09595959595959595,
         "scoredOffset": Object {
-          "x": 1,
+          "x": 0,
           "y": -1,
         },
         "target": Object {
@@ -2784,7 +2783,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 1,
+          "x": 0,
           "y": -1,
         },
         "target": Object {
@@ -3437,7 +3436,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "1",
         "option": "1",
-        "score": 0.2569060773480663,
+        "score": 0.2541436464088398,
       },
       Object {
         "contest": "1",
@@ -3462,7 +3461,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "2",
         "option": "23",
-        "score": 0.43103448275862066,
+        "score": 0.3936781609195402,
       },
       Object {
         "contest": "2",
@@ -3477,7 +3476,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "3",
         "option": "32",
-        "score": 0.7099447513812155,
+        "score": 0.6823204419889503,
       },
       Object {
         "contest": "3",
@@ -3497,22 +3496,22 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "4",
         "option": "__write-in-0",
-        "score": 0.576271186440678,
+        "score": 0.5677966101694916,
       },
       Object {
         "contest": "initiative-65",
         "option": "yes",
-        "score": 0.4265536723163842,
+        "score": 0.4096045197740113,
       },
       Object {
         "contest": "initiative-65",
         "option": "no",
-        "score": 0.2796610169491525,
+        "score": 0.2740112994350282,
       },
       Object {
         "contest": "initiative-65-a",
         "option": "yes",
-        "score": 0.2457627118644068,
+        "score": 0.2175141242937853,
       },
       Object {
         "contest": "initiative-65-a",
@@ -3539,7 +3538,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "flag-question",
         "option": "yes",
-        "score": 0.3835227272727273,
+        "score": 0.4005681818181818,
       },
       Object {
         "contest": "flag-question",
@@ -3554,7 +3553,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "runoffs-question",
         "option": "no",
-        "score": 0.2840909090909091,
+        "score": 0.3068181818181818,
       },
     ]
   `)
