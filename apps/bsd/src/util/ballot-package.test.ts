@@ -16,7 +16,10 @@ test('readBallotPackage finds all expected ballots', async () => {
     ],
     'ballot-package-state-of-hamilton.zip'
   )
-  const { ballots, election } = await readBallotPackage(file)
+  const {
+    ballots,
+    electionDefinition: { election },
+  } = await readBallotPackage(file)
   const ballotStyleIds = election.ballotStyles.map(({ id }) => id)
   const precinctIds = election.precincts.map(({ id }) => id)
   expect(election.title).toEqual('General Election')
