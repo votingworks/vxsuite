@@ -49,14 +49,28 @@ test('startImport calls scanner.scanSheet', async () => {
   await importer.configure(fromElection(election))
 
   // failed scan
-  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
-    SheetOf<string>
-  > {
-    yield Promise.reject(new Error('scanner is a banana'))
-  })
+  const generator: AsyncGenerator<SheetOf<string>> = {
+    async next(): Promise<IteratorResult<SheetOf<string>>> {
+      throw new Error('scanner is a banana')
+    },
+
+    return(): Promise<IteratorResult<SheetOf<string>>> {
+      throw new Error('scanner is a banana')
+    },
+
+    throw: jest.fn(),
+
+    [Symbol.asyncIterator](): AsyncGenerator<SheetOf<string>> {
+      return generator
+    },
+  }
+
+  scanner.scanSheets.mockImplementationOnce(() => generator)
 
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()
+
+  expect(generator.throw).toHaveBeenCalled()
 
   const batches = await store.batchStatus()
   expect(batches[0].error).toEqual('Error: scanner is a banana')
