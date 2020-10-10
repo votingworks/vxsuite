@@ -331,9 +331,9 @@ test('interprets marks on an upside-down HMPB', async () => {
               "name": "Joseph Barchi and Joseph Hallaren",
               "partyId": "0",
             },
-            "score": 0.5138121546961326,
+            "score": 0.5165745856353591,
             "scoredOffset": Object {
-              "x": 0,
+              "x": -1,
               "y": -1,
             },
             "target": Object {
@@ -1073,7 +1073,7 @@ test('interprets marks on an upside-down HMPB', async () => {
             },
             "score": 0,
             "scoredOffset": Object {
-              "x": 0,
+              "x": -1,
               "y": -1,
             },
             "target": Object {
@@ -1551,7 +1551,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               "name": "Brad Schott",
               "partyId": "2",
             },
-            "score": 0.9033149171270718,
+            "score": 0.9060773480662984,
             "scoredOffset": Object {
               "x": 1,
               "y": -1,
@@ -1853,10 +1853,10 @@ test('interprets marks in PNG ballots', async () => {
                 "name": "Joe Biden",
                 "partyId": "2",
               },
-              "score": 0.2541436464088398,
+              "score": 0.26795580110497236,
               "scoredOffset": Object {
                 "x": 0,
-                "y": -1,
+                "y": 0,
               },
               "target": Object {
                 "bounds": Object {
@@ -1909,7 +1909,7 @@ test('interprets marks in PNG ballots', async () => {
               },
               "score": 0,
               "scoredOffset": Object {
-                "x": 0,
+                "x": -1,
                 "y": -1,
               },
               "target": Object {
@@ -2022,8 +2022,8 @@ test('interprets marks in PNG ballots', async () => {
               },
               "score": 0,
               "scoredOffset": Object {
-                "x": 0,
-                "y": -2,
+                "x": 1,
+                "y": -1,
               },
               "target": Object {
                 "bounds": Object {
@@ -2081,8 +2081,8 @@ test('interprets marks in PNG ballots', async () => {
               },
               "score": 0,
               "scoredOffset": Object {
-                "x": -1,
-                "y": -2,
+                "x": 0,
+                "y": -1,
               },
               "target": Object {
                 "bounds": Object {
@@ -2138,10 +2138,10 @@ test('interprets marks in PNG ballots', async () => {
                 "name": "Jimmy Edwards",
                 "partyId": "4",
               },
-              "score": 0.4339080459770115,
+              "score": 0.40804597701149425,
               "scoredOffset": Object {
-                "x": -2,
-                "y": 2,
+                "x": -1,
+                "y": -2,
               },
               "target": Object {
                 "bounds": Object {
@@ -2199,8 +2199,8 @@ test('interprets marks in PNG ballots', async () => {
               },
               "score": 0,
               "scoredOffset": Object {
-                "x": -1,
-                "y": -2,
+                "x": 0,
+                "y": 0,
               },
               "target": Object {
                 "bounds": Object {
@@ -2254,7 +2254,7 @@ test('interprets marks in PNG ballots', async () => {
               "score": 0,
               "scoredOffset": Object {
                 "x": 0,
-                "y": -1,
+                "y": 0,
               },
               "target": Object {
                 "bounds": Object {
@@ -2305,7 +2305,7 @@ test('interprets marks in PNG ballots', async () => {
                 "name": "Trent Kelly",
                 "partyId": "3",
               },
-              "score": 0.7513812154696132,
+              "score": 0.7955801104972375,
               "scoredOffset": Object {
                 "x": -2,
                 "y": 2,
@@ -2361,7 +2361,7 @@ test('interprets marks in PNG ballots', async () => {
               },
               "score": 0,
               "scoredOffset": Object {
-                "x": 0,
+                "x": 1,
                 "y": -1,
               },
               "target": Object {
@@ -2521,7 +2521,7 @@ test('interprets marks in PNG ballots', async () => {
                 "isWriteIn": true,
                 "name": "Write-In",
               },
-              "score": 0.6497175141242938,
+              "score": 0.6440677966101694,
               "scoredOffset": Object {
                 "x": -1,
                 "y": 0,
@@ -2559,7 +2559,7 @@ test('interprets marks in PNG ballots', async () => {
                 "type": "yesno",
               },
               "option": "yes",
-              "score": 0.4096045197740113,
+              "score": 0.4322033898305085,
               "scoredOffset": Object {
                 "x": -1,
                 "y": 0,
@@ -2597,9 +2597,9 @@ test('interprets marks in PNG ballots', async () => {
                 "type": "yesno",
               },
               "option": "no",
-              "score": 0.2740112994350282,
+              "score": 0.2655367231638418,
               "scoredOffset": Object {
-                "x": -2,
+                "x": -1,
                 "y": -2,
               },
               "target": Object {
@@ -2635,10 +2635,10 @@ test('interprets marks in PNG ballots', async () => {
                 "type": "yesno",
               },
               "option": "yes",
-              "score": 0.2175141242937853,
+              "score": 0.23163841807909605,
               "scoredOffset": Object {
                 "x": 0,
-                "y": 0,
+                "y": -1,
               },
               "target": Object {
                 "bounds": Object {
@@ -2793,10 +2793,10 @@ test('interprets marks in PNG ballots', async () => {
                 "type": "yesno",
               },
               "option": "yes",
-              "score": 0.4659090909090909,
+              "score": 0.5255681818181818,
               "scoredOffset": Object {
-                "x": 2,
-                "y": 2,
+                "x": 1,
+                "y": -2,
               },
               "target": Object {
                 "bounds": Object {
@@ -2835,8 +2835,8 @@ test('interprets marks in PNG ballots', async () => {
               "option": "no",
               "score": 0,
               "scoredOffset": Object {
-                "x": -1,
-                "y": -2,
+                "x": 0,
+                "y": -1,
               },
               "target": Object {
                 "bounds": Object {
@@ -2909,7 +2909,7 @@ test('interprets marks in PNG ballots', async () => {
                 "type": "yesno",
               },
               "option": "no",
-              "score": 0.3039772727272727,
+              "score": 0.2869318181818182,
               "scoredOffset": Object {
                 "x": 0,
                 "y": 0,
