@@ -111,8 +111,8 @@ export function findCorner(
     }
 
     if (inBoundsX) {
-      const x = startX + stepOffsetX
-      const y = startY
+      let x = startX + stepOffsetX
+      let y = startY
       let found = true
 
       debug(
@@ -135,18 +135,40 @@ export function findCorner(
 
       if (found) {
         debug(
-          'found corner at x=%d, y=%d after %d step(s) in the x direction',
+          'found possible corner at x=%d, y=%d after %d step(s) in the x direction',
           x,
           y,
           step
         )
+
+        while (
+          data[((y + stepOffset.y) * width + (x - stepOffset.x)) * channels] ===
+          PIXEL_BLACK
+        ) {
+          y += stepOffset.y
+          x -= stepOffset.x
+          debug(
+            'backtracking to x=%d, y=%d to correct a possible overshoot',
+            x,
+            y
+          )
+
+          while (
+            data[(y * width + (x - stepOffset.x)) * channels] === PIXEL_BLACK
+          ) {
+            x -= stepOffset.x
+          }
+          debug('backtracked in the x direction to x=%d, y=%d', x, y)
+        }
+
+        debug('final corner detected at x=%d, y=%d', x, y)
         return { x, y }
       }
     }
 
     if (inBoundsY) {
-      const x = startX
-      const y = startY + stepOffsetY
+      let x = startX
+      let y = startY + stepOffsetY
       let found = true
 
       debug(
@@ -169,11 +191,33 @@ export function findCorner(
 
       if (found) {
         debug(
-          'found corner at x=%d, y=%d after %d step(s) in the y direction',
+          'found possible corner at x=%d, y=%d after %d step(s) in the y direction',
           x,
           y,
           step
         )
+
+        while (
+          data[((y - stepOffset.y) * width + (x + stepOffset.x)) * channels] ===
+          PIXEL_BLACK
+        ) {
+          y -= stepOffset.y
+          x += stepOffset.x
+          debug(
+            'backtracking to x=%d, y=%d to correct a possible overshoot',
+            x,
+            y
+          )
+
+          while (
+            data[((y - stepOffset.y) * width + x) * channels] === PIXEL_BLACK
+          ) {
+            y -= stepOffset.y
+          }
+          debug('backtracked in the y direction to x=%d, y=%d', x, y)
+        }
+
+        debug('final corner detected at x=%d, y=%d', x, y)
         return { x, y }
       }
     }
