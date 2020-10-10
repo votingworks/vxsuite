@@ -92,6 +92,17 @@ test('going through the whole process works', async () => {
 
   await addTemplatesRequest.expect(200, { status: 'ok' })
 
+  await request(app)
+    .post('/scan/scanBatch')
+    .expect(200)
+    .then((response) => {
+      expect(response.body).toEqual({
+        status: 'could not scan: interpreter still loading',
+      })
+    })
+
+  await request(app).post('/scan/hmpb/doneTemplates')
+
   {
     // define the next scanner session
     const nextSession = scanner.withNextScannerSession()
@@ -211,6 +222,8 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
   }
 
   await addTemplatesRequest.expect(200, { status: 'ok' })
+
+  await request(app).post('/scan/hmpb/doneTemplates')
 
   {
     const nextSession = scanner.withNextScannerSession()
@@ -348,6 +361,8 @@ test('ms-either-neither end-to-end', async () => {
   }
 
   await addTemplatesRequest.expect(200, { status: 'ok' })
+
+  await request(app).post('/scan/hmpb/doneTemplates')
 
   {
     const nextSession = scanner.withNextScannerSession()

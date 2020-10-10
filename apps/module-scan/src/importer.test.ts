@@ -42,6 +42,7 @@ test('startImport calls scanner.scanSheet', async () => {
     store,
     scanner,
   })
+
   await expect(importer.startImport()).rejects.toThrow(
     'no election configuration'
   )

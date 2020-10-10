@@ -311,6 +311,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   )
 
+  app.post('/scan/hmpb/doneTemplates', async (_request, response) => {
+    await importer.doneHmpbTemplates()
+    response.json({ status: 'ok' })
+  })
+
   app.post('/scan/export', async (_request, response) => {
     const cvrs = await importer.doExport()
     response.set('Content-Type', 'text/plain')

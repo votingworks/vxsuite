@@ -37,6 +37,7 @@ export interface Importer {
     pdf: Buffer,
     metadata: BallotMetadata
   ): Promise<BallotPageLayout[]>
+  doneHmpbTemplates(): Promise<void>
   configure(electionDefinition: ElectionDefinition): Promise<void>
   doExport(): Promise<string>
   startImport(): Promise<string>
@@ -100,6 +101,7 @@ export default class SystemImporter implements Importer {
   private batchId: string | undefined
   private interpreterWorkerPool?: WorkerPool<Input, Output>
   private interpreterWorkerPoolProvider: () => WorkerPool<Input, Output>
+  private interpreterReady = true
 
   public readonly scannedImagesPath: string
   public readonly importedImagesPath: string
@@ -134,6 +136,7 @@ export default class SystemImporter implements Importer {
   }
 
   private invalidateInterpreterConfig(): void {
+    this.interpreterReady = false
     this.interpreterWorkerPool?.stop()
     this.interpreterWorkerPool = undefined
   }
@@ -146,6 +149,7 @@ export default class SystemImporter implements Importer {
         action: 'configure',
         dbPath: this.store.dbPath,
       })
+      this.interpreterReady = true
     }
     return this.interpreterWorkerPool
   }
@@ -196,6 +200,13 @@ export default class SystemImporter implements Importer {
     this.invalidateInterpreterConfig()
 
     return result
+  }
+
+  /**
+   * Tell the importer that we have all the templates
+   */
+  public async doneHmpbTemplates(): Promise<void> {
+    await this.getInterpreterWorkerPool()
   }
 
   /**
@@ -396,6 +407,10 @@ export default class SystemImporter implements Importer {
 
     if (this.sheetGenerator) {
       throw new Error('scanning already in progess')
+    }
+
+    if (!this.interpreterReady) {
+      throw new Error('interpreter still loading')
     }
 
     this.batchId = await this.store.addBatch()

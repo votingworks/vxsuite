@@ -26,6 +26,7 @@ export function makeMockWorkerOps<I>(): jest.Mocked<WorkerOps<I>> {
 export function makeMockImporter(): jest.Mocked<Importer> {
   return {
     addHmpbTemplates: jest.fn(),
+    doneHmpbTemplates: jest.fn(),
     configure: jest.fn(),
     doExport: jest.fn(),
     startImport: jest.fn(),
