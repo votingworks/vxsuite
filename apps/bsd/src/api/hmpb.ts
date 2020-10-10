@@ -87,6 +87,10 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
   return result
 }
 
+export async function doneTemplates(): Promise<void> {
+  await fetch('/scan/hmpb/doneTemplates', { method: 'POST' })
+}
+
 export function fetchBallotInfo(ballotId: string): Promise<ReviewBallot> {
   return fetchJSON<ReviewBallot>(`/scan/hmpb/ballot/${ballotId}`)
 }

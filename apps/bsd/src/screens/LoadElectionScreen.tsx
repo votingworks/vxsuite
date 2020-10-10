@@ -7,7 +7,7 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import { SetElection } from '../config/types'
 import { readBallotPackage } from '../util/ballot-package'
-import { addTemplates } from '../api/hmpb'
+import { addTemplates, doneTemplates } from '../api/hmpb'
 
 interface Props {
   setElection: SetElection
@@ -63,7 +63,8 @@ const LoadElectionScreen = ({ setElection }: Props) => {
               })
               setCurrentUploadingBallotIndex(pkg.ballots.indexOf(ballot))
             })
-            .on('completed', () => {
+            .on('completed', async () => {
+              await doneTemplates()
               setElection(pkg.electionDefinition.election)
             })
         })

@@ -165,9 +165,15 @@ const App: React.FC = () => {
   const scanBatch = useCallback(async () => {
     setIsScanning(true)
     try {
-      await fetch('/scan/scanBatch', {
-        method: 'post',
-      })
+      const result = await (
+        await fetch('/scan/scanBatch', {
+          method: 'post',
+        })
+      ).json()
+      if (result.status !== 'ok') {
+        window.alert(`could not scan: ${result.status}`)
+        setIsScanning(false)
+      }
     } catch (error) {
       console.log('failed handleFileInput()', error) // eslint-disable-line no-console
     }
