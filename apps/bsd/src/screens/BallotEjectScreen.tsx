@@ -11,6 +11,12 @@ import Button from '../components/Button'
 import MainNav from '../components/MainNav'
 import Screen from '../components/Screen'
 
+const EjectReason = styled.div`
+  font-size: 3em;
+  font-weight: 900;
+  text-align: center;
+`
+
 const Columns = styled.div`
   display: flex;
   > div {
@@ -108,29 +114,17 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
         <MainChild maxWidth={false}>
           <Columns>
             <Prose maxWidth={false}>
-              <h1>Review Required</h1>
+              <EjectReason>
+                {isUnreadableSheet
+                  ? 'Unreadable'
+                  : isOvervotedSheet
+                  ? 'Overvote'
+                  : isBlankSheet
+                  ? 'Blank Ballot'
+                  : 'Unknown Reason'}
+              </EjectReason>
               <p>
-                This last scanned sheet requires human review and{' '}
-                <strong>was not tabulated</strong>.
-              </p>
-              <h4>Reason</h4>
-              <p>
-                {isUnreadableSheet ? (
-                  <span>
-                    This sheet was <strong>unreadable</strong> by the scanner.
-                  </span>
-                ) : isOvervotedSheet ? (
-                  <span>
-                    This ballot sheet contains an <strong>overvote</strong>.
-                  </span>
-                ) : isBlankSheet ? (
-                  <span>
-                    This ballot sheet is <strong>blank</strong> and has no
-                    votes.
-                  </span>
-                ) : (
-                  <span>Reason could not be determined.</span>
-                )}
+                This last scanned sheet <strong>was not tabulated</strong>.
               </p>
               <h4>Original Ballot Scan</h4>
               <p>

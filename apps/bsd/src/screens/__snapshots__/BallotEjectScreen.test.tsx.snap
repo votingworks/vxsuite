@@ -48,29 +48,22 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         class="sc-bwzfXH hLOwzs"
       >
         <div
-          class="sc-jTzLTM TMzWq"
+          class="sc-fjdhpX eRpYQP"
         >
           <div
             class="sc-htpNat eawaaV"
           >
-            <h1>
-              Review Required
-            </h1>
+            <div
+              class="sc-jTzLTM gSIlWD"
+            >
+              Unknown Reason
+            </div>
             <p>
-              This last scanned sheet requires human review and
-               
+              This last scanned sheet 
               <strong>
                 was not tabulated
               </strong>
               .
-            </p>
-            <h4>
-              Reason
-            </h4>
-            <p>
-              <span>
-                Reason could not be determined.
-              </span>
             </p>
             <h4>
               Original Ballot Scan
@@ -100,7 +93,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             </p>
           </div>
           <div
-            class="sc-fjdhpX bnPSvT"
+            class="sc-jzJRlG ggDwyK"
           >
             <div>
               <img
@@ -170,33 +163,22 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         class="sc-bwzfXH hLOwzs"
       >
         <div
-          class="sc-jTzLTM TMzWq"
+          class="sc-fjdhpX eRpYQP"
         >
           <div
             class="sc-htpNat eawaaV"
           >
-            <h1>
-              Review Required
-            </h1>
+            <div
+              class="sc-jTzLTM gSIlWD"
+            >
+              Overvote
+            </div>
             <p>
-              This last scanned sheet requires human review and
-               
+              This last scanned sheet 
               <strong>
                 was not tabulated
               </strong>
               .
-            </p>
-            <h4>
-              Reason
-            </h4>
-            <p>
-              <span>
-                This ballot sheet contains an 
-                <strong>
-                  overvote
-                </strong>
-                .
-              </span>
             </p>
             <h4>
               Original Ballot Scan
@@ -231,7 +213,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             </p>
           </div>
           <div
-            class="sc-fjdhpX bnPSvT"
+            class="sc-jzJRlG ggDwyK"
           >
             <div>
               <img
@@ -301,33 +283,22 @@ exports[`says the sheet is unreadable if it is 1`] = `
         class="sc-bwzfXH hLOwzs"
       >
         <div
-          class="sc-jTzLTM TMzWq"
+          class="sc-fjdhpX eRpYQP"
         >
           <div
             class="sc-htpNat eawaaV"
           >
-            <h1>
-              Review Required
-            </h1>
+            <div
+              class="sc-jTzLTM gSIlWD"
+            >
+              Unreadable
+            </div>
             <p>
-              This last scanned sheet requires human review and
-               
+              This last scanned sheet 
               <strong>
                 was not tabulated
               </strong>
               .
-            </p>
-            <h4>
-              Reason
-            </h4>
-            <p>
-              <span>
-                This sheet was 
-                <strong>
-                  unreadable
-                </strong>
-                 by the scanner.
-              </span>
             </p>
             <h4>
               Original Ballot Scan
@@ -361,7 +332,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
             </p>
           </div>
           <div
-            class="sc-fjdhpX bnPSvT"
+            class="sc-jzJRlG ggDwyK"
           >
             <div>
               <img
