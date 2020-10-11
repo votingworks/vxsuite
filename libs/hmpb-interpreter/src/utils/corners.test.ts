@@ -1,6 +1,7 @@
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
 import * as walthall2020 from '../../test/fixtures/walthall-county-2020-general-election-6f6f9cdb30'
 import * as choctaw from '../../test/fixtures/choctaw-county-2020-general-election'
+import * as hamilton from '../../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
 import { binarize } from './binarize'
 import { getCorners } from './corners'
 
@@ -139,6 +140,41 @@ test('regression: choctaw county filled-in-p1-01', async () => {
       Object {
         "x": 1661,
         "y": 2887,
+      },
+    ]
+  `)
+})
+
+test('regression: state of hamilton p4', async () => {
+  const imageData = await hamilton.filledInPage4.imageData()
+  binarize(imageData)
+
+  expect(
+    getCorners(imageData, {
+      bounds: {
+        height: 1737,
+        width: 735,
+        x: 907,
+        y: 140,
+      },
+    })
+  ).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "x": 908,
+        "y": 141,
+      },
+      Object {
+        "x": 1641,
+        "y": 141,
+      },
+      Object {
+        "x": 908,
+        "y": 1874,
+      },
+      Object {
+        "x": 1640,
+        "y": 1874,
       },
     ]
   `)
