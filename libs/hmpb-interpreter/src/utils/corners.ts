@@ -1,7 +1,6 @@
-import { strict as assert } from 'assert'
 import makeDebug from 'debug'
 import { Shape } from '../hmpb/shapes'
-import { Corners, Offset, Point } from '../types'
+import { Corners, Offset, Point, Rect } from '../types'
 import { PIXEL_BLACK } from './binarize'
 import { rectCorners } from './geometry'
 import { getImageChannelCount } from './imageFormatUtils'
@@ -11,12 +10,11 @@ const debug = makeDebug('module-scan:corners')
 export function getCorners(
   imageData: ImageData,
   shape: Shape,
-  { minLineStroke = 2, maxSkewRadians = (5 / 180) * Math.PI } = {}
+  { maxSkewRadians = (5 / 180) * Math.PI } = {}
 ): Corners {
   debug(
-    'finding corners of shape with bounds (%o); minLineStroke=%d maxSkew=%d°',
+    'finding corners of shape with bounds (%o); maxSkew=%d°',
     shape.bounds,
-    minLineStroke,
     (maxSkewRadians * 180) / Math.PI
   )
   const [topLeft, topRight, bottomLeft, bottomRight] = rectCorners(shape.bounds)
@@ -34,51 +32,39 @@ export function getCorners(
   debug('calculated max up/down skew distance: %dpx', maxUpDownSkewDistance)
 
   debug('finding top-left corner from %o', topLeft)
-  const topLeftCorner = findCorner(
-    imageData,
-    topLeft,
-    { x: 1, y: 1 },
-    {
-      minLineStroke: minLineStroke,
-      maxOffset: { x: maxLeftRightSkewDistance, y: maxUpDownSkewDistance },
-    }
-  )
+  const topLeftCorner = findCorner(imageData, {
+    bounds: shape.bounds,
+    startAt: topLeft,
+    stepOffset: { x: 1, y: 1 },
+    maxOffset: { x: maxLeftRightSkewDistance, y: maxUpDownSkewDistance },
+  })
   debug('found top-left corner: %o', topLeftCorner)
 
   debug('finding top-right corner from %o', topRight)
-  const topRightCorner = findCorner(
-    imageData,
-    topRight,
-    { x: -1, y: 1 },
-    {
-      minLineStroke: minLineStroke,
-      maxOffset: { x: -maxLeftRightSkewDistance, y: maxUpDownSkewDistance },
-    }
-  )
+  const topRightCorner = findCorner(imageData, {
+    bounds: shape.bounds,
+    startAt: topRight,
+    stepOffset: { x: -1, y: 1 },
+    maxOffset: { x: -maxLeftRightSkewDistance, y: maxUpDownSkewDistance },
+  })
   debug('found top-right corner: %o', topRightCorner)
 
   debug('finding bottom-left corner from %o', bottomLeft)
-  const bottomLeftCorner = findCorner(
-    imageData,
-    bottomLeft,
-    { x: 1, y: -1 },
-    {
-      minLineStroke: minLineStroke,
-      maxOffset: { x: maxLeftRightSkewDistance, y: -maxUpDownSkewDistance },
-    }
-  )
+  const bottomLeftCorner = findCorner(imageData, {
+    bounds: shape.bounds,
+    startAt: bottomLeft,
+    stepOffset: { x: 1, y: -1 },
+    maxOffset: { x: maxLeftRightSkewDistance, y: -maxUpDownSkewDistance },
+  })
   debug('found bottom-left corner: %o', bottomLeftCorner)
 
   debug('finding bottom-right corner from %o', bottomRight)
-  const bottomRightCorner = findCorner(
-    imageData,
-    bottomRight,
-    { x: -1, y: -1 },
-    {
-      minLineStroke: minLineStroke,
-      maxOffset: { x: -maxLeftRightSkewDistance, y: -maxUpDownSkewDistance },
-    }
-  )
+  const bottomRightCorner = findCorner(imageData, {
+    bounds: shape.bounds,
+    startAt: bottomRight,
+    stepOffset: { x: -1, y: -1 },
+    maxOffset: { x: -maxLeftRightSkewDistance, y: -maxUpDownSkewDistance },
+  })
   debug('found bottom-right corner: %o', bottomRightCorner)
 
   return [topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner]
@@ -86,12 +72,13 @@ export function getCorners(
 
 export function findCorner(
   { data, width, height }: ImageData,
-  { x: startX, y: startY }: Point,
-  stepOffset: Offset,
-  { minLineStroke, maxOffset }: { minLineStroke: number; maxOffset: Offset }
+  {
+    bounds,
+    startAt: { x: startX, y: startY },
+    stepOffset,
+    maxOffset,
+  }: { bounds: Rect; startAt: Point; stepOffset: Offset; maxOffset: Offset }
 ): Point {
-  assert(minLineStroke > 0)
-
   const channels = getImageChannelCount({ data, width, height })
   let checkingX = true
   let checkingY = true
@@ -107,30 +94,16 @@ export function findCorner(
       return { x: startX, y: startY }
     }
 
-    if (checkingX) {
+    if (
+      checkingX &&
+      startX + stepOffsetX >= bounds.x &&
+      startX + stepOffsetX < bounds.x + bounds.width
+    ) {
       let x = startX + stepOffsetX
       let y = startY
-      let found = true
 
-      debug(
-        'checking for %d black pixel(s) in the x direction starting at x=%d, y=%d',
-        minLineStroke,
-        x,
-        y
-      )
-      for (let strokeOffset = 0; strokeOffset < minLineStroke; strokeOffset++) {
-        if (
-          data[
-            (y * width + x + strokeOffset * Math.sign(stepOffsetX)) * channels
-          ] !== PIXEL_BLACK
-        ) {
-          debug('bailing at stroke offset %d', strokeOffset)
-          found = false
-          break
-        }
-      }
-
-      if (found) {
+      debug('checking for a black pixel in the x direction at x=%d, y=%d', x, y)
+      if (data[(y * width + x) * channels] === PIXEL_BLACK) {
         debug(
           'found possible corner at x=%d, y=%d after %d step(s) in the x direction',
           x,
@@ -151,6 +124,8 @@ export function findCorner(
           )
 
           while (
+            x >= bounds.x &&
+            x < bounds.x + bounds.width &&
             data[(y * width + (x - stepOffset.x)) * channels] === PIXEL_BLACK
           ) {
             x -= stepOffset.x
@@ -162,6 +137,8 @@ export function findCorner(
           'backtracked in the x direction as far as possible, now going in the y direction'
         )
         while (
+          y >= bounds.y &&
+          y < bounds.y + bounds.height &&
           data[((y - stepOffset.y) * width + x) * channels] === PIXEL_BLACK
         ) {
           debug('backtracking along the y direction to x=%d, y=%d', x, y)
@@ -180,30 +157,16 @@ export function findCorner(
       }
     }
 
-    if (checkingY) {
+    if (
+      checkingY &&
+      startY + stepOffsetY >= bounds.y &&
+      startY + stepOffsetY < bounds.y + bounds.height
+    ) {
       let x = startX
       let y = startY + stepOffsetY
-      let found = true
 
-      debug(
-        'checking for %d black pixel(s) in the y direction starting at x=%d, y=%d',
-        minLineStroke,
-        x,
-        y
-      )
-      for (let strokeOffset = 0; strokeOffset < minLineStroke; strokeOffset++) {
-        if (
-          data[
-            ((y + strokeOffset * Math.sign(stepOffsetY)) * width + x) * channels
-          ] !== PIXEL_BLACK
-        ) {
-          debug('bailing at stroke offset %d', strokeOffset)
-          found = false
-          break
-        }
-      }
-
-      if (found) {
+      debug('checking for a black pixel in the y direction at x=%d, y=%d', x, y)
+      if (data[(y * width + x) * channels] === PIXEL_BLACK) {
         debug(
           'found possible corner at x=%d, y=%d after %d step(s) in the y direction',
           x,
@@ -224,6 +187,8 @@ export function findCorner(
           )
 
           while (
+            y >= bounds.y &&
+            y < bounds.y + bounds.height &&
             data[((y - stepOffset.y) * width + x) * channels] === PIXEL_BLACK
           ) {
             y -= stepOffset.y
@@ -235,6 +200,8 @@ export function findCorner(
           'backtracked in the y direction as far as possible, now going in the x direction'
         )
         while (
+          x >= bounds.x &&
+          x < bounds.x + bounds.width &&
           data[(y * width + (x - stepOffset.x)) * channels] === PIXEL_BLACK
         ) {
           debug('backtracking along the x direction to x=%d, y=%d', x, y)
