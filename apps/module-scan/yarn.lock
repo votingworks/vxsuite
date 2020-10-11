@@ -1007,10 +1007,10 @@
     "@antongolub/iso8601" "^1.2.1"
     zod "^1.7.1"
 
-"@votingworks/hmpb-interpreter@^5.2.1":
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/@votingworks/hmpb-interpreter/-/hmpb-interpreter-5.2.1.tgz#3f6a59ed42c7e17a7ee4bdc9eecb37a0ebbcb606"
-  integrity sha512-5H+2uGf219v6b0mTCQGqILUO0c1q/7BIwkByR/OaFkD1CPxA4aByvTTLvycwR8Eo8zivc450WhxfxFYiTCJ57Q==
+"@votingworks/hmpb-interpreter@^5.2.3":
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/@votingworks/hmpb-interpreter/-/hmpb-interpreter-5.2.3.tgz#fa2868e7154036373927b2fbed22e0c44a283a6d"
+  integrity sha512-AAbLeV2s/t04cT4rTto2cNlEclo/dvStV5isJyPLc+RILtAuwYHbKN7MMJxzkmd99zLZS82GtHlC0qUaf4chqw==
   dependencies:
     "@votingworks/ballot-encoder" "^4.0.0"
     chalk "^4.0.0"
