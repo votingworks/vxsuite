@@ -24,17 +24,12 @@ import {
 } from '@votingworks/hmpb-interpreter'
 import makeDebug from 'debug'
 import sharp from 'sharp'
-import {
-  BallotMetadata,
-  getMarkStatus,
-  isErrorResult,
-  Result,
-  SheetOf,
-} from './types'
-import { AdjudicationInfo, MarkStatus } from './types/ballot-review'
+import { BallotMetadata, isErrorResult, Result, SheetOf } from './types'
+import { AdjudicationInfo } from './types/ballot-review'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
 } from './util/ballotAdjudicationReasons'
+import optionMarkStatus from './util/optionMarkStatus'
 import { detectQRCode } from './util/qrcode'
 import threshold from './util/threshold'
 
@@ -396,65 +391,13 @@ export default class SummaryBallotInterpreter implements Interpreter {
           []
         ),
         {
-          optionMarkStatus: (contestId, optionId) => {
-            for (const mark of marks) {
-              if (
-                mark.type === 'stray' ||
-                (mark.type !== 'ms-either-neither' &&
-                  mark.contest.id !== contestId)
-              ) {
-                continue
-              }
-
-              // the criteria for ms-either-neither is more complex, handling it in the switch.
-
-              switch (mark.type) {
-                case 'ms-either-neither':
-                  if (mark.contest.eitherNeitherContestId === contestId) {
-                    if (
-                      (mark.contest.eitherOption.id === mark.option.id &&
-                        optionId === 'yes') ||
-                      (mark.contest.neitherOption.id === mark.option.id &&
-                        optionId === 'no')
-                    ) {
-                      return getMarkStatus(mark, this.markThresholds)
-                    }
-                  }
-
-                  if (mark.contest.pickOneContestId === contestId) {
-                    if (
-                      (mark.contest.firstOption.id === mark.option.id &&
-                        optionId === 'yes') ||
-                      (mark.contest.secondOption.id === mark.option.id &&
-                        optionId === 'no')
-                    ) {
-                      return getMarkStatus(mark, this.markThresholds)
-                    }
-                  }
-
-                  break
-                case 'candidate':
-                  if (mark.option.id === optionId) {
-                    return getMarkStatus(mark, this.markThresholds)
-                  }
-                  break
-
-                case 'yesno':
-                  if (mark.option === optionId) {
-                    return getMarkStatus(mark, this.markThresholds)
-                  }
-                  break
-
-                default:
-                  throw new Error(
-                    // @ts-expect-error - `mark` is of type `never` since we exhausted all branches, in theory
-                    `contest type is not yet supported: ${mark.type}`
-                  )
-              }
-            }
-
-            return MarkStatus.Unmarked
-          },
+          optionMarkStatus: (contestId, optionId) =>
+            optionMarkStatus({
+              markThresholds: this.markThresholds,
+              marks,
+              contestId,
+              optionId,
+            }),
         }
       ),
     ]
