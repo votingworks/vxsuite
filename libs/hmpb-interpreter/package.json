@@ -1,6 +1,6 @@
 {
   "name": "@votingworks/hmpb-interpreter",
-  "version": "5.2.1",
+  "version": "5.2.2",
   "description": "Interprets hand-marked paper ballots.",
   "repository": "https://github.com/votingworks/hmpb-interpreter",
   "license": "GPL-3.0",
