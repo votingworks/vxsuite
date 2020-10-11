@@ -50,15 +50,15 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "x": 827,
-            "y": 46,
+            "y": 45,
           },
           Object {
             "x": 447,
-            "y": 643,
+            "y": 644,
           },
           Object {
             "x": 827,
-            "y": 642,
+            "y": 644,
           },
         ],
         "options": Array [
@@ -210,15 +210,15 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "x": 827,
-            "y": 668,
+            "y": 667,
           },
           Object {
             "x": 447,
-            "y": 986,
+            "y": 987,
           },
           Object {
             "x": 827,
-            "y": 985,
+            "y": 987,
           },
         ],
         "options": Array [
@@ -282,15 +282,15 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "x": 827,
-            "y": 1010,
+            "y": 1009,
           },
           Object {
             "x": 447,
-            "y": 1326,
+            "y": 1327,
           },
           Object {
             "x": 827,
-            "y": 1325,
+            "y": 1327,
           },
         ],
         "options": Array [
@@ -358,11 +358,11 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "x": 850,
-            "y": 368,
+            "y": 369,
           },
           Object {
             "x": 1229,
-            "y": 367,
+            "y": 369,
           },
         ],
         "options": Array [
@@ -426,15 +426,15 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "x": 1229,
-            "y": 393,
+            "y": 392,
           },
           Object {
             "x": 850,
-            "y": 682,
+            "y": 683,
           },
           Object {
             "x": 1229,
-            "y": 681,
+            "y": 683,
           },
         ],
         "options": Array [
@@ -498,15 +498,15 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "x": 1229,
-            "y": 707,
+            "y": 706,
           },
           Object {
             "x": 850,
-            "y": 1040,
+            "y": 1041,
           },
           Object {
             "x": 1229,
-            "y": 1039,
+            "y": 1041,
           },
         ],
         "options": Array [
@@ -621,15 +621,15 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 827,
-              "y": 46,
+              "y": 45,
             },
             Object {
               "x": 447,
-              "y": 726,
+              "y": 727,
             },
             Object {
               "x": 827,
-              "y": 725,
+              "y": 727,
             },
           ],
           "options": Array [
@@ -737,15 +737,15 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 827,
-              "y": 751,
+              "y": 750,
             },
             Object {
               "x": 447,
-              "y": 1178,
+              "y": 1179,
             },
             Object {
               "x": 827,
-              "y": 1177,
+              "y": 1179,
             },
           ],
           "options": Array [
@@ -857,11 +857,11 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 850,
-              "y": 395,
+              "y": 396,
             },
             Object {
               "x": 1229,
-              "y": 394,
+              "y": 396,
             },
           ],
           "options": Array [
@@ -947,15 +947,15 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 1229,
-              "y": 420,
+              "y": 419,
             },
             Object {
               "x": 850,
-              "y": 801,
+              "y": 802,
             },
             Object {
               "x": 1229,
-              "y": 800,
+              "y": 802,
             },
           ],
           "options": Array [
@@ -1041,15 +1041,15 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 1229,
-              "y": 826,
+              "y": 825,
             },
             Object {
               "x": 850,
-              "y": 1117,
+              "y": 1118,
             },
             Object {
               "x": 1229,
-              "y": 1116,
+              "y": 1118,
             },
           ],
           "options": Array [
@@ -1165,11 +1165,11 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 45,
-              "y": 1187,
+              "y": 1188,
             },
             Object {
               "x": 626,
-              "y": 1186,
+              "y": 1188,
             },
           ],
           "options": Array [
@@ -1281,11 +1281,11 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 648,
-              "y": 456,
+              "y": 457,
             },
             Object {
               "x": 1229,
-              "y": 455,
+              "y": 457,
             },
           ],
           "options": Array [
@@ -1349,7 +1349,7 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 1229,
-              "y": 481,
+              "y": 480,
             },
             Object {
               "x": 648,
@@ -1357,7 +1357,7 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 1229,
-              "y": 1102,
+              "y": 1104,
             },
           ],
           "options": Array [
@@ -1588,7 +1588,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.8730569948186528,
+        "score": 0.8704663212435233,
         "type": "candidate",
       },
       Object {
@@ -1648,7 +1648,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.5939849624060151,
+        "score": 0.6015037593984962,
         "type": "candidate",
       },
       Object {
@@ -1849,7 +1849,7 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.7128463476070529,
+        "score": 0.7153652392947103,
         "scoredOffset": Object {
           "x": -2,
           "y": 2,
@@ -2004,10 +2004,10 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.1483375959079284,
+        "score": 0.14066496163682865,
         "scoredOffset": Object {
           "x": 0,
-          "y": 1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2115,7 +2115,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "no",
-        "score": 0.7811704834605598,
+        "score": 0.7989821882951654,
         "scoredOffset": Object {
           "x": -1,
           "y": 1,
@@ -2191,7 +2191,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 0,
+          "x": -1,
           "y": 0,
         },
         "target": Object {
@@ -2263,7 +2263,7 @@ test('invalid marks', async () => {
           "name": "Randall Rupp",
           "partyId": "2",
         },
-        "score": 0.13367609254498714,
+        "score": 0.12853470437017994,
         "scoredOffset": Object {
           "x": -1,
           "y": -1,
@@ -2340,7 +2340,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": -1,
-          "y": 0,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
@@ -2413,7 +2413,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 0,
+          "x": -1,
           "y": 0,
         },
         "target": Object {
@@ -2485,10 +2485,10 @@ test('invalid marks', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
-        "score": 0.12694300518134716,
+        "score": 0.12953367875647667,
         "scoredOffset": Object {
           "x": -1,
-          "y": -1,
+          "y": -2,
         },
         "target": Object {
           "bounds": Object {
@@ -2562,7 +2562,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": -1,
-          "y": -1,
+          "y": -2,
         },
         "target": Object {
           "bounds": Object {
@@ -2636,7 +2636,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": -1,
-          "y": -1,
+          "y": -2,
         },
         "target": Object {
           "bounds": Object {
@@ -2707,9 +2707,9 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0.10353535353535354,
+        "score": 0.09343434343434344,
         "scoredOffset": Object {
-          "x": 0,
+          "x": -1,
           "y": -1,
         },
         "target": Object {
@@ -3436,7 +3436,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "1",
         "option": "1",
-        "score": 0.26795580110497236,
+        "score": 0.2513812154696133,
       },
       Object {
         "contest": "1",
@@ -3461,7 +3461,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "2",
         "option": "23",
-        "score": 0.40804597701149425,
+        "score": 0.4051724137931034,
       },
       Object {
         "contest": "2",
@@ -3476,7 +3476,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "3",
         "option": "32",
-        "score": 0.7955801104972375,
+        "score": 0.7928176795580111,
       },
       Object {
         "contest": "3",
@@ -3496,12 +3496,12 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "4",
         "option": "__write-in-0",
-        "score": 0.6440677966101694,
+        "score": 0.6610169491525424,
       },
       Object {
         "contest": "initiative-65",
         "option": "yes",
-        "score": 0.4322033898305085,
+        "score": 0.4519774011299435,
       },
       Object {
         "contest": "initiative-65",
@@ -3511,7 +3511,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "initiative-65-a",
         "option": "yes",
-        "score": 0.23163841807909605,
+        "score": 0.2231638418079096,
       },
       Object {
         "contest": "initiative-65-a",
@@ -3538,7 +3538,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "flag-question",
         "option": "yes",
-        "score": 0.4346590909090909,
+        "score": 0.5255681818181818,
       },
       Object {
         "contest": "flag-question",
@@ -3553,7 +3553,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "runoffs-question",
         "option": "no",
-        "score": 0.29829545454545453,
+        "score": 0.29261363636363635,
       },
     ]
   `)
