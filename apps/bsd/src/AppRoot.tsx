@@ -74,10 +74,16 @@ const App: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    ;(async () => {
-      await refreshConfig()
-      setIsConfigLoaded(true)
-    })()
+    const initialize = async () => {
+      try {
+        await refreshConfig()
+        setIsConfigLoaded(true)
+      } catch (e) {
+        window.setTimeout(initialize, 1000)
+      }
+    }
+
+    initialize()
   }, [refreshConfig])
 
   const updateStatus = useCallback(async () => {
