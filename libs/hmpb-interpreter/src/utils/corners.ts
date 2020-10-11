@@ -17,7 +17,6 @@ export function getCorners(
     'finding corners of shape with bounds (%o); minLineStroke=%d maxSkew=%d°',
     shape.bounds,
     minLineStroke,
-    maxSkewRadians,
     (maxSkewRadians * 180) / Math.PI
   )
   const [topLeft, topRight, bottomLeft, bottomRight] = rectCorners(shape.bounds)
@@ -94,23 +93,21 @@ export function findCorner(
   assert(minLineStroke > 0)
 
   const channels = getImageChannelCount({ data, width, height })
+  let checkingX = true
+  let checkingY = true
 
   for (let step = 0; ; step += 1) {
     const stepOffsetX = step * stepOffset.x
     const stepOffsetY = step * stepOffset.y
-    const inBoundsX = Math.abs(stepOffsetX) <= Math.abs(maxOffset.x)
-    const inBoundsY = Math.abs(stepOffsetY) <= Math.abs(maxOffset.y)
 
-    if (!inBoundsX && !inBoundsY) {
+    if (!checkingX && !checkingY) {
       debug(
-        'offset (%o) passed max offset (%o), reverting to starting point as the corner',
-        { x: stepOffsetX, y: stepOffsetY },
-        maxOffset
+        'unable to find a suitable corner in either direction, even after backtracking; using the original bounding box corner'
       )
       return { x: startX, y: startY }
     }
 
-    if (inBoundsX) {
+    if (checkingX) {
       let x = startX + stepOffsetX
       let y = startY
       let found = true
@@ -161,12 +158,29 @@ export function findCorner(
           debug('backtracked in the x direction to x=%d, y=%d', x, y)
         }
 
-        debug('final corner detected at x=%d, y=%d', x, y)
-        return { x, y }
+        debug(
+          'backtracked in the x direction as far as possible, now going in the y direction'
+        )
+        while (
+          data[((y - stepOffset.y) * width + x) * channels] === PIXEL_BLACK
+        ) {
+          debug('backtracking along the y direction to x=%d, y=%d', x, y)
+          y -= stepOffset.y
+        }
+
+        if (Math.abs(startX - x) > Math.abs(maxOffset.x)) {
+          debug(
+            'after backtracking, skew would still be too high; done checking in the x direction'
+          )
+          checkingX = false
+        } else {
+          debug('final corner detected at x=%d, y=%d', x, y)
+          return { x, y }
+        }
       }
     }
 
-    if (inBoundsY) {
+    if (checkingY) {
       let x = startX
       let y = startY + stepOffsetY
       let found = true
@@ -217,8 +231,25 @@ export function findCorner(
           debug('backtracked in the y direction to x=%d, y=%d', x, y)
         }
 
-        debug('final corner detected at x=%d, y=%d', x, y)
-        return { x, y }
+        debug(
+          'backtracked in the y direction as far as possible, now going in the x direction'
+        )
+        while (
+          data[(y * width + (x - stepOffset.x)) * channels] === PIXEL_BLACK
+        ) {
+          debug('backtracking along the x direction to x=%d, y=%d', x, y)
+          x -= stepOffset.x
+        }
+
+        if (Math.abs(startY - y) > Math.abs(maxOffset.y)) {
+          debug(
+            'after backtracking, skew would still be too high; done checking in the y direction'
+          )
+          checkingY = false
+        } else {
+          debug('final corner detected at x=%d, y=%d', x, y)
+          return { x, y }
+        }
       }
     }
   }

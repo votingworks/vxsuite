@@ -24,8 +24,8 @@ test('already pretty straight', async () => {
         "y": 1419,
       },
       Object {
-        "x": 2424,
-        "y": 1418,
+        "x": 2423,
+        "y": 1419,
       },
       Object {
         "x": 1693,
@@ -99,11 +99,46 @@ test('a little skewed', async () => {
       },
       Object {
         "x": 86,
-        "y": 2521,
+        "y": 2522,
       },
       Object {
-        "x": 1251,
+        "x": 1252,
         "y": 2512,
+      },
+    ]
+  `)
+})
+
+test('regression: choctaw county filled-in-p1-01', async () => {
+  const imageData = await choctaw.filledInPage1_01.imageData()
+  binarize(imageData)
+
+  expect(
+    getCorners(imageData, {
+      bounds: {
+        height: 2803,
+        width: 791,
+        x: 899,
+        y: 85,
+      },
+    })
+  ).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "x": 928,
+        "y": 86,
+      },
+      Object {
+        "x": 1689,
+        "y": 97,
+      },
+      Object {
+        "x": 899,
+        "y": 2882,
+      },
+      Object {
+        "x": 1661,
+        "y": 2887,
       },
     ]
   `)
