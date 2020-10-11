@@ -384,6 +384,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
       AdjudicationReason.UninterpretableBallot,
       AdjudicationReason.MarginalMark,
     ]
+
     const allReasonInfos = [
       ...ballotAdjudicationReasons(
         marks.reduce<Contests>(
@@ -397,13 +398,42 @@ export default class SummaryBallotInterpreter implements Interpreter {
         {
           optionMarkStatus: (contestId, optionId) => {
             for (const mark of marks) {
-              if (mark.type === 'stray' || mark.contest.id !== contestId) {
+              if (
+                mark.type === 'stray' ||
+                (mark.type !== 'ms-either-neither' &&
+                  mark.contest.id !== contestId)
+              ) {
                 continue
               }
 
+              // the criteria for ms-either-neither is more complex, handling it in the switch.
+
               switch (mark.type) {
-                case 'candidate':
                 case 'ms-either-neither':
+                  if (mark.contest.eitherNeitherContestId === contestId) {
+                    if (
+                      (mark.contest.eitherOption.id === mark.option.id &&
+                        optionId === 'yes') ||
+                      (mark.contest.neitherOption.id === mark.option.id &&
+                        optionId === 'no')
+                    ) {
+                      return getMarkStatus(mark, this.markThresholds)
+                    }
+                  }
+
+                  if (mark.contest.pickOneContestId === contestId) {
+                    if (
+                      (mark.contest.firstOption.id === mark.option.id &&
+                        optionId === 'yes') ||
+                      (mark.contest.secondOption.id === mark.option.id &&
+                        optionId === 'no')
+                    ) {
+                      return getMarkStatus(mark, this.markThresholds)
+                    }
+                  }
+
+                  break
+                case 'candidate':
                   if (mark.option.id === optionId) {
                     return getMarkStatus(mark, this.markThresholds)
                   }
