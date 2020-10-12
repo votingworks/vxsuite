@@ -738,6 +738,7 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public resetBallot = (path = '/') => {
+    this.setDocumentFontSize()
     this.resetVoterData()
     this.setState(
       {

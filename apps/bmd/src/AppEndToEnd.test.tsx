@@ -174,7 +174,11 @@ it('VxMark+Print end-to-end flow', async () => {
   const textSizeButtons = changeTextSize.getAllByText('A')
   expect(textSizeButtons.length).toBe(3)
   fireEvent.click(textSizeButtons[0]) // html element has new font size
+  expect(window.document.documentElement.style.fontSize).toBe('22px')
   fireEvent.click(textSizeButtons[1]) // html element has default font size
+  expect(window.document.documentElement.style.fontSize).toBe('28px')
+  fireEvent.click(textSizeButtons[2]) // html element has default font size
+  expect(window.document.documentElement.style.fontSize).toBe('36px')
 
   // Start Voting
   fireEvent.click(getByText('Start Voting'))
@@ -264,6 +268,8 @@ it('VxMark+Print end-to-end flow', async () => {
   card.removeCard()
   await advanceTimersAndPromises()
   getByText('Insert voter card to load ballot.')
+
+  expect(window.document.documentElement.style.fontSize).toBe('28px')
 
   // Insert Voter card which has just printed to see "cast" instructions again.
   card.insertCard(getUsedVoterCard())
