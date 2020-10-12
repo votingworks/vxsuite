@@ -8,10 +8,13 @@ import {
 } from '@testing-library/react'
 import { act } from 'react-dom/test-utils'
 import { electionSample } from '@votingworks/ballot-encoder'
+import fileDownload from 'js-file-download'
 import App from './App'
 
 const sleep = (ms = 1000): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
+
+jest.mock('js-file-download')
 
 beforeEach(() => {
   fetchMock.get('/config', {})
@@ -105,4 +108,31 @@ test('clicking Scan Batch will scan a batch', async () => {
   )
 
   expect(mockAlert).not.toHaveBeenCalled()
+})
+
+test('clicking export shows modal and makes a request to export', async () => {
+  fetchMock.getOnce(
+    '/config',
+    { testMode: true, election: electionSample },
+    { overwriteRoutes: true }
+  )
+
+  fetchMock.postOnce('/scan/export', {
+    body: '',
+  })
+
+  const { getByText, queryByText } = render(<App />)
+  const exportingModalText = 'Exporting CVRs...'
+
+  await act(async () => {
+    // wait for the config to load
+    await sleep(500)
+
+    fireEvent.click(getByText('Export'))
+    getByText(exportingModalText)
+  })
+
+  expect(fetchMock.called('/scan/export')).toBe(true)
+  expect(queryByText(exportingModalText)).toBe(null)
+  expect(fileDownload).toHaveBeenCalled()
 })

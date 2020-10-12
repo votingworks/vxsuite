@@ -3,6 +3,8 @@ import { Route, Switch, useHistory } from 'react-router-dom'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 import { Election, OptionalElection } from '@votingworks/ballot-encoder'
+import Prose from './components/Prose'
+import Modal from './components/Modal'
 
 import {
   ButtonEvent,
@@ -62,6 +64,8 @@ const App: React.FC = () => {
 
   const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)
   const [recentlyEjected, setRecentlyEjected] = useState(false)
+
+  const [isExportingCVRs, setIsExportingCVRs] = useState(false)
 
   const { adjudication } = status
 
@@ -249,11 +253,21 @@ const App: React.FC = () => {
       return
     }
 
+    setIsExportingCVRs(true)
+
     try {
       const response = await fetch(`/scan/export`, {
         method: 'post',
       })
+
       const blob = await response.blob()
+
+      setIsExportingCVRs(false)
+
+      if (response.status !== 200) {
+        console.log('error downloading CVRs')
+        return
+      }
 
       const cvrFilename = `${`cvrs-${election.county.name}-${election.title}`
         .replace(/[^a-z0-9]+/gi, '-')
@@ -275,9 +289,10 @@ const App: React.FC = () => {
         fileDownload(blob, cvrFilename, 'application/x-jsonlines')
       }
     } catch (error) {
+      setIsExportingCVRs(false)
       console.log('failed getOutputFile()', error) // eslint-disable-line no-console
     }
-  }, [election])
+  }, [election, setIsExportingCVRs])
 
   const deleteBatch = useCallback(
     async (id: number) => {
@@ -423,6 +438,15 @@ const App: React.FC = () => {
               </MainNav>
               <StatusFooter election={election} electionHash={electionHash} />
             </Screen>
+            <Modal
+              isOpen={isExportingCVRs}
+              centerContent
+              content={
+                <Prose textCenter>
+                  <h1>Exporting CVRs...</h1>
+                </Prose>
+              }
+            />
           </Route>
         </Switch>
       </AppContext.Provider>
