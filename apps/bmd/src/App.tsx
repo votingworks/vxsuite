@@ -48,7 +48,9 @@ const App = ({
   /* istanbul ignore next - need to figure out how to test this */
   useEffect(() => {
     const subscription = hardware.devices.subscribe((devices) =>
-      screenReader.toggleMuted(Array.from(devices).some(isAccessibleController))
+      screenReader.toggleMuted(
+        !Array.from(devices).some(isAccessibleController)
+      )
     )
 
     return () => subscription.unsubscribe()
