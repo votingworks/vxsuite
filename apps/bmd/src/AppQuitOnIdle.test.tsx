@@ -34,8 +34,9 @@ test('Insert Card screen idle timeout to quit app', async () => {
   const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
   const machineConfig = fakeMachineConfigProvider({
-    // machineId determines whether we quit on idle or not
-    machineId: '0001',
+    // machineId used to determine whether we quit. Now they all do.
+    // making sure a machineId that ends in 0 still triggers.
+    machineId: '0000',
   })
 
   setElectionInStorage(storage)

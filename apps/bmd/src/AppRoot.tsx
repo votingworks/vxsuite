@@ -1045,7 +1045,6 @@ class AppRoot extends React.Component<Props, State> {
         }
       }
 
-      const shouldQuitOnIdle = !machineConfig.machineId.endsWith('0')
       const insertCardScreen = (
         <InsertCardScreen
           appPrecinctId={appPrecinctId}
@@ -1059,15 +1058,13 @@ class AppRoot extends React.Component<Props, State> {
         />
       )
 
-      return shouldQuitOnIdle ? (
+      return (
         <IdleTimer
           onIdle={() => window.kiosk?.quit()}
           timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
         >
           {insertCardScreen}
         </IdleTimer>
-      ) : (
-        insertCardScreen
       )
     } else {
       return <UnconfiguredScreen />
