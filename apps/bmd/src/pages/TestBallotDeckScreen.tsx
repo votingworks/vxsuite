@@ -151,7 +151,13 @@ const TestBallotDeckScreen = ({
                   for {precinct.name}.
                 </p>
                 <p>
-                  <Button big primary onPress={(window.kiosk ?? window).print}>
+                  <Button
+                    big
+                    primary
+                    onPress={() => {
+                      ;(window.kiosk ?? window).print()
+                    }}
+                  >
                     Print {ballots.length} ballots
                   </Button>
                 </p>
