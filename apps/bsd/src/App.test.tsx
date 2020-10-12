@@ -122,7 +122,7 @@ test('clicking export shows modal and makes a request to export', async () => {
   })
 
   const { getByText, queryByText } = render(<App />)
-  const exportingModalText = 'Exporting CVRs...'
+  const exportingModalText = 'Exporting CVRs…'
 
   await act(async () => {
     // wait for the config to load

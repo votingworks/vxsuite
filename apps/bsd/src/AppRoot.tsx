@@ -443,7 +443,7 @@ const App: React.FC = () => {
               centerContent
               content={
                 <Prose textCenter>
-                  <h1>Exporting CVRs...</h1>
+                  <h1>Exporting CVRs…</h1>
                 </Prose>
               }
             />
