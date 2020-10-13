@@ -48,6 +48,7 @@ const RectoVerso = styled.div`
 
 interface Props {
   continueScanning: (override?: boolean) => void
+  isTestMode: boolean
 }
 
 type EjectState = undefined | 'removeBallot' | 'acceptBallot'
@@ -56,7 +57,7 @@ const doNothing = () => {
   console.log('disabled') // eslint-disable-line no-console
 }
 
-const BallotEjectScreen = ({ continueScanning }: Props) => {
+const BallotEjectScreen = ({ continueScanning, isTestMode }: Props) => {
   const [sheetInfo, setSheetInfo] = useState<BallotSheetInfo | undefined>()
 
   const [ballotState, setBallotState] = useState<EjectState>(undefined)
@@ -74,9 +75,12 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
   let isOvervotedSheet = false
   let isBlankSheet = false
   let isUnreadableSheet = false
+  let isInvalidTestModeSheet = false
 
   for (const { interpretation } of [sheetInfo.front, sheetInfo.back]) {
-    if (interpretation.type === 'InterpretedHmpbPage') {
+    if (interpretation.type === 'InvalidTestModePage') {
+      isInvalidTestModeSheet = true
+    } else if (interpretation.type === 'InterpretedHmpbPage') {
       if (interpretation.adjudicationInfo.requiresAdjudication) {
         for (const { type } of interpretation.adjudicationInfo.allReasonInfos) {
           if (interpretation.adjudicationInfo.enabledReasons.includes(type)) {
@@ -96,7 +100,11 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
   return (
     <Screen>
       <MainNav>
-        {ballotState === 'removeBallot' ? (
+        {isInvalidTestModeSheet ? (
+          <Button primary onPress={() => continueScanning()}>
+            Confirm Ballot Removed and Continue Scanning
+          </Button>
+        ) : ballotState === 'removeBallot' ? (
           <Button primary onPress={() => continueScanning()}>
             Confirm Ballot Removed and Continue Scanning
           </Button>
@@ -115,7 +123,11 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
           <Columns>
             <Prose maxWidth={false}>
               <EjectReason>
-                {isUnreadableSheet
+                {isInvalidTestModeSheet
+                  ? isTestMode
+                    ? 'Live Ballot'
+                    : 'Test Ballot'
+                  : isUnreadableSheet
                   ? 'Unreadable'
                   : isOvervotedSheet
                   ? 'Overvote'
@@ -126,52 +138,60 @@ const BallotEjectScreen = ({ continueScanning }: Props) => {
               <p>
                 This last scanned sheet <strong>was not tabulated</strong>.
               </p>
-              <h4>Original Ballot Scan</h4>
-              <p>
-                Remove ballot and create a duplicate ballot for the Resolution
-                Board to review.
-                <br />
-                <Button
-                  primary={ballotState === 'removeBallot'}
-                  onPress={() => setBallotState('removeBallot')}
-                >
-                  Original Ballot Removed
-                </Button>
-              </p>
-              <h4>Duplicate Ballot Scan</h4>
-              <p>
-                {isUnreadableSheet ? (
-                  <React.Fragment>
-                    Confirm sheet was reviewed by the Resolution Board and
-                    tabulate as <strong>unreadable</strong>.
-                  </React.Fragment>
-                ) : isOvervotedSheet ? (
-                  <React.Fragment>
-                    Confirm ballot sheet was reviewed by the Resolution Board
-                    and tabulate as ballot sheet with an{' '}
-                    <strong>overvote</strong>.
-                  </React.Fragment>
-                ) : isBlankSheet ? (
-                  <React.Fragment>
-                    Confirm ballot sheet was reviewed by the Resolution Board
-                    and tabulate as a <strong>blank</strong> ballot sheet and
-                    has no votes.
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    Confirm ballot sheet was reviewed by the Resolution Board
-                    and tabulate as ballow with issue which could not be
-                    determined.
-                  </React.Fragment>
-                )}
-                <br />
-                <Button
-                  primary={ballotState === 'acceptBallot'}
-                  onPress={() => setBallotState('acceptBallot')}
-                >
-                  Tabulate Duplicate Ballot
-                </Button>
-              </p>
+              {!isInvalidTestModeSheet ? (
+                <React.Fragment>
+                  <h4>Original Ballot Scan</h4>
+                  <p>
+                    Remove ballot and create a duplicate ballot for the
+                    Resolution Board to review.
+                    <br />
+                    <Button
+                      primary={ballotState === 'removeBallot'}
+                      onPress={() => setBallotState('removeBallot')}
+                    >
+                      Original Ballot Removed
+                    </Button>
+                  </p>
+                  <h4>Duplicate Ballot Scan</h4>
+                  <p>
+                    {isUnreadableSheet ? (
+                      <React.Fragment>
+                        Confirm sheet was reviewed by the Resolution Board and
+                        tabulate as <strong>unreadable</strong>.
+                      </React.Fragment>
+                    ) : isOvervotedSheet ? (
+                      <React.Fragment>
+                        Confirm ballot sheet was reviewed by the Resolution
+                        Board and tabulate as ballot sheet with an{' '}
+                        <strong>overvote</strong>.
+                      </React.Fragment>
+                    ) : isBlankSheet ? (
+                      <React.Fragment>
+                        Confirm ballot sheet was reviewed by the Resolution
+                        Board and tabulate as a <strong>blank</strong> ballot
+                        sheet and has no votes.
+                      </React.Fragment>
+                    ) : (
+                      <React.Fragment>
+                        Confirm ballot sheet was reviewed by the Resolution
+                        Board and tabulate as ballow with issue which could not
+                        be determined.
+                      </React.Fragment>
+                    )}
+                    <br />
+                    <Button
+                      primary={ballotState === 'acceptBallot'}
+                      onPress={() => setBallotState('acceptBallot')}
+                    >
+                      Tabulate Duplicate Ballot
+                    </Button>
+                  </p>
+                </React.Fragment>
+              ) : isTestMode ? (
+                <p>Remove the LIVE ballot before continuing.</p>
+              ) : (
+                <p>Remove the TEST ballot before continuing.</p>
+              )}
             </Prose>
             <RectoVerso>
               <div>
