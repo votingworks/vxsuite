@@ -720,16 +720,27 @@ export default class Interpreter {
     const ballotPoints: Point[] = []
     const templatePoints: Point[] = []
 
-    for (const [
-      { corners: ballotContestCorners },
-      { bounds: templateContestBounds },
-    ] of zip(ballot.contests, template.contests)) {
-      const [ballotTopLeft, , ballotBottomLeft] = ballotContestCorners
-      const [templateTopLeft, , templateBottomLeft] = rectCorners(
-        templateContestBounds
-      )
-      ballotPoints.push(ballotTopLeft, ballotBottomLeft)
-      templatePoints.push(templateTopLeft, templateBottomLeft)
+    if (ballot.contests.length === 1) {
+      // We need at least three points, so when there's a single contest use all
+      // four corners. Otherwise we end up with a homography that results in a
+      // completely white image.
+      ballotPoints.push(...ballot.contests[0].corners)
+      templatePoints.push(...rectCorners(template.contests[0].bounds))
+    } else {
+      // To reduce the odds of a left-side corner being thrown out and skewing
+      // the targets, thereby producing bad scores, only use the left corners
+      // from each contest box to produce a homography.
+      for (const [
+        { corners: ballotContestCorners },
+        { bounds: templateContestBounds },
+      ] of zip(ballot.contests, template.contests)) {
+        const [ballotTopLeft, , ballotBottomLeft] = ballotContestCorners
+        const [templateTopLeft, , templateBottomLeft] = rectCorners(
+          templateContestBounds
+        )
+        ballotPoints.push(ballotTopLeft, ballotBottomLeft)
+        templatePoints.push(templateTopLeft, templateBottomLeft)
+      }
     }
 
     return this.mapImageWithPoints(
