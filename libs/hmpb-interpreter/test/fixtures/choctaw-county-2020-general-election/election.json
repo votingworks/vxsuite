@@ -1,0 +1,370 @@
+{
+  "title": "2020 General Election",
+  "state": "State of Mississippi",
+  "county": { "id": "10", "name": "Choctaw County" },
+  "date": "2020-11-03T00:00:00-10:00",
+  "parties": [
+    {
+      "id": "2",
+      "name": "Democrat",
+      "fullName": "Democratic Party",
+      "abbrev": "D"
+    },
+    {
+      "id": "3",
+      "name": "Republican",
+      "fullName": "Republican Party",
+      "abbrev": "R"
+    },
+    {
+      "id": "4",
+      "name": "Libertarian",
+      "fullName": "Libertarian Party",
+      "abbrev": "L"
+    },
+    {
+      "id": "5",
+      "name": "Reform",
+      "fullName": "Reform Party",
+      "abbrev": "REF"
+    },
+    {
+      "id": "6",
+      "name": "Natural Law",
+      "fullName": "Natural Law Party",
+      "abbrev": "N"
+    },
+    {
+      "id": "8",
+      "name": "Constitution",
+      "fullName": "Constitution Party",
+      "abbrev": "C"
+    },
+    { "id": "9", "name": "Green", "fullName": "Green Party", "abbrev": "G" },
+    {
+      "id": "10",
+      "name": "America First",
+      "fullName": "America First Party",
+      "abbrev": "A"
+    },
+    {
+      "id": "11",
+      "name": "Independent",
+      "fullName": "Independent Party",
+      "abbrev": "I"
+    },
+    {
+      "id": "12",
+      "name": "Nonpartisan",
+      "fullName": "Nonpartisan",
+      "abbrev": "NP"
+    },
+    {
+      "id": "575000001",
+      "name": "Justice",
+      "fullName": "Justice Party",
+      "abbrev": "JUS"
+    },
+    {
+      "id": "575000002",
+      "name": "Prohibition",
+      "fullName": "Prohibition Party",
+      "abbrev": "PRO"
+    },
+    {
+      "id": "575000003",
+      "name": "American Delta",
+      "fullName": "American Delta Party",
+      "abbrev": "ADP"
+    },
+    {
+      "id": "575000004",
+      "name": "Veterans",
+      "fullName": "Veterans Party",
+      "abbrev": "VET"
+    },
+    {
+      "id": "775000001",
+      "name": "American Solidarity",
+      "fullName": "American Solidarity Party",
+      "abbrev": "ASP"
+    },
+    {
+      "id": "775000002",
+      "name": "American Constitution",
+      "fullName": "American Constitution Party",
+      "abbrev": "AMC"
+    }
+  ],
+  "contests": [
+    {
+      "id": "775020896",
+      "section": "United States",
+      "districtId": "1",
+      "type": "candidate",
+      "title": "President",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775032091",
+          "name": "Presidential Electors for Joseph R. Biden Jr. for President and Kamala D. Harris for Vice President",
+          "partyId": "2"
+        },
+        {
+          "id": "775032092",
+          "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
+          "partyId": "3"
+        },
+        {
+          "id": "775032126",
+          "name": "Presidential Electors for Don Blankenship for President and William Mohr for Vice President",
+          "partyId": "775000002"
+        },
+        {
+          "id": "775032100",
+          "name": "Presidential Electors for Brian Carroll for President and Amar Patel for Vice President",
+          "partyId": "775000001"
+        },
+        {
+          "id": "775032096",
+          "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
+          "partyId": "11"
+        },
+        {
+          "id": "775032099",
+          "name": "Presidential Electors for Howie Hawkins for President and Angela Nicole Walker for Vice President",
+          "partyId": "9"
+        },
+        {
+          "id": "775032102",
+          "name": "Presidential Electors for Jo Jorgensen for President and Jeremy 'Spike' Cohen for Vice President",
+          "partyId": "4"
+        },
+        {
+          "id": "775032117",
+          "name": "Presidential Electors for Brock Pierce for President and Karla Ballard for Vice President",
+          "partyId": "11"
+        },
+        {
+          "id": "775032098",
+          "name": "Presidential Electors for Kanye West for President and Michelle Tidball for Vice President",
+          "partyId": "11"
+        }
+      ]
+    },
+    {
+      "id": "775020897",
+      "section": "United States",
+      "districtId": "1",
+      "type": "candidate",
+      "title": "Senate ",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "775032093", "name": "Mike Espy", "partyId": "2" },
+        { "id": "775032094", "name": "Cindy Hyde-Smith", "partyId": "3" },
+        { "id": "775032105", "name": "Jimmy L. Edwards", "partyId": "4" }
+      ]
+    },
+    {
+      "id": "775020892",
+      "section": "US House Of Representatives",
+      "districtId": "100000047",
+      "type": "candidate",
+      "title": "1st Congressional District",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "775032084", "name": "Antonia Eliason", "partyId": "2" },
+        { "id": "775032085", "name": "Trent Kelly", "partyId": "3" }
+      ]
+    },
+    {
+      "id": "775020890",
+      "section": "Supreme Court Justice",
+      "districtId": "100000174",
+      "type": "candidate",
+      "title": "Supreme Court District 3(Northern) Position 3",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "775032082", "name": "Josiah Dennis Coleman", "partyId": "12" },
+        { "id": "775032110", "name": "Percy L. Lynchard", "partyId": "12" }
+      ]
+    },
+    {
+      "id": "775021416",
+      "section": "Election Commissioner 01",
+      "districtId": "575000501",
+      "type": "candidate",
+      "title": "Election Commissioner  01",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "775032691", "name": "Juliette Ashford" }]
+    },
+    {
+      "id": "775021417",
+      "section": "Election Commissioner 02",
+      "districtId": "575000502",
+      "type": "candidate",
+      "title": "Election Commissioner 02",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "775032686", "name": "Sharon Brooks" }]
+    },
+    {
+      "id": "775021418",
+      "section": "Election Commissioner 03",
+      "districtId": "575000503",
+      "type": "candidate",
+      "title": "Election Commissioner 03",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "775032687", "name": "Dorothy Anderson" }]
+    },
+    {
+      "id": "775021419",
+      "section": "Election Commissioner 04",
+      "districtId": "575000504",
+      "type": "candidate",
+      "title": "Election Commissioner 04",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "775032688", "name": "Willie Mae Guillory" }]
+    },
+    {
+      "id": "775021420",
+      "section": "Election Commissioner 05",
+      "districtId": "575000505",
+      "type": "candidate",
+      "title": "Election Commissioner 05",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "775032689", "name": "Wayne McLeod" }]
+    },
+    {
+      "id": "775021421",
+      "section": "School Board District 5",
+      "districtId": "575000084",
+      "type": "candidate",
+      "title": "School Board 05",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "775032690", "name": "Michael D Thomas" }]
+    },
+    {
+      "id": "750000261-750000262-either-neither",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "ms-either-neither",
+      "title": "Ballot Measure 1",
+      "eitherNeitherContestId": "750000261",
+      "pickOneContestId": "750000262",
+      "description": "<strong>Initiated by Petition and Alternative by Legislature</strong><br><br><strong>Initiative Measure No. 65</strong>, Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?\n\n<strong>Legislative Budget Office Fiscal Analysis for Initiative 65</strong>: \n\nThe overall cost to Mississippi for the first year is estimated to be $11,068,150. The anticipated expenses for the first year to implement a medical marijuana program is $24,068,150 (Plants – seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $16,220,150; and Cost to Collect Revenue: $2,848,000). The anticipated revenue is $13,000,000 (User ID Cards: $2,500,000; Commercial Licenses: $500,000 and sales fee at 7 percent: $10,000,000). \n\nThe anticipated expenses for years following the first for a medical marijuana program is $15,338,000 (Plants – seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $8,756,000; and Cost to Collect Revenue: $1,582,000). The anticipated revenue is $26,000,000 (User ID Cards: $5,000,000; Commercial Licenses: $1,000,000 and sales fee at 7 percent: $20,000,000). The overall annual revenue is anticipated to be $10,662,000, all of which must be used to support the state marijuana program. \n\n<strong>Alternative Measure No. 65 A</strong>, Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?\n\n<strong>Legislative Budget Office Fiscal Analysis for Initiative 65A</strong>: \n\nThe cost or revenue impact associated with this initiative is undeterminable.",
+      "eitherNeitherLabel": "VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH",
+      "pickOneLabel": "AND VOTE FOR ONE",
+      "eitherOption": {
+        "id": "750000086",
+        "label": "FOR APPROVAL OF EITHER Initiative Measure No. 65 OR Alternative Measure No. 65A"
+      },
+      "neitherOption": {
+        "id": "750000087",
+        "label": "AGAINST BOTH Initiative Measure No. 65 and Alternative Measure No. 65A"
+      },
+      "firstOption": {
+        "id": "750000088",
+        "label": "FOR Initiative Measure No. 65"
+      },
+      "secondOption": {
+        "id": "750000089",
+        "label": "FOR Alternative Measure No. 65A"
+      }
+    },
+    {
+      "id": "750000263",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "yesno",
+      "title": "Ballot Measure 2: House Concurrent Resolution No. 47",
+      "description": "This amendment provides that to be elected Governor, or to any other statewide office, a candidate must receive a majority of the votes in the general election. If no candidate receives a majority of the votes, then a runoff election shall be held as provided by general law. The requirement of receiving the most votes in a majority of Mississippi House of Representative’s districts is removed.",
+      "yesOption": { "id": "750000090", "label": "Yes" },
+      "noOption": { "id": "750000091", "label": "No" }
+    },
+    {
+      "id": "750000264",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "yesno",
+      "title": "Ballot Measure 3: House Bill 1796 - Flag Referendum",
+      "description": "Please vote ‘Yes’ or ‘No’ on whether the following design shall be the official Mississippi State Flag\n\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1600 1000\" class=\"w-66\">  <defs/>  <path fill=\"#d31f2f\" d=\"M0 0h346v1000H0z\"/>  <path fill=\"#f2a91e\" d=\"M346 0h70v1000h-70z\"/>  <path fill=\"#d31f2f\" d=\"M1254 0h346v1000h-346z\"/>  <path fill=\"#f2a91e\" d=\"M1184 0h70v1000h-70z\"/>  <path fill=\"#082040\" d=\"M416 0h768v1000H416z\"/>  <g fill=\"#fff\">    <path d=\"M613.26 749.9c1.7-2.21 1.3-3 .51-4.1l.4-.52c1.5 1.15 3 2.47 4.42 3.6s3.12 2.19 4.62 3.34l-.4.52c-1.52-.65-2.51-.17-3.88 1.62l-8.62 11.21c-2.25 2.93-4.12 5.63-2.1 7.38l-.5.65-10.47-8 .5-.65c2.47 1.69 4.6-.81 6.85-3.73zM625 754c1.34.87 2.66 1.92 3.9 2.73s2.87 1.67 4.21 2.54l5 22.07 3.73-5.75c1.59-2.44 3.51-6.52 1.09-9.12l.38-.58c1.41.92 2.9 2.08 4.17 2.91s2.81 1.63 4.22 2.54l-.36.55c-3.28-1.05-6.64 2.09-8.23 4.53l-9.25 14.23c-.56.86-1.13.84-1.37.68h-.07c-.31-.2-.45-1.12-.53-1.66l-5.42-28.76-6.9 10.62c-1.59 2.44-3.51 6.53-1.09 9.13l-.38.58c-1.41-.92-2.9-2.08-4.18-2.91s-2.8-1.63-4.21-2.54l.36-.56c3.27 1.06 6.64-2.08 8.22-4.52l5.68-8.74c1.75-2.68 3.06-5 .69-7.38zM675 803.13c1.5-3.33 1-4.24-1.93-6.09l.27-.6c2.17 1 4.34 2.14 6.29 3s4.51 1.86 6.68 2.84l-.27.6c-2.16-.8-3.35.73-4.9 4.17a13.62 13.62 0 00-1.38 4.24 26.3 26.3 0 01-13.34-2.43c-7.21-3.26-12.15-10.75-8.39-19.08s12.65-9.59 19.86-6.33a28.21 28.21 0 0110.62 7.77l-5.51 6.24-.6-.27c1.41-4.72 1.09-9.77-4-12.05-6-2.72-11 3.37-13 8s-4 12 2.08 14.8c2.92 1.31 5.28.26 6.56-2.58zM708.31 795.22c7.52 2.45 13.26 9.35 10.44 18s-11.52 10.92-19 8.48-13.26-9.35-10.44-18 11.47-10.92 19-8.48zm-8.2 25.28c4.29 1.39 8.31-1.44 11-9.71s1.09-12.93-3.2-14.32-8.31 1.44-11 9.71-1.09 12.93 3.2 14.32zM726 806.73c.54-2.65.36-4.2-1.12-4.92l.13-.64c.93.19 1.88.43 2.8.66s1.87.47 2.75.65l9.11 1.89c5.62 1.16 13.4 6.46 11.47 15.77s-11.17 11.09-16.79 9.92l-8-1.65c-1.2-.25-2.5-.48-3.83-.71s-2.63-.46-3.95-.74l.17-.8c3 .45 3.79-2.73 4.53-6.34zm4.35 14.55c-1.2 5.78-.55 6.5 2.86 7.21 6.14 1.27 9.09-5.28 10.06-10 1.51-7.26.63-11.92-6.79-13.46l-2.65-.55zM797.17 826.38l3.27-7.83a12 12 0 00.85-3.66c.1-2.5-1.09-3.49-3.09-3.86v-.53c1.68.06 3.35.29 4.87.36s3.45 0 5.09 0v.45c-3.21 2.21-4.75 4.69-6.55 8.85l-7 15.92c-.23.57-.72 1.45-1 1.44h-.08c-.2 0-.35-.38-.76-1.51l-5.74-16.27-7.03 15.8c-.23.52-.67 1.45-.88 1.44H779c-.17 0-.32-.35-.72-1.51l-8.28-22.9a4.53 4.53 0 00-2.35-2.77v-.53c2.09.08 4.25.33 6.14.41s4.26 0 6.35.09v.5a2.25 2.25 0 00-2.31 2.45 5.77 5.77 0 00.41 1.94l4.4 11.22 6.54-15.74c.18-.45.59-1.46.84-1.45h.08c.2 0 .31.5.72 1.54zM811.68 815.58c-.2-2.7-.8-4.14-2.75-4.4v-.66c1.11-.08 2.17-.12 3.16-.15s2-.06 2.87-.13c4.78-.35 8.21-.65 11-.89s4.78-.43 6.74-.58l2.46 7.06-.9.06a14.91 14.91 0 00-11.77-4.89l-3.89.29.77 10.34 2.41-.18c3.47-.25 7.14-1.26 8.09-5.08h.78l.75 10.18h-.65c-1-2.93-4.66-4-8.87-3.71l-2.41.18.44 6c.3 4.09 1.36 5.58 5.41 5.28 5.19-.39 9.71-4.83 12.38-8.77l.68.24-2.31 9.42c-5.64.41-11.3.67-19.23 1.25-1.06.08-2.2.21-3.35.33s-2.36.26-3.59.35l-.06-.82c3.18-.4 3.1-3.68 2.83-7.36zM852.5 813.72l.49-7.58 25.12-5.61 3.67 6.66-.88.2c-2-1.69-6.55-4.51-9.35-3.88-1.68.37-1.91 1.6-1.58 3.08l3.12 14c.8 3.61 1.68 6.77 4.83 6.23l.18.8c-2.4.54-4.72.89-6.84 1.36s-4.36 1.14-7.08 1.75l-.18-.8c3.4-.93 2.85-4.16 2-7.76l-3.12-14c-.33-1.48-1.06-2.49-2.74-2.12-2.8.63-5.67 5.09-6.81 7.49zM885.86 803.57c-.86-2.57-1.8-3.81-3.75-3.58l-.21-.63c1.55-.52 3.12-1 4.65-1.47s3.09-1 4.49-1.43l7.08-2.37c6.29-2.12 10.19-.83 11.36 2.66 1.63 4.86-3.79 7.9-7.6 9.18v.07c4.78-.82 7-.44 10.2 3.32 3.79 4.48 4.83 5 7.19 4.81l.21.62c-1.59.54-3.51 1-5 1.49s-3.1 1.22-4.69 1.75l-4.14-5.49c-2-2.43-4.9-5.7-8.47-4.5l-2.06.69 1.76 5.25c1.18 3.5 2.38 6.55 5.27 5.76l.26.77c-2.14.72-4.41 1.31-6.47 2s-4.22 1.59-6.36 2.31l-.26-.77c2.79-1.11 1.9-4.27.72-7.77zm8.92 3.88l2.06-.69c3.26-1.1 6.56-3.38 5.28-7.19-1.35-4-5.29-3.67-8.56-2.57l-2.06.69zM936.71 787.54c-1.2-2.65-3.61-6.46-7.52-5.63l-.28-.63c1.94-.88 3.72-1.52 5.1-2.15s2.88-1.49 4.22-2.1l.27.59c-2.46 2.12-1.61 6.64-.4 9.29l2.94 6.45c3.23 7.09 1 11.85-6.29 15.17-5.27 2.4-12 3.33-14.55-2.16l-5.8-12.72c-1.42-3.13-2.21-3.77-3.8-3.31l-.27-.6c1.9-.86 3.91-1.6 5.62-2.38s3.81-1.92 5.68-2.77l.27.6c-1.57 1-2.19 2.71-.93 5.47l5 11c1.94 4.25 5 6.53 9.41 4.54 6.19-2.82 6.76-6.73 4.14-12.48zM961.48 772.92l-.57.09c-2.57-3.06-7-4.5-10.65-2.37-2.59 1.5-4.15 4.21-2.53 7 1.17 2 2.58 2.25 8.63.17s10.23-3 12.94 1.66c3.32 5.75-1.73 11.84-6.55 14.63a29.51 29.51 0 01-12.44 4.21l-1.87-7.73.66-.09c2.82 3.57 8.3 5.19 12.38 2.83 2.88-1.66 5.4-4.59 3.41-8-1.53-2.81-3.48-2.58-10.33-.18-4.84 1.7-8.85 2.46-11.65-2.37-3.22-5.57 2.44-10.78 6.87-13.34a41 41 0 019.94-3.71zM965.78 769.54l-2.52-7.17 20.93-15 6 4.69-.73.53c-2.55-.75-7.79-1.58-10.12.09-1.4 1-1.13 2.22-.25 3.46l8.33 11.63c2.15 3 4.2 5.57 6.89 3.84l.48.66c-2 1.44-4 2.66-5.76 3.93s-3.57 2.76-5.84 4.38l-.47-.66c2.77-2.19 1-4.95-1.16-7.95l-8.33-11.63c-.89-1.23-2-1.88-3.36-.88-2.33 1.67-3.22 6.9-3.34 9.56z\"/>  </g>  <path d=\"M708.89 449.13c-16.15-7.55-32.79-12.69-50.59-11.85-21 1-30.06 13.92-25.94 34.81 2.72 13.78 11 23.89 20.28 33.64 18.14 19 41.46 26 66.55 29.79 0-5.64-2.92-7.5-7.26-9.35-15.07-6.41-30-13.17-44.66-20.46-6-3-11.2-7.66-16.76-11.57 1.65-1.08 2.44-.83 3.19-.48 20.91 9.62 41.83 19.2 62.68 29 1.63.76 3 2.52 4 4.09 8.73 13.09 16.93 26.55 26.13 39.3 18.23 25.26 45.08 32 73.54 19.14 14.65-6.63 26.25-17.23 37-28.88 4.73-5.13 9.22-10.49 14.66-16.69-6.6-1.83-11.63-3.46-16.78-4.61-15.66-3.5-30.35 1-44.9 5.93-20.52 6.91-39.93 7.67-57.12-8.43-3.16-3-7.29-5.11-11.3-6.89a38.7 38.7 0 00-11.43-3.06c-7.11-.79-8.05-2.13-4.6-8.57-17.01-18.37-23.66-39.6-16.69-64.86zM850 574.84c9.78 9.33 25.58 16.67 38.36 17.71 13 1.05 26.12 1.7 39.15 2.84 6.56.58 13 1.86 19.57 2.83-.12.76 1.3 1.85 1.18 2.61-30.18-1.31-62.51 1.87-91.37-12.66 4.81 5.76 9.64 11.34 15.46 15.55 15.83 11.45 34 13.9 52.71 10.73 14.14-2.41 41.13-9.59 42.64-10.32 4.17-2-7.25-2-6.37-3.48s14.6-1.29 20.67-1.65c13.46-.77 22.63-9.11 27.71-20.8 5-11.44-.2-21.2-7.68-29.79-16.37-18.8-37.69-21.8-60.24-16.56-23.05 5.36-43 14.3-68.42 19.2a9.09 9.09 0 00-3.7 2.58c-6.51 6.94-12.96 13.96-19.67 21.21z\" fill=\"#fff\"/>  <path d=\"M792.57 665.57v-2.54c2.13-.43 4.26-.83 6.39-1.29 20.1-4.3 40.28-8.27 60.23-13.21 3.83-.95 7.74-5.09 9.88-8.77 6.75-11.61 3.65-24.84-6.06-33.61-5-4.54-9.08-10.22-13.3-15.6-2.52-3.23-4.5-6.87-6.36-9.76-9.74 6.42-17.37 12.05-28.45 15 .07 5.17 4.36 17.08-3.81 19.26-.84-6-1.12-12.08-1.82-17.08l-7.63.18a186.2 186.2 0 01-.54 18.89c-1.34 10.71-7.09 20.14-12.71 23.62 2.78-12.68 5.78-28.9 8.53-41.42l-7.44.37c-4.66 12-8.24 16.19-14 16.53 2.59-5.21 7.2-12.38 9.44-16.9-12.53-1.63-19.79-5.63-27.72-10-5.91 4.36-12.19 9.75-19.18 13.93-7.18 4.29-14.67 9.68-22.59 11.13-1.62.29-3 2.68-3.24 4.26-1.14 7.33 4.46 17.59 11.15 21 12 6.14 22 11.77 35.73 16.12 5.95 2.63 12 5 18 7.53-17.07.26-33.46-8.87-48.47-15 15.08 15.44 36.36 28.17 59.26 28.41 24.83.29 46.38-8.08 65.34-19.33-9.45 1.37-22.44 4.79-31.82 6-9.49 1.31-19.18 1.58-28.81 2.28zM735.28 564c-2.9-4.9-5.95-8.79-7.64-13.21-2.17-5.66-6.12-6.87-11.52-8-12.09-2.53-24.62-4.68-35.77-9.67-14.81-6.63-29.51-7.37-44.74-4.43C622 531.3 609 535.8 598.75 545.8c-8 7.84-9.41 16.69-4.22 26.63 5.28 10.11 12.61 16.77 23.7 19.86 13 3.64 24.89 5.81 40.82 5.17 4.59-.19 9.14 1 13.71 1.52 0 .66-.07 1.32-.1 2-2.07.35-4.14.75-6.22 1s-7.2.47-10.25.82c32.68 16.43 66.84 7.63 93.36-16.17-18 6.3-43.77 17.26-63.39 12.17 19.72-6 44.41-6.74 62.3-17.8a62.18 62.18 0 00-10-12c-2.47.67-19.76 1.2-22.34.73-6.81-1.24-10.11-3-16.88-4.49l.42-1.29c11.48.05 21.74 1.64 35.62.05z\" fill=\"#fff\"/>  <path d=\"M777.79 538.8c.18-.43 10.31.58 10.49.14 4.59-.69 6.86-1.31 11.44-2 2.18-.35 4.82-1.33 6.95-1.91 4.52-1.22 8.2-12.33 5.57-15.16-7.19-7.75-13.19-15.12-21-22.3-3.3-3-10.84-3.28-13.76.27-6.85 8.32-12.68 17-18.8 25.88-.9 1.31-.82 6.68 2.72 8.31 7.14 3.24 9.05 4.02 16.39 6.77z\" fill=\"#f2a91e\"/>  <path d=\"M820.76 398.14a319.48 319.48 0 01-24.19-21.76C781 361.08 773.92 360.85 758 376c-22.18 21.12-35.69 46.79-42.51 76.71-6.77 29.68 9.59 60.55 35.9 68.8 6.65-8.44 12.23-17 19.26-24.08C781 487 787 487.22 798.23 496.64c6.6 5.54 13 11.31 19.39 16.87 8.18-21.91 12.84-45.71 4-70.79 14.82 12.15 12.79 39.75-5 89.09 4-2.34 11.34-2.16 13-5.63a284 284 0 0017.46-46.76c8.92-32.28.48-59.91-26.32-81.28zm-79.64 25c-3.48 7.33-6.39 14.93-9.79 22.3-.68 1.48-2.45 2.45-3.71 3.65-.37-1.74-1.46-3.69-1-5.18 4.51-14.72 11.39-28.1 23.75-38.05-3.11 5.72-6.46 11.36-9.25 17.25zM964.26 455.58c-1.3-10.22-5.12-13.85-8.16-16-.21-.39-1.16-.38-1.84-.58-1.27 1.43-2.45 2.78-4.73 5.38 2.11-8.49 4.05-15.27 5.44-22.16 2-10-2-16.39-12.17-17.37-8.93-.85-18.3-1.1-27 .63-22.39 4.44-38.06 18.94-51 36.94-4.17 5.82-7.77 11.55-7.16 19.34a37.74 37.74 0 01-1.85 13.79c-5 16.11-8 34.14-18.16 49.4 22.34-16.16 39.29-37.06 57.81-55.35l1.21 1.2c-13.13 19.58-32.79 37.25-49.4 54 9.22-3.91 21-9.46 30.19-13.38.3.56.61 1.12.91 1.69-7.37 4.56-16.22 9.81-23.65 14.41 7.67 4.39 21.55 1.06 24.38 14.74 33.38-10.2 58.8-33.65 63-72.49.51-4.76 2.45-10.63 4-16.91 8.15 35.25-6.69 58.36-30.36 78.48 12.9-4.36 26.89-8.72 38.15-8.18a53.72 53.72 0 003.12-6.72c8.01-19.71 9.89-40.23 7.27-60.86zm-77.49 53.12C884 506.88 894 498 896 500s-7.18 10.07-9.23 8.7z\" fill=\"#fff\"/>  <g fill=\"#eba923\">    <path d=\"M801.08 161.55c2.27 6.9 4.74 13.74 6.7 20.73a9.81 9.81 0 01-.84 6.31c-1.55 3.25-3.78 6.18-6.27 10.1-2.86-4.6-5.41-8.58-7.79-12.65a4 4 0 01-.25-2.9c2.3-7.27 4.71-14.51 7.09-21.75zM795 201.65c-7.56 3-13.81 3.62-19.76-1.88-3.8-3.5-8.28-6.25-13.29-10a23.52 23.52 0 014.12-1c5.64-.07 11.27 0 16.91-.05a6.52 6.52 0 016.42 3.59c1.65 3.07 3.52 5.9 5.6 9.34zM838.43 190.17c-6 4.33-11.88 8.84-18.08 12.87-1.64 1.07-4.25 1-6.39.89-2.37-.14-4.71-.94-7.46-1.53 1.47-4.62 4.15-8.35 7-11.86.85-1 2.84-1.57 4.33-1.6 6.64-.17 13.29-.08 19.94-.08zM776.25 233.31c2.28-6.82 4.5-13.66 6.92-20.42a4.21 4.21 0 012.53-2.38c3.45-.84 7-1.32 10.37-1.91 2.57 8.79 1.94 10.88-4.08 15.31-3.59 2.64-7.16 5.31-10.8 7.88a38.18 38.18 0 01-4 2.17zM823.91 234.94c-5.95-4.36-12.18-8.4-17.77-13.18-3.88-3.32-2.15-8-1.28-12.95 3.61.61 6.95 1 10.16 1.83a5 5 0 012.81 2.85c2.46 6.9 4.69 13.89 7 20.85z\"/>  </g>  <g fill=\"#fff\">    <path d=\"M708.34 183.62L719.19 200l18.93-5.25-12.23 15.38 10.85 16.39-18.41-6.89-12.23 15.38.85-19.63-18.4-6.88 18.93-5.25.86-19.63zM638.14 211.99l14.19 13.58 17.31-9.3-8.53 17.7 14.19 13.59-19.47-2.65-8.54 17.7-3.49-19.34-19.47-2.65 17.3-9.3-3.49-19.33zM575.93 255.15l16.84 10.12 14.83-12.89-4.42 19.15 16.85 10.12-19.58 1.71-4.42 19.15-7.68-18.09-19.57 1.71 14.83-12.89-7.68-18.09zM524.78 310.98l18.66 6.15 11.62-15.84-.08 19.65 18.66 6.15-18.72 5.99-.08 19.65-11.48-15.95-18.72 5.99 11.62-15.84-11.48-15.95zM487.21 376.72l19.56 1.88 7.84-18.02 4.25 19.19 19.56 1.88-16.93 9.97 4.25 19.19-14.71-13.02-16.93 9.97 7.83-18.02-14.72-13.02zM465.08 449.13l19.49-2.48 3.67-19.31 8.38 17.78 19.5-2.48-14.32 13.46 8.39 17.78-17.23-9.46-14.32 13.47 3.67-19.31-17.23-9.45zM459.48 524.64l18.46-6.72-.68-19.64 12.1 15.48 18.46-6.72-10.99 16.3 12.1 15.48-18.89-5.42-10.99 16.3-.68-19.64-18.89-5.42zM470.67 599.52l16.53-10.63-5-19 15.22 12.43 16.52-10.63-7.12 18.32 15.22 12.43-19.62-1.11-7.12 18.31-5.01-19-19.62-1.12zM498.12 670.09l13.78-14.01-9.08-17.44 17.59 8.77 13.77-14.01-2.9 19.43 17.58 8.77-19.38 3.24-2.9 19.44-9.08-17.43-19.38 3.24zM540.47 732.86l10.34-16.71-12.7-15 19.09 4.67 10.34-16.71 1.46 19.6 19.08 4.67-18.18 7.44 1.45 19.6-12.69-15-18.19 7.44zM892.06 183.62L881.22 200l-18.94-5.25 12.23 15.38-10.84 16.39 18.4-6.89 12.24 15.38-.86-19.63 18.41-6.88-18.94-5.25-.86-19.63zM962.26 211.99l-14.19 13.58-17.31-9.3 8.54 17.7-14.2 13.59 19.47-2.65 8.54 17.7 3.5-19.34 19.47-2.65-17.31-9.3 3.49-19.33zM1024.47 255.15l-16.84 10.12-14.83-12.89 4.42 19.15-16.84 10.12 19.57 1.71 4.42 19.15 7.68-18.09 19.58 1.71-14.84-12.89 7.68-18.09zM1075.62 310.98l-18.66 6.15-11.62-15.84.09 19.65-18.67 6.15 18.72 5.99.09 19.65 11.48-15.95 18.71 5.99-11.62-15.84 11.48-15.95zM1113.19 376.72l-19.56 1.88-7.84-18.02-4.25 19.19-19.56 1.88 16.93 9.97-4.25 19.19 14.72-13.02 16.93 9.97-7.84-18.02 14.72-13.02zM1135.32 449.13l-19.49-2.48-3.67-19.31-8.38 17.78-19.49-2.48 14.31 13.46-8.38 17.78 17.22-9.46 14.32 13.47-3.67-19.31 17.23-9.45zM1140.93 524.64l-18.47-6.72.69-19.64-12.1 15.48-18.47-6.72 10.99 16.3-12.1 15.48 18.89-5.42 10.99 16.3.69-19.64 18.89-5.42zM1129.73 599.52l-16.53-10.63 5-19-15.21 12.43-16.53-10.63 7.12 18.32-15.21 12.43 19.61-1.11 7.13 18.31 5-19 19.62-1.12zM1102.28 670.09l-13.77-14.01 9.07-17.44-17.59 8.77-13.77-14.01 2.91 19.43-17.59 8.77 19.38 3.24 2.91 19.44 9.07-17.43 19.38 3.24zM1059.93 732.86l-10.34-16.71 12.7-15-19.09 4.67-10.34-16.71-1.45 19.6-19.09 4.67 18.19 7.44-1.46 19.6 12.7-15 18.18 7.44z\"/>  </g></svg>",
+      "yesOption": { "id": "750000092", "label": "Yes" },
+      "noOption": { "id": "750000093", "label": "No" }
+    }
+  ],
+  "districts": [
+    { "id": "1", "name": "United States" },
+    { "id": "100000275", "name": "State Of Mississippi" },
+    { "id": "100000047", "name": "US House Of Representatives" },
+    { "id": "100000174", "name": "Supreme Court Justice" },
+    { "id": "575000501", "name": "Election Commissioner 01" },
+    { "id": "575000502", "name": "Election Commissioner 02" },
+    { "id": "575000503", "name": "Election Commissioner 03" },
+    { "id": "575000504", "name": "Election Commissioner 04" },
+    { "id": "575000505", "name": "Election Commissioner 05" },
+    { "id": "575000084", "name": "School Board District 5" }
+  ],
+  "precincts": [
+    { "id": "6522", "name": "District 5" },
+    { "id": "6524", "name": "Chester" },
+    { "id": "6525", "name": "East Weir" },
+    { "id": "6526", "name": "French Camp" },
+    { "id": "6527", "name": "Fentress" },
+    { "id": "6528", "name": "Hebron" },
+    { "id": "6529", "name": "Kenego" },
+    { "id": "6532", "name": "Panhandle" },
+    { "id": "6534", "name": "Reform" },
+    { "id": "6536", "name": "Sherwood" },
+    { "id": "6537", "name": "Southwest Ackerman" },
+    { "id": "6538", "name": "Bywy" },
+    { "id": "6539", "name": "West Weir" }
+  ],
+  "ballotStyles": [
+    {
+      "id": "4",
+      "precincts": ["6538", "6524", "6527"],
+      "districts": ["1", "100000047", "100000174", "100000275", "575000501"]
+    },
+    {
+      "id": "5",
+      "precincts": ["6522"],
+      "districts": [
+        "1",
+        "100000047",
+        "100000174",
+        "100000275",
+        "575000084",
+        "575000505"
+      ]
+    },
+    {
+      "id": "1",
+      "precincts": ["6525", "6532", "6537"],
+      "districts": ["1", "100000047", "100000174", "100000275", "575000504"]
+    },
+    {
+      "id": "2",
+      "precincts": ["6526", "6529", "6539"],
+      "districts": ["1", "100000047", "100000174", "100000275", "575000503"]
+    },
+    {
+      "id": "3",
+      "precincts": ["6528", "6534", "6536"],
+      "districts": ["1", "100000047", "100000174", "100000275", "575000502"]
+    }
+  ],
+  "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
+  "ballotStrings": { "officialInitials": "Initialing Manager" },
+  "adjudicationReasons": ["UninterpretableBallot", "Overvote", "BlankBallot"],
+  "markThresholds": { "definite": 0.12, "marginal": 0.12 }
+}

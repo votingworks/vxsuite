@@ -1,5 +1,6 @@
 import { BallotType } from '@votingworks/ballot-encoder'
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
+import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election'
 import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
 import {
   blankPage1,
@@ -1588,7 +1589,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.8704663212435233,
+        "score": 0.8601036269430051,
         "type": "candidate",
       },
       Object {
@@ -1613,7 +1614,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.6040100250626567,
+        "score": 0.5889724310776943,
         "type": "candidate",
       },
       Object {
@@ -1628,12 +1629,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.6791044776119403,
+        "score": 0.681592039800995,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.8457583547557841,
+        "score": 0.8277634961439588,
         "type": "candidate",
       },
       Object {
@@ -1648,7 +1649,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.6015037593984962,
+        "score": 0.6140350877192983,
         "type": "candidate",
       },
       Object {
@@ -1849,7 +1850,7 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.7153652392947103,
+        "score": 0.707808564231738,
         "scoredOffset": Object {
           "x": -2,
           "y": 2,
@@ -2004,7 +2005,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.14066496163682865,
+        "score": 0.1534526854219949,
         "scoredOffset": Object {
           "x": 0,
           "y": 0,
@@ -2117,7 +2118,7 @@ test('invalid marks', async () => {
         "option": "no",
         "score": 0.7989821882951654,
         "scoredOffset": Object {
-          "x": -1,
+          "x": 0,
           "y": 1,
         },
         "target": Object {
@@ -2191,8 +2192,8 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": -1,
-          "y": 0,
+          "x": 0,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
@@ -2263,9 +2264,9 @@ test('invalid marks', async () => {
           "name": "Randall Rupp",
           "partyId": "2",
         },
-        "score": 0.12853470437017994,
+        "score": 0.12596401028277635,
         "scoredOffset": Object {
-          "x": -1,
+          "x": 0,
           "y": -1,
         },
         "target": Object {
@@ -2339,7 +2340,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": -1,
+          "x": 0,
           "y": -1,
         },
         "target": Object {
@@ -2413,8 +2414,8 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": -1,
-          "y": 0,
+          "x": 0,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
@@ -2485,9 +2486,9 @@ test('invalid marks', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
-        "score": 0.12953367875647667,
+        "score": 0.13212435233160622,
         "scoredOffset": Object {
-          "x": -1,
+          "x": 0,
           "y": -2,
         },
         "target": Object {
@@ -2561,7 +2562,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": -1,
+          "x": 0,
           "y": -2,
         },
         "target": Object {
@@ -2635,7 +2636,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": -1,
+          "x": 0,
           "y": -2,
         },
         "target": Object {
@@ -2707,10 +2708,10 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0.09343434343434344,
+        "score": 0.10353535353535354,
         "scoredOffset": Object {
-          "x": -1,
-          "y": -1,
+          "x": 1,
+          "y": -2,
         },
         "target": Object {
           "bounds": Object {
@@ -2783,8 +2784,8 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 0,
-          "y": -1,
+          "x": 1,
+          "y": -2,
         },
         "target": Object {
           "bounds": Object {
@@ -2891,8 +2892,8 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 0,
-          "y": 0,
+          "x": 1,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
@@ -2945,8 +2946,8 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 0,
-          "y": 0,
+          "x": 1,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
@@ -3436,7 +3437,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "1",
         "option": "1",
-        "score": 0.2513812154696133,
+        "score": 0.2596685082872928,
       },
       Object {
         "contest": "1",
@@ -3461,7 +3462,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "2",
         "option": "23",
-        "score": 0.4051724137931034,
+        "score": 0.4109195402298851,
       },
       Object {
         "contest": "2",
@@ -3496,22 +3497,22 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "4",
         "option": "__write-in-0",
-        "score": 0.6610169491525424,
+        "score": 0.655367231638418,
       },
       Object {
         "contest": "initiative-65",
         "option": "yes",
-        "score": 0.4519774011299435,
+        "score": 0.3983050847457627,
       },
       Object {
         "contest": "initiative-65",
         "option": "no",
-        "score": 0.2655367231638418,
+        "score": 0.2796610169491525,
       },
       Object {
         "contest": "initiative-65-a",
         "option": "yes",
-        "score": 0.2231638418079096,
+        "score": 0.22598870056497175,
       },
       Object {
         "contest": "initiative-65-a",
@@ -3538,7 +3539,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "flag-question",
         "option": "yes",
-        "score": 0.5255681818181818,
+        "score": 0.48579545454545453,
       },
       Object {
         "contest": "flag-question",
@@ -3553,7 +3554,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "runoffs-question",
         "option": "no",
-        "score": 0.29261363636363635,
+        "score": 0.3039772727272727,
       },
     ]
   `)
@@ -3580,4 +3581,60 @@ test('normalizes intentionally empty pages correctly', async () => {
   expect(mappedBallot.height).toEqual(
     page2Template.ballotImage.imageData.height
   )
+})
+
+test('regression: overvote on choctaw county p1-05', async () => {
+  const fixtures = choctaw2020LegalSize
+  const { election } = fixtures
+  const interpreter = new Interpreter({ election, testMode: true })
+
+  await interpreter.addTemplate(await fixtures.district5BlankPage1.imageData())
+  const interpretation = await interpreter.interpretBallot(
+    await fixtures.filledInPage1_05.imageData()
+  )
+
+  expect(interpretation.ballot.votes).toMatchInlineSnapshot(`
+    Object {
+      "775020890": Array [
+        Object {
+          "id": "775032110",
+          "name": "Percy L. Lynchard",
+          "partyId": "12",
+        },
+      ],
+      "775020892": Array [
+        Object {
+          "id": "775032085",
+          "name": "Trent Kelly",
+          "partyId": "3",
+        },
+      ],
+      "775020896": Array [
+        Object {
+          "id": "775032099",
+          "name": "Presidential Electors for Howie Hawkins for President and Angela Nicole Walker for Vice President",
+          "partyId": "9",
+        },
+      ],
+      "775020897": Array [
+        Object {
+          "id": "775032105",
+          "name": "Jimmy L. Edwards",
+          "partyId": "4",
+        },
+      ],
+      "775021420": Array [
+        Object {
+          "id": "775032689",
+          "name": "Wayne McLeod",
+        },
+      ],
+      "775021421": Array [
+        Object {
+          "id": "775032690",
+          "name": "Michael D Thomas",
+        },
+      ],
+    }
+  `)
 })

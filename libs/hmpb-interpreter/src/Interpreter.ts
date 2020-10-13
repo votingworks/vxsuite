@@ -723,8 +723,12 @@ export default class Interpreter {
       { corners: ballotContestCorners },
       { bounds: templateContestBounds },
     ] of zip(ballot.contests, template.contests)) {
-      ballotPoints.push(...ballotContestCorners)
-      templatePoints.push(...rectCorners(templateContestBounds))
+      const [ballotTopLeft, , ballotBottomLeft] = ballotContestCorners
+      const [templateTopLeft, , templateBottomLeft] = rectCorners(
+        templateContestBounds
+      )
+      ballotPoints.push(ballotTopLeft, ballotBottomLeft)
+      templatePoints.push(templateTopLeft, templateBottomLeft)
     }
 
     return this.mapImageWithPoints(
