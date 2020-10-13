@@ -738,7 +738,6 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public resetBallot = (path = '/') => {
-    this.setDocumentFontSize()
     this.resetVoterData()
     this.setState(
       {
@@ -1058,6 +1057,9 @@ class AppRoot extends React.Component<Props, State> {
           isPollsOpen={isPollsOpen}
         />
       )
+
+      // font size may have been changed by previous voter, reset to defaults
+      this.setDocumentFontSize()
 
       return (
         <IdleTimer

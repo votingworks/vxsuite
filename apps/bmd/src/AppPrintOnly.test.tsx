@@ -121,6 +121,7 @@ test('VxPrintOnly flow', async () => {
   card.removeCard()
   await advanceTimersAndPromises()
   getByText('Insert Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // ---------------
 
@@ -230,6 +231,9 @@ test('VxPrintOnly flow', async () => {
   card.removeCard()
   await advanceTimersAndPromises()
   getByText('Insert Card')
+
+  // font size should not have changed (regression check)
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Check Printed Ballots Count
   getAllByTextWithMarkup('Ballots Printed: 1')
