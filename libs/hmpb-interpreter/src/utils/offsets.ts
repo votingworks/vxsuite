@@ -1,6 +1,6 @@
-import { Point } from '../types'
+import { Offset } from '../types'
 
-export default function* offsets(): Generator<Point> {
+export default function* offsets(): Generator<Offset> {
   let x = 0
   let y = 0
   for (;;) {

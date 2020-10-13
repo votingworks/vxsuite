@@ -102,6 +102,11 @@ export function findShape(
   }
 
   return {
-    bounds: { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin },
+    bounds: {
+      x: xMin,
+      y: yMin,
+      width: xMax - xMin + 1,
+      height: yMax - yMin + 1,
+    },
   }
 }
