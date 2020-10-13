@@ -113,10 +113,10 @@ export default function* findContests(
           bounds: shape.bounds,
           corners: getCorners(ballotImage, shape),
         }
+        lastShape = shape
       }
 
       y = shape.bounds.y + shape.bounds.height
-      lastShape = shape
     }
   }
 }

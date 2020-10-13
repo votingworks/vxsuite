@@ -39,8 +39,8 @@ test('interpret three-column template with instructions', async () => {
     Array [
       Object {
         "bounds": Object {
-          "height": 599,
-          "width": 380,
+          "height": 600,
+          "width": 381,
           "x": 447,
           "y": 45,
         },
@@ -66,20 +66,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 79,
-              "width": 380,
+              "width": 381,
               "x": 447,
               "y": 174,
             },
             "target": Object {
               "bounds": Object {
-                "height": 22,
-                "width": 32,
+                "height": 23,
+                "width": 33,
                 "x": 470,
                 "y": 176,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 472,
                 "y": 178,
               },
@@ -88,20 +88,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 78,
-              "width": 380,
+              "width": 381,
               "x": 447,
               "y": 253,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 470,
                 "y": 255,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 472,
                 "y": 256,
               },
@@ -110,20 +110,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 78,
-              "width": 380,
+              "width": 381,
               "x": 447,
               "y": 331,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 470,
                 "y": 333,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 472,
                 "y": 334,
               },
@@ -132,20 +132,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 78,
-              "width": 380,
+              "width": 381,
               "x": 447,
               "y": 409,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 470,
                 "y": 411,
               },
               "inner": Object {
-                "height": 17,
-                "width": 28,
+                "height": 18,
+                "width": 29,
                 "x": 472,
                 "y": 413,
               },
@@ -154,20 +154,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 78,
-              "width": 380,
+              "width": 381,
               "x": 447,
               "y": 487,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 470,
                 "y": 489,
               },
               "inner": Object {
-                "height": 17,
-                "width": 28,
+                "height": 18,
+                "width": 29,
                 "x": 472,
                 "y": 491,
               },
@@ -175,21 +175,21 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "bounds": Object {
-              "height": 77,
-              "width": 380,
+              "height": 78,
+              "width": 381,
               "x": 447,
               "y": 565,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 470,
                 "y": 567,
               },
               "inner": Object {
-                "height": 17,
-                "width": 28,
+                "height": 18,
+                "width": 29,
                 "x": 472,
                 "y": 569,
               },
@@ -199,8 +199,8 @@ test('interpret three-column template with instructions', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 320,
-          "width": 380,
+          "height": 321,
+          "width": 381,
           "x": 447,
           "y": 667,
         },
@@ -226,20 +226,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 78,
-              "width": 380,
+              "width": 381,
               "x": 447,
               "y": 829,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 470,
                 "y": 831,
               },
               "inner": Object {
-                "height": 17,
-                "width": 28,
+                "height": 18,
+                "width": 29,
                 "x": 472,
                 "y": 833,
               },
@@ -247,21 +247,21 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "bounds": Object {
-              "height": 78,
-              "width": 380,
+              "height": 79,
+              "width": 381,
               "x": 447,
               "y": 907,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 470,
                 "y": 909,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 472,
                 "y": 911,
               },
@@ -271,8 +271,8 @@ test('interpret three-column template with instructions', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 318,
-          "width": 380,
+          "height": 319,
+          "width": 381,
           "x": 447,
           "y": 1009,
         },
@@ -298,20 +298,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 78,
-              "width": 380,
+              "width": 381,
               "x": 447,
               "y": 1171,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 470,
                 "y": 1173,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 472,
                 "y": 1175,
               },
@@ -319,21 +319,21 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "bounds": Object {
-              "height": 76,
-              "width": 380,
+              "height": 77,
+              "width": 381,
               "x": 447,
               "y": 1249,
             },
             "target": Object {
               "bounds": Object {
-                "height": 22,
-                "width": 32,
+                "height": 23,
+                "width": 33,
                 "x": 470,
                 "y": 1251,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 472,
                 "y": 1253,
               },
@@ -343,8 +343,8 @@ test('interpret three-column template with instructions', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 324,
-          "width": 379,
+          "height": 325,
+          "width": 380,
           "x": 850,
           "y": 45,
         },
@@ -370,20 +370,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 78,
-              "width": 379,
+              "width": 380,
               "x": 850,
               "y": 240,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 872,
                 "y": 242,
               },
               "inner": Object {
-                "height": 17,
-                "width": 28,
+                "height": 18,
+                "width": 29,
                 "x": 874,
                 "y": 244,
               },
@@ -391,21 +391,21 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "bounds": Object {
-              "height": 49,
-              "width": 379,
+              "height": 50,
+              "width": 380,
               "x": 850,
-              "y": 319,
+              "y": 318,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 872,
                 "y": 320,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 874,
                 "y": 322,
               },
@@ -415,8 +415,8 @@ test('interpret three-column template with instructions', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 291,
-          "width": 379,
+          "height": 292,
+          "width": 380,
           "x": 850,
           "y": 392,
         },
@@ -442,20 +442,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 78,
-              "width": 379,
+              "width": 380,
               "x": 850,
               "y": 554,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 872,
                 "y": 556,
               },
               "inner": Object {
-                "height": 17,
-                "width": 28,
+                "height": 18,
+                "width": 29,
                 "x": 874,
                 "y": 558,
               },
@@ -463,21 +463,21 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "bounds": Object {
-              "height": 49,
-              "width": 379,
+              "height": 50,
+              "width": 380,
               "x": 850,
-              "y": 633,
+              "y": 632,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 872,
                 "y": 634,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 874,
                 "y": 636,
               },
@@ -487,8 +487,8 @@ test('interpret three-column template with instructions', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 335,
-          "width": 379,
+          "height": 336,
+          "width": 380,
           "x": 850,
           "y": 706,
         },
@@ -514,20 +514,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 79,
-              "width": 379,
+              "width": 380,
               "x": 850,
               "y": 835,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 872,
                 "y": 837,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 874,
                 "y": 839,
               },
@@ -536,20 +536,20 @@ test('interpret three-column template with instructions', async () => {
           Object {
             "bounds": Object {
               "height": 78,
-              "width": 379,
+              "width": 380,
               "x": 850,
               "y": 914,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 872,
                 "y": 916,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 874,
                 "y": 917,
               },
@@ -557,21 +557,21 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "bounds": Object {
-              "height": 47,
-              "width": 379,
+              "height": 48,
+              "width": 380,
               "x": 850,
               "y": 993,
             },
             "target": Object {
               "bounds": Object {
-                "height": 21,
-                "width": 32,
+                "height": 22,
+                "width": 33,
                 "x": 872,
                 "y": 994,
               },
               "inner": Object {
-                "height": 18,
-                "width": 28,
+                "height": 19,
+                "width": 29,
                 "x": 874,
                 "y": 995,
               },
@@ -610,8 +610,8 @@ test('interpret two-column template', async () => {
       Array [
         Object {
           "bounds": Object {
-            "height": 682,
-            "width": 380,
+            "height": 683,
+            "width": 381,
             "x": 447,
             "y": 45,
           },
@@ -637,20 +637,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 163,
-                "width": 380,
+                "width": 381,
                 "x": 447,
                 "y": 168,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 470,
                   "y": 173,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 28,
+                  "height": 19,
+                  "width": 29,
                   "x": 472,
                   "y": 175,
                 },
@@ -659,20 +659,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 162,
-                "width": 380,
+                "width": 381,
                 "x": 447,
                 "y": 331,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 470,
                   "y": 336,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 28,
+                  "height": 18,
+                  "width": 29,
                   "x": 472,
                   "y": 338,
                 },
@@ -681,20 +681,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 163,
-                "width": 380,
+                "width": 381,
                 "x": 447,
                 "y": 493,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 470,
                   "y": 498,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 28,
+                  "height": 19,
+                  "width": 29,
                   "x": 472,
                   "y": 500,
                 },
@@ -702,21 +702,21 @@ test('interpret two-column template', async () => {
             },
             Object {
               "bounds": Object {
-                "height": 66,
-                "width": 380,
+                "height": 67,
+                "width": 381,
                 "x": 447,
                 "y": 659,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 470,
                   "y": 661,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 28,
+                  "height": 18,
+                  "width": 29,
                   "x": 472,
                   "y": 663,
                 },
@@ -726,8 +726,8 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 429,
-            "width": 380,
+            "height": 430,
+            "width": 381,
             "x": 447,
             "y": 750,
           },
@@ -753,20 +753,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 78,
-                "width": 380,
+                "width": 381,
                 "x": 447,
                 "y": 876,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 470,
                   "y": 878,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 28,
+                  "height": 18,
+                  "width": 29,
                   "x": 472,
                   "y": 880,
                 },
@@ -775,20 +775,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 78,
-                "width": 380,
+                "width": 381,
                 "x": 447,
                 "y": 954,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 470,
                   "y": 956,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 28,
+                  "height": 18,
+                  "width": 29,
                   "x": 472,
                   "y": 958,
                 },
@@ -797,20 +797,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 78,
-                "width": 380,
+                "width": 381,
                 "x": 447,
                 "y": 1032,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 470,
                   "y": 1034,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 28,
+                  "height": 19,
+                  "width": 29,
                   "x": 472,
                   "y": 1036,
                 },
@@ -818,21 +818,21 @@ test('interpret two-column template', async () => {
             },
             Object {
               "bounds": Object {
-                "height": 67,
-                "width": 380,
+                "height": 68,
+                "width": 381,
                 "x": 447,
                 "y": 1110,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 470,
                   "y": 1112,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 28,
+                  "height": 19,
+                  "width": 29,
                   "x": 472,
                   "y": 1114,
                 },
@@ -842,8 +842,8 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 351,
-            "width": 379,
+            "height": 352,
+            "width": 380,
             "x": 850,
             "y": 45,
           },
@@ -869,20 +869,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 78,
-                "width": 379,
+                "width": 380,
                 "x": 850,
                 "y": 171,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 873,
                   "y": 173,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
+                  "height": 19,
+                  "width": 30,
                   "x": 875,
                   "y": 175,
                 },
@@ -891,20 +891,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 79,
-                "width": 379,
+                "width": 380,
                 "x": 850,
                 "y": 249,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 22,
-                  "width": 32,
+                  "height": 23,
+                  "width": 33,
                   "x": 873,
                   "y": 251,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
+                  "height": 19,
+                  "width": 30,
                   "x": 875,
                   "y": 253,
                 },
@@ -912,21 +912,21 @@ test('interpret two-column template', async () => {
             },
             Object {
               "bounds": Object {
-                "height": 66,
-                "width": 379,
+                "height": 67,
+                "width": 380,
                 "x": 850,
                 "y": 328,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 873,
                   "y": 330,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
+                  "height": 19,
+                  "width": 30,
                   "x": 875,
                   "y": 331,
                 },
@@ -936,8 +936,8 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 383,
-            "width": 379,
+            "height": 384,
+            "width": 380,
             "x": 850,
             "y": 419,
           },
@@ -963,20 +963,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 78,
-                "width": 379,
+                "width": 380,
                 "x": 850,
                 "y": 578,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 873,
                   "y": 580,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
+                  "height": 19,
+                  "width": 30,
                   "x": 875,
                   "y": 581,
                 },
@@ -985,20 +985,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 78,
-                "width": 379,
+                "width": 380,
                 "x": 850,
                 "y": 656,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 873,
                   "y": 658,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
+                  "height": 19,
+                  "width": 30,
                   "x": 875,
                   "y": 659,
                 },
@@ -1006,21 +1006,21 @@ test('interpret two-column template', async () => {
             },
             Object {
               "bounds": Object {
-                "height": 66,
-                "width": 379,
+                "height": 67,
+                "width": 380,
                 "x": 850,
                 "y": 734,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 873,
                   "y": 736,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 29,
+                  "height": 18,
+                  "width": 30,
                   "x": 875,
                   "y": 738,
                 },
@@ -1030,8 +1030,8 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 293,
-            "width": 379,
+            "height": 294,
+            "width": 380,
             "x": 850,
             "y": 825,
           },
@@ -1057,20 +1057,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 50,
-                "width": 379,
+                "width": 380,
                 "x": 850,
                 "y": 951,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 873,
                   "y": 953,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 29,
+                  "height": 18,
+                  "width": 30,
                   "x": 875,
                   "y": 955,
                 },
@@ -1079,20 +1079,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 50,
-                "width": 379,
+                "width": 380,
                 "x": 850,
                 "y": 1001,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 873,
                   "y": 1003,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 29,
+                  "height": 18,
+                  "width": 30,
                   "x": 875,
                   "y": 1005,
                 },
@@ -1100,21 +1100,21 @@ test('interpret two-column template', async () => {
             },
             Object {
               "bounds": Object {
-                "height": 65,
-                "width": 379,
+                "height": 66,
+                "width": 380,
                 "x": 850,
                 "y": 1051,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 873,
                   "y": 1053,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 29,
+                  "height": 18,
+                  "width": 30,
                   "x": 875,
                   "y": 1055,
                 },
@@ -1150,8 +1150,8 @@ test('interpret two-column template', async () => {
       Array [
         Object {
           "bounds": Object {
-            "height": 1143,
-            "width": 581,
+            "height": 1144,
+            "width": 582,
             "x": 45,
             "y": 45,
           },
@@ -1177,20 +1177,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 78,
-                "width": 581,
+                "width": 582,
                 "x": 45,
                 "y": 882,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 69,
                   "y": 884,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
+                  "height": 19,
+                  "width": 30,
                   "x": 70,
                   "y": 886,
                 },
@@ -1199,20 +1199,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 129,
-                "width": 581,
+                "width": 582,
                 "x": 45,
                 "y": 958,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 69,
                   "y": 962,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
+                  "height": 19,
+                  "width": 30,
                   "x": 70,
                   "y": 964,
                 },
@@ -1221,20 +1221,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 50,
-                "width": 581,
+                "width": 582,
                 "x": 45,
                 "y": 1089,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 69,
                   "y": 1091,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
+                  "height": 19,
+                  "width": 30,
                   "x": 70,
                   "y": 1092,
                 },
@@ -1242,21 +1242,21 @@ test('interpret two-column template', async () => {
             },
             Object {
               "bounds": Object {
-                "height": 47,
-                "width": 581,
+                "height": 48,
+                "width": 582,
                 "x": 45,
                 "y": 1140,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 69,
                   "y": 1141,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
+                  "height": 19,
+                  "width": 30,
                   "x": 70,
                   "y": 1142,
                 },
@@ -1266,8 +1266,8 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 412,
-            "width": 581,
+            "height": 413,
+            "width": 582,
             "x": 648,
             "y": 45,
           },
@@ -1293,20 +1293,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 50,
-                "width": 581,
+                "width": 582,
                 "x": 648,
                 "y": 357,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 672,
                   "y": 359,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 28,
+                  "height": 19,
+                  "width": 29,
                   "x": 674,
                   "y": 361,
                 },
@@ -1314,21 +1314,21 @@ test('interpret two-column template', async () => {
             },
             Object {
               "bounds": Object {
-                "height": 48,
-                "width": 581,
+                "height": 49,
+                "width": 582,
                 "x": 648,
                 "y": 408,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 672,
                   "y": 409,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 28,
+                  "height": 19,
+                  "width": 29,
                   "x": 674,
                   "y": 411,
                 },
@@ -1338,8 +1338,8 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 624,
-            "width": 581,
+            "height": 625,
+            "width": 582,
             "x": 648,
             "y": 480,
           },
@@ -1365,20 +1365,20 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 50,
-                "width": 581,
+                "width": 582,
                 "x": 648,
                 "y": 1004,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 672,
                   "y": 1006,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 28,
+                  "height": 18,
+                  "width": 29,
                   "x": 674,
                   "y": 1008,
                 },
@@ -1386,21 +1386,21 @@ test('interpret two-column template', async () => {
             },
             Object {
               "bounds": Object {
-                "height": 48,
-                "width": 581,
+                "height": 49,
+                "width": 582,
                 "x": 648,
                 "y": 1055,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 21,
-                  "width": 32,
+                  "height": 22,
+                  "width": 33,
                   "x": 672,
                   "y": 1056,
                 },
                 "inner": Object {
-                  "height": 17,
-                  "width": 28,
+                  "height": 18,
+                  "width": 29,
                   "x": 674,
                   "y": 1058,
                 },
@@ -1589,7 +1589,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.8601036269430051,
+        "score": 0.8246913580246914,
         "type": "candidate",
       },
       Object {
@@ -1604,7 +1604,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Eddie Bernice Johnson",
-        "score": 0.7176165803108808,
+        "score": 0.687192118226601,
         "type": "candidate",
       },
       Object {
@@ -1614,7 +1614,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.5889724310776943,
+        "score": 0.5932203389830508,
         "type": "candidate",
       },
       Object {
@@ -1629,12 +1629,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.681592039800995,
+        "score": 0.6781326781326781,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.8277634961439588,
+        "score": 0.8137254901960784,
         "type": "candidate",
       },
       Object {
@@ -1649,7 +1649,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.6140350877192983,
+        "score": 0.5980629539951574,
         "type": "candidate",
       },
       Object {
@@ -1696,8 +1696,8 @@ test('invalid marks', async () => {
     Array [
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 67,
           "y": 242,
         },
@@ -1739,14 +1739,14 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 67,
             "y": 242,
           },
           "inner": Object {
-            "height": 17,
-            "width": 28,
+            "height": 18,
+            "width": 29,
             "x": 69,
             "y": 244,
           },
@@ -1755,8 +1755,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 67,
           "y": 320,
         },
@@ -1798,14 +1798,14 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 67,
             "y": 320,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 69,
             "y": 322,
           },
@@ -1814,8 +1814,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 67,
           "y": 398,
         },
@@ -1850,21 +1850,21 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.707808564231738,
+        "score": 0.7002457002457002,
         "scoredOffset": Object {
-          "x": -2,
-          "y": 2,
+          "x": -1,
+          "y": 1,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 67,
             "y": 398,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 69,
             "y": 400,
           },
@@ -1873,8 +1873,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
-          "width": 32,
+          "height": 23,
+          "width": 33,
           "x": 67,
           "y": 476,
         },
@@ -1916,14 +1916,14 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 22,
-            "width": 32,
+            "height": 23,
+            "width": 33,
             "x": 67,
             "y": 476,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 69,
             "y": 478,
           },
@@ -1932,8 +1932,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
-          "width": 32,
+          "height": 23,
+          "width": 33,
           "x": 67,
           "y": 526,
         },
@@ -1975,14 +1975,14 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 22,
-            "width": 32,
+            "height": 23,
+            "width": 33,
             "x": 67,
             "y": 526,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 69,
             "y": 528,
           },
@@ -1991,8 +1991,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 67,
           "y": 869,
         },
@@ -2005,21 +2005,21 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.1534526854219949,
+        "score": 0.15233415233415235,
         "scoredOffset": Object {
           "x": 0,
-          "y": 0,
+          "y": 1,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 67,
             "y": 869,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 69,
             "y": 870,
           },
@@ -2028,8 +2028,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 67,
           "y": 919,
         },
@@ -2049,14 +2049,14 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 67,
             "y": 919,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 69,
             "y": 920,
           },
@@ -2065,8 +2065,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 316,
         },
@@ -2086,14 +2086,14 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 316,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 472,
             "y": 317,
           },
@@ -2102,8 +2102,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 366,
         },
@@ -2116,21 +2116,21 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "no",
-        "score": 0.7989821882951654,
+        "score": 0.7555012224938875,
         "scoredOffset": Object {
           "x": 0,
           "y": 1,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 366,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 472,
             "y": 367,
           },
@@ -2139,8 +2139,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 569,
         },
@@ -2193,18 +2193,18 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": -1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 569,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 472,
             "y": 570,
           },
@@ -2213,8 +2213,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 647,
         },
@@ -2264,21 +2264,21 @@ test('invalid marks', async () => {
           "name": "Randall Rupp",
           "partyId": "2",
         },
-        "score": 0.12596401028277635,
+        "score": 0.11822660098522167,
         "scoredOffset": Object {
           "x": 0,
           "y": -1,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 647,
           },
           "inner": Object {
-            "height": 17,
-            "width": 28,
+            "height": 18,
+            "width": 29,
             "x": 472,
             "y": 649,
           },
@@ -2287,8 +2287,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 725,
         },
@@ -2341,18 +2341,18 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": -1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 725,
           },
           "inner": Object {
-            "height": 17,
-            "width": 28,
+            "height": 18,
+            "width": 29,
             "x": 472,
             "y": 727,
           },
@@ -2361,8 +2361,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 803,
         },
@@ -2415,18 +2415,18 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": -1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 803,
           },
           "inner": Object {
-            "height": 17,
-            "width": 28,
+            "height": 18,
+            "width": 29,
             "x": 472,
             "y": 805,
           },
@@ -2435,8 +2435,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 881,
         },
@@ -2486,21 +2486,21 @@ test('invalid marks', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
-        "score": 0.13212435233160622,
+        "score": 0.13054187192118227,
         "scoredOffset": Object {
           "x": 0,
-          "y": -2,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 881,
           },
           "inner": Object {
-            "height": 17,
-            "width": 28,
+            "height": 18,
+            "width": 29,
             "x": 472,
             "y": 883,
           },
@@ -2509,8 +2509,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 959,
         },
@@ -2563,18 +2563,18 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": -2,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 959,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 472,
             "y": 961,
           },
@@ -2583,8 +2583,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 1037,
         },
@@ -2637,18 +2637,18 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": -2,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 1037,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 472,
             "y": 1039,
           },
@@ -2657,8 +2657,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 1087,
         },
@@ -2708,21 +2708,21 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0.10353535353535354,
+        "score": 0.08801955990220049,
         "scoredOffset": Object {
           "x": 1,
-          "y": -2,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 1087,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 472,
             "y": 1089,
           },
@@ -2731,8 +2731,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 470,
           "y": 1137,
         },
@@ -2785,18 +2785,18 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 1,
-          "y": -2,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 470,
             "y": 1137,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 472,
             "y": 1139,
           },
@@ -2805,8 +2805,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
-          "width": 32,
+          "height": 23,
+          "width": 33,
           "x": 872,
           "y": 176,
         },
@@ -2838,19 +2838,19 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 0,
+          "x": 1,
           "y": 0,
         },
         "target": Object {
           "bounds": Object {
-            "height": 22,
-            "width": 32,
+            "height": 23,
+            "width": 33,
             "x": 872,
             "y": 176,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 874,
             "y": 178,
           },
@@ -2859,8 +2859,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 872,
           "y": 255,
         },
@@ -2897,14 +2897,14 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 872,
             "y": 255,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 874,
             "y": 256,
           },
@@ -2913,8 +2913,8 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 21,
-          "width": 32,
+          "height": 22,
+          "width": 33,
           "x": 872,
           "y": 333,
         },
@@ -2947,18 +2947,18 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 1,
-          "y": -1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
-            "height": 21,
-            "width": 32,
+            "height": 22,
+            "width": 33,
             "x": 872,
             "y": 333,
           },
           "inner": Object {
-            "height": 18,
-            "width": 28,
+            "height": 19,
+            "width": 29,
             "x": 874,
             "y": 334,
           },
@@ -3437,7 +3437,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "1",
         "option": "1",
-        "score": 0.2596685082872928,
+        "score": 0.25133689839572193,
       },
       Object {
         "contest": "1",
@@ -3462,7 +3462,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "2",
         "option": "23",
-        "score": 0.4109195402298851,
+        "score": 0.4048913043478261,
       },
       Object {
         "contest": "2",
@@ -3477,7 +3477,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "3",
         "option": "32",
-        "score": 0.7928176795580111,
+        "score": 0.7914438502673797,
       },
       Object {
         "contest": "3",
@@ -3497,22 +3497,22 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "4",
         "option": "__write-in-0",
-        "score": 0.655367231638418,
+        "score": 0.6385869565217391,
       },
       Object {
         "contest": "initiative-65",
         "option": "yes",
-        "score": 0.3983050847457627,
+        "score": 0.4266304347826087,
       },
       Object {
         "contest": "initiative-65",
         "option": "no",
-        "score": 0.2796610169491525,
+        "score": 0.26902173913043476,
       },
       Object {
         "contest": "initiative-65-a",
         "option": "yes",
-        "score": 0.22598870056497175,
+        "score": 0.22554347826086957,
       },
       Object {
         "contest": "initiative-65-a",
@@ -3539,7 +3539,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "flag-question",
         "option": "yes",
-        "score": 0.48579545454545453,
+        "score": 0.49731182795698925,
       },
       Object {
         "contest": "flag-question",
@@ -3554,7 +3554,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "runoffs-question",
         "option": "no",
-        "score": 0.3039772727272727,
+        "score": 0.28763440860215056,
       },
     ]
   `)

@@ -35,6 +35,7 @@ import {
   Interpreted,
   Offset,
   Point,
+  Rect,
   Size,
 } from './types'
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize'
@@ -618,7 +619,7 @@ export default class Interpreter {
       zeroScoreThreshold
     )
 
-    const offsetAndScore = new Map<Point, number>()
+    const offsetAndScore = new Map<Offset, number>()
     const templateTarget = outline(crop(template, target.bounds))
     const templateTargetInner = outline(crop(template, target.inner))
     const templatePixelCountAvailableToFill = countPixels(templateTargetInner, {
@@ -626,7 +627,7 @@ export default class Interpreter {
     })
 
     for (const { x, y } of offsets()) {
-      const offsetTargetInner = {
+      const offsetTargetInner: Rect = {
         ...target.inner,
         x: target.inner.x + x,
         y: target.inner.y + y,
