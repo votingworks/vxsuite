@@ -23,7 +23,7 @@ test('says the sheet is unreadable if it is', async () => {
   const continueScanning = jest.fn()
 
   const { container, getByText } = render(
-    <BallotEjectScreen continueScanning={continueScanning} />
+    <BallotEjectScreen continueScanning={continueScanning} isTestMode />
   )
 
   await act(async () => {
@@ -109,7 +109,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
   const continueScanning = jest.fn()
 
   const { container, getByText } = render(
-    <BallotEjectScreen continueScanning={continueScanning} />
+    <BallotEjectScreen continueScanning={continueScanning} isTestMode />
   )
 
   await act(async () => {
@@ -188,7 +188,7 @@ test('says the ballot sheet is blank if it is', async () => {
   const continueScanning = jest.fn()
 
   const { container, getByText } = render(
-    <BallotEjectScreen continueScanning={continueScanning} />
+    <BallotEjectScreen continueScanning={continueScanning} isTestMode />
   )
 
   await act(async () => {
@@ -206,4 +206,108 @@ test('says the ballot sheet is blank if it is', async () => {
   fireEvent.click(getByText('Tabulate Duplicate Ballot'))
   fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'))
   expect(continueScanning).toHaveBeenCalledWith(true)
+})
+
+test('calls out live ballot sheets in test mode', async () => {
+  const response: BallotSheetInfo = {
+    id: 'mock-sheet-id',
+    front: {
+      image: { url: '/front/url' },
+      interpretation: {
+        type: 'InvalidTestModePage',
+        metadata: {
+          ballotStyleId: '1',
+          precinctId: '1',
+          ballotType: BallotType.Standard,
+          electionHash: '',
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber: 1,
+        },
+      },
+    },
+    back: {
+      image: { url: '/back/url' },
+      interpretation: {
+        type: 'InvalidTestModePage',
+        metadata: {
+          ballotStyleId: '1',
+          precinctId: '1',
+          ballotType: BallotType.Standard,
+          electionHash: '',
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber: 2,
+        },
+      },
+    },
+  }
+  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+
+  const continueScanning = jest.fn()
+
+  const { container, getByText } = render(
+    <BallotEjectScreen continueScanning={continueScanning} isTestMode />
+  )
+
+  await act(async () => {
+    await waitFor(() => fetchMock.called)
+  })
+
+  expect(container).toMatchSnapshot()
+
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
+  expect(continueScanning).toHaveBeenCalledWith()
+})
+
+test('calls out test ballot sheets in live mode', async () => {
+  const response: BallotSheetInfo = {
+    id: 'mock-sheet-id',
+    front: {
+      image: { url: '/front/url' },
+      interpretation: {
+        type: 'InvalidTestModePage',
+        metadata: {
+          ballotStyleId: '1',
+          precinctId: '1',
+          ballotType: BallotType.Standard,
+          electionHash: '',
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber: 1,
+        },
+      },
+    },
+    back: {
+      image: { url: '/back/url' },
+      interpretation: {
+        type: 'InvalidTestModePage',
+        metadata: {
+          ballotStyleId: '1',
+          precinctId: '1',
+          ballotType: BallotType.Standard,
+          electionHash: '',
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber: 2,
+        },
+      },
+    },
+  }
+  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+
+  const continueScanning = jest.fn()
+
+  const { container, getByText } = render(
+    <BallotEjectScreen continueScanning={continueScanning} isTestMode={false} />
+  )
+
+  await act(async () => {
+    await waitFor(() => fetchMock.called)
+  })
+
+  expect(container).toMatchSnapshot()
+
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
+  expect(continueScanning).toHaveBeenCalledWith()
 })

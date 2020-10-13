@@ -358,7 +358,12 @@ const App: React.FC = () => {
 
   if (election) {
     if (adjudication.remaining > 0 && !isScanning) {
-      return <BallotEjectScreen continueScanning={continueScanning} />
+      return (
+        <BallotEjectScreen
+          continueScanning={continueScanning}
+          isTestMode={isTestMode}
+        />
+      )
     }
 
     return (

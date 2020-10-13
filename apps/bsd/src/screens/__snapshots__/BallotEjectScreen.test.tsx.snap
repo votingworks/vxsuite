@@ -1,5 +1,187 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`calls out live ballot sheets in test mode 1`] = `
+<div>
+  <div
+    class="sc-VigVT djCdRx"
+  >
+    <div
+      class="sc-bZQynM cWyHmc"
+    >
+      <div
+        class="sc-gzVnrw iMtlFY"
+      >
+        <div
+          class="sc-htoDjs fdtLZY"
+        >
+          <div
+            class="sc-dnqmqq kKbVPv"
+          >
+            Voting
+            <span>
+              Works
+            </span>
+          </div>
+          <div
+            class="sc-iwsKbI jQhHGA"
+          >
+            Ballot Scanner
+          </div>
+        </div>
+        <div
+          class="sc-gZMcBi idZcZf"
+        >
+          <button
+            class="sc-ifAKCX khGLgj"
+            type="button"
+          >
+            Confirm Ballot Removed and Continue Scanning
+          </button>
+        </div>
+      </div>
+    </div>
+    <main
+      class="sc-bdVaJa kYuSve"
+    >
+      <div
+        class="sc-bwzfXH hLOwzs"
+      >
+        <div
+          class="sc-fjdhpX eRpYQP"
+        >
+          <div
+            class="sc-htpNat eawaaV"
+          >
+            <div
+              class="sc-jTzLTM gSIlWD"
+            >
+              Live Ballot
+            </div>
+            <p>
+              This last scanned sheet 
+              <strong>
+                was not tabulated
+              </strong>
+              .
+            </p>
+            <p>
+              Remove the LIVE ballot before continuing.
+            </p>
+          </div>
+          <div
+            class="sc-jzJRlG ggDwyK"
+          >
+            <div>
+              <img
+                alt="front"
+                src="/front/url"
+              />
+            </div>
+            <div>
+              <img
+                alt="back"
+                src="/back/url"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+`;
+
+exports[`calls out test ballot sheets in live mode 1`] = `
+<div>
+  <div
+    class="sc-VigVT djCdRx"
+  >
+    <div
+      class="sc-bZQynM cWyHmc"
+    >
+      <div
+        class="sc-gzVnrw iMtlFY"
+      >
+        <div
+          class="sc-htoDjs fdtLZY"
+        >
+          <div
+            class="sc-dnqmqq kKbVPv"
+          >
+            Voting
+            <span>
+              Works
+            </span>
+          </div>
+          <div
+            class="sc-iwsKbI jQhHGA"
+          >
+            Ballot Scanner
+          </div>
+        </div>
+        <div
+          class="sc-gZMcBi idZcZf"
+        >
+          <button
+            class="sc-ifAKCX khGLgj"
+            type="button"
+          >
+            Confirm Ballot Removed and Continue Scanning
+          </button>
+        </div>
+      </div>
+    </div>
+    <main
+      class="sc-bdVaJa kYuSve"
+    >
+      <div
+        class="sc-bwzfXH hLOwzs"
+      >
+        <div
+          class="sc-fjdhpX eRpYQP"
+        >
+          <div
+            class="sc-htpNat eawaaV"
+          >
+            <div
+              class="sc-jTzLTM gSIlWD"
+            >
+              Test Ballot
+            </div>
+            <p>
+              This last scanned sheet 
+              <strong>
+                was not tabulated
+              </strong>
+              .
+            </p>
+            <p>
+              Remove the TEST ballot before continuing.
+            </p>
+          </div>
+          <div
+            class="sc-jzJRlG ggDwyK"
+          >
+            <div>
+              <img
+                alt="front"
+                src="/front/url"
+              />
+            </div>
+            <div>
+              <img
+                alt="back"
+                src="/back/url"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+`;
+
 exports[`says the ballot sheet is blank if it is 1`] = `
 <div>
   <div
