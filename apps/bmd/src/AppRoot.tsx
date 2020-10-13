@@ -177,7 +177,7 @@ class AppRoot extends React.Component<Props, State> {
 
   private initialHardwareState: HardwareState = {
     hasAccessibleControllerAttached: false,
-    hasCardReaderAttached: false,
+    hasCardReaderAttached: true,
     hasChargerAttached: true,
     hasLowBattery: false,
     hasPrinterAttached: true,
