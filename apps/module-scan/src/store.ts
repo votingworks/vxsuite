@@ -97,7 +97,7 @@ export default class Store {
     const schemaDigestPath = `${dbPath}.digest`
     let schemaDigest: string | undefined
     try {
-      schemaDigest = await fs.readFile(schemaDigestPath, 'utf-8')
+      schemaDigest = (await fs.readFile(schemaDigestPath, 'utf-8')).trim()
     } catch {
       debug(
         'could not read %s, assuming the database needs to be created',
@@ -109,7 +109,11 @@ export default class Store {
     const shouldResetDatabase = newSchemaDigest !== schemaDigest
 
     if (shouldResetDatabase) {
-      debug('database schema has changed')
+      debug(
+        'database schema has changed (%s ≉ %s)',
+        schemaDigest,
+        newSchemaDigest
+      )
       try {
         const backupPath = `${dbPath}.backup-${new Date()
           .toISOString()

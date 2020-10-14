@@ -50,6 +50,10 @@ front-02.png
 back-02.png
 EOS
 MOCK_SCANNER_FILES=@manifest yarn start
+
+# scanning from an election backup file
+./bin/restore-backup /path/to/election-backup.zip
+MOCK_SCANNER_FILES=@/path/to/election-backup/manifest yarn start
 ```
 
 ## API Documentation
