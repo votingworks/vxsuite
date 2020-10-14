@@ -30,6 +30,7 @@ import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
 } from './util/ballotAdjudicationReasons'
 import optionMarkStatus from './util/optionMarkStatus'
+import { time } from './util/perf'
 import { detectQRCode } from './util/qrcode'
 import threshold from './util/threshold'
 
@@ -259,9 +260,11 @@ export default class SummaryBallotInterpreter implements Interpreter {
     ballotImagePath,
     ballotImageFile,
   }: InterpretFileParams): Promise<InterpretFileResult> {
+    const timer = time(`interpretFile: ${ballotImagePath}`)
     const result = await getBallotImageData(ballotImageFile, ballotImagePath)
 
     if (isErrorResult(result)) {
+      timer.end()
       return { interpretation: result.error }
     }
 
@@ -272,8 +275,10 @@ export default class SummaryBallotInterpreter implements Interpreter {
       const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
         .metadata
       if (bmdMetadata.isTestMode === this.testMode) {
+        timer.end()
         return bmdResult
       } else {
+        timer.end()
         return {
           interpretation: {
             type: 'InvalidTestModePage',
@@ -287,6 +292,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
       const hmpbResult = await this.interpretHMPBFile(ballotImageData)
 
       if (hmpbResult) {
+        timer.end()
         return hmpbResult
       }
     } catch (error) {
@@ -306,6 +312,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
           metadata.isTestMode,
           this.testMode
         )
+        timer.end()
         return {
           interpretation: {
             type: 'InvalidTestModePage',
@@ -314,6 +321,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
         }
       }
 
+      timer.end()
       return {
         interpretation: {
           type: 'UninterpretedHmpbPage',
@@ -321,6 +329,7 @@ export default class SummaryBallotInterpreter implements Interpreter {
         },
       }
     } catch (error) {
+      timer.end()
       return {
         interpretation: {
           type: 'UnreadablePage',

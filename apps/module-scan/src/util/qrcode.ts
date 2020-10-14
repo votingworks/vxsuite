@@ -2,10 +2,10 @@ import { detect } from '@votingworks/ballot-encoder'
 import { Rect, Size } from '@votingworks/hmpb-interpreter'
 import crop from '@votingworks/hmpb-interpreter/dist/src/utils/crop'
 import { detect as qrdetect } from '@votingworks/qrdetect'
-import { decode as quircDecode } from 'node-quirc'
 import makeDebug from 'debug'
-
+import { decode as quircDecode } from 'node-quirc'
 import sharp, { Channels } from 'sharp'
+import { time } from './perf'
 
 const debug = makeDebug('module-scan:qrcode')
 
@@ -39,6 +39,12 @@ export function* getSearchAreas(
   // QR code for HMPB is bottom right of legal, so appears bottom right or top left
   const hmpbWidth = Math.round((size.width * 3) / 4)
   const hmpbHeight = Math.round(size.height / 8)
+  // We look at the top first because we're assuming people will mostly scan sheets
+  // so they appear right-side up to them, but bottom-side first to the scanner.
+  yield {
+    position: 'top',
+    bounds: { x: 0, y: 0, width: hmpbWidth, height: hmpbHeight },
+  }
   yield {
     position: 'bottom',
     bounds: {
@@ -48,23 +54,12 @@ export function* getSearchAreas(
       height: hmpbHeight,
     },
   }
-  yield {
-    position: 'top',
-    bounds: { x: 0, y: 0, width: hmpbWidth, height: hmpbHeight },
-  }
 
   // QR code for BMD is top right of letter, so appears top right or bottom left
   const bmdWidth = Math.round((size.width * 2) / 5)
   const bmdHeight = Math.round((size.height * 2) / 5)
-  yield {
-    position: 'top',
-    bounds: {
-      x: size.width - bmdWidth,
-      y: 0,
-      width: bmdWidth,
-      height: bmdHeight,
-    },
-  }
+  // We look at the top first because we're assuming people will mostly scan sheets
+  // so they appear right-side up to them, but bottom-side first to the scanner.
   yield {
     position: 'bottom',
     bounds: {
@@ -74,11 +69,23 @@ export function* getSearchAreas(
       height: bmdHeight,
     },
   }
+  yield {
+    position: 'top',
+    bounds: {
+      x: size.width - bmdWidth,
+      y: 0,
+      width: bmdWidth,
+      height: bmdHeight,
+    },
+  }
 }
 
 export const detectQRCode = async (
   imageData: ImageData
 ): Promise<{ data: Buffer; position: 'top' | 'bottom' } | undefined> => {
+  const timer = time('detectQRCode')
+  let result: { data: Buffer; position: 'top' | 'bottom' } | undefined
+
   debug('detectQRCode: checking %dˣ%d image', imageData.width, imageData.height)
 
   for (const { position, bounds } of getSearchAreas(imageData)) {
@@ -89,14 +96,28 @@ export const detectQRCode = async (
 
     if (results.length > 0) {
       debug(
-        'found QR code in %s! data length=%d',
+        'qrdetect found QR code in %s! data length=%d',
         position,
         results[0].data.length
       )
       const data = maybeDecodeBase64(results[0].data)
 
-      return { data, position }
+      result = { data, position }
     } else {
+      debug('qrdetect found no QR codes in %s', position)
+    }
+
+    if (result) {
+      break
+    }
+  }
+
+  if (!result) {
+    for (const { position, bounds } of getSearchAreas(imageData)) {
+      debug('cropping %s to check for QR code: %o', position, bounds)
+      const cropped = crop(imageData, bounds)
+
+      debug('generating PNG for quirc')
       const { data, width, height } = cropped
       const img = await sharp(Buffer.from(data), {
         raw: {
@@ -110,21 +131,32 @@ export const detectQRCode = async (
         .png()
         .toBuffer()
 
-      const backupResult = (await quircDecode(img))[0]
+      debug('scanning with quirc')
+      const results = (await quircDecode(img))[0]
 
-      if (backupResult && 'data' in backupResult) {
+      if (results && 'data' in results) {
         debug(
-          'found QR code with backup quirc in %s! data length=%d',
+          'quirc found QR code in %s! data length=%d',
           position,
-          backupResult.data.length
+          results.data.length
         )
-        const data = maybeDecodeBase64(backupResult.data)
+        const data = maybeDecodeBase64(results.data)
 
-        return { data, position }
+        result = { data, position }
+      } else {
+        debug('quirc found no QR codes in %s', position)
+      }
+
+      if (result) {
+        break
       }
     }
   }
 
-  debug('detectQRCode: no QR code found')
-  return undefined
+  if (!result) {
+    debug('detectQRCode: no QR code found')
+  }
+
+  timer.end()
+  return result
 }
