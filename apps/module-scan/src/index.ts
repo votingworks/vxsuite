@@ -1,19 +1,18 @@
 // Import the rest of our application.
-import LoopScanner from './LoopScanner'
+import LoopScanner, { parseBatchesFromEnv } from './LoopScanner'
 import * as server from './server'
-import { isNonEmptyArray } from './types'
 
 function getScanner(): LoopScanner | undefined {
-  const files = process.env.MOCK_SCANNER_FILES?.split(',')
+  const mockScannerFiles = parseBatchesFromEnv(process.env.MOCK_SCANNER_FILES)
 
-  if (isNonEmptyArray(files)) {
+  if (mockScannerFiles) {
     process.stdout.write(
-      'Using mock scanner that scans these files repeatedly:\n'
+      `Using mock scanner that scans ${mockScannerFiles.reduce(
+        (count, sheets) => count + sheets.length,
+        0
+      )} sheet(s) in ${mockScannerFiles.length} batch(es) repeatedly.\n`
     )
-    for (const file of files) {
-      process.stdout.write(`- ${file}\n`)
-    }
-    return new LoopScanner(files)
+    return new LoopScanner(mockScannerFiles)
   }
 
   return undefined
