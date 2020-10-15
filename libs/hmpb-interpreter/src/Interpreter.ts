@@ -629,23 +629,44 @@ export default class Interpreter {
     template: ImageData,
     ballot: ImageData,
     target: TargetShape,
-    { zeroScoreThreshold = 0, maximumCorrectionPixels = 2 } = {}
+    {
+      zeroScoreThreshold = 0,
+      highScoreThreshold = 0.25,
+      maximumCorrectionPixelsX = 2,
+      maximumCorrectionPixelsY = 2,
+    } = {}
   ): { offset: Offset; score: number } {
     debug(
-      'computing target mark score for target at (x=%d, y=%d) with zero threshold %d',
+      'computing target mark score for target at (x=%d, y=%d) with zero threshold %d and high threshold %d',
       target.inner.x,
       target.inner.y,
-      zeroScoreThreshold
+      zeroScoreThreshold,
+      highScoreThreshold
     )
 
     const offsetAndScore = new Map<Offset, number>()
     const templateTarget = outline(crop(template, target.bounds))
     const templateTargetInner = outline(crop(template, target.inner))
+
+    binarize(templateTarget)
+    binarize(templateTargetInner)
+
     const templatePixelCountAvailableToFill = countPixels(templateTargetInner, {
       color: PIXEL_WHITE,
     })
 
     for (const { x, y } of offsets()) {
+      const xOver = Math.abs(x) > maximumCorrectionPixelsX
+      const yOver = Math.abs(y) > maximumCorrectionPixelsY
+
+      if (xOver && yOver) {
+        break
+      }
+
+      if (xOver || yOver) {
+        continue
+      }
+
       const offsetTargetInner: Rect = {
         ...target.inner,
         x: target.inner.x + x,
@@ -666,6 +687,11 @@ export default class Interpreter {
       })
       const score =
         ballotTargetInnerNewBlackPixelCount / templatePixelCountAvailableToFill
+
+      if (score >= highScoreThreshold) {
+        return { offset: { x, y }, score }
+      }
+
       if (score <= zeroScoreThreshold) {
         debug(
           'returning early at (x=%d, y=%d) since score (%d) is ≤ zero threshold (%d)',
@@ -677,10 +703,6 @@ export default class Interpreter {
         return { offset: { x, y }, score }
       }
       offsetAndScore.set({ x, y }, score)
-
-      if (x === maximumCorrectionPixels && y === maximumCorrectionPixels) {
-        break
-      }
     }
     const [[minOffset, minScore]] = [...offsetAndScore].sort(
       ([, a], [, b]) => a - b
@@ -756,6 +778,7 @@ export default class Interpreter {
         templateBottomLeft,
         templateBottomRight,
       ] = rectCorners(templateContestBounds)
+
       if (leftSideOnly) {
         ballotPoints.push(ballotTopLeft, ballotBottomLeft)
         templatePoints.push(templateTopLeft, templateBottomLeft)
