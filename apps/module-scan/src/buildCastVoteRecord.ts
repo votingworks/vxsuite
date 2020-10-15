@@ -135,6 +135,7 @@ export function buildCastVoteRecordFromBmdPage(
 }
 
 export function buildCastVoteRecordFromHmpbPage(
+  sheetId: string,
   ballotId: string,
   election: Election,
   [front, back]: SheetOf<
@@ -153,7 +154,7 @@ export function buildCastVoteRecordFromHmpbPage(
     back.interpretation.metadata.pageNumber
   ) {
     throw new Error(
-      `expected a sheet to have consecutive page numbers, but got front=${front.interpretation.metadata.pageNumber} back=${back.interpretation.metadata.pageNumber}`
+      `expected a sheet to have consecutive page numbers, but got front=${front.interpretation.metadata.pageNumber} back=${back.interpretation.metadata.pageNumber} with sheet ${sheetId}`
     )
   }
 
@@ -162,7 +163,7 @@ export function buildCastVoteRecordFromHmpbPage(
     back.interpretation.metadata.ballotStyleId
   ) {
     throw new Error(
-      `expected a sheet to have the same ballot style, but got front=${front.interpretation.metadata.ballotStyleId} back=${back.interpretation.metadata.ballotStyleId}`
+      `expected a sheet to have the same ballot style, but got front=${front.interpretation.metadata.ballotStyleId} back=${back.interpretation.metadata.ballotStyleId} with sheet ${sheetId}`
     )
   }
 
@@ -171,12 +172,12 @@ export function buildCastVoteRecordFromHmpbPage(
     back.interpretation.metadata.precinctId
   ) {
     throw new Error(
-      `expected a sheet to have the same precinct, but got front=${front.interpretation.metadata.precinctId} back=${back.interpretation.metadata.precinctId}`
+      `expected a sheet to have the same precinct, but got front=${front.interpretation.metadata.precinctId} back=${back.interpretation.metadata.precinctId} with sheet ${sheetId}`
     )
   }
 
   if (!front.contestIds || !back.contestIds) {
-    throw new Error('expected sheet to have contest ids')
+    throw new Error(`expected sheet to have contest ids with sheet ${sheetId}`)
   }
 
   return {
@@ -206,6 +207,7 @@ export function buildCastVoteRecordFromHmpbPage(
 }
 
 export function buildCastVoteRecord(
+  sheetId: string,
   ballotId: string,
   election: Election,
   [front, back]: SheetOf<BuildCastVoteRecordInput>
@@ -240,7 +242,7 @@ export function buildCastVoteRecord(
       )
     }
 
-    return buildCastVoteRecordFromHmpbPage(ballotId, election, [
+    return buildCastVoteRecordFromHmpbPage(sheetId, ballotId, election, [
       front,
       back,
     ] as SheetOf<

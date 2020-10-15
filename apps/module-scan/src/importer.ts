@@ -442,6 +442,7 @@ export default class SystemImporter implements Importer {
       }
 
       this.scanOneSheet().catch((err) => {
+        debug('processing sheet failed with error: %s', err.stack)
         this.finishBatch(err.toString())
       })
     } else {

@@ -10,6 +10,7 @@ import { buildCastVoteRecord } from './buildCastVoteRecord'
 import { MarkStatus } from './types/ballot-review'
 
 test('generates a CVR from a completed BMD ballot', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
   const ballotStyleId = '1'
   const precinctId = '6522'
@@ -17,7 +18,7 @@ test('generates a CVR from a completed BMD ballot', () => {
   const contests = getContests({ ballotStyle, election })
 
   expect(
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       {
         interpretation: {
           type: 'InterpretedBmdPage',
@@ -73,6 +74,7 @@ test('generates a CVR from a completed BMD ballot', () => {
 })
 
 test('generates a CVR from a completed HMPB page', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
   const ballotStyleId = '1'
   const precinctId = '6522'
@@ -80,7 +82,7 @@ test('generates a CVR from a completed HMPB page', () => {
   const contests = getContests({ ballotStyle, election })
 
   expect(
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
@@ -162,6 +164,7 @@ test('generates a CVR from a completed HMPB page', () => {
 })
 
 test('generates a CVR from an adjudicated HMPB page', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
   const ballotStyleId = '1'
   const precinctId = '6522'
@@ -169,7 +172,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
   const contests = getContests({ ballotStyle, election })
 
   expect(
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
@@ -262,12 +265,13 @@ test('generates a CVR from an adjudicated HMPB page', () => {
 })
 
 test('fails to generate a CVR from an invalid HMPB sheet with two pages having the same page number', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
   const ballotStyleId = '1'
   const precinctId = '6522'
 
   expect(() =>
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
@@ -313,12 +317,13 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
 })
 
 test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutive pages', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
   const ballotStyleId = '1'
   const precinctId = '6522'
 
   expect(() =>
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
@@ -364,11 +369,12 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
 })
 
 test('fails to generate a CVR from an invalid HMPB sheet with different ballot styles', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
   const precinctId = '6522'
 
   expect(() =>
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
@@ -414,11 +420,12 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
 })
 
 test('fails to generate a CVR from an invalid HMPB sheet with different precincts', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
   const ballotStyleId = '1'
 
   expect(() =>
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
@@ -464,12 +471,13 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
 })
 
 test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
   const ballotStyleId = '1'
   const precinctId = '6522'
 
   expect(
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
@@ -555,10 +563,11 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
 })
 
 test('fails to generate CVRs from blank pages', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
 
   expect(
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       { interpretation: { type: 'BlankPage' } },
       { interpretation: { type: 'BlankPage' } },
     ])
@@ -566,12 +575,13 @@ test('fails to generate CVRs from blank pages', () => {
 })
 
 test('fails to generate CVRs from invalid test mode pages', () => {
+  const sheetId = 'sheetid'
   const ballotId = 'abcdefg'
   const ballotStyleId = '1'
   const precinctId = '6522'
 
   expect(
-    buildCastVoteRecord(ballotId, election, [
+    buildCastVoteRecord(sheetId, ballotId, election, [
       {
         interpretation: {
           type: 'InvalidTestModePage',

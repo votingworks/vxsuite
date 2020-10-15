@@ -1026,6 +1026,7 @@ export default class Store {
         ? JSON.parse(backAdjudicationJSON)
         : undefined
       const cvr = buildCastVoteRecord(
+        id,
         frontInterpretation.type === 'InterpretedBmdPage'
           ? frontInterpretation.ballotId
           : backInterpretation.type === 'InterpretedBmdPage'
