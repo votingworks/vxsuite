@@ -10,3 +10,4 @@ hmpb-templates
 coverage/
 .DS_Store
 debug-dump*.zip
+/*.png

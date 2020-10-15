@@ -21,11 +21,35 @@ yarn test
 ## Start the Server
 
 ```sh
-# real scanner
+# use a real scanner
 yarn start
+```
 
-# mock scanner
-MOCK_SCANNER_FILES=file1.jpg,file2.jpg yarn start
+## Mock Scanning
+
+You can also scan directly from image files instead of using a real scanner:
+
+```sh
+# single batch with single sheet
+MOCK_SCANNER_FILES=front.png,back.png yarn start
+
+# single batch with multiple sheets
+MOCK_SCANNER_FILES=front-01.png,back-01.png,front-02.png,back-02.png yarn start
+
+# multiple batches with one sheet each (note ",," batch separator)
+MOCK_SCANNER_FILES=front-01.png,back-01.png,,front-02.png,back-02.png yarn start
+
+# use a manifest file
+cat <<EOS > manifest
+# first batch (this is a comment)
+front-01.png
+back-01.png
+
+# second batch
+front-02.png
+back-02.png
+EOS
+MOCK_SCANNER_FILES=@manifest yarn start
 ```
 
 ## API Documentation
@@ -60,5 +84,3 @@ This scanner module provides the following API:
 - `DELETE /scan/batch/:batchId` delete a batch by ID
 
 - `POST /scan/zero` zero's all data but not the election config
-
-## Architecture
