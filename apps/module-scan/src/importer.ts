@@ -3,6 +3,8 @@ import makeDebug from 'debug'
 import * as fs from 'fs'
 import * as fsExtra from 'fs-extra'
 import * as streams from 'memory-streams'
+import { join } from 'path'
+import { sync as rimraf } from 'rimraf'
 import sharp, { Raw } from 'sharp'
 import { v4 as uuid } from 'uuid'
 import { PageInterpretation } from './interpreter'
@@ -508,5 +510,14 @@ export default class SystemImporter implements Importer {
     this.invalidateInterpreterConfig()
     await this.doZero()
     await this.store.reset() // destroy all data
+
+    // erase the temporary directories
+    const tmpdir = join(__dirname, '../tmp')
+    rimraf(tmpdir)
+
+    // and restore the ones we're using
+    fsExtra.mkdirpSync(tmpdir)
+    fsExtra.mkdirpSync(this.scannedImagesPath)
+    fsExtra.mkdirpSync(this.importedImagesPath)
   }
 }
