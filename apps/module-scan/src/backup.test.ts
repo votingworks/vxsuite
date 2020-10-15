@@ -229,7 +229,7 @@ test('has all files referenced in the database', async () => {
         (fileName) =>
           fileName !== 'election.json' &&
           fileName !== 'ballots.db' &&
-          fileName !== 'cvrs.txt'
+          fileName !== 'cvrs.jsonl'
       )
       .sort()
   ).toEqual(
@@ -282,7 +282,7 @@ test('has all files referenced in the database', async () => {
   })
 })
 
-test('has cvrs.txt', async () => {
+test('has cvrs.jsonl', async () => {
   const store = await Store.memoryStore()
   await store.setElection(fromElection(election))
   const result = new WritableStream()
@@ -323,9 +323,9 @@ test('has cvrs.txt', async () => {
 
   const zipfile = await openZip(result.toBuffer())
   const entries = await getEntries(zipfile)
-  expect(entries.map(({ fileName }) => fileName)).toContain('cvrs.txt')
+  expect(entries.map(({ fileName }) => fileName)).toContain('cvrs.jsonl')
 
-  const cvrsEntry = entries.find(({ fileName }) => fileName === 'cvrs.txt')!
+  const cvrsEntry = entries.find(({ fileName }) => fileName === 'cvrs.jsonl')!
   expect(await readTextEntry(zipfile, cvrsEntry)).toMatchInlineSnapshot(`
     "{\\"1\\":[],\\"2\\":[],\\"3\\":[],\\"4\\":[],\\"_ballotId\\":\\"abc\\",\\"_ballotStyleId\\":\\"1\\",\\"_precinctId\\":\\"6522\\",\\"_scannerId\\":\\"000\\",\\"_testBallot\\":false,\\"_locales\\":{\\"primary\\":\\"en-US\\"},\\"initiative-65\\":[],\\"initiative-65-a\\":[],\\"flag-question\\":[\\"yes\\"],\\"runoffs-question\\":[]}
     "

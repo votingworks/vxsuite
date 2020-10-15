@@ -75,7 +75,7 @@ export class Backup {
 
     const cvrStream = new WritableStream()
     await this.store.exportCVRs(cvrStream)
-    await this.addEntry('cvrs.txt', cvrStream.toBuffer())
+    await this.addEntry('cvrs.jsonl', cvrStream.toBuffer())
 
     const dbBackupFile = fileSync()
     await this.store.backup(dbBackupFile.name)
