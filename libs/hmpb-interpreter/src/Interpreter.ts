@@ -216,7 +216,7 @@ export default class Interpreter {
     debug('using metadata for template: %O', metadata)
 
     const contests = findContestOptions([
-      ...map(this.findContests(imageData), ({ bounds, corners }) => ({
+      ...map(this.findContests(imageData).contests, ({ bounds, corners }) => ({
         bounds,
         corners,
         targets: [...reversed(findTargets(imageData, bounds))],
@@ -229,7 +229,9 @@ export default class Interpreter {
     }
   }
 
-  private findContests(imageData: ImageData): ContestShape[] {
+  private findContests(
+    imageData: ImageData
+  ): { contests: ContestShape[]; columns: number } {
     // Try three columns, i.e. candidate pages.
     const shapesWithThreeColumns = [
       ...findContests(imageData, {
@@ -238,15 +240,18 @@ export default class Interpreter {
     ]
 
     if (shapesWithThreeColumns.length > 0) {
-      return shapesWithThreeColumns
+      return { contests: shapesWithThreeColumns, columns: 3 }
     }
 
     // Try two columns, i.e. measure pages.
-    return [
-      ...findContests(imageData, {
-        columns: [true, true],
-      }),
-    ]
+    return {
+      contests: [
+        ...findContests(imageData, {
+          columns: [true, true],
+        }),
+      ],
+      columns: 2,
+    }
   }
 
   /**
@@ -334,7 +339,7 @@ export default class Interpreter {
       )
     }
 
-    const contests = this.findContests(imageData)
+    const { contests, columns } = this.findContests(imageData)
     const ballotLayout: BallotPageLayout = {
       ballotImage: { imageData, metadata },
       contests: [
@@ -357,7 +362,8 @@ export default class Interpreter {
     const [mappedBallot, marks] = this.getMarksForBallot(
       ballotLayout,
       matchedTemplate,
-      this.getContestsForTemplate(matchedTemplate)
+      this.getContestsForTemplate(matchedTemplate),
+      columns
     )
 
     return { matchedTemplate, mappedBallot, metadata, marks }
@@ -452,7 +458,8 @@ export default class Interpreter {
   private getMarksForBallot(
     ballotLayout: BallotPageLayout,
     template: BallotPageLayout,
-    contests: Contests
+    contests: Contests,
+    columns: number
   ): [ImageData, BallotMark[]] {
     assert.equal(
       template.contests.length,
@@ -466,7 +473,19 @@ export default class Interpreter {
       `ballot and election definition have different numbers of contests (${ballotLayout.contests.length} vs ${contests.length}); maybe the ballot is from an old version of the election definition?`
     )
 
-    const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template)
+    const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template, {
+      // Ensure we have at least three points by using all four corners when we
+      // have a single contest, but also use all four corners when we have only
+      // two columns. The idea is that the right side can end up pretty off on
+      // a wide enough contest box, which can skew the targets unacceptably.
+      //
+      // Why not just use all four corners all the time? Homography algorithms
+      // reject some of the points if they're determined to be enough of an
+      // outlier, so with three-column pages we give it only the left points to
+      // reduce the odds that any left-side points are discarded. Aligning the
+      // left is important because that's where the targets are.
+      leftSideOnly: contests.length > 1 && columns === 3,
+    })
     const marks: BallotMark[] = []
 
     const addCandidateMark = (
@@ -710,7 +729,8 @@ export default class Interpreter {
 
   private mapBallotOntoTemplate(
     ballot: BallotPageLayout,
-    template: BallotPageLayout
+    template: BallotPageLayout,
+    { leftSideOnly }: { leftSideOnly: boolean }
   ): ImageData {
     const ballotMat = readGrayscaleImage(ballot.ballotImage.imageData)
     const templateSize = {
@@ -720,26 +740,38 @@ export default class Interpreter {
     const ballotPoints: Point[] = []
     const templatePoints: Point[] = []
 
-    if (ballot.contests.length === 1) {
-      // We need at least three points, so when there's a single contest use all
-      // four corners. Otherwise we end up with a homography that results in a
-      // completely white image.
-      ballotPoints.push(...ballot.contests[0].corners)
-      templatePoints.push(...rectCorners(template.contests[0].bounds))
-    } else {
-      // To reduce the odds of a left-side corner being thrown out and skewing
-      // the targets, thereby producing bad scores, only use the left corners
-      // from each contest box to produce a homography.
-      for (const [
-        { corners: ballotContestCorners },
-        { bounds: templateContestBounds },
-      ] of zip(ballot.contests, template.contests)) {
-        const [ballotTopLeft, , ballotBottomLeft] = ballotContestCorners
-        const [templateTopLeft, , templateBottomLeft] = rectCorners(
-          templateContestBounds
-        )
+    for (const [
+      { corners: ballotContestCorners },
+      { bounds: templateContestBounds },
+    ] of zip(ballot.contests, template.contests)) {
+      const [
+        ballotTopLeft,
+        ballotTopRight,
+        ballotBottomLeft,
+        ballotBottomRight,
+      ] = ballotContestCorners
+      const [
+        templateTopLeft,
+        templateTopRight,
+        templateBottomLeft,
+        templateBottomRight,
+      ] = rectCorners(templateContestBounds)
+      if (leftSideOnly) {
         ballotPoints.push(ballotTopLeft, ballotBottomLeft)
         templatePoints.push(templateTopLeft, templateBottomLeft)
+      } else {
+        ballotPoints.push(
+          ballotTopLeft,
+          ballotTopRight,
+          ballotBottomLeft,
+          ballotBottomRight
+        )
+        templatePoints.push(
+          templateTopLeft,
+          templateTopRight,
+          templateBottomLeft,
+          templateBottomRight
+        )
       }
     }
 
