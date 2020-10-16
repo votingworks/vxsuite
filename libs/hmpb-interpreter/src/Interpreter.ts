@@ -63,7 +63,7 @@ export interface Options {
   decodeQRCode?: DetectQRCode
 }
 
-export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.2
+export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.12
 
 type TemplateKey = Pick<
   BallotPageMetadata,

@@ -1681,6 +1681,11 @@ test('invalid marks', async () => {
     Object {
       "dallas-city-council": Array [
         Object {
+          "id": "randall-rupp",
+          "name": "Randall Rupp",
+          "partyId": "2",
+        },
+        Object {
           "id": "donald-davis",
           "name": "Donald Davis",
           "partyId": "3",
@@ -1695,6 +1700,9 @@ test('invalid marks', async () => {
       ],
       "dallas-county-proposition-r": Array [
         "no",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "yes",
       ],
     }
   `)
@@ -3211,6 +3219,12 @@ test('yesno overvotes', async () => {
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
+      "102": Array [
+        "yes",
+      ],
+      "measure-101": Array [
+        "no",
+      ],
       "proposition-1": Array [
         "yes",
         "no",
@@ -3236,6 +3250,18 @@ test('regression: page outline', async () => {
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
+      "dallas-city-council": Array [
+        Object {
+          "id": "randall-rupp",
+          "name": "Randall Rupp",
+          "partyId": "2",
+        },
+        Object {
+          "id": "donald-davis",
+          "name": "Donald Davis",
+          "partyId": "3",
+        },
+      ],
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
           "id": "andrew-jewell",
@@ -3245,6 +3271,9 @@ test('regression: page outline', async () => {
       ],
       "dallas-county-proposition-r": Array [
         "no",
+      ],
+      "dallas-county-retain-chief-justice": Array [
+        "yes",
       ],
     }
   `)
