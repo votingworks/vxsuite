@@ -269,7 +269,10 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 
   await request(app)
     .patch(`/scan/hmpb/ballot/${id}/back`)
-    .send({ 'question-b': { no: MarkStatus.Marked } })
+    .send({
+      'question-a': { no: MarkStatus.Marked },
+      'question-b': { yes: MarkStatus.Marked },
+    })
     .expect(200)
 
   {
@@ -319,7 +322,6 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         ],
         "question-b": Array [
           "yes",
-          "no",
         ],
         "question-c": Array [
           "no",
