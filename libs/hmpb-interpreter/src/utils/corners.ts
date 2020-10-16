@@ -1,14 +1,283 @@
 import makeDebug from 'debug'
-import { Shape } from '../hmpb/shapes'
-import { Corners, Offset, Point, Rect } from '../types'
-import { PIXEL_BLACK } from './binarize'
-import { rectCorners } from './geometry'
-import { getImageChannelCount } from './imageFormatUtils'
+import { Edge, Shape } from '../hmpb/shapes'
+import { Corners, Point } from '../types'
+import { editDistance, median, rectCorners } from './geometry'
 
 const debug = makeDebug('module-scan:corners')
 
+function findTopLeftCorner(
+  topLeft: Point,
+  leftMedian: number,
+  topMedian: number,
+  leftEdge: Edge,
+  topEdge: Edge,
+  maxUpDownSkewDistance: number,
+  maxLeftRightSkewDistance: number
+): Point {
+  debug('finding top-left corner from %o', topLeft)
+  let bestDistance = Infinity
+  let bestPoints: Point[] = []
+
+  for (
+    let x = topLeft.x;
+    x <= topLeft.x + 2.5 * Math.abs(leftMedian - topLeft.x);
+    x++
+  ) {
+    const y = topEdge[x]
+
+    if (Math.abs(y - topLeft.y) > maxUpDownSkewDistance) {
+      continue
+    }
+
+    const newDistance = editDistance({ x, y }, topLeft)
+    if (newDistance < bestDistance) {
+      bestPoints = [{ x, y }]
+    } else if (newDistance === bestDistance) {
+      bestPoints.push({ x, y })
+    }
+  }
+
+  for (
+    let y = topLeft.y;
+    y <= topLeft.x + 2.5 * Math.abs(topMedian - topLeft.x);
+    y++
+  ) {
+    const x = leftEdge[y]
+
+    if (Math.abs(x - topLeft.x) > maxLeftRightSkewDistance) {
+      continue
+    }
+
+    const newDistance = editDistance({ x, y }, topLeft)
+    if (newDistance < bestDistance) {
+      bestPoints = [{ x, y }]
+      bestDistance = newDistance
+    } else if (newDistance === bestDistance) {
+      bestPoints.push({ x, y })
+    }
+  }
+
+  debug('found top-left corner candidates: %o', bestPoints)
+
+  if (bestPoints.length === 0) {
+    debug('found no points!? falling back to top-left: %o', topLeft)
+    return topLeft
+  }
+
+  const bestPoint = {
+    x: Math.min(...bestPoints.map(({ x }) => x)),
+    y: Math.min(...bestPoints.map(({ y }) => y)),
+  }
+  debug('merging top-left corner candidates: %o', bestPoint)
+  return bestPoint
+}
+
+function findTopRightCorner(
+  topRight: Point,
+  rightMedian: number,
+  topMedian: number,
+  rightEdge: Edge,
+  topEdge: Edge,
+  maxUpDownSkewDistance: number,
+  maxLeftRightSkewDistance: number
+): Point {
+  debug('finding top-right corner from %o', topRight)
+  let bestDistance = Infinity
+  let bestPoints: Point[] = []
+
+  for (
+    let x = topRight.x;
+    x >= topRight.x + 2.5 * Math.abs(rightMedian - topRight.x);
+    x--
+  ) {
+    const y = topEdge[x]
+
+    if (Math.abs(y - topRight.y) > maxUpDownSkewDistance) {
+      continue
+    }
+
+    const newDistance = editDistance({ x, y }, topRight)
+
+    if (newDistance < bestDistance) {
+      bestPoints = [{ x, y }]
+      bestDistance = newDistance
+    } else if (newDistance === bestDistance) {
+      bestPoints.push({ x, y })
+    }
+  }
+
+  for (
+    let y = topRight.y;
+    y <= topRight.y + 2.5 * Math.abs(topMedian - topRight.y);
+    y++
+  ) {
+    const x = rightEdge[y]
+
+    if (x - topRight.x > maxLeftRightSkewDistance) {
+      continue
+    }
+
+    const newDistance = editDistance({ x, y }, topRight)
+
+    if (newDistance < bestDistance) {
+      bestPoints = [{ x, y }]
+      bestDistance = newDistance
+    } else if (newDistance === bestDistance) {
+      bestPoints.push({ x, y })
+    }
+  }
+
+  debug('found top-right corner candidates: %o', bestPoints)
+
+  if (bestPoints.length === 0) {
+    debug('found no points!? falling back to top-right: %o', topRight)
+    return topRight
+  }
+
+  const bestPoint = {
+    x: Math.max(...bestPoints.map(({ x }) => x)),
+    y: Math.min(...bestPoints.map(({ y }) => y)),
+  }
+  debug('merging top-right corner candidates: %o', bestPoint)
+  return bestPoint
+}
+
+function findBottomLeftCorner(
+  bottomLeft: Point,
+  leftMedian: number,
+  bottomMedian: number,
+  leftEdge: Edge,
+  bottomEdge: Edge,
+  maxUpDownSkewDistance: number,
+  maxLeftRightSkewDistance: number
+): Point {
+  debug('finding bottom-left corner from %o', bottomLeft)
+  let bestDistance = Infinity
+  let bestPoints: Point[] = []
+
+  for (
+    let x = bottomLeft.x;
+    x <= bottomLeft.x + 2.5 * Math.abs(leftMedian - bottomLeft.x);
+    x++
+  ) {
+    const y = bottomEdge[x]
+
+    if (Math.abs(y - bottomLeft.y) > maxUpDownSkewDistance) {
+      continue
+    }
+
+    const newDistance = editDistance({ x, y }, bottomLeft)
+    if (newDistance < bestDistance) {
+      bestPoints = [{ x, y }]
+      bestDistance = newDistance
+    } else if (newDistance === bestDistance) {
+      bestPoints.push({ x, y })
+    }
+  }
+
+  for (
+    let y = bottomLeft.y;
+    y >= bottomLeft.y - 2.5 * Math.abs(bottomMedian - bottomLeft.y);
+    y--
+  ) {
+    const x = leftEdge[y]
+
+    if (Math.abs(x - bottomLeft.x) > maxLeftRightSkewDistance) {
+      continue
+    }
+
+    const newDistance = editDistance({ x, y }, bottomLeft)
+    if (newDistance < bestDistance) {
+      bestPoints = [{ x, y }]
+      bestDistance = newDistance
+    } else if (newDistance === bestDistance) {
+      bestPoints.push({ x, y })
+    }
+  }
+
+  debug('found bottom-left corner candidates: %o', bestPoints)
+  if (bestPoints.length === 0) {
+    debug('found no points!? falling back to bottom-left: %o', bottomLeft)
+    return bottomLeft
+  }
+
+  const bestPoint = {
+    x: Math.min(...bestPoints.map(({ x }) => x)),
+    y: Math.max(...bestPoints.map(({ y }) => y)),
+  }
+  debug('merging bottom-left corner candidates: %o', bestPoint)
+  return bestPoint
+}
+
+function findBottomRightCorner(
+  bottomRight: Point,
+  rightMedian: number,
+  bottomMedian: number,
+  rightEdge: Edge,
+  bottomEdge: Edge,
+  maxUpDownSkewDistance: number,
+  maxLeftRightSkewDistance: number
+): Point {
+  debug('finding bottom-right corner from %o', bottomRight)
+  let bestDistance = Infinity
+  let bestPoints: Point[] = []
+
+  for (
+    let x = bottomRight.x;
+    x >= bottomRight.x + 2.5 * Math.abs(rightMedian - bottomRight.x);
+    x--
+  ) {
+    const y = bottomEdge[x]
+
+    if (Math.abs(y - bottomRight.y) > maxUpDownSkewDistance) {
+      continue
+    }
+
+    const newDistance = editDistance({ x, y }, bottomRight)
+    if (newDistance < bestDistance) {
+      bestPoints = [{ x, y }]
+      bestDistance = newDistance
+    } else if (newDistance === bestDistance) {
+      bestPoints.push({ x, y })
+    }
+  }
+
+  for (
+    let y = bottomRight.y;
+    y >= bottomRight.y - 2.5 * Math.abs(bottomMedian - bottomRight.y);
+    y--
+  ) {
+    const x = rightEdge[y]
+
+    if (x - bottomRight.x > maxLeftRightSkewDistance) {
+      continue
+    }
+
+    const newDistance = editDistance({ x, y }, bottomRight)
+    if (newDistance < bestDistance) {
+      bestPoints = [{ x, y }]
+      bestDistance = newDistance
+    } else if (newDistance === bestDistance) {
+      bestPoints.push({ x, y })
+    }
+  }
+
+  debug('found bottom-right corner candidates: %o', bestPoints)
+
+  if (bestPoints.length === 0) {
+    debug('found no points!? falling back to top-left: %o', bottomRight)
+    return bottomRight
+  }
+
+  const bestPoint = {
+    x: Math.max(...bestPoints.map(({ x }) => x)),
+    y: Math.max(...bestPoints.map(({ y }) => y)),
+  }
+  debug('merging bottom-right corner candidates: %o', bestPoint)
+  return bestPoint
+}
+
 export function getCorners(
-  imageData: ImageData,
   shape: Shape,
   { maxSkewRadians = (5 / 180) * Math.PI } = {}
 ): Corners {
@@ -17,12 +286,29 @@ export function getCorners(
     shape.bounds,
     (maxSkewRadians * 180) / Math.PI
   )
-  const [topLeft, topRight, bottomLeft, bottomRight] = rectCorners(shape.bounds)
+  const { bounds, edges } = shape
+  const [
+    boundsTopLeft,
+    boundsTopRight,
+    boundsBottomLeft,
+    boundsBottomRight,
+  ] = rectCorners(bounds)
   const maxLeftRightSkewDistance = Math.ceil(
-    shape.bounds.height * Math.tan(maxSkewRadians)
+    bounds.height * Math.tan(maxSkewRadians)
   )
   const maxUpDownSkewDistance = Math.ceil(
-    shape.bounds.width * Math.tan(maxSkewRadians)
+    bounds.width * Math.tan(maxSkewRadians)
+  )
+
+  const leftMedian = median(
+    edges.left.slice(bounds.y, bounds.y + bounds.height)
+  )
+  const rightMedian = median(
+    edges.right.slice(bounds.y, bounds.y + bounds.height)
+  )
+  const topMedian = median(edges.top.slice(bounds.x, bounds.x + bounds.width))
+  const bottomMedian = median(
+    edges.bottom.slice(bounds.x, bounds.x + bounds.width)
   )
 
   debug(
@@ -31,193 +317,45 @@ export function getCorners(
   )
   debug('calculated max up/down skew distance: %dpx', maxUpDownSkewDistance)
 
-  debug('finding top-left corner from %o', topLeft)
-  const topLeftCorner = findCorner(imageData, {
-    bounds: shape.bounds,
-    startAt: topLeft,
-    stepOffset: { x: 1, y: 1 },
-    maxOffset: { x: maxLeftRightSkewDistance, y: maxUpDownSkewDistance },
-  })
-  debug('found top-left corner: %o', topLeftCorner)
+  const topLeftCorner = findTopLeftCorner(
+    boundsTopLeft,
+    leftMedian,
+    topMedian,
+    edges.left,
+    edges.top,
+    maxUpDownSkewDistance,
+    maxLeftRightSkewDistance
+  )
 
-  debug('finding top-right corner from %o', topRight)
-  const topRightCorner = findCorner(imageData, {
-    bounds: shape.bounds,
-    startAt: topRight,
-    stepOffset: { x: -1, y: 1 },
-    maxOffset: { x: -maxLeftRightSkewDistance, y: maxUpDownSkewDistance },
-  })
-  debug('found top-right corner: %o', topRightCorner)
+  const topRightCorner = findTopRightCorner(
+    boundsTopRight,
+    rightMedian,
+    topMedian,
+    edges.right,
+    edges.top,
+    maxUpDownSkewDistance,
+    maxLeftRightSkewDistance
+  )
 
-  debug('finding bottom-left corner from %o', bottomLeft)
-  const bottomLeftCorner = findCorner(imageData, {
-    bounds: shape.bounds,
-    startAt: bottomLeft,
-    stepOffset: { x: 1, y: -1 },
-    maxOffset: { x: maxLeftRightSkewDistance, y: -maxUpDownSkewDistance },
-  })
-  debug('found bottom-left corner: %o', bottomLeftCorner)
+  const bottomLeftCorner = findBottomLeftCorner(
+    boundsBottomLeft,
+    leftMedian,
+    bottomMedian,
+    edges.left,
+    edges.bottom,
+    maxUpDownSkewDistance,
+    maxLeftRightSkewDistance
+  )
 
-  debug('finding bottom-right corner from %o', bottomRight)
-  const bottomRightCorner = findCorner(imageData, {
-    bounds: shape.bounds,
-    startAt: bottomRight,
-    stepOffset: { x: -1, y: -1 },
-    maxOffset: { x: -maxLeftRightSkewDistance, y: -maxUpDownSkewDistance },
-  })
-  debug('found bottom-right corner: %o', bottomRightCorner)
+  const bottomRightCorner = findBottomRightCorner(
+    boundsBottomRight,
+    rightMedian,
+    bottomMedian,
+    edges.right,
+    edges.bottom,
+    maxUpDownSkewDistance,
+    maxLeftRightSkewDistance
+  )
 
   return [topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner]
-}
-
-export function findCorner(
-  { data, width, height }: ImageData,
-  {
-    bounds,
-    startAt: { x: startX, y: startY },
-    stepOffset,
-    maxOffset,
-  }: { bounds: Rect; startAt: Point; stepOffset: Offset; maxOffset: Offset }
-): Point {
-  const channels = getImageChannelCount({ data, width, height })
-  let checkingX = true
-  let checkingY = true
-
-  for (let step = 0; ; step += 1) {
-    const stepOffsetX = step * stepOffset.x
-    const stepOffsetY = step * stepOffset.y
-
-    if (!checkingX && !checkingY) {
-      debug(
-        'unable to find a suitable corner in either direction, even after backtracking; using the original bounding box corner'
-      )
-      return { x: startX, y: startY }
-    }
-
-    if (
-      checkingX &&
-      startX + stepOffsetX >= bounds.x &&
-      startX + stepOffsetX < bounds.x + bounds.width
-    ) {
-      let x = startX + stepOffsetX
-      let y = startY
-
-      debug('checking for a black pixel in the x direction at x=%d, y=%d', x, y)
-      if (data[(y * width + x) * channels] === PIXEL_BLACK) {
-        debug(
-          'found possible corner at x=%d, y=%d after %d step(s) in the x direction',
-          x,
-          y,
-          step
-        )
-
-        while (
-          data[((y + stepOffset.y) * width + (x - stepOffset.x)) * channels] ===
-          PIXEL_BLACK
-        ) {
-          y += stepOffset.y
-          x -= stepOffset.x
-          debug(
-            'backtracking to x=%d, y=%d to correct a possible overshoot',
-            x,
-            y
-          )
-
-          while (
-            x >= bounds.x &&
-            x < bounds.x + bounds.width &&
-            data[(y * width + (x - stepOffset.x)) * channels] === PIXEL_BLACK
-          ) {
-            x -= stepOffset.x
-          }
-          debug('backtracked in the x direction to x=%d, y=%d', x, y)
-        }
-
-        debug(
-          'backtracked in the x direction as far as possible, now going in the y direction'
-        )
-        while (
-          y >= bounds.y &&
-          y < bounds.y + bounds.height &&
-          data[((y - stepOffset.y) * width + x) * channels] === PIXEL_BLACK
-        ) {
-          debug('backtracking along the y direction to x=%d, y=%d', x, y)
-          y -= stepOffset.y
-        }
-
-        if (Math.abs(startX - x) > Math.abs(maxOffset.x)) {
-          debug(
-            'after backtracking, skew would still be too high; done checking in the x direction'
-          )
-          checkingX = false
-        } else {
-          debug('final corner detected at x=%d, y=%d', x, y)
-          return { x, y }
-        }
-      }
-    }
-
-    if (
-      checkingY &&
-      startY + stepOffsetY >= bounds.y &&
-      startY + stepOffsetY < bounds.y + bounds.height
-    ) {
-      let x = startX
-      let y = startY + stepOffsetY
-
-      debug('checking for a black pixel in the y direction at x=%d, y=%d', x, y)
-      if (data[(y * width + x) * channels] === PIXEL_BLACK) {
-        debug(
-          'found possible corner at x=%d, y=%d after %d step(s) in the y direction',
-          x,
-          y,
-          step
-        )
-
-        while (
-          data[((y - stepOffset.y) * width + (x + stepOffset.x)) * channels] ===
-          PIXEL_BLACK
-        ) {
-          y -= stepOffset.y
-          x += stepOffset.x
-          debug(
-            'backtracking to x=%d, y=%d to correct a possible overshoot',
-            x,
-            y
-          )
-
-          while (
-            y >= bounds.y &&
-            y < bounds.y + bounds.height &&
-            data[((y - stepOffset.y) * width + x) * channels] === PIXEL_BLACK
-          ) {
-            y -= stepOffset.y
-          }
-          debug('backtracked in the y direction to x=%d, y=%d', x, y)
-        }
-
-        debug(
-          'backtracked in the y direction as far as possible, now going in the x direction'
-        )
-        while (
-          x >= bounds.x &&
-          x < bounds.x + bounds.width &&
-          data[(y * width + (x - stepOffset.x)) * channels] === PIXEL_BLACK
-        ) {
-          debug('backtracking along the x direction to x=%d, y=%d', x, y)
-          x -= stepOffset.x
-        }
-
-        if (Math.abs(startY - y) > Math.abs(maxOffset.y)) {
-          debug(
-            'after backtracking, skew would still be too high; done checking in the y direction'
-          )
-          checkingY = false
-        } else {
-          debug('final corner detected at x=%d, y=%d', x, y)
-          return { x, y }
-        }
-      }
-    }
-  }
 }

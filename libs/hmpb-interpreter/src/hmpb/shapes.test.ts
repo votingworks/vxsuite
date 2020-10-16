@@ -5,14 +5,13 @@ import { findShape } from './shapes'
 test('target size', async () => {
   const imageData = await fixtures.district5BlankPage1.imageData()
   binarize(imageData)
-  expect(findShape(imageData, { x: 451, y: 1325 })).toMatchInlineSnapshot(`
+  expect(findShape(imageData, { x: 451, y: 1325 }).bounds)
+    .toMatchInlineSnapshot(`
     Object {
-      "bounds": Object {
-        "height": 22,
-        "width": 32,
-        "x": 451,
-        "y": 1315,
-      },
+      "height": 22,
+      "width": 32,
+      "x": 451,
+      "y": 1315,
     }
   `)
 })

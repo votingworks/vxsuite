@@ -111,7 +111,7 @@ export default function* findContests(
         debug('found contest shape: %O', shape.bounds)
         yield {
           bounds: shape.bounds,
-          corners: getCorners(ballotImage, shape),
+          corners: getCorners(shape),
         }
         lastShape = shape
       }

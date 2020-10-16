@@ -1,7 +1,8 @@
-import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
-import * as walthall2020 from '../../test/fixtures/walthall-county-2020-general-election-6f6f9cdb30'
 import * as choctaw from '../../test/fixtures/choctaw-county-2020-general-election'
+import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
 import * as hamilton from '../../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
+import * as walthall2020 from '../../test/fixtures/walthall-county-2020-general-election-6f6f9cdb30'
+import { findShape } from '../hmpb/shapes'
 import { binarize } from './binarize'
 import { getCorners } from './corners'
 
@@ -9,20 +10,12 @@ test('already pretty straight', async () => {
   const imageData = await oaklawn.filledInPage1.imageData()
 
   binarize(imageData)
-  expect(
-    getCorners(imageData, {
-      bounds: {
-        x: 1691,
-        y: 1418,
-        width: 734,
-        height: 648,
-      },
-    })
-  ).toMatchInlineSnapshot(`
+  expect(getCorners(findShape(imageData, { x: 1700, y: 1420 })))
+    .toMatchInlineSnapshot(`
     Array [
       Object {
         "x": 1692,
-        "y": 1419,
+        "y": 1418,
       },
       Object {
         "x": 2423,
@@ -30,11 +23,11 @@ test('already pretty straight', async () => {
       },
       Object {
         "x": 1693,
-        "y": 2065,
+        "y": 2066,
       },
       Object {
         "x": 2425,
-        "y": 2064,
+        "y": 2065,
       },
     ]
   `)
@@ -44,27 +37,19 @@ test('skewed', async () => {
   const imageData = await walthall2020.filledInPage1Skewed.imageData()
 
   binarize(imageData)
-  expect(
-    getCorners(imageData, {
-      bounds: {
-        x: 888,
-        y: 78,
-        width: 817,
-        height: 2801,
-      },
-    })
-  ).toMatchInlineSnapshot(`
+  expect(getCorners(findShape(imageData, { x: 1000, y: 80 })))
+    .toMatchInlineSnapshot(`
     Array [
       Object {
         "x": 942,
-        "y": 79,
+        "y": 78,
       },
       Object {
         "x": 1704,
         "y": 95,
       },
       Object {
-        "x": 889,
+        "x": 888,
         "y": 2864,
       },
       Object {
@@ -79,16 +64,8 @@ test('a little skewed', async () => {
   const imageData = await choctaw.filledInPage2.imageData()
   binarize(imageData)
 
-  expect(
-    getCorners(imageData, {
-      bounds: {
-        height: 2439,
-        width: 1179,
-        x: 73,
-        y: 83,
-      },
-    })
-  ).toMatchInlineSnapshot(`
+  expect(getCorners(findShape(imageData, { x: 80, y: 90 })))
+    .toMatchInlineSnapshot(`
     Array [
       Object {
         "x": 75,
@@ -114,23 +91,15 @@ test('regression: choctaw county filled-in-p1-01', async () => {
   const imageData = await choctaw.filledInPage1_01.imageData()
   binarize(imageData)
 
-  expect(
-    getCorners(imageData, {
-      bounds: {
-        height: 2803,
-        width: 791,
-        x: 899,
-        y: 85,
-      },
-    })
-  ).toMatchInlineSnapshot(`
+  expect(getCorners(findShape(imageData, { x: 930, y: 90 })))
+    .toMatchInlineSnapshot(`
     Array [
       Object {
         "x": 928,
         "y": 86,
       },
       Object {
-        "x": 1689,
+        "x": 1690,
         "y": 97,
       },
       Object {
@@ -139,7 +108,7 @@ test('regression: choctaw county filled-in-p1-01', async () => {
       },
       Object {
         "x": 1661,
-        "y": 2887,
+        "y": 2888,
       },
     ]
   `)
@@ -149,32 +118,51 @@ test('regression: state of hamilton p4', async () => {
   const imageData = await hamilton.filledInPage4.imageData()
   binarize(imageData)
 
-  expect(
-    getCorners(imageData, {
-      bounds: {
-        height: 1737,
-        width: 735,
-        x: 907,
-        y: 140,
-      },
-    })
-  ).toMatchInlineSnapshot(`
+  expect(getCorners(findShape(imageData, { x: 910, y: 140 })))
+    .toMatchInlineSnapshot(`
     Array [
       Object {
         "x": 908,
-        "y": 141,
+        "y": 140,
       },
       Object {
-        "x": 1641,
+        "x": 1642,
         "y": 141,
       },
       Object {
         "x": 908,
-        "y": 1874,
+        "y": 1875,
       },
       Object {
-        "x": 1640,
+        "x": 1641,
         "y": 1874,
+      },
+    ]
+  `)
+})
+
+test('overlapping bounding boxes', async () => {
+  const imageData = await choctaw.filledInPage1_06.imageData()
+  binarize(imageData)
+
+  expect(getCorners(findShape(imageData, { x: 870, y: 80 })))
+    .toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "x": 867,
+        "y": 79,
+      },
+      Object {
+        "x": 1630,
+        "y": 67,
+      },
+      Object {
+        "x": 924,
+        "y": 2868,
+      },
+      Object {
+        "x": 1685,
+        "y": 2848,
       },
     ]
   `)
