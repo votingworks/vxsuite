@@ -87,7 +87,7 @@ function findTopRightCorner(
 
   for (
     let x = topRight.x;
-    x >= topRight.x + 2.5 * Math.abs(rightMedian - topRight.x);
+    x >= topRight.x - 2.5 * Math.abs(rightMedian - topRight.x);
     x--
   ) {
     const y = topEdge[x]
@@ -224,7 +224,7 @@ function findBottomRightCorner(
 
   for (
     let x = bottomRight.x;
-    x >= bottomRight.x + 2.5 * Math.abs(rightMedian - bottomRight.x);
+    x >= bottomRight.x - 2.5 * Math.abs(rightMedian - bottomRight.x);
     x--
   ) {
     const y = bottomEdge[x]

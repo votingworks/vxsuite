@@ -167,3 +167,30 @@ test('overlapping bounding boxes', async () => {
     ]
   `)
 })
+
+test('another issue', async () => {
+  const imageData = await choctaw.filledInPage2_02.imageData()
+  binarize(imageData)
+
+  expect(getCorners(findShape(imageData, { x: 150, y: 90 })))
+    .toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "x": 90,
+        "y": 88,
+      },
+      Object {
+        "x": 1251,
+        "y": 88,
+      },
+      Object {
+        "x": 89,
+        "y": 2525,
+      },
+      Object {
+        "x": 1248,
+        "y": 2523,
+      },
+    ]
+  `)
+})
