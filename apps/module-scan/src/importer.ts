@@ -428,19 +428,19 @@ export default class SystemImporter implements Importer {
    * Continue the existing scanning process
    */
   public async continueImport(override = false): Promise<void> {
-    if (this.sheetGenerator && this.batchId) {
-      const sheet = await this.store.getNextAdjudicationSheet()
+    const sheet = await this.store.getNextAdjudicationSheet()
 
-      if (sheet) {
-        if (override) {
-          for (const side of ['front', 'back'] as Side[]) {
-            await this.store.saveBallotAdjudication(sheet.id, side, {})
-          }
-        } else {
-          await this.store.deleteSheet(sheet.id)
+    if (sheet) {
+      if (override) {
+        for (const side of ['front', 'back'] as Side[]) {
+          await this.store.saveBallotAdjudication(sheet.id, side, {})
         }
+      } else {
+        await this.store.deleteSheet(sheet.id)
       }
+    }
 
+    if (this.sheetGenerator && this.batchId) {
       this.scanOneSheet().catch((err) => {
         debug('processing sheet failed with error: %s', err.stack)
         this.finishBatch(err.toString())
