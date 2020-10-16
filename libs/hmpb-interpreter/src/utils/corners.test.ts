@@ -221,3 +221,30 @@ test('top-right corner bug', async () => {
     ]
   `)
 })
+
+test('top-left corner bug', async () => {
+  const imageData = await choctaw.filledInPage2_04.imageData()
+  binarize(imageData)
+
+  expect(getCorners(findShape(imageData, { x: 100, y: 105 })))
+    .toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "x": 83,
+        "y": 105,
+      },
+      Object {
+        "x": 1246,
+        "y": 93,
+      },
+      Object {
+        "x": 99,
+        "y": 2533,
+      },
+      Object {
+        "x": 1261,
+        "y": 2530,
+      },
+    ]
+  `)
+})
