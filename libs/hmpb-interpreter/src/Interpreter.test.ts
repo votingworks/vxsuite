@@ -355,7 +355,7 @@ test('interpret three-column template with instructions', async () => {
           },
           Object {
             "x": 1229,
-            "y": 46,
+            "y": 45,
           },
           Object {
             "x": 850,
@@ -854,7 +854,7 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 1229,
-              "y": 46,
+              "y": 45,
             },
             Object {
               "x": 850,
@@ -1162,7 +1162,7 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 626,
-              "y": 46,
+              "y": 45,
             },
             Object {
               "x": 45,
@@ -1274,11 +1274,11 @@ test('interpret two-column template', async () => {
           "corners": Array [
             Object {
               "x": 648,
-              "y": 46,
+              "y": 45,
             },
             Object {
               "x": 1229,
-              "y": 46,
+              "y": 45,
             },
             Object {
               "x": 648,
@@ -1354,7 +1354,7 @@ test('interpret two-column template', async () => {
             },
             Object {
               "x": 648,
-              "y": 1103,
+              "y": 1104,
             },
             Object {
               "x": 1229,
@@ -1589,7 +1589,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.8246913580246914,
+        "score": 0.8222222222222222,
         "type": "candidate",
       },
       Object {
@@ -1604,7 +1604,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Eddie Bernice Johnson",
-        "score": 0.687192118226601,
+        "score": 0.6896551724137931,
         "type": "candidate",
       },
       Object {
@@ -1614,7 +1614,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.5932203389830508,
+        "score": 0.6029055690072639,
         "type": "candidate",
       },
       Object {
@@ -1629,12 +1629,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.6781326781326781,
+        "score": 0.6805896805896806,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.8137254901960784,
+        "score": 0.8161764705882353,
         "type": "candidate",
       },
       Object {
@@ -1850,10 +1850,10 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.7002457002457002,
+        "score": 0.6977886977886978,
         "scoredOffset": Object {
-          "x": -1,
-          "y": 1,
+          "x": -2,
+          "y": 2,
         },
         "target": Object {
           "bounds": Object {
@@ -2005,10 +2005,10 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.15233415233415235,
+        "score": 0.14742014742014742,
         "scoredOffset": Object {
           "x": 0,
-          "y": 1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2116,7 +2116,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "no",
-        "score": 0.7555012224938875,
+        "score": 0.7579462102689487,
         "scoredOffset": Object {
           "x": 0,
           "y": 1,
@@ -2264,7 +2264,7 @@ test('invalid marks', async () => {
           "name": "Randall Rupp",
           "partyId": "2",
         },
-        "score": 0.11822660098522167,
+        "score": 0.12561576354679804,
         "scoredOffset": Object {
           "x": 0,
           "y": -1,
@@ -2341,7 +2341,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": 0,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
@@ -2486,7 +2486,7 @@ test('invalid marks', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
-        "score": 0.13054187192118227,
+        "score": 0.12561576354679804,
         "scoredOffset": Object {
           "x": 0,
           "y": -1,
@@ -2562,7 +2562,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 0,
+          "x": 1,
           "y": -1,
         },
         "target": Object {
@@ -2708,7 +2708,7 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0.08801955990220049,
+        "score": 0.097799511002445,
         "scoredOffset": Object {
           "x": 1,
           "y": -1,
@@ -2893,7 +2893,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 1,
-          "y": -1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -3437,7 +3437,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "1",
         "option": "1",
-        "score": 0.25133689839572193,
+        "score": 0.24598930481283424,
       },
       Object {
         "contest": "1",
@@ -3462,7 +3462,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "2",
         "option": "23",
-        "score": 0.4048913043478261,
+        "score": 0.391304347826087,
       },
       Object {
         "contest": "2",
@@ -3477,7 +3477,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "3",
         "option": "32",
-        "score": 0.7914438502673797,
+        "score": 0.7834224598930482,
       },
       Object {
         "contest": "3",
@@ -3502,17 +3502,17 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "initiative-65",
         "option": "yes",
-        "score": 0.4266304347826087,
+        "score": 0.42391304347826086,
       },
       Object {
         "contest": "initiative-65",
         "option": "no",
-        "score": 0.26902173913043476,
+        "score": 0.26358695652173914,
       },
       Object {
         "contest": "initiative-65-a",
         "option": "yes",
-        "score": 0.22554347826086957,
+        "score": 0.23097826086956522,
       },
       Object {
         "contest": "initiative-65-a",
@@ -3539,7 +3539,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "flag-question",
         "option": "yes",
-        "score": 0.49731182795698925,
+        "score": 0.5026881720430108,
       },
       Object {
         "contest": "flag-question",
@@ -3554,7 +3554,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "runoffs-question",
         "option": "no",
-        "score": 0.28763440860215056,
+        "score": 0.2903225806451613,
       },
     ]
   `)
@@ -3593,6 +3593,204 @@ test('regression: overvote on choctaw county p1-05', async () => {
     await fixtures.filledInPage1_05.imageData()
   )
 
+  expect(
+    interpretation.marks
+      .filter((mark): mark is BallotTargetMark => mark.type !== 'stray')
+      .map((mark) => [mark.score, mark.option])
+  ).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        0,
+        Object {
+          "id": "775032091",
+          "name": "Presidential Electors for Joseph R. Biden Jr. for President and Kamala D. Harris for Vice President",
+          "partyId": "2",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032092",
+          "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
+          "partyId": "3",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032126",
+          "name": "Presidential Electors for Don Blankenship for President and William Mohr for Vice President",
+          "partyId": "775000002",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032100",
+          "name": "Presidential Electors for Brian Carroll for President and Amar Patel for Vice President",
+          "partyId": "775000001",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032096",
+          "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
+          "partyId": "11",
+        },
+      ],
+      Array [
+        0.8396739130434783,
+        Object {
+          "id": "775032099",
+          "name": "Presidential Electors for Howie Hawkins for President and Angela Nicole Walker for Vice President",
+          "partyId": "9",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032102",
+          "name": "Presidential Electors for Jo Jorgensen for President and Jeremy 'Spike' Cohen for Vice President",
+          "partyId": "4",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032117",
+          "name": "Presidential Electors for Brock Pierce for President and Karla Ballard for Vice President",
+          "partyId": "11",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032098",
+          "name": "Presidential Electors for Kanye West for President and Michelle Tidball for Vice President",
+          "partyId": "11",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "__write-in-0",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032093",
+          "name": "Mike Espy",
+          "partyId": "2",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032094",
+          "name": "Cindy Hyde-Smith",
+          "partyId": "3",
+        },
+      ],
+      Array [
+        0.8559782608695652,
+        Object {
+          "id": "775032105",
+          "name": "Jimmy L. Edwards",
+          "partyId": "4",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "__write-in-0",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032084",
+          "name": "Antonia Eliason",
+          "partyId": "2",
+        },
+      ],
+      Array [
+        0.8668478260869565,
+        Object {
+          "id": "775032085",
+          "name": "Trent Kelly",
+          "partyId": "3",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "__write-in-0",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "775032082",
+          "name": "Josiah Dennis Coleman",
+          "partyId": "12",
+        },
+      ],
+      Array [
+        0.875,
+        Object {
+          "id": "775032110",
+          "name": "Percy L. Lynchard",
+          "partyId": "12",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "__write-in-0",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+      Array [
+        0.8903743315508021,
+        Object {
+          "id": "775032689",
+          "name": "Wayne McLeod",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "__write-in-0",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+      Array [
+        0.8396739130434783,
+        Object {
+          "id": "775032690",
+          "name": "Michael D Thomas",
+        },
+      ],
+      Array [
+        0,
+        Object {
+          "id": "__write-in-0",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+    ]
+  `)
   expect(interpretation.ballot.votes).toMatchInlineSnapshot(`
     Object {
       "775020890": Array [

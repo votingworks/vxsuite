@@ -3,8 +3,16 @@ import { PIXEL_BLACK } from '../utils/binarize'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { VisitedPoints } from '../utils/VisitedPoints'
 
+export type Edge = Int32Array
+
 export interface Shape {
   bounds: Rect
+  edges: {
+    top: Edge
+    right: Edge
+    bottom: Edge
+    left: Edge
+  }
 }
 
 /**
@@ -52,6 +60,10 @@ export function findShape(
   const { data, width, height } = imageData
   const channel = getImageChannelCount(imageData)
 
+  const topEdge = new Int32Array(imageData.width).fill(imageData.height)
+  const rightEdge = new Int32Array(imageData.height).fill(-1)
+  const bottomEdge = new Int32Array(imageData.width).fill(-1)
+  const leftBorder = new Int32Array(imageData.height).fill(imageData.width)
   let xMin = startingPoint.x
   let yMin = startingPoint.y
   let xMax = startingPoint.x
@@ -81,6 +93,18 @@ export function findShape(
       if (y > yMax) {
         yMax = y
       }
+      if (x < leftBorder[y]) {
+        leftBorder[y] = x
+      }
+      if (y < topEdge[x]) {
+        topEdge[x] = y
+      }
+      if (x > rightEdge[y]) {
+        rightEdge[y] = x
+      }
+      if (y > bottomEdge[x]) {
+        bottomEdge[x] = y
+      }
 
       for (const xD of [-1, 0, 1]) {
         for (const yD of [-1, 0, 1]) {
@@ -107,6 +131,12 @@ export function findShape(
       y: yMin,
       width: xMax - xMin + 1,
       height: yMax - yMin + 1,
+    },
+    edges: {
+      top: topEdge,
+      right: rightEdge,
+      bottom: bottomEdge,
+      left: leftBorder,
     },
   }
 }

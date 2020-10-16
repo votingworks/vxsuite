@@ -49,3 +49,32 @@ export function flipRectVH(outer: Rect, inner: Rect): Rect {
     height: inner.height,
   }
 }
+
+/**
+ * Find how many pixel moves it takes to get from a to b.
+ */
+export function editDistance(a: Point, b: Point): number {
+  return Math.abs(b.x - a.x) + Math.abs(b.y - a.y)
+}
+
+/**
+ * Find the median of a list of numbers.
+ */
+export function median(numbers: ArrayLike<number>): number {
+  if (numbers.length === 0) {
+    throw new Error('median of empty array does not make sense')
+  }
+
+  if (numbers.length === 1) {
+    return numbers[0]
+  }
+
+  const sorted = Array.from(numbers).sort()
+
+  if (sorted.length % 2 === 0) {
+    const halfway = sorted.length / 2
+    return (sorted[halfway] + sorted[halfway + 1]) / 2
+  }
+
+  return sorted[Math.ceil(sorted.length / 2)]
+}
