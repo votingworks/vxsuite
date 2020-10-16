@@ -1614,7 +1614,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.6271186440677966,
+        "score": 0.6343825665859564,
         "type": "candidate",
       },
       Object {
@@ -1629,12 +1629,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.714987714987715,
+        "score": 0.7174447174447175,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.8357843137254902,
+        "score": 0.8308823529411765,
         "type": "candidate",
       },
       Object {
@@ -1649,7 +1649,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.6101694915254238,
+        "score": 0.5980629539951574,
         "type": "candidate",
       },
       Object {
@@ -1865,7 +1865,7 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.7174447174447175,
+        "score": 0.7199017199017199,
         "scoredOffset": Object {
           "x": 0,
           "y": 0,
@@ -2020,10 +2020,10 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.14742014742014742,
+        "score": 0.14250614250614252,
         "scoredOffset": Object {
           "x": 0,
-          "y": 0,
+          "y": 1,
         },
         "target": Object {
           "bounds": Object {
@@ -2131,7 +2131,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "no",
-        "score": 0.7872860635696821,
+        "score": 0.78239608801956,
         "scoredOffset": Object {
           "x": 0,
           "y": 0,
@@ -2279,7 +2279,7 @@ test('invalid marks', async () => {
           "name": "Randall Rupp",
           "partyId": "2",
         },
-        "score": 0.12561576354679804,
+        "score": 0.12315270935960591,
         "scoredOffset": Object {
           "x": 0,
           "y": -1,
@@ -2356,7 +2356,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": -1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2501,10 +2501,10 @@ test('invalid marks', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
-        "score": 0.2512315270935961,
+        "score": 0.12807881773399016,
         "scoredOffset": Object {
-          "x": 1,
-          "y": 2,
+          "x": -1,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
@@ -2577,8 +2577,8 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 1,
-          "y": -1,
+          "x": 0,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2652,7 +2652,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": -1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2725,8 +2725,8 @@ test('invalid marks', async () => {
         },
         "score": 0.097799511002445,
         "scoredOffset": Object {
-          "x": 1,
-          "y": -1,
+          "x": 0,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2799,8 +2799,8 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 1,
-          "y": -1,
+          "x": 0,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2853,7 +2853,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 1,
+          "x": 0,
           "y": 0,
         },
         "target": Object {
@@ -2907,7 +2907,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 1,
+          "x": 0,
           "y": 0,
         },
         "target": Object {
@@ -2961,7 +2961,7 @@ test('invalid marks', async () => {
         },
         "score": 0,
         "scoredOffset": Object {
-          "x": 1,
+          "x": 0,
           "y": 0,
         },
         "target": Object {
@@ -3473,7 +3473,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "1",
         "option": "1",
-        "score": 0.25133689839572193,
+        "score": 0.2540106951871658,
       },
       Object {
         "contest": "1",
@@ -3498,7 +3498,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "2",
         "option": "23",
-        "score": 0.40217391304347827,
+        "score": 0.41032608695652173,
       },
       Object {
         "contest": "2",
@@ -3513,7 +3513,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "3",
         "option": "32",
-        "score": 0.7887700534759359,
+        "score": 0.7994652406417112,
       },
       Object {
         "contest": "3",
@@ -3533,22 +3533,22 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "4",
         "option": "__write-in-0",
-        "score": 0.6413043478260869,
+        "score": 0.6277173913043478,
       },
       Object {
         "contest": "initiative-65",
         "option": "yes",
-        "score": 0.42934782608695654,
+        "score": 0.41032608695652173,
       },
       Object {
         "contest": "initiative-65",
         "option": "no",
-        "score": 0.26902173913043476,
+        "score": 0.27717391304347827,
       },
       Object {
         "contest": "initiative-65-a",
         "option": "yes",
-        "score": 0.25,
+        "score": 0.2554347826086957,
       },
       Object {
         "contest": "initiative-65-a",
@@ -3575,7 +3575,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "flag-question",
         "option": "yes",
-        "score": 0.521505376344086,
+        "score": 0.5295698924731183,
       },
       Object {
         "contest": "flag-question",
@@ -3590,7 +3590,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "runoffs-question",
         "option": "no",
-        "score": 0.29838709677419356,
+        "score": 0.2768817204301075,
       },
     ]
   `)
@@ -3636,7 +3636,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
   ).toMatchInlineSnapshot(`
     Array [
       Array [
-        0,
+        0.00267379679144385,
         Object {
           "id": "775032091",
           "name": "Presidential Electors for Joseph R. Biden Jr. for President and Kamala D. Harris for Vice President",
@@ -3676,7 +3676,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0.8940217391304348,
+        0.8913043478260869,
         Object {
           "id": "775032099",
           "name": "Presidential Electors for Howie Hawkins for President and Angela Nicole Walker for Vice President",
@@ -3732,7 +3732,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0.8940217391304348,
+        0.8994565217391305,
         Object {
           "id": "775032105",
           "name": "Jimmy L. Edwards",
@@ -3780,7 +3780,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0.8913043478260869,
+        0.8967391304347826,
         Object {
           "id": "775032110",
           "name": "Percy L. Lynchard",
@@ -3796,7 +3796,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0.8983957219251337,
+        0.9010695187165776,
         Object {
           "id": "775032689",
           "name": "Wayne McLeod",
@@ -3811,7 +3811,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0.8967391304347826,
+        0.8913043478260869,
         Object {
           "id": "775032690",
           "name": "Michael D Thomas",

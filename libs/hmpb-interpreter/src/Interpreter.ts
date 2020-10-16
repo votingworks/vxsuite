@@ -474,17 +474,7 @@ export default class Interpreter {
     )
 
     const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template, {
-      // Ensure we have at least three points by using all four corners when we
-      // have a single contest, but also use all four corners when we have only
-      // two columns. The idea is that the right side can end up pretty off on
-      // a wide enough contest box, which can skew the targets unacceptably.
-      //
-      // Why not just use all four corners all the time? Homography algorithms
-      // reject some of the points if they're determined to be enough of an
-      // outlier, so with three-column pages we give it only the left points to
-      // reduce the odds that any left-side points are discarded. Aligning the
-      // left is important because that's where the targets are.
-      leftSideOnly: contests.length > 1 && columns === 3,
+      leftSideOnly: false,
     })
     const marks: BallotMark[] = []
 
