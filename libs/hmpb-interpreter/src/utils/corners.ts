@@ -39,6 +39,7 @@ function findTopLeftCorner(
     const newDistance = editDistance({ x, y }, topLeft)
     if (newDistance < bestDistance) {
       bestPoints = [{ x, y }]
+      bestDistance = newDistance
     } else if (newDistance === bestDistance) {
       bestPoints.push({ x, y })
     }

@@ -26,6 +26,9 @@ export const filledInPage2_02 = new Fixture(
 export const filledInPage2_03 = new Fixture(
   join(__dirname, 'filled-in-p2-03.png')
 )
+export const filledInPage2_04 = new Fixture(
+  join(__dirname, 'filled-in-p2-04.png')
+)
 
 export const district5BlankPage1 = new Fixture(join(__dirname, 'ballot-p1.png'))
 export const eastWeirBlankPage1 = new Fixture(
