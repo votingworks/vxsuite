@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
-import type { Channels } from 'sharp'
 import { join, dirname, extname, basename } from 'path'
 import chalk from 'chalk'
+import { writeFile } from 'fs-extra'
 
 export function printHelp(out: typeof process.stdout): void {
   out.write(`${chalk.bold('render-pages')} PDF ${chalk.italic('[PDF …]')}\n`)
@@ -43,7 +43,7 @@ export default async function main(
 
   // Defer loading the heavy dependencies until we're sure we need them.
   const { default: pdfToImages } = await import('../util/pdfToImages')
-  const { default: sharp } = await import('sharp')
+  const { toPNG } = await import('../util/images')
 
   for (const pdfPath of pdfPaths) {
     const pdfDir = dirname(pdfPath)
@@ -54,15 +54,7 @@ export default async function main(
     for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
       const pngPath = join(pdfDir, `${pdfBase}-p${pageNumber}.png`)
       stdout.write(`📝 ${pngPath}\n`)
-      await sharp(Buffer.from(page.data), {
-        raw: {
-          channels: (page.data.length / page.width / page.height) as Channels,
-          width: page.width,
-          height: page.height,
-        },
-      })
-        .png()
-        .toFile(pngPath)
+      await writeFile(pngPath, await toPNG(page))
     }
   }
 

@@ -2,10 +2,10 @@ import main from './render-pages'
 import { WritableStream } from 'memory-streams'
 import { ballotPdf } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import { promises as fs } from 'fs'
-import sharp from 'sharp'
 import { join } from 'path'
 import { pathExists } from 'fs-extra'
 import { tmpNameSync } from 'tmp'
+import { loadImageData } from '../util/images'
 
 function fakeOutput(): WritableStream & NodeJS.WriteStream {
   return new WritableStream() as WritableStream & NodeJS.WriteStream
@@ -54,17 +54,12 @@ test('generates one PNG image per PDF page', async () => {
     stderr: '',
   })
 
-  expect(await sharp(join(tmpDir, 'ballot-p1.png')).metadata()).toEqual(
-    expect.objectContaining({
+  for (const filename of ['ballot-p1.png', 'ballot-p2.png']) {
+    const { width, height } = await loadImageData(join(tmpDir, filename))
+    expect({ width, height }).toEqual({
       width: 1224,
       height: 1584,
     })
-  )
-  expect(await sharp(join(tmpDir, 'ballot-p2.png')).metadata()).toEqual(
-    expect.objectContaining({
-      width: 1224,
-      height: 1584,
-    })
-  )
+  }
   expect(await pathExists(join(tmpDir, 'ballot-p3.png'))).toBe(false)
 })

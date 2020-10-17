@@ -4,7 +4,7 @@ import crop from '@votingworks/hmpb-interpreter/dist/src/utils/crop'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import { decode as quircDecode } from 'node-quirc'
-import sharp, { Channels } from 'sharp'
+import { toPNG } from './images'
 import { time } from './perf'
 
 const debug = makeDebug('module-scan:qrcode')
@@ -118,18 +118,7 @@ export const detectQRCode = async (
       const cropped = crop(imageData, bounds)
 
       debug('generating PNG for quirc')
-      const { data, width, height } = cropped
-      const img = await sharp(Buffer.from(data), {
-        raw: {
-          channels: (data.length / width / height) as Channels,
-          width,
-          height,
-        },
-      })
-        .raw()
-        .ensureAlpha()
-        .png()
-        .toBuffer()
+      const img = await toPNG(cropped)
 
       debug('scanning with quirc')
       const results = (await quircDecode(img))[0]

@@ -5,7 +5,6 @@ import * as fsExtra from 'fs-extra'
 import * as streams from 'memory-streams'
 import { join } from 'path'
 import { sync as rimraf } from 'rimraf'
-import sharp, { Raw } from 'sharp'
 import { v4 as uuid } from 'uuid'
 import { PageInterpretation } from './interpreter'
 import { Scanner } from './scanner'
@@ -17,6 +16,7 @@ import {
   SheetOf,
   Side,
 } from './types'
+import { toPNG } from './util/images'
 import pdfToImages from './util/pdfToImages'
 import { call, Input, InterpretOutput, Output } from './workers/interpret'
 import { inlinePool, WorkerPool } from './workers/pool'
@@ -72,20 +72,7 @@ export async function saveImages(
 
   if (normalizedImage) {
     debug('about to write normalized ballot image to %s', normalizedImagePath)
-    await fsExtra.writeFile(
-      normalizedImagePath,
-      await sharp(Buffer.from(normalizedImage.data.buffer), {
-        raw: {
-          width: normalizedImage.width,
-          height: normalizedImage.height,
-          channels: (normalizedImage.data.length /
-            (normalizedImage.width *
-              normalizedImage.height)) as Raw['channels'],
-        },
-      })
-        .png()
-        .toBuffer()
-    )
+    await fsExtra.writeFile(normalizedImagePath, await toPNG(normalizedImage))
     debug('wrote normalized ballot image to %s', normalizedImagePath)
     return { original: originalImagePath, normalized: normalizedImagePath }
   }

@@ -18,9 +18,9 @@ import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
 import { join } from 'path'
-import sharp from 'sharp'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
+import { inspect } from 'util'
 import { v4 as uuid } from 'uuid'
 import { buildCastVoteRecord } from './buildCastVoteRecord'
 import {
@@ -32,13 +32,13 @@ import {
   AdjudicationStatus,
   BallotMetadata,
   BatchInfo,
+  ElectionDefinition,
   getMarkStatus,
   isMarginalMark,
   PageInterpretationWithFiles,
   SerializableBallotPageLayout,
   SheetOf,
   Side,
-  ElectionDefinition,
 } from './types'
 import {
   AdjudicationInfo,
@@ -47,11 +47,11 @@ import {
   MarksByContestId,
   ReviewBallot,
 } from './types/ballot-review'
-import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import allContestOptions from './util/allContestOptions'
+import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import getBallotPageContests from './util/getBallotPageContests'
+import { loadImageData } from './util/images'
 import { changesFromMarks, mergeChanges } from './util/marks'
-import { inspect } from 'util'
 
 const debug = makeDebug('module-scan:store')
 
@@ -614,7 +614,7 @@ export default class Store {
         return marks.ballotSize
       }
 
-      const { width, height } = await sharp(row.normalizedFilename).metadata()
+      const { width, height } = await loadImageData(row.normalizedFilename)
 
       if (!width || !height) {
         throw new Error(

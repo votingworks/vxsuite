@@ -1,11 +1,12 @@
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
-import sharp from 'sharp'
+import { writeFile } from 'fs-extra'
 import { Readable, Writable } from 'stream'
 import { fileSync } from 'tmp'
 import { Importer } from '../../src/importer'
 import { Scanner } from '../../src/scanner'
 import { SheetOf } from '../../src/types'
+import { toPNG } from '../../src/util/images'
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
 
 export function mockWorkerPoolProvider<I, O>(
@@ -269,10 +270,9 @@ export function makeMockChildProcess(): MockChildProcess {
 
 export async function makeImageFile(): Promise<string> {
   const imageFile = fileSync()
-  await sharp({
-    create: { width: 1, height: 1, channels: 3, background: '#000' },
-  })
-    .png()
-    .toFile(imageFile.name)
+  await writeFile(
+    imageFile.name,
+    await toPNG({ data: Uint8ClampedArray.of(0, 0, 0), width: 1, height: 1 })
+  )
   return imageFile.name
 }

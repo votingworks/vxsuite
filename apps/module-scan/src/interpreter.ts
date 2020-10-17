@@ -23,12 +23,12 @@ import {
   Size,
 } from '@votingworks/hmpb-interpreter'
 import makeDebug from 'debug'
-import sharp from 'sharp'
 import { BallotMetadata, isErrorResult, Result, SheetOf } from './types'
 import { AdjudicationInfo } from './types/ballot-review'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
 } from './util/ballotAdjudicationReasons'
+import { loadImageData } from './util/images'
 import optionMarkStatus from './util/optionMarkStatus'
 import { time } from './util/perf'
 import { detectQRCode } from './util/qrcode'
@@ -117,12 +117,7 @@ export async function getBallotImageData(
   file: Buffer,
   filename: string
 ): Promise<Result<PageInterpretation, BallotImageData>> {
-  const img = sharp(file).raw().ensureAlpha()
-  const {
-    data,
-    info: { width, height },
-  } = await img.toBuffer({ resolveWithObject: true })
-
+  const { data, width, height } = await loadImageData(file)
   const imageThreshold = threshold(data)
   if (
     imageThreshold.foreground.ratio < MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
