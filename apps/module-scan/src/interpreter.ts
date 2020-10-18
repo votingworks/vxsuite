@@ -151,6 +151,13 @@ export async function getBallotImageData(
 export function sheetRequiresAdjudication([front, back]: SheetOf<
   PageInterpretation
 >): boolean {
+  if (
+    front.type === 'InterpretedBmdPage' ||
+    back.type === 'InterpretedBmdPage'
+  ) {
+    return false
+  }
+
   const [
     frontRequiresAdjudicationNonBlank,
     backRequiresAdjudicationNonBlank,

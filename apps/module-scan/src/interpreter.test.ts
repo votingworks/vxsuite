@@ -12,6 +12,8 @@ import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election
 import SummaryBallotInterpreter, {
   getBallotImageData,
   InterpretedHmpbPage,
+  InterpretedBmdPage,
+  UnreadablePage,
   BlankPage,
   sheetRequiresAdjudication,
   UninterpretedHmpbPage,
@@ -3169,4 +3171,31 @@ test('sheetRequiresAdjudication triggers only if both sides are blank ballot', a
   expect(sheetRequiresAdjudication([sideBlank, sideTrulyBlank])).toBe(true)
   expect(sheetRequiresAdjudication([sideTrulyBlank, sideTrulyBlank])).toBe(true)
   expect(sheetRequiresAdjudication([sideNotBlank, sideTrulyBlank])).toBe(false)
+})
+
+test('sheetRequiresAdjudication is happy with a BMD ballot', async () => {
+  const front: InterpretedBmdPage = {
+    type: 'InterpretedBmdPage',
+    ballotId: '42',
+    metadata: {
+      electionHash: '41',
+      precinctId: '12',
+      ballotStyleId: '1',
+      locales: {
+        primary: 'en-US',
+      },
+      isTestMode: true,
+      ballotType: 0,
+    },
+    votes: {},
+  }
+
+  const back: UnreadablePage = {
+    type: 'UnreadablePage',
+    reason:
+      'cause there were a few too many black pixels so it was not filtered',
+  }
+
+  expect(sheetRequiresAdjudication([front, back])).toBe(false)
+  expect(sheetRequiresAdjudication([back, front])).toBe(false)
 })
