@@ -212,12 +212,14 @@ export function buildCastVoteRecord(
   election: Election,
   [front, back]: SheetOf<BuildCastVoteRecordInput>
 ): CastVoteRecord | undefined {
-  if (front.interpretation.type === 'BlankPage') {
+  const blankPages = ['BlankPage', 'UnreadablePage']
+
+  if (blankPages.includes(front.interpretation.type)) {
     ;[front, back] = [back, front]
   }
 
   if (front.interpretation.type === 'InterpretedBmdPage') {
-    if (back.interpretation.type !== 'BlankPage') {
+    if (!blankPages.includes(back.interpretation.type)) {
       throw new Error(
         `expected the back of a BMD page to be blank, but got '${back.interpretation.type}'`
       )

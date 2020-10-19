@@ -17,34 +17,36 @@ test('generates a CVR from a completed BMD ballot', () => {
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!
   const contests = getContests({ ballotStyle, election })
 
-  expect(
-    buildCastVoteRecord(sheetId, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedBmdPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: '',
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
+  const blankPageTypes = ['BlankPage', 'UnreadablePage']
+  blankPageTypes.forEach((blankPageType: string) => {
+    expect(
+      buildCastVoteRecord(sheetId, ballotId, election, [
+        {
+          interpretation: {
+            type: 'InterpretedBmdPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: '',
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+            },
+            votes: vote(contests, {
+              '1': '1',
+              '2': '22',
+              'initiative-65': ['yes', 'no'],
+            }),
           },
-          votes: vote(contests, {
-            '1': '1',
-            '2': '22',
-            'initiative-65': ['yes', 'no'],
-          }),
         },
-      },
-      {
-        interpretation: {
-          type: 'BlankPage',
+        {
+          interpretation: {
+            type: blankPageType as 'BlankPage' | 'UnreadablePage',
+          },
         },
-      },
-    ])
-  ).toMatchInlineSnapshot(`
+      ])
+    ).toMatchInlineSnapshot(`
     Object {
       "1": Array [
         "1",
@@ -70,7 +72,8 @@ test('generates a CVR from a completed BMD ballot', () => {
       "initiative-65-a": Array [],
       "runoffs-question": Array [],
     }
-  `)
+    `)
+  })
 })
 
 test('generates a CVR from a completed HMPB page', () => {
