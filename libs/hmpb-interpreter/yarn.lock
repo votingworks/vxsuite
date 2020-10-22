@@ -672,13 +672,6 @@
     jest-diff "^25.2.1"
     pretty-format "^25.2.1"
 
-"@types/jpeg-js@^0.3.7":
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/@types/jpeg-js/-/jpeg-js-0.3.7.tgz#efe18ac0078c09bae5fa1d58941b53799e7bbf1c"
-  integrity sha512-v3FEzt2TXOOIgvwwOqMoeEhqYqUoK4wcV/K7JbKj8CzwDE9sSuor8EZpSJKaOnuEtyO0W+Nd2uKk8MbtusYpEg==
-  dependencies:
-    jpeg-js "*"
-
 "@types/jsfeat@./types/jsfeat":
   version "0.0.1-development"
 
@@ -3177,7 +3170,7 @@ jest@^26.4.2:
     import-local "^3.0.2"
     jest-cli "^26.4.2"
 
-jpeg-js@*, jpeg-js@^0.4.0:
+jpeg-js@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/jpeg-js/-/jpeg-js-0.4.0.tgz#39adab7245b6d11e918ba5d4b49263ff2fc6a2f9"
   integrity sha512-960VHmtN1vTpasX/1LupLohdP5odwAT7oK/VSm6mW0M58LbrBnowLAPWAZhWGhDAGjzbMnPXZxzB/QYgBwkN0w==
