@@ -809,10 +809,10 @@
     "@typescript-eslint/types" "4.1.0"
     eslint-visitor-keys "^2.0.0"
 
-"@votingworks/ballot-encoder@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-4.0.0.tgz#f87152e962110e56c37985547e702f39bc8639f8"
-  integrity sha512-sC3m6J6MuUgvb5qq5avppaimCKX0wLFkoFakH1B1MM8F91Sx3Jq5GqvkNuDgs8iRPgTOAJS83ayKxSCPsq9NeA==
+"@votingworks/ballot-encoder@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-5.0.0.tgz#0af21b7b7f0d4f4a43be6e225b16aae6c060371f"
+  integrity sha512-7g6hPoO9YziUoP8fhL2A7zqX23+bNxcDO8vfnalg5dh3dorrSEv8UkwtVTrmrdC09eJ5L/LMEGke8/XKkeC/AA==
   dependencies:
     "@antongolub/iso8601" "^1.2.1"
     zod "^1.7.1"
