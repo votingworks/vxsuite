@@ -48,13 +48,15 @@ export function getOptionIdsForContestVote(
     return vote ? (vote as CandidateVote).map(({ id }) => [contest.id, id]) : []
   } else if (contest.type === 'yesno') {
     const vote = votes[contest.id]
-    return vote ? (vote as string[]).map((id) => [contest.id, id]) : []
+    return vote ? (vote as readonly string[]).map((id) => [contest.id, id]) : []
   } else if (contest.type === 'ms-either-neither') {
     return [
-      ...((votes[contest.eitherNeitherContestId] ?? []) as string[]).map<
-        [string, string]
-      >((id) => [contest.eitherNeitherContestId, id]),
-      ...((votes[contest.pickOneContestId] ?? []) as string[]).map<
+      ...((votes[contest.eitherNeitherContestId] ??
+        []) as readonly string[]).map<[string, string]>((id) => [
+        contest.eitherNeitherContestId,
+        id,
+      ]),
+      ...((votes[contest.pickOneContestId] ?? []) as readonly string[]).map<
         [string, string]
       >((id) => [contest.pickOneContestId, id]),
     ]
