@@ -2,7 +2,7 @@
 
 ## Live Demo
 
-The `master` branch of this repo is auto-deployed to:
+The `main` branch of this repo is auto-deployed to:
 
 - <https://bmd.votingworks.app>
 
@@ -110,7 +110,7 @@ help you contribute.
    test coverage.
 
 1. Push your branch to your fork on Github.
-1. Create a pull request to merge your branch into `voingworks/bmd/master`. Once
+1. Create a pull request to merge your branch into `voingworks/bmd/main`. Once
    the pull request is created CircleCI will automatically run all the tests to
    ensure the app is working correctly.
 1. The VotingWorks maintainers will
