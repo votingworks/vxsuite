@@ -507,5 +507,9 @@ export default class SystemImporter implements Importer {
     fsExtra.mkdirpSync(tmpdir)
     fsExtra.mkdirpSync(this.scannedImagesPath)
     fsExtra.mkdirpSync(this.importedImagesPath)
+
+    // and restore the .gitkeep file, or suffer the wrath of a dirty git status
+    // in development
+    await fsExtra.writeFile(join(tmpdir, '.gitkeep'), '\n')
   }
 }
