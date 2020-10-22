@@ -1,6 +1,6 @@
 import { strict as assert } from 'assert'
 import { randomBytes } from 'crypto'
-import sharp, { Channels, Sharp } from 'sharp'
+import { promises as fs } from 'fs'
 import { Rect } from '../src/types'
 import { createImageData } from '../src/utils/canvas'
 import crop from '../src/utils/crop'
@@ -8,6 +8,7 @@ import {
   assertGrayscaleImage,
   makeImageTransform,
 } from '../src/utils/imageFormatUtils'
+import { toPNG } from '../src/utils/images'
 
 export function randomImage({
   width = 0,
@@ -109,28 +110,8 @@ export async function writeImageToFile(
   filePath: string,
   bounds?: Rect
 ): Promise<void> {
-  let img: Sharp
-  const channels = (imageData.data.length /
-    imageData.width /
-    imageData.height) as Channels
-
-  if (bounds) {
-    img = sharp(Buffer.from(crop(imageData, bounds).data), {
-      raw: {
-        width: bounds.width,
-        height: bounds.height,
-        channels,
-      },
-    })
-  } else {
-    img = sharp(Buffer.from(imageData.data), {
-      raw: {
-        width: imageData.width,
-        height: imageData.height,
-        channels,
-      },
-    })
-  }
-
-  await img.toFile(filePath)
+  await fs.writeFile(
+    filePath,
+    await toPNG(bounds ? crop(imageData, bounds) : imageData)
+  )
 }
