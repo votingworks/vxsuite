@@ -1614,7 +1614,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.6343825665859564,
+        "score": 0.6397058823529411,
         "type": "candidate",
       },
       Object {
@@ -1629,12 +1629,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.7174447174447175,
+        "score": 0.7192118226600985,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.8308823529411765,
+        "score": 0.8349753694581281,
         "type": "candidate",
       },
       Object {
@@ -1649,7 +1649,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.5980629539951574,
+        "score": 0.6024390243902439,
         "type": "candidate",
       },
       Object {
@@ -1865,7 +1865,7 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.7199017199017199,
+        "score": 0.7209876543209877,
         "scoredOffset": Object {
           "x": 0,
           "y": 0,
@@ -2020,7 +2020,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.14250614250614252,
+        "score": 0.14392059553349876,
         "scoredOffset": Object {
           "x": 0,
           "y": 1,
@@ -2080,10 +2080,10 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
+          "height": 23,
           "width": 33,
           "x": 470,
-          "y": 316,
+          "y": 315,
         },
         "contest": Object {
           "description": "Shall the Dallas County extend the Recycling Program countywide?",
@@ -2101,10 +2101,10 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 22,
+            "height": 23,
             "width": 33,
             "x": 470,
-            "y": 316,
+            "y": 315,
           },
           "inner": Object {
             "height": 19,
@@ -2117,10 +2117,10 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
+          "height": 23,
           "width": 33,
           "x": 470,
-          "y": 366,
+          "y": 365,
         },
         "contest": Object {
           "description": "Shall the Dallas County extend the Recycling Program countywide?",
@@ -2138,10 +2138,10 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 22,
+            "height": 23,
             "width": 33,
             "x": 470,
-            "y": 366,
+            "y": 365,
           },
           "inner": Object {
             "height": 19,
@@ -2501,7 +2501,7 @@ test('invalid marks', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
-        "score": 0.12807881773399016,
+        "score": 0.12871287128712872,
         "scoredOffset": Object {
           "x": -1,
           "y": -1,
@@ -2598,7 +2598,7 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
+          "height": 23,
           "width": 33,
           "x": 470,
           "y": 1037,
@@ -2656,7 +2656,7 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 22,
+            "height": 23,
             "width": 33,
             "x": 470,
             "y": 1037,
@@ -2746,7 +2746,7 @@ test('invalid marks', async () => {
       },
       Object {
         "bounds": Object {
-          "height": 22,
+          "height": 23,
           "width": 33,
           "x": 470,
           "y": 1137,
@@ -2804,7 +2804,7 @@ test('invalid marks', async () => {
         },
         "target": Object {
           "bounds": Object {
-            "height": 22,
+            "height": 23,
             "width": 33,
             "x": 470,
             "y": 1137,
@@ -2972,10 +2972,10 @@ test('invalid marks', async () => {
             "y": 333,
           },
           "inner": Object {
-            "height": 19,
+            "height": 18,
             "width": 29,
             "x": 874,
-            "y": 334,
+            "y": 335,
           },
         },
         "type": "candidate",

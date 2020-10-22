@@ -2,7 +2,7 @@ import { promises as fs } from 'fs'
 import { basename, dirname, extname, join } from 'path'
 import { BallotPageMetadata, Input } from '../src'
 import { vh as flipVH } from '../src/utils/flip'
-import { readImageData } from '../src/utils/readImageData'
+import { loadImageData } from '../src/utils/images'
 
 export class Fixture implements Input {
   public constructor(private basePath: string) {}
@@ -16,7 +16,7 @@ export class Fixture implements Input {
   }
 
   public async imageData({ flipped = false } = {}): Promise<ImageData> {
-    const imageData = await readImageData(this.filePath())
+    const imageData = await loadImageData(this.filePath())
     if (flipped) {
       flipVH(imageData)
     }

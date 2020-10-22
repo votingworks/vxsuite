@@ -6,7 +6,7 @@ import { OptionParseError } from '..'
 import { Interpreter } from '../..'
 import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../Interpreter'
 import { Input, Interpreted } from '../../types'
-import { readImageData } from '../../utils/readImageData'
+import { loadImageData } from '../../utils/images'
 
 export enum OutputFormat {
   JSON = 'json',
@@ -26,7 +26,7 @@ function makeInputFromBallotArgument(arg: string): Input {
   const [ballotFile, metadataFile] = arg.split(':')
   const input: Input = {
     id: () => ballotFile,
-    imageData: () => readImageData(ballotFile),
+    imageData: () => loadImageData(ballotFile),
     metadata: async () =>
       metadataFile
         ? JSON.parse(await fs.readFile(metadataFile, 'utf-8'))

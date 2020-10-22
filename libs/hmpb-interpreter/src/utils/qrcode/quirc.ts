@@ -1,26 +1,9 @@
 import makeDebug from 'debug'
-import sharp, { Channels } from 'sharp'
 import { DetectQRCodeResult } from '../../types'
+import { toPNG } from '../images'
 import { withCropping } from './withCropping'
 
 const debug = makeDebug('hmpb-interpreter:quirc')
-
-/**
- * Encodes an image as a PNG.
- */
-async function toPNGData(imageData: ImageData): Promise<Buffer> {
-  return await sharp(Buffer.from(imageData.data.buffer), {
-    raw: {
-      width: imageData.width,
-      height: imageData.height,
-      channels: (imageData.data.length /
-        imageData.width /
-        imageData.height) as Channels,
-    },
-  })
-    .png()
-    .toBuffer()
-}
 
 /**
  * Uses quirc to detect QR codes in a ballot image.
@@ -33,7 +16,7 @@ export async function detect(
   // Unfortunately, quirc requires either JPEG or PNG encoded images and can't
   // handle raw bitmaps.
   const quirc = await import('node-quirc')
-  const result = await quirc.decode(await toPNGData(imageData))
+  const result = await quirc.decode(await toPNG(imageData))
 
   for (const symbol of result) {
     if (!('err' in symbol)) {
