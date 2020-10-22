@@ -1,7 +1,7 @@
 export class VisitedPoints {
   private data: Uint8Array[]
 
-  public constructor(private width: number, private height: number) {
+  public constructor(private width: number, height: number) {
     this.data = new Array(height)
   }
 
