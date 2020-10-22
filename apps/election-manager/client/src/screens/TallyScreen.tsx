@@ -39,13 +39,13 @@ const TallyScreen = () => {
   const { election } = electionDefinition!
 
   const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
-  const [isConfimingRemoveCRVs, setIsConfirmingRemoveCRVs] = useState(false)
+  const [isConfimingRemoveCVRs, setIsConfirmingRemoveCVRs] = useState(false)
 
-  const cancelConfirmingRemoveCRVs = () => {
-    setIsConfirmingRemoveCRVs(false)
+  const cancelConfirmingRemoveCVRs = () => {
+    setIsConfirmingRemoveCVRs(false)
   }
-  const confirmRemoveCRVs = () => {
-    setIsConfirmingRemoveCRVs(true)
+  const confirmRemoveCVRs = () => {
+    setIsConfirmingRemoveCVRs(true)
   }
 
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
@@ -113,7 +113,7 @@ const TallyScreen = () => {
 
   const resetCastVoteRecordFiles = () => {
     saveCastVoteRecordFiles()
-    setIsConfirmingRemoveCRVs(false)
+    setIsConfirmingRemoveCVRs(false)
   }
 
   const [hasConverter, setHasConverter] = useState(false)
@@ -272,7 +272,7 @@ const TallyScreen = () => {
           <Button
             danger
             disabled={!hasCastVoteRecordFiles}
-            onPress={confirmRemoveCRVs}
+            onPress={confirmRemoveCVRs}
           >
             Remove CVR Files…
           </Button>
@@ -433,14 +433,14 @@ const TallyScreen = () => {
         )}
       </NavigationScreen>
       <Modal
-        isOpen={isConfimingRemoveCRVs}
+        isOpen={isConfimingRemoveCVRs}
         centerContent
         content={
           <Prose textCenter>
             {castVoteRecordFileList.length ? (
               <p>
                 Do you want to remove the {castVoteRecordFileList.length}{' '}
-                uploaded CRV {pluralize('files', castVoteRecordFileList.length)}
+                uploaded CVR {pluralize('files', castVoteRecordFileList.length)}
                 ?
               </p>
             ) : (
@@ -454,13 +454,13 @@ const TallyScreen = () => {
         }
         actions={
           <React.Fragment>
-            <Button onPress={cancelConfirmingRemoveCRVs}>Cancel</Button>
+            <Button onPress={cancelConfirmingRemoveCVRs}>Cancel</Button>
             <Button danger onPress={resetCastVoteRecordFiles}>
               Remove All CVR Files
             </Button>
           </React.Fragment>
         }
-        onOverlayClick={cancelConfirmingRemoveCRVs}
+        onOverlayClick={cancelConfirmingRemoveCVRs}
       />
       <Modal
         isOpen={isConfirmingOfficial}
