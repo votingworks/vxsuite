@@ -15,7 +15,7 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
   return {}
 }
 
-export function printHelp(out: typeof process.stdout): void {
+export function printHelp(out: NodeJS.WriteStream): void {
   const $0 = basename(process.argv[1])
   out.write(`Usage: ${$0} interpret -e JSON IMG1 [IMG2 …]\n`)
   out.write(`\n`)
@@ -49,8 +49,8 @@ export function printHelp(out: typeof process.stdout): void {
 
 export default async function run(
   options: Options,
-  stdin: typeof process.stdin,
-  stdout: typeof process.stdout
+  stdin: NodeJS.ReadStream,
+  stdout: NodeJS.WriteStream
 ): Promise<number> {
   printHelp(stdout)
   return 0
