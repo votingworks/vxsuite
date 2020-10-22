@@ -139,8 +139,8 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
 
 export default async function run(
   options: Options,
-  stdin: typeof process.stdin,
-  stdout: typeof process.stdout
+  stdin: NodeJS.ReadStream,
+  stdout: NodeJS.WriteStream
 ): Promise<number> {
   const interpreter = new Interpreter({
     election: options.election,
