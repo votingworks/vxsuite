@@ -1,12 +1,17 @@
 import pluralize from 'pluralize'
-import React, { PointerEventHandler } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import React, {
+  PointerEventHandler,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import styled from 'styled-components'
 import {
   CandidateVote,
   YesNoVote,
   OptionalYesNoVote,
-  Contests,
 } from '@votingworks/ballot-encoder'
 
 import { findPartyById } from '../utils/find'
@@ -282,26 +287,42 @@ const MsEitherNeitherContestResult = ({
 const SidebarSpacer = styled.div`
   height: 90px;
 `
-interface State {
-  isScrollAtBottom: boolean
-  isScrollAtTop: boolean
-  isScrollable: boolean
-}
 
-const initialState: State = {
-  isScrollable: false,
-  isScrollAtBottom: true,
-  isScrollAtTop: true,
-}
+const ReviewPage = () => {
+  const context = useContext(BallotContext)
+  const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
 
-class ReviewPage extends React.Component<RouteComponentProps, State> {
-  public context!: React.ContextType<typeof BallotContext>
-  public state: State = initialState
-  private scrollContainer = React.createRef<HTMLDivElement>()
+  const [isScrollable, setIsScrollable] = useState(false)
+  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
+  const [isScrollAtTop, setIsScrollAtTop] = useState(true)
 
-  public componentDidMount = () => {
-    this.updateContestChoicesScrollStates()
-    window.addEventListener('resize', this.updateContestChoicesScrollStates)
+  const updateContestChoicesScrollStates = useCallback(() => {
+    const target = scrollContainer.current
+    /* istanbul ignore next - `target` should aways exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
+    if (!target) {
+      return
+    }
+    const targetMinHeight = FONT_SIZES[context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
+    const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
+    const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
+    setIsScrollable(
+      /* istanbul ignore next: Tested by Cypress */
+      target.scrollHeight > target.offsetHeight &&
+        /* istanbul ignore next: Tested by Cypress */
+        target.offsetHeight > targetMinHeight
+    )
+    setIsScrollAtBottom(
+      windowsScrollTop +
+        target.offsetHeight +
+        windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
+        target.scrollHeight
+    )
+    setIsScrollAtTop(target.scrollTop === 0)
+  }, [scrollContainer, context.userSettings.textSize])
+
+  useEffect(() => {
+    updateContestChoicesScrollStates()
+    window.addEventListener('resize', updateContestChoicesScrollStates)
     const targetElement =
       window.location.hash && document.querySelector(window.location.hash)
     /* istanbul ignore next: Tested by Cypress */
@@ -309,41 +330,20 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
       targetElement.scrollIntoView({ block: 'center' })
       window.setTimeout(() => (targetElement as HTMLDivElement).focus(), 1)
     }
-  }
-
-  public updateContestChoicesScrollStates = () => {
-    const target = this.scrollContainer.current
-    /* istanbul ignore next - `target` should aways exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
-    if (!target) {
-      return
+    return () => {
+      window.removeEventListener('resize', updateContestChoicesScrollStates)
     }
-    const targetMinHeight = FONT_SIZES[this.context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
-    const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
-    const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
-    this.setState({
-      isScrollable:
-        /* istanbul ignore next: Tested by Cypress */
-        target.scrollHeight > target.offsetHeight &&
-        /* istanbul ignore next: Tested by Cypress */
-        target.offsetHeight > targetMinHeight,
-      isScrollAtBottom:
-        windowsScrollTop +
-          target.offsetHeight +
-          windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
-        target.scrollHeight,
-      isScrollAtTop: target.scrollTop === 0,
-    })
-  }
+  }, [updateContestChoicesScrollStates])
 
-  public scrollContestChoices: PointerEventHandler = /* istanbul ignore next: Tested by Cypress */ (
+  const scrollContestChoices: PointerEventHandler /* istanbul ignore next: Tested by Cypress */ = (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
-    const scrollContainer = this.scrollContainer.current!
-    const currentScrollTop = scrollContainer.scrollTop
-    const offsetHeight = scrollContainer.offsetHeight
-    const scrollHeight = scrollContainer.scrollHeight
+    const sc = scrollContainer.current!
+    const currentScrollTop = sc.scrollTop
+    const offsetHeight = sc.offsetHeight
+    const scrollHeight = sc.scrollHeight
     const idealScrollDistance = Math.round(offsetHeight * 0.75)
     const maxScrollableDownDistance =
       scrollHeight - offsetHeight - currentScrollTop
@@ -356,160 +356,155 @@ class ReviewPage extends React.Component<RouteComponentProps, State> {
         ? currentScrollTop + idealScrollDistance
         : currentScrollTop - idealScrollDistance
     const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
-    scrollContainer.scrollTo({ behavior: 'smooth', left: 0, top })
+    sc.scrollTo({ behavior: 'smooth', left: 0, top })
   }
 
-  public static contextType = BallotContext
+  const {
+    contests,
+    election,
+    machineConfig,
+    precinctId,
+    votes,
+    userSettings,
+    setUserSettings,
+  } = context
+  const { parties } = election
 
-  public render() {
-    const {
-      contests,
-      election,
-      machineConfig,
-      precinctId,
-      votes,
-      userSettings,
-      setUserSettings,
-    } = this.context
-    const { parties } = election
-    const { isScrollable, isScrollAtBottom, isScrollAtTop } = this.state
-
-    return (
-      <Screen>
-        <Main>
-          <ContentHeader>
-            <Prose id="audiofocus">
-              <h1>
-                <span aria-label="Review Your Votes.">Review Your Votes</span>
-                <span className="screen-reader-only">
-                  To review your votes, advance through the ballot contests
-                  using the up and down buttons. To change your vote in any
-                  contest, use the select button to navigate to that contest.
-                  When you are finished making your ballot selections and ready
-                  to print your ballot, use the right button to continue.
-                </span>
-              </h1>
-            </Prose>
-          </ContentHeader>
-          <VariableContentContainer
-            showTopShadow={!isScrollAtTop}
-            showBottomShadow={!isScrollAtBottom}
-          >
-            <ScrollContainer
-              ref={this.scrollContainer}
-              onScroll={this.updateContestChoicesScrollStates}
-            >
-              <ScrollableContentWrapper isScrollable={isScrollable}>
-                {(contests as Contests).map((contest, i) => (
-                  <Contest
-                    id={`contest-${contest.id}`}
-                    key={contest.id}
-                    to={`/contests/${i}#review`}
-                  >
-                    <ContestProse compact>
-                      <h2 aria-label={`${contest.title.replace(',', '')},`}>
-                        <ContestSection>{contest.section}</ContestSection>
-                        {contest.title}
-                      </h2>
-
-                      {contest.type === 'candidate' && (
-                        <CandidateContestResult
-                          contest={contest}
-                          parties={parties}
-                          vote={votes[contest.id] as CandidateVote}
-                        />
-                      )}
-                      {contest.type === 'yesno' && (
-                        <YesNoContestResult
-                          contest={contest}
-                          vote={votes[contest.id] as YesNoVote}
-                        />
-                      )}
-                      {contest.type === 'ms-either-neither' && (
-                        <MsEitherNeitherContestResult
-                          contest={contest}
-                          eitherNeitherContestVote={
-                            votes[
-                              contest.eitherNeitherContestId
-                            ] as OptionalYesNoVote
-                          }
-                          pickOneContestVote={
-                            votes[contest.pickOneContestId] as OptionalYesNoVote
-                          }
-                        />
-                      )}
-                    </ContestProse>
-                    <ContestActions aria-label="press enter to change your answer for this contest.">
-                      <DecoyButton primary aria-hidden>
-                        Change
-                      </DecoyButton>
-                    </ContestActions>
-                  </Contest>
-                ))}
-              </ScrollableContentWrapper>
-            </ScrollContainer>
-            {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
-              <ScrollControls aria-hidden>
-                <Button
-                  className="scroll-up"
-                  big
-                  primary
-                  aria-hidden
-                  data-direction="up"
-                  disabled={isScrollAtTop}
-                  onPress={this.scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-                <Button
-                  className="scroll-down"
-                  big
-                  primary
-                  aria-hidden
-                  data-direction="down"
-                  disabled={isScrollAtBottom}
-                  onPress={this.scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-              </ScrollControls>
-            )}
-          </VariableContentContainer>
-        </Main>
-        <Sidebar
-          footer={
-            <React.Fragment>
-              <SettingsTextSize
-                userSettings={userSettings}
-                setUserSettings={setUserSettings}
-              />
-              <ElectionInfo
-                election={election}
-                precinctId={precinctId}
-                horizontal
-              />
-            </React.Fragment>
-          }
+  return (
+    <Screen>
+      <Main>
+        <ContentHeader>
+          <Prose id="audiofocus">
+            <h1>
+              <span aria-label="Review Your Votes.">Review Your Votes</span>
+              <span className="screen-reader-only">
+                To review your votes, advance through the ballot contests using
+                the up and down buttons. To change your vote in any contest, use
+                the select button to navigate to that contest. When you are
+                finished making your ballot selections and ready to print your
+                ballot, use the right button to continue.
+              </span>
+            </h1>
+          </Prose>
+        </ContentHeader>
+        <VariableContentContainer
+          showTopShadow={!isScrollAtTop}
+          showBottomShadow={!isScrollAtBottom}
         >
-          <SidebarSpacer />
-          <Prose>
-            <h2 aria-hidden>Review Votes</h2>
-            <p>Confirm your votes are correct.</p>
-            <p>
-              <LinkButton
+          <ScrollContainer
+            ref={scrollContainer}
+            onScroll={updateContestChoicesScrollStates}
+          >
+            <ScrollableContentWrapper isScrollable={isScrollable}>
+              {contests.map((contest, i) => (
+                <Contest
+                  id={`contest-${contest.id}`}
+                  key={contest.id}
+                  to={`/contests/${i}#review`}
+                >
+                  <ContestProse compact>
+                    <h2 aria-label={`${contest.title.replace(',', '')},`}>
+                      <ContestSection>{contest.section}</ContestSection>
+                      {contest.title}
+                    </h2>
+
+                    {contest.type === 'candidate' && (
+                      <CandidateContestResult
+                        contest={contest}
+                        parties={parties}
+                        vote={votes[contest.id] as CandidateVote}
+                      />
+                    )}
+                    {contest.type === 'yesno' && (
+                      <YesNoContestResult
+                        contest={contest}
+                        vote={votes[contest.id] as YesNoVote}
+                      />
+                    )}
+                    {contest.type === 'ms-either-neither' && (
+                      <MsEitherNeitherContestResult
+                        contest={contest}
+                        eitherNeitherContestVote={
+                          votes[
+                            contest.eitherNeitherContestId
+                          ] as OptionalYesNoVote
+                        }
+                        pickOneContestVote={
+                          votes[contest.pickOneContestId] as OptionalYesNoVote
+                        }
+                      />
+                    )}
+                  </ContestProse>
+                  <ContestActions aria-label="press enter to change your answer for this contest.">
+                    <DecoyButton primary aria-hidden>
+                      Change
+                    </DecoyButton>
+                  </ContestActions>
+                </Contest>
+              ))}
+            </ScrollableContentWrapper>
+          </ScrollContainer>
+          {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
+            <ScrollControls aria-hidden>
+              <Button
+                className="scroll-up"
                 big
                 primary
-                to={machineConfig.appMode.isVxPrint ? '/print' : '/save'}
-                id="next"
+                aria-hidden
+                data-direction="up"
+                disabled={isScrollAtTop}
+                onPress={scrollContestChoices}
               >
-                I’m Ready to <NoWrap>Print My Ballot</NoWrap>
-              </LinkButton>
-            </p>
-          </Prose>
-        </Sidebar>
-      </Screen>
-    )
-  }
+                <span>See More</span>
+              </Button>
+              <Button
+                className="scroll-down"
+                big
+                primary
+                aria-hidden
+                data-direction="down"
+                disabled={isScrollAtBottom}
+                onPress={scrollContestChoices}
+              >
+                <span>See More</span>
+              </Button>
+            </ScrollControls>
+          )}
+        </VariableContentContainer>
+      </Main>
+      <Sidebar
+        footer={
+          <React.Fragment>
+            <SettingsTextSize
+              userSettings={userSettings}
+              setUserSettings={setUserSettings}
+            />
+            <ElectionInfo
+              election={election}
+              precinctId={precinctId}
+              horizontal
+            />
+          </React.Fragment>
+        }
+      >
+        <SidebarSpacer />
+        <Prose>
+          <h2 aria-hidden>Review Votes</h2>
+          <p>Confirm your votes are correct.</p>
+          <p>
+            <LinkButton
+              big
+              primary
+              to={machineConfig.appMode.isVxPrint ? '/print' : '/save'}
+              id="next"
+            >
+              I’m Ready to <NoWrap>Print My Ballot</NoWrap>
+            </LinkButton>
+          </p>
+        </Prose>
+      </Sidebar>
+    </Screen>
+  )
 }
 
 export default ReviewPage

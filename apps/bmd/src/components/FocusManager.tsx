@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 import { ScreenReader } from '../utils/ScreenReader'
@@ -11,60 +11,61 @@ const StyledFocusManager = styled.div`
 `
 
 export interface Props extends RouteComponentProps {
-  screenReader: ScreenReader
-  onKeyPress?: React.DOMAttributes<HTMLElement>['onKeyPress']
+  children: React.ReactNode
   onClick?: React.DOMAttributes<HTMLElement>['onClick']
-  onFocus?: React.DOMAttributes<HTMLElement>['onFocus']
-  onKeyPressCapture?: React.DOMAttributes<HTMLElement>['onKeyPressCapture']
   onClickCapture?: React.DOMAttributes<HTMLElement>['onClickCapture']
+  onFocus?: React.DOMAttributes<HTMLElement>['onFocus']
   onFocusCapture?: React.DOMAttributes<HTMLElement>['onFocusCapture']
+  onKeyPress?: React.DOMAttributes<HTMLElement>['onKeyPress']
+  onKeyPressCapture?: React.DOMAttributes<HTMLElement>['onKeyPressCapture']
+  screenReader: ScreenReader
 }
 
-class FocusManager extends React.Component<Props> {
-  public screen = React.createRef<HTMLDivElement>()
+const FocusManager = ({
+  onKeyPress,
+  onClick,
+  onFocus,
+  onKeyPressCapture,
+  onClickCapture,
+  onFocusCapture,
+  children,
+  screenReader,
+  location,
+}: Props) => {
+  const screen = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
+  useEffect(() => {
+    const onPageLoad = () => {
+      screenReader.onPageLoad()
 
-  public componentDidMount() {
-    this.onPageLoad()
-  }
-
-  public componentDidUpdate(prevProps: RouteComponentProps) {
-    if (this.props.location.pathname !== prevProps.location.pathname) {
-      this.onPageLoad()
+      // can't seem to find a better way than this, unfortunately.
+      // the delay of 150 is to handle the case the Next button is selected
+      // via arrow keys and then clicked. A shorter delay will fail to move
+      // the focus away from "Next" in terms of audio. Even now, the Next button
+      // stays highlighted, which is a bummer. We need to figure out a better solution.
+      window.setTimeout(() => {
+        const elementToFocus =
+          document.getElementById('audiofocus') ?? screen.current!
+        elementToFocus?.focus()
+        elementToFocus?.click()
+      }, 150)
     }
-  }
+    onPageLoad()
+  }, [location.pathname, screenReader])
 
-  public onPageLoad = () => {
-    this.props.screenReader.onPageLoad()
-
-    // can't seem to find a better way than this, unfortunately.
-    // the delay of 150 is to handle the case the Next button is selected
-    // via arrow keys and then clicked. A shorter delay will fail to move
-    // the focus away from "Next" in terms of audio. Even now, the Next button
-    // stays highlighted, which is a bummer. We need to figure out a better solution.
-    window.setTimeout(() => {
-      const elementToFocus =
-        document.getElementById('audiofocus') ?? this.screen.current!
-      elementToFocus?.focus()
-      elementToFocus?.click()
-    }, 150)
-  }
-
-  public render() {
-    return (
-      <StyledFocusManager
-        ref={this.screen}
-        tabIndex={-1}
-        onKeyPress={this.props.onKeyPress}
-        onClick={this.props.onClick}
-        onFocus={this.props.onFocus}
-        onKeyPressCapture={this.props.onKeyPressCapture}
-        onClickCapture={this.props.onClickCapture}
-        onFocusCapture={this.props.onFocusCapture}
-      >
-        {this.props.children}
-      </StyledFocusManager>
-    )
-  }
+  return (
+    <StyledFocusManager
+      ref={screen}
+      tabIndex={-1}
+      onKeyPress={onKeyPress}
+      onClick={onClick}
+      onFocus={onFocus}
+      onKeyPressCapture={onKeyPressCapture}
+      onClickCapture={onClickCapture}
+      onFocusCapture={onFocusCapture}
+    >
+      {children}
+    </StyledFocusManager>
+  )
 }
 
 export default withRouter(FocusManager)

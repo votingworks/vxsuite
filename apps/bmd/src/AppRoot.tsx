@@ -16,7 +16,6 @@ import 'normalize.css'
 import React from 'react'
 import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
-// eslint-disable-next-line import/no-unresolved
 import './App.css'
 import IdleTimer from 'react-idle-timer'
 import { Subscription } from 'rxjs'
