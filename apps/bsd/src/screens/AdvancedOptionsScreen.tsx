@@ -18,7 +18,7 @@ interface Props {
   toggleTestMode: () => Promise<void>
 }
 
-const AdvancedOptionsScreen = ({
+const AdvancedOptionsScreen: React.FC<Props> = ({
   unconfigureServer,
   zeroData,
   backup,
@@ -26,7 +26,7 @@ const AdvancedOptionsScreen = ({
   isTestMode,
   togglingTestMode,
   toggleTestMode,
-}: Props) => {
+}) => {
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
   )

@@ -154,7 +154,7 @@ test('changes can only happen while in review', () => {
   }
   const option = contest.options[0]
   expect(() =>
-    // @ts-expect-error
+    // @ts-expect-error - intentionally passing the wrong object type
     workflow.change(workflow.init(), contest, option, MarkStatus.Marked)
   ).toThrowError()
 })
@@ -248,7 +248,7 @@ test('toggle can only happen while in review', () => {
     ],
   }
   const option = contest.options[0]
-  // @ts-expect-error
+  // @ts-expect-error - intentionally passing the wrong object type
   expect(() => workflow.toggle(workflow.init(), contest, option)).toThrowError()
 })
 
@@ -311,7 +311,7 @@ test('finalize moves out of review preserving the adjudication changes', () => {
 })
 
 test('finalize can only happen while in review', () => {
-  // @ts-expect-error
+  // @ts-expect-error - intentionally passing the wrong object type
   expect(() => workflow.finalize(workflow.init())).toThrowError()
 })
 

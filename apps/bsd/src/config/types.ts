@@ -17,12 +17,6 @@ export interface Dictionary<T> {
   [key: string]: T | undefined
 }
 
-export type DeepReadonly<T> = T extends (infer E)[]
-  ? readonly DeepReadonly<E>[]
-  : T extends object
-  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-  : T
-
 // Events
 export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
@@ -117,7 +111,7 @@ export interface ScanStatusResponse {
   adjudication: AdjudicationStatus
 }
 
-export type GetConfigRequest = {}
+export type GetConfigRequest = void
 export interface GetConfigResponse {
   election?: Election
   testMode: boolean
@@ -129,12 +123,12 @@ export interface PatchConfigRequest {
 }
 export type PatchConfigResponse = OkResponse
 
-export type CardReadRequest = {}
+export type CardReadRequest = void
 export type CardReadResponse =
   | { present: false }
   | { present: true; longValueExists: boolean; shortValue?: string }
 
-export type CardReadLongRequest = {}
+export type CardReadLongRequest = void
 export interface CardReadLongResponse {
   longValue: string
 }

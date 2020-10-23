@@ -5,6 +5,7 @@ import Button, { ButtonInterface } from './Button'
 
 interface Props
   extends ButtonInterface,
+    // eslint-disable-next-line @typescript-eslint/ban-types
     RouteComponentProps<{}>,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 

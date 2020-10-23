@@ -1,3 +1,4 @@
+import { ReadonlyDeep } from 'type-fest'
 import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useParams, useHistory } from 'react-router-dom'
@@ -8,7 +9,6 @@ import ContestOptionButton from '../components/ContestOptionButton'
 import {
   Contest,
   ContestOption,
-  DeepReadonly,
   MarkStatus,
   ReviewMarginalMarksBallot,
   AdjudicationStatus,
@@ -71,10 +71,10 @@ export interface Props {
   adjudicationStatus: AdjudicationStatus
 }
 
-export default function BallotReviewScreen({
+const BallotReviewScreen: React.FC<Props> = ({
   isTestMode,
   adjudicationStatus,
-}: Props) {
+}) => {
   const history = useHistory()
   const { ballotId } = useParams<{
     ballotId?: string
@@ -139,8 +139,8 @@ export default function BallotReviewScreen({
 
   const getContestOptionDecoration = useCallback(
     (
-      contest: DeepReadonly<Contest>,
-      option: DeepReadonly<ContestOption>
+      contest: ReadonlyDeep<Contest>,
+      option: ReadonlyDeep<ContestOption>
     ): { current: MarkStatus; changed?: MarkStatus } => {
       if (state.type === 'review' || state.type === 'done') {
         const current =
@@ -337,3 +337,5 @@ export default function BallotReviewScreen({
     </Screen>
   )
 }
+
+export default BallotReviewScreen

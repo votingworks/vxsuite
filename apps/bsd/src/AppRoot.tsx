@@ -7,7 +7,6 @@ import Prose from './components/Prose'
 import Modal from './components/Modal'
 
 import {
-  ButtonEvent,
   CardData,
   ScanStatusResponse,
   CardReadLongResponse,
@@ -181,6 +180,7 @@ const App: React.FC = () => {
         })
       ).json()
       if (result.status !== 'ok') {
+        // eslint-disable-next-line no-alert
         window.alert(`could not scan: ${result.status}`)
         setIsScanning(false)
       }
@@ -204,18 +204,6 @@ const App: React.FC = () => {
       })
     } catch (error) {
       console.log('failed handleFileInput()', error) // eslint-disable-line no-console
-    }
-  }, [])
-
-  const invalidateBatch = useCallback(async (event: ButtonEvent) => {
-    try {
-      const { id } = (event.target as HTMLElement).dataset
-      await fetch('/scan/invalidateBatch', {
-        method: 'post',
-        body: id,
-      })
-    } catch (error) {
-      console.log('failed invalidateBranch()', error) // eslint-disable-line no-console
     }
   }, [])
 
@@ -265,6 +253,7 @@ const App: React.FC = () => {
       setIsExportingCVRs(false)
 
       if (response.status !== 200) {
+        // eslint-disable-next-line no-console
         console.log('error downloading CVRs')
         return
       }
@@ -397,7 +386,6 @@ const App: React.FC = () => {
                 <MainChild maxWidth={false}>
                   <DashboardScreen
                     adjudicationStatus={adjudication}
-                    invalidateBatch={invalidateBatch}
                     isScanning={isScanning}
                     status={{
                       ...status,

@@ -12,7 +12,6 @@ const noneLeftAdjudicationStatus = {
 
 test('null state', () => {
   const deleteBatch = jest.fn()
-  const invalidateBatch = jest.fn()
   const status: ScanStatusResponse = {
     batches: [],
     adjudication: noneLeftAdjudicationStatus,
@@ -21,7 +20,6 @@ test('null state', () => {
     <Router history={createMemoryHistory()}>
       <DashboardScreen
         deleteBatch={deleteBatch}
-        invalidateBatch={invalidateBatch}
         isScanning={false}
         status={status}
         adjudicationStatus={noneLeftAdjudicationStatus}
@@ -36,7 +34,6 @@ test('null state', () => {
 
 test('shows scanned ballot count', () => {
   const deleteBatch = jest.fn()
-  const invalidateBatch = jest.fn()
   const status: ScanStatusResponse = {
     batches: [
       {
@@ -64,7 +61,6 @@ test('shows scanned ballot count', () => {
     <Router history={createMemoryHistory()}>
       <DashboardScreen
         deleteBatch={deleteBatch}
-        invalidateBatch={invalidateBatch}
         isScanning={false}
         status={status}
         adjudicationStatus={noneLeftAdjudicationStatus}
@@ -79,7 +75,6 @@ test('shows scanned ballot count', () => {
 
 test('shows whether a batch is scanning', () => {
   const deleteBatch = jest.fn()
-  const invalidateBatch = jest.fn()
   const status: ScanStatusResponse = {
     batches: [
       {
@@ -99,7 +94,6 @@ test('shows whether a batch is scanning', () => {
     <Router history={createMemoryHistory()}>
       <DashboardScreen
         deleteBatch={deleteBatch}
-        invalidateBatch={invalidateBatch}
         isScanning
         status={status}
         adjudicationStatus={noneLeftAdjudicationStatus}
@@ -112,7 +106,6 @@ test('shows whether a batch is scanning', () => {
 
 test('allows deleting a batch', async () => {
   const deleteBatch = jest.fn()
-  const invalidateBatch = jest.fn()
   const status: ScanStatusResponse = {
     batches: [
       {
@@ -140,7 +133,6 @@ test('allows deleting a batch', async () => {
     <Router history={createMemoryHistory()}>
       <DashboardScreen
         deleteBatch={deleteBatch}
-        invalidateBatch={invalidateBatch}
         isScanning={false}
         status={status}
         adjudicationStatus={noneLeftAdjudicationStatus}
