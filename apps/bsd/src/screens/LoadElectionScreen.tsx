@@ -13,7 +13,7 @@ interface Props {
   setElection: SetElection
 }
 
-const LoadElectionScreen = ({ setElection }: Props) => {
+const LoadElectionScreen: React.FC<Props> = ({ setElection }) => {
   const [
     currentUploadingBallotIndex,
     setCurrentUploadingBallotIndex,

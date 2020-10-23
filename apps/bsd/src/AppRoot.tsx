@@ -180,6 +180,7 @@ const App: React.FC = () => {
         })
       ).json()
       if (result.status !== 'ok') {
+        // eslint-disable-next-line no-alert
         window.alert(`could not scan: ${result.status}`)
         setIsScanning(false)
       }
@@ -252,6 +253,7 @@ const App: React.FC = () => {
       setIsExportingCVRs(false)
 
       if (response.status !== 200) {
+        // eslint-disable-next-line no-console
         console.log('error downloading CVRs')
         return
       }

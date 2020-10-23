@@ -57,7 +57,10 @@ const doNothing = () => {
   console.log('disabled') // eslint-disable-line no-console
 }
 
-const BallotEjectScreen = ({ continueScanning, isTestMode }: Props) => {
+const BallotEjectScreen: React.FC<Props> = ({
+  continueScanning,
+  isTestMode,
+}) => {
   const [sheetInfo, setSheetInfo] = useState<BallotSheetInfo | undefined>()
 
   const [ballotState, setBallotState] = useState<EjectState>(undefined)

@@ -45,7 +45,7 @@ interface Props {
   isTestMode?: boolean
 }
 
-const MainNav = ({ children, isTestMode = false }: Props) => (
+const MainNav: React.FC<Props> = ({ children, isTestMode = false }) => (
   <Nav>
     <StyledNav>
       <Brand>

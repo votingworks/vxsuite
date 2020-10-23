@@ -18,7 +18,7 @@ export interface Props {
   electionHash?: string
 }
 
-const StatusFooter = ({ election, electionHash }: Props) => {
+const StatusFooter: React.FC<Props> = ({ election, electionHash }) => {
   const electionDate =
     election && localeWeedkayAndDate.format(new Date(election?.date))
 

@@ -71,10 +71,10 @@ export interface Props {
   adjudicationStatus: AdjudicationStatus
 }
 
-export default function BallotReviewScreen({
+const BallotReviewScreen: React.FC<Props> = ({
   isTestMode,
   adjudicationStatus,
-}: Props) {
+}) => {
   const history = useHistory()
   const { ballotId } = useParams<{
     ballotId?: string
@@ -337,3 +337,5 @@ export default function BallotReviewScreen({
     </Screen>
   )
 }
+
+export default BallotReviewScreen

@@ -10,7 +10,7 @@
 // To learn more about the benefits of this model and instructions on how to
 // opt-in, read https://bit.ly/CRA-PWA
 
-async function registerValidSW(swUrl: string, config?: Config) {
+async function registerValidSW(swUrl: string, config?: Config): Promise<void> {
   let registration: ServiceWorkerRegistration
 
   try {
@@ -103,7 +103,7 @@ interface Config {
   onUpdate?: (registration: ServiceWorkerRegistration) => void
 }
 
-export function register(config?: Config) {
+export function register(config?: Config): void {
   if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(
@@ -141,7 +141,7 @@ export function register(config?: Config) {
   }
 }
 
-export function unregister() {
+export function unregister(): void {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then((registration) => {
       registration.unregister()

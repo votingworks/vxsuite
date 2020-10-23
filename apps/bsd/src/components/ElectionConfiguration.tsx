@@ -13,7 +13,7 @@ export interface Props {
   acceptFiles(files: readonly File[]): void
 }
 
-const ElectionConfiguration = ({ acceptFiles }: Props) => {
+const ElectionConfiguration: React.FC<Props> = ({ acceptFiles }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop(files: readonly File[]) {
       acceptFiles(files)

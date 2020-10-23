@@ -63,11 +63,11 @@ export interface Props extends StyledButtonProps {
   onPress: MouseEventHandler
 }
 
-const Button = ({
+const Button: React.FC<Props> = ({
   component: Component = StyledButton,
   onPress,
   ...rest
-}: Props) => {
+}) => {
   const [startCoordinates, setStartCoordinates] = useState([0, 0])
 
   const onTouchStart = (event: React.TouchEvent) => {
