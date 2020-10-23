@@ -24,11 +24,13 @@ beforeEach(() => {
   })
 
   const oldWindowLocation = window.location
-  delete window.location
-  window.location = {
-    ...oldWindowLocation,
-    href: '/',
-  }
+  Object.defineProperty(window, 'location', {
+    value: {
+      ...oldWindowLocation,
+      href: '/',
+    },
+    configurable: true,
+  })
 })
 
 test('renders without crashing', async () => {
@@ -88,7 +90,6 @@ test('clicking Scan Batch will scan a batch', async () => {
   })
 
   const mockAlert = jest.fn()
-  delete window.alert
   window.alert = mockAlert
 
   await act(async () => {
