@@ -339,7 +339,7 @@ export default class Interpreter {
       )
     }
 
-    const { contests, columns } = this.findContests(imageData)
+    const { contests } = this.findContests(imageData)
     const ballotLayout: BallotPageLayout = {
       ballotImage: { imageData, metadata },
       contests: [
@@ -362,8 +362,7 @@ export default class Interpreter {
     const [mappedBallot, marks] = this.getMarksForBallot(
       ballotLayout,
       matchedTemplate,
-      this.getContestsForTemplate(matchedTemplate),
-      columns
+      this.getContestsForTemplate(matchedTemplate)
     )
 
     return { matchedTemplate, mappedBallot, metadata, marks }
@@ -458,8 +457,7 @@ export default class Interpreter {
   private getMarksForBallot(
     ballotLayout: BallotPageLayout,
     template: BallotPageLayout,
-    contests: Contests,
-    columns: number
+    contests: Contests
   ): [ImageData, BallotMark[]] {
     assert.equal(
       template.contests.length,

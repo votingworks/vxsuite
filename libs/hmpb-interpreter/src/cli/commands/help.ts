@@ -48,8 +48,8 @@ export function printHelp(out: NodeJS.WriteStream): void {
 }
 
 export default async function run(
-  options: Options,
-  stdin: NodeJS.ReadStream,
+  _options: Options,
+  _stdin: NodeJS.ReadStream,
   stdout: NodeJS.WriteStream
 ): Promise<number> {
   printHelp(stdout)

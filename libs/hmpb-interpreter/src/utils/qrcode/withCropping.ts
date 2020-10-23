@@ -49,5 +49,7 @@ export function withCropping(
         }
       }
     }
+
+    return undefined
   }
 }

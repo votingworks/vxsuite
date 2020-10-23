@@ -24,6 +24,8 @@ export async function detect(
       return { data: symbol.data }
     }
   }
+
+  return undefined
 }
 
 export default withCropping(detect)

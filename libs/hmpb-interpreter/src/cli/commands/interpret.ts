@@ -139,7 +139,7 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
 
 export default async function run(
   options: Options,
-  stdin: NodeJS.ReadStream,
+  _stdin: NodeJS.ReadStream,
   stdout: NodeJS.WriteStream
 ): Promise<number> {
   const interpreter = new Interpreter({
