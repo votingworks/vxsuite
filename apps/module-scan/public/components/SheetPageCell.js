@@ -80,7 +80,7 @@ function interpretationTitle(interpretation) {
       return 'unreadable'
 
     default:
-      // @ts-expect-error
+      // @ts-expect-error - future-proofing in case the enum is out of date
       return interpretation.type
   }
 }
