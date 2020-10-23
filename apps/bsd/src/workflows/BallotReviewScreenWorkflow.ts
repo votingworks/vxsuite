@@ -1,8 +1,8 @@
 import * as assert from 'assert'
+import { ReadonlyDeep } from 'type-fest'
 import {
   Contest,
   ContestOption,
-  DeepReadonly,
   ReviewBallot,
   MarksByContestId,
 } from '../config/types'
@@ -11,17 +11,17 @@ import { MarkStatus } from '../config/types/ballot-review'
 
 export type State = Failed | Init | Review | Done | NoBallots
 
-export type Failed = DeepReadonly<{
+export type Failed = ReadonlyDeep<{
   type: 'failed'
   error?: Error
   previousState: State
 }>
 
-export type Init = DeepReadonly<{
+export type Init = ReadonlyDeep<{
   type: 'init'
 }>
 
-export type Review = DeepReadonly<{
+export type Review = ReadonlyDeep<{
   type: 'review'
   ballot: ReviewBallot
   changes: MarksByContestId
@@ -29,13 +29,13 @@ export type Review = DeepReadonly<{
   reviewComplete: boolean
 }>
 
-export type Done = DeepReadonly<{
+export type Done = ReadonlyDeep<{
   type: 'done'
   ballot: ReviewBallot
   changes: MarksByContestId
 }>
 
-export type NoBallots = DeepReadonly<{
+export type NoBallots = ReadonlyDeep<{
   type: 'no-ballots'
 }>
 

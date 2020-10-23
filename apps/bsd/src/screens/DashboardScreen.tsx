@@ -2,11 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
-import {
-  ButtonEventFunction,
-  ScanStatusResponse,
-  AdjudicationStatus,
-} from '../config/types'
+import { ScanStatusResponse, AdjudicationStatus } from '../config/types'
 
 import Prose from '../components/Prose'
 import Table, { TD } from '../components/Table'
@@ -30,7 +26,6 @@ const shortDateTime = (iso8601Timestamp: string) => {
 
 interface Props {
   adjudicationStatus: AdjudicationStatus
-  invalidateBatch: ButtonEventFunction
   isScanning: boolean
   status: ScanStatusResponse
   deleteBatch(batchId: number): void

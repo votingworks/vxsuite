@@ -53,6 +53,7 @@ module.exports = {
     camelcase: 'error',
     'consistent-return': 'off',
     'import/extensions': ['error', 'never', { json: 'always' }],
+    'import/no-unresolved': 'off',
     'import/no-extraneous-dependencies': [
       'error',
       {
@@ -69,6 +70,9 @@ module.exports = {
     // note you must disable the base rule as it can report incorrect errors
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
+    // note you must disable the base rule as it can report incorrect errors
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error"],
     'no-restricted-syntax': 'off',
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],
@@ -78,6 +82,7 @@ module.exports = {
     ],
     'react/jsx-fragments': ['error', 'element'],
     'react/jsx-props-no-spreading': 'off',
+    'react/require-default-props': 'off',
     strict: 0,
     '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
     '@typescript-eslint/no-non-null-assertion': 'off',

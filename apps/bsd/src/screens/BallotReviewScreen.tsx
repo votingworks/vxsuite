@@ -1,3 +1,4 @@
+import { ReadonlyDeep } from 'type-fest'
 import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useParams, useHistory } from 'react-router-dom'
@@ -8,7 +9,6 @@ import ContestOptionButton from '../components/ContestOptionButton'
 import {
   Contest,
   ContestOption,
-  DeepReadonly,
   MarkStatus,
   ReviewMarginalMarksBallot,
   AdjudicationStatus,
@@ -139,8 +139,8 @@ export default function BallotReviewScreen({
 
   const getContestOptionDecoration = useCallback(
     (
-      contest: DeepReadonly<Contest>,
-      option: DeepReadonly<ContestOption>
+      contest: ReadonlyDeep<Contest>,
+      option: ReadonlyDeep<ContestOption>
     ): { current: MarkStatus; changed?: MarkStatus } => {
       if (state.type === 'review' || state.type === 'done') {
         const current =
