@@ -201,13 +201,6 @@ test('POST /scan/scanFiles', async () => {
     .expect(200, { status: 'ok' })
 })
 
-test('POST /scan/invalidateBatch', async () => {
-  await request(app)
-    .post('/scan/invalidateBatch')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
-})
-
 test('POST /scan/export', async () => {
   importerMock.doExport.mockResolvedValue('')
 
