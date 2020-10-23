@@ -227,10 +227,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
     })
   }
 
-  app.post('/scan/invalidateBatch', (_request, response) => {
-    response.json({ status: 'ok' })
-  })
-
   app.post(
     '/scan/hmpb/addTemplates',
     upload.fields([
