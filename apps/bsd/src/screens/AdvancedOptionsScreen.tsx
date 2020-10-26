@@ -1,12 +1,12 @@
-import React, { useState, useCallback } from 'react'
-
+import React, { useCallback, useState } from 'react'
+import Button from '../components/Button'
+import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
-import Screen from '../components/Screen'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
-import LinkButton from '../components/LinkButton'
-import Button from '../components/Button'
+import Screen from '../components/Screen'
+import ToggleTestModeButton from '../components/ToggleTestModeButton'
 
 interface Props {
   unconfigureServer: () => Promise<void>
@@ -14,7 +14,7 @@ interface Props {
   backup: () => Promise<void>
   hasBatches: boolean
   isTestMode: boolean
-  togglingTestMode: boolean
+  isTogglingTestMode: boolean
   toggleTestMode: () => Promise<void>
 }
 
@@ -24,7 +24,7 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
   backup,
   hasBatches,
   isTestMode,
-  togglingTestMode,
+  isTogglingTestMode,
   toggleTestMode,
 }) => {
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
@@ -54,17 +54,13 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
           <MainChild>
             <Prose>
               <h1>Advanced Options</h1>
-              {typeof isTestMode === 'boolean' && (
-                <p>
-                  <Button onPress={toggleTestMode} disabled={togglingTestMode}>
-                    {togglingTestMode
-                      ? 'Switching…'
-                      : isTestMode
-                      ? 'Toggle to Live Mode'
-                      : 'Toggle to Test Mode'}
-                  </Button>
-                </p>
-              )}
+              <p>
+                <ToggleTestModeButton
+                  isTestMode={isTestMode}
+                  isTogglingTestMode={isTogglingTestMode}
+                  toggleTestMode={toggleTestMode}
+                />
+              </p>
               <p>
                 <Button disabled={!hasBatches} onPress={toggleIsConfirmingZero}>
                   Delete Ballot Data…
@@ -84,7 +80,7 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
             </Prose>
           </MainChild>
         </Main>
-        <MainNav>
+        <MainNav isTestMode={isTestMode}>
           <LinkButton small to="/">
             Back to Dashboard
           </LinkButton>

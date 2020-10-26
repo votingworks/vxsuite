@@ -61,42 +61,44 @@ const StyledButton = styled('button').attrs((props: Attrs) => ({
 export interface Props extends StyledButtonProps {
   component?: StyledComponent<'button', never, StyledButtonProps, never>
   onPress: MouseEventHandler
+  ref?: React.Ref<HTMLButtonElement>
 }
 
-const Button: React.FC<Props> = ({
-  component: Component = StyledButton,
-  onPress,
-  ...rest
-}) => {
-  const [startCoordinates, setStartCoordinates] = useState([0, 0])
+const Button = React.forwardRef<HTMLButtonElement, Props>(
+  ({ component: Component = StyledButton, onPress, ...rest }, ref) => {
+    const [startCoordinates, setStartCoordinates] = useState([0, 0])
 
-  const onTouchStart = (event: React.TouchEvent) => {
-    const { clientX, clientY } = event.touches[0]
-    setStartCoordinates([clientX, clientY])
-  }
-
-  const onTouchEnd = (event: React.TouchEvent) => {
-    const maxMove = 30
-    const { clientX, clientY } = event.changedTouches[0]
-    if (
-      Math.abs(startCoordinates[0] - clientX) < maxMove &&
-      Math.abs(startCoordinates[1] - clientY) < maxMove
-    ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onPress(event as any)
-      event.preventDefault()
+    const onTouchStart = (event: React.TouchEvent) => {
+      const { clientX, clientY } = event.touches[0]
+      setStartCoordinates([clientX, clientY])
     }
-  }
 
-  return (
-    <Component
-      {...rest}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
-      onClick={onPress}
-    />
-  )
-}
+    const onTouchEnd = (event: React.TouchEvent) => {
+      const maxMove = 30
+      const { clientX, clientY } = event.changedTouches[0]
+      if (
+        Math.abs(startCoordinates[0] - clientX) < maxMove &&
+        Math.abs(startCoordinates[1] - clientY) < maxMove
+      ) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onPress(event as any)
+        event.preventDefault()
+      }
+    }
+
+    return (
+      <Component
+        {...rest}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onClick={onPress}
+        ref={ref}
+      />
+    )
+  }
+)
+
+Button.displayName = 'Button'
 
 export const SegmentedButton = styled.span`
   display: inline-flex;

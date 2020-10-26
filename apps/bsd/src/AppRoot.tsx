@@ -54,7 +54,7 @@ const App: React.FC = () => {
     []
   )
   const [isTestMode, setTestMode] = useState(false)
-  const [togglingTestMode, setTogglingTestMode] = useState(false)
+  const [isTogglingTestMode, setTogglingTestMode] = useState(false)
   const [status, setStatus] = useState<ScanStatusResponse>({
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
@@ -223,16 +223,13 @@ const App: React.FC = () => {
   }, [])
 
   const toggleTestMode = useCallback(async () => {
-    // eslint-disable-next-line no-restricted-globals, no-alert
-    if (confirm('Toggling test mode will zero out your scans. Are you sure?')) {
-      try {
-        setTogglingTestMode(true)
-        await patchConfig({ testMode: !isTestMode })
-        await refreshConfig()
-        history.replace('/')
-      } finally {
-        setTogglingTestMode(false)
-      }
+    try {
+      setTogglingTestMode(true)
+      await patchConfig({ testMode: !isTestMode })
+      await refreshConfig()
+      history.replace('/')
+    } finally {
+      setTogglingTestMode(false)
     }
   }, [history, isTestMode, refreshConfig])
 
@@ -377,7 +374,7 @@ const App: React.FC = () => {
               hasBatches={!!status.batches.length}
               isTestMode={isTestMode}
               toggleTestMode={toggleTestMode}
-              togglingTestMode={togglingTestMode}
+              isTogglingTestMode={isTogglingTestMode}
             />
           </Route>
           <Route path="/">
