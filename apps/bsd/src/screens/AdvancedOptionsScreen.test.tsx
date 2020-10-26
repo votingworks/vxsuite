@@ -15,7 +15,7 @@ test('clicking "Export Backup…" shows progress', async () => {
         zeroData={jest.fn()}
         backup={backup}
         isTestMode={false}
-        togglingTestMode={false}
+        isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
       />
     </Router>
@@ -54,7 +54,7 @@ test('backup error shows message', async () => {
         zeroData={jest.fn()}
         backup={backup}
         isTestMode={false}
-        togglingTestMode={false}
+        isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
       />
     </Router>
