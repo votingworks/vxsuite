@@ -24,16 +24,16 @@ const UINT8_MAX = (1 << 8) - 1
  *
  * @see https://en.wikipedia.org/wiki/Otsu%27s_method
  */
-export default function otsu(data: Uint8Array | Uint8ClampedArray): number {
-  const numPixels = data.length
+export default function otsu(
+  data: Uint8Array | Uint8ClampedArray,
+  step = 1
+): number {
+  const numPixels = data.length / step
 
   // Calculate histogram
   const histogram = new Int32Array(UINT8_MAX + 1)
-  let ptr = 0
-  let length = numPixels
-  while (length--) {
-    const value = data[ptr++]
-    histogram[value]++
+  for (let ptr = 0, length = numPixels; length; length--, ptr += step) {
+    histogram[data[ptr]]++
   }
 
   // Calculate weighted sum of histogram values

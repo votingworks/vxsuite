@@ -1,5 +1,5 @@
 import grayscale from './grayscale'
-import { isRGBA } from './imageFormatUtils'
+import { getImageChannelCount, isRGBA } from './imageFormatUtils'
 import otsu from './otsu'
 
 export type RGBA = [number, number, number, number]
@@ -25,42 +25,25 @@ export function binarize(
 ): void {
   grayscale(srcImageData, dstImageData)
 
-  const { data: dst, width, height } = dstImageData
-
-  if (typeof threshold === 'undefined') {
-    if (isRGBA(dstImageData)) {
-      const size = width * height
-      const dstGrayData = new Uint8Array(size)
-      const rgbaData = dstImageData.data
-
-      for (
-        let rgbaOffset = 0, grayOffset = 0;
-        grayOffset < size;
-        grayOffset += 1, rgbaOffset += 4
-      ) {
-        dstGrayData[grayOffset] = rgbaData[rgbaOffset]
-      }
-
-      threshold = otsu(dstGrayData)
-    } else {
-      threshold = otsu(dstImageData.data)
-    }
-  }
+  const { data: dst } = dstImageData
+  threshold ??= otsu(dstImageData.data, getImageChannelCount(dstImageData))
 
   if (isRGBA(dstImageData)) {
-    const size = dstImageData.data.length
+    const dst32 = new Int32Array(dst.buffer)
+    const RGBA_WHITE =
+      PIXEL_WHITE | (PIXEL_WHITE << 8) | (PIXEL_WHITE << 16) | (0xff << 24)
+    const RGBA_BLACK =
+      PIXEL_BLACK | (PIXEL_BLACK << 8) | (PIXEL_BLACK << 16) | (0xff << 24)
 
-    for (let offset = 0; offset < size; offset += 4) {
-      const pixel = dst[offset] < threshold ? PIXEL_BLACK : PIXEL_WHITE
-      dst[offset] = pixel
-      dst[offset + 1] = pixel
-      dst[offset + 2] = pixel
-      dst[offset + 3] = 0xff
+    for (
+      let offset32 = 0, offset8 = 0, size = dst32.length;
+      offset32 < size;
+      offset32++, offset8 += 4
+    ) {
+      dst32[offset32] = dst[offset8] < threshold ? RGBA_BLACK : RGBA_WHITE
     }
   } else {
-    const size = dstImageData.data.length
-
-    for (let offset = 0; offset < size; offset += 1) {
+    for (let offset = 0, size = dst.length; offset < size; offset++) {
       dst[offset] = dst[offset] < threshold ? PIXEL_BLACK : PIXEL_WHITE
     }
   }

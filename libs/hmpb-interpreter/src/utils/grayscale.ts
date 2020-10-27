@@ -27,7 +27,8 @@ export function fromGray(
 }
 
 /**
- * Converts an RGBA image to grayscale.
+ * Converts an RGBA image to grayscale. If the destination image is a
+ * single-channel image, the alpha channel is ignored.
  *
  * Operates on the image in-place by default, or a different destination image
  * may be provided.
@@ -39,37 +40,33 @@ export function fromRGBA(
   assertRGBAImage(srcImageData)
   assertSizesMatch(srcImageData, dstImageData)
 
-  const { data: src, width, height } = srcImageData
-  const { data: dst } = dstImageData
+  const src32 = new Int32Array(srcImageData.data.buffer)
 
   if (isRGBA(dstImageData)) {
-    for (let y = 0; y < height; y += 1) {
-      for (let x = 0; x < width; x += 1) {
-        const offset = (x + y * width) << 2
-        const r = src[offset]
-        const g = src[offset + 1]
-        const b = src[offset + 2]
+    const dst32 = new Int32Array(dstImageData.data.buffer)
+    for (let offset = 0, size = src32.length; offset < size; offset++) {
+      const px = src32[offset]
+      const r = px & 0xff
+      const g = (px >>> 8) & 0xff
+      const b = (px >>> 16) & 0xff
+      const a = (px >>> 24) & 0xff
 
-        // Luminosity grayscale formula.
-        const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0
-        dst[offset] = luminosity
-        dst[offset + 1] = luminosity
-        dst[offset + 2] = luminosity
-        dst[offset + 3] = src[offset + 3]
-      }
+      // Luminosity grayscale formula.
+      const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0
+      dst32[offset] =
+        luminosity | (luminosity << 8) | (luminosity << 16) | (a << 24)
     }
   } else {
-    for (let y = 0; y < height; y += 1) {
-      for (let x = 0; x < width; x += 1) {
-        const dstOffset = x + y * width
-        const srcOffset = dstOffset << 2
-        const r = src[srcOffset]
-        const g = src[srcOffset + 1]
-        const b = src[srcOffset + 2]
+    const dst8 = dstImageData.data
+    for (let offset = 0, size = src32.length; offset < size; offset++) {
+      const px = src32[offset]
+      const r = px & 0xff
+      const g = (px >>> 8) & 0xff
+      const b = (px >>> 16) & 0xff
 
-        // Luminosity grayscale formula.
-        dst[dstOffset] = (0.21 * r + 0.72 * g + 0.07 * b) | 0
-      }
+      // Luminosity grayscale formula.
+      const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0
+      dst8[offset] = luminosity
     }
   }
 }
