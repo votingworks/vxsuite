@@ -25,9 +25,7 @@ test('get/set election', async () => {
   expect(await store.getElectionDefinition()).toBeUndefined()
 
   await store.setElection(fromElection(election))
-  expect(await store.getElectionDefinition()).toEqual(
-    expect.objectContaining({ election })
-  )
+  expect((await store.getElectionDefinition())?.election).toEqual(election)
 
   await store.setElection(undefined)
   expect(await store.getElectionDefinition()).toBeUndefined()
