@@ -1,0 +1,80 @@
+version: 2.1
+
+executors:
+  nodejs-browsers:
+    docker:
+      - image: circleci/node:12.10.0-browsers
+  nodejs:
+    docker:
+      - image: circleci/node:12.19
+
+jobs:
+  test-bsd:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bsd/yarn.lock" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn --cwd apps/bsd install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bsd/yarn.lock" }}
+          paths:
+            - apps/bsd/node_modules
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            yarn --cwd apps/bsd test:coverage
+
+  test-module-scan:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn --cwd apps/module-scan install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
+          paths:
+            - apps/module-scan/node_modules
+      - run:
+          name: Run Tests with Coverage
+          command: |
+            yarn --cwd apps/module-scan test:coverage
+
+  test-hmpb-interpreter:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/hmpb-interpreter/yarn.lock" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn --cwd libs/hmpb-interpreter install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/hmpb-interpreter/yarn.lock" }}
+          paths:
+            - libs/hmpb-interpreter/node_modules
+      - run:
+          name: Run Tests with Coverage
+          command: |
+            yarn --cwd libs/hmpb-interpreter test:coverage
+
+workflows:
+  test:
+    jobs:
+      - test-bsd
+      - test-module-scan
+      - test-hmpb-interpreter
