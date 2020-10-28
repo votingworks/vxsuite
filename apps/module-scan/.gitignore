@@ -1,0 +1,13 @@
+node_modules
+*.db
+*.db.*
+tmp
+!tmp/.gitkeep
+hmpb-templates
+!hmpb-templates/.gitkeep
+*~
+*.log
+coverage/
+.DS_Store
+debug-dump*.zip
+/*.png
