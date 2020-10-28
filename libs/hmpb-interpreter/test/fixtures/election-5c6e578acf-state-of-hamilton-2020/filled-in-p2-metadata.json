@@ -1,0 +1,10 @@
+{
+  "ballotStyleId": "12",
+  "isTestMode": false,
+  "locales": {
+    "primary": "en-US",
+    "secondary": "es-US"
+  },
+  "pageNumber": 2,
+  "precinctId": "23"
+}

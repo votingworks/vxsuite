@@ -1,0 +1,838 @@
+{
+  "title": "General Election",
+  "state": "State of Mississippi",
+  "county": {
+    "id": "10",
+    "name": "Choctaw County"
+  },
+  "date": "2019-11-05T00:00:00-05:00",
+  "parties": [
+    {
+      "id": "2",
+      "name": "Democrat",
+      "fullName": "Democrat",
+      "abbrev": "D"
+    },
+    {
+      "id": "3",
+      "name": "Republican",
+      "fullName": "Republican",
+      "abbrev": "R"
+    },
+    {
+      "id": "4",
+      "name": "Libertarian",
+      "fullName": "Libertarian",
+      "abbrev": "L"
+    },
+    {
+      "id": "5",
+      "name": "Reform",
+      "fullName": "Reform",
+      "abbrev": "REF"
+    },
+    {
+      "id": "6",
+      "name": "Natural Law",
+      "fullName": "Natural Law",
+      "abbrev": "N"
+    },
+    {
+      "id": "8",
+      "name": "Constitution",
+      "fullName": "Constitution",
+      "abbrev": "C"
+    },
+    {
+      "id": "9",
+      "name": "Green",
+      "fullName": "Green",
+      "abbrev": "G"
+    },
+    {
+      "id": "10",
+      "name": "America First",
+      "fullName": "America First",
+      "abbrev": "A"
+    },
+    {
+      "id": "11",
+      "name": "Independent",
+      "fullName": "Independent",
+      "abbrev": "I"
+    },
+    {
+      "id": "12",
+      "name": "Nonpartisan",
+      "fullName": "Nonpartisan",
+      "abbrev": "NP"
+    },
+    {
+      "id": "575000001",
+      "name": "Justice",
+      "fullName": "Justice",
+      "abbrev": "JUS"
+    },
+    {
+      "id": "575000002",
+      "name": "Prohibition",
+      "fullName": "Prohibition",
+      "abbrev": "PRO"
+    },
+    {
+      "id": "575000003",
+      "name": "American Delta",
+      "fullName": "American Delta",
+      "abbrev": "ADP"
+    },
+    {
+      "id": "575000004",
+      "name": "Veterans",
+      "fullName": "Veterans",
+      "abbrev": "VET"
+    }
+  ],
+  "contests": [
+    {
+      "id": "575021152",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "candidate",
+      "title": "Governor",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032130",
+          "name": "Jim Hood",
+          "partyId": "2"
+        },
+        {
+          "id": "575032129",
+          "name": "Tate Reeves",
+          "partyId": "3"
+        },
+        {
+          "id": "575030384",
+          "name": "Bob Hickingbottom",
+          "partyId": "8"
+        },
+        {
+          "id": "575030430",
+          "name": "David R. Singletary",
+          "partyId": "11"
+        }
+      ]
+    },
+    {
+      "id": "575020972",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "candidate",
+      "title": "Lieutenant Governor",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575031914",
+          "name": "Delbert Hosemann",
+          "partyId": "3"
+        },
+        {
+          "id": "575031915",
+          "name": "Jay Hughes",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575020973",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "candidate",
+      "title": "Secretary Of State",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575031916",
+          "name": "Johnny DuPree",
+          "partyId": "2"
+        },
+        {
+          "id": "575031917",
+          "name": "Michael Watson",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575021151",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "candidate",
+      "title": "Attorney General",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032128",
+          "name": "Jennifer Riley Collins",
+          "partyId": "2"
+        },
+        {
+          "id": "575032127",
+          "name": "Lynn Fitch",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575020974",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "candidate",
+      "title": "State Auditor",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575031918",
+          "name": "Shad White",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575020975",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "candidate",
+      "title": "State Treasurer",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575031919",
+          "name": "Addie Lee Green",
+          "partyId": "2"
+        },
+        {
+          "id": "575031920",
+          "name": "David McRae",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575020970",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "candidate",
+      "title": "Commissioner Of Agriculture & Commerce",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575031911",
+          "name": "Rickey L. Cole",
+          "partyId": "2"
+        },
+        {
+          "id": "575031910",
+          "name": "Andy Gipson",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575020971",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "candidate",
+      "title": "Commissioner Of Insurance",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575031913",
+          "name": "Robert E. Amos",
+          "partyId": "2"
+        },
+        {
+          "id": "575031912",
+          "name": "Mike Chaney",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575021144",
+      "section": "Northern District",
+      "districtId": "575001705",
+      "type": "candidate",
+      "title": "Public Service Commissioner",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032121",
+          "name": "Brandon Presley",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021153",
+      "section": "Northern District",
+      "districtId": "575001697",
+      "type": "candidate",
+      "title": "Transportation Commissioner",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032131",
+          "name": "John Caldwell",
+          "partyId": "3"
+        },
+        {
+          "id": "575032132",
+          "name": "Joe T. 'Joey' Grist",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575020980",
+      "section": "District 05",
+      "districtId": "100000362",
+      "type": "candidate",
+      "title": "District Attorney 05",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575031925",
+          "name": "Doug Evans",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021007",
+      "section": "District 15",
+      "districtId": "100000234",
+      "type": "candidate",
+      "title": "State Senate 15",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575031962",
+          "name": "Gary Jackson",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575021090",
+      "section": "District 35",
+      "districtId": "100000085",
+      "type": "candidate",
+      "title": "State House Of Rep 35",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032061",
+          "name": "Joey Hood",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575021524",
+      "section": "Choctaw",
+      "districtId": "100000285",
+      "type": "candidate",
+      "title": "Chancery Clerk",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032577",
+          "name": "Kenny King",
+          "partyId": "3"
+        },
+        {
+          "id": "575032576",
+          "name": "Steve Montgomery",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021525",
+      "section": "Choctaw",
+      "districtId": "100000285",
+      "type": "candidate",
+      "title": "Circuit Clerk",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032578",
+          "name": "Amy Burdine",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575021526",
+      "section": "Choctaw",
+      "districtId": "100000285",
+      "type": "candidate",
+      "title": "Coroner",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032579",
+          "name": "Keith Coleman",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021527",
+      "section": "Choctaw",
+      "districtId": "100000285",
+      "type": "candidate",
+      "title": "Sheriff",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032580",
+          "name": "Brandon Busby",
+          "partyId": "2"
+        },
+        {
+          "id": "575032581",
+          "name": "Kevin Connell",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575021528",
+      "section": "Choctaw",
+      "districtId": "100000285",
+      "type": "candidate",
+      "title": "Tax Assessor Collector",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032582",
+          "name": "Lori Power Kerr",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021533",
+      "section": "Supervisor 01",
+      "districtId": "575000496",
+      "type": "candidate",
+      "title": "Supervisor 01",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032588",
+          "name": "Warren Miles",
+          "partyId": "3"
+        },
+        {
+          "id": "575032589",
+          "name": "Joey Stephenson",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021534",
+      "section": "Supervisor 02",
+      "districtId": "575000497",
+      "type": "candidate",
+      "title": "Supervisor 02",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032591",
+          "name": "Henry L. Brown",
+          "partyId": "2"
+        },
+        {
+          "id": "575032590",
+          "name": "Greg Fondren",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575021535",
+      "section": "Supervisor 03",
+      "districtId": "575000498",
+      "type": "candidate",
+      "title": "Supervisor 03",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032593",
+          "name": "Chris McIntire",
+          "partyId": "3"
+        },
+        {
+          "id": "575032592",
+          "name": "Mitch Weeks",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021536",
+      "section": "Supervisor 04",
+      "districtId": "575000499",
+      "type": "candidate",
+      "title": "Supervisor 04",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032595",
+          "name": "Bobby Burton",
+          "partyId": "3"
+        },
+        {
+          "id": "575032594",
+          "name": "John Avery Shumaker",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021537",
+      "section": "Supervisor 05",
+      "districtId": "575000500",
+      "type": "candidate",
+      "title": "Supervisor 05",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032597",
+          "name": "Mark Bruce",
+          "partyId": "3"
+        },
+        {
+          "id": "575032596",
+          "name": "William D. 'Bill' Peden",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021531",
+      "section": "Justice Court Judge Post 1",
+      "districtId": "575000506",
+      "type": "candidate",
+      "title": "Justice Court Judge Post 1",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032585",
+          "name": "Phillip Smith",
+          "partyId": "3"
+        },
+        {
+          "id": "575032586",
+          "name": "William A. 'Andy' Stephenson",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021532",
+      "section": "Justice Court Judge Post 2",
+      "districtId": "575000507",
+      "type": "candidate",
+      "title": "Justice Court Judge Post 2",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032587",
+          "name": "Teresa Weeks",
+          "partyId": "2"
+        }
+      ]
+    },
+    {
+      "id": "575021529",
+      "section": "Constable Post 01",
+      "districtId": "575000508",
+      "type": "candidate",
+      "title": "Constable Post 01",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032583",
+          "name": "Thomas Harold Raybourn",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "575021530",
+      "section": "Constable Post 02",
+      "districtId": "575000509",
+      "type": "candidate",
+      "title": "Constable Post 02",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "575032584",
+          "name": "Roy Dun Carter",
+          "partyId": "2"
+        }
+      ]
+    }
+  ],
+  "districts": [
+    {
+      "id": "100000275",
+      "name": "State Of Mississippi"
+    },
+    {
+      "id": "575001705",
+      "name": "Public Service Commissioner"
+    },
+    {
+      "id": "575001697",
+      "name": "Transportation Commissioner"
+    },
+    {
+      "id": "100000362",
+      "name": "District Attorney 05"
+    },
+    {
+      "id": "100000234",
+      "name": "State Senate 15"
+    },
+    {
+      "id": "100000085",
+      "name": "State House Of Rep 35"
+    },
+    {
+      "id": "100000285",
+      "name": "Choctaw"
+    },
+    {
+      "id": "575000496",
+      "name": "Supervisor 01"
+    },
+    {
+      "id": "575000497",
+      "name": "Supervisor 02"
+    },
+    {
+      "id": "575000498",
+      "name": "Supervisor 03"
+    },
+    {
+      "id": "575000499",
+      "name": "Supervisor 04"
+    },
+    {
+      "id": "575000500",
+      "name": "Supervisor 05"
+    },
+    {
+      "id": "575000506",
+      "name": "Justice Court Judge Post 1"
+    },
+    {
+      "id": "575000507",
+      "name": "Justice Court Judge Post 2"
+    },
+    {
+      "id": "575000508",
+      "name": "Constable Post 01"
+    },
+    {
+      "id": "575000509",
+      "name": "Constable Post 02"
+    }
+  ],
+  "precincts": [
+    {
+      "id": "6522",
+      "name": "District 5"
+    },
+    {
+      "id": "6524",
+      "name": "Chester"
+    },
+    {
+      "id": "6525",
+      "name": "East Weir"
+    },
+    {
+      "id": "6526",
+      "name": "French Camp"
+    },
+    {
+      "id": "6527",
+      "name": "Fentress"
+    },
+    {
+      "id": "6528",
+      "name": "Hebron"
+    },
+    {
+      "id": "6529",
+      "name": "Kenego"
+    },
+    {
+      "id": "6532",
+      "name": "Panhandle"
+    },
+    {
+      "id": "6534",
+      "name": "Reform"
+    },
+    {
+      "id": "6536",
+      "name": "Sherwood"
+    },
+    {
+      "id": "6537",
+      "name": "Southwest Ackerman"
+    },
+    {
+      "id": "6538",
+      "name": "Bywy"
+    },
+    {
+      "id": "6539",
+      "name": "West Weir"
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "8",
+      "precincts": ["6538", "6524", "6527"],
+      "districts": [
+        "100000085",
+        "100000234",
+        "100000275",
+        "100000285",
+        "100000362",
+        "575000496",
+        "575000506",
+        "575000508",
+        "575001697",
+        "575001705"
+      ]
+    },
+    {
+      "id": "1",
+      "precincts": ["6522"],
+      "districts": [
+        "100000085",
+        "100000234",
+        "100000275",
+        "100000285",
+        "100000362",
+        "575000500",
+        "575000507",
+        "575000509",
+        "575001697",
+        "575001705"
+      ]
+    },
+    {
+      "id": "2",
+      "precincts": ["6522"],
+      "districts": [
+        "100000085",
+        "100000234",
+        "100000275",
+        "100000285",
+        "100000362",
+        "575000500",
+        "575000506",
+        "575000508",
+        "575001697",
+        "575001705"
+      ]
+    },
+    {
+      "id": "3",
+      "precincts": ["6525", "6532", "6537"],
+      "districts": [
+        "100000085",
+        "100000234",
+        "100000275",
+        "100000285",
+        "100000362",
+        "575000499",
+        "575000507",
+        "575000509",
+        "575001697",
+        "575001705"
+      ]
+    },
+    {
+      "id": "4",
+      "precincts": ["6526", "6529", "6539"],
+      "districts": [
+        "100000085",
+        "100000234",
+        "100000275",
+        "100000285",
+        "100000362",
+        "575000498",
+        "575000507",
+        "575000509",
+        "575001697",
+        "575001705"
+      ]
+    },
+    {
+      "id": "5",
+      "precincts": ["6528", "6534", "6536"],
+      "districts": [
+        "100000085",
+        "100000234",
+        "100000275",
+        "100000285",
+        "100000362",
+        "575000497",
+        "575000506",
+        "575000508",
+        "575001697",
+        "575001705"
+      ]
+    }
+  ],
+  "sealURL": "/seals/Seal_of_Mississippi_BW.svg"
+}
