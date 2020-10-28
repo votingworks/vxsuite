@@ -1,0 +1,120 @@
+{
+  "name": "bsd",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jest-environment-jsdom-sixteen",
+    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache",
+    "test:coverage": "yarn test --coverage --watchAll=false",
+    "eject": "react-scripts eject",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
+    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsc && lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.+(js|jsx|ts|tsx)": [
+      "stylelint",
+      "eslint --quiet --fix"
+    ],
+    "*.css": [
+      "stylelint --config .stylelintrc-css.js --fix"
+    ],
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@types/jest": "24.0.11",
+    "@types/node": "11.13.7",
+    "@types/pluralize": "^0.0.29",
+    "@types/react": "16.9.35",
+    "@types/react-dom": "16.9.8",
+    "@types/react-modal": "^3.10.6",
+    "@types/styled-components": "^4.1.14",
+    "@votingworks/hmpb-interpreter": "^5.1.2",
+    "fast-text-encoding": "^1.0.2",
+    "http-proxy-middleware": "^0.19.1",
+    "js-file-download": "^0.4.6",
+    "js-sha256": "^0.9.0",
+    "normalize.css": "^8.0.1",
+    "pluralize": "^7.0.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-dropzone": "^11.2.1",
+    "react-modal": "^3.11.2",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.0",
+    "rxjs": "^6.6.0",
+    "styled-components": "^4.2.0",
+    "ts-jest": "^26.1.3",
+    "typescript": "4.0.3",
+    "use-interval": "^1.2.1",
+    "yauzl": "^2.10.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^10.0.4",
+    "@types/fast-text-encoding": "^1.0.1",
+    "@types/fetch-mock": "^7.3.2",
+    "@types/pify": "^3.0.2",
+    "@types/react-router-dom": "^5.1.5",
+    "@types/yauzl": "^2.9.1",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
+    "@votingworks/ballot-encoder": "^4.0.0",
+    "eslint": "^7.11.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-prettier": "^6.14.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "fetch-mock": "^9.9.0",
+    "history": "^4.10.1",
+    "husky": "^4.2.5",
+    "jest-environment-jsdom-sixteen": "^1.0.3",
+    "lint-staged": "^10.2.3",
+    "node-fetch": "^2.6.0",
+    "prettier": "^2.0.5",
+    "stylelint": "^13.4.0",
+    "stylelint-config-palantir": "^5.0.0",
+    "stylelint-config-prettier": "^8.0.1",
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-processor-styled-components": "^1.10.0",
+    "type-fest": "^0.18.0",
+    "zip-stream": "^3.0.1"
+  },
+  "jest": {
+    "coverageThreshold": {
+      "global": {
+        "statements": 67,
+        "branches": 59,
+        "functions": 64,
+        "lines": 67
+      }
+    }
+  }
+}
