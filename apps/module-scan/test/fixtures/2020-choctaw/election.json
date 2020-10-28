@@ -301,10 +301,7 @@
         "6538",
         "6539"
       ],
-      "districts": [
-        "100000275",
-        "100000285"
-      ]
+      "districts": ["100000275", "100000285"]
     }
   ],
   "sealURL": "/seals/Seal_of_Mississippi_BW.svg",

@@ -64,15 +64,18 @@ module.exports = {
     'no-nested-ternary': 'off',
     'no-unused-expressions': 'off',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
-    '@typescript-eslint/no-unused-vars': ['error', {
-      'vars': 'all'
-    }],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+      },
+    ],
     // note you must disable the base rule as it can report incorrect errors
-    "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": ["error"],
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': ['error'],
     // note you must disable the base rule as it can report incorrect errors
-    "no-shadow": "off",
-    "@typescript-eslint/no-shadow": ["error"],
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
     'no-restricted-syntax': 'off',
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],
