@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "path": "libs/hmpb-interpreter"
+    },
+    {
+      "path": "apps/bsd"
+    },
+    {
+      "path": "apps/module-scan"
+    }
+  ],
+  "settings": {}
+}
