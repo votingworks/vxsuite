@@ -22,8 +22,6 @@ export interface MarksByOptionId {
 
 export type PutBallotResponse = OkResponse
 
-
-
 export interface ContestLayout {
   bounds: Rect
   options: readonly ContestOptionLayout[]

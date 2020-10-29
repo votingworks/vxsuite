@@ -56,7 +56,8 @@ const ContestOptionButton = styled.button<Props>`
         : '☐'}';
   }
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background-color: ${({ current, changed }) =>
       changed === MarkStatus.Unmarked
         ? RED_BG
