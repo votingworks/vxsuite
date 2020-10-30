@@ -46,7 +46,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
               role="option"
               type="button"
             >
-              back to Test Deck list
+              Back to Test Deck list
             </button>
           </p>
         </div>
@@ -199,7 +199,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
               role="option"
               type="button"
             >
-              back to Test Deck list
+              Back to Test Deck list
             </button>
           </p>
         </div>
