@@ -37,7 +37,7 @@ export function* getSearchAreas(
   size: Size
 ): Generator<{ position: 'top' | 'bottom'; bounds: Rect }> {
   // QR code for HMPB is bottom right of legal, so appears bottom right or top left
-  const hmpbWidth = Math.round((size.width * 3) / 4)
+  const hmpbWidth = Math.round(size.width / 4)
   const hmpbHeight = Math.round(size.height / 8)
   // We look at the top first because we're assuming people will mostly scan sheets
   // so they appear right-side up to them, but bottom-side first to the scanner.
