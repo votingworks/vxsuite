@@ -177,7 +177,7 @@ const PrintTestDeckScreen = () => {
             </p>
             <p>
               <LinkButton small to={routerPaths.printTestDecks}>
-                back to Test Deck list
+                Back to Test Deck list
               </LinkButton>
             </p>
           </Prose>

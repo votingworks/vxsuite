@@ -93,7 +93,7 @@ const TestDeckScreen = () => {
             </p>
             <p>
               <LinkButton small to={routerPaths.testDecksTally}>
-                back to Test Deck list
+                Back to Test Deck list
               </LinkButton>
             </p>
           </Prose>
