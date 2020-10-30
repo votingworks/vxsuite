@@ -10,10 +10,13 @@ import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
 
+import saveAsPDF from '../utils/saveAsPDF'
+
 import PrintButton from '../components/PrintButton'
 import ButtonList from '../components/ButtonList'
 import Prose from '../components/Prose'
 import ContestTally from '../components/ContestTally'
+import Button from '../components/Button'
 
 import {
   filterTalliesByParty,
@@ -75,6 +78,19 @@ const TestDeckScreen = () => {
     new Set(election.ballotStyles.map((bs) => bs.partyId))
   )
 
+  const handleSaveAsPDF = async () => {
+    const succeeded = await saveAsPDF(
+      'test-desk-tally-report',
+      election,
+      precinct?.name
+    )
+    if (!succeeded) {
+      window.alert(
+        'Could not save PDF, it can only be saved to a USB device. (Or if "Cancel" was selected, ignore this message.)'
+      )
+    }
+  }
+
   const pageTitle = 'Test Ballot Deck Tally'
 
   if (precinct?.name) {
@@ -91,6 +107,13 @@ const TestDeckScreen = () => {
             <p>
               <PrintButton primary>Print Results Report</PrintButton>
             </p>
+            {window.kiosk && (
+              <p>
+                <Button onPress={handleSaveAsPDF}>
+                  Save Results Report as PDF
+                </Button>
+              </p>
+            )}
             <p>
               <LinkButton small to={routerPaths.testDecksTally}>
                 Back to Test Deck list

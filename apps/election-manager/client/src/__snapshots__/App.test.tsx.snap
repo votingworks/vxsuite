@@ -195,6 +195,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </p>
           <p>
             <button
+              class="sc-fzoLsD ivZRNV"
+              type="button"
+            >
+              Save Results Report as PDF
+            </button>
+          </p>
+          <p>
+            <button
               class="sc-fzoLsD cIOEoD"
               role="option"
               type="button"
