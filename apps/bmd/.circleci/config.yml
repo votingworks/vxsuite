@@ -1,0 +1,37 @@
+version: 2
+jobs:
+  test-frontend-and-server:
+    docker:
+      - image: circleci/node:12.10.0-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "package.json" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn install --frozen-lockfile
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - save_cache: # special step to save the dependency cache
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "package.json" }}
+          paths:
+            - ~/.cache
+      - run: # run tests
+          name: Run Front-End Test and Coverage
+          command: |
+            ./cc-test-reporter before-build
+            yarn test
+            ./cc-test-reporter after-build --exit-code $?
+
+workflows:
+  version: 2
+  test-frontend-and-server:
+    jobs:
+      - test-frontend-and-server

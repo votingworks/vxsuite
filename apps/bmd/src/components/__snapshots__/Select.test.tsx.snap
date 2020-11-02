@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Full-width select 1`] = `
+.c0 {
+  display: block;
+  margin: 0;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211) url('/images/select-caret.svg') right 0.75em top 50%/0.75em auto no-repeat;
+  width: 100%;
+  max-width: 100%;
+  padding: 0.75rem 1.75rem 0.75rem 1rem;
+  line-height: 1.25;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.c0:disabled {
+  background: #dddddd;
+  color: rgb(170,170,170);
+}
+
+<select
+  class="c0"
+>
+  <option
+    value="a"
+  >
+    a
+  </option>
+  <option
+    value="b"
+  >
+    b
+  </option>
+  <option
+    value="c"
+  >
+    c
+  </option>
+</select>
+`;
+
+exports[`Inline select 1`] = `
+.c0 {
+  display: block;
+  margin: 0;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(211,211,211) url('/images/select-caret.svg') right 0.75em top 50%/0.75em auto no-repeat;
+  max-width: 100%;
+  padding: 0.75rem 1.75rem 0.75rem 1rem;
+  line-height: 1.25;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.c0:disabled {
+  background: #dddddd;
+  color: rgb(170,170,170);
+}
+
+<select
+  class="c0"
+>
+  <option
+    value="a"
+  >
+    a
+  </option>
+  <option
+    value="b"
+  >
+    b
+  </option>
+  <option
+    value="c"
+  >
+    c
+  </option>
+</select>
+`;

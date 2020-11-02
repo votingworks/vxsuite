@@ -1,0 +1,322 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders Prose defaults 1`] = `
+.c0 {
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c0 h1 {
+  margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
+}
+
+.c0 h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.c0 h3 {
+  font-size: 1.17rem;
+}
+
+.c0 h4 {
+  font-size: 1rem;
+}
+
+.c0 h5 {
+  font-size: 0.9rem;
+}
+
+.c0 h3,
+.c0 h4,
+.c0 h5,
+.c0 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.c0 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c0 h1 + p,
+.c0 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c0 h3 + p,
+.c0 h4 + p,
+.c0 h5 + p {
+  margin-top: -1rem;
+}
+
+.c0 > :first-child {
+  margin-top: 0;
+}
+
+.c0 > :last-child {
+  margin-bottom: 0;
+}
+
+.c0 dl {
+  margin: 1rem 0;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    line-height: 1.3;
+  }
+}
+
+<div
+  class="c0"
+>
+  <h1>
+    Heading 1
+  </h1>
+  <h2>
+    Heading 2
+  </h2>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h1>
+    Heading 1
+  </h1>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h2>
+    Heading 2
+  </h2>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h3>
+    Heading 3
+  </h3>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+</div>
+`;
+
+exports[`renders Prose with compact spacing 1`] = `
+.c0 {
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c0 h1 {
+  margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
+}
+
+.c0 h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.c0 h3 {
+  font-size: 1.17rem;
+}
+
+.c0 h4 {
+  font-size: 1rem;
+}
+
+.c0 h5 {
+  font-size: 0.9rem;
+}
+
+.c0 h3,
+.c0 h4,
+.c0 h5,
+.c0 p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c0 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c0 h1 + p,
+.c0 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c0 h3 + p,
+.c0 h4 + p,
+.c0 h5 + p {
+  margin-top: 0;
+}
+
+.c0 > :first-child {
+  margin-top: 0;
+}
+
+.c0 > :last-child {
+  margin-bottom: 0;
+}
+
+.c0 dl {
+  margin: 1rem 0;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    line-height: 1.3;
+  }
+}
+
+<div
+  class="c0"
+>
+  <h1>
+    Heading 1
+  </h1>
+  <h2>
+    Heading 2
+  </h2>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h1>
+    Heading 1
+  </h1>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h2>
+    Heading 2
+  </h2>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h3>
+    Heading 3
+  </h3>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+   
+</div>
+`;
+
+exports[`renders Prose with compact spacing 2`] = `
+.c0 {
+  margin: auto;
+  max-width: 66ch;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.c0 h1 {
+  margin: 2rem 0 1rem;
+  line-height: 1.1;
+  font-size: 1.5rem;
+}
+
+.c0 h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.c0 h3 {
+  font-size: 1.17rem;
+}
+
+.c0 h4 {
+  font-size: 1rem;
+}
+
+.c0 h5 {
+  font-size: 0.9rem;
+}
+
+.c0 h3,
+.c0 h4,
+.c0 h5,
+.c0 p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.c0 h1 + h2 {
+  margin-top: -0.75rem;
+}
+
+.c0 h1 + p,
+.c0 h2 + p {
+  margin-top: -0.75rem;
+}
+
+.c0 h3 + p,
+.c0 h4 + p,
+.c0 h5 + p {
+  margin-top: -1rem;
+}
+
+.c0 > :first-child {
+  margin-top: 0;
+}
+
+.c0 > :last-child {
+  margin-bottom: 0;
+}
+
+.c0 dl {
+  margin: 1rem 0;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    line-height: 1.3;
+  }
+}
+
+<div
+  class="c0"
+>
+  <h1>
+    Heading 1
+  </h1>
+  <h2>
+    Heading 2
+  </h2>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h1>
+    Heading 1
+  </h1>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h2>
+    Heading 2
+  </h2>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h3>
+    Heading 3
+  </h3>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+</div>
+`;

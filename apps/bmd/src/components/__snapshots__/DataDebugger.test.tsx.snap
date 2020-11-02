@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`hides DataDebugger 1`] = `null`;
+
+exports[`renders DataDebugger 1`] = `
+<pre>
+  {
+  "foo": "bar"
+}
+</pre>
+`;

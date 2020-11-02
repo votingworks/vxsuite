@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders NoPrint 1`] = `
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<span
+  class="c0"
+>
+  foo
+</span>
+`;
