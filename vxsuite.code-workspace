@@ -4,6 +4,9 @@
       "path": "libs/hmpb-interpreter"
     },
     {
+      "path": "apps/bmd"
+    },
+    {
       "path": "apps/bsd"
     },
     {
