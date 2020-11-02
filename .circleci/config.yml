@@ -72,9 +72,31 @@ jobs:
           command: |
             yarn --cwd libs/hmpb-interpreter test:coverage
 
+  test-bas:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn --cwd apps/bas install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
+          paths:
+            - apps/bas/node_modules
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            yarn --cwd apps/bas test:coverage
+
 workflows:
   test:
     jobs:
       - test-bsd
       - test-module-scan
       - test-hmpb-interpreter
+      - test-bas
