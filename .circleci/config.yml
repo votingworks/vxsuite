@@ -93,6 +93,27 @@ jobs:
           command: |
             yarn --cwd apps/bas test:coverage
 
+  test-election-manager:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/client/yarn.lock" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn --cwd apps/election-manager/client install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/client/yarn.lock" }}
+          paths:
+            - apps/election-manager/client/node_modules
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            yarn --cwd apps/election-manager/client test:coverage
+
 workflows:
   test:
     jobs:
@@ -100,3 +121,4 @@ workflows:
       - test-module-scan
       - test-hmpb-interpreter
       - test-bas
+      - test-election-manager
