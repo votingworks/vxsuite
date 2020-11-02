@@ -188,17 +188,23 @@ export function buildApp({ store, importer }: AppOptions): Application {
       }
     )
 
-    app.get('/scan/sheets', async (_request, response) => {
-      const sheets = await store.dbAllAsync<{
-        id: string
-        batchId: string
-        frontInterpretationJSON: string
-        backInterpretationJSON: string
-        requiresAdjudication: boolean
-        frontAdjudicationJSON: string
-        backAdjudicationJSON: string
-        deletedAt: string
-      }>(`
+    app.get('/scan/sheets/:sheetId?', async (request, response) => {
+      const { sheetId }: { sheetId?: string } = request.params
+
+      const sheets = await store.dbAllAsync<
+        {
+          id: string
+          batchId: string
+          frontInterpretationJSON: string
+          backInterpretationJSON: string
+          requiresAdjudication: boolean
+          frontAdjudicationJSON: string
+          backAdjudicationJSON: string
+          deletedAt: string
+        },
+        [string] | []
+      >(
+        `
         select
           id,
           batch_id as batchId,
@@ -209,8 +215,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
           back_adjudication_json as backAdjudicationJSON,
           deleted_at as deletedAt
         from sheets
+        ${sheetId ? `where id = ?` : ''}
         order by created_at desc
-      `)
+      `,
+        ...(sheetId ? [sheetId] : [])
+      )
 
       response.json(
         sheets.map((sheet) => ({
@@ -471,8 +480,10 @@ export function buildApp({ store, importer }: AppOptions): Application {
   })
 
   app.use(express.static(path.join(__dirname, '..', 'public')))
-  app.get('/*', (_request, response) => {
-    response.sendFile(path.join(__dirname, '..', 'public', 'index.html'))
+  app.get('/*', (request, response) => {
+    const url = new URL(`http://${request.get('host')}${request.originalUrl}`)
+    url.port = '3000'
+    response.redirect(301, url.toString())
   })
 
   return app
