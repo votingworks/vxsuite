@@ -9,6 +9,27 @@ executors:
       - image: circleci/node:12.19
 
 jobs:
+  test-bmd:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bmd/yarn.lock" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn --cwd apps/bmd install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bmd/yarn.lock" }}
+          paths:
+            - apps/bmd/node_modules
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            yarn --cwd apps/bmd test:coverage
+
   test-bsd:
     executor: nodejs-browsers
     resource_class: xlarge
@@ -96,6 +117,7 @@ jobs:
 workflows:
   test:
     jobs:
+      - test-bmd
       - test-bsd
       - test-module-scan
       - test-hmpb-interpreter

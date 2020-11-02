@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders Main with centered content 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.c1 {
+  margin: auto auto;
+  max-width: 35rem;
+}
+
+<main
+  class="c0"
+>
+  <div
+    class="c1"
+  >
+    foo
+  </div>
+</main>
+`;
+
+exports[`renders Main with child 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.c1 {
+  margin: 0 0;
+  max-width: 35rem;
+}
+
+<main
+  class="c0"
+>
+  <div
+    class="c1"
+  >
+    foo
+  </div>
+</main>
+`;
+
+exports[`renders Main with not centered content 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.c1 {
+  margin: 0 0;
+  max-width: 35rem;
+}
+
+<main
+  class="c0"
+>
+  <div
+    class="c1"
+  >
+    foo
+  </div>
+</main>
+`;
+
+exports[`renders Main with padding 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
+  padding: 1rem 0.5rem 2rem;
+}
+
+.c1 {
+  margin: 0 0;
+  max-width: 35rem;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    padding: 1rem;
+  }
+}
+
+<main
+  class="c0"
+>
+  <div
+    class="c1"
+  >
+    padded
+  </div>
+</main>
+`;
