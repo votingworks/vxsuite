@@ -1,0 +1,6 @@
+{
+  "name": "eslint-plugin-no-array-sort-mutation",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "no-array-sort-mutation.js"
+}
