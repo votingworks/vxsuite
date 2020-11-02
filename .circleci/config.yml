@@ -9,6 +9,27 @@ executors:
       - image: circleci/node:12.19
 
 jobs:
+  test-ballot-encoder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/ballot-encoder/yarn.lock" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn --cwd libs/ballot-encoder install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/ballot-encoder/yarn.lock" }}
+          paths:
+            - libs/ballot-encoder/node_modules
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            yarn --cwd libs/ballot-encoder test:coverage
+
   test-bmd:
     executor: nodejs-browsers
     resource_class: xlarge
@@ -117,6 +138,7 @@ jobs:
 workflows:
   test:
     jobs:
+      - test-ballot-encoder
       - test-bmd
       - test-bsd
       - test-module-scan
