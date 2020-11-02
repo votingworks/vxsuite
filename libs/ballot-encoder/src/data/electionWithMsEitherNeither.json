@@ -1,0 +1,530 @@
+{
+  "title": "Mock General Election Choctaw 2020",
+  "state": "State of Mississippi",
+  "county": {
+    "id": "10",
+    "name": "Choctaw County"
+  },
+  "date": "2020-08-26T00:00:00-10:00",
+  "parties": [
+    {
+      "id": "2",
+      "name": "Democrat",
+      "fullName": "Democratic Party",
+      "abbrev": "D"
+    },
+    {
+      "id": "3",
+      "name": "Republican",
+      "fullName": "Republican Party",
+      "abbrev": "R"
+    },
+    {
+      "id": "4",
+      "name": "Libertarian",
+      "fullName": "Libertarian Party",
+      "abbrev": "L"
+    },
+    {
+      "id": "5",
+      "name": "Reform",
+      "fullName": "Reform Party",
+      "abbrev": "REF"
+    },
+    {
+      "id": "6",
+      "name": "Natural Law",
+      "fullName": "Natural Law Party",
+      "abbrev": "N"
+    },
+    {
+      "id": "8",
+      "name": "Constitution",
+      "fullName": "Constitution Party",
+      "abbrev": "C"
+    },
+    {
+      "id": "9",
+      "name": "Green",
+      "fullName": "Green Party",
+      "abbrev": "G"
+    },
+    {
+      "id": "10",
+      "name": "America First",
+      "fullName": "America First Party",
+      "abbrev": "A"
+    },
+    {
+      "id": "11",
+      "name": "Independent",
+      "fullName": "Independent Party",
+      "abbrev": "I"
+    },
+    {
+      "id": "12",
+      "name": "Nonpartisan",
+      "fullName": "Nonpartisan",
+      "abbrev": "NP"
+    },
+    {
+      "id": "575000001",
+      "name": "Justice",
+      "fullName": "Justice Party",
+      "abbrev": "JUS"
+    },
+    {
+      "id": "575000002",
+      "name": "Prohibition",
+      "fullName": "Prohibition Party",
+      "abbrev": "PRO"
+    },
+    {
+      "id": "575000003",
+      "name": "American Delta",
+      "fullName": "American Delta Party",
+      "abbrev": "ADP"
+    },
+    {
+      "id": "575000004",
+      "name": "Veterans",
+      "fullName": "Veterans Party",
+      "abbrev": "VET"
+    }
+  ],
+  "contests": [
+    {
+      "id": "775020876",
+      "section": "United States",
+      "districtId": "1",
+      "type": "candidate",
+      "title": "President",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031988",
+          "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
+          "partyId": "2"
+        },
+        {
+          "id": "775031987",
+          "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
+          "partyId": "3"
+        },
+        {
+          "id": "775031989",
+          "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
+          "partyId": "11"
+        }
+      ]
+    },
+    {
+      "id": "775020877",
+      "section": "United States",
+      "districtId": "1",
+      "type": "candidate",
+      "title": "Senate ",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031985",
+          "name": "Mike Espy",
+          "partyId": "2"
+        },
+        {
+          "id": "775031986",
+          "name": "Cindy Hyde-Smith",
+          "partyId": "3"
+        },
+        {
+          "id": "775031990",
+          "name": "Jimmy Edwards",
+          "partyId": "4"
+        }
+      ]
+    },
+    {
+      "id": "775020872",
+      "section": "US House Of Representatives",
+      "districtId": "100000047",
+      "type": "candidate",
+      "title": "1st Congressional District",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031978",
+          "name": "Antonia Eliason",
+          "partyId": "2"
+        },
+        {
+          "id": "775031979",
+          "name": "Trent Kelly",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "775020870",
+      "section": "Northern District",
+      "districtId": "100000174",
+      "type": "candidate",
+      "title": "Supreme Court District 3(Northern) Position 3",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775031976",
+          "name": "Josiah Dennis Coleman",
+          "partyId": "12"
+        },
+        {
+          "id": "775031993",
+          "name": "Percy L. Lynchard",
+          "partyId": "12"
+        }
+      ]
+    },
+    {
+      "id": "775020899",
+      "section": "Election Commissioner 01",
+      "districtId": "575000501",
+      "type": "candidate",
+      "title": "Election Commissioner  01",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775032015",
+          "name": "Glynda Chaney Fulce"
+        }
+      ]
+    },
+    {
+      "id": "775020900",
+      "section": "Election Commissioner 02",
+      "districtId": "575000502",
+      "type": "candidate",
+      "title": "Election Commissioner 02",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775032016",
+          "name": "Charles Beck"
+        },
+        {
+          "id": "775032017",
+          "name": "Sharon Brooks"
+        }
+      ]
+    },
+    {
+      "id": "775020901",
+      "section": "Election Commissioner 03",
+      "districtId": "575000503",
+      "type": "candidate",
+      "title": "Election Commissioner 03",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775032018",
+          "name": "Dorothy Anderson"
+        }
+      ]
+    },
+    {
+      "id": "775020902",
+      "section": "Election Commissioner 04",
+      "districtId": "575000504",
+      "type": "candidate",
+      "title": "Election Commissioner 04",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775032019",
+          "name": "Willie Mae Guillory"
+        },
+        {
+          "id": "775032020",
+          "name": "Lewis Wright"
+        }
+      ]
+    },
+    {
+      "id": "775020903",
+      "section": "Election Commissioner 05",
+      "districtId": "575000505",
+      "type": "candidate",
+      "title": "Election Commissioner 05",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775032021",
+          "name": "Ouida A Loper",
+          "partyId": "11"
+        },
+        {
+          "id": "775032022",
+          "name": "Wayne McLeod"
+        }
+      ]
+    },
+    {
+      "id": "775020904",
+      "section": "School Board District 5",
+      "districtId": "575000084",
+      "type": "candidate",
+      "title": "School Board 05",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "775032023",
+          "name": "Michael D Thomas"
+        }
+      ]
+    },
+    {
+      "id": "750000017",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "yesno",
+      "title": "Ballot Measure 2\nHouse Concurrent Resolution No. 47",
+      "description": "This amendment provides that to be elected Governor, or to any other statewide office, a candidate must receive a majority of the votes in the general election. If no candidate receives a majority of the votes, then a runoff election shall be held as provided by general law. The requirement of receiving the most votes in a majority of Mississippi House of Representative\u2019s districts is removed.",
+      "yesOption": {
+        "id": "750000094",
+        "label": "YES"
+      },
+      "noOption": {
+        "id": "750000095",
+        "label": "NO"
+      }
+    },
+    {
+      "id": "750000018",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "yesno",
+      "title": "Ballot Measure 3\nHouse Bill 1796 - Flag Referendum",
+      "description": "Please vote \u2018Yes\u2019 or \u2018No\u2019 on whether the following design shall be the official Mississippi State Flag",
+      "yesOption": {
+        "id": "750000092",
+        "label": "YES"
+      },
+      "noOption": {
+        "id": "750000093",
+        "label": "NO"
+      }
+    },
+    {
+      "id": "750000015-either-neither",
+      "section": "State Of Mississippi",
+      "districtId": "100000275",
+      "type": "ms-either-neither",
+      "title": "Ballot Measure 1",
+      "eitherNeitherContestId": "750000015",
+      "pickOneContestId": "750000016",
+      "description": "<b>Initiated by Petition and Alternative by Legislature</b>\n\nInitiative Measure No. 65, Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year one (1) to implement a medical marijuana program is $24,068,150 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $16,220,150; and Cost to Collect Revenue: $2,848,000). The anticipated revenue is $13,000,000 (User ID Cards: $2,500,000; Commercial Licenses: $500,000 and Tax Revenue at 7 percent: $10,000,000). The overall cost for year one (1) is anticipated to be $11,068,150.\n\nLegislative Budget Office Fiscal Analysis: The anticipated expenses for year after the first for a medical marijuana program is $15,338,000 (Plants \u2013 seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $8,756,000; and Cost to Collect Revenue: $1,582,000). The anticipated revenue is $26,000,000 (User ID Cards: $5,000,000; Commercial Licenses: $1,000,000 and Tax Revenue at 7 percent: $20,000,000). The overall annual revenue is anticipated to be $10,662.000.\n\nAlternative Measure No. 65 A, Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?\n\nLegislative Budget Office Fiscal Analysis: There is no determinable cost or revenue impact associated with this initiative.",
+      "eitherNeitherLabel": "VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH",
+      "pickOneLabel": "AND VOTE FOR ONE",
+      "eitherOption": {
+        "id": "750000088",
+        "label": "FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A"
+      },
+      "neitherOption": {
+        "id": "750000089",
+        "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A"
+      },
+      "firstOption": {
+        "id": "750000090",
+        "label": "FOR Initiative Measure No. 65"
+      },
+      "secondOption": {
+        "id": "750000091",
+        "label": "FOR Alternative Measure 65 A"
+      }
+    }
+  ],
+  "districts": [
+    {
+      "id": "1",
+      "name": "United States"
+    },
+    {
+      "id": "100000275",
+      "name": "State Of Mississippi"
+    },
+    {
+      "id": "100000047",
+      "name": "US House Of Representatives"
+    },
+    {
+      "id": "100000174",
+      "name": "Northern District"
+    },
+    {
+      "id": "575000501",
+      "name": "Election Commissioner 01"
+    },
+    {
+      "id": "575000502",
+      "name": "Election Commissioner 02"
+    },
+    {
+      "id": "575000503",
+      "name": "Election Commissioner 03"
+    },
+    {
+      "id": "575000504",
+      "name": "Election Commissioner 04"
+    },
+    {
+      "id": "575000505",
+      "name": "Election Commissioner 05"
+    },
+    {
+      "id": "575000084",
+      "name": "School Board District 5"
+    }
+  ],
+  "precincts": [
+    {
+      "id": "6522",
+      "name": "District 5"
+    },
+    {
+      "id": "6524",
+      "name": "Chester"
+    },
+    {
+      "id": "6525",
+      "name": "East Weir"
+    },
+    {
+      "id": "6526",
+      "name": "French Camp"
+    },
+    {
+      "id": "6527",
+      "name": "Fentress"
+    },
+    {
+      "id": "6528",
+      "name": "Hebron"
+    },
+    {
+      "id": "6529",
+      "name": "Kenego"
+    },
+    {
+      "id": "6532",
+      "name": "Panhandle"
+    },
+    {
+      "id": "6534",
+      "name": "Reform"
+    },
+    {
+      "id": "6536",
+      "name": "Sherwood"
+    },
+    {
+      "id": "6537",
+      "name": "Southwest Ackerman"
+    },
+    {
+      "id": "6538",
+      "name": "Bywy"
+    },
+    {
+      "id": "6539",
+      "name": "West Weir"
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "4",
+      "precincts": [
+        "6538",
+        "6524",
+        "6527"
+      ],
+      "districts": [
+        "1",
+        "100000047",
+        "100000174",
+        "100000275",
+        "575000501"
+      ]
+    },
+    {
+      "id": "5",
+      "precincts": [
+        "6522"
+      ],
+      "districts": [
+        "1",
+        "100000047",
+        "100000174",
+        "100000275",
+        "575000084",
+        "575000505"
+      ]
+    },
+    {
+      "id": "1",
+      "precincts": [
+        "6525",
+        "6532",
+        "6537"
+      ],
+      "districts": [
+        "1",
+        "100000047",
+        "100000174",
+        "100000275",
+        "575000504"
+      ]
+    },
+    {
+      "id": "2",
+      "precincts": [
+        "6526",
+        "6529",
+        "6539"
+      ],
+      "districts": [
+        "1",
+        "100000047",
+        "100000174",
+        "100000275",
+        "575000503"
+      ]
+    },
+    {
+      "id": "3",
+      "precincts": [
+        "6528",
+        "6534",
+        "6536"
+      ],
+      "districts": [
+        "1",
+        "100000047",
+        "100000174",
+        "100000275",
+        "575000502"
+      ]
+    }
+  ],
+  "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
+  "ballotStrings": {
+    "officialInitials": "Initialing Manager"
+  }
+}
