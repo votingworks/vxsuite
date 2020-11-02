@@ -1,0 +1,24 @@
+version: '3'
+services:
+  # API server
+  server:
+    build: .
+    command: make run
+    ports:
+      - 3001:3001
+    volumes:
+      - .:/code
+    environment:
+      FLASK_ENV: development
+    restart: on-failure
+
+  # this is here as a way to run server tests easily
+  server-tests:
+    build: .
+    command: /bin/true
+    volumes:
+      - .:/code
+    environment:
+      FLASK_ENV: test
+    depends_on:
+      - server
