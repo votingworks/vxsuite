@@ -46,7 +46,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
               role="option"
               type="button"
             >
-              back to Test Deck list
+              Back to Test Deck list
             </button>
           </p>
         </div>
@@ -195,11 +195,19 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </p>
           <p>
             <button
+              class="sc-fzoLsD ivZRNV"
+              type="button"
+            >
+              Save Results Report as PDF
+            </button>
+          </p>
+          <p>
+            <button
               class="sc-fzoLsD cIOEoD"
               role="option"
               type="button"
             >
-              back to Test Deck list
+              Back to Test Deck list
             </button>
           </p>
         </div>
