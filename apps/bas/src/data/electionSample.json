@@ -1,0 +1,746 @@
+{
+  "title": "2020 General Election",
+  "state": "State of Hamilton",
+  "county": {
+    "id": "franklin",
+    "name": "Franklin County"
+  },
+  "date": "Tuesday, November 3, 2020",
+  "districts": [
+    {
+      "id": "district-1",
+      "name": "District 1"
+    },
+    {
+      "id": "district-2",
+      "name": "District 2"
+    },
+    {
+      "id": "district-3",
+      "name": "District 3"
+    },
+    {
+      "id": "7",
+      "name": "District 7"
+    }
+  ],
+  "parties": [
+    {
+      "id": "0",
+      "name": "Federalist",
+      "abbrev": "F"
+    },
+    {
+      "id": "1",
+      "name": "People's",
+      "abbrev": "P"
+    },
+    {
+      "id": "2",
+      "name": "Liberty",
+      "abbrev": "Li"
+    },
+    {
+      "id": "3",
+      "name": "Constitution",
+      "abbrev": "C"
+    },
+    {
+      "id": "4",
+      "name": "Whig",
+      "abbrev": "W"
+    },
+    {
+      "id": "5",
+      "name": "Labor",
+      "abbrev": "La"
+    },
+    {
+      "id": "6",
+      "name": "Independent",
+      "abbrev": "I"
+    }
+  ],
+  "contests": [
+    {
+      "id": "president",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "United States",
+      "title": "President and Vice-President",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "barchi-hallaren",
+          "name": "Joseph Barchi and Joseph Hallaren",
+          "partyId": "0"
+        },
+        {
+          "id": "cramer-vuocolo",
+          "name": "Adam Cramer and Greg Vuocolo",
+          "partyId": "1"
+        },
+        {
+          "id": "court-blumhardt",
+          "name": "Daniel Court and Amy Blumhardt",
+          "partyId": "2"
+        },
+        {
+          "id": "boone-lian",
+          "name": "Alvin Boone and James Lian",
+          "partyId": "3"
+        },
+        {
+          "id": "hildebrand-garritty",
+          "name": "Ashley Hildebrand-McDougall and James Garritty",
+          "partyId": "4"
+        },
+        {
+          "id": "patterson-lariviere",
+          "name": "Martin Patterson and Clay Lariviere",
+          "partyId": "5"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "senator",
+      "districtId": "district-2",
+      "type": "candidate",
+      "section": "United States",
+      "title": "Senator",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "weiford",
+          "name": "Dennis Weiford",
+          "partyId": "0"
+        },
+        {
+          "id": "garriss",
+          "name": "Lloyd Garriss",
+          "partyId": "1"
+        },
+        {
+          "id": "wentworthfarthington",
+          "name": "Sylvia Wentworth-Farthington",
+          "partyId": "2"
+        },
+        {
+          "id": "hewetson",
+          "name": "Heather Hewetson",
+          "partyId": "3"
+        },
+        {
+          "id": "martinez",
+          "name": "Victor Martinez",
+          "partyId": "4"
+        },
+        {
+          "id": "brown",
+          "name": "David Brown",
+          "partyId": "6"
+        },
+        {
+          "id": "pound",
+          "name": "David Pound",
+          "partyId": "6"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "representative-district-6",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "United States",
+      "title": "Representative, District 6",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "plunkard",
+          "name": "Brad Plunkard",
+          "partyId": "0"
+        },
+        {
+          "id": "reeder",
+          "name": "Bruce Reeder",
+          "partyId": "1"
+        },
+        {
+          "id": "schott",
+          "name": "Brad Schott",
+          "partyId": "2"
+        },
+        {
+          "id": "tawney",
+          "name": "Glen Tawney",
+          "partyId": "3"
+        },
+        {
+          "id": "forrest",
+          "name": "Carroll Forrest",
+          "partyId": "4"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "governor",
+      "districtId": "district-2",
+      "type": "candidate",
+      "section": "State of Hamilton",
+      "title": "Governor",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "franz",
+          "name": "Charlene Franz",
+          "partyId": "0"
+        },
+        {
+          "id": "harris",
+          "name": "Gerald Harris",
+          "partyId": "1"
+        },
+        {
+          "id": "bargmann",
+          "name": "Linda Bargmann",
+          "partyId": "2"
+        },
+        {
+          "id": "abcock",
+          "name": "Barbara Adcock",
+          "partyId": "3"
+        },
+        {
+          "id": "steelloy",
+          "name": "Carrie Steel-Loy",
+          "partyId": "4"
+        },
+        {
+          "id": "sharp",
+          "name": "Frederick Sharp",
+          "partyId": "5"
+        },
+        {
+          "id": "wallace",
+          "name": "Alex Wallace",
+          "partyId": "6"
+        },
+        {
+          "id": "williams",
+          "name": "Barbara Williams",
+          "partyId": "6"
+        },
+        {
+          "id": "sharp-althea",
+          "name": "Althea Sharp",
+          "partyId": "6"
+        },
+        {
+          "id": "alpern",
+          "name": "Douglas Alpern",
+          "partyId": "6"
+        },
+        {
+          "id": "windbeck",
+          "name": "Ann Windbeck",
+          "partyId": "6"
+        },
+        {
+          "id": "greher",
+          "name": "Mike Greher",
+          "partyId": "6"
+        },
+        {
+          "id": "alexander",
+          "name": "Patricia Alexander",
+          "partyId": "6"
+        },
+        {
+          "id": "mitchell",
+          "name": "Kenneth Mitchell",
+          "partyId": "6"
+        },
+        {
+          "id": "lee",
+          "name": "Stan Lee",
+          "partyId": "6"
+        },
+        {
+          "id": "ash",
+          "name": "Henry Ash",
+          "partyId": "6"
+        },
+        {
+          "id": "kennedy",
+          "name": "Karen Kennedy",
+          "partyId": "6"
+        },
+        {
+          "id": "jackson",
+          "name": "Van Jackson",
+          "partyId": "6"
+        },
+        {
+          "id": "brown",
+          "name": "Debbie Brown",
+          "partyId": "6"
+        },
+        {
+          "id": "teller",
+          "name": "Joseph Teller",
+          "partyId": "6"
+        },
+        {
+          "id": "ward",
+          "name": "Greg Ward",
+          "partyId": "6"
+        },
+        {
+          "id": "murphy",
+          "name": "Lou Murphy",
+          "partyId": "6"
+        },
+        {
+          "id": "newman",
+          "name": "Jane Newman",
+          "partyId": "6"
+        },
+        {
+          "id": "callanann",
+          "name": "Jack Callanann",
+          "partyId": "6"
+        },
+        {
+          "id": "york",
+          "name": "Esther York",
+          "partyId": "6"
+        },
+        {
+          "id": "chandler",
+          "name": "Glenn Chandler",
+          "partyId": "6"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "lieutenant-governor",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "State of Hamilton",
+      "title": "Lieutenant Governor",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "norberg",
+          "name": "Chris Norberg",
+          "partyId": "0"
+        },
+        {
+          "id": "parks",
+          "name": "Anthony Parks",
+          "partyId": "1"
+        },
+        {
+          "id": "garcia",
+          "name": "Luis Jorges Garcia",
+          "partyId": "2"
+        },
+        {
+          "id": "qualey",
+          "name": "Charles Qualey",
+          "partyId": "3"
+        },
+        {
+          "id": "hovis",
+          "name": "George Hovis",
+          "partyId": "4"
+        },
+        {
+          "id": "zirkle",
+          "name": "Burt Zirkle",
+          "partyId": "5"
+        },
+        {
+          "id": "davis",
+          "name": "Brenda Davis",
+          "partyId": "6"
+        },
+        {
+          "id": "freeman",
+          "name": "Edward Freeman",
+          "partyId": "6"
+        },
+        {
+          "id": "swan",
+          "name": "Paul Swan",
+          "partyId": "6"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "secretary-of-state",
+      "districtId": "district-2",
+      "type": "candidate",
+      "section": "State of Hamilton",
+      "title": "Secretary of State",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "shamsi",
+          "name": "Laila Shamsi",
+          "partyId": "0"
+        },
+        {
+          "id": "talarico",
+          "name": "Marty Talarico",
+          "partyId": "1"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "state-senator-district-31",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "State of Hamilton",
+      "title": "Senator, District 31",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "shiplett",
+          "name": "Edward Shiplett",
+          "partyId": "3"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "state-assembly-district-54",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "State of Hamilton",
+      "title": "Assembly Member, District 54",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "solis",
+          "name": "Andrea Solis",
+          "partyId": "0"
+        },
+        {
+          "id": "keller",
+          "name": "Amos Keller",
+          "partyId": "1"
+        },
+        {
+          "id": "rangel",
+          "name": "Davitra Rangel",
+          "partyId": "2"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "county-commissioners",
+      "districtId": "district-2",
+      "type": "candidate",
+      "section": "Franklin County",
+      "title": "County Commissioners",
+      "seats": 4,
+      "candidates": [
+        {
+          "id": "argent",
+          "name": "Camille Argent",
+          "partyId": "0"
+        },
+        {
+          "id": "witherspoonsmithson",
+          "name": "Chloe Witherspoon-Smithson",
+          "partyId": "0"
+        },
+        {
+          "id": "bainbridge",
+          "name": "Clayton Bainbridge",
+          "partyId": "0"
+        },
+        {
+          "id": "hennessey",
+          "name": "Charlene Hennessey",
+          "partyId": "1"
+        },
+        {
+          "id": "savoy",
+          "name": "Eric Savoy",
+          "partyId": "1"
+        },
+        {
+          "id": "tawa",
+          "name": "Susan Tawa",
+          "partyId": "1"
+        },
+        {
+          "id": "tawa-mary",
+          "name": "Mary Tawa",
+          "partyId": "1"
+        },
+        {
+          "id": "rangel",
+          "name": "Damian Rangel",
+          "partyId": "2"
+        },
+        {
+          "id": "altman",
+          "name": "Valarie Altman",
+          "partyId": "3"
+        },
+        {
+          "id": "moore",
+          "name": "Helen Moore",
+          "partyId": "3"
+        },
+        {
+          "id": "white",
+          "name": "John White",
+          "partyId": "4"
+        },
+        {
+          "id": "schmidt",
+          "name": "Joe Schmidt",
+          "partyId": "4"
+        },
+        {
+          "id": "smith",
+          "name": "Joe Smith",
+          "partyId": "4"
+        },
+        {
+          "id": "marracini",
+          "name": "Amanda Marracini",
+          "partyId": "5"
+        },
+        {
+          "id": "schreiner",
+          "name": "Martin Schreiner",
+          "partyId": "6"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "county-registrar-of-wills",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "Franklin County",
+      "title": "Registrar of Wills",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "ramachandrani",
+          "name": "Rhadka Ramachandrani",
+          "partyId": "6"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "city-mayor",
+      "districtId": "district-2",
+      "type": "candidate",
+      "section": "City of Springfield",
+      "title": "Mayor",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "white",
+          "name": "Orville White",
+          "partyId": "1"
+        },
+        {
+          "id": "seldon",
+          "name": "Gregory Seldon",
+          "partyId": "2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "city-council",
+      "districtId": "district-2",
+      "type": "candidate",
+      "section": "City of Springfield",
+      "title": "City Council",
+      "seats": 3,
+      "candidates": [
+        {
+          "id": "eagle",
+          "name": "Harvey Eagle",
+          "partyId": "0"
+        },
+        {
+          "id": "rupp",
+          "name": "Randall Rupp",
+          "partyId": "0"
+        },
+        {
+          "id": "shry",
+          "name": "Carroll Shry",
+          "partyId": "0"
+        },
+        {
+          "id": "barker",
+          "name": "Beverly Barker",
+          "partyId": "1"
+        },
+        {
+          "id": "davis",
+          "name": "Donald Davis",
+          "partyId": "1"
+        },
+        {
+          "id": "smith",
+          "name": "Hugo Smith",
+          "partyId": "1"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "judicial-robert-demergue",
+      "districtId": "district-1",
+      "type": "yesno",
+      "section": "Hamilton Court of Appeals",
+      "title": "Retain Robert Demergue as Chief Justice?",
+      "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?"
+    },
+    {
+      "id": "judicial-elmer-hull",
+      "districtId": "district-2",
+      "type": "yesno",
+      "section": "Hamilton Court of Appeals",
+      "title": "Retain Elmer Hull as Associate Justice?",
+      "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?"
+    },
+    {
+      "id": "question-a",
+      "districtId": "district-1",
+      "type": "yesno",
+      "section": "State of Hamilton",
+      "shortTitle": "Question A",
+      "title": "Question A: Recovery of Property Damages",
+      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?"
+    },
+    {
+      "id": "question-b",
+      "districtId": "district-1",
+      "type": "yesno",
+      "section": "State of Hamilton",
+      "shortTitle": "Question B",
+      "title": "Question B: Separation of Powers",
+      "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch?\n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government.\n\nNo person holding any office under the government of the United States, or of any other state or country, shall act as a general officer or as a member of the general assembly, unless at the time of taking such engagement that person shall have resigned the office under such government; and if any general officer, senator, representative, or judge shall, after election and engagement, accept any appointment under any other government, the office under this shall be immediately vacated; but this restriction shall not apply to any person appointed to take deposition or acknowledgement of deeds, or other legal instruments, by the authority of any other state or country.\n\nNo senator or representative shall, during the time for which he or she was elected, be appointed to any state office, board, commission or other state or quasi-public entity exercising executive power under the laws of this state, and no person holding any executive office or serving as a member of any board, commission or other state or quasi-public entity exercising executive power under the laws of this state shall be a member of the senate or the house of representatives during his or her continuance in such office.\n\nb. Article V of the Constitution shall be amended to read as follows: The powers of the government shall be distributed into three (3) separate and distinct departments: the legislative, the executive and the judicial.\n\nc. Article VI, Section 10 of the Constitution shall be deleted in its entirety.\n\nd. Article IX, Section 5 of the Constitution shall be amended to read as follows:\n\nSection 5. Powers of appointment.- The governor shall, by and with the advice and consent of the senate, appoint all officers of the state whose appointment is not herein otherwise provided for and all members of any board, commission or other state or quasi-public entity which exercises executive power under the laws of this state; but the general assembly may by law vest the appointment of such inferior officers, as they deem proper, in the governor, or within their respective departments in the other general officers, the judiciary or in the heads of departments."
+    },
+    {
+      "id": "question-c",
+      "districtId": "district-2",
+      "type": "yesno",
+      "section": "State of Hamilton",
+      "shortTitle": "Question C",
+      "title": "Question C: Limits to Damages for Non-Economic Loss",
+      "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider? \"Non-economic loss\" generally includes, but is not limited to, losses such as pain and suffering, inconvenience, mental anguish, loss of capacity for enjoyment of life, loss of consortium, and other losses the claimant is entitled to recover as damages under general law.\n\n This amendment will not in any way affect the recovery of damages for economic loss under State law. \"Economic loss\" generally includes, but is not limited to, monetary losses such as past and future medical expenses, loss of past and future earnings, loss of use of property, costs of repair or replacement, the economic value of domestic services, loss of employment or business opportunities. This amendment will not in any way affect the recovery of any additional damages known under State law as exemplary or punitive damages, which are damages allowed by law to punish a defendant and to deter persons from engaging in similar conduct in the future."
+    },
+    {
+      "id": "proposition-1",
+      "districtId": "district-1",
+      "type": "yesno",
+      "section": "State of Hamilton",
+      "shortTitle": "Proposition 1",
+      "title": "Proposition 1: Gambling in Franklin and Fromwit Counties",
+      "description": "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of this amendment? Requires implementing legislation."
+    },
+    {
+      "id": "measure-101",
+      "districtId": "district-2",
+      "type": "yesno",
+      "section": "Franklin County",
+      "shortTitle": "Measure 101",
+      "title": "Measure 101: College District",
+      "description": "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?"
+    },
+    {
+      "id": "102",
+      "districtId": "district-1",
+      "type": "yesno",
+      "section": "Franklin County",
+      "shortTitle": "Measure 102",
+      "title": "Measure 102: Vehicle Abatement Program",
+      "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
+    },
+    {
+      "id": "measure-666",
+      "districtId": "district-1",
+      "partyId": "2",
+      "type": "yesno",
+      "section": "Franklin County",
+      "shortTitle": "Measure 666",
+      "title": "Measure 666: The Question No One Gets To",
+      "description": "This question has a partyId, but no ballot style with the corresponding districts has that partyId, so this question will never get selected by a ballot style. This completes test coverage."
+    },
+    {
+      "id": "primary-constitution-head-of-party",
+      "districtId": "7",
+      "partyId": "3",
+      "type": "candidate",
+      "section": "Franklin County",
+      "title": "Head of Constitution Party",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "alice",
+          "name": "Alice Jones",
+          "partyId": "3"
+        },
+        {
+          "id": "bob",
+          "name": "Bob Smith"
+        }
+      ]
+    }
+  ],
+  "precincts": [
+    {
+      "id": "23",
+      "name": "Center Springfield"
+    },
+    {
+      "id": "21",
+      "name": "North Springfield"
+    },
+    {
+      "id": "20",
+      "name": "South Springfield"
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "12",
+      "precincts": ["23", "21"],
+      "districts": ["district-1", "district-2"]
+    },
+    {
+      "id": "5",
+      "precincts": ["21"],
+      "districts": ["district-1"]
+    },
+    {
+      "id": "7C",
+      "partyId": "3",
+      "precincts": ["20"],
+      "districts": ["7"]
+    }
+  ],
+  "seal": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 983.34723 983.32742\" version=\"1.1\" y=\"0\" x=\"0\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><title>Seal of Montgomery County, Maryland.</title><path d=\"m 491.66076,-0.00390624 c -66.37,0 -130.7806,13.00833624 -191.37059,38.64833624 -58.56,24.73 -111.14038,60.195802 -156.30038,105.3298 -45.151994,45.14 -80.593327,97.74085 -105.349327,156.28084 -25.668,60.62 -38.640524034996,125.03013 -38.640524034996,191.39012 0,66.38001 12.972430034996,130.7799 38.644430034996,191.3999 24.754,58.541 60.195568,111.12037 105.339571,156.30037 45.16199,45.11499 97.73937,80.57627 156.30037,105.31026 60.584,25.67901 125.00059,38.66201 191.37059,38.66201 l 0.006,0.0117 c 66.372,0 130.75841,-12.983 191.37841,-38.66201 58.543,-24.73699 111.15084,-60.19827 156.28084,-105.31026 45.13499,-45.18 80.5998,-97.76037 105.32979,-156.30038 25.66101,-60.622 38.69131,-125.01012 38.69131,-191.39012 0,-66.36 -13.0303,-130.77013 -38.69131,-191.39013 C 919.91981,241.71656 884.46,189.11618 839.32001,143.97618 794.19001,98.840185 741.58917,63.374383 683.03917,38.646383 622.41917,13.004383 558.03076,-0.00390624 491.66076,-0.00390624 Z\" fill=\"#fff\"/><path d=\"m405.93 877.36c52.08 11.574 104.83 12.622 156.87 3.0598 50.268-9.205 97.692-27.883 140.99-55.428 43.297-27.531 80.253-62.614 109.92-104.22 30.656-43.082 52.097-91.322 63.672-143.4 11.574-52.08 12.585-104.86 3.0553-156.85-9.2498-50.276-27.87-97.712-55.429-140.99-27.549-43.32-62.609-80.276-104.24-109.95-43.099-30.687-91.325-52.077-143.4-63.651-52.068-11.571-104.83-12.625-156.85-3.0772-50.256 9.2543-97.67 27.881-140.97 55.456-43.292 27.528-80.297 62.602-109.91 104.24-30.7 43.049-52.107 91.297-63.681 143.38-11.574 52.08-12.617 104.85-3.0461 156.88 9.2004 50.242 27.867 97.688 55.422 140.96 27.553 43.293 62.602 80.297 104.22 109.92 43.081 30.702 91.32 52.097 143.39 63.668m-292.75-469.82c11.35-51.072 32.393-98.433 62.481-140.7 29.079-40.841 65.356-75.251 107.86-102.3 42.456-27.008 89.005-45.331 138.33-54.372 51.023-9.369 102.83-8.3372 153.9 3.0128 51.092 11.354 98.462 32.364 140.72 62.464 40.841 29.079 75.221 65.387 102.28 107.84 27.025 42.496 45.326 89.037 54.37 138.35 9.3663 51.035 8.3325 102.84-3.0174 153.91-11.354 51.092-32.356 98.439-62.457 140.7-29.08 40.845-65.37 75.25-107.85 102.28-42.5 27.043-89.02 45.351-138.33 54.394-51.029 9.3422-102.85 8.3361-153.94-3.0179-51.072-11.35-98.434-32.385-140.69-62.459-40.849-29.081-75.262-65.373-102.27-107.87-27.049-42.48-45.339-89.015-54.382-138.33-9.3542-51.032-8.3616-102.83 2.9928-153.92\"/><path d=\"m491.66 983.33c66.372 0 130.76-12.984 191.38-38.663 58.543-24.737 111.15-60.198 156.28-105.31 45.135-45.18 80.6-97.76 105.33-156.3 25.661-60.622 38.691-125.01 38.691-191.39 0-66.36-13.03-130.77-38.691-191.39-24.73-58.56-60.19-111.16-105.33-156.3-45.13-45.136-97.73-80.602-156.28-105.33-60.62-25.642-125.01-38.65-191.38-38.65s-130.78 13.008-191.37 38.648c-58.56 24.73-111.14 60.196-156.3 105.33-45.152 45.14-80.594 97.74-105.35 156.28-25.668 60.62-38.64 125.03-38.64 191.39 0 66.38 12.972 130.78 38.644 191.4 24.754 58.541 60.196 111.12 105.34 156.3 45.162 45.115 97.739 80.576 156.3 105.31 60.584 25.679 125 38.663 191.37 38.663m-484.53-491.67c0-65.41 12.798-128.88 38.059-188.59 24.412-57.725 59.36-109.53 103.86-154.03 44.509-44.499 96.305-79.432 154.02-103.83 59.745-25.287 123.19-38.095 188.61-38.095 65.396 0 128.86 12.81 188.6 38.095 57.703 24.4 109.53 59.335 154.03 103.83 44.477 44.497 79.41 96.303 103.83 154.03 25.263 59.711 38.073 123.18 38.073 188.59 0 65.432-12.81 128.88-38.073 188.61-24.424 57.705-59.356 109.53-103.83 153.98-44.497 44.519-96.327 79.475-154.03 103.88-59.735 25.259-123.2 38.069-188.6 38.069-65.422 0-128.87-12.81-188.61-38.069-57.72-24.41-109.52-59.36-154.03-103.88-44.49-44.46-79.44-96.28-103.85-153.99-25.263-59.73-38.061-123.17-38.061-188.61\"/><path d=\"m614.64 224.83c4.1461-4.9937 6.9967-12.486 10.391-17.744h1.4673l19.175 11.722c2.3629 0.26788 4.238-1.4713 5.1696-3.2505 1.0275-6.421 1.0275-10.611 2.4109-16.944 5.5294 7.6724 10.875 17.572 14.041 26.22h-52.655\" fill=\"#fff\"/><path d=\"m244.16 469.52c0 201.13 103.2 310.5 247.54 364.14 144.28-53.639 247.46-163.01 247.46-364.14v-244.69h-495v244.69\" fill=\"#0096d5\"/><path d=\"m244.18 224.83v244.69c0 201.13 103.16 310.5 247.44 364.14 144.37-53.639 247.54-163.01 247.54-364.14v-244.69h-494.98m481.34 231.14v13.554c0 92.161-22.561 169.34-66.881 229.31-38.706 52.256-94.88 92.613-167.02 120.26-72.12-27.65-128.23-68-166.89-120.26-44.43-59.96-66.95-137.15-66.95-229.31v-231.14h467.74z\" fill=\"#1f191a\"/><path d=\"m462.32 493.06v33.664h-58.249v-33.664h-58.297v33.664h-58.321v-33.664h-29.154c1.6872 38.838 7.5804 74.725 17.608 107.72 12.018 36.519 29.178 71.518 52.503 102.96 38.498 49.797 93.292 88.542 162.94 115.25v-325.93h-29.03\" fill=\"#ff1b2c\"/><path d=\"m491.35 238.43v254.68h29.246v33.66h58.225v-33.66h58.321v33.66h58.277v-33.66h30.138v-254.68\" fill=\"#ff1b2c\"/><g fill=\"#1f191a\"><path d=\"m577.4 655.85h43.208v3.6623h-43.208z\"/><path d=\"m572.58 659.51v-3.6623-4.8098h4.8177 47.93v4.8098 8.428h-4.7218-48.025z\"/><path d=\"m617.62 681.53c-6.1091-6.5529-6.0212-17.164-6.0212-17.164h-10.835v20.734c0 1.0235-0.8516 1.8271-1.7792 1.8271-1.0755 0-1.8751-0.80362-1.8751-1.8271v-20.734h-10.795s0.096 10.611-5.9692 17.164c-6.0652 6.381-14.357 3.4824-14.357 3.4824s0.17592 4.318 2.4109 6.9487c2.051 2.7627 3.8342 4.8178 7.4885 5.0376 2.5428 0.17992 6.7368-1.3354 7.5804-0.48377 0.6197 0.8436-0.088 4.8098 5.1216 11.095 4.8617 5.8013 10.395 5.9812 10.395 5.9812s5.4374-0.17992 10.291-5.9812c5.2256-6.285 4.5978-10.251 5.2256-11.095 0.75165-0.8516 4.9057 0.66369 7.4885 0.48377 3.6583-0.21989 5.4334-2.2709 7.5804-5.0376 2.183-2.6308 2.3189-6.9487 2.3189-6.9487s-8.3001 2.8986-14.269-3.4824\"/><path d=\"m584.85 710.61c-2.9866-3.5224-4.4579-6.8248-5.1696-9.2757-1.0275 0.2279-2.235 0.39982-3.4784 0.39982h-0.6237c-5.6614-0.17192-9.1437-4.186-10.919-6.7328-3.5703-4.6298-3.3944-9.4036-3.4824-9.7594l-0.25988-6.9567 6.5489 2.139c0-0.084 0.93956 0.40781 2.9466 0.40781 2.135-0.13194 4.322-0.49177 6.285-2.5468 4.19-4.278 4.8138-12.922 4.8138-13.909 0-0.048-0.044-0.0919-0.044-0.0919 0-1.2514 0.48377-2.5388 1.4233-3.3904 0.8436-0.93556 2.051-1.4193 3.3864-1.4193 0.31585 0 0.62371 0.048 0.93956 0.084h8.7399 4.7698 9.9433c0.89158-0.13194 1.5992 0 2.0031 0.084 1.3394 0.40781 1.4233 0.67169 1.6912 0.8516l0.58372 0.39982 8.3401 8.2521h-6.469c0.62371 3.0306 1.8751 6.7328 4.242 9.0038l-3.4744 3.3904 3.5623-3.2545c1.8751 2.055 4.1021 2.5468 6.2011 2.5468 1.8711 0 2.9866-0.40781 2.9866-0.40781l6.513-2.2709-0.22789 6.9567c-0.088 0.39981 0.13194 5.2615-3.2505 9.7154-1.8751 2.4988-4.9937 6.1131-11.946 6.425v0.39982c-1.1635 0-2.3229-0.13194-3.2984-0.26388-0.62371 2.4508-2.235 5.6134-5.1776 9.3156-6.0132 7.1367-13.066 7.6684-14.181 7.6684-0.67569-0.008-7.8043-0.53975-13.917-7.7604zm2.4548-16.948c2.5428 5.5774 0.17592 4.5059 4.9097 10.831 3.3864 4.1061 6.373 4.286 6.5489 4.286 0-0.44379 3.1225 0.084 6.7768-4.286 4.8617-6.325 2.4548-5.3895 4.7738-10.519 1.9151-2.6308 4.146-2.5468 5.0816-2.6308 2.5428 0.084 4.9097 0.71166 6.0252 0.71166 0.044-0.04 0.53575 0 0.79963 0.048 0.93556-0.17992 1.3794-0.49177 2.5388-1.9151-3.3864-0.44379-7.4445-1.8751-10.743-5.4414l0.044-0.04c-4.6338-5.1776-6.285-11.331-6.9128-15.565h-1.6072v15.961c-0.084 3.7023-2.8946 6.505-6.5929 6.5969-3.5703 0-6.6449-2.9906-6.6449-6.5969v-15.961h-1.6952c-0.66768 4.186-2.3149 10.387-6.8688 15.697-3.3424 3.4264-7.3046 4.8577-10.655 5.3495 1.4233 1.6472 1.6512 1.8271 2.7667 1.9591h0.35583c0.75165 0 3.1185-0.71966 6.1051-0.80362 0.088-0.04 0.17992-0.04 0.35983-0.04 0.93157 0 3.4304 0.53176 4.6338 2.3589z\"/><path d=\"m598.98 589.73c0.92756 0 1.7792 0.89558 1.7792 1.8271v59.304h7.8443c0.93956-4.0621 2.5868-7.8483 4.9937-11.371 5.1776-7.6284 12.89-12.846 21.986-14.673 0.93156-0.35183 2.0071 0.2279 2.227 1.1635 0.35983 0.97554-0.17592 2.0071-1.1115 2.3189-8.2481 1.5992-15.421 6.325-20.067 13.282-1.9151 2.8986-3.2505 5.9732-4.194 9.2756h4.7738c8.8239-6.5969 13.774-8.0282 21.622-3.4824 4.8657 2.8107 6.9128 8.1202 6.285 13.961v0.084c0.35583-0.31185 0.75565-0.67169 1.2074-0.98354 25.996-18.991 10.875-51.72-7.4045-51.72-14.717 0-24.429 6.513-32.733 21.982l-2.2669-3.7023 2.051-2.7187c8.3361-8.3881 11.73-25.148 11.191-35.271-0.79962-13.242-10.699-24.788-13.15-28.802-2.7187-4.5499-5.0376-8.2921-5.0376-8.2921s-2.4109 3.7462-5.1776 8.2921c-2.4069 4.0141-12.302 15.565-13.066 28.802-0.57573 10.123 2.8107 26.887 11.147 35.271l2.055 2.7187-2.2749 3.7023c-8.3801-15.469-18.012-21.982-32.729-21.982-18.235 0-33.348 32.729-7.3965 51.72 0.48377 0.31185 0.84361 0.67169 1.2474 0.98354v-0.084c-0.66769-5.8413 1.4233-11.151 6.2451-13.961 7.8443-4.5459 12.838-3.1145 21.662 3.4824h4.8177c-0.97554-3.3024-2.3189-6.381-4.326-9.2756-4.6298-6.9567-11.727-11.683-19.927-13.282-0.97555-0.31185-1.4673-1.3434-1.2034-2.3189 0.22789-0.93556 1.3794-1.5153 2.2709-1.1635 9.0038 1.8272 16.812 7.0447 21.982 14.673 2.3189 3.5224 3.9701 7.3086 4.9497 11.371h7.8483v-59.304c0.008-0.93156 0.80762-1.8271 1.8791-1.8271\"/><path d=\"m640.31 661.43v0.17991c-0.088-1.2954 0-2.235 0-2.3189-0.088-3.8822-1.3394-6.2411-3.9662-7.8004-2.7267-1.6072-4.326-2.0071-5.9292-2.0071-2.139-0.0919-5.2575 1.2514-13.246 6.1051h-11.147-4.1461-4.8098-11.639-6.465l-1.1595-0.93556c-5.3535-4.0141-8.428-5.2615-10.607-5.2615-1.2954 0-3.1665 0.49177-5.8932 2.187-2.6268 1.4753-3.8782 3.8342-3.9621 7.5804 0 0.13194 0 0.66369 0.17592 2.187v9.9394l-7.6684-6.1051-1.1594-0.93556c-11.279-8.0762-15.965-19.083-15.965-29.206 0.18391-16.056 11.287-30.814 26.22-31.125 7.2686-0.084 13.694 1.5193 19.355 4.7778-1.6952-6.1131-2.4109-12.266-2.4508-17.436 0-1.0315 0-1.8751 0.088-2.5468 0.93156-15.293 11.858-27.691 13.734-30.985 2.8027-4.5938 5.2575-8.3841 5.2575-8.472l4.0621-6.377 4.0101 6.465s2.3629 3.7862 5.0816 8.2921c1.8751 3.3864 12.89 15.781 13.83 32.101v1.3394c-0.048 5.2575-0.80762 11.503-2.4548 17.616 5.6614-3.2585 12.17-4.8657 19.439-4.7778 14.849 0.31186 25.948 14.937 26.04 31.125 0.088 10.119-4.5938 21.13-15.605 29.11l-9.0078 7.3166v-10.031zm-92.249 0.49177c-0.044-0.17992-0.084-0.31186-0.084-0.49177h-0.048l0.13194 0.49177zm93.1-18.727c3.6023 2.047 6.0612 5.2176 7.4445 8.7839 4.9017-5.4414 6.7288-11.283 6.7288-16.944 0-11.946-9.0038-21.538-16.448-21.538-13.154 0.22789-20.378 4.8098-28.539 19.351l-3.9661 7.4485-0.8516-1.3834v5.5694c1.0315-2.6708 2.3669-5.3015 4.0621-7.7524 5.7933-8.568 14.717-14.577 23.765-16.272 0.35984 0 0.53575-0.53975 2.7187-0.62371 2.8986 0 5.2615 1.9591 6.381 4.9417 0 0.17992 0.17592 0.85161 0.17592 1.7872-0.088 3.0306-1.8751 5.0816-5.0376 6.417-6.0692 1.2114-11.327 4.278-15.209 8.8319 2.5908-1.2114 5.1776-1.9191 8.0282-1.9191 3.6983 0 7.2646 1.1634 10.747 3.3024zm-98.85-8.1602c0.088 5.6134 1.8312 11.371 6.7768 16.804 1.3834-3.5623 3.8782-6.6849 7.4925-8.644 3.3864-1.9671 6.8648-3.3904 10.611-3.3904 3.0786 0.048 5.8812 0.89158 8.2481 2.139-3.8782-4.6378-9.1877-7.7524-15.741-9.0957-2.9426-1.0235-4.5938-3.8342-4.5938-6.465v-0.57973c0-0.22789 0.084-1.0715 0.57973-1.9591 1.0755-2.5828 3.2105-3.8822 5.9772-4.0141 0 0.084 0.49176 0.084 0.93156 0.084 0.49177 0 0.93956-0.084 0.67168 0.17992 10.255 2.055 19.083 7.9803 24.972 16.72 1.6432 2.4508 2.9826 5.0376 4.0541 7.8004v-5.8413l-0.93156 1.5233-3.9701-7.3166c-8.2481-14.673-15.385-19.255-28.447-19.483-7.6284 0.004-16.632 9.6755-16.632 21.538zm55.598-72.362c-2.9866 4.7258-11.814 15.421-12.398 26.616-0.084 0.61971-0.084 1.3834-0.084 1.9631-0.13194 7.4445 2.2749 18.411 6.8648 25.816v-25.556c0-3.6503 2.8107-6.5529 6.6929-6.6409v4.8617 1.7792-1.7792-4.8617c3.9182 0.26787 6.2851 2.8986 6.5489 6.6409v25.556c4.4139-7.0887 6.9128-18.371 6.7768-25.996 0.088-0.40381-0.084-1.1634 0-1.7832-0.57973-11.195-9.4076-21.982-12.482-26.616-0.30786-0.53975-0.62371-1.0755-0.93157-1.5633-0.31985 0.48777-0.6277 1.0235-0.98753 1.5633z\"/></g><g fill=\"#f9ae00\"><path d=\"m577.4 655.85h43.208v3.6623h-43.208z\"/><path d=\"m617.62 681.53c-6.1091-6.5529-6.0212-17.164-6.0212-17.164h-10.835v20.734c0 1.0235-0.8516 1.8271-1.7792 1.8271-1.0755 0-1.8751-0.80362-1.8751-1.8271v-20.734h-10.795s0.096 10.611-5.9692 17.164c-6.0652 6.381-14.357 3.4824-14.357 3.4824s0.17592 4.318 2.4109 6.9487c2.051 2.7627 3.8342 4.8178 7.4885 5.0376 2.5428 0.17992 6.7368-1.3354 7.5804-0.48377 0.6197 0.8436-0.088 4.8098 5.1216 11.095 4.8617 5.8013 10.395 5.9812 10.395 5.9812s5.4374-0.17992 10.291-5.9812c5.2256-6.285 4.5978-10.251 5.2256-11.095 0.75165-0.8516 4.9057 0.66369 7.4885 0.48377 3.6583-0.21989 5.4334-2.2709 7.5804-5.0376 2.183-2.6308 2.3189-6.9487 2.3189-6.9487s-8.3001 2.8986-14.269-3.4824\"/><path d=\"m598.98 589.73c0.92756 0 1.7792 0.89558 1.7792 1.8271v59.304h7.8443c0.93956-4.0621 2.5868-7.8483 4.9937-11.371 5.1776-7.6284 12.89-12.846 21.986-14.673 0.93156-0.35183 2.0071 0.2279 2.227 1.1635 0.35983 0.97554-0.17592 2.0071-1.1115 2.3189-8.2481 1.5992-15.421 6.325-20.067 13.282-1.9151 2.8986-3.2505 5.9732-4.194 9.2756h4.7738c8.8239-6.5969 13.774-8.0282 21.622-3.4824 4.8657 2.8107 6.9128 8.1202 6.285 13.961v0.084c0.35583-0.31185 0.75565-0.67169 1.2074-0.98354 25.996-18.991 10.875-51.72-7.4045-51.72-14.717 0-24.429 6.513-32.733 21.982l-2.2669-3.7023 2.051-2.7187c8.3361-8.3881 11.73-25.148 11.191-35.271-0.79962-13.242-10.699-24.788-13.15-28.802-2.7187-4.5499-5.0376-8.2921-5.0376-8.2921s-2.4109 3.7462-5.1776 8.2921c-2.4069 4.0141-12.302 15.565-13.066 28.802-0.57573 10.123 2.8107 26.887 11.147 35.271l2.055 2.7187-2.2749 3.7023c-8.3801-15.469-18.012-21.982-32.729-21.982-18.235 0-33.348 32.729-7.3965 51.72 0.48377 0.31185 0.84361 0.67169 1.2474 0.98354v-0.084c-0.66769-5.8413 1.4233-11.151 6.2451-13.961 7.8443-4.5459 12.838-3.1145 21.662 3.4824h4.8177c-0.97554-3.3024-2.3189-6.381-4.326-9.2756-4.6298-6.9567-11.727-11.683-19.927-13.282-0.97555-0.31185-1.4673-1.3434-1.2034-2.3189 0.22789-0.93556 1.3794-1.5153 2.2709-1.1635 9.0038 1.8272 16.812 7.0447 21.982 14.673 2.3189 3.5224 3.9701 7.3086 4.9497 11.371h7.8483v-59.304c0.008-0.93156 0.80762-1.8271 1.8791-1.8271\"/></g><g fill=\"#1f191a\"><path d=\"m351.19 381.91h43.184v3.7023h-43.184z\"/><path d=\"m346.35 385.57v-3.7502-4.8138h4.7938 47.974v4.8138 8.516h-4.7898-47.978z\"/><path d=\"m391.48 407.59c-6.1331-6.509-6.0052-17.216-6.0052-17.216h-10.803v20.778c0 1.0715-0.78363 1.8751-1.8791 1.8751-1.0035 0-1.8231-0.80362-1.8231-1.8751v-20.778h-10.815s0.088 10.707-5.9932 17.216c-6.0212 6.417-14.337 3.5224-14.337 3.5224s0.2199 4.37 2.3829 6.9967c2.099 2.6308 3.8862 4.7738 7.5804 4.9977 2.5428 0.13194 6.7128-1.3834 7.4925-0.49177 0.66769 0.79962-0.052 4.8137 5.1896 11.147 4.7978 5.7933 10.323 5.9292 10.323 5.9292s5.5294-0.13593 10.371-5.9292c5.2416-6.333 4.5219-10.347 5.1456-11.147 0.82362-0.89158 4.9737 0.62371 7.5405 0.49177 3.7023-0.2239 5.4334-2.3669 7.6204-4.9977 2.091-2.6268 2.3389-6.9967 2.3389-6.9967s-8.3601 2.8986-14.329-3.5224\"/><path d=\"m358.77 436.79c-3.0066-3.6063-4.5019-6.9527-5.2575-9.3636-1.0035 0.17992-2.231 0.31186-3.4784 0.31186 0 0-0.26388 0.13593-0.55574 0.13593-5.7333-0.31185-9.0957-4.326-10.991-6.7768-3.4544-4.5938-3.3664-9.4116-3.4544-9.7634l-0.28786-6.8648 6.489 1.9591c0.084 0 1.1115 0.39982 3.0906 0.39982 2.059 0 4.306-0.39982 6.285-2.5388 4.1061-4.19 4.7338-12.978 4.7058-13.913 0 0-0.02-0.044-0.02-0.084 0-1.2914 0.58372-2.5428 1.4073-3.3904 0.95955-0.93556 2.163-1.3834 3.3904-1.3834h0.084 9.6795 4.7898 10.787c1.1435 0 1.7832 0.44379 2.163 0.58373 1.0275 0.53175 1.0275 0.71167 1.2314 0.79962l8.3601 8.2082h-6.421c0.62371 3.0306 1.8511 6.8648 4.174 9.1837l-3.4824 3.2985-3.4784 3.2505c-4.7498-5.2176-6.377-11.503-6.9527-15.737h-1.5833v16.048c0 3.4784-3.0946 6.6409-6.6649 6.6409-3.6783 0-6.5809-3.0786-6.6649-6.6409v-16.048h-1.6072c-0.59972 4.19-2.251 10.427-6.8408 15.737-3.3664 3.5224-7.4245 4.9937-10.727 5.4414 1.4073 1.6032 1.7432 1.8232 2.8307 2.0031l0.26388-0.084c0.8516 0.084 3.2185-0.66768 6.1091-0.8476 0.37982-0.088 3.5703 0.084 4.7898 2.139 3.0146 5.8413 0.28787 4.8137 5.1776 11.191 3.6543 4.326 6.7488 4.1021 6.5529 4.234 0-0.48777 3.2105 0.092 6.7768-4.234 4.8777-6.5089 2.3389-5.3495 5.1496-11.103 1.6072-1.9591 3.3864-2.139 4.7058-2.139 2.6268 0.092 5.0616 0.66769 6.1051 0.66769 0.24788-0.044 0.53975 0 0.87159 0.048 0.82761-0.17992 1.2674-0.57973 2.4269-1.8711-3.3864-0.44779-7.4045-1.8751-10.727-5.4414l3.4784-3.2505 3.4824-3.2985c1.9591 2.051 4.214 2.5388 6.373 2.5388 1.8751 0 3.0946-0.39981 3.0946-0.39981l6.5769-1.9591-0.37583 6.8648c-0.17991 0.35583 0 5.1696-3.4744 9.7634-1.9671 2.4509-5.2655 6.465-10.995 6.7768l-2.139 0.084-0.40381-0.39981c-0.55574-0.048-1.0915-0.088-1.5833-0.17992-0.67169 2.5388-2.163 5.7493-5.1736 9.4076-6.0812 7.2286-13.222 7.6684-14.177 7.6684-0.72766-0.004-7.8643-0.44379-13.885-7.6724zm-5.8972-12.126 0.17592-0.044c-0.048 0-0.092 0.044-0.17592 0.044z\"/><path d=\"m372.82 315.83c1.0475 0 1.8032 0.80362 1.8032 1.8311v59.212h7.8763c0.95555-4.0141 2.5828-7.7564 4.9657-11.239 5.1496-7.6684 12.93-12.93 21.962-14.757 0.95555-0.31185 2.0031 0.22389 2.2669 1.2034 0.33984 0.93556-0.22389 2.007-1.1794 2.3189-8.2042 1.6032-15.341 6.285-19.995 13.246-1.9671 2.9426-3.2745 6.0212-4.238 9.2317h4.7498c8.8478-6.5129 13.822-7.9363 21.67-3.4344 4.8577 2.8107 7.0007 8.0722 6.305 13.957v0.17592c0.37982-0.39981 0.73965-0.75565 1.1395-1.0715 26.036-18.947 10.919-51.72-7.3366-51.72-14.713 0-24.345 6.5529-32.749 21.934l-2.2749-3.6583 2.059-2.6708c8.3601-8.3841 11.726-25.148 11.191-35.359-0.77964-13.246-10.699-24.744-13.066-28.802-2.7827-4.5059-5.1496-8.2481-5.1496-8.2481s-2.3389 3.7462-5.0816 8.2481c-2.4508 4.0581-12.37 15.561-13.106 28.802-0.58373 10.211 2.7867 26.975 11.147 35.359l2.0071 2.6708-2.191 3.6583c-8.4041-15.385-18.076-21.934-32.793-21.934-18.255 0-33.372 32.769-7.3766 51.72 0.44779 0.31186 0.8716 0.67169 1.2674 1.0715-0.048-0.044-0.048-0.088-0.048-0.17592-0.68768-5.8892 1.4753-11.147 6.313-13.957 7.8044-4.5019 12.774-3.0786 21.578 3.4344h4.7938c-0.91557-3.2105-2.2749-6.285-4.238-9.2317-4.6618-6.9567-11.77-11.639-19.955-13.246-0.95955-0.31186-1.5593-1.3834-1.2274-2.3189 0.26387-0.97955 1.3194-1.5153 2.2749-1.2034 9.0518 1.8271 16.808 7.0887 21.962 14.757 2.3829 3.4784 4.0101 7.2246 4.9657 11.239h7.8243v-59.212c0.008-1.0275 0.8556-1.8311 1.8831-1.8311\"/><path d=\"m323.6 391.23-1.0475-0.93556c-11.175-8.0722-15.965-19.039-15.853-29.206 0.088-16.052 11.167-30.766 26.084-31.145 7.2846-0.084 13.75 1.5633 19.435 4.8857-1.6952-6.1091-2.4508-12.306-2.5388-17.572 0-0.93157 0.10795-1.7792 0.10795-2.5188 0.93556-15.313 12.014-27.711 13.798-30.985 2.8107-4.5898 5.1496-8.3601 5.1496-8.3601l3.9462-6.465 4.1221 6.465c0.11194 0 2.4508 3.7662 5.2575 8.3601 1.7832 3.2745 12.77 15.673 13.714 31.457 0 0.26387 0 1.0235 0.088 1.9591-0.088 5.3055-0.82761 11.547-2.5228 17.656 5.6693-3.2984 12.13-4.9697 19.419-4.8857 14.845 0.37982 25.904 15.005 26.104 31.145 0 10.167-4.7938 21.134-15.497 28.85l-9.2037 8.6v-10.967-0.44379c0.11194-0.97954 0.11194-1.5153 0.11194-1.9151-0.11194-3.7462-1.3194-6.0652-4.0381-7.6684-2.6348-1.6032-4.326-1.9591-5.8453-1.9591-2.251-0.13594-5.3455 1.2034-13.414 6.0612h-11.175-4.1221-4.7738-11.639-6.393l-1.2074-1.0235c-5.2615-3.9222-8.2681-5.1736-10.523-5.1736-1.3154 0-3.1026 0.49177-5.9092 2.183-2.6348 1.3874-3.9462 3.8382-3.9462 7.5804-0.088 0.22389 0 0.75564 0 0.93556l3.8542 14.757-11.543-9.6715zm-7.3326-30.142c0.064 5.5734 1.8032 11.371 6.7368 16.808 1.4193-3.5663 3.9382-6.6849 7.5325-8.648 3.3864-1.9631 6.8688-3.3424 10.611-3.3424 2.8946 0 5.5294 0.71166 8.1602 1.9591-3.8782-4.5499-9.2357-7.6724-15.761-9.0078-2.6308-0.93556-4.5059-3.2984-4.5898-6.373 0-0.13594 0-0.40781 0.084-1.2514 0.02-0.13593 0.13194-0.49177 0.37982-0.98354 0.91557-2.4988 3.2305-4.37 6.2011-4.37 0 0.088 0.55574 0.088 1.0195 0.088 0.56373-0.088 1.0315-0.088 0.47578 0.2239 10.319 2.051 19.147 8.0722 24.964 16.676 1.6472 2.4109 2.9906 4.9497 4.0381 7.5804v-5.4374l-0.73965 1.2514-4.0581-7.3126c-8.1642-14.533-15.385-19.151-28.535-19.415-7.6084 0.084-16.52 9.7394-16.52 21.554zm98.846 8.1602c3.5463 2.0071 6.0172 5.1256 7.4205 8.648 4.8817-5.3935 6.6889-11.239 6.7488-16.808 0-11.906-9.0038-21.47-16.516-21.558-13.13 0.26387-20.266 4.8857-28.539 19.415l-3.9382 7.3126-0.91557-1.5153-0.024 5.9252c1.0715-2.7227 2.4269-5.3055 4.1221-7.7124 5.8213-8.6959 14.737-14.717 23.761-16.408 0.27188 0 0.73966-0.58373 2.7267-0.67169 2.8067-0.088 5.5294 2.095 6.377 4.9937 0.084 0.53575 0.1999 1.0275 0.1999 1.6952-0.11194 3.0786-1.8991 5.0376-5.0816 6.465-6.0692 1.2074-11.379 4.326-15.253 8.8718 2.6108-1.2034 5.2815-1.9151 8.2042-1.9151 3.5703 0.004 7.1406 1.2114 10.707 3.2625zm-35.671-51.612-0.048 25.612c4.4579-7.1087 6.9527-18.431 6.8048-26.08v-1.8751c-0.56373-11.167-9.3916-21.87-12.29-26.572-0.35183-0.55974-0.71166-1.1395-1.0475-1.6752-0.33184 0.53575-0.66768 1.1155-1.0275 1.6752-3.0945 4.7018-11.922 15.405-12.482 26.572v1.9591c-0.15193 7.5644 2.231 18.463 6.7568 25.772v-25.392c0-3.7462 3.1825-6.5529 6.6649-6.6689v4.8857 1.7832-1.7832-4.8857c3.6583 0.12394 6.5809 3.2185 6.6689 6.6729z\"/></g><g fill=\"#f9ae00\"><path d=\"m351.19 381.91h43.184v3.7023h-43.184z\"/><path d=\"m391.48 407.59c-6.1331-6.509-6.0052-17.216-6.0052-17.216h-10.803v20.778c0 1.0715-0.78363 1.8751-1.8791 1.8751-1.0035 0-1.8231-0.80362-1.8231-1.8751v-20.778h-10.815s0.088 10.707-5.9932 17.216c-6.0212 6.417-14.337 3.5224-14.337 3.5224s0.2199 4.37 2.3829 6.9967c2.099 2.6308 3.8862 4.7738 7.5804 4.9977 2.5428 0.13194 6.7128-1.3834 7.4925-0.49177 0.66769 0.79962-0.052 4.8137 5.1896 11.147 4.7978 5.7933 10.323 5.9292 10.323 5.9292s5.5294-0.13593 10.371-5.9292c5.2416-6.333 4.5219-10.347 5.1456-11.147 0.82362-0.89158 4.9737 0.62371 7.5405 0.49177 3.7023-0.2239 5.4334-2.3669 7.6204-4.9977 2.091-2.6268 2.3389-6.9967 2.3389-6.9967s-8.3601 2.8986-14.329-3.5224\"/><path d=\"m372.82 315.83c1.0475 0 1.8032 0.80362 1.8032 1.8311v59.212h7.8763c0.95555-4.0141 2.5828-7.7564 4.9657-11.239 5.1496-7.6684 12.93-12.93 21.962-14.757 0.95555-0.31185 2.0031 0.22389 2.2669 1.2034 0.33984 0.93556-0.22389 2.007-1.1794 2.3189-8.2042 1.6032-15.341 6.285-19.995 13.246-1.9671 2.9426-3.2745 6.0212-4.238 9.2317h4.7498c8.8478-6.5129 13.822-7.9363 21.67-3.4344 4.8577 2.8107 7.0007 8.0722 6.305 13.957v0.17592c0.37982-0.39981 0.73965-0.75565 1.1395-1.0715 26.036-18.947 10.919-51.72-7.3366-51.72-14.713 0-24.345 6.5529-32.749 21.934l-2.2749-3.6583 2.059-2.6708c8.3601-8.3841 11.726-25.148 11.191-35.359-0.77964-13.246-10.699-24.744-13.066-28.802-2.7827-4.5059-5.1496-8.2481-5.1496-8.2481s-2.3389 3.7462-5.0816 8.2481c-2.4508 4.0581-12.37 15.561-13.106 28.802-0.58373 10.211 2.7867 26.975 11.147 35.359l2.0071 2.6708-2.191 3.6583c-8.4041-15.385-18.076-21.934-32.793-21.934-18.255 0-33.372 32.769-7.3766 51.72 0.44779 0.31186 0.8716 0.67169 1.2674 1.0715-0.048-0.044-0.048-0.088-0.048-0.17592-0.68768-5.8892 1.4753-11.147 6.313-13.957 7.8044-4.5019 12.774-3.0786 21.578 3.4344h4.7938c-0.91557-3.2105-2.2749-6.285-4.238-9.2317-4.6618-6.9567-11.77-11.639-19.955-13.246-0.95955-0.31186-1.5593-1.3834-1.2274-2.3189 0.26387-0.97955 1.3194-1.5153 2.2749-1.2034 9.0518 1.8271 16.808 7.0887 21.962 14.757 2.3829 3.4784 4.0101 7.2246 4.9657 11.239h7.8243v-59.212c0.008-1.0275 0.8556-1.8311 1.8831-1.8311\"/></g><path d=\"m440.52 566.27c-0.044-2.9866-0.044-5.4814-0.044-8.56 0-11.73-9.4956-21.266-21.182-21.266h-33.968c-11.683 0-21.178 9.5395-21.178 21.266 0 3.0786-0.048 5.0376 0 8.56-24.996 15.609-41.96 46.234-41.96 81.378 0 51.092 35.871 92.473 80.122 92.473 44.231 0 80.078-41.381 80.078-92.473 0-35.144-16.9-65.769-41.868-81.378m-38.21 167.47c-41.82 0-75.713-38.522-75.713-85.96 0-34.42 17.768-61.395 43.476-73.709 3.6103 3.0346 18.811 6.381 32.325 6.333 13.466-0.088 28.491-3.2985 32.149-6.333 25.704 12.31 43.444 39.286 43.444 73.709 0.004 47.438-33.86 85.96-75.681 85.96\" fill=\"#1f191a\"/><path d=\"m338.4 660.67c0-35 28.627-63.402 63.914-63.402s63.914 28.403 63.914 63.402c0 35-28.627 63.354-63.914 63.354s-63.914-28.355-63.914-63.354m96.155-86.543c-3.7023 2.9866-18.683 6.2451-32.197 6.2851-13.466 0.048-28.667-3.2985-32.325-6.2851-25.66 12.262-43.428 39.238-43.428 73.614 0 47.486 33.892 86.052 75.713 86.052 41.776 0 75.713-38.566 75.713-86.052-0.004-34.376-17.82-61.351-43.476-73.614\" fill=\"#f9ae00\"/><path d=\"m402.31 597.26c-35.287 0-63.914 28.359-63.914 63.358 0 35.048 28.627 63.446 63.914 63.446s63.87-28.403 63.87-63.446c0-35-28.583-63.358-63.87-63.358m0 124.04c-32.661 0-59.12-25.996-59.12-58.097 0-32.093 26.46-58.185 59.12-58.185 32.633 0 59.12 26.088 59.12 58.185 0 32.101-26.488 58.097-59.12 58.097\" fill=\"#1f191a\"/><path d=\"m419.04 573.09c10.051-1.3794 16.028-4.146 15.981-15.601 0-8.604-7.1566-15.649-15.981-15.649l-16.792-0.35983c-8.8718 0-16.028 7.1806-16.028 16.008 0 8.8279 6.5809 16.448 16.028 17.032 9.4076 0.62371 16.792-1.4313 16.792-1.4313\" fill=\"#0096d5\"/><path d=\"m652.3 295.68v-8.56c0-11.73-9.4476-21.23-21.134-21.23h-33.972c-11.683 0-21.222 9.4996-21.222 21.23v8.56c-24.968 15.649-41.908 46.19-41.908 81.414 0 51.052 35.847 92.425 80.074 92.425s80.078-41.377 80.078-92.425c0.004-35.223-16.852-65.765-41.916-81.414m-38.162 167.47c-41.824 0-75.709-38.478-75.709-85.916 0-34.416 17.788-61.439 43.424-73.745 3.6543 3.0346 18.907 6.2851 32.369 6.2851 13.47-0.044 28.539-3.2505 32.197-6.2851 25.636 12.306 43.424 39.33 43.424 73.745 0.004 47.438-33.884 85.916-75.705 85.916\" fill=\"#1f191a\"/><path d=\"m550.2 390.02c0-35.044 28.719-63.398 63.982-63.398 35.267 0 63.894 28.359 63.894 63.398 0 35.004-28.627 63.402-63.894 63.402-35.263 0-63.982-28.399-63.982-63.402m96.223-86.543c-3.7023 3.0346-18.727 6.2451-32.197 6.2851-13.462 0-28.667-3.2505-32.369-6.2851-25.684 12.306-43.424 39.33-43.424 73.705 0 47.482 33.928 85.96 75.748 85.96 41.776 0 75.713-38.478 75.713-85.96 0-34.376-17.792-61.395-43.472-73.705\" fill=\"#f9ae00\"/><path d=\"m614.23 326.67c-35.307 0-63.886 28.355-63.886 63.354 0 35.004 28.579 63.402 63.886 63.402 35.227 0 63.854-28.403 63.854-63.402 0-35-28.627-63.354-63.854-63.354m0 124.08c-32.633 0-59.12-26.036-59.12-58.137 0-32.061 26.488-58.141 59.12-58.141 32.557 0 59.036 26.08 59.036 58.141 0 32.105-26.48 58.137-59.036 58.137\" fill=\"#1f191a\"/><path d=\"m630.91 302.55c10.079-1.4233 16.056-4.238 15.965-15.649 0-8.6959-7.0487-15.649-15.965-15.649l-16.808-0.35983c-8.8718 0-16.008 7.1327-16.008 16.008 0 8.8279 6.6009 16.408 16.008 17.076 9.4516 0.58373 16.808-1.4273 16.808-1.4273\" fill=\"#0096d5\"/><g fill=\"#1f191a\"><path d=\"m394.42 502.6h-39.074v33.708h-77.472v-9.5435-24.165l-19.639 0.092v-19.219h38.878v9.5435 24.073h38.97v-33.616h77.492v9.5435 23.941h39.17v-33.484h9.5635 29.09v19.127h-19.419v33.708h-77.56v-9.5435z\"/><path d=\"m627.52 502.56h-39.058v33.708h-77.624v-9.5835-24.033h-19.443v-19.263h38.702v9.6715 24.033h39.102v-33.704h77.488v9.6715 24.033h39.062v-33.704h9.6795l30.138 0.0879v19.175h-20.558v33.616h-77.488v-9.5835z\"/><path d=\"m501.03 493.06v325.93h-19.283v-325.93z\"/><path d=\"m500.98 238.34v254.77h-19.267v-254.77z\"/></g><path d=\"m942.71 622.55-5.4895 16.411q-2.0818 6.2236-4.5428 8.9015-2.4364 2.7274-6.6256 4.2918t-9.9576 1.3236q-5.7684-0.24078-13.585-2.8554-7.0385-2.3544-11.729-5.6946-4.6534-3.3278-6.8733-6.7888-2.2198-3.4611-2.6109-7.4638-0.36642-3.9532 1.4552-9.3988l5.6506-16.892 54.308 18.166zm-12.186 5.8917-35.971-12.032-2.2553 6.7422q-1.4498 4.3342-1.2792 6.5332 0.15823 2.236 1.3793 4.0037 1.2457 1.8172 4.5294 3.8217 3.2837 2.0046 9.0997 3.9501 6.0383 2.0198 9.8056 2.3326 3.7548 0.34983 6.3501-0.75918 2.5828-1.072 4.0552-3.3804 1.1136-1.7282 2.9227-7.1368l1.3631-4.0749zm-32.177-68.154 55.975 12.089-1.9462 9.011-41.438 10.712 37.38 8.0734-1.8637 8.6292-55.975-12.089 2.0122-9.3164 40.493-10.596-36.502-7.8837 1.8637-8.6292zm0.74744-3.0749 1.0569-10.258 13.36-2.7468 1.9217-18.651-12.543-5.18 1.0329-10.025 55.09 24.054-1.0289 9.9862-58.89 12.821zm24.327-15.047 21.799-4.2334-20.486-8.5116-1.3132 12.745zm-19.759-65.683 56.797-0.0183 0.003 9.4531-47.148 0.0152 0.008 23.594-9.6484 0.003-0.0106-33.047zm-2.5343-30.821 23.984-2.3765 31.308-20.374 1.0939 11.04-21.456 13.235 23.617 8.5725 1.0746 10.845-34.783-13.904-23.906 2.3688-0.9321-9.4071zm-9.6315-55.08 56.087-11.557 4.0282 19.55q1.5451 7.4987 0.67691 11.028-0.82992 3.5212-4.1536 6.3597-3.2854 2.8306-8.4886 3.9027-6.5805 1.3559-11.252-0.99187-4.6636-2.3095-6.8948-7.912-1.5276 3.4256-3.6889 5.905-2.123 2.4715-8.0098 7.1942l-9.7911 7.8403-2.2782-11.057 10.817-9.2482q5.8699-4.9984 7.247-6.6381 1.4154-1.6477 1.7279-3.2276 0.35085-1.5878-0.31133-4.8016l-0.39415-1.9129-23.414 4.8244-1.9077-9.2586zm34.275 2.5896 1.419 6.8866q1.3007 6.3127 2.1911 7.924 0.92862 1.6034 2.8327 2.3278t4.697 0.14893q2.6781-0.55181 4.0643-1.9542 1.4244-1.4102 1.6582-3.3728 0.15282-1.3875-1.1321-7.6237l-1.4978-7.2692-14.232 2.9325zm-34.816-5.7356-3.1674-9.814 11.119-7.8986-5.7589-17.844-13.567 0.315-3.0954-9.591 60.113-0.19117 3.0834 9.5538-48.727 35.47zm16.198-23.576 18.243-12.661-22.178 0.46738 3.9353 12.193zm-50.334-64.356 52.068-23.839 5.9028 12.893-31.972 24.004 39.029-8.5894 5.919 12.928-52.068 23.839-3.6587-7.9913 40.987-18.765-44.873 10.277-3.8051-8.311 37.133-27.183-40.987 18.765-3.675-8.0268zm-12.055-40.811 4.8333 7.5735-6.6186 4.2238q-5.6308 3.5934-9.2044 4.0205-4.4213 0.55096-8.4844-2.1851l2.8741-3.9194q2.351 1.6507 4.562 1.6299 2.1781 0.00019 5.1178-1.7832l-2.3326-3.6551 9.2529-5.905zm-24.188-15.169 19.344-14.377 16.365-33.578 6.6176 8.9038-11.59 22.387 24.662-4.7992 6.5011 8.7471-36.979 5.9723-19.281 14.33-5.639-7.5871zm-26.483-31.692 35.29-31.91-9.353-10.344 7.1856-6.4973 25.02 27.67-7.1856 6.4973-9.3268-10.315-35.29 31.91-6.3401-7.0117zm-40.838-39.027 38.302-42.571 6.8532 6.1659-11.291 41.284 25.578-28.429 6.5628 5.9047-38.302 42.571-7.0855-6.3749 10.922-40.407-24.977 27.761-6.5628-5.9047zm-3.3632-73.434 7.6795 5.5125-18.086 25.196q-4.2141 5.8707-5.2041 7.8527-1.7018 3.4426-1.0051 6.4912 0.72845 3.0714 3.87 5.3265 2.6656 1.9134 5.1903 1.9466 2.5475 0.001 4.6538-1.6602 2.1609-1.6706 7.1494-8.6201l18.474-25.736 7.7112 5.5353-17.54 24.435q-6.7198 9.3613-10.742 12.821-3.9678 3.4509-9.358 3.5246-5.3358 0.0647-11.079-4.0583-5.9659-4.2824-7.8034-8.8231-1.783-4.5496-0.5272-9.5145 1.3103-4.9738 8.8046-15.414l17.813-24.815zm-63.505-3.2395q4.9858-8.9378 10.829-13.238 5.8959-4.315 11.74-4.7677 5.8437-0.4527 11.916 2.9346 8.8013 4.9097 10.579 14.713 1.8116 9.8223-5.1152 22.24-7.003 12.554-16.81 16.342-8.6336 3.3693-17.469-1.5594-8.9037-4.9668-10.61-14.015-1.9284-10.335 4.9414-22.65zm8.7187 4.4163q-4.8146 8.6308-3.9564 14.79 0.87715 6.1252 5.7213 8.8274 4.8782 2.7213 10.464 0.24587 5.6044-2.5095 10.552-11.379 4.8526-8.699 4.0358-14.612-0.7827-5.8936-5.8315-8.71t-10.562-0.39022-10.423 11.228zm-26.42-4.2655 7.1036 6.8148q-5.6823 8.0416-12.011 10.226-6.314 2.1489-13.056-0.66335-8.4721-3.5341-11.014-12.255-2.9136-10.061 2.4251-22.86 5.6395-13.519 14.92-18.621 8.0667-4.4228 17.007-0.69322 7.2824 3.0378 10.11 10.058 2.0232 4.9918 0.74308 12.627l-9.7051-1.0857q0.96041-4.636-0.57971-7.9449-1.489-3.3299-4.8418-4.7285-4.7949-2.0001-9.5677 0.9186t-8.7882 12.545q-4.1657 9.9863-2.969 15.438 1.1967 5.4512 5.9195 7.4213 3.461 1.4437 7.0974-0.1714 3.6515-1.6512 7.2054-7.0253zm-84.842-6.2098 5.6804-23.423-8.887-36.281 10.781 2.6146 5.4035 24.623 15.893-19.459 10.591 2.5686-24.614 28.236-5.662 23.347-9.1868-2.228zm-55.225-9.1579 7.6577-56.751 19.782 2.6692q7.5875 1.0238 10.63 3.0111 3.0481 1.9485 4.6266 6.0243 1.5838 4.0371 0.87335 9.3019-0.89845 6.6584-4.66 10.29-3.7228 3.6364-9.748 3.8876 2.727 2.5753 4.3513 5.4354 1.6295 2.8214 4.1377 9.9394l4.158 11.834-11.188-1.5096-5.1469-13.268q-2.7739-7.1934-3.8655-9.0356-1.0864-1.8809-2.4738-2.6988-1.3822-0.85659-4.634-1.2954l-1.9356-0.26118-3.1968 23.692-9.3682-1.2641zm13.787-31.486 6.9681 0.94024q6.3874 0.86188 8.2026 0.55498 1.8204-0.34562 3.1341-1.9027 1.3138-1.5571 1.6951-4.383 0.36565-2.7098-0.49889-4.482-0.85931-1.8109-2.6339-2.681-1.2587-0.60343-7.5687-1.4549l-7.3552-0.99247-1.9432 14.401zm-55.987 29.914 1.6426-57.242 34.829 0.99945-0.27788 9.6835-25.38-0.7283-0.36415 12.69 23.584 0.67676-0.27676 9.6445-23.584-0.67676-0.44706 15.58 26.239 0.75295-0.27676 9.6445-35.688-1.0241zm-52.356 3.7344-4.8618-57.059 14.128-1.2039 11.801 38.198 5.0906-39.638 14.167-1.2072 4.8618 57.059-8.7573 0.74619-3.8271-44.915-5.4751 45.708-9.1076 0.77603-13.052-44.129 3.8271 44.915-8.7962 0.74951zm-54.61-17.755q-2.0926-10.018-0.49819-17.095 1.6247-7.1233 5.7414-11.295 4.1167-4.1721 10.923-5.5938 9.8652-2.0607 17.633 4.1781 7.8061 6.2308 10.713 20.149 2.9393 14.071-1.9842 23.36-4.3122 8.2035-14.216 10.272-9.9799 2.0846-17.199-3.6302-8.2301-6.5413-11.114-20.345zm9.4794-2.3792q2.0207 9.674 6.7059 13.763 4.6772 4.0511 10.107 2.917 5.4679-1.1422 8.0638-6.6726 2.5879-5.5687 0.51127-15.51-2.0367-9.7505-6.529-13.681-4.454-3.9381-10.113-2.756-5.6591 1.1821-8.2328 6.6281-2.5736 5.446-0.51296 15.311zm-33.818 17.759-3.0652-9.1486 19.371-6.4903 7.2473 21.631q-1.772 4.425-6.3111 8.706-4.5392 4.281-9.9468 6.0928-6.5929 2.209-12.71 0.6743-6.1294-1.5717-11.252-7.0237-5.0978-5.5014-8.0265-14.243-3.0032-8.9634-2.1746-16.327 0.86566-7.3759 4.5518-12.113 3.7232-4.7492 10.353-6.9705 7.9634-2.6681 14.106-0.1947 6.1677 2.424 10.169 9.817l-8.2068 5.0155q-2.4024-3.8503-5.8137-5.1791-3.4114-1.3288-7.1153-0.08784-5.741 1.9235-7.7952 7.5966-2.0666 5.636 0.99866 14.785 3.2886 9.8153 8.8532 13.636 4.7732 3.3032 10.403 1.4169 2.6298-0.88109 5.0352-3.0465 2.4301-2.2149 3.9326-5.1077l-2.3082-6.8892-10.297 3.4499zm-39.506 38.441-19.831-43.248-12.676 5.8126-4.0378-8.8059 33.91-15.549 4.0379 8.8059-12.641 5.7963 19.831 43.248-8.5928 3.9402zm-49.488 27.223-29.098-49.322 7.94-4.6843 35.985 23.172-19.432-32.937 7.6035-4.4858 29.098 49.322-8.2091 4.8431-35.259-22.557 18.975 32.164-7.6035 4.4858zm-57.849 7.5796q-6.167-8.1676-7.7446-15.249-1.5699-7.1356 0.37318-12.665 1.9431-5.5297 7.4921-9.7196 8.0429-6.0729 17.73-3.7447 9.7184 2.3046 18.286 13.652 8.6621 11.472 8.1725 21.974-0.39981 9.2592-8.4739 15.356-8.1365 6.1435-17.104 4.0552-10.234-2.4045-18.732-13.658zm7.5582-6.1963q5.9552 7.8871 11.937 9.5865 5.9585 1.6683 10.385-1.6742 4.4579-3.366 4.446-9.4753-0.0354-6.1405-6.1554-14.246-6.0022-7.9494-11.742-9.5872-5.7085-1.6613-10.322 1.8224-4.6138 3.4837-4.6178 9.5072t6.0689 14.066zm-26.607 63.212-39.765-41.208 10.204-9.8462 33.252 22.196-21.053-33.968 10.232-9.8734 39.765 41.208-6.3246 6.103-31.302-32.438 24.584 38.921-6.5776 6.3472-37.964-26.01 31.302 32.438-6.3527 6.1302zm-37.202 46.977-45.941-34.187 19.216-25.822 7.7718 5.7833-13.572 18.239 10.874 8.092 11.73-15.763 7.7718 5.7833-11.73 15.763 19.523 14.528-5.6434 7.5838zm-51.084 29.513q-8.8147-5.2004-12.972-11.145-4.1712-5.9985-4.4826-11.851-0.31135-5.8529 3.2217-11.842 5.121-8.6801 14.964-10.22 9.8632-1.5737 22.11 5.6512 12.381 7.3043 15.931 17.2 3.1597 8.7125-1.9812 17.426-5.1805 8.781-14.267 10.269-10.378 1.678-22.524-5.4873zm4.6257-8.6094q8.5119 5.0217 14.69 4.3127 6.1446-0.72886 8.9631-5.5063 2.8384-4.8111 0.49867-10.455-2.3733-5.6634-11.121-10.824-8.5792-5.0614-14.51-4.3877-5.9108 0.64004-8.8484 5.6193t-0.64535 10.55q2.2923 5.5703 10.972 10.691zm-2.7853 75.922-52.861-20.775 3.4578-8.798 43.881 17.246 8.6303-21.959 8.9798 3.5293-12.088 30.757zm-1.7045 3.6947-2.7692 9.9337-13.631 0.45788-5.035 18.061 11.492 7.2182-2.7063 9.708-50.253-32.988 2.6958-9.6703 60.208-2.7212zm-26.513 10.736-22.2 0.50224 18.76 11.84 3.4406-12.342zm7.8973 71.505-56.485-9.4234 5.7337-34.369 9.5554 1.5941-4.1782 25.044 12.522 2.0891 3.8825-23.272 9.5169 1.5877-3.8825 23.272 15.373 2.5648 4.3196-25.892 9.5169 1.5877-5.8751 35.216zm-21.82 43.613-0.51521-9.308q11.053-0.87604 11.592-9.5311 0.26753-4.2885-1.8015-6.8833-2.108-2.5972-5.4219-2.804-1.9493-0.1216-3.3674 0.65098-1.418 0.77258-2.3852 2.4735-1.0061 1.6985-3.4932 8.3143-2.2094 5.9286-4.5287 8.6019-2.3194 2.6733-5.8938 4.1332-3.611 1.4186-7.6266 1.168-4.6784-0.29185-8.2898-2.6306-3.609-2.3778-5.2858-6.2396-1.6769-3.8619-1.3339-9.359 0.51561-8.2652 5.2885-12.625 4.7729-4.3597 13.133-4.1122l-0.08418 9.5054q-4.6393 0.3368-6.6006 2.2888t-2.1996 5.7727q-0.23835 3.8207 1.2312 5.9867t3.8477 2.3144q2.3392 0.14593 4.0544-1.6257t4.0463-8.3972q2.5114-7.0057 5.0086-10.02 2.4607-3.0558 6.191-4.5061 3.6914-1.4527 8.8376-1.1316 7.4465 0.46453 12.228 5.3811 4.7837 4.8776 4.1757 14.624-1.075 17.232-20.807 17.958zm22.43 63.03-57.013 5.3738-3.2697-34.69 9.6448-0.90907 2.3826 25.279 12.639-1.1913-2.214-23.49 9.6059-0.90541 2.214 23.49 15.517-1.4626-2.4633-26.134 9.6059-0.9054 3.3504 35.546zm8.5935 44.888-56.118 11.408-1.8832-9.2636 22.087-4.49-3.7041-18.221-22.087 4.49-1.8909-9.3019 56.118-11.408 1.891 9.3019-24.537 4.9881 3.7041 18.221 24.537-4.9881 1.8832 9.2636zm8.2368 27.107-45.402 14.224 4.169 13.308-9.2445 2.8961-11.152-35.599 9.2445-2.8961 4.1573 13.27 45.402-14.224 2.8261 9.0208zm452.08 319.16 10.57-3.0313q1.1116 3.5714 3.7638 5.3214 2.6454 1.7115 5.6067 1.1846 3.3843-0.60216 5.2445-3.7501 1.8533-3.1864 0.86792-8.7244-0.92377-5.1919-3.7282-7.3512-2.7728-2.2046-6.5033-1.5409-4.6535 0.82797-7.6133 5.5999l-8.9944 0.29102 0.31699-30.329 28.575-5.0842 1.7996 10.115-20.383 3.6267 0.0117 9.8772q3.2935-2.4508 7.0624-3.1214 7.1917-1.2796 13.122 3.0612 5.9302 4.3408 7.4151 12.686 1.2386 6.961-1.8279 13.141-4.1721 8.4395-13.941 10.178-7.8071 1.3891-13.476-1.927-5.6686-3.3161-7.8891-10.221zm-52.786-27.522-0.64171-10.175 37.465-2.3628 0.50157 7.953q-4.3516 4.8538-8.6083 13.694t-6.1834 18.629q-1.8902 9.7477-1.3742 17.308l-10.565 0.6663q-0.47454-11.869 3.3488-24.478 3.8623-12.612 10.969-22.806l-24.911 1.5711zm-47.224-1.875 0.52119-10.182 37.49 1.919-0.40736 7.9583q-4.876 4.3267-10.112 12.625-5.2357 8.2979-8.2647 17.804-2.988 9.469-3.3364 17.039l-10.572-0.54116q0.88014-11.845 6.1145-23.937 5.2734-12.09 13.495-21.408l-24.928-1.276zm-26.5 43.066-10.83-1.7877 6.7374-40.815q-6.8514 4.5701-15.345 5.8998l1.6223-9.8279q4.4685-0.68765 10.077-3.721 5.6143-3.0719 8.3168-7.931l8.7873 1.4506-9.3649 56.732z\"/></svg>"
+}
