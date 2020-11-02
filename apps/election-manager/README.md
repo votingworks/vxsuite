@@ -1,59 +1,98 @@
-This project was bootstrapped with
-[Create React App](https://github.com/facebook/create-react-app).
+# Election Manager
 
-## Available Scripts
+This app is intended to be used on an offline computer by an election admin.
 
-In the project directory, you can run:
+### Features
 
-### `yarn start`
+- manage election configuration
+- create hand-marked paper ballots
+- export an "election ballot package" for
+  [Mail Ballot Manager](https://github.com/votingworks/mail-ballot-manager)
 
-Runs the app in the development mode.<br /> Open
-[http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Workflow
 
-The page will reload if you make edits.<br /> You will also see any lint errors
-in the console.
+1. Admin may create a new election or select an existing election configuration
+   file (`election.json`) to start with (or possibly a previously created
+   election ballot package).
+2. Admin can edit the election configuration via simple UI forms at any time.
+3. Admin can list all ballots by precinct/style.
+4. Admin can view an individual ballot, both HTML and PDF versions.
+5. Admin can export an election ballot package for
+   [Mail Ballot Manager](https://github.com/votingworks/mail-ballot-manager).
 
-### `yarn test`
+   Election Ballot Package contains:
 
-Launches the test runner in the interactive watch mode.<br /> See the section
-about
-[running tests](https://facebook.github.io/create-react-app/docs/running-tests)
-for more information.
+   - `election.json` - VotingWorks data format for election data: contests,
+     canidates,ballot styles, precincts, etc.
+   - approved official ballots in pdf format:
+     - one for each combination of ballot style and precinct
+     - file name pattern:
+       `election-${electionId}-precinct-${dashify(precinctName)}-id-${precinctId}-style-${ballotStyleId}.pdf`
 
-### `yarn build`
+## App Screens
 
-Builds the app for production to the `build` folder.<br /> It correctly bundles
-React in production mode and optimizes the build for the best performance.
+- [x] Unconfigured App Screen
+  - [x] Select election config file
+  - [x] Convert from local election files
+  - [x] Button to create new election
+- [ ] Edit Election Definition
+  - [ ] basic fields
+  - [ ] parties (starting with some defaults)
+  - [ ] districts
+  - [ ] precincts
+  - [ ] ballot styles and mappings to precincts and districts
+  - [ ] contests
+    - [ ] select district
+    - [ ] candidate contest
+    - [ ] measure contest
+- [x] List Ballot Styles
+  - [x] Rows:
+    - [x] precinct
+    - [x] style
+    - [x] contest count
+    - [x] view ballot link
+  - [x] Sort:
+    - [x] precinct
+    - [x] style
+  - [x] Export Election Ballot Package for Mail Ballot Manager
+  - [x] View Ballot
+    - [x] html ballot in print-ready format (via PagedJS)
+    - [ ] PDF ballot (in iframe under html ballot or click to open in new
+          window)
+    - [ ] Previous and Next Ballot Style links
+    - [x] Proof all Ballot Style content (from EMS)
+  - [x] Export Election Ballot Package screen
+    - [x] Mock export UI
+    - [ ] Hook up to API in kiosk browser
+- [x] Print Test Ballot Deck Results (from EMS)
+- [ ] Program Cards (Revert from commit "Remove Smartcard Programming" when
+      ready)
+  - [ ] Admin
+  - [ ] Poll Worker
+- [x] Results
+  - [x] Load CVR files (from EMS)
+  - [x] View results (from EMS)
+- [x] Unconfigure
+- [x] Eject USB (from EMS)
 
-The build is minified and the filenames include the hashes.<br /> Your app is
-ready to be deployed!
+## Navigation
 
-See the section about
-[deployment](https://facebook.github.io/create-react-app/docs/deployment) for
-more information.
+Main Nav:
 
-### `yarn eject`
+- [x] Definition
+- [x] Ballots
+- [ ] Cards
+- [x] Tally
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+User Nav
 
-If you aren’t satisfied with the build tool and configuration choices, you can
-`eject` at any time. This command will remove the single build dependency from
-your project.
+- [x] Eject USB
 
-Instead, it will copy all the configuration files and the transitive
-dependencies (webpack, Babel, ESLint, etc) right into your project so you have
-full control over them. All of the commands except `eject` will still work, but
-they will point to the copied scripts so you can tweak them. At this point
-you’re on your own.
+## Future Features
 
-You don’t have to ever use `eject`. The curated feature set is suitable for
-small and middle deployments, and you shouldn’t feel obligated to use this
-feature. However we understand that this tool wouldn’t be useful if you couldn’t
-customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the
-[Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Election Editor with sections to edit, metadata, parties, contests, ballot
+  styles, etc.
+  - Edit Contest section
+    - List Contests screen
+    - Edit Contest Screen with live preview
+- "Export config" button on Config screen
