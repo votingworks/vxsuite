@@ -1,0 +1,139 @@
+/* Allow selectors to be used multiple times in this file for grouping of concerns. */
+/* stylelint-disable no-duplicate-selectors */
+
+/* Reset */
+html {
+  box-sizing: border-box;
+  line-height: 1;
+  user-select: none;
+}
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+fieldset {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+legend {
+  display: block;
+}
+
+img {
+  display: block;
+}
+
+:link,
+:visited {
+  color: rgb(0, 0, 238);
+}
+
+:focus {
+  /* outline: rgb(77, 144, 254) dashed 0.25rem; */
+  outline: none;
+}
+
+/* Foundational */
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+@media print {
+  html,
+  body,
+  #root {
+    height: auto;
+    overflow: visible;
+  }
+}
+
+/* Typography */
+html {
+  background: #edeff0;
+  color: #263238;
+  font-family: 'Vx Helvetica Neue', 'Helvetica Neue', -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', sans-serif;
+  font-size: 20px; /* Magic number, must synced with JavaScript global defaults */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@media print {
+  html {
+    background: #ffffff;
+
+    /* Adjust printed ballot font-size */
+    font-size: 14px !important; /* stylelint-disable-line declaration-no-important */
+  }
+}
+
+/* Accessibility Utilities */
+.screen-reader-only {
+  position: absolute !important; /* stylelint-disable-line declaration-no-important */
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: polygon(0 0, 0 0, 0 0);
+}
+
+/* Utilities */
+.print-only {
+  display: none;
+}
+@media print {
+  .print-only {
+    display: block;
+  }
+  .no-print {
+    display: none;
+  }
+}
+
+@media print {
+  /* Chrome on Linux prints scrollbars */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+html body .cvox_indicator_container {
+  /* Extra specificity/!important ensure this rule is followed. */
+  display: none !important; /* stylelint-disable-line declaration-no-important */
+}
+
+/* Adjust printed ballot paper settings */
+@page {
+  margin: 0.5in;
+  size: legal portrait;
+}
+
+/* Layout Utilities */
+
+.w-50 {
+  width: 50%;
+}
+
+.w-66 {
+  width: 66.666%;
+}
+
+.w-75 {
+  width: 75%;
+}
