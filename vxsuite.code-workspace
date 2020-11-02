@@ -11,6 +11,9 @@
     },
     {
       "path": "apps/bas"
+    },
+    {
+      "path": "apps/election-manager"
     }
   ],
   "settings": {}
