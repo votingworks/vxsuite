@@ -8,6 +8,9 @@
     },
     {
       "path": "apps/module-scan"
+    },
+    {
+      "path": "apps/bas"
     }
   ],
   "settings": {}
