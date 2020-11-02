@@ -1,5 +1,5 @@
 import * as t from '@votingworks/ballot-encoder'
-import type { Rect } from '@votingworks/hmpb-interpreter'
+import type { Point, Rect } from '@votingworks/hmpb-interpreter'
 import { OkResponse, AdjudicationReasonInfo } from '../types'
 import { AdjudicationReason } from '@votingworks/ballot-encoder'
 
@@ -24,6 +24,7 @@ export type PutBallotResponse = OkResponse
 
 export interface ContestLayout {
   bounds: Rect
+  corners: readonly [Point, Point, Point, Point]
   options: readonly ContestOptionLayout[]
 }
 

@@ -77,6 +77,11 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
                   {isBackingUp ? 'Exporting…' : 'Export Backup…'}
                 </Button>
               </p>
+              {process.env.NODE_ENV === 'development' && (
+                <p>
+                  <LinkButton to="/debug">Debug…</LinkButton>
+                </p>
+              )}
             </Prose>
           </MainChild>
         </Main>

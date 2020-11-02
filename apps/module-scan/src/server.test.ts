@@ -599,8 +599,7 @@ test('GET /scan/hmpb/ballot/:sheetId/image 404', async () => {
 })
 
 test('GET /', async () => {
-  const response = await request(app).get('/').expect(200)
-  expect(response.text).toContain('Test Page for Scan')
+  await request(app).get('/').expect(301)
 })
 
 test('POST /scan/hmpb/addTemplates bad template', async () => {

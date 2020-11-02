@@ -690,6 +690,7 @@ export default class Store {
         const contestLayout = layout.contests[contestIndex]
         return {
           bounds: contestLayout.bounds,
+          corners: contestLayout.corners,
           options: contestLayout.options.map((option) => ({
             bounds: option.bounds,
           })),
