@@ -17,6 +17,9 @@
     },
     {
       "path": "libs/ballot-encoder"
+    },
+    {
+      "path": "apps/election-manager"
     }
   ],
   "settings": {}
