@@ -1,7 +1,7 @@
 {
   "folders": [
     {
-      "path": "libs/hmpb-interpreter"
+      "path": "apps/bas"
     },
     {
       "path": "apps/bmd"
@@ -10,13 +10,16 @@
       "path": "apps/bsd"
     },
     {
+      "path": "apps/election-manager"
+    },
+    {
       "path": "apps/module-scan"
     },
     {
-      "path": "apps/bas"
+      "path": "libs/ballot-encoder"
     },
     {
-      "path": "libs/ballot-encoder"
+      "path": "libs/hmpb-interpreter"
     }
   ],
   "settings": {}

@@ -30,6 +30,27 @@ jobs:
           command: |
             yarn --cwd libs/ballot-encoder test:coverage
 
+  test-bas:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn --cwd apps/bas install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
+          paths:
+            - apps/bas/node_modules
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            yarn --cwd apps/bas test:coverage
+
   test-bmd:
     executor: nodejs-browsers
     resource_class: xlarge
@@ -72,26 +93,26 @@ jobs:
           command: |
             yarn --cwd apps/bsd test:coverage
 
-  test-module-scan:
-    executor: nodejs
+  test-election-manager:
+    executor: nodejs-browsers
     resource_class: xlarge
     steps:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
       - run:
           name: Setup Dependencies
-          command: yarn --cwd apps/module-scan install --frozen-lockfile
+          command: yarn --cwd apps/election-manager install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
           paths:
-            - apps/module-scan/node_modules
+            - apps/election-manager/node_modules
       - run:
-          name: Run Tests with Coverage
+          name: Run Front-End Test and Coverage
           command: |
-            yarn --cwd apps/module-scan test:coverage
+            yarn --cwd apps/election-manager test:coverage
 
   test-hmpb-interpreter:
     executor: nodejs
@@ -114,55 +135,34 @@ jobs:
           command: |
             yarn --cwd libs/hmpb-interpreter test:coverage
 
-  test-bas:
-    executor: nodejs-browsers
+  test-module-scan:
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
       - run:
           name: Setup Dependencies
-          command: yarn --cwd apps/bas install --frozen-lockfile
+          command: yarn --cwd apps/module-scan install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
           paths:
-            - apps/bas/node_modules
+            - apps/module-scan/node_modules
       - run:
-          name: Run Front-End Test and Coverage
+          name: Run Tests with Coverage
           command: |
-            yarn --cwd apps/bas test:coverage
-
-  test-election-manager:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout
-      - restore_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
-      - run:
-          name: Setup Dependencies
-          command: yarn --cwd apps/election-manager install --frozen-lockfile
-      - save_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
-          paths:
-            - apps/election-manager/node_modules
-      - run:
-          name: Run Front-End Test and Coverage
-          command: |
-            yarn --cwd apps/election-manager test:coverage
+            yarn --cwd apps/module-scan test:coverage
 
 workflows:
   test:
     jobs:
       - test-ballot-encoder
+      - test-bas
       - test-bmd
       - test-bsd
-      - test-module-scan
-      - test-hmpb-interpreter
-      - test-bas
       - test-election-manager
+      - test-hmpb-interpreter
+      - test-module-scan
