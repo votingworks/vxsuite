@@ -1,5 +1,4 @@
-/* eslint-disable import/prefer-default-export */
-export const formatFullDateTimeZone = (date: Date, timeZone?: string) =>
+export const formatFullDateTimeZone = (date: Date, timeZone?: string): string =>
   new Intl.DateTimeFormat(undefined, {
     timeZone,
     weekday: 'short',

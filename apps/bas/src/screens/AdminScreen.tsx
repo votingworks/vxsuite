@@ -33,7 +33,7 @@ interface Props {
 const getMachineTimezone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone
 
-const AdminScreen = ({
+const AdminScreen: React.FC<Props> = ({
   election,
   fetchElection,
   getBallotStylesByPreinctId,
@@ -48,7 +48,7 @@ const AdminScreen = ({
   setPrecinct,
   setIsSinglePrecinctMode,
   unconfigure,
-}: Props) => {
+}) => {
   const precincts = election ? election.precincts.sort(compareName) : []
   const parties = election ? election.parties.sort(compareName) : []
   const onChangeParty = (event: React.FormEvent<HTMLSelectElement>) => {
@@ -65,10 +65,10 @@ const AdminScreen = ({
     setIsSinglePrecinctMode(false)
   }
   const ballotStyles = partyId
-    ? precinctBallotStyles.filter(bs => bs.partyId === partyId)
+    ? precinctBallotStyles.filter((bs) => bs.partyId === partyId)
     : precinctBallotStyles
   const ballotStylesCount = ballotStyles.length
-  const ballotStylesIds = ballotStyles.map(bs => bs.id).join(', ')
+  const ballotStylesIds = ballotStyles.map((bs) => bs.id).join(', ')
   return (
     <Screen>
       <Main>
@@ -87,7 +87,7 @@ const AdminScreen = ({
                   onBlur={onChangePrecinct}
                 >
                   <option value="">All precincts</option>
-                  {precincts.map(p => (
+                  {precincts.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name} ({getBallotStylesByPreinctId(p.id).length})
                     </option>
@@ -102,9 +102,9 @@ const AdminScreen = ({
                   onBlur={onChangeParty}
                 >
                   <option value="">All parties</option>
-                  {parties.map(p => {
+                  {parties.map((p) => {
                     const partyLength = precinctBallotStyles.filter(
-                      bs => bs.partyId === p.id
+                      (bs) => bs.partyId === p.id
                     ).length
                     return (
                       <option key={p.id} value={p.id} disabled={!partyLength}>
@@ -121,8 +121,9 @@ const AdminScreen = ({
                     {`${precinctName} has ${ballotStylesCount} ballot ${pluralize(
                       'style',
                       ballotStylesCount
-                    )}${partyName &&
-                      ` for the ${partyName} party`}: ${ballotStylesIds}.`}
+                    )}${
+                      partyName && ` for the ${partyName} party`
+                    }: ${ballotStylesIds}.`}
                   </p>
                 ) : (
                   <p>

@@ -5,7 +5,7 @@ import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Screen from '../components/Screen'
 
-const LockedScreen = () => {
+const LockedScreen: React.FC = () => {
   return (
     <Screen>
       <Main>

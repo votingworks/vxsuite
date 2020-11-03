@@ -16,7 +16,7 @@ interface Props {
   lockScreen: () => void
 }
 
-const InsertCardScreen = ({ lockScreen }: Props) => {
+const InsertCardScreen: React.FC<Props> = ({ lockScreen }) => {
   return (
     <Screen>
       <Main>

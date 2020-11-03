@@ -30,7 +30,7 @@ import './App.css'
 
 let checkCardInterval = 0
 
-const App = () => {
+const App: React.FC = () => {
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isCardPresent, setIsCardPresent] = useState(false)
@@ -85,32 +85,34 @@ const App = () => {
     setPartyId(id)
   }
 
+  // eslint-disable-next-line no-shadow
   const getPartyNameById = (partyId: string) => {
-    const party = election && election.parties.find(p => p.id === partyId)
+    const party = election && election.parties.find((p) => p.id === partyId)
     return (party && party.name) || ''
   }
 
+  // eslint-disable-next-line no-shadow
   const getPartyAdjectiveById = (partyId: string) => {
     const partyName = getPartyNameById(partyId)
     return (partyName === 'Democrat' && 'Democratic') || partyName
   }
 
+  // eslint-disable-next-line no-shadow
   const getPrecinctNameByPrecinctId = (precinctId: string): string => {
     const precinct =
-      election && election.precincts.find(p => p.id === precinctId)
+      election && election.precincts.find((p) => p.id === precinctId)
     return (precinct && precinct.name) || ''
   }
 
   const getBallotStylesByPreinctId = (id: string): BallotStyle[] =>
     (election &&
-      election.ballotStyles.filter(b => b.precincts.find(p => p === id))) ||
+      election.ballotStyles.filter((b) => b.precincts.find((p) => p === id))) ||
     []
 
   const fetchElection = async () => {
     setIsLoadingElection(true)
     const { longValue } = await fetchJSON('/card/read_long')
-    const election = JSON.parse(longValue)
-    setElection(election)
+    setElection(JSON.parse(longValue))
     setIsLoadingElection(false)
   }
 
@@ -118,12 +120,10 @@ const App = () => {
     setIsLocked(true)
   }
 
-  const processCardData = (
-    shortValue: CardData,
-    longValueExists: boolean = false
-  ) => {
+  const processCardData = (shortValue: CardData, longValueExists = false) => {
     setIsClerkCardPresent(false)
     setIsPollWorkerCardPresent(false)
+    // eslint-disable-next-line no-shadow
     let isWritableCard = false
     switch (shortValue.t) {
       case 'voter':
@@ -205,8 +205,8 @@ const App = () => {
         body: JSON.stringify(code),
         headers: { 'Content-Type': 'application/json' },
       })
-        .then(res => res.json())
-        .then(response => {
+        .then((res) => res.json())
+        .then((response) => {
           if (response.success) {
             window.setTimeout(() => {
               setIsProgrammingCard(false)
@@ -250,16 +250,21 @@ const App = () => {
         precinctBallotStyles={getBallotStylesByPreinctId(precinctId)}
       />
     )
-  } else if (election) {
+  }
+  if (election) {
     if (isPollWorkerCardPresent && !isLocked) {
       return <PollWorkerScreen lockScreen={lockScreen} />
-    } else if (isLocked) {
+    }
+    if (isLocked) {
       return <LockedScreen />
-    } else if (!isCardPresent) {
+    }
+    if (!isCardPresent) {
       return <InsertCardScreen lockScreen={lockScreen} />
-    } else if (!isWritableCard) {
+    }
+    if (!isWritableCard) {
       return <NonWritableCardScreen lockScreen={lockScreen} />
-    } else if (isReadyToRemove) {
+    }
+    if (isReadyToRemove) {
       return (
         <RemoveCardScreen
           ballotStyleId={ballotStyleId}
@@ -267,14 +272,16 @@ const App = () => {
           precinctName={getPrecinctNameByPrecinctId(precinctId)}
         />
       )
-    } else if (isProgrammingCard) {
+    }
+    if (isProgrammingCard) {
       return (
         <WritingCardScreen
           ballotStyleId={ballotStyleId}
           precinctName={getPrecinctNameByPrecinctId(precinctId)}
         />
       )
-    } else if (precinctId) {
+    }
+    if (precinctId) {
       return (
         <PrecinctBallotStylesScreen
           cardBallotStyleId={cardBallotStyleId}
@@ -288,22 +295,20 @@ const App = () => {
           showPrecincts={reset}
         />
       )
-    } else {
-      return (
-        <PrecinctsScreen
-          cardBallotStyleId={cardBallotStyleId}
-          cardPrecinctName={cardPrecinctName}
-          countyName={election.county.name}
-          lockScreen={lockScreen}
-          precincts={election.precincts}
-          updatePrecinct={updatePrecinct}
-          voterCardData={voterCardData}
-        />
-      )
     }
-  } else {
-    return <LoadElectionScreen />
+    return (
+      <PrecinctsScreen
+        cardBallotStyleId={cardBallotStyleId}
+        cardPrecinctName={cardPrecinctName}
+        countyName={election.county.name}
+        lockScreen={lockScreen}
+        precincts={election.precincts}
+        updatePrecinct={updatePrecinct}
+        voterCardData={voterCardData}
+      />
+    )
   }
+  return <LoadElectionScreen />
 }
 
 export default App

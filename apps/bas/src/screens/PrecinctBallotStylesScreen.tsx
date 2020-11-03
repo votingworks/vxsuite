@@ -28,7 +28,7 @@ interface Props {
   showPrecincts: () => void
 }
 
-const PrecinctBallotStylesScreen = ({
+const PrecinctBallotStylesScreen: React.FC<Props> = ({
   // cardBallotStyleId,
   // cardPrecinctName,
   isSinglePrecinctMode,
@@ -38,9 +38,9 @@ const PrecinctBallotStylesScreen = ({
   precinctName,
   programCard,
   showPrecincts,
-}: Props) => {
+}) => {
   const ballotStyles = partyId
-    ? precinctBallotStyles.filter(bs => bs.partyId === partyId)
+    ? precinctBallotStyles.filter((bs) => bs.partyId === partyId)
     : precinctBallotStyles
   const ballotStylesColumns = ballotStyles.length > 4 ? 3 : 2
   return (
@@ -65,7 +65,7 @@ const PrecinctBallotStylesScreen = ({
             </Prose>
           </Heading>
           <ButtonList columns={ballotStylesColumns}>
-            {ballotStyles.map(ballotStyle => (
+            {ballotStyles.map((ballotStyle) => (
               <Button
                 fullWidth
                 data-ballot-style-id={ballotStyle.id}
