@@ -34,7 +34,14 @@ module.exports = {
     project: './tsconfig.json',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'jest', 'no-null', 'react', 'jsx-a11y'],
+  plugins: [
+    '@typescript-eslint',
+    'jest',
+    'no-null',
+    'react',
+    'jsx-a11y',
+    'no-array-sort-mutation',
+  ],
   settings: {
     react: {
       version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
@@ -67,6 +74,7 @@ module.exports = {
         devDependencies: true,
       },
     ],
+    'no-array-sort-mutation/no-array-sort-mutation': 'error',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
     '@typescript-eslint/no-unused-vars': ['error', {
       'vars': 'all'

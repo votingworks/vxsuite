@@ -65,6 +65,7 @@
     "benchmark": "^2.1.4",
     "eslint": "^7.12.1",
     "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-no-array-sort-mutation": "../eslint-plugin-no-array-sort-mutation",
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.3.0",
     "jest": "^26.6.0",

@@ -49,8 +49,8 @@ const AdminScreen: React.FC<Props> = ({
   setIsSinglePrecinctMode,
   unconfigure,
 }) => {
-  const precincts = election ? election.precincts.sort(compareName) : []
-  const parties = election ? election.parties.sort(compareName) : []
+  const precincts = election ? [...election.precincts].sort(compareName) : []
+  const parties = election ? [...election.parties].sort(compareName) : []
   const onChangeParty = (event: React.FormEvent<HTMLSelectElement>) => {
     setParty(event.currentTarget.value)
   }

@@ -35,7 +35,13 @@ module.exports = {
     project: './tsconfig.json',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'jest', 'react', 'jsx-a11y'],
+  plugins: [
+    '@typescript-eslint',
+    'jest',
+    'react',
+    'jsx-a11y',
+    'no-array-sort-mutation',
+  ],
   settings: {
     react: {
       version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
@@ -60,6 +66,7 @@ module.exports = {
         devDependencies: true,
       },
     ],
+    'no-array-sort-mutation/no-array-sort-mutation': 'error',
     'no-await-in-loop': 'off',
     'no-nested-ternary': 'off',
     'no-unused-expressions': 'off',
