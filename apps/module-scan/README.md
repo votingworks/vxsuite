@@ -14,9 +14,7 @@ make install
 
 You may need to install a few image libraries if you are using a new ubuntu image. 
 ```
-sudo apt-get install libpng-dev
-sudo apt-get install libjpeg-dev
-sudo apt-get install libx11-dev
+sudo apt-get install libpng-dev libjpeg-dev libx11-dev
 ```
 
 
