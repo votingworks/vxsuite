@@ -39,8 +39,7 @@ yarn install
 
 To set the election configuration you will either need to scan a smartcard (you can use the mockCardReader script in module-smartcards for this), load an election.json file, or load a ballot export zip file. You should load a ballot export zip if you intend to test actually scanning images.
 
-To display a batch of scanned ballots, add ballot images into the
-`module-scan/ballot-images` directory, then click "Scan New Batch" button. You can also start module-scan with the MOCK_SCANNER_FILES environment variable set as described in [`module-scan`](https://github.com/votingworks/vxsuite/tree/main/apps/module-scan).
+To display a batch of scanned ballots use the MOCK_SCANNER_FILES environment variable set as described in [`module-scan`](https://github.com/votingworks/vxsuite/tree/main/apps/module-scan).
 
 ## Technical Implementation
 
