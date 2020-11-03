@@ -46,7 +46,6 @@ export function sizeof(number: number): number {
 
   let maxBits = 1
 
-  // eslint-disable-next-line no-cond-assign, no-param-reassign
   while ((number >>= 1)) {
     maxBits += 1
   }

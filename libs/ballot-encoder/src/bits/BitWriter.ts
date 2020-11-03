@@ -185,10 +185,8 @@ export default class BitWriter {
 
   public debug(label?: string): this {
     if (label) {
-      // eslint-disable-next-line no-console
       console.log(label)
     }
-    // eslint-disable-next-line no-console
     console.log(
       inGroupsOf(
         8,

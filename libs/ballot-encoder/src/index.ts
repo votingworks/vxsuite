@@ -6,10 +6,8 @@ export * from './election'
 export { v0, v1 }
 
 export enum EncoderVersion {
-  /* eslint-disable no-shadow */
   v0 = 0,
   v1 = 1,
-  /* eslint-enable no-shadow */
 }
 
 /**

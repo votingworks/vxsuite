@@ -82,7 +82,15 @@ test('renders ballot options for each contest option', async () => {
     ],
     layout: [
       {
-        bounds: { x: 0, y: 0, width: 10, height: 10 }, // bogus
+        // bogus
+        bounds: { x: 0, y: 0, width: 10, height: 10 },
+        // bogus
+        corners: [
+          { x: 0, y: 0 },
+          { x: 9, y: 0 },
+          { x: 0, y: 9 },
+          { x: 9, y: 9 },
+        ],
         options: [
           {
             bounds: { x: 0, y: 50, width: 250, height: 100 }, // this one matters

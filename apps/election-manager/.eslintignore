@@ -3,6 +3,7 @@
 /cypress/plugins
 /cypress/integration/examples
 /cypress/support
+/prodserver
 /src/**/*.js
 *.d.ts
 /src/serviceWorker.ts
