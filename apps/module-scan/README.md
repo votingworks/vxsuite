@@ -12,7 +12,7 @@ yarn install
 make install
 ```
 
-You may need to install a few image libraries if you are using a new ubuntu image. 
+You may need to install a few image libraries if you are using a new Ubuntu image. 
 ```
 sudo apt-get install libpng-dev libjpeg-dev libx11-dev
 ```
