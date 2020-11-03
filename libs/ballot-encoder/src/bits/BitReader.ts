@@ -153,7 +153,6 @@ export default class BitReader {
   private sizeofUint({ max }: { max: number }): number
   private sizeofUint({ size }: { size: number }): number
   private sizeofUint({ max, size }: { max?: number; size?: number }): number
-  // eslint-disable-next-line class-methods-use-this
   private sizeofUint({ max, size }: { max?: number; size?: number }): number {
     if (typeof max !== 'undefined' && typeof size !== 'undefined') {
       throw new Error("cannot specify both 'max' and 'size' options")

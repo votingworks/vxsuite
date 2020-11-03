@@ -26,6 +26,10 @@ jobs:
           paths:
             - libs/ballot-encoder/node_modules
       - run:
+          name: Run Linters
+          command: |
+            yarn --cwd libs/ballot-encoder lint
+      - run:
           name: Run Front-End Test and Coverage
           command: |
             yarn --cwd libs/ballot-encoder test:coverage
@@ -46,6 +50,10 @@ jobs:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
           paths:
             - apps/bas/node_modules
+      - run:
+          name: Run Linters
+          command: |
+            yarn --cwd apps/bas lint
       - run:
           name: Run Front-End Test and Coverage
           command: |
@@ -68,6 +76,10 @@ jobs:
           paths:
             - apps/bmd/node_modules
       - run:
+          name: Run Linters
+          command: |
+            yarn --cwd apps/bmd lint
+      - run:
           name: Run Front-End Test and Coverage
           command: |
             yarn --cwd apps/bmd test:coverage
@@ -88,6 +100,10 @@ jobs:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bsd/yarn.lock" }}
           paths:
             - apps/bsd/node_modules
+      - run:
+          name: Run Linters
+          command: |
+            yarn --cwd apps/bsd lint
       - run:
           name: Run Front-End Test and Coverage
           command: |
@@ -110,6 +126,10 @@ jobs:
           paths:
             - apps/election-manager/node_modules
       - run:
+          name: Run Linters
+          command: |
+            yarn --cwd apps/election-manager lint
+      - run:
           name: Run Front-End Test and Coverage
           command: |
             yarn --cwd apps/election-manager test:coverage
@@ -131,6 +151,10 @@ jobs:
           paths:
             - libs/hmpb-interpreter/node_modules
       - run:
+          name: Run Linters
+          command: |
+            yarn --cwd libs/hmpb-interpreter lint
+      - run:
           name: Run Tests with Coverage
           command: |
             yarn --cwd libs/hmpb-interpreter test:coverage
@@ -151,6 +175,10 @@ jobs:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
           paths:
             - apps/module-scan/node_modules
+      - run:
+          name: Run Linters
+          command: |
+            yarn --cwd apps/module-scan lint
       - run:
           name: Run Tests with Coverage
           command: |
