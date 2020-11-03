@@ -35,7 +35,7 @@ module.exports = {
     project: ['./tsconfig.json', './public/tsconfig.json'],
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'jest'],
+  plugins: ['@typescript-eslint', 'jest', 'no-array-sort-mutation'],
   settings: {
     'import/parsers': {
       '@typescript-eslint/parser': tsExtensions,
@@ -50,6 +50,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'error',
     '@typescript-eslint/no-non-null-assertion': 'off',
+    'no-array-sort-mutation/no-array-sort-mutation': 'error',
     'no-dupe-class-members': 'off',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
     'no-underscore-dangle': 'off',

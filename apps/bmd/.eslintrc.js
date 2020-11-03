@@ -46,6 +46,7 @@ module.exports = {
     'react',
     'cypress',
     'jsx-a11y',
+    'no-array-sort-mutation',
   ],
   settings: {
     react: {
@@ -72,6 +73,7 @@ module.exports = {
         devDependencies: true,
       },
     ],
+    'no-array-sort-mutation/no-array-sort-mutation': 'error',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
     '@typescript-eslint/no-unused-vars': ['error', {
       'vars': 'all'
