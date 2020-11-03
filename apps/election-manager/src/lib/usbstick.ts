@@ -31,7 +31,7 @@ export const getStatus = async (): Promise<UsbDriveStatus> => {
   return UsbDriveStatus.present
 }
 
-export const doMount = async () => {
+export const doMount = async (): Promise<void> => {
   if (!isAvailable()) {
     return
   }
@@ -44,7 +44,7 @@ export const doMount = async () => {
   window.kiosk!.mountUsbDrive(device.deviceName)
 }
 
-export const doUnmount = async () => {
+export const doUnmount = async (): Promise<void> => {
   if (!isAvailable()) {
     return
   }

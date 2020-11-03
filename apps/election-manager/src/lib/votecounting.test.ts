@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import {
   Candidate,
   parseElection,
@@ -180,7 +179,7 @@ test('parsing CVRs flags when test ballot flag is not a boolean', () => {
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
-    // @ts-ignore
+    // @ts-expect-error - string instead of a boolean
     _testBallot: 'false',
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
@@ -201,7 +200,7 @@ test('parsing CVRs flags when page number is set but not a number', () => {
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
-    // @ts-ignore
+    // @ts-expect-error - string instead of a number
     _pageNumber: '99',
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
@@ -222,7 +221,7 @@ test('parsing CVRs flags when page numbers is set but not an array of numbers', 
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
-    // @ts-ignore
+    // @ts-expect-error - number instead of an array
     _pageNumbers: 99,
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
@@ -279,7 +278,7 @@ test('parsing CVRs flags when ballot ID is not a string', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _precinctId: '23',
-    // @ts-ignore
+    // @ts-expect-error - number instead of a string
     _ballotId: 44,
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -300,7 +299,7 @@ test('parsing CVRs flags when scanner ID is not a string', () => {
     _ballotStyleId: '12',
     _precinctId: '23',
     _ballotId: 'abc',
-    // @ts-ignore
+    // @ts-expect-error - false instead of a string
     _scannerId: false,
     _testBallot: false,
   }
@@ -322,7 +321,7 @@ test('parsing CVRs flags when locale is not well formed', () => {
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
-    // @ts-ignore
+    // @ts-expect-error - object missing properties
     _locales: {},
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([

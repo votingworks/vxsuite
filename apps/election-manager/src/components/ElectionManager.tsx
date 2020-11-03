@@ -19,7 +19,7 @@ import DefinitionEditorScreen from '../screens/DefinitionEditorScreen'
 import DefinitionContestsScreen from '../screens/DefinitionContestsScreen'
 import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen'
 
-const ElectionManager = () => {
+const ElectionManager: React.FC = () => {
   const { electionDefinition } = useContext(AppContext)
   const election = electionDefinition?.election
 

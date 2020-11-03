@@ -5,6 +5,7 @@ import {
   AnyContest,
   MsEitherNeitherContest,
   VotesDict,
+  Precinct,
 } from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
@@ -19,7 +20,7 @@ export const getContests = ({
 }: {
   ballotStyle: BallotStyle
   election: Election
-}) =>
+}): Contests =>
   election.contests.filter(
     (c) =>
       ballotStyle.districts.includes(c.districtId) &&
@@ -69,7 +70,7 @@ export const getPrecinctById = ({
 }: {
   election: Election
   precinctId: string
-}) => election.precincts.find((p) => p.id === precinctId)
+}): Precinct | undefined => election.precincts.find((p) => p.id === precinctId)
 
 export const getBallotStyle = ({
   ballotStyleId,
@@ -77,7 +78,8 @@ export const getBallotStyle = ({
 }: {
   ballotStyleId: string
   election: Election
-}) => election.ballotStyles.find((bs) => bs.id === ballotStyleId) as BallotStyle
+}): BallotStyle | undefined =>
+  election.ballotStyles.find((bs) => bs.id === ballotStyleId)
 
 export const getPartyFullNameFromBallotStyle = ({
   ballotStyleId,
@@ -86,8 +88,8 @@ export const getPartyFullNameFromBallotStyle = ({
   ballotStyleId: string
   election: Election
 }): string => {
-  const { partyId } = getBallotStyle({ ballotStyleId, election })
-  const party = election.parties.find((p) => p.id === partyId)
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  const party = election.parties.find((p) => p.id === ballotStyle?.partyId)
   return party?.fullName || ''
 }
 
@@ -129,22 +131,24 @@ const makePrecinctComparator = (election: Election) => (
 export const sortBallotStyleDataByStyle = (
   election: Election,
   styles: readonly BallotStyleData[]
-) => sortBy(styles, ballotStyleComparator, makePrecinctComparator(election))
+): BallotStyleData[] =>
+  sortBy(styles, ballotStyleComparator, makePrecinctComparator(election))
 
 export const sortBallotStyleDataByPrecinct = (
   election: Election,
   styles: readonly BallotStyleData[]
-) => sortBy(styles, makePrecinctComparator(election), ballotStyleComparator)
+): BallotStyleData[] =>
+  sortBy(styles, makePrecinctComparator(election), ballotStyleComparator)
 
 export const getBallotStylesDataByStyle = (
   election: Election
 ): BallotStyleData[] =>
   sortBallotStyleDataByStyle(election, getBallotStylesData(election))
 
-export const getLanguageByLocaleCode = (localeCode: string) =>
+export const getLanguageByLocaleCode = (localeCode: string): string =>
   LANGUAGES[localeCode.split('-')[0]] ?? localeCode
 
-export const getHumanBallotLanguageFormat = (locales: BallotLocale) =>
+export const getHumanBallotLanguageFormat = (locales: BallotLocale): string =>
   !locales.secondary
     ? getLanguageByLocaleCode(locales.primary)
     : `${getLanguageByLocaleCode(locales.primary)}/${getLanguageByLocaleCode(
@@ -165,7 +169,7 @@ export const getBallotPath = ({
   precinctId: string
   locales: BallotLocale
   isLiveMode: boolean
-}) => {
+}): string => {
   const precinctName = getPrecinctById({
     election,
     precinctId,
@@ -189,7 +193,7 @@ interface GenerateTestDeckParams {
 export const generateTestDeckBallots = ({
   election,
   precinctId,
-}: GenerateTestDeckParams) => {
+}: GenerateTestDeckParams): Dictionary<string | VotesDict>[] => {
   const precincts: string[] = precinctId
     ? [precinctId]
     : election.precincts.map((p) => p.id)

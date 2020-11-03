@@ -6,7 +6,7 @@ import Text from './Text'
 
 import { UsbDriveStatus } from '../lib/usbstick'
 
-const USBController = () => {
+const USBController: React.FC = () => {
   const { usbDriveStatus: status, usbDriveEject } = useContext(AppContext)
 
   if (status === UsbDriveStatus.notavailable) {

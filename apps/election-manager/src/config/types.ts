@@ -1,5 +1,11 @@
-import { BallotStyle, Precinct, Election } from '@votingworks/ballot-encoder'
-import { Candidate, Contest, VotesDict } from '@votingworks/ballot-encoder'
+import {
+  BallotStyle,
+  Candidate,
+  Contest,
+  Election,
+  Precinct,
+  VotesDict,
+} from '@votingworks/ballot-encoder'
 
 // Generic
 export declare type Optional<T> = T | undefined

@@ -11,13 +11,13 @@ interface PrintButtonProps extends StyledButtonProps {
   copies?: number
 }
 
-const PrintButton = ({
+const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
   title,
   afterPrint,
   children,
   copies,
   ...rest
-}: React.PropsWithChildren<PrintButtonProps>) => {
+}) => {
   const [isPrinting, setIsPrinting] = useState(false)
   const [showPrintingError, setShowPrintingError] = useState(false)
 
@@ -43,6 +43,7 @@ const PrintButton = ({
     } else {
       copies &&
         copies > 1 &&
+        // eslint-disable-next-line no-console
         console.error(
           'Printing more than 1 copy can only be done with KioskBrowser.'
         )

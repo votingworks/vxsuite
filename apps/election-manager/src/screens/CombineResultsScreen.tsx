@@ -24,7 +24,7 @@ const Loaded = styled.p`
   }
 `
 
-const CombineResultsScreen = () => {
+const CombineResultsScreen: React.FC = () => {
   const client = new ConverterClient('election')
   const [resultsOneFile, setResultsOneFile] = useState<File | undefined>(
     undefined
@@ -64,6 +64,7 @@ const CombineResultsScreen = () => {
       )
       fileDownload(results, 'combined-results.csv', 'text/csv')
     } catch (e) {
+      // eslint-disable-next-line no-alert
       alert(`there was an error combining results files: ${e.toString()}`)
     }
     setIsCombining(false)

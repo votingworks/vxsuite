@@ -15,7 +15,7 @@ const defaultStorage = window.kiosk
   ? new KioskStorage<AppStorage>()
   : new LocalStorage<AppStorage>()
 
-const App = ({ storage = defaultStorage }) => (
+const App: React.FC<Props> = ({ storage = defaultStorage }) => (
   <BrowserRouter>
     <Route
       path="/"

@@ -22,6 +22,7 @@ import {
   ContestTally,
   YesNoContestOptionTally,
 } from '../config/types'
+import { defined } from '../utils/assert'
 import {
   getBallotStyle,
   getContests,
@@ -367,7 +368,7 @@ export function filterTalliesByParty({
   election,
   electionTally,
   party,
-}: FilterTalliesByPartyParams) {
+}: FilterTalliesByPartyParams): Tally {
   if (!party) {
     return electionTally
   }
@@ -454,17 +455,19 @@ export interface ContestTallyMeta {
 }
 export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
 
+export interface GetContestTallyMetaParams {
+  election: Election
+  castVoteRecords: CastVoteRecord[]
+  precinctId?: string
+  scannerId?: string
+}
+
 export const getContestTallyMeta = ({
   election,
   castVoteRecords,
   precinctId,
   scannerId,
-}: {
-  election: Election
-  castVoteRecords: CastVoteRecord[]
-  precinctId?: string
-  scannerId?: string
-}) => {
+}: GetContestTallyMetaParams): ContestTallyMetaDictionary => {
   const filteredCVRs = castVoteRecords
     .filter((cvr) => precinctId === undefined || cvr._precinctId === precinctId)
     .filter((cvr) => scannerId === undefined || cvr._scannerId === scannerId)
@@ -575,10 +578,12 @@ const processCastVoteRecord = ({
   election,
   castVoteRecord,
 }: ProcessCastVoteRecordParams): CastVoteRecord | undefined => {
-  const ballotStyle = getBallotStyle({
-    ballotStyleId: castVoteRecord._ballotStyleId,
-    election,
-  })
+  const ballotStyle = defined(
+    getBallotStyle({
+      ballotStyleId: castVoteRecord._ballotStyleId,
+      election,
+    })
+  )
   if (!ballotStyle.precincts.includes(castVoteRecord._precinctId)) return
   const contestIds = expandEitherNeitherContests(
     getContests({ ballotStyle, election })

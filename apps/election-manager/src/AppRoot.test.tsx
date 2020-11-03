@@ -6,16 +6,16 @@ import { act } from 'react-dom/test-utils'
 import { BrowserRouter, Route } from 'react-router-dom'
 
 // import { electionSample } from '@votingworks/ballot-encoder'
-import AppRoot from './AppRoot'
+import AppRoot, { AppStorage } from './AppRoot'
 import { MemoryStorage } from './utils/Storage'
 
 beforeEach(() => {
-  fetchMock.get('/convert', {})
+  fetchMock.get(/^\/convert/, {})
 })
 
 test('renders without crashing', async () => {
   await act(async () => {
-    const storage = new MemoryStorage()
+    const storage = new MemoryStorage<AppStorage>()
     render(
       <BrowserRouter>
         <Route

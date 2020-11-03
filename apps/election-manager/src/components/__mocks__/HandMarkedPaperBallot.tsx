@@ -1,12 +1,12 @@
 import React from 'react'
 import { HandMarkedPaperBallotProps } from '../HandMarkedPaperBallot'
 
-const HandMarkedPaperBallot = ({
+const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   ballotStyleId,
   election,
   precinctId,
   onRendered,
-}: HandMarkedPaperBallotProps) => {
+}) => {
   if (onRendered) {
     setImmediate(onRendered)
   }

@@ -25,11 +25,6 @@ import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 
 import { generateTestDeckBallots } from '../utils/election'
 
-interface GenerateTestDeckParams {
-  election: Election
-  precinctId?: string
-}
-
 interface TestDeckBallotsParams {
   election: Election
   electionHash: string
@@ -75,7 +70,7 @@ const TestDeckBallots = ({
 
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots)
 
-const PrintTestDeckScreen = () => {
+const PrintTestDeckScreen: React.FC = () => {
   const { electionDefinition } = useContext(AppContext)
   const { election, electionHash } = electionDefinition!
   const [precinctIds, setPrecinctIds] = useState<string[]>([])
@@ -111,6 +106,7 @@ const PrintTestDeckScreen = () => {
       if (printers.some((p) => p.connected)) {
         setPrecinctIndex(0)
       } else {
+        // eslint-disable-next-line no-alert
         window.alert('please connect the printer.')
       }
     } else {

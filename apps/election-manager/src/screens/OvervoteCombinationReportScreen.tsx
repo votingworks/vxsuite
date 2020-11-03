@@ -43,7 +43,7 @@ const Contest = styled.div`
   }
 `
 
-const PairsReportScreen = () => {
+const PairsReportScreen: React.FC = () => {
   const {
     castVoteRecordFiles,
     electionDefinition,

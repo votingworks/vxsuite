@@ -131,7 +131,7 @@ export default class CastVoteRecordFiles {
   /**
    * Import from exported localStorage string
    */
-  public static import(stringifiedCVRFiles: string) {
+  public static import(stringifiedCVRFiles: string): CastVoteRecordFiles {
     const {
       signatures,
       files,
@@ -151,7 +151,7 @@ export default class CastVoteRecordFiles {
   /**
    * Export to localStorage string
    */
-  public export() {
+  public export(): string {
     return JSON.stringify({
       signatures: [...this.signatures],
       files: [...this.files],

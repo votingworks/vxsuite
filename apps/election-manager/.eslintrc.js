@@ -77,6 +77,8 @@ module.exports = {
         devDependencies: true,
       },
     ],
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': 'error',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
     '@typescript-eslint/no-unused-vars': [
       'error',

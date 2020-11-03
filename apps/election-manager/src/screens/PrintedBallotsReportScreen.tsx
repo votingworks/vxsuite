@@ -21,7 +21,7 @@ import LogoMark from '../components/LogoMark'
 
 type PrintCounts = Dictionary<Dictionary<number>>
 
-const PrintedBallotsReportScreen = () => {
+const PrintedBallotsReportScreen: React.FC = () => {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   )

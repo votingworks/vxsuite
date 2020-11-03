@@ -37,7 +37,7 @@ const BallotCopiesInput = styled(TextInput)`
   }
 `
 
-const BallotScreen = () => {
+const BallotScreen: React.FC = () => {
   const history = useHistory()
   const {
     precinctId,

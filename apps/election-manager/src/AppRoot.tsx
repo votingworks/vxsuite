@@ -48,7 +48,7 @@ export const isOfficialResultsKey = 'isOfficialResults'
 export const printedBallotsStorageKey = 'printedBallots'
 export const configuredAtStorageKey = 'configuredAt'
 
-const AppRoot = ({ storage }: Props) => {
+const AppRoot: React.FC<Props> = ({ storage }) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
   const getElectionDefinition = useCallback(async () => {
