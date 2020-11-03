@@ -12,7 +12,7 @@ const Container = styled.span`
   border-bottom: 1pt solid #000000; /* stylelint-disable-line unit-blacklist */
 `
 
-const WriteInLine = ({ label }: Props) => (
+const WriteInLine: React.FC<Props> = ({ label }) => (
   <Container data-write-in-line>{label}</Container>
 )
 

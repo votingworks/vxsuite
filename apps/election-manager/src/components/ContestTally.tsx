@@ -33,7 +33,11 @@ interface Props {
   contestTallyMeta: ContestTallyMetaDictionary
 }
 
-const ContestTally = ({ election, electionTally, contestTallyMeta }: Props) => {
+const ContestTally: React.FC<Props> = ({
+  election,
+  electionTally,
+  contestTallyMeta,
+}) => {
   const { precinctId } = electionTally
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array

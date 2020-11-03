@@ -71,11 +71,7 @@ const SecondaryNav = styled.div`
   }
 `
 
-const Navigation = ({
-  brand, // eslint-disable-line @typescript-eslint/no-unused-vars
-  primaryNav,
-  secondaryNav,
-}: Props) => {
+const Navigation: React.FC<Props> = ({ primaryNav, secondaryNav }) => {
   return (
     <NavBar>
       <Brand>

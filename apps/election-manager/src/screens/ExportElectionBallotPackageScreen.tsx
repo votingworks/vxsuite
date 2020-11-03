@@ -16,7 +16,7 @@ import { Monospace } from '../components/Text'
 
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
 
-const ExportElectionBallotPackageScreen = () => {
+const ExportElectionBallotPackageScreen: React.FC = () => {
   const { electionDefinition } = useContext(AppContext)
   const { election, electionData, electionHash } = electionDefinition!
   const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)

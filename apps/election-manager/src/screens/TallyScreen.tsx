@@ -26,7 +26,7 @@ import HorizontalRule from '../components/HorizontalRule'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 
-const TallyScreen = () => {
+const TallyScreen: React.FC = () => {
   const {
     castVoteRecordFiles,
     electionDefinition,

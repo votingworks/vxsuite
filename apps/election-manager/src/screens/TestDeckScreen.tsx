@@ -38,7 +38,7 @@ const allPrecincts: Precinct = {
   name: 'All Precincts',
 }
 
-const TestDeckScreen = () => {
+const TestDeckScreen: React.FC = () => {
   const { electionDefinition } = useContext(AppContext)
   const { election } = electionDefinition!
   const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
@@ -85,6 +85,7 @@ const TestDeckScreen = () => {
       precinct?.name
     )
     if (!succeeded) {
+      // eslint-disable-next-line no-alert
       window.alert(
         'Could not save PDF, it can only be saved to a USB device. (Or if "Cancel" was selected, ignore this message.)'
       )

@@ -1,4 +1,10 @@
-import React, { MouseEventHandler, useState } from 'react'
+import React, {
+  EventHandler,
+  MouseEvent,
+  PointerEvent,
+  TouchEvent,
+  useState,
+} from 'react'
 import styled, { css, StyledComponent } from 'styled-components'
 
 interface Attrs extends HTMLButtonElement {
@@ -68,14 +74,14 @@ const StyledButton = styled('button').attrs<Attrs>(({ type }) => ({
 
 export interface Props extends StyledButtonProps {
   component?: StyledComponent<'button', never, StyledButtonProps, never>
-  onPress: MouseEventHandler
+  onPress: EventHandler<MouseEvent | TouchEvent | PointerEvent>
 }
 
-const Button = ({
+const Button: React.FC<Props> = ({
   component: Component = StyledButton,
   onPress,
   ...rest
-}: Props) => {
+}) => {
   const [startCoordinates, setStartCoordinates] = useState([0, 0])
 
   const onTouchStart = (event: React.TouchEvent) => {
@@ -90,7 +96,7 @@ const Button = ({
       Math.abs(startCoordinates[0] - clientX) < maxMove &&
       Math.abs(startCoordinates[1] - clientY) < maxMove
     ) {
-      onPress(event as any)
+      onPress(event)
       event.preventDefault()
     }
   }

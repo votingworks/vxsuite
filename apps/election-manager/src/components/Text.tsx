@@ -76,7 +76,7 @@ const Text = styled('p')<Props>`
   ${({ warningIcon, voteIcon }) => (warningIcon ?? voteIcon) && iconStyles}
 `
 
-export const TextWithLineBreaks = ({ text }: { text: string }) => (
+export const TextWithLineBreaks: React.FC<{ text: string }> = ({ text }) => (
   <React.Fragment>
     {text.split(/[\n\r]{2}/g).map((x) => (
       <p key={x}>

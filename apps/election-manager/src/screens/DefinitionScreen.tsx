@@ -23,7 +23,7 @@ interface ContestSection {
   contests: Contest[]
 }
 
-const DefinitionScreen = () => {
+const DefinitionScreen: React.FC = () => {
   const { electionDefinition, configuredAt } = useContext(AppContext)
   const { election } = electionDefinition!
 

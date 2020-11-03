@@ -6,7 +6,7 @@ const LogoMarkStyled = styled.img`
   margin: 0 0 1em 2em;
   height: 0.25in;
 `
-const LogoMark = () => (
+const LogoMark: React.FC = () => (
   <LogoMarkStyled
     src="/votingworks-logomark-black.svg"
     alt="VotingWorks logo"

@@ -25,8 +25,6 @@ const HiddenFileInput = styled.input`
   }
 `
 
-type HiddenFileInputProps = Parameters<typeof HiddenFileInput>[0]
-
 interface Props {
   accept?: string
   buttonProps?: ButtonProps
@@ -37,14 +35,14 @@ interface Props {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-const FileInputButton = ({
+const FileInputButton: React.FC<Props> = ({
   accept = '*/*',
   buttonProps,
   children,
   disabled,
   onChange,
   ...rest
-}: Props) => {
+}) => {
   const onBlur: InputEventFunction = (event) => {
     const input = event.currentTarget
     input!.blur()

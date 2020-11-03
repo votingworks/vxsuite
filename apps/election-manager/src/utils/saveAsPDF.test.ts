@@ -64,11 +64,11 @@ test('file path name is manipulated properly', async () => {
         'test-report-final-franklin-county-general-election-precinct-name.pdf',
     },
   ]
-  await testCases.forEach(async function ({ prefix, precinctName, expected }) {
+  for (const { prefix, precinctName, expected } of testCases) {
     const succeeded = await saveAsPDF(prefix, electionSample, precinctName)
     expect(mockKiosk.saveAs).toHaveBeenCalledWith({ defaultPath: expected })
     expect(succeeded).toBe(true)
-  })
+  }
 })
 
 test('precinct name fills in all-precincts as default value', async () => {

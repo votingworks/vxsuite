@@ -1,4 +1,4 @@
-function readFileAsync(file: File) {
+export default function readFileAsync(file: File): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => {
@@ -9,5 +9,3 @@ function readFileAsync(file: File) {
     reader.readAsText(file)
   })
 }
-
-export default readFileAsync

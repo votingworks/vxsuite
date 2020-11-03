@@ -5,10 +5,8 @@ import Button, { ButtonInterface } from './Button'
 
 interface Props
   extends ButtonInterface,
-    RouteComponentProps<{}>,
-    React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
-
-interface Props {
+    RouteComponentProps<Record<PropertyKey, string>>,
+    React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
   goBack?: boolean
   onPress?: PointerEventHandler
   primary?: boolean

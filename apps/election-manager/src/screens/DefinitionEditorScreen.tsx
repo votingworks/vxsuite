@@ -31,7 +31,7 @@ const FlexTextareaWrapper = styled.div`
     font-family: monospace;
   }
 `
-const DefinitionEditorScreen = () => {
+const DefinitionEditorScreen: React.FC = () => {
   const history = useHistory()
   const { electionDefinition, saveElection } = useContext(AppContext)
   const { election, electionData } = electionDefinition!

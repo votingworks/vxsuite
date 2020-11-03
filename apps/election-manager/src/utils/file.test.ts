@@ -1,6 +1,6 @@
 import { copyFile } from './file'
 
-test('copy file works', async (done) => {
+test('copy file works', async () => {
   const file = new File(['12345'], 'foo.txt')
   const newFile = await copyFile(file)
 
@@ -8,9 +8,15 @@ test('copy file works', async (done) => {
   expect(newFile.size).toEqual(file.size)
 
   const reader = new FileReader()
-  reader.onload = () => {
-    expect(reader.result as string).toEqual('12345')
-    done()
-  }
-  reader.readAsText(newFile)
+  await new Promise((resolve, reject) => {
+    reader.onload = () => {
+      try {
+        expect(reader.result).toEqual('12345')
+        resolve()
+      } catch (error) {
+        reject(error)
+      }
+    }
+    reader.readAsText(newFile)
+  })
 })

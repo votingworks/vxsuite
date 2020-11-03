@@ -5,8 +5,6 @@ import { useParams } from 'react-router-dom'
 import find from '../utils/find'
 import saveAsPDF from '../utils/saveAsPDF'
 
-import { fullTallyVotes, getContestTallyMeta } from '../lib/votecounting'
-
 import {
   PrecinctReportScreenProps,
   ScannerReportScreenProps,
@@ -22,7 +20,11 @@ import Prose from '../components/Prose'
 import Text from '../components/Text'
 import LinkButton from '../components/LinkButton'
 import routerPaths from '../routerPaths'
-import { filterTalliesByParty } from '../lib/votecounting'
+import {
+  filterTalliesByParty,
+  fullTallyVotes,
+  getContestTallyMeta,
+} from '../lib/votecounting'
 import {
   localeWeedkayAndDate,
   localeLongDateAndTime,
@@ -36,7 +38,7 @@ const TallyHeader = styled.div`
   }
 `
 
-const TallyReportScreen = () => {
+const TallyReportScreen: React.FC = () => {
   const { precinctId } = useParams<PrecinctReportScreenProps>()
   const { scannerId } = useParams<ScannerReportScreenProps>()
   const {
@@ -130,6 +132,7 @@ const TallyReportScreen = () => {
       precinctName
     )
     if (!succeeded) {
+      // eslint-disable-next-line no-alert
       window.alert(
         'Could not save PDF, it can only be saved to a USB device. (Or if "Cancel" was selected, ignore this message.)'
       )

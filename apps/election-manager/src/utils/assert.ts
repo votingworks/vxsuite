@@ -16,3 +16,13 @@ export default function assert(
     throw new Error(message)
   }
 }
+
+/**
+ * Asserts that `value` is defined, i.e. not null or undefined. It also helps
+ * TypeScript refine the type.
+ */
+export function defined<T>(value: T | undefined | null): T {
+  // eslint-disable-next-line no-restricted-syntax
+  assert(typeof value !== 'undefined' && value !== null)
+  return value
+}

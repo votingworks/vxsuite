@@ -45,6 +45,7 @@ import Text from './Text'
 import HorizontalRule from './HorizontalRule'
 import { BallotLocale } from '../config/types'
 import { ABSENTEE_TINT_COLOR } from '../config/globals'
+import { defined } from '../utils/assert'
 
 const localeDateLong = (dateString: string, locale: string) =>
   moment(new Date(dateString)).locale(locale).format('LL')
@@ -367,7 +368,11 @@ interface ContestProps {
   title: React.ReactNode
   children: React.ReactNode
 }
-export const Contest = ({ section, title, children }: ContestProps) => (
+export const Contest: React.FC<ContestProps> = ({
+  section,
+  title,
+  children,
+}) => (
   <StyledContest>
     <Prose>
       <Text small bold>
@@ -393,16 +398,18 @@ const CandidateDescription = styled.span<{ isSmall?: boolean }>`
   font-size: ${({ isSmall }) => (isSmall ? '0.9em' : undefined)};
 `
 
-export const CandidateContestChoices = ({
-  contest,
-  locales,
-  parties,
-  vote = [],
-}: {
+export interface CandidateContestChoicesProps {
   contest: CandidateContest
   locales: BallotLocale
   parties: Parties
   vote: CandidateVote
+}
+
+export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = ({
+  contest,
+  locales,
+  parties,
+  vote = [],
 }) => {
   const { t } = useTranslation()
   const writeInCandidates = vote.filter((c) => c.isWriteIn)
@@ -473,7 +480,7 @@ export interface HandMarkedPaperBallotProps {
   onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void
 }
 
-const HandMarkedPaperBallot = ({
+const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   ballotStyleId,
   election,
   electionHash,
@@ -484,7 +491,7 @@ const HandMarkedPaperBallot = ({
   ballotId,
   votes = {},
   onRendered,
-}: HandMarkedPaperBallotProps) => {
+}) => {
   assert.notEqual(
     locales.primary,
     locales.secondary,
@@ -515,7 +522,7 @@ const HandMarkedPaperBallot = ({
       ballotStyleId,
       election: localeElection,
     })
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  const ballotStyle = defined(getBallotStyle({ ballotStyleId, election }))
   const contests = getContests({ ballotStyle, election })
   const candidateContests = contests.filter((c) => c.type === 'candidate')
   const otherContests = contests.filter((c) => c.type !== 'candidate')
@@ -735,6 +742,7 @@ const HandMarkedPaperBallot = ({
                 {seal ? (
                   <div
                     className="seal"
+                    // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(seal),
                     }}

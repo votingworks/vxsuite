@@ -1,7 +1,7 @@
 import assert from './assert'
 
 // TODO: define a type that's actually serializable
-export type Serializable = object
+export type Serializable = unknown
 
 /**
  * Describes the API for application-level persistant storage. Values must be

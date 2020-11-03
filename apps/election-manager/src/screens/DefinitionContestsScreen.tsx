@@ -171,7 +171,7 @@ const ToggleField = ({
   </StyledField>
 )
 
-const DefinitionContestsScreen = () => {
+const DefinitionContestsScreen: React.FC = () => {
   const { electionDefinition, saveElection } = useContext(AppContext)
   const { election } = electionDefinition!
   const { contestId } = useParams<{ contestId: string }>()
