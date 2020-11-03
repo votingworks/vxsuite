@@ -5,7 +5,7 @@ import Main, { MainChild } from '../components/Main'
 import MainNav from '../components/MainNav'
 import Screen from '../components/Screen'
 
-const LoadElectionScreen = () => {
+const LoadElectionScreen: React.FC = () => {
   return (
     <Screen>
       <Main>

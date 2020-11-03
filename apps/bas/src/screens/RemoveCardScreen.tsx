@@ -18,11 +18,11 @@ interface Props {
   precinctName: string
 }
 
-const RemoveCardScreen = ({
+const RemoveCardScreen: React.FC<Props> = ({
   ballotStyleId,
   lockScreen,
   precinctName,
-}: Props) => {
+}) => {
   return (
     <Screen>
       <Main>

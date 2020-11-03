@@ -8,6 +8,7 @@ module.exports = {
     'stylelint-config-styled-components',
   ],
   rules: {
+    'order/properties-alphabetical-order': null,
     'selector-max-id': 1,
     'selector-max-universal': 1,
   },

@@ -11,7 +11,6 @@ module.exports = {
   },
   parser: '@typescript-eslint/parser', // Specifies the ESLint parser
   extends: [
-    'airbnb',
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/typescript',
@@ -52,6 +51,16 @@ module.exports = {
   },
   rules: {
     camelcase: 'error',
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        js: 'never',
+        jsx: 'never',
+        ts: 'never',
+        tsx: 'never'
+      }
+   ],
     'import/no-extraneous-dependencies': [
       'error',
       {
@@ -62,6 +71,8 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', {
       'vars': 'all'
     }],
+    'no-use-before-define': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/issues/2540
+    '@typescript-eslint/no-use-before-define': 'error',
     'no-null/no-null': 2, // TypeScript with strictNullChecks
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],
@@ -69,9 +80,9 @@ module.exports = {
       1,
       { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
     ],
+    'react/prop-types': 'off',
     strict: 0,
     '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
     '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/no-null-keyword': 'on'
   },
 }

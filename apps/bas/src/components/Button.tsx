@@ -1,4 +1,10 @@
-import React, { MouseEventHandler, useState } from 'react'
+import React, {
+  EventHandler,
+  MouseEvent,
+  PointerEvent,
+  TouchEvent,
+  useState,
+} from 'react'
 import styled, { css, StyledComponent } from 'styled-components'
 
 interface Attrs extends HTMLButtonElement {
@@ -18,46 +24,46 @@ interface StyledButtonProps
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 
 const buttonStyles = css<StyledButtonProps>`
-  border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
   background: ${({ danger = false, primary = false }) =>
     (danger && 'red') ||
     (primary && 'rgb(71, 167, 75)') ||
     'rgb(211, 211, 211)'};
-  cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
-  width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
-  padding: ${({ big = false, small = false }) =>
-    small ? '0.35rem 0.5rem' : big ? '1rem 1.75rem' : '0.75rem 1rem'};
-  line-height: 1.25;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
   color: ${({ disabled = false, danger = false, primary = false }) =>
     (disabled && 'rgb(169, 169, 169)') ||
     (danger && '#FFFFFF') ||
     (primary && '#FFFFFF') ||
     'black'};
+  cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
   font-size: ${({ big = false }) => (big ? '1.25rem' : undefined)};
+  line-height: 1.25;
+  padding: ${({ big = false, small = false }) =>
+    small ? '0.35rem 0.5rem' : big ? '1rem 1.75rem' : '0.75rem 1rem'};
   touch-action: manipulation;
+  width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
 `
 
 export const DecoyButton = styled.div`
-  ${buttonStyles} /* stylelint-disable-line value-keyword-case */
+  ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
 const StyledButton = styled('button').attrs((props: Attrs) => ({
   type: props.type || 'button',
 }))`
-  ${buttonStyles} /* stylelint-disable-line value-keyword-case */
+  ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
 
 export interface Props extends StyledButtonProps {
   component?: StyledComponent<'button', never, StyledButtonProps, never>
-  onPress: MouseEventHandler
+  onPress: EventHandler<MouseEvent | TouchEvent | PointerEvent>
 }
 
-const Button = ({
+const Button: React.FC<Props> = ({
   component: Component = StyledButton,
   onPress,
   ...rest
-}: Props) => {
+}) => {
   const [startCoordinates, setStartCoordinates] = useState([0, 0])
 
   const onTouchStart = (event: React.TouchEvent) => {
@@ -72,7 +78,7 @@ const Button = ({
       Math.abs(startCoordinates[0] - clientX) < maxMove &&
       Math.abs(startCoordinates[1] - clientY) < maxMove
     ) {
-      onPress(event as any)
+      onPress(event)
       event.preventDefault()
     }
   }

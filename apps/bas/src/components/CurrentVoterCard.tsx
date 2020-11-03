@@ -14,7 +14,10 @@ interface Props {
   cardPrecinctName?: string
 }
 
-const CurrentVoterCard = ({ cardBallotStyleId, cardPrecinctName }: Props) => (
+const CurrentVoterCard: React.FC<Props> = ({
+  cardBallotStyleId,
+  cardPrecinctName,
+}) => (
   <ButtonBar secondary>
     {cardPrecinctName || cardBallotStyleId ? (
       <CardContainer>

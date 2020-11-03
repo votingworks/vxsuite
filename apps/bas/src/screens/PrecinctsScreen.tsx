@@ -25,14 +25,14 @@ interface Props {
   voterCardData: OptionalVoterCardData
 }
 
-const PrecinctsScreen = ({
+const PrecinctsScreen: React.FC<Props> = ({
   // cardBallotStyleId,
   // cardPrecinctName,
   countyName,
   lockScreen,
   precincts,
   updatePrecinct,
-}: Props) => {
+}) => {
   return (
     <Screen>
       <Main>
@@ -48,7 +48,7 @@ const PrecinctsScreen = ({
             </Prose>
           </Heading>
           <ButtonList columns={2}>
-            {precincts.map(p => (
+            {precincts.map((p) => (
               <Button
                 data-id={p.id}
                 fullWidth
