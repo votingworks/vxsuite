@@ -156,6 +156,26 @@ jobs:
           command: |
             yarn --cwd apps/module-scan test:coverage
 
+  test-module-smartcards:
+    docker:
+      - image: circleci/python:3.7.7
+    steps:
+      - checkout
+      - run:
+          name: Set up python tools for backend
+          command: |
+            sudo apt update -y
+            make -C apps/module-smartcards install-smartcard
+            make -C apps/module-smartcards build-dev
+      - run:
+          name: Run Python Tests and Coverage
+          command: |
+            make -C apps/module-smartcards coverage
+      - run:
+          name: Run Mypy Type Checking
+          command: |
+            make -C apps/module-smartcards typecheck
+
 workflows:
   test:
     jobs:
@@ -166,3 +186,4 @@ workflows:
       - test-election-manager
       - test-hmpb-interpreter
       - test-module-scan
+      - test-module-smartcards

@@ -16,6 +16,9 @@
       "path": "apps/module-scan"
     },
     {
+      "path": "apps/module-smartcards"
+    },
+    {
       "path": "libs/ballot-encoder"
     },
     {
