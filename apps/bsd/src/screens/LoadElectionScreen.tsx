@@ -25,6 +25,7 @@ const LoadElectionScreen: React.FC<Props> = ({ setElection }) => {
     isLiveMode: boolean
     locales?: string
   }>()
+  const [isLoadingTemplates, setLoadingTemplates] = useState(false)
 
   const onDrop = (acceptedFiles: readonly File[]) => {
     if (acceptedFiles.length === 1) {
@@ -64,7 +65,9 @@ const LoadElectionScreen: React.FC<Props> = ({ setElection }) => {
               setCurrentUploadingBallotIndex(pkg.ballots.indexOf(ballot))
             })
             .on('completed', async () => {
+              setLoadingTemplates(true)
               await doneTemplates()
+              setLoadingTemplates(false)
               setElection(pkg.electionDefinition.election)
             })
         })
@@ -73,6 +76,21 @@ const LoadElectionScreen: React.FC<Props> = ({ setElection }) => {
       }
     }
   }
+
+  if (isLoadingTemplates) {
+    return (
+      <Screen>
+        <Main noPadding>
+          <MainChild center padded>
+            <Prose textCenter>
+              <h1>Preparing scanner…</h1>
+            </Prose>
+          </MainChild>
+        </Main>
+      </Screen>
+    )
+  }
+
   if (totalTemplates > 0 && currentUploadingBallot) {
     return (
       <Screen>
