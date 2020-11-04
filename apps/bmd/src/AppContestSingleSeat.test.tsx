@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render, wait, act } from '@testing-library/react'
 
 import App from './App'
 
@@ -81,4 +81,24 @@ it('Single Seat Contest', async () => {
   expect(getByText(candidate1).closest('button')!.dataset.selected).toBe(
     'false'
   )
+
+  // Deselect the first candidate
+  fireEvent.click(getByText(candidate0))
+
+  // Check that the aria label has deselected added
+  expect(
+    getByText(candidate0).closest('button')?.getAttribute('aria-label')
+  ).toContain('Deselected, ')
+  // Check that other candidates do not have deselected added
+  expect(
+    getByText(candidate1).closest('button')?.getAttribute('aria-label')
+  ).not.toContain('Deselected, ')
+
+  // After 1 second the deselected label is removed
+  act(() => {
+    jest.advanceTimersByTime(1001)
+  })
+  expect(
+    getByText(candidate0).closest('button')?.getAttribute('aria-label')
+  ).not.toContain('Deselected, ')
 })

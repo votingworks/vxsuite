@@ -109,6 +109,7 @@ const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
     false
   )
   const [writeInCandidateName, setWriteInCandidateName] = useState('')
+  const [deselectedCandidate, setDeselectedCandidate] = useState('')
 
   const updateContestChoicesScrollStates = useCallback(() => {
     const target = scrollContainer.current
@@ -142,6 +143,15 @@ const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
     }
   }, [vote.length, updateContestChoicesScrollStates])
 
+  useEffect(() => {
+    if (deselectedCandidate !== '') {
+      const timer = setTimeout(() => {
+        setDeselectedCandidate('')
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [deselectedCandidate])
+
   const addCandidateToVote = (id: string) => {
     const { candidates } = contest
     const candidate = findCandidateById(candidates, id)!
@@ -151,6 +161,7 @@ const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
   const removeCandidateFromVote = (id: string) => {
     const newVote = vote.filter((c) => c.id !== id)
     updateVote(contest.id, newVote)
+    setDeselectedCandidate(id)
   }
 
   const handleUpdateSelection: EventTargetFunction = (event) => {
@@ -313,6 +324,12 @@ const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
                   const party =
                     candidate.partyId &&
                     findPartyById(parties, candidate.partyId)
+                  let prefixAudioText = ''
+                  if (isChecked) {
+                    prefixAudioText = 'Selected, '
+                  } else if (deselectedCandidate === candidate.id) {
+                    prefixAudioText = 'Deselected, '
+                  }
                   return (
                     <ChoiceButton
                       key={candidate.id}
@@ -321,11 +338,9 @@ const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
                         isDisabled ? handleDisabledClick : handleUpdateSelection
                       }
                       choice={candidate.id}
-                      aria-label={`${
-                        isChecked ? 'Selected, ' : ''
-                      } ${stripQuotes(candidate.name)}${
-                        party ? `, ${party.name}` : ''
-                      }.`}
+                      aria-label={`${prefixAudioText} ${stripQuotes(
+                        candidate.name
+                      )}${party ? `, ${party.name}` : ''}.`}
                     >
                       <Prose>
                         <Text wordBreak>
