@@ -178,6 +178,16 @@ export function sheetRequiresAdjudication([front, back]: SheetOf<
     return true
   }
 
+  // Always require adjudication of pairs with HMPB & something else.
+  if (
+    (front.type === 'InterpretedHmpbPage' &&
+      back.type !== 'InterpretedHmpbPage') ||
+    (back.type === 'InterpretedHmpbPage' &&
+      front.type !== 'InterpretedHmpbPage')
+  ) {
+    return true
+  }
+
   const [frontIsBlankHmpbPage, backIsBlankHmpbPage] = [front, back].map(
     (pi) =>
       pi.type === 'BlankPage' || // truly blank page matters whether or not it's an adjudication reason.

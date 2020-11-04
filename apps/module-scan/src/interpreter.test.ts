@@ -3137,8 +3137,8 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
   expect(sheetRequiresAdjudication([sideNo, sideNo])).toBe(false)
 })
 
-test('sheetRequiresAdjudication triggers only if both sides are blank ballot', async () => {
-  const sideBlank: InterpretedHmpbPage = {
+test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
+  const hmpbNoVotes: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
       requiresAdjudication: true,
@@ -3150,11 +3150,11 @@ test('sheetRequiresAdjudication triggers only if both sides are blank ballot', a
     },
   }
 
-  const sideTrulyBlank: BlankPage = {
+  const blank: BlankPage = {
     type: 'BlankPage',
   }
 
-  const sideNotBlank: InterpretedHmpbPage = {
+  const hmpbWithVotes: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
       requiresAdjudication: false,
@@ -3163,18 +3163,21 @@ test('sheetRequiresAdjudication triggers only if both sides are blank ballot', a
     },
   }
 
-  expect(sheetRequiresAdjudication([sideBlank, sideBlank])).toBe(true)
-  expect(sheetRequiresAdjudication([sideBlank, sideNotBlank])).toBe(false)
-  expect(sheetRequiresAdjudication([sideNotBlank, sideNotBlank])).toBe(false)
-  expect(sheetRequiresAdjudication([sideNotBlank, sideNotBlank])).toBe(false)
+  expect(sheetRequiresAdjudication([hmpbNoVotes, hmpbNoVotes])).toBe(true)
+  expect(sheetRequiresAdjudication([hmpbNoVotes, hmpbWithVotes])).toBe(false)
+  expect(sheetRequiresAdjudication([hmpbWithVotes, hmpbWithVotes])).toBe(false)
 
-  expect(sheetRequiresAdjudication([sideBlank, sideTrulyBlank])).toBe(true)
-  expect(sheetRequiresAdjudication([sideTrulyBlank, sideTrulyBlank])).toBe(true)
-  expect(sheetRequiresAdjudication([sideNotBlank, sideTrulyBlank])).toBe(false)
+  expect(sheetRequiresAdjudication([hmpbNoVotes, blank])).toBe(true)
+  expect(sheetRequiresAdjudication([blank, hmpbNoVotes])).toBe(true)
+
+  expect(sheetRequiresAdjudication([hmpbWithVotes, blank])).toBe(true)
+  expect(sheetRequiresAdjudication([blank, hmpbWithVotes])).toBe(true)
+
+  expect(sheetRequiresAdjudication([blank, blank])).toBe(true)
 })
 
 test('sheetRequiresAdjudication is happy with a BMD ballot', async () => {
-  const front: InterpretedBmdPage = {
+  const bmd: InterpretedBmdPage = {
     type: 'InterpretedBmdPage',
     ballotId: '42',
     metadata: {
@@ -3190,12 +3193,18 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', async () => {
     votes: {},
   }
 
-  const back: UnreadablePage = {
+  const unreadable: UnreadablePage = {
     type: 'UnreadablePage',
     reason:
       'cause there were a few too many black pixels so it was not filtered',
   }
 
-  expect(sheetRequiresAdjudication([front, back])).toBe(false)
-  expect(sheetRequiresAdjudication([back, front])).toBe(false)
+  const blank: BlankPage = {
+    type: 'BlankPage',
+  }
+
+  expect(sheetRequiresAdjudication([bmd, unreadable])).toBe(false)
+  expect(sheetRequiresAdjudication([unreadable, bmd])).toBe(false)
+  expect(sheetRequiresAdjudication([bmd, blank])).toBe(false)
+  expect(sheetRequiresAdjudication([blank, bmd])).toBe(false)
 })
