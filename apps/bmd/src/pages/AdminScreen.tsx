@@ -37,7 +37,7 @@ interface Props {
   isLiveMode: boolean
   fetchElection: VoidFunction
   isFetchingElection: boolean
-  setAppPrecinctId: (appPrecinctId: string) => void
+  updateAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
 }
@@ -53,12 +53,12 @@ const AdminScreen = ({
   isLiveMode,
   fetchElection,
   isFetchingElection,
-  setAppPrecinctId,
+  updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
 }: Props) => {
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
-    setAppPrecinctId(event.currentTarget.value)
+    updateAppPrecinctId(event.currentTarget.value)
   }
 
   const [isTestDeck, setIsTestDeck] = useState(false)

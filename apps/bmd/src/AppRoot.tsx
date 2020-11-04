@@ -245,7 +245,7 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public isVoterCardExpired = (
+  public getIsVoterCardExpired = (
     prevCreatedAt: number,
     createdAt: number
   ): boolean => {
@@ -255,7 +255,7 @@ class AppRoot extends React.Component<Props, State> {
     )
   }
 
-  public isRecentVoterPrint = (isPrinted: boolean, printedTime: number) => {
+  public getIsRecentVoterPrint = (isPrinted: boolean, printedTime: number) => {
     return (
       isPrinted &&
       utcTimestamp() <= printedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
@@ -277,7 +277,7 @@ class AppRoot extends React.Component<Props, State> {
           ? Number(voterCardData.bp)
           : 0
         const isVoterCardPrinted = Boolean(ballotPrintedTime)
-        const isRecentVoterPrint = this.isRecentVoterPrint(
+        const isRecentVoterPrint = this.getIsRecentVoterPrint(
           isVoterCardPrinted,
           ballotPrintedTime
         )
@@ -305,7 +305,7 @@ class AppRoot extends React.Component<Props, State> {
 
         this.setState(
           (prevState) => {
-            const isVoterCardExpired = this.isVoterCardExpired(
+            const isVoterCardExpired = this.getIsVoterCardExpired(
               prevState.voterCardCreatedAt,
               voterCardCreatedAt
             )
@@ -417,7 +417,6 @@ class AppRoot extends React.Component<Props, State> {
 
   public startLongValueWritePolling = () => {
     /* istanbul ignore else */
-
     if (this.cardWriteInterval === 0) {
       this.cardWriteInterval = window.setInterval(async () => {
         if (
@@ -645,17 +644,15 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public readCard = async (): Promise<CardAPI> => {
-    return await this.props.card.readStatus()
-  }
+  public readCard = async (): Promise<CardAPI> =>
+    await this.props.card.readStatus()
 
   public writeCard = async (cardData: VoterCardData) => {
     await this.props.card.writeShortValue(JSON.stringify(cardData))
   }
 
-  public getElection = (): OptionalElection => {
-    return this.props.storage.get(electionStorageKey)
-  }
+  public getElection = (): OptionalElection =>
+    this.props.storage.get(electionStorageKey)
 
   public setElection = (electionConfigFile: Election) => {
     const election = electionConfigFile
@@ -663,12 +660,9 @@ class AppRoot extends React.Component<Props, State> {
     this.props.storage.set(electionStorageKey, election)
   }
 
-  public getBallotActivation = (): SerializableActivationData => {
-    return (
-      this.props.storage.get(activationStorageKey) ||
-      (({} as unknown) as SerializableActivationData)
-    )
-  }
+  public getBallotActivation = (): SerializableActivationData =>
+    this.props.storage.get(activationStorageKey) ||
+    (({} as unknown) as SerializableActivationData)
 
   public setBallotActivation = (data: SerializableActivationData) => {
     /* istanbul ignore else */
@@ -677,9 +671,8 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public getVotes = () => {
-    return this.props.storage.get(votesStorageKey) || blankBallotVotes
-  }
+  public getVotes = () =>
+    this.props.storage.get(votesStorageKey) || blankBallotVotes
 
   public setVotes = async (votes: VotesDict) => {
     /* istanbul ignore else */
@@ -794,7 +787,7 @@ class AppRoot extends React.Component<Props, State> {
     document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[textSize]}px`
   }
 
-  public setAppPrecinctId = (appPrecinctId: string) => {
+  public updateAppPrecinctId = (appPrecinctId: string) => {
     this.setState({ appPrecinctId }, this.resetTally)
   }
 
@@ -956,17 +949,15 @@ class AppRoot extends React.Component<Props, State> {
           fetchElection={this.fetchElection}
           isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
-          setAppPrecinctId={this.setAppPrecinctId}
+          updateAppPrecinctId={this.updateAppPrecinctId}
           toggleLiveMode={this.toggleLiveMode}
           unconfigure={this.unconfigure}
         />
       )
     } else if (optionalElection && !!appPrecinctId) {
-      const election = optionalElection as Election
-      if (appMode.isVxPrint) {
-        if (!hasPrinterAttached) {
-          return <SetupPrinterPage setUserSettings={this.setUserSettings} />
-        }
+      const election = optionalElection!
+      if (appMode.isVxPrint && !hasPrinterAttached) {
+        return <SetupPrinterPage setUserSettings={this.setUserSettings} />
       }
       if (isPollWorkerCardPresent) {
         const electionDate = new Date(optionalElection.date)
@@ -1057,19 +1048,6 @@ class AppRoot extends React.Component<Props, State> {
         }
       }
 
-      const insertCardScreen = (
-        <InsertCardScreen
-          appPrecinctId={appPrecinctId}
-          election={election}
-          showNoAccessibleControllerWarning={
-            !!appMode.isVxMark && !hasAccessibleControllerAttached
-          }
-          showNoChargerAttachedWarning={!hasChargerAttached}
-          isLiveMode={isLiveMode}
-          isPollsOpen={isPollsOpen}
-        />
-      )
-
       // font size may have been changed by previous voter, reset to defaults
       this.setDocumentFontSize()
 
@@ -1078,7 +1056,16 @@ class AppRoot extends React.Component<Props, State> {
           onIdle={() => window.kiosk?.quit()}
           timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
         >
-          {insertCardScreen}
+          <InsertCardScreen
+            appPrecinctId={appPrecinctId}
+            election={election}
+            showNoAccessibleControllerWarning={
+              !!appMode.isVxMark && !hasAccessibleControllerAttached
+            }
+            showNoChargerAttachedWarning={!hasChargerAttached}
+            isLiveMode={isLiveMode}
+            isPollsOpen={isPollsOpen}
+          />
         </IdleTimer>
       )
     } else {
