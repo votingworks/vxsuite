@@ -82,6 +82,9 @@ export function* parseCVRs(
       const {
         _ballotId,
         _ballotStyleId,
+        // TODO: tally taking ballot type into account
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        _ballotType,
         _precinctId,
         _testBallot,
         _scannerId,
@@ -591,6 +594,7 @@ const processCastVoteRecord = ({
   const newCVR: CastVoteRecord = {
     _precinctId: castVoteRecord._precinctId,
     _ballotStyleId: castVoteRecord._ballotStyleId,
+    _ballotType: castVoteRecord._ballotType,
     _ballotId: castVoteRecord._ballotId,
     _testBallot: castVoteRecord._testBallot,
     _scannerId: castVoteRecord._scannerId,

@@ -107,6 +107,7 @@ export interface CastVoteRecord
   _precinctId: string
   _ballotId: string
   _ballotStyleId: string
+  _ballotType: 'absentee' | 'provisional' | 'standard'
   _testBallot: boolean
   _scannerId: string
   _pageNumber?: number
