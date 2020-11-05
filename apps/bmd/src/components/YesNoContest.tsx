@@ -61,7 +61,8 @@ const YesNoContest = ({ contest, vote, updateVote }: Props) => {
 
   useEffect(() => {
     if (deselectedVote !== '') {
-      setTimeout(() => setDeselectedVote(''), 1000)
+      const timer = setTimeout(() => setDeselectedVote(''), 1000)
+      return () => clearTimeout(timer)
     }
   }, [deselectedVote])
 
