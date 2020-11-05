@@ -27,6 +27,7 @@ test('can add multiple CVR files by creating a new instance', async () => {
   const cvr: CastVoteRecord = {
     _ballotId: 'abc',
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _testBallot: false,
     _scannerId: 'abc',
@@ -50,6 +51,7 @@ test('does not mutate the original when adding a new instance', async () => {
   const cvr: CastVoteRecord = {
     _ballotId: 'abc',
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _testBallot: false,
     _scannerId: 'abc',
@@ -91,6 +93,7 @@ test('records CVR data errors', async () => {
   const cvr: CastVoteRecord = {
     _ballotId: 'abc',
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '9999',
     _testBallot: false,
     _scannerId: 'abc',
@@ -113,6 +116,7 @@ test('records identical uploaded files', async () => {
   const cvr: CastVoteRecord = {
     _ballotId: 'abc',
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _testBallot: false,
     _scannerId: 'abc',
@@ -137,6 +141,7 @@ test('refuses to tabulate both live and test CVRs', async () => {
   const cvr: CastVoteRecord = {
     _ballotId: 'abc',
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _testBallot: false,
     _scannerId: 'abc',

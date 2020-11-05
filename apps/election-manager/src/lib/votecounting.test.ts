@@ -121,6 +121,7 @@ test('overvote report', async () => {
 test('parsing CVRs flags when a precinct ID in a CVR is not present in the election definition', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: 'not real',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
@@ -138,6 +139,7 @@ test('parsing CVRs flags when a precinct ID in a CVR is not present in the elect
 test('parsing CVRs flags when a ballot style ID in a CVR is not present in the election definition', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '123',
+    _ballotType: 'standard',
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
@@ -156,6 +158,7 @@ test('parsing CVRs flags when a ballot style ID in a CVR is not present in the e
 test('parsing CVRs flags when a contest ID in a CVR is not present in the election definition', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
@@ -176,6 +179,7 @@ test('parsing CVRs flags when a contest ID in a CVR is not present in the electi
 test('parsing CVRs flags when test ballot flag is not a boolean', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
@@ -196,6 +200,7 @@ test('parsing CVRs flags when test ballot flag is not a boolean', () => {
 test('parsing CVRs flags when page number is set but not a number', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
@@ -217,6 +222,7 @@ test('parsing CVRs flags when page number is set but not a number', () => {
 test('parsing CVRs flags when page numbers is set but not an array of numbers', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
@@ -238,6 +244,7 @@ test('parsing CVRs flags when page numbers is set but not an array of numbers', 
 test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
@@ -259,6 +266,7 @@ test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => 
 test('parsing CVRs flags with _pageNumbers set properly works', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
@@ -277,6 +285,7 @@ test('parsing CVRs flags with _pageNumbers set properly works', () => {
 test('parsing CVRs flags when ballot ID is not a string', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     // @ts-expect-error - number instead of a string
     _ballotId: 44,

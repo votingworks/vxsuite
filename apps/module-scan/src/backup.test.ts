@@ -327,7 +327,7 @@ test('has cvrs.jsonl', async () => {
 
   const cvrsEntry = entries.find(({ fileName }) => fileName === 'cvrs.jsonl')!
   expect(await readTextEntry(zipfile, cvrsEntry)).toMatchInlineSnapshot(`
-    "{\\"1\\":[],\\"2\\":[],\\"3\\":[],\\"4\\":[],\\"_ballotId\\":\\"abc\\",\\"_ballotStyleId\\":\\"1\\",\\"_precinctId\\":\\"6522\\",\\"_scannerId\\":\\"000\\",\\"_testBallot\\":false,\\"_locales\\":{\\"primary\\":\\"en-US\\"},\\"initiative-65\\":[],\\"initiative-65-a\\":[],\\"flag-question\\":[\\"yes\\"],\\"runoffs-question\\":[]}
+    "{\\"1\\":[],\\"2\\":[],\\"3\\":[],\\"4\\":[],\\"_ballotId\\":\\"abc\\",\\"_ballotStyleId\\":\\"1\\",\\"_ballotType\\":\\"standard\\",\\"_precinctId\\":\\"6522\\",\\"_scannerId\\":\\"000\\",\\"_testBallot\\":false,\\"_locales\\":{\\"primary\\":\\"en-US\\"},\\"initiative-65\\":[],\\"initiative-65-a\\":[],\\"flag-question\\":[\\"yes\\"],\\"runoffs-question\\":[]}
     "
   `)
 })

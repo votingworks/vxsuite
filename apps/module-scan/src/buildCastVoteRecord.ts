@@ -1,5 +1,6 @@
 import {
   AnyContest,
+  BallotType,
   CandidateVote,
   Contests,
   Dictionary,
@@ -30,10 +31,29 @@ export function buildCastVoteRecordMetadataEntries(
   return {
     _ballotId: ballotId,
     _ballotStyleId: metadata.ballotStyleId,
+    _ballotType: getCVRBallotType(metadata.ballotType),
     _precinctId: metadata.precinctId,
     _scannerId: getMachineId(),
     _testBallot: metadata.isTestMode,
     _locales: metadata.locales,
+  }
+}
+
+export function getCVRBallotType(
+  ballotType: BallotType
+): CastVoteRecord['_ballotType'] {
+  switch (ballotType) {
+    case BallotType.Absentee:
+      return 'absentee'
+
+    case BallotType.Provisional:
+      return 'provisional'
+
+    case BallotType.Standard:
+      return 'standard'
+
+    default:
+      throw new Error(`unknown ballot type: ${ballotType}`)
   }
 }
 

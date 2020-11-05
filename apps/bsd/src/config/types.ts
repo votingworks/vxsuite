@@ -50,6 +50,7 @@ export interface CastVoteRecord
   extends Dictionary<string | string[] | boolean> {
   _precinctId: string
   _ballotStyleId: string
+  _ballotType: 'absentee' | 'provisional' | 'standard'
   _ballotId: string
   _testBallot: boolean
   _scannerId: string

@@ -154,6 +154,7 @@ test('going through the whole process works', async () => {
       Object {
         "_ballotId": "",
         "_ballotStyleId": "12",
+        "_ballotType": "standard",
         "_locales": Object {
           "primary": "en-US",
           "secondary": "es-US",
@@ -296,6 +297,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
       Object {
         "_ballotId": "",
         "_ballotStyleId": "12",
+        "_ballotType": "standard",
         "_locales": Object {
           "primary": "en-US",
           "secondary": "es-US",
@@ -440,6 +442,7 @@ test('ms-either-neither end-to-end', async () => {
         ],
         "_ballotId": "",
         "_ballotStyleId": "4",
+        "_ballotType": "standard",
         "_locales": Object {
           "primary": "en-US",
         },
