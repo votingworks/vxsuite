@@ -205,11 +205,15 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   // Select and Unselect Options
   fireEvent.click(getByText(measure420Contest.eitherOption.label))
   fireEvent.click(getByText(measure420Contest.neitherOption.label))
+  advanceTimers() // allow "deselection" timer to run
   fireEvent.click(getByText(measure420Contest.neitherOption.label))
+  advanceTimers() // allow "deselection" timer to run
 
   fireEvent.click(getByText(measure420Contest.firstOption.label))
   fireEvent.click(getByText(measure420Contest.secondOption.label))
+  advanceTimers() // allow "deselection" timer to run
   fireEvent.click(getByText(measure420Contest.secondOption.label))
+  advanceTimers() // allow "deselection" timer to run
 
   // Go to Review Screen
   while (!queryByText('Review Your Votes')) {

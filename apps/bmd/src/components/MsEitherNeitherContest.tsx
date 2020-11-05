@@ -78,6 +78,9 @@ const MsEitherNeitherContest = ({
   const [isScrollable, setIsScrollable] = useState(true)
   const [isScrollAtTop, setIsScrollAtTop] = useState(true)
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
+  const [deselectedOption, setDeselectedOption] = useState<
+    'either' | 'neither' | 'first' | 'second'
+  >()
   const showTopShadow = true
   const showBottomShadow = true
 
@@ -87,12 +90,26 @@ const MsEitherNeitherContest = ({
     const currentVote = eitherNeitherContestVote?.[0]
     const targetVote = event.currentTarget.dataset.choice
     const newVote = currentVote === targetVote ? [] : [targetVote]
+    setDeselectedOption(
+      currentVote === 'yes'
+        ? 'either'
+        : currentVote === 'no'
+        ? 'neither'
+        : undefined
+    )
     updateVote(contest.eitherNeitherContestId, newVote as YesNoVote)
   }
   const handleUpdatePickOne = (event: React.MouseEvent<HTMLInputElement>) => {
     const currentVote = pickOneContestVote?.[0]
     const targetVote = event.currentTarget.dataset.choice
     const newVote = currentVote === targetVote ? [] : [targetVote]
+    setDeselectedOption(
+      currentVote === 'yes'
+        ? 'first'
+        : currentVote === 'no'
+        ? 'second'
+        : undefined
+    )
     updateVote(contest.pickOneContestId, newVote as YesNoVote)
   }
 
@@ -169,6 +186,18 @@ const MsEitherNeitherContest = ({
   const againstBoth = '“against both”'
   const eitherLabel = eitherNeitherVote === 'yes' ? forEither : againstBoth
   const pickOneVote = pickOneContestVote?.[0]
+
+  const eitherSelected = eitherNeitherContestVote?.[0] === 'yes'
+  const neitherSelected = eitherNeitherContestVote?.[0] === 'no'
+  const firstSelected = pickOneContestVote?.[0] === 'yes'
+  const secondSelected = pickOneContestVote?.[0] === 'no'
+
+  useEffect(() => {
+    if (deselectedOption) {
+      const timer = setTimeout(() => setDeselectedOption(undefined), 100)
+      return () => clearTimeout(timer)
+    }
+  }, [deselectedOption])
 
   return (
     <React.Fragment>
@@ -281,26 +310,46 @@ const MsEitherNeitherContest = ({
           </GridLabel>
           <ChoiceButton
             choice="yes"
-            isSelected={eitherNeitherContestVote?.[0] === 'yes'}
+            isSelected={eitherSelected}
             onPress={handleUpdateEitherNeither}
             style={{
               gridArea: 'either-option',
             }}
           >
             <Prose>
-              <Text>{contest.eitherOption.label}</Text>
+              <Text
+                aria-label={`${
+                  eitherSelected
+                    ? 'Selected, '
+                    : deselectedOption === 'either'
+                    ? 'Deselected, '
+                    : ''
+                }${contest.eitherOption.label}`}
+              >
+                {contest.eitherOption.label}
+              </Text>
             </Prose>
           </ChoiceButton>
           <ChoiceButton
             choice="no"
-            isSelected={eitherNeitherContestVote?.[0] === 'no'}
+            isSelected={neitherSelected}
             onPress={handleUpdateEitherNeither}
             style={{
               gridArea: 'neither-option',
             }}
           >
             <Prose>
-              <Text>{contest.neitherOption.label}</Text>
+              <Text
+                aria-label={`${
+                  neitherSelected
+                    ? 'Selected, '
+                    : deselectedOption === 'neither'
+                    ? 'Deselected, '
+                    : ''
+                }${contest.neitherOption.label}`}
+              >
+                {contest.neitherOption.label}
+              </Text>
             </Prose>
           </ChoiceButton>
           <GridLabel
@@ -322,26 +371,46 @@ const MsEitherNeitherContest = ({
           </GridLabel>
           <ChoiceButton
             choice="yes"
-            isSelected={pickOneContestVote?.[0] === 'yes'}
+            isSelected={firstSelected}
             onPress={handleUpdatePickOne}
             style={{
               gridArea: 'first-option',
             }}
           >
             <Prose>
-              <Text>{contest.firstOption.label}</Text>
+              <Text
+                aria-label={`${
+                  firstSelected
+                    ? 'Selected, '
+                    : deselectedOption === 'first'
+                    ? 'Deselected, '
+                    : ''
+                }${contest.firstOption.label}`}
+              >
+                {contest.firstOption.label}
+              </Text>
             </Prose>
           </ChoiceButton>
           <ChoiceButton
             choice="no"
-            isSelected={pickOneContestVote?.[0] === 'no'}
+            isSelected={secondSelected}
             onPress={handleUpdatePickOne}
             style={{
               gridArea: 'second-option',
             }}
           >
             <Prose>
-              <Text>{contest.secondOption.label}</Text>
+              <Text
+                aria-label={`${
+                  secondSelected
+                    ? 'Selected, '
+                    : deselectedOption === 'second'
+                    ? 'Deselected, '
+                    : ''
+                }${contest.secondOption.label}`}
+              >
+                {contest.secondOption.label}
+              </Text>
             </Prose>
           </ChoiceButton>
           <Divider />
