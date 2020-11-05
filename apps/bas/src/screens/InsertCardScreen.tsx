@@ -26,7 +26,7 @@ const InsertCardScreen: React.FC<Props> = ({ lockScreen }) => {
               src="/images/insert-card.svg"
               alt="Insert Card Diagram"
             />
-            <h1>Insert a New Voter Card</h1>
+            <h1>Insert a Voter Card</h1>
           </Prose>
         </MainChild>
       </Main>
