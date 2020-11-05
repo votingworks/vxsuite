@@ -70,20 +70,16 @@ it('Single Seat Contest', async () => {
   fireEvent.click(getByText('Yes'))
   expect(getByText('Yes').closest('button')!.dataset.selected).toBe('false')
 
-  // Check that the aria label was updated to be deselected
-  expect(getByText('Yes').getAttribute('aria-label')).toContain('Deselected, ')
-
-  // Check that the aria label for No was not changed
+  // Check that the aria label was updated to be deselected properly and is then removed
+  expect(getByText('Yes').getAttribute('aria-label')).toContain('Deselected,')
   expect(getByText('No').getAttribute('aria-label')).not.toContain(
-    'Deselected, '
+    'Deselected,'
   )
-
-  // Wait one second and check that the aria label for yes no longer has deselected
   act(() => {
-    jest.advanceTimersByTime(1001)
+    jest.advanceTimersByTime(101)
   })
   expect(getByText('Yes').getAttribute('aria-label')).not.toContain(
-    'Deselected, '
+    'Deselected,'
   )
 
   // Select Yes

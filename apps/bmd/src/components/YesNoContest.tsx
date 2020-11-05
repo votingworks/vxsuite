@@ -61,7 +61,7 @@ const YesNoContest = ({ contest, vote, updateVote }: Props) => {
 
   useEffect(() => {
     if (deselectedVote !== '') {
-      const timer = setTimeout(() => setDeselectedVote(''), 1000)
+      const timer = setTimeout(() => setDeselectedVote(''), 100)
       return () => clearTimeout(timer)
     }
   }, [deselectedVote])
@@ -214,9 +214,9 @@ const YesNoContest = ({ contest, vote, updateVote }: Props) => {
               }
               let prefixAudioText = ''
               if (isChecked) {
-                prefixAudioText = 'Selected, '
+                prefixAudioText = 'Selected,'
               } else if (deselectedVote === answer.vote) {
-                prefixAudioText = 'Deselected, '
+                prefixAudioText = 'Deselected,'
               }
               return (
                 <ChoiceButton

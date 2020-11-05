@@ -310,7 +310,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
             class="c8"
           >
             <button
-              aria-label="Selected,  Name 0, Party 0."
+              aria-label="Selected, Name 0, Party 0."
               class="c9"
               data-choice="name-0"
               data-selected="true"
@@ -1017,7 +1017,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
             class="c8"
           >
             <button
-              aria-label="Selected,  Name 0, Party 0."
+              aria-label="Selected, Name 0, Party 0."
               class="c9"
               data-choice="name-0"
               data-selected="true"

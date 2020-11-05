@@ -147,7 +147,7 @@ const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
     if (deselectedCandidate !== '') {
       const timer = setTimeout(() => {
         setDeselectedCandidate('')
-      }, 1000)
+      }, 100)
       return () => clearTimeout(timer)
     }
   }, [deselectedCandidate])
@@ -326,9 +326,9 @@ const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
                     findPartyById(parties, candidate.partyId)
                   let prefixAudioText = ''
                   if (isChecked) {
-                    prefixAudioText = 'Selected, '
+                    prefixAudioText = 'Selected,'
                   } else if (deselectedCandidate === candidate.id) {
-                    prefixAudioText = 'Deselected, '
+                    prefixAudioText = 'Deselected,'
                   }
                   return (
                     <ChoiceButton
