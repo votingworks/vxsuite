@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait, within } from '@testing-library/react'
+import { fireEvent, render, wait, within, act } from '@testing-library/react'
 
 import App from './App'
 
@@ -69,6 +69,22 @@ it('Single Seat Contest', async () => {
   // Unselect Yes
   fireEvent.click(getByText('Yes'))
   expect(getByText('Yes').closest('button')!.dataset.selected).toBe('false')
+
+  // Check that the aria label was updated to be deselected
+  expect(getByText('Yes').getAttribute('aria-label')).toContain('Deselected, ')
+
+  // Check that the aria label for No was not changed
+  expect(getByText('No').getAttribute('aria-label')).not.toContain(
+    'Deselected, '
+  )
+
+  // Wait one second and check that the aria label for yes no longer has deselected
+  act(() => {
+    jest.advanceTimersByTime(1001)
+  })
+  expect(getByText('Yes').getAttribute('aria-label')).not.toContain(
+    'Deselected, '
+  )
 
   // Select Yes
   fireEvent.click(getByText('Yes'))

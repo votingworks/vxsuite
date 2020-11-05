@@ -57,6 +57,14 @@ const YesNoContest = ({ contest, vote, updateVote }: Props) => {
   const [overvoteSelection, setOvervoteSelection] = useState<
     Optional<YesOrNo>
   >()
+  const [deselectedVote, setDeselectedVote] = useState('')
+
+  useEffect(() => {
+    if (deselectedVote !== '') {
+      const timer = setTimeout(() => setDeselectedVote(''), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [deselectedVote])
 
   const updateContestChoicesScrollStates = useCallback(() => {
     const target = scrollContainer.current
@@ -96,6 +104,7 @@ const YesNoContest = ({ contest, vote, updateVote }: Props) => {
       .choice as YesOrNo
     if ((vote as string[] | undefined)?.includes(newVote)) {
       updateVote(contest.id, undefined)
+      setDeselectedVote(newVote)
     } else {
       updateVote(contest.id, [newVote] as YesNoVote)
     }
@@ -203,6 +212,12 @@ const YesNoContest = ({ contest, vote, updateVote }: Props) => {
               const handleDisabledClick = () => {
                 handleChangeVoteAlert(answer.vote)
               }
+              let prefixAudioText = ''
+              if (isChecked) {
+                prefixAudioText = 'Selected, '
+              } else if (deselectedVote === answer.vote) {
+                prefixAudioText = 'Deselected, '
+              }
               return (
                 <ChoiceButton
                   key={answer.vote}
@@ -214,9 +229,9 @@ const YesNoContest = ({ contest, vote, updateVote }: Props) => {
                 >
                   <Prose>
                     <Text
-                      aria-label={`${isChecked ? 'Selected, ' : ''} ${
-                        answer.label
-                      } on ${contest.shortTitle ?? contest.title}`}
+                      aria-label={`${prefixAudioText} ${answer.label} on ${
+                        contest.shortTitle ?? contest.title
+                      }`}
                       wordBreak
                     >
                       {answer.label}
