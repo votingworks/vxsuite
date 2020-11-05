@@ -85,20 +85,17 @@ it('Single Seat Contest', async () => {
   // Deselect the first candidate
   fireEvent.click(getByText(candidate0))
 
-  // Check that the aria label has deselected added
+  // Check that the aria label was updated to be include 'deselected' and is then updated back to the original state
   expect(
     getByText(candidate0).closest('button')?.getAttribute('aria-label')
-  ).toContain('Deselected, ')
-  // Check that other candidates do not have deselected added
+  ).toContain('Deselected,')
   expect(
     getByText(candidate1).closest('button')?.getAttribute('aria-label')
-  ).not.toContain('Deselected, ')
-
-  // After 1 second the deselected label is removed
+  ).not.toContain('Deselected,')
   act(() => {
-    jest.advanceTimersByTime(1001)
+    jest.advanceTimersByTime(101)
   })
   expect(
     getByText(candidate0).closest('button')?.getAttribute('aria-label')
-  ).not.toContain('Deselected, ')
+  ).not.toContain('Deselected,')
 })
