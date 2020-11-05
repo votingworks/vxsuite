@@ -89,10 +89,13 @@ const PrintTestDeckScreen: React.FC = () => {
 
   useEffect(() => {
     if (precinctId) {
+      const sortedPrecincts = [...election.precincts].sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, {
+          ignorePunctuation: true,
+        })
+      )
       const precinctIds =
-        precinctId === 'all'
-          ? election.precincts.map((p) => p.id)
-          : [precinctId]
+        precinctId === 'all' ? sortedPrecincts.map((p) => p.id) : [precinctId]
       setPrecinctIds(precinctIds)
     } else {
       setPrecinctIds([])
