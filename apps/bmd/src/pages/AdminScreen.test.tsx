@@ -8,7 +8,7 @@ import { election, defaultPrecinctId } from '../../test/helpers/election'
 
 import { advanceTimers } from '../../test/helpers/smartcards'
 
-import ClerkScreen from './ClerkScreen'
+import AdminScreen from './AdminScreen'
 import { VxPrintOnly, VxMarkOnly } from '../config/types'
 
 MockDate.set('2020-10-31T00:00:00.000Z')
@@ -26,7 +26,7 @@ afterEach(() => {
 
 test('renders ClerkScreen for VxPrintOnly', async () => {
   const { getByText, getByTestId } = render(
-    <ClerkScreen
+    <AdminScreen
       appMode={VxPrintOnly}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
@@ -64,7 +64,7 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
 
 test('renders date and time settings modal', async () => {
   const { getByText, getByTestId } = render(
-    <ClerkScreen
+    <AdminScreen
       appMode={VxMarkOnly}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}

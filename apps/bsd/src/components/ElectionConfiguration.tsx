@@ -37,7 +37,7 @@ const ElectionConfiguration: React.FC<Props> = ({ acceptFiles }) => {
               <React.Fragment>
                 <h1>Not Configured</h1>
                 <Text narrow>
-                  Insert Election Clerk card, drag and drop{' '}
+                  Insert Election Admin card, drag and drop{' '}
                   <code>election.json</code> or ballot package <code>zip</code>{' '}
                   file here, or click to browse for file.
                 </Text>

@@ -41,15 +41,15 @@ serialized JSON:
 
 A poll worker card does _not_ use the long value on the card.
 
-## Clerk Card
+## Admin Card
 
-The clerk card is the full administrative card, and contains the following
+The admin card is the full administrative card, and contains the following
 fields in the short value.
 
-- `t` -- `clerk`
+- `t` -- `admin`
 - `h` -- the base64-encoded SHA256 of the `election.json`
 
-The clerk card also includes the serialized `election.json` in the long value of
+The admin card also includes the serialized `election.json` in the long value of
 the card. This is the value which, when hashed with SHA256, should match `h` in
-both the clerk and poll-worker cards. This election definition data is used to
+both the admin and poll-worker cards. This election definition data is used to
 configure the BMD, BAS, and BSD.

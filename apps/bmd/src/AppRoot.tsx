@@ -45,7 +45,7 @@ import {
   handleGamepadKeyboardEvent,
 } from './lib/gamepad'
 import CastBallotPage from './pages/CastBallotPage'
-import ClerkScreen from './pages/ClerkScreen'
+import AdminScreen from './pages/AdminScreen'
 import ExpiredCardScreen from './pages/ExpiredCardScreen'
 import InsertCardScreen from './pages/InsertCardScreen'
 import PollWorkerScreen from './pages/PollWorkerScreen'
@@ -72,7 +72,7 @@ import {
 import { getSingleYesNoVote } from './utils/votes'
 
 interface CardState {
-  isClerkCardPresent: boolean
+  isAdminCardPresent: boolean
   isPollWorkerCardPresent: boolean
   isRecentVoterPrint: boolean
   isVoterCardExpired: boolean
@@ -153,7 +153,7 @@ class AppRoot extends React.Component<Props, State> {
   private writingVoteToCard = false
 
   private initialCardPresentState: CardState = {
-    isClerkCardPresent: false,
+    isAdminCardPresent: false,
     isPollWorkerCardPresent: false,
     isRecentVoterPrint: false,
     isVoterCardExpired: false,
@@ -344,11 +344,11 @@ class AppRoot extends React.Component<Props, State> {
         })
         break
       }
-      case 'clerk': {
+      case 'admin': {
         longValueExists &&
           this.setState({
             ...this.initialCardPresentState,
-            isClerkCardPresent: true,
+            isAdminCardPresent: true,
           })
         break
       }
@@ -908,7 +908,7 @@ class AppRoot extends React.Component<Props, State> {
       ballotStyleId,
       contests,
       election: optionalElection,
-      isClerkCardPresent,
+      isAdminCardPresent,
       isLiveMode,
       isPollsOpen,
       isPollWorkerCardPresent,
@@ -938,9 +938,9 @@ class AppRoot extends React.Component<Props, State> {
     if (hasLowBattery && !hasChargerAttached) {
       return <SetupPowerPage setUserSettings={this.setUserSettings} />
     }
-    if (isClerkCardPresent) {
+    if (isAdminCardPresent) {
       return (
-        <ClerkScreen
+        <AdminScreen
           appMode={appMode}
           appPrecinctId={appPrecinctId}
           ballotsPrintedCount={ballotsPrintedCount}

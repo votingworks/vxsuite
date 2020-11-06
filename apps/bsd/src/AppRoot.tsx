@@ -147,7 +147,7 @@ const App: React.FC = () => {
 
   const processCardData = useCallback(
     async (cardData: CardData, longValueExists: boolean) => {
-      if (cardData.t === 'clerk') {
+      if (cardData.t === 'admin') {
         if (!election) {
           if (longValueExists && !loadingElection) {
             setLoadingElection(true)

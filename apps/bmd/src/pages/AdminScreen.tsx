@@ -45,7 +45,7 @@ interface Props {
 const getMachineTimezone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone
 
-const ClerkScreen = ({
+const AdminScreen = ({
   appMode,
   appPrecinctId,
   ballotsPrintedCount,
@@ -457,4 +457,4 @@ const ClerkScreen = ({
   )
 }
 
-export default ClerkScreen
+export default AdminScreen
