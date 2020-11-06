@@ -30,7 +30,7 @@ const WritingCardScreen: React.FC<Props> = ({
             <p>
               <ProgressBar progress={progress} />
             </p>
-            <h1>Programming card…</h1>
+            <h1>Encoding card…</h1>
             <p>
               {precinctName} / {ballotStyleId}
             </p>
