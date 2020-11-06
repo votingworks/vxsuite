@@ -10,7 +10,7 @@ import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../utils/CastVoteRecordFiles'
 
-interface AppContextInterface {
+export interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles
   electionDefinition?: ElectionDefinition
   configuredAt: ISO8601Timestamp

@@ -5,7 +5,8 @@ import Button, { ButtonInterface } from './Button'
 
 interface Props
   extends ButtonInterface,
-    RouteComponentProps<Record<PropertyKey, string>>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    RouteComponentProps<{}>,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
   goBack?: boolean
   onPress?: PointerEventHandler
