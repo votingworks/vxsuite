@@ -31,7 +31,7 @@ import './App.css'
 let checkCardInterval = 0
 
 const App: React.FC = () => {
-  const [isProgrammingCard, setIsProgrammingCard] = useState(false)
+  const [isEncodingCard, setIsEncodingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isCardPresent, setIsCardPresent] = useState(false)
   const [isClerkCardPresent, setIsClerkCardPresent] = useState(false)
@@ -191,7 +191,7 @@ const App: React.FC = () => {
     } = (event.target as HTMLElement).dataset
     if (precinctId && localBallotStyleId) {
       setBallotStyleId(localBallotStyleId)
-      setIsProgrammingCard(true)
+      setIsEncodingCard(true)
 
       const createAtSeconds = Math.round(Date.now() / 1000)
       const code = {
@@ -209,7 +209,7 @@ const App: React.FC = () => {
         .then((response) => {
           if (response.success) {
             window.setTimeout(() => {
-              setIsProgrammingCard(false)
+              setIsEncodingCard(false)
               setIsReadyToRemove(true)
             }, 1500)
           }
@@ -220,7 +220,7 @@ const App: React.FC = () => {
             // https://github.com/votingworks/bas/issues/10
             console.log(code) // eslint-disable-line no-console
             reset()
-            setIsProgrammingCard(false)
+            setIsEncodingCard(false)
             setIsReadyToRemove(true)
           }, 500)
         })
@@ -273,7 +273,7 @@ const App: React.FC = () => {
         />
       )
     }
-    if (isProgrammingCard) {
+    if (isEncodingCard) {
       return (
         <WritingCardScreen
           ballotStyleId={ballotStyleId}
