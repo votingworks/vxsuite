@@ -88,6 +88,7 @@
     "dashify": "^2.0.0",
     "dompurify": "^2.0.12",
     "fetch-mock": "^9.10.7",
+    "history": "^4.10.1",
     "i18next": "^19.4.5",
     "js-file-download": "^0.4.12",
     "js-sha256": "^0.9.0",
