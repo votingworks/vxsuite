@@ -24,10 +24,12 @@ interface Props {
   election: Election
   isPollsOpen: boolean
   isLiveMode: boolean
+  isElectionDay: boolean
   machineConfig: MachineConfig
   printer: Printer
   tally: Tally
   togglePollsOpen: () => void
+  enableLiveMode: () => void
 }
 
 const PollWorkerScreen = ({
@@ -36,15 +38,21 @@ const PollWorkerScreen = ({
   election,
   isPollsOpen,
   isLiveMode,
+  isElectionDay,
   machineConfig,
   printer,
   tally,
   togglePollsOpen,
+  enableLiveMode,
 }: Props) => {
   const precinct = election.precincts.find(
     (p) => p.id === appPrecinctId
   ) as Precinct
   const [isConfirmingPrintReport, setIsConfirmingPrintReport] = useState(false)
+  const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
+    !isLiveMode && isElectionDay
+  )
+  const cancelEnableLiveMode = () => setIsConfirmingEnableLiveMode(false)
   const [isPrintingReport, setIsPrintingReport] = useState(false)
   const cancelConfirmPrint = () => setIsConfirmingPrintReport(false)
   const isPrintMode = !!machineConfig.appMode.isVxPrint
@@ -60,6 +68,11 @@ const PollWorkerScreen = ({
     } else {
       togglePollsOpen()
     }
+  }
+
+  const confirmEnableLiveMode = () => {
+    enableLiveMode()
+    setIsConfirmingEnableLiveMode(false)
   }
 
   useEffect(() => {
@@ -91,7 +104,16 @@ const PollWorkerScreen = ({
               <Text warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
                 {isPollsOpen
                   ? 'Polls are currently open.'
-                  : 'Polls are currently closed.'}
+                  : 'Polls are currently closed.'}{' '}
+                {isLiveMode ? (
+                  <React.Fragment>
+                    Machine is in Live&nbsp;Election&nbsp;Mode.
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    Machine is in Testing&nbsp;Mode.
+                  </React.Fragment>
+                )}
               </Text>
               {isPrintMode && (
                 <p>
@@ -158,6 +180,44 @@ const PollWorkerScreen = ({
                   : `Printing Polls Opened report for ${precinct.name}`}
               </Loading>
             </Prose>
+          }
+        />
+        <Modal
+          isOpen={isConfirmingEnableLiveMode}
+          centerContent
+          content={
+            <Prose textCenter>
+              {isPrintMode ? (
+                <h1>
+                  Switch to Live&nbsp;Election&nbsp;Mode and reset the tally of
+                  printed ballots?
+                </h1>
+              ) : (
+                <h1>Switch to Live&nbsp;Election&nbsp;Mode?</h1>
+              )}
+              <p>
+                Today is Election Day and this machine is in{' '}
+                <strong>Testing&nbsp;Mode.</strong>
+              </p>
+              <p>
+                <em>
+                  Note: Switching back to Testing&nbsp;Mode requires an
+                  Admin&nbsp;Card.
+                </em>
+              </p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                primary
+                danger={isPrintMode}
+                onPress={confirmEnableLiveMode}
+              >
+                Switch to Live&nbsp;Mode
+              </Button>
+              <Button onPress={cancelEnableLiveMode}>Cancel</Button>
+            </React.Fragment>
           }
         />
       </Screen>

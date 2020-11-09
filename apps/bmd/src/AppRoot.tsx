@@ -70,6 +70,7 @@ import {
   isCardReader,
 } from './utils/Hardware'
 import { getSingleYesNoVote } from './utils/votes'
+import { isSameDay } from './utils/date'
 
 interface CardState {
   isClerkCardPresent: boolean
@@ -797,6 +798,13 @@ class AppRoot extends React.Component<Props, State> {
     this.setState({ appPrecinctId }, this.resetTally)
   }
 
+  public enableLiveMode = () => {
+    this.setState(
+      { isLiveMode: true, isPollsOpen: this.initialState.isPollsOpen },
+      this.resetTally
+    )
+  }
+
   public toggleLiveMode = () => {
     this.setState(
       (prevState) => ({
@@ -961,6 +969,9 @@ class AppRoot extends React.Component<Props, State> {
         }
       }
       if (isPollWorkerCardPresent) {
+        const electionDate = new Date(optionalElection.date)
+        const isElectionDay = isSameDay(electionDate, new Date())
+
         return (
           <PollWorkerScreen
             appPrecinctId={appPrecinctId}
@@ -968,10 +979,12 @@ class AppRoot extends React.Component<Props, State> {
             election={election}
             isLiveMode={isLiveMode}
             isPollsOpen={isPollsOpen}
+            isElectionDay={isElectionDay}
             machineConfig={machineConfig}
             printer={this.props.printer}
             tally={tally}
             togglePollsOpen={this.togglePollsOpen}
+            enableLiveMode={this.enableLiveMode}
           />
         )
       }
