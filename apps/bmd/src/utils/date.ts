@@ -45,13 +45,13 @@ export const formatFullDateTimeZone = (date: Date, timeZone?: string) =>
     timeZoneName: timeZone ? 'short' : undefined,
   }).format(date)
 
-// export const formatLongDate = (date: Date, timeZone?: string) =>
-//   new Intl.DateTimeFormat(undefined, {
-//     timeZone,
-//     month: 'long',
-//     day: 'numeric',
-//     year: 'numeric',
-//   }).format(date)
+export const formatLongDate = (date: Date, timeZone?: string) =>
+  new Intl.DateTimeFormat(undefined, {
+    timeZone,
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
 
 // TODO: replace `dateLong` with `formatLongDate`
 export const dateLong = (dateString: string) =>
@@ -74,4 +74,11 @@ export function getDaysInMonth(year: number, month: number) {
     date.setDate(date.getDate() + 1)
   }
   return days
+}
+
+/**
+ * Determines whether two dates are the same day in the current timezone.
+ */
+export function isSameDay(a: Date, b: Date): boolean {
+  return formatLongDate(a) === formatLongDate(b)
 }

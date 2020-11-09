@@ -1,14 +1,13 @@
 import React from 'react'
 import { Election } from '@votingworks/ballot-encoder'
 
+import { fireEvent } from '@testing-library/react'
 import { VxMarkOnly } from '../config/types'
 
 import { render } from '../../test/testUtils'
 
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 import { defaultPrecinctId } from '../../test/helpers/election'
-
-import { advanceTimers } from '../../test/helpers/smartcards'
 
 import PollWorkerScreen from './PollWorkerScreen'
 import { getZeroTally } from '../utils/election'
@@ -17,7 +16,7 @@ import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 
 jest.useFakeTimers()
 
-it('renders PollWorkerScreen', async () => {
+test('renders PollWorkerScreen', async () => {
   const election = electionSampleWithSeal as Election
   const { getByText } = render(
     <PollWorkerScreen
@@ -26,14 +25,85 @@ it('renders PollWorkerScreen', async () => {
       election={election}
       isPollsOpen
       isLiveMode={false}
+      isElectionDay={false}
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
+      enableLiveMode={jest.fn()}
     />
   )
 
-  advanceTimers()
+  getByText(/Polls are currently open./)
+})
 
-  getByText('Polls are currently open.')
+test('switching out of test mode on election day', async () => {
+  const election = electionSampleWithSeal as Election
+  const enableLiveMode = jest.fn()
+  const { getByText } = render(
+    <PollWorkerScreen
+      appPrecinctId={defaultPrecinctId}
+      ballotsPrintedCount={0}
+      election={election}
+      isPollsOpen
+      isLiveMode={false}
+      isElectionDay
+      machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
+      printer={fakePrinter()}
+      tally={getZeroTally(election)}
+      togglePollsOpen={jest.fn()}
+      enableLiveMode={enableLiveMode}
+    />
+  )
+
+  getByText('Switch to Live Election Mode?')
+  fireEvent.click(getByText('Switch to Live Mode'))
+  expect(enableLiveMode).toHaveBeenCalled()
+})
+
+test('keeping test mode on election day', async () => {
+  const election = electionSampleWithSeal as Election
+  const enableLiveMode = jest.fn()
+  const { getByText } = render(
+    <PollWorkerScreen
+      appPrecinctId={defaultPrecinctId}
+      ballotsPrintedCount={0}
+      election={election}
+      isPollsOpen
+      isLiveMode={false}
+      isElectionDay
+      machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
+      printer={fakePrinter()}
+      tally={getZeroTally(election)}
+      togglePollsOpen={jest.fn()}
+      enableLiveMode={enableLiveMode}
+    />
+  )
+
+  getByText('Switch to Live Election Mode?')
+  fireEvent.click(getByText('Cancel'))
+  expect(enableLiveMode).not.toHaveBeenCalled()
+})
+
+test('live mode on election day', async () => {
+  const election = electionSampleWithSeal as Election
+  const enableLiveMode = jest.fn()
+  const { queryByText } = render(
+    <PollWorkerScreen
+      appPrecinctId={defaultPrecinctId}
+      ballotsPrintedCount={0}
+      election={election}
+      isPollsOpen
+      isLiveMode
+      isElectionDay
+      machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
+      printer={fakePrinter()}
+      tally={getZeroTally(election)}
+      togglePollsOpen={jest.fn()}
+      enableLiveMode={enableLiveMode}
+    />
+  )
+
+  // eslint-disable-next-line no-restricted-syntax
+  expect(queryByText('Switch to Live Election Mode?')).toBe(null)
 })

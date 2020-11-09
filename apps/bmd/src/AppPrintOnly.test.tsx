@@ -4,6 +4,7 @@ import {
   electionSample,
   encodeBallot,
   BallotType,
+  Election,
 } from '@votingworks/ballot-encoder'
 
 import App from './App'
@@ -43,6 +44,7 @@ jest.useFakeTimers()
 jest.setTimeout(12000)
 
 test('VxPrintOnly flow', async () => {
+  const election = electionSample
   const card = new MemoryCard()
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
@@ -69,7 +71,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Configure with Admin Card
-  card.insertCard(adminCard, electionSample)
+  card.insertCard(adminCard, election)
   await advanceTimersAndPromises()
   fireEvent.click(getByText('Load Election Definition'))
 
@@ -84,7 +86,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Configure election with Admin Card
-  card.insertCard(adminCard, electionSample)
+  card.insertCard(adminCard, election)
   await advanceTimersAndPromises()
   getByLabelText('Precinct')
 
@@ -131,13 +133,9 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Set to Live Mode
-  card.insertCard(adminCard, electionSample)
+  card.insertCard(adminCard, election)
   await advanceTimersAndPromises()
-
   fireEvent.click(getByText('Live Election Mode'))
-  expect(
-    (getByText('Live Election Mode') as HTMLButtonElement).disabled
-  ).toBeTruthy()
 
   // Remove card
   card.removeCard()
@@ -147,9 +145,10 @@ test('VxPrintOnly flow', async () => {
 
   // ---------------
 
-  // Open Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
+
+  // Open Polls with Poll Worker Card
   fireEvent.click(getByText('Open Polls for Center Springfield'))
   getByText('Open polls and print Polls Opened report?')
   fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
@@ -208,10 +207,10 @@ test('VxPrintOnly flow', async () => {
   // Voter 1 Prints Ballot
   card.insertCard(
     createVoterCard(),
-    encodeBallot(electionSample, {
+    encodeBallot(election, {
       ballotId: 'test-ballot-id',
-      ballotStyle: electionSample.ballotStyles[0],
-      precinct: electionSample.precincts[0],
+      ballotStyle: election.ballotStyles[0],
+      precinct: election.precincts[0],
       votes: sampleVotes1,
       isTestMode: true,
       ballotType: BallotType.Standard,
@@ -243,10 +242,10 @@ test('VxPrintOnly flow', async () => {
   // Voter 2 Prints Ballot
   card.insertCard(
     createVoterCard(),
-    encodeBallot(electionSample, {
+    encodeBallot(election, {
       ballotId: 'test-ballot-id',
-      ballotStyle: electionSample.ballotStyles[0],
-      precinct: electionSample.precincts[0],
+      ballotStyle: election.ballotStyles[0],
+      precinct: election.precincts[0],
       votes: sampleVotes2,
       isTestMode: true,
       ballotType: BallotType.Standard,
@@ -275,10 +274,10 @@ test('VxPrintOnly flow', async () => {
   // Voter 3 Prints Ballot
   card.insertCard(
     createVoterCard(),
-    encodeBallot(electionSample, {
+    encodeBallot(election, {
       ballotId: 'test-ballot-id',
-      ballotStyle: electionSample.ballotStyles[0],
-      precinct: electionSample.precincts[0],
+      ballotStyle: election.ballotStyles[0],
+      precinct: election.precincts[0],
       votes: sampleVotes3,
       isTestMode: true,
       ballotType: BallotType.Standard,
@@ -305,10 +304,10 @@ test('VxPrintOnly flow', async () => {
   // Blank Ballot, i.e. a ballot that deliberately is left empty by the voter, should still print
   card.insertCard(
     createVoterCard(),
-    encodeBallot(electionSample, {
+    encodeBallot(election, {
       ballotId: 'test-ballot-id',
-      ballotStyle: electionSample.ballotStyles[0],
-      precinct: electionSample.precincts[0],
+      ballotStyle: election.ballotStyles[0],
+      precinct: election.precincts[0],
       votes: {},
       isTestMode: true,
       ballotType: BallotType.Standard,
@@ -388,7 +387,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Unconfigure with Admin Card
-  card.insertCard(adminCard, electionSample)
+  card.insertCard(adminCard, election)
   await advanceTimersAndPromises()
   getByText('Election definition is loaded.')
   fireEvent.click(getByText('Remove'))
@@ -399,6 +398,7 @@ test('VxPrintOnly flow', async () => {
 })
 
 test('VxPrint retains app mode when unconfigured', async () => {
+  const election = electionSample
   const card = new MemoryCard()
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
@@ -418,7 +418,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
 
   async function configure(): Promise<void> {
     // Configure with Admin Card
-    card.insertCard(adminCard, electionSample)
+    card.insertCard(adminCard, election)
     await advanceTimersAndPromises()
     fireEvent.click(getByText('Load Election Definition'))
 
@@ -464,7 +464,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
 
   async function unconfigure(): Promise<void> {
     // Unconfigure with Admin Card
-    card.insertCard(adminCard, electionSample)
+    card.insertCard(adminCard, election)
     await advanceTimersAndPromises()
     getByText('Election definition is loaded.')
     fireEvent.click(getByText('Remove'))
@@ -499,4 +499,64 @@ test('VxPrint retains app mode when unconfigured', async () => {
 
   // Make sure we're again ready to print ballots.
   getByText('Insert Card to print your official ballot.')
+})
+
+test('VxPrint prompts to change to live mode on election day', async () => {
+  const election: Election = {
+    ...electionSample,
+    date: new Date().toISOString(),
+  }
+  const card = new MemoryCard()
+  const printer = fakePrinter()
+  const hardware = MemoryHardware.standard
+  const storage = new MemoryStorage<AppStorage>()
+  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
+  const { getByText, getByLabelText, getByTestId } = render(
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      printer={printer}
+      machineConfig={machineConfig}
+    />
+  )
+
+  // Default Unconfigured
+  getByText('Device Not Configured')
+
+  // ---------------
+
+  // Configure with Admin Card
+  card.insertCard(adminCard, election)
+  await advanceTimersAndPromises()
+  fireEvent.click(getByText('Load Election Definition'))
+
+  await advanceTimersAndPromises()
+  getByText('Election definition is loaded.')
+  getByLabelText('Precinct')
+
+  // Select precinct
+  getByText('State of Hamilton')
+  const precinctSelect = getByLabelText('Precinct')
+  const precinctId = (within(precinctSelect).getByText(
+    'Center Springfield'
+  ) as HTMLOptionElement).value
+  fireEvent.change(precinctSelect, { target: { value: precinctId } })
+  within(getByTestId('election-info')).getByText('Center Springfield')
+
+  // Remove card
+  card.removeCard()
+  await advanceTimersAndPromises()
+  getByText('Polls Closed')
+  getByText('Insert Poll Worker card to open.')
+
+  // ---------------
+
+  // Switch to Live Election Mode with the Poll Worker Card.
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises()
+  getByText(
+    'Switch to Live Election Mode and reset the tally of printed ballots?'
+  )
+  fireEvent.click(getByText('Switch to Live Mode'))
 })
