@@ -138,7 +138,7 @@ const AdminScreen: React.FC<Props> = ({
             )}
             <h1>Configuration</h1>
             {isLoadingElection ? (
-              <p>Loading Election Definition from Clerk Card…</p>
+              <p>Loading Election Definition from Admin Card…</p>
             ) : election ? (
               <p>
                 <Text as="span" voteIcon>
@@ -161,7 +161,7 @@ const AdminScreen: React.FC<Props> = ({
           </Prose>
         </MainChild>
       </Main>
-      <MainNav title="Clerk Actions" />
+      <MainNav title="Admin Actions" />
     </Screen>
   )
 }

@@ -26,7 +26,7 @@ export type ButtonEventFunction = (event: ButtonEvent) => void
 export type SetElection = (value: OptionalElection) => void
 
 // Smart Card Content
-export type CardDataTypes = 'voter' | 'pollworker' | 'clerk'
+export type CardDataTypes = 'voter' | 'pollworker' | 'admin'
 export interface CardData {
   readonly t: CardDataTypes
 }
@@ -40,8 +40,8 @@ export interface PollworkerCardData extends CardData {
   readonly t: 'pollworker'
   readonly h: string
 }
-export interface ClerkCardData extends CardData {
-  readonly t: 'clerk'
+export interface AdminCardData extends CardData {
+  readonly t: 'admin'
   readonly h: string
 }
 

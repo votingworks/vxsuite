@@ -74,7 +74,7 @@ Once you're running the server, you can enable a mock card reader with fixture d
 ./mockCardReader.py enable --fixture fixtures/pollworker
 ```
 
-### Clerk
+### Admin
 
 ```
 ./mockCardReader.py enable --fixture fixtures/admin

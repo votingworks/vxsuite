@@ -12,7 +12,7 @@ const LoadElectionScreen: React.FC = () => {
         <MainChild center>
           <Prose textCenter>
             <h1>Not Configured</h1>
-            <p>Insert Election Clerk card.</p>
+            <p>Insert Election Admin card.</p>
           </Prose>
         </MainChild>
       </Main>

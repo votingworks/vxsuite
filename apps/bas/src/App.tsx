@@ -34,7 +34,7 @@ const App: React.FC = () => {
   const [isEncodingCard, setIsEncodingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isCardPresent, setIsCardPresent] = useState(false)
-  const [isClerkCardPresent, setIsClerkCardPresent] = useState(false)
+  const [isAdminCardPresent, setIsAdminCardPresent] = useState(false)
   const [isPollWorkerCardPresent, setIsPollWorkerCardPresent] = useState(false)
   const [isLocked, setIsLocked] = useState(true)
   const [isReadyToRemove, setIsReadyToRemove] = useState(false)
@@ -121,7 +121,7 @@ const App: React.FC = () => {
   }
 
   const processCardData = (shortValue: CardData, longValueExists = false) => {
-    setIsClerkCardPresent(false)
+    setIsAdminCardPresent(false)
     setIsPollWorkerCardPresent(false)
     // eslint-disable-next-line no-shadow
     let isWritableCard = false
@@ -134,9 +134,9 @@ const App: React.FC = () => {
         setIsPollWorkerCardPresent(true)
         setIsLocked(false)
         break
-      case 'clerk':
+      case 'admin':
         if (longValueExists) {
-          setIsClerkCardPresent(true)
+          setIsAdminCardPresent(true)
           setIsLocked(true)
         }
         break
@@ -161,7 +161,7 @@ const App: React.FC = () => {
         lastCardDataString = currentCardDataString
 
         setIsCardPresent(false)
-        setIsClerkCardPresent(false)
+        setIsAdminCardPresent(false)
         setIsPollWorkerCardPresent(false)
         setVoterCardData(undefined)
 
@@ -231,7 +231,7 @@ const App: React.FC = () => {
   const cardBallotStyleId = bs
   const cardPrecinctName = getPrecinctNameByPrecinctId(pr)
 
-  if (isClerkCardPresent) {
+  if (isAdminCardPresent) {
     return (
       <AdminScreen
         election={election}

@@ -122,7 +122,7 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
 )
 
 export const adminCard = JSON.stringify({
-  t: 'clerk',
+  t: 'admin',
   h: 'abcd',
 })
 
