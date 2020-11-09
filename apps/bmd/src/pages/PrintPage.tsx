@@ -12,7 +12,7 @@ export const printerMessageTimeoutSeconds = 5
 const PrintPage = () => {
   const {
     ballotStyleId,
-    election,
+    electionDefinition,
     isLiveMode,
     markVoterCardPrinted,
     precinctId,
@@ -21,6 +21,7 @@ const PrintPage = () => {
     updateTally,
     votes,
   } = useContext(BallotContext)
+  const election = electionDefinition.election
   const printerTimer = useRef(0)
 
   const printBallot = useCallback(async () => {

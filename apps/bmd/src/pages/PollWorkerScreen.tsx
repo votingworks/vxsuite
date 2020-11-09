@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import pluralize from 'pluralize'
-import { Precinct, Election } from '@votingworks/ballot-encoder'
+import { Precinct } from '@votingworks/ballot-encoder'
 
-import { Tally, MachineConfig } from '../config/types'
+import { Tally, MachineConfig, ElectionDefinition } from '../config/types'
 
 import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
@@ -21,7 +21,7 @@ import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 interface Props {
   appPrecinctId: string
   ballotsPrintedCount: number
-  election: Election
+  electionDefinition: ElectionDefinition
   isPollsOpen: boolean
   isLiveMode: boolean
   isElectionDay: boolean
@@ -35,7 +35,7 @@ interface Props {
 const PollWorkerScreen = ({
   appPrecinctId,
   ballotsPrintedCount,
-  election,
+  electionDefinition,
   isPollsOpen,
   isLiveMode,
   isElectionDay,
@@ -45,6 +45,7 @@ const PollWorkerScreen = ({
   togglePollsOpen,
   enableLiveMode,
 }: Props) => {
+  const { election } = electionDefinition
   const precinct = election.precincts.find(
     (p) => p.id === appPrecinctId
   ) as Precinct
@@ -138,8 +139,9 @@ const PollWorkerScreen = ({
           title="Poll Worker Actions"
           footer={
             <ElectionInfo
-              election={election}
+              electionDefinition={electionDefinition}
               precinctId={appPrecinctId}
+              showElectionHash
               horizontal
             />
           }

@@ -7,13 +7,17 @@ import {
   BallotContextInterface,
   TextSizeSetting,
   VxMarkOnly,
+  ElectionDefinition,
 } from '../config/types'
 
 const ballot: BallotContextInterface = {
   machineConfig: { machineId: '000', appMode: VxMarkOnly },
   ballotStyleId: '',
   contests: [],
-  election: (undefined as unknown) as Election,
+  electionDefinition: {
+    election: (undefined as unknown) as Election,
+    electionHash: '',
+  } as ElectionDefinition,
   isLiveMode: false,
   markVoterCardVoided: async () => false,
   markVoterCardPrinted: async () => false,

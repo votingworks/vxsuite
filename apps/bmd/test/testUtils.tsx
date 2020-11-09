@@ -2,7 +2,7 @@ import { createMemoryHistory } from 'history'
 import React from 'react'
 import { Router } from 'react-router-dom'
 import { render as testRender } from '@testing-library/react'
-import { Election, Contests } from '@votingworks/ballot-encoder'
+import { Contests } from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../src/config/globals'
 
@@ -11,7 +11,11 @@ import * as GLOBALS from '../src/config/globals'
 // typescript concludes that sealURL is required.
 import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
-import { TextSizeSetting, VxMarkOnly } from '../src/config/types'
+import {
+  TextSizeSetting,
+  VxMarkOnly,
+  ElectionDefinition,
+} from '../src/config/types'
 
 import BallotContext from '../src/contexts/ballotContext'
 import fakePrinter from './helpers/fakePrinter'
@@ -26,6 +30,7 @@ export function render(
     markVoterCardVoided = jest.fn(),
     markVoterCardPrinted = jest.fn(),
     election = electionSampleNoSeal,
+    electionHash = '',
     history = createMemoryHistory({ initialEntries: [route] }),
     isLiveMode = false,
     machineConfig = fakeMachineConfig({ appMode: VxMarkOnly }),
@@ -46,7 +51,7 @@ export function render(
         value={{
           ballotStyleId,
           contests,
-          election: election as Election,
+          electionDefinition: { election, electionHash } as ElectionDefinition,
           isLiveMode,
           machineConfig,
           markVoterCardVoided,

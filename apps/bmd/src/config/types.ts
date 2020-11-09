@@ -20,6 +20,7 @@ export type VoidFunction = () => void
 export interface Provider<T> {
   get(): Promise<T>
 }
+export type Optional<T> = T | undefined
 
 // App
 export const VxPrintOnly = {
@@ -74,6 +75,12 @@ export type SelectChangeEventFunction = React.ChangeEventHandler<
 >
 
 // Election
+export interface ElectionDefinition {
+  election: Election
+  electionHash: string
+}
+export type OptionalElectionDefinition = Optional<ElectionDefinition>
+
 export interface ActivationData {
   ballotCreatedAt: number
   ballotStyle: BallotStyle
@@ -120,7 +127,7 @@ export interface BallotContextInterface {
   machineConfig: MachineConfig
   ballotStyleId: string
   contests: Contests
-  readonly election: Election
+  readonly electionDefinition: ElectionDefinition
   isLiveMode: boolean
   markVoterCardPrinted: MarkVoterCardFunction
   markVoterCardVoided: MarkVoterCardFunction

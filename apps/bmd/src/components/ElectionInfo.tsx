@@ -1,8 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Precinct, Election } from '@votingworks/ballot-encoder'
+import { Precinct } from '@votingworks/ballot-encoder'
 import { dateLong } from '../utils/date'
+import { ElectionDefinition } from '../config/types'
 
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '../utils/election'
 
@@ -37,16 +38,19 @@ const HorizontalContainer = styled.div`
 interface Props {
   precinctId: string
   ballotStyleId?: string
-  election: Election
+  electionDefinition: ElectionDefinition
   horizontal?: boolean
+  showElectionHash?: boolean
 }
 
 const ElectionInfo = ({
   precinctId,
   ballotStyleId,
-  election,
+  electionDefinition,
   horizontal = false,
+  showElectionHash = false,
 }: Props) => {
+  const { election, electionHash } = electionDefinition
   const { title: t, state, county, date, seal, sealURL } = election
   const precinct = election.precincts.find(
     (p) => p.id === precinctId
@@ -78,6 +82,12 @@ const ElectionInfo = ({
                 </NoWrap>
               )}{' '}
               {ballotStyleId && <NoWrap>ballot style {ballotStyleId}</NoWrap>}
+              {showElectionHash && (
+                <React.Fragment>
+                  <br />
+                  {'Election ID: ' + electionHash.substring(0, 20)}
+                </React.Fragment>
+              )}
             </Text>
           </Prose>
         </HorizontalContainer>
@@ -97,6 +107,12 @@ const ElectionInfo = ({
           {state}
         </p>
         <Text light>{precinct.name}</Text>
+        {showElectionHash && (
+          <React.Fragment>
+            <br />
+            <Text light>{'Election ID: ' + electionHash.substring(0, 20)}</Text>
+          </React.Fragment>
+        )}
       </Prose>
     </VerticalContainer>
   )

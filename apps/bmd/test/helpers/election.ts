@@ -1,3 +1,4 @@
+import { sha256 } from 'js-sha256'
 import {
   CandidateContest,
   YesNoContest,
@@ -21,6 +22,12 @@ import {
 import { Storage } from '../../src/utils/Storage'
 
 export const election = electionSample as Election
+const electionData = JSON.stringify(election)
+export const electionDefinition = {
+  election: election,
+  electionHash: sha256(electionData),
+}
+
 export const contest0 = election.contests[0] as CandidateContest
 export const contest1 = election.contests[1] as CandidateContest
 export const contest0candidate0 = contest0.candidates[0]
@@ -69,7 +76,7 @@ export const voterContests = getContests({
 })
 
 export const setElectionInStorage = (storage: Storage<AppStorage>) => {
-  storage.set(electionStorageKey, election)
+  storage.set(electionStorageKey, electionDefinition)
 }
 
 export const setStateInStorage = (
