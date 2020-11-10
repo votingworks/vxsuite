@@ -23,7 +23,6 @@ import { map } from 'rxjs/operators'
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
 import {
-  ActivationData,
   CardAPI,
   CardData,
   CardPresentAPI,
@@ -217,11 +216,16 @@ class AppRoot extends React.Component<Props, State> {
     const precinct = election.precincts.find(
       (pr) => pr.id === voterCardData.pr
     )!
-    this.activateBallot({
+    this.setBallotActivation({
       ballotCreatedAt: voterCardData.c,
-      ballotStyle,
-      precinct,
+      ballotStyleId: ballotStyle.id,
+      precinctId: precinct.id,
     })
+    this.setState((prevState) => ({
+      ballotStyleId: ballotStyle.id,
+      contests: getContests({ ballotStyle, election: prevState.election! }),
+      precinctId: precinct.id,
+    }))
   }
 
   public fetchElection = async () => {
@@ -742,23 +746,6 @@ class AppRoot extends React.Component<Props, State> {
         this.props.history.push(path)
       }
     )
-  }
-
-  public activateBallot = ({
-    ballotCreatedAt,
-    ballotStyle,
-    precinct,
-  }: ActivationData) => {
-    this.setBallotActivation({
-      ballotCreatedAt,
-      ballotStyleId: ballotStyle.id,
-      precinctId: precinct.id,
-    })
-    this.setState((prevState) => ({
-      ballotStyleId: ballotStyle.id,
-      contests: getContests({ ballotStyle, election: prevState.election! }),
-      precinctId: precinct.id,
-    }))
   }
 
   public setUserSettings = (partial: PartialUserSettings) => {
