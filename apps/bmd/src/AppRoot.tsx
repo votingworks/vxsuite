@@ -216,7 +216,7 @@ class AppRoot extends React.Component<Props, State> {
     const precinct = election.precincts.find(
       (pr) => pr.id === voterCardData.pr
     )!
-    this.setBallotActivation({
+    this.storeBallotActivation({
       ballotCreatedAt: voterCardData.c,
       ballotStyleId: ballotStyle.id,
       precinctId: precinct.id,
@@ -231,7 +231,7 @@ class AppRoot extends React.Component<Props, State> {
   public fetchElection = async () => {
     this.setState({ isFetchingElection: true })
     try {
-      this.setElection((await this.props.card.readLongObject<Election>())!)
+      this.storeElection((await this.props.card.readLongObject<Election>())!)
     } finally {
       this.setState({ isFetchingElection: false })
     }
@@ -588,15 +588,15 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public componentDidMount = () => {
-    const election = this.getElection()
-    const { ballotStyleId, precinctId } = this.getBallotActivation()
+    const election = this.retrieveElection()
+    const { ballotStyleId, precinctId } = this.retrieveBallotActivation()
     const {
       appPrecinctId = this.initialAppState.appPrecinctId,
       ballotsPrintedCount = this.initialAppState.ballotsPrintedCount,
       isLiveMode = this.initialAppState.isLiveMode,
       isPollsOpen = this.initialAppState.isPollsOpen,
       tally = election ? getZeroTally(election) : this.initialAppState.tally,
-    } = this.getStoredState()
+    } = this.retrieveAppState()
     const ballotStyle =
       ballotStyleId &&
       election &&
@@ -618,7 +618,7 @@ class AppRoot extends React.Component<Props, State> {
       isPollsOpen,
       precinctId,
       tally,
-      votes: this.getVotes(),
+      votes: this.retrieveVotes(),
     })
     document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
@@ -655,30 +655,30 @@ class AppRoot extends React.Component<Props, State> {
     await this.props.card.writeShortValue(JSON.stringify(cardData))
   }
 
-  public getElection = (): OptionalElection =>
+  public retrieveElection = (): OptionalElection =>
     this.props.storage.get(electionStorageKey)
 
-  public setElection = (electionConfigFile: Election) => {
+  public storeElection = (electionConfigFile: Election) => {
     const election = electionConfigFile
     this.setState({ election }, this.resetTally)
     this.props.storage.set(electionStorageKey, election)
   }
 
-  public getBallotActivation = (): SerializableActivationData =>
+  public retrieveBallotActivation = (): SerializableActivationData =>
     this.props.storage.get(activationStorageKey) ||
     (({} as unknown) as SerializableActivationData)
 
-  public setBallotActivation = (data: SerializableActivationData) => {
+  public storeBallotActivation = (data: SerializableActivationData) => {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       this.props.storage.set(activationStorageKey, data)
     }
   }
 
-  public getVotes = () =>
+  public retrieveVotes = () =>
     this.props.storage.get(votesStorageKey) || blankBallotVotes
 
-  public setVotes = async (votes: VotesDict) => {
+  public storeVotes = async (votes: VotesDict) => {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       this.props.storage.set(votesStorageKey, votes)
@@ -698,7 +698,7 @@ class AppRoot extends React.Component<Props, State> {
     this.props.history.push('/')
   }
 
-  public setStoredState = () => {
+  public storeAppState = () => {
     const {
       appPrecinctId,
       ballotsPrintedCount,
@@ -715,7 +715,7 @@ class AppRoot extends React.Component<Props, State> {
     })
   }
 
-  public getStoredState = (): Partial<State> => {
+  public retrieveAppState = (): Partial<State> => {
     return this.props.storage.get(stateStorageKey) || {}
   }
 
@@ -725,7 +725,7 @@ class AppRoot extends React.Component<Props, State> {
         votes: { ...prevState.votes, [contestId]: vote },
       }),
       () => {
-        this.state.votes && this.setVotes(this.state.votes)
+        this.state.votes && this.storeVotes(this.state.votes)
       }
     )
   }
@@ -742,7 +742,7 @@ class AppRoot extends React.Component<Props, State> {
         ...this.initialVoterState,
       },
       () => {
-        this.setStoredState()
+        this.storeAppState()
         this.props.history.push(path)
       }
     )
@@ -798,7 +798,7 @@ class AppRoot extends React.Component<Props, State> {
   public togglePollsOpen = () => {
     this.setState(
       (prevState) => ({ isPollsOpen: !prevState.isPollsOpen }),
-      this.setStoredState
+      this.storeAppState
     )
   }
 
@@ -808,7 +808,7 @@ class AppRoot extends React.Component<Props, State> {
         ballotsPrintedCount: this.initialAppState.ballotsPrintedCount,
         tally: getZeroTally(election!),
       }),
-      this.setStoredState
+      this.storeAppState
     )
   }
 
@@ -885,7 +885,7 @@ class AppRoot extends React.Component<Props, State> {
           tally,
         }
       },
-      this.setStoredState
+      this.storeAppState
     )
   }
 
