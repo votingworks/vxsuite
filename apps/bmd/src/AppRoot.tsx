@@ -166,7 +166,7 @@ class AppRoot extends React.Component<Props, State> {
     voterCardCreatedAt: 0,
   }
 
-  private initialUserState: UserState = {
+  private initialVoterState: UserState = {
     ballotCreatedAt: 0,
     ballotStyleId: '',
     contests: [],
@@ -195,18 +195,18 @@ class AppRoot extends React.Component<Props, State> {
     tally: [],
   }
 
-  private resetState: Omit<State, keyof HardwareState> = {
-    ...this.initialUserState,
+  private initialUserState: Omit<State, keyof HardwareState> = {
+    ...this.initialVoterState,
     ...this.initialCardPresentState,
     ...this.sharedState,
   }
 
-  private initialState: State = {
-    ...this.resetState,
+  private initialAppState: State = {
+    ...this.initialUserState,
     ...this.initialHardwareState,
   }
 
-  public state = this.initialState
+  public state = this.initialAppState
 
   public processVoterCardData = (voterCardData: VoterCardData) => {
     const election = this.state.election!
@@ -320,7 +320,7 @@ class AppRoot extends React.Component<Props, State> {
               isVoterCardValid,
               voterCardCreatedAt,
               ballotStyleId:
-                ballot.ballotStyle?.id ?? this.initialState.ballotStyleId,
+                ballot.ballotStyle?.id ?? this.initialAppState.ballotStyleId,
               votes: ballot.votes,
             }
           },
@@ -587,11 +587,11 @@ class AppRoot extends React.Component<Props, State> {
     const election = this.getElection()
     const { ballotStyleId, precinctId } = this.getBallotActivation()
     const {
-      appPrecinctId = this.initialState.appPrecinctId,
-      ballotsPrintedCount = this.initialState.ballotsPrintedCount,
-      isLiveMode = this.initialState.isLiveMode,
-      isPollsOpen = this.initialState.isPollsOpen,
-      tally = election ? getZeroTally(election) : this.initialState.tally,
+      appPrecinctId = this.initialAppState.appPrecinctId,
+      ballotsPrintedCount = this.initialAppState.ballotsPrintedCount,
+      isLiveMode = this.initialAppState.isLiveMode,
+      isPollsOpen = this.initialAppState.isPollsOpen,
+      tally = election ? getZeroTally(election) : this.initialAppState.tally,
     } = this.getStoredState()
     const ballotStyle =
       ballotStyleId &&
@@ -603,7 +603,7 @@ class AppRoot extends React.Component<Props, State> {
     const contests =
       ballotStyle && election
         ? getContests({ ballotStyle, election })
-        : this.initialState.contests
+        : this.initialAppState.contests
     this.setState({
       appPrecinctId,
       ballotsPrintedCount,
@@ -689,7 +689,7 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public unconfigure = () => {
-    this.setState(this.resetState)
+    this.setState(this.initialUserState)
     this.props.storage.clear()
     this.props.history.push('/')
   }
@@ -735,7 +735,7 @@ class AppRoot extends React.Component<Props, State> {
     this.setState(
       {
         ...this.initialCardPresentState,
-        ...this.initialUserState,
+        ...this.initialVoterState,
       },
       () => {
         this.setStoredState()
@@ -802,7 +802,7 @@ class AppRoot extends React.Component<Props, State> {
     this.setState(
       (prevState) => ({
         isLiveMode: !prevState.isLiveMode,
-        isPollsOpen: this.initialState.isPollsOpen,
+        isPollsOpen: this.initialAppState.isPollsOpen,
       }),
       this.resetTally
     )
@@ -818,7 +818,7 @@ class AppRoot extends React.Component<Props, State> {
   public resetTally = () => {
     this.setState(
       ({ election }) => ({
-        ballotsPrintedCount: this.initialState.ballotsPrintedCount,
+        ballotsPrintedCount: this.initialAppState.ballotsPrintedCount,
         tally: getZeroTally(election!),
       }),
       this.setStoredState
