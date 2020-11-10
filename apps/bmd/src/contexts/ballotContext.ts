@@ -10,7 +10,6 @@ import {
 } from '../config/types'
 
 const ballot: BallotContextInterface = {
-  activateBallot: () => undefined,
   machineConfig: { machineId: '000', appMode: VxMarkOnly },
   ballotStyleId: '',
   contests: [],

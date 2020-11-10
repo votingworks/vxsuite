@@ -1022,7 +1022,6 @@ class AppRoot extends React.Component<Props, State> {
             <Gamepad onButtonDown={handleGamepadButtonDown}>
               <BallotContext.Provider
                 value={{
-                  activateBallot: this.activateBallot,
                   machineConfig,
                   ballotStyleId,
                   contests,

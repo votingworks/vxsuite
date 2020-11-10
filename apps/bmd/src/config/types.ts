@@ -117,7 +117,6 @@ export type Tally = (
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
 export type MarkVoterCardFunction = () => Promise<boolean>
 export interface BallotContextInterface {
-  activateBallot: (activationData: ActivationData) => void
   machineConfig: MachineConfig
   ballotStyleId: string
   contests: Contests
