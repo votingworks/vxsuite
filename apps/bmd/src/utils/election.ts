@@ -23,11 +23,11 @@ export const getPrecinctById = ({
 }) => election.precincts.find((p) => p.id === precinctId)
 
 export const getBallotStyle = ({
-  ballotStyleId,
   election,
+  ballotStyleId,
 }: {
-  ballotStyleId: string
   election: Election
+  ballotStyleId: string
 }) => election.ballotStyles.find((bs) => bs.id === ballotStyleId) as BallotStyle
 
 export const getPartyPrimaryAdjectiveFromBallotStyle = ({
