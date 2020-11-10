@@ -249,23 +249,6 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public getIsVoterCardExpired = (
-    prevCreatedAt: number,
-    createdAt: number
-  ): boolean => {
-    return (
-      prevCreatedAt === 0 &&
-      utcTimestamp() >= createdAt + GLOBALS.CARD_EXPIRATION_SECONDS
-    )
-  }
-
-  public getIsRecentVoterPrint = (isPrinted: boolean, printedTime: number) => {
-    return (
-      isPrinted &&
-      utcTimestamp() <= printedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
-    )
-  }
-
   public processCard = async ({
     longValueExists,
     shortValue,
@@ -281,10 +264,11 @@ class AppRoot extends React.Component<Props, State> {
           ? Number(voterCardData.bp)
           : 0
         const isVoterCardPrinted = Boolean(ballotPrintedTime)
-        const isRecentVoterPrint = this.getIsRecentVoterPrint(
-          isVoterCardPrinted,
-          ballotPrintedTime
-        )
+        const isRecentVoterPrint =
+          isVoterCardPrinted &&
+          utcTimestamp() <=
+            ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
+
         const hasValidBallotStyle = Boolean(
           getBallotStyle({
             election: election!,
@@ -309,10 +293,11 @@ class AppRoot extends React.Component<Props, State> {
 
         this.setState(
           (prevState) => {
-            const isVoterCardExpired = this.getIsVoterCardExpired(
-              prevState.voterCardCreatedAt,
-              voterCardCreatedAt
-            )
+            const isVoterCardExpired =
+              prevState.voterCardCreatedAt === 0 &&
+              utcTimestamp() >=
+                voterCardCreatedAt + GLOBALS.CARD_EXPIRATION_SECONDS
+
             return {
               ...this.initialCardPresentState,
               shortValue,
