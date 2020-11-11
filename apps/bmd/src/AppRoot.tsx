@@ -205,395 +205,6 @@ class AppRoot extends React.Component<Props, State> {
 
   public state = this.initialAppState
 
-  public fetchElection = async () => {
-    const election = await this.props.card.readLongObject<Election>()
-    /* istanbul ignore else */
-    if (election) {
-      this.setState({ election }, this.resetTally)
-      this.storeElection(election)
-    }
-  }
-
-  public fetchBallotData = async () => {
-    const longValue = (await this.props.card.readLongUint8Array())!
-    /* istanbul ignore else */
-    if (longValue) {
-      const election = this.state.election!
-      const { ballot } = decodeBallot(election, longValue)
-      return ballot
-    } else {
-      return undefined
-    }
-  }
-
-  public processCard = async ({
-    longValueExists,
-    shortValue,
-  }: CardPresentAPI) => {
-    const { election } = this.state
-    const cardData: CardData = JSON.parse(shortValue!)
-    switch (cardData.t) {
-      case 'voter': {
-        const voterCardData = cardData as VoterCardData
-        const voterCardCreatedAt = voterCardData.c
-        const isVoterCardVoided = Boolean(voterCardData.uz)
-        const ballotPrintedTime = voterCardData.bp
-          ? Number(voterCardData.bp)
-          : 0
-        const isVoterCardPrinted = Boolean(ballotPrintedTime)
-        const isRecentVoterPrint =
-          isVoterCardPrinted &&
-          utcTimestamp() <=
-            ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
-        const ballotStyle = getBallotStyle({
-          election: election!,
-          ballotStyleId: voterCardData.bs,
-        })
-        const precinct = getPrecinctById({
-          election: election!,
-          precinctId: voterCardData.pr,
-        })
-        const isVoterCardValid = Boolean(ballotStyle) && Boolean(precinct)
-
-        const ballot: Partial<CompletedBallot> =
-          (longValueExists &&
-            this.state.isVoterCardValid &&
-            !this.state.isVoterCardExpired &&
-            !this.state.isVoterCardVoided &&
-            !this.state.isVoterCardPrinted &&
-            (await this.fetchBallotData())) ||
-          {}
-
-        this.setState((prevState) => {
-          const isVoterCardExpired =
-            prevState.voterCardCreatedAt === 0 &&
-            utcTimestamp() >=
-              voterCardCreatedAt + GLOBALS.CARD_EXPIRATION_SECONDS
-
-          return {
-            ...this.initialCardPresentState,
-            shortValue,
-            isVoterCardExpired,
-            isVoterCardVoided,
-            isVoterCardPresent: true,
-            isVoterCardPrinted,
-            isRecentVoterPrint,
-            isVoterCardValid,
-            voterCardCreatedAt,
-            ballotStyleId:
-              ballotStyle?.id ?? this.initialAppState.ballotStyleId,
-            precinctId: precinct?.id ?? this.initialAppState.precinctId,
-            votes: ballot.votes,
-            contests:
-              ballotStyle && election
-                ? getContests({ ballotStyle, election })
-                : this.initialAppState.contests,
-          }
-        })
-        precinct &&
-          ballotStyle &&
-          this.storeBallotActivation({
-            ballotCreatedAt: voterCardData.c,
-            ballotStyleId: ballotStyle.id,
-            precinctId: precinct.id,
-          })
-
-        break
-      }
-      case 'pollworker': {
-        this.setState({
-          ...this.initialCardPresentState,
-          isPollWorkerCardPresent: true,
-        })
-        break
-      }
-      case 'admin': {
-        longValueExists &&
-          this.setState({
-            ...this.initialCardPresentState,
-            isAdminCardPresent: true,
-          })
-        break
-      }
-    }
-  }
-
-  public startShortValueReadPolling = () => {
-    /* istanbul ignore else */
-    if (!this.cardPoller) {
-      let lastCardDataString = ''
-
-      this.cardPoller = IntervalPoller.start(
-        GLOBALS.CARD_POLLING_INTERVAL,
-        async () => {
-          try {
-            const card = await this.props.card.readStatus()
-            if (this.state.pauseProcessingUntilNoCardPresent) {
-              if (card.present) {
-                return
-              }
-              this.setPauseProcessingUntilNoCardPresent(false)
-            }
-
-            // we compare last card and current card without the longValuePresent flag
-            // otherwise when we first write the ballot to the card, it reprocesses it
-            // and may cause a race condition where an old ballot on the card
-            // overwrites a newer one in memory.
-            //
-            // TODO: embed a card dip UUID in the card data string so even an unlikely
-            // identical card swap within 200ms is always detected.
-            // https://github.com/votingworks/module-smartcards/issues/59
-            const cardCopy = { ...card, longValueExists: undefined }
-            const currentCardDataString = JSON.stringify(cardCopy)
-            if (currentCardDataString === lastCardDataString) {
-              return
-            }
-            lastCardDataString = currentCardDataString
-
-            if (!card.present || !card.shortValue) {
-              this.resetBallot()
-              return
-            }
-
-            this.processCard(card)
-          } catch (error) {
-            this.resetBallot()
-            lastCardDataString = ''
-            this.stopShortValueReadPolling() // Assume backend is unavailable.
-          }
-        }
-      )
-    }
-  }
-
-  public stopShortValueReadPolling = () => {
-    this.cardPoller?.stop()
-    this.cardPoller = undefined
-  }
-
-  public clearLongValue = async () => {
-    this.writingVoteToCard = true
-    await this.props.card.writeLongUint8Array(Uint8Array.of())
-    this.writingVoteToCard = false
-  }
-
-  public startLongValueWritePolling = () => {
-    /* istanbul ignore else */
-    if (this.cardWriteInterval === 0) {
-      this.cardWriteInterval = window.setInterval(async () => {
-        if (
-          this.state.isVoterCardPresent &&
-          this.state.ballotStyleId &&
-          this.state.precinctId &&
-          ((this.lastVoteSaveToCardAt < this.lastVoteUpdateAt &&
-            this.lastVoteUpdateAt <
-              Date.now() - GLOBALS.CARD_LONG_VALUE_WRITE_DELAY) ||
-            this.forceSaveVoteFlag) &&
-          !this.writingVoteToCard
-        ) {
-          this.lastVoteSaveToCardAt = Date.now()
-          this.forceSaveVoteFlag = false
-
-          const election = this.state.election!
-          const ballot: CompletedBallot = {
-            ballotId: '',
-            ballotStyle: getBallotStyle({
-              election,
-              ballotStyleId: this.state.ballotStyleId,
-            })!,
-            precinct: getPrecinctById({
-              election,
-              precinctId: this.state.precinctId,
-            })!,
-            votes: this.state.votes ?? blankBallotVotes,
-            isTestMode: !this.state.isLiveMode,
-            ballotType: BallotType.Standard,
-          }
-          const longValue = encodeBallot(election, ballot)
-
-          this.writingVoteToCard = true
-          try {
-            await this.props.card.writeLongUint8Array(longValue)
-          } catch (error) {
-            // eslint-disable-next-line no-empty
-          }
-          this.writingVoteToCard = false
-        }
-      }, GLOBALS.CARD_POLLING_INTERVAL)
-    }
-  }
-
-  public setPauseProcessingUntilNoCardPresent = (b: boolean) => {
-    this.setState({ pauseProcessingUntilNoCardPresent: b })
-  }
-
-  public markVoterCardVoided: MarkVoterCardFunction = async () => {
-    this.stopShortValueReadPolling()
-
-    await this.clearLongValue()
-
-    const currentVoterCardData: VoterCardData = JSON.parse(
-      this.state.shortValue!
-    )
-    const voidedVoterCardData: VoterCardData = {
-      ...currentVoterCardData,
-      uz: utcTimestamp(),
-    }
-    await this.writeCard(voidedVoterCardData)
-
-    const updatedCard = await this.readCard()
-    const updatedShortValue: VoterCardData =
-      updatedCard.present && JSON.parse(updatedCard.shortValue!)
-
-    this.startShortValueReadPolling()
-
-    /* istanbul ignore next - this should never happen */
-    if (voidedVoterCardData.uz !== updatedShortValue.uz) {
-      this.resetBallot()
-      return false
-    }
-    return true
-  }
-
-  public markVoterCardPrinted: MarkVoterCardFunction = async () => {
-    this.stopShortValueReadPolling()
-    this.setPauseProcessingUntilNoCardPresent(true)
-
-    await this.clearLongValue()
-
-    const currentVoterCardData: VoterCardData = JSON.parse(
-      this.state.shortValue!
-    )
-
-    const usedVoterCardData: VoterCardData = {
-      ...currentVoterCardData,
-      bp: utcTimestamp(),
-    }
-    await this.writeCard(usedVoterCardData)
-
-    const updatedCard = await this.readCard()
-    const updatedShortValue: VoterCardData =
-      updatedCard.present && JSON.parse(updatedCard.shortValue!)
-
-    this.startShortValueReadPolling()
-
-    /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edge case. */
-    if (usedVoterCardData.bp !== updatedShortValue.bp) {
-      this.resetBallot()
-      return false
-    }
-    return true
-  }
-
-  public startHardwareStatusPolling = () => {
-    /* istanbul ignore else */
-    if (!this.statusPoller) {
-      this.statusPoller = IntervalPoller.start(
-        GLOBALS.HARDWARE_POLLING_INTERVAL,
-        async () => {
-          try {
-            const { hardware } = this.props
-            const battery = await hardware.readBatteryStatus()
-            this.setState({
-              hasChargerAttached: !battery.discharging,
-              hasLowBattery: battery.level < GLOBALS.LOW_BATTERY_THRESHOLD,
-            })
-          } catch (error) {
-            this.stopHardwareStatusPolling() // Assume backend is unavailable.
-          }
-        }
-      )
-    }
-
-    /* istanbul ignore else */
-    if (!this.onDeviceChangeSubscription) {
-      const { hardware } = this.props
-
-      // watch for changes
-      this.onDeviceChangeSubscription = hardware.devices
-        .pipe(map((devices) => Array.from(devices)))
-        .subscribe(async (devices) => {
-          const hasAccessibleControllerAttached = devices.some(
-            isAccessibleController
-          )
-          const hasCardReaderAttached = devices.some(isCardReader)
-          const printer = await hardware.readPrinterStatus()
-          const hasPrinterAttached = printer.connected
-
-          if (!hasPrinterAttached) {
-            this.resetBallot()
-
-            // stop+start forces a last-card-value cache flush
-            this.stopShortValueReadPolling()
-            this.startShortValueReadPolling()
-          }
-
-          this.setState({
-            hasAccessibleControllerAttached,
-            hasCardReaderAttached,
-            hasPrinterAttached,
-          })
-        })
-    }
-  }
-
-  public stopHardwareStatusPolling = () => {
-    this.statusPoller?.stop()
-    this.statusPoller = undefined
-
-    this.onDeviceChangeSubscription?.unsubscribe()
-    this.onDeviceChangeSubscription = undefined
-  }
-
-  public componentDidMount = () => {
-    const election = this.retrieveElection()
-    const { ballotStyleId, precinctId } = this.retrieveBallotActivation()
-    const {
-      appPrecinctId = this.initialAppState.appPrecinctId,
-      ballotsPrintedCount = this.initialAppState.ballotsPrintedCount,
-      isLiveMode = this.initialAppState.isLiveMode,
-      isPollsOpen = this.initialAppState.isPollsOpen,
-      tally = election ? getZeroTally(election) : this.initialAppState.tally,
-    } = this.retrieveAppState()
-    const ballotStyle =
-      ballotStyleId &&
-      election &&
-      getBallotStyle({
-        ballotStyleId,
-        election,
-      })
-    const contests =
-      ballotStyle && election
-        ? getContests({ ballotStyle, election })
-        : this.initialAppState.contests
-    this.setState({
-      appPrecinctId,
-      ballotsPrintedCount,
-      ballotStyleId,
-      contests,
-      election,
-      isLiveMode,
-      isPollsOpen,
-      precinctId,
-      tally,
-      votes: this.retrieveVotes(),
-    })
-    document.addEventListener('keydown', handleGamepadKeyboardEvent)
-    document.documentElement.setAttribute('data-useragent', navigator.userAgent)
-    this.setDocumentFontSize()
-    this.setMachineConfig()
-    this.startShortValueReadPolling()
-    this.startLongValueWritePolling()
-    this.startHardwareStatusPolling()
-  }
-
-  public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
-    this.machineIdAbortController.abort()
-    document.removeEventListener('keydown', handleGamepadKeyboardEvent)
-    this.stopShortValueReadPolling()
-    this.stopHardwareStatusPolling()
-  }
-
   public setMachineConfig = async () => {
     try {
       const machineConfig = await this.props.machineConfig.get()
@@ -736,7 +347,7 @@ class AppRoot extends React.Component<Props, State> {
 
   public enableLiveMode = () => {
     this.setState(
-      { isLiveMode: true, isPollsOpen: this.initialState.isPollsOpen },
+      { isLiveMode: true, isPollsOpen: this.initialUserState.isPollsOpen },
       this.resetTally
     )
   }
@@ -843,6 +454,395 @@ class AppRoot extends React.Component<Props, State> {
       },
       this.storeAppState
     )
+  }
+
+  public fetchElection = async () => {
+    const election = await this.props.card.readLongObject<Election>()
+    /* istanbul ignore else */
+    if (election) {
+      this.setState({ election }, this.resetTally)
+      this.storeElection(election)
+    }
+  }
+
+  public fetchBallotData = async () => {
+    const longValue = (await this.props.card.readLongUint8Array())!
+    /* istanbul ignore else */
+    if (longValue) {
+      const election = this.state.election!
+      const { ballot } = decodeBallot(election, longValue)
+      return ballot
+    } else {
+      return undefined
+    }
+  }
+
+  public processCard = async ({
+    longValueExists,
+    shortValue,
+  }: CardPresentAPI) => {
+    const { election } = this.state
+    const cardData: CardData = JSON.parse(shortValue!)
+    switch (cardData.t) {
+      case 'voter': {
+        const voterCardData = cardData as VoterCardData
+        const voterCardCreatedAt = voterCardData.c
+        const isVoterCardVoided = Boolean(voterCardData.uz)
+        const ballotPrintedTime = voterCardData.bp
+          ? Number(voterCardData.bp)
+          : 0
+        const isVoterCardPrinted = Boolean(ballotPrintedTime)
+        const isRecentVoterPrint =
+          isVoterCardPrinted &&
+          utcTimestamp() <=
+            ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
+        const ballotStyle = getBallotStyle({
+          election: election!,
+          ballotStyleId: voterCardData.bs,
+        })
+        const precinct = getPrecinctById({
+          election: election!,
+          precinctId: voterCardData.pr,
+        })
+        const isVoterCardValid = Boolean(ballotStyle) && Boolean(precinct)
+
+        const ballot: Partial<CompletedBallot> =
+          (longValueExists &&
+            this.state.isVoterCardValid &&
+            !this.state.isVoterCardExpired &&
+            !this.state.isVoterCardVoided &&
+            !this.state.isVoterCardPrinted &&
+            (await this.fetchBallotData())) ||
+          {}
+
+        this.setState((prevState) => {
+          const isVoterCardExpired =
+            prevState.voterCardCreatedAt === 0 &&
+            utcTimestamp() >=
+              voterCardCreatedAt + GLOBALS.CARD_EXPIRATION_SECONDS
+
+          return {
+            ...this.initialCardPresentState,
+            shortValue,
+            isVoterCardExpired,
+            isVoterCardVoided,
+            isVoterCardPresent: true,
+            isVoterCardPrinted,
+            isRecentVoterPrint,
+            isVoterCardValid,
+            voterCardCreatedAt,
+            ballotStyleId:
+              ballotStyle?.id ?? this.initialAppState.ballotStyleId,
+            precinctId: precinct?.id ?? this.initialAppState.precinctId,
+            votes: ballot.votes,
+            contests:
+              ballotStyle && election
+                ? getContests({ ballotStyle, election })
+                : this.initialAppState.contests,
+          }
+        })
+        precinct &&
+          ballotStyle &&
+          this.storeBallotActivation({
+            ballotCreatedAt: voterCardData.c,
+            ballotStyleId: ballotStyle.id,
+            precinctId: precinct.id,
+          })
+
+        break
+      }
+      case 'pollworker': {
+        this.setState({
+          ...this.initialCardPresentState,
+          isPollWorkerCardPresent: true,
+        })
+        break
+      }
+      case 'admin': {
+        longValueExists &&
+          this.setState({
+            ...this.initialCardPresentState,
+            isAdminCardPresent: true,
+          })
+        break
+      }
+    }
+  }
+
+  public stopShortValueReadPolling = () => {
+    this.cardPoller?.stop()
+    this.cardPoller = undefined
+  }
+
+  public startShortValueReadPolling = () => {
+    /* istanbul ignore else */
+    if (!this.cardPoller) {
+      let lastCardDataString = ''
+
+      this.cardPoller = IntervalPoller.start(
+        GLOBALS.CARD_POLLING_INTERVAL,
+        async () => {
+          try {
+            const card = await this.props.card.readStatus()
+            if (this.state.pauseProcessingUntilNoCardPresent) {
+              if (card.present) {
+                return
+              }
+              this.setPauseProcessingUntilNoCardPresent(false)
+            }
+
+            // we compare last card and current card without the longValuePresent flag
+            // otherwise when we first write the ballot to the card, it reprocesses it
+            // and may cause a race condition where an old ballot on the card
+            // overwrites a newer one in memory.
+            //
+            // TODO: embed a card dip UUID in the card data string so even an unlikely
+            // identical card swap within 200ms is always detected.
+            // https://github.com/votingworks/module-smartcards/issues/59
+            const cardCopy = { ...card, longValueExists: undefined }
+            const currentCardDataString = JSON.stringify(cardCopy)
+            if (currentCardDataString === lastCardDataString) {
+              return
+            }
+            lastCardDataString = currentCardDataString
+
+            if (!card.present || !card.shortValue) {
+              this.resetBallot()
+              return
+            }
+
+            this.processCard(card)
+          } catch (error) {
+            this.resetBallot()
+            lastCardDataString = ''
+            this.stopShortValueReadPolling() // Assume backend is unavailable.
+          }
+        }
+      )
+    }
+  }
+
+  public clearLongValue = async () => {
+    this.writingVoteToCard = true
+    await this.props.card.writeLongUint8Array(Uint8Array.of())
+    this.writingVoteToCard = false
+  }
+
+  public startLongValueWritePolling = () => {
+    /* istanbul ignore else */
+    if (this.cardWriteInterval === 0) {
+      this.cardWriteInterval = window.setInterval(async () => {
+        if (
+          this.state.isVoterCardPresent &&
+          this.state.ballotStyleId &&
+          this.state.precinctId &&
+          ((this.lastVoteSaveToCardAt < this.lastVoteUpdateAt &&
+            this.lastVoteUpdateAt <
+              Date.now() - GLOBALS.CARD_LONG_VALUE_WRITE_DELAY) ||
+            this.forceSaveVoteFlag) &&
+          !this.writingVoteToCard
+        ) {
+          this.lastVoteSaveToCardAt = Date.now()
+          this.forceSaveVoteFlag = false
+
+          const election = this.state.election!
+          const ballot: CompletedBallot = {
+            ballotId: '',
+            ballotStyle: getBallotStyle({
+              election,
+              ballotStyleId: this.state.ballotStyleId,
+            })!,
+            precinct: getPrecinctById({
+              election,
+              precinctId: this.state.precinctId,
+            })!,
+            votes: this.state.votes ?? blankBallotVotes,
+            isTestMode: !this.state.isLiveMode,
+            ballotType: BallotType.Standard,
+          }
+          const longValue = encodeBallot(election, ballot)
+
+          this.writingVoteToCard = true
+          try {
+            await this.props.card.writeLongUint8Array(longValue)
+          } catch (error) {
+            // eslint-disable-next-line no-empty
+          }
+          this.writingVoteToCard = false
+        }
+      }, GLOBALS.CARD_POLLING_INTERVAL)
+    }
+  }
+
+  public setPauseProcessingUntilNoCardPresent = (b: boolean) => {
+    this.setState({ pauseProcessingUntilNoCardPresent: b })
+  }
+
+  public markVoterCardVoided: MarkVoterCardFunction = async () => {
+    this.stopShortValueReadPolling()
+
+    await this.clearLongValue()
+
+    const currentVoterCardData: VoterCardData = JSON.parse(
+      this.state.shortValue!
+    )
+    const voidedVoterCardData: VoterCardData = {
+      ...currentVoterCardData,
+      uz: utcTimestamp(),
+    }
+    await this.writeCard(voidedVoterCardData)
+
+    const updatedCard = await this.readCard()
+    const updatedShortValue: VoterCardData =
+      updatedCard.present && JSON.parse(updatedCard.shortValue!)
+
+    this.startShortValueReadPolling()
+
+    /* istanbul ignore next - this should never happen */
+    if (voidedVoterCardData.uz !== updatedShortValue.uz) {
+      this.resetBallot()
+      return false
+    }
+    return true
+  }
+
+  public markVoterCardPrinted: MarkVoterCardFunction = async () => {
+    this.stopShortValueReadPolling()
+    this.setPauseProcessingUntilNoCardPresent(true)
+
+    await this.clearLongValue()
+
+    const currentVoterCardData: VoterCardData = JSON.parse(
+      this.state.shortValue!
+    )
+
+    const usedVoterCardData: VoterCardData = {
+      ...currentVoterCardData,
+      bp: utcTimestamp(),
+    }
+    await this.writeCard(usedVoterCardData)
+
+    const updatedCard = await this.readCard()
+    const updatedShortValue: VoterCardData =
+      updatedCard.present && JSON.parse(updatedCard.shortValue!)
+
+    this.startShortValueReadPolling()
+
+    /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edge case. */
+    if (usedVoterCardData.bp !== updatedShortValue.bp) {
+      this.resetBallot()
+      return false
+    }
+    return true
+  }
+
+  public stopHardwareStatusPolling = () => {
+    this.statusPoller?.stop()
+    this.statusPoller = undefined
+
+    this.onDeviceChangeSubscription?.unsubscribe()
+    this.onDeviceChangeSubscription = undefined
+  }
+
+  public startHardwareStatusPolling = () => {
+    /* istanbul ignore else */
+    if (!this.statusPoller) {
+      this.statusPoller = IntervalPoller.start(
+        GLOBALS.HARDWARE_POLLING_INTERVAL,
+        async () => {
+          try {
+            const { hardware } = this.props
+            const battery = await hardware.readBatteryStatus()
+            this.setState({
+              hasChargerAttached: !battery.discharging,
+              hasLowBattery: battery.level < GLOBALS.LOW_BATTERY_THRESHOLD,
+            })
+          } catch (error) {
+            this.stopHardwareStatusPolling() // Assume backend is unavailable.
+          }
+        }
+      )
+    }
+
+    /* istanbul ignore else */
+    if (!this.onDeviceChangeSubscription) {
+      const { hardware } = this.props
+
+      // watch for changes
+      this.onDeviceChangeSubscription = hardware.devices
+        .pipe(map((devices) => Array.from(devices)))
+        .subscribe(async (devices) => {
+          const hasAccessibleControllerAttached = devices.some(
+            isAccessibleController
+          )
+          const hasCardReaderAttached = devices.some(isCardReader)
+          const printer = await hardware.readPrinterStatus()
+          const hasPrinterAttached = printer.connected
+
+          if (!hasPrinterAttached) {
+            this.resetBallot()
+
+            // stop+start forces a last-card-value cache flush
+            this.stopShortValueReadPolling()
+            this.startShortValueReadPolling()
+          }
+
+          this.setState({
+            hasAccessibleControllerAttached,
+            hasCardReaderAttached,
+            hasPrinterAttached,
+          })
+        })
+    }
+  }
+
+  public componentDidMount = () => {
+    const election = this.retrieveElection()
+    const { ballotStyleId, precinctId } = this.retrieveBallotActivation()
+    const {
+      appPrecinctId = this.initialAppState.appPrecinctId,
+      ballotsPrintedCount = this.initialAppState.ballotsPrintedCount,
+      isLiveMode = this.initialAppState.isLiveMode,
+      isPollsOpen = this.initialAppState.isPollsOpen,
+      tally = election ? getZeroTally(election) : this.initialAppState.tally,
+    } = this.retrieveAppState()
+    const ballotStyle =
+      ballotStyleId &&
+      election &&
+      getBallotStyle({
+        ballotStyleId,
+        election,
+      })
+    const contests =
+      ballotStyle && election
+        ? getContests({ ballotStyle, election })
+        : this.initialAppState.contests
+    this.setState({
+      appPrecinctId,
+      ballotsPrintedCount,
+      ballotStyleId,
+      contests,
+      election,
+      isLiveMode,
+      isPollsOpen,
+      precinctId,
+      tally,
+      votes: this.retrieveVotes(),
+    })
+    document.addEventListener('keydown', handleGamepadKeyboardEvent)
+    document.documentElement.setAttribute('data-useragent', navigator.userAgent)
+    this.setDocumentFontSize()
+    this.setMachineConfig()
+    this.startShortValueReadPolling()
+    this.startLongValueWritePolling()
+    this.startHardwareStatusPolling()
+  }
+
+  public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
+    this.machineIdAbortController.abort()
+    document.removeEventListener('keydown', handleGamepadKeyboardEvent)
+    this.stopShortValueReadPolling()
+    this.stopHardwareStatusPolling()
   }
 
   public render() {
