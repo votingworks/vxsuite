@@ -240,18 +240,15 @@ class AppRoot extends React.Component<Props, State> {
           isVoterCardPrinted &&
           utcTimestamp() <=
             ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
-
         const ballotStyle = getBallotStyle({
           election: election!,
           ballotStyleId: voterCardData.bs,
         })
-        const hasValidBallotStyle = Boolean(ballotStyle)
         const precinct = getPrecinctById({
           election: election!,
           precinctId: voterCardData.pr,
         })
-        const hasValidPrecinct = Boolean(precinct)
-        const isVoterCardValid = hasValidBallotStyle && hasValidPrecinct
+        const isVoterCardValid = Boolean(ballotStyle) && Boolean(precinct)
 
         const ballot: Partial<CompletedBallot> =
           (longValueExists &&
