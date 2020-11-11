@@ -205,28 +205,6 @@ class AppRoot extends React.Component<Props, State> {
 
   public state = this.initialAppState
 
-  public processVoterCardData = (voterCardData: VoterCardData) => {
-    const election = this.state.election!
-    const ballotStyle = getBallotStyle({
-      election,
-      ballotStyleId: voterCardData.bs,
-    })
-    const precinct = getPrecinctById({
-      election,
-      precinctId: voterCardData.pr,
-    })!
-    this.storeBallotActivation({
-      ballotCreatedAt: voterCardData.c,
-      ballotStyleId: ballotStyle.id,
-      precinctId: precinct.id,
-    })
-    this.setState((prevState) => ({
-      ballotStyleId: ballotStyle.id,
-      contests: getContests({ ballotStyle, election: prevState.election! }),
-      precinctId: precinct.id,
-    }))
-  }
-
   public fetchElection = async () => {
     this.storeElection((await this.props.card.readLongObject<Election>())!)
   }
@@ -263,18 +241,16 @@ class AppRoot extends React.Component<Props, State> {
           utcTimestamp() <=
             ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
 
-        const hasValidBallotStyle = Boolean(
-          getBallotStyle({
-            election: election!,
-            ballotStyleId: voterCardData.bs,
-          })
-        )
-        const hasValidPrecinct = Boolean(
-          getPrecinctById({
-            election: election!,
-            precinctId: voterCardData.pr,
-          })
-        )
+        const ballotStyle = getBallotStyle({
+          election: election!,
+          ballotStyleId: voterCardData.bs,
+        })
+        const hasValidBallotStyle = Boolean(ballotStyle)
+        const precinct = getPrecinctById({
+          election: election!,
+          precinctId: voterCardData.pr,
+        })
+        const hasValidPrecinct = Boolean(precinct)
         const isVoterCardValid = hasValidBallotStyle && hasValidPrecinct
 
         const ballot: Partial<CompletedBallot> =
@@ -282,42 +258,42 @@ class AppRoot extends React.Component<Props, State> {
             this.state.isVoterCardValid &&
             !this.state.isVoterCardExpired &&
             !this.state.isVoterCardVoided &&
+            !this.state.isVoterCardPrinted &&
             (await this.fetchBallotData())) ||
           {}
 
-        this.setState(
-          (prevState) => {
-            const isVoterCardExpired =
-              prevState.voterCardCreatedAt === 0 &&
-              utcTimestamp() >=
-                voterCardCreatedAt + GLOBALS.CARD_EXPIRATION_SECONDS
+        this.setState((prevState) => {
+          const isVoterCardExpired =
+            prevState.voterCardCreatedAt === 0 &&
+            utcTimestamp() >=
+              voterCardCreatedAt + GLOBALS.CARD_EXPIRATION_SECONDS
 
-            return {
-              ...this.initialCardPresentState,
-              shortValue,
-              isVoterCardExpired,
-              isVoterCardVoided,
-              isVoterCardPresent: true,
-              isVoterCardPrinted,
-              isRecentVoterPrint,
-              isVoterCardValid,
-              voterCardCreatedAt,
-              ballotStyleId:
-                ballot.ballotStyle?.id ?? this.initialAppState.ballotStyleId,
-              votes: ballot.votes,
-            }
-          },
-          () => {
-            if (
-              this.state.isVoterCardValid &&
-              !this.state.isVoterCardExpired &&
-              !this.state.isVoterCardVoided &&
-              !this.state.isVoterCardPrinted
-            ) {
-              this.processVoterCardData(voterCardData)
-            }
+          return {
+            ...this.initialCardPresentState,
+            shortValue,
+            isVoterCardExpired,
+            isVoterCardVoided,
+            isVoterCardPresent: true,
+            isVoterCardPrinted,
+            isRecentVoterPrint,
+            isVoterCardValid,
+            voterCardCreatedAt,
+            ballotStyleId:
+              ballotStyle?.id ?? this.initialAppState.ballotStyleId,
+            precinctId: precinct?.id ?? this.initialAppState.precinctId,
+            votes: ballot.votes,
+            contests:
+              ballotStyle && election
+                ? getContests({ ballotStyle, election })
+                : this.initialAppState.contests,
           }
-        )
+        })
+        precinct &&
+          this.storeBallotActivation({
+            ballotCreatedAt: voterCardData.c,
+            ballotStyleId: ballotStyle.id,
+            precinctId: precinct.id,
+          })
 
         break
       }
