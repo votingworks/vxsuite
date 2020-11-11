@@ -23,7 +23,6 @@ import { map } from 'rxjs/operators'
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
 import {
-  ActivationData,
   CardAPI,
   CardData,
   CardPresentAPI,
@@ -107,7 +106,6 @@ interface SharedState {
   appPrecinctId: string
   ballotsPrintedCount: number
   election: OptionalElection
-  isFetchingElection: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
   shortValue?: string
@@ -166,7 +164,7 @@ class AppRoot extends React.Component<Props, State> {
     voterCardCreatedAt: 0,
   }
 
-  private initialUserState: UserState = {
+  private initialVoterState: UserState = {
     ballotCreatedAt: 0,
     ballotStyleId: '',
     contests: [],
@@ -188,48 +186,282 @@ class AppRoot extends React.Component<Props, State> {
     appPrecinctId: '',
     ballotsPrintedCount: 0,
     election: undefined,
-    isFetchingElection: false,
     isLiveMode: false,
     isPollsOpen: false,
     shortValue: '{}',
     tally: [],
   }
 
-  private resetState: Omit<State, keyof HardwareState> = {
-    ...this.initialUserState,
+  private initialUserState: Omit<State, keyof HardwareState> = {
+    ...this.initialVoterState,
     ...this.initialCardPresentState,
     ...this.sharedState,
   }
 
-  private initialState: State = {
-    ...this.resetState,
+  private initialAppState: State = {
+    ...this.initialUserState,
     ...this.initialHardwareState,
   }
 
-  public state = this.initialState
+  public state = this.initialAppState
 
-  public processVoterCardData = (voterCardData: VoterCardData) => {
-    const election = this.state.election!
-    const ballotStyle = getBallotStyle({
-      ballotStyleId: voterCardData.bs,
-      election,
-    })
-    const precinct = election.precincts.find(
-      (pr) => pr.id === voterCardData.pr
-    )!
-    this.activateBallot({
-      ballotCreatedAt: voterCardData.c,
-      ballotStyle,
-      precinct,
+  public setMachineConfig = async () => {
+    try {
+      const machineConfig = await this.props.machineConfig.get()
+
+      if (machineConfig) {
+        this.setState({ machineConfig })
+      }
+    } catch {
+      // TODO: what should happen if `machineConfig` is not returned?
+    }
+  }
+
+  public readCard = async (): Promise<CardAPI> =>
+    await this.props.card.readStatus()
+
+  public writeCard = async (cardData: VoterCardData) => {
+    await this.props.card.writeShortValue(JSON.stringify(cardData))
+  }
+
+  public retrieveElection = (): OptionalElection =>
+    this.props.storage.get(electionStorageKey)
+
+  public storeElection = (election: Election) => {
+    this.props.storage.set(electionStorageKey, election)
+  }
+
+  public retrieveBallotActivation = (): SerializableActivationData =>
+    this.props.storage.get(activationStorageKey) ||
+    (({} as unknown) as SerializableActivationData)
+
+  public storeBallotActivation = (data: SerializableActivationData) => {
+    /* istanbul ignore else */
+    if (process.env.NODE_ENV !== 'production') {
+      this.props.storage.set(activationStorageKey, data)
+    }
+  }
+
+  public retrieveVotes = () =>
+    this.props.storage.get(votesStorageKey) || blankBallotVotes
+
+  public storeVotes = async (votes: VotesDict) => {
+    /* istanbul ignore else */
+    if (process.env.NODE_ENV !== 'production') {
+      this.props.storage.set(votesStorageKey, votes)
+    }
+
+    this.lastVoteUpdateAt = Date.now()
+  }
+
+  public resetVoterData = () => {
+    this.props.storage.remove(activationStorageKey)
+    this.props.storage.remove(votesStorageKey)
+  }
+
+  public unconfigure = () => {
+    this.setState(this.initialUserState)
+    this.props.storage.clear()
+    this.props.history.push('/')
+  }
+
+  public storeAppState = () => {
+    const {
+      appPrecinctId,
+      ballotsPrintedCount,
+      isLiveMode,
+      isPollsOpen,
+      tally,
+    } = this.state
+    this.props.storage.set(stateStorageKey, {
+      appPrecinctId,
+      ballotsPrintedCount,
+      isLiveMode,
+      isPollsOpen,
+      tally,
     })
   }
 
+  public retrieveAppState = (): Partial<State> => {
+    return this.props.storage.get(stateStorageKey) || {}
+  }
+
+  public updateVote = (contestId: string, vote: OptionalVote) => {
+    this.setState(
+      (prevState) => ({
+        votes: { ...prevState.votes, [contestId]: vote },
+      }),
+      () => {
+        this.state.votes && this.storeVotes(this.state.votes)
+      }
+    )
+  }
+
+  public forceSaveVote = () => {
+    this.forceSaveVoteFlag = true
+  }
+
+  public resetBallot = (path = '/') => {
+    this.resetVoterData()
+    this.setState(
+      {
+        ...this.initialCardPresentState,
+        ...this.initialVoterState,
+      },
+      () => {
+        this.storeAppState()
+        this.props.history.push(path)
+      }
+    )
+  }
+
+  public setUserSettings = (partial: PartialUserSettings) => {
+    this.setState(
+      (prevState) => ({
+        userSettings: { ...prevState.userSettings, ...partial },
+      }),
+      () => {
+        const { textSize } = partial
+        const isValidTextSize =
+          'textSize' in partial &&
+          typeof textSize === 'number' &&
+          textSize >= 0 &&
+          textSize <= GLOBALS.FONT_SIZES.length - 1
+        /* istanbul ignore else */
+        if (isValidTextSize) {
+          this.setDocumentFontSize(textSize!)
+          // Trigger application of “See More” buttons based upon scroll-port.
+          window.dispatchEvent(new Event('resize'))
+        }
+      }
+    )
+  }
+
+  public setDocumentFontSize = (textSize: number = GLOBALS.TEXT_SIZE) => {
+    document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[textSize]}px`
+  }
+
+  public updateAppPrecinctId = (appPrecinctId: string) => {
+    this.setState({ appPrecinctId }, this.resetTally)
+  }
+
+  public enableLiveMode = () => {
+    this.setState(
+      { isLiveMode: true, isPollsOpen: this.initialUserState.isPollsOpen },
+      this.resetTally
+    )
+  }
+
+  public toggleLiveMode = () => {
+    this.setState(
+      (prevState) => ({
+        isLiveMode: !prevState.isLiveMode,
+        isPollsOpen: this.initialAppState.isPollsOpen,
+      }),
+      this.resetTally
+    )
+  }
+
+  public togglePollsOpen = () => {
+    this.setState(
+      (prevState) => ({ isPollsOpen: !prevState.isPollsOpen }),
+      this.storeAppState
+    )
+  }
+
+  public resetTally = () => {
+    this.setState(
+      ({ election }) => ({
+        ballotsPrintedCount: this.initialAppState.ballotsPrintedCount,
+        tally: getZeroTally(election!),
+      }),
+      this.storeAppState
+    )
+  }
+
+  public updateTally = () => {
+    this.setState(
+      ({ ballotsPrintedCount, election: e, tally: prevTally, votes }) => {
+        const election = e!
+
+        // first update the tally for either-neither contests
+        const {
+          tally,
+          contestIds: eitherNeitherContestIds,
+        } = computeTallyForEitherNeitherContests({
+          election,
+          tally: prevTally,
+          votes: votes,
+        })
+
+        for (const contestId in votes) {
+          if (eitherNeitherContestIds.includes(contestId)) {
+            continue
+          }
+
+          const contestIndex = election.contests.findIndex(
+            (c) => c.id === contestId
+          )
+          /* istanbul ignore next */
+          if (contestIndex < 0) {
+            throw new Error(`No contest found for contestId: ${contestId}`)
+          }
+          const contestTally = tally[contestIndex]
+          const contest = election.contests[contestIndex]
+          /* istanbul ignore else */
+          if (contest.type === 'yesno') {
+            const yesnoContestTally = contestTally as YesNoVoteTally
+            const vote = votes[contestId] as YesNoVote
+            yesnoContestTally[getSingleYesNoVote(vote)!]++
+          } else if (contest.type === 'candidate') {
+            const candidateContestTally = contestTally as CandidateVoteTally
+            const vote = votes[contestId] as CandidateVote
+            vote.forEach((candidate) => {
+              if (candidate.isWriteIn) {
+                const tallyContestWriteIns = candidateContestTally.writeIns
+                const writeIn = tallyContestWriteIns.find(
+                  (c) => c.name === candidate.name
+                )
+                if (typeof writeIn === 'undefined') {
+                  tallyContestWriteIns.push({
+                    name: candidate.name,
+                    tally: 1,
+                  })
+                } else {
+                  writeIn.tally++
+                }
+              } else {
+                const candidateIndex = contest.candidates.findIndex(
+                  (c) => c.id === candidate.id
+                )
+                if (
+                  candidateIndex < 0 ||
+                  candidateIndex >= candidateContestTally.candidates.length
+                ) {
+                  throw new Error(
+                    `unable to find a candidate with id: ${candidate.id}`
+                  )
+                }
+                candidateContestTally.candidates[candidateIndex]++
+              }
+            })
+          }
+        }
+        return {
+          ballotsPrintedCount: ballotsPrintedCount + 1,
+          tally,
+        }
+      },
+      this.storeAppState
+    )
+  }
+
   public fetchElection = async () => {
-    this.setState({ isFetchingElection: true })
-    try {
-      this.setElection((await this.props.card.readLongObject<Election>())!)
-    } finally {
-      this.setState({ isFetchingElection: false })
+    const election = await this.props.card.readLongObject<Election>()
+    /* istanbul ignore else */
+    if (election) {
+      this.setState({ election }, this.resetTally)
+      this.storeElection(election)
     }
   }
 
@@ -243,23 +475,6 @@ class AppRoot extends React.Component<Props, State> {
     } else {
       return undefined
     }
-  }
-
-  public isVoterCardExpired = (
-    prevCreatedAt: number,
-    createdAt: number
-  ): boolean => {
-    return (
-      prevCreatedAt === 0 &&
-      utcTimestamp() >= createdAt + GLOBALS.CARD_EXPIRATION_SECONDS
-    )
-  }
-
-  public isRecentVoterPrint = (isPrinted: boolean, printedTime: number) => {
-    return (
-      isPrinted &&
-      utcTimestamp() <= printedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
-    )
   }
 
   public processCard = async ({
@@ -277,64 +492,62 @@ class AppRoot extends React.Component<Props, State> {
           ? Number(voterCardData.bp)
           : 0
         const isVoterCardPrinted = Boolean(ballotPrintedTime)
-        const isRecentVoterPrint = this.isRecentVoterPrint(
-          isVoterCardPrinted,
-          ballotPrintedTime
-        )
-        const hasValidBallotStyle = Boolean(
-          getBallotStyle({
-            election: election!,
-            ballotStyleId: voterCardData.bs,
-          })
-        )
-        const hasValidPrecinct = Boolean(
-          getPrecinctById({
-            election: election!,
-            precinctId: voterCardData.pr,
-          })
-        )
-        const isVoterCardValid = hasValidBallotStyle && hasValidPrecinct
+        const isRecentVoterPrint =
+          isVoterCardPrinted &&
+          utcTimestamp() <=
+            ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
+        const ballotStyle = getBallotStyle({
+          election: election!,
+          ballotStyleId: voterCardData.bs,
+        })
+        const precinct = getPrecinctById({
+          election: election!,
+          precinctId: voterCardData.pr,
+        })
+        const isVoterCardValid = Boolean(ballotStyle) && Boolean(precinct)
 
         const ballot: Partial<CompletedBallot> =
           (longValueExists &&
             this.state.isVoterCardValid &&
             !this.state.isVoterCardExpired &&
             !this.state.isVoterCardVoided &&
+            !this.state.isVoterCardPrinted &&
             (await this.fetchBallotData())) ||
           {}
 
-        this.setState(
-          (prevState) => {
-            const isVoterCardExpired = this.isVoterCardExpired(
-              prevState.voterCardCreatedAt,
-              voterCardCreatedAt
-            )
-            return {
-              ...this.initialCardPresentState,
-              shortValue,
-              isVoterCardExpired,
-              isVoterCardVoided,
-              isVoterCardPresent: true,
-              isVoterCardPrinted,
-              isRecentVoterPrint,
-              isVoterCardValid,
-              voterCardCreatedAt,
-              ballotStyleId:
-                ballot.ballotStyle?.id ?? this.initialState.ballotStyleId,
-              votes: ballot.votes,
-            }
-          },
-          () => {
-            if (
-              this.state.isVoterCardValid &&
-              !this.state.isVoterCardExpired &&
-              !this.state.isVoterCardVoided &&
-              !this.state.isVoterCardPrinted
-            ) {
-              this.processVoterCardData(voterCardData)
-            }
+        this.setState((prevState) => {
+          const isVoterCardExpired =
+            prevState.voterCardCreatedAt === 0 &&
+            utcTimestamp() >=
+              voterCardCreatedAt + GLOBALS.CARD_EXPIRATION_SECONDS
+
+          return {
+            ...this.initialCardPresentState,
+            shortValue,
+            isVoterCardExpired,
+            isVoterCardVoided,
+            isVoterCardPresent: true,
+            isVoterCardPrinted,
+            isRecentVoterPrint,
+            isVoterCardValid,
+            voterCardCreatedAt,
+            ballotStyleId:
+              ballotStyle?.id ?? this.initialAppState.ballotStyleId,
+            precinctId: precinct?.id ?? this.initialAppState.precinctId,
+            votes: ballot.votes,
+            contests:
+              ballotStyle && election
+                ? getContests({ ballotStyle, election })
+                : this.initialAppState.contests,
           }
-        )
+        })
+        precinct &&
+          ballotStyle &&
+          this.storeBallotActivation({
+            ballotCreatedAt: voterCardData.c,
+            ballotStyleId: ballotStyle.id,
+            precinctId: precinct.id,
+          })
 
         break
       }
@@ -354,6 +567,11 @@ class AppRoot extends React.Component<Props, State> {
         break
       }
     }
+  }
+
+  public stopShortValueReadPolling = () => {
+    this.cardPoller?.stop()
+    this.cardPoller = undefined
   }
 
   public startShortValueReadPolling = () => {
@@ -404,11 +622,6 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public stopShortValueReadPolling = () => {
-    this.cardPoller?.stop()
-    this.cardPoller = undefined
-  }
-
   public clearLongValue = async () => {
     this.writingVoteToCard = true
     await this.props.card.writeLongUint8Array(Uint8Array.of())
@@ -417,7 +630,6 @@ class AppRoot extends React.Component<Props, State> {
 
   public startLongValueWritePolling = () => {
     /* istanbul ignore else */
-
     if (this.cardWriteInterval === 0) {
       this.cardWriteInterval = window.setInterval(async () => {
         if (
@@ -524,6 +736,14 @@ class AppRoot extends React.Component<Props, State> {
     return true
   }
 
+  public stopHardwareStatusPolling = () => {
+    this.statusPoller?.stop()
+    this.statusPoller = undefined
+
+    this.onDeviceChangeSubscription?.unsubscribe()
+    this.onDeviceChangeSubscription = undefined
+  }
+
   public startHardwareStatusPolling = () => {
     /* istanbul ignore else */
     if (!this.statusPoller) {
@@ -576,24 +796,16 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public stopHardwareStatusPolling = () => {
-    this.statusPoller?.stop()
-    this.statusPoller = undefined
-
-    this.onDeviceChangeSubscription?.unsubscribe()
-    this.onDeviceChangeSubscription = undefined
-  }
-
   public componentDidMount = () => {
-    const election = this.getElection()
-    const { ballotStyleId, precinctId } = this.getBallotActivation()
+    const election = this.retrieveElection()
+    const { ballotStyleId, precinctId } = this.retrieveBallotActivation()
     const {
-      appPrecinctId = this.initialState.appPrecinctId,
-      ballotsPrintedCount = this.initialState.ballotsPrintedCount,
-      isLiveMode = this.initialState.isLiveMode,
-      isPollsOpen = this.initialState.isPollsOpen,
-      tally = election ? getZeroTally(election) : this.initialState.tally,
-    } = this.getStoredState()
+      appPrecinctId = this.initialAppState.appPrecinctId,
+      ballotsPrintedCount = this.initialAppState.ballotsPrintedCount,
+      isLiveMode = this.initialAppState.isLiveMode,
+      isPollsOpen = this.initialAppState.isPollsOpen,
+      tally = election ? getZeroTally(election) : this.initialAppState.tally,
+    } = this.retrieveAppState()
     const ballotStyle =
       ballotStyleId &&
       election &&
@@ -604,7 +816,7 @@ class AppRoot extends React.Component<Props, State> {
     const contests =
       ballotStyle && election
         ? getContests({ ballotStyle, election })
-        : this.initialState.contests
+        : this.initialAppState.contests
     this.setState({
       appPrecinctId,
       ballotsPrintedCount,
@@ -615,7 +827,7 @@ class AppRoot extends React.Component<Props, State> {
       isPollsOpen,
       precinctId,
       tally,
-      votes: this.getVotes(),
+      votes: this.retrieveVotes(),
     })
     document.addEventListener('keydown', handleGamepadKeyboardEvent)
     document.documentElement.setAttribute('data-useragent', navigator.userAgent)
@@ -631,282 +843,7 @@ class AppRoot extends React.Component<Props, State> {
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
     this.stopShortValueReadPolling()
     this.stopHardwareStatusPolling()
-  }
-
-  public setMachineConfig = async () => {
-    try {
-      const machineConfig = await this.props.machineConfig.get()
-
-      if (machineConfig) {
-        this.setState({ machineConfig })
-      }
-    } catch {
-      // TODO: what should happen if `machineConfig` is not returned?
-    }
-  }
-
-  public readCard = async (): Promise<CardAPI> => {
-    return await this.props.card.readStatus()
-  }
-
-  public writeCard = async (cardData: VoterCardData) => {
-    await this.props.card.writeShortValue(JSON.stringify(cardData))
-  }
-
-  public getElection = (): OptionalElection => {
-    return this.props.storage.get(electionStorageKey)
-  }
-
-  public setElection = (electionConfigFile: Election) => {
-    const election = electionConfigFile
-    this.setState({ election }, this.resetTally)
-    this.props.storage.set(electionStorageKey, election)
-  }
-
-  public getBallotActivation = (): SerializableActivationData => {
-    return (
-      this.props.storage.get(activationStorageKey) ||
-      (({} as unknown) as SerializableActivationData)
-    )
-  }
-
-  public setBallotActivation = (data: SerializableActivationData) => {
-    /* istanbul ignore else */
-    if (process.env.NODE_ENV !== 'production') {
-      this.props.storage.set(activationStorageKey, data)
-    }
-  }
-
-  public getVotes = () => {
-    return this.props.storage.get(votesStorageKey) || blankBallotVotes
-  }
-
-  public setVotes = async (votes: VotesDict) => {
-    /* istanbul ignore else */
-    if (process.env.NODE_ENV !== 'production') {
-      this.props.storage.set(votesStorageKey, votes)
-    }
-
-    this.lastVoteUpdateAt = Date.now()
-  }
-
-  public resetVoterData = () => {
-    this.props.storage.remove(activationStorageKey)
-    this.props.storage.remove(votesStorageKey)
-  }
-
-  public unconfigure = () => {
-    this.setState(this.resetState)
-    this.props.storage.clear()
-    this.props.history.push('/')
-  }
-
-  public setStoredState = () => {
-    const {
-      appPrecinctId,
-      ballotsPrintedCount,
-      isLiveMode,
-      isPollsOpen,
-      tally,
-    } = this.state
-    this.props.storage.set(stateStorageKey, {
-      appPrecinctId,
-      ballotsPrintedCount,
-      isLiveMode,
-      isPollsOpen,
-      tally,
-    })
-  }
-
-  public getStoredState = (): Partial<State> => {
-    return this.props.storage.get(stateStorageKey) || {}
-  }
-
-  public updateVote = (contestId: string, vote: OptionalVote) => {
-    this.setState(
-      (prevState) => ({
-        votes: { ...prevState.votes, [contestId]: vote },
-      }),
-      () => {
-        this.state.votes && this.setVotes(this.state.votes)
-      }
-    )
-  }
-
-  public forceSaveVote = () => {
-    this.forceSaveVoteFlag = true
-  }
-
-  public resetBallot = (path = '/') => {
-    this.resetVoterData()
-    this.setState(
-      {
-        ...this.initialCardPresentState,
-        ...this.initialUserState,
-      },
-      () => {
-        this.setStoredState()
-        this.props.history.push(path)
-      }
-    )
-  }
-
-  public activateBallot = ({
-    ballotCreatedAt,
-    ballotStyle,
-    precinct,
-  }: ActivationData) => {
-    this.setBallotActivation({
-      ballotCreatedAt,
-      ballotStyleId: ballotStyle.id,
-      precinctId: precinct.id,
-    })
-    this.setState((prevState) => ({
-      ballotStyleId: ballotStyle.id,
-      contests: getContests({ ballotStyle, election: prevState.election! }),
-      precinctId: precinct.id,
-    }))
-  }
-
-  public setUserSettings = (partial: PartialUserSettings) => {
-    this.setState(
-      (prevState) => ({
-        userSettings: { ...prevState.userSettings, ...partial },
-      }),
-      () => {
-        const { textSize } = partial
-        const isValidTextSize =
-          'textSize' in partial &&
-          typeof textSize === 'number' &&
-          textSize >= 0 &&
-          textSize <= GLOBALS.FONT_SIZES.length - 1
-        /* istanbul ignore else */
-        if (isValidTextSize) {
-          this.setDocumentFontSize(textSize!)
-          // Trigger application of “See More” buttons based upon scroll-port.
-          window.dispatchEvent(new Event('resize'))
-        }
-      }
-    )
-  }
-
-  public setDocumentFontSize = (textSize: number = GLOBALS.TEXT_SIZE) => {
-    document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[textSize]}px`
-  }
-
-  public setAppPrecinctId = (appPrecinctId: string) => {
-    this.setState({ appPrecinctId }, this.resetTally)
-  }
-
-  public enableLiveMode = () => {
-    this.setState(
-      { isLiveMode: true, isPollsOpen: this.initialState.isPollsOpen },
-      this.resetTally
-    )
-  }
-
-  public toggleLiveMode = () => {
-    this.setState(
-      (prevState) => ({
-        isLiveMode: !prevState.isLiveMode,
-        isPollsOpen: this.initialState.isPollsOpen,
-      }),
-      this.resetTally
-    )
-  }
-
-  public togglePollsOpen = () => {
-    this.setState(
-      (prevState) => ({ isPollsOpen: !prevState.isPollsOpen }),
-      this.setStoredState
-    )
-  }
-
-  public resetTally = () => {
-    this.setState(
-      ({ election }) => ({
-        ballotsPrintedCount: this.initialState.ballotsPrintedCount,
-        tally: getZeroTally(election!),
-      }),
-      this.setStoredState
-    )
-  }
-
-  public updateTally = () => {
-    this.setState(
-      ({ ballotsPrintedCount, election: e, tally: prevTally, votes }) => {
-        const election = e!
-
-        // first update the tally for either-neither contests
-        const {
-          tally,
-          contestIds: eitherNeitherContestIds,
-        } = computeTallyForEitherNeitherContests({
-          election,
-          tally: prevTally,
-          votes: votes,
-        })
-
-        for (const contestId in votes) {
-          if (eitherNeitherContestIds.includes(contestId)) {
-            continue
-          }
-
-          const contestIndex = election.contests.findIndex(
-            (c) => c.id === contestId
-          )
-          /* istanbul ignore next */
-          if (contestIndex < 0) {
-            throw new Error(`No contest found for contestId: ${contestId}`)
-          }
-          const contestTally = tally[contestIndex]
-          const contest = election.contests[contestIndex]
-          /* istanbul ignore else */
-          if (contest.type === 'yesno') {
-            const yesnoContestTally = contestTally as YesNoVoteTally
-            const vote = votes[contestId] as YesNoVote
-            yesnoContestTally[getSingleYesNoVote(vote)!]++
-          } else if (contest.type === 'candidate') {
-            const candidateContestTally = contestTally as CandidateVoteTally
-            const vote = votes[contestId] as CandidateVote
-            vote.forEach((candidate) => {
-              if (candidate.isWriteIn) {
-                const tallyContestWriteIns = candidateContestTally.writeIns
-                const writeIn = tallyContestWriteIns.find(
-                  (c) => c.name === candidate.name
-                )
-                if (typeof writeIn === 'undefined') {
-                  tallyContestWriteIns.push({
-                    name: candidate.name,
-                    tally: 1,
-                  })
-                } else {
-                  writeIn.tally++
-                }
-              } else {
-                const candidateIndex = contest.candidates.findIndex(
-                  (c) => c.id === candidate.id
-                )
-                if (
-                  candidateIndex < 0 ||
-                  candidateIndex >= candidateContestTally.candidates.length
-                ) {
-                  throw new Error(
-                    `unable to find a candidate with id: ${candidate.id}`
-                  )
-                }
-                candidateContestTally.candidates[candidateIndex]++
-              }
-            })
-          }
-        }
-        return {
-          ballotsPrintedCount: ballotsPrintedCount + 1,
-          tally,
-        }
-      },
-      this.setStoredState
-    )
+    window.clearInterval(this.cardWriteInterval)
   }
 
   public render() {
@@ -954,19 +891,16 @@ class AppRoot extends React.Component<Props, State> {
           ballotsPrintedCount={ballotsPrintedCount}
           election={optionalElection}
           fetchElection={this.fetchElection}
-          isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
-          setAppPrecinctId={this.setAppPrecinctId}
+          updateAppPrecinctId={this.updateAppPrecinctId}
           toggleLiveMode={this.toggleLiveMode}
           unconfigure={this.unconfigure}
         />
       )
     } else if (optionalElection && !!appPrecinctId) {
-      const election = optionalElection as Election
-      if (appMode.isVxPrint) {
-        if (!hasPrinterAttached) {
-          return <SetupPrinterPage setUserSettings={this.setUserSettings} />
-        }
+      const election = optionalElection!
+      if (appMode.isVxPrint && !hasPrinterAttached) {
+        return <SetupPrinterPage setUserSettings={this.setUserSettings} />
       }
       if (isPollWorkerCardPresent) {
         const electionDate = new Date(optionalElection.date)
@@ -1031,7 +965,6 @@ class AppRoot extends React.Component<Props, State> {
             <Gamepad onButtonDown={handleGamepadButtonDown}>
               <BallotContext.Provider
                 value={{
-                  activateBallot: this.activateBallot,
                   machineConfig,
                   ballotStyleId,
                   contests,
@@ -1057,19 +990,6 @@ class AppRoot extends React.Component<Props, State> {
         }
       }
 
-      const insertCardScreen = (
-        <InsertCardScreen
-          appPrecinctId={appPrecinctId}
-          election={election}
-          showNoAccessibleControllerWarning={
-            !!appMode.isVxMark && !hasAccessibleControllerAttached
-          }
-          showNoChargerAttachedWarning={!hasChargerAttached}
-          isLiveMode={isLiveMode}
-          isPollsOpen={isPollsOpen}
-        />
-      )
-
       // font size may have been changed by previous voter, reset to defaults
       this.setDocumentFontSize()
 
@@ -1078,7 +998,16 @@ class AppRoot extends React.Component<Props, State> {
           onIdle={() => window.kiosk?.quit()}
           timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
         >
-          {insertCardScreen}
+          <InsertCardScreen
+            appPrecinctId={appPrecinctId}
+            election={election}
+            showNoAccessibleControllerWarning={
+              !!appMode.isVxMark && !hasAccessibleControllerAttached
+            }
+            showNoChargerAttachedWarning={!hasChargerAttached}
+            isLiveMode={isLiveMode}
+            isPollsOpen={isPollsOpen}
+          />
         </IdleTimer>
       )
     } else {

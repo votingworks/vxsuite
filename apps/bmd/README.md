@@ -33,6 +33,9 @@ This assumes you have `git` and `yarn` installed.
 
    # Or run VxPrint
    VX_APP_MODE=VxPrint yarn start
+
+   # Or run VxMark + VxPrint
+   VX_APP_MODE="VxMark + VxPrint" yarn start
    ```
 
 ## Contributing

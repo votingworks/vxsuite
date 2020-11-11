@@ -21,7 +21,6 @@ export function render(
   component: React.ReactNode,
   {
     route = '/',
-    activateBallot = jest.fn(),
     ballotStyleId = '',
     contests = electionSampleNoSeal.contests as Contests,
     markVoterCardVoided = jest.fn(),
@@ -45,7 +44,6 @@ export function render(
     ...testRender(
       <BallotContext.Provider
         value={{
-          activateBallot,
           ballotStyleId,
           contests,
           election: election as Election,

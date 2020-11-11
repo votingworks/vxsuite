@@ -32,9 +32,8 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
       ballotsPrintedCount={0}
       election={election}
       fetchElection={jest.fn()}
-      isFetchingElection={false}
       isLiveMode={false}
-      setAppPrecinctId={jest.fn()}
+      updateAppPrecinctId={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
     />
@@ -70,9 +69,8 @@ test('renders date and time settings modal', async () => {
       ballotsPrintedCount={0}
       election={election}
       fetchElection={jest.fn()}
-      isFetchingElection={false}
       isLiveMode={false}
-      setAppPrecinctId={jest.fn()}
+      updateAppPrecinctId={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
     />

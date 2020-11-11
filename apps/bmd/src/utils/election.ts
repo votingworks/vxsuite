@@ -8,6 +8,7 @@ export const getContests = ({
   ballotStyle: BallotStyle
   election: Election
 }) =>
+  ballotStyle &&
   election.contests.filter(
     (c) =>
       ballotStyle.districts.includes(c.districtId) &&
@@ -23,12 +24,12 @@ export const getPrecinctById = ({
 }) => election.precincts.find((p) => p.id === precinctId)
 
 export const getBallotStyle = ({
-  ballotStyleId,
   election,
+  ballotStyleId,
 }: {
-  ballotStyleId: string
   election: Election
-}) => election.ballotStyles.find((bs) => bs.id === ballotStyleId) as BallotStyle
+  ballotStyleId: string
+}) => election.ballotStyles.find((bs) => bs.id === ballotStyleId)
 
 export const getPartyPrimaryAdjectiveFromBallotStyle = ({
   ballotStyleId,
