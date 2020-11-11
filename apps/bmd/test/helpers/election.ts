@@ -64,7 +64,7 @@ export const voterContests = getContests({
   ballotStyle: getBallotStyle({
     ballotStyleId: election.ballotStyles[0].id,
     election,
-  }),
+  })!,
   election,
 })
 

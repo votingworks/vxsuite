@@ -225,7 +225,7 @@ const PrintBallot = ({
     ballotStyleId,
     election,
   })
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
   const contests = getContests({ ballotStyle, election })
   const precinct = getPrecinctById({ election, precinctId })!
   const encodedBallot = encodeBallot(election, {

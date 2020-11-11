@@ -8,6 +8,7 @@ export const getContests = ({
   ballotStyle: BallotStyle
   election: Election
 }) =>
+  ballotStyle &&
   election.contests.filter(
     (c) =>
       ballotStyle.districts.includes(c.districtId) &&
@@ -28,7 +29,7 @@ export const getBallotStyle = ({
 }: {
   election: Election
   ballotStyleId: string
-}) => election.ballotStyles.find((bs) => bs.id === ballotStyleId) as BallotStyle
+}) => election.ballotStyles.find((bs) => bs.id === ballotStyleId)
 
 export const getPartyPrimaryAdjectiveFromBallotStyle = ({
   ballotStyleId,

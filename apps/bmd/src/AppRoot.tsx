@@ -289,6 +289,7 @@ class AppRoot extends React.Component<Props, State> {
           }
         })
         precinct &&
+          ballotStyle &&
           this.storeBallotActivation({
             ballotCreatedAt: voterCardData.c,
             ballotStyleId: ballotStyle.id,
