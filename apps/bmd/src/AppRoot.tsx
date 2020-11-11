@@ -843,6 +843,7 @@ class AppRoot extends React.Component<Props, State> {
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
     this.stopShortValueReadPolling()
     this.stopHardwareStatusPolling()
+    window.clearInterval(this.cardWriteInterval)
   }
 
   public render() {
