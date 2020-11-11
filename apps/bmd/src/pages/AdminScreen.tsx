@@ -36,7 +36,6 @@ interface Props {
   election: OptionalElection
   isLiveMode: boolean
   fetchElection: VoidFunction
-  isFetchingElection: boolean
   updateAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
@@ -52,13 +51,18 @@ const AdminScreen = ({
   election,
   isLiveMode,
   fetchElection,
-  isFetchingElection,
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
 }: Props) => {
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
     updateAppPrecinctId(event.currentTarget.value)
+  }
+
+  const [isFetchingElection, setIsFetchingElection] = useState(false)
+  const loadElection = () => {
+    setIsFetchingElection(true)
+    fetchElection()
   }
 
   const [isTestDeck, setIsTestDeck] = useState(false)
@@ -233,9 +237,7 @@ const AdminScreen = ({
               </React.Fragment>
             )}
             <h1>Configuration</h1>
-            {isFetchingElection ? (
-              <p>Loading Election Definition from Clerk Card…</p>
-            ) : election ? (
+            {election ? (
               <p>
                 <Text as="span" voteIcon>
                   Election definition is loaded.
@@ -244,11 +246,13 @@ const AdminScreen = ({
                   Remove
                 </Button>
               </p>
+            ) : isFetchingElection ? (
+              <p>Loading Election Definition from Clerk Card…</p>
             ) : (
               <React.Fragment>
                 <Text warningIcon>Election definition is not Loaded.</Text>
                 <p>
-                  <Button onPress={fetchElection}>
+                  <Button onPress={loadElection}>
                     Load Election Definition
                   </Button>
                 </p>

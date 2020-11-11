@@ -106,7 +106,6 @@ interface SharedState {
   appPrecinctId: string
   ballotsPrintedCount: number
   election: OptionalElection
-  isFetchingElection: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
   shortValue?: string
@@ -187,7 +186,6 @@ class AppRoot extends React.Component<Props, State> {
     appPrecinctId: '',
     ballotsPrintedCount: 0,
     election: undefined,
-    isFetchingElection: false,
     isLiveMode: false,
     isPollsOpen: false,
     shortValue: '{}',
@@ -210,12 +208,13 @@ class AppRoot extends React.Component<Props, State> {
   public processVoterCardData = (voterCardData: VoterCardData) => {
     const election = this.state.election!
     const ballotStyle = getBallotStyle({
-      ballotStyleId: voterCardData.bs,
       election,
+      ballotStyleId: voterCardData.bs,
     })
-    const precinct = election.precincts.find(
-      (pr) => pr.id === voterCardData.pr
-    )!
+    const precinct = getPrecinctById({
+      election,
+      precinctId: voterCardData.pr,
+    })!
     this.storeBallotActivation({
       ballotCreatedAt: voterCardData.c,
       ballotStyleId: ballotStyle.id,
@@ -229,12 +228,7 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public fetchElection = async () => {
-    this.setState({ isFetchingElection: true })
-    try {
-      this.storeElection((await this.props.card.readLongObject<Election>())!)
-    } finally {
-      this.setState({ isFetchingElection: false })
-    }
+    this.storeElection((await this.props.card.readLongObject<Election>())!)
   }
 
   public fetchBallotData = async () => {
@@ -919,7 +913,6 @@ class AppRoot extends React.Component<Props, State> {
           ballotsPrintedCount={ballotsPrintedCount}
           election={optionalElection}
           fetchElection={this.fetchElection}
-          isFetchingElection={this.state.isFetchingElection}
           isLiveMode={isLiveMode}
           updateAppPrecinctId={this.updateAppPrecinctId}
           toggleLiveMode={this.toggleLiveMode}
