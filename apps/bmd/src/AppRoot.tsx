@@ -206,7 +206,12 @@ class AppRoot extends React.Component<Props, State> {
   public state = this.initialAppState
 
   public fetchElection = async () => {
-    this.storeElection((await this.props.card.readLongObject<Election>())!)
+    const election = await this.props.card.readLongObject<Election>()
+    /* istanbul ignore else */
+    if (election) {
+      this.setState({ election }, this.resetTally)
+      this.storeElection(election)
+    }
   }
 
   public fetchBallotData = async () => {
@@ -611,9 +616,7 @@ class AppRoot extends React.Component<Props, State> {
   public retrieveElection = (): OptionalElection =>
     this.props.storage.get(electionStorageKey)
 
-  public storeElection = (electionConfigFile: Election) => {
-    const election = electionConfigFile
-    this.setState({ election }, this.resetTally)
+  public storeElection = (election: Election) => {
     this.props.storage.set(electionStorageKey, election)
   }
 
