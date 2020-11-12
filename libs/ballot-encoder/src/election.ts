@@ -1,5 +1,6 @@
 import * as s from './schema'
 import * as fs from 'fs'
+import * as path from 'path'
 import { sha256 } from 'js-sha256'
 
 // Generic
@@ -285,11 +286,11 @@ export const validateVotes = ({
 }
 
 const electionSampleAsString = fs.readFileSync(
-  './data/electionSample.json',
+  path.resolve(__dirname, './data/electionSample.json'),
   'utf8'
 )
 const electionSampleLongContentAsString = fs.readFileSync(
-  './data/electionSampleLongContent.json',
+  path.resolve(__dirname, './data/electionSampleLongContent.json'),
   'utf8'
 )
 
