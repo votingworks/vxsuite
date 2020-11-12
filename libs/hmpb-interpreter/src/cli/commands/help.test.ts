@@ -1,4 +1,4 @@
-import run, { parseOptions } from './help'
+import { run, parseOptions } from './help'
 import { Readable } from 'stream'
 import MemoryStream from 'memorystream'
 
@@ -13,14 +13,32 @@ async function readStream(stream: Readable): Promise<string> {
 
 test('prints usage examples to stdout', async () => {
   const stdout = new MemoryStream()
-  run({}, Readable.from('') as NodeJS.ReadStream, stdout as NodeJS.WriteStream)
+  run(
+    { $0: 'hmpb-interpreter' },
+    Readable.from('') as NodeJS.ReadStream,
+    stdout as NodeJS.WriteStream
+  )
   stdout.end()
-  expect(await readStream(stdout)).toContain('Examples')
+  expect(await readStream(stdout)).toContain('hmpb-interpreter COMMAND')
 })
 
-test('does not expect any arguments', async () => {
-  expect(await parseOptions([])).toEqual({})
-  await expect(parseOptions(['foo'])).rejects.toThrowError(
-    `Unexpected argument to 'help': foo`
-  )
+test('expects an optional command', async () => {
+  expect(
+    await parseOptions({
+      command: 'help',
+      commandArgs: [],
+      executablePath: 'hmpb-interpreter',
+      nodePath: 'node',
+      help: true,
+    })
+  ).toEqual({ $0: 'hmpb-interpreter', command: undefined })
+  expect(
+    await parseOptions({
+      command: 'help',
+      commandArgs: ['foo'],
+      executablePath: 'hmpb-interpreter',
+      nodePath: 'node',
+      help: true,
+    })
+  ).toEqual({ $0: 'hmpb-interpreter', command: 'foo' })
 })

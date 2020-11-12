@@ -2,11 +2,14 @@ import { Candidate, Election, parseElection } from '@votingworks/ballot-encoder'
 import chalk from 'chalk'
 import { promises as fs } from 'fs'
 import { table } from 'table'
-import { OptionParseError } from '..'
+import { GlobalOptions, OptionParseError } from '..'
 import { Interpreter } from '../..'
 import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../Interpreter'
 import { Input, Interpreted } from '../../types'
 import { loadImageData } from '../../utils/images'
+
+export const name = 'interpret'
+export const description = 'Interpret images of ballot pages'
 
 export enum OutputFormat {
   JSON = 'json',
@@ -15,6 +18,7 @@ export enum OutputFormat {
 
 export interface Options {
   election: Election
+  testMode: boolean
   autoInputs: readonly Input[]
   templateInputs: readonly Input[]
   ballotInputs: readonly Input[]
@@ -35,8 +39,45 @@ function makeInputFromBallotArgument(arg: string): Input {
   return input
 }
 
-export async function parseOptions(args: readonly string[]): Promise<Options> {
+export function printHelp($0: string, out: NodeJS.WriteStream): void {
+  out.write(`${$0} interpret -e JSON IMG1 [IMG2 …]\n`)
+  out.write(`\n`)
+  out.write(chalk.italic(`Examples\n`))
+  out.write(`\n`)
+  out.write(chalk.gray(`# Interpret ballots based on a single template.\n`))
+  out.write(`${$0} interpret -e election.json -t template.png ballot*.png\n`)
+  out.write(`\n`)
+  out.write(chalk.gray(`# Interpret test mode ballots.\n`))
+  out.write(`${$0} interpret -e election.json -T -t template.png ballot*.png\n`)
+  out.write(`\n`)
+  out.write(chalk.gray(`# Interpret ballots to JSON.\n`))
+  out.write(
+    `${$0} interpret -e election.json -f json template*.png ballot*.png\n`
+  )
+  out.write(`\n`)
+  out.write(chalk.gray(`# Specify image metadata (file:metdata-file).\n`))
+  out.write(
+    `${$0} interpret -e election.json template1.png:template1-metadata.json template2.png:template2-metdata.json ballot1.png:ballot1-metadata.json\n`
+  )
+  out.write(`\n`)
+  out.write(chalk.gray(`# Set an explicit minimum mark score (0-1).\n`))
+  out.write(
+    `${$0} interpret -e election.json -m 0.5 template*.png ballot*.png\n`
+  )
+  out.write(`\n`)
+  out.write(
+    chalk.gray(
+      `# Automatically process images as templates until all pages are found.\n`
+    )
+  )
+  out.write(`${$0} interpret -e election.json image*.png\n`)
+}
+
+export async function parseOptions({
+  commandArgs: args,
+}: GlobalOptions): Promise<Options> {
   let election: Election | undefined
+  let testMode = false
   const autoInputs: Input[] = []
   const templateInputs: Input[] = []
   const ballotInputs: Input[] = []
@@ -112,6 +153,13 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
         break
       }
 
+      case '-T':
+      case '--test-mode':
+      case '--no-test-mode': {
+        testMode = arg !== '--no-test-mode'
+        break
+      }
+
       default: {
         if (arg.startsWith('-')) {
           throw new OptionParseError(`Unknown option: ${arg}`)
@@ -129,6 +177,7 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
 
   return {
     election,
+    testMode,
     autoInputs,
     templateInputs,
     ballotInputs,
@@ -137,13 +186,14 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
   }
 }
 
-export default async function run(
+export async function run(
   options: Options,
   _stdin: NodeJS.ReadStream,
   stdout: NodeJS.WriteStream
 ): Promise<number> {
   const interpreter = new Interpreter({
     election: options.election,
+    testMode: options.testMode,
     markScoreVoteThreshold: options.markScoreVoteThreshold,
   })
   const ballotInputs = [...options.ballotInputs]

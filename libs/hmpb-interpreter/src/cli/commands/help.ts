@@ -1,57 +1,89 @@
-import { basename } from 'path'
-import { OptionParseError } from '..'
 import chalk from 'chalk'
+import { basename } from 'path'
+import { GlobalOptions } from '..'
+import * as helpCommand from './help'
+import * as interpretCommand from './interpret'
+import * as layoutCommand from './layout'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export const name = 'help'
+export const description = 'Show help about a command'
+
+const commands = [helpCommand, interpretCommand, layoutCommand] as const
+
 export interface Options {
-  // intentionally empty
+  readonly $0: string
+  readonly command?:
+    | typeof helpCommand['name']
+    | typeof interpretCommand['name']
+    | typeof layoutCommand['name']
 }
 
-export async function parseOptions(args: readonly string[]): Promise<Options> {
-  if (args.length > 0) {
-    throw new OptionParseError(`Unexpected argument to 'help': ${args[0]}`)
+export async function parseOptions({
+  commandArgs,
+  executablePath,
+}: GlobalOptions): Promise<Options> {
+  return {
+    $0: basename(executablePath),
+    command: commandArgs[0] as Options['command'],
   }
-
-  return {}
 }
 
-export function printHelp(out: NodeJS.WriteStream): void {
-  const $0 = basename(process.argv[1])
-  out.write(`Usage: ${$0} interpret -e JSON IMG1 [IMG2 …]\n`)
+function printGlobalHelp(options: Options, out: NodeJS.WriteStream): void {
+  out.write(`Usage: ${options.$0} COMMAND [ARGS]\n`)
   out.write(`\n`)
-  out.write(chalk.bold(`Examples\n`))
+  out.write(chalk.bold(`Commands:\n`))
   out.write(`\n`)
-  out.write(chalk.gray(`# Interpret ballots based on a single template.\n`))
-  out.write(`${$0} interpret -e election.json -t template.jpg ballot*.jpg\n`)
-  out.write(`\n`)
-  out.write(chalk.gray(`# Interpret ballots to JSON.\n`))
-  out.write(
-    `${$0} interpret -e election.json -f json template*.jpg ballot*.jpg\n`
-  )
-  out.write(`\n`)
-  out.write(chalk.gray(`# Specify image metadata (file:metdata-file).\n`))
-  out.write(
-    `${$0} interpret -e election.json template1.jpg:template1-metadata.json template2.jpg:template2-metdata.json ballot1.jpg:ballot1-metadata.json\n`
-  )
-  out.write(`\n`)
-  out.write(chalk.gray(`# Set an explicit minimum mark score (0-1).\n`))
-  out.write(
-    `${$0} interpret -e election.json -m 0.5 template*.jpg ballot*.jpg\n`
-  )
-  out.write(`\n`)
-  out.write(
-    chalk.gray(
-      `# Automatically process images as templates until all pages are found.\n`
+
+  const commandNameSpace =
+    Math.max(...commands.map(({ name }) => name.length)) + 3
+
+  for (const { name, description } of commands) {
+    out.write(
+      `  ${chalk.bold(name)}${' '.repeat(
+        commandNameSpace - name.length
+      )}${description}\n`
     )
-  )
-  out.write(`${$0} interpret -e election.json image*.jpg\n`)
+  }
+  out.write(`\n`)
 }
 
-export default async function run(
-  _options: Options,
+export function printCommandHelp(
+  options: Options,
+  out: NodeJS.WriteStream
+): void {
+  out.write(`Usage: ${options.$0} help COMMAND\n`)
+  out.write(`\n`)
+  out.write(`Print usage information for COMMAND.\n`)
+}
+
+export function printHelp(options: Options, out: NodeJS.WriteStream): void {
+  switch (options.command) {
+    case undefined:
+      printGlobalHelp(options, out)
+      break
+
+    case 'help':
+      printCommandHelp(options, out)
+      break
+
+    case 'interpret':
+      interpretCommand.printHelp(options.$0, out)
+      break
+
+    case 'layout':
+      layoutCommand.printHelp(options.$0, out)
+      break
+
+    default:
+      throw new Error(`unknown command: ${options.command}`)
+  }
+}
+
+export async function run(
+  options: Options,
   _stdin: NodeJS.ReadStream,
   stdout: NodeJS.WriteStream
 ): Promise<number> {
-  printHelp(stdout)
+  printHelp(options, stdout)
   return 0
 }
