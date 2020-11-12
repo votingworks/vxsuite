@@ -20,7 +20,7 @@ const GREEN_OVERLAY_COLOR: RGBA = [0, 0xff, 0, 0x60]
 export const name = 'layout'
 export const description = 'Annotate the interpreted layout of a ballot page'
 
-export function printHelp($0: string, out: NodeJS.WriteStream): void {
+export function printHelp($0: string, out: NodeJS.WritableStream): void {
   out.write(`${$0} layout IMG1 [IMG2 …]\n`)
   out.write(`\n`)
   out.write(chalk.italic(`Examples\n`))
@@ -54,8 +54,8 @@ export async function parseOptions({
  */
 export async function run(
   options: Options,
-  _stdin: NodeJS.ReadStream,
-  stdout: NodeJS.WriteStream
+  _stdin: NodeJS.ReadableStream,
+  stdout: NodeJS.WritableStream
 ): Promise<number> {
   for (const ballotImagePath of options.ballotImagePaths) {
     const imageData = await loadImageData(ballotImagePath)

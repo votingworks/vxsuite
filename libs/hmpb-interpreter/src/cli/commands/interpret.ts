@@ -39,7 +39,7 @@ function makeInputFromBallotArgument(arg: string): Input {
   return input
 }
 
-export function printHelp($0: string, out: NodeJS.WriteStream): void {
+export function printHelp($0: string, out: NodeJS.WritableStream): void {
   out.write(`${$0} interpret -e JSON IMG1 [IMG2 …]\n`)
   out.write(`\n`)
   out.write(chalk.italic(`Examples\n`))
@@ -106,18 +106,22 @@ export async function parseOptions({
       }
 
       case '-m':
-      case '--min-mark-score':
+      case '--min-mark-score': {
         i += 1
-        markScoreVoteThreshold = parseFloat(args[i])
+        const thresholdString = args[i]
+        markScoreVoteThreshold =
+          parseFloat(thresholdString) *
+          (thresholdString.endsWith('%') ? 0.01 : 1)
         if (isNaN(markScoreVoteThreshold)) {
           throw new OptionParseError(`Invalid minimum mark score: ${args[i]}`)
         }
         break
+      }
 
       case '-f':
       case '--format':
         i += 1
-        format = args[i] as OutputFormat
+        format = args[i].toLowerCase() as OutputFormat
         if (format !== OutputFormat.Table && format !== OutputFormat.JSON) {
           throw new OptionParseError(`Unknown output format: ${format}`)
         }
@@ -188,8 +192,8 @@ export async function parseOptions({
 
 export async function run(
   options: Options,
-  _stdin: NodeJS.ReadStream,
-  stdout: NodeJS.WriteStream
+  _stdin: NodeJS.ReadableStream,
+  stdout: NodeJS.WritableStream
 ): Promise<number> {
   const interpreter = new Interpreter({
     election: options.election,

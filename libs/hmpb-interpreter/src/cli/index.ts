@@ -81,36 +81,36 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
     }
   }
 
-  const { commandArgs } = globalOptions
-  switch (commandArgs[0]) {
+  const { command } = globalOptions
+  switch (command) {
     case 'help':
       return {
-        command: commandArgs[0],
+        command,
         options: await helpCommand.parseOptions(globalOptions),
       }
 
     case 'interpret':
       return {
-        command: commandArgs[0],
+        command,
         options: await interpretCommand.parseOptions(globalOptions),
       }
 
     case 'layout':
       return {
-        command: commandArgs[0],
+        command,
         options: await layoutCommand.parseOptions(globalOptions),
       }
 
     default:
-      throw new OptionParseError(`Unknown command: ${args[2]}`)
+      throw new OptionParseError(`Unknown command: ${command}`)
   }
 }
 
 export default async function main(
   args: typeof process.argv,
-  stdin: NodeJS.ReadStream,
-  stdout: NodeJS.WriteStream,
-  stderr: NodeJS.WriteStream
+  stdin: NodeJS.ReadableStream,
+  stdout: NodeJS.WritableStream,
+  stderr: NodeJS.WritableStream
 ): Promise<number> {
   try {
     const commandOptions = await parseOptions(args)

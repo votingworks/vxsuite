@@ -28,7 +28,7 @@ export async function parseOptions({
   }
 }
 
-function printGlobalHelp(options: Options, out: NodeJS.WriteStream): void {
+function printGlobalHelp(options: Options, out: NodeJS.WritableStream): void {
   out.write(`Usage: ${options.$0} COMMAND [ARGS]\n`)
   out.write(`\n`)
   out.write(chalk.bold(`Commands:\n`))
@@ -49,14 +49,14 @@ function printGlobalHelp(options: Options, out: NodeJS.WriteStream): void {
 
 export function printCommandHelp(
   options: Options,
-  out: NodeJS.WriteStream
+  out: NodeJS.WritableStream
 ): void {
   out.write(`Usage: ${options.$0} help COMMAND\n`)
   out.write(`\n`)
   out.write(`Print usage information for COMMAND.\n`)
 }
 
-export function printHelp(options: Options, out: NodeJS.WriteStream): void {
+export function printHelp(options: Options, out: NodeJS.WritableStream): void {
   switch (options.command) {
     case undefined:
       printGlobalHelp(options, out)
@@ -81,8 +81,8 @@ export function printHelp(options: Options, out: NodeJS.WriteStream): void {
 
 export async function run(
   options: Options,
-  _stdin: NodeJS.ReadStream,
-  stdout: NodeJS.WriteStream
+  _stdin: NodeJS.ReadableStream,
+  stdout: NodeJS.WritableStream
 ): Promise<number> {
   printHelp(options, stdout)
   return 0

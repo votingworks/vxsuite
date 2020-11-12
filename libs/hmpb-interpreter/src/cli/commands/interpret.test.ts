@@ -1,45 +1,457 @@
-import election from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/election'
-import { parseOptions } from './interpret'
-import { join } from 'path'
+import MemoryStream from 'memorystream'
+import { relative } from 'path'
+import { parseGlobalOptions } from '..'
+import {
+  blankPage1,
+  election,
+  electionPath,
+  filledInPage1,
+} from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
+import { parseOptions, printHelp, run } from './interpret'
 
 test('parse options: --election', async () => {
-  expect(
-    await parseOptions({
-      nodePath: 'node',
-      executablePath: 'hmpb-interpreter',
-      help: false,
-      command: 'interpret',
-      commandArgs: [
-        '--election',
-        join(
-          __dirname,
-          '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/election.json'
-        ),
-      ],
-    })
-  ).toEqual(
-    expect.objectContaining({
-      election,
-    })
+  for (const electionFlag of ['--election', '-e']) {
+    expect(
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'hmpb-interpreter',
+          'interpret',
+          electionFlag,
+          electionPath,
+        ])
+      )
+    ).toEqual(
+      expect.objectContaining({
+        election,
+      })
+    )
+  }
+})
+
+test('parse options: --min-mark-score', async () => {
+  for (const minMarkScoreFlag of ['--min-mark-score', '-m']) {
+    expect(
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'hmpb-interpreter',
+          'interpret',
+          '--election',
+          electionPath,
+          minMarkScoreFlag,
+          '0.9',
+        ])
+      )
+    ).toEqual(
+      expect.objectContaining({
+        markScoreVoteThreshold: 0.9,
+      })
+    )
+
+    expect(
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'hmpb-interpreter',
+          'interpret',
+          '--election',
+          electionPath,
+          minMarkScoreFlag,
+          '42%',
+        ])
+      )
+    ).toEqual(
+      expect.objectContaining({
+        markScoreVoteThreshold: 0.42,
+      })
+    )
+  }
+})
+
+test('parse options: --test-mode', async () => {
+  for (const testModeFlag of ['--test-mode', '-T', '--no-test-mode']) {
+    expect(
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'hmpb-interpreter',
+          'interpret',
+          '--election',
+          electionPath,
+          testModeFlag,
+        ])
+      )
+    ).toEqual(
+      expect.objectContaining({
+        testMode: testModeFlag !== '--no-test-mode',
+      })
+    )
+  }
+})
+
+test('parse options requires election', async () => {
+  await expect(
+    parseOptions(parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret']))
+  ).rejects.toThrowError(`Required option 'election' is missing.`)
+})
+
+test('invalid options', async () => {
+  await expect(
+    parseOptions(
+      parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret', '--wrong'])
+    )
+  ).rejects.toThrowError('Unknown option: --wrong')
+})
+
+test('file paths without explicit template/ballot flags', async () => {
+  const parsed = await parseOptions(
+    parseGlobalOptions([
+      'node',
+      'hmpb-interpreter',
+      'interpret',
+      '-e',
+      electionPath,
+      'img01.png',
+      'img02.png',
+    ])
   )
+  expect(parsed.autoInputs.map((ai) => ai.id())).toEqual([
+    'img01.png',
+    'img02.png',
+  ])
+})
+
+test('help', async () => {
+  const stdout = new MemoryStream()
+
+  printHelp('hmpb-interpreter', stdout)
+  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
+    "hmpb-interpreter interpret -e JSON IMG1 [IMG2 …]
+
+    Examples
+
+    # Interpret ballots based on a single template.
+    hmpb-interpreter interpret -e election.json -t template.png ballot*.png
+
+    # Interpret test mode ballots.
+    hmpb-interpreter interpret -e election.json -T -t template.png ballot*.png
+
+    # Interpret ballots to JSON.
+    hmpb-interpreter interpret -e election.json -f json template*.png ballot*.png
+
+    # Specify image metadata (file:metdata-file).
+    hmpb-interpreter interpret -e election.json template1.png:template1-metadata.json template2.png:template2-metdata.json ballot1.png:ballot1-metadata.json
+
+    # Set an explicit minimum mark score (0-1).
+    hmpb-interpreter interpret -e election.json -m 0.5 template*.png ballot*.png
+
+    # Automatically process images as templates until all pages are found.
+    hmpb-interpreter interpret -e election.json image*.png
+    "
+  `)
+})
+
+test('run interpret', async () => {
+  const stdin = new MemoryStream()
+  const stdout = new MemoryStream()
 
   expect(
-    await parseOptions({
-      nodePath: 'node',
-      executablePath: 'hmpb-interpreter',
-      help: false,
-      command: 'interpret',
-      commandArgs: [
-        '-e',
-        join(
-          __dirname,
-          '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/election.json'
-        ),
-      ],
-    })
-  ).toEqual(
-    expect.objectContaining({
-      election,
-    })
-  )
+    await run(
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'hmpb-interpreter',
+          'interpret',
+          '-e',
+          electionPath,
+          '-t',
+          blankPage1.filePath(),
+          '-b',
+          relative(process.cwd(), filledInPage1.filePath()),
+        ])
+      ),
+      stdin,
+      stdout
+    )
+  ).toEqual(0)
+
+  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
+    "╔═══════════════════════════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════════════════╗
+    ║ Contest                                               │ test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Member, U.S. Senate                                   │ Tim Smith                                                                                          ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Member, U.S. House, District 30                       │ Eddie Bernice Johnson                                                                              ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Judge, Texas Supreme Court, Place 6                   │ Jane Bland                                                                                         ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Member, Texas House of Representatives, District 111  │ Write-In                                                                                           ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Dallas County Tax Assessor-Collector                  │ John Ames                                                                                          ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Dallas County Sheriff                                 │ Chad Prda                                                                                          ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Member, Dallas County Commissioners Court, Precinct 3 │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Retain Robert Demergue as Chief Justice?              │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Proposition R: Countywide Recycling Program           │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ City Council                                          │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Mayor                                                 │                                                                                                    ║
+    ╚═══════════════════════════════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════════════════╝
+    "
+  `)
+})
+
+test('run interpret with JSON output', async () => {
+  const stdin = new MemoryStream()
+  const stdout = new MemoryStream()
+
+  expect(
+    await run(
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'hmpb-interpreter',
+          'interpret',
+          '-e',
+          electionPath,
+          '-t',
+          blankPage1.filePath(),
+          '-b',
+          relative(process.cwd(), filledInPage1.filePath()),
+          '-f',
+          'JSON',
+        ])
+      ),
+      stdin,
+      stdout
+    )
+  ).toEqual(0)
+
+  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
+    "[
+      {
+        \\"input\\": \\"test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg\\",
+        \\"interpreted\\": {
+          \\"metadata\\": {
+            \\"electionHash\\": \\"\\",
+            \\"ballotType\\": 0,
+            \\"locales\\": {
+              \\"primary\\": \\"en-US\\"
+            },
+            \\"ballotStyleId\\": \\"77\\",
+            \\"precinctId\\": \\"42\\",
+            \\"isTestMode\\": false,
+            \\"pageNumber\\": 1
+          },
+          \\"votes\\": {
+            \\"us-senate\\": [
+              {
+                \\"id\\": \\"tim-smith\\",
+                \\"name\\": \\"Tim Smith\\",
+                \\"partyId\\": \\"6\\"
+              }
+            ],
+            \\"us-house-district-30\\": [
+              {
+                \\"id\\": \\"eddie-bernice-johnson\\",
+                \\"name\\": \\"Eddie Bernice Johnson\\",
+                \\"partyId\\": \\"2\\"
+              }
+            ],
+            \\"texas-sc-judge-place-6\\": [
+              {
+                \\"id\\": \\"jane-bland\\",
+                \\"name\\": \\"Jane Bland\\",
+                \\"partyId\\": \\"3\\"
+              }
+            ],
+            \\"texas-house-district-111\\": [
+              {
+                \\"id\\": \\"__write-in-0\\",
+                \\"name\\": \\"Write-In\\",
+                \\"isWriteIn\\": true
+              }
+            ],
+            \\"dallas-county-tax-assessor\\": [
+              {
+                \\"id\\": \\"john-ames\\",
+                \\"name\\": \\"John Ames\\",
+                \\"partyId\\": \\"2\\"
+              }
+            ],
+            \\"dallas-county-sheriff\\": [
+              {
+                \\"id\\": \\"chad-prda\\",
+                \\"name\\": \\"Chad Prda\\",
+                \\"partyId\\": \\"3\\"
+              }
+            ]
+          },
+          \\"marks\\": [
+            {
+              \\"type\\": \\"candidate\\",
+              \\"contest\\": \\"us-senate\\",
+              \\"option\\": \\"tim-smith\\",
+              \\"score\\": 0.8345679012345679,
+              \\"bounds\\": {
+                \\"x\\": 470,
+                \\"y\\": 411,
+                \\"width\\": 33,
+                \\"height\\": 22
+              },
+              \\"target\\": {
+                \\"bounds\\": {
+                  \\"x\\": 470,
+                  \\"y\\": 411,
+                  \\"width\\": 33,
+                  \\"height\\": 22
+                },
+                \\"inner\\": {
+                  \\"x\\": 472,
+                  \\"y\\": 413,
+                  \\"width\\": 29,
+                  \\"height\\": 18
+                }
+              }
+            },
+            {
+              \\"type\\": \\"candidate\\",
+              \\"contest\\": \\"us-house-district-30\\",
+              \\"option\\": \\"eddie-bernice-johnson\\",
+              \\"score\\": 0.7192118226600985,
+              \\"bounds\\": {
+                \\"x\\": 470,
+                \\"y\\": 831,
+                \\"width\\": 33,
+                \\"height\\": 22
+              },
+              \\"target\\": {
+                \\"bounds\\": {
+                  \\"x\\": 470,
+                  \\"y\\": 831,
+                  \\"width\\": 33,
+                  \\"height\\": 22
+                },
+                \\"inner\\": {
+                  \\"x\\": 472,
+                  \\"y\\": 833,
+                  \\"width\\": 29,
+                  \\"height\\": 18
+                }
+              }
+            },
+            {
+              \\"type\\": \\"candidate\\",
+              \\"contest\\": \\"texas-sc-judge-place-6\\",
+              \\"option\\": \\"jane-bland\\",
+              \\"score\\": 0.6397058823529411,
+              \\"bounds\\": {
+                \\"x\\": 470,
+                \\"y\\": 1173,
+                \\"width\\": 33,
+                \\"height\\": 22
+              },
+              \\"target\\": {
+                \\"bounds\\": {
+                  \\"x\\": 470,
+                  \\"y\\": 1173,
+                  \\"width\\": 33,
+                  \\"height\\": 22
+                },
+                \\"inner\\": {
+                  \\"x\\": 472,
+                  \\"y\\": 1175,
+                  \\"width\\": 29,
+                  \\"height\\": 19
+                }
+              }
+            },
+            {
+              \\"type\\": \\"candidate\\",
+              \\"contest\\": \\"texas-house-district-111\\",
+              \\"option\\": \\"__write-in-0\\",
+              \\"score\\": 0.7192118226600985,
+              \\"bounds\\": {
+                \\"x\\": 872,
+                \\"y\\": 320,
+                \\"width\\": 33,
+                \\"height\\": 22
+              },
+              \\"target\\": {
+                \\"bounds\\": {
+                  \\"x\\": 872,
+                  \\"y\\": 320,
+                  \\"width\\": 33,
+                  \\"height\\": 22
+                },
+                \\"inner\\": {
+                  \\"x\\": 874,
+                  \\"y\\": 322,
+                  \\"width\\": 29,
+                  \\"height\\": 19
+                }
+              }
+            },
+            {
+              \\"type\\": \\"candidate\\",
+              \\"contest\\": \\"dallas-county-tax-assessor\\",
+              \\"option\\": \\"john-ames\\",
+              \\"score\\": 0.8349753694581281,
+              \\"bounds\\": {
+                \\"x\\": 872,
+                \\"y\\": 556,
+                \\"width\\": 33,
+                \\"height\\": 22
+              },
+              \\"target\\": {
+                \\"bounds\\": {
+                  \\"x\\": 872,
+                  \\"y\\": 556,
+                  \\"width\\": 33,
+                  \\"height\\": 22
+                },
+                \\"inner\\": {
+                  \\"x\\": 874,
+                  \\"y\\": 558,
+                  \\"width\\": 29,
+                  \\"height\\": 18
+                }
+              }
+            },
+            {
+              \\"type\\": \\"candidate\\",
+              \\"contest\\": \\"dallas-county-sheriff\\",
+              \\"option\\": \\"chad-prda\\",
+              \\"score\\": 0.6024390243902439,
+              \\"bounds\\": {
+                \\"x\\": 872,
+                \\"y\\": 916,
+                \\"width\\": 33,
+                \\"height\\": 22
+              },
+              \\"target\\": {
+                \\"bounds\\": {
+                  \\"x\\": 872,
+                  \\"y\\": 916,
+                  \\"width\\": 33,
+                  \\"height\\": 22
+                },
+                \\"inner\\": {
+                  \\"x\\": 874,
+                  \\"y\\": 917,
+                  \\"width\\": 29,
+                  \\"height\\": 19
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]"
+  `)
 })
