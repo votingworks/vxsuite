@@ -4,9 +4,10 @@ import {
   VotesDict,
   CandidateContest,
   Election,
+  ElectionDefinition,
 } from '@votingworks/ballot-encoder'
 
-import { AppModeNames, ElectionDefinition } from '../config/types'
+import { AppModeNames } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'

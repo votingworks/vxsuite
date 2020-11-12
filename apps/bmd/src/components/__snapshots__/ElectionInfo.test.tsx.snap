@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders horizantal ElectionInfo with hash when specified 1`] = `
+exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
 .c2 {
   max-width: 250px;
 }
@@ -328,7 +328,8 @@ exports[`renders horizantal ElectionInfo with hash when specified 1`] = `
           </span>
            
           <br />
-          Election ID: this-is-a-hash
+          Election ID: 
+          test--hash
         </p>
       </div>
     </div>
@@ -336,7 +337,7 @@ exports[`renders horizantal ElectionInfo with hash when specified 1`] = `
 </div>
 `;
 
-exports[`renders horizantal ElectionInfo without hash by default 1`] = `
+exports[`renders horizontal ElectionInfo without hash by default 1`] = `
 .c2 {
   max-width: 250px;
 }
@@ -952,11 +953,11 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
       >
         Center Springfield
       </p>
-      <br />
       <p
         class="c3"
       >
-        Election ID: this-is-a-hash
+        Election ID: 
+        test--hash
       </p>
     </div>
   </div>

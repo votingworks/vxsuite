@@ -1,9 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Precinct } from '@votingworks/ballot-encoder'
+import { Precinct, ElectionDefinition } from '@votingworks/ballot-encoder'
 import { dateLong } from '../utils/date'
-import { ElectionDefinition } from '../config/types'
 
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '../utils/election'
 
@@ -85,7 +84,7 @@ const ElectionInfo = ({
               {showElectionHash && (
                 <React.Fragment>
                   <br />
-                  {'Election ID: ' + electionHash.substring(0, 20)}
+                  Election ID: {electionHash.substring(0, 10)}
                 </React.Fragment>
               )}
             </Text>
@@ -109,8 +108,7 @@ const ElectionInfo = ({
         <Text light>{precinct.name}</Text>
         {showElectionHash && (
           <React.Fragment>
-            <br />
-            <Text light>{'Election ID: ' + electionHash.substring(0, 20)}</Text>
+            <Text light>Election ID: {electionHash.substring(0, 10)}</Text>
           </React.Fragment>
         )}
       </Prose>

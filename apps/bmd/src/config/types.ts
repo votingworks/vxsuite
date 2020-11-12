@@ -3,7 +3,7 @@ import {
   CandidateContest,
   CandidateVote,
   Contests,
-  Election,
+  ElectionDefinition,
   MsEitherNeitherContest,
   OptionalVote,
   OptionalYesNoVote,
@@ -75,12 +75,6 @@ export type SelectChangeEventFunction = React.ChangeEventHandler<
 >
 
 // Election
-export interface ElectionDefinition {
-  election: Election
-  electionHash: string
-}
-export type OptionalElectionDefinition = Optional<ElectionDefinition>
-
 export interface ActivationData {
   ballotCreatedAt: number
   ballotStyle: BallotStyle

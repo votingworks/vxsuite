@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { VotesDict } from '@votingworks/ballot-encoder'
+import { VotesDict, ElectionDefinition } from '@votingworks/ballot-encoder'
 
 import Loading from '../components/Loading'
 import Main, { MainChild } from '../components/Main'
@@ -8,11 +8,7 @@ import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
-import {
-  MarkVoterCardFunction,
-  PartialUserSettings,
-  ElectionDefinition,
-} from '../config/types'
+import { MarkVoterCardFunction, PartialUserSettings } from '../config/types'
 import { Printer } from '../utils/printer'
 import Text from '../components/Text'
 

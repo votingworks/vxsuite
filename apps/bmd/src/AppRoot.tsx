@@ -9,7 +9,8 @@ import {
   OptionalVote,
   VotesDict,
   Contests,
-  Election,
+  ElectionDefinition,
+  OptionalElectionDefinition,
 } from '@votingworks/ballot-encoder'
 import 'normalize.css'
 import React from 'react'
@@ -37,8 +38,6 @@ import {
   SerializableActivationData,
   Provider,
   MachineConfig,
-  ElectionDefinition,
-  OptionalElectionDefinition,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import {
@@ -375,7 +374,7 @@ class AppRoot extends React.Component<Props, State> {
     this.setState(
       ({ electionDefinition }) => ({
         ballotsPrintedCount: this.initialAppState.ballotsPrintedCount,
-        tally: getZeroTally(electionDefinition?.election!),
+        tally: getZeroTally(electionDefinition!.election),
       }),
       this.storeAppState
     )
@@ -389,7 +388,7 @@ class AppRoot extends React.Component<Props, State> {
         tally: prevTally,
         votes,
       }) => {
-        const election = e?.election!
+        const election = e!.election
 
         // first update the tally for either-neither contests
         const {
@@ -464,12 +463,14 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public fetchElection = async () => {
-    const election = await this.props.card.readLongObject<Election>()
+    const electionData = await this.props.card.readLongString()
+
     /* istanbul ignore else */
-    if (election) {
+    if (electionData) {
+      const election = JSON.parse(electionData)
       const electionDefinition = {
         election,
-        electionHash: sha256(JSON.stringify(election)),
+        electionHash: sha256(electionData),
       }
       this.setState({ electionDefinition }, this.resetTally)
       this.storeElection(electionDefinition)
@@ -480,7 +481,7 @@ class AppRoot extends React.Component<Props, State> {
     const longValue = (await this.props.card.readLongUint8Array())!
     /* istanbul ignore else */
     if (longValue) {
-      const election = this.state.electionDefinition?.election!
+      const election = this.state.electionDefinition!.election
       const { ballot } = decodeBallot(election, longValue)
       return ballot
     } else {
@@ -657,7 +658,7 @@ class AppRoot extends React.Component<Props, State> {
           this.lastVoteSaveToCardAt = Date.now()
           this.forceSaveVoteFlag = false
 
-          const election = this.state.electionDefinition?.election!
+          const election = this.state.electionDefinition!.election
           const ballot: CompletedBallot = {
             ballotId: '',
             ballotStyle: getBallotStyle({
@@ -916,7 +917,7 @@ class AppRoot extends React.Component<Props, State> {
         return <SetupPrinterPage setUserSettings={this.setUserSettings} />
       }
       if (isPollWorkerCardPresent) {
-        const electionDate = new Date(optionalElectionDefinition?.election.date)
+        const electionDate = new Date(electionDefinition.election.date)
         const isElectionDay = isSameDay(electionDate, new Date())
 
         return (

@@ -7,10 +7,10 @@ import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 
 const electionDefinition = {
   election: electionSampleWithSeal as Election,
-  electionHash: 'this-is-a-hash',
+  electionHash: 'test--hash--content-past-10-chars',
 }
 
-it('renders horizantal ElectionInfo with hash when specified', () => {
+it('renders horizontal ElectionInfo with hash when specified', () => {
   const { container } = render(
     <ElectionInfo
       precinctId="23"
@@ -22,7 +22,7 @@ it('renders horizantal ElectionInfo with hash when specified', () => {
   expect(container).toMatchSnapshot()
 })
 
-it('renders horizantal ElectionInfo without hash by default', () => {
+it('renders horizontal ElectionInfo without hash by default', () => {
   const { container } = render(
     <ElectionInfo
       precinctId="23"

@@ -1,4 +1,7 @@
 import { sha256 } from 'js-sha256'
+import fs from 'fs'
+import * as path from 'path'
+
 import {
   CandidateContest,
   YesNoContest,
@@ -6,7 +9,6 @@ import {
   MsEitherNeitherContest,
   // electionSample,
 } from '@votingworks/ballot-encoder'
-import electionSample from '../../src/data/electionSample.json'
 import {
   getBallotStyle,
   getContests,
@@ -21,11 +23,14 @@ import {
 } from '../../src/AppRoot'
 import { Storage } from '../../src/utils/Storage'
 
-export const election = electionSample as Election
-const electionData = JSON.stringify(election)
+const electionSampleData = fs.readFileSync(
+  path.resolve(__dirname, '../../src/data/electionSample.json'),
+  'utf-8'
+)
+export const election = JSON.parse(electionSampleData) as Election
 export const electionDefinition = {
   election: election,
-  electionHash: sha256(electionData),
+  electionHash: sha256(electionSampleData),
 }
 
 export const contest0 = election.contests[0] as CandidateContest

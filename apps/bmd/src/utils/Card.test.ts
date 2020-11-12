@@ -28,6 +28,15 @@ describe('WebServiceCard', () => {
     })
   })
 
+  it('reads string data from /card/read_long', async () => {
+    const jsonString = JSON.stringify({ a: 1, b: 2 })
+    fetchMock.get('/card/read_long', {
+      longValue: jsonString,
+    })
+
+    expect(await new WebServiceCard().readLongString()).toEqual(jsonString)
+  })
+
   it('reads binary data from /card/read_long_b64', async () => {
     fetchMock.get('/card/read_long_b64', {
       longValue: fromByteArray(Uint8Array.of(1, 2, 3)),
@@ -89,6 +98,12 @@ describe('WebServiceCard', () => {
     expect(await new WebServiceCard().readLongObject()).toBeUndefined()
   })
 
+  it('gets undefined when reading string value if long value is not set', async () => {
+    fetchMock.get('/card/read_long', {})
+
+    expect(await new WebServiceCard().readLongString()).toBeUndefined()
+  })
+
   it('gets undefined when reading binary value if long value is not set', async () => {
     fetchMock.get('/card/read_long_b64', {})
 
@@ -119,6 +134,13 @@ describe('MemoryCard', () => {
 
     await card.writeLongObject({ a: 1 })
     expect(await card.readLongObject()).toEqual({ a: 1 })
+  })
+
+  it('can read a string long value', async () => {
+    const card = new MemoryCard().insertCard()
+
+    await card.writeLongObject({ a: 1 })
+    expect(await card.readLongString()).toEqual(JSON.stringify({ a: 1 }))
   })
 
   it('can round-trip a binary long value', async () => {
@@ -174,5 +196,9 @@ describe('MemoryCard', () => {
 
   it('gets undefined when reading an object when no long value is set', async () => {
     expect(await new MemoryCard().insertCard().readLongObject()).toBeUndefined()
+  })
+
+  it('gets undefined when reading a string when no long value is set', async () => {
+    expect(await new MemoryCard().insertCard().readLongString()).toBeUndefined()
   })
 })

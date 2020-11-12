@@ -2,7 +2,7 @@ import { createMemoryHistory } from 'history'
 import React from 'react'
 import { Router } from 'react-router-dom'
 import { render as testRender } from '@testing-library/react'
-import { Contests } from '@votingworks/ballot-encoder'
+import { Contests, ElectionDefinition } from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../src/config/globals'
 
@@ -11,11 +11,7 @@ import * as GLOBALS from '../src/config/globals'
 // typescript concludes that sealURL is required.
 import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
-import {
-  TextSizeSetting,
-  VxMarkOnly,
-  ElectionDefinition,
-} from '../src/config/types'
+import { TextSizeSetting, VxMarkOnly } from '../src/config/types'
 
 import BallotContext from '../src/contexts/ballotContext'
 import fakePrinter from './helpers/fakePrinter'

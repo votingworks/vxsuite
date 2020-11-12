@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { Election } from '@votingworks/ballot-encoder'
+import { Election, ElectionDefinition } from '@votingworks/ballot-encoder'
 import * as GLOBALS from '../config/globals'
 
 import { NullPrinter } from '../utils/printer'
@@ -7,7 +7,6 @@ import {
   BallotContextInterface,
   TextSizeSetting,
   VxMarkOnly,
-  ElectionDefinition,
 } from '../config/types'
 
 const ballot: BallotContextInterface = {

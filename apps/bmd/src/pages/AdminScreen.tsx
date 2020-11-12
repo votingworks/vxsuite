@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
+import { OptionalElectionDefinition } from '@votingworks/ballot-encoder'
 
 import {
   AppMode,
   SelectChangeEventFunction,
   VoidFunction,
-  OptionalElectionDefinition,
 } from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
@@ -140,7 +140,7 @@ const AdminScreen = ({
     }
   }
 
-  if (isTestDeck && electionDefinition && electionDefinition.election) {
+  if (isTestDeck && electionDefinition) {
     return (
       <TestBallotDeckScreen
         appName={appMode.name}

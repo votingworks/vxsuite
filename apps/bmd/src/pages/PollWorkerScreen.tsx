@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import pluralize from 'pluralize'
-import { Precinct } from '@votingworks/ballot-encoder'
+import { Precinct, ElectionDefinition } from '@votingworks/ballot-encoder'
 
-import { Tally, MachineConfig, ElectionDefinition } from '../config/types'
+import { Tally, MachineConfig } from '../config/types'
 
 import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'

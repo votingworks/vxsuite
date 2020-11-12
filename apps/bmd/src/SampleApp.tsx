@@ -1,7 +1,9 @@
 import * as React from 'react'
-import { sha256 } from 'js-sha256'
 
-import { VoterCardData, electionSample } from '@votingworks/ballot-encoder'
+import {
+  VoterCardData,
+  electionDefinitionSample,
+} from '@votingworks/ballot-encoder'
 import App, { Props } from './App'
 import { Card, MemoryCard } from './utils/Card'
 import utcTimestamp from './utils/utcTimestamp'
@@ -26,15 +28,11 @@ export function getSampleCard(): Card {
 }
 
 export function getSampleStorage(): Storage<AppStorage> {
-  const electionDefinition = {
-    election: electionSample,
-    electionHash: sha256(JSON.stringify(electionSample)),
-  }
   const ballotCreatedAt = utcTimestamp()
 
   return new MemoryStorage<AppStorage>({
     state: {
-      electionDefinition,
+      electionDefinition: electionDefinitionSample,
       appPrecinctId,
       ballotsPrintedCount: 0,
       isLiveMode: true,
@@ -44,7 +42,7 @@ export function getSampleStorage(): Storage<AppStorage> {
       precinctId,
     },
 
-    electionDefinition,
+    electionDefinition: electionDefinitionSample,
     activation: {
       ballotCreatedAt,
       ballotStyleId,

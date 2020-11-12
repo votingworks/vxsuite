@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { ElectionDefinition } from '@votingworks/ballot-encoder'
 
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
@@ -8,7 +9,6 @@ import Sidebar from '../components/Sidebar'
 import TestMode from '../components/TestMode'
 import Text from '../components/Text'
 import ElectionInfo from '../components/ElectionInfo'
-import { ElectionDefinition } from '../config/types'
 
 const InsertCardImage = styled.img`
   margin: 0 auto -1rem;
