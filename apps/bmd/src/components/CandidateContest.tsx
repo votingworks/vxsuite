@@ -86,7 +86,7 @@ interface Props {
   updateVote: UpdateVoteFunction
 }
 
-const findCandidateById = (candidates: Candidate[], id: string) =>
+const findCandidateById = (candidates: readonly Candidate[], id: string) =>
   candidates.find((c) => c.id === id)
 
 const normalizeCandidateName = (name: string) =>

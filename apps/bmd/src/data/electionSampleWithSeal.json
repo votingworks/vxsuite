@@ -28,36 +28,43 @@
     {
       "id": "0",
       "name": "Federalist",
+      "fullName": "Federalist Party",
       "abbrev": "F"
     },
     {
       "id": "1",
       "name": "People's",
+      "fullName": "People's Party",
       "abbrev": "P"
     },
     {
       "id": "2",
       "name": "Liberty",
+      "fullName": "Liberty Party",
       "abbrev": "Li"
     },
     {
       "id": "3",
       "name": "Constitution",
+      "fullName": "Constitution Party",
       "abbrev": "C"
     },
     {
       "id": "4",
       "name": "Whig",
+      "fullName": "Whig Party",
       "abbrev": "W"
     },
     {
       "id": "5",
       "name": "Labor",
+      "fullName": "Labor Party",
       "abbrev": "La"
     },
     {
       "id": "6",
       "name": "Independent",
+      "fullName": "Independent Party",
       "abbrev": "I"
     }
   ],

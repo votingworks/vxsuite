@@ -2749,13 +2749,14 @@
     "@typescript-eslint/types" "4.4.0"
     eslint-visitor-keys "^2.0.0"
 
-"@votingworks/ballot-encoder@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-4.0.0.tgz#f87152e962110e56c37985547e702f39bc8639f8"
-  integrity sha512-sC3m6J6MuUgvb5qq5avppaimCKX0wLFkoFakH1B1MM8F91Sx3Jq5GqvkNuDgs8iRPgTOAJS83ayKxSCPsq9NeA==
+"@votingworks/ballot-encoder@^5.0.0":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-5.1.1.tgz#bab6b9b717dd131a1bbc73ac9acd5505c7ef11f1"
+  integrity sha512-GYWwlq6/AB/KEUYcq5Dy1+JI01iTmRR8jMuIX0IivdUzK9FITg3Hm+TyXzIgMjOoLNoyx+weiSNsR3UnIQ/GQw==
   dependencies:
     "@antongolub/iso8601" "^1.2.1"
-    zod "^1.7.1"
+    js-sha256 "^0.9.0"
+    zod "1.7.1"
 
 "@votingworks/qrcode.react@^1.0.1":
   version "1.0.1"
@@ -8528,6 +8529,11 @@ js-levenshtein@^1.1.3:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/js-levenshtein/-/js-levenshtein-1.1.6.tgz#c6cee58eb3550372df8deb85fad5ce66ce01d59d"
   integrity sha512-X2BB11YZtrRqY4EnQcLX5Rh373zbK4alC1FW7D7MBhL2gtcC17cTnr6DmfHZeS0s2rTHjUTMMHfG7gO8SSdw+g==
+
+js-sha256@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/js-sha256/-/js-sha256-0.9.0.tgz#0b89ac166583e91ef9123644bd3c5334ce9d0966"
+  integrity sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
@@ -14713,7 +14719,7 @@ yauzl@2.10.0, yauzl@^2.10.0:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.1.0"
 
-zod@^1.7.1:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-1.7.2.tgz#723338f5425fa0eee1a8aee74f02e0d7d1613976"
-  integrity sha512-Okd9SAN9je5gUSl4kFG4kdz0mRVbs/wzSGGzq+AWKIij9C5b43bPW7eUsuXNJVzUaOwIQvStW8oYpRt4HlxEAQ==
+zod@1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-1.7.1.tgz#983e4ae8e2f032420960288ea7c54a5afc50c011"
+  integrity sha512-EqtwN5PJTgg/iOxMvjezNcha8xDcrcUr2V4oYZ8GMzxzFGfZV+LFI+ey2sBs2mGWSF8qZE8gHIquApWa7jiTYg==
