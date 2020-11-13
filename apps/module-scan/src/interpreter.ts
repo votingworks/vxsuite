@@ -137,6 +137,7 @@ export async function getBallotImageData(
     return { value: { file, image, qrcode: qrcode.data } }
   }
 
+  debug('no QR code found in %s', filename)
   return {
     error: {
       type: 'UnreadablePage',

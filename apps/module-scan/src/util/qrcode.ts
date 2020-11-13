@@ -3,7 +3,8 @@ import { Rect, Size } from '@votingworks/hmpb-interpreter'
 import crop from '@votingworks/hmpb-interpreter/dist/src/utils/crop'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
-import { decode as quircDecode } from 'node-quirc'
+import jsQR from 'jsqr'
+import { decode as quircDecode, QRCode } from 'node-quirc'
 import { toPNG } from './images'
 import { time } from './perf'
 
@@ -82,70 +83,60 @@ export function* getSearchAreas(
 
 export const detectQRCode = async (
   imageData: ImageData
-): Promise<{ data: Buffer; position: 'top' | 'bottom' } | undefined> => {
-  const timer = time('detectQRCode')
-  let result: { data: Buffer; position: 'top' | 'bottom' } | undefined
-
+): Promise<
+  { data: Buffer; position: 'top' | 'bottom'; detector: string } | undefined
+> => {
   debug('detectQRCode: checking %dˣ%d image', imageData.width, imageData.height)
 
-  for (const { position, bounds } of getSearchAreas(imageData)) {
-    debug('cropping %s to check for QR code: %o', position, bounds)
-    const cropped = crop(imageData, bounds)
-    debug('scanning with qrdetect')
-    const results = qrdetect(cropped.data, cropped.width, cropped.height)
+  const detectors = [
+    {
+      name: 'qrdetect',
+      detect: async ({ data, width, height }: ImageData): Promise<Buffer[]> =>
+        qrdetect(data, width, height).map((symbol) => symbol.data),
+    },
+    {
+      name: 'quirc',
+      detect: async (imageData: ImageData): Promise<Buffer[]> => {
+        const results = await quircDecode(await toPNG(imageData))
+        return results
+          .filter((result): result is QRCode => !('err' in result))
+          .map((result) => result.data)
+      },
+    },
+    {
+      name: 'jsQR',
+      detect: async ({ data, width, height }: ImageData): Promise<Buffer[]> => {
+        const result = jsQR(data, width, height)
+        return result ? [Buffer.from(result.binaryData)] : []
+      },
+    },
+  ]
 
-    if (results.length > 0) {
-      debug(
-        'qrdetect found QR code in %s! data length=%d',
-        position,
-        results[0].data.length
-      )
-      const data = maybeDecodeBase64(results[0].data)
+  const timer = time('detectQRCode')
+  try {
+    for (const detector of detectors) {
+      for (const { position, bounds } of getSearchAreas(imageData)) {
+        debug('cropping %s to check for QR code: %o', position, bounds)
+        const cropped = crop(imageData, bounds)
+        debug('scanning with %s', detector.name)
+        const results = await detector.detect(cropped)
 
-      result = { data, position }
-    } else {
-      debug('qrdetect found no QR codes in %s', position)
-    }
+        if (results.length > 0) {
+          debug(
+            '%s found QR code in %s! data length=%d',
+            detector.name,
+            position,
+            results[0].length
+          )
+          const data = maybeDecodeBase64(results[0])
 
-    if (result) {
-      break
-    }
-  }
-
-  if (!result) {
-    for (const { position, bounds } of getSearchAreas(imageData)) {
-      debug('cropping %s to check for QR code: %o', position, bounds)
-      const cropped = crop(imageData, bounds)
-
-      debug('generating PNG for quirc')
-      const img = await toPNG(cropped)
-
-      debug('scanning with quirc')
-      const results = (await quircDecode(img))[0]
-
-      if (results && 'data' in results) {
-        debug(
-          'quirc found QR code in %s! data length=%d',
-          position,
-          results.data.length
-        )
-        const data = maybeDecodeBase64(results.data)
-
-        result = { data, position }
-      } else {
-        debug('quirc found no QR codes in %s', position)
-      }
-
-      if (result) {
-        break
+          return { data, position, detector: detector.name }
+        } else {
+          debug('%s found no QR codes in %s', detector.name, position)
+        }
       }
     }
+  } finally {
+    timer.end()
   }
-
-  if (!result) {
-    debug('detectQRCode: no QR code found')
-  }
-
-  timer.end()
-  return result
 }
