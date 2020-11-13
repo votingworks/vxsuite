@@ -89,7 +89,8 @@ const MsEitherNeitherContest = ({
   ) => {
     const currentVote = eitherNeitherContestVote?.[0]
     const targetVote = event.currentTarget.dataset.choice
-    const newVote = currentVote === targetVote ? [] : [targetVote]
+    const newVote =
+      currentVote === targetVote ? ([] as YesNoVote) : [targetVote]
     setDeselectedOption(
       currentVote === 'yes'
         ? 'either'
@@ -102,7 +103,8 @@ const MsEitherNeitherContest = ({
   const handleUpdatePickOne = (event: React.MouseEvent<HTMLInputElement>) => {
     const currentVote = pickOneContestVote?.[0]
     const targetVote = event.currentTarget.dataset.choice
-    const newVote = currentVote === targetVote ? [] : [targetVote]
+    const newVote =
+      currentVote === targetVote ? ([] as YesNoVote) : [targetVote]
     setDeselectedOption(
       currentVote === 'yes'
         ? 'first'
