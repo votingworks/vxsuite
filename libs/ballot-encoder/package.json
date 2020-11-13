@@ -1,13 +1,13 @@
 {
   "name": "@votingworks/ballot-encoder",
   "version": "5.1.0",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "files": [
-    "src/**/*.{js,d.ts,d.ts.map,json}"
+    "**/*.{js,d.ts,d.ts.map,json}"
   ],
   "scripts": {
-    "lint": "eslint 'src/**/*.{ts,js}'",
+    "lint": "eslint '**/*.{ts,js}'",
     "publish:npm": "yarn test:coverage && tsc && npm publish --access public && ts-emit-clean",
     "test": "jest",
     "test:ci": "jest --ci --collectCoverage",
