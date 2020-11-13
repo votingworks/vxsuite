@@ -16,36 +16,6 @@ export interface Shape {
 }
 
 /**
- * Finds shapes in a binarized image by looking for adjacent pixels of a
- * specific color looking at points from a point generator.
- */
-export function* findShapes<TNext>(
-  imageData: ImageData,
-  points: Generator<Point, void, TNext | undefined>,
-  { color = PIXEL_BLACK } = {}
-): Generator<Shape, void, TNext> {
-  const visitedPoints = new VisitedPoints(imageData.width, imageData.height)
-  const pointsIterator = points[Symbol.iterator]()
-  let nextArg: TNext | undefined
-
-  while (true) {
-    const next = pointsIterator.next(nextArg)
-
-    if (next.done) {
-      break
-    }
-
-    const { x, y } = next.value
-
-    if (!visitedPoints.has(x, y)) {
-      nextArg = yield findShape(imageData, { x, y }, visitedPoints, { color })
-    } else {
-      nextArg = undefined
-    }
-  }
-}
-
-/**
  * Finds a shape in a binarized image by looking for adjacent pixels of a
  * specific color starting at a given point.
  */
