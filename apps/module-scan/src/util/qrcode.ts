@@ -3,6 +3,7 @@ import { Rect, Size } from '@votingworks/hmpb-interpreter'
 import crop from '@votingworks/hmpb-interpreter/dist/src/utils/crop'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
+import jsQR from 'jsqr'
 import { decode as quircDecode, QRCode } from 'node-quirc'
 import { toPNG } from './images'
 import { time } from './perf'
@@ -82,7 +83,9 @@ export function* getSearchAreas(
 
 export const detectQRCode = async (
   imageData: ImageData
-): Promise<{ data: Buffer; position: 'top' | 'bottom' } | undefined> => {
+): Promise<
+  { data: Buffer; position: 'top' | 'bottom'; detector: string } | undefined
+> => {
   debug('detectQRCode: checking %dˣ%d image', imageData.width, imageData.height)
 
   const detectors = [
@@ -98,6 +101,13 @@ export const detectQRCode = async (
         return results
           .filter((result): result is QRCode => !('err' in result))
           .map((result) => result.data)
+      },
+    },
+    {
+      name: 'jsQR',
+      detect: async ({ data, width, height }: ImageData): Promise<Buffer[]> => {
+        const result = jsQR(data, width, height)
+        return result ? [Buffer.from(result.binaryData)] : []
       },
     },
   ]
@@ -120,7 +130,7 @@ export const detectQRCode = async (
           )
           const data = maybeDecodeBase64(results[0])
 
-          return { data, position }
+          return { data, position, detector: detector.name }
         } else {
           debug('%s found no QR codes in %s', detector.name, position)
         }
