@@ -6,9 +6,12 @@ import { basename, dirname, extname, join } from 'path'
  * @example
  *
  */
-export function adjacentFile(suffix: string, path: string): string {
+export function adjacentFile(
+  suffix: string,
+  path: string,
+  ext = extname(path)
+): string {
   const dir = dirname(path)
-  const ext = extname(path)
-  const base = basename(path, ext)
+  const base = basename(path, extname(path))
   return join(dir, base + suffix + ext)
 }

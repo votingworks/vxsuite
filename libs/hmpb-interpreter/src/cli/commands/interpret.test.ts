@@ -1,13 +1,16 @@
 import MemoryStream from 'memorystream'
 import { relative } from 'path'
 import { parseGlobalOptions } from '..'
+import { adjacentMetadataFile } from '../../../test/fixtures'
 import {
   blankPage1,
+  blankPage2,
   election,
   electionPath,
   filledInPage1,
+  filledInPage2,
 } from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
-import { parseOptions, printHelp, run } from './interpret'
+import { OutputFormat, parseOptions, printHelp, run } from './interpret'
 
 test('parse options: --election', async () => {
   for (const electionFlag of ['--election', '-e']) {
@@ -67,6 +70,20 @@ test('parse options: --min-mark-score', async () => {
       })
     )
   }
+
+  await expect(
+    parseOptions(
+      parseGlobalOptions([
+        'node',
+        'hmpb-interpreter',
+        'interpret',
+        '--election',
+        electionPath,
+        '-m',
+        'I am not a number',
+      ])
+    )
+  ).rejects.toThrowError('Invalid minimum mark score: I am not a number')
 })
 
 test('parse options: --test-mode', async () => {
@@ -90,10 +107,78 @@ test('parse options: --test-mode', async () => {
   }
 })
 
+test('parse options: --format', async () => {
+  expect(
+    await parseOptions(
+      parseGlobalOptions([
+        'node',
+        'hmpb-interpreter',
+        'interpret',
+        '--election',
+        electionPath,
+      ])
+    )
+  ).toEqual(
+    expect.objectContaining({
+      format: OutputFormat.Table,
+    })
+  )
+
+  for (const formatFlag of ['--format', '-f']) {
+    expect(
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'hmpb-interpreter',
+          'interpret',
+          '--election',
+          electionPath,
+          formatFlag,
+          'JSON',
+        ])
+      )
+    ).toEqual(
+      expect.objectContaining({
+        format: OutputFormat.JSON,
+      })
+    )
+  }
+
+  await expect(
+    parseOptions(
+      parseGlobalOptions([
+        'node',
+        'hmpb-interpreter',
+        'interpret',
+        '--election',
+        electionPath,
+        '-f',
+        'yaml',
+      ])
+    )
+  ).rejects.toThrowError('Unknown output format: yaml')
+})
+
 test('parse options requires election', async () => {
   await expect(
     parseOptions(parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret']))
   ).rejects.toThrowError(`Required option 'election' is missing.`)
+
+  await expect(
+    parseOptions(
+      parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret', '-e'])
+    )
+  ).rejects.toThrowError(
+    `Expected election definition file after -e, but got nothing.`
+  )
+
+  await expect(
+    parseOptions(
+      parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret', '-e', '-t'])
+    )
+  ).rejects.toThrowError(
+    `Expected election definition file after -e, but got -t.`
+  )
 })
 
 test('invalid options', async () => {
@@ -102,6 +187,67 @@ test('invalid options', async () => {
       parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret', '--wrong'])
     )
   ).rejects.toThrowError('Unknown option: --wrong')
+})
+
+test('template and ballot flags', async () => {
+  const options = await parseOptions(
+    parseGlobalOptions([
+      'node',
+      'hmpb-interpreter',
+      'interpret',
+      '-e',
+      electionPath,
+      '-t',
+      'template.png',
+      '-b',
+      'ballot.png',
+    ])
+  )
+  expect(options.ballotInputs.map((bi) => bi.id())).toEqual(['ballot.png'])
+  expect(options.templateInputs.map((ti) => ti.id())).toEqual(['template.png'])
+
+  await expect(
+    parseOptions(
+      parseGlobalOptions([
+        'node',
+        'hmpb-interpreter',
+        'interpret',
+        '-e',
+        electionPath,
+        '-t',
+        '-b',
+        'ballot.png',
+      ])
+    )
+  ).rejects.toThrowError('Expected template file after -t, but got -b')
+
+  await expect(
+    parseOptions(
+      parseGlobalOptions([
+        'node',
+        'hmpb-interpreter',
+        'interpret',
+        '-e',
+        electionPath,
+        '-t',
+      ])
+    )
+  ).rejects.toThrowError('Expected template file after -t, but got nothing')
+
+  await expect(
+    parseOptions(
+      parseGlobalOptions([
+        'node',
+        'hmpb-interpreter',
+        'interpret',
+        '-e',
+        electionPath,
+        '-t',
+        'template.png',
+        '-b',
+      ])
+    )
+  ).rejects.toThrowError('Expected ballot file after -b, but got nothing')
 })
 
 test('file paths without explicit template/ballot flags', async () => {
@@ -167,8 +313,67 @@ test('run interpret', async () => {
           electionPath,
           '-t',
           blankPage1.filePath(),
+          '-t',
+          blankPage2.filePath(),
           '-b',
           relative(process.cwd(), filledInPage1.filePath()),
+          '-b',
+          relative(process.cwd(), filledInPage2.filePath()),
+        ])
+      ),
+      stdin,
+      stdout
+    )
+  ).toEqual(0)
+
+  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
+    "╔═══════════════════════════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════════════════╗
+    ║ Contest                                               │ test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg │ test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p2.jpg ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Member, U.S. Senate                                   │ Tim Smith                                                                                          │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Member, U.S. House, District 30                       │ Eddie Bernice Johnson                                                                              │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Judge, Texas Supreme Court, Place 6                   │ Jane Bland                                                                                         │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Member, Texas House of Representatives, District 111  │ Write-In                                                                                           │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Dallas County Tax Assessor-Collector                  │ John Ames                                                                                          │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Dallas County Sheriff                                 │ Chad Prda                                                                                          │                                                                                                    ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Member, Dallas County Commissioners Court, Precinct 3 │                                                                                                    │ Andrew Jewell                                                                                      ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Retain Robert Demergue as Chief Justice?              │                                                                                                    │ yes                                                                                                ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Proposition R: Countywide Recycling Program           │                                                                                                    │ no                                                                                                 ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ City Council                                          │                                                                                                    │ Randall Rupp, Donald Davis                                                                         ║
+    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
+    ║ Mayor                                                 │                                                                                                    │                                                                                                    ║
+    ╚═══════════════════════════════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════════════════╝
+    "
+  `)
+})
+
+test('run interpret with auto inputs', async () => {
+  const stdin = new MemoryStream()
+  const stdout = new MemoryStream()
+
+  const templatePath = blankPage1.filePath()
+  const ballotPath = relative(process.cwd(), filledInPage1.filePath())
+
+  expect(
+    await run(
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'hmpb-interpreter',
+          'interpret',
+          '-e',
+          electionPath,
+          `${templatePath}:${adjacentMetadataFile(templatePath)}`,
+          `${ballotPath}:${adjacentMetadataFile(ballotPath)}`,
         ])
       ),
       stdin,

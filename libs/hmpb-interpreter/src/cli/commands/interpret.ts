@@ -27,13 +27,13 @@ export interface Options {
 }
 
 function makeInputFromBallotArgument(arg: string): Input {
-  const [ballotFile, metadataFile] = arg.split(':')
+  const [ballotPath, metadataPath] = arg.split(':')
   const input: Input = {
-    id: () => ballotFile,
-    imageData: () => loadImageData(ballotFile),
+    id: () => ballotPath,
+    imageData: () => loadImageData(ballotPath),
     metadata: async () =>
-      metadataFile
-        ? JSON.parse(await fs.readFile(metadataFile, 'utf-8'))
+      metadataPath
+        ? JSON.parse(await fs.readFile(metadataPath, 'utf-8'))
         : undefined,
   }
   return input
@@ -95,7 +95,9 @@ export async function parseOptions({
 
         if (!electionJSONFile || electionJSONFile.startsWith('-')) {
           throw new OptionParseError(
-            `Expected election definition file after ${arg}, but got ${electionJSONFile}.`
+            `Expected election definition file after ${arg}, but got ${
+              electionJSONFile || 'nothing'
+            }.`
           )
         }
 
@@ -134,7 +136,9 @@ export async function parseOptions({
 
         if (!templateFile || templateFile.startsWith('-')) {
           throw new OptionParseError(
-            `Expected template file after ${arg}, but got ${templateFile}`
+            `Expected template file after ${arg}, but got ${
+              templateFile || 'nothing'
+            }`
           )
         }
 
@@ -149,7 +153,9 @@ export async function parseOptions({
 
         if (!ballotFile || ballotFile.startsWith('-')) {
           throw new OptionParseError(
-            `Expected template file after ${arg}, but got ${ballotFile}`
+            `Expected ballot file after ${arg}, but got ${
+              ballotFile || 'nothing'
+            }`
           )
         }
 
