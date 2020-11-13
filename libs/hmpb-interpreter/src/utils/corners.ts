@@ -1,7 +1,7 @@
 import makeDebug from 'debug'
 import { Edge, Shape } from '../hmpb/shapes'
 import { Corners, Point } from '../types'
-import { editDistance, median, rectCorners } from './geometry'
+import { editDistance, rectCorners } from './geometry'
 
 const debug = makeDebug('module-scan:corners')
 
@@ -336,16 +336,7 @@ export function getCorners(
     bounds.width * Math.tan(maxSkewRadians)
   )
 
-  const leftMedian = median(
-    edges.left.slice(bounds.y, bounds.y + bounds.height)
-  )
-  const rightMedian = median(
-    edges.right.slice(bounds.y, bounds.y + bounds.height)
-  )
-  const topMedian = median(edges.top.slice(bounds.x, bounds.x + bounds.width))
-  const bottomMedian = median(
-    edges.bottom.slice(bounds.x, bounds.x + bounds.width)
-  )
+  const { leftMedian, rightMedian, topMedian, bottomMedian } = edges
 
   debug(
     'calculated max left/right skew distance: %dpx',

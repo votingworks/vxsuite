@@ -39,6 +39,8 @@ export default function* findContests(
   }: Options = {}
 ): Generator<ContestShape> {
   const visitedPoints = new VisitedPoints(ballotImage.width, ballotImage.height)
+  const minExpectedWidth = expectedWidth - errorMargin
+  const maxExpectedWidth = expectedWidth + errorMargin
 
   for (const [columnIndex, column] of columns.entries()) {
     if (!column) {
@@ -86,25 +88,27 @@ export default function* findContests(
       }
 
       const shape = findShape(ballotImage, { x: columnMidX, y }, visitedPoints)
+      const shapeWidth = shape.edges.rightMedian - shape.edges.leftMedian + 1
+      const shapeHeight = shape.edges.bottomMedian - shape.edges.topMedian + 1
 
-      if (shape.bounds.width === 0 || shape.bounds.height === 0) {
+      if (shapeWidth === 0 || shapeHeight === 0) {
         continue
       }
 
       if (
-        shape.bounds.height < minExpectedHeight ||
-        shape.bounds.height > maxExpectedHeight ||
-        shape.bounds.width < expectedWidth - errorMargin ||
-        shape.bounds.width > expectedWidth + errorMargin
+        shapeHeight < minExpectedHeight ||
+        shapeHeight > maxExpectedHeight ||
+        shapeWidth < minExpectedWidth ||
+        shapeWidth > maxExpectedWidth
       ) {
         debug(
           'skipping shape because it is the wrong size: bounds=%O, actual=%dˣ%d, min=%dˣ%d, max=%dˣ%d',
           shape.bounds,
-          shape.bounds.width,
-          shape.bounds.height,
-          expectedWidth - errorMargin,
+          shapeWidth,
+          shapeHeight,
+          minExpectedWidth,
           minExpectedHeight,
-          expectedWidth + errorMargin,
+          maxExpectedWidth,
           maxExpectedHeight
         )
       } else {

@@ -1,5 +1,6 @@
 import { Point, Rect } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
+import { median } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { VisitedPoints } from '../utils/VisitedPoints'
 
@@ -9,9 +10,13 @@ export interface Shape {
   bounds: Rect
   edges: {
     top: Edge
+    topMedian: number
     right: Edge
+    rightMedian: number
     bottom: Edge
+    bottomMedian: number
     left: Edge
+    leftMedian: number
   }
 }
 
@@ -63,7 +68,7 @@ export function findShape(
   const topEdge = new Int32Array(imageData.width).fill(imageData.height)
   const rightEdge = new Int32Array(imageData.height).fill(-1)
   const bottomEdge = new Int32Array(imageData.width).fill(-1)
-  const leftBorder = new Int32Array(imageData.height).fill(imageData.width)
+  const leftEdge = new Int32Array(imageData.height).fill(imageData.width)
   let xMin = startingPoint.x
   let yMin = startingPoint.y
   let xMax = startingPoint.x
@@ -93,8 +98,8 @@ export function findShape(
       if (y > yMax) {
         yMax = y
       }
-      if (x < leftBorder[y]) {
-        leftBorder[y] = x
+      if (x < leftEdge[y]) {
+        leftEdge[y] = x
       }
       if (y < topEdge[x]) {
         topEdge[x] = y
@@ -125,6 +130,11 @@ export function findShape(
     }
   }
 
+  const leftMedian = median(leftEdge.slice(yMin, yMax + 1))
+  const rightMedian = median(rightEdge.slice(yMin, yMax + 1))
+  const topMedian = median(topEdge.slice(xMin, xMax + 1))
+  const bottomMedian = median(bottomEdge.slice(xMin, xMax + 1))
+
   return {
     bounds: {
       x: xMin,
@@ -134,9 +144,13 @@ export function findShape(
     },
     edges: {
       top: topEdge,
+      topMedian,
       right: rightEdge,
+      rightMedian,
       bottom: bottomEdge,
-      left: leftBorder,
+      bottomMedian,
+      left: leftEdge,
+      leftMedian,
     },
   }
 }
