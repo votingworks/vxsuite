@@ -1,6 +1,7 @@
-import electionSampleUntyped from './data/electionSample.json'
-import electionSampleLongContentUntyped from './data/electionSampleLongContent.json'
 import * as s from './schema'
+import * as fs from 'fs'
+import * as path from 'path'
+import { sha256 } from 'js-sha256'
 
 // Generic
 export type VoidFunction = () => void
@@ -118,6 +119,11 @@ export interface Election {
   readonly adjudicationReasons?: readonly AdjudicationReason[]
 }
 export type OptionalElection = Optional<Election>
+export interface ElectionDefinition {
+  election: Election
+  electionHash: string
+}
+export type OptionalElectionDefinition = Optional<ElectionDefinition>
 
 // Votes
 export type CandidateVote = readonly Candidate[]
@@ -279,8 +285,31 @@ export const validateVotes = ({
   }
 }
 
+const electionSampleAsString = fs.readFileSync(
+  path.resolve(__dirname, './data/electionSample.json'),
+  'utf8'
+)
+const electionSampleLongContentAsString = fs.readFileSync(
+  path.resolve(__dirname, './data/electionSampleLongContent.json'),
+  'utf8'
+)
+
+const electionSampleUntyped = JSON.parse(electionSampleAsString)
+const electionSampleLongContentUntyped = JSON.parse(
+  electionSampleLongContentAsString
+)
 export const electionSample = (electionSampleUntyped as unknown) as Election
 export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election
+
+export const electionDefinitionSample = {
+  election: electionSample,
+  electionHash: sha256(electionSampleAsString),
+} as ElectionDefinition
+
+export const electionDefinitionSampleLongContent = {
+  election: electionSampleLongContent,
+  electionHash: sha256(electionSampleLongContentAsString),
+} as ElectionDefinition
 
 /**
  * @deprecated Does not support i18n. 'party.fullname` should be used instead.
