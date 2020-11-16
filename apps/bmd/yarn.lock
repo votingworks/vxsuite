@@ -2750,9 +2750,9 @@
     eslint-visitor-keys "^2.0.0"
 
 "@votingworks/ballot-encoder@^5.0.0":
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-5.1.1.tgz#bab6b9b717dd131a1bbc73ac9acd5505c7ef11f1"
-  integrity sha512-GYWwlq6/AB/KEUYcq5Dy1+JI01iTmRR8jMuIX0IivdUzK9FITg3Hm+TyXzIgMjOoLNoyx+weiSNsR3UnIQ/GQw==
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/@votingworks/ballot-encoder/-/ballot-encoder-5.1.2.tgz#326480b67789e030022eb46dc2a290d3405bcf82"
+  integrity sha512-Wk0uMjeWvycZloJEiE2Dc+bQCwYOeb8hT8kARXARb6Ist1YTPW83Y9GUwUw//MAUlMueVju9iINTWKezH4kH9Q==
   dependencies:
     "@antongolub/iso8601" "^1.2.1"
     js-sha256 "^0.9.0"
