@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, wait, within } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
+import { sha256 } from 'js-sha256'
 
 // import { electionSample } from '@votingworks/ballot-encoder'
 import electionSample from './data/electionSample.json'
@@ -50,8 +51,12 @@ it('VxMark+Print end-to-end flow', async () => {
   const machineConfig = fakeMachineConfigProvider({
     appMode: VxMarkPlusVxPrint,
   })
+  const expectedElectionHash = sha256(JSON.stringify(electionSample)).substring(
+    0,
+    10
+  )
   const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array')
-  const { getByLabelText, getByText, getByTestId } = render(
+  const { getByLabelText, getByText, getByTestId, queryByText } = render(
     <App
       card={card}
       hardware={hardware}
@@ -89,6 +94,9 @@ it('VxMark+Print end-to-end flow', async () => {
   card.insertCard(adminCard, electionSample)
   await advanceTimersAndPromises()
   getByLabelText('Precinct')
+  within(getByTestId('election-info')).getByText(
+    `Election ID: ${expectedElectionHash}`
+  )
 
   // Select precinct
   getByText('State of Hamilton')
@@ -115,6 +123,9 @@ it('VxMark+Print end-to-end flow', async () => {
   // Open Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
+  within(getByTestId('election-info')).getByText(
+    `Election ID: ${expectedElectionHash}`
+  )
   fireEvent.click(getByText('Open Polls for Center Springfield'))
   fireEvent.click(within(getByTestId('modal')).getByText('Cancel'))
   fireEvent.click(getByText('Open Polls for Center Springfield'))
@@ -137,6 +148,12 @@ it('VxMark+Print end-to-end flow', async () => {
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
   await wait(() => getByText(/Center Springfield/))
+  expect(queryByText(expectedElectionHash)).toBeNull
+  expect(
+    within(getByTestId('election-info')).queryByText(
+      `Election ID: ${expectedElectionHash}`
+    )
+  ).toBeNull()
   getByText(/ballot style 12/)
   getByTextWithMarkup('Your ballot has 21 contests.')
 
@@ -167,6 +184,11 @@ it('VxMark+Print end-to-end flow', async () => {
   await advanceTimersAndPromises()
   getByText(/Center Springfield/)
   getByText(/ballot style 12/)
+  expect(
+    within(getByTestId('election-info')).queryByText(
+      `Election ID: ${expectedElectionHash}`
+    )
+  ).toBeNull()
   getByTextWithMarkup('Your ballot has 21 contests.')
 
   // Adjust Text Size
@@ -193,6 +215,11 @@ it('VxMark+Print end-to-end flow', async () => {
 
     await advanceTimersAndPromises()
     getByText(title)
+    expect(
+      within(getByTestId('election-info')).queryByText(
+        `Election ID: ${expectedElectionHash}`
+      )
+    ).toBeNull()
 
     // Vote for candidate contest
     if (title === presidentContest.title) {
@@ -230,6 +257,11 @@ it('VxMark+Print end-to-end flow', async () => {
   // Review Screen
   await advanceTimersAndPromises()
   getByText('Review Votes')
+  expect(
+    within(getByTestId('election-info')).queryByText(
+      `Election ID: ${expectedElectionHash}`
+    )
+  ).toBeNull()
   getByText(presidentContest.candidates[0].name)
   getByText(`Yes on ${measure102Contest.shortTitle}`)
 
