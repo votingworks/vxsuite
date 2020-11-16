@@ -1,7 +1,8 @@
 import * as s from './schema'
-import * as fs from 'fs'
-import * as path from 'path'
 import { sha256 } from 'js-sha256'
+
+import electionSampleUntyped from './data/electionSample.json'
+import electionSampleLongContentUntyped from './data/electionSampleLongContent.json'
 
 // Generic
 export type VoidFunction = () => void
@@ -285,30 +286,17 @@ export const validateVotes = ({
   }
 }
 
-const electionSampleAsString = fs.readFileSync(
-  path.resolve(__dirname, './data/electionSample.json'),
-  'utf8'
-)
-const electionSampleLongContentAsString = fs.readFileSync(
-  path.resolve(__dirname, './data/electionSampleLongContent.json'),
-  'utf8'
-)
-
-const electionSampleUntyped = JSON.parse(electionSampleAsString)
-const electionSampleLongContentUntyped = JSON.parse(
-  electionSampleLongContentAsString
-)
 export const electionSample = (electionSampleUntyped as unknown) as Election
 export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election
 
 export const electionDefinitionSample = {
   election: electionSample,
-  electionHash: sha256(electionSampleAsString),
+  electionHash: sha256(JSON.stringify(electionSampleUntyped)),
 } as ElectionDefinition
 
 export const electionDefinitionSampleLongContent = {
   election: electionSampleLongContent,
-  electionHash: sha256(electionSampleLongContentAsString),
+  electionHash: sha256(JSON.stringify(electionSampleLongContentUntyped)),
 } as ElectionDefinition
 
 /**
