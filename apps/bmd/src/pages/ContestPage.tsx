@@ -28,13 +28,14 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
   const {
     ballotStyleId,
     contests,
-    election,
+    electionDefinition,
     precinctId,
     setUserSettings,
     updateVote,
     userSettings,
     votes,
   } = useContext(BallotContext)
+  const election = electionDefinition.election
   const currentContestIndex = parseInt(contestNumber, 10)
   const contest = contests[currentContestIndex]
 
@@ -111,7 +112,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
               setUserSettings={setUserSettings}
             />
             <ElectionInfo
-              election={election}
+              electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
               precinctId={precinctId}
               horizontal

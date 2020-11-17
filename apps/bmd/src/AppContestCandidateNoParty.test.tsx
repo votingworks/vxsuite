@@ -47,7 +47,10 @@ it('Single Seat Contest', async () => {
   const storage = new MemoryStorage<AppStorage>()
   const machineConfig = fakeMachineConfigProvider()
 
-  storage.set(electionStorageKey, electionWithNoPartyCandidateContests)
+  storage.set(electionStorageKey, {
+    election: electionWithNoPartyCandidateContests,
+    electionHash: 'test-hash',
+  })
   setStateInStorage(storage)
 
   const { container, getByText, queryByText } = render(

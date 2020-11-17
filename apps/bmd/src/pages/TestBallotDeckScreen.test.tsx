@@ -23,7 +23,10 @@ it('renders test decks appropriately', () => {
     <TestBallotDeckScreen
       appName="VxPrint"
       appPrecinctId="23"
-      election={electionSample as Election}
+      electionDefinition={{
+        election: electionSample as Election,
+        electionHash: 'test-hash',
+      }}
       hideTestDeck={jest.fn()}
       isLiveMode={false}
     />

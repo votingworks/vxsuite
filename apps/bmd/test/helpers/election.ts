@@ -1,3 +1,7 @@
+import { sha256 } from 'js-sha256'
+import fs from 'fs'
+import * as path from 'path'
+
 import {
   CandidateContest,
   YesNoContest,
@@ -5,7 +9,6 @@ import {
   MsEitherNeitherContest,
   // electionSample,
 } from '@votingworks/ballot-encoder'
-import electionSample from '../../src/data/electionSample.json'
 import {
   getBallotStyle,
   getContests,
@@ -20,7 +23,16 @@ import {
 } from '../../src/AppRoot'
 import { Storage } from '../../src/utils/Storage'
 
-export const election = electionSample as Election
+const electionSampleData = fs.readFileSync(
+  path.resolve(__dirname, '../../src/data/electionSample.json'),
+  'utf-8'
+)
+export const election = JSON.parse(electionSampleData) as Election
+export const electionDefinition = {
+  election: election,
+  electionHash: sha256(electionSampleData),
+}
+
 export const contest0 = election.contests[0] as CandidateContest
 export const contest1 = election.contests[1] as CandidateContest
 export const contest0candidate0 = contest0.candidates[0]
@@ -69,7 +81,7 @@ export const voterContests = getContests({
 })
 
 export const setElectionInStorage = (storage: Storage<AppStorage>) => {
-  storage.set(electionStorageKey, election)
+  storage.set(electionStorageKey, electionDefinition)
 }
 
 export const setStateInStorage = (

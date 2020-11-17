@@ -22,7 +22,7 @@ test('renders PollWorkerScreen', async () => {
     <PollWorkerScreen
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
-      election={election}
+      electionDefinition={{ election, electionHash: 'test-hash' }}
       isPollsOpen
       isLiveMode={false}
       isElectionDay={false}
@@ -44,7 +44,7 @@ test('switching out of test mode on election day', async () => {
     <PollWorkerScreen
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
-      election={election}
+      electionDefinition={{ election, electionHash: 'test-hash' }}
       isPollsOpen
       isLiveMode={false}
       isElectionDay
@@ -68,7 +68,7 @@ test('keeping test mode on election day', async () => {
     <PollWorkerScreen
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
-      election={election}
+      electionDefinition={{ election, electionHash: 'test-hash' }}
       isPollsOpen
       isLiveMode={false}
       isElectionDay
@@ -92,7 +92,7 @@ test('live mode on election day', async () => {
     <PollWorkerScreen
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
-      election={election}
+      electionDefinition={{ election, electionHash: 'test-hash' }}
       isPollsOpen
       isLiveMode
       isElectionDay

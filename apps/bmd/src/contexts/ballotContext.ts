@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { Election } from '@votingworks/ballot-encoder'
+import { Election, ElectionDefinition } from '@votingworks/ballot-encoder'
 import * as GLOBALS from '../config/globals'
 
 import { NullPrinter } from '../utils/printer'
@@ -13,7 +13,10 @@ const ballot: BallotContextInterface = {
   machineConfig: { machineId: '000', appMode: VxMarkOnly },
   ballotStyleId: '',
   contests: [],
-  election: (undefined as unknown) as Election,
+  electionDefinition: {
+    election: (undefined as unknown) as Election,
+    electionHash: '',
+  } as ElectionDefinition,
   isLiveMode: false,
   markVoterCardVoided: async () => false,
   markVoterCardPrinted: async () => false,

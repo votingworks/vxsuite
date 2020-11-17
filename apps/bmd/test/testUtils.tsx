@@ -2,7 +2,7 @@ import { createMemoryHistory } from 'history'
 import React from 'react'
 import { Router } from 'react-router-dom'
 import { render as testRender } from '@testing-library/react'
-import { Election, Contests } from '@votingworks/ballot-encoder'
+import { Contests, ElectionDefinition } from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../src/config/globals'
 
@@ -26,6 +26,7 @@ export function render(
     markVoterCardVoided = jest.fn(),
     markVoterCardPrinted = jest.fn(),
     election = electionSampleNoSeal,
+    electionHash = '',
     history = createMemoryHistory({ initialEntries: [route] }),
     isLiveMode = false,
     machineConfig = fakeMachineConfig({ appMode: VxMarkOnly }),
@@ -46,7 +47,7 @@ export function render(
         value={{
           ballotStyleId,
           contests,
-          election: election as Election,
+          electionDefinition: { election, electionHash } as ElectionDefinition,
           isLiveMode,
           machineConfig,
           markVoterCardVoided,

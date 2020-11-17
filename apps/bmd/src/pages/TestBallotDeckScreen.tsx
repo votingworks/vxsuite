@@ -4,6 +4,7 @@ import {
   VotesDict,
   CandidateContest,
   Election,
+  ElectionDefinition,
 } from '@votingworks/ballot-encoder'
 
 import { AppModeNames } from '../config/types'
@@ -105,7 +106,7 @@ interface Precinct {
 interface Props {
   appName: AppModeNames
   appPrecinctId: string
-  election: Election
+  electionDefinition: ElectionDefinition
   hideTestDeck: () => void
   isLiveMode: boolean
 }
@@ -115,10 +116,11 @@ const initialPrecinct: Precinct = { id: '', name: '' }
 const TestBallotDeckScreen = ({
   appName,
   appPrecinctId,
-  election,
+  electionDefinition,
   hideTestDeck,
   isLiveMode,
 }: Props) => {
+  const election = electionDefinition.election
   const [ballots, setBallots] = useState<Ballot[]>([])
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
 
@@ -208,8 +210,9 @@ const TestBallotDeckScreen = ({
           footer={
             election && (
               <ElectionInfo
-                election={election}
+                electionDefinition={electionDefinition}
                 precinctId={appPrecinctId}
+                showElectionHash
                 horizontal
               />
             )

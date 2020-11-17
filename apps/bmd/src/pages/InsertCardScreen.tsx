@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election } from '@votingworks/ballot-encoder'
+import { ElectionDefinition } from '@votingworks/ballot-encoder'
 
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
@@ -17,7 +17,7 @@ const InsertCardImage = styled.img`
 
 interface Props {
   appPrecinctId: string
-  election: Election
+  electionDefinition: ElectionDefinition
   showNoChargerAttachedWarning: boolean
   isLiveMode: boolean
   isPollsOpen: boolean
@@ -26,7 +26,7 @@ interface Props {
 
 const ActivationScreen = ({
   appPrecinctId,
-  election,
+  electionDefinition,
   showNoChargerAttachedWarning,
   isLiveMode,
   isPollsOpen,
@@ -35,7 +35,11 @@ const ActivationScreen = ({
   return (
     <Screen flexDirection="row-reverse" white>
       <Sidebar>
-        <ElectionInfo election={election} precinctId={appPrecinctId} />
+        <ElectionInfo
+          electionDefinition={electionDefinition}
+          precinctId={appPrecinctId}
+          showElectionHash
+        />
       </Sidebar>
       <Main>
         <MainChild center>

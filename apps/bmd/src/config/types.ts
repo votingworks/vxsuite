@@ -3,7 +3,7 @@ import {
   CandidateContest,
   CandidateVote,
   Contests,
-  Election,
+  ElectionDefinition,
   MsEitherNeitherContest,
   OptionalVote,
   OptionalYesNoVote,
@@ -20,6 +20,7 @@ export type VoidFunction = () => void
 export interface Provider<T> {
   get(): Promise<T>
 }
+export type Optional<T> = T | undefined
 
 // App
 export const VxPrintOnly = {
@@ -120,7 +121,7 @@ export interface BallotContextInterface {
   machineConfig: MachineConfig
   ballotStyleId: string
   contests: Contests
-  readonly election: Election
+  readonly electionDefinition: ElectionDefinition
   isLiveMode: boolean
   markVoterCardPrinted: MarkVoterCardFunction
   markVoterCardVoided: MarkVoterCardFunction

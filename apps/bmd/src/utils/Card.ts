@@ -20,6 +20,12 @@ export interface Card {
   readLongObject<T>(): Promise<Optional<T>>
 
   /**
+   * Reads the long value as a string, or `undefined` if there is no long
+   * value.
+   */
+  readLongString<T>(): Promise<Optional<string>>
+
+  /**
    * Reads the long value as binary data, or `undefined` if there is no long
    * value.
    */
@@ -61,6 +67,16 @@ export class WebServiceCard implements Card {
     const response = await fetch('/card/read_long')
     const { longValue } = await response.json()
     return longValue ? JSON.parse(longValue) : undefined
+  }
+
+  /**
+   * Reads the long value as a string, or `undefined` if there is no long
+   * value.
+   */
+  public async readLongString(): Promise<Optional<string>> {
+    const response = await fetch('/card/read_long')
+    const { longValue } = await response.json()
+    return longValue ? longValue : undefined
   }
 
   /**
@@ -150,6 +166,20 @@ export class MemoryCard implements Card {
     }
 
     return JSON.parse(new TextDecoder().decode(longValue))
+  }
+
+  /**
+   * Reads the long value as a string, or `undefined` if there is no long
+   * value.
+   */
+  public async readLongString<T>(): Promise<Optional<string>> {
+    const { longValue } = this
+
+    if (!longValue) {
+      return
+    }
+
+    return new TextDecoder().decode(longValue)
   }
 
   /**

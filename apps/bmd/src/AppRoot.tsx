@@ -9,8 +9,8 @@ import {
   OptionalVote,
   VotesDict,
   Contests,
-  Election,
-  OptionalElection,
+  ElectionDefinition,
+  OptionalElectionDefinition,
 } from '@votingworks/ballot-encoder'
 import 'normalize.css'
 import React from 'react'
@@ -19,6 +19,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import './App.css'
 import IdleTimer from 'react-idle-timer'
 import { Subscription } from 'rxjs'
+import { sha256 } from 'js-sha256'
 import { map } from 'rxjs/operators'
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
@@ -105,7 +106,7 @@ interface HardwareState {
 interface SharedState {
   appPrecinctId: string
   ballotsPrintedCount: number
-  election: OptionalElection
+  electionDefinition: OptionalElectionDefinition
   isLiveMode: boolean
   isPollsOpen: boolean
   shortValue?: string
@@ -119,7 +120,7 @@ export interface State
     SharedState {}
 
 export interface AppStorage {
-  election?: Election
+  electionDefinition?: ElectionDefinition
   state?: Partial<State>
   activation?: SerializableActivationData
   votes?: VotesDict
@@ -133,7 +134,7 @@ export interface Props extends RouteComponentProps {
   machineConfig: Provider<MachineConfig>
 }
 
-export const electionStorageKey = 'election'
+export const electionStorageKey = 'electionDefinition'
 export const stateStorageKey = 'state'
 export const activationStorageKey = 'activation'
 export const votesStorageKey = 'votes'
@@ -185,7 +186,7 @@ class AppRoot extends React.Component<Props, State> {
   private sharedState: SharedState = {
     appPrecinctId: '',
     ballotsPrintedCount: 0,
-    election: undefined,
+    electionDefinition: undefined,
     isLiveMode: false,
     isPollsOpen: false,
     shortValue: '{}',
@@ -224,10 +225,10 @@ class AppRoot extends React.Component<Props, State> {
     await this.props.card.writeShortValue(JSON.stringify(cardData))
   }
 
-  public retrieveElection = (): OptionalElection =>
+  public retrieveElection = (): OptionalElectionDefinition =>
     this.props.storage.get(electionStorageKey)
 
-  public storeElection = (election: Election) => {
+  public storeElection = (election: ElectionDefinition) => {
     this.props.storage.set(electionStorageKey, election)
   }
 
@@ -371,9 +372,9 @@ class AppRoot extends React.Component<Props, State> {
 
   public resetTally = () => {
     this.setState(
-      ({ election }) => ({
+      ({ electionDefinition }) => ({
         ballotsPrintedCount: this.initialAppState.ballotsPrintedCount,
-        tally: getZeroTally(election!),
+        tally: getZeroTally(electionDefinition!.election),
       }),
       this.storeAppState
     )
@@ -381,8 +382,13 @@ class AppRoot extends React.Component<Props, State> {
 
   public updateTally = () => {
     this.setState(
-      ({ ballotsPrintedCount, election: e, tally: prevTally, votes }) => {
-        const election = e!
+      ({
+        ballotsPrintedCount,
+        electionDefinition: e,
+        tally: prevTally,
+        votes,
+      }) => {
+        const election = e!.election
 
         // first update the tally for either-neither contests
         const {
@@ -457,11 +463,17 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public fetchElection = async () => {
-    const election = await this.props.card.readLongObject<Election>()
+    const electionData = await this.props.card.readLongString()
+
     /* istanbul ignore else */
-    if (election) {
-      this.setState({ election }, this.resetTally)
-      this.storeElection(election)
+    if (electionData) {
+      const election = JSON.parse(electionData)
+      const electionDefinition = {
+        election,
+        electionHash: sha256(electionData),
+      }
+      this.setState({ electionDefinition }, this.resetTally)
+      this.storeElection(electionDefinition)
     }
   }
 
@@ -469,7 +481,7 @@ class AppRoot extends React.Component<Props, State> {
     const longValue = (await this.props.card.readLongUint8Array())!
     /* istanbul ignore else */
     if (longValue) {
-      const election = this.state.election!
+      const election = this.state.electionDefinition!.election
       const { ballot } = decodeBallot(election, longValue)
       return ballot
     } else {
@@ -481,7 +493,8 @@ class AppRoot extends React.Component<Props, State> {
     longValueExists,
     shortValue,
   }: CardPresentAPI) => {
-    const { election } = this.state
+    const { electionDefinition } = this.state
+    const election = electionDefinition?.election
     const cardData: CardData = JSON.parse(shortValue!)
     switch (cardData.t) {
       case 'voter': {
@@ -645,7 +658,7 @@ class AppRoot extends React.Component<Props, State> {
           this.lastVoteSaveToCardAt = Date.now()
           this.forceSaveVoteFlag = false
 
-          const election = this.state.election!
+          const election = this.state.electionDefinition!.election
           const ballot: CompletedBallot = {
             ballotId: '',
             ballotStyle: getBallotStyle({
@@ -797,7 +810,8 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public componentDidMount = () => {
-    const election = this.retrieveElection()
+    const electionDefinition = this.retrieveElection()
+    const election = electionDefinition?.election
     const { ballotStyleId, precinctId } = this.retrieveBallotActivation()
     const {
       appPrecinctId = this.initialAppState.appPrecinctId,
@@ -822,7 +836,7 @@ class AppRoot extends React.Component<Props, State> {
       ballotsPrintedCount,
       ballotStyleId,
       contests,
-      election,
+      electionDefinition,
       isLiveMode,
       isPollsOpen,
       precinctId,
@@ -852,7 +866,7 @@ class AppRoot extends React.Component<Props, State> {
       ballotsPrintedCount,
       ballotStyleId,
       contests,
-      election: optionalElection,
+      electionDefinition: optionalElectionDefinition,
       isAdminCardPresent,
       isLiveMode,
       isPollsOpen,
@@ -889,7 +903,7 @@ class AppRoot extends React.Component<Props, State> {
           appMode={appMode}
           appPrecinctId={appPrecinctId}
           ballotsPrintedCount={ballotsPrintedCount}
-          election={optionalElection}
+          electionDefinition={optionalElectionDefinition}
           fetchElection={this.fetchElection}
           isLiveMode={isLiveMode}
           updateAppPrecinctId={this.updateAppPrecinctId}
@@ -897,20 +911,20 @@ class AppRoot extends React.Component<Props, State> {
           unconfigure={this.unconfigure}
         />
       )
-    } else if (optionalElection && !!appPrecinctId) {
-      const election = optionalElection!
+    } else if (optionalElectionDefinition && !!appPrecinctId) {
+      const electionDefinition = optionalElectionDefinition!
       if (appMode.isVxPrint && !hasPrinterAttached) {
         return <SetupPrinterPage setUserSettings={this.setUserSettings} />
       }
       if (isPollWorkerCardPresent) {
-        const electionDate = new Date(optionalElection.date)
+        const electionDate = new Date(electionDefinition.election.date)
         const isElectionDay = isSameDay(electionDate, new Date())
 
         return (
           <PollWorkerScreen
             appPrecinctId={appPrecinctId}
             ballotsPrintedCount={ballotsPrintedCount}
-            election={election}
+            electionDefinition={electionDefinition}
             isLiveMode={isLiveMode}
             isPollsOpen={isPollsOpen}
             isElectionDay={isElectionDay}
@@ -943,7 +957,7 @@ class AppRoot extends React.Component<Props, State> {
           <PrintOnlyScreen
             ballotStyleId={ballotStyleId}
             ballotsPrintedCount={ballotsPrintedCount}
-            election={election}
+            electionDefinition={electionDefinition}
             isLiveMode={isLiveMode}
             isVoterCardPresent={isVoterCardPresent}
             markVoterCardPrinted={this.markVoterCardPrinted}
@@ -968,7 +982,7 @@ class AppRoot extends React.Component<Props, State> {
                   machineConfig,
                   ballotStyleId,
                   contests,
-                  election,
+                  electionDefinition: electionDefinition,
                   updateTally: this.updateTally,
                   isLiveMode,
                   markVoterCardPrinted: this.markVoterCardPrinted,
@@ -1000,7 +1014,7 @@ class AppRoot extends React.Component<Props, State> {
         >
           <InsertCardScreen
             appPrecinctId={appPrecinctId}
-            election={election}
+            electionDefinition={electionDefinition}
             showNoAccessibleControllerWarning={
               !!appMode.isVxMark && !hasAccessibleControllerAttached
             }

@@ -25,12 +25,13 @@ const StartPage = ({ history }: Props) => {
   const {
     ballotStyleId,
     contests,
-    election,
+    electionDefinition,
     precinctId,
     setUserSettings,
     userSettings,
     forceSaveVote,
   } = useContext(BallotContext)
+  const election = electionDefinition.election
   const { title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     election,
@@ -74,7 +75,7 @@ const StartPage = ({ history }: Props) => {
               setUserSettings={setUserSettings}
             />
             <ElectionInfo
-              election={election}
+              electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
               precinctId={precinctId}
               horizontal

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { OptionalElection } from '@votingworks/ballot-encoder'
+import { OptionalElectionDefinition } from '@votingworks/ballot-encoder'
 
 import {
   AppMode,
@@ -33,7 +33,7 @@ interface Props {
   appMode: AppMode
   appPrecinctId: string
   ballotsPrintedCount: number
-  election: OptionalElection
+  electionDefinition: OptionalElectionDefinition
   isLiveMode: boolean
   fetchElection: VoidFunction
   updateAppPrecinctId: (appPrecinctId: string) => void
@@ -48,13 +48,14 @@ const AdminScreen = ({
   appMode,
   appPrecinctId,
   ballotsPrintedCount,
-  election,
+  electionDefinition,
   isLiveMode,
   fetchElection,
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
 }: Props) => {
+  const election = electionDefinition?.election
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
     updateAppPrecinctId(event.currentTarget.value)
   }
@@ -139,12 +140,12 @@ const AdminScreen = ({
     }
   }
 
-  if (isTestDeck && election) {
+  if (isTestDeck && electionDefinition) {
     return (
       <TestBallotDeckScreen
         appName={appMode.name}
         appPrecinctId={appPrecinctId}
-        election={election}
+        electionDefinition={electionDefinition}
         hideTestDeck={hideTestDeck}
         isLiveMode={false} // always false for Test Mode
       />
@@ -266,10 +267,11 @@ const AdminScreen = ({
         centerContent
         title="Election Admin Actions"
         footer={
-          election && (
+          electionDefinition && (
             <ElectionInfo
-              election={election}
+              electionDefinition={electionDefinition}
               precinctId={appPrecinctId}
+              showElectionHash
               horizontal
             />
           )

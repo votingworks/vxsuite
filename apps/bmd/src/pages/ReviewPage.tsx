@@ -361,13 +361,14 @@ const ReviewPage = () => {
 
   const {
     contests,
-    election,
+    electionDefinition,
     machineConfig,
     precinctId,
     votes,
     userSettings,
     setUserSettings,
   } = context
+  const election = electionDefinition.election
   const { parties } = election
 
   return (
@@ -480,7 +481,7 @@ const ReviewPage = () => {
               setUserSettings={setUserSettings}
             />
             <ElectionInfo
-              election={election}
+              electionDefinition={electionDefinition}
               precinctId={precinctId}
               horizontal
             />
