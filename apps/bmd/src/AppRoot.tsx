@@ -153,7 +153,7 @@ class AppRoot extends React.Component<Props, State> {
   private cardWriteInterval = 0
   private writingVoteToCard = false
 
-  private initialCardPresentState: CardState = {
+  private initialCardState: CardState = {
     isAdminCardPresent: false,
     isPollWorkerCardPresent: false,
     isRecentVoterPrint: false,
@@ -184,7 +184,7 @@ class AppRoot extends React.Component<Props, State> {
     machineConfig: { appMode: VxMarkOnly, machineId: '0000' },
   }
 
-  private sharedState: SharedState = {
+  private initialSharedState: SharedState = {
     appPrecinctId: '',
     ballotsPrintedCount: 0,
     electionDefinition: undefined,
@@ -196,8 +196,8 @@ class AppRoot extends React.Component<Props, State> {
 
   private initialUserState: Omit<State, keyof HardwareState> = {
     ...this.initialVoterState,
-    ...this.initialCardPresentState,
-    ...this.sharedState,
+    ...this.initialCardState,
+    ...this.initialSharedState,
   }
 
   private initialAppState: State = {
@@ -310,7 +310,7 @@ class AppRoot extends React.Component<Props, State> {
     this.resetVoterData()
     this.setState(
       {
-        ...this.initialCardPresentState,
+        ...this.initialCardState,
         ...this.initialVoterState,
       },
       () => {
@@ -539,7 +539,7 @@ class AppRoot extends React.Component<Props, State> {
               voterCardCreatedAt + GLOBALS.CARD_EXPIRATION_SECONDS
 
           return {
-            ...this.initialCardPresentState,
+            ...this.initialCardState,
             shortValue,
             isVoterCardExpired,
             isVoterCardVoided,
@@ -570,7 +570,7 @@ class AppRoot extends React.Component<Props, State> {
       }
       case 'pollworker': {
         this.setState({
-          ...this.initialCardPresentState,
+          ...this.initialCardState,
           isPollWorkerCardPresent: true,
         })
         break
@@ -579,7 +579,7 @@ class AppRoot extends React.Component<Props, State> {
         /* istanbul ignore else */
         if (longValueExists) {
           this.setState({
-            ...this.initialCardPresentState,
+            ...this.initialCardState,
             isAdminCardPresent: true,
           })
         }
