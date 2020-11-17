@@ -38,6 +38,7 @@ const ActivationScreen = ({
         <ElectionInfo
           electionDefinition={electionDefinition}
           precinctId={appPrecinctId}
+          showElectionHash
         />
       </Sidebar>
       <Main>
