@@ -16,15 +16,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/ballot-encoder/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "libs/ballot-encoder/package.json" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd libs/ballot-encoder install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/ballot-encoder/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "libs/ballot-encoder/package.json" }}
           paths:
-            - libs/ballot-encoder/node_modules
+            - node_modules
       - run:
           name: Run Linters
           command: |
@@ -41,15 +41,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/bas/package.json" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd apps/bas install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/bas/package.json" }}
           paths:
-            - apps/bas/node_modules
+            - node_modules
       - run:
           name: Run Linters
           command: |
@@ -66,15 +66,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bmd/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/bmd/package.json" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd apps/bmd install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bmd/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/bmd/package.json" }}
           paths:
-            - apps/bmd/node_modules
+            - node_modules
       - run:
           name: Run Linters
           command: |
@@ -91,15 +91,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bsd/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/bsd/package.json" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd apps/bsd install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bsd/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/bsd/package.json" }}
           paths:
-            - apps/bsd/node_modules
+            - node_modules
       - run:
           name: Run Linters
           command: |
@@ -116,15 +116,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/election-manager/package.json" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd apps/election-manager install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/election-manager/package.json" }}
           paths:
-            - apps/election-manager/node_modules
+            - node_modules
       - run:
           name: Run Linters
           command: |
@@ -141,15 +141,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/hmpb-interpreter/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "libs/hmpb-interpreter/package.json" }} 
       - run:
           name: Setup Dependencies
           command: yarn --cwd libs/hmpb-interpreter install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/hmpb-interpreter/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "libs/hmpb-interpreter/package.json" }} 
           paths:
-            - libs/hmpb-interpreter/node_modules
+            - node_modules
       - run:
           name: Run Linters
           command: |
@@ -166,15 +166,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/module-scan/package.json" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd apps/module-scan install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}-{{ checksum "apps/module-scan/package.json" }}
           paths:
-            - apps/module-scan/node_modules
+            - node_modules
       - run:
           name: Run Linters
           command: |
