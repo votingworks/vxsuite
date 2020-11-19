@@ -477,6 +477,7 @@ export default class Store {
         sheetRequiresAdjudication([front.interpretation, back.interpretation])
       )
     } catch (error) {
+      console.log(error)
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
         front.originalFilename,

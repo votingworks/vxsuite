@@ -250,14 +250,12 @@ export default class SystemImporter implements Importer {
     const interpreterWorkerPool = await this.getInterpreterWorkerPool()
     const frontWorkerPromise = interpreterWorkerPool.call({
       action: 'interpret',
-      dbPath: this.store.dbPath,
       imagePath: frontImagePath,
       sheetId,
       importedImagesPath: this.importedImagesPath,
     })
     const backWorkerPromise = interpreterWorkerPool.call({
       action: 'interpret',
-      dbPath: this.store.dbPath,
       imagePath: backImagePath,
       sheetId,
       importedImagesPath: this.importedImagesPath,
@@ -281,11 +279,11 @@ export default class SystemImporter implements Importer {
 
     sheetId = await this.addSheet(
       batchId,
-      frontWorkerOutput.originalImagePath,
-      frontWorkerOutput.normalizedImagePath,
+      frontWorkerOutput.originalFilename,
+      frontWorkerOutput.normalizedFilename,
       frontWorkerOutput.interpretation,
-      backWorkerOutput.originalImagePath,
-      backWorkerOutput.normalizedImagePath,
+      backWorkerOutput.originalFilename,
+      backWorkerOutput.normalizedFilename,
       backWorkerOutput.interpretation
     )
 
