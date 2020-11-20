@@ -8,6 +8,7 @@ export enum DiffWhen {
 
 export interface Options {
   dbPath: string
+  outDbPath?: string
   sheetIds?: string[]
   all?: boolean
   unreadable?: boolean
@@ -24,11 +25,19 @@ export function parseOptions(args: readonly string[]): Options {
   let diffWhen = DiffWhen.SameType
   let help: boolean | undefined
   let dbPath = join(__dirname, '../../../ballots.db')
+  let outDbPath: string | undefined
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
     if (arg === '--db') {
       dbPath = args[++i]
+      if (!dbPath || dbPath.startsWith('-')) {
+        throw new Error(
+          `expected a path after ${arg} but got ${dbPath || 'nothing'}`
+        )
+      }
+    } else if (arg === '--out-db') {
+      outDbPath = args[++i]
       if (!dbPath || dbPath.startsWith('-')) {
         throw new Error(
           `expected a path after ${arg} but got ${dbPath || 'nothing'}`
@@ -58,6 +67,7 @@ export function parseOptions(args: readonly string[]): Options {
     return {
       all,
       dbPath,
+      outDbPath,
       sheetIds,
       uninterpreted,
       unreadable,
@@ -78,8 +88,9 @@ export function parseOptions(args: readonly string[]): Options {
     }
 
     return {
-      dbPath,
       all,
+      dbPath,
+      outDbPath,
       sheetIds: [],
       uninterpreted,
       unreadable,
@@ -96,5 +107,14 @@ export function parseOptions(args: readonly string[]): Options {
     throw new Error(`no filters provided; did you want '--all'?`)
   }
 
-  return { dbPath, all, sheetIds, unreadable, uninterpreted, diffWhen, help }
+  return {
+    dbPath,
+    outDbPath,
+    all,
+    sheetIds,
+    unreadable,
+    uninterpreted,
+    diffWhen,
+    help,
+  }
 }

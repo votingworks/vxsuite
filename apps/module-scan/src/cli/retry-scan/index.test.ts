@@ -213,6 +213,84 @@ test('full rescan', async () => {
       }),
     })
   )
+})
 
-  expect(1).toEqual(1)
+test('writing output to another database', async () => {
+  const input = await Store.fileStore(tmpNameSync())
+  const outDbPath = tmpNameSync()
+
+  await input.setElection({
+    election: fixtures.election,
+    electionData: JSON.stringify(fixtures.election),
+    electionHash: 'not-a-hash',
+  })
+
+  const batchId = await input.addBatch()
+  await input.addSheet('a-test-sheet-id', batchId, [
+    {
+      interpretation: {
+        type: 'UnreadablePage',
+        reason: 'just because, okay?',
+      },
+      originalFilename: fixtures.filledInPage1,
+      normalizedFilename: fixtures.filledInPage1,
+    },
+    {
+      interpretation: {
+        type: 'UnreadablePage',
+        reason: 'just because, okay?',
+      },
+      originalFilename: fixtures.filledInPage2,
+      normalizedFilename: fixtures.filledInPage2,
+    },
+  ])
+
+  const pageInterpreted = jest.fn()
+  await retryScan(
+    parseOptions(['--db', input.dbPath, '--out-db', outDbPath, '--all']),
+    { pageInterpreted }
+  )
+
+  expect(pageInterpreted).toHaveBeenCalledTimes(2)
+  expect(pageInterpreted).toHaveBeenNthCalledWith(
+    1,
+    'a-test-sheet-id',
+    expect.any(String), // 'front' | 'back'
+    expect.objectContaining({
+      interpretation: { type: 'UnreadablePage', reason: 'just because, okay?' },
+    }),
+    expect.objectContaining({
+      interpretation: expect.objectContaining({
+        type: 'UninterpretedHmpbPage',
+      }),
+    })
+  )
+  expect(pageInterpreted).toHaveBeenNthCalledWith(
+    2,
+    'a-test-sheet-id',
+    expect.any(String), // 'front' | 'back'
+    expect.objectContaining({
+      interpretation: { type: 'UnreadablePage', reason: 'just because, okay?' },
+    }),
+    expect.objectContaining({
+      interpretation: expect.objectContaining({
+        type: 'UninterpretedHmpbPage',
+      }),
+    })
+  )
+
+  const output = await Store.fileStore(outDbPath)
+  expect(
+    await output.dbAllAsync(
+      'select id, front_interpretation_json, back_interpretation_json from sheets'
+    )
+  ).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "back_interpretation_json": "{\\"type\\":\\"UninterpretedHmpbPage\\",\\"metadata\\":{\\"electionHash\\":\\"\\",\\"ballotType\\":0,\\"locales\\":{\\"primary\\":\\"en-US\\",\\"secondary\\":\\"es-US\\"},\\"ballotStyleId\\":\\"12\\",\\"precinctId\\":\\"23\\",\\"isTestMode\\":false,\\"pageNumber\\":2}}",
+        "front_interpretation_json": "{\\"type\\":\\"UninterpretedHmpbPage\\",\\"metadata\\":{\\"electionHash\\":\\"\\",\\"ballotType\\":0,\\"locales\\":{\\"primary\\":\\"en-US\\",\\"secondary\\":\\"es-US\\"},\\"ballotStyleId\\":\\"12\\",\\"precinctId\\":\\"23\\",\\"isTestMode\\":false,\\"pageNumber\\":1}}",
+        "id": "a-test-sheet-id",
+      },
+    ]
+  `)
 })

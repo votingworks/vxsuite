@@ -40,6 +40,9 @@ export function printHelp(out: NodeJS.WritableStream): void {
     `                         Defaults to the 'ballots.db' within module-scan.\n`
   )
   out.write(
+    `  --out-db PATH          Write results to another database if desired.\n`
+  )
+  out.write(
     `  -d, --diff-when RULE   When to print a diff of interpretations: always, never, or same-type (default).\n`
   )
 }

@@ -28,6 +28,7 @@ test('printHelp', () => {
     Options
       --db PATH              Specify the path to the database with the sheets to rescan.
                              Defaults to the 'ballots.db' within module-scan.
+      --out-db PATH          Write results to another database if desired.
       -d, --diff-when RULE   When to print a diff of interpretations: always, never, or same-type (default).
     "
   `)

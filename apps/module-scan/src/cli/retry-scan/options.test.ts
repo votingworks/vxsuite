@@ -74,3 +74,15 @@ test('defaults to --diff-when same-type', () => {
     parseOptions(['--all', '-d', 'same-type'])
   )
 })
+
+test('can change the input database with --db', () => {
+  expect(parseOptions(['--all', '--db', '/path/to/sqlite.db'])).toEqual(
+    expect.objectContaining({ dbPath: '/path/to/sqlite.db' })
+  )
+})
+
+test('can set an output database with --out-db', () => {
+  expect(parseOptions(['--all', '--out-db', '/path/to/sqlite.db'])).toEqual(
+    expect.objectContaining({ outDbPath: '/path/to/sqlite.db' })
+  )
+})

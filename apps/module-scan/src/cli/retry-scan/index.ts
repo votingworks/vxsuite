@@ -86,12 +86,16 @@ export async function retryScan(
   listeners?: RetryScanListeners
 ): Promise<void> {
   listeners?.sheetsLoading?.()
-  const store = await Store.fileStore(options.dbPath)
+  const input = await Store.fileStore(options.dbPath)
+  const output = options.outDbPath
+    ? await Store.fileStore(options.outDbPath)
+    : undefined
+  const outputBatchId = await output?.addBatch()
   const importedImagesPath = makeTemporaryBallotImportImageDirectories().paths
     .importedImagesPath
 
   const [sql, params] = queryFromOptions(options)
-  const sheets = await store.dbAllAsync<
+  const sheets = await input.dbAllAsync<
     {
       id: string
       frontOriginalFilename: string
@@ -103,7 +107,7 @@ export async function retryScan(
     },
     typeof params
   >(sql, ...params)
-  const electionDefinition = await store.getElectionDefinition()
+  const electionDefinition = await input.getElectionDefinition()
   listeners?.sheetsLoaded?.(sheets.length, electionDefinition?.election)
 
   listeners?.interpreterLoading?.()
@@ -113,7 +117,7 @@ export async function retryScan(
   )
   pool.start()
 
-  await pool.callAll({ action: 'configure', dbPath: store.dbPath })
+  await pool.callAll({ action: 'configure', dbPath: input.dbPath })
   listeners?.interpreterLoaded?.()
 
   await Promise.all(
@@ -146,7 +150,7 @@ export async function retryScan(
           },
         ]
 
-        return originalScans.map((scan, i) =>
+        const rescanPromises = originalScans.map((scan, i) =>
           pool
             .call({
               action: 'interpret',
@@ -165,8 +169,19 @@ export async function retryScan(
                   rescan
                 )
               }
+              return rescan
             })
         )
+
+        if (output && outputBatchId) {
+          Promise.all(rescanPromises).then(([front, back]) => {
+            if (front && back) {
+              output.addSheet(id, outputBatchId, [front, back])
+            }
+          })
+        }
+
+        return rescanPromises
       }
     )
   )
