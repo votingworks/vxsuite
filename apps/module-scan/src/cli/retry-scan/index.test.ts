@@ -4,6 +4,10 @@ import { retryScan, queryFromOptions } from './'
 import { parseOptions } from './options'
 import * as fixtures from '../../../test/fixtures/state-of-hamilton'
 
+if (process.env.CI) {
+  jest.setTimeout(10000)
+}
+
 test('--all query', () => {
   expect(queryFromOptions(parseOptions(['--all']))).toMatchInlineSnapshot(`
     Array [
