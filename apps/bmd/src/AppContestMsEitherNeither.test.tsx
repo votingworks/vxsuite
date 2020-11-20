@@ -3,7 +3,7 @@ import { fireEvent, render, wait } from '@testing-library/react'
 import { Route } from 'react-router-dom'
 import {
   Election,
-  // electionSample,
+  //  electionSample,
   getBallotStyle,
   getContests,
   vote,

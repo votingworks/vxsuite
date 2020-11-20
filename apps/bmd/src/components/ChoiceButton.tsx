@@ -16,10 +16,10 @@ interface Props
   isSelected: boolean
 }
 
-const StyledChoiceButton = styled('button').attrs((props: Attrs) => ({
+const StyledChoiceButton = styled('button').attrs<Attrs>((type) => ({
   role: 'option',
-  type: props.type ?? 'button',
-}))<Props>`
+  type: type || 'button',
+}))<Attrs>`
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),

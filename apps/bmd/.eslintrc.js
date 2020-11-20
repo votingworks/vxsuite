@@ -85,12 +85,13 @@ module.exports = {
       1,
       {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      },
+    },
     ],
     strict: 0,
     '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
     '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
     'import/extensions': 'off',
     'no-restricted-syntax': [
       'error',

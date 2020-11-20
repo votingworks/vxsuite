@@ -583,6 +583,7 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public stopShortValueReadPolling = () => {
+    /* eslint-disable-next-line  @typescript-eslint/no-unused-expressions */
     this.cardPoller?.stop()
     this.cardPoller = undefined
   }
@@ -750,9 +751,11 @@ class AppRoot extends React.Component<Props, State> {
   }
 
   public stopHardwareStatusPolling = () => {
+    /* eslint-disable-next-line  @typescript-eslint/no-unused-expressions */
     this.statusPoller?.stop()
     this.statusPoller = undefined
 
+    /* eslint-disable-next-line  @typescript-eslint/no-unused-expressions */
     this.onDeviceChangeSubscription?.unsubscribe()
     this.onDeviceChangeSubscription = undefined
   }

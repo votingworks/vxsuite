@@ -1,8 +1,12 @@
-import { createMemoryHistory } from 'history'
+import { createMemoryHistory, MemoryHistory } from 'history'
 import React from 'react'
 import { Router } from 'react-router-dom'
 import { render as testRender } from '@testing-library/react'
-import { Contests, ElectionDefinition } from '@votingworks/ballot-encoder'
+import {
+  Contests,
+  ElectionDefinition,
+  VotesDict,
+} from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../src/config/globals'
 
@@ -11,11 +15,42 @@ import * as GLOBALS from '../src/config/globals'
 // typescript concludes that sealURL is required.
 import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
-import { TextSizeSetting, VxMarkOnly } from '../src/config/types'
+import {
+  TextSizeSetting,
+  VxMarkOnly,
+  MarkVoterCardFunction,
+  MachineConfig,
+  UpdateVoteFunction,
+  SetUserSettings,
+  UserSettings,
+} from '../src/config/types'
+import { Printer } from '../src/utils/printer'
 
 import BallotContext from '../src/contexts/ballotContext'
 import fakePrinter from './helpers/fakePrinter'
 import fakeMachineConfig from './helpers/fakeMachineConfig'
+
+interface RenderParams {
+  route?: string | undefined
+  ballotStyleId?: string | undefined
+  contests?: Contests
+  markVoterCardVoided?: MarkVoterCardFunction
+  markVoterCardPrinted?: MarkVoterCardFunction
+  election?: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  electionHash?: string | undefined
+  history?: MemoryHistory<any> // eslint-disable-line @typescript-eslint/no-explicit-any
+  isLiveMode?: boolean
+  machineConfig?: MachineConfig
+  precinctId?: string
+  printer?: Printer
+  resetBallot?: (path?: string) => void
+  setUserSettings?: SetUserSettings
+  updateTally?: () => void
+  updateVote?: UpdateVoteFunction
+  forceSaveVote?: () => void
+  userSettings?: UserSettings
+  votes?: VotesDict
+}
 
 export function render(
   component: React.ReactNode,
@@ -39,7 +74,7 @@ export function render(
     forceSaveVote = jest.fn(),
     userSettings = { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
     votes = {},
-  } = {}
+  } = {} as RenderParams
 ) {
   return {
     ...testRender(

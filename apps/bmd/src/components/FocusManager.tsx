@@ -45,7 +45,9 @@ const FocusManager = ({
       window.setTimeout(() => {
         const elementToFocus =
           document.getElementById('audiofocus') ?? screen.current!
+        /* eslint-disable-next-line  @typescript-eslint/no-unused-expressions */
         elementToFocus?.focus()
+        /* eslint-disable-next-line  @typescript-eslint/no-unused-expressions */
         elementToFocus?.click()
       }, 150)
     }

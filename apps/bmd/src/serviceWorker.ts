@@ -42,6 +42,7 @@ function registerValidSW(swUrl: string, config?: Config) {
               )
 
               // Execute callback
+              /* eslint-disable-next-line  @typescript-eslint/no-unused-expressions */
               config?.onUpdate?.(registration)
             } else {
               // At this point, everything has been precached.
@@ -51,6 +52,7 @@ function registerValidSW(swUrl: string, config?: Config) {
               console.log('Content is cached for offline use.')
 
               // Execute callback
+              /* eslint-disable-next-line  @typescript-eslint/no-unused-expressions */
               config?.onSuccess?.(registration)
             }
           }

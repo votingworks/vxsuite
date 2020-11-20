@@ -2,5 +2,6 @@
   "name": "vxsuite",
   "license": "GPL-3.0",
   "private": true,
-  "workspaces": ["apps/bas", "apps/bmd", "apps/bsd", "apps/election-manager", "apps/module-scan", "apps/module-smartcards", "libs/ballot-encoder", "libs/hmpb-interpreter", "libs/eslint-plugin-no-array-sort-mutation", "libs/hmpb-interpreter/types/jsfeat"]
+  "workspaces": ["apps/bas", "apps/bmd", "apps/bsd", "apps/election-manager", "apps/module-scan", "apps/module-smartcards", "libs/ballot-encoder", "libs/hmpb-interpreter", "libs/eslint-plugin-no-array-sort-mutation", "libs/hmpb-interpreter/types/jsfeat"],
+  "nohoist": ["**/@typescript-eslint", "**/@typescript-eslint/**"]
 }
