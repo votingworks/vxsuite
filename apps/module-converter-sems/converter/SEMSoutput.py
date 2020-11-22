@@ -185,29 +185,24 @@ def process_results_file(election_file_path, vx_results_file_path):
                 if either_neither_answer == None or pick_one_answer == None:
                     continue
 
-                # do the pick-one first, because its validity is self-contained
-                pick_one_answer_valid = False
+                # either-neither tabulation is not what our reading of the Ms Constitution was.
+                # both contained questions are tabulated as independent measures.
                 if pick_one_answer == []:
                     add_entry(precinct_id, pick_one_contest_id, BLANKVOTE_CANDIDATE["id"])
                 elif len(pick_one_answer) > 1:
                     add_entry(precinct_id, pick_one_contest_id, OVERVOTE_CANDIDATE["id"])
                 else:
-                    pick_one_answer_valid = True
                     option = contest["firstOption" if pick_one_answer == ["yes"] else "secondOption"]
                     add_entry(precinct_id,
                               pick_one_contest_id,
                               option["id"])
 
-                # the validity of either-neither depends on the validity of pick-one.
-                # as per Ms Either Neither rules, if no pick_one answer,
-                # then the either_neither answer cannot be counted.
                 if either_neither_answer == []:
                     add_entry(precinct_id, either_neither_contest_id, BLANKVOTE_CANDIDATE["id"])
                 elif len(either_neither_answer) > 1:
                     add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
-                elif either_neither_answer == ["no"] or pick_one_answer_valid:
-                    option = contest["eitherOption" if either_neither_answer == ["yes"] else "neitherOption"]
-                    
+                else:
+                    option = contest["eitherOption" if either_neither_answer == ["yes"] else "neitherOption"]                    
                     add_entry(precinct_id,
                               either_neither_contest_id,
                               option["id"])
