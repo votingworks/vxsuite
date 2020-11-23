@@ -1848,10 +1848,10 @@ exports[`tabulating CVRs 1`] = `
           98 ballots
            cast /
            
-          3 overvotes
+          4 overvotes
            /
            
-          4 undervotes
+          5 undervotes
         </span>
       </div>
       <h3>
@@ -1870,7 +1870,7 @@ exports[`tabulating CVRs 1`] = `
             <td
               class="sc-fzoyAV hqQnKY"
             >
-              41
+              40
             </td>
           </tr>
           <tr>
@@ -1880,7 +1880,7 @@ exports[`tabulating CVRs 1`] = `
             <td
               class="sc-fzoyAV hqQnKY"
             >
-              51
+              50
             </td>
           </tr>
         </tbody>
