@@ -5,7 +5,6 @@ import {
   CandidateContest,
   CandidateVote,
   Contest,
-  Contests,
   Election,
   VotesDict,
 } from '@votingworks/ballot-encoder'
@@ -257,35 +256,6 @@ export const getVotesByScanner: VotesByFunction = ({
   return votesByScanner
 }
 
-const correctVoteForMsEitherNeither = ({
-  contests,
-  vote,
-}: {
-  contests: Contests
-  vote: VotesDict
-}): VotesDict => {
-  const eitherNeitherContests = getEitherNeitherContests(contests)
-  if (eitherNeitherContests.length === 0) {
-    return vote
-  }
-
-  const correctVote = { ...vote }
-
-  // if the pick-one contest is under or overvoted, we cancel the either-neither vote if it's either.
-  eitherNeitherContests.forEach((contest) => {
-    if (vote[contest.pickOneContestId]?.length !== 1) {
-      if (
-        Array.isArray(vote[contest.eitherNeitherContestId]) &&
-        vote[contest.eitherNeitherContestId]![0] === 'yes'
-      ) {
-        correctVote[contest.eitherNeitherContestId] = []
-      }
-    }
-  })
-
-  return correctVote
-}
-
 interface TallyParams {
   election: Election
   precinctId?: string
@@ -318,11 +288,7 @@ export function tallyVotesByContest({
           : []
       )
 
-    votes.forEach((precorrectionVote) => {
-      const vote = correctVoteForMsEitherNeither({
-        contests,
-        vote: precorrectionVote,
-      })
+    votes.forEach((vote) => {
       const selected = vote[contest.id]
       if (!selected) {
         return
@@ -475,20 +441,14 @@ export const getContestTallyMeta = ({
     .filter((cvr) => precinctId === undefined || cvr._precinctId === precinctId)
     .filter((cvr) => scannerId === undefined || cvr._scannerId === scannerId)
 
-  // For either-neither questions, we don't correct the either question if pick-one is absent
-  // because in the metadata, we don't want that to become an undervote, as it's not.
-  //
-  // However, if the CVR is malformed for this question, say only one of the pair'ed contest IDs
-  // is there, we don't want to count this as a ballot in this contest.
+  // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
+  // is there -- we don't want to count this as a ballot in this contest.
   getEitherNeitherContests(election.contests).forEach((c) => {
     filteredCVRs.forEach((cvr) => {
       const hasEitherNeither = cvr[c.eitherNeitherContestId] !== undefined
       const hasPickOne = cvr[c.pickOneContestId] !== undefined
 
-      if (
-        (hasEitherNeither || hasPickOne) &&
-        !(hasEitherNeither && hasPickOne)
-      ) {
+      if (!(hasEitherNeither && hasPickOne)) {
         cvr[c.eitherNeitherContestId] = undefined
         cvr[c.pickOneContestId] = undefined
       }
