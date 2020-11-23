@@ -246,8 +246,8 @@ test('manually importing files', async () => {
           pageNumber: 1,
         },
       },
-      originalImagePath: '/tmp/original.png',
-      normalizedImagePath: '/tmp/normalized.png',
+      originalFilename: '/tmp/original.png',
+      normalizedFilename: '/tmp/normalized.png',
     })
     // interpret back
     .mockResolvedValueOnce({
@@ -263,8 +263,8 @@ test('manually importing files', async () => {
           pageNumber: 2,
         },
       },
-      originalImagePath: '/tmp/original.png',
-      normalizedImagePath: '/tmp/normalized.png',
+      originalFilename: '/tmp/original.png',
+      normalizedFilename: '/tmp/normalized.png',
     })
   const imageFile = await makeImageFile()
   const sheetId = await importer.importFile(
@@ -435,8 +435,8 @@ test('importing a sheet orders HMPB pages', async () => {
         },
         votes: {},
       },
-      originalImagePath: '/tmp/original.png',
-      normalizedImagePath: '/tmp/normalized.png',
+      originalFilename: '/tmp/original.png',
+      normalizedFilename: '/tmp/normalized.png',
     })
   }
 

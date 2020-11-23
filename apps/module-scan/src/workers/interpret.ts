@@ -13,7 +13,6 @@ export type Input =
   | { action: 'configure'; dbPath: string }
   | {
       action: 'interpret'
-      dbPath: string
       sheetId: string
       imagePath: string
       importedImagesPath: string
@@ -21,8 +20,8 @@ export type Input =
 
 export interface InterpretOutput {
   interpretation: PageInterpretation
-  originalImagePath: string
-  normalizedImagePath: string
+  originalFilename: string
+  normalizedFilename: string
 }
 
 export type Output = InterpretOutput | void
@@ -109,8 +108,8 @@ export async function interpret(
   )
   return {
     interpretation: result.interpretation,
-    originalImagePath: images.original,
-    normalizedImagePath: images.normalized,
+    originalFilename: images.original,
+    normalizedFilename: images.normalized,
   }
 }
 
