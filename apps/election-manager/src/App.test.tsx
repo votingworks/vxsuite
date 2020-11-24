@@ -15,7 +15,7 @@ import {
 
 import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
 
-import fakeKiosk from '../test/helpers/fakeKiosk'
+import fakeKiosk, { fakeUsbDrive } from '../test/helpers/fakeKiosk'
 
 import App from './App'
 
@@ -61,6 +61,7 @@ beforeEach(() => {
       connected: true,
     },
   ])
+  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
 })
 
 afterEach(() => {
@@ -108,19 +109,25 @@ it('printing ballots, print report, and test decks', async () => {
       electionHash: eitherNeitherElectionHash,
     },
   })
+  jest.useFakeTimers()
 
   const { container, getByText, getAllByText, queryAllByText } = render(
     <App storage={storage} />
   )
+  jest.advanceTimersByTime(2001) // Cause the usb drive to be detected
 
   await screen.findByText('0 official ballots')
 
   // go print some ballots
   fireEvent.click(getByText('Export Ballot Package'))
+  fireEvent.click(getByText('Export'))
   expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1)
 
+  jest.useRealTimers()
+
   // we're not mocking the filestream yet
-  await screen.findByText('Download Failed')
+  await screen.findByText(/Download Failed!/)
+  fireEvent.click(getByText('Cancel'))
 
   fireEvent.click(getByText('Ballots'))
   fireEvent.click(getAllByText('View Ballot')[0])

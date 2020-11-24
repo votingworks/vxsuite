@@ -8,7 +8,6 @@ import DefinitionScreen from '../screens/DefinitionScreen'
 import BallotListScreen from '../screens/BallotListScreen'
 import BallotScreen from '../screens/BallotScreen'
 import PrintTestDeckScreen from '../screens/PrintTestDeckScreen'
-import ExportElectionBallotPackageScreen from '../screens/ExportElectionBallotPackageScreen'
 import UnconfiguredScreen from '../screens/UnconfiguredScreen'
 import TestDeckScreen from '../screens/TestDeckScreen'
 import TallyScreen from '../screens/TallyScreen'
@@ -74,9 +73,6 @@ const ElectionManager: React.FC = () => {
         ]}
       >
         <BallotScreen />
-      </Route>
-      <Route exact path={routerPaths.export}>
-        <ExportElectionBallotPackageScreen />
       </Route>
       <Route exact path={routerPaths.tally}>
         <TallyScreen />

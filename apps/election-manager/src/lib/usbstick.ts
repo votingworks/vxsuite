@@ -8,6 +8,7 @@ export enum UsbDriveStatus {
   present = 'present',
   mounted = 'mounted',
   recentlyEjected = 'recentlyEjected',
+  ejecting = 'ejecting',
 }
 
 const getDevice = async () => {
@@ -55,4 +56,5 @@ export const doUnmount = async (): Promise<void> => {
   }
 
   window.kiosk!.unmountUsbDrive(device.deviceName)
+  return await new Promise((resolve) => setTimeout(resolve, 2000))
 }

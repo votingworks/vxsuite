@@ -17,6 +17,7 @@ import {
   sortBallotStyleDataByStyle,
 } from '../utils/election'
 import NavigationScreen from '../components/NavigationScreen'
+import ExportElectionBallotPackageModalButton from '../components/ExportElectionBallotPackageModalButton'
 
 const Header = styled.div`
   display: flex;
@@ -60,9 +61,7 @@ const BallotListScreen: React.FC = () => {
             <LinkButton small to={routerPaths.printedBallotsReport}>
               Printed Ballots Report
             </LinkButton>{' '}
-            <LinkButton small to={routerPaths.export}>
-              Export Ballot Package
-            </LinkButton>
+            <ExportElectionBallotPackageModalButton />
           </p>
         </Prose>
         <Prose maxWidth={false}>

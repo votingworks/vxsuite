@@ -6,6 +6,8 @@ import getAllBallotConfigs from '../utils/getAllBallotConfigs'
 export type State =
   | Init
   | ArchiveBegin
+  | ConfirmExportUSBPresent
+  | ConfirmExportNoUSBPresent
   | RenderBallot
   | ArchiveEnd
   | Done
@@ -16,6 +18,22 @@ export interface Init {
   election: Election
   electionHash: string
   ballotConfigs: readonly BallotConfig[]
+}
+
+export interface ConfirmExportUSBPresent {
+  type: 'ConfirmExportUSBPresent'
+  election: Election
+  electionHash: string
+  ballotConfigs: readonly BallotConfig[]
+  archive: DownloadableArchive
+}
+
+export interface ConfirmExportNoUSBPresent {
+  type: 'ConfirmExportNoUSBPresent'
+  election: Election
+  electionHash: string
+  ballotConfigs: readonly BallotConfig[]
+  archive: DownloadableArchive
 }
 
 export interface ArchiveBegin {

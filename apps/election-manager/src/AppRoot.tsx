@@ -89,6 +89,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   }, [recentlyEjected])
 
   const doEject = async () => {
+    setUsbStatus(UsbDriveStatus.ejecting)
     setRecentlyEjected(true)
     await doUnmount()
   }
@@ -108,9 +109,10 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     usbStatus === UsbDriveStatus.notavailable ? false : 2000
   )
 
-  const displayUsbStatus = recentlyEjected
-    ? UsbDriveStatus.recentlyEjected
-    : usbStatus
+  const displayUsbStatus =
+    recentlyEjected && usbStatus === UsbDriveStatus.present
+      ? UsbDriveStatus.recentlyEjected
+      : usbStatus
 
   const [printedBallots, setPrintedBallots] = useState<
     PrintedBallot[] | undefined

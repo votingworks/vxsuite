@@ -1,0 +1,349 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Modal renders error message appropriately 1`] = `
+<div
+  aria-label="Alert Modal"
+  class="ReactModal__Content ReactModal__Content--after-open modal-content "
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="sc-AxirZ djVvlL"
+  >
+    <h1
+      class="sc-fznKkj bwmPzs"
+    >
+      Export Ballot Package
+    </h1>
+    <p>
+      Download Failed! An error occurred: 
+      could not begin download; no file was chosen
+      .
+    </p>
+  </div>
+  <div
+    class="sc-AxjAm iIpZqc"
+  >
+    <button
+      class="sc-AxhCb AbmWZ"
+      role="option"
+      type="button"
+    >
+      Cancel
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Modal renders export confirmation screen when usb detected 1`] = `
+<div
+  aria-label="Alert Modal"
+  class="ReactModal__Content ReactModal__Content--after-open modal-content "
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="sc-AxirZ djVvlL"
+  >
+    <h1
+      class="sc-fznKkj bwmPzs"
+    >
+      Export Ballot Package
+    </h1>
+    <img
+      alt="Insert USB Image"
+      class="sc-fzplWN jEIXlC"
+      src="usb-drive.svg"
+    />
+    <h2
+      class="sc-fznyAO bvdqMc"
+    >
+       USB Drive Detected! 
+    </h2>
+    <p>
+      Would you like to export the ballot configuration now? A zip archive will automatically be saved to the inserted usb drive. You may also 
+      <a
+        href="#"
+      >
+        manually select a location to save the archive to.
+      </a>
+    </p>
+  </div>
+  <div
+    class="sc-AxjAm iIpZqc"
+  >
+    <button
+      class="sc-AxhCb AbmWZ"
+      role="option"
+      type="button"
+    >
+      Cancel
+    </button>
+    <button
+      class="sc-AxhCb CuUXD"
+      type="button"
+    >
+      Export
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Modal renders insert usb screen appropriately 1`] = `
+<div
+  aria-label="Alert Modal"
+  class="ReactModal__Content ReactModal__Content--after-open modal-content "
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="sc-AxirZ djVvlL"
+  >
+    <h1
+      class="sc-fznKkj bwmPzs"
+    >
+      Export Ballot Package
+    </h1>
+    <img
+      alt="Insert USB Image"
+      class="sc-fzplWN jEIXlC"
+      src="usb-drive.svg"
+    />
+    <h2
+      class="sc-fznyAO bvdqMc"
+    >
+       No USB Drive Detected 
+    </h2>
+    <p>
+      Please insert a USB stick in order to export the ballot configuration.
+    </p>
+  </div>
+  <div
+    class="sc-AxjAm iIpZqc"
+  >
+    <button
+      class="sc-AxhCb AbmWZ"
+      role="option"
+      type="button"
+    >
+      Cancel
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Modal renders insert usb screen appropriately 2`] = `
+<div
+  aria-label="Alert Modal"
+  class="ReactModal__Content ReactModal__Content--after-open modal-content "
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="sc-AxirZ djVvlL"
+  >
+    <h1
+      class="sc-fznKkj bwmPzs"
+    >
+      Export Ballot Package
+    </h1>
+    <img
+      alt="Insert USB Image"
+      class="sc-fzplWN jEIXlC"
+      src="usb-drive.svg"
+    />
+    <h2
+      class="sc-fznyAO bvdqMc"
+    >
+       No USB Drive Detected 
+    </h2>
+    <p>
+      Please insert a USB stick in order to export the ballot configuration.
+    </p>
+  </div>
+  <div
+    class="sc-AxjAm iIpZqc"
+  >
+    <button
+      class="sc-AxhCb AbmWZ"
+      role="option"
+      type="button"
+    >
+      Cancel
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Modal renders insert usb screen appropriately 3`] = `
+<div
+  aria-label="Alert Modal"
+  class="ReactModal__Content ReactModal__Content--after-open modal-content "
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="sc-AxirZ djVvlL"
+  >
+    <h1
+      class="sc-fznKkj bwmPzs"
+    >
+      Export Ballot Package
+    </h1>
+    <img
+      alt="Insert USB Image"
+      class="sc-fzplWN jEIXlC"
+      src="usb-drive.svg"
+    />
+    <h2
+      class="sc-fznyAO bvdqMc"
+    >
+       No USB Drive Detected 
+    </h2>
+    <p>
+      Please insert a USB stick in order to export the ballot configuration.
+    </p>
+  </div>
+  <div
+    class="sc-AxjAm iIpZqc"
+  >
+    <button
+      class="sc-AxhCb AbmWZ"
+      role="option"
+      type="button"
+    >
+      Cancel
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Modal renders loading screen when usb is mounting or ejecting 1`] = `
+<div
+  aria-label="Alert Modal"
+  class="ReactModal__Content ReactModal__Content--after-open modal-content "
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="sc-AxirZ djVvlL"
+  >
+    <h1
+      class="sc-fznKkj bwmPzs"
+    >
+      Export Ballot Package
+    </h1>
+    <div
+      class="sc-Axmtr hLmpGn"
+    >
+      <h2
+        aria-label="Loading."
+        class="sc-AxheI gcAErc"
+      >
+        Loading
+      </h2>
+    </div>
+  </div>
+  <div
+    class="sc-AxjAm iIpZqc"
+  >
+    <button
+      class="sc-AxhCb AbmWZ"
+      role="option"
+      type="button"
+    >
+      Cancel
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Modal renders loading screen when usb is mounting or ejecting 2`] = `
+<div
+  aria-label="Alert Modal"
+  class="ReactModal__Content ReactModal__Content--after-open modal-content "
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="sc-AxirZ djVvlL"
+  >
+    <h1
+      class="sc-fznKkj bwmPzs"
+    >
+      Export Ballot Package
+    </h1>
+    <div
+      class="sc-Axmtr hLmpGn"
+    >
+      <h2
+        aria-label="Loading."
+        class="sc-AxheI gcAErc"
+      >
+        Loading
+      </h2>
+    </div>
+  </div>
+  <div
+    class="sc-AxjAm iIpZqc"
+  >
+    <button
+      class="sc-AxhCb AbmWZ"
+      role="option"
+      type="button"
+    >
+      Cancel
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Modal renders renders loading message while rendering ballots appropriately 1`] = `
+<div
+  aria-label="Alert Modal"
+  class="ReactModal__Content ReactModal__Content--after-open modal-content "
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="sc-AxirZ djVvlL"
+  >
+    <h1
+      class="sc-fznKkj bwmPzs"
+    >
+      Export Ballot Package
+    </h1>
+    <p>
+      Download Complete! Exported
+       
+      26 ballots
+      . You may now eject the USB device and connect it with your ballot scanning machine to configure it.
+    </p>
+  </div>
+  <div
+    class="sc-AxjAm iIpZqc"
+  >
+    <button
+      class="sc-AxhCb AbmWZ"
+      role="option"
+      type="button"
+    >
+      Cancel
+    </button>
+    <button
+      class="sc-AxhCb CuUXD"
+      type="button"
+    >
+      Eject USB
+    </button>
+  </div>
+</div>
+`;
