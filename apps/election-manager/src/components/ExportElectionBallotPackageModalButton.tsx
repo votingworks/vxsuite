@@ -106,13 +106,13 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
   }
 
   const now = new Date()
-  const defaultFileName = `${`${election.county.name}-${election.title}`
+  const defaultFileName = `${`${election.county.name}_${election.title}`
     .replace(/[^a-z0-9]+/gi, '-')
     .replace(/(^-|-$)+/g, '')
-    .toLocaleLowerCase()}-${electionHash.slice(
+    .toLocaleLowerCase()}_${electionHash.slice(
     0,
     10
-  )}-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.zip`
+  )}__${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.zip`
 
   // Callback to open the file dialog.
   const openFileDialog = async () => {
