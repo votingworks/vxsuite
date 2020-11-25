@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { PointerEventHandler, useState, useEffect } from 'react'
 import pluralize from 'pluralize'
 import { Precinct, ElectionDefinition } from '@votingworks/ballot-encoder'
 
 import { Tally, MachineConfig } from '../config/types'
 
 import Button from '../components/Button'
+import ButtonList from '../components/ButtonList'
 import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
@@ -30,6 +31,8 @@ interface Props {
   tally: Tally
   togglePollsOpen: () => void
   enableLiveMode: () => void
+  cardlessActivatedBallotStyleId: string
+  activateBallotStyle: (arg0: string) => void
 }
 
 const PollWorkerScreen = ({
@@ -44,11 +47,16 @@ const PollWorkerScreen = ({
   tally,
   togglePollsOpen,
   enableLiveMode,
+  cardlessActivatedBallotStyleId,
+  activateBallotStyle,
 }: Props) => {
   const { election } = electionDefinition
   const precinct = election.precincts.find(
     (p) => p.id === appPrecinctId
   ) as Precinct
+  const precinctBallotStyles = election.ballotStyles.filter((bs) =>
+    bs.precincts.includes(appPrecinctId)
+  )
   const [isConfirmingPrintReport, setIsConfirmingPrintReport] = useState(false)
   const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
     !isLiveMode && isElectionDay
@@ -57,6 +65,8 @@ const PollWorkerScreen = ({
   const [isPrintingReport, setIsPrintingReport] = useState(false)
   const cancelConfirmPrint = () => setIsConfirmingPrintReport(false)
   const isPrintMode = !!machineConfig.appMode.isVxPrint
+  const isMarkAndPrint =
+    machineConfig.appMode.isVxPrint && machineConfig.appMode.isVxMark
 
   const requestPrintReport = () => {
     setIsPrintingReport(true)
@@ -95,12 +105,61 @@ const PollWorkerScreen = ({
 
   const currentDateTime = new Date().toLocaleString()
   const reportPurposes = ['Publicly Posted', 'Officially Filed']
+
+  const selectBallotStyle: PointerEventHandler = (event) => {
+    const { id = '' } = (event.target as HTMLElement).dataset
+    activateBallotStyle(id)
+  }
+
+  if (cardlessActivatedBallotStyleId) {
+    return (
+      <React.Fragment>
+        <Screen>
+          <Main>
+            <MainChild centerVertical maxWidth={false}>
+              <Prose textCenter>
+                <h1 aria-label="Ballot Style Activated">
+                  Ballot Style {cardlessActivatedBallotStyleId} Activated
+                </h1>
+                <p>Remove poll worker card and let the voter vote.</p>
+                <Button
+                  onPress={() => {
+                    activateBallotStyle('')
+                  }}
+                >
+                  Cancel
+                </Button>
+              </Prose>
+            </MainChild>
+          </Main>
+        </Screen>
+      </React.Fragment>
+    )
+  }
+
   return (
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
         <Main padded>
           <MainChild>
             <Prose>
+              {isMarkAndPrint && (
+                <React.Fragment>
+                  <h1>Activate Ballot</h1>
+                  <ButtonList data-testid="precincts">
+                    {precinctBallotStyles.map((bs) => (
+                      <Button
+                        data-id={bs.id}
+                        fullWidth
+                        key={bs.id}
+                        onPress={selectBallotStyle}
+                      >
+                        {bs.id}
+                      </Button>
+                    ))}
+                  </ButtonList>
+                </React.Fragment>
+              )}
               <h1>Open/Close Polls</h1>
               <Text warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
                 {isPollsOpen

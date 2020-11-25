@@ -40,7 +40,7 @@ const PrintPage = () => {
     if (!isEmptyObject(votes)) {
       printBallot()
     }
-  }, [votes, printBallot])
+  }, [])
 
   useEffect(() => {
     return () => clearTimeout(printerTimer.current)

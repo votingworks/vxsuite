@@ -91,6 +91,7 @@ interface UserState {
   contests: Contests
   precinctId: string
   userSettings: UserSettings
+  cardlessActivatedAt: number
   votes?: VotesDict
 }
 
@@ -171,6 +172,7 @@ class AppRoot extends React.Component<Props, State> {
     contests: [],
     precinctId: '',
     userSettings: { textSize: GLOBALS.TEXT_SIZE },
+    cardlessActivatedAt: 0,
     votes: blankBallotVotes,
   }
 
@@ -304,6 +306,7 @@ class AppRoot extends React.Component<Props, State> {
 
   public resetBallot = (path = '/') => {
     this.resetVoterData()
+
     this.setState(
       {
         ...this.initialCardPresentState,
@@ -620,7 +623,26 @@ class AppRoot extends React.Component<Props, State> {
             lastCardDataString = currentCardDataString
 
             if (!card.present || !card.shortValue) {
+              // on card removal, special case if we have cardless activation
+              const stateToMaintain = this.state.cardlessActivatedAt
+                ? {
+                    cardlessActivatedAt: this.state.cardlessActivatedAt,
+                    precinctId: this.state.precinctId,
+                    ballotStyleId: this.state.ballotStyleId!,
+                    votes: this.state.votes,
+                    contests: this.state.contests,
+                  }
+                : {}
+
               this.resetBallot()
+
+              this.setState((prevState) => {
+                return {
+                  ...prevState,
+                  ...stateToMaintain,
+                }
+              })
+
               return
             }
 
@@ -809,6 +831,32 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
+  public pollWorkerActivateBallot = (ballotStyleId: string) => {
+    this.setState((prevState) => {
+      const election = prevState.electionDefinition!.election
+      const ballotStyle = getBallotStyle({
+        election: prevState.electionDefinition!.election,
+        ballotStyleId,
+      })
+
+      if (election && ballotStyle) {
+        return {
+          ballotStyleId,
+          precinctId: prevState.appPrecinctId,
+          contests: getContests({ ballotStyle, election }),
+          cardlessActivatedAt: Date.now(),
+        }
+      } else {
+        return {
+          ballotStyleId: '',
+          precinctId: '',
+          contests: [],
+          cardlessActivatedAt: 0,
+        }
+      }
+    })
+  }
+
   public componentDidMount = () => {
     const electionDefinition = this.retrieveElection()
     const election = electionDefinition?.election
@@ -886,6 +934,7 @@ class AppRoot extends React.Component<Props, State> {
       precinctId,
       tally,
       userSettings,
+      cardlessActivatedAt,
       votes,
     } = this.state
 
@@ -933,6 +982,10 @@ class AppRoot extends React.Component<Props, State> {
             tally={tally}
             togglePollsOpen={this.togglePollsOpen}
             enableLiveMode={this.enableLiveMode}
+            cardlessActivatedBallotStyleId={
+              this.state.cardlessActivatedAt ? this.state.ballotStyleId : ''
+            }
+            activateBallotStyle={this.pollWorkerActivateBallot}
           />
         )
       }
@@ -971,7 +1024,11 @@ class AppRoot extends React.Component<Props, State> {
         )
       }
       if (isPollsOpen && appMode.isVxMark) {
-        if (isVoterCardPresent && ballotStyleId && precinctId) {
+        if (
+          (isVoterCardPresent || cardlessActivatedAt) &&
+          ballotStyleId &&
+          precinctId
+        ) {
           if (appPrecinctId !== precinctId) {
             return <WrongPrecinctScreen />
           }
@@ -985,7 +1042,9 @@ class AppRoot extends React.Component<Props, State> {
                   electionDefinition: electionDefinition,
                   updateTally: this.updateTally,
                   isLiveMode,
-                  markVoterCardPrinted: this.markVoterCardPrinted,
+                  markVoterCardPrinted: cardlessActivatedAt
+                    ? async () => true
+                    : this.markVoterCardPrinted,
                   markVoterCardVoided: this.markVoterCardVoided,
                   precinctId,
                   printer: this.props.printer,
