@@ -119,9 +119,9 @@ const PollWorkerScreen = ({
             <MainChild centerVertical maxWidth={false}>
               <Prose textCenter>
                 <h1 aria-label="Ballot Style Activated">
-                  Ballot Style {cardlessActivatedBallotStyleId} Activated
+                  Ballot Style “{cardlessActivatedBallotStyleId}” Activated
                 </h1>
-                <p>Remove poll worker card and let the voter vote.</p>
+                <p>Remove the poll worker card and instruct the voter to press the “Start Voting” button.</p>
                 <Button
                   onPress={() => {
                     activateBallotStyle('')
