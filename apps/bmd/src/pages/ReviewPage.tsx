@@ -499,7 +499,15 @@ const ReviewPage = () => {
               to={machineConfig.appMode.isVxPrint ? '/print' : '/save'}
               id="next"
             >
-              I’m Ready to <NoWrap>Print My Ballot</NoWrap>
+              {machineConfig.appMode.isVxPrint ? (
+                <React.Fragment>
+                  <NoWrap>Print My Ballot</NoWrap>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  I’m Ready to <NoWrap>Print My Ballot</NoWrap>
+                </React.Fragment>
+              )}
             </LinkButton>
           </p>
         </Prose>

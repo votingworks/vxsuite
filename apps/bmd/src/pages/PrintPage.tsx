@@ -38,11 +38,10 @@ const PrintPage = () => {
 
   useEffect(() => {
     if (!isEmptyObject(votes)) {
-      printBallot()
+      // delay to make sure the content fully loads, specifically the seal.
+      // yes, this should be done with a load event.
+      window.setTimeout(printBallot, 1000)
     }
-  }, [])
-
-  useEffect(() => {
     return () => clearTimeout(printerTimer.current)
   }, [])
 

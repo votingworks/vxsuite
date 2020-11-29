@@ -833,7 +833,7 @@ class AppRoot extends React.Component<Props, State> {
 
   public pollWorkerActivateBallot = (ballotStyleId: string) => {
     this.setState((prevState) => {
-      const election = prevState.electionDefinition!.election
+      const election = prevState.electionDefinition?.election
       const ballotStyle = getBallotStyle({
         election: prevState.electionDefinition!.election,
         ballotStyleId,

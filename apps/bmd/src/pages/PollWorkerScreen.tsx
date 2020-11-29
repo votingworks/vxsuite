@@ -121,7 +121,11 @@ const PollWorkerScreen = ({
                 <h1 aria-label="Ballot Style Activated">
                   Ballot Style “{cardlessActivatedBallotStyleId}” Activated
                 </h1>
-                <p>Remove the poll worker card and instruct the voter to press the “Start Voting” button.</p>
+                <p>
+                  Remove the poll worker card and instruct the voter to
+                  <br />
+                  press the “Start Voting” button.
+                </p>
                 <Button
                   onPress={() => {
                     activateBallotStyle('')
@@ -143,7 +147,7 @@ const PollWorkerScreen = ({
         <Main padded>
           <MainChild>
             <Prose>
-              {isMarkAndPrint && (
+              {isMarkAndPrint && isPollsOpen && (
                 <React.Fragment>
                   <h1>Activate Ballot</h1>
                   <ButtonList data-testid="precincts">
