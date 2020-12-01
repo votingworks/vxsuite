@@ -128,7 +128,7 @@ test('Modal renders error message appropriately', async () => {
   fireEvent.click(getByText('Export Ballot Package'))
   await waitFor(() => getByText('Export'))
 
-  fireEvent.click(getByText('Export'))
+  fireEvent.click(queryAllByTestId('manual-link')[0])
 
   await waitFor(() => getByText(/Download Failed/))
   expect(queryAllByTestId('modal')).toHaveLength(1)
@@ -145,8 +145,8 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   const mockKiosk = fakeKiosk()
   const fileWriter = fakeFileWriter()
   window.kiosk = mockKiosk
-  const saveAsFunction = jest.fn().mockResolvedValue(fileWriter)
-  mockKiosk.saveAs = saveAsFunction
+  const writeFunction = jest.fn().mockResolvedValue(fileWriter)
+  mockKiosk.writeFile = writeFunction
   const ejectFunction = jest.fn()
   const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
@@ -161,7 +161,8 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   fireEvent.click(getByText('Export'))
 
   await waitFor(() => getByText(/Download Complete/))
-  expect(saveAsFunction).toHaveBeenCalledTimes(1)
+  expect(writeFunction).toHaveBeenCalledTimes(1)
+  expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1)
 
   expect(queryAllByTestId('modal')).toHaveLength(1)
   expect(

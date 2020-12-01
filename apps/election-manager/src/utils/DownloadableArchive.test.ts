@@ -11,12 +11,22 @@ test('file prompt fails', async () => {
   const archive = new DownloadableArchive(kiosk)
 
   kiosk.saveAs.mockResolvedValueOnce(undefined)
-  await expect(archive.begin()).rejects.toThrowError(
+  await expect(archive.beginWithDialog()).rejects.toThrowError(
     'could not begin download; no file was chosen'
   )
 })
 
-test('empty zip file', async () => {
+test('direct file save fails', async () => {
+  const kiosk = fakeKiosk()
+  const archive = new DownloadableArchive(kiosk)
+
+  kiosk.saveAs.mockResolvedValueOnce(undefined)
+  await expect(archive.beginWithDirectSave('path.zip')).rejects.toThrowError(
+    'could not begin download; an error occurred'
+  )
+})
+
+test('empty zip file when user is prompted for file location', async () => {
   const kiosk = fakeKiosk()
   const archive = new DownloadableArchive(kiosk)
   const fileWriter = fakeFileWriter()
@@ -24,9 +34,29 @@ test('empty zip file', async () => {
   kiosk.saveAs.mockResolvedValueOnce(fileWriter)
 
   expect(fileWriter.chunks).toHaveLength(0)
-  await archive.begin()
+  await archive.beginWithDialog()
   await archive.end()
   expect(fileWriter.chunks).not.toHaveLength(0)
+
+  const firstChunk = fileWriter.chunks[0] as Buffer
+  expect(firstChunk).toBeInstanceOf(Buffer)
+  expect(firstChunk.slice(0, EMPTY_ZIP_MAGIC_BYTES.length)).toEqual(
+    EMPTY_ZIP_MAGIC_BYTES
+  )
+})
+
+test('empty zip file when file is saved directly and passes path to kiosk properly', async () => {
+  const kiosk = fakeKiosk()
+  const archive = new DownloadableArchive(kiosk)
+  const fileWriter = fakeFileWriter()
+
+  kiosk.writeFile.mockResolvedValueOnce(fileWriter)
+
+  expect(fileWriter.chunks).toHaveLength(0)
+  await archive.beginWithDirectSave('/path/to/file.zip')
+  await archive.end()
+  expect(fileWriter.chunks).not.toHaveLength(0)
+  expect(kiosk.writeFile).toHaveBeenCalledWith('/path/to/file.zip')
 
   const firstChunk = fileWriter.chunks[0] as Buffer
   expect(firstChunk).toBeInstanceOf(Buffer)
@@ -43,7 +73,7 @@ test('zip file containing a file', async () => {
   kiosk.saveAs.mockResolvedValueOnce(fileWriter)
 
   expect(fileWriter.chunks).toHaveLength(0)
-  await archive.begin()
+  await archive.beginWithDialog()
   await archive.file('README', '# election-manager\n')
   await archive.end()
   expect(fileWriter.chunks).not.toHaveLength(0)
@@ -61,7 +91,7 @@ test('passes options to kiosk.saveAs', async () => {
   kiosk.saveAs.mockResolvedValueOnce(fileWriter)
 
   expect(fileWriter.chunks).toHaveLength(0)
-  await archive.begin({ defaultPath: 'README.md' })
+  await archive.beginWithDialog({ defaultPath: 'README.md' })
   expect(kiosk.saveAs).toHaveBeenCalledWith({ defaultPath: 'README.md' })
 })
 

@@ -17,11 +17,30 @@ export default class DownloadableArchive {
    * making this instance ready to receive files. Resolves when ready to receive
    * files.
    */
-  public async begin(options?: KioskBrowser.SaveAsOptions): Promise<void> {
+  public async beginWithDialog(
+    options?: KioskBrowser.SaveAsOptions
+  ): Promise<void> {
     const fileWriter = await this.kiosk.saveAs(options)
 
     if (!fileWriter) {
       throw new Error('could not begin download; no file was chosen')
+    }
+
+    let endResolve: () => void
+    this.endPromise = new Promise((resolve) => (endResolve = resolve))
+    this.zip = new ZipStream()
+      .on('data', (chunk) => fileWriter.write(chunk))
+      .on('end', () => fileWriter.end().then(endResolve))
+  }
+
+  /**
+   * Begins downloading an archive by saving to an exact location that is specified
+   */
+  public async beginWithDirectSave(filePath: string): Promise<void> {
+    const fileWriter = await this.kiosk.writeFile(filePath)
+
+    if (!fileWriter) {
+      throw new Error('could not begin download; an error occurred')
     }
 
     let endResolve: () => void

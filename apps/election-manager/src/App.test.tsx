@@ -21,6 +21,7 @@ import App from './App'
 
 import sleep from './utils/sleep'
 import { ElectionDefinition } from './config/types'
+import fakeFileWriter from '../test/helpers/fakeFileWriter'
 
 const eitherNeitherElectionData = fs.readFileSync(
   join(__dirname, '../test/fixtures/eitherneither-election.json'),
@@ -121,13 +122,22 @@ it('printing ballots, print report, and test decks', async () => {
   // go print some ballots
   fireEvent.click(getByText('Export Ballot Package'))
   fireEvent.click(getByText('Export'))
-  expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1)
 
   jest.useRealTimers()
 
   // we're not mocking the filestream yet
   await screen.findByText(/Download Failed/)
+  expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1)
+  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1)
   fireEvent.click(getByText('Close'))
+
+  // Mock the file stream and export again
+  mockKiosk.writeFile.mockResolvedValue(fakeFileWriter())
+  fireEvent.click(getByText('Export Ballot Package'))
+  fireEvent.click(getByText('Export'))
+  await screen.findByText(/Generating Ballot/)
+  expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(2)
+  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(2)
 
   fireEvent.click(getByText('Ballots'))
   fireEvent.click(getAllByText('View Ballot')[0])
