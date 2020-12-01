@@ -1,8 +1,16 @@
+import { AnyContest, Contests } from '@votingworks/ballot-encoder'
 import makeDebug from 'debug'
-import { Corners, Rect } from '../types'
+import {
+  BallotPageContestLayout,
+  BallotPageLayout,
+  Corners,
+  Rect,
+} from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { getCorners } from '../utils/corners'
+import { poly4Area } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
+import { zip } from '../utils/iterators'
 import { VisitedPoints } from '../utils/VisitedPoints'
 import { findShape, parseRectangle, Shape } from './shapes'
 
@@ -202,4 +210,50 @@ function findTopBorderInset(
     y - consecutiveWhitePixels
   )
   return y - consecutiveWhitePixels
+}
+
+export interface BallotLayoutCorrespondance {
+  corresponds: boolean
+  mismatchedContests: {
+    template: BallotPageContestLayout
+    ballot: BallotPageContestLayout
+    definition: AnyContest
+  }[]
+}
+
+export function findBallotLayoutCorrespondance(
+  contests: Contests,
+  ballot: BallotPageLayout,
+  template: BallotPageLayout,
+  { allowedScaleErrorRatio = 0.1 } = {}
+): BallotLayoutCorrespondance {
+  const expectedAreaScale =
+    (ballot.ballotImage.imageData.width * ballot.ballotImage.imageData.height) /
+    (template.ballotImage.imageData.width *
+      template.ballotImage.imageData.height)
+  const minAreaScale = expectedAreaScale * (1 - allowedScaleErrorRatio)
+  const maxAreaScale = expectedAreaScale * (1 + allowedScaleErrorRatio)
+  const mismatchedContests: BallotLayoutCorrespondance['mismatchedContests'] = []
+
+  for (const [definition, templateContest, ballotContest] of zip(
+    contests,
+    template.contests,
+    ballot.contests
+  )) {
+    const templateArea = poly4Area(templateContest.corners)
+    const ballotArea = poly4Area(ballotContest.corners)
+    const areaScale = ballotArea / templateArea
+    if (areaScale < minAreaScale || areaScale > maxAreaScale) {
+      mismatchedContests.push({
+        definition,
+        template: templateContest,
+        ballot: ballotContest,
+      })
+    }
+  }
+
+  return {
+    corresponds: mismatchedContests.length === 0,
+    mismatchedContests,
+  }
 }

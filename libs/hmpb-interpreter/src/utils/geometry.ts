@@ -83,11 +83,39 @@ export function median(numbers: ArrayLike<number>): number {
 }
 
 /**
- * https://math.stackexchange.com/a/361419
+ * Compute the inner angle formed by vectors `ba` and `bc`.
+ *
+ * @see https://math.stackexchange.com/a/361419
  */
 export function angleBetweenPoints(a: Point, b: Point, c: Point): number {
-  const abDotBc = (b.x - a.x) * (c.x - b.x) + (b.y - a.y) * (c.y - b.y)
+  const abDotBc = (a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y)
   const abDist = euclideanDistance(a, b)
   const bcDist = euclideanDistance(b, c)
   return Math.acos(abDotBc / (abDist * bcDist))
+}
+
+/**
+ * Compute the area of a triangle.
+ *
+ * @see https://www.mathopenref.com/coordtrianglearea.html
+ */
+export function triangleArea(a: Point, b: Point, c: Point): number {
+  return Math.abs(
+    (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) / 2
+  )
+}
+
+/**
+ * Compute the area of a 4-sided polygon.
+ */
+export function poly4Area([
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight,
+]: Corners): number {
+  return (
+    triangleArea(topLeft, bottomLeft, bottomRight) +
+    triangleArea(topLeft, topRight, bottomRight)
+  )
 }

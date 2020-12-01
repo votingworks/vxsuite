@@ -49,10 +49,10 @@ test('parseRectangle with a slightly skewed rectangle', () => {
   ).toMatchInlineSnapshot(`
     Object {
       "angles": Array [
-        1.550798992821746,
-        1.590793660768047,
         1.590793660768047,
         1.550798992821746,
+        1.550798992821746,
+        1.590793660768047,
       ],
       "isRectangle": true,
     }
@@ -69,10 +69,10 @@ test('parseRectangle with very skewed rectangle', () => {
   expect(parseRectangle(corners)).toMatchInlineSnapshot(`
     Object {
       "angles": Array [
-        1.373400766945016,
-        1.7681918866447774,
         1.7681918866447774,
         1.373400766945016,
+        1.373400766945016,
+        1.7681918866447774,
       ],
       "isRectangle": false,
     }
@@ -83,10 +83,10 @@ test('parseRectangle with very skewed rectangle', () => {
     .toMatchInlineSnapshot(`
     Object {
       "angles": Array [
-        1.373400766945016,
-        1.7681918866447774,
         1.7681918866447774,
         1.373400766945016,
+        1.373400766945016,
+        1.7681918866447774,
       ],
       "isRectangle": true,
     }
