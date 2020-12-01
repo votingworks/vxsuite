@@ -29,12 +29,6 @@ export const filledInPage2_03 = new Fixture(
 export const filledInPage2_04 = new Fixture(
   join(__dirname, 'filled-in-p2-04.png')
 )
-/**
- * This one has gaps due to folds on the either/neither contest.
- */
-export const filledInPage2_05 = new Fixture(
-  join(__dirname, 'filled-in-p2-05.png')
-)
 
 export const district5BlankPage1 = new Fixture(join(__dirname, 'ballot-p1.png'))
 export const eastWeirBlankPage1 = new Fixture(

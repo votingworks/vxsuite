@@ -1,6 +1,5 @@
-import { Corners, Point, Rect } from '../types'
+import { Point, Rect } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
-import { angleBetweenPoints } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { VisitedPoints } from '../utils/VisitedPoints'
 
@@ -109,42 +108,5 @@ export function findShape(
       bottom: bottomEdge,
       left: leftBorder,
     },
-  }
-}
-
-export interface ParseRectangleResult {
-  isRectangle: boolean
-  angles: [number, number, number, number]
-}
-
-/**
- * Determines whether the given corners make for a roughly rectangular shape.
- * The amount of allowed error can be controlled.
- *
- * @param corners the corners to check
- * @param param1.allowedErrorAngle the angle in radians to allow in error
- */
-export function parseRectangle(
-  corners: Corners,
-  { allowedErrorAngle = (5 / 180) * Math.PI } = {}
-): ParseRectangleResult {
-  const [topLeft, topRight, bottomLeft, bottomRight] = corners
-  const minAllowedRightAngle = Math.PI / 2 - allowedErrorAngle
-  const maxAllowedRightAngle = Math.PI / 2 + allowedErrorAngle
-  const topLeftAngle = angleBetweenPoints(bottomLeft, topLeft, topRight)
-  const topRightAngle = angleBetweenPoints(topLeft, topRight, bottomRight)
-  const bottomLeftAngle = angleBetweenPoints(bottomRight, bottomLeft, topLeft)
-  const bottomRightAngle = angleBetweenPoints(topRight, bottomRight, bottomLeft)
-  return {
-    isRectangle:
-      topLeftAngle >= minAllowedRightAngle &&
-      topLeftAngle <= maxAllowedRightAngle &&
-      topRightAngle >= minAllowedRightAngle &&
-      topRightAngle <= maxAllowedRightAngle &&
-      bottomLeftAngle >= minAllowedRightAngle &&
-      bottomLeftAngle <= maxAllowedRightAngle &&
-      bottomRightAngle >= minAllowedRightAngle &&
-      bottomRightAngle <= maxAllowedRightAngle,
-    angles: [topLeftAngle, topRightAngle, bottomLeftAngle, bottomRightAngle],
   }
 }

@@ -4,7 +4,7 @@ import { PIXEL_BLACK } from '../utils/binarize'
 import { getCorners } from '../utils/corners'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { VisitedPoints } from '../utils/VisitedPoints'
-import { findShape, parseRectangle, Shape } from './shapes'
+import { findShape, Shape } from './shapes'
 
 const debug = makeDebug('hmpb-interpreter:findContests')
 
@@ -87,23 +87,11 @@ export default function* findContests(
 
       const shape = findShape(ballotImage, { x: columnMidX, y }, visitedPoints)
 
-      if (shape.bounds.width <= 1 || shape.bounds.height <= 1) {
+      if (shape.bounds.width === 0 || shape.bounds.height === 0) {
         continue
       }
 
-      const corners = getCorners(shape)
-      const rectangle = parseRectangle(corners)
-
-      if (!rectangle.isRectangle) {
-        debug(
-          'skipping shape because it is not rectangular: bounds=%O, corners=%O, angles=%O',
-          shape.bounds,
-          corners,
-          rectangle.angles.map(
-            (angle) => `${Math.round(((angle * 180) / Math.PI) * 100) / 100}°`
-          )
-        )
-      } else if (
+      if (
         shape.bounds.height < minExpectedHeight ||
         shape.bounds.height > maxExpectedHeight ||
         shape.bounds.width < expectedWidth - errorMargin ||
@@ -123,7 +111,7 @@ export default function* findContests(
         debug('found contest shape: %O', shape.bounds)
         yield {
           bounds: shape.bounds,
-          corners,
+          corners: getCorners(shape),
         }
         lastShape = shape
       }
