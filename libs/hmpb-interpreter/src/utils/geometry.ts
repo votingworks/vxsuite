@@ -1,4 +1,5 @@
 import { Corners, Point, Rect } from '../types'
+import { strict as assert } from 'assert'
 
 /**
  * Gets the four extreme points of a rectangle, inclusive.
@@ -57,13 +58,15 @@ export function editDistance(a: Point, b: Point): number {
   return Math.abs(b.x - a.x) + Math.abs(b.y - a.y)
 }
 
+export function euclideanDistance(a: Point, b: Point): number {
+  return ((b.x - a.x) ** 2 + (b.y - a.y) ** 2) ** 0.5
+}
+
 /**
  * Find the median of a list of numbers.
  */
 export function median(numbers: ArrayLike<number>): number {
-  if (numbers.length === 0) {
-    throw new Error('median of empty array does not make sense')
-  }
+  assert(numbers.length > 0)
 
   if (numbers.length === 1) {
     return numbers[0]
@@ -77,4 +80,14 @@ export function median(numbers: ArrayLike<number>): number {
   }
 
   return sorted[Math.ceil(sorted.length / 2)]
+}
+
+/**
+ * https://math.stackexchange.com/a/361419
+ */
+export function angleBetweenPoints(a: Point, b: Point, c: Point): number {
+  const abDotBc = (b.x - a.x) * (c.x - b.x) + (b.y - a.y) * (c.y - b.y)
+  const abDist = euclideanDistance(a, b)
+  const bcDist = euclideanDistance(b, c)
+  return Math.acos(abDotBc / (abDist * bcDist))
 }
