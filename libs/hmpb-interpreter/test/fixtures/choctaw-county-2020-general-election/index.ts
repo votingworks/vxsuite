@@ -30,13 +30,20 @@ export const filledInPage2_04 = new Fixture(
   join(__dirname, 'filled-in-p2-04.png')
 )
 /**
- * This one has gaps due to folds on the either/neither contest.
+ * This one has uneven gaps due to folds on the either/neither contest.
  */
 export const filledInPage2_05 = new Fixture(
   join(__dirname, 'filled-in-p2-05.png')
 )
+/**
+ * This one has even gaps due to folds on the either/neither contest.
+ */
+export const filledInPage2_06 = new Fixture(
+  join(__dirname, 'filled-in-p2-06.png')
+)
 
 export const district5BlankPage1 = new Fixture(join(__dirname, 'ballot-p1.png'))
+export const district5BlankPage2 = new Fixture(join(__dirname, 'ballot-p2.png'))
 export const eastWeirBlankPage1 = new Fixture(
   join(__dirname, 'ballot-east-weir-p1.png')
 )

@@ -15,10 +15,14 @@ import {
 import { strict as assert } from 'assert'
 import makeDebug from 'debug'
 import * as jsfeat from 'jsfeat'
+import { inspect } from 'util'
 import { v4 as uuid } from 'uuid'
 import getVotesFromMarks from './getVotesFromMarks'
 import findContestOptions from './hmpb/findContestOptions'
-import findContests, { ContestShape } from './hmpb/findContests'
+import findContests, {
+  ContestShape,
+  findBallotLayoutCorrespondance,
+} from './hmpb/findContests'
 import findTargets, { TargetShape } from './hmpb/findTargets'
 import { detect } from './metadata'
 import {
@@ -469,6 +473,21 @@ export default class Interpreter {
       ballotLayout.contests.length,
       contests.length,
       `ballot and election definition have different numbers of contests (${ballotLayout.contests.length} vs ${contests.length}); maybe the ballot is from an old version of the election definition?`
+    )
+
+    const correspondance = findBallotLayoutCorrespondance(
+      contests,
+      ballotLayout,
+      template
+    )
+
+    assert(
+      correspondance.corresponds,
+      `ballot and template contest shapes do not correspond: ${inspect(
+        correspondance,
+        undefined,
+        null
+      )}`
     )
 
     const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template, {

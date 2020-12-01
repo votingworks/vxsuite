@@ -1,4 +1,5 @@
 import { BallotType } from '@votingworks/ballot-encoder'
+import { fail } from 'assert'
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election'
 import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
@@ -3871,4 +3872,29 @@ test('regression: overvote on choctaw county p1-05', async () => {
       ],
     }
   `)
+})
+
+test('rejects an incorrect-but-plausible contest layout', async () => {
+  const fixtures = choctaw2020LegalSize
+  const interpreter = new Interpreter({
+    election: fixtures.election,
+    testMode: true,
+  })
+
+  await interpreter.addTemplate(await fixtures.district5BlankPage1.imageData())
+  const p2 = await interpreter.addTemplate(
+    await fixtures.district5BlankPage2.imageData()
+  )
+
+  try {
+    await interpreter.interpretBallot(
+      await fixtures.filledInPage2_06.imageData(),
+      p2.ballotImage.metadata
+    )
+    fail('expected interpretation to fail')
+  } catch (error) {
+    expect(error.message).toMatch(
+      'ballot and template contest shapes do not correspond'
+    )
+  }
 })
