@@ -2,14 +2,13 @@ import React, { useContext } from 'react'
 import AppContext from '../contexts/AppContext'
 
 import Button from './Button'
-// simport Text from './Text'
 
 import { UsbDriveStatus } from '../lib/usbstick'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const doNothing = () => {}
 
-const USBController: React.FC<{ primary?: boolean; small?: boolean }> = ({
+const USBControllerButton: React.FC<{ primary?: boolean; small?: boolean }> = ({
   primary = false,
   small = true,
 }) => {
@@ -58,4 +57,4 @@ const USBController: React.FC<{ primary?: boolean; small?: boolean }> = ({
   )
 }
 
-export default USBController
+export default USBControllerButton

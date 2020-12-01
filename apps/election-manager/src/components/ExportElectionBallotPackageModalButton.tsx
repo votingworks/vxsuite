@@ -14,28 +14,20 @@ import AppContext from '../contexts/AppContext'
 import HandMarkedPaperBallot from './HandMarkedPaperBallot'
 import Modal from './Modal'
 import Button from './Button'
+import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
 import { Monospace } from './Text'
 import { UsbDriveStatus } from '../lib/usbstick'
-import USBController from './USBController'
+import USBControllerButton from './USBControllerButton'
 
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
+import { generateFilenameForBallotExportPackage } from '../utils/filenames'
 
 const USBImage = styled.img`
-  margin-bottom: 20px;
+  margin-right: auto;
+  margin-left: auto;
   height: 200px;
-`
-
-const PrimaryMessage = styled.h2`
-  text-align: center;
-`
-
-const Title = styled.h1`
-  margin: 0;
-  margin-bottom: 20px;
-  width: 100%;
-  text-align: left;
 `
 
 const ExportElectionBallotPackageModalButton: React.FC = () => {
@@ -106,13 +98,10 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
   }
 
   const now = new Date()
-  const defaultFileName = `${`${election.county.name}_${election.title}`
-    .replace(/[^a-z0-9]+/gi, '-')
-    .replace(/(^-|-$)+/g, '')
-    .toLocaleLowerCase()}_${electionHash.slice(
-    0,
-    10
-  )}__${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.zip`
+  const defaultFileName = generateFilenameForBallotExportPackage(
+    electionDefinition!,
+    now
+  )
 
   // Callback to open the file dialog.
   const openFileDialog = async () => {
@@ -144,7 +133,8 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
 
   switch (state.type) {
     case 'Init': {
-      mainContent = <Loading as="h2" />
+      mainContent = <Loading />
+      disableCancel = true
       break
     }
 
@@ -154,19 +144,20 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
         case UsbDriveStatus.notavailable:
         case UsbDriveStatus.recentlyEjected:
           mainContent = (
-            <React.Fragment>
-              <USBImage src="usb-drive.svg" alt="Insert USB Image" />
-              <PrimaryMessage> No USB Drive Detected </PrimaryMessage>
+            <Prose>
+              <h1>No USB Drive Detected</h1>
               <p>
+                <USBImage src="usb-drive.svg" alt="Insert USB Image" />
                 Please insert a USB stick in order to export the ballot
                 configuration.
               </p>
-            </React.Fragment>
+            </Prose>
           )
           break
         case UsbDriveStatus.ejecting:
         case UsbDriveStatus.present:
-          mainContent = <Loading as="h2" />
+          mainContent = <Loading />
+          disableCancel = true
           break
         case UsbDriveStatus.mounted: {
           // TODO(caro): Update this to just write the file to the USB stick once the APIS in kiosk-browser exist.
@@ -176,19 +167,19 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
             </Button>
           )
           mainContent = (
-            <React.Fragment>
-              <USBImage src="usb-drive.svg" alt="Insert USB Image" />
-              <PrimaryMessage> USB Drive Detected! </PrimaryMessage>
+            <Prose>
+              <h1>USB Drive Detected!</h1>
               <p>
+                <USBImage src="usb-drive.svg" alt="Insert USB Image" />
                 Would you like to export the ballot configuration now? A zip
-                archive will automatically be saved to the inserted usb drive.
+                archive will automatically be saved to the inserted USB drive.
                 You may also {/* eslint-disable jsx-a11y/anchor-is-valid */}
-                <a href="#" onClick={openFileDialog}>
+                <a href="#" onClick={openFileDialog} data-testid="manual-link">
                   manually select a location to save the archive to.
                 </a>
                 {/* eslint-enable jsx-a11y/anchor-is-valid */}
               </p>
-            </React.Fragment>
+            </Prose>
           )
           break
         }
@@ -207,12 +198,12 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       const precinctName = getPrecinctById({ election, precinctId })!.name
 
       mainContent = (
-        <React.Fragment>
-          <PrimaryMessage>
+        <Prose>
+          <h1>
             Generating Ballot{' '}
             {state.ballotConfigsCount - state.remainingBallotConfigs.length} of{' '}
             {state.ballotConfigsCount}…
-          </PrimaryMessage>
+          </h1>
           <ul>
             <li>
               Ballot Style: <strong>{ballotStyleId}</strong>
@@ -241,44 +232,45 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
             onRendered={onRendered}
             locales={locales}
           />
-        </React.Fragment>
+        </Prose>
       )
       break
     }
 
     case 'ArchiveEnd': {
       mainContent = (
-        <React.Fragment>
+        <Prose>
+          <h1>Finishing Download…</h1>
           <p>
-            Finishing Download… Rendered{' '}
-            {pluralize('ballot', state.ballotConfigsCount, true)}, closing zip
-            file.
+            Rendered {pluralize('ballot', state.ballotConfigsCount, true)},
+            closing zip file.
           </p>
-        </React.Fragment>
+        </Prose>
       )
       break
     }
 
     case 'Done': {
-      primaryButton = <USBController primary small={false} />
+      primaryButton = <USBControllerButton primary small={false} />
       mainContent = (
-        <React.Fragment>
+        <Prose>
+          <h1>Download Complete!</h1>
           <p>
-            Download Complete! Exported{' '}
-            {pluralize('ballot', state.ballotConfigsCount, true)}. You may now
-            eject the USB device and connect it with your ballot scanning
-            machine to configure it.
+            Exported {pluralize('ballot', state.ballotConfigsCount, true)}. You
+            may now eject the USB device and connect it with your ballot
+            scanning machine to configure it.
           </p>
-        </React.Fragment>
+        </Prose>
       )
       break
     }
 
     case 'Failed': {
       mainContent = (
-        <React.Fragment>
-          <p>Download Failed! An error occurred: {state.message}.</p>
-        </React.Fragment>
+        <Prose>
+          <h1>Download Failed!</h1>
+          <p>An error occurred: {state.message}.</p>
+        </Prose>
       )
       break
     }
@@ -291,12 +283,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       </LinkButton>
       <Modal
         isOpen={isModalOpen}
-        content={
-          <React.Fragment>
-            <Title>Export Ballot Package</Title>
-            <React.Fragment>{mainContent}</React.Fragment>
-          </React.Fragment>
-        }
+        content={mainContent}
         onOverlayClick={closeModal}
         actions={
           <React.Fragment>

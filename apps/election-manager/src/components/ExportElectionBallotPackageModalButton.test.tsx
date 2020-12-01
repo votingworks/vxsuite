@@ -17,21 +17,12 @@ afterAll(() => {
 })
 
 test('Button renders properly when not clicked', async () => {
-  const { container } = renderInAppContext(
+  const { queryByText, queryByTestId } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />
   )
 
-  expect(container).toMatchInlineSnapshot(`
-    <div>
-      <button
-        class="sc-AxhCb dkvhmn"
-        role="option"
-        type="button"
-      >
-        Export Ballot Package
-      </button>
-    </div>
-  `)
+  expect(queryByText('Export Ballot Package')).toHaveProperty('type', 'button')
+  expect(queryByTestId('modal')).toBeNull()
 })
 
 test('Modal renders insert usb screen appropriately', async () => {
@@ -42,38 +33,78 @@ test('Modal renders insert usb screen appropriately', async () => {
   ]
 
   for (const usbStatus of usbStatuses) {
-    const { unmount, getByTestId, getByText } = renderInAppContext(
-      <ExportElectionBallotPackageModalButton />,
-      {
-        usbDriveStatus: usbStatus,
-      }
-    )
+    const {
+      unmount,
+      getByText,
+      queryAllByText,
+      queryAllByAltText,
+      queryAllByTestId,
+    } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
+      usbDriveStatus: usbStatus,
+    })
     fireEvent.click(getByText('Export Ballot Package'))
     await waitFor(() => getByText('No USB Drive Detected'))
+    expect(queryAllByAltText('Insert USB Image')).toHaveLength(1)
+    expect(queryAllByTestId('modal')).toHaveLength(1)
+    expect(
+      queryAllByText(
+        'Please insert a USB stick in order to export the ballot configuration.'
+      )
+    ).toHaveLength(1)
 
-    expect(getByTestId('modal')).toMatchSnapshot()
+    fireEvent.click(getByText('Cancel'))
+    expect(queryAllByTestId('modal')).toHaveLength(0)
+
     unmount()
   }
 })
 
-test('Modal renders export confirmation screen when usb detected', async () => {
-  const { getByTestId, getByText } = renderInAppContext(
-    <ExportElectionBallotPackageModalButton />,
-    {
-      usbDriveStatus: UsbDriveStatus.mounted,
-    }
-  )
+test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
+  const mockKiosk = fakeKiosk()
+  const fileWriter = fakeFileWriter()
+  window.kiosk = mockKiosk
+  const saveAsFunction = jest.fn().mockResolvedValue(fileWriter)
+  mockKiosk.saveAs = saveAsFunction
+  const {
+    getByText,
+    queryAllByText,
+    queryAllByAltText,
+    queryAllByTestId,
+  } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
+    usbDriveStatus: UsbDriveStatus.mounted,
+  })
   fireEvent.click(getByText('Export Ballot Package'))
   await waitFor(() => getByText('USB Drive Detected!'))
+  expect(queryAllByAltText('Insert USB Image')).toHaveLength(1)
+  expect(queryAllByTestId('modal')).toHaveLength(1)
+  expect(
+    queryAllByText(/Would you like to export the ballot configuration now?/)
+  ).toHaveLength(1)
+  expect(
+    queryAllByText(
+      /A zip archive will automatically be saved to the inserted USB drive./
+    )
+  ).toHaveLength(1)
 
-  expect(getByTestId('modal')).toMatchSnapshot()
+  expect(queryAllByTestId('manual-link')).toHaveLength(1)
+  expect(queryAllByTestId('manual-link')[0]).toHaveTextContent(
+    'manually select a location to save the archive to.'
+  )
+  fireEvent.click(queryAllByTestId('manual-link')[0])
+  await waitFor(() => getByText(/Download Complete/))
+  await waitFor(() => {
+    expect(saveAsFunction).toHaveBeenCalledTimes(1)
+  })
+
+  fireEvent.click(getByText('Cancel'))
+  expect(queryAllByTestId('modal')).toHaveLength(0)
 })
 
 test('Modal renders loading screen when usb is mounting or ejecting', async () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]
 
   for (const usbStatus of usbStatuses) {
-    const { unmount, getByTestId, getByText } = renderInAppContext(
+    const { unmount, queryAllByTestId, getByText } = renderInAppContext(
       <ExportElectionBallotPackageModalButton />,
       {
         usbDriveStatus: usbStatus,
@@ -82,13 +113,15 @@ test('Modal renders loading screen when usb is mounting or ejecting', async () =
     fireEvent.click(getByText('Export Ballot Package'))
     await waitFor(() => getByText('Loading'))
 
-    expect(getByTestId('modal')).toMatchSnapshot()
+    expect(queryAllByTestId('modal')).toHaveLength(1)
+
+    expect(getByText('Cancel')).toBeDisabled()
     unmount()
   }
 })
 
 test('Modal renders error message appropriately', async () => {
-  const { getByTestId, getByText } = renderInAppContext(
+  const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
@@ -100,8 +133,14 @@ test('Modal renders error message appropriately', async () => {
   fireEvent.click(getByText('Export'))
 
   await waitFor(() => getByText(/Download Failed!/))
+  expect(queryAllByTestId('modal')).toHaveLength(1)
+  expect(queryAllByText(/An error occurred:/)).toHaveLength(1)
+  expect(
+    queryAllByText(/could not begin download; no file was chosen/)
+  ).toHaveLength(1)
 
-  expect(getByTestId('modal')).toMatchSnapshot()
+  fireEvent.click(getByText('Cancel'))
+  expect(queryAllByTestId('modal')).toHaveLength(0)
 })
 
 test('Modal renders renders loading message while rendering ballots appropriately', async () => {
@@ -110,10 +149,12 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   window.kiosk = mockKiosk
   const saveAsFunction = jest.fn().mockResolvedValue(fileWriter)
   mockKiosk.saveAs = saveAsFunction
-  const { getByTestId, getByText } = renderInAppContext(
+  const ejectFunction = jest.fn()
+  const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveEject: ejectFunction,
     }
   )
   fireEvent.click(getByText('Export Ballot Package'))
@@ -124,5 +165,18 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   await waitFor(() => getByText(/Download Complete/))
   expect(saveAsFunction).toHaveBeenCalledTimes(1)
 
-  expect(getByTestId('modal')).toMatchSnapshot()
+  expect(queryAllByTestId('modal')).toHaveLength(1)
+  expect(
+    queryAllByText(
+      /You may now eject the USB device and connect it with your ballot scanning machine to configure it./
+    )
+  )
+  expect(queryAllByText(/Exported 26 ballots/)).toHaveLength(1)
+
+  expect(queryAllByText('Eject USB')).toHaveLength(1)
+  fireEvent.click(getByText('Eject USB'))
+  expect(ejectFunction).toHaveBeenCalledTimes(1)
+
+  fireEvent.click(getByText('Cancel'))
+  expect(queryAllByTestId('modal')).toHaveLength(0)
 })
