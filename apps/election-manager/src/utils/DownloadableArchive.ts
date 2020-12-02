@@ -34,7 +34,8 @@ export default class DownloadableArchive {
   }
 
   /**
-   * Begins downloading an archive by saving to an exact location that is specified
+   * Begins downloading an archive to the filePath specified. Resolves when
+   * ready to receive files.
    */
   public async beginWithDirectSave(filePath: string): Promise<void> {
     const fileWriter = await this.kiosk.writeFile(filePath)

@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import pluralize from 'pluralize'
 import styled from 'styled-components'
+import path from 'path'
 import { getElectionLocales } from '@votingworks/ballot-encoder'
 
 import { DEFAULT_LOCALE } from '../config/globals'
@@ -22,7 +23,10 @@ import { getDevicePath, UsbDriveStatus } from '../lib/usbstick'
 import USBControllerButton from './USBControllerButton'
 
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
-import { generateFilenameForBallotExportPackage } from '../utils/filenames'
+import {
+  generateFilenameForBallotExportPackage,
+  EXPORT_FOLDER,
+} from '../utils/filenames'
 
 const USBImage = styled.img`
   margin-right: auto;
@@ -111,20 +115,19 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       )
     }
     try {
-      const usbPathRaw = await getDevicePath()
-      const usbPath = usbPathRaw ? `${usbPathRaw}/` : ''
+      const usbPath = await getDevicePath()
+      const pathToFolder = path.join(usbPath, EXPORT_FOLDER)
+      const pathToFile = path.join(usbPath, EXPORT_FOLDER, defaultFileName)
       if (openDialog) {
         await state.archive.beginWithDialog({
-          defaultPath: `${usbPath}ballot-export-packages/${defaultFileName}`,
+          defaultPath: pathToFile,
           filters: [{ name: 'Archive Files', extensions: ['zip'] }],
         })
       } else {
-        await window.kiosk!.makeDirectory(`${usbPath}ballot-export-packages`, {
+        await window.kiosk!.makeDirectory(pathToFolder, {
           recursive: true,
         })
-        await state.archive.beginWithDirectSave(
-          `${usbPath}ballot-export-packages/${defaultFileName}`
-        )
+        await state.archive.beginWithDirectSave(pathToFile)
       }
       await state.archive.file('election.json', electionData)
       await state.archive.file(

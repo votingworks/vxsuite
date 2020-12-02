@@ -20,7 +20,6 @@ test('direct file save fails', async () => {
   const kiosk = fakeKiosk()
   const archive = new DownloadableArchive(kiosk)
 
-  kiosk.saveAs.mockResolvedValueOnce(undefined)
   await expect(archive.beginWithDirectSave('path.zip')).rejects.toThrowError(
     'could not begin download; an error occurred'
   )
