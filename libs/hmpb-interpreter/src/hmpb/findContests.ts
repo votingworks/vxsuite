@@ -8,7 +8,7 @@ import {
 } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { getCorners } from '../utils/corners'
-import { poly4Area } from '../utils/geometry'
+import { euclideanDistance, poly4Area } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { zip } from '../utils/iterators'
 import { VisitedPoints } from '../utils/VisitedPoints'
@@ -102,6 +102,15 @@ export default function* findContests(
       const corners = getCorners(shape)
       const rectangle = parseRectangle(corners)
 
+      const cornerBasedWidth = Math.max(
+        euclideanDistance(corners[0], corners[1]),
+        euclideanDistance(corners[2], corners[3])
+      )
+      const cornerBasedHeight = Math.max(
+        euclideanDistance(corners[0], corners[2]),
+        euclideanDistance(corners[1], corners[3])
+      )
+
       if (!rectangle.isRectangle) {
         debug(
           'skipping shape because it is not rectangular: bounds=%O, corners=%O, angles=%O',
@@ -112,16 +121,16 @@ export default function* findContests(
           )
         )
       } else if (
-        shape.bounds.height < minExpectedHeight ||
-        shape.bounds.height > maxExpectedHeight ||
-        shape.bounds.width < expectedWidth - errorMargin ||
-        shape.bounds.width > expectedWidth + errorMargin
+        cornerBasedHeight < minExpectedHeight ||
+        cornerBasedHeight > maxExpectedHeight ||
+        cornerBasedWidth < expectedWidth - errorMargin ||
+        cornerBasedWidth > expectedWidth + errorMargin
       ) {
         debug(
           'skipping shape because it is the wrong size: bounds=%O, actual=%dˣ%d, min=%dˣ%d, max=%dˣ%d',
           shape.bounds,
-          shape.bounds.width,
-          shape.bounds.height,
+          cornerBasedWidth,
+          cornerBasedHeight,
           expectedWidth - errorMargin,
           minExpectedHeight,
           expectedWidth + errorMargin,

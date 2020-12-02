@@ -1,4 +1,7 @@
-import { filledInPage2_05 } from '../../test/fixtures/choctaw-county-2020-general-election'
+import {
+  filledInPage2_05,
+  filledInPage2_07,
+} from '../../test/fixtures/choctaw-county-2020-general-election'
 import findContests from './findContests'
 
 test('rejects contests that read as non-rectangular', async () => {
@@ -56,6 +59,95 @@ test('rejects contests that read as non-rectangular', async () => {
           },
           Object {
             "x": 2448,
+            "y": 2052,
+          },
+        ],
+      },
+    ]
+  `)
+})
+
+test('handles fold lines sticking out of a contest', async () => {
+  expect([
+    ...findContests(await filledInPage2_07.imageData(), {
+      columns: [true, true],
+    }),
+  ]).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "bounds": Object {
+          "height": 2434,
+          "width": 1237,
+          "x": 78,
+          "y": 70,
+        },
+        "corners": Array [
+          Object {
+            "x": 86,
+            "y": 70,
+          },
+          Object {
+            "x": 1252,
+            "y": 74,
+          },
+          Object {
+            "x": 83,
+            "y": 2501,
+          },
+          Object {
+            "x": 1245,
+            "y": 2503,
+          },
+        ],
+      },
+      Object {
+        "bounds": Object {
+          "height": 807,
+          "width": 1168,
+          "x": 1292,
+          "y": 74,
+        },
+        "corners": Array [
+          Object {
+            "x": 1295,
+            "y": 75,
+          },
+          Object {
+            "x": 2459,
+            "y": 79,
+          },
+          Object {
+            "x": 1292,
+            "y": 875,
+          },
+          Object {
+            "x": 2457,
+            "y": 880,
+          },
+        ],
+      },
+      Object {
+        "bounds": Object {
+          "height": 1135,
+          "width": 1170,
+          "x": 1289,
+          "y": 918,
+        },
+        "corners": Array [
+          Object {
+            "x": 1292,
+            "y": 918,
+          },
+          Object {
+            "x": 2457,
+            "y": 922,
+          },
+          Object {
+            "x": 1289,
+            "y": 2049,
+          },
+          Object {
+            "x": 2456,
             "y": 2052,
           },
         ],

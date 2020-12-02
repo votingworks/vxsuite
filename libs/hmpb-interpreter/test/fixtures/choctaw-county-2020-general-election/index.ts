@@ -41,6 +41,12 @@ export const filledInPage2_05 = new Fixture(
 export const filledInPage2_06 = new Fixture(
   join(__dirname, 'filled-in-p2-06.png')
 )
+/**
+ * This one has a fold line sticking out of a contest.
+ */
+export const filledInPage2_07 = new Fixture(
+  join(__dirname, 'filled-in-p2-07.png')
+)
 
 export const district5BlankPage1 = new Fixture(join(__dirname, 'ballot-p1.png'))
 export const district5BlankPage2 = new Fixture(join(__dirname, 'ballot-p2.png'))
