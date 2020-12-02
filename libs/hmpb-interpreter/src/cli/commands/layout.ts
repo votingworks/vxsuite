@@ -2,12 +2,14 @@ import { strict as assert } from 'assert'
 import chalk from 'chalk'
 import { GlobalOptions, OptionParseError } from '..'
 import { writeImageToFile } from '../../../test/utils'
-import findContests from '../../hmpb/findContests'
+import findContests, { ContestShape } from '../../hmpb/findContests'
 import { Point, Rect } from '../../types'
 import { binarize, RGBA } from '../../utils/binarize'
+import { createImageData } from '../../utils/canvas'
+import { vh } from '../../utils/flip'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
-import { adjacentFile } from '../../utils/path'
 import { loadImageData } from '../../utils/images'
+import { adjacentFile } from '../../utils/path'
 
 export interface Options {
   ballotImagePaths: readonly string[]
@@ -48,6 +50,50 @@ export async function parseOptions({
   return { ballotImagePaths }
 }
 
+interface AnalyzeImageResult {
+  contests: ContestShape[]
+  rotated: boolean
+}
+
+function analyzeImage(imageData: ImageData): AnalyzeImageResult {
+  const binarized = createImageData(imageData.width, imageData.height)
+  binarize(imageData, binarized)
+
+  const transforms = [
+    (imageData: ImageData): { imageData: ImageData; rotated: boolean } => ({
+      imageData,
+      rotated: false,
+    }),
+    (imageData: ImageData): { imageData: ImageData; rotated: boolean } => {
+      const rotatedImageData = createImageData(
+        new Uint8ClampedArray(imageData.data.length),
+        imageData.width,
+        imageData.height
+      )
+      vh(imageData, rotatedImageData)
+      return { imageData: rotatedImageData, rotated: true }
+    },
+  ]
+
+  const columnPatterns = [
+    [true, true, true],
+    [true, true],
+  ]
+
+  for (const transform of transforms) {
+    const transformed = transform(binarized)
+
+    for (const columns of columnPatterns) {
+      const contests = [...findContests(transformed.imageData, { columns })]
+      if (contests.length > 0) {
+        return { contests, rotated: transformed.rotated }
+      }
+    }
+  }
+
+  return { contests: [], rotated: false }
+}
+
 /**
  * Finds features in an image and writes an image adjacent with overlays marking
  * those features.
@@ -59,21 +105,12 @@ export async function run(
 ): Promise<number> {
   for (const ballotImagePath of options.ballotImagePaths) {
     const imageData = await loadImageData(ballotImagePath)
-    const binarized: ImageData = {
-      data: new Uint8ClampedArray(imageData.data.length),
-      width: imageData.width,
-      height: imageData.height,
-    }
-    binarize(imageData, binarized)
-
-    const threeColumnContests = [
-      ...findContests(imageData, { columns: [true, true, true] }),
-    ]
-    const contests =
-      threeColumnContests.length === 0
-        ? [...findContests(imageData, { columns: [true, true] })]
-        : threeColumnContests
+    const { contests, rotated } = analyzeImage(imageData)
     const targetWidth = Math.max(15, Math.round(imageData.width * 0.01))
+
+    if (rotated) {
+      vh(imageData)
+    }
 
     for (const contest of contests) {
       fill(imageData, contest.bounds, GREEN_OVERLAY_COLOR)
