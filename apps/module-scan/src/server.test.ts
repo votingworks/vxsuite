@@ -11,34 +11,35 @@ import { promises as fs } from 'fs'
 import { Server } from 'http'
 import { join } from 'path'
 import request from 'supertest'
+import { dirSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
 import { makeMockImporter } from '../test/util/mocks'
 import { Importer } from './importer'
 import { buildApp, start } from './server'
-import Store from './store'
 import { ScanStatus } from './types'
 import { MarkStatus } from './types/ballot-review'
 import { fromElection } from './util/electionDefinition'
+import { createWorkspace, Workspace } from './util/workspace'
 
 jest.mock('./importer')
 
 let app: Application
 let importer: Importer
-let store: Store
+let workspace: Workspace
 let importerMock: jest.Mocked<Importer>
 
 beforeEach(async () => {
   importer = makeMockImporter()
   importerMock = importer as jest.Mocked<Importer>
-  store = await Store.memoryStore()
-  await store.setElection({
+  workspace = await createWorkspace(dirSync().name)
+  await workspace.store.setElection({
     election,
     electionData: JSON.stringify(election),
     electionHash: '',
   })
-  await store.addHmpbTemplate(
+  await workspace.store.addHmpbTemplate(
     Buffer.of(),
     {
       locales: { primary: 'en-US' },
@@ -79,7 +80,7 @@ beforeEach(async () => {
       },
     ]
   )
-  app = buildApp({ importer, store })
+  app = buildApp({ importer, store: workspace.store })
 })
 
 test('GET /scan/status', async () => {
@@ -96,8 +97,8 @@ test('GET /scan/status', async () => {
 })
 
 test('GET /config', async () => {
-  await store.setElection(fromElection(election))
-  await store.setTestMode(true)
+  await workspace.store.setElection(fromElection(election))
+  await workspace.store.setTestMode(true)
   await request(app).get('/config').expect(200, { election, testMode: true })
 })
 
@@ -228,8 +229,8 @@ test('GET /scan/hmpb/ballot/:sheetId/:side', async () => {
   const questionA = election.contests.find(
     ({ id }) => id === 'question-a'
   ) as YesNoContest
-  const batchId = await store.addBatch()
-  const sheetId = await store.addSheet(uuid(), batchId, [
+  const batchId = await workspace.store.addBatch()
+  const sheetId = await workspace.store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/front.png',
       normalizedFilename: '/front-normalized.png',
@@ -309,7 +310,7 @@ test('GET /scan/hmpb/ballot/:sheetId/:side', async () => {
       },
     },
   ])
-  await store.finishBatch({ batchId })
+  await workspace.store.finishBatch({ batchId })
 
   await request(app)
     .get(`/scan/hmpb/ballot/${sheetId}/front`)
@@ -357,8 +358,8 @@ test('PATCH /scan/hmpb/ballot/:sheetId/:side', async () => {
   const questionA = election.contests.find(
     ({ id }) => id === 'question-a'
   ) as YesNoContest
-  const batchId = await store.addBatch()
-  const sheetId = await store.addSheet(uuid(), batchId, [
+  const batchId = await workspace.store.addBatch()
+  const sheetId = await workspace.store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/front.png',
       normalizedFilename: '/front-normalized.png',
@@ -453,7 +454,7 @@ test('PATCH /scan/hmpb/ballot/:sheetId/:side', async () => {
       },
     },
   ])
-  await store.finishBatch({ batchId })
+  await workspace.store.finishBatch({ batchId })
 
   await request(app)
     .patch(`/scan/hmpb/ballot/${sheetId}/front`)
@@ -508,8 +509,8 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
     __dirname,
     '../test/fixtures/state-of-hamilton/filled-in-dual-language-p2.jpg'
   )
-  const batchId = await store.addBatch()
-  const sheetId = await store.addSheet(uuid(), batchId, [
+  const batchId = await workspace.store.addBatch()
+  const sheetId = await workspace.store.addSheet(uuid(), batchId, [
     {
       originalFilename: frontOriginal,
       normalizedFilename: frontNormalized,
@@ -563,7 +564,7 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
       },
     },
   ])
-  await store.finishBatch({ batchId })
+  await workspace.store.finishBatch({ batchId })
 
   await request(app)
     .get(`/scan/hmpb/ballot/${sheetId}/front/image`)
@@ -695,7 +696,7 @@ test('start reloads configuration from the store', async () => {
   })
 
   // start up the server
-  await start({ store, importer, app, log: jest.fn() })
+  await start({ importer, app, log: jest.fn(), workspace })
 
   // did we load everything from the store?
   expect(importer.restoreConfig).toHaveBeenCalled()
@@ -703,7 +704,7 @@ test('start reloads configuration from the store', async () => {
 
 test('get next sheet', async () => {
   jest
-    .spyOn(store, 'getNextAdjudicationSheet')
+    .spyOn(workspace.store, 'getNextAdjudicationSheet')
     .mockImplementationOnce(async () => {
       return {
         id: 'mock-review-sheet',

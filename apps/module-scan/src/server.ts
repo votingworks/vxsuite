@@ -16,7 +16,7 @@ import { FujitsuScanner, Scanner } from './scanner'
 import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
 import { BallotConfig, ElectionDefinition } from './types'
 import { fromElection, validate } from './util/electionDefinition'
-import makeTemporaryBallotImportImageDirectories from './util/makeTemporaryBallotImportImageDirectories'
+import { createWorkspace, Workspace } from './util/workspace'
 import { Input, Output } from './workers/interpret'
 import { childProcessPool, WorkerPool } from './workers/pool'
 
@@ -491,11 +491,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
 export interface StartOptions {
   port: number | string
-  store: Store
   scanner: Scanner
   importer: Importer
   app: Application
   log: typeof console.log
+  workspace: Workspace
 }
 
 /**
@@ -503,34 +503,47 @@ export interface StartOptions {
  */
 export async function start({
   port = process.env.PORT || 3002,
-  store,
   scanner,
   importer,
   app,
   log = console.log,
+  workspace,
 }: Partial<StartOptions> = {}): Promise<void> {
-  store =
-    store ?? (await Store.fileStore(path.join(__dirname, '..', 'ballots.db')))
+  if (!workspace) {
+    let workspacePath = process.env.MODULE_SCAN_WORKSPACE
+    if (
+      !workspacePath &&
+      (!process.env.NODE_ENV || process.env.NODE_ENV === 'development')
+    ) {
+      workspacePath = path.join(__dirname, '../dev-workspace')
+    }
+    if (!workspacePath) {
+      throw new Error(
+        'workspace path could not be determined; pass a workspace or run with MODULE_SCAN_WORKSPACE'
+      )
+    }
+    workspace = await createWorkspace(workspacePath)
+  }
+
   scanner = scanner ?? new FujitsuScanner()
   importer =
     importer ??
     new SystemImporter({
-      store,
+      workspace,
       scanner,
-      ...makeTemporaryBallotImportImageDirectories().paths,
       interpreterWorkerPoolProvider: (): WorkerPool<Input, Output> =>
         childProcessPool(
           path.join(__dirname, 'workers/interpret.ts'),
           2 /* front and back */
         ),
     })
-  app = app ?? buildApp({ importer, store })
+  app = app ?? buildApp({ importer, store: workspace.store })
 
   app.listen(port, () => {
     log(`Listening at http://localhost:${port}/`)
 
     if (importer instanceof SystemImporter) {
-      log(`Scanning ballots into ${importer.scannedImagesPath}`)
+      log(`Scanning ballots into ${workspace?.ballotImagesPath}`)
     }
   })
 
@@ -542,5 +555,5 @@ export async function start({
   await importer.restoreConfig()
 
   // cleanup incomplete batches from before
-  await store.cleanupIncompleteBatches()
+  await workspace.store.cleanupIncompleteBatches()
 }

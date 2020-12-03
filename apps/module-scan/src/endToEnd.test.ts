@@ -2,15 +2,13 @@ import { electionSample as election } from '@votingworks/ballot-encoder'
 import { Application } from 'express'
 import * as path from 'path'
 import request from 'supertest'
-import { fileSync } from 'tmp'
+import * as fsExtra from 'fs-extra'
+import { dirSync } from 'tmp'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import SystemImporter from './importer'
 import { buildApp } from './server'
-import Store from './store'
 import { CastVoteRecord } from './types'
-import makeTemporaryBallotImportImageDirectories, {
-  TemporaryBallotImportImageDirectories,
-} from './util/makeTemporaryBallotImportImageDirectories'
+import { createWorkspace, Workspace } from './util/workspace'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -23,24 +21,21 @@ jest.setTimeout(20000)
 
 let app: Application
 let importer: SystemImporter
-let store: Store
+let workspace: Workspace
 let scanner: MockScanner
-let importDirs: TemporaryBallotImportImageDirectories
 
 beforeEach(async () => {
-  store = await Store.fileStore(fileSync().name)
   scanner = makeMockScanner()
-  importDirs = makeTemporaryBallotImportImageDirectories()
+  workspace = await createWorkspace(dirSync().name)
   importer = new SystemImporter({
-    store,
+    workspace,
     scanner,
-    ...importDirs.paths,
   })
-  app = buildApp({ importer, store })
+  app = buildApp({ importer, store: workspace.store })
 })
 
 afterEach(async () => {
-  importDirs.remove()
+  await fsExtra.remove(workspace.path)
 })
 
 test('going through the whole process works', async () => {

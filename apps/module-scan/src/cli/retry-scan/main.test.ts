@@ -26,10 +26,11 @@ test('printHelp', () => {
     retries sheets with pages that are either unreadable or uninterpreted.
 
     Options
-      --db PATH              Specify the path to the database with the sheets to rescan.
-                             Defaults to the 'ballots.db' within module-scan.
-      --out-db PATH          Write results to another database if desired.
-      -d, --diff-when RULE   When to print a diff of interpretations: always, never, or same-type (default).
+      -i, --input-workspace   A directory containing a database and scanned images, such as from
+                              an unzipped backup. Defaults to the dev-workspace directory.
+      -o, --output-workspace  A directory to put the output database and scanned images.
+                              Defaults to a temporary directory.
+      -d, --diff-when RULE    When to print a diff of interpretations: always, never, or same-type (default).
     "
   `)
 })

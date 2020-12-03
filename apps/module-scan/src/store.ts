@@ -82,6 +82,14 @@ export default class Store {
   private constructor(public readonly dbPath: string) {}
 
   /**
+   * Gets the sha256 digest of the current schema file.
+   */
+  public static async getSchemaDigest(): Promise<string> {
+    const schemaSql = await fs.readFile(SchemaPath, 'utf-8')
+    return createHash('sha256').update(schemaSql).digest('hex')
+  }
+
+  /**
    * Builds and returns a new store whose data is kept in memory.
    */
   public static async memoryStore(): Promise<Store> {
@@ -104,8 +112,7 @@ export default class Store {
         schemaDigestPath
       )
     }
-    const schemaSql = await fs.readFile(SchemaPath, 'utf-8')
-    const newSchemaDigest = createHash('sha256').update(schemaSql).digest('hex')
+    const newSchemaDigest = await this.getSchemaDigest()
     const shouldResetDatabase = newSchemaDigest !== schemaDigest
 
     if (shouldResetDatabase) {

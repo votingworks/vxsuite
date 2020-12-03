@@ -1,14 +1,11 @@
 import { BallotPageLayout, Interpreter } from '@votingworks/hmpb-interpreter'
 import makeDebug from 'debug'
-import * as fs from 'fs'
 import * as fsExtra from 'fs-extra'
 import * as streams from 'memory-streams'
 import { join } from 'path'
-import { sync as rimraf } from 'rimraf'
 import { v4 as uuid } from 'uuid'
 import { PageInterpretation } from './interpreter'
 import { Scanner } from './scanner'
-import Store from './store'
 import {
   BallotMetadata,
   ElectionDefinition,
@@ -18,6 +15,7 @@ import {
 } from './types'
 import { toPNG } from './util/images'
 import pdfToImages from './util/pdfToImages'
+import { Workspace } from './util/workspace'
 import { call, Input, InterpretOutput, Output } from './workers/interpret'
 import { inlinePool, WorkerPool } from './workers/pool'
 
@@ -27,10 +25,8 @@ export const sleep = (ms = 1000): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
 export interface Options {
-  store: Store
+  workspace: Workspace
   scanner: Scanner
-  scannedImagesPath: string
-  importedImagesPath: string
   interpreterWorkerPoolProvider?: () => WorkerPool<Input, Output>
 }
 
@@ -68,7 +64,10 @@ export async function saveImages(
   original: string
   normalized: string
 }> {
-  await fsExtra.copy(imagePath, originalImagePath)
+  if (imagePath !== originalImagePath) {
+    debug('linking image file %s from %s', imagePath, originalImagePath)
+    await fsExtra.link(imagePath, originalImagePath)
+  }
 
   if (normalizedImage) {
     debug('about to write normalized ballot image to %s', normalizedImagePath)
@@ -84,7 +83,7 @@ export async function saveImages(
  * Imports ballot images from a `Scanner` and stores them in a `Store`.
  */
 export default class SystemImporter implements Importer {
-  private store: Store
+  private workspace: Workspace
   private scanner: Scanner
   private sheetGenerator: AsyncGenerator<SheetOf<string>> | undefined
   private batchId: string | undefined
@@ -92,36 +91,15 @@ export default class SystemImporter implements Importer {
   private interpreterWorkerPoolProvider: () => WorkerPool<Input, Output>
   private interpreterReady = true
 
-  public readonly scannedImagesPath: string
-  public readonly importedImagesPath: string
-
-  /**
-   * @param param0 options for this importer
-   * @param param0.store a data store to track scanned ballot images
-   * @param param0.scanner a source of ballot images
-   * @param param0.scannedImagesPath a directory to scan ballot images into
-   * @param param0.importedImagesPath a directory to keep imported ballot images
-   */
   public constructor({
-    store,
+    workspace,
     scanner,
-    scannedImagesPath,
-    importedImagesPath,
     interpreterWorkerPoolProvider = (): WorkerPool<Input, Output> =>
       inlinePool<Input, Output>(call),
   }: Options) {
-    this.store = store
+    this.workspace = workspace
     this.scanner = scanner
-    this.scannedImagesPath = scannedImagesPath
-    this.importedImagesPath = importedImagesPath
     this.interpreterWorkerPoolProvider = interpreterWorkerPoolProvider
-
-    // make sure those directories exist
-    for (const imagesPath of [scannedImagesPath, importedImagesPath]) {
-      if (!fs.existsSync(imagesPath)) {
-        fs.mkdirSync(imagesPath)
-      }
-    }
   }
 
   private invalidateInterpreterConfig(): void {
@@ -136,7 +114,7 @@ export default class SystemImporter implements Importer {
       this.interpreterWorkerPool.start()
       await this.interpreterWorkerPool.callAll({
         action: 'configure',
-        dbPath: this.store.dbPath,
+        dbPath: this.workspace.store.dbPath,
       })
       this.interpreterReady = true
     }
@@ -147,7 +125,7 @@ export default class SystemImporter implements Importer {
     pdf: Buffer,
     metadata: BallotMetadata
   ): Promise<BallotPageLayout[]> {
-    const electionDefinition = await this.store.getElectionDefinition()
+    const electionDefinition = await this.workspace.store.getElectionDefinition()
     const result: BallotPageLayout[] = []
 
     if (!electionDefinition) {
@@ -174,7 +152,7 @@ export default class SystemImporter implements Importer {
       }
     }
 
-    this.store.addHmpbTemplate(
+    this.workspace.store.addHmpbTemplate(
       pdf,
       result[0].ballotImage.metadata,
       // remove ballot image for storage
@@ -204,13 +182,13 @@ export default class SystemImporter implements Importer {
   public async configure(
     electionDefinition: ElectionDefinition
   ): Promise<void> {
-    await this.store.setElection(electionDefinition)
+    await this.workspace.store.setElection(electionDefinition)
   }
 
   public async setTestMode(testMode: boolean): Promise<void> {
     debug('setting test mode to %s', testMode)
     await this.doZero()
-    await this.store.setTestMode(testMode)
+    await this.workspace.store.setTestMode(testMode)
     await this.restoreConfig()
   }
 
@@ -252,13 +230,13 @@ export default class SystemImporter implements Importer {
       action: 'interpret',
       imagePath: frontImagePath,
       sheetId,
-      importedImagesPath: this.importedImagesPath,
+      ballotImagesPath: this.workspace.ballotImagesPath,
     })
     const backWorkerPromise = interpreterWorkerPool.call({
       action: 'interpret',
       imagePath: backImagePath,
       sheetId,
-      importedImagesPath: this.importedImagesPath,
+      ballotImagesPath: this.workspace.ballotImagesPath,
     })
 
     const frontWorkerOutput = (await frontWorkerPromise) as InterpretOutput
@@ -327,7 +305,7 @@ export default class SystemImporter implements Importer {
       }
     }
 
-    const ballotId = await this.store.addSheet(uuid(), batchId, [
+    const ballotId = await this.workspace.store.addSheet(uuid(), batchId, [
       {
         originalFilename: frontOriginalBallotImagePath,
         normalizedFilename: frontNormalizedBallotImagePath,
@@ -345,7 +323,7 @@ export default class SystemImporter implements Importer {
 
   private async finishBatch(error?: string): Promise<void> {
     if (this.batchId) {
-      await this.store.finishBatch({ batchId: this.batchId, error })
+      await this.workspace.store.finishBatch({ batchId: this.batchId, error })
       this.batchId = undefined
     }
 
@@ -375,7 +353,7 @@ export default class SystemImporter implements Importer {
       const sheetId = await this.sheetAdded(sheet, this.batchId)
       debug('got a ballot card: %o, %s', sheet, sheetId)
 
-      const adjudicationStatus = await this.store.adjudicationStatus()
+      const adjudicationStatus = await this.workspace.store.adjudicationStatus()
       if (adjudicationStatus.remaining === 0) {
         await this.continueImport()
       }
@@ -386,7 +364,7 @@ export default class SystemImporter implements Importer {
    * Create a new batch and begin the scanning process
    */
   public async startImport(): Promise<string> {
-    const election = await this.store.getElectionDefinition()
+    const election = await this.workspace.store.getElectionDefinition()
 
     if (!election) {
       throw new Error('no election configuration')
@@ -400,9 +378,18 @@ export default class SystemImporter implements Importer {
       throw new Error('interpreter still loading')
     }
 
-    this.batchId = await this.store.addBatch()
-    debug('scanning starting for batch: %s', this.batchId)
-    this.sheetGenerator = this.scanner.scanSheets(this.scannedImagesPath)
+    this.batchId = await this.workspace.store.addBatch()
+    const batchScanDirectory = join(
+      this.workspace.ballotImagesPath,
+      `batch-${this.batchId}`
+    )
+    await fsExtra.ensureDir(batchScanDirectory)
+    debug(
+      'scanning starting for batch %s into %s',
+      this.batchId,
+      batchScanDirectory
+    )
+    this.sheetGenerator = this.scanner.scanSheets(batchScanDirectory)
 
     await this.continueImport()
 
@@ -413,15 +400,15 @@ export default class SystemImporter implements Importer {
    * Continue the existing scanning process
    */
   public async continueImport(override = false): Promise<void> {
-    const sheet = await this.store.getNextAdjudicationSheet()
+    const sheet = await this.workspace.store.getNextAdjudicationSheet()
 
     if (sheet) {
       if (override) {
         for (const side of ['front', 'back'] as Side[]) {
-          await this.store.saveBallotAdjudication(sheet.id, side, {})
+          await this.workspace.store.saveBallotAdjudication(sheet.id, side, {})
         }
       } else {
-        await this.store.deleteSheet(sheet.id)
+        await this.workspace.store.deleteSheet(sheet.id)
       }
     }
 
@@ -443,7 +430,7 @@ export default class SystemImporter implements Importer {
       return
     }
 
-    const adjudicationStatus = await this.store.adjudicationStatus()
+    const adjudicationStatus = await this.workspace.store.adjudicationStatus()
     if (adjudicationStatus.remaining > 0) {
       return
     }
@@ -456,14 +443,14 @@ export default class SystemImporter implements Importer {
    * Export the current CVRs to a string.
    */
   public async doExport(): Promise<string> {
-    const election = await this.store.getElectionDefinition()
+    const election = await this.workspace.store.getElectionDefinition()
 
     if (!election) {
       return ''
     }
 
     const outputStream = new streams.WritableStream()
-    await this.store.exportCVRs(outputStream)
+    await this.workspace.store.exportCVRs(outputStream)
     return outputStream.toString()
   }
 
@@ -471,18 +458,17 @@ export default class SystemImporter implements Importer {
    * Reset all the data, both in the store and the ballot images.
    */
   public async doZero(): Promise<void> {
-    await this.store.zero()
-    fsExtra.emptyDirSync(this.scannedImagesPath)
-    fsExtra.emptyDirSync(this.importedImagesPath)
+    await this.workspace.store.zero()
+    fsExtra.emptyDirSync(this.workspace.ballotImagesPath)
   }
 
   /**
    * Get the imported batches and current election info, if any.
    */
   public async getStatus(): Promise<ScanStatus> {
-    const election = await this.store.getElectionDefinition()
-    const batches = await this.store.batchStatus()
-    const adjudication = await this.store.adjudicationStatus()
+    const election = await this.workspace.store.getElectionDefinition()
+    const batches = await this.workspace.store.batchStatus()
+    const adjudication = await this.workspace.store.adjudicationStatus()
     if (election) {
       return { electionHash: election.electionHash, batches, adjudication }
     }
@@ -495,19 +481,6 @@ export default class SystemImporter implements Importer {
   public async unconfigure(): Promise<void> {
     this.invalidateInterpreterConfig()
     await this.doZero()
-    await this.store.reset() // destroy all data
-
-    // erase the temporary directories
-    const tmpdir = join(__dirname, '../tmp')
-    rimraf(tmpdir)
-
-    // and restore the ones we're using
-    fsExtra.mkdirpSync(tmpdir)
-    fsExtra.mkdirpSync(this.scannedImagesPath)
-    fsExtra.mkdirpSync(this.importedImagesPath)
-
-    // and restore the .gitkeep file, or suffer the wrath of a dirty git status
-    // in development
-    await fsExtra.writeFile(join(tmpdir, '.gitkeep'), '\n')
+    await this.workspace.store.reset() // destroy all data
   }
 }

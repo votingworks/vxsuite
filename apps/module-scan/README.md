@@ -12,11 +12,12 @@ yarn install
 make install
 ```
 
-You may need to install a few image libraries if you are using a new Ubuntu image. 
+You may need to install a few image libraries if you are using a new Ubuntu
+image.
+
 ```
 sudo apt-get install libpng-dev libjpeg-dev libx11-dev
 ```
-
 
 ## Run Tests
 
@@ -58,8 +59,18 @@ EOS
 MOCK_SCANNER_FILES=@manifest yarn start
 
 # scanning from an election backup file
-./bin/restore-backup /path/to/election-backup.zip
+./bin/extract-backup /path/to/election-backup.zip
 MOCK_SCANNER_FILES=@/path/to/election-backup/manifest yarn start
+```
+
+## Switching Workspaces
+
+By default a `ballots.db` file and a `ballot-images` directory will be created
+in the root of the folder when running this service. To choose another location,
+set `MODULE_SCAN_WORKSPACE` to the path to another folder:
+
+```sh
+$ MODULE_SCAN_WORKSPACE=/path/to/workspace yarn start
 ```
 
 ## API Documentation

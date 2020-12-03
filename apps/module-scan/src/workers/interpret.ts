@@ -15,7 +15,7 @@ export type Input =
       action: 'interpret'
       sheetId: string
       imagePath: string
-      importedImagesPath: string
+      ballotImagesPath: string
     }
 
 export interface InterpretOutput {
@@ -74,7 +74,7 @@ export async function configure(store: Store): Promise<void> {
 export async function interpret(
   ballotImagePath: string,
   sheetId: string,
-  importedImagesPath: string
+  ballotImagesPath: string
 ): Promise<InterpretOutput> {
   debug('interpret ballot image: %s', ballotImagePath)
   if (!interpreter) {
@@ -93,11 +93,11 @@ export async function interpret(
   )
   const ext = extname(ballotImagePath)
   const originalImagePath = join(
-    importedImagesPath,
+    ballotImagesPath,
     `${basename(ballotImagePath, ext)}-${sheetId}-original${ext}`
   )
   const normalizedImagePath = join(
-    importedImagesPath,
+    ballotImagesPath,
     `${basename(ballotImagePath, ext)}-${sheetId}-normalized${ext}`
   )
   const images = await saveImages(
@@ -124,7 +124,7 @@ export async function call(input: Input): Promise<Output> {
       return await interpret(
         input.imagePath,
         input.sheetId,
-        input.importedImagesPath
+        input.ballotImagesPath
       )
   }
 }

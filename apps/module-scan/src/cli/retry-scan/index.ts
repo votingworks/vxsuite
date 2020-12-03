@@ -1,9 +1,9 @@
 import { Election } from '@votingworks/ballot-encoder'
 import { cpus } from 'os'
 import { isAbsolute, join, resolve } from 'path'
+import { dirSync } from 'tmp'
 import { PageInterpretation } from '../../interpreter'
-import Store from '../../store'
-import makeTemporaryBallotImportImageDirectories from '../../util/makeTemporaryBallotImportImageDirectories'
+import { createWorkspace } from '../../util/workspace'
 import { Input, Output } from '../../workers/interpret'
 import { childProcessPool } from '../../workers/pool'
 import { Options } from './options'
@@ -67,6 +67,7 @@ export interface PageScan {
 }
 
 export interface RetryScanListeners {
+  configured?(options: Options): void
   sheetsLoading?(): void
   sheetsLoaded?(count: number, election?: Election): void
   interpreterLoading?(): void
@@ -85,17 +86,23 @@ export async function retryScan(
   options: Options,
   listeners?: RetryScanListeners
 ): Promise<void> {
-  listeners?.sheetsLoading?.()
-  const input = await Store.fileStore(options.dbPath)
-  const output = options.outDbPath
-    ? await Store.fileStore(options.outDbPath)
-    : undefined
-  const outputBatchId = await output?.addBatch()
-  const importedImagesPath = makeTemporaryBallotImportImageDirectories().paths
-    .importedImagesPath
+  const input = await createWorkspace(
+    options.inputWorkspace ?? join(__dirname, '../../../dev-workspace')
+  )
+  const output = await createWorkspace(
+    options.outputWorkspace ?? dirSync().name
+  )
+  const outputBatchId = await output.store.addBatch()
 
+  listeners?.configured?.({
+    ...options,
+    inputWorkspace: input.path,
+    outputWorkspace: output.path,
+  })
+
+  listeners?.sheetsLoading?.()
   const [sql, params] = queryFromOptions(options)
-  const sheets = await input.dbAllAsync<
+  const sheets = await input.store.dbAllAsync<
     {
       id: string
       frontOriginalFilename: string
@@ -107,7 +114,7 @@ export async function retryScan(
     },
     typeof params
   >(sql, ...params)
-  const electionDefinition = await input.getElectionDefinition()
+  const electionDefinition = await input.store.getElectionDefinition()
   listeners?.sheetsLoaded?.(sheets.length, electionDefinition?.election)
 
   listeners?.interpreterLoading?.()
@@ -117,12 +124,12 @@ export async function retryScan(
   )
   pool.start()
 
-  await pool.callAll({ action: 'configure', dbPath: input.dbPath })
+  await pool.callAll({ action: 'configure', dbPath: input.store.dbPath })
   listeners?.interpreterLoaded?.()
 
   await Promise.all(
-    sheets.flatMap(
-      ({
+    sheets.map(
+      async ({
         id,
         frontOriginalFilename,
         backOriginalFilename,
@@ -150,38 +157,33 @@ export async function retryScan(
           },
         ]
 
-        const rescanPromises = originalScans.map((scan, i) =>
-          pool
-            .call({
+        const [front, back] = await Promise.all(
+          originalScans.map(async (scan, i) => {
+            const rescan = await pool.call({
               action: 'interpret',
               sheetId: id,
               imagePath: isAbsolute(scan.originalFilename)
                 ? scan.originalFilename
-                : resolve(options.dbPath, '..', scan.originalFilename),
-              importedImagesPath,
+                : resolve(input.store.dbPath, '..', scan.originalFilename),
+              ballotImagesPath: output.ballotImagesPath,
             })
-            .then((rescan) => {
-              if (rescan) {
-                listeners?.pageInterpreted?.(
-                  id,
-                  i === 0 ? 'front' : 'back',
-                  scan,
-                  rescan
-                )
-              }
-              return rescan
-            })
+
+            if (rescan) {
+              listeners?.pageInterpreted?.(
+                id,
+                i === 0 ? 'front' : 'back',
+                scan,
+                rescan
+              )
+            }
+
+            return rescan
+          })
         )
 
-        if (output && outputBatchId) {
-          Promise.all(rescanPromises).then(([front, back]) => {
-            if (front && back) {
-              output.addSheet(id, outputBatchId, [front, back])
-            }
-          })
+        if (front && back) {
+          await output.store.addSheet(id, outputBatchId, [front, back])
         }
-
-        return rescanPromises
       }
     )
   )

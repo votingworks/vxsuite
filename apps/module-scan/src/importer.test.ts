@@ -2,31 +2,29 @@ import {
   BallotType,
   electionSample as election,
 } from '@votingworks/ballot-encoder'
+import * as fs from 'fs-extra'
 import { join } from 'path'
-import { fileSync } from 'tmp'
+import { dirSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks'
 import SystemImporter, { sleep } from './importer'
 import { Scanner } from './scanner'
-import Store from './store'
 import { SheetOf } from './types'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { fromElection } from './util/electionDefinition'
-import makeTemporaryBallotImportImageDirectories, {
-  TemporaryBallotImportImageDirectories,
-} from './util/makeTemporaryBallotImportImageDirectories'
+import { createWorkspace, Workspace } from './util/workspace'
 import { Input, Output } from './workers/interpret'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
-let importDirs: TemporaryBallotImportImageDirectories
+let workspace: Workspace
 
-beforeEach(() => {
-  importDirs = makeTemporaryBallotImportImageDirectories()
+beforeEach(async () => {
+  workspace = await createWorkspace(dirSync().name)
 })
 
-afterEach(() => {
-  importDirs.remove()
+afterEach(async () => {
+  await fs.remove(workspace.path)
   jest.restoreAllMocks()
 })
 
@@ -36,10 +34,8 @@ test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.fileStore(fileSync().name)
   const importer = new SystemImporter({
-    ...importDirs.paths,
-    store,
+    workspace,
     scanner,
   })
 
@@ -73,7 +69,7 @@ test('startImport calls scanner.scanSheet', async () => {
 
   expect(generator.throw).toHaveBeenCalled()
 
-  const batches = await store.batchStatus()
+  const batches = await workspace.store.batchStatus()
   expect(batches[0].error).toEqual('Error: scanner is a banana')
 
   // successful scan
@@ -94,33 +90,29 @@ test('unconfigure clears all data.', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.fileStore(fileSync().name)
   const importer = new SystemImporter({
-    ...importDirs.paths,
-    store,
+    workspace,
     scanner,
   })
 
   await importer.configure(fromElection(election))
-  expect(await store.getElectionDefinition()).toBeDefined()
+  expect(await workspace.store.getElectionDefinition()).toBeDefined()
   await importer.unconfigure()
-  expect(await store.getElectionDefinition()).toBeUndefined()
+  expect(await workspace.store.getElectionDefinition()).toBeUndefined()
 })
 
 test('setTestMode zeroes and sets test mode on the interpreter', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.fileStore(fileSync().name)
   const importer = new SystemImporter({
-    ...importDirs.paths,
-    store,
+    workspace,
     scanner,
   })
 
   await importer.configure(fromElection(election))
-  const batchId = await store.addBatch()
-  await store.addSheet(uuid(), batchId, [
+  const batchId = await workspace.store.addBatch()
+  await workspace.store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: '/tmp/front-normalized-page.png',
@@ -165,14 +157,12 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.fileStore(fileSync().name)
   const workerCall = jest.fn()
   const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
     workerCall
   )
   const importer = new SystemImporter({
-    ...importDirs.paths,
-    store,
+    workspace,
     scanner,
     interpreterWorkerPoolProvider,
   })
@@ -180,7 +170,7 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
   await importer.restoreConfig()
   expect(workerCall).toHaveBeenCalledWith({
     action: 'configure',
-    dbPath: store.dbPath,
+    dbPath: workspace.store.dbPath,
   })
   await importer.unconfigure()
 })
@@ -189,10 +179,8 @@ test('cannot add HMPB templates before configuring an election', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.fileStore(fileSync().name)
   const importer = new SystemImporter({
-    ...importDirs.paths,
-    store,
+    workspace,
     scanner,
   })
 
@@ -214,19 +202,17 @@ test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const store = await Store.fileStore(fileSync().name)
   const workerCall = jest.fn<Promise<Output>, [Input]>()
   const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
     workerCall
   )
   const importer = new SystemImporter({
-    ...importDirs.paths,
-    store,
+    workspace,
     scanner,
     interpreterWorkerPoolProvider,
   })
 
-  await store.setElection(fromElection(election))
+  await workspace.store.setElection(fromElection(election))
   workerCall
     // configure
     .mockImplementationOnce(async (input) => {
@@ -268,12 +254,15 @@ test('manually importing files', async () => {
     })
   const imageFile = await makeImageFile()
   const sheetId = await importer.importFile(
-    await store.addBatch(),
+    await workspace.store.addBatch(),
     imageFile,
     imageFile
   )
 
-  const filenames = (await store.getBallotFilenames(sheetId, 'front'))!
+  const filenames = (await workspace.store.getBallotFilenames(
+    sheetId,
+    'front'
+  ))!
   expect(filenames.original).toBe('/tmp/original.png')
   expect(filenames.normalized).toBe('/tmp/normalized.png')
 })
@@ -296,34 +285,35 @@ test('scanning pauses on adjudication then continues', async () => {
     }
   }
 
-  const store = await Store.fileStore(fileSync().name)
-
   const importer = new SystemImporter({
-    ...importDirs.paths,
-    store,
+    workspace,
     scanner,
   })
 
   await importer.configure(fromElection(election))
 
-  jest.spyOn(store, 'deleteSheet')
-  jest.spyOn(store, 'saveBallotAdjudication')
+  jest.spyOn(workspace.store, 'deleteSheet')
+  jest.spyOn(workspace.store, 'saveBallotAdjudication')
 
   jest
-    .spyOn(store, 'addSheet')
+    .spyOn(workspace.store, 'addSheet')
     .mockImplementationOnce(async () => {
       return 'sheet-1'
     })
     .mockImplementationOnce(async () => {
-      jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
-        return { adjudicated: 0, remaining: 1 }
-      })
+      jest
+        .spyOn(workspace.store, 'adjudicationStatus')
+        .mockImplementation(async () => {
+          return { adjudicated: 0, remaining: 1 }
+        })
       return 'sheet-2'
     })
     .mockImplementationOnce(async () => {
-      jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
-        return { adjudicated: 0, remaining: 1 }
-      })
+      jest
+        .spyOn(workspace.store, 'adjudicationStatus')
+        .mockImplementation(async () => {
+          return { adjudicated: 0, remaining: 1 }
+        })
       return 'sheet-3'
     })
 
@@ -349,46 +339,49 @@ test('scanning pauses on adjudication then continues', async () => {
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()
 
-  expect(store.addSheet).toHaveBeenCalledTimes(2)
+  expect(workspace.store.addSheet).toHaveBeenCalledTimes(2)
 
   // wait a bit and make sure no other call is made
   await sleep(1)
-  expect(store.addSheet).toHaveBeenCalledTimes(2)
+  expect(workspace.store.addSheet).toHaveBeenCalledTimes(2)
 
-  expect(store.deleteSheet).toHaveBeenCalledTimes(0)
+  expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(0)
 
   jest
-    .spyOn(store, 'getNextAdjudicationSheet')
+    .spyOn(workspace.store, 'getNextAdjudicationSheet')
     .mockImplementationOnce(mockGetNextAdjudicationSheet)
 
-  jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
-    return { adjudicated: 0, remaining: 0 }
-  })
+  jest
+    .spyOn(workspace.store, 'adjudicationStatus')
+    .mockImplementation(async () => {
+      return { adjudicated: 0, remaining: 0 }
+    })
 
   await importer.continueImport()
   await importer.waitForEndOfBatchOrScanningPause()
 
-  expect(store.addSheet).toHaveBeenCalledTimes(3)
-  expect(store.deleteSheet).toHaveBeenCalledTimes(1)
+  expect(workspace.store.addSheet).toHaveBeenCalledTimes(3)
+  expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(1)
 
   jest
-    .spyOn(store, 'getNextAdjudicationSheet')
+    .spyOn(workspace.store, 'getNextAdjudicationSheet')
     .mockImplementationOnce(mockGetNextAdjudicationSheet)
 
-  jest.spyOn(store, 'adjudicationStatus').mockImplementation(async () => {
-    return { adjudicated: 0, remaining: 0 }
-  })
+  jest
+    .spyOn(workspace.store, 'adjudicationStatus')
+    .mockImplementation(async () => {
+      return { adjudicated: 0, remaining: 0 }
+    })
 
   await importer.continueImport(true) // override
   await importer.waitForEndOfBatchOrScanningPause()
 
-  expect(store.addSheet).toHaveBeenCalledTimes(3) // no more of these
-  expect(store.deleteSheet).toHaveBeenCalledTimes(1) // no more deletes
-  expect(store.saveBallotAdjudication).toHaveBeenCalledTimes(2)
+  expect(workspace.store.addSheet).toHaveBeenCalledTimes(3) // no more of these
+  expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(1) // no more deletes
+  expect(workspace.store.saveBallotAdjudication).toHaveBeenCalledTimes(2)
 })
 
 test('importing a sheet orders HMPB pages', async () => {
-  const store = await Store.fileStore(fileSync().name)
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
@@ -398,14 +391,13 @@ test('importing a sheet orders HMPB pages', async () => {
   )
 
   const importer = new SystemImporter({
-    ...importDirs.paths,
-    store,
+    workspace,
     scanner,
     interpreterWorkerPoolProvider,
   })
 
   importer.configure(fromElection(election))
-  jest.spyOn(store, 'addSheet').mockResolvedValueOnce('sheet-id')
+  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id')
 
   workerCall.mockImplementationOnce(async (input) => {
     expect(input.action).toEqual('configure')
@@ -443,20 +435,24 @@ test('importing a sheet orders HMPB pages', async () => {
   const imageFile = await makeImageFile()
   await importer.importFile('batch-id', imageFile, imageFile)
 
-  expect(store.addSheet).toHaveBeenCalledWith(expect.any(String), 'batch-id', [
-    expect.objectContaining({
-      interpretation: expect.objectContaining({
-        metadata: expect.objectContaining({
-          pageNumber: 1,
+  expect(workspace.store.addSheet).toHaveBeenCalledWith(
+    expect.any(String),
+    'batch-id',
+    [
+      expect.objectContaining({
+        interpretation: expect.objectContaining({
+          metadata: expect.objectContaining({
+            pageNumber: 1,
+          }),
         }),
       }),
-    }),
-    expect.objectContaining({
-      interpretation: expect.objectContaining({
-        metadata: expect.objectContaining({
-          pageNumber: 2,
+      expect.objectContaining({
+        interpretation: expect.objectContaining({
+          metadata: expect.objectContaining({
+            pageNumber: 2,
+          }),
         }),
       }),
-    }),
-  ])
+    ]
+  )
 })

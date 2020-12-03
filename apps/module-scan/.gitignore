@@ -1,8 +1,5 @@
 node_modules
-*.db
-*.db.*
-tmp
-!tmp/.gitkeep
+dev-workspace/
 hmpb-templates
 !hmpb-templates/.gitkeep
 *~

@@ -1,5 +1,3 @@
-import { join } from 'path'
-
 export enum DiffWhen {
   Always = 'always',
   Never = 'never',
@@ -7,8 +5,8 @@ export enum DiffWhen {
 }
 
 export interface Options {
-  dbPath: string
-  outDbPath?: string
+  inputWorkspace?: string
+  outputWorkspace?: string
   sheetIds?: string[]
   all?: boolean
   unreadable?: boolean
@@ -24,23 +22,23 @@ export function parseOptions(args: readonly string[]): Options {
   let all: boolean | undefined
   let diffWhen = DiffWhen.SameType
   let help: boolean | undefined
-  let dbPath = join(__dirname, '../../../ballots.db')
-  let outDbPath: string | undefined
+  let inputWorkspace: string | undefined
+  let outputWorkspace: string | undefined
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
-    if (arg === '--db') {
-      dbPath = args[++i]
-      if (!dbPath || dbPath.startsWith('-')) {
+    if (arg === '-i' || arg === '--input-workspace') {
+      inputWorkspace = args[++i]
+      if (!inputWorkspace || inputWorkspace.startsWith('-')) {
         throw new Error(
-          `expected a path after ${arg} but got ${dbPath || 'nothing'}`
+          `expected a path after ${arg} but got ${inputWorkspace || 'nothing'}`
         )
       }
-    } else if (arg === '--out-db') {
-      outDbPath = args[++i]
-      if (!dbPath || dbPath.startsWith('-')) {
+    } else if (arg === '-o' || arg === '--output-workspace') {
+      outputWorkspace = args[++i]
+      if (!outputWorkspace || outputWorkspace.startsWith('-')) {
         throw new Error(
-          `expected a path after ${arg} but got ${dbPath || 'nothing'}`
+          `expected a path after ${arg} but got ${outputWorkspace || 'nothing'}`
         )
       }
     } else if (arg === '--unreadable' || arg === '--no-unreadable') {
@@ -66,8 +64,8 @@ export function parseOptions(args: readonly string[]): Options {
   if (help) {
     return {
       all,
-      dbPath,
-      outDbPath,
+      inputWorkspace,
+      outputWorkspace,
       sheetIds,
       uninterpreted,
       unreadable,
@@ -89,8 +87,8 @@ export function parseOptions(args: readonly string[]): Options {
 
     return {
       all,
-      dbPath,
-      outDbPath,
+      inputWorkspace,
+      outputWorkspace,
       sheetIds: [],
       uninterpreted,
       unreadable,
@@ -108,8 +106,8 @@ export function parseOptions(args: readonly string[]): Options {
   }
 
   return {
-    dbPath,
-    outDbPath,
+    inputWorkspace,
+    outputWorkspace,
     all,
     sheetIds,
     unreadable,
