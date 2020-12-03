@@ -1,10 +1,6 @@
 import React, { MouseEventHandler, useState } from 'react'
 import styled, { css, StyledComponent } from 'styled-components'
 
-interface Attrs extends HTMLButtonElement {
-  readonly type: string
-}
-
 export interface ButtonInterface {
   readonly big?: boolean
   readonly danger?: boolean
@@ -52,7 +48,7 @@ const buttonStyles = css<StyledButtonProps>`
 export const DecoyButton = styled.div`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
-const StyledButton = styled('button').attrs((props: Attrs) => ({
+const StyledButton = styled('button').attrs((props) => ({
   type: props.type ?? 'button',
 }))`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
@@ -121,6 +117,14 @@ export const SegmentedButton = styled.span`
     background: #028099;
     color: #ffffff;
   }
+`
+
+export const LabelButton = styled.label`
+  ${buttonStyles}/* stylelint-disable-line value-keyword-case */
+`
+
+export const buttonFocusStyle = css`
+  outline: none;
 `
 
 export default Button
