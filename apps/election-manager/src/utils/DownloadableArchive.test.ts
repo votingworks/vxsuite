@@ -19,10 +19,11 @@ test('file prompt fails', async () => {
 test('direct file save fails', async () => {
   const kiosk = fakeKiosk()
   const archive = new DownloadableArchive(kiosk)
+  kiosk.makeDirectory.mockResolvedValueOnce()
 
-  await expect(archive.beginWithDirectSave('path.zip')).rejects.toThrowError(
-    'could not begin download; an error occurred'
-  )
+  await expect(
+    archive.beginWithDirectSave('/path/to/folder', 'file.zip')
+  ).rejects.toThrowError('could not begin download; an error occurred')
 })
 
 test('empty zip file when user is prompted for file location', async () => {
@@ -49,13 +50,17 @@ test('empty zip file when file is saved directly and passes path to kiosk proper
   const archive = new DownloadableArchive(kiosk)
   const fileWriter = fakeFileWriter()
 
+  kiosk.makeDirectory.mockResolvedValueOnce()
   kiosk.writeFile.mockResolvedValueOnce(fileWriter)
 
   expect(fileWriter.chunks).toHaveLength(0)
-  await archive.beginWithDirectSave('/path/to/file.zip')
+  await archive.beginWithDirectSave('/path/to/folder', 'file.zip')
   await archive.end()
   expect(fileWriter.chunks).not.toHaveLength(0)
-  expect(kiosk.writeFile).toHaveBeenCalledWith('/path/to/file.zip')
+  expect(kiosk.makeDirectory).toHaveBeenCalledWith('/path/to/folder', {
+    recursive: true,
+  })
+  expect(kiosk.writeFile).toHaveBeenCalledWith('/path/to/folder/file.zip')
 
   const firstChunk = fileWriter.chunks[0] as Buffer
   expect(firstChunk).toBeInstanceOf(Buffer)

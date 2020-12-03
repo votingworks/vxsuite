@@ -1,4 +1,5 @@
 import ZipStream from 'zip-stream'
+import path from 'path'
 
 /**
  * Provides support for downloading a Zip archive of files. Requires
@@ -37,7 +38,14 @@ export default class DownloadableArchive {
    * Begins downloading an archive to the filePath specified. Resolves when
    * ready to receive files.
    */
-  public async beginWithDirectSave(filePath: string): Promise<void> {
+  public async beginWithDirectSave(
+    pathToFolder: string,
+    filename: string
+  ): Promise<void> {
+    await this.kiosk.makeDirectory(pathToFolder, {
+      recursive: true,
+    })
+    const filePath = path.join(pathToFolder, filename)
     const fileWriter = await this.kiosk.writeFile(filePath)
 
     if (!fileWriter) {

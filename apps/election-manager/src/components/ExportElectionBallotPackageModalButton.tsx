@@ -25,7 +25,7 @@ import USBControllerButton from './USBControllerButton'
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
 import {
   generateFilenameForBallotExportPackage,
-  EXPORT_FOLDER,
+  BALLOT_PACKAGES_FOLDER,
 } from '../utils/filenames'
 
 const USBImage = styled.img`
@@ -116,18 +116,15 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
     }
     try {
       const usbPath = await getDevicePath()
-      const pathToFolder = path.join(usbPath, EXPORT_FOLDER)
-      const pathToFile = path.join(usbPath, EXPORT_FOLDER, defaultFileName)
+      const pathToFolder = path.join(usbPath!, BALLOT_PACKAGES_FOLDER)
+      const pathToFile = path.join(pathToFolder, defaultFileName)
       if (openDialog) {
         await state.archive.beginWithDialog({
           defaultPath: pathToFile,
           filters: [{ name: 'Archive Files', extensions: ['zip'] }],
         })
       } else {
-        await window.kiosk!.makeDirectory(pathToFolder, {
-          recursive: true,
-        })
-        await state.archive.beginWithDirectSave(pathToFile)
+        await state.archive.beginWithDirectSave(pathToFolder, defaultFileName)
       }
       await state.archive.file('election.json', electionData)
       await state.archive.file(

@@ -87,8 +87,15 @@ declare namespace KioskBrowser {
      */
     saveAs(options?: SaveAsOptions): Promise<FileWriter | undefined>
 
+    /**
+     * Writes a file to a specified file path
+     */
     writeFile(path: string): Promise<FileWriter>
+    writeFile(path: string, content: Buffer | string): Promise<void>
 
+    /*
+     * Creates a directory at the specified path.
+     */
     makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>
 
     // USB sticks

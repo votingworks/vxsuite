@@ -14,7 +14,8 @@ function sanitizeString(input: string): string {
     .toLocaleLowerCase()
 }
 
-export const EXPORT_FOLDER = 'ballot-export-packages'
+export const BALLOT_PACKAGES_FOLDER = 'ballot-packages'
+
 export function generateFilenameForBallotExportPackage(
   electionDefinition: ElectionDefinition,
   time: Date = new Date()
