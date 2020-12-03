@@ -8,7 +8,9 @@ import { UsbDriveStatus } from '../lib/usbstick'
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const doNothing = () => {}
 
-const USBControllerButton: React.FC = () => {
+const USBControllerButton: React.FC<{ primary?: boolean }> = ({
+  primary = false,
+}) => {
   const { usbDriveStatus: status, usbDriveEject } = useContext(AppContext)
 
   if (status === UsbDriveStatus.notavailable) {
@@ -39,8 +41,16 @@ const USBControllerButton: React.FC = () => {
     )
   }
 
+  if (status === UsbDriveStatus.ejecting) {
+    return (
+      <Button small disabled onPress={doNothing}>
+        Ejecting…
+      </Button>
+    )
+  }
+
   return (
-    <Button small onPress={usbDriveEject}>
+    <Button small primary={primary} onPress={usbDriveEject}>
       Eject USB
     </Button>
   )

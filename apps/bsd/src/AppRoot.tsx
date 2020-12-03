@@ -457,7 +457,10 @@ const App: React.FC = () => {
           usbDriveEject: doEject,
         }}
       >
-        <LoadElectionScreen setElection={setElection} />
+        <LoadElectionScreen
+          setElection={setElection}
+          usbDriveStatus={displayUsbStatus}
+        />
       </AppContext.Provider>
     )
   }

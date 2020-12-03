@@ -132,8 +132,11 @@ async function readJSONEntry<T>(zipfile: ZipFile, entry: Entry): Promise<T> {
   return JSON.parse(await readTextEntry(zipfile, entry))
 }
 
-export async function readBallotPackage(file: File): Promise<BallotPackage> {
-  const zipfile = await openZip(await readFile(file))
+async function readBallotPackageFromZip(
+  zipfile: ZipFile,
+  fileName: string,
+  fileSize: number
+): Promise<BallotPackage> {
   const entries = await getEntries(zipfile)
   const electionEntry = entries.find(
     (entry) => entry.fileName === 'election.json'
@@ -144,13 +147,13 @@ export async function readBallotPackage(file: File): Promise<BallotPackage> {
 
   if (!electionEntry) {
     throw new Error(
-      `ballot package does not have a file called 'election.json': ${file.name} (size=${file.size})`
+      `ballot package does not have a file called 'election.json': ${fileName} (size=${fileSize})`
     )
   }
 
   if (!manifestEntry) {
     throw new Error(
-      `ballot package does not have a file called 'manifest.json': ${file.name} (size=${file.size})`
+      `ballot package does not have a file called 'manifest.json': ${fileName} (size=${fileSize})`
     )
   }
 
@@ -188,4 +191,18 @@ export async function readBallotPackage(file: File): Promise<BallotPackage> {
     },
     ballots,
   }
+}
+
+export async function readBallotPackageFromFile(
+  file: File
+): Promise<BallotPackage> {
+  const zipFile = await openZip(await readFile(file))
+  return readBallotPackageFromZip(zipFile, file.name, file.size)
+}
+
+export async function readBallotPackageFromFilePointer(
+  file: KioskBrowser.FileSystemEntry
+): Promise<BallotPackage> {
+  const zipFile = await openZip(await window.kiosk!.readFile(file.path))
+  return readBallotPackageFromZip(zipFile, file.name, file.size)
 }
