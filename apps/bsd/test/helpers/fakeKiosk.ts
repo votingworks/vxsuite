@@ -1,5 +1,15 @@
 import { BehaviorSubject } from 'rxjs'
 
+export function fakeUsbDrive(
+  props: Partial<KioskBrowser.UsbDrive> = {}
+): KioskBrowser.UsbDrive {
+  return {
+    deviceName: 'fake device',
+    mountPoint: 'fake mount point',
+    ...props,
+  }
+}
+
 export function fakeDevice(
   props: Partial<KioskBrowser.Device> = {}
 ): KioskBrowser.Device {
@@ -53,6 +63,8 @@ export default function fakeKiosk({
     getUsbDrives: jest.fn(),
     mountUsbDrive: jest.fn(),
     unmountUsbDrive: jest.fn(),
+    getFileSystemEntries: jest.fn(),
+    readFile: jest.fn(),
     storage: {
       set: jest.fn(),
       get: jest.fn(),

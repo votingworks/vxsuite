@@ -1,10 +1,15 @@
 import { electionSample } from '@votingworks/ballot-encoder'
 import { promises as fs } from 'fs'
 import { join } from 'path'
+import fakeKiosk from '../../test/helpers/fakeKiosk'
 import { zipFile } from '../../test/util/zip'
-import { readBallotPackage, BallotPackageManifest } from './ballot-package'
+import {
+  readBallotPackageFromFile,
+  readBallotPackageFromFilePointer,
+  BallotPackageManifest,
+} from './ballot-package'
 
-test('readBallotPackage finds all expected ballots', async () => {
+test('readBallotPackageFromFile finds all expected ballots', async () => {
   const file = new File(
     [
       await fs.readFile(
@@ -19,7 +24,7 @@ test('readBallotPackage finds all expected ballots', async () => {
   const {
     ballots,
     electionDefinition: { election },
-  } = await readBallotPackage(file)
+  } = await readBallotPackageFromFile(file)
   const ballotStyleIds = election.ballotStyles.map(({ id }) => id)
   const precinctIds = election.precincts.map(({ id }) => id)
   expect(election.title).toEqual('General Election')
@@ -33,27 +38,61 @@ test('readBallotPackage finds all expected ballots', async () => {
   }
 })
 
-test('readBallotPackage throws when an election.json is not present', async () => {
+test('readBallotPackageFromFilePointer finds all expected ballots', async () => {
+  const pathToFile = join(
+    __dirname,
+    '../../test/fixtures/ballot-package-state-of-hamilton.zip'
+  )
+  const fileName = 'ballot-package-state-of-hamilton.zip'
+
+  const mockKiosk = fakeKiosk()
+  mockKiosk.readFile = jest
+    .fn()
+    .mockResolvedValue(await fs.readFile(pathToFile))
+  window.kiosk = mockKiosk
+
+  const {
+    ballots,
+    electionDefinition: { election },
+  } = await readBallotPackageFromFilePointer({
+    name: fileName,
+    path: pathToFile,
+    size: 0,
+  } as KioskBrowser.FileSystemEntry)
+  const ballotStyleIds = election.ballotStyles.map(({ id }) => id)
+  const precinctIds = election.precincts.map(({ id }) => id)
+  expect(election.title).toEqual('General Election')
+  expect(election.state).toEqual('State of Hamilton')
+  expect(ballots.length).toEqual(16)
+
+  for (const { ballotConfig, pdf } of ballots) {
+    expect(ballotStyleIds).toContain(ballotConfig.ballotStyleId)
+    expect(precinctIds).toContain(ballotConfig.precinctId)
+    expect(pdf).toBeInstanceOf(Buffer)
+  }
+})
+
+test('readBallotPackageFromFile throws when an election.json is not present', async () => {
   const pkg = await zipFile({})
   await expect(
-    readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
+    readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
     `ballot package does not have a file called 'election.json': election-ballot-package.zip`
   )
 })
 
-test('readBallotPackage throws when an manifest.json is not present', async () => {
+test('readBallotPackageFromFile throws when an manifest.json is not present', async () => {
   const pkg = await zipFile({
     'election.json': JSON.stringify(electionSample),
   })
   await expect(
-    readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
+    readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
     `ballot package does not have a file called 'manifest.json': election-ballot-package.zip`
   )
 })
 
-test('readBallotPackage throws when the manifest does not match ballots', async () => {
+test('readBallotPackageFromFile throws when the manifest does not match ballots', async () => {
   const manifest: BallotPackageManifest = {
     ballots: [
       {
@@ -72,20 +111,42 @@ test('readBallotPackage throws when the manifest does not match ballots', async 
   })
 
   await expect(
-    readBallotPackage(new File([pkg], 'election-ballot-package.zip'))
+    readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
     `ballot package is malformed; found 0 file(s) matching entries in the manifest ('manifest.json'), but the manifest has 1. perhaps this ballot package is using a different version of the software?`
   )
 })
 
-test('readBallotPackage throws when given an invalid zip file', async () => {
+test('readBallotPackageFromFile throws when given an invalid zip file', async () => {
   await expect(
-    readBallotPackage(new File(['not-a-zip'], 'election-ballot-package.zip'))
+    readBallotPackageFromFile(
+      new File(['not-a-zip'], 'election-ballot-package.zip')
+    )
   ).rejects.toThrowError()
 })
 
-test('readBallotPackage throws when the file cannot be read', async () => {
+test('readBallotPackageFromFilePointer throws when given an invalid zip file', async () => {
+  const mockKiosk = fakeKiosk()
+  mockKiosk.readFile = jest.fn().mockResolvedValue(Buffer.of(0, 1, 2))
+  window.kiosk = mockKiosk
+
   await expect(
-    readBallotPackage(({} as unknown) as File)
+    readBallotPackageFromFilePointer({
+      name: 'file-name',
+      path: 'path',
+      size: 0,
+    } as KioskBrowser.FileSystemEntry)
+  ).rejects.toThrowError()
+})
+
+test('readBallotPackageFromFile throws when the file cannot be read', async () => {
+  await expect(
+    readBallotPackageFromFile(({} as unknown) as File)
+  ).rejects.toThrowError()
+})
+
+test('readBallotPackageFromFilePointer throws when the file cannot be read', async () => {
+  await expect(
+    readBallotPackageFromFilePointer({} as KioskBrowser.FileSystemEntry)
   ).rejects.toThrowError()
 })
