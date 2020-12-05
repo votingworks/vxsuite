@@ -335,6 +335,11 @@ export function getCorners(
   const maxUpDownSkewDistance = Math.ceil(
     bounds.width * Math.tan(maxSkewRadians)
   )
+  debug(
+    'calculated max left/right skew distance: %dpx',
+    maxLeftRightSkewDistance
+  )
+  debug('calculated max up/down skew distance: %dpx', maxUpDownSkewDistance)
 
   const leftMedian = median(
     edges.left.slice(bounds.y, bounds.y + bounds.height)
@@ -346,12 +351,7 @@ export function getCorners(
   const bottomMedian = median(
     edges.bottom.slice(bounds.x, bounds.x + bounds.width)
   )
-
-  debug(
-    'calculated max left/right skew distance: %dpx',
-    maxLeftRightSkewDistance
-  )
-  debug('calculated max up/down skew distance: %dpx', maxUpDownSkewDistance)
+  debug('medians: %o', { leftMedian, topMedian, rightMedian, bottomMedian })
 
   const topLeftCorner = findTopLeftCorner(
     boundsTopLeft,

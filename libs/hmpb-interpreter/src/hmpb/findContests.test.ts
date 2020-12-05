@@ -1,8 +1,13 @@
+import { Interpreter } from '..'
 import {
+  election,
+  district5BlankPage1,
   filledInPage2_05,
   filledInPage2_07,
+  filledInPage1_01,
 } from '../../test/fixtures/choctaw-county-2020-general-election'
-import findContests from './findContests'
+import { writeImageToFile } from '../../test/utils'
+import findContests, { findMatchingContests } from './findContests'
 
 test('rejects contests that read as non-rectangular', async () => {
   expect([
@@ -154,4 +159,14 @@ test('handles fold lines sticking out of a contest', async () => {
       },
     ]
   `)
+})
+
+test('can find contests based on the location of template contests', async () => {
+  const interpreter = new Interpreter({ election, testMode: true })
+  const templateImageData = await district5BlankPage1.imageData()
+  const scannedImageData = await filledInPage1_01.imageData()
+  const layout = await interpreter.addTemplate(templateImageData)
+
+  findMatchingContests(scannedImageData, layout)
+  await writeImageToFile(scannedImageData, 'debug-findContests.png')
 })

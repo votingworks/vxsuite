@@ -1,18 +1,31 @@
 import { AnyContest, Contests } from '@votingworks/ballot-encoder'
 import makeDebug from 'debug'
+import { drawTarget, fill } from '../cli/commands/layout'
 import {
   BallotPageContestLayout,
   BallotPageLayout,
   Corners,
+  Point,
   Rect,
 } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { getCorners } from '../utils/corners'
-import { euclideanDistance, poly4Area } from '../utils/geometry'
+import {
+  euclideanDistance,
+  poly4Area,
+  range,
+  roundPoint,
+} from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { zip } from '../utils/iterators'
 import { VisitedPoints } from '../utils/VisitedPoints'
-import { findShape, parseRectangle, Shape } from './shapes'
+import {
+  expandLineSegment,
+  findShape,
+  lineSegmentEndpoints,
+  parseRectangle,
+  Shape,
+} from './shapes'
 
 const debug = makeDebug('hmpb-interpreter:findContests')
 
@@ -29,6 +42,127 @@ export interface Options {
   minExpectedHeight?: number
   maxExpectedHeight?: number
   errorMargin?: number
+}
+
+export function findHorizontalLine({
+  imageData,
+  bounds,
+  minHeight,
+  maxHeight,
+  minDensity = 0.5,
+  edgeContrastRatio = 0.2,
+  expansionBlockSize = 5,
+}: {
+  imageData: ImageData
+  bounds: Rect
+  minHeight: number
+  maxHeight: number
+  minDensity?: number
+  edgeContrastRatio?: number
+  expansionBlockSize?: number
+}): Rect | undefined {
+  const channels = getImageChannelCount(imageData)
+
+  const expectedLeft = bounds.x
+  const expectedRight = bounds.x + bounds.width
+  const xSearchRange = range(
+    Math.round(expectedLeft + bounds.width * 0.4),
+    Math.round(expectedRight - bounds.width * 0.4)
+  )
+
+  let lineStartY = -1
+  let maxMatchingPixels = -1
+  const matchingPixelsByY = new Int32Array(imageData.height)
+  for (let y = bounds.y; y < bounds.y + bounds.height; y++) {
+    let matchingPixelsAtY = 0
+    for (const x of xSearchRange) {
+      if (
+        imageData.data[channels * (x + y * imageData.width)] === PIXEL_BLACK
+      ) {
+        matchingPixelsAtY++
+      }
+    }
+    matchingPixelsByY[y] = matchingPixelsAtY
+    if (matchingPixelsAtY > maxMatchingPixels) {
+      maxMatchingPixels = matchingPixelsAtY
+    }
+
+    if (lineStartY < 0) {
+      // we're not looking at any potential line right now
+      if (matchingPixelsAtY > 0) {
+        // start tracking as soon as we find anything
+        lineStartY = y
+      }
+    } else {
+      // we're within a potential line now
+      if (matchingPixelsAtY < maxMatchingPixels * edgeContrastRatio) {
+        // this looks like the end
+        if (y - lineStartY < minHeight) {
+          // too short
+          lineStartY = -1
+          maxMatchingPixels = -1
+        } else if (y - lineStartY > maxHeight) {
+          // too tall
+          lineStartY = -1
+          maxMatchingPixels = -1
+        } else {
+          // just right
+          const potentialSegmentBounds: Rect = {
+            x: xSearchRange[0],
+            y: lineStartY,
+            width: xSearchRange[xSearchRange.length - 1] - xSearchRange[0] + 1,
+            height: y - lineStartY + 1,
+          }
+
+          let areaFill = 0
+          for (let i = lineStartY; i < y; i++) {
+            areaFill += matchingPixelsByY[i]
+          }
+          const totalArea =
+            potentialSegmentBounds.width * potentialSegmentBounds.height
+          if (areaFill < minDensity * totalArea) {
+            // not dense enough to be a line
+            lineStartY = -1
+            maxMatchingPixels = -1
+          } else {
+            const segmentBounds: Rect = {
+              x: xSearchRange[0],
+              y: lineStartY,
+              width:
+                xSearchRange[xSearchRange.length - 1] - xSearchRange[0] + 1,
+              height: y - lineStartY + 1,
+            }
+            const expansionBounds: Rect = {
+              x: bounds.x,
+              y: bounds.y,
+              width: bounds.width,
+              height: maxHeight,
+            }
+            debug(
+              'found horizontal line from y=%d with height=%d; expanding within %o',
+              segmentBounds.y,
+              segmentBounds.height,
+              expansionBounds
+            )
+
+            return expandLineSegment({
+              imageData: imageData,
+              segmentBounds: expandLineSegment({
+                imageData: imageData,
+                segmentBounds,
+                bounds: expansionBounds,
+                direction: { x: -expansionBlockSize, y: 0 },
+              }),
+              bounds: expansionBounds,
+              direction: { x: expansionBlockSize, y: 0 },
+            })
+          }
+        }
+      }
+    }
+  }
+
+  return undefined
 }
 
 export default function* findContests(
@@ -148,6 +282,71 @@ export default function* findContests(
       y = shape.bounds.y + shape.bounds.height
     }
   }
+}
+
+export function findMatchingContests(
+  ballotImage: ImageData,
+  ballotLayout: BallotPageLayout
+): ContestShape[] {
+  const contestShapes: ContestShape[] = []
+
+  const mapRect = (rect: Rect): Rect => ({
+    ...mapPoint(rect),
+    width:
+      rect.width *
+      (ballotImage.width / ballotLayout.ballotImage.imageData.width),
+    height:
+      rect.height *
+      (ballotImage.height / ballotLayout.ballotImage.imageData.height),
+  })
+
+  const mapPoint = (point: Point): Point =>
+    roundPoint({
+      x:
+        (ballotImage.width / ballotLayout.ballotImage.imageData.width) *
+        point.x,
+      y:
+        (ballotImage.height / ballotLayout.ballotImage.imageData.height) *
+        point.y,
+    })
+
+  for (const [i, contestShape] of ballotLayout.contests.entries()) {
+    const previousContestShape = ballotLayout.contests[i - 1]
+    const yStart = Math.round(
+      previousContestShape
+        ? (previousContestShape.bounds.y +
+            previousContestShape.bounds.height +
+            contestShape.bounds.y) /
+            2
+        : contestShape.bounds.y / 2
+    )
+    const contestBoxTopLine = findHorizontalLine({
+      imageData: ballotImage,
+      bounds: mapRect({ ...contestShape.bounds, y: yStart }),
+      minHeight: 8,
+      maxHeight: 25,
+    })
+
+    let start: Point | undefined
+    let end: Point | undefined
+    if (contestBoxTopLine) {
+      fill(ballotImage, contestBoxTopLine, [0, 0xff, 0, 0x66])
+      ;[start, end] = lineSegmentEndpoints({
+        imageData: ballotImage,
+        lineSegmentBounds: contestBoxTopLine,
+        color: PIXEL_BLACK,
+      })
+      drawTarget(ballotImage, start, [0xff, 0, 0, 0x60], 30)
+      drawTarget(ballotImage, end, [0xff, 0, 0, 0x60], 30)
+    }
+
+    console.log(`contest #${i + 1} top line:`, contestBoxTopLine, {
+      start,
+      end,
+    })
+  }
+
+  return contestShapes
 }
 
 function findTopBorderInset(

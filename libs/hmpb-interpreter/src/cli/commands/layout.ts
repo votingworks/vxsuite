@@ -7,6 +7,7 @@ import { Point, Rect } from '../../types'
 import { binarize, RGBA } from '../../utils/binarize'
 import { createImageData } from '../../utils/canvas'
 import { vh } from '../../utils/flip'
+import { lineSegmentPixels } from '../../utils/geometry'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
 import { loadImageData } from '../../utils/images'
 import { adjacentFile } from '../../utils/path'
@@ -86,12 +87,18 @@ function analyzeImage(imageData: ImageData): AnalyzeImageResult {
     for (const columns of columnPatterns) {
       const contests = [...findContests(transformed.imageData, { columns })]
       if (contests.length > 0) {
-        return { contests, rotated: transformed.rotated }
+        return {
+          contests,
+          rotated: transformed.rotated,
+        }
       }
     }
   }
 
-  return { contests: [], rotated: false }
+  return {
+    contests: [],
+    rotated: false,
+  }
 }
 
 /**
@@ -134,7 +141,7 @@ export async function run(
  * Draws a target composed of concentric squares around a given point. If the
  * color has transparency, the fill blends with the existing image.
  */
-function drawTarget(
+export function drawTarget(
   { data, width, height }: ImageData,
   { x, y }: Point,
   color: RGBA,
@@ -162,7 +169,7 @@ function drawTarget(
  * Fills a region of an image with a particular color. If the color has
  * transparency, the fill blends with the existing image.
  */
-function fill(
+export function fill(
   { data, width, height }: ImageData,
   bounds: Rect,
   color: RGBA
@@ -174,6 +181,20 @@ function fill(
       const offset = (y * width + x) * RGBA_CHANNELS
       const dst = data.slice(offset, offset + RGBA_CHANNELS)
       data.set(alphaBlend(dst, color), offset)
+    }
+  }
+}
+
+export function line(
+  imageData: ImageData,
+  from: Point,
+  to: Point,
+  color: RGBA
+): void {
+  const { width, height } = imageData
+  for (const point of lineSegmentPixels(from, to)) {
+    if (point.x >= 0 && point.y >= 0 && point.x < width && point.y < height) {
+      fill(imageData, { ...point, width: 1, height: 1 }, color)
     }
   }
 }
