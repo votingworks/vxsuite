@@ -1,17 +1,14 @@
 import { Interpreter } from '..'
-import {
-  election,
-  district5BlankPage1,
-  filledInPage2_05,
-  filledInPage2_07,
-  filledInPage1_01,
-} from '../../test/fixtures/choctaw-county-2020-general-election'
+import * as choctaw from '../../test/fixtures/choctaw-county-2020-general-election'
+import * as marshall from '../../test/fixtures/marshall-county-2020-general-election'
+import * as hamilton from '../../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
 import { writeImageToFile } from '../../test/utils'
 import findContests, { findMatchingContests } from './findContests'
+import { binarize } from '../utils/binarize'
 
 test('rejects contests that read as non-rectangular', async () => {
   expect([
-    ...findContests(await filledInPage2_05.imageData(), {
+    ...findContests(await choctaw.filledInPage2_05.imageData(), {
       columns: [true, true],
     }),
   ]).toMatchInlineSnapshot(`
@@ -74,7 +71,7 @@ test('rejects contests that read as non-rectangular', async () => {
 
 test('handles fold lines sticking out of a contest', async () => {
   expect([
-    ...findContests(await filledInPage2_07.imageData(), {
+    ...findContests(await choctaw.filledInPage2_07.imageData(), {
       columns: [true, true],
     }),
   ]).toMatchInlineSnapshot(`
@@ -162,11 +159,43 @@ test('handles fold lines sticking out of a contest', async () => {
 })
 
 test('can find contests based on the location of template contests', async () => {
-  const interpreter = new Interpreter({ election, testMode: true })
-  const templateImageData = await district5BlankPage1.imageData()
-  const scannedImageData = await filledInPage1_01.imageData()
+  const interpreter = new Interpreter({
+    election: choctaw.election,
+    testMode: true,
+  })
+  const templateImageData = await choctaw.district5BlankPage1.imageData()
+  const scannedImageData = await choctaw.filledInPage1_01.imageData()
   const layout = await interpreter.addTemplate(templateImageData)
 
+  binarize(scannedImageData)
   findMatchingContests(scannedImageData, layout)
   await writeImageToFile(scannedImageData, 'debug-findContests.png')
+})
+
+test('can handle toner gaps in the contest box', async () => {
+  const interpreter = new Interpreter({
+    election: choctaw.election,
+    testMode: false,
+  })
+  const templateImageData = await marshall.blankPage1.imageData()
+  const scannedImageData = await marshall.filledInPage1.imageData()
+  const layout = await interpreter.addTemplate(templateImageData)
+
+  binarize(scannedImageData)
+  findMatchingContests(scannedImageData, layout)
+  await writeImageToFile(scannedImageData, 'debug-findContests-marshall.png')
+})
+
+test('can handle lines connecting the boxes', async () => {
+  const interpreter = new Interpreter({
+    election: hamilton.election,
+    testMode: false,
+  })
+  const templateImageData = await hamilton.blankPage3.imageData()
+  const scannedImageData = await hamilton.filledInPage3.imageData()
+  const layout = await interpreter.addTemplate(templateImageData)
+
+  binarize(scannedImageData)
+  findMatchingContests(scannedImageData, layout)
+  await writeImageToFile(scannedImageData, 'debug-findContests-hamilton.png')
 })

@@ -1,4 +1,4 @@
-import { Corners, Offset, Point, Rect } from '../types'
+import { Corners, Offset, Point, Rect, RectSides } from '../types'
 import { strict as assert } from 'assert'
 
 /**
@@ -32,6 +32,63 @@ export function rectShift(rect: Rect, offset: Offset): Rect {
     width: rect.width,
     height: rect.height,
   }
+}
+
+export function rect(rect: Rect): Rect
+export function rect({ left, top, right, bottom }: RectSides): Rect
+export function rect(rectOrSides: Rect | RectSides): Rect {
+  if ('x' in rectOrSides) {
+    return { ...rectOrSides }
+  } else {
+    const { left, top, right, bottom } = rectOrSides
+    return {
+      x: left,
+      y: top,
+      width: right - left + 1,
+      height: bottom - top + 1,
+    }
+  }
+}
+
+export function rectContains(container: Rect, rect: Rect): boolean
+export function rectContains(container: Rect, point: Point): boolean
+export function rectContains(
+  container: Rect,
+  rectOrPoint: Rect | Point
+): boolean {
+  if (
+    rectOrPoint.x < container.x ||
+    rectOrPoint.y < container.y ||
+    rectOrPoint.x >= container.x + container.width ||
+    rectOrPoint.y >= container.y + container.height
+  ) {
+    return false
+  }
+
+  if ('width' in rectOrPoint) {
+    const rect = rectOrPoint
+
+    return (
+      rect.x + rect.width <= container.x + container.width &&
+      rect.y + rect.height <= container.y + container.height
+    )
+  }
+
+  return true
+}
+
+export function rectClip(rect: Rect, bounds: Rect): Rect {
+  const x = Math.min(Math.max(rect.x, bounds.x), bounds.x + bounds.width - 1)
+  const y = Math.min(Math.max(rect.y, bounds.y), bounds.y + bounds.height - 1)
+  const rightEnd = Math.max(
+    Math.min(rect.x + rect.width, bounds.x + bounds.width),
+    bounds.x
+  )
+  const bottomEnd = Math.max(
+    Math.min(rect.y + rect.height, bounds.y + bounds.height),
+    bounds.y
+  )
+  return { x, y, width: rightEnd - x + 1, height: bottomEnd - y + 1 }
 }
 
 export function mergeRects(rect: Rect, ...rects: readonly Rect[]): Rect {

@@ -32,6 +32,13 @@ export interface Rect {
   height: number
 }
 
+export interface RectSides {
+  left: number
+  top: number
+  right: number
+  bottom: number
+}
+
 export type Corners = [Point, Point, Point, Point]
 
 export interface Size {

@@ -1,6 +1,6 @@
 import { AnyContest, Contests } from '@votingworks/ballot-encoder'
 import makeDebug from 'debug'
-import { drawTarget, fill } from '../cli/commands/layout'
+// import { drawTarget, fill } from '../cli/commands/layout'
 import {
   BallotPageContestLayout,
   BallotPageLayout,
@@ -10,22 +10,20 @@ import {
 } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { getCorners } from '../utils/corners'
+import { findInsetEdges } from '../utils/edges'
 import {
   euclideanDistance,
   poly4Area,
-  range,
+  rect,
+  rectClip,
+  rectContains,
+  rectShift,
   roundPoint,
 } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { zip } from '../utils/iterators'
 import { VisitedPoints } from '../utils/VisitedPoints'
-import {
-  expandLineSegment,
-  findShape,
-  lineSegmentEndpoints,
-  parseRectangle,
-  Shape,
-} from './shapes'
+import { computeAreaFill, findShape, parseRectangle, Shape } from './shapes'
 
 const debug = makeDebug('hmpb-interpreter:findContests')
 
@@ -44,118 +42,212 @@ export interface Options {
   errorMargin?: number
 }
 
-export function findHorizontalLine({
+export function* followStroke({
+  imageData,
+  strokeBounds,
+  bounds,
+  searchDirection,
+  edgeContrastRatio = 0.1,
+}: {
+  imageData: ImageData
+  strokeBounds: Rect
+  bounds: Rect
+  searchDirection: 'up' | 'down' | 'left' | 'right'
+  edgeContrastRatio?: number
+}): Generator<Rect> {
+  if (searchDirection === 'up' || searchDirection === 'down') {
+    const yStep =
+      searchDirection === 'up' ? -strokeBounds.height : strokeBounds.height
+
+    let searchArea = rectShift(strokeBounds, { x: 0, y: yStep })
+    const lastFill = computeAreaFill(imageData, searchArea)
+    while (rectContains(bounds, searchArea)) {
+      const fill = computeAreaFill(imageData, searchArea)
+
+      if (lastFill * edgeContrastRatio >= fill) {
+        break
+      }
+
+      const leftNudge = rectShift(searchArea, {
+        x: -1,
+        y: 0,
+      })
+      const rightNudge = rectShift(searchArea, {
+        x: 1,
+        y: 0,
+      })
+
+      const nudgeThreshold = fill * 1.05
+      const leftFill = computeAreaFill(imageData, leftNudge)
+      const rightFill = computeAreaFill(imageData, rightNudge)
+      const adjustedSearchArea =
+        leftFill >= nudgeThreshold && fill > rightFill
+          ? leftNudge
+          : rightFill >= nudgeThreshold && fill > leftFill
+          ? rightNudge
+          : searchArea
+
+      yield adjustedSearchArea
+
+      searchArea = rectShift(adjustedSearchArea, { x: 0, y: yStep })
+    }
+  } else {
+    const xStep =
+      searchDirection === 'left' ? -strokeBounds.width : strokeBounds.width
+
+    let searchArea = rectShift(strokeBounds, { x: xStep, y: 0 })
+    const lastFill = computeAreaFill(imageData, searchArea)
+    while (rectContains(bounds, searchArea)) {
+      const fill = computeAreaFill(imageData, searchArea)
+
+      if (lastFill * edgeContrastRatio >= fill) {
+        break
+      }
+
+      const upNudge = rectShift(searchArea, {
+        x: 0,
+        y: -1,
+      })
+      const downNudge = rectShift(searchArea, {
+        x: 0,
+        y: 1,
+      })
+
+      const nudgeThreshold = fill * 1.05
+      const upFill = computeAreaFill(imageData, upNudge)
+      const downFill = computeAreaFill(imageData, downNudge)
+      const adjustedSearchArea =
+        upFill >= nudgeThreshold && fill > downFill
+          ? upNudge
+          : downFill >= nudgeThreshold && fill > upFill
+          ? downNudge
+          : searchArea
+
+      yield adjustedSearchArea
+
+      searchArea = rectShift(adjustedSearchArea, { x: xStep, y: 0 })
+    }
+  }
+}
+
+export function findStroke({
   imageData,
   bounds,
-  minHeight,
-  maxHeight,
-  minDensity = 0.5,
+  minThickness,
+  maxThickness,
+  searchDirection,
+  minDensity = 0.2,
   edgeContrastRatio = 0.2,
-  expansionBlockSize = 5,
 }: {
   imageData: ImageData
   bounds: Rect
-  minHeight: number
-  maxHeight: number
+  minThickness: number
+  maxThickness: number
+  searchDirection: 'up' | 'down' | 'left' | 'right'
   minDensity?: number
   edgeContrastRatio?: number
-  expansionBlockSize?: number
 }): Rect | undefined {
-  const channels = getImageChannelCount(imageData)
+  if (searchDirection === 'up' || searchDirection === 'down') {
+    const fillByY = new Int32Array(bounds.height)
+    const yStart =
+      searchDirection === 'up' ? bounds.y + bounds.height - 1 : bounds.y
+    const yStep = searchDirection === 'up' ? -1 : 1
+    let strokeStart = -1
 
-  const expectedLeft = bounds.x
-  const expectedRight = bounds.x + bounds.width
-  const xSearchRange = range(
-    Math.round(expectedLeft + bounds.width * 0.4),
-    Math.round(expectedRight - bounds.width * 0.4)
-  )
+    for (let yi = 0; yi < bounds.height; yi++) {
+      const y = yStart + yi * yStep
+      const fill = computeAreaFill(imageData, {
+        ...bounds,
+        y,
+        height: 1,
+      })
+      fillByY[yi] = fill
 
-  let lineStartY = -1
-  let maxMatchingPixels = -1
-  const matchingPixelsByY = new Int32Array(imageData.height)
-  for (let y = bounds.y; y < bounds.y + bounds.height; y++) {
-    let matchingPixelsAtY = 0
-    for (const x of xSearchRange) {
-      if (
-        imageData.data[channels * (x + y * imageData.width)] === PIXEL_BLACK
-      ) {
-        matchingPixelsAtY++
-      }
-    }
-    matchingPixelsByY[y] = matchingPixelsAtY
-    if (matchingPixelsAtY > maxMatchingPixels) {
-      maxMatchingPixels = matchingPixelsAtY
-    }
-
-    if (lineStartY < 0) {
-      // we're not looking at any potential line right now
-      if (matchingPixelsAtY > 0) {
-        // start tracking as soon as we find anything
-        lineStartY = y
-      }
-    } else {
-      // we're within a potential line now
-      if (matchingPixelsAtY < maxMatchingPixels * edgeContrastRatio) {
-        // this looks like the end
-        if (y - lineStartY < minHeight) {
-          // too short
-          lineStartY = -1
-          maxMatchingPixels = -1
-        } else if (y - lineStartY > maxHeight) {
-          // too tall
-          lineStartY = -1
-          maxMatchingPixels = -1
+      if (strokeStart < 0) {
+        if (fill / bounds.width >= minDensity) {
+          strokeStart = y
+        }
+      } else {
+        const lastFill = fillByY[yi - 1]
+        const thickness = Math.abs(y - strokeStart)
+        if (lastFill * edgeContrastRatio < fill) {
+          // keep looking
+        } else if (thickness < minThickness) {
+          // too thin
+          strokeStart = -1
+          yi--
+        } else if (thickness > maxThickness) {
+          // too thick
+          strokeStart = -1
+          yi--
+        } else if (
+          fillByY
+            .slice(yi - thickness, yi)
+            .reduce((sum, fill) => sum + fill, 0) /
+            (thickness * bounds.width) <
+          minDensity
+        ) {
+          // too sparse
+          strokeStart = -1
+          yi--
         } else {
-          // just right
-          const potentialSegmentBounds: Rect = {
-            x: xSearchRange[0],
-            y: lineStartY,
-            width: xSearchRange[xSearchRange.length - 1] - xSearchRange[0] + 1,
-            height: y - lineStartY + 1,
+          return {
+            ...bounds,
+            y: Math.min(strokeStart, y + 1),
+            height: thickness,
           }
+        }
+      }
+    }
+  } else {
+    const fillByX = new Int32Array(bounds.width)
+    const xStart =
+      searchDirection === 'left' ? bounds.x + bounds.width - 1 : bounds.x
+    const xStep = searchDirection === 'left' ? -1 : 1
+    let strokeStart = -1
 
-          let areaFill = 0
-          for (let i = lineStartY; i < y; i++) {
-            areaFill += matchingPixelsByY[i]
-          }
-          const totalArea =
-            potentialSegmentBounds.width * potentialSegmentBounds.height
-          if (areaFill < minDensity * totalArea) {
-            // not dense enough to be a line
-            lineStartY = -1
-            maxMatchingPixels = -1
-          } else {
-            const segmentBounds: Rect = {
-              x: xSearchRange[0],
-              y: lineStartY,
-              width:
-                xSearchRange[xSearchRange.length - 1] - xSearchRange[0] + 1,
-              height: y - lineStartY + 1,
-            }
-            const expansionBounds: Rect = {
-              x: bounds.x,
-              y: bounds.y,
-              width: bounds.width,
-              height: maxHeight,
-            }
-            debug(
-              'found horizontal line from y=%d with height=%d; expanding within %o',
-              segmentBounds.y,
-              segmentBounds.height,
-              expansionBounds
-            )
+    for (let xi = 0; xi < bounds.width; xi++) {
+      const x = xStart + xi * xStep
+      const fill = computeAreaFill(imageData, {
+        ...bounds,
+        x,
+        width: 1,
+      })
+      fillByX[xi] = fill
 
-            return expandLineSegment({
-              imageData: imageData,
-              segmentBounds: expandLineSegment({
-                imageData: imageData,
-                segmentBounds,
-                bounds: expansionBounds,
-                direction: { x: -expansionBlockSize, y: 0 },
-              }),
-              bounds: expansionBounds,
-              direction: { x: expansionBlockSize, y: 0 },
-            })
+      if (strokeStart < 0) {
+        if (fill / bounds.height >= minDensity) {
+          strokeStart = x
+        }
+      } else {
+        const lastFill = fillByX[xi - 1]
+        const thickness = Math.abs(x - strokeStart)
+        if (lastFill * edgeContrastRatio < fill) {
+          // keep looking
+        } else if (thickness < minThickness) {
+          // too thin
+          strokeStart = -1
+          xi--
+        } else if (thickness > maxThickness) {
+          // too thick
+          strokeStart = -1
+          xi--
+        } else if (
+          fillByX
+            .slice(xi - thickness, xi)
+            .reduce((sum, fill) => sum + fill, 0) /
+            (thickness * bounds.height) <
+          minDensity
+        ) {
+          // too sparse
+
+          strokeStart = -1
+          xi--
+        } else {
+          return {
+            ...bounds,
+            x: Math.min(strokeStart, x + 1),
+            width: thickness,
           }
         }
       }
@@ -292,12 +384,14 @@ export function findMatchingContests(
 
   const mapRect = (rect: Rect): Rect => ({
     ...mapPoint(rect),
-    width:
+    width: Math.round(
       rect.width *
-      (ballotImage.width / ballotLayout.ballotImage.imageData.width),
-    height:
+        (ballotImage.width / ballotLayout.ballotImage.imageData.width)
+    ),
+    height: Math.round(
       rect.height *
-      (ballotImage.height / ballotLayout.ballotImage.imageData.height),
+        (ballotImage.height / ballotLayout.ballotImage.imageData.height)
+    ),
   })
 
   const mapPoint = (point: Point): Point =>
@@ -313,37 +407,281 @@ export function findMatchingContests(
   for (const [i, contestShape] of ballotLayout.contests.entries()) {
     const previousContestShape = ballotLayout.contests[i - 1]
     const yStart = Math.round(
-      previousContestShape
+      previousContestShape &&
+        previousContestShape.bounds.x === contestShape.bounds.x
         ? (previousContestShape.bounds.y +
             previousContestShape.bounds.height +
             contestShape.bounds.y) /
             2
         : contestShape.bounds.y / 2
     )
-    const contestBoxTopLine = findHorizontalLine({
-      imageData: ballotImage,
-      bounds: mapRect({ ...contestShape.bounds, y: yStart }),
-      minHeight: 8,
-      maxHeight: 25,
-    })
 
-    let start: Point | undefined
-    let end: Point | undefined
+    const contestBoxFromOffset = mapRect({ ...contestShape.bounds, y: yStart })
+    const contestBoxTopLineSearchArea = rectShift(
+      {
+        ...contestBoxFromOffset,
+        width: Math.round(contestBoxFromOffset.width / 2),
+      },
+      { x: Math.round(contestBoxFromOffset.width / 4), y: 0 }
+    )
+    const contestBoxTopLine = findStroke({
+      imageData: ballotImage,
+      bounds: contestBoxTopLineSearchArea,
+      minThickness: 8,
+      maxThickness: 25,
+      searchDirection: 'down',
+    })
+    const contestBoxTopLineParts: Rect[] = []
+    const contestBoxLeftLineParts: Rect[] = []
+    const contestBoxRightLineParts: Rect[] = []
+    const contestBoxBottomLineParts: Rect[] = []
+    let contestBoxBottomLine: Rect | undefined
+
     if (contestBoxTopLine) {
-      fill(ballotImage, contestBoxTopLine, [0, 0xff, 0, 0x66])
-      ;[start, end] = lineSegmentEndpoints({
+      for (const part of followStroke({
         imageData: ballotImage,
-        lineSegmentBounds: contestBoxTopLine,
-        color: PIXEL_BLACK,
-      })
-      drawTarget(ballotImage, start, [0xff, 0, 0, 0x60], 30)
-      drawTarget(ballotImage, end, [0xff, 0, 0, 0x60], 30)
+        bounds: {
+          x: 0,
+          y: 0,
+          width: ballotImage.width,
+          height: ballotImage.height,
+        },
+        searchDirection: 'left',
+        strokeBounds: {
+          ...contestBoxTopLine,
+          width: 15,
+        },
+      })) {
+        contestBoxTopLineParts.push(part)
+      }
+
+      for (const part of followStroke({
+        imageData: ballotImage,
+        bounds: {
+          x: 0,
+          y: 0,
+          width: ballotImage.width,
+          height: ballotImage.height,
+        },
+        searchDirection: 'right',
+        strokeBounds: {
+          ...contestBoxTopLine,
+          x: contestBoxTopLine.x + contestBoxTopLine.width - 15,
+          width: 15,
+        },
+      })) {
+        contestBoxTopLineParts.push(part)
+      }
     }
 
-    console.log(`contest #${i + 1} top line:`, contestBoxTopLine, {
-      start,
-      end,
+    if (contestBoxTopLine) {
+      const contestBoxLeftLinePart = findStroke({
+        imageData: ballotImage,
+        bounds: rect({
+          left: contestBoxFromOffset.x - 100,
+          top: contestBoxTopLine.y + contestBoxTopLine.height,
+          right: contestBoxFromOffset.x + 100,
+          bottom: contestBoxTopLine.y + contestBoxTopLine.height + 20,
+        }),
+        maxThickness: 6,
+        minThickness: 2,
+        searchDirection: 'left',
+      })
+      const contestBoxRightLinePart = findStroke({
+        imageData: ballotImage,
+        bounds: {
+          x: Math.round(contestBoxTopLine.x + contestBoxTopLine.width / 2),
+          y: contestBoxTopLine.y + contestBoxTopLine.height,
+          width:
+            ballotImage.width -
+            Math.round(contestBoxTopLine.x + contestBoxTopLine.width / 2) +
+            1,
+          height: 20,
+        },
+        maxThickness: 6,
+        minThickness: 2,
+        searchDirection: 'right',
+      })
+
+      if (contestBoxLeftLinePart) {
+        contestBoxLeftLineParts.push(contestBoxLeftLinePart)
+        for (const part of followStroke({
+          imageData: ballotImage,
+          strokeBounds: contestBoxLeftLinePart,
+          bounds: rect({
+            x: contestBoxLeftLinePart.x - 30,
+            y: contestBoxLeftLinePart.y,
+            width: 60,
+            height: contestBoxFromOffset.height * 1.1,
+          }),
+          searchDirection: 'down',
+        })) {
+          contestBoxLeftLineParts.push(part)
+        }
+      }
+      if (contestBoxRightLinePart) {
+        contestBoxRightLineParts.push(contestBoxRightLinePart)
+        for (const part of followStroke({
+          imageData: ballotImage,
+          strokeBounds: contestBoxRightLinePart,
+          // FIXME
+          bounds: rect({
+            x: contestBoxRightLinePart.x - 30,
+            y: contestBoxRightLinePart.y,
+            width: 60,
+            height: contestBoxFromOffset.height * 1.1,
+          }),
+          searchDirection: 'down',
+        })) {
+          contestBoxRightLineParts.push(part)
+        }
+      }
+    }
+
+    if (
+      contestBoxTopLine &&
+      (contestBoxLeftLineParts.length > 0 ||
+        contestBoxRightLineParts.length > 0)
+    ) {
+      const bounds = {
+        x: contestBoxTopLine.x,
+        y: contestBoxTopLine.y + 30,
+        width: contestBoxTopLine.width,
+        height: contestBoxFromOffset.height,
+      }
+      contestBoxBottomLine = findStroke({
+        imageData: ballotImage,
+        bounds,
+        minThickness: 2,
+        maxThickness: 6,
+        searchDirection: 'up',
+      })
+
+      if (contestBoxBottomLine) {
+        for (const part of followStroke({
+          imageData: ballotImage,
+          bounds: {
+            x: 0,
+            y: 0,
+            width: ballotImage.width,
+            height: ballotImage.height,
+          },
+          strokeBounds: {
+            ...contestBoxBottomLine,
+            width: 15,
+          },
+          searchDirection: 'left',
+        })) {
+          contestBoxBottomLineParts.push(part)
+        }
+
+        for (const part of followStroke({
+          imageData: ballotImage,
+          bounds: {
+            x: 0,
+            y: 0,
+            width: ballotImage.width,
+            height: ballotImage.height,
+          },
+          strokeBounds: {
+            ...contestBoxBottomLine,
+            x: contestBoxBottomLine.x + contestBoxBottomLine.width - 15,
+            width: 15,
+          },
+          searchDirection: 'right',
+        })) {
+          contestBoxBottomLineParts.push(part)
+        }
+      }
+    }
+
+    const boundsPadding = 5
+    const left =
+      Math.min(
+        ...[
+          ...contestBoxLeftLineParts,
+          ...contestBoxTopLineParts,
+          ...contestBoxBottomLineParts,
+        ].map(({ x }) => x)
+      ) - boundsPadding
+    const right =
+      Math.max(
+        ...[
+          ...contestBoxRightLineParts,
+          ...contestBoxTopLineParts,
+          ...contestBoxBottomLineParts,
+        ].map(({ x, width }) => x + width)
+      ) + boundsPadding
+    const top =
+      Math.min(
+        ...[
+          ...contestBoxTopLineParts,
+          ...contestBoxLeftLineParts,
+          ...contestBoxRightLineParts,
+        ].map(({ y }) => y)
+      ) - boundsPadding
+    const bottom =
+      Math.max(
+        ...[
+          ...contestBoxLeftLineParts,
+          ...contestBoxRightLineParts,
+          ...contestBoxBottomLineParts,
+        ].map(({ y, height }) => y + height)
+      ) + boundsPadding
+    const contestBounds = rectClip(
+      { x: 0, y: 0, width: ballotImage.width, height: ballotImage.height },
+      {
+        x: left,
+        y: top,
+        width: right - left + 1,
+        height: bottom - top + 1,
+      }
+    )
+    const edges = findInsetEdges(ballotImage, contestBounds)
+    const corners = getCorners({ bounds: contestBounds, edges })
+
+    contestShapes.push({
+      bounds: contestBounds,
+      corners,
     })
+
+    // fill(ballotImage, contestBounds, [0, 0xff, 0, 0x66])
+
+    // if (contestBoxTopLine) {
+    //   fill(ballotImage, contestBoxTopLine, [0, 0xff, 0xff, 0x66])
+    // }
+
+    // for (const [i, part] of contestBoxTopLineParts.entries()) {
+    //   fill(ballotImage, part, [
+    //     0xff,
+    //     (i % 2) * 0xff,
+    //     ((i + 1) % 2) * 0xff,
+    //     0x60,
+    //   ])
+    // }
+    // for (const [i, part] of contestBoxLeftLineParts.entries()) {
+    //   fill(ballotImage, part, [(i % 2) * 0xff, ((i + 1) % 2) * 0xff, 0, 0x66])
+    // }
+    // for (const [i, part] of contestBoxRightLineParts.entries()) {
+    //   fill(ballotImage, part, [(i % 2) * 0xff, ((i + 1) % 2) * 0xff, 0, 0x66])
+    // }
+
+    // if (contestBoxBottomLine) {
+    //   fill(ballotImage, contestBoxBottomLine, [0, 0xff, 0xff, 0x60])
+    // }
+
+    // for (const [i, part] of contestBoxBottomLineParts.entries()) {
+    //   fill(ballotImage, part, [
+    //     0xff,
+    //     (i % 2) * 0xff,
+    //     ((i + 1) % 2) * 0xff,
+    //     0x60,
+    //   ])
+    // }
+
+    // for (const corner of corners) {
+    //   drawTarget(ballotImage, corner, [0xff, 0, 0, 0x66], 25)
+    // }
   }
 
   return contestShapes

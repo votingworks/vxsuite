@@ -4,6 +4,7 @@ import { PIXEL_BLACK } from '../utils/binarize'
 import {
   angleBetweenPoints,
   mergeRects,
+  rectContains,
   rectShift,
   roundPoint,
 } from '../utils/geometry'
@@ -24,7 +25,7 @@ export interface Shape {
   edges: Edges
 }
 
-function* getMatchingPoints(
+export function* getMatchingPoints(
   imageData: ImageData,
   rect: Rect,
   color: number
@@ -41,7 +42,7 @@ function* getMatchingPoints(
   }
 }
 
-function computeAreaFill(imageData: ImageData, rect: Rect): number {
+export function computeAreaFill(imageData: ImageData, rect: Rect): number {
   let result = 0
 
   for (const _ of getMatchingPoints(imageData, rect, PIXEL_BLACK)) {
@@ -105,6 +106,7 @@ export function lineSegmentEndpoints({
       color
     )
 
+    // console.log({ midX, leftMidX, rightMidX, leftAverageY, rightAverageY })
     return [
       roundPoint({ x: leftMidX, y: leftAverageY }),
       roundPoint({ x: rightMidX, y: rightAverageY }),
@@ -145,34 +147,49 @@ export function lineSegmentEndpoints({
 
 export function expandLineSegment({
   imageData,
-  segmentBounds,
+  lineSegmentBounds,
   direction,
   bounds,
+  color,
 }: {
   imageData: ImageData
-  segmentBounds: Rect
+  lineSegmentBounds: Rect
   bounds: Rect
   direction: Vector
+  color: number
 }): Rect {
   assert((direction.x === 0) !== (direction.y === 0))
   const minimumContrastRatio = 0.2
   const blockSize = Math.abs(direction.x + direction.y)
 
+  const [start, end] = lineSegmentEndpoints({
+    imageData,
+    lineSegmentBounds,
+    color,
+  })
+  const angle = Math.atan2(end.y - start.y, end.x - start.x)
+  const xDistance = blockSize * Math.cos(angle)
+  const yDistance = blockSize * Math.sin(angle)
+  console.log({ start, end, angle, xDistance, yDistance })
   const areaToCheck: Rect = {
     x:
       direction.x === 0
-        ? segmentBounds.x
+        ? lineSegmentBounds.x
         : direction.x < 0
-        ? segmentBounds.x + direction.x
-        : segmentBounds.x + segmentBounds.width,
+        ? lineSegmentBounds.x + direction.x
+        : lineSegmentBounds.x + lineSegmentBounds.width,
     y:
       direction.y === 0
-        ? segmentBounds.y
+        ? lineSegmentBounds.y
         : direction.y < 0
-        ? segmentBounds.y + direction.y
-        : segmentBounds.y + segmentBounds.height,
-    width: direction.x === 0 ? segmentBounds.width : blockSize,
-    height: direction.y === 0 ? segmentBounds.height : blockSize,
+        ? lineSegmentBounds.y + direction.y
+        : lineSegmentBounds.y + lineSegmentBounds.height,
+    width: direction.x === 0 ? lineSegmentBounds.width : blockSize,
+    height: direction.y === 0 ? lineSegmentBounds.height : blockSize,
+  }
+
+  if (!rectContains(bounds, areaToCheck)) {
+    return lineSegmentBounds
   }
 
   const areaToCheckSide1 = rectShift(areaToCheck, {
@@ -185,13 +202,20 @@ export function expandLineSegment({
     y: -direction.x,
   })
 
+  if (
+    !rectContains(bounds, areaToCheckSide1) ||
+    !rectContains(bounds, areaToCheckSide2)
+  ) {
+    return lineSegmentBounds
+  }
+
   const areaToCheckFill = computeAreaFill(imageData, areaToCheck)
   const areaToCheckSide1Fill = computeAreaFill(imageData, areaToCheckSide1)
   const areaToCheckSide2Fill = computeAreaFill(imageData, areaToCheckSide2)
 
   if (areaToCheckFill === 0) {
     // nothing filled in within the block
-    return segmentBounds
+    return lineSegmentBounds
   }
 
   const side1ContrastRatio = areaToCheckSide1Fill / areaToCheckFill
@@ -202,14 +226,15 @@ export function expandLineSegment({
     side2ContrastRatio < minimumContrastRatio
   ) {
     // contrast is too low
-    return segmentBounds
+    return lineSegmentBounds
   }
 
   return expandLineSegment({
     imageData,
-    segmentBounds: mergeRects(segmentBounds, areaToCheck),
+    lineSegmentBounds: mergeRects(lineSegmentBounds, areaToCheck),
     bounds,
     direction,
+    color,
   })
 }
 

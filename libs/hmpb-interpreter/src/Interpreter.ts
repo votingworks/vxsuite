@@ -22,6 +22,7 @@ import findContestOptions from './hmpb/findContestOptions'
 import findContests, {
   ContestShape,
   findBallotLayoutCorrespondance,
+  findMatchingContests,
 } from './hmpb/findContests'
 import findTargets, { TargetShape } from './hmpb/findTargets'
 import { detect } from './metadata'
@@ -363,10 +364,37 @@ export default class Interpreter {
     const matchedTemplate = defined(
       this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
     )
+    const matchingContests = findMatchingContests(imageData, matchedTemplate)
+    const contestDefinitions = this.getContestsForTemplate(matchedTemplate)
+
+    for (const [contestDefinition, contest, matchedContest] of zip(
+      contestDefinitions,
+      contests,
+      matchingContests
+    )) {
+      for (const [contestCorner, matchedCorner] of zip(
+        contest.corners,
+        matchedContest.corners
+      )) {
+        if (
+          contestCorner.x !== matchedCorner.x ||
+          contestCorner.y !== matchedCorner.y
+        ) {
+          throw new Error(
+            `methods differed in finding corners for contest '${
+              contestDefinition.title
+            }': ${inspect({
+              original: contest.corners,
+              updated: matchedContest.corners,
+            })}`
+          )
+        }
+      }
+    }
     const [mappedBallot, marks] = this.getMarksForBallot(
       ballotLayout,
       matchedTemplate,
-      this.getContestsForTemplate(matchedTemplate)
+      contestDefinitions
     )
 
     return { matchedTemplate, mappedBallot, metadata, marks }
