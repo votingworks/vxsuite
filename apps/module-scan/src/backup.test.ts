@@ -229,6 +229,7 @@ test('has all files referenced in the database', async () => {
         (fileName) =>
           fileName !== 'election.json' &&
           fileName !== 'ballots.db' &&
+          fileName !== 'ballots.db.digest' &&
           fileName !== 'cvrs.jsonl'
       )
       .sort()

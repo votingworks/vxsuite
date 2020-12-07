@@ -75,14 +75,14 @@ test('defaults to --diff-when same-type', () => {
   )
 })
 
-test('can change the input database with --db', () => {
-  expect(parseOptions(['--all', '--db', '/path/to/sqlite.db'])).toEqual(
-    expect.objectContaining({ dbPath: '/path/to/sqlite.db' })
-  )
+test('can change the input workspace with --input-workspace', () => {
+  expect(
+    parseOptions(['--all', '--input-workspace', '/path/to/workspace'])
+  ).toEqual(expect.objectContaining({ inputWorkspace: '/path/to/workspace' }))
 })
 
-test('can set an output database with --out-db', () => {
-  expect(parseOptions(['--all', '--out-db', '/path/to/sqlite.db'])).toEqual(
-    expect.objectContaining({ outDbPath: '/path/to/sqlite.db' })
-  )
+test('can set an output database with --output-workspace', () => {
+  expect(
+    parseOptions(['--all', '--output-workspace', '/path/to/workspace'])
+  ).toEqual(expect.objectContaining({ outputWorkspace: '/path/to/workspace' }))
 })

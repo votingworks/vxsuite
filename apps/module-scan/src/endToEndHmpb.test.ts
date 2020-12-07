@@ -3,18 +3,15 @@ import { Application } from 'express'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import request from 'supertest'
-import { fileSync } from 'tmp'
+import { dirSync } from 'tmp'
 import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-general-election-2020'
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import SystemImporter, { Importer } from './importer'
 import { buildApp } from './server'
-import Store from './store'
 import { BallotPackageManifest, CastVoteRecord } from './types'
 import { MarkStatus } from './types/ballot-review'
-import makeTemporaryBallotImportImageDirectories, {
-  TemporaryBallotImportImageDirectories,
-} from './util/makeTemporaryBallotImportImageDirectories'
+import { createWorkspace, Workspace } from './util/workspace'
 
 const electionFixturesRoot = join(
   __dirname,
@@ -42,23 +39,21 @@ jest.mock('./exec', () => ({
   },
 }))
 
-let importDirs: TemporaryBallotImportImageDirectories
-let store: Store
+let workspace: Workspace
 let scanner: MockScanner
 let importer: Importer
 let app: Application
 
 beforeEach(async () => {
-  importDirs = makeTemporaryBallotImportImageDirectories()
-  store = await Store.fileStore(fileSync().name)
+  workspace = await createWorkspace(dirSync().name)
   scanner = makeMockScanner()
-  importer = new SystemImporter({ store, scanner, ...importDirs.paths })
-  app = buildApp({ importer, store })
+  importer = new SystemImporter({ workspace, scanner })
+  app = buildApp({ importer, store: workspace.store })
 })
 
 afterEach(async () => {
   await importer.unconfigure()
-  importDirs.remove()
+  await fs.remove(workspace.path)
 })
 
 test('going through the whole process works', async () => {
@@ -257,7 +252,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     expect(JSON.parse(status.text).batches[0].count).toBe(1)
   }
 
-  const { id } = await store.dbGetAsync<{ id: string }>(`
+  const { id } = await workspace.store.dbGetAsync<{ id: string }>(`
     select id
     from sheets
     where json_extract(front_interpretation_json, '$.metadata.pageNumber') = 3

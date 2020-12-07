@@ -1,8 +1,8 @@
-import { tmpNameSync } from 'tmp'
-import Store from '../../store'
+import { dirSync } from 'tmp'
 import { retryScan, queryFromOptions } from './'
 import { parseOptions } from './options'
 import * as fixtures from '../../../test/fixtures/state-of-hamilton'
+import { createWorkspace } from '../../util/workspace'
 
 if (process.env.CI) {
   jest.setTimeout(10000)
@@ -142,8 +142,8 @@ test('query with sheet ids', () => {
 })
 
 test('full rescan', async () => {
-  const dbPath = tmpNameSync()
-  const store = await Store.fileStore(dbPath)
+  const inputWorkspace = await createWorkspace(dirSync().name)
+  const store = inputWorkspace.store
 
   await store.setElection({
     election: fixtures.election,
@@ -177,14 +177,17 @@ test('full rescan', async () => {
   const interpreterLoaded = jest.fn()
   const pageInterpreted = jest.fn()
   const interpreterUnloaded = jest.fn()
-  await retryScan(parseOptions(['--db', dbPath, '--all']), {
-    sheetsLoading,
-    sheetsLoaded,
-    interpreterLoading,
-    interpreterLoaded,
-    pageInterpreted,
-    interpreterUnloaded,
-  })
+  await retryScan(
+    parseOptions(['--input-workspace', inputWorkspace.path, '--all']),
+    {
+      sheetsLoading,
+      sheetsLoaded,
+      interpreterLoading,
+      interpreterLoaded,
+      pageInterpreted,
+      interpreterUnloaded,
+    }
+  )
 
   expect(sheetsLoading).toHaveBeenCalledTimes(1)
   expect(sheetsLoaded).toHaveBeenNthCalledWith(1, 1, fixtures.election)
@@ -220,17 +223,18 @@ test('full rescan', async () => {
 })
 
 test('writing output to another database', async () => {
-  const input = await Store.fileStore(tmpNameSync())
-  const outDbPath = tmpNameSync()
+  const inputWorkspace = await createWorkspace(dirSync().name)
+  const outputWorkspace = await createWorkspace(dirSync().name)
+  const inputDb = inputWorkspace.store
 
-  await input.setElection({
+  await inputDb.setElection({
     election: fixtures.election,
     electionData: JSON.stringify(fixtures.election),
     electionHash: 'not-a-hash',
   })
 
-  const batchId = await input.addBatch()
-  await input.addSheet('a-test-sheet-id', batchId, [
+  const batchId = await inputDb.addBatch()
+  await inputDb.addSheet('a-test-sheet-id', batchId, [
     {
       interpretation: {
         type: 'UnreadablePage',
@@ -251,7 +255,13 @@ test('writing output to another database', async () => {
 
   const pageInterpreted = jest.fn()
   await retryScan(
-    parseOptions(['--db', input.dbPath, '--out-db', outDbPath, '--all']),
+    parseOptions([
+      '--input-workspace',
+      inputWorkspace.path,
+      '--output-workspace',
+      outputWorkspace.path,
+      '--all',
+    ]),
     { pageInterpreted }
   )
 
@@ -283,9 +293,9 @@ test('writing output to another database', async () => {
     })
   )
 
-  const output = await Store.fileStore(outDbPath)
+  const outputDb = outputWorkspace.store
   expect(
-    await output.dbAllAsync(
+    await outputDb.dbAllAsync(
       'select id, front_interpretation_json, back_interpretation_json from sheets'
     )
   ).toMatchInlineSnapshot(`

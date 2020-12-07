@@ -81,6 +81,7 @@ export class Backup {
     await this.store.backup(dbBackupFile.name)
     await this.rewriteFilePaths(dbBackupFile.name)
     await this.addFileEntry(dbBackupFile.name, 'ballots.db')
+    await this.addEntry('ballots.db.digest', await Store.getSchemaDigest())
     dbBackupFile.removeCallback()
 
     for await (const sheet of this.store.getSheets()) {

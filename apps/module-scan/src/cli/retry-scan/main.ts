@@ -34,16 +34,17 @@ export function printHelp(out: NodeJS.WritableStream): void {
   out.write(`\n`)
   out.write(`${chalk.bold('Options')}\n`)
   out.write(
-    `  --db PATH              Specify the path to the database with the sheets to rescan.\n`
+    `  -i, --input-workspace   A directory containing a database and scanned images, such as from\n`
   )
   out.write(
-    `                         Defaults to the 'ballots.db' within module-scan.\n`
+    `                          an unzipped backup. Defaults to the dev-workspace directory.\n`
   )
   out.write(
-    `  --out-db PATH          Write results to another database if desired.\n`
+    `  -o, --output-workspace  A directory to put the output database and scanned images.\n`
   )
+  out.write(`                          Defaults to a temporary directory.\n`)
   out.write(
-    `  -d, --diff-when RULE   When to print a diff of interpretations: always, never, or same-type (default).\n`
+    `  -d, --diff-when RULE    When to print a diff of interpretations: always, never, or same-type (default).\n`
   )
 }
 
@@ -86,6 +87,14 @@ export default async function main(
   let interpretSpinner: Spinner | undefined
 
   await retryScan(options, {
+    configured: (options) => {
+      stdout.write(
+        `${chalk.bold('Input:')} ${options.inputWorkspace}\n${chalk.bold(
+          'Output:'
+        )} ${options.outputWorkspace}\n`
+      )
+    },
+
     sheetsLoading: () => {
       fetchSpinner = ora({
         text: 'Finding sheets matching filters',
