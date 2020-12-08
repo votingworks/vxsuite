@@ -394,19 +394,27 @@ export function findMatchingContests(
 
   for (const [i, contestShape] of ballotLayout.contests.entries()) {
     const clog = log?.group(`contest #${i + 1}`)
-    const previousContestShape = ballotLayout.contests[i - 1]
-    const yStart = Math.round(
-      previousContestShape &&
-        previousContestShape.bounds.x === contestShape.bounds.x
-        ? (previousContestShape.bounds.y +
-            previousContestShape.bounds.height +
-            contestShape.bounds.y) /
-            2
-        : contestShape.bounds.y / 2
-    )
+    const previousTemplateShape = ballotLayout.contests[i - 1]
+    const previousScannedShape = contestShapes[i - 1]
+    const isSameColumn =
+      !!previousTemplateShape &&
+      previousTemplateShape.bounds.x === contestShape.bounds.x
 
     clog?.temp(mapRect(contestShape.bounds), 'contest box perfect map')
-    const contestBoxFromOffset = mapRect({ ...contestShape.bounds, y: yStart })
+    const contestBoxFromOffset =
+      isSameColumn && previousScannedShape
+        ? {
+            ...mapRect(contestShape.bounds),
+            y:
+              Math.max(
+                previousScannedShape.corners[2].y,
+                previousScannedShape.corners[3].y
+              ) + 1,
+          }
+        : mapRect({
+            ...contestShape.bounds,
+            y: Math.round(contestShape.bounds.y / 2),
+          })
     clog?.temp(contestBoxFromOffset, 'contest box search space')
     const contestBoxTopLineSearchArea = rectShift(
       {
