@@ -50,45 +50,51 @@ export function rect(rectOrSides: Rect | RectSides): Rect {
   }
 }
 
+export function rectSides(rect: Rect): RectSides {
+  return {
+    left: rect.x,
+    top: rect.y,
+    right: rect.x + rect.width - 1,
+    bottom: rect.y + rect.height - 1,
+  }
+}
+
 export function rectContains(container: Rect, rect: Rect): boolean
 export function rectContains(container: Rect, point: Point): boolean
 export function rectContains(
   container: Rect,
   rectOrPoint: Rect | Point
 ): boolean {
+  const containerSides = rectSides(container)
+
   if (
-    rectOrPoint.x < container.x ||
-    rectOrPoint.y < container.y ||
-    rectOrPoint.x >= container.x + container.width ||
-    rectOrPoint.y >= container.y + container.height
+    rectOrPoint.x < containerSides.left ||
+    rectOrPoint.y < containerSides.top ||
+    rectOrPoint.x > containerSides.right ||
+    rectOrPoint.y > containerSides.bottom
   ) {
     return false
   }
 
   if ('width' in rectOrPoint) {
-    const rect = rectOrPoint
+    const { right, bottom } = rectSides(rectOrPoint)
 
-    return (
-      rect.x + rect.width <= container.x + container.width &&
-      rect.y + rect.height <= container.y + container.height
-    )
+    return right <= containerSides.right && bottom <= containerSides.bottom
   }
 
   return true
 }
 
-export function rectClip(rect: Rect, bounds: Rect): Rect {
-  const x = Math.min(Math.max(rect.x, bounds.x), bounds.x + bounds.width - 1)
-  const y = Math.min(Math.max(rect.y, bounds.y), bounds.y + bounds.height - 1)
-  const rightEnd = Math.max(
-    Math.min(rect.x + rect.width, bounds.x + bounds.width),
-    bounds.x
-  )
-  const bottomEnd = Math.max(
-    Math.min(rect.y + rect.height, bounds.y + bounds.height),
-    bounds.y
-  )
-  return { x, y, width: rightEnd - x + 1, height: bottomEnd - y + 1 }
+export function rectClip(area: Rect, bounds: Rect): Rect {
+  const sides = rectSides(area)
+  const boundsSides = rectSides(bounds)
+
+  return rect({
+    left: Math.max(sides.left, boundsSides.left),
+    top: Math.max(sides.top, boundsSides.top),
+    right: Math.min(sides.right, boundsSides.right),
+    bottom: Math.min(sides.bottom, boundsSides.bottom),
+  })
 }
 
 export function mergeRects(rect: Rect, ...rects: readonly Rect[]): Rect {
@@ -233,7 +239,7 @@ export function* lineSegmentPixels(a: Point, b: Point): Generator<Point> {
       yield { x: y, y: x }
     }
   } else {
-    const steps = Math.abs(b.x - a.x)
+    const steps = Math.abs(b.x - a.x + 1)
     const xStep = a.x < b.x ? 1 : -1
     for (let i = 0; i < steps; i++) {
       yield {

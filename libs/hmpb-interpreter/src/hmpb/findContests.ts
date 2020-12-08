@@ -7,10 +7,11 @@ import {
   Corners,
   Point,
   Rect,
+  Vector,
 } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { getCorners } from '../utils/corners'
-import { findInsetEdges } from '../utils/edges'
+import { findEdgeWithin } from '../utils/edges'
 import {
   euclideanDistance,
   poly4Area,
@@ -22,10 +23,11 @@ import {
 } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { zip } from '../utils/iterators'
+import { FeatureImageLogger, ImageLogger } from '../utils/logging'
 import { VisitedPoints } from '../utils/VisitedPoints'
 import {
   computeAreaFill,
-  Edge,
+  Edges,
   findShape,
   parseRectangle,
   Shape,
@@ -144,6 +146,7 @@ export function findStroke({
   searchDirection,
   minDensity = 0.2,
   edgeContrastRatio = 0.2,
+  log,
 }: {
   imageData: ImageData
   bounds: Rect
@@ -152,127 +155,93 @@ export function findStroke({
   searchDirection: 'up' | 'down' | 'left' | 'right'
   minDensity?: number
   edgeContrastRatio?: number
+  log?: ImageLogger
 }): Rect | undefined {
-  debug('findStroke bounds=%o direction=%s', bounds, searchDirection)
-  if (searchDirection === 'up' || searchDirection === 'down') {
-    const fillByY = new Int32Array(bounds.height)
-    const yStart =
-      searchDirection === 'up' ? bounds.y + bounds.height - 1 : bounds.y
-    const yStep = searchDirection === 'up' ? -1 : 1
-    let strokeStart = -1
+  let result: Rect | undefined
+  const l = log?.group('findStroke')
+  l?.temp(bounds, `searchDirection=${searchDirection}`)
 
-    for (let yi = 0; yi < bounds.height; yi++) {
-      const y = yStart + yi * yStep
-      const fill = computeAreaFill(imageData, {
-        ...bounds,
-        y,
-        height: 1,
-      })
-      fillByY[yi] = fill
+  const fills = new Int32Array(bounds.width)
+  const start: Point = {
+    x: searchDirection === 'left' ? bounds.x + bounds.width - 1 : bounds.x,
+    y: searchDirection === 'up' ? bounds.y + bounds.height - 1 : bounds.y,
+  }
+  const step: Vector = {
+    x: searchDirection === 'left' ? -1 : searchDirection === 'right' ? 1 : 0,
+    y: searchDirection === 'up' ? -1 : searchDirection === 'down' ? 1 : 0,
+  }
+  let strokeStart: Point | undefined
+  let stroke: FeatureImageLogger | undefined
 
-      if (strokeStart < 0) {
-        if (fill / bounds.width >= minDensity) {
-          debug('maybe stroke start at y=%d', y)
-          strokeStart = y
-        }
-      } else {
-        const lastFill = fillByY[yi - 1]
-        const thickness = Math.abs(y - strokeStart)
-        if (lastFill * edgeContrastRatio < fill) {
-          // keep looking
-        } else if (thickness < minThickness) {
-          // too thin
-          debug('stroke was too thin (%d < %d)', thickness, minThickness)
-          strokeStart = -1
-          yi--
-        } else if (thickness > maxThickness) {
-          // too thick
-          debug('stroke was too thick (%d > %d)', thickness, maxThickness)
-          strokeStart = -1
-          yi--
-        } else if (
-          fillByY
-            .slice(yi - thickness, yi)
-            .reduce((sum, fill) => sum + fill, 0) /
-            (thickness * bounds.width) <
-          minDensity
-        ) {
-          // too sparse
-          debug('stroke was too sparse (< %d%%)', Math.round(minDensity * 100))
-          strokeStart = -1
-          yi--
-        } else {
-          const result = rect({
-            ...bounds,
-            y: Math.min(strokeStart, y + 1),
-            height: thickness,
-          })
-          debug('found stroke in %o', result)
-          return result
-        }
-      }
+  for (let i = 0; i < bounds.width; i++) {
+    const point: Point = {
+      x: start.x + i * step.x,
+      y: start.y + i * step.y,
     }
-  } else {
-    const fillByX = new Int32Array(bounds.width)
-    const xStart =
-      searchDirection === 'left' ? bounds.x + bounds.width - 1 : bounds.x
-    const xStep = searchDirection === 'left' ? -1 : 1
-    let strokeStart = -1
+    const fillRect = rect({
+      ...point,
+      width: Math.abs(step.x) || bounds.width,
+      height: Math.abs(step.y) || bounds.height,
+    })
+    const fill = computeAreaFill(imageData, fillRect)
+    l?.temp(fillRect, 'check next slice for stroke')
+    fills[i] = fill
 
-    for (let xi = 0; xi < bounds.width; xi++) {
-      const x = xStart + xi * xStep
-      const fill = computeAreaFill(imageData, {
-        ...bounds,
-        x,
-        width: 1,
+    if (!strokeStart) {
+      if (fill / (fillRect.width * fillRect.height) >= minDensity) {
+        stroke = l?.feature(fillRect, 'possible stroke found')
+        strokeStart = point
+      }
+    } else {
+      const lastFill = fills[i - 1]
+      const thickness = euclideanDistance(point, strokeStart)
+      const updatedShape = rect({
+        x: Math.min(point.x, strokeStart.x),
+        y: Math.min(point.y, strokeStart.y),
+        width: step.x ? thickness : bounds.width,
+        height: step.y ? thickness : bounds.height,
       })
-      fillByX[xi] = fill
-
-      if (strokeStart < 0) {
-        if (fill / bounds.height >= minDensity) {
-          debug('maybe stroke start at x=%d', x)
-          strokeStart = x
-        }
+      if (lastFill * edgeContrastRatio < fill) {
+        // keep looking
+        stroke?.update(updatedShape)
+      } else if (thickness < minThickness) {
+        // too thin
+        stroke?.cancel(`too thin (${thickness} < ${minThickness})`)
+        stroke = undefined
+        strokeStart = undefined
+        i--
+      } else if (thickness > maxThickness) {
+        // too thick
+        stroke?.cancel(`too thick (${thickness} > ${maxThickness})`)
+        stroke = undefined
+        strokeStart = undefined
+        i--
+      } else if (
+        fills.slice(i - thickness, i).reduce((sum, fill) => sum + fill, 0) /
+          (updatedShape.width * updatedShape.height) <
+        minDensity
+      ) {
+        // too sparse
+        stroke?.cancel(`too sparse (< ${Math.round(minDensity * 100)}% filled)`)
+        stroke = undefined
+        strokeStart = undefined
+        i--
       } else {
-        const lastFill = fillByX[xi - 1]
-        const thickness = Math.abs(x - strokeStart)
-        if (lastFill * edgeContrastRatio < fill) {
-          // keep looking
-        } else if (thickness < minThickness) {
-          // too thin
-          debug('stroke was too thin (%d < %d)', thickness, minThickness)
-          strokeStart = -1
-          xi--
-        } else if (thickness > maxThickness) {
-          // too thick
-          debug('stroke was too thick (%d > %d)', thickness, maxThickness)
-          strokeStart = -1
-          xi--
-        } else if (
-          fillByX
-            .slice(xi - thickness, xi)
-            .reduce((sum, fill) => sum + fill, 0) /
-            (thickness * bounds.height) <
-          minDensity
-        ) {
-          // too sparse
-          debug('stroke was too sparse (< %d%%)', Math.round(minDensity * 100))
-          strokeStart = -1
-          xi--
-        } else {
-          const result = rect({
-            ...bounds,
-            x: Math.min(strokeStart, x + 1),
-            width: thickness,
-          })
-          debug('found stroke in %o', result)
-          return result
-        }
+        result = updatedShape
+        break
       }
     }
   }
 
-  return undefined
+  if (result) {
+    stroke?.update(result).commit('stroke found')
+  } else {
+    stroke?.cancel('no stroke found')
+    stroke = undefined
+  }
+
+  l?.end()
+  return result
 }
 
 export default function* findContests(
@@ -396,7 +365,8 @@ export default function* findContests(
 
 export function findMatchingContests(
   ballotImage: ImageData,
-  ballotLayout: BallotPageLayout
+  ballotLayout: BallotPageLayout,
+  log?: ImageLogger
 ): ContestShape[] {
   const contestShapes: ContestShape[] = []
 
@@ -423,6 +393,7 @@ export function findMatchingContests(
     })
 
   for (const [i, contestShape] of ballotLayout.contests.entries()) {
+    const clog = log?.group(`contest #${i + 1}`)
     const previousContestShape = ballotLayout.contests[i - 1]
     const yStart = Math.round(
       previousContestShape &&
@@ -434,7 +405,9 @@ export function findMatchingContests(
         : contestShape.bounds.y / 2
     )
 
+    clog?.temp(mapRect(contestShape.bounds), 'contest box perfect map')
     const contestBoxFromOffset = mapRect({ ...contestShape.bounds, y: yStart })
+    clog?.temp(contestBoxFromOffset, 'contest box search space')
     const contestBoxTopLineSearchArea = rectShift(
       {
         ...contestBoxFromOffset,
@@ -449,6 +422,7 @@ export function findMatchingContests(
       minThickness: 8,
       maxThickness: 25,
       searchDirection: 'down',
+      log: clog,
     })
     const contestBoxTopLineParts: Rect[] = []
     const contestBoxLeftLineParts: Rect[] = []
@@ -509,6 +483,7 @@ export function findMatchingContests(
         maxThickness: 6,
         minThickness: 2,
         searchDirection: 'left',
+        log: clog,
       })
       const contestBoxRightLinePart = findStroke({
         imageData: ballotImage,
@@ -524,6 +499,7 @@ export function findMatchingContests(
         maxThickness: 6,
         minThickness: 2,
         searchDirection: 'right',
+        log: clog,
       })
 
       if (contestBoxLeftLinePart) {
@@ -611,6 +587,7 @@ export function findMatchingContests(
         minThickness: 2,
         maxThickness: 10,
         searchDirection: 'up',
+        log: clog,
       })
 
       if (contestBoxBottomLine) {
@@ -686,53 +663,18 @@ export function findMatchingContests(
       ) + boundsPadding
     const contestBounds = rectClip(
       { x: 0, y: 0, width: ballotImage.width, height: ballotImage.height },
-      {
-        x: left,
-        y: top,
-        width: right - left + 1,
-        height: bottom - top + 1,
-      }
+      rect({ left, top, right, bottom })
     )
 
-    const channels = getImageChannelCount(ballotImage)
-    const topEdge: Edge = new Int32Array(ballotImage.width).fill(
-      ballotImage.height
-    )
-    for (const part of contestBoxTopLineParts) {
-      for (let x = part.x; x < part.x + part.width; x++) {
-        for (let y = part.y; y < part.y + part.height; y++) {
-          if (
-            ballotImage.data[channels * (x + y * ballotImage.width)] ===
-            PIXEL_BLACK
-          ) {
-            topEdge[x] = y
-            break
-          }
-        }
-      }
+    const edges: Edges = {
+      left: findEdgeWithin(ballotImage, contestBoxTopLineParts, 'left'),
+      top: findEdgeWithin(ballotImage, contestBoxTopLineParts, 'top'),
+      right: findEdgeWithin(ballotImage, contestBoxRightLineParts, 'right'),
+      bottom: findEdgeWithin(ballotImage, contestBoxBottomLineParts, 'bottom'),
     }
-    const rightEdge: Edge = new Int32Array(ballotImage.height).fill(-1)
-    for (const part of contestBoxRightLineParts) {
-      for (let y = part.y; y < part.y + part.height; y++) {
-        for (let x = part.x + part.width - 1; x >= part.x; x--) {
-          if (
-            ballotImage.data[channels * (x + y * ballotImage.width)] ===
-            PIXEL_BLACK
-          ) {
-            rightEdge[y] = x
-            break
-          }
-        }
-      }
-    }
-    const edges = findInsetEdges(ballotImage, contestBounds)
     const corners = getCorners({
       bounds: contestBounds,
-      edges: {
-        ...edges,
-        top: topEdge,
-        right: rightEdge,
-      },
+      edges,
     })
 
     contestShapes.push({
@@ -779,6 +721,8 @@ export function findMatchingContests(
         drawTarget(ballotImage, corner, [0xff, 0, 0, 0x66], 25)
       }
     }
+
+    clog?.end()
   }
 
   return contestShapes

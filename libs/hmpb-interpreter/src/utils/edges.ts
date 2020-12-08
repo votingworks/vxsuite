@@ -1,6 +1,7 @@
 import { Edge, Edges } from '../hmpb/shapes'
-import { Rect } from '../types'
+import { Point, Rect } from '../types'
 import { PIXEL_BLACK } from './binarize'
+import { lineSegmentPixels } from './geometry'
 import { getImageChannelCount } from './imageFormatUtils'
 
 export function findInsetEdges(imageData: ImageData, bounds: Rect): Edges {
@@ -52,4 +53,50 @@ export function findInsetEdges(imageData: ImageData, bounds: Rect): Edges {
   }
 
   return { left, top, right, bottom }
+}
+
+export function findEdgeWithin(
+  imageData: ImageData,
+  rects: readonly Rect[],
+  edge: 'top' | 'left' | 'right' | 'bottom'
+): Edge {
+  const result = new Int32Array(
+    edge === 'top' || edge === 'bottom' ? imageData.width : imageData.height
+  ).fill(
+    edge === 'left' ? imageData.width : edge === 'top' ? imageData.height : -1
+  )
+  const channels = getImageChannelCount(imageData)
+  const { data, width } = imageData
+
+  for (const rect of rects) {
+    const left = rect.x
+    const right = rect.x + rect.width - 1
+    const top = rect.y
+    const bottom = rect.y + rect.height - 1
+
+    for (const outside of lineSegmentPixels(
+      {
+        x: edge === 'right' ? right : left,
+        y: edge === 'bottom' ? bottom : top,
+      },
+      {
+        x: edge === 'left' ? left : right,
+        y: edge === 'top' ? top : bottom,
+      }
+    )) {
+      const inside: Point = {
+        x: edge === 'left' ? right : edge === 'right' ? left : outside.x,
+        y: edge === 'top' ? bottom : edge === 'bottom' ? top : outside.y,
+      }
+      for (const { x, y } of lineSegmentPixels(outside, inside)) {
+        if (data[channels * (x + y * width)] === PIXEL_BLACK) {
+          result[edge === 'top' || edge === 'bottom' ? x : y] =
+            edge === 'top' || edge === 'bottom' ? y : x
+          break
+        }
+      }
+    }
+  }
+
+  return result
 }
