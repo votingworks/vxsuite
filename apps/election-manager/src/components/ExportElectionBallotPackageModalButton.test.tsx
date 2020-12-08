@@ -129,7 +129,7 @@ test('Modal renders error message appropriately', async () => {
   fireEvent.click(getByText('Export Ballot Package'))
   await waitFor(() => getByText('Export'))
 
-  fireEvent.click(queryAllByTestId('manual-link')[0])
+  fireEvent.click(getByText('Custom'))
 
   await waitFor(() => getByText(/Download Failed/))
   expect(queryAllByTestId('modal')).toHaveLength(1)
