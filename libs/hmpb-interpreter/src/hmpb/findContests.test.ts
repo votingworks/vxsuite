@@ -211,9 +211,7 @@ test('can handle bad skew', async () => {
   const layout = await interpreter.addTemplate(templateImageData)
 
   binarize(scannedImageData)
-  console.time('findMatchingContests')
   findMatchingContests(scannedImageData, layout, makeDebugImageLogger())
-  console.timeEnd('findMatchingContests')
   await writeImageToFile(
     scannedImageData,
     'debug-findContests-marshall-red-banks.png'
