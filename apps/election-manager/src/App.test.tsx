@@ -127,7 +127,7 @@ it('printing ballots, print report, and test decks', async () => {
 
   // we're not mocking the filestream yet
   await screen.findByText(/Download Failed!/)
-  fireEvent.click(getByText('Cancel'))
+  fireEvent.click(getByText('Close'))
 
   fireEvent.click(getByText('Ballots'))
   fireEvent.click(getAllByText('View Ballot')[0])

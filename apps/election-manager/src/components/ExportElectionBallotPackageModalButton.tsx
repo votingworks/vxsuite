@@ -128,13 +128,16 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
   }
 
   let mainContent = null
-  let primaryButton = null
-  let disableCancel = false
+  let actions = null
 
   switch (state.type) {
     case 'Init': {
       mainContent = <Loading />
-      disableCancel = true
+      actions = (
+        <LinkButton onPress={closeModal} disabled>
+          Cancel
+        </LinkButton>
+      )
       break
     }
 
@@ -143,12 +146,13 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
         case UsbDriveStatus.absent:
         case UsbDriveStatus.notavailable:
         case UsbDriveStatus.recentlyEjected:
+          actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>
           mainContent = (
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
                 <USBImage src="usb-drive.svg" alt="Insert USB Image" />
-                Please insert a USB stick in order to export the ballot
+                Please insert a USB drive in order to export the ballot
                 configuration.
               </p>
             </Prose>
@@ -157,27 +161,32 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
         case UsbDriveStatus.ejecting:
         case UsbDriveStatus.present:
           mainContent = <Loading />
-          disableCancel = true
+          actions = (
+            <LinkButton onPress={closeModal} disabled>
+              Cancel
+            </LinkButton>
+          )
           break
         case UsbDriveStatus.mounted: {
-          // TODO(caro): Update this to just write the file to the USB stick once the APIS in kiosk-browser exist.
-          primaryButton = (
-            <Button onPress={openFileDialog} primary>
-              Export
-            </Button>
+          // TODO(caro): Update this to just write the file to the USB drive once the APIS in kiosk-browser exist.
+          actions = (
+            <React.Fragment>
+              <LinkButton onPress={closeModal}>Cancel</LinkButton>
+              <Button onPress={openFileDialog}>Custom</Button>
+              <Button onPress={openFileDialog} primary>
+                Export
+              </Button>
+            </React.Fragment>
           )
           mainContent = (
             <Prose>
-              <h1>USB Drive Detected!</h1>
+              <h1>Export Ballot Package</h1>
               <p>
                 <USBImage src="usb-drive.svg" alt="Insert USB Image" />
                 Would you like to export the ballot configuration now? A zip
-                archive will automatically be saved to the inserted USB drive.
-                You may also {/* eslint-disable jsx-a11y/anchor-is-valid */}
-                <a href="#" onClick={openFileDialog} data-testid="manual-link">
-                  manually select a location to save the archive to.
-                </a>
-                {/* eslint-enable jsx-a11y/anchor-is-valid */}
+                archive will automatically be saved to the default location on
+                the mounted USB drive. Optionally, you may pick a custom export
+                location.
               </p>
             </Prose>
           )
@@ -187,7 +196,11 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       break
 
     case 'RenderBallot': {
-      disableCancel = true
+      actions = (
+        <LinkButton onPress={closeModal} disabled>
+          Cancel
+        </LinkButton>
+      )
       const {
         ballotStyleId,
         precinctId,
@@ -238,6 +251,11 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
     }
 
     case 'ArchiveEnd': {
+      actions = (
+        <LinkButton onPress={closeModal} disabled>
+          Cancel
+        </LinkButton>
+      )
       mainContent = (
         <Prose>
           <h1>Finishing Download…</h1>
@@ -251,14 +269,22 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
     }
 
     case 'Done': {
-      primaryButton = <USBControllerButton primary small={false} />
+      if (usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
+        actions = (
+          <React.Fragment>
+            <LinkButton onPress={closeModal}>Cancel</LinkButton>
+            <USBControllerButton primary small={false} />
+          </React.Fragment>
+        )
+      } else {
+        actions = <LinkButton onPress={closeModal}>Close</LinkButton>
+      }
       mainContent = (
         <Prose>
           <h1>Download Complete!</h1>
           <p>
-            Exported {pluralize('ballot', state.ballotConfigsCount, true)}. You
-            may now eject the USB device and connect it with your ballot
-            scanning machine to configure it.
+            You may now eject the USB drive. Use the exported ballot package on
+            this USB drive to configure the Ballot Scanner.
           </p>
         </Prose>
       )
@@ -266,6 +292,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
     }
 
     case 'Failed': {
+      actions = <LinkButton onPress={closeModal}>Close</LinkButton>
       mainContent = (
         <Prose>
           <h1>Download Failed!</h1>
@@ -285,14 +312,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
         isOpen={isModalOpen}
         content={mainContent}
         onOverlayClick={closeModal}
-        actions={
-          <React.Fragment>
-            <LinkButton onPress={closeModal} disabled={disableCancel}>
-              Cancel
-            </LinkButton>
-            {primaryButton}
-          </React.Fragment>
-        }
+        actions={actions}
       />
     </React.Fragment>
   )

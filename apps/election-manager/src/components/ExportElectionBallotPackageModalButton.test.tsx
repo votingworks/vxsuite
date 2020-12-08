@@ -48,7 +48,7 @@ test('Modal renders insert usb screen appropriately', async () => {
     expect(queryAllByTestId('modal')).toHaveLength(1)
     expect(
       queryAllByText(
-        'Please insert a USB stick in order to export the ballot configuration.'
+        'Please insert a USB drive in order to export the ballot configuration.'
       )
     ).toHaveLength(1)
 
@@ -74,7 +74,9 @@ test('Modal renders export confirmation screen when usb detected and manual link
     usbDriveStatus: UsbDriveStatus.mounted,
   })
   fireEvent.click(getByText('Export Ballot Package'))
-  await waitFor(() => getByText('USB Drive Detected!'))
+  await waitFor(() =>
+    expect(queryAllByText('Export Ballot Package')).toHaveLength(2)
+  )
   expect(queryAllByAltText('Insert USB Image')).toHaveLength(1)
   expect(queryAllByTestId('modal')).toHaveLength(1)
   expect(
@@ -82,15 +84,14 @@ test('Modal renders export confirmation screen when usb detected and manual link
   ).toHaveLength(1)
   expect(
     queryAllByText(
-      /A zip archive will automatically be saved to the inserted USB drive./
+      /A zip archive will automatically be saved to the default location on the mounted USB drive./
     )
   ).toHaveLength(1)
+  expect(
+    queryAllByText(/Optionally, you may pick a custom export location./)
+  ).toHaveLength(1)
 
-  expect(queryAllByTestId('manual-link')).toHaveLength(1)
-  expect(queryAllByTestId('manual-link')[0]).toHaveTextContent(
-    'manually select a location to save the archive to.'
-  )
-  fireEvent.click(queryAllByTestId('manual-link')[0])
+  fireEvent.click(getByText('Custom'))
   await waitFor(() => getByText(/Download Complete/))
   await waitFor(() => {
     expect(saveAsFunction).toHaveBeenCalledTimes(1)
@@ -100,7 +101,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
   expect(queryAllByTestId('modal')).toHaveLength(0)
 })
 
-test('Modal renders loading screen when usb is mounting or ejecting', async () => {
+test('Modal renders loading screen when usb drive is mounting or ejecting', async () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]
 
   for (const usbStatus of usbStatuses) {
@@ -128,7 +129,7 @@ test('Modal renders error message appropriately', async () => {
     }
   )
   fireEvent.click(getByText('Export Ballot Package'))
-  await waitFor(() => getByText('USB Drive Detected!'))
+  await waitFor(() => getByText('Export'))
 
   fireEvent.click(getByText('Export'))
 
@@ -139,7 +140,7 @@ test('Modal renders error message appropriately', async () => {
     queryAllByText(/could not begin download; no file was chosen/)
   ).toHaveLength(1)
 
-  fireEvent.click(getByText('Cancel'))
+  fireEvent.click(getByText('Close'))
   expect(queryAllByTestId('modal')).toHaveLength(0)
 })
 
@@ -158,7 +159,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
     }
   )
   fireEvent.click(getByText('Export Ballot Package'))
-  await waitFor(() => getByText('USB Drive Detected!'))
+  await waitFor(() => getByText('Export'))
 
   fireEvent.click(getByText('Export'))
 
@@ -171,7 +172,6 @@ test('Modal renders renders loading message while rendering ballots appropriatel
       /You may now eject the USB device and connect it with your ballot scanning machine to configure it./
     )
   )
-  expect(queryAllByText(/Exported 26 ballots/)).toHaveLength(1)
 
   expect(queryAllByText('Eject USB')).toHaveLength(1)
   fireEvent.click(getByText('Eject USB'))
