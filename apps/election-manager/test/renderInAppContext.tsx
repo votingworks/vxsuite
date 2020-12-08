@@ -29,7 +29,7 @@ const eitherNeitherElection = parseElection(
   JSON.parse(eitherNeitherElectionData)
 )
 
-const defaultElectionDefinition = {
+export const defaultElectionDefinition = {
   election: eitherNeitherElection,
   electionData: eitherNeitherElectionData,
   electionHash: eitherNeitherElectionHash,

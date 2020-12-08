@@ -14,7 +14,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
         class="sc-AxiKw gTDzBu"
       >
         <div
-          class="sc-fzokOt eVkylW"
+          class="sc-fznyAO ikzhEI"
         >
           <h1>
             Test Deck
@@ -100,11 +100,12 @@ exports[`printing ballots, print report, and test decks 1`] = `
       <div
         class="sc-AxmLO jrWrYg"
       >
-        <p
-          class="sc-fznyAO dooajl"
+        <button
+          class="sc-fzoLsD cIOEoD"
+          type="button"
         >
-          No USB
-        </p>
+          Eject USB
+        </button>
       </div>
     </div>
   </div>
@@ -167,7 +168,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
         class="sc-AxiKw gTDzBu"
       >
         <div
-          class="sc-fzokOt eVkylW"
+          class="sc-fznyAO ikzhEI"
         >
           <h1>
             Test Ballot Deck Tally
@@ -261,11 +262,12 @@ exports[`printing ballots, print report, and test decks 2`] = `
       <div
         class="sc-AxmLO jrWrYg"
       >
-        <p
-          class="sc-fznyAO dooajl"
+        <button
+          class="sc-fzoLsD cIOEoD"
+          type="button"
         >
-          No USB
-        </p>
+          Eject USB
+        </button>
       </div>
     </div>
   </div>
@@ -273,7 +275,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
     class="print-only"
   >
     <div
-      class="sc-fznMAR ifQwJL"
+      class="sc-fznWOq dLNTMU"
     >
       <h1>
         Test Ballot Deck Tally
@@ -292,16 +294,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         All Precincts
       </p>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               39 ballots
                cast /
@@ -366,16 +368,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               39 ballots
                cast /
@@ -440,16 +442,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               39 ballots
                cast /
@@ -504,16 +506,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               39 ballots
                cast /
@@ -568,16 +570,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               9 ballots
                cast /
@@ -622,16 +624,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               9 ballots
                cast /
@@ -686,16 +688,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               9 ballots
                cast /
@@ -740,16 +742,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               9 ballots
                cast /
@@ -804,16 +806,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               3 ballots
                cast /
@@ -868,16 +870,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               3 ballots
                cast /
@@ -922,16 +924,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               0 ballots
                cast /
@@ -976,16 +978,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               0 ballots
                cast /
@@ -1030,16 +1032,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               39 ballots
                cast /
@@ -1084,16 +1086,16 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-fznxKY kfzegD"
+        class="sc-fznMAR xKWvD"
       >
         <div
-          class="sc-fzokOt iRQRix"
+          class="sc-fznyAO jTluKr"
         >
           <div
-            class="sc-fzpmMD fvXNsj ignore-prose"
+            class="sc-fznxKY bOVfyb ignore-prose"
           >
             <span
-              class="sc-fznyAO drvcLn"
+              class="sc-fznKkj gNTBji"
             >
               39 ballots
                cast /
@@ -1148,16 +1150,16 @@ exports[`tabulating CVRs 1`] = `
   data-testid="tally-report-contents"
 >
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           100 ballots
            cast /
@@ -1222,16 +1224,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           100 ballots
            cast /
@@ -1296,16 +1298,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           100 ballots
            cast /
@@ -1360,16 +1362,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           100 ballots
            cast /
@@ -1424,16 +1426,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           18 ballots
            cast /
@@ -1478,16 +1480,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           15 ballots
            cast /
@@ -1542,16 +1544,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           23 ballots
            cast /
@@ -1596,16 +1598,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           25 ballots
            cast /
@@ -1660,16 +1662,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           19 ballots
            cast /
@@ -1724,16 +1726,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           19 ballots
            cast /
@@ -1778,16 +1780,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           98 ballots
            cast /
@@ -1832,16 +1834,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           98 ballots
            cast /
@@ -1886,16 +1888,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           100 ballots
            cast /
@@ -1940,16 +1942,16 @@ exports[`tabulating CVRs 1`] = `
     </div>
   </div>
   <div
-    class="sc-fznxKY kfzegD"
+    class="sc-fznMAR xKWvD"
   >
     <div
-      class="sc-fzokOt iRQRix"
+      class="sc-fznyAO jTluKr"
     >
       <div
-        class="sc-fzpmMD fvXNsj ignore-prose"
+        class="sc-fznxKY bOVfyb ignore-prose"
       >
         <span
-          class="sc-fznyAO drvcLn"
+          class="sc-fznKkj gNTBji"
         >
           100 ballots
            cast /

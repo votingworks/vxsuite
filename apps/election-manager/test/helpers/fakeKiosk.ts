@@ -15,6 +15,16 @@ export function fakeDevice(
   }
 }
 
+export function fakeUsbDrive(
+  props: Partial<KioskBrowser.UsbDrive> = {}
+): KioskBrowser.UsbDrive {
+  return {
+    deviceName: 'fake device',
+    mountPoint: 'fake mount point',
+    ...props,
+  }
+}
+
 export function fakePrinterInfo(
   props: Partial<KioskBrowser.PrinterInfo> = {}
 ): KioskBrowser.PrinterInfo {

@@ -8,7 +8,7 @@ import Screen from './Screen'
 import Main, { MainChild } from './Main'
 import Navigation from './Navigation'
 import LinkButton from './LinkButton'
-import USBController from './USBController'
+import USBControllerButton from './USBControllerButton'
 
 interface Props {
   children: React.ReactNode
@@ -61,7 +61,7 @@ const NavigationScreen: React.FC<Props> = ({
             </React.Fragment>
           )
         }
-        secondaryNav={<USBController />}
+        secondaryNav={<USBControllerButton />}
       />
     </Screen>
   )
