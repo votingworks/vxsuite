@@ -79,7 +79,6 @@ test('creates a layout file adjacent to the input file', async () => {
   expect(Buffer.from(stdout.read()).toString('utf-8')).toContain(
     layoutImagePath
   )
-  console.log({ layoutImagePath })
 
   const imageData = await loadImageData(imagePath)
   const layoutImageData = await loadImageData(layoutImagePath)
