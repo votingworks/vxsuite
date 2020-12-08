@@ -177,8 +177,8 @@ test('can handle toner gaps in the contest box', async () => {
     election: choctaw.election,
     testMode: false,
   })
-  const templateImageData = await marshall.blankPage1.imageData()
-  const scannedImageData = await marshall.filledInPage1.imageData()
+  const templateImageData = await marshall.mtPleasantBlankPage1.imageData()
+  const scannedImageData = await marshall.mtPleasantFilledInPage1.imageData()
   const layout = await interpreter.addTemplate(templateImageData)
 
   binarize(scannedImageData)
@@ -198,4 +198,21 @@ test('can handle lines connecting the boxes', async () => {
   binarize(scannedImageData)
   findMatchingContests(scannedImageData, layout)
   await writeImageToFile(scannedImageData, 'debug-findContests-hamilton.png')
+})
+
+test('can handle bad skew', async () => {
+  const interpreter = new Interpreter({
+    election: marshall.election,
+    testMode: false,
+  })
+  const templateImageData = await marshall.redBanksBlankPage2.imageData()
+  const scannedImageData = await marshall.redBanksFilledInPage2.imageData()
+  const layout = await interpreter.addTemplate(templateImageData)
+
+  binarize(scannedImageData)
+  findMatchingContests(scannedImageData, layout)
+  await writeImageToFile(
+    scannedImageData,
+    'debug-findContests-marshall-red-banks.png'
+  )
 })

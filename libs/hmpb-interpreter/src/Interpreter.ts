@@ -380,14 +380,22 @@ export default class Interpreter {
           contestCorner.x !== matchedCorner.x ||
           contestCorner.y !== matchedCorner.y
         ) {
-          throw new Error(
-            `methods differed in finding corners for contest '${
-              contestDefinition.title
-            }': ${inspect({
-              original: contest.corners,
-              updated: matchedContest.corners,
-            })}`
+          debug(
+            'methods differed in finding corners for contest %s: %o != %o (bounds %o, %o)',
+            contestDefinition.title,
+            contest.corners,
+            matchedContest.corners,
+            contest.bounds,
+            matchedContest.bounds
           )
+          // throw new Error(
+          //   `methods differed in finding corners for contest '${
+          //     contestDefinition.title
+          //   }': ${inspect({
+          //     original: contest.corners,
+          //     updated: matchedContest.corners,
+          //   })}`
+          // )
         }
       }
     }
