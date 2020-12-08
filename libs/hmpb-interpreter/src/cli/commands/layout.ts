@@ -1,11 +1,15 @@
+import { parseElection } from '@votingworks/ballot-encoder'
 import { strict as assert } from 'assert'
 import chalk from 'chalk'
+import { promises as fs } from 'fs'
+import { inspect } from 'util'
 import { GlobalOptions, OptionParseError } from '..'
+import { Interpreter } from '../..'
 import { writeImageToFile } from '../../../test/utils'
-import findContests, { ContestShape } from '../../hmpb/findContests'
+import { findMatchingContests } from '../../hmpb/findContests'
+import { detect } from '../../metadata'
 import { Point, Rect } from '../../types'
 import { binarize, RGBA } from '../../utils/binarize'
-import { createImageData } from '../../utils/canvas'
 import { vh } from '../../utils/flip'
 import { lineSegmentPixels } from '../../utils/geometry'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
@@ -13,6 +17,8 @@ import { loadImageData } from '../../utils/images'
 import { adjacentFile } from '../../utils/path'
 
 export interface Options {
+  electionPath: string
+  templateImagePaths: readonly string[]
   ballotImagePaths: readonly string[]
 }
 
@@ -24,81 +30,57 @@ export const name = 'layout'
 export const description = 'Annotate the interpreted layout of a ballot page'
 
 export function printHelp($0: string, out: NodeJS.WritableStream): void {
-  out.write(`${$0} layout IMG1 [IMG2 …]\n`)
+  out.write(`${$0} layout -e ELECTION -t TEMPLATE BALLOT1 [BALLOT2 …]\n`)
   out.write(`\n`)
   out.write(chalk.italic(`Examples\n`))
   out.write(`\n`)
   out.write(chalk.gray(`# Annotate layout for a single ballot page.\n`))
-  out.write(`${$0} layout ballot01.png\n`)
+  out.write(`${$0} layout -e election.json -t template-p1.png ballot01.png\n`)
   out.write(`\n`)
   out.write(chalk.gray(`# Annotate layout for many ballot pages.\n`))
-  out.write(`${$0} layout ballot*.png\n`)
+  out.write(`${$0} layout -e election.json -t template-p1.png ballot*.png\n`)
 }
 
 export async function parseOptions({
   commandArgs: args,
 }: GlobalOptions): Promise<Options> {
+  const templateImagePaths: string[] = []
   const ballotImagePaths: string[] = []
+  let electionPath: string | undefined
 
-  for (const arg of args) {
-    if (arg.startsWith('-')) {
-      throw new OptionParseError(`unexpected option passed to 'layout': ${arg}`)
-    }
-
-    ballotImagePaths.push(arg)
-  }
-
-  return { ballotImagePaths }
-}
-
-interface AnalyzeImageResult {
-  contests: ContestShape[]
-  rotated: boolean
-}
-
-function analyzeImage(imageData: ImageData): AnalyzeImageResult {
-  const binarized = createImageData(imageData.width, imageData.height)
-  binarize(imageData, binarized)
-
-  const transforms = [
-    (imageData: ImageData): { imageData: ImageData; rotated: boolean } => ({
-      imageData,
-      rotated: false,
-    }),
-    (imageData: ImageData): { imageData: ImageData; rotated: boolean } => {
-      const rotatedImageData = createImageData(
-        new Uint8ClampedArray(imageData.data.length),
-        imageData.width,
-        imageData.height
-      )
-      vh(imageData, rotatedImageData)
-      return { imageData: rotatedImageData, rotated: true }
-    },
-  ]
-
-  const columnPatterns = [
-    [true, true, true],
-    [true, true],
-  ]
-
-  for (const transform of transforms) {
-    const transformed = transform(binarized)
-
-    for (const columns of columnPatterns) {
-      const contests = [...findContests(transformed.imageData, { columns })]
-      if (contests.length > 0) {
-        return {
-          contests,
-          rotated: transformed.rotated,
-        }
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+    if (arg === '-e' || arg === '--election') {
+      electionPath = args[++i]
+      if (!electionPath || electionPath.startsWith('-')) {
+        throw new Error(
+          `expected election path after ${arg} but got ${
+            electionPath ?? 'nothing'
+          }`
+        )
       }
+    } else if (arg === '-t' || arg === '--template') {
+      const templateImagePath = args[++i]
+      if (!templateImagePath || templateImagePath.startsWith('-')) {
+        throw new Error(
+          `expected template image path after ${arg} but got ${
+            templateImagePath ?? 'nothing'
+          }`
+        )
+      }
+      templateImagePaths.push(templateImagePath)
+    } else if (arg.startsWith('-')) {
+      throw new OptionParseError(`unexpected option passed to 'layout': ${arg}`)
+    } else {
+      ballotImagePaths.push(arg)
     }
   }
 
-  return {
-    contests: [],
-    rotated: false,
+  if (!electionPath) {
+    throw new Error('missing required option: --election')
   }
+
+  return { electionPath, templateImagePaths, ballotImagePaths }
 }
 
 /**
@@ -110,14 +92,41 @@ export async function run(
   _stdin: NodeJS.ReadableStream,
   stdout: NodeJS.WritableStream
 ): Promise<number> {
+  const election = parseElection(
+    JSON.parse(await fs.readFile(options.electionPath, 'utf-8'))
+  )
+  const interpreter = new Interpreter({ election, testMode: false })
+
+  for (const templateImagePath of options.templateImagePaths) {
+    const imageData = await loadImageData(templateImagePath)
+    binarize(imageData)
+    const detected = await detect(election, imageData)
+    await interpreter.addTemplate(imageData, {
+      ...detected.metadata,
+      isTestMode: false,
+    })
+  }
+
   for (const ballotImagePath of options.ballotImagePaths) {
     const imageData = await loadImageData(ballotImagePath)
-    const { contests, rotated } = analyzeImage(imageData)
-    const targetWidth = Math.max(15, Math.round(imageData.width * 0.01))
+    binarize(imageData)
+    const detected = await detect(election, imageData)
+    const template = interpreter['getTemplate'](detected.metadata)
 
-    if (rotated) {
+    if (!template) {
+      throw new Error(
+        `no template found matching ${ballotImagePath} metadata: ${inspect(
+          detected.metadata
+        )}`
+      )
+    }
+
+    if (detected.flipped) {
       vh(imageData)
     }
+
+    const contests = findMatchingContests(imageData, template)
+    const targetWidth = Math.max(15, Math.round(imageData.width * 0.01))
 
     for (const contest of contests) {
       fill(imageData, contest.bounds, GREEN_OVERLAY_COLOR)
