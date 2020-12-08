@@ -182,8 +182,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
             <Prose>
               <h1>Export Ballot Package</h1>
               <p>
-                <USBImage src="usb-drive.svg" alt="Insert USB Image" />
-                Would you like to export the ballot configuration now? A zip
+                <USBImage src="usb-drive.svg" alt="Insert USB Image" />A zip
                 archive will automatically be saved to the default location on
                 the mounted USB drive. Optionally, you may pick a custom export
                 location.
@@ -281,7 +280,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       }
       mainContent = (
         <Prose>
-          <h1>Download Complete!</h1>
+          <h1>Download Complete</h1>
           <p>
             You may now eject the USB drive. Use the exported ballot package on
             this USB drive to configure the Ballot Scanner.
@@ -295,7 +294,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       actions = <LinkButton onPress={closeModal}>Close</LinkButton>
       mainContent = (
         <Prose>
-          <h1>Download Failed!</h1>
+          <h1>Download Failed</h1>
           <p>An error occurred: {state.message}.</p>
         </Prose>
       )

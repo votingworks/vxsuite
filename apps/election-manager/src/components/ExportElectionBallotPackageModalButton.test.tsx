@@ -80,9 +80,6 @@ test('Modal renders export confirmation screen when usb detected and manual link
   expect(queryAllByAltText('Insert USB Image')).toHaveLength(1)
   expect(queryAllByTestId('modal')).toHaveLength(1)
   expect(
-    queryAllByText(/Would you like to export the ballot configuration now?/)
-  ).toHaveLength(1)
-  expect(
     queryAllByText(
       /A zip archive will automatically be saved to the default location on the mounted USB drive./
     )
@@ -133,7 +130,7 @@ test('Modal renders error message appropriately', async () => {
 
   fireEvent.click(getByText('Export'))
 
-  await waitFor(() => getByText(/Download Failed!/))
+  await waitFor(() => getByText(/Download Failed/))
   expect(queryAllByTestId('modal')).toHaveLength(1)
   expect(queryAllByText(/An error occurred:/)).toHaveLength(1)
   expect(
