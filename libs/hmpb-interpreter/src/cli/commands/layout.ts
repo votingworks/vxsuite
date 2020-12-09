@@ -16,8 +16,28 @@ import { getImageChannelCount } from '../../utils/imageFormatUtils'
 import { loadImageData } from '../../utils/images'
 // import { makeDebugImageLogger } from '../../utils/logging'
 import { adjacentFile } from '../../utils/path'
+import * as z from 'zod'
+
+export enum Format {
+  PNG = 'png',
+  HTML = 'html',
+}
+
+// Generic
+type StringEnum = {
+  [key: string]: string
+}
+
+function schemaForEnum<T extends StringEnum, K extends string = T[keyof T]>(
+  enumeration: T
+): z.ZodEnum<[K, ...K[]]> {
+  return z.enum<K, [K, ...K[]]>(Object.values(enumeration) as [K, ...K[]])
+}
+
+export const FormatSchema = schemaForEnum(Format)
 
 export interface Options {
+  format?: Format
   electionPath: string
   templateImagePaths: readonly string[]
   ballotImagePaths: readonly string[]
@@ -48,6 +68,7 @@ export async function parseOptions({
   const templateImagePaths: string[] = []
   const ballotImagePaths: string[] = []
   let electionPath: string | undefined
+  let format: Format | undefined
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
@@ -70,6 +91,15 @@ export async function parseOptions({
         )
       }
       templateImagePaths.push(templateImagePath)
+    } else if (arg === '-f' || arg === '--format') {
+      const value = args[++i]
+      if (FormatSchema.check(value)) {
+        format = value
+      } else {
+        throw new Error(
+          `expected format after ${arg} but got ${value ?? 'nothing'}`
+        )
+      }
     } else if (arg.startsWith('-')) {
       throw new OptionParseError(`unexpected option passed to 'layout': ${arg}`)
     } else {
@@ -81,7 +111,7 @@ export async function parseOptions({
     throw new Error('missing required option: --election')
   }
 
-  return { electionPath, templateImagePaths, ballotImagePaths }
+  return { format, electionPath, templateImagePaths, ballotImagePaths }
 }
 
 /**

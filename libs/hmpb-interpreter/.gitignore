@@ -10,4 +10,5 @@ node_modules
 !bin/*.js
 
 debug*.png
+debug*.html
 votingworks-hmpb-interpreter*.tgz
