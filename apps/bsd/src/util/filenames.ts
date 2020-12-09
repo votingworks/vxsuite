@@ -7,11 +7,11 @@ const TIME_FORMAT_STRING = `YYYY${WORD_SEPERATOR}MM${WORD_SEPERATOR}DD${SUBSECTI
 
 export const BALLOT_PACKAGE_FOLDER = 'ballot-packages'
 
-type ElectionData = {
+export type ElectionData = {
   electionCounty: string
   electionName: string
   electionHash: string
-  timestamp?: Date
+  timestamp: Date
 }
 
 /**

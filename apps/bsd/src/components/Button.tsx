@@ -18,6 +18,7 @@ interface StyledButtonProps
 
 const buttonStyles = css<StyledButtonProps>`
   border: none;
+  display: inline-block;
   border-radius: 0.25rem;
   box-sizing: border-box;
   background: ${({ danger = false, primary = false, warning = false }) =>

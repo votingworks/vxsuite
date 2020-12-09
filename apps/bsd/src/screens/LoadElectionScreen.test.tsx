@@ -11,5 +11,5 @@ test('shows a message that there is no election configuration', () => {
     />
   )
 
-  getByText('Not Configured')
+  getByText('Load Election Configuration')
 })

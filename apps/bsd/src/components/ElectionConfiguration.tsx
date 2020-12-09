@@ -8,8 +8,7 @@ import MainNav from './MainNav'
 import Screen from './Screen'
 import Text from './Text'
 import Loading from './Loading'
-import FileInputButton, { HiddenFileInput } from './FileInputButton'
-import ChoiceButton from './ChoiceButton'
+import FileInputButton from './FileInputButton'
 
 import USBControllerButton from './USBControllerButton'
 import { UsbDriveStatus, getDevicePath } from '../lib/usbstick'
@@ -18,42 +17,20 @@ import {
   BALLOT_PACKAGE_FOLDER,
 } from '../util/filenames'
 import Button from './Button'
+import Table, { TD } from './Table'
 
 const Image = styled.img`
-  margin: 0 auto -1.75rem;
+  float: right;
   max-width: 300px;
+  margin-top: -35px;
+  margin-left: -10px;
 `
 
-export const ChoicesGrid = styled.div`
-  display: grid;
-  grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 1rem;
-  p {
-    margin: 2px 0;
-  }
+const ListItem = styled.li`
+  margin: 0 0 10px 0;
 `
 
-export const Container = styled.div`
-  margin: 0 10vw;
-`
-
-export const Footer = styled.div`
-  width: 100%;
-  justify-content: flex-end;
-  margin: 10px 0;
-  display: flex;
-  > button {
-    margin-left: 5px;
-  }
-`
-
-export const LinkLabel = styled.label`
-  color: rgb(0, 0, 238);
-  text-decoration: underline;
-  cursor: pointer;
-`
-
-export const Title = styled.strong`
+const Title = styled.span`
   text-transform: capitalize;
 `
 
@@ -72,9 +49,6 @@ const ElectionConfiguration: React.FC<Props> = ({
     KioskBrowser.FileSystemEntry[]
   >([])
   const [loadingFiles, setLoadingFiles] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<
-    KioskBrowser.FileSystemEntry | undefined
-  >(undefined)
 
   const fetchFilenames = useCallback(async () => {
     setLoadingFiles(true)
@@ -98,6 +72,7 @@ const ElectionConfiguration: React.FC<Props> = ({
       }
     }
   }, [setFoundFilenames, setLoadingFiles, usbDriveStatus])
+
   useEffect(() => {
     if (usbDriveStatus === UsbDriveStatus.mounted) {
       fetchFilenames()
@@ -136,82 +111,75 @@ const ElectionConfiguration: React.FC<Props> = ({
   }
 
   if (usbDriveStatus === UsbDriveStatus.mounted && !loadingFiles) {
-    const fileNames = foundFilenames.map((f) => f.name)
+    // Parse information from the file names and sort by export date.
+    const parsedFileInformation = foundFilenames
+      .map((f) => {
+        return {
+          parsedInfo: parseBallotExportPackageInfoFromFilename(f.name),
+          fileEntry: f,
+        }
+      })
+      .filter((f) => !!f.parsedInfo)
+      .sort(
+        (a, b) =>
+          b.parsedInfo!.timestamp.getTime() - a.parsedInfo!.timestamp.getTime()
+      )
 
-    const handleFileChoiceSelect = (
-      event: React.MouseEvent<HTMLInputElement>
-    ) => {
-      const targettedFile = event.currentTarget.dataset.choice
-      if (selectedFile && targettedFile === selectedFile.name) {
-        setSelectedFile(undefined)
-      } else if (targettedFile) {
-        const foundFile = foundFilenames.find((f) => f.name === targettedFile)
-        setSelectedFile(foundFile)
-      }
-    }
-
-    // Add UI from BMD
+    // Create table rows for each found file
     const fileOptions = []
-    for (const filename of fileNames) {
-      const parsedInfo = parseBallotExportPackageInfoFromFilename(filename)
-      // If we couldn't parse this file, don't show an option for it
-      if (parsedInfo) {
-        const {
-          electionCounty,
-          electionName,
-          electionHash,
-          timestamp,
-        } = parsedInfo
-        fileOptions.push(
-          <ChoiceButton
-            choice={filename}
-            key={filename}
-            isSelected={!!(selectedFile && selectedFile.name === filename)}
-            onPress={handleFileChoiceSelect}
-            fullWidth
-          >
-            <Prose>
-              <Title>
-                {electionCounty} - {electionName}
-              </Title>{' '}
-              <Text small>Election ID : {electionHash}</Text>
-              {timestamp && (
-                <Text small>Exported On {timestamp.toLocaleString()}</Text>
-              )}
-            </Prose>
-          </ChoiceButton>
-        )
-      }
+    for (const { parsedInfo, fileEntry } of parsedFileInformation) {
+      const {
+        electionCounty,
+        electionName,
+        electionHash,
+        timestamp,
+      } = parsedInfo!
+      fileOptions.push(
+        <tr key={fileEntry.name} data-testid="table-row">
+          <td>{timestamp.toLocaleString()}</td>
+          <td>
+            <Title>{electionCounty}</Title>
+          </td>
+          <td>
+            <Title>{electionName}</Title>
+          </td>
+          <td>{electionHash}</td>
+          <TD textAlign="right">
+            <Button
+              primary
+              onPress={() => acceptAutomaticallyChosenFile(fileEntry)}
+            >
+              Select
+            </Button>
+          </TD>
+        </tr>
+      )
     }
 
     // If there were no valid files found prompt the user to select a file themselves.
     if (fileOptions.length === 0) {
       return (
         <Screen>
-          <Main noPadding>
+          <Main>
             <MainChild center padded>
-              <Prose textCenter>
-                <h1>No Ballot Packages Found</h1>
-                <Container>
-                  <Text narrow>
-                    No ballot packages were automatically found on the inserted
-                    USB device. If you have not already please connect this USB
-                    device to your Election Manager to export the ballot
-                    package. Otherwise you may select a file from the device
-                    manually, or insert an election admin card at any time to
-                    configure this machine.
-                  </Text>
-                  <Footer>
-                    <FileInputButton
-                      accept=".json,.zip"
-                      onChange={handleFileInput}
-                      data-testid="manual-upload-input"
-                    >
-                      Select Configuration File
-                    </FileInputButton>
-                    <USBControllerButton primary />
-                  </Footer>
-                </Container>
+              <Prose>
+                <h1>No Election Ballot Package Files Found</h1>
+                <Image src="usb-stick.svg" alt="Insert USB Image" />
+                <Text>
+                  There were no Election Ballot Package files automatically
+                  found on the inserted USB drive. Use Election Manager to
+                  export Ballot Package files to this USB drive.
+                </Text>
+                <Text>
+                  Optionally, you may manually select a file to configure:
+                </Text>
+                <FileInputButton
+                  accept=".json,.zip"
+                  onChange={handleFileInput}
+                  data-testid="manual-upload-input"
+                >
+                  Select File…
+                </FileInputButton>
               </Prose>
             </MainChild>
           </Main>
@@ -222,36 +190,46 @@ const ElectionConfiguration: React.FC<Props> = ({
 
     return (
       <Screen>
-        <Main noPadding>
+        <Main>
           <MainChild padded maxWidth={false}>
-            <h1>Choose Election Configuration</h1>
-            <Container>
+            <Prose maxWidth={false}>
+              <h1>Choose Election Configuration</h1>
               <Text>
-                Choose the election you want to configure this machine for. If
-                you do not see the election you are looking for you may also{' '}
-                <LinkLabel>
-                  <HiddenFileInput
-                    type="file"
-                    accept=".json,.zip"
-                    onChange={handleFileInput}
-                  />
-                  select a file manually.
-                </LinkLabel>{' '}
-                You can also configure this machine by inserting an election
-                admin card at any time.
+                Select one of the following configurations which were
+                automatically found on the USB drive. If you don&apos;t see the
+                file you are looking for, you may select a configuration file
+                manually.
               </Text>
-              <ChoicesGrid>{fileOptions}</ChoicesGrid>
-              <Footer>
-                <USBControllerButton />
-                <Button
-                  primary
-                  disabled={!selectedFile}
-                  onPress={() => acceptAutomaticallyChosenFile(selectedFile!)}
-                >
-                  Configure
-                </Button>
-              </Footer>
-            </Container>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Export Date</th>
+                    <th>County</th>
+                    <th>Election Name</th>
+                    <th>ID</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {fileOptions}
+                  <tr>
+                    <td />
+                    <td />
+                    <td />
+                    <td />
+                    <TD textAlign="right">
+                      <FileInputButton
+                        accept=".json,.zip"
+                        onChange={handleFileInput}
+                        data-testid="manual-upload-input"
+                      >
+                        Select File…
+                      </FileInputButton>
+                    </TD>
+                  </tr>
+                </tbody>
+              </Table>
+            </Prose>
           </MainChild>
         </Main>
         {mainNav}
@@ -262,25 +240,35 @@ const ElectionConfiguration: React.FC<Props> = ({
   // No USB Drive was found show initial screen.
   return (
     <Screen>
-      <Main noPadding>
+      <Main>
         <MainChild center padded>
-          <Prose textCenter>
-            <React.Fragment>
-              <Image src="usb-stick.svg" alt="Insert USB Image" />
-              <h1>Not Configured</h1>
-              <Text narrow>
-                Insert Election Admin card or a USB drive containing the Ballot
-                Package archive from Election Manager in order to configure this
-                machine.
-              </Text>
-              <FileInputButton
-                accept=".json,.zip"
-                onChange={handleFileInput}
-                data-testid="manual-upload-input"
-              >
-                Select Configuration File
-              </FileInputButton>
-            </React.Fragment>
+          <Prose maxWidth={false}>
+            <h1>Load Election Configuration</h1>
+            <Image src="usb-stick.svg" alt="Insert USB Image" />
+            <Text>
+              You may load an election configuration via the following methods:
+            </Text>
+            <ul>
+              <ListItem>
+                <strong>Insert a USB drive</strong> with election ballot
+                packages exported from Election Manager.
+              </ListItem>
+              <ListItem>
+                <strong>Insert an Admin Card</strong> into an attached card
+                reader.
+              </ListItem>
+              <ListItem>
+                Manually select a file to configure:{' '}
+                <FileInputButton
+                  accept=".json,.zip"
+                  onChange={handleFileInput}
+                  data-testid="manual-upload-input"
+                  buttonProps={{ small: true }}
+                >
+                  Select File…
+                </FileInputButton>
+              </ListItem>
+            </ul>
           </Prose>
         </MainChild>
       </Main>

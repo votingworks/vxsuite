@@ -26,6 +26,7 @@ const Table = styled.table`
 interface TableData {
   narrow?: boolean
   nowrap?: boolean
+  padding?: number
   textAlign?: 'right' | 'left' | 'center'
 }
 
