@@ -14,7 +14,7 @@ import { vh } from '../../utils/flip'
 import { lineSegmentPixels } from '../../utils/geometry'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
 import { loadImageData } from '../../utils/images'
-import { makeDebugImageLogger } from '../../utils/logging'
+// import { makeDebugImageLogger } from '../../utils/logging'
 import { adjacentFile } from '../../utils/path'
 
 export interface Options {
@@ -128,8 +128,8 @@ export async function run(
 
     const contests = findMatchingContests(
       imageData,
-      template,
-      makeDebugImageLogger()
+      template
+      // makeDebugImageLogger()
     )
     const targetWidth = Math.max(15, Math.round(imageData.width * 0.01))
 

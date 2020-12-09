@@ -345,21 +345,6 @@ export default class Interpreter {
     }
 
     const { contests } = this.findContests(imageData)
-    const ballotLayout: BallotPageLayout = {
-      ballotImage: { imageData, metadata },
-      contests: [
-        ...map(contests, ({ bounds, corners }) => ({
-          bounds,
-          corners,
-          options: [],
-        })),
-      ],
-    }
-    debug(
-      'found contest areas: %O',
-      ballotLayout.contests.map(({ bounds }) => bounds)
-    )
-
     const { locales, ballotStyleId, precinctId, pageNumber } = metadata
     const matchedTemplate = defined(
       this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
@@ -399,6 +384,22 @@ export default class Interpreter {
         }
       }
     }
+
+    const ballotLayout: BallotPageLayout = {
+      ballotImage: { imageData, metadata },
+      contests: [
+        ...map(matchingContests, ({ bounds, corners }) => ({
+          bounds,
+          corners,
+          options: [],
+        })),
+      ],
+    }
+    debug(
+      'found contest areas: %O',
+      ballotLayout.contests.map(({ bounds }) => bounds)
+    )
+
     const [mappedBallot, marks] = this.getMarksForBallot(
       ballotLayout,
       matchedTemplate,

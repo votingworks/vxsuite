@@ -1,10 +1,11 @@
+import { createWriteStream } from 'fs'
 import { Interpreter } from '..'
 import * as choctaw from '../../test/fixtures/choctaw-county-2020-general-election'
 import * as hamilton from '../../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
 import * as marshall from '../../test/fixtures/marshall-county-2020-general-election'
 import { writeImageToFile } from '../../test/utils'
 import { binarize } from '../utils/binarize'
-import { makeDebugImageLogger } from '../utils/logging'
+import { makeGraphicalLogger } from '../utils/logging'
 import findContests, { findMatchingContests } from './findContests'
 
 test('rejects contests that read as non-rectangular', async () => {
@@ -211,7 +212,16 @@ test('can handle bad skew', async () => {
   const layout = await interpreter.addTemplate(templateImageData)
 
   binarize(scannedImageData)
-  findMatchingContests(scannedImageData, layout, makeDebugImageLogger())
+  const debugPage = createWriteStream(
+    'debug-findContests-marshall-red-banks.html',
+    { encoding: 'utf-8' }
+  )
+  findMatchingContests(
+    scannedImageData,
+    layout,
+    await makeGraphicalLogger(scannedImageData, debugPage)
+  )
+  debugPage.close()
   await writeImageToFile(
     scannedImageData,
     'debug-findContests-marshall-red-banks.png'

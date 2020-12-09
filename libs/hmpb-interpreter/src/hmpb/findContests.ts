@@ -23,7 +23,7 @@ import {
 } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
 import { zip } from '../utils/iterators'
-import { FeatureImageLogger, ImageLogger } from '../utils/logging'
+import { InspectImageLogger, SearchImageLogger } from '../utils/logging'
 import { VisitedPoints } from '../utils/VisitedPoints'
 import {
   computeAreaFill,
@@ -38,6 +38,15 @@ const debug = makeDebug('hmpb-interpreter:findContests')
 export interface ContestShape {
   bounds: Rect
   corners: Corners
+}
+
+export enum ContestImageTypes {
+  LeftLine = 'contest-left-line',
+  TopLine = 'contest-top-line',
+  RightLine = 'contest-right-line',
+  BottomLine = 'contest-bottom-line',
+  Corner = 'contest-corner',
+  TemplateBounds = 'contest-template-bounds',
 }
 
 export interface Options {
@@ -56,13 +65,17 @@ export function* followStroke({
   bounds,
   searchDirection,
   edgeContrastRatio = 0.1,
+  log,
 }: {
   imageData: ImageData
   strokeBounds: Rect
   bounds: Rect
   searchDirection: 'up' | 'down' | 'left' | 'right'
   edgeContrastRatio?: number
+  log?: SearchImageLogger
 }): Generator<Rect> {
+  log?.begin(bounds, `searchDirection=${searchDirection}`)
+
   if (searchDirection === 'up' || searchDirection === 'down') {
     const yStep =
       searchDirection === 'up' ? -strokeBounds.height : strokeBounds.height
@@ -70,6 +83,7 @@ export function* followStroke({
     let searchArea = rectShift(strokeBounds, { x: 0, y: yStep })
     const lastFill = computeAreaFill(imageData, searchArea)
     while (rectContains(bounds, searchArea)) {
+      log?.test(searchArea)
       const fill = computeAreaFill(imageData, searchArea)
 
       if (lastFill * edgeContrastRatio >= fill) {
@@ -95,6 +109,7 @@ export function* followStroke({
           ? rightNudge
           : searchArea
 
+      log?.add(adjustedSearchArea)
       yield adjustedSearchArea
 
       searchArea = rectShift(adjustedSearchArea, { x: 0, y: yStep })
@@ -106,6 +121,7 @@ export function* followStroke({
     let searchArea = rectShift(strokeBounds, { x: xStep, y: 0 })
     const lastFill = computeAreaFill(imageData, searchArea)
     while (rectContains(bounds, searchArea)) {
+      log?.test(searchArea)
       const fill = computeAreaFill(imageData, searchArea)
 
       if (lastFill * edgeContrastRatio >= fill) {
@@ -131,11 +147,14 @@ export function* followStroke({
           ? downNudge
           : searchArea
 
+      log?.add(adjustedSearchArea)
       yield adjustedSearchArea
 
       searchArea = rectShift(adjustedSearchArea, { x: xStep, y: 0 })
     }
   }
+
+  log?.commit()
 }
 
 export function findStroke({
@@ -155,11 +174,10 @@ export function findStroke({
   searchDirection: 'up' | 'down' | 'left' | 'right'
   minDensity?: number
   edgeContrastRatio?: number
-  log?: ImageLogger
+  log?: SearchImageLogger
 }): Rect | undefined {
   let result: Rect | undefined
-  const l = log?.group('findStroke')
-  l?.temp(bounds, `searchDirection=${searchDirection}`)
+  log?.begin(bounds, `searchDirection=${searchDirection}`)
 
   const fills = new Int32Array(bounds.width)
   const start: Point = {
@@ -171,7 +189,6 @@ export function findStroke({
     y: searchDirection === 'up' ? -1 : searchDirection === 'down' ? 1 : 0,
   }
   let strokeStart: Point | undefined
-  let stroke: FeatureImageLogger | undefined
 
   for (let i = 0; i < bounds.width; i++) {
     const point: Point = {
@@ -184,12 +201,12 @@ export function findStroke({
       height: Math.abs(step.y) || bounds.height,
     })
     const fill = computeAreaFill(imageData, fillRect)
-    l?.temp(fillRect, 'check next slice for stroke')
+    log?.test(fillRect, 'looking for stroke')
     fills[i] = fill
 
     if (!strokeStart) {
       if (fill / (fillRect.width * fillRect.height) >= minDensity) {
-        stroke = l?.feature(fillRect, 'possible stroke found')
+        log?.add(fillRect, 'maybe found start of stroke')
         strokeStart = point
       }
     } else {
@@ -203,17 +220,15 @@ export function findStroke({
       })
       if (lastFill * edgeContrastRatio < fill) {
         // keep looking
-        stroke?.update(updatedShape)
+        log?.add(fillRect, 'found some more stroke')
       } else if (thickness < minThickness) {
         // too thin
-        stroke?.cancel(`too thin (${thickness} < ${minThickness})`)
-        stroke = undefined
+        log?.reset(`too thin (${thickness} < ${minThickness})`)
         strokeStart = undefined
         i--
       } else if (thickness > maxThickness) {
         // too thick
-        stroke?.cancel(`too thick (${thickness} > ${maxThickness})`)
-        stroke = undefined
+        log?.reset(`too thick (${thickness} > ${maxThickness})`)
         strokeStart = undefined
         i--
       } else if (
@@ -222,8 +237,7 @@ export function findStroke({
         minDensity
       ) {
         // too sparse
-        stroke?.cancel(`too sparse (< ${Math.round(minDensity * 100)}% filled)`)
-        stroke = undefined
+        log?.reset(`too sparse (< ${Math.round(minDensity * 100)}% filled)`)
         strokeStart = undefined
         i--
       } else {
@@ -234,13 +248,11 @@ export function findStroke({
   }
 
   if (result) {
-    stroke?.update(result).commit('stroke found')
+    log?.update(result).commit('stroke found')
   } else {
-    stroke?.cancel('no stroke found')
-    stroke = undefined
+    log?.cancel('no stroke found')
   }
 
-  l?.end()
   return result
 }
 
@@ -366,7 +378,7 @@ export default function* findContests(
 export function findMatchingContests(
   ballotImage: ImageData,
   ballotLayout: BallotPageLayout,
-  log?: ImageLogger
+  log?: InspectImageLogger<ContestImageTypes>
 ): ContestShape[] {
   const contestShapes: ContestShape[] = []
 
@@ -400,7 +412,10 @@ export function findMatchingContests(
       !!previousTemplateShape &&
       previousTemplateShape.bounds.x === contestShape.bounds.x
 
-    clog?.temp(mapRect(contestShape.bounds), 'contest box perfect map')
+    clog?.landmark(
+      ContestImageTypes.TemplateBounds,
+      mapRect(contestShape.bounds)
+    )
     const contestBoxFromOffset =
       isSameColumn && previousScannedShape
         ? {
@@ -415,7 +430,6 @@ export function findMatchingContests(
             ...contestShape.bounds,
             y: Math.round(contestShape.bounds.y / 2),
           })
-    clog?.temp(contestBoxFromOffset, 'contest box search space')
     const contestBoxTopLineSearchArea = rectShift(
       {
         ...contestBoxFromOffset,
@@ -430,7 +444,7 @@ export function findMatchingContests(
       minThickness: 8,
       maxThickness: 25,
       searchDirection: 'down',
-      log: clog,
+      log: clog?.search(ContestImageTypes.TopLine),
     })
     const contestBoxTopLineParts: Rect[] = []
     const contestBoxLeftLineParts: Rect[] = []
@@ -453,6 +467,7 @@ export function findMatchingContests(
           ...contestBoxTopLine,
           width: 15,
         },
+        log: clog?.search(ContestImageTypes.TopLine),
       })) {
         contestBoxTopLineParts.push(part)
       }
@@ -471,6 +486,7 @@ export function findMatchingContests(
           x: contestBoxTopLine.x + contestBoxTopLine.width - 15,
           width: 15,
         },
+        log: clog?.search(ContestImageTypes.TopLine),
       })) {
         contestBoxTopLineParts.push(part)
       }
@@ -486,28 +502,25 @@ export function findMatchingContests(
           left: contestBoxFromOffset.x - 100,
           top: lowestTopLineBottomEdgeY,
           right: contestBoxFromOffset.x + 100,
-          bottom: lowestTopLineBottomEdgeY + 20,
+          bottom: lowestTopLineBottomEdgeY + 14,
         }),
         maxThickness: 6,
         minThickness: 2,
         searchDirection: 'left',
-        log: clog,
+        log: clog?.search(ContestImageTypes.LeftLine),
       })
       const contestBoxRightLinePart = findStroke({
         imageData: ballotImage,
-        bounds: {
-          x: Math.round(contestBoxTopLine.x + contestBoxTopLine.width / 2),
-          y: contestBoxTopLine.y + contestBoxTopLine.height,
-          width:
-            ballotImage.width -
-            Math.round(contestBoxTopLine.x + contestBoxTopLine.width / 2) +
-            1,
-          height: 20,
-        },
+        bounds: rect({
+          left: Math.round(contestBoxTopLine.x + contestBoxTopLine.width / 2),
+          top: lowestTopLineBottomEdgeY,
+          right: ballotImage.width - 1,
+          bottom: lowestTopLineBottomEdgeY + 14,
+        }),
         maxThickness: 6,
         minThickness: 2,
         searchDirection: 'right',
-        log: clog,
+        log: clog?.search(ContestImageTypes.RightLine),
       })
 
       if (contestBoxLeftLinePart) {
@@ -522,6 +535,7 @@ export function findMatchingContests(
             height: contestBoxLeftLinePart.height,
           }),
           searchDirection: 'up',
+          log: clog?.search(ContestImageTypes.LeftLine),
         })) {
           contestBoxLeftLineParts.push(part)
         }
@@ -535,6 +549,7 @@ export function findMatchingContests(
             height: contestBoxFromOffset.height * 1.1,
           }),
           searchDirection: 'down',
+          log: clog?.search(ContestImageTypes.LeftLine),
         })) {
           contestBoxLeftLineParts.push(part)
         }
@@ -551,6 +566,7 @@ export function findMatchingContests(
             height: contestBoxFromOffset.height,
           }),
           searchDirection: 'up',
+          log: clog?.search(ContestImageTypes.RightLine),
         })) {
           contestBoxRightLineParts.push(part)
         }
@@ -564,6 +580,7 @@ export function findMatchingContests(
             height: contestBoxFromOffset.height * 1.1,
           }),
           searchDirection: 'down',
+          log: clog?.search(ContestImageTypes.RightLine),
         })) {
           contestBoxRightLineParts.push(part)
         }
@@ -588,14 +605,13 @@ export function findMatchingContests(
           lowestSideLinePartY +
           (contestBoxLeftLineParts[0] ?? contestBoxRightLineParts[0]).height,
       })
-      debug('looking for contest box bottom line')
       contestBoxBottomLine = findStroke({
         imageData: ballotImage,
         bounds,
         minThickness: 2,
         maxThickness: 10,
         searchDirection: 'up',
-        log: clog,
+        log: clog?.search(ContestImageTypes.BottomLine),
       })
 
       if (contestBoxBottomLine) {
@@ -612,6 +628,7 @@ export function findMatchingContests(
             width: 15,
           },
           searchDirection: 'left',
+          log: clog?.search(ContestImageTypes.BottomLine),
         })) {
           contestBoxBottomLineParts.push(part)
         }
@@ -630,6 +647,7 @@ export function findMatchingContests(
             width: 15,
           },
           searchDirection: 'right',
+          log: clog?.search(ContestImageTypes.BottomLine),
         })) {
           contestBoxBottomLineParts.push(part)
         }
