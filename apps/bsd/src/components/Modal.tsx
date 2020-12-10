@@ -69,7 +69,7 @@ const Modal: React.FC<Props> = ({
   >
     <ModalContent centerContent={centerContent}>{content}</ModalContent>
     {actions && (
-      <ButtonBar naturalOrder dark={false} as="div">
+      <ButtonBar centerOnlyChild={false} naturalOrder dark={false} as="div">
         {actions}
       </ButtonBar>
     )}

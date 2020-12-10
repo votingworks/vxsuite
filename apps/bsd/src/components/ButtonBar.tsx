@@ -40,7 +40,7 @@ const ButtonBar = styled('nav')<Props>`
   }
   & > *:only-child {
     @media (min-width: 480px) {
-      flex: 0;
+      flex: ${({ centerOnlyChild = true }) => (centerOnlyChild ? 0 : 1)};
       margin: ${({ centerOnlyChild = true }) =>
         centerOnlyChild ? 'auto' : undefined};
       min-width: 33.333%;
