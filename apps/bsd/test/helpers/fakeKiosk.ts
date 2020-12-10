@@ -65,6 +65,8 @@ export default function fakeKiosk({
     unmountUsbDrive: jest.fn(),
     getFileSystemEntries: jest.fn(),
     readFile: jest.fn(),
+    writeFile: jest.fn(),
+    makeDirectory: jest.fn(),
     storage: {
       set: jest.fn(),
       get: jest.fn(),
