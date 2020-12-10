@@ -2,6 +2,7 @@ export enum DiffWhen {
   Always = 'always',
   Never = 'never',
   SameType = 'same-type',
+  VotesDiffer = 'votes-changed',
 }
 
 export interface Options {
@@ -20,7 +21,7 @@ export function parseOptions(args: readonly string[]): Options {
   let unreadable: boolean | undefined
   let uninterpreted: boolean | undefined
   let all: boolean | undefined
-  let diffWhen = DiffWhen.SameType
+  let diffWhen = DiffWhen.VotesDiffer
   let help: boolean | undefined
   let inputWorkspace: string | undefined
   let outputWorkspace: string | undefined

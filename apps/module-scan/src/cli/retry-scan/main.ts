@@ -173,7 +173,14 @@ export default async function main(
       const shouldDiff =
         options.diffWhen === DiffWhen.Always ||
         (options.diffWhen === DiffWhen.SameType &&
-          original.interpretation.type === rescan.interpretation.type)
+          original.interpretation.type === rescan.interpretation.type) ||
+        (options.diffWhen === DiffWhen.VotesDiffer &&
+          original.interpretation.type === 'InterpretedHmpbPage' &&
+          rescan.interpretation.type === 'InterpretedHmpbPage' &&
+          !deepEqual(
+            original.interpretation.votes,
+            rescan.interpretation.votes
+          ))
       if (shouldDiff) {
         stdout.write(
           `${diff(original.interpretation, rescan.interpretation, {

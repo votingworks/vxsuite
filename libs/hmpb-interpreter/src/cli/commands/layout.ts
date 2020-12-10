@@ -17,6 +17,8 @@ import { loadImageData } from '../../utils/images'
 // import { makeDebugImageLogger } from '../../utils/logging'
 import { adjacentFile } from '../../utils/path'
 import * as z from 'zod'
+import { InspectImageLogger, makeGraphicalLogger } from '../../utils/logging'
+import { createWriteStream } from 'fs'
 
 export enum Format {
   PNG = 'png',
@@ -156,26 +158,39 @@ export async function run(
       vh(imageData)
     }
 
-    const contests = findMatchingContests(
-      imageData,
-      template
-      // makeDebugImageLogger()
-    )
-    const targetWidth = Math.max(15, Math.round(imageData.width * 0.01))
+    let logger: InspectImageLogger<string> | undefined
+    let layoutFilePath: string
+    let layoutFile: ReturnType<typeof createWriteStream> | undefined
 
-    for (const contest of contests) {
-      fill(imageData, contest.bounds, GREEN_OVERLAY_COLOR)
-
-      for (const corner of contest.corners) {
-        drawTarget(imageData, corner, RED_OVERLAY_COLOR, targetWidth)
-      }
+    if (options.format === Format.HTML) {
+      layoutFilePath = adjacentFile('-layout', ballotImagePath, '.html')
+      layoutFile = createWriteStream(layoutFilePath, { encoding: 'utf-8' })
+      logger = await makeGraphicalLogger(imageData, layoutFile)
+    } else {
+      layoutFilePath = adjacentFile('-layout', ballotImagePath, '.png')
     }
 
-    const layoutFilePath = adjacentFile('-layout', ballotImagePath)
+    const contests = findMatchingContests(imageData, template, logger)
+
+    if (options.format === Format.HTML) {
+      layoutFile?.end()
+    } else {
+      const targetWidth = Math.max(15, Math.round(imageData.width * 0.01))
+
+      for (const contest of contests) {
+        fill(imageData, contest.bounds, GREEN_OVERLAY_COLOR)
+
+        for (const corner of contest.corners) {
+          drawTarget(imageData, corner, RED_OVERLAY_COLOR, targetWidth)
+        }
+      }
+
+      await writeImageToFile(imageData, layoutFilePath)
+    }
+
     stdout.write(
       `📝 ${layoutFilePath} ${chalk.gray(`(${contests.length} contest(s))`)}\n`
     )
-    await writeImageToFile(imageData, layoutFilePath)
   }
 
   return 0
