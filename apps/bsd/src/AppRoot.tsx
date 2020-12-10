@@ -11,6 +11,7 @@ import {
   ScanStatusResponse,
   CardReadLongResponse,
   CardReadResponse,
+  MachineConfig,
 } from './config/types'
 
 import AppContext from './contexts/AppContext'
@@ -44,6 +45,8 @@ import LinkButton from './components/LinkButton'
 import MainNav from './components/MainNav'
 import StatusFooter from './components/StatusFooter'
 
+import machineConfigProvider from './util/machineConfig'
+
 const App: React.FC = () => {
   const history = useHistory()
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
@@ -67,6 +70,10 @@ const App: React.FC = () => {
 
   const [isExportingCVRs, setIsExportingCVRs] = useState(false)
 
+  const [machineConfig, setMachineConfig] = useState<MachineConfig>({
+    machineId: '000',
+  })
+
   const { adjudication } = status
 
   const [isScanning, setIsScanning] = useState(false)
@@ -89,6 +96,19 @@ const App: React.FC = () => {
 
     initialize()
   }, [refreshConfig])
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        const newMachineConfig = await machineConfigProvider.get()
+        setMachineConfig(newMachineConfig)
+      } catch (e) {
+        window.setTimeout(initialize, 1000)
+      }
+    }
+
+    initialize()
+  }, [setMachineConfig])
 
   const updateStatus = useCallback(async () => {
     try {
@@ -360,6 +380,7 @@ const App: React.FC = () => {
         value={{
           usbDriveStatus: displayUsbStatus,
           usbDriveEject: doEject,
+          machineConfig,
         }}
       >
         <Switch>
@@ -457,6 +478,7 @@ const App: React.FC = () => {
         value={{
           usbDriveStatus: displayUsbStatus,
           usbDriveEject: doEject,
+          machineConfig,
         }}
       >
         <LoadElectionScreen
