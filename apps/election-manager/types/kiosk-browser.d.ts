@@ -54,6 +54,26 @@ declare namespace KioskBrowser {
     name: string
   }
 
+  export enum FileSystemEntryType {
+    File = 1, // UV_DIRENT_FILE
+    Directory = 2, // UV_DIRENT_DIR
+    SymbolicLink = 3, // UV_DIRENT_LINK
+    FIFO = 4, // UV_DIRENT_FIFO
+    Socket = 5, // UV_DIRENT_SOCKET
+    CharacterDevice = 6, // UV_DIRENT_CHAR
+    BlockDevice = 7, // UV_DIRENT_BLOCK
+  }
+
+  export interface FileSystemEntry {
+    readonly name: string
+    readonly path: string
+    readonly type: FileSystemEntryType
+    readonly size: number
+    readonly mtime: Date
+    readonly atime: Date
+    readonly ctime: Date
+  }
+
   export interface FileWriter {
     /**
      * Writes a chunk to the file. May be called multiple times. Data will be
@@ -102,6 +122,28 @@ declare namespace KioskBrowser {
     getUsbDrives(): Promise<UsbDrive[]>
     mountUsbDrive(device: string)
     unmountUsbDrive(device: string)
+
+    /**
+     * Writes a file to a specified file path
+     */
+    writeFile(path: string): Promise<FileWriter>
+    writeFile(path: string, content: Buffer | string): Promise<void>
+
+    /**
+     * Creates a directory at the specified path.
+     */
+    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>
+
+    /**
+     * Reads the list of files at a specified directory path
+     */
+    getFileSystemEntries(path: string): Promise<FileSystemEntry[]>
+
+    /**
+     * Reads a file from a specified path
+     */
+    readFile(path: string): Promise<Buffer>
+    readFile(path: string, encoding: string): Promise<string>
 
     // storage
     storage: {

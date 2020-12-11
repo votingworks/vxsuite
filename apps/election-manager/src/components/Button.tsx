@@ -51,6 +51,7 @@ const buttonStyles = css<StyledButtonProps>`
     (warning && '#FFFFFF') ||
     (primary && '#FFFFFF') ||
     'black'};
+  text-align: center;
   font-size: ${({ big = false }) => (big ? '1.25rem' : '1rem')};
   touch-action: manipulation;
   &:focus {

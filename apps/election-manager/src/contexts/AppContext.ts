@@ -6,6 +6,7 @@ import {
   PrintedBallot,
   ISO8601Timestamp,
 } from '../config/types'
+import { UsbDriveStatus } from '../lib/usbstick'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../utils/CastVoteRecordFiles'
@@ -24,7 +25,7 @@ export interface AppContextInterface {
   saveIsOfficialResults: () => void
   setVoteCounts: React.Dispatch<React.SetStateAction<OptionalVoteCounts>>
   voteCounts: OptionalVoteCounts
-  usbDriveStatus: string
+  usbDriveStatus: UsbDriveStatus
   usbDriveEject: () => void
   addPrintedBallot: (printedBallot: PrintedBallot) => void
   printedBallots: PrintedBallot[]
@@ -42,7 +43,7 @@ const appContext: AppContextInterface = {
   saveIsOfficialResults: () => undefined,
   setVoteCounts: () => undefined,
   voteCounts: undefined,
-  usbDriveStatus: '',
+  usbDriveStatus: UsbDriveStatus.notavailable,
   usbDriveEject: () => undefined,
   addPrintedBallot: () => undefined,
   printedBallots: [],

@@ -115,6 +115,8 @@ export interface CastVoteRecord
   _locales?: BallotLocale
 }
 
+export type CastVoteRecordFileMode = 'test' | 'live'
+
 export type CastVoteRecordLists = ReadonlyArray<ReadonlyArray<CastVoteRecord>>
 
 export interface CastVoteRecordFile {

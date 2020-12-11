@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
@@ -23,8 +25,9 @@ import NavigationScreen from '../components/NavigationScreen'
 import routerPaths from '../routerPaths'
 import LinkButton from '../components/LinkButton'
 import HorizontalRule from '../components/HorizontalRule'
-import Modal from '../components/Modal'
 import Prose from '../components/Prose'
+import ImportCVRFilesModal from '../components/ImportCVRFilesModal'
+import Modal from '../components/Modal'
 
 const TallyScreen: React.FC = () => {
   const {
@@ -40,6 +43,7 @@ const TallyScreen: React.FC = () => {
 
   const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
   const [isConfimingRemoveCVRs, setIsConfirmingRemoveCVRs] = useState(false)
+  const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false)
 
   const cancelConfirmingRemoveCVRs = () => {
     setIsConfirmingRemoveCVRs(false)
@@ -95,21 +99,6 @@ const TallyScreen: React.FC = () => {
   useEffect(() => {
     computeVoteCounts(castVoteRecordFiles.castVoteRecords)
   }, [computeVoteCounts, castVoteRecordFiles])
-
-  const processCastVoteRecordFiles: InputEventFunction = async (event) => {
-    const input = event.currentTarget
-    const files = Array.from(input.files || [])
-
-    setIsLoadingCVRFile(true)
-    const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(
-      files,
-      election
-    )
-    saveCastVoteRecordFiles(newCastVoteRecordFiles)
-    setIsLoadingCVRFile(false)
-
-    input.value = ''
-  }
 
   const resetCastVoteRecordFiles = () => {
     saveCastVoteRecordFiles()
@@ -256,13 +245,12 @@ const TallyScreen: React.FC = () => {
           </Text>
         )}
         <p>
-          <FileInputButton
-            multiple
-            onChange={processCastVoteRecordFiles}
+          <Button
+            onPress={() => setIsImportCVRModalOpen(true)}
             disabled={isOfficialResults}
           >
-            Load CVR Files
-          </FileInputButton>{' '}
+            Import CVR Files
+          </Button>{' '}
           <Button
             disabled={!hasCastVoteRecordFiles || isOfficialResults}
             onPress={confirmOfficial}
@@ -485,10 +473,9 @@ const TallyScreen: React.FC = () => {
         }
         onOverlayClick={cancelConfirmingOfficial}
       />
-      <Modal
-        isOpen={isLoadingCVRFile}
-        centerContent
-        content={<Loading>Loading CVR File</Loading>}
+      <ImportCVRFilesModal
+        isOpen={isImportCVRModalOpen}
+        onClose={() => setIsImportCVRModalOpen(false)}
       />
     </React.Fragment>
   )
