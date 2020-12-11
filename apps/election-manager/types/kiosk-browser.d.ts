@@ -43,6 +43,11 @@ declare namespace KioskBrowser {
     filters?: FileFilter[]
   }
 
+  export interface MakeDirectoryOptions {
+    recursive?: boolean
+    mode?: number
+  }
+
   export interface FileFilter {
     // Docs: http://electronjs.org/docs/api/structures/file-filter
     extensions: string[]
@@ -81,6 +86,17 @@ declare namespace KioskBrowser {
      * Once chosen, resolves with a handle to the file to write data to it.
      */
     saveAs(options?: SaveAsOptions): Promise<FileWriter | undefined>
+
+    /**
+     * Writes a file to a specified file path
+     */
+    writeFile(path: string): Promise<FileWriter>
+    writeFile(path: string, content: Buffer | string): Promise<void>
+
+    /*
+     * Creates a directory at the specified path.
+     */
+    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>
 
     // USB sticks
     getUsbDrives(): Promise<UsbDrive[]>

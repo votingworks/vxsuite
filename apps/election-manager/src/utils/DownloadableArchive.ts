@@ -1,4 +1,5 @@
 import ZipStream from 'zip-stream'
+import path from 'path'
 
 /**
  * Provides support for downloading a Zip archive of files. Requires
@@ -17,11 +18,38 @@ export default class DownloadableArchive {
    * making this instance ready to receive files. Resolves when ready to receive
    * files.
    */
-  public async begin(options?: KioskBrowser.SaveAsOptions): Promise<void> {
+  public async beginWithDialog(
+    options?: KioskBrowser.SaveAsOptions
+  ): Promise<void> {
     const fileWriter = await this.kiosk.saveAs(options)
 
     if (!fileWriter) {
       throw new Error('could not begin download; no file was chosen')
+    }
+
+    let endResolve: () => void
+    this.endPromise = new Promise((resolve) => (endResolve = resolve))
+    this.zip = new ZipStream()
+      .on('data', (chunk) => fileWriter.write(chunk))
+      .on('end', () => fileWriter.end().then(endResolve))
+  }
+
+  /**
+   * Begins downloading an archive to the filePath specified. Resolves when
+   * ready to receive files.
+   */
+  public async beginWithDirectSave(
+    pathToFolder: string,
+    filename: string
+  ): Promise<void> {
+    await this.kiosk.makeDirectory(pathToFolder, {
+      recursive: true,
+    })
+    const filePath = path.join(pathToFolder, filename)
+    const fileWriter = await this.kiosk.writeFile(filePath)
+
+    if (!fileWriter) {
+      throw new Error('could not begin download; an error occurred')
     }
 
     let endResolve: () => void

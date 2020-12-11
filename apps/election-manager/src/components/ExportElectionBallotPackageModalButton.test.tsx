@@ -1,6 +1,6 @@
 import React from 'react'
 import { fireEvent, waitFor } from '@testing-library/react'
-import fakeKiosk from '../../test/helpers/fakeKiosk'
+import fakeKiosk, { fakeUsbDrive } from '../../test/helpers/fakeKiosk'
 import renderInAppContext from '../../test/renderInAppContext'
 import ExportElectionBallotPackageModalButton from './ExportElectionBallotPackageModalButton'
 import { UsbDriveStatus } from '../lib/usbstick'
@@ -8,11 +8,16 @@ import fakeFileWriter from '../../test/helpers/fakeFileWriter'
 
 jest.mock('../components/HandMarkedPaperBallot')
 
-beforeAll(() => {
-  window.kiosk = fakeKiosk()
+beforeEach(() => {
+  const mockKiosk = fakeKiosk()
+  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
+  const fileWriter = fakeFileWriter()
+  mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter)
+  mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter)
+  window.kiosk = mockKiosk
 })
 
-afterAll(() => {
+afterEach(() => {
   delete window.kiosk
 })
 
@@ -60,11 +65,6 @@ test('Modal renders insert usb screen appropriately', async () => {
 })
 
 test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
-  const mockKiosk = fakeKiosk()
-  const fileWriter = fakeFileWriter()
-  window.kiosk = mockKiosk
-  const saveAsFunction = jest.fn().mockResolvedValue(fileWriter)
-  mockKiosk.saveAs = saveAsFunction
   const {
     getByText,
     queryAllByText,
@@ -91,7 +91,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
   fireEvent.click(getByText('Custom'))
   await waitFor(() => getByText(/Download Complete/))
   await waitFor(() => {
-    expect(saveAsFunction).toHaveBeenCalledTimes(1)
+    expect(window.kiosk!.saveAs).toHaveBeenCalledTimes(1)
   })
 
   fireEvent.click(getByText('Cancel'))
@@ -119,6 +119,7 @@ test('Modal renders loading screen when usb drive is mounting or ejecting', asyn
 })
 
 test('Modal renders error message appropriately', async () => {
+  window.kiosk!.saveAs = jest.fn().mockResolvedValue(undefined)
   const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
     {
@@ -128,7 +129,7 @@ test('Modal renders error message appropriately', async () => {
   fireEvent.click(getByText('Export Ballot Package'))
   await waitFor(() => getByText('Export'))
 
-  fireEvent.click(getByText('Export'))
+  fireEvent.click(getByText('Custom'))
 
   await waitFor(() => getByText(/Download Failed/))
   expect(queryAllByTestId('modal')).toHaveLength(1)
@@ -142,11 +143,6 @@ test('Modal renders error message appropriately', async () => {
 })
 
 test('Modal renders renders loading message while rendering ballots appropriately', async () => {
-  const mockKiosk = fakeKiosk()
-  const fileWriter = fakeFileWriter()
-  window.kiosk = mockKiosk
-  const saveAsFunction = jest.fn().mockResolvedValue(fileWriter)
-  mockKiosk.saveAs = saveAsFunction
   const ejectFunction = jest.fn()
   const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
@@ -161,7 +157,8 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   fireEvent.click(getByText('Export'))
 
   await waitFor(() => getByText(/Download Complete/))
-  expect(saveAsFunction).toHaveBeenCalledTimes(1)
+  expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1)
+  expect(window.kiosk!.makeDirectory).toHaveBeenCalledTimes(1)
 
   expect(queryAllByTestId('modal')).toHaveLength(1)
   expect(

@@ -14,7 +14,8 @@ function sanitizeString(input: string): string {
     .toLocaleLowerCase()
 }
 
-// eslint-disable-next-line import/prefer-default-export
+export const BALLOT_PACKAGES_FOLDER = 'ballot-packages'
+
 export function generateFilenameForBallotExportPackage(
   electionDefinition: ElectionDefinition,
   time: Date = new Date()

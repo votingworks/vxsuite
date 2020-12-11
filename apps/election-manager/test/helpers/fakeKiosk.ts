@@ -65,6 +65,8 @@ export default function fakeKiosk({
     getUsbDrives: jest.fn().mockResolvedValue([]),
     mountUsbDrive: jest.fn(),
     unmountUsbDrive: jest.fn(),
+    writeFile: jest.fn().mockResolvedValue(undefined),
+    makeDirectory: jest.fn(),
     storage: {
       set: jest.fn(),
       get: jest.fn(),

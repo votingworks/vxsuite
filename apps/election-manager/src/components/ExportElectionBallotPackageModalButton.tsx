@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import pluralize from 'pluralize'
 import styled from 'styled-components'
+import path from 'path'
 import { getElectionLocales } from '@votingworks/ballot-encoder'
 
 import { DEFAULT_LOCALE } from '../config/globals'
@@ -18,11 +19,14 @@ import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
 import { Monospace } from './Text'
-import { UsbDriveStatus } from '../lib/usbstick'
+import { getDevicePath, UsbDriveStatus } from '../lib/usbstick'
 import USBControllerButton from './USBControllerButton'
 
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
-import { generateFilenameForBallotExportPackage } from '../utils/filenames'
+import {
+  generateFilenameForBallotExportPackage,
+  BALLOT_PACKAGES_FOLDER,
+} from '../utils/filenames'
 
 const USBImage = styled.img`
   margin-right: auto;
@@ -104,23 +108,29 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
   )
 
   // Callback to open the file dialog.
-  const openFileDialog = async () => {
+  const saveFileCallback = async (openDialog: boolean) => {
     if (state.type !== 'ArchiveBegin') {
       throw new Error(
-        `unexpected state '${state.type}' found during openFileDialog callback`
+        `unexpected state '${state.type}' found during saveFileCallback`
       )
     }
     try {
-      await state.archive.begin({
-        defaultPath: defaultFileName,
-        filters: [{ name: 'Archive Files', extensions: ['zip'] }],
-      })
+      const usbPath = await getDevicePath()
+      const pathToFolder = path.join(usbPath!, BALLOT_PACKAGES_FOLDER)
+      const pathToFile = path.join(pathToFolder, defaultFileName)
+      if (openDialog) {
+        await state.archive.beginWithDialog({
+          defaultPath: pathToFile,
+          filters: [{ name: 'Archive Files', extensions: ['zip'] }],
+        })
+      } else {
+        await state.archive.beginWithDirectSave(pathToFolder, defaultFileName)
+      }
       await state.archive.file('election.json', electionData)
       await state.archive.file(
         'manifest.json',
         JSON.stringify({ ballots: state.ballotConfigs }, undefined, 2)
       )
-
       setState(workflow.next)
     } catch (error) {
       setState(workflow.error(state, error))
@@ -168,12 +178,11 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
           )
           break
         case UsbDriveStatus.mounted: {
-          // TODO(caro): Update this to just write the file to the USB drive once the APIS in kiosk-browser exist.
           actions = (
             <React.Fragment>
               <LinkButton onPress={closeModal}>Cancel</LinkButton>
-              <Button onPress={openFileDialog}>Custom</Button>
-              <Button onPress={openFileDialog} primary>
+              <Button onPress={() => saveFileCallback(true)}>Custom</Button>
+              <Button onPress={() => saveFileCallback(false)} primary>
                 Export
               </Button>
             </React.Fragment>

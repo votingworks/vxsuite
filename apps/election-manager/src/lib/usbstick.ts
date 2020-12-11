@@ -15,6 +15,14 @@ const getDevice = async () => {
   return (await window.kiosk!.getUsbDrives())[0]
 }
 
+export const getDevicePath = async (): Promise<string | undefined> => {
+  if (!isAvailable()) {
+    return
+  }
+  const device = await getDevice()
+  return device.mountPoint
+}
+
 export const getStatus = async (): Promise<UsbDriveStatus> => {
   if (!isAvailable()) {
     return UsbDriveStatus.notavailable
