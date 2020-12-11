@@ -2,21 +2,18 @@
 
 ## CLI Commands
 
-``` bash
-# install dependencies
-npm install
+- `npm install`: Installs dependencies
 
-# serve with hot reload at localhost:8080
-npm run dev
+- `npm run dev`: Run a development, HMR server
 
-# build for production with minification
-npm run build
+- `npm run serve`: Run a production-like server
 
-# test the production build locally
-npm run serve
+- `npm run build`: Production-ready build
 
-# run tests with jest and enzyme
-npm run test
-```
+- `npm run lint`: Pass TypeScript files using TSLint
+
+- `npm run test`: Run Jest and Enzyme with
+  [`enzyme-adapter-preact-pure`](https://github.com/preactjs/enzyme-adapter-preact-pure) for
+  your tests
 
 For detailed explanation on how things work, checkout the [CLI Readme](https://github.com/developit/preact-cli/blob/master/README.md).
