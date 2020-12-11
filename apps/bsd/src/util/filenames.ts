@@ -1,9 +1,9 @@
 import moment from 'moment'
 
-const SECTION_SEPERATOR = '__'
-const SUBSECTION_SEPERATOR = '_'
-const WORD_SEPERATOR = '-'
-const TIME_FORMAT_STRING = `YYYY${WORD_SEPERATOR}MM${WORD_SEPERATOR}DD${SUBSECTION_SEPERATOR}HH${WORD_SEPERATOR}mm${WORD_SEPERATOR}ss`
+const SECTION_SEPARATOR = '__'
+const SUBSECTION_SEPARATOR = '_'
+const WORD_SEPARATOR = '-'
+const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`
 
 export const BALLOT_PACKAGE_FOLDER = 'ballot-packages'
 
@@ -22,14 +22,14 @@ export function parseBallotExportPackageInfoFromFilename(
   filename: string
 ): ElectionData | undefined {
   // There should be two underscores seperating the timestamp from the election information
-  const segments = filename.split(SECTION_SEPERATOR)
+  const segments = filename.split(SECTION_SEPARATOR)
   if (segments.length !== 2) {
     return
   }
 
   const [electionString, timeString] = segments
 
-  let electionSegments = electionString.split(SUBSECTION_SEPERATOR)
+  let electionSegments = electionString.split(SUBSECTION_SEPARATOR)
   if (electionSegments.length !== 3) {
     return
   }
