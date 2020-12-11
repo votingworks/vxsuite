@@ -31,6 +31,7 @@ test('sees mounted USB drive', async () => {
   expect(await getStatus()).toBe(UsbDriveStatus.present)
 })
 
+jest.setTimeout(12000)
 test('can mount and unmount USB drive', async () => {
   const fKiosk = fakeKiosk()
   window.kiosk = fKiosk

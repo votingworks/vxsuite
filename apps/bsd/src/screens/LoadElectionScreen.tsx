@@ -6,14 +6,23 @@ import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import { SetElection } from '../config/types'
-import { readBallotPackage } from '../util/ballot-package'
+import {
+  readBallotPackageFromFile,
+  readBallotPackageFromFilePointer,
+  BallotPackage,
+} from '../util/ballot-package'
 import { addTemplates, doneTemplates } from '../api/hmpb'
+import { UsbDriveStatus } from '../lib/usbstick'
 
 interface Props {
   setElection: SetElection
+  usbDriveStatus: UsbDriveStatus
 }
 
-const LoadElectionScreen: React.FC<Props> = ({ setElection }) => {
+const LoadElectionScreen: React.FC<Props> = ({
+  setElection,
+  usbDriveStatus,
+}) => {
   const [
     currentUploadingBallotIndex,
     setCurrentUploadingBallotIndex,
@@ -27,54 +36,57 @@ const LoadElectionScreen: React.FC<Props> = ({ setElection }) => {
   }>()
   const [isLoadingTemplates, setLoadingTemplates] = useState(false)
 
-  const onDrop = (acceptedFiles: readonly File[]) => {
-    if (acceptedFiles.length === 1) {
-      const file = acceptedFiles[0]
-      const isElectionJSON = file.type === 'application/json'
-      const reader = new FileReader()
-
-      if (isElectionJSON) {
-        reader.onload = async () => {
-          const election = JSON.parse(reader.result as string)
-          await patchConfig({ election })
-          setElection(election)
-        }
-
-        reader.readAsText(file)
-      } else {
-        readBallotPackage(file).then(async (pkg) => {
-          addTemplates(pkg)
-            .on('configuring', () => {
-              setCurrentUploadingBallotIndex(0)
-              setTotalTemplates(pkg.ballots.length)
-            })
-            .on('uploading', (_pkg, ballot) => {
-              const { locales } = ballot.ballotConfig
-              setCurrentUploadingBallot({
-                ballotStyle: ballot.ballotConfig.ballotStyleId,
-                precinct:
-                  getPrecinctById({
-                    election: pkg.electionDefinition.election,
-                    precinctId: ballot.ballotConfig.precinctId,
-                  })?.name ?? ballot.ballotConfig.precinctId,
-                isLiveMode: ballot.ballotConfig.isLiveMode,
-                locales: locales?.secondary
-                  ? `${locales.primary} / ${locales.secondary}`
-                  : locales?.primary,
-              })
-              setCurrentUploadingBallotIndex(pkg.ballots.indexOf(ballot))
-            })
-            .on('completed', async () => {
-              setLoadingTemplates(true)
-              await doneTemplates()
-              setLoadingTemplates(false)
-              setElection(pkg.electionDefinition.election)
-            })
+  const handleBallotLoading = async (pkg: BallotPackage) => {
+    addTemplates(pkg)
+      .on('configuring', () => {
+        setCurrentUploadingBallotIndex(0)
+        setTotalTemplates(pkg.ballots.length)
+      })
+      .on('uploading', (_pkg, ballot) => {
+        const { locales } = ballot.ballotConfig
+        setCurrentUploadingBallot({
+          ballotStyle: ballot.ballotConfig.ballotStyleId,
+          precinct:
+            getPrecinctById({
+              election: pkg.electionDefinition.election,
+              precinctId: ballot.ballotConfig.precinctId,
+            })?.name ?? ballot.ballotConfig.precinctId,
+          isLiveMode: ballot.ballotConfig.isLiveMode,
+          locales: locales?.secondary
+            ? `${locales.primary} / ${locales.secondary}`
+            : locales?.primary,
         })
+        setCurrentUploadingBallotIndex(pkg.ballots.indexOf(ballot))
+      })
+      .on('completed', async () => {
+        setLoadingTemplates(true)
+        await doneTemplates()
+        setLoadingTemplates(false)
+        setElection(pkg.electionDefinition.election)
+      })
+  }
 
-        reader.readAsArrayBuffer(file)
+  const onManualFileImport = async (file: File) => {
+    const isElectionJSON = file.name.endsWith('.json')
+    const reader = new FileReader()
+
+    if (isElectionJSON) {
+      reader.onload = async () => {
+        const election = JSON.parse(reader.result as string)
+        await patchConfig({ election })
+        setElection(election)
       }
+
+      reader.readAsText(file)
+    } else {
+      readBallotPackageFromFile(file).then(handleBallotLoading)
     }
+    reader.readAsText(file)
+  }
+
+  const onAutomaticFileImport = async (file: KioskBrowser.FileSystemEntry) => {
+    // All automatic file imports will be on zip packages
+    readBallotPackageFromFilePointer(file).then(handleBallotLoading)
   }
 
   if (isLoadingTemplates) {
@@ -125,7 +137,13 @@ const LoadElectionScreen: React.FC<Props> = ({ setElection }) => {
     )
   }
 
-  return <ElectionConfiguration acceptFiles={onDrop} />
+  return (
+    <ElectionConfiguration
+      acceptManuallyChosenFile={onManualFileImport}
+      acceptAutomaticallyChosenFile={onAutomaticFileImport}
+      usbDriveStatus={usbDriveStatus}
+    />
+  )
 }
 
 export default LoadElectionScreen

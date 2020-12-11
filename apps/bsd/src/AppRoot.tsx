@@ -316,6 +316,7 @@ const App: React.FC = () => {
   }, [recentlyEjected])
 
   const doEject = async () => {
+    setUsbStatus(UsbDriveStatus.ejecting)
     setRecentlyEjected(true)
     await doUnmount()
   }
@@ -335,9 +336,10 @@ const App: React.FC = () => {
     usbStatus === UsbDriveStatus.notavailable ? 0 : 2000
   )
 
-  const displayUsbStatus = recentlyEjected
-    ? UsbDriveStatus.recentlyEjected
-    : usbStatus
+  const displayUsbStatus =
+    recentlyEjected && usbStatus !== UsbDriveStatus.ejecting
+      ? UsbDriveStatus.recentlyEjected
+      : usbStatus
 
   useEffect(() => {
     updateStatus()
@@ -457,7 +459,10 @@ const App: React.FC = () => {
           usbDriveEject: doEject,
         }}
       >
-        <LoadElectionScreen setElection={setElection} />
+        <LoadElectionScreen
+          setElection={setElection}
+          usbDriveStatus={displayUsbStatus}
+        />
       </AppContext.Provider>
     )
   }
