@@ -5,6 +5,7 @@ import USBControllerButton from './USBControllerButton'
 
 import AppContext from '../contexts/AppContext'
 import { UsbDriveStatus } from '../lib/usbstick'
+import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 
 jest.mock('../lib/usbstick')
 
@@ -23,6 +24,7 @@ const renderWithStatus = (status: UsbDriveStatus) => {
       value={{
         usbDriveStatus: status,
         usbDriveEject: jest.fn(),
+        machineConfig: fakeMachineConfig(),
       }}
     >
       <USBControllerButton />

@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { Election } from '@votingworks/ballot-encoder'
 
 const SECTION_SEPARATOR = '__'
 const SUBSECTION_SEPARATOR = '_'
@@ -6,12 +7,20 @@ const WORD_SEPARATOR = '-'
 const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`
 
 export const BALLOT_PACKAGE_FOLDER = 'ballot-packages'
+export const SCANNER_RESULTS_FOLDER = 'cast-vote-records'
 
 export type ElectionData = {
   electionCounty: string
   electionName: string
   electionHash: string
   timestamp: Date
+}
+
+function sanitizeString(input: string, replacementString = ''): string {
+  return input
+    .replace(/[^a-z0-9]+/gi, replacementString)
+    .replace(/(^-|-$)+/g, '')
+    .toLocaleLowerCase()
 }
 
 /**
@@ -43,4 +52,37 @@ export function parseBallotExportPackageInfoFromFilename(
     electionHash,
     timestamp: parsedTime.toDate(),
   }
+}
+
+export function generateElectionBasedSubfolderName(
+  election: Election,
+  electionHash: string
+): string {
+  const electionCountyName = sanitizeString(
+    election.county.name,
+    WORD_SEPARATOR
+  )
+  const electionTitle = sanitizeString(election.title, WORD_SEPARATOR)
+  return `${`${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}`.toLocaleLowerCase()}${SUBSECTION_SEPARATOR}${electionHash.slice(
+    0,
+    10
+  )}`
+}
+
+/**
+ * Generate the filename for the scanning results CVR file
+ */
+export function generateFilenameForScanningResults(
+  machineId: string,
+  numBallotsScanned: number,
+  isTestMode: boolean,
+  time: Date = new Date()
+): string {
+  const machineString = `machine${SUBSECTION_SEPARATOR}${sanitizeString(
+    machineId
+  )}`
+  const ballotString = `${numBallotsScanned}${SUBSECTION_SEPARATOR}ballots`
+  const timeInformation = moment(time).format(TIME_FORMAT_STRING)
+  const filename = `${machineString}${SECTION_SEPARATOR}${ballotString}${SECTION_SEPARATOR}${timeInformation}.jsonl`
+  return isTestMode ? `TEST${SECTION_SEPARATOR}${filename}` : filename
 }

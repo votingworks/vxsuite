@@ -111,6 +111,17 @@ declare namespace KioskBrowser {
     readFile(path: string): Promise<Buffer>
     readFile(path: string, encoding: string): Promise<string>
 
+    /**
+     * Writes a file to a specified file path
+     */
+    writeFile(path: string): Promise<FileWriter>
+    writeFile(path: string, content: Buffer | string): Promise<void>
+
+    /**
+     * Creates a directory at the specified path.
+     */
+    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>
+
     // storage
     storage: {
       set<K extends keyof M>(key: string, value: M[K]): Promise<void>

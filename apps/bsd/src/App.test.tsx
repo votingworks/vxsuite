@@ -22,6 +22,9 @@ beforeEach(() => {
     batches: [],
     adjudication: { adjudicated: 0, remaining: 0 },
   })
+  fetchMock.get('/machine-config', {
+    machineId: '0001',
+  })
 
   const oldWindowLocation = window.location
   Object.defineProperty(window, 'location', {
@@ -117,20 +120,31 @@ test('clicking export shows modal and makes a request to export', async () => {
     { testMode: true, election: electionSample },
     { overwriteRoutes: true }
   )
+  fetchMock.getOnce(
+    '/scan/status',
+    {
+      batches: [{ id: 1, count: 2, ballots: [], startedAt: '' }],
+      adjudication: { adjudicated: 0, remaining: 0 },
+    },
+    { overwriteRoutes: true }
+  )
 
   fetchMock.postOnce('/scan/export', {
     body: '',
   })
 
-  const { getByText, queryByText } = render(<App />)
-  const exportingModalText = 'Exporting CVRs…'
+  const { getByText, queryByText, getByTestId } = render(<App />)
+  const exportingModalText = 'No USB Drive Detected'
 
   await act(async () => {
     // wait for the config to load
     await sleep(500)
 
     fireEvent.click(getByText('Export'))
-    getByText(exportingModalText)
+    await waitFor(() => getByText(exportingModalText))
+    fireEvent.click(getByTestId('manual-export'))
+    await waitFor(() => getByText('Download Complete'))
+    fireEvent.click(getByText('Cancel'))
   })
 
   expect(fetchMock.called('/scan/export')).toBe(true)

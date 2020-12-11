@@ -8,8 +8,9 @@ import { UsbDriveStatus } from '../lib/usbstick'
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const doNothing = () => {}
 
-const USBControllerButton: React.FC<{ primary?: boolean }> = ({
+const USBControllerButton: React.FC<{ primary?: boolean; small?: boolean }> = ({
   primary = false,
+  small = true,
 }) => {
   const { usbDriveStatus: status, usbDriveEject } = useContext(AppContext)
 
@@ -19,7 +20,7 @@ const USBControllerButton: React.FC<{ primary?: boolean }> = ({
 
   if (status === UsbDriveStatus.absent) {
     return (
-      <Button small disabled onPress={doNothing}>
+      <Button small={small} disabled onPress={doNothing}>
         No USB
       </Button>
     )
@@ -27,7 +28,7 @@ const USBControllerButton: React.FC<{ primary?: boolean }> = ({
 
   if (status === UsbDriveStatus.present) {
     return (
-      <Button small disabled onPress={doNothing}>
+      <Button small={small} disabled onPress={doNothing}>
         Connecting…
       </Button>
     )
@@ -35,7 +36,7 @@ const USBControllerButton: React.FC<{ primary?: boolean }> = ({
 
   if (status === UsbDriveStatus.recentlyEjected) {
     return (
-      <Button small disabled onPress={doNothing}>
+      <Button small={small} disabled onPress={doNothing}>
         Ejected
       </Button>
     )
@@ -43,14 +44,14 @@ const USBControllerButton: React.FC<{ primary?: boolean }> = ({
 
   if (status === UsbDriveStatus.ejecting) {
     return (
-      <Button small disabled onPress={doNothing}>
+      <Button small={small} disabled onPress={doNothing}>
         Ejecting…
       </Button>
     )
   }
 
   return (
-    <Button small primary={primary} onPress={usbDriveEject}>
+    <Button small={small} primary={primary} onPress={usbDriveEject}>
       Eject USB
     </Button>
   )

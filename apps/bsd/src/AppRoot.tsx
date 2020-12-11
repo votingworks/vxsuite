@@ -1,16 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Route, Switch, useHistory } from 'react-router-dom'
-import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 import { Election, OptionalElection } from '@votingworks/ballot-encoder'
-import Prose from './components/Prose'
-import Modal from './components/Modal'
 
 import {
   CardData,
   ScanStatusResponse,
   CardReadLongResponse,
   CardReadResponse,
+  MachineConfig,
 } from './config/types'
 
 import AppContext from './contexts/AppContext'
@@ -44,6 +42,9 @@ import LinkButton from './components/LinkButton'
 import MainNav from './components/MainNav'
 import StatusFooter from './components/StatusFooter'
 
+import ExportResultsModal from './components/ExportResultsModal'
+import machineConfigProvider from './util/machineConfig'
+
 const App: React.FC = () => {
   const history = useHistory()
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
@@ -67,6 +68,10 @@ const App: React.FC = () => {
 
   const [isExportingCVRs, setIsExportingCVRs] = useState(false)
 
+  const [machineConfig, setMachineConfig] = useState<MachineConfig>({
+    machineId: '0000',
+  })
+
   const { adjudication } = status
 
   const [isScanning, setIsScanning] = useState(false)
@@ -89,6 +94,19 @@ const App: React.FC = () => {
 
     initialize()
   }, [refreshConfig])
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        const newMachineConfig = await machineConfigProvider.get()
+        setMachineConfig(newMachineConfig)
+      } catch (e) {
+        // TODO: what should happen in machineConfig not returned?
+      }
+    }
+
+    initialize()
+  }, [setMachineConfig])
 
   const updateStatus = useCallback(async () => {
     try {
@@ -234,53 +252,6 @@ const App: React.FC = () => {
     }
   }, [history, isTestMode, refreshConfig])
 
-  const exportResults = useCallback(async () => {
-    if (!election) {
-      return
-    }
-
-    setIsExportingCVRs(true)
-
-    try {
-      const response = await fetch(`/scan/export`, {
-        method: 'post',
-      })
-
-      const blob = await response.blob()
-
-      setIsExportingCVRs(false)
-
-      if (response.status !== 200) {
-        // eslint-disable-next-line no-console
-        console.log('error downloading CVRs')
-        return
-      }
-
-      const cvrFilename = `${`cvrs-${election.county.name}-${election.title}`
-        .replace(/[^a-z0-9]+/gi, '-')
-        .replace(/(^-|-$)+/g, '')
-        .toLocaleLowerCase()}.jsonl`
-
-      if (window.kiosk) {
-        const fileWriter = await window.kiosk.saveAs({
-          defaultPath: cvrFilename,
-        })
-
-        if (!fileWriter) {
-          throw new Error('could not begin download; no file was chosen')
-        }
-
-        await fileWriter.write(await blob.text())
-        await fileWriter.end()
-      } else {
-        fileDownload(blob, cvrFilename, 'application/x-jsonlines')
-      }
-    } catch (error) {
-      setIsExportingCVRs(false)
-      console.log('failed getOutputFile()', error) // eslint-disable-line no-console
-    }
-  }, [election, setIsExportingCVRs])
-
   const deleteBatch = useCallback(
     async (id: number) => {
       setPendingDeleteBatchIds((previousIds) => [...previousIds, id])
@@ -355,11 +326,21 @@ const App: React.FC = () => {
       )
     }
 
+    let exportButtonTitle
+    if (adjudication.remaining > 0) {
+      exportButtonTitle =
+        'You cannot export results until all ballots have been adjudicated.'
+    } else if (status.batches.length === 0) {
+      exportButtonTitle =
+        'You cannot export results until you have scanned at least 1 ballot.'
+    }
+
     return (
       <AppContext.Provider
         value={{
           usbDriveStatus: displayUsbStatus,
           usbDriveEject: doEject,
+          machineConfig,
         }}
       >
         <Switch>
@@ -409,13 +390,11 @@ const App: React.FC = () => {
                 </LinkButton>
                 <Button
                   small
-                  onPress={exportResults}
-                  disabled={adjudication.remaining > 0}
-                  title={
-                    adjudication.remaining > 0
-                      ? 'You cannot export results until all ballots have been adjudicated.'
-                      : undefined
+                  onPress={() => setIsExportingCVRs(true)}
+                  disabled={
+                    adjudication.remaining > 0 || status.batches.length === 0
                   }
+                  title={exportButtonTitle}
                 >
                   Export
                 </Button>
@@ -436,14 +415,17 @@ const App: React.FC = () => {
               </MainNav>
               <StatusFooter election={election} electionHash={electionHash} />
             </Screen>
-            <Modal
+            <ExportResultsModal
               isOpen={isExportingCVRs}
-              centerContent
-              content={
-                <Prose textCenter>
-                  <h1>Exporting CVRs…</h1>
-                </Prose>
-              }
+              onClose={() => setIsExportingCVRs(false)}
+              usbDriveStatus={displayUsbStatus}
+              election={election}
+              electionHash={electionHash}
+              isTestMode={isTestMode}
+              numberOfBallots={status.batches.reduce(
+                (prev, next) => prev + next.count,
+                0
+              )}
             />
           </Route>
         </Switch>
@@ -457,6 +439,7 @@ const App: React.FC = () => {
         value={{
           usbDriveStatus: displayUsbStatus,
           usbDriveEject: doEject,
+          machineConfig,
         }}
       >
         <LoadElectionScreen
