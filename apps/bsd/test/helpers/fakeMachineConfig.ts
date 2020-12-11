@@ -1,7 +1,7 @@
 import { Provider, MachineConfig } from '../../src/config/types'
 
 export default function fakeMachineConfig({
-  machineId = '000',
+  machineId = '0000',
 }: Partial<MachineConfig> = {}): MachineConfig {
   return { machineId }
 }

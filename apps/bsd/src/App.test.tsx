@@ -23,7 +23,7 @@ beforeEach(() => {
     adjudication: { adjudicated: 0, remaining: 0 },
   })
   fetchMock.get('/machine-config', {
-    machineId: '001',
+    machineId: '0001',
   })
 
   const oldWindowLocation = window.location

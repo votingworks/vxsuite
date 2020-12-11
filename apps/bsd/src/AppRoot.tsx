@@ -69,7 +69,7 @@ const App: React.FC = () => {
   const [isExportingCVRs, setIsExportingCVRs] = useState(false)
 
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
-    machineId: '000',
+    machineId: '0000',
   })
 
   const { adjudication } = status
@@ -101,7 +101,7 @@ const App: React.FC = () => {
         const newMachineConfig = await machineConfigProvider.get()
         setMachineConfig(newMachineConfig)
       } catch (e) {
-        window.setTimeout(initialize, 1000)
+        // TODO: what should happen in machineConfig not returned?
       }
     }
 

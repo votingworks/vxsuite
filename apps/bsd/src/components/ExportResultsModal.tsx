@@ -92,12 +92,17 @@ const ExportResultsModal: React.FC<Props> = ({
 
       if (window.kiosk) {
         const usbPath = await getDevicePath()
+        if (!usbPath) {
+          throw new Error(
+            'could not begin downloand; path to usb drive missing'
+          )
+        }
         const electionFolderName = generateElectionBasedSubfolderName(
           election,
           electionHash!
         )
         const pathToFolder = path.join(
-          usbPath!,
+          usbPath,
           SCANNER_RESULTS_FOLDER,
           electionFolderName
         )

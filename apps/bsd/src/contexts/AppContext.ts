@@ -10,7 +10,7 @@ interface AppContextInterface {
 const appContext: AppContextInterface = {
   usbDriveStatus: '',
   usbDriveEject: () => undefined,
-  machineConfig: { machineId: '000' },
+  machineConfig: { machineId: '0000' },
 }
 
 const AppContext = createContext(appContext)

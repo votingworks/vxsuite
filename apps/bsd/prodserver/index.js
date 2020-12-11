@@ -26,7 +26,7 @@ app.get('*', (req, res) => {
 
 app.get('/machine-config', (req, res) => {
   res.json({
-    "machineId": process.env.VX_MACHINE_ID || "000",
+    "machineId": process.env.VX_MACHINE_ID || "0000",
   })
 })
 
