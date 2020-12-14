@@ -170,7 +170,7 @@ export async function run(
       layoutFilePath = adjacentFile('-layout', ballotImagePath, '.png')
     }
 
-    const contests = findMatchingContests(imageData, template, logger)
+    const contests = findMatchingContests(imageData, template, { log: logger })
 
     if (options.format === Format.HTML) {
       layoutFile?.end()

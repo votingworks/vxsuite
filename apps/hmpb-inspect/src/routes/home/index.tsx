@@ -4,8 +4,9 @@ import * as style from './style.css'
 const Home: FunctionalComponent = () => {
   return (
     <div class={style.home}>
-      <h1>Home</h1>
-      <p>This is the Home component.</p>
+      <div class={style.page}>
+        <img src="/assets/ballot.png" />
+      </div>
     </div>
   )
 }

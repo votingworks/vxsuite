@@ -3,3 +3,8 @@
   min-height: 100%;
   width: 100%;
 }
+
+.page {
+  transform: scale(0.5);
+  transform-origin: top left;
+}

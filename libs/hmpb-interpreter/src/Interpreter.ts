@@ -349,8 +349,10 @@ export default class Interpreter {
     const matchedTemplate = defined(
       this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
     )
-    const matchingContests = findMatchingContests(imageData, matchedTemplate)
     const contestDefinitions = this.getContestsForTemplate(matchedTemplate)
+    const matchingContests = findMatchingContests(imageData, matchedTemplate, {
+      definitions: contestDefinitions,
+    })
 
     for (const [contestDefinition, contest, matchedContest] of zip(
       contestDefinitions,

@@ -72,7 +72,7 @@ export function* followStroke({
   bounds: Rect
   searchDirection: 'up' | 'down' | 'left' | 'right'
   edgeContrastRatio?: number
-  log?: SearchImageLogger
+  log?: SearchImageLogger<string>
 }): Generator<Rect> {
   log?.begin(bounds, `searchDirection=${searchDirection}`)
 
@@ -174,7 +174,7 @@ export function findStroke({
   searchDirection: 'up' | 'down' | 'left' | 'right'
   minDensity?: number
   edgeContrastRatio?: number
-  log?: SearchImageLogger
+  log?: SearchImageLogger<string>
 }): Rect | undefined {
   let result: Rect | undefined
   log?.begin(bounds, `searchDirection=${searchDirection}`)
@@ -378,8 +378,20 @@ export default function* findContests(
 export function findMatchingContests(
   ballotImage: ImageData,
   ballotLayout: BallotPageLayout,
-  log?: InspectImageLogger<ContestImageTypes>
+  {
+    definitions,
+    log,
+  }: {
+    definitions?: Contests
+    log?: InspectImageLogger<ContestImageTypes>
+  } = {}
 ): ContestShape[] {
+  const ballotImageBounds = rect({
+    x: 0,
+    y: 0,
+    width: ballotImage.width,
+    height: ballotImage.height,
+  })
   const contestShapes: ContestShape[] = []
 
   const mapRect = (rect: Rect): Rect => ({
@@ -405,7 +417,8 @@ export function findMatchingContests(
     })
 
   for (const [i, contestShape] of ballotLayout.contests.entries()) {
-    const clog = log?.group(`contest #${i + 1}`)
+    const definition = definitions?.[i]
+    const clog = log?.group(definition?.title ?? `contest #${i + 1}`)
     const previousTemplateShape = ballotLayout.contests[i - 1]
     const previousScannedShape = contestShapes[i - 1]
     const isSameColumn =
@@ -414,7 +427,8 @@ export function findMatchingContests(
 
     clog?.landmark(
       ContestImageTypes.TemplateBounds,
-      mapRect(contestShape.bounds)
+      mapRect(contestShape.bounds),
+      'direct map of template contest'
     )
     const contestBoxFromOffset =
       isSameColumn && previousScannedShape
@@ -446,10 +460,11 @@ export function findMatchingContests(
       searchDirection: 'down',
       log: clog?.search(ContestImageTypes.TopLine),
     })
+
     const contestBoxTopLineParts: Rect[] = []
     const contestBoxLeftLineParts: Rect[] = []
     const contestBoxRightLineParts: Rect[] = []
-    const contestBoxBottomLineParts: Rect[] = []
+    let contestBoxBottomLineParts: Rect[] = []
     let contestBoxBottomLine: Rect | undefined
 
     if (contestBoxTopLine) {
@@ -498,12 +513,15 @@ export function findMatchingContests(
       )
       const contestBoxLeftLinePart = findStroke({
         imageData: ballotImage,
-        bounds: rect({
-          left: contestBoxFromOffset.x - 100,
-          top: lowestTopLineBottomEdgeY,
-          right: contestBoxFromOffset.x + 100,
-          bottom: lowestTopLineBottomEdgeY + 14,
-        }),
+        bounds: rectClip(
+          rect({
+            left: contestBoxFromOffset.x - 100,
+            top: lowestTopLineBottomEdgeY,
+            right: contestBoxFromOffset.x + 100,
+            bottom: lowestTopLineBottomEdgeY + 14,
+          }),
+          ballotImageBounds
+        ),
         maxThickness: 6,
         minThickness: 2,
         searchDirection: 'left',
@@ -511,12 +529,15 @@ export function findMatchingContests(
       })
       const contestBoxRightLinePart = findStroke({
         imageData: ballotImage,
-        bounds: rect({
-          left: Math.round(contestBoxTopLine.x + contestBoxTopLine.width / 2),
-          top: lowestTopLineBottomEdgeY,
-          right: ballotImage.width - 1,
-          bottom: lowestTopLineBottomEdgeY + 14,
-        }),
+        bounds: rectClip(
+          rect({
+            left: contestBoxFromOffset.x + contestBoxFromOffset.width - 100,
+            top: lowestTopLineBottomEdgeY,
+            right: contestBoxFromOffset.x + contestBoxFromOffset.width + 100,
+            bottom: lowestTopLineBottomEdgeY + 14,
+          }),
+          ballotImageBounds
+        ),
         maxThickness: 6,
         minThickness: 2,
         searchDirection: 'right',
@@ -542,12 +563,15 @@ export function findMatchingContests(
         for (const part of followStroke({
           imageData: ballotImage,
           strokeBounds: contestBoxLeftLinePart,
-          bounds: rect({
-            x: 0,
-            y: contestBoxLeftLinePart.y,
-            width: ballotImage.width,
-            height: contestBoxFromOffset.height * 1.1,
-          }),
+          bounds: rectClip(
+            rect({
+              x: 0,
+              y: contestBoxLeftLinePart.y,
+              width: ballotImage.width,
+              height: contestBoxFromOffset.height * 1.1,
+            }),
+            ballotImageBounds
+          ),
           searchDirection: 'down',
           log: clog?.search(ContestImageTypes.LeftLine),
         })) {
@@ -573,12 +597,15 @@ export function findMatchingContests(
         for (const part of followStroke({
           imageData: ballotImage,
           strokeBounds: contestBoxRightLinePart,
-          bounds: rect({
-            x: 0,
-            y: contestBoxRightLinePart.y,
-            width: ballotImage.width,
-            height: contestBoxFromOffset.height * 1.1,
-          }),
+          bounds: rectClip(
+            rect({
+              x: 0,
+              y: contestBoxRightLinePart.y,
+              width: ballotImage.width,
+              height: contestBoxFromOffset.height * 1.1,
+            }),
+            ballotImageBounds
+          ),
           searchDirection: 'down',
           log: clog?.search(ContestImageTypes.RightLine),
         })) {
@@ -592,11 +619,128 @@ export function findMatchingContests(
       (contestBoxLeftLineParts.length > 0 ||
         contestBoxRightLineParts.length > 0)
     ) {
+      const bottomLineFromSidesSearchLog = clog
+        ?.search(ContestImageTypes.BottomLine)
+        .begin(ballotImageBounds)
+      const bottomLineFromBelowSearchLog = clog
+        ?.search(ContestImageTypes.BottomLine)
+        .begin(ballotImageBounds)
+
       const lowestSideLinePartY = Math.max(
         ...[...contestBoxLeftLineParts, ...contestBoxRightLineParts].map(
           ({ y }) => y
         )
       )
+
+      let bottomStrokeLeftSidePart: Rect | undefined
+      let bottomStrokeRightSidePart: Rect | undefined
+
+      if (contestBoxLeftLineParts.length > 0) {
+        const sortedLeftSideParts = [...contestBoxLeftLineParts].sort(
+          (a, b) => b.y - a.y
+        )
+
+        if (sortedLeftSideParts[1]) {
+          bottomStrokeLeftSidePart = findStroke({
+            imageData: ballotImage,
+            searchDirection: 'down',
+            bounds: rect({
+              x: sortedLeftSideParts[1].x + sortedLeftSideParts[1].width,
+              y: sortedLeftSideParts[1].y,
+              width: 50,
+              height: sortedLeftSideParts[1].height * 3,
+            }),
+            minThickness: 2,
+            maxThickness: 10,
+            log: bottomLineFromSidesSearchLog?.search(
+              ContestImageTypes.BottomLine
+            ),
+          })
+        }
+      }
+
+      if (contestBoxRightLineParts.length > 0) {
+        const sortedRightSideParts = [...contestBoxRightLineParts].sort(
+          (a, b) => b.y - a.y
+        )
+
+        if (sortedRightSideParts[1]) {
+          bottomStrokeRightSidePart = findStroke({
+            imageData: ballotImage,
+            searchDirection: 'down',
+            bounds: rect({
+              left: sortedRightSideParts[1].x - 51,
+              top: sortedRightSideParts[1].y,
+              right: sortedRightSideParts[1].x - 1,
+              bottom:
+                sortedRightSideParts[1].y + sortedRightSideParts[1].height * 3,
+            }),
+            minThickness: 2,
+            maxThickness: 10,
+            log: bottomLineFromSidesSearchLog?.search(
+              ContestImageTypes.BottomLine
+            ),
+          })
+        }
+      }
+
+      const bottomStrokePartsFromSides =
+        bottomStrokeLeftSidePart &&
+        (!bottomStrokeRightSidePart ||
+          computeAreaFill(ballotImage, bottomStrokeLeftSidePart) >
+            computeAreaFill(ballotImage, bottomStrokeRightSidePart))
+          ? [
+              bottomStrokeLeftSidePart,
+              ...followStroke({
+                imageData: ballotImage,
+                bounds: rect({
+                  left: bottomStrokeLeftSidePart.x,
+                  top: contestBoxTopLine.y + contestBoxTopLine.height,
+                  right:
+                    contestBoxRightLineParts.length > 0
+                      ? Math.max(
+                          ...contestBoxRightLineParts.map(({ x }) => x)
+                        ) + bottomStrokeLeftSidePart.width
+                      : ballotImage.width - 1,
+                  bottom:
+                    lowestSideLinePartY +
+                    (contestBoxLeftLineParts[0] ?? contestBoxRightLineParts[0])
+                      .height,
+                }),
+                searchDirection: 'right',
+                strokeBounds: bottomStrokeLeftSidePart,
+                log: bottomLineFromSidesSearchLog?.search(
+                  ContestImageTypes.BottomLine
+                ),
+              }),
+            ]
+          : bottomStrokeRightSidePart
+          ? [
+              bottomStrokeRightSidePart,
+              ...followStroke({
+                imageData: ballotImage,
+                bounds: rect({
+                  left:
+                    contestBoxLeftLineParts.length > 0
+                      ? Math.min(...contestBoxLeftLineParts.map(({ x }) => x)) -
+                        bottomStrokeRightSidePart.width
+                      : 0,
+                  right: bottomStrokeRightSidePart.x - 1,
+                  top: contestBoxTopLine.y + contestBoxTopLine.height,
+                  bottom:
+                    lowestSideLinePartY +
+                    (contestBoxLeftLineParts[0] ?? contestBoxRightLineParts[0])
+                      .height,
+                }),
+                searchDirection: 'left',
+                strokeBounds: bottomStrokeRightSidePart,
+                log: bottomLineFromSidesSearchLog?.search(
+                  ContestImageTypes.BottomLine
+                ),
+              }),
+            ]
+          : undefined
+
       const bounds = rect({
         left: contestBoxTopLine.x,
         top: lowestSideLinePartY,
@@ -605,16 +749,19 @@ export function findMatchingContests(
           lowestSideLinePartY +
           (contestBoxLeftLineParts[0] ?? contestBoxRightLineParts[0]).height,
       })
-      contestBoxBottomLine = findStroke({
+      const contestBoxBottomLineFromBelow = findStroke({
         imageData: ballotImage,
         bounds,
         minThickness: 2,
         maxThickness: 10,
         searchDirection: 'up',
-        log: clog?.search(ContestImageTypes.BottomLine),
+        log: bottomLineFromBelowSearchLog?.search(ContestImageTypes.BottomLine),
       })
+      const contestBoxBottomLinePartsFromBelow: Rect[] = []
 
-      if (contestBoxBottomLine) {
+      if (contestBoxBottomLineFromBelow) {
+        contestBoxBottomLinePartsFromBelow.push(contestBoxBottomLineFromBelow)
+
         for (const part of followStroke({
           imageData: ballotImage,
           bounds: {
@@ -624,13 +771,15 @@ export function findMatchingContests(
             height: ballotImage.height,
           },
           strokeBounds: {
-            ...contestBoxBottomLine,
+            ...contestBoxBottomLineFromBelow,
             width: 15,
           },
           searchDirection: 'left',
-          log: clog?.search(ContestImageTypes.BottomLine),
+          log: bottomLineFromBelowSearchLog?.search(
+            ContestImageTypes.BottomLine
+          ),
         })) {
-          contestBoxBottomLineParts.push(part)
+          contestBoxBottomLinePartsFromBelow.push(part)
         }
 
         for (const part of followStroke({
@@ -642,15 +791,52 @@ export function findMatchingContests(
             height: ballotImage.height,
           },
           strokeBounds: {
-            ...contestBoxBottomLine,
-            x: contestBoxBottomLine.x + contestBoxBottomLine.width - 15,
+            ...contestBoxBottomLineFromBelow,
+            x:
+              contestBoxBottomLineFromBelow.x +
+              contestBoxBottomLineFromBelow.width -
+              15,
             width: 15,
           },
           searchDirection: 'right',
-          log: clog?.search(ContestImageTypes.BottomLine),
+          log: bottomLineFromBelowSearchLog?.search(
+            ContestImageTypes.BottomLine
+          ),
         })) {
-          contestBoxBottomLineParts.push(part)
+          contestBoxBottomLinePartsFromBelow.push(part)
         }
+      }
+
+      if (bottomStrokePartsFromSides) {
+        const contestBoxBottomLineFromSidesStrokeFill = bottomStrokePartsFromSides.reduce(
+          (fill, part) => fill + computeAreaFill(ballotImage, part),
+          0
+        )
+        const contestBoxBottomLineFromBelowStrokeFill = contestBoxBottomLinePartsFromBelow.reduce(
+          (fill, part) => fill + computeAreaFill(ballotImage, part),
+          0
+        )
+
+        if (
+          contestBoxBottomLineFromBelowStrokeFill >
+          contestBoxBottomLineFromSidesStrokeFill
+        ) {
+          contestBoxBottomLineParts = contestBoxBottomLinePartsFromBelow
+          bottomLineFromBelowSearchLog?.commit('bottom line found from below')
+          bottomLineFromSidesSearchLog?.cancel(
+            'not using bottom line from sides'
+          )
+        } else {
+          contestBoxBottomLineParts = bottomStrokePartsFromSides
+          bottomLineFromSidesSearchLog?.commit('bottom line found from sides')
+          bottomLineFromBelowSearchLog?.cancel(
+            'not using bottom line from below'
+          )
+        }
+      } else {
+        contestBoxBottomLineParts = contestBoxBottomLinePartsFromBelow
+        bottomLineFromBelowSearchLog?.commit('bottom line found from below')
+        bottomLineFromSidesSearchLog?.cancel('not using bottom line from sides')
       }
     }
 
@@ -702,6 +888,17 @@ export function findMatchingContests(
       bounds: contestBounds,
       edges,
     })
+
+    for (const [comment, corner] of zip(
+      ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+      corners
+    )) {
+      clog?.landmark(
+        ContestImageTypes.Corner,
+        { ...corner, width: 1, height: 1 },
+        comment
+      )
+    }
 
     contestShapes.push({
       bounds: contestBounds,
