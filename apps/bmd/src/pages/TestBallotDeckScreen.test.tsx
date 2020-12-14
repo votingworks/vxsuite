@@ -39,15 +39,13 @@ it('renders test decks appropriately', () => {
   expect(getAllByText('FOR Measure 420A', { exact: false })).toHaveLength(31)
   expect(getAllByText('County Commissioners')).toHaveLength(52)
 
-  const oldWindowPrint = window.print
-  delete window.print
-  window.print = jest.fn()
+  const printSpy = jest.spyOn(window, 'print').mockReturnValue()
 
   fireEvent.click(getByText('Print 63 ballots'))
 
   expect(window.print).toHaveBeenCalled()
 
-  window.print = oldWindowPrint
+  printSpy.mockRestore()
 
   window.kiosk = fakeKiosk()
 
