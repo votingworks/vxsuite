@@ -5,10 +5,6 @@ import * as GLOBALS from '../config/globals'
 
 import Button, { Props as ButtonProps } from './Button'
 
-interface Attrs extends HTMLButtonElement {
-  readonly type: string
-}
-
 interface Props
   extends ButtonProps,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
@@ -16,7 +12,7 @@ interface Props
   isSelected: boolean
 }
 
-const StyledChoiceButton = styled('button').attrs((props: Attrs) => ({
+const StyledChoiceButton = styled('button').attrs((props) => ({
   role: 'option',
   type: props.type ?? 'button',
 }))<Props>`
