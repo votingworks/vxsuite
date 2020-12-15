@@ -5,8 +5,12 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "jsx": "react",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmit": true,
@@ -16,6 +20,10 @@
     "strict": true,
     "target": "es5"
   },
-  "exclude": ["src/setupProxy.js"],
-  "include": ["src"]
+  "exclude": [
+    "src/setupProxy.js"
+  ],
+  "include": [
+    "src"
+  ]
 }

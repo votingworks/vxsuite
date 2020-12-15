@@ -20,7 +20,7 @@ const electionDefinition: ElectionDefinition = {
 test('configures the server with the contained election', async () => {
   fetchMock.patchOnce('/config', { body: { status: 'ok' } })
 
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     addTemplates({ electionDefinition, ballots: [] })
       .on('error', (error) => {
         reject(error)
@@ -41,7 +41,7 @@ test('emits an event each time a ballot begins uploading', async () => {
 
   const uploading = jest.fn()
 
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     addTemplates({
       electionDefinition,
       ballots: [
@@ -85,7 +85,7 @@ test('emits error on API failure', async () => {
   fetchMock.patchOnce('/config', { status: 400, body: { status: 'nope' } })
 
   await expect(
-    new Promise((resolve, reject) => {
+    new Promise<void>((resolve, reject) => {
       addTemplates({ electionDefinition, ballots: [] })
         .on('error', (error) => {
           reject(error)

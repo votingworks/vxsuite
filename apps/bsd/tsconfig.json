@@ -5,8 +5,12 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "jsx": "react",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmit": true,
@@ -16,6 +20,14 @@
     "target": "es2017",
     "noFallthroughCasesInSwitch": true
   },
-  "exclude": ["src/setupProxy.js", ".eslintrc.js"],
-  "include": ["src", "prodserver", "test", "types"]
+  "exclude": [
+    "src/setupProxy.js",
+    ".eslintrc.js"
+  ],
+  "include": [
+    "src",
+    "prodserver",
+    "test",
+    "types"
+  ]
 }

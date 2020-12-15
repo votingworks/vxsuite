@@ -23,7 +23,7 @@ test('clicking "Export Backup…" shows progress', async () => {
 
   let resolve!: () => void
   backup.mockReturnValueOnce(
-    new Promise((res) => {
+    new Promise<void>((res) => {
       resolve = res
     })
   )

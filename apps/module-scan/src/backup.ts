@@ -111,7 +111,7 @@ export class Backup {
     })
 
     const updates: Promise<void>[] = []
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       db.each(
         `
         select
