@@ -34,8 +34,8 @@
   outline: none;
   background: #ffffff;
   width: 100%;
-  overflow: auto;
   max-height: 90vh;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 @media (min-width: 480px) {
