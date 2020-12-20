@@ -1,7 +1,7 @@
 export default class IntervalPoller {
   private interval: number
   private callback: () => Promise<void> | void
-  private timeout?: ReturnType<typeof setTimeout>
+  private timeout?: ReturnType<typeof global.setTimeout>
 
   public constructor(duration: number, callback: () => Promise<void> | void) {
     this.interval = duration
@@ -17,8 +17,10 @@ export default class IntervalPoller {
   }
 
   public stop(): this {
-    window.clearTimeout(this.timeout)
-    this.timeout = undefined
+    if (this.timeout) {
+      global.clearTimeout(this.timeout)
+      this.timeout = undefined
+    }
     return this
   }
 
@@ -27,7 +29,7 @@ export default class IntervalPoller {
   }
 
   private scheduleNextTick(): void {
-    this.timeout = window.setTimeout(async () => {
+    this.timeout = global.setTimeout(async () => {
       try {
         await this.callback()
       } catch (error) {

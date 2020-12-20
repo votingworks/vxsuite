@@ -13,7 +13,8 @@
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "strict": true,
-    "target": "es2015"
+    "target": "es2015",
+    "composite": true
   },
-  "include": ["src", "test"]
+  "include": ["src", "src/data/*.json", "test"]
 }

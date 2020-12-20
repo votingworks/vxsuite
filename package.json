@@ -1,0 +1,9 @@
+{
+  "name": "vxsuite",
+  "private": true,
+  "workspaces": [
+    "apps/bmd",
+    "libs/ballot-encoder",
+    "libs/eslint-plugin-no-array-sort-mutation"
+  ]
+}
