@@ -28,7 +28,6 @@ import {
   YesNoVote,
 } from '../election'
 
-console.log('aaasa889')
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 export const MAXIMUM_PAGE_NUMBERS = 30
 
@@ -74,7 +73,6 @@ export function encodeBallot(
 ): Uint8Array {
   const bits = new BitWriter()
   encodeBallotInto(election, ballot, bits)
-  console.log('encoded', bits.toUint8Array())
   return bits.toUint8Array()
 }
 

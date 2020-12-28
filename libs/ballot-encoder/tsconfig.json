@@ -12,9 +12,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
+    "outDir": "lib",
     "strict": true,
     "target": "es2015",
     "composite": true
   },
-  "include": ["src", "src/data/*.json", "test"]
+  "include": ["src", "src/data/*.json"],
+  "exclude": ["**/*.test.ts"]
 }
