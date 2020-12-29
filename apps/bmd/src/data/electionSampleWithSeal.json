@@ -5,7 +5,7 @@
     "id": "franklin",
     "name": "Franklin County"
   },
-  "date": "November 3, 2020",
+  "date": "2020-11-03",
   "districts": [
     {
       "id": "district-1",
@@ -714,7 +714,8 @@
           "id": "bob",
           "name": "Bob Smith"
         }
-      ]
+      ],
+      "allowWriteIns": false
     }
   ],
   "precincts": [

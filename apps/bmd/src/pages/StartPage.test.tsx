@@ -1,5 +1,6 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
+import { parseElection } from '@votingworks/ballot-encoder'
 
 import { render } from '../../test/testUtils'
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
@@ -9,11 +10,12 @@ import electionPrimarySample from '../data/electionPrimarySample.json'
 import StartPage from './StartPage'
 
 it('renders StartPage', async () => {
+  const election = parseElection(electionPrimarySample)
   const { container, getAllByText, getByText } = render(
     <Route path="/" component={StartPage} />,
     {
       ballotStyleId: '12D',
-      election: electionPrimarySample,
+      election,
       precinctId: '23',
       route: '/',
     }
@@ -24,8 +26,9 @@ it('renders StartPage', async () => {
 })
 
 it('renders StartPage with inline SVG', async () => {
+  const election = parseElection(electionSampleWithSeal)
   const { container } = render(<Route path="/" component={StartPage} />, {
-    election: electionSampleWithSeal,
+    election,
     precinctId: '23',
     route: '/',
   })
@@ -33,8 +36,9 @@ it('renders StartPage with inline SVG', async () => {
 })
 
 it('renders StartPage with no seal', async () => {
+  const election = parseElection(electionSampleNoSeal)
   const { container } = render(<Route path="/" component={StartPage} />, {
-    election: electionSampleNoSeal,
+    election,
     precinctId: '23',
     route: '/',
   })
