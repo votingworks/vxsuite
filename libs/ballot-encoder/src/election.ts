@@ -425,7 +425,10 @@ export function withLocale(election: Election, locale: string): Election {
 
 function copyWithLocale<T>(value: T, locale: string): T
 function copyWithLocale<T>(value: readonly T[], locale: string): readonly T[]
-function copyWithLocale<T>(value: T, locale: string): T {
+function copyWithLocale<T>(
+  value: T | readonly T[],
+  locale: string
+): T | readonly T[] {
   if (Array.isArray(value)) {
     return (value.map((element) =>
       copyWithLocale(element, locale)
