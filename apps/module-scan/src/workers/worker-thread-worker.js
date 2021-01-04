@@ -12,8 +12,9 @@ if (typeof workerData.__workerPath !== 'string') {
 
 const { call } = require(resolve(__dirname, workerData.__workerPath))
 
-parentPort &&
-  parentPort.on('message', async (input) => {
+const pp = parentPort
+pp &&
+  pp.on('message', async (input) => {
     let output
 
     try {
@@ -22,5 +23,5 @@ parentPort &&
       output = { type: 'error', error: `${error.stack}` }
     }
 
-    parentPort.postMessage({ output })
+    pp.postMessage({ output })
   })

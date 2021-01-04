@@ -8,7 +8,7 @@ test('copy file works', async () => {
   expect(newFile.size).toEqual(file.size)
 
   const reader = new FileReader()
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     reader.onload = () => {
       try {
         expect(reader.result).toEqual('12345')
