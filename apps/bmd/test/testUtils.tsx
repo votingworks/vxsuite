@@ -1,8 +1,14 @@
-import { createMemoryHistory } from 'history'
+import { createMemoryHistory, History } from 'history'
 import React from 'react'
 import { Router } from 'react-router-dom'
 import { render as testRender } from '@testing-library/react'
-import { Contests, ElectionDefinition } from '@votingworks/ballot-encoder'
+import {
+  Contests,
+  Election,
+  ElectionDefinition,
+  parseElection,
+  VotesDict,
+} from '@votingworks/ballot-encoder'
 
 import * as GLOBALS from '../src/config/globals'
 
@@ -11,21 +17,27 @@ import * as GLOBALS from '../src/config/globals'
 // typescript concludes that sealURL is required.
 import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
-import { TextSizeSetting, VxMarkOnly } from '../src/config/types'
+import {
+  MachineConfig,
+  MarkVoterCardFunction,
+  TextSizeSetting,
+  VxMarkOnly,
+} from '../src/config/types'
 
 import BallotContext from '../src/contexts/ballotContext'
 import fakePrinter from './helpers/fakePrinter'
 import fakeMachineConfig from './helpers/fakeMachineConfig'
+import { Printer } from '../src/utils/printer'
 
 export function render(
   component: React.ReactNode,
   {
     route = '/',
     ballotStyleId = '',
-    contests = electionSampleNoSeal.contests as Contests,
+    election = parseElection(electionSampleNoSeal),
+    contests = election.contests,
     markVoterCardVoided = jest.fn(),
     markVoterCardPrinted = jest.fn(),
-    election = electionSampleNoSeal,
     electionHash = '',
     history = createMemoryHistory({ initialEntries: [route] }),
     isLiveMode = false,
@@ -39,6 +51,26 @@ export function render(
     forceSaveVote = jest.fn(),
     userSettings = { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
     votes = {},
+  }: {
+    route?: string
+    ballotStyleId?: string
+    election?: Election
+    contests?: Contests
+    markVoterCardVoided?: MarkVoterCardFunction
+    markVoterCardPrinted?: MarkVoterCardFunction
+    electionHash?: string
+    history?: History
+    isLiveMode?: boolean
+    machineConfig?: MachineConfig
+    precinctId?: string
+    printer?: Printer
+    resetBallot?(): void
+    setUserSettings?(): void
+    updateTally?(): void
+    updateVote?(): void
+    forceSaveVote?(): void
+    userSettings?: { textSize: TextSizeSetting }
+    votes?: VotesDict
   } = {}
 ) {
   return {

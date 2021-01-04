@@ -2,13 +2,11 @@ import React from 'react'
 import { fireEvent, render, wait } from '@testing-library/react'
 import { Route } from 'react-router-dom'
 import {
-  Election,
-  // electionSample,
   getBallotStyle,
   getContests,
+  parseElection,
   vote,
 } from '@votingworks/ballot-encoder'
-// TODO: Tally: Use electionSample from ballot-encoder once published.
 import electionSample from './data/electionSample.json'
 
 import App from './App'
@@ -30,20 +28,21 @@ import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 test('Renders Ballot with EitherNeither: blank', () => {
+  const election = parseElection(electionSample)
   const { getByText } = renderWithBallotContext(
     <Route path="/print" component={PrintPage} />,
     {
       ballotStyleId: '12',
       precinctId: '23',
       route: '/print',
-      election: electionSample,
+      election,
       votes: vote(
         getContests({
           ballotStyle: getBallotStyle({
-            election: electionSample as Election,
+            election,
             ballotStyleId: '12',
           })!,
-          election: electionSample as Election,
+          election,
         }),
         {
           '420A': [],
@@ -60,20 +59,21 @@ test('Renders Ballot with EitherNeither: blank', () => {
 })
 
 test('Renders Ballot with EitherNeither: Either & blank', () => {
+  const election = parseElection(electionSample)
   const { getByText } = renderWithBallotContext(
     <Route path="/print" component={PrintPage} />,
     {
       ballotStyleId: '12',
       precinctId: '23',
       route: '/print',
-      election: electionSample,
+      election,
       votes: vote(
         getContests({
           ballotStyle: getBallotStyle({
-            election: electionSample as Election,
+            election,
             ballotStyleId: '12',
           })!,
-          election: electionSample as Election,
+          election,
         }),
         {
           '420A': ['yes'],
@@ -93,20 +93,21 @@ test('Renders Ballot with EitherNeither: Either & blank', () => {
 })
 
 test('Renders Ballot with EitherNeither: Neither & firstOption', () => {
+  const election = parseElection(electionSample)
   const { getByText } = renderWithBallotContext(
     <Route path="/print" component={PrintPage} />,
     {
       ballotStyleId: '12',
       precinctId: '23',
       route: '/print',
-      election: electionSample,
+      election,
       votes: vote(
         getContests({
           ballotStyle: getBallotStyle({
-            election: electionSample as Election,
+            election,
             ballotStyleId: '12',
           })!,
-          election: electionSample as Election,
+          election,
         }),
         {
           '420A': ['no'],
@@ -126,20 +127,21 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', () => {
 })
 
 test('Renders Ballot with EitherNeither: blank & secondOption', () => {
+  const election = parseElection(electionSample)
   const { getByText } = renderWithBallotContext(
     <Route path="/print" component={PrintPage} />,
     {
       ballotStyleId: '12',
       precinctId: '23',
       route: '/print',
-      election: electionSample,
+      election,
       votes: vote(
         getContests({
           ballotStyle: getBallotStyle({
-            election: electionSample as Election,
+            election,
             ballotStyleId: '12',
           })!,
-          election: electionSample as Election,
+          election,
         }),
         {
           '420A': [],

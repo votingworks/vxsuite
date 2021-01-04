@@ -2,6 +2,7 @@ import {
   electionSample,
   getBallotStyle,
   getContests,
+  parseElection,
   vote,
 } from '@votingworks/ballot-encoder'
 import React from 'react'
@@ -51,9 +52,10 @@ it('renders PrintPage with votes', () => {
 })
 
 it('renders PrintPage without votes and inline seal', () => {
+  const election = parseElection(electionSampleWithSeal)
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
-    election: electionSampleWithSeal,
+    election,
     precinctId: '21',
     route: '/print',
   })
@@ -61,9 +63,10 @@ it('renders PrintPage without votes and inline seal', () => {
 })
 
 it('renders PrintPage without votes and no seal', () => {
+  const election = parseElection(electionSampleNoSeal)
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
-    election: electionSampleNoSeal,
+    election,
     precinctId: '21',
     route: '/print',
   })
