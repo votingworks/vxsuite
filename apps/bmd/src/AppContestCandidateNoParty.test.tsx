@@ -27,9 +27,9 @@ const electionWithNoPartyCandidateContests: Election = {
         })),
       }
       return noPartyCandidateContest
-    } else {
-      return contest
     }
+
+    return contest
   }),
 }
 

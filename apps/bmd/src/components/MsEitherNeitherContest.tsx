@@ -146,8 +146,7 @@ const MsEitherNeitherContest = ({
       .direction as ScrollDirections
     const sc = scrollContainer.current!
     const currentScrollTop = sc.scrollTop
-    const offsetHeight = sc.offsetHeight
-    const scrollHeight = sc.scrollHeight
+    const { offsetHeight, scrollHeight } = sc
     const idealScrollDistance = Math.round(offsetHeight * 0.75)
     const maxScrollableDownDistance =
       scrollHeight - offsetHeight - currentScrollTop

@@ -38,13 +38,13 @@ const Footer = styled.div`
   margin: 1rem 1rem 1.5rem;
 `
 
-const Sidebar = ({
+const Sidebar: React.FC<Props> = ({
   appName,
   centerContent,
   footer,
   children,
   title,
-}: Props) => {
+}) => {
   return (
     <StyledSidebar>
       {title && (

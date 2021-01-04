@@ -16,7 +16,7 @@ interface Props {
   sealURL?: string
 }
 
-const Seal = ({ seal, sealURL }: Props) => {
+const Seal: React.FC<Props> = ({ seal, sealURL }) => {
   return (
     <SealContainer
       aria-hidden

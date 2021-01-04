@@ -25,7 +25,10 @@ function* getShortMonthNames(): Generator<string> {
 }
 export const MONTHS_SHORT = [...getShortMonthNames()]
 
-export const formatTimeZoneName = (date: Date, timeZone?: string) =>
+export const formatTimeZoneName = (
+  date: Date,
+  timeZone?: string
+): string | undefined =>
   new Intl.DateTimeFormat(undefined, {
     timeZoneName: 'long',
     timeZone,
@@ -33,7 +36,10 @@ export const formatTimeZoneName = (date: Date, timeZone?: string) =>
     .formatToParts(date)
     .find((part) => part.type === 'timeZoneName')?.value
 
-export const formatFullDateTimeZone = (date: Date, timeZone?: string) =>
+export const formatFullDateTimeZone = (
+  date: Date,
+  timeZone?: string
+): string | undefined =>
   new Intl.DateTimeFormat(undefined, {
     timeZone,
     weekday: 'short',
@@ -45,7 +51,7 @@ export const formatFullDateTimeZone = (date: Date, timeZone?: string) =>
     timeZoneName: timeZone ? 'short' : undefined,
   }).format(date)
 
-export const formatLongDate = (date: Date, timeZone?: string) =>
+export const formatLongDate = (date: Date, timeZone?: string): string =>
   new Intl.DateTimeFormat(undefined, {
     timeZone,
     month: 'long',
@@ -54,19 +60,13 @@ export const formatLongDate = (date: Date, timeZone?: string) =>
   }).format(date)
 
 // TODO: replace `dateLong` with `formatLongDate`
-export const dateLong = (dateString: string) =>
+export const dateLong = (dateString: string): string =>
   moment(new Date(dateString)).format('LL')
 
 /**
  * Get days in given month and year.
- *
- * @param year
- * @param month
- *
- * @return Date[]
- *
  */
-export function getDaysInMonth(year: number, month: number) {
+export function getDaysInMonth(year: number, month: number): Date[] {
   const date = new Date(year, month, 1)
   const days = []
   while (date.getMonth() === month) {

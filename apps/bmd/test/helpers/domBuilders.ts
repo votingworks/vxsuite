@@ -65,7 +65,7 @@ function element(
   type: CreatableElementType,
   ...rest: unknown[]
 ): ReturnType<typeof document['createElement']> {
-  const element = document.createElement(type)
+  const result = document.createElement(type)
   let attributes: Attributes
   let children: Node[]
 
@@ -79,13 +79,13 @@ function element(
 
   for (const key in attributes) {
     if (Object.prototype.hasOwnProperty.call(attributes, key)) {
-      element.setAttribute(key, attributes[key])
+      result.setAttribute(key, attributes[key])
     }
   }
 
-  element.append(...children)
+  result.append(...children)
 
-  return element
+  return result
 }
 
 export { element }

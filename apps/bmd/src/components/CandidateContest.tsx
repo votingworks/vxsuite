@@ -92,7 +92,12 @@ const findCandidateById = (candidates: readonly Candidate[], id: string) =>
 const normalizeCandidateName = (name: string) =>
   name.trim().replace(/\t+/g, ' ').replace(/\s+/g, ' ')
 
-const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
+const CandidateContest: React.FC<Props> = ({
+  contest,
+  parties,
+  vote,
+  updateVote,
+}) => {
   const context = useContext(BallotContext)
   const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
 
@@ -198,8 +203,8 @@ const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
     clearCandidateIdPendingRemoval()
   }
 
-  const toggleWriteInCandidateModal = (writeInCandateModalIsOpen: boolean) => {
-    setWriteInCandateModalIsOpen(writeInCandateModalIsOpen)
+  const toggleWriteInCandidateModal = (newValue: boolean) => {
+    setWriteInCandateModalIsOpen(newValue)
   }
 
   const initWriteInCandidate = () => {
@@ -251,8 +256,8 @@ const CandidateContest = ({ contest, parties, vote, updateVote }: Props) => {
       .direction as ScrollDirections
     const sc = scrollContainer.current!
     const currentScrollTop = sc.scrollTop
-    const offsetHeight = sc.offsetHeight
-    const scrollHeight = sc.scrollHeight
+    const { offsetHeight } = sc
+    const { scrollHeight } = sc
     const idealScrollDistance = Math.round(offsetHeight * 0.75)
     const maxScrollableDownDistance =
       scrollHeight - offsetHeight - currentScrollTop

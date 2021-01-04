@@ -5,7 +5,7 @@ function isString(x: unknown): x is string {
   return Object.prototype.toString.call(x) === '[object String]'
 }
 
-function isObject(obj: unknown): obj is object {
+function isObject(obj: unknown): obj is Record<PropertyKey, unknown> {
   return Object.prototype.toString.call(obj) === '[object Object]'
 }
 
@@ -39,7 +39,8 @@ function isJSON(value: unknown, passObject = false): boolean {
 export function isJSONStrict(str: unknown): boolean {
   if (isObject(str)) {
     return true
-  } else if (!isString(str)) {
+  }
+  if (!isString(str)) {
     return false
   }
 

@@ -43,7 +43,7 @@ describe('supports yes/no contest', () => {
     expect(
       getAllByText(
         (_, element) =>
-          element.textContent ===
+          element?.textContent ===
           'Do you want to change your vote to No? To change your vote, first unselect your vote for Yes.'
       )
     ).toBeTruthy()

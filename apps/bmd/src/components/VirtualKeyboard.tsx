@@ -102,11 +102,11 @@ const US_ENGLISH_KEYMAP: KeyMap = {
   ],
 }
 
-const VirtualKeyboard = ({
+const VirtualKeyboard: React.FC<Props> = ({
   onKeyPress,
   keyDisabled,
   keyMap = US_ENGLISH_KEYMAP,
-}: Props) => (
+}) => (
   <Keyboard data-testid="virtual-keyboard">
     {keyMap.rows.map((row) => {
       return (

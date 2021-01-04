@@ -22,7 +22,7 @@ import Screen from '../components/Screen'
 
 const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS
 
-const IdlePage = () => {
+const IdlePage: React.FC = () => {
   const { markVoterCardVoided, resetBallot } = useContext(BallotContext)
   const [countdown, setCountdown] = useState(timeoutSeconds)
   const [isLoading, setIsLoading] = useState(false)
@@ -37,11 +37,11 @@ const IdlePage = () => {
       await markVoterCardVoided()
       resetBallot()
     }
-    countdown === 0 && reset()
+    if (countdown === 0) reset()
   }, [countdown, markVoterCardVoided, resetBallot])
 
   useInterval(() => {
-    setCountdown((countdown) => countdown - 1)
+    setCountdown((previous) => previous - 1)
   }, 1000)
 
   return (

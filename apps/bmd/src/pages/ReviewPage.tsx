@@ -288,7 +288,7 @@ const SidebarSpacer = styled.div`
   height: 90px;
 `
 
-const ReviewPage = () => {
+const ReviewPage: React.FC = () => {
   const context = useContext(BallotContext)
   const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
 
@@ -342,8 +342,8 @@ const ReviewPage = () => {
       .direction as ScrollDirections
     const sc = scrollContainer.current!
     const currentScrollTop = sc.scrollTop
-    const offsetHeight = sc.offsetHeight
-    const scrollHeight = sc.scrollHeight
+    const { offsetHeight } = sc
+    const { scrollHeight } = sc
     const idealScrollDistance = Math.round(offsetHeight * 0.75)
     const maxScrollableDownDistance =
       scrollHeight - offsetHeight - currentScrollTop
@@ -368,7 +368,7 @@ const ReviewPage = () => {
     userSettings,
     setUserSettings,
   } = context
-  const election = electionDefinition.election
+  const { election } = electionDefinition
   const { parties } = election
 
   return (

@@ -5,3 +5,4 @@
 /cypress/support
 /prodserver/**/*.js
 /src/**/*.js
+/.eslintrc.js

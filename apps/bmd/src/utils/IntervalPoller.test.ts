@@ -55,6 +55,15 @@ describe('IntervalPoller', () => {
     expect(callback).not.toHaveBeenCalled()
   })
 
+  it('can stop a poller that has not started', () => {
+    const callback = jest.fn()
+    const poller = new IntervalPoller(10, callback)
+
+    poller.stop()
+    jest.advanceTimersByTime(10)
+    expect(callback).not.toHaveBeenCalled()
+  })
+
   it('can stop a poller that has already fired once', async () => {
     const callback = jest.fn()
     const poller = IntervalPoller.start(10, callback)

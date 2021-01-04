@@ -35,22 +35,16 @@ export function fakePrinterInfo(
  */
 export default function fakeKiosk({
   battery: { level = 1, discharging = false } = {},
-  printers,
+  printers = [{}],
 }: {
   battery?: Partial<KioskBrowser.BatteryInfo>
   printers?: Partial<KioskBrowser.PrinterInfo>[]
 } = {}): jest.Mocked<KioskBrowser.Kiosk> {
-  if (!printers) {
-    printers = [{}]
-  }
-
-  printers = printers.map(fakePrinterInfo)
-
   return {
     setClock: jest.fn().mockResolvedValue(undefined),
     print: jest.fn().mockResolvedValue(undefined),
     getBatteryInfo: jest.fn().mockResolvedValue({ level, discharging }),
-    getPrinterInfo: jest.fn().mockResolvedValue(printers),
+    getPrinterInfo: jest.fn().mockResolvedValue(printers.map(fakePrinterInfo)),
     devices: new BehaviorSubject(new Set<KioskBrowser.Device>()),
     quit: jest.fn(),
   }

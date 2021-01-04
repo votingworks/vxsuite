@@ -42,13 +42,13 @@ interface Props {
   showElectionHash?: boolean
 }
 
-const ElectionInfo = ({
+const ElectionInfo: React.FC<Props> = ({
   precinctId,
   ballotStyleId,
   electionDefinition,
   horizontal = false,
   showElectionHash = false,
-}: Props) => {
+}) => {
   const { election, electionHash } = electionDefinition
   const { title: t, state, county, date, seal, sealURL } = election
   const precinct = election.precincts.find(

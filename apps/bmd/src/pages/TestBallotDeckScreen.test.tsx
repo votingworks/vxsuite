@@ -1,5 +1,5 @@
 import {
-  //electionSample,
+  // electionSample,
   Election,
 } from '@votingworks/ballot-encoder'
 // TODO: Tally: Use electionSample from ballot-encoder once published.

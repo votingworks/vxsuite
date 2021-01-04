@@ -148,7 +148,7 @@ it('VxMark+Print end-to-end flow', async () => {
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
   await wait(() => getByText(/Center Springfield/))
-  expect(queryByText(expectedElectionHash)).toBeNull
+  expect(queryByText(expectedElectionHash)).toBeNull()
   expect(
     within(getByTestId('election-info')).queryByText(
       `Election ID: ${expectedElectionHash}`
@@ -211,7 +211,7 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i++) {
-    const title = voterContests[i].title
+    const { title } = voterContests[i]
 
     await advanceTimersAndPromises()
     getByText(title)

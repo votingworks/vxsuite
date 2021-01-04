@@ -40,8 +40,8 @@ const generateTestDeckBallots = ({
 
   const ballots: Ballot[] = []
 
-  precincts.forEach((precinctId) => {
-    const precinct = election.precincts.find((p) => p.id === precinctId)!
+  precincts.forEach((pId) => {
+    const precinct = election.precincts.find((p) => p.id === pId)!
     const precinctBallotStyles = election.ballotStyles.filter((bs) =>
       bs.precincts.includes(precinct.id)
     )
@@ -88,7 +88,7 @@ const generateTestDeckBallots = ({
         })
         ballots.push({
           ballotStyleId: ballotStyle.id,
-          precinctId,
+          precinctId: pId,
           votes,
         })
       }
@@ -113,14 +113,14 @@ interface Props {
 
 const initialPrecinct: Precinct = { id: '', name: '' }
 
-const TestBallotDeckScreen = ({
+const TestBallotDeckScreen: React.FC<Props> = ({
   appName,
   appPrecinctId,
   electionDefinition,
   hideTestDeck,
   isLiveMode,
-}: Props) => {
-  const election = electionDefinition.election
+}) => {
+  const { election } = electionDefinition
   const [ballots, setBallots] = useState<Ballot[]>([])
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
 

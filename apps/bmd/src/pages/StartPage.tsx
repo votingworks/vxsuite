@@ -19,7 +19,7 @@ const SidebarSpacer = styled.div`
   height: 90px;
 `
 
-type Props = RouteComponentProps<{}>
+type Props = RouteComponentProps<Record<string, string | undefined>>
 
 const StartPage = ({ history }: Props) => {
   const {
@@ -31,7 +31,7 @@ const StartPage = ({ history }: Props) => {
     userSettings,
     forceSaveVote,
   } = useContext(BallotContext)
-  const election = electionDefinition.election
+  const { election } = electionDefinition
   const { title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     election,

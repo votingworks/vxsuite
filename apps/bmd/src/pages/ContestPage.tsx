@@ -22,7 +22,7 @@ interface ContestParams {
   contestNumber: string
 }
 
-const ContestPage = (props: RouteComponentProps<ContestParams>) => {
+const ContestPage: React.FC<RouteComponentProps<ContestParams>> = (props) => {
   const isReviewMode = window.location.hash === '#review'
   const { contestNumber } = props.match.params
   const {
@@ -35,7 +35,7 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
     userSettings,
     votes,
   } = useContext(BallotContext)
-  const election = electionDefinition.election
+  const { election } = electionDefinition
   const currentContestIndex = parseInt(contestNumber, 10)
   const contest = contests[currentContestIndex]
 
@@ -54,18 +54,15 @@ const ContestPage = (props: RouteComponentProps<ContestParams>) => {
       /* istanbul ignore else */
       if (contest.type === 'yesno') {
         setIsVoteComplete(!!vote)
-        return
       } else if (contest.type === 'candidate') {
         setIsVoteComplete(
           contest.seats === ((vote as CandidateVote) ?? []).length
         )
-        return
       } else if (contest.type === 'ms-either-neither') {
         setIsVoteComplete(
           votes[contest.pickOneContestId]?.length === 1 ||
             votes[contest.eitherNeitherContestId]?.[0] === 'no'
         )
-        return
       }
     }
     calculateIsVoteComplete()
