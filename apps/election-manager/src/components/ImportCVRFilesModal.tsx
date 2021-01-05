@@ -5,7 +5,6 @@ import moment from 'moment'
 
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
-import Button, { SegmentedButton } from './Button'
 import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
@@ -43,6 +42,13 @@ const Header = styled.h1`
   justify-content: space-between;
 `
 
+const LabelText = styled.span`
+  vertical-align: middle;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 500;
+`
+
 export interface Props {
   isOpen: boolean
   onClose: () => void
@@ -63,8 +69,6 @@ const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [foundFiles, setFoundFiles] = useState<KioskBrowser.FileSystemEntry[]>(
     []
   )
-  const [isToggledToTestMode, setIsToggledToTestMode] = useState(false)
-
   const { election, electionHash } = electionDefinition!
 
   const importSelectedFiles = async (
@@ -192,100 +196,90 @@ const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
   if (usbDriveStatus === UsbDriveStatus.mounted) {
     // Parse information from the filenames and sort by exported timestamp
     const parsedFileInformation = foundFiles
-      .map((f) => {
-        return {
-          parsedInfo: parseCVRFileInfoFromFilename(f.name),
-          fileEntry: f,
+      .flatMap((fileEntry) => {
+        const parsedInfo = parseCVRFileInfoFromFilename(fileEntry.name)
+
+        if (!parsedInfo) {
+          return []
         }
+
+        return [
+          {
+            parsedInfo,
+            fileEntry,
+          },
+        ]
       })
-      .filter((f) => !!f.parsedInfo)
       .sort(
         (a, b) =>
           b.parsedInfo!.timestamp.getTime() - a.parsedInfo!.timestamp.getTime()
       )
 
+    // Determine if we are already locked to a filemode based on previously imported CVRs
+    const fileMode = castVoteRecordFiles?.fileMode
+    const fileModeLocked = !!fileMode
+
     // Parse the file options on the USB drive and build table rows for each valid file.
-    const testFileTableRows = []
-    const testFileEntries = []
-    const liveFileTableRows = []
-    const liveFileEntries = []
+    const fileTableRows = []
+    let numberOfNewFiles = 0
     for (const { parsedInfo, fileEntry } of parsedFileInformation) {
       const {
         isTestModeResults,
         machineId,
         numberOfBallots,
         timestamp,
-      } = parsedInfo!
+      } = parsedInfo
       const isImported = castVoteRecordFiles.filenameAlreadyImported(
         fileEntry.name
       )
+      const inProperFileMode =
+        !fileModeLocked ||
+        (isTestModeResults && fileMode === 'test') ||
+        (!isTestModeResults && fileMode === 'live')
+      const canImport = !isImported && inProperFileMode
       const row = (
         <tr key={fileEntry.name} data-testid="table-row">
           <td>{moment(timestamp).format('MM/DD/YYYY hh:mm:ss A')}</td>
           <td>{machineId}</td>
           <td>{numberOfBallots}</td>
+          <td>
+            <LabelText>{isTestModeResults ? 'Test' : 'Live'}</LabelText>
+          </td>
           <CheckTD narrow textAlign="center">
             {isImported ? GLOBALS.CHECK_ICON : ''}
           </CheckTD>
+          <TD textAlign="right">
+            <LinkButton
+              onPress={() => importSelectedFiles([fileEntry])}
+              disabled={!canImport}
+              small
+              primary
+            >
+              Select
+            </LinkButton>
+          </TD>
         </tr>
       )
-      if (isTestModeResults) {
-        testFileTableRows.push(row)
-        !isImported && testFileEntries.push(fileEntry)
-      } else {
-        liveFileTableRows.push(row)
-        !isImported && liveFileEntries.push(fileEntry)
+      if (inProperFileMode) {
+        fileTableRows.push(row)
+        if (canImport) {
+          numberOfNewFiles += 1
+        }
       }
     }
-
-    // Determine if we are already locked to a filemode based on previously imported CVRs
-    let fileMode = castVoteRecordFiles?.fileMode
-    const fileModeLocked = !!fileMode
-
-    // Even if there are no previously imported CVRs set the filemode if we only see files of one type
-    if (
-      !fileModeLocked &&
-      (liveFileTableRows.length > 0 || testFileTableRows.length > 0)
-    ) {
-      if (liveFileTableRows.length === 0) {
-        // We already know both array are not empty
-        fileMode = 'test'
-      } else if (testFileTableRows.length === 0) {
-        fileMode = 'live'
-      }
-    }
-
-    // Which table of files (test or live) should we actually show
-    const showingTestFileTable = fileMode === 'test' || isToggledToTestMode
-    const fileEntries = showingTestFileTable ? testFileEntries : liveFileEntries
-    const numberOfNewFiles = fileEntries.length
-    const tableRows = showingTestFileTable
-      ? testFileTableRows
-      : liveFileTableRows
-
     // Set the header and instructional text for the modal
     const headerModeText =
       fileMode === 'test' ? 'Test Mode' : fileMode === 'live' ? 'Live Mode' : ''
 
-    let instructionalText = null
+    let instructionalText: string
     if (numberOfNewFiles === 0) {
       instructionalText =
         'There were no new CVR files automatically found on this USB drive. Export CVR files to this USB drive from the scanner. Optionally, you may manually select files to import.'
-    } else if (fileModeLocked && fileMode === 'live') {
-      instructionalText =
-        'The following live mode CVR files were automatically found on this USB drive. Since live mode CVR files have been previously imported to Election Manager you must remove those files in order to import test mode CVR files. If you do not see the files you are looking for, you may manually select files to import.'
-    } else if (fileModeLocked && fileMode === 'test') {
-      instructionalText =
-        'The following test mode CVR files were automatically found on this USB drive. Since test mode CVR files have been previously imported to Election Manager you must remove those files in order to import live mode CVR files. If you do not see the files you are looking for, you may manually select files to import.'
-    } else if (fileMode === 'live') {
-      instructionalText =
-        'The following live mode CVR files were automatically found on this USB drive. No test mode CVRs were found. If you do not see the files you are looking for, you may manually select files to import.'
-    } else if (fileMode === 'test') {
-      instructionalText =
-        'The following test mode CVR files were automatically found on this USB drive. No live mode CVRs were found. If you do not see the files you are looking for, you may manually select files to import.'
+    } else if (fileModeLocked) {
+      instructionalText = `The following ${fileMode} mode CVR files were automatically found on this USB drive. Select which file to import or if you do not see the file you are looking for, you may manually select a file to import.`
     } else {
       instructionalText =
-        'This USB drive contains both test mode and live mode CVR files. Select which type you would like to import to see the list of files and import. If you do not see the files you are looking for, you may manually select files to import.'
+        'The following CVR files were automatically found on this USB drive. Select which file to import or if you do not see the file you are looking for, you may manually select a file to import.'
     }
 
     return (
@@ -295,40 +289,22 @@ const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
         content={
           <MainChild>
             <Prose>
-              <Header>
-                Import {headerModeText} CVR Files{' '}
-                {!fileMode && numberOfNewFiles > 0 && (
-                  <SegmentedButton>
-                    <Button
-                      onPress={() => setIsToggledToTestMode(true)}
-                      disabled={isToggledToTestMode}
-                      small
-                    >
-                      Test Ballots
-                    </Button>
-                    <Button
-                      onPress={() => setIsToggledToTestMode(false)}
-                      disabled={!isToggledToTestMode}
-                      small
-                    >
-                      Live Ballots
-                    </Button>
-                  </SegmentedButton>
-                )}
-              </Header>
+              <Header>Import {headerModeText} CVR Files </Header>
               <p>{instructionalText}</p>
             </Prose>
-            {tableRows.length > 0 && (
+            {fileTableRows.length > 0 && (
               <CVRFileTable>
                 <thead>
                   <tr>
                     <th>Exported At</th>
                     <th>Scanner ID</th>
                     <th>CVR Count</th>
+                    <th>Ballot Type</th>
                     <th>Previously Imported?</th>
+                    <th />
                   </tr>
                 </thead>
-                <tbody>{tableRows}</tbody>
+                <tbody>{fileTableRows}</tbody>
               </CVRFileTable>
             )}
           </MainChild>
@@ -342,17 +318,8 @@ const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
               onChange={processCastVoteRecordFilesFromFilePicker}
               data-testid="manual-input"
             >
-              Select Files Manually…
+              Select File Manually…
             </FileInputButton>
-            {numberOfNewFiles > 0 && (
-              <LinkButton
-                onPress={() => importSelectedFiles(fileEntries)}
-                primary
-              >
-                Import {numberOfNewFiles} New File
-                {numberOfNewFiles > 1 ? 's' : ''}
-              </LinkButton>
-            )}
           </React.Fragment>
         }
       />

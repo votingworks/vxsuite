@@ -72,41 +72,49 @@ describe('parseCVRFileInfoFromFilename', () => {
   test('parses a basic name not in test mode properly', () => {
     const name = 'machine_5__1_ballots__2020-12-08_10-42-02.jsonl'
     const results = parseCVRFileInfoFromFilename(name)
-    expect(results)
-    expect(results?.machineId).toBe('5')
-    expect(results?.numberOfBallots).toBe(1)
-    expect(results?.isTestModeResults).toBe(false)
-    expect(results?.timestamp).toStrictEqual(new Date(2020, 11, 8, 10, 42, 2))
+    expect(results).toEqual({
+      isTestModeResults: false,
+      machineId: '5',
+      numberOfBallots: 1,
+      timestamp: new Date(2020, 11, 8, 10, 42, 2),
+    })
   })
 
   test('parses a basic name in test mode properly', () => {
     const name = 'TEST__machine_0002__54_ballots__2020-12-08_10-42-02.jsonl'
     const results = parseCVRFileInfoFromFilename(name)
-    expect(results)
-    expect(results?.machineId).toBe('0002')
-    expect(results?.numberOfBallots).toBe(54)
-    expect(results?.isTestModeResults).toBe(true)
-    expect(results?.timestamp).toStrictEqual(new Date(2020, 11, 8, 10, 42, 2))
+    expect(results).toEqual({
+      isTestModeResults: true,
+      machineId: '0002',
+      numberOfBallots: 54,
+      timestamp: new Date(2020, 11, 8, 10, 42, 2),
+    })
   })
 
   test('returns illegal date when the timestamp cant be parsed', () => {
     const results = parseCVRFileInfoFromFilename(
       'TEST__machine_0002__54_ballots__notatimestamp.jsonl'
     )
-    expect(results?.machineId).toBe('0002')
-    expect(results?.numberOfBallots).toBe(54)
-    expect(results?.isTestModeResults).toBe(true)
-    expect(results?.timestamp.toString()).toBe(new Date(NaN).toString())
+    expect(results!.toString()).toEqual(
+      {
+        isTestModeResults: true,
+        machineId: '0002',
+        numberOfBallots: 54,
+        timestamp: new Date(NaN),
+      }.toString()
+    )
   })
 
   test('parses as much of the date as possible', () => {
     const results = parseCVRFileInfoFromFilename(
       'TEST__machine_0002__54_ballots__2020-12-08.jsonl'
     )
-    expect(results?.machineId).toBe('0002')
-    expect(results?.numberOfBallots).toBe(54)
-    expect(results?.isTestModeResults).toBe(true)
-    expect(results?.timestamp).toStrictEqual(new Date(2020, 11, 8))
+    expect(results).toEqual({
+      isTestModeResults: true,
+      machineId: '0002',
+      numberOfBallots: 54,
+      timestamp: new Date(2020, 11, 8),
+    })
   })
 
   test('fails when the format of the filename is unexpected', () => {

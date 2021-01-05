@@ -17,7 +17,7 @@ import * as GLOBALS from '../config/globals'
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl'
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl'
-const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-49-32.jsonl'
+const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-59-32.jsonl'
 
 test('No USB screen shows when there is no USB drive', async () => {
   const usbStatuses = [
@@ -92,98 +92,9 @@ describe('Screens display properly when USB is mounted', () => {
     expect(saveCVR).toHaveBeenCalledTimes(1)
   })
 
-  test('Import Test Mode CVR files screen shows when only test CVRs are found', async () => {
+  test('Import CVR files screen shows table with test and live CVRs', async () => {
     const closeFn = jest.fn()
     const saveCVR = jest.fn()
-    const readFile = jest.fn()
-    window.kiosk!.readFile = readFile
-    const fileEntries = [
-      {
-        name: TEST_FILE2,
-        type: 1,
-      },
-      {
-        name: TEST_FILE1,
-        type: 1,
-      },
-    ]
-    window.kiosk!.getFileSystemEntries = jest
-      .fn()
-      .mockResolvedValue(fileEntries)
-    const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
-      {
-        usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCVR,
-      }
-    )
-    await waitFor(() => getByText('Import Test Mode CVR Files'))
-    getByText(/No live mode CVRs were found/)
-
-    const tableRows = getAllByTestId('table-row')
-    expect(tableRows).toHaveLength(2)
-    // Files should be sorted by export date
-    domGetByText(tableRows[0], '12/09/2020 03:49:32 PM')
-    domGetByText(tableRows[0], '0001')
-    domGetByText(tableRows[1], '12/07/2020 03:49:32 PM')
-    domGetByText(tableRows[1], '0003')
-
-    fireEvent.click(getByText('Cancel'))
-    expect(closeFn).toHaveBeenCalledTimes(1)
-
-    fireEvent.click(getByText('Import 2 New Files'))
-    getByText('Loading')
-    waitFor(() => {
-      expect(saveCVR).toHaveBeenCalledTimes(1)
-      expect(readFile).toHaveBeenCalledTimes(2)
-    })
-  })
-
-  test('Import Live Mode CVR files screen shows when only live CVRs are found', async () => {
-    const closeFn = jest.fn()
-    const saveCVR = jest.fn()
-    const readFile = jest.fn()
-    window.kiosk!.readFile = readFile
-    const fileEntries = [
-      {
-        name: LIVE_FILE1,
-        type: 1,
-      },
-    ]
-    window.kiosk!.getFileSystemEntries = jest
-      .fn()
-      .mockResolvedValue(fileEntries)
-    const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
-      {
-        usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCVR,
-      }
-    )
-    await waitFor(() => getByText('Import Live Mode CVR Files'))
-    getByText(/No test mode CVRs were found/)
-
-    const tableRows = getAllByTestId('table-row')
-    expect(tableRows).toHaveLength(1)
-    domGetByText(tableRows[0], '12/09/2020 03:49:32 PM')
-    domGetByText(tableRows[0], '0002')
-
-    fireEvent.click(getByText('Cancel'))
-    expect(closeFn).toHaveBeenCalledTimes(1)
-
-    fireEvent.click(getByText('Import 1 New File'))
-    getByText('Loading')
-    await waitFor(() => {
-      expect(saveCVR).toHaveBeenCalledTimes(1)
-      expect(readFile).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  test('Import CVR files screen shows toggle between modes when only both CVRs are found', async () => {
-    const closeFn = jest.fn()
-    const saveCVR = jest.fn()
-    const readFile = jest.fn()
-    window.kiosk!.readFile = readFile
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -212,45 +123,98 @@ describe('Screens display properly when USB is mounted', () => {
       }
     )
     await waitFor(() => getByText('Import CVR Files'))
-    getByText(/This USB drive contains both test mode and live mode CVR files/)
+    getByText(
+      /The following CVR files were automatically found on this USB drive./
+    )
 
-    // Live ballots selected by default
-    expect(getByText('Live Ballots').closest('button')!.disabled).toBe(true)
-    expect(getByText('Test Ballots').closest('button')!.disabled).toBe(false)
-
-    let tableRows = getAllByTestId('table-row')
-    expect(tableRows).toHaveLength(1)
-    domGetByText(tableRows[0], '12/09/2020 03:49:32 PM')
+    const tableRows = getAllByTestId('table-row')
+    expect(tableRows).toHaveLength(3)
+    domGetByText(tableRows[0], '12/09/2020 03:59:32 PM')
     domGetByText(tableRows[0], '0002')
-    getByText('Import 1 New File')
-
-    fireEvent.click(getByText('Test Ballots'))
-    tableRows = getAllByTestId('table-row')
-    expect(tableRows).toHaveLength(2)
-    domGetByText(tableRows[0], '12/09/2020 03:49:32 PM')
-    domGetByText(tableRows[0], '0001')
-    domGetByText(tableRows[1], '12/07/2020 03:49:32 PM')
-    domGetByText(tableRows[1], '0003')
-    getByText('Import 2 New Files')
+    expect(
+      domGetByText(tableRows[0], 'Select').closest('button')!.disabled
+    ).toBe(false)
+    domGetByText(tableRows[1], '12/09/2020 03:49:32 PM')
+    domGetByText(tableRows[1], '0001')
+    expect(
+      domGetByText(tableRows[1], 'Select').closest('button')!.disabled
+    ).toBe(false)
+    domGetByText(tableRows[2], '12/07/2020 03:49:32 PM')
+    domGetByText(tableRows[2], '0003')
+    expect(
+      domGetByText(tableRows[2], 'Select').closest('button')!.disabled
+    ).toBe(false)
 
     fireEvent.click(getByText('Cancel'))
     expect(closeFn).toHaveBeenCalledTimes(1)
 
-    fireEvent.click(getByText('Import 2 New Files'))
+    fireEvent.click(domGetByText(tableRows[0], 'Select'))
     getByText('Loading')
     await waitFor(() => {
       expect(saveCVR).toHaveBeenCalledTimes(1)
-      expect(readFile).toHaveBeenCalledTimes(2)
-      expect(readFile.mock.calls[0]).toEqual(['test1', 'utf-8'])
-      expect(readFile.mock.calls[1]).toEqual(['test2', 'utf-8'])
+      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1)
+      expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
+        1,
+        'live1',
+        'utf-8'
+      )
+    })
+  })
+
+  test('Can import a test CVR when both live and test CVRs are loaded', async () => {
+    const closeFn = jest.fn()
+    const saveCVR = jest.fn()
+    const fileEntries = [
+      {
+        name: LIVE_FILE1,
+        type: 1,
+        path: 'live1',
+      },
+      {
+        name: TEST_FILE1,
+        type: 1,
+        path: 'test1',
+      },
+      {
+        name: TEST_FILE2,
+        type: 1,
+        path: 'test2',
+      },
+    ]
+    window.kiosk!.getFileSystemEntries = jest
+      .fn()
+      .mockResolvedValue(fileEntries)
+    const { getByText, getAllByTestId } = renderInAppContext(
+      <ImportCVRFilesModal isOpen onClose={closeFn} />,
+      {
+        usbDriveStatus: UsbDriveStatus.mounted,
+        saveCastVoteRecordFiles: saveCVR,
+      }
+    )
+    await waitFor(() => getByText('Import CVR Files'))
+    getByText(
+      /The following CVR files were automatically found on this USB drive./
+    )
+
+    const tableRows = getAllByTestId('table-row')
+    expect(tableRows).toHaveLength(3)
+
+    fireEvent.click(domGetByText(tableRows[1], 'Select'))
+    getByText('Loading')
+    await waitFor(() => {
+      expect(saveCVR).toHaveBeenCalledTimes(1)
+      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1)
+      expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
+        1,
+        'test1',
+        'utf-8'
+      )
     })
   })
 
   test('Import CVR files screen locks to test mode when test files have been imported', async () => {
     const closeFn = jest.fn()
     const saveCVR = jest.fn()
-    const readFile = jest.fn()
-    window.kiosk!.readFile = readFile
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -293,36 +257,40 @@ describe('Screens display properly when USB is mounted', () => {
       }
     )
     await waitFor(() => getByText('Import Test Mode CVR Files'))
-    getByText(
-      /Since test mode CVR files have been previously imported to Election Manager you must remove those files in order to import live mode CVR files./
-    )
 
     const tableRows = getAllByTestId('table-row')
     expect(tableRows).toHaveLength(2)
     domGetByText(tableRows[0], '12/09/2020 03:49:32 PM')
     domGetByText(tableRows[0], '0001')
     domGetByText(tableRows[0], GLOBALS.CHECK_ICON) // Check that the previously imported file is marked as selected
+    expect(
+      domGetByText(tableRows[0], 'Select').closest('button')!.disabled
+    ).toBe(true)
     domGetByText(tableRows[1], '12/07/2020 03:49:32 PM')
     domGetByText(tableRows[1], '0003')
-    getByText('Import 1 New File')
+    expect(
+      domGetByText(tableRows[1], 'Select').closest('button')!.disabled
+    ).toBe(false)
 
     fireEvent.click(getByText('Cancel'))
     expect(closeFn).toHaveBeenCalledTimes(1)
 
-    fireEvent.click(getByText('Import 1 New File'))
+    fireEvent.click(domGetByText(tableRows[1], 'Select'))
     getByText('Loading')
     await waitFor(() => {
       expect(saveCVR).toHaveBeenCalledTimes(1)
-      expect(readFile).toHaveBeenCalledTimes(1)
-      expect(readFile.mock.calls[0]).toEqual(['test2', 'utf-8'])
+      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1)
+      expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
+        1,
+        'test2',
+        'utf-8'
+      )
     })
   })
 
   test('Import CVR files screen locks to live mode when live files have been imported', async () => {
     const closeFn = jest.fn()
     const saveCVR = jest.fn()
-    const readFile = jest.fn()
-    window.kiosk!.readFile = readFile
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -365,33 +333,34 @@ describe('Screens display properly when USB is mounted', () => {
       }
     )
     await waitFor(() => getByText('Import Live Mode CVR Files'))
-    getByText(
-      /Since live mode CVR files have been previously imported to Election Manager you must remove those files in order to import test mode CVR files./
-    )
 
     const tableRows = getAllByTestId('table-row')
     expect(tableRows).toHaveLength(1)
-    domGetByText(tableRows[0], '12/09/2020 03:49:32 PM')
+    domGetByText(tableRows[0], '12/09/2020 03:59:32 PM')
     domGetByText(tableRows[0], '0002')
-    getByText('Import 1 New File')
+    expect(
+      domGetByText(tableRows[0], 'Select').closest('button')!.disabled
+    ).toBe(false)
 
     fireEvent.click(getByText('Cancel'))
     expect(closeFn).toHaveBeenCalledTimes(1)
 
-    fireEvent.click(getByText('Import 1 New File'))
+    fireEvent.click(domGetByText(tableRows[0], 'Select'))
     getByText('Loading')
     await waitFor(() => {
       expect(saveCVR).toHaveBeenCalledTimes(1)
-      expect(readFile).toHaveBeenCalledTimes(1)
-      expect(readFile.mock.calls[0]).toEqual(['live1', 'utf-8'])
+      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1)
+      expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
+        1,
+        'live1',
+        'utf-8'
+      )
     })
   })
 
   test('Shows previously imported files when all files have already been imported', async () => {
     const closeFn = jest.fn()
     const saveCVR = jest.fn()
-    const readFile = jest.fn()
-    window.kiosk!.readFile = readFile
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -415,7 +384,7 @@ describe('Screens display properly when USB is mounted', () => {
       [new File([JSON.stringify(cvr)], LIVE_FILE1)],
       defaultElectionDefinition.election
     )
-    const { getByText, getAllByTestId, queryAllByText } = renderInAppContext(
+    const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCVRFilesModal isOpen onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
@@ -430,10 +399,12 @@ describe('Screens display properly when USB is mounted', () => {
 
     const tableRows = getAllByTestId('table-row')
     expect(tableRows).toHaveLength(1)
-    domGetByText(tableRows[0], '12/09/2020 03:49:32 PM')
+    domGetByText(tableRows[0], '12/09/2020 03:59:32 PM')
     domGetByText(tableRows[0], '0002')
     domGetByText(tableRows[0], GLOBALS.CHECK_ICON)
-    expect(queryAllByText('Import 1 New File')).toHaveLength(0)
+    expect(
+      domGetByText(tableRows[0], 'Select').closest('button')!.disabled
+    ).toBe(true)
 
     fireEvent.click(getByText('Cancel'))
     expect(closeFn).toHaveBeenCalledTimes(1)

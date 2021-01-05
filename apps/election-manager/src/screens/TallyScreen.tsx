@@ -164,12 +164,19 @@ const TallyScreen: React.FC = () => {
     // reset server files
     await client.reset()
   }
-
+  const fileMode = castVoteRecordFiles?.fileMode
+  const fileModeText =
+    fileMode === 'test'
+      ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying live ballots remove all of the loaded CVR files before importing live ballot results.'
+      : fileMode === 'live'
+      ? 'Currently tallying live ballots.'
+      : ''
   return (
     <React.Fragment>
       <NavigationScreen>
         <h1>Election Tally Reports</h1>
         <h2>Cast Vote Record (CVR) files</h2>
+        <Text>{fileModeText}</Text>
         <Table>
           <tbody>
             {hasCastVoteRecordFiles ? (

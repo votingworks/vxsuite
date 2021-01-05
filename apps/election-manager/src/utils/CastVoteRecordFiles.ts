@@ -354,8 +354,8 @@ export default class CastVoteRecordFiles {
   }
 
   public filenameAlreadyImported(filename: string): boolean {
-    for (const f of this.files) {
-      if (f.name === filename) {
+    for (const file of this.files) {
+      if (file.name === filename) {
         return true
       }
     }
