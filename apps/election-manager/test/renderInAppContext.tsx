@@ -19,6 +19,7 @@ import {
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../src/utils/CastVoteRecordFiles'
+import { UsbDriveStatus } from '../src/lib/usbstick'
 
 const eitherNeitherElectionData = fs.readFileSync(
   join(__dirname, 'fixtures/eitherneither-election.json'),
@@ -51,7 +52,7 @@ interface RenderInAppContextParams {
   saveIsOfficialResults?: () => void
   setVoteCounts?: React.Dispatch<React.SetStateAction<OptionalVoteCounts>>
   voteCounts?: OptionalVoteCounts
-  usbDriveStatus?: string
+  usbDriveStatus?: UsbDriveStatus
   usbDriveEject?: () => void
   addPrintedBallot?: (printedBallot: PrintedBallot) => void
   printedBallots?: PrintedBallot[]
@@ -73,7 +74,7 @@ export default function renderInAppContext(
     saveIsOfficialResults = jest.fn(),
     setVoteCounts = jest.fn(),
     voteCounts = undefined,
-    usbDriveStatus = '',
+    usbDriveStatus = UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
     addPrintedBallot = jest.fn(),
     printedBallots = [],

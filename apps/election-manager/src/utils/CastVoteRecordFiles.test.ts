@@ -44,6 +44,32 @@ test('can add multiple CVR files by creating a new instance', async () => {
     { name: 'cvrs2.txt', count: 1, precinctIds: ['23'] },
   ])
   expect(added.lastError).toBeUndefined()
+  expect(added.fileMode).toBe('live')
+})
+
+test('test ballot cvrs change the file mode appropriately', async () => {
+  const { empty } = CastVoteRecordFiles
+  const cvr: CastVoteRecord = {
+    _ballotId: 'abc',
+    _ballotStyleId: '12',
+    _ballotType: 'standard',
+    _precinctId: '23',
+    _testBallot: true,
+    _scannerId: 'abc',
+  }
+  const added = await empty.addAll(
+    [new File([''], 'cvrs.txt'), new File([JSON.stringify(cvr)], 'cvrs2.txt')],
+    electionSample
+  )
+
+  expect(added.castVoteRecords).toEqual([[], [cvr]])
+  expect(added.duplicateFiles).toEqual([])
+  expect(added.fileList).toEqual([
+    { name: 'cvrs.txt', count: 0, precinctIds: [] },
+    { name: 'cvrs2.txt', count: 1, precinctIds: ['23'] },
+  ])
+  expect(added.lastError).toBeUndefined()
+  expect(added.fileMode).toBe('test')
 })
 
 test('does not mutate the original when adding a new instance', async () => {

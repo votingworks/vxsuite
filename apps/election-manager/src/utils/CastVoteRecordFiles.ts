@@ -5,6 +5,7 @@ import {
   CastVoteRecord,
   CastVoteRecordFile,
   CastVoteRecordLists,
+  CastVoteRecordFileMode,
 } from '../config/types'
 import readFileAsync from '../lib/readFileAsync'
 import { parseCVRs } from '../lib/votecounting'
@@ -180,6 +181,45 @@ export default class CastVoteRecordFiles {
 
   /**
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
+   * `files` to those contained by this `CastVoteRecordFiles` instance.
+   */
+  public async addAllFromFileSystemEntries(
+    files: KioskBrowser.FileSystemEntry[],
+    election: Election
+  ): Promise<CastVoteRecordFiles> {
+    let result: CastVoteRecordFiles = this // eslint-disable-line @typescript-eslint/no-this-alias
+
+    for (const file of files) {
+      result = await result.addFromFileSystemEntry(file, election)
+    }
+
+    return result
+  }
+
+  /**
+   *  Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
+   * `file` to those contained by this `CastVoteRecordFiles` instance.
+   */
+  public async addFromFileSystemEntry(
+    file: KioskBrowser.FileSystemEntry,
+    election: Election
+  ): Promise<CastVoteRecordFiles> {
+    try {
+      const fileContent = await window.kiosk!.readFile(file.path, 'utf-8')
+      return await this.addFromFileContent(fileContent, file.name, election)
+    } catch (error) {
+      return new CastVoteRecordFiles(
+        this.signatures,
+        this.files,
+        this.duplicateFilenames,
+        mapAdd(this.parseFailedErrors, () => file.name, error.message),
+        this.allCastVoteRecords
+      )
+    }
+  }
+
+  /**
+   * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `file` to those contained by this `CastVoteRecordFiles` instance.
    */
   public async add(
@@ -188,13 +228,31 @@ export default class CastVoteRecordFiles {
   ): Promise<CastVoteRecordFiles> {
     try {
       const fileContent = await readFileAsync(file)
+      return await this.addFromFileContent(fileContent, file.name, election)
+    } catch (error) {
+      return new CastVoteRecordFiles(
+        this.signatures,
+        this.files,
+        this.duplicateFilenames,
+        mapAdd(this.parseFailedErrors, () => file.name, error.message),
+        this.allCastVoteRecords
+      )
+    }
+  }
+
+  private async addFromFileContent(
+    fileContent: string,
+    fileName: string,
+    election: Election
+  ): Promise<CastVoteRecordFiles> {
+    try {
       const signature = sha256(fileContent)
 
       if (this.signatures.has(signature)) {
         return new CastVoteRecordFiles(
           this.signatures,
           this.files,
-          setAdd(this.duplicateFilenames, file.name),
+          setAdd(this.duplicateFilenames, fileName),
           this.parseFailedErrors,
           this.allCastVoteRecords
         )
@@ -231,7 +289,7 @@ export default class CastVoteRecordFiles {
       return new CastVoteRecordFiles(
         setAdd(this.signatures, signature),
         setAdd(this.files, {
-          name: file.name,
+          name: fileName,
           count: fileCastVoteRecords.length,
           precinctIds,
         }),
@@ -244,7 +302,7 @@ export default class CastVoteRecordFiles {
         this.signatures,
         this.files,
         this.duplicateFilenames,
-        mapAdd(this.parseFailedErrors, () => file.name, error.message),
+        mapAdd(this.parseFailedErrors, () => fileName, error.message),
         this.allCastVoteRecords
       )
     }
@@ -277,6 +335,31 @@ export default class CastVoteRecordFiles {
    */
   public get castVoteRecords(): CastVoteRecordLists {
     return this.allCastVoteRecords
+  }
+
+  /**
+   * Gets the file mode for the set of CVR files.
+   */
+  public get fileMode(): CastVoteRecordFileMode | undefined {
+    let liveSeen = false
+    for (const cvrs of this.allCastVoteRecords) {
+      for (const cvr of cvrs) {
+        if (cvr._testBallot) {
+          return 'test'
+        }
+        liveSeen = true
+      }
+    }
+    return liveSeen ? 'live' : undefined
+  }
+
+  public filenameAlreadyImported(filename: string): boolean {
+    for (const file of this.files) {
+      if (file.name === filename) {
+        return true
+      }
+    }
+    return this.duplicateFilenames.has(filename)
   }
 }
 

@@ -34,7 +34,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
           </p>
           <p>
             <button
-              class="sc-fzoLsD dftQGP"
+              class="sc-fzoLsD kQaCKe"
               type="button"
             >
               Print Test Deck
@@ -42,7 +42,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
           </p>
           <p>
             <button
-              class="sc-fzoLsD cIOEoD"
+              class="sc-fzoLsD hPSytS"
               role="option"
               type="button"
             >
@@ -76,21 +76,21 @@ exports[`printing ballots, print report, and test decks 1`] = `
         class="sc-Axmtr jFWbcr"
       >
         <button
-          class="sc-fzoLsD ivZRNV"
+          class="sc-fzoLsD bpRAZA"
           role="option"
           type="button"
         >
           Definition
         </button>
         <button
-          class="sc-fzoLsD ivZRNV"
+          class="sc-fzoLsD bpRAZA"
           role="option"
           type="button"
         >
           Ballots
         </button>
         <button
-          class="sc-fzoLsD cIOEoD active-section"
+          class="sc-fzoLsD hPSytS active-section"
           role="option"
           type="button"
         >
@@ -101,7 +101,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
         class="sc-AxmLO jrWrYg"
       >
         <button
-          class="sc-fzoLsD cIOEoD"
+          class="sc-fzoLsD hPSytS"
           type="button"
         >
           Eject USB
@@ -188,7 +188,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </p>
           <p>
             <button
-              class="sc-fzoLsD dftQGP"
+              class="sc-fzoLsD kQaCKe"
               type="button"
             >
               Print Results Report
@@ -196,7 +196,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </p>
           <p>
             <button
-              class="sc-fzoLsD ivZRNV"
+              class="sc-fzoLsD bpRAZA"
               type="button"
             >
               Save Results Report as PDF
@@ -204,7 +204,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </p>
           <p>
             <button
-              class="sc-fzoLsD cIOEoD"
+              class="sc-fzoLsD hPSytS"
               role="option"
               type="button"
             >
@@ -238,21 +238,21 @@ exports[`printing ballots, print report, and test decks 2`] = `
         class="sc-Axmtr jFWbcr"
       >
         <button
-          class="sc-fzoLsD ivZRNV"
+          class="sc-fzoLsD bpRAZA"
           role="option"
           type="button"
         >
           Definition
         </button>
         <button
-          class="sc-fzoLsD ivZRNV"
+          class="sc-fzoLsD bpRAZA"
           role="option"
           type="button"
         >
           Ballots
         </button>
         <button
-          class="sc-fzoLsD cIOEoD active-section"
+          class="sc-fzoLsD hPSytS active-section"
           role="option"
           type="button"
         >
@@ -263,7 +263,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
         class="sc-AxmLO jrWrYg"
       >
         <button
-          class="sc-fzoLsD cIOEoD"
+          class="sc-fzoLsD hPSytS"
           type="button"
         >
           Eject USB

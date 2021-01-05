@@ -44,6 +44,7 @@ const buttonStyles = css<StyledButtonProps>`
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
   padding: ${({ big = false, small = false }) =>
     small ? '0.35rem 0.5rem' : big ? '1rem 1.75rem' : '0.75rem 1rem'};
+  text-align: center;
   line-height: 1.25;
   color: ${({ disabled, danger, warning, primary }) =>
     (disabled && 'rgb(160, 160, 160)') ||
