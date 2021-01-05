@@ -9,6 +9,7 @@ import {
 } from '../config/types'
 import readFileAsync from '../lib/readFileAsync'
 import { parseCVRs } from '../lib/votecounting'
+import { parseCVRFileInfoFromFilename } from './filenames'
 
 /**
  * Adds elements to a set by creating a new set with the contents of the
@@ -206,7 +207,13 @@ export default class CastVoteRecordFiles {
   ): Promise<CastVoteRecordFiles> {
     try {
       const fileContent = await window.kiosk!.readFile(file.path, 'utf-8')
-      return await this.addFromFileContent(fileContent, file.name, election)
+      const parsedFileInfo = parseCVRFileInfoFromFilename(file.name)
+      return await this.addFromFileContent(
+        fileContent,
+        file.name,
+        parsedFileInfo?.timestamp || new Date(file.mtime),
+        election
+      )
     } catch (error) {
       return new CastVoteRecordFiles(
         this.signatures,
@@ -228,7 +235,13 @@ export default class CastVoteRecordFiles {
   ): Promise<CastVoteRecordFiles> {
     try {
       const fileContent = await readFileAsync(file)
-      return await this.addFromFileContent(fileContent, file.name, election)
+      const parsedFileInfo = parseCVRFileInfoFromFilename(file.name)
+      return await this.addFromFileContent(
+        fileContent,
+        file.name,
+        parsedFileInfo?.timestamp || new Date(file.lastModified),
+        election
+      )
     } catch (error) {
       return new CastVoteRecordFiles(
         this.signatures,
@@ -243,6 +256,7 @@ export default class CastVoteRecordFiles {
   private async addFromFileContent(
     fileContent: string,
     fileName: string,
+    exportTimestamp: Date,
     election: Election
   ): Promise<CastVoteRecordFiles> {
     try {
@@ -271,6 +285,10 @@ export default class CastVoteRecordFiles {
         fileCastVoteRecords.push(cvr)
       }
 
+      const scannerIds = arrayUnique(
+        fileCastVoteRecords.map((cvr) => cvr._scannerId)
+      )
+
       const precinctIds = arrayUnique(
         fileCastVoteRecords.map((cvr) => cvr._precinctId)
       )
@@ -292,6 +310,8 @@ export default class CastVoteRecordFiles {
           name: fileName,
           count: fileCastVoteRecords.length,
           precinctIds,
+          scannerIds,
+          exportTimestamp,
         }),
         this.duplicateFilenames,
         this.parseFailedErrors,

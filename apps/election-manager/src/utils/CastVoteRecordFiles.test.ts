@@ -2,6 +2,8 @@ import { electionSample } from '@votingworks/ballot-encoder'
 import CastVoteRecordFiles from './CastVoteRecordFiles'
 import { CastVoteRecord } from '../config/types'
 
+const TEST_DATE = new Date(2020, 3, 14, 1, 59, 26)
+
 test('starts out empty', () => {
   const files = CastVoteRecordFiles.empty
   expect(files.castVoteRecords).toEqual([])
@@ -12,12 +14,21 @@ test('starts out empty', () => {
 
 test('can add a CVR file by creating a new instance', async () => {
   const { empty } = CastVoteRecordFiles
-  const added = await empty.add(new File([''], 'cvrs.txt'), electionSample)
+  const added = await empty.add(
+    new File([''], 'cvrs.txt', { lastModified: TEST_DATE.getTime() }),
+    electionSample
+  )
 
   expect(added.castVoteRecords).toEqual([[]])
   expect(added.duplicateFiles).toEqual([])
   expect(added.fileList).toEqual([
-    { name: 'cvrs.txt', count: 0, precinctIds: [] },
+    {
+      name: 'cvrs.txt',
+      count: 0,
+      precinctIds: [],
+      scannerIds: [],
+      exportTimestamp: TEST_DATE,
+    },
   ])
   expect(added.lastError).toBeUndefined()
 })
@@ -33,15 +44,32 @@ test('can add multiple CVR files by creating a new instance', async () => {
     _scannerId: 'abc',
   }
   const added = await empty.addAll(
-    [new File([''], 'cvrs.txt'), new File([JSON.stringify(cvr)], 'cvrs2.txt')],
+    [
+      new File([''], 'cvrs.txt', { lastModified: TEST_DATE.getTime() }),
+      new File([JSON.stringify(cvr)], 'cvrs2.txt', {
+        lastModified: TEST_DATE.getTime(),
+      }),
+    ],
     electionSample
   )
 
   expect(added.castVoteRecords).toEqual([[], [cvr]])
   expect(added.duplicateFiles).toEqual([])
   expect(added.fileList).toEqual([
-    { name: 'cvrs.txt', count: 0, precinctIds: [] },
-    { name: 'cvrs2.txt', count: 1, precinctIds: ['23'] },
+    {
+      name: 'cvrs.txt',
+      count: 0,
+      precinctIds: [],
+      scannerIds: [],
+      exportTimestamp: TEST_DATE,
+    },
+    {
+      name: 'cvrs2.txt',
+      count: 1,
+      precinctIds: ['23'],
+      scannerIds: ['abc'],
+      exportTimestamp: TEST_DATE,
+    },
   ])
   expect(added.lastError).toBeUndefined()
   expect(added.fileMode).toBe('live')
@@ -58,15 +86,32 @@ test('test ballot cvrs change the file mode appropriately', async () => {
     _scannerId: 'abc',
   }
   const added = await empty.addAll(
-    [new File([''], 'cvrs.txt'), new File([JSON.stringify(cvr)], 'cvrs2.txt')],
+    [
+      new File([''], 'cvrs.txt', { lastModified: TEST_DATE.getTime() }),
+      new File([JSON.stringify(cvr)], 'cvrs2.txt', {
+        lastModified: TEST_DATE.getTime(),
+      }),
+    ],
     electionSample
   )
 
   expect(added.castVoteRecords).toEqual([[], [cvr]])
   expect(added.duplicateFiles).toEqual([])
   expect(added.fileList).toEqual([
-    { name: 'cvrs.txt', count: 0, precinctIds: [] },
-    { name: 'cvrs2.txt', count: 1, precinctIds: ['23'] },
+    {
+      name: 'cvrs.txt',
+      count: 0,
+      precinctIds: [],
+      scannerIds: [],
+      exportTimestamp: TEST_DATE,
+    },
+    {
+      name: 'cvrs2.txt',
+      count: 1,
+      precinctIds: ['23'],
+      scannerIds: ['abc'],
+      exportTimestamp: TEST_DATE,
+    },
   ])
   expect(added.lastError).toBeUndefined()
   expect(added.fileMode).toBe('test')
@@ -83,7 +128,9 @@ test('does not mutate the original when adding a new instance', async () => {
     _scannerId: 'abc',
   }
   const added = await empty.add(
-    new File([JSON.stringify(cvr)], 'cvrs.txt'),
+    new File([JSON.stringify(cvr)], 'cvrs.txt', {
+      lastModified: TEST_DATE.getTime(),
+    }),
     electionSample
   )
 
@@ -95,7 +142,13 @@ test('does not mutate the original when adding a new instance', async () => {
   expect(added.castVoteRecords).toEqual([[cvr]])
   expect(added.duplicateFiles).toEqual([])
   expect(added.fileList).toEqual([
-    { name: 'cvrs.txt', count: 1, precinctIds: ['23'] },
+    {
+      name: 'cvrs.txt',
+      count: 1,
+      precinctIds: ['23'],
+      scannerIds: ['abc'],
+      exportTimestamp: TEST_DATE,
+    },
   ])
   expect(added.lastError).toBeUndefined()
 })
@@ -149,8 +202,12 @@ test('records identical uploaded files', async () => {
   }
   const added = await CastVoteRecordFiles.empty.addAll(
     [
-      new File([JSON.stringify(cvr)], 'cvrs.txt'),
-      new File([JSON.stringify(cvr)], 'cvrs2.txt'),
+      new File([JSON.stringify(cvr)], 'cvrs.txt', {
+        lastModified: TEST_DATE.getTime(),
+      }),
+      new File([JSON.stringify(cvr)], 'cvrs2.txt', {
+        lastModified: TEST_DATE.getTime(),
+      }),
     ],
     electionSample
   )
@@ -158,7 +215,13 @@ test('records identical uploaded files', async () => {
   expect(added.castVoteRecords).toEqual([[cvr]])
   expect(added.duplicateFiles).toEqual(['cvrs2.txt'])
   expect(added.fileList).toEqual([
-    { name: 'cvrs.txt', count: 1, precinctIds: ['23'] },
+    {
+      name: 'cvrs.txt',
+      count: 1,
+      precinctIds: ['23'],
+      scannerIds: ['abc'],
+      exportTimestamp: TEST_DATE,
+    },
   ])
   expect(added.lastError).toBeUndefined()
 })
@@ -180,15 +243,25 @@ test('refuses to tabulate both live and test CVRs', async () => {
 
   const added = await CastVoteRecordFiles.empty.addAll(
     [
-      new File([JSON.stringify(cvr)], 'cvrs.txt'),
-      new File([JSON.stringify(otherCvr)], 'cvrs2.txt'),
+      new File([JSON.stringify(cvr)], 'cvrs.txt', {
+        lastModified: TEST_DATE.getTime(),
+      }),
+      new File([JSON.stringify(otherCvr)], 'cvrs2.txt', {
+        lastModified: TEST_DATE.getTime(),
+      }),
     ],
     electionSample
   )
 
   expect(added.castVoteRecords).toEqual([[cvr]])
   expect(added.fileList).toEqual([
-    { name: 'cvrs.txt', count: 1, precinctIds: ['23'] },
+    {
+      name: 'cvrs.txt',
+      count: 1,
+      precinctIds: ['23'],
+      scannerIds: ['abc'],
+      exportTimestamp: TEST_DATE,
+    },
   ])
   expect(added.lastError).toEqual({
     filename: 'cvrs2.txt',
