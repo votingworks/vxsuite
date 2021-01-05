@@ -5,7 +5,7 @@ import fakeVoice from '../../test/helpers/fakeVoice'
 
 describe('AriaScreenReader', () => {
   it('requires a text-to-speech engine', () => {
-    new AriaScreenReader(fakeTTS())
+    expect(() => new AriaScreenReader(fakeTTS())).not.toThrowError()
   })
 
   it('can speak specified text', async () => {

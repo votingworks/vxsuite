@@ -121,17 +121,17 @@ const ContestProse = styled(Prose)`
     font-weight: 400;
   }
 `
-const NoSelection = ({ prefix }: { prefix?: string }) => (
+const NoSelection: React.FC<{ prefix?: string }> = ({ prefix }) => (
   <Text italic muted>
     {prefix}[no selection]
   </Text>
 )
 
-const CandidateContestResult = ({
+const CandidateContestResult: React.FC<CandidateContestResultInterface> = ({
   contest,
   parties,
   vote = [],
-}: CandidateContestResultInterface) => {
+}) => {
   const remainingChoices = contest.seats - vote.length
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
@@ -212,13 +212,13 @@ interface Props {
   votes: VotesDict
 }
 
-const PrintBallot = ({
+const PrintBallot: React.FC<Props> = ({
   ballotStyleId,
   election,
   isLiveMode,
   precinctId,
   votes,
-}: Props) => {
+}) => {
   const ballotId = randomBase64(10)
   const { county, date, seal, sealURL, state, parties, title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({

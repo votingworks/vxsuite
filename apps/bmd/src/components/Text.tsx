@@ -73,10 +73,10 @@ interface TextWithLineBreaksProps extends Props {
   style?: React.CSSProperties
 }
 
-export const TextWithLineBreaks = ({
+export const TextWithLineBreaks: React.FC<TextWithLineBreaksProps> = ({
   text,
   ...rest
-}: TextWithLineBreaksProps) => (
+}) => (
   <React.Fragment>
     {text.split(/[\n\r]{2}/g).map((x) => (
       <Text {...rest} key={x}>

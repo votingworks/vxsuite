@@ -40,6 +40,7 @@ module.exports = {
     project: './tsconfig.json',
     sourceType: 'module',
   },
+  reportUnusedDisableDirectives: true,
   plugins: [
     '@typescript-eslint',
     'jest',
@@ -67,14 +68,25 @@ module.exports = {
       "assert": "htmlFor",
     }],
     camelcase: 'error',
+    'class-methods-use-this': 'off',
+    'consistent-return': 'off',
+    'default-case': 'off',
     'import/no-extraneous-dependencies': [
       'error',
       {
         devDependencies: true,
       },
     ],
+    'lines-between-class-members': ['error', 'always', { exceptAfterSingleLine: true }],
+    'max-classes-per-file': 'off',
     'no-array-sort-mutation/no-array-sort-mutation': 'error',
+    'no-await-in-loop': 'off',
+    'no-continue': 'off',
+    'no-nested-ternary': 'off',
+    'no-plusplus': 'off',
+    'no-return-await': 'off',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
+    'no-use-before-define': 'off',
     '@typescript-eslint/no-unused-vars': ['error', {
       'vars': 'all'
     }],
@@ -87,6 +99,9 @@ module.exports = {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
     ],
+    'react/jsx-fragments': ['error', 'element'],
+    'react/jsx-props-no-spreading': 'off',
+    'react/prop-types': 'off',
     strict: 0,
     '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
     '@typescript-eslint/no-non-null-assertion': 'off',

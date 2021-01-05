@@ -29,7 +29,7 @@ const electionSampleData = fs.readFileSync(
 )
 export const election = JSON.parse(electionSampleData) as Election
 export const electionDefinition = {
-  election: election,
+  election,
   electionHash: sha256(electionSampleData),
 }
 
@@ -80,14 +80,14 @@ export const voterContests = getContests({
   election,
 })
 
-export const setElectionInStorage = (storage: Storage<AppStorage>) => {
+export const setElectionInStorage = (storage: Storage<AppStorage>): void => {
   storage.set(electionStorageKey, electionDefinition)
 }
 
 export const setStateInStorage = (
   storage: Storage<AppStorage>,
   state: Partial<State> = {}
-) => {
+): void => {
   storage.set(stateStorageKey, {
     appPrecinctId: defaultPrecinctId,
     ballotsPrintedCount: 0,

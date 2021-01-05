@@ -1,3 +1,4 @@
+/* eslint-disable react/state-in-constructor */
 import {
   CompletedBallot,
   decodeBallot,
@@ -206,7 +207,7 @@ class AppRoot extends React.Component<Props, State> {
 
   public state = this.initialAppState
 
-  public setMachineConfig = async () => {
+  public setMachineConfig = async (): Promise<void> => {
     try {
       const machineConfig = await this.props.machineConfig.get()
 
@@ -221,14 +222,14 @@ class AppRoot extends React.Component<Props, State> {
   public readCard = async (): Promise<CardAPI> =>
     await this.props.card.readStatus()
 
-  public writeCard = async (cardData: VoterCardData) => {
+  public writeCard = async (cardData: VoterCardData): Promise<void> => {
     await this.props.card.writeShortValue(JSON.stringify(cardData))
   }
 
   public retrieveElection = (): OptionalElectionDefinition =>
     this.props.storage.get(electionStorageKey)
 
-  public storeElection = (election: ElectionDefinition) => {
+  public storeElection = (election: ElectionDefinition): void => {
     this.props.storage.set(electionStorageKey, election)
   }
 
@@ -236,17 +237,17 @@ class AppRoot extends React.Component<Props, State> {
     this.props.storage.get(activationStorageKey) ||
     (({} as unknown) as SerializableActivationData)
 
-  public storeBallotActivation = (data: SerializableActivationData) => {
+  public storeBallotActivation = (data: SerializableActivationData): void => {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       this.props.storage.set(activationStorageKey, data)
     }
   }
 
-  public retrieveVotes = () =>
+  public retrieveVotes = (): VotesDict =>
     this.props.storage.get(votesStorageKey) || blankBallotVotes
 
-  public storeVotes = async (votes: VotesDict) => {
+  public storeVotes = async (votes: VotesDict): Promise<void> => {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       this.props.storage.set(votesStorageKey, votes)
@@ -255,18 +256,18 @@ class AppRoot extends React.Component<Props, State> {
     this.lastVoteUpdateAt = Date.now()
   }
 
-  public resetVoterData = () => {
+  public resetVoterData = (): void => {
     this.props.storage.remove(activationStorageKey)
     this.props.storage.remove(votesStorageKey)
   }
 
-  public unconfigure = () => {
+  public unconfigure = (): void => {
     this.setState(this.initialUserState)
     this.props.storage.clear()
     this.props.history.push('/')
   }
 
-  public storeAppState = () => {
+  public storeAppState = (): void => {
     const {
       appPrecinctId,
       ballotsPrintedCount,
@@ -287,22 +288,25 @@ class AppRoot extends React.Component<Props, State> {
     return this.props.storage.get(stateStorageKey) || {}
   }
 
-  public updateVote = (contestId: string, vote: OptionalVote) => {
+  public updateVote = (contestId: string, vote: OptionalVote): void => {
     this.setState(
       (prevState) => ({
         votes: { ...prevState.votes, [contestId]: vote },
       }),
       () => {
-        this.state.votes && this.storeVotes(this.state.votes)
+        /* istanbul ignore else */
+        if (this.state.votes) {
+          this.storeVotes(this.state.votes)
+        }
       }
     )
   }
 
-  public forceSaveVote = () => {
+  public forceSaveVote = (): void => {
     this.forceSaveVoteFlag = true
   }
 
-  public resetBallot = (path = '/') => {
+  public resetBallot = (path = '/'): void => {
     this.resetVoterData()
     this.setState(
       {
@@ -316,7 +320,7 @@ class AppRoot extends React.Component<Props, State> {
     )
   }
 
-  public setUserSettings = (partial: PartialUserSettings) => {
+  public setUserSettings = (partial: PartialUserSettings): void => {
     this.setState(
       (prevState) => ({
         userSettings: { ...prevState.userSettings, ...partial },
@@ -338,22 +342,22 @@ class AppRoot extends React.Component<Props, State> {
     )
   }
 
-  public setDocumentFontSize = (textSize: number = GLOBALS.TEXT_SIZE) => {
+  public setDocumentFontSize = (textSize: number = GLOBALS.TEXT_SIZE): void => {
     document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[textSize]}px`
   }
 
-  public updateAppPrecinctId = (appPrecinctId: string) => {
+  public updateAppPrecinctId = (appPrecinctId: string): void => {
     this.setState({ appPrecinctId }, this.resetTally)
   }
 
-  public enableLiveMode = () => {
+  public enableLiveMode = (): void => {
     this.setState(
       { isLiveMode: true, isPollsOpen: this.initialUserState.isPollsOpen },
       this.resetTally
     )
   }
 
-  public toggleLiveMode = () => {
+  public toggleLiveMode = (): void => {
     this.setState(
       (prevState) => ({
         isLiveMode: !prevState.isLiveMode,
@@ -363,14 +367,14 @@ class AppRoot extends React.Component<Props, State> {
     )
   }
 
-  public togglePollsOpen = () => {
+  public togglePollsOpen = (): void => {
     this.setState(
       (prevState) => ({ isPollsOpen: !prevState.isPollsOpen }),
       this.storeAppState
     )
   }
 
-  public resetTally = () => {
+  public resetTally = (): void => {
     this.setState(
       ({ electionDefinition }) => ({
         ballotsPrintedCount: this.initialAppState.ballotsPrintedCount,
@@ -380,7 +384,7 @@ class AppRoot extends React.Component<Props, State> {
     )
   }
 
-  public updateTally = () => {
+  public updateTally = (): void => {
     this.setState(
       ({
         ballotsPrintedCount,
@@ -388,7 +392,7 @@ class AppRoot extends React.Component<Props, State> {
         tally: prevTally,
         votes,
       }) => {
-        const election = e!.election
+        const { election } = e!
 
         // first update the tally for either-neither contests
         const {
@@ -397,7 +401,7 @@ class AppRoot extends React.Component<Props, State> {
         } = computeTallyForEitherNeitherContests({
           election,
           tally: prevTally,
-          votes: votes,
+          votes,
         })
 
         for (const contestId in votes) {
@@ -462,7 +466,7 @@ class AppRoot extends React.Component<Props, State> {
     )
   }
 
-  public fetchElection = async () => {
+  public fetchElection = async (): Promise<void> => {
     const electionData = await this.props.card.readLongString()
 
     /* istanbul ignore else */
@@ -477,22 +481,22 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public fetchBallotData = async () => {
+  public fetchBallotData = async (): Promise<CompletedBallot | undefined> => {
     const longValue = (await this.props.card.readLongUint8Array())!
     /* istanbul ignore else */
     if (longValue) {
-      const election = this.state.electionDefinition!.election
+      const { election } = this.state.electionDefinition!
       const { ballot } = decodeBallot(election, longValue)
       return ballot
-    } else {
-      return undefined
     }
+    /* istanbul ignore next */
+    return undefined
   }
 
   public processCard = async ({
     longValueExists,
     shortValue,
-  }: CardPresentAPI) => {
+  }: CardPresentAPI): Promise<void> => {
     const { electionDefinition } = this.state
     const election = electionDefinition?.election
     const cardData: CardData = JSON.parse(shortValue!)
@@ -554,13 +558,13 @@ class AppRoot extends React.Component<Props, State> {
                 : this.initialAppState.contests,
           }
         })
-        precinct &&
-          ballotStyle &&
+        if (precinct && ballotStyle) {
           this.storeBallotActivation({
             ballotCreatedAt: voterCardData.c,
             ballotStyleId: ballotStyle.id,
             precinctId: precinct.id,
           })
+        }
 
         break
       }
@@ -572,22 +576,24 @@ class AppRoot extends React.Component<Props, State> {
         break
       }
       case 'admin': {
-        longValueExists &&
+        /* istanbul ignore else */
+        if (longValueExists) {
           this.setState({
             ...this.initialCardPresentState,
             isAdminCardPresent: true,
           })
+        }
         break
       }
     }
   }
 
-  public stopShortValueReadPolling = () => {
+  public stopShortValueReadPolling = (): void => {
     this.cardPoller?.stop()
     this.cardPoller = undefined
   }
 
-  public startShortValueReadPolling = () => {
+  public startShortValueReadPolling = (): void => {
     /* istanbul ignore else */
     if (!this.cardPoller) {
       let lastCardDataString = ''
@@ -635,13 +641,13 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public clearLongValue = async () => {
+  public clearLongValue = async (): Promise<void> => {
     this.writingVoteToCard = true
     await this.props.card.writeLongUint8Array(Uint8Array.of())
     this.writingVoteToCard = false
   }
 
-  public startLongValueWritePolling = () => {
+  public startLongValueWritePolling = (): void => {
     /* istanbul ignore else */
     if (this.cardWriteInterval === 0) {
       this.cardWriteInterval = window.setInterval(async () => {
@@ -658,7 +664,7 @@ class AppRoot extends React.Component<Props, State> {
           this.lastVoteSaveToCardAt = Date.now()
           this.forceSaveVoteFlag = false
 
-          const election = this.state.electionDefinition!.election
+          const { election } = this.state.electionDefinition!
           const ballot: CompletedBallot = {
             ballotId: '',
             ballotStyle: getBallotStyle({
@@ -687,7 +693,7 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public setPauseProcessingUntilNoCardPresent = (b: boolean) => {
+  public setPauseProcessingUntilNoCardPresent = (b: boolean): void => {
     this.setState({ pauseProcessingUntilNoCardPresent: b })
   }
 
@@ -749,7 +755,7 @@ class AppRoot extends React.Component<Props, State> {
     return true
   }
 
-  public stopHardwareStatusPolling = () => {
+  public stopHardwareStatusPolling = (): void => {
     this.statusPoller?.stop()
     this.statusPoller = undefined
 
@@ -757,7 +763,7 @@ class AppRoot extends React.Component<Props, State> {
     this.onDeviceChangeSubscription = undefined
   }
 
-  public startHardwareStatusPolling = () => {
+  public startHardwareStatusPolling = (): void => {
     /* istanbul ignore else */
     if (!this.statusPoller) {
       this.statusPoller = IntervalPoller.start(
@@ -809,7 +815,7 @@ class AppRoot extends React.Component<Props, State> {
     }
   }
 
-  public componentDidMount = () => {
+  public componentDidMount = (): void => {
     const electionDefinition = this.retrieveElection()
     const election = electionDefinition?.election
     const { ballotStyleId, precinctId } = this.retrieveBallotActivation()
@@ -852,7 +858,7 @@ class AppRoot extends React.Component<Props, State> {
     this.startHardwareStatusPolling()
   }
 
-  public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
+  public componentWillUnmount = /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ (): void => {
     this.machineIdAbortController.abort()
     document.removeEventListener('keydown', handleGamepadKeyboardEvent)
     this.stopShortValueReadPolling()
@@ -860,7 +866,7 @@ class AppRoot extends React.Component<Props, State> {
     window.clearInterval(this.cardWriteInterval)
   }
 
-  public render() {
+  public render(): JSX.Element {
     const {
       appPrecinctId,
       ballotsPrintedCount,
@@ -911,7 +917,8 @@ class AppRoot extends React.Component<Props, State> {
           unconfigure={this.unconfigure}
         />
       )
-    } else if (optionalElectionDefinition && !!appPrecinctId) {
+    }
+    if (optionalElectionDefinition && !!appPrecinctId) {
       const electionDefinition = optionalElectionDefinition!
       if (appMode.isVxPrint && !hasPrinterAttached) {
         return <SetupPrinterPage setUserSettings={this.setUserSettings} />
@@ -945,9 +952,8 @@ class AppRoot extends React.Component<Props, State> {
       if (isPollsOpen && isVoterCardPrinted) {
         if (isRecentVoterPrint && appMode.isVxMark && appMode.isVxPrint) {
           return <CastBallotPage />
-        } else {
-          return <UsedCardScreen setUserSettings={this.setUserSettings} />
         }
+        return <UsedCardScreen setUserSettings={this.setUserSettings} />
       }
       if (isPollsOpen && isVoterCardExpired) {
         return <ExpiredCardScreen setUserSettings={this.setUserSettings} />
@@ -982,7 +988,7 @@ class AppRoot extends React.Component<Props, State> {
                   machineConfig,
                   ballotStyleId,
                   contests,
-                  electionDefinition: electionDefinition,
+                  electionDefinition,
                   updateTally: this.updateTally,
                   isLiveMode,
                   markVoterCardPrinted: this.markVoterCardPrinted,
@@ -1024,9 +1030,8 @@ class AppRoot extends React.Component<Props, State> {
           />
         </IdleTimer>
       )
-    } else {
-      return <UnconfiguredScreen />
     }
+    return <UnconfiguredScreen />
   }
 }
 

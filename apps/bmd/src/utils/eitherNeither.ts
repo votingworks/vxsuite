@@ -51,36 +51,39 @@ export const computeTallyForEitherNeitherContests = ({
   })
 
   for (const contestId in votes) {
-    const outerContest = eitherNeitherContestMappings[contestId]
-    if (outerContest) {
-      contestIds.push(contestId)
-      const contestIndex = election.contests.findIndex(
-        (c) => c.id === outerContest.id
-      )
-      const vote = votes[contestId] as YesNoVote
-      const singleVote = getSingleYesNoVote(vote)
+    /* istanbul ignore next */
+    if (Object.prototype.hasOwnProperty.call(votes, contestId)) {
+      const outerContest = eitherNeitherContestMappings[contestId]
+      if (outerContest) {
+        contestIds.push(contestId)
+        const contestIndex = election.contests.findIndex(
+          (c) => c.id === outerContest.id
+        )
+        const vote = votes[contestId] as YesNoVote
+        const singleVote = getSingleYesNoVote(vote)
 
-      if (singleVote) {
-        // copy
-        const eitherNeitherTally = {
-          ...newTally[contestIndex],
-        } as MsEitherNeitherTally
-        newTally[contestIndex] = eitherNeitherTally
+        if (singleVote) {
+          // copy
+          const eitherNeitherTally = {
+            ...newTally[contestIndex],
+          } as MsEitherNeitherTally
+          newTally[contestIndex] = eitherNeitherTally
 
-        if (outerContest.eitherNeitherContestId === contestId) {
-          // special tabulation rule: if this is 'yes' but no option selected, we cancel the vote.
-          if (
-            singleVote === 'no' ||
-            votes[outerContest.pickOneContestId]?.length === 1
-          ) {
+          if (outerContest.eitherNeitherContestId === contestId) {
+            // special tabulation rule: if this is 'yes' but no option selected, we cancel the vote.
+            if (
+              singleVote === 'no' ||
+              votes[outerContest.pickOneContestId]?.length === 1
+            ) {
+              eitherNeitherTally[
+                singleVote === 'yes' ? 'eitherOption' : 'neitherOption'
+              ]++
+            }
+          } else {
             eitherNeitherTally[
-              singleVote === 'yes' ? 'eitherOption' : 'neitherOption'
+              singleVote === 'yes' ? 'firstOption' : 'secondOption'
             ]++
           }
-        } else {
-          eitherNeitherTally[
-            singleVote === 'yes' ? 'firstOption' : 'secondOption'
-          ]++
         }
       }
     }

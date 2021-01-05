@@ -1,14 +1,9 @@
 /**
  * Returns boolean when checking if object param is empty.
- *
- * @param {object} obj an object with any key/value pairs
- *
- * @return boolean
- *
  */
-
-const isEmptyObject = (obj: object) => {
+const isEmptyObject = (obj: Record<PropertyKey, unknown>): boolean => {
   const keys = Object.keys(obj)
   return keys.length === 0
 }
+
 export default isEmptyObject

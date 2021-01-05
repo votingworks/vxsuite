@@ -47,7 +47,7 @@ interface Props {
   updateVote: UpdateVoteFunction
 }
 
-const YesNoContest = ({ contest, vote, updateVote }: Props) => {
+const YesNoContest: React.FC<Props> = ({ contest, vote, updateVote }) => {
   const context = useContext(BallotContext)
   const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
 
@@ -110,8 +110,8 @@ const YesNoContest = ({ contest, vote, updateVote }: Props) => {
     }
   }
 
-  const handleChangeVoteAlert = (overvoteSelection: YesOrNo) => {
-    setOvervoteSelection(overvoteSelection)
+  const handleChangeVoteAlert = (newValue: YesOrNo) => {
+    setOvervoteSelection(newValue)
   }
 
   const scrollContestChoices: PointerEventHandler /* istanbul ignore next: Tested by Cypress */ = (
@@ -121,8 +121,8 @@ const YesNoContest = ({ contest, vote, updateVote }: Props) => {
       .direction as ScrollDirections
     const sc = scrollContainer.current!
     const currentScrollTop = sc.scrollTop
-    const offsetHeight = sc.offsetHeight
-    const scrollHeight = sc.scrollHeight
+    const { offsetHeight } = sc
+    const { scrollHeight } = sc
     const idealScrollDistance = Math.round(offsetHeight * 0.75)
     const maxScrollableDownDistance =
       scrollHeight - offsetHeight - currentScrollTop

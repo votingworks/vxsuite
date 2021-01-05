@@ -35,9 +35,7 @@ it('perform isJSON verifications', () => {
   expect(isJSON('[{"a": 123}, {1,2,3}}]')).toBeFalsy()
   expect(
     isJSON(
-      '[{"a": {"aa": [1,2,3,4], "aaa": {"d": 1212}}}, {"b": "test", "c": [1,2,3], "date": "' +
-        new Date() +
-        '"}]'
+      `[{"a": {"aa": [1,2,3,4], "aaa": {"d": 1212}}}, {"b": "test", "c": [1,2,3], "date": "${new Date()}"}]`
     )
   ).toBeTruthy()
 

@@ -49,7 +49,7 @@ const Modal: React.FC<Props> = ({
       }
     }, 10)
   },
-}: Props) => (
+}) => (
   <ReactModal
     appElement={
       (document.getElementById('root') ?? document.body.firstElementChild)!

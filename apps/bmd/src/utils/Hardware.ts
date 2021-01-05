@@ -75,6 +75,7 @@ export class MemoryHardware implements Hardware {
     discharging: false,
     level: 0.8,
   }
+
   private connectedDevices = new Set<KioskBrowser.Device>()
 
   private accessibleController: Readonly<KioskBrowser.Device> = {
@@ -295,7 +296,7 @@ export class KioskHardware extends MemoryHardware {
 /**
  * Get Hardware based upon environment.
  */
-export const getHardware = () =>
+export const getHardware = (): Hardware =>
   window.kiosk
     ? // Running in kiosk-browser, so use that to access real hardware.
       new KioskHardware(window.kiosk)

@@ -5,7 +5,7 @@ import Button, { ButtonInterface } from './Button'
 
 interface Props
   extends ButtonInterface,
-    RouteComponentProps<{}>,
+    RouteComponentProps<Record<string, string | undefined>>,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
   to?: string
 }
 
-const LinkButton = (props: Props) => {
+const LinkButton: React.FC<Props> = (props) => {
   const {
     goBack,
     history,

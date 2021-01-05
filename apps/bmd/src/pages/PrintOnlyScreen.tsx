@@ -47,7 +47,7 @@ interface Props {
 
 export const printerMessageTimeoutSeconds = 5
 
-const PrintOnlyScreen = ({
+const PrintOnlyScreen: React.FC<Props> = ({
   ballotStyleId,
   ballotsPrintedCount,
   electionDefinition,
@@ -60,12 +60,12 @@ const PrintOnlyScreen = ({
   showNoChargerAttachedWarning,
   updateTally,
   votes,
-}: Props) => {
+}) => {
   const printerTimer = useRef(0)
   const [okToPrint, setOkToPrint] = useState(true)
   const [isPrinted, updateIsPrinted] = useState(false)
   const isCardVotesEmpty = votes === undefined
-  const election = electionDefinition.election
+  const { election } = electionDefinition
 
   const isReadyToPrint =
     election &&

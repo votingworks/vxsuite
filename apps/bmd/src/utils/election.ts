@@ -1,4 +1,10 @@
-import { Election, Contest, BallotStyle } from '@votingworks/ballot-encoder'
+import {
+  Election,
+  Contest,
+  BallotStyle,
+  Contests,
+  Precinct,
+} from '@votingworks/ballot-encoder'
 import { Tally } from '../config/types'
 
 export const getContests = ({
@@ -7,8 +13,7 @@ export const getContests = ({
 }: {
   ballotStyle: BallotStyle
   election: Election
-}) =>
-  ballotStyle &&
+}): Contests =>
   election.contests.filter(
     (c) =>
       ballotStyle.districts.includes(c.districtId) &&
@@ -21,7 +26,7 @@ export const getPrecinctById = ({
 }: {
   election: Election
   precinctId: string
-}) => election.precincts.find((p) => p.id === precinctId)
+}): Precinct | undefined => election.precincts.find((p) => p.id === precinctId)
 
 export const getBallotStyle = ({
   election,
@@ -29,7 +34,8 @@ export const getBallotStyle = ({
 }: {
   election: Election
   ballotStyleId: string
-}) => election.ballotStyles.find((bs) => bs.id === ballotStyleId)
+}): BallotStyle | undefined =>
+  election.ballotStyles.find((bs) => bs.id === ballotStyleId)
 
 export const getPartyPrimaryAdjectiveFromBallotStyle = ({
   ballotStyleId,
@@ -47,27 +53,32 @@ export const getPartyPrimaryAdjectiveFromBallotStyle = ({
 
 export const getZeroTally = (election: Election): Tally =>
   election.contests.map((contest) => {
-    /* istanbul ignore else */
     if (contest.type === 'yesno') {
       return { yes: 0, no: 0 }
-    } else if (contest.type === 'ms-either-neither') {
+    }
+
+    if (contest.type === 'ms-either-neither') {
       return {
         eitherOption: 0,
         neitherOption: 0,
         firstOption: 0,
         secondOption: 0,
       }
-    } else if (contest.type === 'candidate') {
+    }
+
+    /* istanbul ignore next */
+    if (contest.type === 'candidate') {
       return {
         candidates: contest.candidates.map(() => 0),
         writeIns: [],
       }
-    } else {
-      // `as Contest` is needed because TS knows 'yesno' and 'candidate' are the
-      // only valid values and so infers `contest` is type `never`, and we want
-      // to fail loudly in this situation.
-      throw new Error(`unexpected contest type: ${(contest as Contest).type}`)
     }
+
+    /* istanbul ignore next */
+    // `as Contest` is needed because TS knows 'yesno' and 'candidate' are the
+    // only valid values and so infers `contest` is type `never`, and we want
+    // to fail loudly in this situation.
+    throw new Error(`unexpected contest type: ${(contest as Contest).type}`)
   })
 
 export default {

@@ -146,7 +146,7 @@ it('VxMarkOnly flow', async () => {
 
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i++) {
-    const title = voterContests[i].title
+    const { title } = voterContests[i]
 
     await advanceTimersAndPromises()
     getByText(title)

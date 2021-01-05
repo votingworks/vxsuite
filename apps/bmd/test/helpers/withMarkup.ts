@@ -7,7 +7,8 @@ type Query<T> = (f: MatcherFunction) => T
 const hasText = (text: string, node: HTMLElement) => node.textContent === text
 
 const withMarkup = <T>(query: Query<T>) => (text: string): T =>
-  query((content: string, node: HTMLElement) => {
+  query((content: string, node: Element) => {
+    if (!node || !(node instanceof HTMLElement)) return false
     const childrenDontHaveText = Array.from(node.children).every(
       (child) => !hasText(text, child as HTMLElement)
     )

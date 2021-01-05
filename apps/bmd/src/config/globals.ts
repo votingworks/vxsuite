@@ -1,3 +1,5 @@
+/* eslint-disable no-shadow */
+
 export const IDLE_TIMEOUT_SECONDS = 5 * 60 // 5 minute
 export const IDLE_RESET_TIMEOUT_SECONDS = 1 * 60 // 1 minute
 export const RECENT_PRINT_EXPIRATION_SECONDS = 1 * 60 // 1 minute

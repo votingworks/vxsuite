@@ -11,16 +11,14 @@ const createTouchEndEventProperties = (x: number, y: number) => {
   return { changedTouches: [{ clientX: x, clientY: y }] }
 }
 
-const onPress = jest.fn()
-
 it('renders Button', () => {
-  const { container } = render(<Button onPress={onPress}>foo</Button>)
+  const { container } = render(<Button onPress={jest.fn()}>foo</Button>)
   expect(container.firstChild).toMatchSnapshot()
 })
 
 it('renders primary Button', () => {
   const { container } = render(
-    <Button onPress={onPress} primary>
+    <Button onPress={jest.fn()} primary>
       Primary
     </Button>
   )
@@ -29,7 +27,7 @@ it('renders primary Button', () => {
 
 it('renders danger Button', () => {
   const { container } = render(
-    <Button onPress={onPress} danger>
+    <Button onPress={jest.fn()} danger>
       Danger!
     </Button>
   )
@@ -38,7 +36,7 @@ it('renders danger Button', () => {
 
 it('renders big Button', () => {
   const { container } = render(
-    <Button onPress={onPress} big>
+    <Button onPress={jest.fn()} big>
       I’m a big button!
     </Button>
   )
@@ -47,7 +45,7 @@ it('renders big Button', () => {
 
 it('renders small Button', () => {
   const { container } = render(
-    <Button onPress={onPress} small>
+    <Button onPress={jest.fn()} small>
       I’m a small button!
     </Button>
   )

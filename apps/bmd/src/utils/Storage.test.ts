@@ -17,13 +17,13 @@ describe('LocalStorage', () => {
 
   it('fails if the underlying value is not JSON', () => {
     window.localStorage.setItem('a', 'this is not JSON')
-    expect(() => new LocalStorage<{ a: object }>().get('a')).toThrowError(
+    expect(() => new LocalStorage<{ a: unknown }>().get('a')).toThrowError(
       /JSON/
     )
   })
 
   it('can remove a value', () => {
-    const storage = new LocalStorage<{ a: object }>()
+    const storage = new LocalStorage<{ a: unknown }>()
 
     expect(storage.get('a')).toBeUndefined()
     window.localStorage.setItem('a', JSON.stringify({}))
@@ -33,7 +33,7 @@ describe('LocalStorage', () => {
   })
 
   it('can clear all values', () => {
-    const storage = new LocalStorage<{ a: object; b: object }>()
+    const storage = new LocalStorage<{ a: unknown; b: unknown }>()
 
     window.localStorage.setItem('a', JSON.stringify({}))
     window.localStorage.setItem('b', JSON.stringify({}))
@@ -43,7 +43,7 @@ describe('LocalStorage', () => {
   })
 
   it('serializes values as they are put in storage', () => {
-    const storage = new LocalStorage<{ a: object }>()
+    const storage = new LocalStorage<{ a: unknown }>()
     const object = { b: 1 }
 
     storage.set('a', object)
@@ -55,7 +55,7 @@ describe('LocalStorage', () => {
 
 describe('MemoryStorage', () => {
   it('can be initialized with data', () => {
-    const storage = new MemoryStorage<{ a: object; b: object; c: object }>({
+    const storage = new MemoryStorage<{ a: unknown; b: unknown; c: unknown }>({
       a: { c: 1 },
       b: { d: 2 },
     })
@@ -66,7 +66,7 @@ describe('MemoryStorage', () => {
   })
 
   it('can remove a value', () => {
-    const storage = new MemoryStorage<{ a: object }>()
+    const storage = new MemoryStorage<{ a: unknown }>()
 
     storage.set('a', {})
     expect(storage.get('a')).toBeDefined()
@@ -75,7 +75,7 @@ describe('MemoryStorage', () => {
   })
 
   it('can clear all values', () => {
-    const storage = new MemoryStorage<{ a: object; b: object }>()
+    const storage = new MemoryStorage<{ a: unknown; b: unknown }>()
 
     storage.set('a', {})
     storage.set('b', {})
@@ -85,7 +85,7 @@ describe('MemoryStorage', () => {
   })
 
   it('serializes values as they are put in storage', () => {
-    const storage = new MemoryStorage<{ a: object }>()
+    const storage = new MemoryStorage<{ a: unknown }>()
     const object = { b: 1 }
 
     storage.set('a', object)
