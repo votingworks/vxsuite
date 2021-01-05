@@ -10,7 +10,11 @@
     "nohoist": [
       "**/@types/mocha",
       "**/@types/react-native",
-      "**/@types/react-reouter-dom"
+      "**/@types/react-reouter-dom",
+      "**/babel-jest",
+      "**/babel-loader",
+      "**/jest",
+      "**/webpack"
     ]
   },
   "resolutions": {
