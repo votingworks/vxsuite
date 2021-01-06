@@ -75,7 +75,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({
     castVoteRecordFiles,
     electionDefinition,
   } = useContext(AppContext)
-  const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT)
+  const [currentState, setCurrentState] = useState(ModalState.INIT)
   const [foundFiles, setFoundFiles] = useState<KioskBrowser.FileSystemEntry[]>(
     []
   )

@@ -158,7 +158,7 @@ describe('Screens display properly when USB is mounted', () => {
         'live1',
         'utf-8'
       )
-      // When the import is succesfull the modal should automatically be closed.
+      // When the import is successful the modal should automatically be closed.
       expect(closeFn).toHaveBeenCalledTimes(2)
     })
   })
