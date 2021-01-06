@@ -16,14 +16,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/ballot-encoder/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd libs/ballot-encoder install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/ballot-encoder/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
           paths:
+            - node_modules
             - libs/ballot-encoder/node_modules
       - run:
           name: Run Linters
@@ -66,14 +67,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bmd/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd apps/bmd install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bmd/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
           paths:
+            - node_modules
             - apps/bmd/node_modules
       - run:
           name: Run Linters

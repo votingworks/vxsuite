@@ -26,7 +26,7 @@ module.exports = {
   },
   parserOptions: {
     ecmaVersion: 2018,
-    project: './tsconfig.json',
+    project: './tsconfig.test.json',
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint', 'jest', 'no-null', 'no-array-sort-mutation'],

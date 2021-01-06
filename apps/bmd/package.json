@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "script/react-scripts start",
+    "build": "script/react-scripts build",
     "test": "is-ci \"test:ci\" \"test:watch\"",
-    "test:watch": "TZ=UTC react-scripts test",
-    "test:ci": "TZ=UTC CI=true tsc && react-scripts test --maxWorkers 2 --env=jsdom --coverage && yarn test:e2e:ci",
-    "test:coverage": "TZ=UTC react-scripts test --coverage --watchAll=false",
-    "test:update": "TZ=UTC react-scripts test -u  --watchAll=false",
-    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache",
+    "test:watch": "TZ=UTC script/react-scripts test",
+    "test:ci": "TZ=UTC CI=true tsc --build && script/react-scripts test --maxWorkers 2 --env=jsdom --coverage && yarn test:e2e:ci",
+    "test:coverage": "TZ=UTC script/react-scripts test --coverage --watchAll=false",
+    "test:update": "TZ=UTC script/react-scripts test -u  --watchAll=false",
+    "test:debug": "script/react-scripts --inspect-brk test --runInBand --no-cache",
     "cypress:run": "cypress run --browser chrome",
     "cypress:open": "cypress open",
     "test:e2e": "is-ci \"test:e2e:ci\" \"test:e2e:watch\"",
@@ -18,13 +18,13 @@
     "test:e2e:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "test:e2e:watch": "start-server-and-test start http://localhost:3000 cypress:open",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
-    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
-    "lint:fix": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --fix --quiet && yarn stylelint:run --fix",
+    "lint": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
+    "lint:fix": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --fix --quiet && yarn stylelint:run --fix",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "tsc && lint-staged"
+      "pre-commit": "tsc --build && lint-staged"
     }
   },
   "lint-staged": {
@@ -126,7 +126,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.1.3",
     "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-no-array-sort-mutation": "../../libs/eslint-plugin-no-array-sort-mutation",
+    "eslint-plugin-no-array-sort-mutation": "*",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.22.0",
     "husky": "^4.2.5",
@@ -135,6 +135,7 @@
     "jest-fetch-mock": "^3.0.3",
     "jest-styled-components": "^6.3.4",
     "lint-staged": "^10.2.4",
+    "ora": "^5.2.0",
     "prettier": "^2.1.1",
     "start-server-and-test": "^1.11.0",
     "stylelint": "^13.3.3",
