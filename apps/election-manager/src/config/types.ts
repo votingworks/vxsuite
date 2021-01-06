@@ -122,7 +122,9 @@ export type CastVoteRecordLists = ReadonlyArray<ReadonlyArray<CastVoteRecord>>
 export interface CastVoteRecordFile {
   readonly name: string
   readonly count: number
+  readonly scannerIds: readonly string[]
   readonly precinctIds: readonly string[]
+  readonly exportTimestamp: Date
 }
 export type CastVoteRecordFilesDictionary = Dictionary<CastVoteRecordFile>
 

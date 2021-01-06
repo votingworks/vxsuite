@@ -3,6 +3,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
+import moment from 'moment'
 
 import { CastVoteRecordLists, InputEventFunction } from '../config/types'
 
@@ -183,7 +184,10 @@ const TallyScreen: React.FC = () => {
               <React.Fragment>
                 <tr>
                   <TD as="th" narrow nowrap>
-                    File Name
+                    File Exported At
+                  </TD>
+                  <TD as="th" narrow nowrap>
+                    Scanner ID
                   </TD>
                   <TD as="th" nowrap narrow>
                     CVR Count
@@ -192,15 +196,28 @@ const TallyScreen: React.FC = () => {
                     Precinct(s)
                   </TD>
                 </tr>
-                {castVoteRecordFileList.map(({ name, count, precinctIds }) => (
-                  <tr key={name}>
-                    <TD narrow nowrap>
-                      {name}
-                    </TD>
-                    <TD narrow>{format.count(count)}</TD>
-                    <TD>{getPrecinctNames(precinctIds)}</TD>
-                  </tr>
-                ))}
+                {castVoteRecordFileList.map(
+                  ({
+                    name,
+                    exportTimestamp,
+                    count,
+                    scannerIds,
+                    precinctIds,
+                  }) => (
+                    <tr key={name}>
+                      <TD narrow nowrap>
+                        {moment(exportTimestamp).format(
+                          'MM/DD/YYYY hh:mm:ss A'
+                        )}
+                      </TD>
+                      <TD narrow nowrap>
+                        {scannerIds && scannerIds.join(', ')}
+                      </TD>
+                      <TD narrow>{format.count(count)}</TD>
+                      <TD>{getPrecinctNames(precinctIds)}</TD>
+                    </tr>
+                  )
+                )}
                 <tr>
                   <TD as="th" narrow nowrap>
                     Total CVRs Count
