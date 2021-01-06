@@ -5,7 +5,9 @@
     "packages": [
       "apps/bmd",
       "libs/ballot-encoder",
-      "libs/eslint-plugin-no-array-sort-mutation"
+      "libs/eslint-plugin-no-array-sort-mutation",
+      "libs/hmpb-interpreter",
+      "libs/@types/*"
     ],
     "nohoist": [
       "**/@types/mocha",

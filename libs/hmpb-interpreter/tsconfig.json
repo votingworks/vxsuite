@@ -64,5 +64,8 @@
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
-  "include": ["src", "test", "types"]
+  "include": ["src", "test", "types"],
+  "references": [
+    { "path": "../ballot-encoder" }
+  ]
 }
