@@ -225,32 +225,6 @@ const TallyScreen: React.FC = () => {
             )}
           </tbody>
         </Table>
-        {castVoteRecordFiles.duplicateFiles.length > 0 && (
-          <Text warning>
-            {castVoteRecordFiles.duplicateFiles.length === 1 && (
-              <React.Fragment>
-                The file{' '}
-                <strong>{castVoteRecordFiles.duplicateFiles.join(', ')}</strong>{' '}
-                was ignored as a duplicate of a file already loaded.
-              </React.Fragment>
-            )}
-            {castVoteRecordFiles.duplicateFiles.length > 1 && (
-              <React.Fragment>
-                The files{' '}
-                <strong>{castVoteRecordFiles.duplicateFiles.join(', ')}</strong>{' '}
-                were ignored as duplicates of files already loaded.
-              </React.Fragment>
-            )}
-          </Text>
-        )}
-        {castVoteRecordFiles.lastError && (
-          <Text error>
-            There was an error reading the content of the file{' '}
-            <strong>{castVoteRecordFiles.lastError.filename}</strong>:{' '}
-            {castVoteRecordFiles.lastError.message}. Please ensure this file
-            only contains valid CVR data for this election.
-          </Text>
-        )}
         <p>
           <Button
             onPress={() => setIsImportCVRModalOpen(true)}

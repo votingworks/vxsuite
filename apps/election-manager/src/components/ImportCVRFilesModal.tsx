@@ -49,6 +49,13 @@ const LabelText = styled.span`
   font-weight: 500;
 `
 
+enum ModalState {
+  ERROR = 'error',
+  DUPLICATE = 'duplicate',
+  LOADING = 'loading',
+  INIT = 'init',
+}
+
 export interface Props {
   isOpen: boolean
   onClose: () => void
@@ -58,53 +65,76 @@ function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)
 }
 
-const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
+const ImportCVRFilesModal: React.FC<Props> = ({
+  isOpen,
+  onClose: onCloseFromProps,
+}) => {
   const {
     usbDriveStatus,
     saveCastVoteRecordFiles,
     castVoteRecordFiles,
     electionDefinition,
   } = useContext(AppContext)
-  const [isLoading, setIsLoading] = useState(false)
+  const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT)
   const [foundFiles, setFoundFiles] = useState<KioskBrowser.FileSystemEntry[]>(
     []
   )
   const { election, electionHash } = electionDefinition!
 
-  const importSelectedFiles = async (
-    fileEntries: KioskBrowser.FileSystemEntry[]
+  const onClose = () => {
+    setCurrentState(ModalState.INIT)
+    onCloseFromProps()
+  }
+
+  const importSelectedFile = async (
+    fileEntry: KioskBrowser.FileSystemEntry
   ) => {
-    setIsLoading(true)
+    setCurrentState(ModalState.LOADING)
     const newCastVoteRecordFiles = await castVoteRecordFiles.addAllFromFileSystemEntries(
-      fileEntries,
+      [fileEntry],
       election
     )
     saveCastVoteRecordFiles(newCastVoteRecordFiles)
-    setIsLoading(false)
 
-    onClose()
+    if (newCastVoteRecordFiles.duplicateFiles.includes(fileEntry.name)) {
+      setCurrentState(ModalState.DUPLICATE)
+    } else if (newCastVoteRecordFiles.lastError?.filename === fileEntry.name) {
+      setCurrentState(ModalState.ERROR)
+    } else {
+      onClose()
+    }
   }
 
-  const processCastVoteRecordFilesFromFilePicker: InputEventFunction = async (
+  const processCastVoteRecordFileFromFilePicker: InputEventFunction = async (
     event
   ) => {
     const input = event.currentTarget
     const files = Array.from(input.files || [])
-    setIsLoading(true)
+    setCurrentState(ModalState.LOADING)
 
-    const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(
-      files,
-      election
-    )
-    saveCastVoteRecordFiles(newCastVoteRecordFiles)
+    if (files.length === 1) {
+      const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(
+        files,
+        election
+      )
+      saveCastVoteRecordFiles(newCastVoteRecordFiles)
 
-    setIsLoading(false)
-    input.value = ''
-    onClose()
+      input.value = ''
+
+      if (newCastVoteRecordFiles.duplicateFiles.includes(files[0].name)) {
+        setCurrentState(ModalState.DUPLICATE)
+      } else if (newCastVoteRecordFiles.lastError?.filename === files[0].name) {
+        setCurrentState(ModalState.ERROR)
+      } else {
+        onClose()
+      }
+    } else {
+      onClose()
+    }
   }
 
   const fetchFilenames = async () => {
-    setIsLoading(true)
+    setCurrentState(ModalState.LOADING)
     const usbPath = await getDevicePath()
     try {
       const files = await window.kiosk!.getFileSystemEntries(
@@ -117,12 +147,12 @@ const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setFoundFiles(
         files.filter((f) => f.type === 1 && f.name.endsWith('.jsonl'))
       )
-      setIsLoading(false)
+      setCurrentState(ModalState.INIT)
     } catch (err) {
       if (err.message.includes('ENOENT')) {
         // No files found
         setFoundFiles([])
-        setIsLoading(false)
+        setCurrentState(ModalState.INIT)
       } else {
         throw err
       }
@@ -135,8 +165,56 @@ const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   }, [usbDriveStatus])
 
+  if (currentState === ModalState.ERROR) {
+    return (
+      <Modal
+        isOpen={isOpen}
+        content={
+          <Prose>
+            <h1>Error</h1>
+            <p>
+              There was an error reading the content of the file{' '}
+              <strong>{castVoteRecordFiles?.lastError?.filename}</strong>:{' '}
+              {castVoteRecordFiles?.lastError?.message}. Please ensure this file
+              only contains valid CVR data for this election.
+            </p>
+          </Prose>
+        }
+        onOverlayClick={onClose}
+        actions={
+          <React.Fragment>
+            <LinkButton onPress={onClose}>Close</LinkButton>
+          </React.Fragment>
+        }
+      />
+    )
+  }
+
+  if (currentState === ModalState.DUPLICATE) {
+    return (
+      <Modal
+        isOpen={isOpen}
+        content={
+          <Prose>
+            <h1>Duplicate File</h1>
+            <p>
+              The selected file was ignored as a duplicate of a previously
+              imported file.
+            </p>
+          </Prose>
+        }
+        onOverlayClick={onClose}
+        actions={
+          <React.Fragment>
+            <LinkButton onPress={onClose}>Close</LinkButton>
+          </React.Fragment>
+        }
+      />
+    )
+  }
+
   if (
-    isLoading ||
+    currentState === ModalState.LOADING ||
     usbDriveStatus === UsbDriveStatus.ejecting ||
     usbDriveStatus === UsbDriveStatus.present
   ) {
@@ -180,8 +258,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <LinkButton onPress={onClose}>Cancel</LinkButton>
             {!window.kiosk && (
               <FileInputButton
-                multiple
-                onChange={processCastVoteRecordFilesFromFilePicker}
+                onChange={processCastVoteRecordFileFromFilePicker}
                 data-testid="manual-input"
               >
                 Select Files…
@@ -250,7 +327,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </CheckTD>
           <TD textAlign="right">
             <LinkButton
-              onPress={() => importSelectedFiles([fileEntry])}
+              onPress={() => importSelectedFile(fileEntry)}
               disabled={!canImport}
               small
               primary
@@ -314,8 +391,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <React.Fragment>
             <LinkButton onPress={onClose}>Cancel</LinkButton>
             <FileInputButton
-              multiple
-              onChange={processCastVoteRecordFilesFromFilePicker}
+              onChange={processCastVoteRecordFileFromFilePicker}
               data-testid="manual-input"
             >
               Select File Manually…
