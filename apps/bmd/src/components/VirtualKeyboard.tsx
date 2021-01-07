@@ -1,5 +1,6 @@
-import React, { PointerEventHandler } from 'react'
+import React from 'react'
 import styled from 'styled-components'
+import { EventTargetFunction } from '../config/types'
 
 import Button from './Button'
 
@@ -45,7 +46,7 @@ const Keyboard = styled.div`
 `
 
 interface Props {
-  onKeyPress: PointerEventHandler
+  onKeyPress: EventTargetFunction
   keyDisabled?(key: string): boolean
   keyMap?: KeyMap
 }

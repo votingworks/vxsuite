@@ -1,5 +1,4 @@
 import React, {
-  PointerEventHandler,
   useCallback,
   useContext,
   useEffect,
@@ -114,7 +113,7 @@ const YesNoContest: React.FC<Props> = ({ contest, vote, updateVote }) => {
     setOvervoteSelection(newValue)
   }
 
-  const scrollContestChoices: PointerEventHandler /* istanbul ignore next: Tested by Cypress */ = (
+  const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset

@@ -1,6 +1,5 @@
 import pluralize from 'pluralize'
 import React, {
-  PointerEventHandler,
   useCallback,
   useContext,
   useEffect,
@@ -17,6 +16,7 @@ import {
 import { findPartyById } from '../utils/find'
 import {
   CandidateContestResultInterface,
+  EventTargetFunction,
   MsEitherNeitherContestResultInterface,
   Scrollable,
   ScrollDirections,
@@ -335,7 +335,7 @@ const ReviewPage: React.FC = () => {
     }
   }, [updateContestChoicesScrollStates])
 
-  const scrollContestChoices: PointerEventHandler /* istanbul ignore next: Tested by Cypress */ = (
+  const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset
