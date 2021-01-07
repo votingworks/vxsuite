@@ -13,7 +13,7 @@ import RemoveCardScreen from '../pages/RemoveCardScreen'
 import CastBallotPage from '../pages/CastBallotPage'
 import { IDLE_TIMEOUT_SECONDS } from '../config/globals'
 
-const Ballot = () => {
+const Ballot: React.FC = () => {
   const [isIdle, setIsIdle] = useState(false)
 
   const onActive = () => {

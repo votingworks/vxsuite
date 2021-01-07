@@ -12,7 +12,7 @@ interface Props {
   isLiveMode: boolean
 }
 
-const TestMode = ({ isLiveMode }: Props) =>
+const TestMode: React.FC<Props> = ({ isLiveMode }) =>
   // eslint-disable-next-line no-restricted-syntax
   isLiveMode ? null : (
     <TestingModeContainer warning bold warningIcon center>

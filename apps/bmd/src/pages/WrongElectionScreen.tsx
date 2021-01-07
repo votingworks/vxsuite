@@ -3,7 +3,7 @@ import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
 import Screen from '../components/Screen'
 
-const WrongElectionScreen = () => (
+const WrongElectionScreen: React.FC = () => (
   <Screen white>
     <Main>
       <MainChild center>

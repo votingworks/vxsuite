@@ -3,7 +3,7 @@ import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
 import Screen from '../components/Screen'
 
-const WrongPrecinctScreen = () => (
+const WrongPrecinctScreen: React.FC = () => (
   <Screen white>
     <Main>
       <MainChild center>

@@ -41,7 +41,7 @@ interface Props {
   reportPurpose: string
 }
 
-const PrecinctTallyReport = ({
+const PrecinctTallyReport: React.FC<Props> = ({
   ballotsPrintedCount,
   currentDateTime,
   election,
@@ -49,7 +49,7 @@ const PrecinctTallyReport = ({
   tally,
   precinctId,
   reportPurpose,
-}: Props) => {
+}) => {
   const { ballotStyles, contests, precincts } = election
   const precinct = precincts.find((p) => p.id === precinctId) as Precinct
 

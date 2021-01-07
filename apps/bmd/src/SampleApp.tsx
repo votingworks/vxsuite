@@ -60,13 +60,13 @@ export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
 }
 
 /* istanbul ignore next */
-const SampleApp = ({
+const SampleApp: React.FC<Props> = ({
   card = getSampleCard(),
   storage = getSampleStorage(),
   machineConfig = getSampleMachineConfigProvider(),
   hardware = MemoryHardware.demo,
   ...rest
-}: Props) => (
+}) => (
   <App
     card={card}
     storage={storage}

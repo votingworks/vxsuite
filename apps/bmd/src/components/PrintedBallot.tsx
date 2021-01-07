@@ -156,7 +156,10 @@ const CandidateContestResult: React.FC<CandidateContestResultInterface> = ({
   )
 }
 
-const YesNoContestResult = ({ contest, vote }: YesNoContestResultInterface) => {
+const YesNoContestResult: React.FC<YesNoContestResultInterface> = ({
+  contest,
+  vote,
+}) => {
   const yesNo = getSingleYesNoVote(vote)
   return yesNo ? (
     <Text bold wordBreak>
@@ -168,11 +171,11 @@ const YesNoContestResult = ({ contest, vote }: YesNoContestResultInterface) => {
   )
 }
 
-const MsEitherNeitherContestResult = ({
+const MsEitherNeitherContestResult: React.FC<MsEitherNeitherContestResultInterface> = ({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
-}: MsEitherNeitherContestResultInterface) => {
+}) => {
   const eitherNeitherVote = eitherNeitherContestVote?.[0]
   const pickOneVote = pickOneContestVote?.[0]
 
