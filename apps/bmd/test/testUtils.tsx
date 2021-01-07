@@ -72,7 +72,7 @@ export function render(
     userSettings?: { textSize: TextSizeSetting }
     votes?: VotesDict
   } = {}
-) {
+): ReturnType<typeof testRender> {
   return {
     ...testRender(
       <BallotContext.Provider

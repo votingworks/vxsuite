@@ -131,7 +131,9 @@ export const pollWorkerCard = JSON.stringify({
   h: 'abcd',
 })
 
-export const createVoterCard = (cardData: Partial<VoterCardData> = {}) => {
+export const createVoterCard = (
+  cardData: Partial<VoterCardData> = {}
+): string => {
   return JSON.stringify({
     t: 'voter',
     c: utcTimestamp(),
@@ -141,36 +143,36 @@ export const createVoterCard = (cardData: Partial<VoterCardData> = {}) => {
   })
 }
 
-export const getNewVoterCard = () => createVoterCard()
+export const getNewVoterCard = (): string => createVoterCard()
 
-export const getAlternateNewVoterCard = () =>
+export const getAlternateNewVoterCard = (): string =>
   createVoterCard({
     pr: altPrecinctId,
     bs: altBallotStyleId,
   })
 
-export const getOtherElectionVoterCard = () =>
+export const getOtherElectionVoterCard = (): string =>
   createVoterCard({
     pr: '999999999',
     bs: '999999999',
   })
 
-export const getVoidedVoterCard = () =>
+export const getVoidedVoterCard = (): string =>
   createVoterCard({
     uz: utcTimestamp(),
   })
 
-export const getExpiredVoterCard = () =>
+export const getExpiredVoterCard = (): string =>
   createVoterCard({
     c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
   })
 
-export const getUsedVoterCard = () =>
+export const getUsedVoterCard = (): string =>
   createVoterCard({
     bp: utcTimestamp(),
   })
 
-export const advanceTimers = (seconds = 0) => {
+export const advanceTimers = (seconds = 0): void => {
   const maxSeconds = GLOBALS.IDLE_TIMEOUT_SECONDS
   if (seconds > maxSeconds) {
     throw new Error(`Seconds value should not be greater than ${maxSeconds}`)
@@ -182,7 +184,7 @@ export const advanceTimers = (seconds = 0) => {
   })
 }
 
-export const advanceTimersAndPromises = async (seconds = 0) => {
+export const advanceTimersAndPromises = async (seconds = 0): Promise<void> => {
   advanceTimers(seconds)
   await wait()
 }

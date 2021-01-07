@@ -1,7 +1,8 @@
 import { Button } from 'react-gamepad'
 import mod from '../utils/mod'
 
-export const getActiveElement = () => document.activeElement! as HTMLElement
+export const getActiveElement = (): HTMLElement =>
+  document.activeElement! as HTMLElement
 
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(
@@ -60,7 +61,7 @@ function handleClick() {
   activeElement.click()
 }
 
-export function handleGamepadButtonDown(buttonName: Button) {
+export function handleGamepadButtonDown(buttonName: Button): void {
   switch (buttonName) {
     case 'DPadUp':
       handleArrowUp()
@@ -86,7 +87,7 @@ export function handleGamepadButtonDown(buttonName: Button) {
 // https://docs.cypress.io/api/commands/type.html
 export /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ function handleGamepadKeyboardEvent(
   event: KeyboardEvent
-) {
+): void {
   switch (event.key) {
     case 'ArrowUp':
       handleArrowUp()
