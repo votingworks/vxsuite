@@ -204,11 +204,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={
-          <React.Fragment>
-            <LinkButton onPress={onClose}>Close</LinkButton>
-          </React.Fragment>
-        }
+        actions={<LinkButton onPress={onClose}>Close</LinkButton>}
       />
     )
   }
