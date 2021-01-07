@@ -28,7 +28,6 @@ import LinkButton from '../components/LinkButton'
 import HorizontalRule from '../components/HorizontalRule'
 import Prose from '../components/Prose'
 import ImportCVRFilesModal from '../components/ImportCVRFilesModal'
-import ExportFinalResultsModal from '../components/ExportFinalResultsModal'
 import Modal from '../components/Modal'
 
 const TallyScreen: React.FC = () => {
@@ -46,9 +45,6 @@ const TallyScreen: React.FC = () => {
   const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
   const [isConfimingRemoveCVRs, setIsConfirmingRemoveCVRs] = useState(false)
   const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false)
-  const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
-    false
-  )
 
   const cancelConfirmingRemoveCVRs = () => {
     setIsConfirmingRemoveCVRs(false)
@@ -393,9 +389,7 @@ const TallyScreen: React.FC = () => {
           <React.Fragment>
             <h2>Export Options</h2>
             <p>
-              <Button onPress={() => setIsExportResultsModalOpen(true)}>
-                Export Results File
-              </Button>
+              <Button onPress={exportResults}>Export Results File</Button>
             </p>
           </React.Fragment>
         )}
@@ -480,10 +474,6 @@ const TallyScreen: React.FC = () => {
       <ImportCVRFilesModal
         isOpen={isImportCVRModalOpen}
         onClose={() => setIsImportCVRModalOpen(false)}
-      />
-      <ExportFinalResultsModal
-        isOpen={isExportResultsModalOpen}
-        onClose={() => setIsExportResultsModalOpen(false)}
       />
     </React.Fragment>
   )
