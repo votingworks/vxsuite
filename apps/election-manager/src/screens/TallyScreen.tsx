@@ -28,6 +28,7 @@ import LinkButton from '../components/LinkButton'
 import HorizontalRule from '../components/HorizontalRule'
 import Prose from '../components/Prose'
 import ImportCVRFilesModal from '../components/ImportCVRFilesModal'
+import ExportFinalResultsModal from '../components/ExportFinalResultsModal'
 import Modal from '../components/Modal'
 
 const TallyScreen: React.FC = () => {
@@ -45,6 +46,9 @@ const TallyScreen: React.FC = () => {
   const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
   const [isConfimingRemoveCVRs, setIsConfirmingRemoveCVRs] = useState(false)
   const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false)
+  const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
+    false
+  )
 
   const cancelConfirmingRemoveCVRs = () => {
     setIsConfirmingRemoveCVRs(false)
@@ -242,32 +246,6 @@ const TallyScreen: React.FC = () => {
             )}
           </tbody>
         </Table>
-        {castVoteRecordFiles.duplicateFiles.length > 0 && (
-          <Text warning>
-            {castVoteRecordFiles.duplicateFiles.length === 1 && (
-              <React.Fragment>
-                The file{' '}
-                <strong>{castVoteRecordFiles.duplicateFiles.join(', ')}</strong>{' '}
-                was ignored as a duplicate of a file already loaded.
-              </React.Fragment>
-            )}
-            {castVoteRecordFiles.duplicateFiles.length > 1 && (
-              <React.Fragment>
-                The files{' '}
-                <strong>{castVoteRecordFiles.duplicateFiles.join(', ')}</strong>{' '}
-                were ignored as duplicates of files already loaded.
-              </React.Fragment>
-            )}
-          </Text>
-        )}
-        {castVoteRecordFiles.lastError && (
-          <Text error>
-            There was an error reading the content of the file{' '}
-            <strong>{castVoteRecordFiles.lastError.filename}</strong>:{' '}
-            {castVoteRecordFiles.lastError.message}. Please ensure this file
-            only contains valid CVR data for this election.
-          </Text>
-        )}
         <p>
           <Button
             onPress={() => setIsImportCVRModalOpen(true)}
@@ -415,7 +393,9 @@ const TallyScreen: React.FC = () => {
           <React.Fragment>
             <h2>Export Options</h2>
             <p>
-              <Button onPress={exportResults}>Export Results File</Button>
+              <Button onPress={() => setIsExportResultsModalOpen(true)}>
+                Export Results File
+              </Button>
             </p>
           </React.Fragment>
         )}
@@ -500,6 +480,10 @@ const TallyScreen: React.FC = () => {
       <ImportCVRFilesModal
         isOpen={isImportCVRModalOpen}
         onClose={() => setIsImportCVRModalOpen(false)}
+      />
+      <ExportFinalResultsModal
+        isOpen={isExportResultsModalOpen}
+        onClose={() => setIsExportResultsModalOpen(false)}
       />
     </React.Fragment>
   )

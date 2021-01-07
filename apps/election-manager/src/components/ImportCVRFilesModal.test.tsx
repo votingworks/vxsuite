@@ -86,7 +86,7 @@ describe('Screens display properly when USB is mounted', () => {
 
     // You can still manually import files
     fireEvent.change(getByTestId('manual-input'), {
-      target: { files: [new File(['file'], 'file.jsonl')] },
+      target: { files: [new File([''], 'file.jsonl')] },
     })
     await waitFor(() => expect(closeFn).toHaveBeenCalledTimes(2))
     expect(saveCVR).toHaveBeenCalledTimes(1)
@@ -158,6 +158,8 @@ describe('Screens display properly when USB is mounted', () => {
         'live1',
         'utf-8'
       )
+      // When the import is successful the modal should automatically be closed.
+      expect(closeFn).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -199,6 +201,9 @@ describe('Screens display properly when USB is mounted', () => {
     const tableRows = getAllByTestId('table-row')
     expect(tableRows).toHaveLength(3)
 
+    window.kiosk!.readFile = jest
+      .fn()
+      .mockResolvedValueOnce('invalid-file-contents')
     fireEvent.click(domGetByText(tableRows[1], 'Select'))
     getByText('Loading')
     await waitFor(() => {
@@ -209,6 +214,9 @@ describe('Screens display properly when USB is mounted', () => {
         'test1',
         'utf-8'
       )
+      // There should be an error importing the file.
+      getByText('Error')
+      getByText(/There was an error reading the content of the file/)
     })
   })
 
@@ -275,6 +283,10 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'))
     expect(closeFn).toHaveBeenCalledTimes(1)
 
+    window.kiosk!.readFile = jest
+      .fn()
+      .mockResolvedValueOnce(JSON.stringify(cvr))
+
     fireEvent.click(domGetByText(tableRows[1], 'Select'))
     getByText('Loading')
     await waitFor(() => {
@@ -284,6 +296,11 @@ describe('Screens display properly when USB is mounted', () => {
         1,
         'test2',
         'utf-8'
+      )
+      // There should be a message about importing a duplicate file displayed.
+      getByText('Duplicate File')
+      getByText(
+        'The selected file was ignored as a duplicate of a previously imported file.'
       )
     })
   })
@@ -355,6 +372,7 @@ describe('Screens display properly when USB is mounted', () => {
         'live1',
         'utf-8'
       )
+      expect(closeFn).toHaveBeenCalledTimes(2)
     })
   })
 
