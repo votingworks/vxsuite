@@ -685,7 +685,7 @@ class AppRoot extends React.Component<Props, State> {
           try {
             await this.props.card.writeLongUint8Array(longValue)
           } catch (error) {
-            // eslint-disable-next-line no-empty
+            // ignore for now
           }
           this.writingVoteToCard = false
         }
