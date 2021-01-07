@@ -2,6 +2,7 @@ import React from 'react'
 import { fireEvent, render, wait, within } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
 import { sha256 } from 'js-sha256'
+import * as GLOBALS from './config/globals'
 
 // import { electionSample } from '@votingworks/ballot-encoder'
 import electionSample from './data/electionSample.json'
@@ -60,9 +61,9 @@ it('VxMark+Print end-to-end flow', async () => {
     <App
       card={card}
       hardware={hardware}
-      storage={storage}
-      printer={printer}
       machineConfig={machineConfig}
+      printer={printer}
+      storage={storage}
     />
   )
   const getByTextWithMarkup = withMarkup(getByText)
@@ -293,6 +294,7 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(printerMessageTimeoutSeconds)
+  await advanceTimersAndPromises(GLOBALS.CARD_POLLING_INTERVAL / 1000)
   getByText('You’re Almost Done…')
   expect(printer.print).toHaveBeenCalledTimes(2)
 

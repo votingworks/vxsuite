@@ -40,11 +40,10 @@ const PrintPage = () => {
     if (!isEmptyObject(votes)) {
       printBallot()
     }
-  }, [votes, printBallot])
-
-  useEffect(() => {
-    return () => clearTimeout(printerTimer.current)
-  }, [])
+    return () => {
+      clearTimeout(printerTimer.current)
+    }
+  }, [printBallot, votes])
 
   return (
     <React.Fragment>

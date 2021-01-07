@@ -3,18 +3,22 @@ import { render } from '@testing-library/react'
 
 import fetchMock from 'fetch-mock'
 import App from './App'
+
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
-import { VxMarkOnly } from './config/types'
+import { VxMarkOnly, MachineConfigResponse } from './config/types'
 
 beforeEach(() => {
   window.location.href = '/'
 })
 
 test('machineConfig is fetched from /machine-config by default', async () => {
-  fetchMock.get('/machine-config', () =>
-    JSON.stringify({ appMode: VxMarkOnly, machineId: '99' })
-  )
+  const machineConfigResponse: MachineConfigResponse = {
+    appModeName: VxMarkOnly.name,
+    machineId: '99',
+  }
+
+  fetchMock.get('/machine-config', () => JSON.stringify(machineConfigResponse))
 
   render(<App storage={new MemoryStorage<AppStorage>()} />)
 

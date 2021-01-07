@@ -13,6 +13,7 @@ import Text from '../components/Text'
 import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import { Printer } from '../utils/printer'
+import { isSameDay } from '../utils/date'
 import PollsReport from '../components/PollsReport'
 import PrecinctTallyReport from '../components/PrecinctTallyReport'
 import Loading from '../components/Loading'
@@ -24,7 +25,6 @@ interface Props {
   electionDefinition: ElectionDefinition
   isPollsOpen: boolean
   isLiveMode: boolean
-  isElectionDay: boolean
   machineConfig: MachineConfig
   printer: Printer
   tally: Tally
@@ -32,20 +32,21 @@ interface Props {
   enableLiveMode: () => void
 }
 
-const PollWorkerScreen = ({
+const PollWorkerScreen: React.FC<Props> = ({
   appPrecinctId,
   ballotsPrintedCount,
   electionDefinition,
   isPollsOpen,
   isLiveMode,
-  isElectionDay,
   machineConfig,
   printer,
   tally,
   togglePollsOpen,
   enableLiveMode,
-}: Props) => {
+}) => {
   const { election } = electionDefinition
+  const electionDate = new Date(electionDefinition.election.date)
+  const isElectionDay = isSameDay(electionDate, new Date())
   const precinct = election.precincts.find(
     (p) => p.id === appPrecinctId
   ) as Precinct

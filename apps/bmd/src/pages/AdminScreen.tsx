@@ -44,7 +44,7 @@ interface Props {
 const getMachineTimezone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone
 
-const AdminScreen = ({
+const AdminScreen: React.FC<Props> = ({
   appMode,
   appPrecinctId,
   ballotsPrintedCount,
@@ -54,7 +54,7 @@ const AdminScreen = ({
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
-}: Props) => {
+}) => {
   const election = electionDefinition?.election
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
     updateAppPrecinctId(event.currentTarget.value)

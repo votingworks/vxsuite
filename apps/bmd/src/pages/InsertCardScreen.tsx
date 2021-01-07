@@ -24,7 +24,7 @@ interface Props {
   showNoAccessibleControllerWarning: boolean
 }
 
-const ActivationScreen = ({
+const InsertCardScreen = ({
   appPrecinctId,
   electionDefinition,
   showNoChargerAttachedWarning,
@@ -81,4 +81,4 @@ const ActivationScreen = ({
   )
 }
 
-export default ActivationScreen
+export default InsertCardScreen

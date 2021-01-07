@@ -1,25 +1,20 @@
 import {
   Provider,
   MachineConfig,
+  MachineConfigResponse,
   getAppMode,
-  AppModeNames,
 } from '../config/types'
 import fetchJSON from './fetchJSON'
 
-interface MachineConfigResponse {
-  machineId: string
-  appMode: AppModeNames
-}
-
 const machineConfigProvider: Provider<MachineConfig> = {
   async get() {
-    const { machineId, appMode } = await fetchJSON<MachineConfigResponse>(
+    const { appModeName, machineId } = await fetchJSON<MachineConfigResponse>(
       '/machine-config'
     )
 
     return {
+      appMode: getAppMode(appModeName),
       machineId,
-      appMode: getAppMode(appMode),
     }
   },
 }

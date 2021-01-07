@@ -49,6 +49,11 @@ export interface MachineConfig {
   appMode: AppMode
 }
 
+export interface MachineConfigResponse {
+  machineId: string
+  appModeName: AppModeNames
+}
+
 export function getAppMode(name: AppModeNames): AppMode {
   switch (name) {
     case VxPrintOnly.name:
