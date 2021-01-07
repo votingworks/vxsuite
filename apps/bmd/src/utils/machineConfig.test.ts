@@ -4,7 +4,7 @@ import { VxMarkOnly, VxMarkPlusVxPrint, VxPrintOnly } from '../config/types'
 
 test('successful VxMark fetch from /machine-config', async () => {
   fetchMock.get('/machine-config', () =>
-    JSON.stringify({ appMode: 'VxMark', machineId: '1' })
+    JSON.stringify({ appModeName: 'VxMark', machineId: '1' })
   )
   expect(await machineConfigProvider.get()).toEqual({
     appMode: VxMarkOnly,
@@ -14,7 +14,7 @@ test('successful VxMark fetch from /machine-config', async () => {
 
 test('successful VxPrint fetch from /machine-config', async () => {
   fetchMock.get('/machine-config', () =>
-    JSON.stringify({ appMode: 'VxPrint', machineId: '1' })
+    JSON.stringify({ appModeName: 'VxPrint', machineId: '1' })
   )
   expect(await machineConfigProvider.get()).toEqual({
     appMode: VxPrintOnly,
@@ -24,7 +24,7 @@ test('successful VxPrint fetch from /machine-config', async () => {
 
 test('successful VxMark + VxPrint fetch from /machine-config', async () => {
   fetchMock.get('/machine-config', () =>
-    JSON.stringify({ appMode: 'VxMark + VxPrint', machineId: '1' })
+    JSON.stringify({ appModeName: 'VxMark + VxPrint', machineId: '1' })
   )
   expect(await machineConfigProvider.get()).toEqual({
     appMode: VxMarkPlusVxPrint,

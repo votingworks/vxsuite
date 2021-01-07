@@ -3,20 +3,15 @@ import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
 import Screen from '../components/Screen'
 import { NoWrap } from '../components/Text'
-import { PartialUserSettings } from '../config/types'
-import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
 
 interface Props {
-  setUserSettings: (partial: PartialUserSettings) => void
+  useEffectToggleLargeDisplay: () => void
 }
 
-const SetupPowerPage: React.FC<Props> = ({ setUserSettings }) => {
-  useEffect(() => {
-    setUserSettings({ textSize: LARGE_DISPLAY_FONT_SIZE })
-    return () => {
-      setUserSettings({ textSize: DEFAULT_FONT_SIZE })
-    }
-  }, [setUserSettings])
+const SetupPowerPage: React.FC<Props> = ({
+  useEffectToggleLargeDisplay,
+}: Props) => {
+  useEffect(useEffectToggleLargeDisplay, [])
 
   return (
     <Screen white>

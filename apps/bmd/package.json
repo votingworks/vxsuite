@@ -73,6 +73,7 @@
     ]
   },
   "dependencies": {
+    "@rooks/use-interval": "^3.6.0",
     "@types/dompurify": "^2.0.4",
     "@types/fetch-mock": "^7.3.2",
     "@types/jest": "25.2.2",

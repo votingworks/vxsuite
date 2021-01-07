@@ -33,7 +33,7 @@ const idleScreenCopy =
   'This voting station has been inactive for more than 5 minutes.'
 
 describe('Mark Card Void when voter is idle too long', () => {
-  it('Display expired card if card marked as voided', async () => {
+  test('Display expired card if card marked as voided', async () => {
     const card = new MemoryCard()
     const hardware = MemoryHardware.standard
     const storage = new MemoryStorage<AppStorage>()
@@ -80,11 +80,15 @@ describe('Mark Card Void when voter is idle too long', () => {
     getByText(`${secondsRemaining} seconds`)
 
     advanceTimers(secondsRemaining)
-    advanceTimers()
     getByText('Clearing ballot')
 
-    // Idle reset timeout passes, Expect voided card
-    await advanceTimersAndPromises() // because flash of "insert card" screen
+    // Idle reset timeout expires
+    await advanceTimersAndPromises()
+
+    // Insert Card screen displays while card is read again.
+    getByText('Insert Card')
+
+    // Card read again and now displays expired msg.
     await advanceTimersAndPromises()
     getByText('Expired Card')
 
@@ -94,7 +98,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     getByText('Insert voter card to load ballot.')
   })
 
-  it('Reset ballot when card write does not match card read.', async () => {
+  test('Reset ballot when card write does not match card read.', async () => {
     const card = new MemoryCard()
     const hardware = MemoryHardware.standard
     const storage = new MemoryStorage<AppStorage>()
@@ -127,7 +131,8 @@ describe('Mark Card Void when voter is idle too long', () => {
     advanceTimers(IDLE_RESET_TIMEOUT_SECONDS)
     getByText('Clearing ballot')
 
-    card.insertCard('all your base are belong to us')
+    // Insert Card with corrupted data.
+    card.insertCard('{"all": "your base are belong to us"}')
 
     // 30 seconds passes, Expect voided card
     await advanceTimersAndPromises()

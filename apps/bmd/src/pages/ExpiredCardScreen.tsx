@@ -2,20 +2,15 @@ import React, { useEffect } from 'react'
 import Prose from '../components/Prose'
 import Main, { MainChild } from '../components/Main'
 import Screen from '../components/Screen'
-import { PartialUserSettings } from '../config/types'
-import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
 
 interface Props {
-  setUserSettings: (partial: PartialUserSettings) => void
+  useEffectToggleLargeDisplay: () => void
 }
 
-const ExpiredCardScreen: React.FC<Props> = ({ setUserSettings }) => {
-  useEffect(() => {
-    setUserSettings({ textSize: LARGE_DISPLAY_FONT_SIZE })
-    return () => {
-      setUserSettings({ textSize: DEFAULT_FONT_SIZE })
-    }
-  }, [setUserSettings])
+const ExpiredCardScreen: React.FC<Props> = ({
+  useEffectToggleLargeDisplay,
+}: Props) => {
+  useEffect(useEffectToggleLargeDisplay, [])
 
   return (
     <Screen white>

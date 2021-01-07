@@ -25,7 +25,6 @@ test('renders PollWorkerScreen', async () => {
       electionDefinition={{ election, electionHash: 'test-hash' }}
       isPollsOpen
       isLiveMode={false}
-      isElectionDay={false}
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
@@ -38,7 +37,10 @@ test('renders PollWorkerScreen', async () => {
 })
 
 test('switching out of test mode on election day', async () => {
-  const election = electionSampleWithSeal as Election
+  const election = {
+    ...electionSampleWithSeal,
+    date: new Date().toISOString(),
+  } as Election
   const enableLiveMode = jest.fn()
   const { getByText } = render(
     <PollWorkerScreen
@@ -47,7 +49,6 @@ test('switching out of test mode on election day', async () => {
       electionDefinition={{ election, electionHash: 'test-hash' }}
       isPollsOpen
       isLiveMode={false}
-      isElectionDay
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
@@ -62,7 +63,10 @@ test('switching out of test mode on election day', async () => {
 })
 
 test('keeping test mode on election day', async () => {
-  const election = electionSampleWithSeal as Election
+  const election = {
+    ...electionSampleWithSeal,
+    date: new Date().toISOString(),
+  } as Election
   const enableLiveMode = jest.fn()
   const { getByText } = render(
     <PollWorkerScreen
@@ -71,7 +75,6 @@ test('keeping test mode on election day', async () => {
       electionDefinition={{ election, electionHash: 'test-hash' }}
       isPollsOpen
       isLiveMode={false}
-      isElectionDay
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
@@ -95,7 +98,6 @@ test('live mode on election day', async () => {
       electionDefinition={{ election, electionHash: 'test-hash' }}
       isPollsOpen
       isLiveMode
-      isElectionDay
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
