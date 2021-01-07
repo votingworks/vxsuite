@@ -1,21 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React, { useContext, useState, useEffect, useCallback } from 'react'
-import fileDownload from 'js-file-download'
 import pluralize from 'pluralize'
 import moment from 'moment'
 
-import { CastVoteRecordLists, InputEventFunction } from '../config/types'
+import { CastVoteRecordLists } from '../config/types'
 
 import {
   voteCountsByCategory,
   CVRCategorizerByPrecinct,
   CVRCategorizerByScanner,
 } from '../lib/votecounting'
-import ConverterClient from '../lib/ConverterClient'
 import * as format from '../utils/format'
 
 import AppContext from '../contexts/AppContext'
+import ConverterClient from '../lib/ConverterClient'
 
 import Button from '../components/Button'
 import FileInputButton from '../components/FileInputButton'
@@ -28,6 +27,7 @@ import LinkButton from '../components/LinkButton'
 import HorizontalRule from '../components/HorizontalRule'
 import Prose from '../components/Prose'
 import ImportCVRFilesModal from '../components/ImportCVRFilesModal'
+import ExportFinalResultsModal from '../components/ExportFinalResultsModal'
 import Modal from '../components/Modal'
 
 const TallyScreen: React.FC = () => {
@@ -45,6 +45,9 @@ const TallyScreen: React.FC = () => {
   const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
   const [isConfimingRemoveCVRs, setIsConfirmingRemoveCVRs] = useState(false)
   const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false)
+  const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
+    false
+  )
 
   const cancelConfirmingRemoveCVRs = () => {
     setIsConfirmingRemoveCVRs(false)
@@ -130,41 +133,6 @@ const TallyScreen: React.FC = () => {
     })()
   }, [])
 
-  const exportResults = async () => {
-    const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
-      .flat(1)
-      .map((c) => JSON.stringify(c))
-      .join('\n')
-
-    // process on the server
-    const client = new ConverterClient('results')
-    const { inputFiles, outputFiles } = await client.getFiles()
-    const [electionDefinitionFile, cvrFile] = inputFiles
-    const resultsFile = outputFiles[0]
-
-    await client.setInputFile(
-      electionDefinitionFile.name,
-      new File(
-        [electionDefinition!.electionData],
-        electionDefinitionFile.name,
-        {
-          type: 'application/json',
-        }
-      )
-    )
-    await client.setInputFile(
-      cvrFile.name,
-      new File([CastVoteRecordsString], 'cvrs')
-    )
-    await client.process()
-
-    // download the result
-    const results = await client.getOutputFile(resultsFile.name)
-    fileDownload(results, 'sems-results.csv', 'text/csv')
-
-    // reset server files
-    await client.reset()
-  }
   const fileMode = castVoteRecordFiles?.fileMode
   const fileModeText =
     fileMode === 'test'
@@ -389,7 +357,9 @@ const TallyScreen: React.FC = () => {
           <React.Fragment>
             <h2>Export Options</h2>
             <p>
-              <Button onPress={exportResults}>Export Results File</Button>
+              <Button onPress={() => setIsExportResultsModalOpen(true)}>
+                Save Results File
+              </Button>
             </p>
           </React.Fragment>
         )}
@@ -474,6 +444,10 @@ const TallyScreen: React.FC = () => {
       <ImportCVRFilesModal
         isOpen={isImportCVRModalOpen}
         onClose={() => setIsImportCVRModalOpen(false)}
+      />
+      <ExportFinalResultsModal
+        isOpen={isExportResultsModalOpen}
+        onClose={() => setIsExportResultsModalOpen(false)}
       />
     </React.Fragment>
   )
