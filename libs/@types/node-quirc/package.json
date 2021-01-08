@@ -1,0 +1,5 @@
+{
+  "name": "@types/node-quirc",
+  "version": "0.0.1-development",
+  "types": "node-quirc"
+}

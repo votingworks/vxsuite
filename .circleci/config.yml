@@ -143,14 +143,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/hmpb-interpreter/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd libs/hmpb-interpreter install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "libs/hmpb-interpreter/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
           paths:
+            - node_modules
             - libs/hmpb-interpreter/node_modules
       - run:
           name: Run Linters
