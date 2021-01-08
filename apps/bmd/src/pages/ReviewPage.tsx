@@ -1,6 +1,5 @@
 import pluralize from 'pluralize'
 import React, {
-  PointerEventHandler,
   useCallback,
   useContext,
   useEffect,
@@ -17,6 +16,7 @@ import {
 import { findPartyById } from '../utils/find'
 import {
   CandidateContestResultInterface,
+  EventTargetFunction,
   MsEitherNeitherContestResultInterface,
   Scrollable,
   ScrollDirections,
@@ -191,7 +191,7 @@ const ContestActions = styled.div`
     display: block;
   }
 `
-const NoSelection = () => (
+const NoSelection: React.FC = () => (
   <Text
     aria-label="You may still vote in this contest."
     bold
@@ -203,11 +203,11 @@ const NoSelection = () => (
   </Text>
 )
 
-const CandidateContestResult = ({
+const CandidateContestResult: React.FC<CandidateContestResultInterface> = ({
   contest,
   parties,
   vote = [],
-}: CandidateContestResultInterface) => {
+}) => {
   const remainingChoices = contest.seats - vote.length
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
@@ -240,7 +240,10 @@ const CandidateContestResult = ({
   )
 }
 
-const YesNoContestResult = ({ contest, vote }: YesNoContestResultInterface) => {
+const YesNoContestResult: React.FC<YesNoContestResultInterface> = ({
+  contest,
+  vote,
+}) => {
   const yesNo = getSingleYesNoVote(vote)
   return yesNo ? (
     <Text bold wordBreak voteIcon>
@@ -251,11 +254,11 @@ const YesNoContestResult = ({ contest, vote }: YesNoContestResultInterface) => {
   )
 }
 
-const MsEitherNeitherContestResult = ({
+const MsEitherNeitherContestResult: React.FC<MsEitherNeitherContestResultInterface> = ({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
-}: MsEitherNeitherContestResultInterface) => {
+}) => {
   const eitherNeitherVote = eitherNeitherContestVote?.[0]
   const pickOneVote = pickOneContestVote?.[0]
   return eitherNeitherVote || pickOneVote ? (
@@ -335,7 +338,7 @@ const ReviewPage: React.FC = () => {
     }
   }, [updateContestChoicesScrollStates])
 
-  const scrollContestChoices: PointerEventHandler /* istanbul ignore next: Tested by Cypress */ = (
+  const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset

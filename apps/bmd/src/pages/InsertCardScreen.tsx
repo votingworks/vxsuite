@@ -24,14 +24,14 @@ interface Props {
   showNoAccessibleControllerWarning: boolean
 }
 
-const ActivationScreen = ({
+const ActivationScreen: React.FC<Props> = ({
   appPrecinctId,
   electionDefinition,
   showNoChargerAttachedWarning,
   isLiveMode,
   isPollsOpen,
   showNoAccessibleControllerWarning,
-}: Props) => {
+}) => {
   return (
     <Screen flexDirection="row-reverse" white>
       <Sidebar>

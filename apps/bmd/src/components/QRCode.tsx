@@ -14,7 +14,7 @@ interface Props {
   value: string | Uint8Array
 }
 
-const QRCode = ({ value }: Props) => (
+const QRCode: React.FC<Props> = ({ value }) => (
   <ResponsiveSvgWrapper>
     <QRCodeReact renderAs="svg" value={value} level="H" />
   </ResponsiveSvgWrapper>

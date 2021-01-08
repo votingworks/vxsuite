@@ -8,7 +8,7 @@ import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 
-const NotFoundPage = (props: RouteComponentProps) => {
+const NotFoundPage: React.FC<RouteComponentProps> = (props) => {
   const { resetBallot } = useContext(BallotContext)
   const { pathname } = props.location
   const requestResetBallot = () => {

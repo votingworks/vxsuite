@@ -9,7 +9,7 @@ import isEmptyObject from '../utils/isEmptyObject'
 
 export const printerMessageTimeoutSeconds = 5
 
-const PrintPage = () => {
+const PrintPage: React.FC = () => {
   const {
     ballotStyleId,
     electionDefinition,

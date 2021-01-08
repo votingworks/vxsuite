@@ -1,7 +1,6 @@
 import { BehaviorSubject } from 'rxjs'
 
 // Disable `import/no-unresolved` because this module only exists for TypeScript.
-// eslint-disable-next-line import/no-unresolved
 export function fakeDevice(
   props: Partial<KioskBrowser.Device> = {}
 ): KioskBrowser.Device {

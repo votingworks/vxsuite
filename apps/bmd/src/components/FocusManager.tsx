@@ -21,7 +21,7 @@ export interface Props extends RouteComponentProps {
   screenReader: ScreenReader
 }
 
-const FocusManager = ({
+const FocusManager: React.FC<Props> = ({
   onKeyPress,
   onClick,
   onFocus,
@@ -31,7 +31,7 @@ const FocusManager = ({
   children,
   screenReader,
   location,
-}: Props) => {
+}) => {
   const screen = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
   useEffect(() => {
     const onPageLoad = () => {

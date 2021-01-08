@@ -25,6 +25,9 @@
     "@typescript-eslint/eslint-plugin": "^4.11.0"
   },
   "devDependencies": {
-    "@types/jquery": "^3.5.5"
+    "@babel/types": "^7.12.12",
+    "@codemod/cli": "^2.3.0",
+    "@types/jquery": "^3.5.5",
+    "prettier": "^2.2.1"
   }
 }

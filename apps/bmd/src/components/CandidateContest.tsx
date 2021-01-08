@@ -1,6 +1,5 @@
 import camelCase from 'lodash.camelcase'
 import React, {
-  PointerEventHandler,
   useCallback,
   useContext,
   useEffect,
@@ -230,7 +229,7 @@ const CandidateContest: React.FC<Props> = ({
     toggleWriteInCandidateModal(false)
   }
 
-  const onKeyboardInput: PointerEventHandler = (event) => {
+  const onKeyboardInput: EventTargetFunction = (event) => {
     const { key } = (event.target as HTMLElement).dataset
     setWriteInCandidateName((prevName) => {
       let newName = prevName
@@ -249,7 +248,7 @@ const CandidateContest: React.FC<Props> = ({
     writeInCandidateName.length >= WRITE_IN_CANDIDATE_MAX_LENGTH &&
     key !== '⌫ delete'
 
-  const scrollContestChoices: PointerEventHandler /* istanbul ignore next: Tested by Cypress */ = (
+  const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset

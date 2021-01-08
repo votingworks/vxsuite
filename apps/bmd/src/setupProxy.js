@@ -8,7 +8,7 @@
 
 const { createProxyMiddleware } = require('http-proxy-middleware')
 
-module.exports = function(app) {
+module.exports = function (app) {
   app.use(createProxyMiddleware('/card', { target: 'http://localhost:3001/' }))
 
   app.get('/machine-config', (req, res) => {

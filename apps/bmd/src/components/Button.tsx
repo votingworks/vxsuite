@@ -1,5 +1,6 @@
-import React, { MouseEventHandler, useState } from 'react'
+import React, { useState } from 'react'
 import styled, { css, StyledComponent } from 'styled-components'
+import { EventTargetFunction } from '../config/types'
 
 export interface ButtonInterface {
   readonly big?: boolean
@@ -47,14 +48,14 @@ const StyledButton = styled('button').attrs((props) => ({
 
 export interface Props extends StyledButtonProps {
   component?: StyledComponent<'button', never, StyledButtonProps, never>
-  onPress: MouseEventHandler
+  onPress: EventTargetFunction
 }
 
-const Button = ({
+const Button: React.FC<Props> = ({
   component: Component = StyledButton,
   onPress,
   ...rest
-}: Props) => {
+}) => {
   const [startCoordinates, setStartCoordinates] = useState([0, 0])
 
   const onTouchStart = (event: React.TouchEvent) => {
@@ -69,7 +70,7 @@ const Button = ({
       Math.abs(startCoordinates[0] - clientX) < maxMove &&
       Math.abs(startCoordinates[1] - clientY) < maxMove
     ) {
-      onPress(event as any)
+      onPress(event)
       event.preventDefault()
     }
   }

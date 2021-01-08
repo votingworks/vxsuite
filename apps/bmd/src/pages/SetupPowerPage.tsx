@@ -10,7 +10,7 @@ interface Props {
   setUserSettings: (partial: PartialUserSettings) => void
 }
 
-const SetupPowerPage = ({ setUserSettings }: Props) => {
+const SetupPowerPage: React.FC<Props> = ({ setUserSettings }) => {
   useEffect(() => {
     setUserSettings({ textSize: LARGE_DISPLAY_FONT_SIZE })
     return () => {

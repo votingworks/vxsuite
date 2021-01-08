@@ -14,7 +14,7 @@ const Instructions = styled.ol`
   text-align: left;
 `
 
-const CastBallotPage = () => (
+const CastBallotPage: React.FC = () => (
   <Screen white>
     <Main>
       <MainChild center maxWidth={false}>

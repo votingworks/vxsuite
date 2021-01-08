@@ -1,6 +1,11 @@
-import React, { PointerEventHandler } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import { SetUserSettings, TextSizeSetting, UserSettings } from '../config/types'
+import {
+  EventTargetFunction,
+  SetUserSettings,
+  TextSizeSetting,
+  UserSettings,
+} from '../config/types'
 import Button, { SegmentedButton } from './Button'
 import { FONT_SIZES } from '../config/globals'
 
@@ -42,8 +47,11 @@ interface Props {
   setUserSettings: SetUserSettings
 }
 
-const SettingsTextSize = ({ userSettings, setUserSettings }: Props) => {
-  const adjustFontSize: PointerEventHandler = (event) => {
+const SettingsTextSize: React.FC<Props> = ({
+  userSettings,
+  setUserSettings,
+}) => {
+  const adjustFontSize: EventTargetFunction = (event) => {
     const target = event.currentTarget as HTMLButtonElement
     const textSize = +target.value as TextSizeSetting
     setUserSettings({ textSize })

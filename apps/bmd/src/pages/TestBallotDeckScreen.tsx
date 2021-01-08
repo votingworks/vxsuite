@@ -1,4 +1,4 @@
-import React, { PointerEventHandler, useState } from 'react'
+import React, { useState } from 'react'
 import pluralize from 'pluralize'
 import {
   VotesDict,
@@ -7,7 +7,7 @@ import {
   ElectionDefinition,
 } from '@votingworks/ballot-encoder'
 
-import { AppModeNames } from '../config/types'
+import { AppModeNames, EventTargetFunction } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
@@ -124,7 +124,7 @@ const TestBallotDeckScreen: React.FC<Props> = ({
   const [ballots, setBallots] = useState<Ballot[]>([])
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
 
-  const selectPrecinct: PointerEventHandler = (event) => {
+  const selectPrecinct: EventTargetFunction = (event) => {
     const { id = '', name = '' } = (event.target as HTMLElement).dataset
     setPrecinct({ name, id })
     const selectedBallots = generateTestDeckBallots({

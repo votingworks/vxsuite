@@ -9,7 +9,7 @@ interface Props {
   setUserSettings: (partial: PartialUserSettings) => void
 }
 
-const ExpiredCardScreen = ({ setUserSettings }: Props) => {
+const ExpiredCardScreen: React.FC<Props> = ({ setUserSettings }) => {
   useEffect(() => {
     setUserSettings({ textSize: LARGE_DISPLAY_FONT_SIZE })
     return () => {

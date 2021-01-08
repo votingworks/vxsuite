@@ -33,16 +33,17 @@ export interface Props {
   screenReader?: ScreenReader
 }
 
-const App = ({
+const App: React.FC<Props> = ({
   screenReader = new AriaScreenReader(
     new SpeechSynthesisTextToSpeech(memoize(getUSEnglishVoice))
   ),
+
   card = new WebServiceCard(),
   storage = new LocalStorage<AppStorage>(),
   printer = getPrinter(),
   hardware = getHardware(),
   machineConfig = machineConfigProvider,
-}: Props) => {
+}) => {
   screenReader.mute()
 
   /* istanbul ignore next - need to figure out how to test this */

@@ -86,6 +86,7 @@ module.exports = {
     'no-plusplus': 'off',
     'no-return-await': 'off',
     'no-unused-vars': 'off', // base rule must be disabled as it can report incorrect errors: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
+    'no-unused-expressions': 'off',
     'no-use-before-define': 'off',
     '@typescript-eslint/no-unused-vars': ['error', {
       'vars': 'all'
@@ -104,7 +105,9 @@ module.exports = {
     'react/prop-types': 'off',
     strict: 0,
     '@typescript-eslint/explicit-function-return-type': 'off', // Want to use it, but it requires return types for all built-in React lifecycle methods.
+    '@typescript-eslint/explicit-module-boundary-types': 'error',
     '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-unused-expressions': 'error',
     '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
     'import/extensions': 'off',
     'no-restricted-syntax': [

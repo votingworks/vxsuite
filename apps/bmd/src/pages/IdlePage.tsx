@@ -1,9 +1,4 @@
-import React, {
-  useContext,
-  useEffect,
-  useState,
-  PointerEventHandler,
-} from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import pluralize from 'pluralize'
 import useInterval from 'use-interval'
 
@@ -19,6 +14,7 @@ import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Loading from '../components/Loading'
 import Screen from '../components/Screen'
+import { EventTargetFunction } from '../config/types'
 
 const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS
 
@@ -27,7 +23,7 @@ const IdlePage: React.FC = () => {
   const [countdown, setCountdown] = useState(timeoutSeconds)
   const [isLoading, setIsLoading] = useState(false)
 
-  const onPress: PointerEventHandler = () => {
+  const onPress: EventTargetFunction = () => {
     // do nothing
   }
 

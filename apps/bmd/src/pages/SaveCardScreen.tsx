@@ -7,7 +7,7 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import Loading from '../components/Loading'
 
-const SaveCardScreen = () => {
+const SaveCardScreen: React.FC = () => {
   const saveDelay = 2500
   const [progress, setProgress] = useState(0)
   const [done, setDone] = useState(false)

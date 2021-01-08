@@ -1,5 +1,4 @@
 import React, {
-  PointerEventHandler,
   useCallback,
   useContext,
   useEffect,
@@ -14,7 +13,11 @@ import {
   OptionalYesNoVote,
 } from '@votingworks/ballot-encoder'
 
-import { ScrollDirections, UpdateVoteFunction } from '../config/types'
+import {
+  EventTargetFunction,
+  ScrollDirections,
+  UpdateVoteFunction,
+} from '../config/types'
 
 import { FONT_SIZES } from '../config/globals'
 
@@ -67,12 +70,12 @@ interface Props {
   updateVote: UpdateVoteFunction
 }
 
-const MsEitherNeitherContest = ({
+const MsEitherNeitherContest: React.FC<Props> = ({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
   updateVote,
-}: Props) => {
+}) => {
   const { userSettings } = useContext(BallotContext)
   const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
   const [isScrollable, setIsScrollable] = useState(true)
@@ -84,11 +87,9 @@ const MsEitherNeitherContest = ({
   const showTopShadow = true
   const showBottomShadow = true
 
-  const handleUpdateEitherNeither = (
-    event: React.MouseEvent<HTMLInputElement>
-  ) => {
+  const handleUpdateEitherNeither: EventTargetFunction = (event) => {
     const currentVote = eitherNeitherContestVote?.[0]
-    const targetVote = event.currentTarget.dataset.choice
+    const targetVote = (event.currentTarget as HTMLElement).dataset.choice
     const newVote =
       currentVote === targetVote ? ([] as YesNoVote) : [targetVote]
     setDeselectedOption(
@@ -100,9 +101,9 @@ const MsEitherNeitherContest = ({
     )
     updateVote(contest.eitherNeitherContestId, newVote as YesNoVote)
   }
-  const handleUpdatePickOne = (event: React.MouseEvent<HTMLInputElement>) => {
+  const handleUpdatePickOne: EventTargetFunction = (event) => {
     const currentVote = pickOneContestVote?.[0]
-    const targetVote = event.currentTarget.dataset.choice
+    const targetVote = (event.currentTarget as HTMLElement).dataset.choice
     const newVote =
       currentVote === targetVote ? ([] as YesNoVote) : [targetVote]
     setDeselectedOption(
@@ -139,7 +140,7 @@ const MsEitherNeitherContest = ({
     setIsScrollAtTop(target.scrollTop === 0)
   }, [userSettings.textSize])
 
-  const scrollContestChoices: PointerEventHandler = /* istanbul ignore next: Tested by Cypress */ (
+  const scrollContestChoices: EventTargetFunction = /* istanbul ignore next: Tested by Cypress */ (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset

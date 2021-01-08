@@ -32,7 +32,7 @@ interface Props {
   enableLiveMode: () => void
 }
 
-const PollWorkerScreen = ({
+const PollWorkerScreen: React.FC<Props> = ({
   appPrecinctId,
   ballotsPrintedCount,
   electionDefinition,
@@ -44,7 +44,7 @@ const PollWorkerScreen = ({
   tally,
   togglePollsOpen,
   enableLiveMode,
-}: Props) => {
+}) => {
   const { election } = electionDefinition
   const precinct = election.precincts.find(
     (p) => p.id === appPrecinctId

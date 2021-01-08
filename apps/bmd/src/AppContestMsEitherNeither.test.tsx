@@ -51,7 +51,7 @@ test('Renders Ballot with EitherNeither: blank', () => {
       ),
     }
   )
-  const getByTextWithMarkup = withMarkup(getByText)
+  const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
     '[no selection]'
@@ -82,7 +82,7 @@ test('Renders Ballot with EitherNeither: Either & blank', () => {
       ),
     }
   )
-  const getByTextWithMarkup = withMarkup(getByText)
+  const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
     `• ${measure420Contest.eitherOption.label}`
@@ -116,7 +116,7 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', () => {
       ),
     }
   )
-  const getByTextWithMarkup = withMarkup(getByText)
+  const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
     `• ${measure420Contest.neitherOption.label}`
@@ -150,7 +150,7 @@ test('Renders Ballot with EitherNeither: blank & secondOption', () => {
       ),
     }
   )
-  const getByTextWithMarkup = withMarkup(getByText)
+  const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
     '• [no selection]'
