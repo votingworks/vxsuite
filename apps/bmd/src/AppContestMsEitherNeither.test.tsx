@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 import { Route } from 'react-router-dom'
 import {
   getBallotStyle,
@@ -191,7 +191,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   advanceTimers()
 
   // Go to First Contest
-  await wait(() => fireEvent.click(getByText('Start Voting')))
+  await waitFor(() => fireEvent.click(getByText('Start Voting')))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //

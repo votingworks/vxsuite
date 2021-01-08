@@ -1,4 +1,4 @@
-import { act, wait } from '@testing-library/react'
+import { act, waitFor } from '@testing-library/react'
 import {
   CandidateContest,
   electionSample as election,
@@ -186,5 +186,7 @@ export const advanceTimers = (seconds = 0): void => {
 
 export const advanceTimersAndPromises = async (seconds = 0): Promise<void> => {
   advanceTimers(seconds)
-  await wait()
+  await waitFor(() => {
+    // Wait for promises.
+  })
 }

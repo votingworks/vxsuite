@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, wait } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 
 import { electionSample } from '@votingworks/ballot-encoder'
 
@@ -69,13 +69,13 @@ describe('Displays setup warning messages and errors scrrens', () => {
     // Disconnect Accessible Controller
     hardware.setAccesssibleControllerConnected(false)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => getByText(accessibleControllerWarningText))
+    await waitFor(() => getByText(accessibleControllerWarningText))
     getByText(insertCardScreenText)
 
     // Reconnect Accessible Controller
     hardware.setAccesssibleControllerConnected(true)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => !queryByText(accessibleControllerWarningText))
+    await waitFor(() => !queryByText(accessibleControllerWarningText))
     getByText(insertCardScreenText)
   })
 
@@ -105,12 +105,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
     // Disconnect Card Reader
     hardware.setCardReaderConnected(false)
     advanceTimers()
-    await wait(() => getByText('Card Reader Not Detected'))
+    await waitFor(() => getByText('Card Reader Not Detected'))
 
     // Reconnect Card Reader
     hardware.setCardReaderConnected(true)
     advanceTimers()
-    await wait(() => getByText(insertCardScreenText))
+    await waitFor(() => getByText(insertCardScreenText))
   })
 
   it('Displays error screen if Printer connection is lost', async () => {
@@ -140,12 +140,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
     // Disconnect Printer
     hardware.setPrinterConnected(false)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => getByText('No Printer Detected'))
+    await waitFor(() => getByText('No Printer Detected'))
 
     // Reconnect Printer
     hardware.setPrinterConnected(true)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => getByText(vxPrintInsertCardScreenText))
+    await waitFor(() => getByText(vxPrintInsertCardScreenText))
   })
 
   it('Displays error screen if Power connection is lost', async () => {
@@ -175,12 +175,12 @@ describe('Displays setup warning messages and errors scrrens', () => {
     // Disconnect Power
     hardware.setBatteryDischarging(true)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => getByText(noPowerDetectedWarningText))
+    await waitFor(() => getByText(noPowerDetectedWarningText))
 
     // Reconnect Power
     hardware.setBatteryDischarging(false)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => !queryByText(noPowerDetectedWarningText))
+    await waitFor(() => !queryByText(noPowerDetectedWarningText))
     getByText(vxPrintInsertCardScreenText)
   })
 
@@ -250,18 +250,18 @@ describe('Displays setup warning messages and errors scrrens', () => {
     hardware.setBatteryDischarging(true)
     hardware.setBatteryLevel(0.6)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => getByText(noPowerDetectedWarningText))
+    await waitFor(() => getByText(noPowerDetectedWarningText))
     getByText(insertCardScreenText)
 
     // Battery level drains below low threshold
     hardware.setBatteryLevel(LOW_BATTERY_THRESHOLD / 2)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => getByTextWithMarkup(lowBatteryErrorScreenText))
+    await waitFor(() => getByTextWithMarkup(lowBatteryErrorScreenText))
 
     // Attach charger and back on Insert Card screen
     hardware.setBatteryDischarging(false)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-    await wait(() => !queryByText(noPowerDetectedWarningText))
+    await waitFor(() => !queryByText(noPowerDetectedWarningText))
     getByText(insertCardScreenText)
   })
 })

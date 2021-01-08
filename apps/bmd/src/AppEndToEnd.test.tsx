@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait, within } from '@testing-library/react'
+import { fireEvent, render, waitFor, within } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
 import { sha256 } from 'js-sha256'
 import * as GLOBALS from './config/globals'
@@ -141,14 +141,14 @@ it('VxMark+Print end-to-end flow', async () => {
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await waitFor(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 
   // Voter partially votes, remove card, and is on insert card screen.
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
-  await wait(() => getByText(/Center Springfield/))
+  await waitFor(() => getByText(/Center Springfield/))
   expect(queryByText(expectedElectionHash)).toBeNull()
   expect(
     within(getByTestId('election-info')).queryByText(
@@ -161,7 +161,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  await wait(() => getByText('Insert voter card to load ballot.'))
+  await waitFor(() => getByText('Insert voter card to load ballot.'))
 
   // ---------------
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
 
 import App from './App'
@@ -49,7 +49,7 @@ it('Refresh window and expect to be on same contest', async () => {
   advanceTimers()
 
   // Go to First Contest
-  await wait(() => fireEvent.click(getByText('Start Voting')))
+  await waitFor(() => fireEvent.click(getByText('Start Voting')))
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -64,7 +64,9 @@ it('Refresh window and expect to be on same contest', async () => {
 
   // advance time by CARD_LONG_VALUE_WRITE_DELAY to let background interval write to card
   advanceBy(1000)
-  await wait()
+  await waitFor(() => {
+    // nothing?
+  })
 
   unmount()
   ;({ getByText, unmount } = render(
@@ -79,7 +81,7 @@ it('Refresh window and expect to be on same contest', async () => {
   advanceTimers()
 
   // App is on first contest
-  await wait(() => getByText(presidentContest.title))
+  await waitFor(() => getByText(presidentContest.title))
 
   // First candidate selected
   expect(getByText(candidate0).closest('button')!.dataset.selected).toBe('true')
