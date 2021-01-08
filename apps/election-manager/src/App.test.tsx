@@ -46,8 +46,6 @@ const EITHER_NEITHER_CVRS = new File(
 
 jest.mock('./components/HandMarkedPaperBallot')
 
-type WriteFileOp = (path: string) => Promise<KioskBrowser.FileWriter>
-
 beforeEach(() => {
   // we don't care about network errors logged to the console, they're crowding things
   jest.spyOn(console, 'error').mockImplementation(() => {}) // eslint-disable-line @typescript-eslint/no-empty-function
@@ -134,9 +132,7 @@ it('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Close'))
 
   // Mock the file stream and export again
-  ;(mockKiosk.writeFile as WriteFileOp) = jest
-    .fn()
-    .mockResolvedValue(fakeFileWriter())
+  mockKiosk.writeFile = jest.fn().mockResolvedValue(fakeFileWriter())
   fireEvent.click(getByText('Export Ballot Package'))
   fireEvent.click(getByText('Export'))
   await screen.findByText(/Generating Ballot/)

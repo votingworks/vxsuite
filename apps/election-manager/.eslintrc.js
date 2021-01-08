@@ -32,6 +32,7 @@ module.exports = {
     fetchMock: true, // required if using via 'jest-fetch-mock'
     globalThis: true,
   },
+  reportUnusedDisableDirectives: true,
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
