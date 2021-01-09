@@ -6,8 +6,6 @@ import fakeFileWriter from '../../test/helpers/fakeFileWriter'
 const ZIP_MAGIC_BYTES = Buffer.of(0x50, 0x4b, 0x03, 0x04)
 const EMPTY_ZIP_MAGIC_BYTES = Buffer.of(0x50, 0x4b, 0x05, 0x06)
 
-type WriteFileOp = (path: string) => Promise<KioskBrowser.FileWriter>
-
 test('file prompt fails', async () => {
   const kiosk = fakeKiosk()
   const archive = new DownloadableArchive(kiosk)
@@ -53,9 +51,7 @@ test('empty zip file when file is saved directly and passes path to kiosk proper
   const fileWriter = fakeFileWriter()
 
   kiosk.makeDirectory.mockResolvedValueOnce()
-  ;(kiosk.writeFile as WriteFileOp) = jest
-    .fn()
-    .mockResolvedValueOnce(fileWriter)
+  kiosk.writeFile = jest.fn().mockResolvedValueOnce(fileWriter)
 
   expect(fileWriter.chunks).toHaveLength(0)
   await archive.beginWithDirectSave('/path/to/folder', 'file.zip')
