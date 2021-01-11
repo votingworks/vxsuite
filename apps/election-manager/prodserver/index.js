@@ -8,7 +8,7 @@
 const express = require('express')
 const path = require('path')
 
-const proxy = require('../client/src/setupProxy')
+const proxy = require('../src/setupProxy')
 const app = express()
 const port = 3000
 
@@ -19,9 +19,9 @@ app.use((req, res, next) => {
 
 proxy(app)
 
-app.use(express.static(path.join(__dirname, '../client/build')))
+app.use(express.static(path.join(__dirname, '../build')))
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'))
+  res.sendFile(path.join(__dirname, '../build/index.html'))
 })
 
 app.listen(port, () => console.log(`Election Manager listening on port ${port}!`))
