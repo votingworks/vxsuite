@@ -160,7 +160,7 @@ const initialCardState: Readonly<CardState> = {
   voterCardCreatedAt: 0,
 }
 
-const initialVoterState: UserState = {
+const initialVoterState: Readonly<UserState> = {
   ballotCreatedAt: 0,
   ballotStyleId: '',
   contests: [],
@@ -170,7 +170,7 @@ const initialVoterState: UserState = {
   votes: undefined,
 }
 
-const initialHardwareState: HardwareState = {
+const initialHardwareState: Readonly<HardwareState> = {
   hasAccessibleControllerAttached: false,
   hasCardReaderAttached: true,
   hasChargerAttached: true,
@@ -179,7 +179,7 @@ const initialHardwareState: HardwareState = {
   machineConfig: { appMode: VxMarkOnly, machineId: '0000' },
 }
 
-const initialSharedState: SharedState = {
+const initialSharedState: Readonly<SharedState> = {
   appPrecinctId: '',
   ballotsPrintedCount: 0,
   electionDefinition: undefined,
@@ -188,7 +188,7 @@ const initialSharedState: SharedState = {
   tally: [],
 }
 
-const initialOtherState: OtherState = {
+const initialOtherState: Readonly<OtherState> = {
   lastVoteUpdateAt: 0,
   lastVoteSaveToCardAt: 0,
   forceSaveVoteFlag: false,
@@ -196,13 +196,13 @@ const initialOtherState: OtherState = {
   lastCardDataString: '',
 }
 
-const initialUserState: InitialUserState = {
+const initialUserState: Readonly<InitialUserState> = {
   ...initialVoterState,
   ...initialCardState,
   ...initialSharedState,
 }
 
-const initialAppState: State = {
+const initialAppState: Readonly<State> = {
   ...initialUserState,
   ...initialHardwareState,
   ...initialOtherState,
