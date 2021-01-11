@@ -742,85 +742,84 @@ const AppRoot: React.FC<Props> = ({
     [card, optionalElectionDefinition]
   )
 
-  const [
-    startCardShortValueReadPolling,
-    stopCardShortValueReadPolling,
-  ] = useCallback(
-    useInterval(async () => {
-      const insertedCard = await card.readStatus()
-      if (pauseProcessingUntilNoCardPresent) {
-        if (insertedCard.present) {
-          return
-        }
-        dispatchAppState({ type: 'resumeCardProcessing' })
-      }
-
-      // we compare last card and current card without the longValuePresent flag
-      // otherwise when we first write the ballot to the card, it reprocesses it
-      // and may cause a race condition where an old ballot on the card
-      // overwrites a newer one in memory.
-      //
-      // TODO: embed a card dip UUID in the card data string so even an unlikely
-      // identical card swap within 200ms is always detected.
-      // https://github.com/votingworks/module-smartcards/issues/59
-      const cardCopy = {
-        ...insertedCard,
-        longValueExists: undefined, // override longValueExists (see above comment)
-      }
-      const currentCardDataString = JSON.stringify(cardCopy)
-      if (currentCardDataString === lastCardDataString) {
+  const cardShortValueReadInterval = useInterval(async () => {
+    const insertedCard = await card.readStatus()
+    if (pauseProcessingUntilNoCardPresent) {
+      if (insertedCard.present) {
         return
       }
-      dispatchAppState({
-        type: 'updateLastCardDataString',
-        currentCardDataString,
-      })
-
-      if (!insertedCard.present || !insertedCard.shortValue) {
-        resetBallot()
-        return
-      }
-
-      processCard(insertedCard)
-    }, GLOBALS.CARD_POLLING_INTERVAL),
+      dispatchAppState({ type: 'resumeCardProcessing' })
+    }
+    // we compare last card and current card without the longValuePresent flag
+    // otherwise when we first write the ballot to the card, it reprocesses it
+    // and may cause a race condition where an old ballot on the card
+    // overwrites a newer one in memory.
+    //
+    // TODO: embed a card dip UUID in the card data string so even an unlikely
+    // identical card swap within 200ms is always detected.
+    // https://github.com/votingworks/module-smartcards/issues/59
+    const cardCopy = {
+      ...insertedCard,
+      longValueExists: undefined, // override longValueExists (see above comment)
+    }
+    const currentCardDataString = JSON.stringify(cardCopy)
+    if (currentCardDataString === lastCardDataString) {
+      return
+    }
+    dispatchAppState({
+      type: 'updateLastCardDataString',
+      currentCardDataString,
+    })
+    if (!insertedCard.present || !insertedCard.shortValue) {
+      resetBallot()
+      return
+    }
+    processCard(insertedCard)
+  }, GLOBALS.CARD_POLLING_INTERVAL)
+  const startCardShortValueReadPolling = useCallback(
+    cardShortValueReadInterval[0],
+    [card]
+  )
+  const stopCardShortValueReadPolling = useCallback(
+    cardShortValueReadInterval[1],
     [card]
   )
 
-  const [startLongValueWritePolling] = useCallback(
-    useInterval(async () => {
-      if (
-        appState.isVoterCardPresent &&
-        appState.ballotStyleId &&
-        appState.precinctId &&
-        ((appState.lastVoteSaveToCardAt < appState.lastVoteUpdateAt &&
-          appState.lastVoteUpdateAt <
-            Date.now() - GLOBALS.CARD_LONG_VALUE_WRITE_DELAY) ||
-          appState.forceSaveVoteFlag) &&
-        !appState.writingVoteToCard
-      ) {
-        dispatchAppState({ type: 'startWritingLongValue' })
-        const { election } = appState.electionDefinition!
-        const ballot: CompletedBallot = {
-          ballotId: '',
-          ballotStyle: getBallotStyle({
-            election,
-            ballotStyleId: appState.ballotStyleId,
-          })!,
-          precinct: getPrecinctById({
-            election,
-            precinctId: appState.precinctId,
-          })!,
-          votes: appState.votes ?? blankBallotVotes,
-          isTestMode: !appState.isLiveMode,
-          ballotType: BallotType.Standard,
-        }
-        const longValue = encodeBallot(election, ballot)
-        await card.writeLongUint8Array(longValue)
-        dispatchAppState({ type: 'finishWritingLongValue' })
+  const longValueWriteInterval = useInterval(async () => {
+    if (
+      appState.isVoterCardPresent &&
+      appState.ballotStyleId &&
+      appState.precinctId &&
+      ((appState.lastVoteSaveToCardAt < appState.lastVoteUpdateAt &&
+        appState.lastVoteUpdateAt <
+          Date.now() - GLOBALS.CARD_LONG_VALUE_WRITE_DELAY) ||
+        appState.forceSaveVoteFlag) &&
+      !appState.writingVoteToCard
+    ) {
+      dispatchAppState({ type: 'startWritingLongValue' })
+      const { election } = appState.electionDefinition!
+      const ballot: CompletedBallot = {
+        ballotId: '',
+        ballotStyle: getBallotStyle({
+          election,
+          ballotStyleId: appState.ballotStyleId,
+        })!,
+        precinct: getPrecinctById({
+          election,
+          precinctId: appState.precinctId,
+        })!,
+        votes: appState.votes ?? blankBallotVotes,
+        isTestMode: !appState.isLiveMode,
+        ballotType: BallotType.Standard,
       }
-    }, GLOBALS.CARD_POLLING_INTERVAL),
-    [card]
-  )
+      const longValue = encodeBallot(election, ballot)
+      await card.writeLongUint8Array(longValue)
+      dispatchAppState({ type: 'finishWritingLongValue' })
+    }
+  }, GLOBALS.CARD_POLLING_INTERVAL)
+  const startLongValueWritePolling = useCallback(longValueWriteInterval[0], [
+    card,
+  ])
 
   const clearLongValue = useCallback(async () => {
     dispatchAppState({ type: 'startWritingLongValue' })
@@ -897,29 +896,32 @@ const AppRoot: React.FC<Props> = ({
     writeCard,
   ])
 
-  const [startHardwareStatusPolling, stopHardwareStatusPolling] = useCallback(
-    useInterval(
-      async () => {
-        const battery = await hardware.readBatteryStatus()
-        const newHasLowBattery = battery.level < GLOBALS.LOW_BATTERY_THRESHOLD
-        const hasHardwareStateChanged =
-          hasChargerAttached !== !battery.discharging ||
-          hasLowBattery !== newHasLowBattery
-        if (hasHardwareStateChanged) {
-          dispatchAppState({
-            type: 'updateHardwareState',
-            hardwareState: {
-              hasChargerAttached: !battery.discharging,
-              hasLowBattery: newHasLowBattery,
-            },
-          })
-        }
-      },
-      GLOBALS.HARDWARE_POLLING_INTERVAL,
-      true
-    ),
-    [hardware]
+  const hardwareStatusInterval = useInterval(
+    async () => {
+      const battery = await hardware.readBatteryStatus()
+      const newHasLowBattery = battery.level < GLOBALS.LOW_BATTERY_THRESHOLD
+      const hasHardwareStateChanged =
+        hasChargerAttached !== !battery.discharging ||
+        hasLowBattery !== newHasLowBattery
+      if (hasHardwareStateChanged) {
+        dispatchAppState({
+          type: 'updateHardwareState',
+          hardwareState: {
+            hasChargerAttached: !battery.discharging,
+            hasLowBattery: newHasLowBattery,
+          },
+        })
+      }
+    },
+    GLOBALS.HARDWARE_POLLING_INTERVAL,
+    true
   )
+  const startHardwareStatusPolling = useCallback(hardwareStatusInterval[0], [
+    hardware,
+  ])
+  const stopHardwareStatusPolling = useCallback(hardwareStatusInterval[1], [
+    hardware,
+  ])
 
   // Handle Hardware Observer Subscription
   useEffect(() => {
