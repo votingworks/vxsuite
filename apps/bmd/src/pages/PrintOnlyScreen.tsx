@@ -7,8 +7,7 @@ import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
-import { DEFAULT_FONT_SIZE, LARGE_DISPLAY_FONT_SIZE } from '../config/globals'
-import { MarkVoterCardFunction, PartialUserSettings } from '../config/types'
+import { MarkVoterCardFunction } from '../config/types'
 import { Printer } from '../utils/printer'
 import Text from '../components/Text'
 
@@ -39,7 +38,7 @@ interface Props {
   markVoterCardPrinted: MarkVoterCardFunction
   precinctId: string
   printer: Printer
-  setUserSettings: (partial: PartialUserSettings) => void
+  useEffectToggleLargeDisplay: () => void
   showNoChargerAttachedWarning: boolean
   updateTally: () => void
   votes?: VotesDict
@@ -56,7 +55,7 @@ const PrintOnlyScreen: React.FC<Props> = ({
   markVoterCardPrinted,
   precinctId,
   printer,
-  setUserSettings,
+  useEffectToggleLargeDisplay,
   showNoChargerAttachedWarning,
   updateTally,
   votes,
@@ -74,6 +73,9 @@ const PrintOnlyScreen: React.FC<Props> = ({
     isVoterCardPresent &&
     !isCardVotesEmpty &&
     !isPrinted
+
+  // Handle Font Size when voter card is present.
+  useEffect(useEffectToggleLargeDisplay, [isVoterCardPresent])
 
   const printBallot = useCallback(async () => {
     const isUsed = await markVoterCardPrinted()
@@ -107,12 +109,10 @@ const PrintOnlyScreen: React.FC<Props> = ({
   }, [isVoterCardPresent, okToPrint, setOkToPrint])
 
   useEffect(() => {
-    setUserSettings({ textSize: LARGE_DISPLAY_FONT_SIZE })
     return () => {
-      setUserSettings({ textSize: DEFAULT_FONT_SIZE })
       clearTimeout(printerTimer.current)
     }
-  }, [setUserSettings])
+  }, [])
 
   const renderContent = () => {
     if (isVoterCardPresent && isCardVotesEmpty) {

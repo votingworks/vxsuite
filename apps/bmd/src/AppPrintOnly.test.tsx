@@ -135,6 +135,7 @@ test('VxPrintOnly flow', async () => {
   // Set to Live Mode
   card.insertCard(adminCard, election)
   await advanceTimersAndPromises()
+  expect(window.document.documentElement.style.fontSize).toBe('28px')
   fireEvent.click(getByText('Live Election Mode'))
 
   // Remove card
@@ -162,6 +163,7 @@ test('VxPrintOnly flow', async () => {
   card.removeCard()
   await advanceTimersAndPromises()
   getByText('Insert Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Check Printed Ballots Count
   getAllByTextWithMarkup('Ballots Printed: 0')
@@ -172,11 +174,13 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(getExpiredVoterCard())
   await advanceTimersAndPromises()
   getByText('Expired Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
   getByText('Insert Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // ---------------
 
@@ -184,11 +188,13 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(getUsedVoterCard())
   await advanceTimersAndPromises()
   getByText('Used Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
   getByText('Insert Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // ---------------
 
@@ -196,11 +202,13 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
   getByText('Empty Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
   getByText('Insert Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // ---------------
 
@@ -231,11 +239,11 @@ test('VxPrintOnly flow', async () => {
   await advanceTimersAndPromises()
   getByText('Insert Card')
 
-  // font size should not have changed (regression check)
-  expect(window.document.documentElement.style.fontSize).toBe('48px')
-
   // Check Printed Ballots Count
   getAllByTextWithMarkup('Ballots Printed: 1')
+
+  // font size should not have changed (regression check)
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // ---------------
 

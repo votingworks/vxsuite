@@ -24,7 +24,7 @@ interface Props {
   showNoAccessibleControllerWarning: boolean
 }
 
-const ActivationScreen: React.FC<Props> = ({
+const InsertCardScreen: React.FC<Props> = ({
   appPrecinctId,
   electionDefinition,
   showNoChargerAttachedWarning,
@@ -81,4 +81,4 @@ const ActivationScreen: React.FC<Props> = ({
   )
 }
 
-export default ActivationScreen
+export default InsertCardScreen

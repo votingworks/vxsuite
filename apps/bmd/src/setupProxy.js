@@ -13,7 +13,7 @@ module.exports = function (app) {
 
   app.get('/machine-config', (req, res) => {
     res.json({
-      appMode: process.env.VX_APP_MODE || 'VxMark',
+      appModeName: process.env.VX_APP_MODE || 'VxMark',
       machineId: process.env.VX_MACHINE_ID || '000',
     })
   })

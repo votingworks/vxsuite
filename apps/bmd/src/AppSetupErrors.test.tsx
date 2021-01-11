@@ -264,38 +264,4 @@ describe('Displays setup warning messages and errors scrrens', () => {
     await wait(() => !queryByText(noPowerDetectedWarningText))
     getByText(insertCardScreenText)
   })
-
-  it('Cause hardware status polling to catch', async () => {
-    const card = new MemoryCard()
-    const storage = new MemoryStorage<AppStorage>()
-    const machineConfig = fakeMachineConfigProvider()
-    const hardware = MemoryHardware.standard
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
-    render(
-      <App
-        card={card}
-        hardware={hardware}
-        storage={storage}
-        machineConfig={machineConfig}
-      />
-    )
-
-    // Mock failed battery check
-    const readBatteryStatusMock = jest
-      .spyOn(hardware, 'readBatteryStatus')
-      .mockRejectedValue(new Error('NOPE'))
-
-    // Ensure polling interval time is passed
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-
-    // Expect that hardware status was called once
-    expect(readBatteryStatusMock).toHaveBeenCalledTimes(1)
-
-    // Ensure hardware status interval time is passed again
-    advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
-
-    // Expect that hardware status has not been called again
-    expect(readBatteryStatusMock).toHaveBeenCalledTimes(1)
-  })
 })
