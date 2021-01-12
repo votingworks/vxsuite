@@ -149,9 +149,10 @@ export async function getBallotImageData(
 /**
  * Determine if a sheet needs adjudication.
  */
-export function sheetRequiresAdjudication([front, back]: SheetOf<
-  PageInterpretation
->): boolean {
+export function sheetRequiresAdjudication([
+  front,
+  back,
+]: SheetOf<PageInterpretation>): boolean {
   if (
     front.type === 'InterpretedBmdPage' ||
     back.type === 'InterpretedBmdPage'
