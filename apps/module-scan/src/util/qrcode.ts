@@ -5,7 +5,6 @@ import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import jsQR from 'jsqr'
 import { decode as quircDecode, QRCode } from 'node-quirc'
-import { toPNG } from './images'
 import { time } from './perf'
 
 const debug = makeDebug('module-scan:qrcode')
@@ -97,7 +96,7 @@ export const detectQRCode = async (
     {
       name: 'quirc',
       detect: async (imageData: ImageData): Promise<Buffer[]> => {
-        const results = await quircDecode(await toPNG(imageData))
+        const results = await quircDecode(imageData)
         return results
           .filter((result): result is QRCode => !('err' in result))
           .map((result) => result.data)
