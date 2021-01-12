@@ -38,9 +38,9 @@ declare module 'node-quirc' {
     err: string
   }
 
-  export function decode(img: Buffer): Promise<DecodeResult>
+  export function decode(img: Buffer | ImageData): Promise<DecodeResult>
   export function decode(
-    img: Buffer,
+    img: Buffer | ImageData,
     callback: (err: Error, results: DecodeResult) => void
   ): Promise<DecodeResult>
 }
