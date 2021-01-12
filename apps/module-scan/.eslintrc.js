@@ -79,17 +79,5 @@ module.exports = {
         'import/no-extraneous-dependencies': 'off',
       },
     },
-    {
-      files: 'public/**/*.js',
-      globals: {
-        React: true,
-        ReactDOM: true,
-        h: true,
-      },
-      rules: {
-        'import/extensions': 'off',
-        '@typescript-eslint/explicit-function-return-type': 'off',
-      },
-    },
   ],
 }
