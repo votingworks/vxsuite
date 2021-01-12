@@ -6,6 +6,7 @@ import {
   Parties,
 } from '@votingworks/ballot-encoder'
 
+import { act } from 'react-dom/test-utils'
 import CandidateContest from './CandidateContest'
 
 const parties: Parties = [0, 1].map((i) => ({
@@ -35,6 +36,8 @@ const candidate2 = contest.candidates[2]
 
 describe('supports single-seat contest', () => {
   it('allows any candidate to be selected when no candidate is selected', () => {
+    jest.useFakeTimers()
+
     const updateVote = jest.fn()
     const { container, getByText } = render(
       <CandidateContest
@@ -54,9 +57,15 @@ describe('supports single-seat contest', () => {
 
     fireEvent.click(getByText(candidate2.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(3)
+
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
   })
 
-  it("doesn't allow other candidates to be selected when a candidate is selected", () => {
+  it("doesn't allow other candidates to be selected when a candidate is selected", async () => {
+    jest.useFakeTimers()
+
     const updateVote = jest.fn()
     const { container, getByText } = render(
       <CandidateContest
@@ -80,6 +89,10 @@ describe('supports single-seat contest', () => {
 
     fireEvent.click(getByText(candidate0.name).closest('button')!)
     expect(updateVote).toHaveBeenCalled()
+
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
   })
 })
 
@@ -114,12 +127,17 @@ describe('supports multi-seat contests', () => {
 
     fireEvent.click(getByText(candidate0.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(3)
+
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
   })
 })
 
 describe('supports write-in candidates', () => {
   it('updates votes when a write-in candidate is selected', () => {
     jest.useFakeTimers()
+
     const updateVote = jest.fn()
     const { getByText, queryByText } = render(
       <CandidateContest
@@ -138,10 +156,15 @@ describe('supports write-in candidates', () => {
     expect(updateVote).toHaveBeenCalledWith(contest.id, [
       { id: 'write-in__lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
     ])
+
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
   })
 
   it('displays warning if write-in candidate name is too long', () => {
     jest.useFakeTimers()
+
     const updateVote = jest.fn()
     const { getByText, queryByText } = render(
       <CandidateContest
@@ -160,10 +183,15 @@ describe('supports write-in candidates', () => {
     getByText('You have entered 37 of maximum 40 characters.')
     fireEvent.click(getByText('Cancel'))
     expect(queryByText('Write-In Candidate')).toBeFalsy()
+
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
   })
 
   it('prevents writing more than the allowed number of characters', () => {
     jest.useFakeTimers()
+
     const updateVote = jest.fn()
     const { getByText, queryByText } = render(
       <CandidateContest
@@ -193,6 +221,10 @@ describe('supports write-in candidates', () => {
         name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
       },
     ])
+
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
   })
 
   function typeKeysInVirtualKeyboard(

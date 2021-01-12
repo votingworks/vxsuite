@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait, act } from '@testing-library/react'
+import { fireEvent, render, act, waitFor } from '@testing-library/react'
 
 import App from './App'
 
@@ -47,7 +47,7 @@ it('Single Seat Contest', async () => {
   advanceTimers()
 
   // Go to First Contest
-  await wait(() => fireEvent.click(getByText('Start Voting')))
+  await waitFor(() => fireEvent.click(getByText('Start Voting')))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //

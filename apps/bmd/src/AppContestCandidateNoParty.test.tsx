@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 
 import { Election } from '@votingworks/ballot-encoder'
 import App from './App'
@@ -67,7 +67,7 @@ it('Single Seat Contest', async () => {
   advanceTimers()
 
   // Go to First Contest
-  await wait(() => fireEvent.click(getByText('Start Voting')))
+  await waitFor(() => fireEvent.click(getByText('Start Voting')))
   advanceTimers()
 
   // ====================== END CONTEST SETUP ====================== //

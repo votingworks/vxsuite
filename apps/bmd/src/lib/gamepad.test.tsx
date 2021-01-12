@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 
 import App from '../App'
 
@@ -47,7 +47,7 @@ it('gamepad controls work', async () => {
 
   card.insertCard(getNewVoterCard())
   advanceTimers()
-  await wait(() => getByText(/Center Springfield/))
+  await waitFor(() => getByText(/Center Springfield/))
 
   // Go to First Contest
   handleGamepadButtonDown('DPadRight')

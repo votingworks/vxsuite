@@ -1,4 +1,4 @@
-import { wait } from '@testing-library/react'
+import { waitFor } from '@testing-library/react'
 import IntervalPoller from './IntervalPoller'
 
 describe('IntervalPoller', () => {
@@ -14,8 +14,9 @@ describe('IntervalPoller', () => {
     jest.advanceTimersByTime(10)
     expect(callback).toHaveBeenCalledTimes(1)
 
-    // Wait for promises to resolve in timeout.
-    await wait()
+    await waitFor(() => {
+      // Wait for promises to resolve in timeout.
+    })
 
     jest.advanceTimersByTime(10)
     expect(callback).toHaveBeenCalledTimes(2)
@@ -75,8 +76,9 @@ describe('IntervalPoller', () => {
     // Stop polling.
     poller.stop()
 
-    // Give the async-aware callback handler time to resolve.
-    await wait()
+    await waitFor(() => {
+      // Give the async-aware callback handler time to resolve.
+    })
 
     // Give it time to fire again, if there's a bug.
     jest.advanceTimersByTime(10)

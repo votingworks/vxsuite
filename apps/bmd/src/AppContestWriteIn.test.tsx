@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, wait, within } from '@testing-library/react'
+import { fireEvent, render, waitFor, within } from '@testing-library/react'
 
 import App from './App'
 
@@ -131,7 +131,7 @@ it('Single Seat Contest with Write In', async () => {
   }
 
   // Review Screen
-  await wait(() => getByText('Review Your Votes'))
+  await waitFor(() => getByText('Review Your Votes'))
   expect(getByText('SAL')).toBeTruthy()
   expect(getByText('(write-in)')).toBeTruthy()
 
@@ -144,5 +144,5 @@ it('Single Seat Contest with Write In', async () => {
 
   // Printer has new job
   advanceTimers()
-  await wait(() => expect(printer.print).toHaveBeenCalledTimes(1))
+  await waitFor(() => expect(printer.print).toHaveBeenCalledTimes(1))
 })
