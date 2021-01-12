@@ -4,6 +4,7 @@
   "workspaces": {
     "packages": [
       "apps/bmd",
+      "apps/election-manager",
       "libs/ballot-encoder",
       "libs/eslint-plugin-no-array-sort-mutation",
       "libs/hmpb-interpreter",
@@ -13,6 +14,7 @@
       "**/@types/mocha",
       "**/@types/react-native",
       "**/@types/react-reouter-dom",
+      "**/babel-eslint",
       "**/babel-jest",
       "**/babel-loader",
       "**/jest",

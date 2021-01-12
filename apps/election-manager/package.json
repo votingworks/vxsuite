@@ -3,19 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "react-scripts build",
-    "eject": "react-scripts eject",
+    "build": "script/react-scripts build",
+    "eject": "script/react-scripts eject",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
-    "lint:fix": "tsc --noEmit && eslint '*/**/*.{js,jsx,ts,tsx}' --fix --quiet && yarn stylelint:run --fix",
-    "start": "react-scripts start",
+    "lint": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && yarn stylelint:run",
+    "lint:fix": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --fix --quiet && yarn stylelint:run --fix",
+    "start": "script/react-scripts start",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
-    "test": "react-scripts test --env=jest-environment-jsdom-sixteen",
+    "test": "script/react-scripts test --env=jest-environment-jsdom-sixteen",
     "test:coverage": "yarn test --coverage --watchAll=false"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "tsc && lint-staged"
+      "pre-commit": "tsc --build && lint-staged"
     }
   },
   "lint-staged": {
@@ -117,21 +117,21 @@
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
     "eslint-config-airbnb": "^17.1.1",
-    "eslint-config-prettier": "^6.10.0",
+    "eslint-config-prettier": "^7.1.0",
     "eslint-config-react-app": "^5.2.1",
     "eslint-plugin-cypress": "^2.9.0",
     "eslint-plugin-flowtype": "^5.2.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jest": "^23.6.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-no-array-sort-mutation": "../../libs/eslint-plugin-no-array-sort-mutation",
-    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-no-array-sort-mutation": "^1.0.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^4.0.5",
     "husky": "^4.2.1",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "lint-staged": "^10.0.7",
-    "prettier": "^2.0.5",
+    "prettier": "^2.2.1",
     "react-test-renderer": "^16.13.1",
     "sort-package-json": "^1.44.0",
     "stylelint": "^13.1.0",

@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert'
+import * as assert from 'assert'
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { useInterval } from 'use-interval'
 import { RouteComponentProps } from 'react-router-dom'
@@ -56,7 +56,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
 
     if (electionDefinition) {
       const { electionData, electionHash } = electionDefinition
-      assert.equal(sha256(electionData), electionHash)
+      assert.strictEqual(sha256(electionData), electionHash)
       return electionDefinition
     }
   }, [storage])

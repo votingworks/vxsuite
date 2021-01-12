@@ -118,14 +118,15 @@ jobs:
       - checkout
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
       - run:
           name: Setup Dependencies
           command: yarn --cwd apps/election-manager install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
           paths:
+            - node_modules
             - apps/election-manager/node_modules
       - run:
           name: Run Linters

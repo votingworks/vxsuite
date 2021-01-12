@@ -1,0 +1,67 @@
+#!/usr/bin/env node
+
+/**
+ * Wrapper script around `react-scripts` to ensure monorepo dependencies are
+ * built before running and are watched to build on change.
+ */
+
+// @ts-check
+
+const ora = require('ora')
+const { spawn } = require('child_process')
+
+/**
+ * @param {() => void} onCompile
+ * @returns {import('child_process').ChildProcess}
+ */
+function watchCompileTS(onCompile) {
+  const tsc = spawn('yarn', ['--silent', 'tsc', '--build', '--watch'], {
+    stdio: 'pipe',
+  })
+
+  tsc.stdout.setEncoding('utf-8')
+
+  tsc.stdout.on(
+    'data',
+    /** @param {string} chunk */ (chunk) => {
+      if (/Found \d+ errors?\. Watching for file changes\./.test(chunk)) {
+        onCompile()
+      }
+    }
+  )
+
+  return tsc
+}
+
+/**
+ * @param {string[]} args
+ * @returns {import('child_process').ChildProcess}
+ */
+function runApp(args) {
+  const app = spawn('yarn', ['--silent', 'react-scripts', ...args], {
+    stdio: 'inherit',
+  })
+
+  return app
+}
+
+const spinner = ora('Running initial build…').start()
+let app
+const tsc = watchCompileTS(() => {
+  if (!app) {
+    spinner.stop()
+    app = runApp(process.argv.slice(2))
+
+    app.on('exit', (code) => {
+      process.exit(code)
+    })
+  }
+})
+
+process.on('exit', () => {
+  tsc.kill()
+
+  if (app) {
+    app.kill()
+  }
+})
