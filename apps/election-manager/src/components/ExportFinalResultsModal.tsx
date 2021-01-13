@@ -110,6 +110,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({
           }
 
           await fileWriter.write(await results.text())
+          setSavedFilename(fileWriter.filename)
           await fileWriter.end()
         } else {
           await window.kiosk!.writeFile(pathToFile, await results.text())
@@ -158,15 +159,16 @@ const ExportFinalResultsModal: React.FC<Props> = ({
         isOpen={isOpen}
         content={
           <Prose>
-            <h1>Results Saved</h1>
+            <h1>Results File Saved</h1>
+            <p>You may now eject the USB drive.</p>
             <p>
-              Results file succesfully saved{' '}
+              Results file successfully saved{' '}
               {savedFilename !== '' && (
                 <span>
                   as <strong>{savedFilename}</strong>
                 </span>
               )}{' '}
-              directly on the inserted USB drive. You may now eject the USB.
+              directly on the inserted USB drive.
             </p>
           </Prose>
         }
@@ -180,7 +182,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({
     return (
       <Modal
         isOpen={isOpen}
-        content={<Loading>Saving</Loading>}
+        content={<Loading>Saving Results File</Loading>}
         onOverlayClick={onClose}
       />
     )
@@ -252,7 +254,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({
           content={
             <MainChild>
               <Prose>
-                <h1>Save Results</h1>
+                <h1>Save Results File</h1>
                 <p>
                   Save the final tally results to{' '}
                   <strong>{defaultFilename}</strong> directly on the inserted

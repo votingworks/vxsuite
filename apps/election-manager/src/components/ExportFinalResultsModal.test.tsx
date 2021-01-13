@@ -88,7 +88,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
       usbDriveStatus: UsbDriveStatus.mounted,
     }
   )
-  getByText('Save Results')
+  getByText('Save Results File')
   getByText(/Save the final tally results to /)
   getByText(
     'votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-03-14_01-59-26.csv'
@@ -97,7 +97,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   fireEvent.click(getByText('Save'))
   await waitFor(() => getByText(/Saving/))
   jest.advanceTimersByTime(2001)
-  await waitFor(() => getByText(/Results Saved/))
+  await waitFor(() => getByText(/Results File Saved/))
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1)
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
@@ -133,7 +133,7 @@ test('render export modal with errors when appropriate and clears errors when cl
       usbDriveStatus: UsbDriveStatus.mounted,
     }
   )
-  getByText('Save Results')
+  getByText('Save Results File')
 
   fireEvent.click(getByText('Save'))
   await waitFor(() => getByText(/Saving Results Failed/))
@@ -142,5 +142,5 @@ test('render export modal with errors when appropriate and clears errors when cl
 
   fireEvent.click(getByText('Close'))
   expect(closeFn).toHaveBeenCalled()
-  getByText('Save Results') // Closing should reset back to the starting export screen
+  getByText('Save Results File') // Closing should reset back to the starting export screen
 })

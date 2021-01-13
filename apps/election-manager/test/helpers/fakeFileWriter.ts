@@ -9,6 +9,7 @@ export default function fakeFileWriter(): jest.Mocked<
       chunks.push(chunk)
     }),
     end: jest.fn().mockResolvedValue(undefined),
+    filename: '',
     chunks,
   }
 
