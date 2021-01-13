@@ -361,7 +361,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({
         className="import-cvr-modal"
         content={
           <MainChild>
-            <Prose>
+            <Prose maxWidth={false}>
               <Header>Import {headerModeText} CVR Files </Header>
               <p>{instructionalText}</p>
             </Prose>
