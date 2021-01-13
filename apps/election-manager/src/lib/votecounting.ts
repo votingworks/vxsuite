@@ -455,9 +455,9 @@ export const getContestTallyMeta = ({
     })
   })
 
-  return expandEitherNeitherContests(election.contests).reduce<
-    ContestTallyMetaDictionary
-  >((dictionary, contest) => {
+  return expandEitherNeitherContests(
+    election.contests
+  ).reduce<ContestTallyMetaDictionary>((dictionary, contest) => {
     const contestCVRs = filteredCVRs.filter(
       (cvr) => cvr[contest.id] !== undefined
     )

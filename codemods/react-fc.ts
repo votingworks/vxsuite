@@ -30,7 +30,7 @@
  * 
  * ```sh
  * # Run on all of `src/`:
- * $ yarn codemod -p codemods/react-fc.ts --printer prettier src/
+ * $ pnpx codemod -p codemods/react-fc.ts --printer prettier src/
  * ```
  */
 

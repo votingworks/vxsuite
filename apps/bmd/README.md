@@ -11,7 +11,7 @@ demo url which can be found in the comments of the pull request.
 
 ## Install and Run App Locally
 
-This assumes you have `git` and `yarn` installed.
+This assumes you have `git` and `pnpm` installed.
 
 1. Clone the repo:
 
@@ -22,20 +22,20 @@ This assumes you have `git` and `yarn` installed.
 2. Install dependencies:
 
    ```sh
-   yarn install
+   pnpm install
    ```
 
 3. Run the app in your local browser:
 
    ```sh
    # Run VxMark by default
-   yarn start
+   pnpm start
 
    # Or run VxPrint
-   VX_APP_MODE=VxPrint yarn start
+   VX_APP_MODE=VxPrint pnpm start
 
    # Or run VxMark + VxPrint
-   VX_APP_MODE="VxMark + VxPrint" yarn start
+   VX_APP_MODE="VxMark + VxPrint" pnpm start
    ```
 
 ## Contributing
@@ -68,13 +68,13 @@ help you contribute.
 1. Run the app:
 
    ```
-   yarn start
+   pnpm start
    ```
 
 1. In a second console window, run the tests:
 
    ```
-   yarn test
+   pnpm test
    ```
 
    Tests default to watch-mode: only tests related to changed code will run. Use
@@ -88,8 +88,8 @@ help you contribute.
    commands which are found in the `package.json` scripts:
 
    ```
-   yarn lint
-   yarn format
+   pnpm lint
+   pnpm format
    ```
 
    **Using Visual Studio Code?** Autorun linting and code formatting by
@@ -105,7 +105,7 @@ help you contribute.
    run all the tests and check for test coverage. To check this yourself, run:
 
    ```
-   yarn test:coverage
+   pnpm test:coverage
    ```
 
    In the root of the project there is a `coverage` directory. Open
@@ -120,10 +120,10 @@ help you contribute.
 
 ## Local Development Scripts
 
-- `yarn install` - Install the dependencies.
-- `yarn start` - Run the app locally.
-- `yarn test`- Run tests in interactive mode.
-- `yarn test:coverage` - Run all tests and update test coverage report.
+- `pnpm install` - Install the dependencies.
+- `pnpm start` - Run the app locally.
+- `pnpm test`- Run tests in interactive mode.
+- `pnpm test:coverage` - Run all tests and update test coverage report.
 
 See `package.json` for all available scripts.
 

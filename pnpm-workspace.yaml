@@ -1,0 +1,12 @@
+packages:
+  # include all the apps and their prodservers
+  - 'apps/*'
+  - 'apps/*/prodserver'
+
+  # TODO: remove this after figuring out the problem
+  # module-scan has an issue with ts-node & child_process with newer deps.
+  - '!apps/module-scan'
+
+  # include all the libraries and our custom types
+  - 'libs/*'
+  - 'libs/@types/*'

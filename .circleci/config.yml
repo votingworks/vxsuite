@@ -13,154 +13,85 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout
-      - restore_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
-      - run:
-          name: Setup Dependencies
-          command: yarn --cwd libs/ballot-encoder install --frozen-lockfile
-      - save_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-            - libs/ballot-encoder/node_modules
+      - checkout-and-install
       - run:
           name: Run Linters
           command: |
-            yarn --cwd libs/ballot-encoder lint
+            pnpm --dir libs/ballot-encoder lint
       - run:
           name: Run Front-End Test and Coverage
           command: |
-            yarn --cwd libs/ballot-encoder test:coverage
+            pnpm --dir libs/ballot-encoder test:coverage
 
   test-bas:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
-      - checkout
-      - restore_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
-      - run:
-          name: Setup Dependencies
-          command: yarn --cwd apps/bas install --frozen-lockfile
-      - save_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bas/yarn.lock" }}
-          paths:
-            - apps/bas/node_modules
+      - checkout-and-install
       - run:
           name: Run Linters
           command: |
-            yarn --cwd apps/bas lint
+            pnpm --dir apps/bas lint
       - run:
           name: Run Front-End Test and Coverage
           command: |
-            yarn --cwd apps/bas test:coverage
+            pnpm --dir apps/bas test:coverage
 
   test-bmd:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
-      - checkout
-      - restore_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
-      - run:
-          name: Setup Dependencies
-          command: yarn --cwd apps/bmd install --frozen-lockfile
-      - save_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-            - apps/bmd/node_modules
+      - checkout-and-install
       - run:
           name: Run Linters
           command: |
-            yarn --cwd apps/bmd lint
+            pnpm --dir apps/bmd lint
       - run:
           name: Run Front-End Test and Coverage
           command: |
-            yarn --cwd apps/bmd test:coverage
+            pnpm --dir apps/bmd test:coverage
 
   test-bsd:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
-      - checkout
-      - restore_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bsd/yarn.lock" }}
-      - run:
-          name: Setup Dependencies
-          command: yarn --cwd apps/bsd install --frozen-lockfile
-      - save_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/bsd/yarn.lock" }}
-          paths:
-            - apps/bsd/node_modules
+      - checkout-and-install
       - run:
           name: Run Linters
           command: |
-            yarn --cwd apps/bsd lint
+            pnpm --dir apps/bsd lint
       - run:
           name: Run Front-End Test and Coverage
           command: |
-            yarn --cwd apps/bsd test:coverage
+            pnpm --dir apps/bsd test:coverage
 
   test-election-manager:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
-      - checkout
-      - restore_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
-      - run:
-          name: Setup Dependencies
-          command: yarn --cwd apps/election-manager install --frozen-lockfile
-      - save_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/election-manager/yarn.lock" }}
-          paths:
-            - apps/election-manager/node_modules
+      - checkout-and-install
       - run:
           name: Run Linters
           command: |
-            yarn --cwd apps/election-manager lint
+            pnpm --dir apps/election-manager lint
       - run:
           name: Run Front-End Test and Coverage
           command: |
-            yarn --cwd apps/election-manager test:coverage
+            pnpm --dir apps/election-manager test:coverage
 
   test-hmpb-interpreter:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout
-      - restore_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
-      - run:
-          name: Setup Dependencies
-          command: yarn --cwd libs/hmpb-interpreter install --frozen-lockfile
-      - save_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-            - libs/hmpb-interpreter/node_modules
+      - checkout-and-install
       - run:
           name: Run Linters
           command: |
-            yarn --cwd libs/hmpb-interpreter lint
+            pnpm --dir libs/hmpb-interpreter lint
       - run:
           name: Run Tests with Coverage
           command: |
-            yarn --cwd libs/hmpb-interpreter test:coverage
+            pnpm --dir libs/hmpb-interpreter test:coverage
 
   test-module-scan:
     executor: nodejs
@@ -218,3 +149,33 @@ workflows:
       - test-hmpb-interpreter
       - test-module-scan
       - test-module-smartcards
+
+commands:
+  checkout-and-install:
+    description: Get the code and install dependencies.
+    steps:
+      - run:
+          name: Install pnpm
+          command: |
+            curl -L https://unpkg.com/@pnpm/self-installer | sudo node
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Setup Dependencies
+          command: pnpm install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - node_modules
+            - apps/bas/node_modules
+            - apps/bmd/node_modules
+            - apps/bsd/node_modules
+            - apps/election-manager/node_modules
+            - libs/ballot-encoder/node_modules
+            - libs/eslint-plugin-no-array-sort-mutation/node_modules
+            - libs/hmpb-interpreter/node_modules
+            - libs/@types/jsfeat/node_modules
+            - libs/@types/node-quirc/node_modules

@@ -6,12 +6,10 @@ Interprets VotingWorks ballots marked by hand and scanned into images.
 
 ```sh
 # Local install for API usage.
-$ yarn add @votingworks/hmpb-interpreter
-$ npm install @votingworks/hmpb-interpreter # or, with npm
+$ npm install @votingworks/hmpb-interpreter
 
 # Global install for CLI usage, or just use `npx hmpb-interpreter`.
-$ yarn global add @votingworks/hmpb-interpreter
-$ npm install -g @votingworks/hmpb-interpreter # or, with npm
+$ npm install -g @votingworks/hmpb-interpreter
 ```
 
 ## API Usage

@@ -9,7 +9,7 @@ demo url which can be found in the comments of the pull request.
 
 ## Install and Run App Locally
 
-This assumes you have `git` and `yarn` installed.
+This assumes you have `git` and `pnpm` installed.
 
 1. Clone the repo:
 
@@ -20,13 +20,13 @@ This assumes you have `git` and `yarn` installed.
 2. Install dependencies:
 
    ```
-   yarn install
+   pnpm install
    ```
 
 3. Run the app in your local browser:
 
    ```
-   yarn start
+   pnpm start
    ```
 
 ## Contributing
@@ -35,11 +35,11 @@ TBD
 
 ## Local Development Scripts
 
-- `yarn install` - Install the dependencies.
-- `yarn start` - Run the app locally.
-- `yarn test`- Run tests in interactive mode.
-- `yarn lint` - lint and format JavaScript & TypeScript
-- `yarn format` - format other files (non JavaScript & TypeScript files)
+- `pnpm install` - Install the dependencies.
+- `pnpm start` - Run the app locally.
+- `pnpm test`- Run tests in interactive mode.
+- `pnpm lint` - lint and format JavaScript & TypeScript
+- `pnpm format` - format other files (non JavaScript & TypeScript files)
 
 See `package.json` for all available scripts.
 

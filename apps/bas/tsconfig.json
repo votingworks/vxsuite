@@ -25,5 +25,8 @@
   ],
   "include": [
     "src"
+  ],
+  "references": [
+    { "path": "../../libs/ballot-encoder" }
   ]
 }

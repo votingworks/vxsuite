@@ -7,27 +7,15 @@ Provides encoding and decoding services for completed ballots.
 To use within VS Code:
 
 ```
-yarn install
-yarn pnpify --sdk
+pnpm install
 ```
-
-## Developing Alongside another Project
-
-In dev `ballot-encoder` dir, run `yarn tsc` to generate JavaScript files.
-
-In the PROJECT you wish to use this dev version of `ballot-encoder`:
-
-1. `cd path/to/PROJECT/node_modules/@votingworks`
-2. `rm -rf ballot-encoder`
-3. `ln -s path/to/ballot-encoder ballot-encoder`
-4. restart project server if applicable
 
 ## Pubishing New NPM Version
 
 1. Update the version and create a git tag: `npm version [major|minor|patch]`
 2. Push branch for PR review. Once approved…
-3. Generate the JavaScript files from TypeScript: `yarn prepare` (or `yarn tsc`)
-4. Publish current version: `yarn npm publish --access=public`
+3. Generate the JavaScript files from TypeScript: `pnpm prepare` (or `pnpx tsc`)
+4. Publish current version: `npm publish --access=public`
 
 Optionally, deprecate a previous version. For example:
 `npm deprecate -f '@votingworks/ballot-encoder@1.3.1' "Poor translations"`
@@ -142,7 +130,7 @@ How to publish a new version:
    Let's assume this is stored in the environment variable `BUMP`.
 2. Create a branch for publishing the new version.
 3. Bump the version: `npm version $BUMP`.
-4. Publish the package to NPM: `yarn publish:npm`.
+4. Publish the package to NPM: `pnpm publish:npm`.
 5. Push the branch and the new tag:
    `git push -u origin HEAD && git push --tags`.
 6. Create a pull request for your newly pushed branch. Note that this pull

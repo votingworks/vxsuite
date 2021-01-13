@@ -1,6 +1,6 @@
 {
   "editor.tabSize": 2,
-  "eslint.packageManager": "yarn",
+  "eslint.packageManager": "pnpm",
   "editor.formatOnSave": true,
   "[javascript]": {
     "editor.formatOnSave": false

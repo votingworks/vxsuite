@@ -64,9 +64,10 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   const getCVRFiles = async () => storage.get(cvrsStorageKey)
   const getIsOfficialResults = async () => storage.get(isOfficialResultsKey)
 
-  const [electionDefinition, setElectionDefinition] = useState<
-    ElectionDefinition
-  >()
+  const [
+    electionDefinition,
+    setElectionDefinition,
+  ] = useState<ElectionDefinition>()
   const [configuredAt, setConfiguredAt] = useState<ISO8601Timestamp>('')
 
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
