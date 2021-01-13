@@ -9,7 +9,6 @@ import {
   YesNoVote,
   OptionalVote,
   VotesDict,
-  Contests,
   Election,
   ElectionDefinition,
   OptionalElectionDefinition,
@@ -89,7 +88,6 @@ interface CardState {
 interface UserState {
   ballotCreatedAt: number
   ballotStyleId: string
-  contests: Contests
   precinctId: string
   shortValue?: string
   userSettings: UserSettings
@@ -163,7 +161,6 @@ const initialCardState: Readonly<CardState> = {
 const initialVoterState: Readonly<UserState> = {
   ballotCreatedAt: 0,
   ballotStyleId: '',
-  contests: [],
   precinctId: '',
   shortValue: '{}',
   userSettings: { textSize: GLOBALS.TEXT_SIZE },
@@ -486,7 +483,6 @@ const AppRoot: React.FC<Props> = ({
     appPrecinctId,
     ballotsPrintedCount,
     ballotStyleId,
-    contests,
     electionDefinition: optionalElectionDefinition,
     isAdminCardPresent,
     isLiveMode,
@@ -515,6 +511,20 @@ const AppRoot: React.FC<Props> = ({
   } = appState
   const { appMode } = machineConfig
   const { textSize: userSettingsTextSize } = userSettings
+
+  const ballotStyle = optionalElectionDefinition?.election
+    ? getBallotStyle({
+        ballotStyleId,
+        election: optionalElectionDefinition?.election,
+      })
+    : ''
+  const contests =
+    optionalElectionDefinition?.election && ballotStyle
+      ? getContests({
+          election: optionalElectionDefinition?.election,
+          ballotStyle,
+        })
+      : []
 
   const readCard = useCallback(async (): Promise<CardAPI> => {
     return await card.readStatus()
@@ -707,13 +717,6 @@ const AppRoot: React.FC<Props> = ({
               ballotStyleId: ballotStyle?.id ?? initialAppState.ballotStyleId,
               precinctId: precinct?.id ?? initialAppState.precinctId,
               votes: ballot.votes,
-              contests:
-                ballotStyle && optionalElectionDefinition
-                  ? getContests({
-                      ballotStyle,
-                      election: optionalElectionDefinition.election,
-                    })
-                  : initialAppState.contests,
             },
           })
 
@@ -998,27 +1001,12 @@ const AppRoot: React.FC<Props> = ({
         ? getZeroTally(storedElectionDefinition.election)
         : initialAppState.tally,
     } = storedAppState
-    const ballotStyle =
-      storedBallotStyleId &&
-      storedElectionDefinition &&
-      getBallotStyle({
-        ballotStyleId: storedBallotStyleId,
-        election: storedElectionDefinition.election,
-      })
-    const contests =
-      ballotStyle && storedElectionDefinition?.election
-        ? getContests({
-            ballotStyle,
-            election: storedElectionDefinition.election,
-          })
-        : initialAppState.contests
     dispatchAppState({
       type: 'initializeAppState',
       appState: {
         appPrecinctId,
         ballotsPrintedCount,
         ballotStyleId: storedBallotStyleId,
-        contests,
         electionDefinition: storedElectionDefinition,
         isLiveMode,
         isPollsOpen,
