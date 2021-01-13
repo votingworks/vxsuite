@@ -75,13 +75,11 @@ export type SelectChangeEventFunction = React.ChangeEventHandler<HTMLSelectEleme
 
 // Election
 export interface ActivationData {
-  ballotCreatedAt: number
   ballotStyle: BallotStyle
   precinct: Precinct
 }
 
 export interface SerializableActivationData {
-  ballotCreatedAt: number
   ballotStyleId: string
   precinctId: string
 }

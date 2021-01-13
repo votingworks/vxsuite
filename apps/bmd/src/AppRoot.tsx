@@ -86,7 +86,6 @@ interface CardState {
 }
 
 interface UserState {
-  ballotCreatedAt: number
   ballotStyleId: string
   precinctId: string
   shortValue?: string
@@ -159,7 +158,6 @@ const initialCardState: Readonly<CardState> = {
 }
 
 const initialVoterState: Readonly<UserState> = {
-  ballotCreatedAt: 0,
   ballotStyleId: '',
   precinctId: '',
   shortValue: '{}',
@@ -558,7 +556,6 @@ const AppRoot: React.FC<Props> = ({
 
     if (precinctId && ballotStyleId) {
       storeBallotActivation({
-        ballotCreatedAt: voterCardCreatedAt,
         precinctId,
         ballotStyleId,
       })
