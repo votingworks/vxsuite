@@ -24,10 +24,4 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'))
 })
 
-app.get('/machine-config', (req, res) => {
-  res.json({
-    "machineId": process.env.VX_MACHINE_ID || "0000",
-  })
-})
-
-app.listen(port, () => console.log(`BSD listening on port ${port}!`))
+app.listen(port, () => console.log(`BSD running at http://localhost:${port}/`))
