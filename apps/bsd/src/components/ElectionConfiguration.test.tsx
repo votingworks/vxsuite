@@ -141,3 +141,39 @@ test('reads files from usb when mounted and shows list of files', async () => {
   })
   await waitFor(() => expect(manualUpload).toHaveBeenCalledTimes(1))
 })
+
+test('shows errors that occur when importing in file list screen', async () => {
+  const file1 =
+    'choctaw-county_2020-general-election_a5753d5776__2020-12-02_09-42-50.zip'
+  const mockKiosk = fakeKiosk()
+  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
+  mockKiosk.getFileSystemEntries = jest
+    .fn()
+    .mockResolvedValue([{ name: file1, type: 1 }])
+  window.kiosk = mockKiosk
+  const { getByText, getAllByTestId, queryAllByText } = render(
+    <ElectionConfiguration
+      acceptManuallyChosenFile={jest.fn()}
+      acceptAutomaticallyChosenFile={jest
+        .fn()
+        .mockRejectedValueOnce({ message: 'FAKE-ERROR' })}
+      usbDriveStatus={UsbDriveStatus.mounted}
+    />
+  )
+
+  await waitFor(() => getByText('Choose Election Configuration'))
+
+  // Verify there are 2 table rows, the invalidfile.zip should be filtered out, and file2 should be ordered before file1
+  const tableRows = getAllByTestId('table-row')
+  expect(tableRows).toHaveLength(1)
+  expect(queryAllByText('FAKE-ERROR')).toHaveLength(0)
+  expect(
+    queryAllByText(
+      /An error occured while importing the election configuration/
+    )
+  ).toHaveLength(0)
+
+  fireEvent.click(domGetByText(tableRows[0], 'Select'))
+  await waitFor(() => getByText(/FAKE-ERROR/))
+  getByText(/An error occured while importing the election configuration/)
+})

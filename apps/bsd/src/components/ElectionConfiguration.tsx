@@ -41,14 +41,33 @@ export interface Props {
 }
 
 const ElectionConfiguration: React.FC<Props> = ({
-  acceptAutomaticallyChosenFile,
-  acceptManuallyChosenFile,
+  acceptAutomaticallyChosenFile: acceptAutomaticallyChosenFileFromProps,
+  acceptManuallyChosenFile: acceptManuallyChosenFileFromProps,
   usbDriveStatus,
 }) => {
   const [foundFilenames, setFoundFilenames] = useState<
     KioskBrowser.FileSystemEntry[]
   >([])
   const [loadingFiles, setLoadingFiles] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const acceptAutomaticallyChosenFile = async (
+    file: KioskBrowser.FileSystemEntry
+  ) => {
+    try {
+      await acceptAutomaticallyChosenFileFromProps(file)
+    } catch (error) {
+      setErrorMessage(error.message)
+    }
+  }
+
+  const acceptManuallyChosenFile = async (file: File) => {
+    try {
+      await acceptManuallyChosenFileFromProps(file)
+    } catch (error) {
+      setErrorMessage(error.message)
+    }
+  }
 
   const fetchFilenames = useCallback(async () => {
     setLoadingFiles(true)
@@ -200,6 +219,13 @@ const ElectionConfiguration: React.FC<Props> = ({
                 file you are looking for, you may select a configuration file
                 manually.
               </Text>
+              {errorMessage !== '' && (
+                <Text error>
+                  An error occured while importing the election configuration:{' '}
+                  {errorMessage}. Please check the file you are importing and
+                  try again.
+                </Text>
+              )}
               <Table>
                 <thead>
                   <tr>
