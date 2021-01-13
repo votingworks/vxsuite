@@ -86,7 +86,7 @@ const LoadElectionScreen: React.FC<Props> = ({
 
   const onAutomaticFileImport = async (file: KioskBrowser.FileSystemEntry) => {
     // All automatic file imports will be on zip packages
-    readBallotPackageFromFilePointer(file).then(handleBallotLoading)
+    await readBallotPackageFromFilePointer(file).then(handleBallotLoading)
   }
 
   if (isLoadingTemplates) {
