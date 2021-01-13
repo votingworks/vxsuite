@@ -71,22 +71,28 @@ const LoadElectionScreen: React.FC<Props> = ({
     const reader = new FileReader()
 
     if (isElectionJSON) {
-      reader.onload = async () => {
-        const election = JSON.parse(reader.result as string)
-        await patchConfig({ election })
-        setElection(election)
-      }
+      await new Promise<void>((resolve, reject) => {
+        reader.onload = async () => {
+          try {
+            const election = JSON.parse(reader.result as string)
+            await patchConfig({ election })
+            setElection(election)
+            resolve()
+          } catch (err) {
+            reject(err)
+          }
+        }
 
-      reader.readAsText(file)
+        reader.readAsText(file)
+      })
     } else {
-      readBallotPackageFromFile(file).then(handleBallotLoading)
+      await handleBallotLoading(await readBallotPackageFromFile(file))
     }
-    reader.readAsText(file)
   }
 
   const onAutomaticFileImport = async (file: KioskBrowser.FileSystemEntry) => {
     // All automatic file imports will be on zip packages
-    await readBallotPackageFromFilePointer(file).then(handleBallotLoading)
+    await handleBallotLoading(await readBallotPackageFromFilePointer(file))
   }
 
   if (isLoadingTemplates) {

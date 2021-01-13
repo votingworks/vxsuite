@@ -35,8 +35,10 @@ const Title = styled.span`
 `
 
 export interface Props {
-  acceptManuallyChosenFile(file: File): void
-  acceptAutomaticallyChosenFile(file: KioskBrowser.FileSystemEntry): void
+  acceptManuallyChosenFile(file: File): Promise<void>
+  acceptAutomaticallyChosenFile(
+    file: KioskBrowser.FileSystemEntry
+  ): Promise<void>
   usbDriveStatus: UsbDriveStatus
 }
 
