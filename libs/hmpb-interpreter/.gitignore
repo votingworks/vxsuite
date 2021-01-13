@@ -9,10 +9,5 @@ node_modules
 !types/**/*.d.ts
 !bin/*.js
 
-# yarn
-!.yarn/**/*
-.yarn/unplugged
-.yarn/build-state.yml
-
 debug*.png
 votingworks-hmpb-interpreter*.tgz

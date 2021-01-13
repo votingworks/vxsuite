@@ -14,7 +14,7 @@ demo url which can be found in the comments of the pull request.
 Prerequisites:
 
 - `git`
-- `yarn`
+- `pnpm`
 - [`module-scan`](https://github.com/votingworks/vxsuite/tree/main/apps/module-scan)
 - [`module-smartcards`](https://github.com/votingworks/vxsuite/tree/main/apps/module-smartcards)
 
@@ -23,7 +23,7 @@ Then…
 ```
 git clone https://github.com/votingworks/bsd.git
 cd bsd
-yarn install
+pnpm install
 ```
 
 ## Run
@@ -34,7 +34,7 @@ yarn install
 3. Start the app:
 
    ```
-   yarn start
+   pnpm start
    ```
 
 To set the election configuration you will either need to scan a smartcard (you can use the mockCardReader script in module-smartcards for this), load an election.json file, or load a ballot export zip file. You should load a ballot export zip if you intend to test hand-marked paper ballots (HMPBs).

@@ -140,9 +140,9 @@ function encodeBallotVotesInto(
       const eitherNeitherYnVote = votes[
         contest.eitherNeitherContestId
       ] as Optional<YesNoVote>
-      const pickOneYnVote = votes[contest.pickOneContestId] as Optional<
-        YesNoVote
-      >
+      const pickOneYnVote = votes[
+        contest.pickOneContestId
+      ] as Optional<YesNoVote>
 
       if (eitherNeitherYnVote) {
         writeYesNoVote(bits, eitherNeitherYnVote)

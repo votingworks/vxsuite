@@ -29,5 +29,9 @@
     "prodserver",
     "test",
     "types"
+  ],
+  "references": [
+    { "path": "../../libs/ballot-encoder" },
+    { "path": "../../libs/hmpb-interpreter" }
   ]
 }

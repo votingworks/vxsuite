@@ -100,12 +100,14 @@ const CandidateContest: React.FC<Props> = ({
   const context = useContext(BallotContext)
   const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
 
-  const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] = useState<
-    OptionalCandidate
-  >()
-  const [candidatePendingRemoval, setCandidatePendingRemoval] = useState<
-    OptionalCandidate
-  >()
+  const [
+    attemptedOvervoteCandidate,
+    setAttemptedOvervoteCandidate,
+  ] = useState<OptionalCandidate>()
+  const [
+    candidatePendingRemoval,
+    setCandidatePendingRemoval,
+  ] = useState<OptionalCandidate>()
   const [isScrollable, setIsScrollable] = useState(false)
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
   const [isScrollAtTop, setIsScrollAtTop] = useState(true)

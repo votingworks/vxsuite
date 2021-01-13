@@ -6,10 +6,10 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
-const { createProxyMiddleware } = require('http-proxy-middleware')
+const { createProxyMiddleware: proxy } = require('http-proxy-middleware')
 
 module.exports = function (app) {
-  app.use(createProxyMiddleware('/card', { target: 'http://localhost:3001/' }))
+  app.use(proxy('/card', { target: 'http://localhost:3001/' }))
 
   app.get('/machine-config', (req, res) => {
     res.json({

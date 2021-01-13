@@ -3,7 +3,7 @@
 FORCE:
 
 build: FORCE
-	yarn install && yarn build && cd prodserver && yarn install
+	pnpm install && pnpm build
 
 run:
 	cd prodserver && node index.js
