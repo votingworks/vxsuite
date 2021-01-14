@@ -25,17 +25,22 @@ function sanitizeString(input: string, replacement = ''): string {
     .toLocaleLowerCase()
 }
 
-export function generateFilenameForBallotExportPackage(
-  electionDefinition: ElectionDefinition,
-  time: Date = new Date()
-): string {
-  const { election, electionHash } = electionDefinition
+function generateElectionName(election: Election): string {
   const electionCountyName = sanitizeString(
     election.county.name,
     WORD_SEPARATOR
   )
   const electionTitle = sanitizeString(election.title, WORD_SEPARATOR)
-  const electionInformation = `${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}${SUBSECTION_SEPARATOR}${electionHash.slice(
+  return `${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}`
+}
+
+export function generateFilenameForBallotExportPackage(
+  electionDefinition: ElectionDefinition,
+  time: Date = new Date()
+): string {
+  const { election, electionHash } = electionDefinition
+  const electionName = generateElectionName(election)
+  const electionInformation = `${electionName}${SUBSECTION_SEPARATOR}${electionHash.slice(
     0,
     10
   )}`
@@ -90,4 +95,15 @@ export function parseCVRFileInfoFromFilename(
     isTestModeResults,
     timestamp: parsedTime.toDate(),
   }
+}
+
+export function generateFinalExportDefaultFilename(
+  isTestModeResults: boolean,
+  election: Election,
+  time: Date = new Date()
+): string {
+  const filemode = isTestModeResults ? 'test' : 'live'
+  const timeInformation = moment(time).format(TIME_FORMAT_STRING)
+  const electionName = generateElectionName(election)
+  return `votingworks${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.csv`
 }

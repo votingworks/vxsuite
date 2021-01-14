@@ -86,6 +86,8 @@ declare namespace KioskBrowser {
      * will fail. Resolves when the file is successfully closed.
      */
     end(): Promise<void>
+
+    filename: string
   }
 
   export interface Kiosk {

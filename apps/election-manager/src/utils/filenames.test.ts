@@ -1,6 +1,7 @@
 import {
   generateFilenameForBallotExportPackage,
   parseCVRFileInfoFromFilename,
+  generateFinalExportDefaultFilename,
 } from './filenames'
 import { defaultElectionDefinition } from '../../test/renderInAppContext'
 
@@ -66,6 +67,32 @@ test('generates ballot export package name with zero padded time pieces', () => 
   expect(generateFilenameForBallotExportPackage(mockElection, time)).toBe(
     'king-county_general-election_testHash12__2019-03-01_01-09-02.zip'
   )
+})
+
+describe('generateFinalExportDefaultFilename', () => {
+  test('generates the correct filename for test mode', () => {
+    const mockElection = {
+      ...defaultElectionDefinition.election,
+      county: { name: 'King County', id: '' },
+      title: 'General Election',
+    }
+    const time = new Date(2019, 2, 1, 1, 9, 2)
+    expect(generateFinalExportDefaultFilename(true, mockElection, time)).toBe(
+      'votingworks-test-results_king-county_general-election_2019-03-01_01-09-02.csv'
+    )
+  })
+
+  test('generates the correct filename for live mode', () => {
+    const time = new Date(2019, 2, 1, 1, 9, 2)
+    const mockElection = {
+      ...defaultElectionDefinition.election,
+      county: { name: 'King County', id: '' },
+      title: 'General Election',
+    }
+    expect(generateFinalExportDefaultFilename(false, mockElection, time)).toBe(
+      'votingworks-live-results_king-county_general-election_2019-03-01_01-09-02.csv'
+    )
+  })
 })
 
 describe('parseCVRFileInfoFromFilename', () => {
