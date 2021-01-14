@@ -4,7 +4,7 @@
  * corresponding write and read actions yields the appropriate values.
  */
 
-/* eslint-disable no-bitwise, @typescript-eslint/no-explicit-any */
+/* @typescript-eslint/no-explicit-any */
 
 import { Random } from 'random-js'
 import { inspect } from 'util'
