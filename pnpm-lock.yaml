@@ -24,6 +24,7 @@ importers:
       '@types/history': 4.7.8
       '@typescript-eslint/eslint-plugin': 4.13.0_b7210263e693dcacb9967ef540d4f052
       '@typescript-eslint/parser': 4.13.0_eslint@7.17.0+typescript@4.1.3
+      '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
       eslint: 7.17.0
       eslint-config-prettier: 6.15.0_eslint@7.17.0
       eslint-import-resolver-node: 0.3.4
@@ -52,6 +53,7 @@ importers:
       '@types/styled-components': ^4.1.14
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
+      '@votingworks/ballot-encoder': workspace:*
       eslint: ^7.17.0
       eslint-config-prettier: ^6.15.0
       eslint-import-resolver-node: ^0.3.4
@@ -178,7 +180,7 @@ importers:
       '@types/styled-components': ^5.0.1
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
-      '@votingworks/ballot-encoder': ^5.0.0
+      '@votingworks/ballot-encoder': workspace:*
       '@votingworks/qrcode.react': ^1.0.1
       abortcontroller-polyfill: ^1.4.0
       base64-js: ^1.3.1
@@ -273,7 +275,7 @@ importers:
       '@types/yauzl': 2.9.1
       '@typescript-eslint/eslint-plugin': 4.13.0_b7210263e693dcacb9967ef540d4f052
       '@typescript-eslint/parser': 4.13.0_eslint@7.17.0+typescript@4.1.3
-      '@votingworks/ballot-encoder': 4.0.0
+      '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
       eslint: 7.17.0
       eslint-config-airbnb: 18.2.1_23e8124c5713df1fe93e7c6a7e9fc690
       eslint-config-prettier: 6.15.0_eslint@7.17.0
@@ -316,8 +318,8 @@ importers:
       '@types/yauzl': ^2.9.1
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
-      '@votingworks/ballot-encoder': ^4.0.0
-      '@votingworks/hmpb-interpreter': ^5.1.2
+      '@votingworks/ballot-encoder': workspace:*
+      '@votingworks/hmpb-interpreter': workspace:*
       eslint: ^7.17.0
       eslint-config-airbnb: ^18.2.0
       eslint-config-prettier: ^6.15.0
@@ -384,7 +386,7 @@ importers:
       '@types/react-modal': 3.10.6
       '@types/react-router-dom': 5.1.7
       '@types/styled-components': 5.1.7
-      '@votingworks/ballot-encoder': 4.0.0
+      '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
       '@votingworks/qrcode.react': 1.0.2_react@17.0.1
       array-unique: 0.3.2
       base64-js: 1.5.1
@@ -468,7 +470,7 @@ importers:
       '@types/styled-components': ^5.1.0
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
-      '@votingworks/ballot-encoder': ^4.0.0
+      '@votingworks/ballot-encoder': workspace:*
       '@votingworks/qrcode.react': ^1.0.2
       array-unique: ^0.3.2
       base64-js: ^1.3.1
@@ -642,7 +644,7 @@ importers:
       '@types/uuid': ^8.3.0
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
-      '@votingworks/ballot-encoder': ^5.0.0
+      '@votingworks/ballot-encoder': workspace:*
       benchmark: ^2.1.4
       canvas: ^2.6.1
       chalk: ^4.1.0
@@ -669,6 +671,7 @@ importers:
 lockfileVersion: 5.2
 packages:
   /@antongolub/iso8601/1.2.1:
+    dev: false
     resolution:
       integrity: sha512-XsH1mkG5a4J8feeH50Il436pyNCVj6n7EeILYhAHVibQDrxV9gZso198vBZ/dxyhbnfjwK315gvi3/EtEpoekQ==
   /@babel/code-frame/7.10.4:
@@ -5901,14 +5904,6 @@ packages:
       node: ^8.10.0 || ^10.13.0 || >=11.10.1
     resolution:
       integrity: sha512-6RoxWK05PAibukE7jElqAtNMq+RWZyqJ6Q/GdIxaiUj2Ept8jh8+FUVlbq9WxMYxkmEOPvCE5cRSyupMpwW31g==
-  /@votingworks/ballot-encoder/4.0.0:
-    dependencies:
-      '@antongolub/iso8601': 1.2.1
-      zod: 1.7.1
-    engines:
-      node: '>= 12'
-    resolution:
-      integrity: sha512-sC3m6J6MuUgvb5qq5avppaimCKX0wLFkoFakH1B1MM8F91Sx3Jq5GqvkNuDgs8iRPgTOAJS83ayKxSCPsq9NeA==
   /@votingworks/qrcode.react/1.0.1_react@17.0.1:
     dependencies:
       '@types/react': 17.0.0
@@ -21094,6 +21089,7 @@ packages:
     resolution:
       integrity: sha512-r+JdDipt93ttDjsOVPU5zaq5bAyY+3H19bDrThkvuVxC0xMQzU1PJcS6D+KrP3u96gH9XLomcHPb+2skoDjulQ==
   /zod/1.7.1:
+    dev: false
     resolution:
       integrity: sha512-EqtwN5PJTgg/iOxMvjezNcha8xDcrcUr2V4oYZ8GMzxzFGfZV+LFI+ey2sBs2mGWSF8qZE8gHIquApWa7jiTYg==
   /zwitch/1.0.5:

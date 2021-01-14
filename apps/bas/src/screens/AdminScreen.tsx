@@ -1,7 +1,7 @@
 import React from 'react'
 import pluralize from 'pluralize'
 
-import { BallotStyle, OptionalElection } from '../config/types'
+import { BallotStyle, OptionalElection } from '@votingworks/ballot-encoder'
 
 import { compareName } from '../utils/sort'
 import Button from '../components/Button'

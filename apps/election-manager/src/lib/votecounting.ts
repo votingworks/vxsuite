@@ -200,7 +200,7 @@ const buildVoteFromCvr = ({
 
     if (contest.type === 'yesno') {
       // the CVR is encoded the same way
-      vote[contest.id] = cvr[contest.id] as YesNoVote
+      vote[contest.id] = (cvr[contest.id] as unknown) as YesNoVote
       return
     }
 
@@ -270,7 +270,7 @@ export function tallyVotesByContest({
   const contestTallies: ContestTally[] = []
   const { contests } = election
   expandEitherNeitherContests(contests).forEach((contest) => {
-    let options: ContestOption[] = []
+    let options: readonly ContestOption[] = []
     if (contest.type === 'yesno') {
       options = [['yes'], ['no']]
     }
@@ -467,13 +467,13 @@ export const getContestTallyMeta = ({
       if (contest.type === 'candidate') {
         return ((vote as unknown) as CandidateVote).length > contest.seats
       }
-      return (vote as YesNoVote).length > 1
+      return ((vote as unknown) as YesNoVote).length > 1
     })
     const undervotes = contestVotes.filter((vote) => {
       if (contest.type === 'candidate') {
         return ((vote as unknown) as CandidateVote).length < contest.seats
       }
-      return (vote as YesNoVote).length === 0
+      return ((vote as unknown) as YesNoVote).length === 0
     })
 
     dictionary[contest.id] = {

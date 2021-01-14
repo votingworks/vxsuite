@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
+import { BallotStyle } from '@votingworks/ballot-encoder'
 
-import { ButtonEventFunction, BallotStyle } from '../config/types'
+import { ButtonEventFunction } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
@@ -22,7 +23,7 @@ interface Props {
   isSinglePrecinctMode: boolean
   lockScreen: () => void
   partyId: string
-  precinctBallotStyles: BallotStyle[]
+  precinctBallotStyles: readonly BallotStyle[]
   precinctName: string
   programCard: ButtonEventFunction
   showPrecincts: () => void
