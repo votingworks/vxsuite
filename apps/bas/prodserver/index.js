@@ -11,7 +11,16 @@ const proxy = require('../src/setupProxy')
 const app = express()
 const port = 3000
 
-proxy(app)
-app.use('/', express.static('../build'))
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+  next()
+})
 
-app.listen(port, () => console.log(`BMD listening on port ${port}!`))
+proxy(app)
+
+app.use('/', express.static('../build'))
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build/index.html'))
+})
+
+app.listen(port, () => console.log(`BAS running at http://localhost:${port}/`))

@@ -17,13 +17,9 @@ app.use((req, res, next) => {
 })
 proxy(app)
 
-app.get('/machine-config', (req, res) => {
-  res.json({
-    "appMode": process.env.VX_APP_MODE || "VxMark",
-    "machineId": process.env.VX_MACHINE_ID || "000",
-  })
+app.use('/', express.static('../build'))
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build/index.html'))
 })
 
-app.use('/', express.static('../build'))
-
-app.listen(port, () => console.log(`BMD listening on port ${port}!`))
+app.listen(port, () => console.log(`BMD running at http://localhost:${port}/`))
