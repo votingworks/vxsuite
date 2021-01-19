@@ -1,0 +1,8 @@
+{
+  "name": "@types/compress-commons",
+  "version": "0.0.1-development",
+  "types": "compress-commons",
+  "dependencies": {
+    "@types/readable-stream": "^2.3.9"
+  }
+}

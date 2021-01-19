@@ -115,7 +115,7 @@ test('zip entry fails', async () => {
 
   jest.spyOn(zip, 'entry').mockImplementationOnce(
     (_data, _opts, callback): ZipStream => {
-      callback(new Error('oh no'), null)
+      callback(new Error('oh no'))
       return zip
     }
   )
