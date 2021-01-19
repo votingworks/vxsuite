@@ -916,7 +916,7 @@ export default class Store {
   /**
    * Deletes the batch with id `batchId`.
    */
-  public async deleteBatch(batchId: number): Promise<boolean> {
+  public async deleteBatch(batchId: string): Promise<boolean> {
     const { count }: { count: number } = await this.dbGetAsync(
       'select count(*) as count from batches where id = ?',
       batchId
