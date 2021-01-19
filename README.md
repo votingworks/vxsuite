@@ -32,7 +32,7 @@ curl -sLo- https://nodejs.org/dist/v12.19.0/node-v12.19.0-linux-x64.tar.gz | \
     tar xz --strip-components 1 -C "${NODE_ROOT}"
 
 # configure your shell; this assumes bash:
-echo "export PATH=\$PATH:${NODE_ROOT}/bin"
+echo "export PATH=\$PATH:${NODE_ROOT}/bin" >> ~/.bashrc
 export PATH="${PATH}:${NODE_ROOT}"
 node -v # should print "v12.19.0"
 
