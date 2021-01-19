@@ -97,26 +97,15 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout
-      - restore_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
-      - run:
-          name: Setup Dependencies
-          command: yarn --cwd apps/module-scan install --frozen-lockfile
-      - save_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "apps/module-scan/yarn.lock" }}
-          paths:
-            - apps/module-scan/node_modules
+      - checkout-and-install
       - run:
           name: Run Linters
           command: |
-            yarn --cwd apps/module-scan lint
+            pnpm --dir apps/module-scan lint
       - run:
           name: Run Tests with Coverage
           command: |
-            yarn --cwd apps/module-scan test:coverage
+            pnpm --dir apps/module-scan test:coverage
 
   test-module-smartcards:
     docker:
@@ -174,6 +163,7 @@ commands:
             - apps/bmd/node_modules
             - apps/bsd/node_modules
             - apps/election-manager/node_modules
+            - apps/module-scan/node_modules
             - libs/ballot-encoder/node_modules
             - libs/eslint-plugin-no-array-sort-mutation/node_modules
             - libs/hmpb-interpreter/node_modules

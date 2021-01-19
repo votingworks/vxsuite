@@ -14,10 +14,10 @@ else
 endif
 
 build: FORCE
-	yarn install
+	pnpm install
 
 run:
-	yarn start
+	pnpm start
 
 debug-dump:
 	git rev-parse HEAD > REVISION
