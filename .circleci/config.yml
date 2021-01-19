@@ -148,6 +148,9 @@ commands:
           command: |
             curl -L https://unpkg.com/@pnpm/self-installer | sudo node
       - checkout
+      # Edit this comment somehow in order to invalidate the CircleCI cache.
+      # Since the contents of this file affect the cache key, editing only a
+      # comment will invalidate the cache without changing the behavior.
       - restore_cache:
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
