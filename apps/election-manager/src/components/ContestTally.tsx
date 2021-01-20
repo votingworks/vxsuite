@@ -3,15 +3,15 @@ import styled from 'styled-components'
 import { Election, Candidate, YesNoContest } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
-import { Tally, YesNoContestOptionTally } from '../config/types'
+import {
+  Tally,
+  YesNoContestOptionTally,
+  ContestTallyMeta,
+} from '../config/types'
 
 import Prose from './Prose'
 import Text from './Text'
 import Table, { TD } from './Table'
-import {
-  ContestTallyMeta,
-  ContestTallyMetaDictionary,
-} from '../lib/votecounting'
 
 const ContestMeta = styled.div`
   float: right;
@@ -30,15 +30,10 @@ const Contest = styled.div`
 interface Props {
   election: Election
   electionTally: Tally
-  contestTallyMeta: ContestTallyMetaDictionary
 }
 
-const ContestTally: React.FC<Props> = ({
-  election,
-  electionTally,
-  contestTallyMeta,
-}) => {
-  const { precinctId } = electionTally
+const ContestTally: React.FC<Props> = ({ election, electionTally }) => {
+  const { precinctId, contestTallyMetadata } = electionTally
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
   const ballotStyles = precinctId
@@ -57,7 +52,7 @@ const ContestTally: React.FC<Props> = ({
           ballots: 0,
           overvotes: 0,
           undervotes: 0,
-          ...contestTallyMeta[contest.id],
+          ...contestTallyMetadata[contest.id],
         }
 
         return (

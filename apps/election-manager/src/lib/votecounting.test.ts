@@ -3,6 +3,7 @@ import {
   parseElection,
   electionSample,
   Election,
+  primaryElectionSample,
 } from '@votingworks/ballot-encoder'
 
 import * as path from 'path'
@@ -11,17 +12,16 @@ import { promises as fs } from 'fs'
 import find from '../utils/find'
 import {
   parseCVRs,
-  fullTallyVotes,
+  computeFullElectionTally,
   getOvervotePairTallies,
-  voteCountsByCategory,
-  CVRCategorizerByPrecinct,
-  CVRCategorizerByScanner,
+  filterTalliesByParams,
 } from './votecounting'
-import { CastVoteRecord } from '../config/types'
+import { CastVoteRecord, FullElectionTally } from '../config/types'
 
 const fixturesPath = path.join(__dirname, '../../test/fixtures')
 const electionFilePath = path.join(fixturesPath, 'election.json')
 const cvrFilePath = path.join(fixturesPath, 'CVRs.txt')
+const primaryCvrFilePath = path.join(fixturesPath, 'primary-CVRs.txt')
 
 function parseCVRsAndAssertSuccess(
   cvrsFileContents: string,
@@ -44,25 +44,16 @@ test('tabulating a set of CVRs gives expected output', async () => {
   const castVoteRecords = parseCVRsAndAssertSuccess(cvrsFileContents, election)
 
   // tabulate it
-  const fullTally = fullTallyVotes({ election, castVoteRecords })
-  expect(fullTally).toMatchSnapshot()
-
-  // also categorize them
-  const countsByCategory = voteCountsByCategory({
-    castVoteRecords: [castVoteRecords],
-    categorizers: {
-      Precinct: CVRCategorizerByPrecinct,
-      Scanner: CVRCategorizerByScanner,
-    },
-  })
-
-  expect(countsByCategory).toMatchSnapshot()
+  const fullTally = computeFullElectionTally(election, [castVoteRecords])
+  expect(fullTally!.overallTally.numberOfBallotsCounted).toBe(10000)
+  expect(fullTally!.overallTally.contestTallies).toMatchSnapshot()
+  expect(fullTally!.overallTally.contestTallyMetadata).toMatchSnapshot()
 
   // some specific tallies checked by hand
 
   // - Jackie Chan, 1380 bubbles, of which 8 are overvotes --> 1372
   const presidentTallies = find(
-    fullTally.overallTally.contestTallies,
+    fullTally!.overallTally.contestTallies,
     (contestTally) => contestTally.contest.id === 'president'
   )
   const jackieChanTally = find(
@@ -74,7 +65,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // - Neil Armstrong, 2207 bubbles, of which 10 are overvotes --> 2197
   const repDistrict18Tallies = find(
-    fullTally.overallTally.contestTallies,
+    fullTally!.overallTally.contestTallies,
     (contestTally) => contestTally.contest.id === 'representative-district-18'
   )
   const neilArmstrongTally = find(
@@ -86,7 +77,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // sum up all the write-ins across all questions
   // 262 bubbles filled out, of which 2 are overvotes --> 260 write-ins
-  const candidateTallies = fullTally.overallTally.contestTallies.filter(
+  const candidateTallies = fullTally!.overallTally.contestTallies.filter(
     (contestTally) => contestTally.contest.type === 'candidate'
   )
 
@@ -102,6 +93,411 @@ test('tabulating a set of CVRs gives expected output', async () => {
   )
 
   expect(numWriteIns).toBe(260)
+})
+
+describe('filterTalliesByParams in a typical election', () => {
+  let electionTally: FullElectionTally
+  let election: Election
+  beforeEach(async () => {
+    election = parseElection(
+      JSON.parse((await fs.readFile(electionFilePath)).toString('utf-8'))
+    )
+
+    // get the CVRs
+    const cvrsFileContents = (await fs.readFile(cvrFilePath)).toString('utf-8')
+    const castVoteRecords = parseCVRsAndAssertSuccess(
+      cvrsFileContents,
+      election
+    )
+
+    // tabulate it
+    electionTally = computeFullElectionTally(election, [castVoteRecords])!
+  })
+
+  it('can filter by precinct', () => {
+    const expectedPrecinctResults = {
+      '23': 2474,
+      '20': 2478,
+      '21': 5048,
+    }
+    for (const [precinctId, expectedNumBallots] of Object.entries(
+      expectedPrecinctResults
+    )) {
+      const filteredResults = filterTalliesByParams(
+        electionTally,
+        election,
+        precinctId
+      )
+      expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
+      expect(filteredResults.precinctId).toBe(precinctId)
+      expect(filteredResults.scannerId).toBe(undefined)
+      expect(filteredResults.contestTallies).toMatchSnapshot()
+      expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
+    }
+  })
+
+  it('can filter by scanner', () => {
+    const expectedScannerResults = {
+      'scanner-1': 1008,
+      'scanner-10': 1022,
+      'scanner-2': 1015,
+      'scanner-3': 1029,
+      'scanner-4': 1039,
+      'scanner-5': 961,
+      'scanner-6': 973,
+      'scanner-7': 938,
+      'scanner-8': 977,
+      'scanner-9': 1038,
+    }
+    for (const [scannerId, expectedNumBallots] of Object.entries(
+      expectedScannerResults
+    )) {
+      const filteredResults = filterTalliesByParams(
+        electionTally,
+        election,
+        undefined,
+        scannerId
+      )
+      expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
+      expect(filteredResults.scannerId).toBe(scannerId)
+      expect(filteredResults.precinctId).toBe(undefined)
+      expect(filteredResults.contestTallies).toMatchSnapshot()
+      expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
+    }
+  })
+
+  test('can filtere by precinct and scanner', () => {
+    const filteredResults = filterTalliesByParams(
+      electionTally,
+      election,
+      '23',
+      'scanner-5'
+    )
+    expect(filteredResults.numberOfBallotsCounted).toBe(226)
+    expect(filteredResults.contestTallies).toMatchSnapshot()
+    expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
+  })
+})
+
+describe('filterTalliesByParams in a primary election', () => {
+  let electionTally: FullElectionTally
+  beforeEach(async () => {
+    // get the CVRs
+    const cvrsFileContents = (await fs.readFile(primaryCvrFilePath)).toString(
+      'utf-8'
+    )
+    const castVoteRecords = parseCVRsAndAssertSuccess(
+      cvrsFileContents,
+      primaryElectionSample
+    )
+
+    // tabulate it
+    electionTally = computeFullElectionTally(primaryElectionSample, [
+      castVoteRecords,
+    ])!
+  })
+
+  test('can filter results by party', () => {
+    const primaryParty = primaryElectionSample.parties.find((p) => p.id === '3')
+    expect(primaryParty).toBeDefined()
+    const filteredResults = filterTalliesByParams(
+      electionTally,
+      primaryElectionSample,
+      undefined,
+      undefined,
+      primaryParty
+    )
+    expect(electionTally.overallTally.contestTallies.length).toBe(22)
+    // Filtering by party just filters down the contests in contestTallies
+    expect(filteredResults.contestTallies).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "contest": Object {
+            "allowWriteIns": false,
+            "candidates": Array [
+              Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+            ],
+            "districtId": "7",
+            "id": "primary-constitution-head-of-party",
+            "partyId": "3",
+            "seats": 1,
+            "section": "Franklin County",
+            "title": "Head of Constitution Party",
+            "type": "candidate",
+          },
+          "tallies": Array [
+            Object {
+              "option": Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              "tally": 5,
+            },
+            Object {
+              "option": Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+              "tally": 3,
+            },
+          ],
+        },
+      ]
+    `)
+
+    const otherParty = primaryElectionSample.parties.find((p) => p.id === '4')
+    const filteredResults2 = filterTalliesByParams(
+      electionTally,
+      primaryElectionSample,
+      undefined,
+      undefined,
+      otherParty
+    )
+    expect(filteredResults2.contestTallies).toStrictEqual([])
+  })
+
+  test('can filter results by party and precinct', () => {
+    const primaryParty = primaryElectionSample.parties.find((p) => p.id === '3')
+    const filteredResultsAll = filterTalliesByParams(
+      electionTally,
+      primaryElectionSample,
+      undefined,
+      undefined,
+      primaryParty
+    )
+    const filteredResultsPrecinct = filterTalliesByParams(
+      electionTally,
+      primaryElectionSample,
+      '20',
+      undefined,
+      primaryParty
+    )
+    // The results filtered to precinct 20 should be identical to not being filtered as it is the only precinct for the primary.
+    expect(filteredResultsAll.contestTallies).toStrictEqual(
+      filteredResultsPrecinct.contestTallies
+    )
+    const filteredResultsWrongPrecinct = filterTalliesByParams(
+      electionTally,
+      primaryElectionSample,
+      '21',
+      undefined,
+      primaryParty
+    )
+    expect(filteredResultsWrongPrecinct.contestTallies).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "contest": Object {
+            "allowWriteIns": false,
+            "candidates": Array [
+              Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+            ],
+            "districtId": "7",
+            "id": "primary-constitution-head-of-party",
+            "partyId": "3",
+            "seats": 1,
+            "section": "Franklin County",
+            "title": "Head of Constitution Party",
+            "type": "candidate",
+          },
+          "tallies": Array [
+            Object {
+              "option": Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              "tally": 0,
+            },
+            Object {
+              "option": Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+              "tally": 0,
+            },
+          ],
+        },
+      ]
+    `)
+  })
+
+  test('can filter results by scanner and party', () => {
+    const primaryParty = primaryElectionSample.parties.find((p) => p.id === '3')
+    const filteredResultsScanner4 = filterTalliesByParams(
+      electionTally,
+      primaryElectionSample,
+      undefined,
+      'scanner-4',
+      primaryParty
+    )
+    const filteredResultsScanner5 = filterTalliesByParams(
+      electionTally,
+      primaryElectionSample,
+      undefined,
+      'scanner-5',
+      primaryParty
+    )
+    expect(filteredResultsScanner4.numberOfBallotsCounted).toBe(5)
+    expect(filteredResultsScanner5.numberOfBallotsCounted).toBe(6)
+    expect(filteredResultsScanner4.contestTallies).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "contest": Object {
+            "allowWriteIns": false,
+            "candidates": Array [
+              Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+            ],
+            "districtId": "7",
+            "id": "primary-constitution-head-of-party",
+            "partyId": "3",
+            "seats": 1,
+            "section": "Franklin County",
+            "title": "Head of Constitution Party",
+            "type": "candidate",
+          },
+          "tallies": Array [
+            Object {
+              "option": Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              "tally": 2,
+            },
+            Object {
+              "option": Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+              "tally": 3,
+            },
+          ],
+        },
+      ]
+    `)
+    expect(filteredResultsScanner5.contestTallies).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "contest": Object {
+            "allowWriteIns": false,
+            "candidates": Array [
+              Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+            ],
+            "districtId": "7",
+            "id": "primary-constitution-head-of-party",
+            "partyId": "3",
+            "seats": 1,
+            "section": "Franklin County",
+            "title": "Head of Constitution Party",
+            "type": "candidate",
+          },
+          "tallies": Array [
+            Object {
+              "option": Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              "tally": 3,
+            },
+            Object {
+              "option": Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+              "tally": 0,
+            },
+          ],
+        },
+      ]
+    `)
+
+    const filteredResultsScanner6 = filterTalliesByParams(
+      electionTally,
+      primaryElectionSample,
+      undefined,
+      'scanner-6',
+      primaryParty
+    )
+    expect(filteredResultsScanner6.numberOfBallotsCounted).toBe(1) // There is one ballot in scanner 6 with the wrong ballot style for the primary
+    expect(filteredResultsScanner6.contestTallies).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "contest": Object {
+            "allowWriteIns": false,
+            "candidates": Array [
+              Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+            ],
+            "districtId": "7",
+            "id": "primary-constitution-head-of-party",
+            "partyId": "3",
+            "seats": 1,
+            "section": "Franklin County",
+            "title": "Head of Constitution Party",
+            "type": "candidate",
+          },
+          "tallies": Array [
+            Object {
+              "option": Object {
+                "id": "alice",
+                "name": "Alice Jones",
+                "partyId": "3",
+              },
+              "tally": 0,
+            },
+            Object {
+              "option": Object {
+                "id": "bob",
+                "name": "Bob Smith",
+              },
+              "tally": 0,
+            },
+          ],
+        },
+      ]
+    `)
+  })
 })
 
 test('overvote report', async () => {

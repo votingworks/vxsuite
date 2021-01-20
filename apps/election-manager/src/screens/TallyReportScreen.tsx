@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext } from 'react'
 import styled from 'styled-components'
 
 import { useParams } from 'react-router-dom'
@@ -20,11 +20,7 @@ import Prose from '../components/Prose'
 import Text from '../components/Text'
 import LinkButton from '../components/LinkButton'
 import routerPaths from '../routerPaths'
-import {
-  filterTalliesByParty,
-  fullTallyVotes,
-  getContestTallyMeta,
-} from '../lib/votecounting'
+import { filterTalliesByParams } from '../lib/votecounting'
 import {
   localeWeedkayAndDate,
   localeLongDateAndTime,
@@ -42,26 +38,13 @@ const TallyReportScreen: React.FC = () => {
   const { precinctId } = useParams<PrecinctReportScreenProps>()
   const { scannerId } = useParams<ScannerReportScreenProps>()
   const {
-    castVoteRecordFiles,
     electionDefinition,
     isOfficialResults,
+    fullElectionTally,
+    isTabulationRunning,
   } = useContext(AppContext)
 
-  // the point of this state and effect is to show a loading screen
-  // and almost immediately trigger removing the loading screen,
-  // which will then trigger the computation of the tally.
-  //
-  // because the computation takes a while and blocks the main thread
-  // (which we should fix, of course), the loading screen effectively
-  // stays on the screen as long as it takes to prepare the report.
-  const [isLoading, setIsLoading] = useState(true)
-  useEffect(() => {
-    window.setTimeout(() => {
-      setIsLoading(false)
-    }, 100)
-  })
-
-  if (isLoading) {
+  if (isTabulationRunning) {
     return (
       <NavigationScreen mainChildCenter>
         <Prose textCenter>
@@ -74,26 +57,6 @@ const TallyReportScreen: React.FC = () => {
 
   const { election } = electionDefinition!
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
-
-  const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1)
-
-  const fullElectionTally = fullTallyVotes({
-    election,
-    castVoteRecords,
-  })
-
-  const contestTallyMeta = getContestTallyMeta({
-    election,
-    castVoteRecords,
-    precinctId,
-    scannerId,
-  })
-
-  const electionPrecinctTallies = Object.values(
-    fullElectionTally.precinctTallies
-  )
-
-  const electionScannerTallies = Object.values(fullElectionTally.scannerTallies)
 
   const ballotStylePartyIds = Array.from(
     new Set(election.ballotStyles.map((bs) => bs.partyId))
@@ -165,94 +128,62 @@ const TallyReportScreen: React.FC = () => {
       <div className="print-only">
         <LogoMark />
         {ballotStylePartyIds.map((partyId) => {
-          let precinctTallies = electionPrecinctTallies
-          let scannerTallies = electionScannerTallies
-          let { overallTally } = fullElectionTally
-
           const party = election.parties.find((p) => p.id === partyId)
           const electionTitle = party
             ? `${party.fullName} ${election.title}`
             : election.title
 
-          if (party) {
-            overallTally = filterTalliesByParty({
-              election,
-              electionTally: fullElectionTally.overallTally,
-              party,
-            })
-            precinctTallies = electionPrecinctTallies.map((precinctTally) =>
-              filterTalliesByParty({
-                election,
-                electionTally: precinctTally!,
-                party,
-              })
-            )
-            scannerTallies = electionScannerTallies.map((scannerTally) =>
-              filterTalliesByParty({
-                election,
-                electionTally: scannerTally!,
-                party,
-              })
-            )
-          }
+          const tallyForReport = filterTalliesByParams(
+            fullElectionTally!,
+            election,
+            precinctId,
+            scannerId,
+            party
+          )
 
           if (precinctId) {
-            precinctTallies = precinctTallies.filter(
-              (pt) => pt?.precinctId === precinctId
+            const precinctName = find(
+              election.precincts,
+              (p) => p.id === precinctId
+            ).name
+            return (
+              <React.Fragment key={`${partyId}-${precinctId}` || 'none'}>
+                <TallyHeader key={precinctId}>
+                  <Prose maxWidth={false}>
+                    <h1>
+                      {statusPrefix} Precinct Tally Report for: {precinctName}
+                    </h1>
+                    {reportMeta}
+                  </Prose>
+                </TallyHeader>
+                <HorizontalRule />
+                <ContestTally
+                  election={election}
+                  electionTally={tallyForReport!}
+                />
+              </React.Fragment>
             )
-            return precinctTallies.map((precinctTally) => {
-              const precinctid = precinctTally?.precinctId
-              const precinctName = find(
-                election.precincts,
-                (p) => p.id === precinctid
-              ).name
-              return (
-                <React.Fragment key={`${partyId}-${precinctid}` || 'none'}>
-                  <TallyHeader key={precinctid}>
-                    <Prose maxWidth={false}>
-                      <h1>
-                        {statusPrefix} Precinct Tally Report for: {precinctName}
-                      </h1>
-                      {reportMeta}
-                    </Prose>
-                  </TallyHeader>
-                  <HorizontalRule />
-                  <ContestTally
-                    election={election}
-                    electionTally={precinctTally!}
-                    contestTallyMeta={contestTallyMeta}
-                  />
-                </React.Fragment>
-              )
-            })
           }
 
           if (scannerId) {
-            scannerTallies = scannerTallies.filter(
-              (pt) => pt?.scannerId === scannerId
+            return (
+              <React.Fragment key={`${partyId}-${scannerId}` || 'none'}>
+                <TallyHeader key={scannerId}>
+                  <Prose maxWidth={false}>
+                    <h1>
+                      {statusPrefix} Scanner Tally Report for Scanner{' '}
+                      {scannerId}
+                    </h1>
+                    {reportMeta}
+                  </Prose>
+                </TallyHeader>
+                <HorizontalRule />
+                <ContestTally
+                  election={election}
+                  electionTally={tallyForReport!}
+                />
+              </React.Fragment>
             )
-            return scannerTallies.map((scannerTally) => {
-              const scannerId = scannerTally?.scannerId
-              return (
-                <React.Fragment key={`${partyId}-${scannerId}` || 'none'}>
-                  <TallyHeader key={scannerId}>
-                    <Prose maxWidth={false}>
-                      <h1>
-                        {statusPrefix} Scanner Tally Report for Scanner{' '}
-                        {scannerId}
-                      </h1>
-                      {reportMeta}
-                    </Prose>
-                  </TallyHeader>
-                  <HorizontalRule />
-                  <ContestTally
-                    election={election}
-                    electionTally={scannerTally!}
-                    contestTallyMeta={contestTallyMeta}
-                  />
-                </React.Fragment>
-              )
-            })
           }
 
           return (
@@ -269,8 +200,7 @@ const TallyReportScreen: React.FC = () => {
               <div data-testid="tally-report-contents">
                 <ContestTally
                   election={election}
-                  electionTally={overallTally}
-                  contestTallyMeta={contestTallyMeta}
+                  electionTally={tallyForReport}
                 />
               </div>
             </React.Fragment>
