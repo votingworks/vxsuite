@@ -1,0 +1,8 @@
+{
+  "name": "@types/zip-stream",
+  "version": "0.0.1-development",
+  "types": "zip-stream",
+  "dependencies": {
+    "@types/compress-commons": "workspace:*"
+  }
+}

@@ -6,7 +6,7 @@ This web server component provides a web interface to a scanner
 
 ```sh
 # install application packages
-yarn install
+pnpm install
 
 # install external tools
 make install
@@ -22,14 +22,14 @@ sudo apt-get install libpng-dev libjpeg-dev libx11-dev
 ## Run Tests
 
 ```sh
-yarn test
+pnpm test
 ```
 
 ## Start the Server
 
 ```sh
 # use a real scanner
-yarn start
+pnpm start
 ```
 
 ## Mock Scanning
@@ -38,13 +38,13 @@ You can also scan directly from image files instead of using a real scanner:
 
 ```sh
 # single batch with single sheet
-MOCK_SCANNER_FILES=front.png,back.png yarn start
+MOCK_SCANNER_FILES=front.png,back.png pnpm start
 
 # single batch with multiple sheets
-MOCK_SCANNER_FILES=front-01.png,back-01.png,front-02.png,back-02.png yarn start
+MOCK_SCANNER_FILES=front-01.png,back-01.png,front-02.png,back-02.png pnpm start
 
 # multiple batches with one sheet each (note ",," batch separator)
-MOCK_SCANNER_FILES=front-01.png,back-01.png,,front-02.png,back-02.png yarn start
+MOCK_SCANNER_FILES=front-01.png,back-01.png,,front-02.png,back-02.png pnpm start
 
 # use a manifest file
 cat <<EOS > manifest
@@ -56,11 +56,11 @@ back-01.png
 front-02.png
 back-02.png
 EOS
-MOCK_SCANNER_FILES=@manifest yarn start
+MOCK_SCANNER_FILES=@manifest pnpm start
 
 # scanning from an election backup file
 ./bin/extract-backup /path/to/election-backup.zip
-MOCK_SCANNER_FILES=@/path/to/election-backup/manifest yarn start
+MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm start
 ```
 
 ## Switching Workspaces
@@ -70,7 +70,7 @@ in the root of the folder when running this service. To choose another location,
 set `MODULE_SCAN_WORKSPACE` to the path to another folder:
 
 ```sh
-$ MODULE_SCAN_WORKSPACE=/path/to/workspace yarn start
+$ MODULE_SCAN_WORKSPACE=/path/to/workspace pnpm start
 ```
 
 ## API Documentation

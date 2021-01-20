@@ -1,10 +1,7 @@
 import React from 'react'
+import { Optional, Precinct, VoterCardData } from '@votingworks/ballot-encoder'
 
-import {
-  ButtonEventFunction,
-  Precinct,
-  OptionalVoterCardData,
-} from '../config/types'
+import { ButtonEventFunction } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
@@ -20,9 +17,9 @@ interface Props {
   cardPrecinctName: string
   countyName: string
   lockScreen: () => void
-  precincts: Precinct[]
+  precincts: readonly Precinct[]
   updatePrecinct: ButtonEventFunction
-  voterCardData: OptionalVoterCardData
+  voterCardData: Optional<VoterCardData>
 }
 
 const PrecinctsScreen: React.FC<Props> = ({

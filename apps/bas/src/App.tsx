@@ -1,16 +1,15 @@
 import React, { useState } from 'react'
+import {
+  BallotStyle,
+  CardData,
+  Optional,
+  OptionalElection,
+  VoterCardData,
+} from '@votingworks/ballot-encoder'
 
 import fetchJSON from './utils/fetchJSON'
 
-import {
-  ButtonEvent,
-  CardData,
-  OptionalElection,
-  OptionalVoterCardData,
-  VoterCardData,
-  BallotStyle,
-  CardAPI,
-} from './config/types'
+import { ButtonEvent, CardAPI } from './config/types'
 
 import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
 
@@ -51,7 +50,7 @@ const App: React.FC = () => {
   )
   const [ballotStyleId, setBallotStyleId] = useState<string>('')
   const [partyId, setPartyId] = useStateAndLocalStorage<string>('partyId')
-  const [voterCardData, setVoterCardData] = useState<OptionalVoterCardData>(
+  const [voterCardData, setVoterCardData] = useState<Optional<VoterCardData>>(
     undefined
   )
 

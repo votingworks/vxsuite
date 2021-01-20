@@ -1,0 +1,8 @@
+packages:
+  # include all the apps and their prodservers
+  - 'apps/*'
+  - 'apps/*/prodserver'
+
+  # include all the libraries and our custom types
+  - 'libs/*'
+  - 'libs/@types/*'

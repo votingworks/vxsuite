@@ -4,14 +4,14 @@
  *
  * @throws when no element matches and no default value is provided
  */
-function find<T>(array: T[], predicate: (element: T) => boolean): T
+function find<T>(array: readonly T[], predicate: (element: T) => boolean): T
 function find<T>(
-  array: T[],
+  array: readonly T[],
   predicate: (element: T) => boolean,
   defaultValue: T
 ): T
 function find<T>(
-  array: T[],
+  array: readonly T[],
   predicate: (element: T) => boolean,
   defaultValue?: T
 ): T {
