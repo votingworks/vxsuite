@@ -5,7 +5,7 @@ import * as fixtures from '../../../test/fixtures/state-of-hamilton'
 import { createWorkspace } from '../../util/workspace'
 
 if (process.env.CI) {
-  jest.setTimeout(10000)
+  jest.setTimeout(20000)
 }
 
 test('--all query', () => {
