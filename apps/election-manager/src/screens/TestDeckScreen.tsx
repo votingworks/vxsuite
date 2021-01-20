@@ -18,14 +18,14 @@ import Prose from '../components/Prose'
 import ContestTally from '../components/ContestTally'
 import Button from '../components/Button'
 
-import {
-  filterTalliesByParty,
-  tallyVotesByContest,
-  ContestTallyMetaDictionary,
-} from '../lib/votecounting'
+import { filterTalliesByParty, tallyVotesByContest } from '../lib/votecounting'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
-import { PrecinctReportScreenProps, Tally } from '../config/types'
+import {
+  PrecinctReportScreenProps,
+  Tally,
+  ContestTallyMetaDictionary,
+} from '../config/types'
 
 import { generateTestDeckBallots } from '../utils/election'
 
@@ -49,20 +49,16 @@ const TestDeckScreen: React.FC = () => {
       ? allPrecincts
       : getPrecinctById({ election, precinctId })
 
-  const votes: VotesDict[] = generateTestDeckBallots({
+  const ballots = generateTestDeckBallots({
     election,
     precinctId: precinct?.id,
-  }).map((ballots) => ballots.votes as VotesDict)
+  })
 
-  const electionTally: Tally = {
-    precinctId: precinct?.id,
-    contestTallies: tallyVotesByContest({
-      election,
-      precinctId: precinct?.id,
-      votes,
-    }),
-  }
-  const contestTallyMeta = election.contests.reduce<ContestTallyMetaDictionary>(
+  const votes: VotesDict[] = ballots.map(
+    (ballots) => ballots.votes as VotesDict
+  )
+
+  const contestTallyMetadata = election.contests.reduce<ContestTallyMetaDictionary>(
     (contestTallyMeta, contest) => ({
       ...contestTallyMeta,
       [contest.id]: {
@@ -73,6 +69,18 @@ const TestDeckScreen: React.FC = () => {
     }),
     {}
   )
+
+  const electionTally: Tally = {
+    precinctId: precinct?.id,
+    numberOfBallotsCounted: ballots.length,
+    castVoteRecords: new Map(),
+    contestTallies: tallyVotesByContest({
+      election,
+      precinctId: precinct?.id,
+      votes,
+    }),
+    contestTallyMetadata,
+  }
 
   const ballotStylePartyIds = Array.from(
     new Set(election.ballotStyles.map((bs) => bs.partyId))
@@ -144,7 +152,6 @@ const TestDeckScreen: React.FC = () => {
                 <ContestTally
                   election={election}
                   electionTally={electionTallyForParty}
-                  contestTallyMeta={contestTallyMeta}
                 />
               </ElectionTallyReport>
             )

@@ -2,9 +2,9 @@ import { createContext, RefObject } from 'react'
 import {
   ElectionDefinition,
   SaveElection,
-  OptionalVoteCounts,
   PrintedBallot,
   ISO8601Timestamp,
+  OptionalFullElectionTally,
 } from '../config/types'
 import { UsbDriveStatus } from '../lib/usbstick'
 import CastVoteRecordFiles, {
@@ -23,12 +23,16 @@ export interface AppContextInterface {
     React.SetStateAction<CastVoteRecordFiles>
   >
   saveIsOfficialResults: () => void
-  setVoteCounts: React.Dispatch<React.SetStateAction<OptionalVoteCounts>>
-  voteCounts: OptionalVoteCounts
   usbDriveStatus: UsbDriveStatus
   usbDriveEject: () => void
   addPrintedBallot: (printedBallot: PrintedBallot) => void
   printedBallots: PrintedBallot[]
+  fullElectionTally: OptionalFullElectionTally
+  isTabulationRunning: boolean
+  setFullElectionTally: React.Dispatch<
+    React.SetStateAction<OptionalFullElectionTally>
+  >
+  setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const appContext: AppContextInterface = {
@@ -41,12 +45,14 @@ const appContext: AppContextInterface = {
   saveElection: () => undefined,
   setCastVoteRecordFiles: () => undefined,
   saveIsOfficialResults: () => undefined,
-  setVoteCounts: () => undefined,
-  voteCounts: undefined,
   usbDriveStatus: UsbDriveStatus.notavailable,
   usbDriveEject: () => undefined,
   addPrintedBallot: () => undefined,
   printedBallots: [],
+  fullElectionTally: undefined,
+  setFullElectionTally: () => undefined,
+  isTabulationRunning: false,
+  setIsTabulationRunning: () => undefined,
 }
 
 const AppContext = createContext(appContext)

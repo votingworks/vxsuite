@@ -7,10 +7,10 @@ import PrintButton from '../components/PrintButton'
 import LinkButton from '../components/LinkButton'
 import AppContext from '../contexts/AppContext'
 import routerPaths from '../routerPaths'
+import { ContestTallyMeta } from '../config/types'
 import {
   getOvervotePairTallies,
   getContestTallyMeta,
-  ContestTallyMeta,
 } from '../lib/votecounting'
 import Table, { TD } from '../components/Table'
 import Prose from '../components/Prose'

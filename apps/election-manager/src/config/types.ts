@@ -4,7 +4,6 @@ import {
   Contest,
   Election,
   Precinct,
-  VotesDict,
 } from '@votingworks/ballot-encoder'
 
 // Generic
@@ -79,27 +78,35 @@ export interface ContestTally {
   tallies: ContestOptionTally[]
 }
 
-// TODO: separate into PrecinctTally and ScannerTally
+export interface ContestTallyMeta {
+  overvotes: number
+  undervotes: number
+  ballots: number
+}
+export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
+
 export interface Tally {
   precinctId?: string
   scannerId?: string
+  numberOfBallotsCounted: number
+  castVoteRecords: Map<string, CastVoteRecord>
   contestTallies: ContestTally[]
+  contestTallyMetadata: ContestTallyMetaDictionary
+}
+
+export enum TallyCategory {
+  Precinct = 'precinct',
+  Scanner = 'scanner',
 }
 
 export interface FullElectionTally {
-  scannerTallies: Dictionary<Tally>
-  precinctTallies: Dictionary<Tally>
   overallTally: Tally
+  resultsByCategory: Map<TallyCategory, Dictionary<Tally>>
 }
 
-export type VotesByFilter = Dictionary<VotesDict[]>
-export type VotesByFunction = (value: {
-  election: Election
-  castVoteRecords: CastVoteRecord[]
-}) => VotesByFilter
+export type OptionalFullElectionTally = Optional<FullElectionTally>
 
 // Cast Vote Records
-
 export interface CastVoteRecord
   extends Dictionary<
     string | string[] | boolean | number | number[] | BallotLocale
