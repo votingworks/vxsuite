@@ -1,7 +1,7 @@
 import React from 'react'
 import { Optional, Precinct, VoterCardData } from '@votingworks/types'
 
-import { ButtonEventFunction } from '../config/types'
+import { EventTargetFunction } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
@@ -18,7 +18,7 @@ interface Props {
   countyName: string
   lockScreen: () => void
   precincts: readonly Precinct[]
-  updatePrecinct: ButtonEventFunction
+  updatePrecinct: EventTargetFunction
   voterCardData: Optional<VoterCardData>
 }
 

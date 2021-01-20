@@ -2,6 +2,7 @@
 
 exports[`navigates back 1`] = `
 .c0 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -12,6 +13,15 @@ exports[`navigates back 1`] = `
   line-height: 1.25;
   color: black;
   touch-action: manipulation;
+}
+
+.c0:focus {
+  outline: none;
+}
+
+.c0:hover,
+.c0:active {
+  outline: none;
 }
 
 <button
@@ -25,6 +35,7 @@ exports[`navigates back 1`] = `
 
 exports[`navigates to page 1`] = `
 .c0 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -35,6 +46,15 @@ exports[`navigates to page 1`] = `
   line-height: 1.25;
   color: black;
   touch-action: manipulation;
+}
+
+.c0:focus {
+  outline: none;
+}
+
+.c0:hover,
+.c0:active {
+  outline: none;
 }
 
 <button
@@ -48,6 +68,7 @@ exports[`navigates to page 1`] = `
 
 exports[`renders LinkButton with onClick and disabled props 1`] = `
 .c0 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -55,8 +76,17 @@ exports[`renders LinkButton with onClick and disabled props 1`] = `
   background: rgb(211,211,211);
   padding: 0.75rem 1rem;
   line-height: 1.25;
-  color: rgb(169,169,169);
+  color: rgb(160,160,160);
   touch-action: manipulation;
+}
+
+.c0:focus {
+  outline: none;
+}
+
+.c0:hover,
+.c0:active {
+  outline: none;
 }
 
 <button
@@ -71,6 +101,7 @@ exports[`renders LinkButton with onClick and disabled props 1`] = `
 
 exports[`renders LinkButton with onClick prop 1`] = `
 .c0 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -81,6 +112,15 @@ exports[`renders LinkButton with onClick prop 1`] = `
   line-height: 1.25;
   color: black;
   touch-action: manipulation;
+}
+
+.c0:focus {
+  outline: none;
+}
+
+.c0:hover,
+.c0:active {
+  outline: none;
 }
 
 <button

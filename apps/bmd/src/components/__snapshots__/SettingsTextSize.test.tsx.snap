@@ -2,6 +2,7 @@
 
 exports[`renders SettingsTextSize 1`] = `
 .c5 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -14,7 +15,17 @@ exports[`renders SettingsTextSize 1`] = `
   touch-action: manipulation;
 }
 
+.c5:focus {
+  outline: none;
+}
+
+.c5:hover,
+.c5:active {
+  outline: none;
+}
+
 .c6 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -25,6 +36,15 @@ exports[`renders SettingsTextSize 1`] = `
   line-height: 1.25;
   color: #FFFFFF;
   touch-action: manipulation;
+}
+
+.c6:focus {
+  outline: none;
+}
+
+.c6:hover,
+.c6:active {
+  outline: none;
 }
 
 .c4 {

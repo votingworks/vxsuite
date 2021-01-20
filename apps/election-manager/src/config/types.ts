@@ -8,6 +8,7 @@ import {
 } from '@votingworks/types'
 
 // Events
+export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 export type InputEventFunction = (
   event: React.FormEvent<HTMLInputElement>
 ) => void | Promise<void>

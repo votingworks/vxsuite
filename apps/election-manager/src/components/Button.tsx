@@ -1,23 +1,16 @@
-import React, {
-  EventHandler,
-  MouseEvent,
-  PointerEvent,
-  TouchEvent,
-  useState,
-} from 'react'
+import React, { useState } from 'react'
 import styled, { css, StyledComponent } from 'styled-components'
-
-interface Attrs extends HTMLButtonElement {
-  readonly type: string
-}
+import { EventTargetFunction } from '../config/types'
 
 export interface ButtonInterface {
   readonly big?: boolean
   readonly danger?: boolean
-  readonly warning?: boolean
   readonly fullWidth?: boolean
+  readonly noWrap?: boolean
   readonly primary?: boolean
   readonly small?: boolean
+  readonly textAlign?: 'left' | 'center' | 'right'
+  readonly warning?: boolean
 }
 
 export interface StyledButtonProps
@@ -67,50 +60,52 @@ export const DecoyButton = styled.div`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
 
-const StyledButton = styled('button').attrs<Attrs>(({ type }) => ({
-  type: type ?? 'button',
+const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
+  type,
 }))`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
 
 export interface Props extends StyledButtonProps {
   component?: StyledComponent<'button', never, StyledButtonProps, never>
-  onPress: EventHandler<MouseEvent | TouchEvent | PointerEvent>
+  onPress: EventTargetFunction
+  ref?: React.Ref<HTMLButtonElement>
 }
 
-const Button: React.FC<Props> = ({
-  component: Component = StyledButton,
-  onPress,
-  ...rest
-}) => {
-  const [startCoordinates, setStartCoordinates] = useState([0, 0])
+const Button = React.forwardRef<HTMLButtonElement, Props>(
+  ({ component: Component = StyledButton, onPress, ...rest }, ref) => {
+    const [startCoordinates, setStartCoordinates] = useState([0, 0])
 
-  const onTouchStart = (event: React.TouchEvent) => {
-    const { clientX, clientY } = event.touches[0]
-    setStartCoordinates([clientX, clientY])
-  }
-
-  const onTouchEnd = (event: React.TouchEvent) => {
-    const maxMove = 30
-    const { clientX, clientY } = event.changedTouches[0]
-    if (
-      Math.abs(startCoordinates[0] - clientX) < maxMove &&
-      Math.abs(startCoordinates[1] - clientY) < maxMove
-    ) {
-      onPress(event)
-      event.preventDefault()
+    const onTouchStart = (event: React.TouchEvent) => {
+      const { clientX, clientY } = event.touches[0]
+      setStartCoordinates([clientX, clientY])
     }
-  }
 
-  return (
-    <Component
-      {...rest}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
-      onClick={onPress}
-    />
-  )
-}
+    const onTouchEnd = (event: React.TouchEvent) => {
+      const maxMove = 30
+      const { clientX, clientY } = event.changedTouches[0]
+      if (
+        Math.abs(startCoordinates[0] - clientX) < maxMove &&
+        Math.abs(startCoordinates[1] - clientY) < maxMove
+      ) {
+        onPress(event)
+        event.preventDefault()
+      }
+    }
+
+    return (
+      <Component
+        {...rest}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onClick={onPress}
+        ref={ref}
+      />
+    )
+  }
+)
+
+Button.displayName = 'Button'
 
 export const SegmentedButton = styled.span`
   display: inline-flex;

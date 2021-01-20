@@ -9,7 +9,7 @@ import {
 
 import fetchJSON from './utils/fetchJSON'
 
-import { ButtonEvent, CardAPI } from './config/types'
+import { CardAPI, EventTargetFunction } from './config/types'
 
 import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
 
@@ -75,7 +75,7 @@ const App: React.FC = () => {
     setPartyId('')
   }
 
-  const updatePrecinct = (event: ButtonEvent) => {
+  const updatePrecinct: EventTargetFunction = (event) => {
     const { id = '' } = (event.target as HTMLElement).dataset
     setPrecinctId(id)
   }
@@ -184,7 +184,7 @@ const App: React.FC = () => {
     }, 1000)
   }
 
-  const programCard = (event: ButtonEvent) => {
+  const programCard: EventTargetFunction = (event) => {
     const {
       ballotStyleId: localBallotStyleId,
     } = (event.target as HTMLElement).dataset
