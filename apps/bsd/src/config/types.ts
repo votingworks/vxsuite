@@ -24,6 +24,7 @@ export interface MachineConfig {
 }
 
 // Events
+export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 export type InputEvent = React.FormEvent<EventTarget>
 export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 export type ButtonEventFunction = (event: ButtonEvent) => void

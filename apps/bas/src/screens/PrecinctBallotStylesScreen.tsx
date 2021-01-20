@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { BallotStyle } from '@votingworks/ballot-encoder'
 
-import { ButtonEventFunction } from '../config/types'
+import { EventTargetFunction } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
@@ -25,7 +25,7 @@ interface Props {
   partyId: string
   precinctBallotStyles: readonly BallotStyle[]
   precinctName: string
-  programCard: ButtonEventFunction
+  programCard: EventTargetFunction
   showPrecincts: () => void
 }
 

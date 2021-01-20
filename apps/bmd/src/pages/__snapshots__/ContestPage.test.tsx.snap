@@ -2,6 +2,7 @@
 
 exports[`Renders ContestPage 1`] = `
 .c14 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -15,7 +16,17 @@ exports[`Renders ContestPage 1`] = `
   touch-action: manipulation;
 }
 
+.c14:focus {
+  outline: none;
+}
+
+.c14:hover,
+.c14:active {
+  outline: none;
+}
+
 .c16 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -28,7 +39,17 @@ exports[`Renders ContestPage 1`] = `
   touch-action: manipulation;
 }
 
+.c16:focus {
+  outline: none;
+}
+
+.c16:hover,
+.c16:active {
+  outline: none;
+}
+
 .c24 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -39,6 +60,15 @@ exports[`Renders ContestPage 1`] = `
   line-height: 1.25;
   color: #FFFFFF;
   touch-action: manipulation;
+}
+
+.c24:focus {
+  outline: none;
+}
+
+.c24:hover,
+.c24:active {
+  outline: none;
 }
 
 .c23 {

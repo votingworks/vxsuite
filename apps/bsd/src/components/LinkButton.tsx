@@ -1,5 +1,6 @@
-import React, { PointerEventHandler } from 'react'
+import React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { EventTargetFunction } from '../config/types'
 
 import Button, { ButtonInterface } from './Button'
 
@@ -11,7 +12,7 @@ interface Props
 
 interface Props {
   goBack?: boolean
-  onPress?: PointerEventHandler
+  onPress?: EventTargetFunction
   primary?: boolean
   to?: string
 }
@@ -28,7 +29,7 @@ const LinkButton = (props: Props) => {
     // ⬆ filtering out props which are not intrinsic to `<button>` element.
     ...rest
   } = props
-  const handleOnPress: PointerEventHandler = (event) => {
+  const handleOnPress: EventTargetFunction = (event) => {
     /* istanbul ignore else */
     if (onPress) {
       onPress(event)

@@ -84,7 +84,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-modal": "^3.10.5",
     "@types/react-router-dom": "^5.1.5",
-    "@types/styled-components": "^5.0.1",
+    "@types/styled-components": "^5.1.7",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/qrcode.react": "^1.0.1",
     "abortcontroller-polyfill": "^1.4.0",

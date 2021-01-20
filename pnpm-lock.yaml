@@ -11,7 +11,7 @@ importers:
       '@types/pluralize': 0.0.29
       '@types/react': 17.0.0
       '@types/react-dom': 17.0.0
-      '@types/styled-components': 4.4.3
+      '@types/styled-components': 5.1.7
       http-proxy-middleware: 1.0.6
       normalize.css: 8.0.1
       pluralize: 8.0.0
@@ -50,7 +50,7 @@ importers:
       '@types/pluralize': ^0.0.29
       '@types/react': ^17.0.0
       '@types/react-dom': ^17.0.0
-      '@types/styled-components': ^4.1.14
+      '@types/styled-components': ^5.1.7
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
       '@votingworks/ballot-encoder': workspace:*
@@ -177,7 +177,7 @@ importers:
       '@types/react-gamepad': ^1.0.0
       '@types/react-modal': ^3.10.5
       '@types/react-router-dom': ^5.1.5
-      '@types/styled-components': ^5.0.1
+      '@types/styled-components': ^5.1.7
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
       '@votingworks/ballot-encoder': workspace:*
@@ -260,7 +260,7 @@ importers:
       react-router-dom: 5.2.0_react@17.0.1
       react-scripts: 4.0.1_f5ef446b03c3ad390e0fb9d94e98a0ea
       rxjs: 6.6.3
-      styled-components: 4.4.1_react-dom@17.0.1+react@17.0.1
+      styled-components: 5.2.1_react-dom@17.0.1+react@17.0.1
       ts-jest: 26.4.4_typescript@4.1.3
       typescript: 4.1.3
       use-interval: 1.3.0_react@17.0.1
@@ -314,7 +314,7 @@ importers:
       '@types/react-dom': ^17.0.0
       '@types/react-modal': ^3.10.6
       '@types/react-router-dom': ^5.1.5
-      '@types/styled-components': ^5.0.0
+      '@types/styled-components': ^5.1.7
       '@types/yauzl': ^2.9.1
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
@@ -352,7 +352,7 @@ importers:
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
       rxjs: ^6.6.0
-      styled-components: ^4.4.0
+      styled-components: ^5.2.1
       stylelint: ^13.4.0
       stylelint-config-palantir: ^5.0.0
       stylelint-config-prettier: ^8.0.1
@@ -468,7 +468,7 @@ importers:
       '@types/react-modal': ^3.10.5
       '@types/react-router-dom': ^5.1.5
       '@types/readable-stream': ^2.3.5
-      '@types/styled-components': ^5.1.0
+      '@types/styled-components': ^5.1.7
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
       '@votingworks/ballot-encoder': workspace:*
@@ -518,12 +518,12 @@ importers:
       react-textarea-autosize: ^8.2.0
       rxjs: ^6.5.5
       sort-package-json: ^1.44.0
-      styled-components: ^5.1.0
+      styled-components: ^5.2.1
       stylelint: ^13.1.0
       stylelint-config-palantir: ^4.0.1
       stylelint-config-prettier: ^8.0.1
       stylelint-config-styled-components: ^0.1.1
-      stylelint-processor-styled-components: ^1.9.0
+      stylelint-processor-styled-components: ^1.10.0
       typescript: ^4.1.3
       use-interval: ^1.2.1
       zip-stream: ^3.0.1
@@ -5704,12 +5704,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-XpshhwVYir1TRZ2HS5EfmNotJjB8UEC2IkT3omNtiQzROOXSzVLz5xsjwEpACP8U+PctkpfZepX+WT5oDf0a9g==
-  /@types/react-native/0.63.45:
-    dependencies:
-      '@types/react': 17.0.0
-    dev: false
-    resolution:
-      integrity: sha512-HvsHe8hbcAuZJKcqUEN+E/qV1TNjL6venNUiQvDi7d1IlEK6ZyTrpIS937PwiNWc3UePNzR0xZ++aqpMAJqz1A==
   /@types/react-router-dom/5.1.7:
     dependencies:
       '@types/history': 4.7.8
@@ -5772,15 +5766,6 @@ packages:
   /@types/stack-utils/2.0.0:
     resolution:
       integrity: sha512-RJJrrySY7A8havqpGObOB4W92QXKJo63/jFLLgpvOtsGUqbQZ9Sbgl35KMm1DjC6j7AvmmU2bIno+3IyEaemaw==
-  /@types/styled-components/4.4.3:
-    dependencies:
-      '@types/hoist-non-react-statics': 3.3.1
-      '@types/react': 17.0.0
-      '@types/react-native': 0.63.45
-      csstype: 2.6.14
-    dev: false
-    resolution:
-      integrity: sha512-U0udeNOZBfUkJycmGJwmzun0FBt11rZy08weVQmE2xfUNAbX8AGOEWxWna2d+qAUKxKgMlcG+TZT0+K2FfDcnQ==
   /@types/styled-components/5.1.7:
     dependencies:
       '@types/hoist-non-react-statics': 3.3.1
@@ -8976,10 +8961,6 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-AZL67abkUzIuvcHqk7c09cezpGNcxUxU4Ioi/05xHk4DQeTkWmGYftIE6ctU6AEt+Gn4n1lDStOtj7FKycP71A==
-  /csstype/2.6.14:
-    dev: false
-    resolution:
-      integrity: sha512-2mSc+VEpGPblzAxyeR+vZhJKgYg0Og0nnRi7pmRXFYYxSfnOnW8A5wwQb4n4cE2nIOzqKOAzLCaEX6aBmNEv8A==
   /csstype/3.0.6:
     resolution:
       integrity: sha512-+ZAmfyWMT7TiIlzdqJgjMb7S4f1beorDbWbsocyK4RaiqA5RTX3K14bnBWmmA9QEM0gRdsjyyrEmcyga8Zsxmw==

@@ -12,6 +12,7 @@ import {
   MarkStatus,
   ReviewMarginalMarksBallot,
   AdjudicationStatus,
+  EventTargetFunction,
 } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
 import relativeRect from '../util/relativeRect'
@@ -116,15 +117,16 @@ const BallotReviewScreen: React.FC<Props> = ({
     ballot?.ballot.image.height || 1
   )
 
-  const onContestOptionClick = useCallback<
-    React.MouseEventHandler<HTMLElement>
-  >(
+  const onContestOptionClick = useCallback<EventTargetFunction>(
     (event) => {
       if (state.type !== 'review') {
         return
       }
 
-      const { contestId, contestOptionId } = event.currentTarget.dataset
+      const {
+        contestId,
+        contestOptionId,
+      } = (event.currentTarget as HTMLElement).dataset
       const contest = state.ballot.contests.find(({ id }) => id === contestId)
       const contestOption = contest?.options.find(
         ({ id }) => id === contestOptionId

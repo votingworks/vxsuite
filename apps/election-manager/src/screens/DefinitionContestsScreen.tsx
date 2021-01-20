@@ -12,7 +12,7 @@ import {
 
 import readFileAsync from '../lib/readFileAsync'
 import {
-  ButtonEventFunction,
+  EventTargetFunction,
   InputEventFunction,
   TextareaEventFunction,
 } from '../config/types'
@@ -141,7 +141,7 @@ const ToggleField = ({
   falseLabel?: string
   value: boolean
   optional?: boolean
-  onChange: ButtonEventFunction
+  onChange: EventTargetFunction
 }) => (
   <StyledField>
     <label htmlFor={name}>
@@ -205,8 +205,8 @@ const DefinitionContestsScreen: React.FC = () => {
     })
   }
 
-  const saveToggleField: ButtonEventFunction = (event) => {
-    const { name, value } = event.currentTarget
+  const saveToggleField: EventTargetFunction = (event) => {
+    const { name, value } = event.currentTarget as HTMLButtonElement
     saveContest({
       ...contest,
       [name]: value === 'true',

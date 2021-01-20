@@ -2,6 +2,7 @@
 
 exports[`Single Seat Contest 1`] = `
 .c17 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -15,7 +16,17 @@ exports[`Single Seat Contest 1`] = `
   touch-action: manipulation;
 }
 
+.c17:focus {
+  outline: none;
+}
+
+.c17:hover,
+.c17:active {
+  outline: none;
+}
+
 .c19 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -28,7 +39,17 @@ exports[`Single Seat Contest 1`] = `
   touch-action: manipulation;
 }
 
+.c19:focus {
+  outline: none;
+}
+
+.c19:hover,
+.c19:active {
+  outline: none;
+}
+
 .c27 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -39,6 +60,15 @@ exports[`Single Seat Contest 1`] = `
   line-height: 1.25;
   color: #FFFFFF;
   touch-action: manipulation;
+}
+
+.c27:focus {
+  outline: none;
+}
+
+.c27:hover,
+.c27:active {
+  outline: none;
 }
 
 .c26 {
