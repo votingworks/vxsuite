@@ -234,6 +234,83 @@ test('child process workers work', async () => {
   }
 })
 
+test('child process workers can send objects', async () => {
+  const pool = childProcessPool<
+    Record<string, unknown>,
+    Record<string, unknown>
+  >(join(__dirname, 'echo.ts'), 1)
+  pool.start()
+  try {
+    expect(await pool.call({ a: 1, b: { c: 2 } })).toEqual({
+      a: 1,
+      b: { c: 2 },
+    })
+  } finally {
+    pool.stop()
+  }
+})
+
+test('child process workers can send arrays', async () => {
+  const pool = childProcessPool<unknown[], unknown[]>(
+    join(__dirname, 'echo.ts'),
+    1
+  )
+  pool.start()
+  try {
+    expect(await pool.call([1, '2', null, undefined])).toEqual([
+      1,
+      '2',
+      null,
+      undefined,
+    ])
+  } finally {
+    pool.stop()
+  }
+})
+
+test('child process workers can send Buffers', async () => {
+  const pool = childProcessPool<Buffer, Buffer>(join(__dirname, 'echo.ts'), 1)
+  pool.start()
+  try {
+    expect(await pool.call(Buffer.of(1, 2, 3))).toEqual(Buffer.of(1, 2, 3))
+  } finally {
+    pool.stop()
+  }
+})
+
+test('child process workers can send Uint8Arrays', async () => {
+  const pool = childProcessPool<Uint8Array, Uint8Array>(
+    join(__dirname, 'echo.ts'),
+    1
+  )
+  pool.start()
+  try {
+    expect(await pool.call(Uint8Array.of(1, 2, 3))).toEqual(
+      Uint8Array.of(1, 2, 3)
+    )
+  } finally {
+    pool.stop()
+  }
+})
+
+test('child process workers cannot send functions', async () => {
+  const pool = childProcessPool<unknown, unknown>(join(__dirname, 'echo.ts'), 1)
+  pool.start()
+  try {
+    await expect(
+      pool.call({
+        a: {
+          fn(): void {
+            // noop
+          },
+        },
+      })
+    ).rejects.toThrow(`cannot serialize function in message at key path 'a.fn'`)
+  } finally {
+    pool.stop()
+  }
+})
+
 test('worker thread workers work', async () => {
   const pool = workerThreadPool<string, string>(join(__dirname, 'echo.ts'), 1)
   pool.start()

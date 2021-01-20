@@ -1,9 +1,10 @@
 // @ts-check
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const { resolve } = require('path')
-
 require('ts-node').register({ transpileOnly: true })
+
+const { resolve } = require('path')
+const json = require('./json-serialization')
 
 if (typeof process.argv[2] !== 'string') {
   throw new Error('missing worker path')
@@ -15,10 +16,10 @@ process.on('message', async (input) => {
   let output
 
   try {
-    output = await call(input)
+    output = await call(json.deserialize(input))
   } catch (error) {
     output = { type: 'error', error: `${error.stack}` }
   }
 
-  process.send && process.send({ output })
+  process.send && process.send({ output: json.serialize(output) })
 })

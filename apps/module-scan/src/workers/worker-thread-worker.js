@@ -1,10 +1,11 @@
 // @ts-check
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+require('ts-node').register({ transpileOnly: true })
+
 const { resolve } = require('path')
 const { parentPort, workerData } = require('worker_threads')
-
-require('ts-node').register({ transpileOnly: true })
+const json = require('./json-serialization')
 
 if (typeof workerData.__workerPath !== 'string') {
   throw new Error('missing worker path')
@@ -18,10 +19,10 @@ pp &&
     let output
 
     try {
-      output = await call(input)
+      output = await call(json.deserialize(input))
     } catch (error) {
       output = { type: 'error', error: `${error.stack}` }
     }
 
-    pp.postMessage({ output })
+    pp.postMessage({ output: json.serialize(output) })
   })

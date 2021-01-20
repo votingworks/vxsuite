@@ -8,6 +8,7 @@ import { inspect } from 'util'
 import { v4 as uuid } from 'uuid'
 import { MessagePort, Worker } from 'worker_threads'
 import deferred, { Deferred } from '../util/deferred'
+import * as json from './json-serialization'
 
 const debug = makeDebug('module-scan:pool')
 
@@ -34,7 +35,7 @@ export class ChildProcessWorkerOps<I> implements WorkerOps<I, ChildProcess> {
   }
 
   public send(worker: ChildProcess, message: I): void {
-    worker.send(message)
+    worker.send(json.serialize(message))
   }
 
   public describe(worker: ChildProcess): string {
@@ -60,7 +61,7 @@ export class WorkerThreadWorkerOps<I> implements WorkerOps<I, Worker> {
     message: I,
     transferList?: (ArrayBuffer | MessagePort)[]
   ): void {
-    worker.postMessage(message, transferList)
+    worker.postMessage(json.serialize(message), transferList)
   }
 
   public describe(worker: Worker): string {
@@ -87,8 +88,10 @@ export class InlineWorkerOps<I, O> implements WorkerOps<I, EventEmitter> {
   public async send(worker: EventEmitter, message: I): Promise<void> {
     assert.strictEqual(worker, this.workerInstance)
     try {
-      const output = await this.call(message)
-      worker.emit('message', { output })
+      const output = await this.call(
+        json.deserialize(json.serialize(message)) as I
+      )
+      worker.emit('message', { output: json.serialize(output) })
     } catch (error) {
       worker.emit('error', error)
     }
@@ -312,7 +315,9 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     traceId: string,
     transferList?: (ArrayBuffer | MessagePort)[]
   ): Promise<O> {
-    const { promise, resolve, reject } = deferred<{ output: O }>()
+    const { promise, resolve, reject } = deferred<{
+      output: json.SerializedMessage
+    }>()
 
     try {
       worker.on('message', resolve)
@@ -324,7 +329,7 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
         traceId,
         inspect(output, undefined, undefined, true)
       )
-      return output
+      return json.deserialize(output) as O
     } catch (error) {
       debug(
         '[%s] call failed: error=%s',
