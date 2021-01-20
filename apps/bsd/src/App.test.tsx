@@ -9,6 +9,7 @@ import {
 import { act } from 'react-dom/test-utils'
 import { electionSample } from '@votingworks/ballot-encoder'
 import fileDownload from 'js-file-download'
+import fakeKiosk from '../test/helpers/fakeKiosk'
 import App from './App'
 
 const sleep = (ms = 1000): Promise<void> =>
@@ -150,4 +151,39 @@ test('clicking export shows modal and makes a request to export', async () => {
   expect(fetchMock.called('/scan/export')).toBe(true)
   expect(queryByText(exportingModalText)).toBe(null)
   expect(fileDownload).toHaveBeenCalled()
+})
+
+test('configuring election from usb ballot package works end to end', async () => {
+  fetchMock.getOnce('/config', { testMode: true }, { overwriteRoutes: true })
+  fetchMock.patchOnce('/config', { body: '{"status": "ok"}', status: 200 })
+
+  const { getByText, getByTestId } = render(<App />)
+
+  const mockKiosk = fakeKiosk()
+  window.kiosk = mockKiosk
+
+  await act(async () => {
+    // wait for the config to load
+    await sleep(500)
+    getByText('Load Election Configuration')
+  })
+
+  fetchMock.getOnce(
+    '/config',
+    { testMode: true, election: electionSample },
+    { overwriteRoutes: true }
+  )
+  fireEvent.change(getByTestId('manual-upload-input'), {
+    target: {
+      files: [new File([JSON.stringify(electionSample)], 'file.json')],
+    },
+  })
+
+  await act(async () => {
+    await sleep(500)
+    getByText('Ballot Scanner Configured')
+  })
+
+  fireEvent.click(getByText('Close'))
+  getByText('No ballots have been scanned.')
 })
