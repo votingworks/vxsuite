@@ -96,17 +96,6 @@ export interface UnreadablePage {
   reason?: string
 }
 
-export interface Interpreter {
-  addHmpbTemplate(
-    imageData: ImageData,
-    metadata?: BallotPageMetadata
-  ): Promise<BallotPageLayout>
-  addHmpbTemplate(layout: BallotPageLayout): Promise<BallotPageLayout>
-  interpretFile(
-    interpretFileParams: InterpretFileParams
-  ): Promise<InterpretFileResult>
-}
-
 interface BallotImageData {
   file: Buffer
   image: ImageData
@@ -205,7 +194,7 @@ export function sheetRequiresAdjudication([
   return frontIsBlankHmpbPage && backIsBlankHmpbPage
 }
 
-export default class SummaryBallotInterpreter implements Interpreter {
+export default class Interpreter {
   private hmpbInterpreter?: HMPBInterpreter
   private election: Election
   private testMode: boolean
