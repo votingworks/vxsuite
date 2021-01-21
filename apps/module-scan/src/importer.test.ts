@@ -1,7 +1,9 @@
 import {
   BallotType,
-  electionSample as election,
+  electionDefinitionSample as electionDefinition,
+  v1,
 } from '@votingworks/ballot-encoder'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import { dirSync } from 'tmp'
@@ -13,8 +15,10 @@ import { SheetOf } from './types'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { fromElection } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
-import { Input, Output } from './workers/interpret'
+import * as interpretWorker from './workers/interpret'
+import * as qrcodeWorker from './workers/qrcode'
 
+const { election, electionHash } = electionDefinition
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
 let workspace: Workspace
@@ -158,13 +162,14 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
     scanSheets: jest.fn(),
   }
   const workerCall = jest.fn()
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
-    workerCall
-  )
+  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >(workerCall)
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider,
+    interpretWorkerPoolProvider: interpreterWorkerPoolProvider,
   })
 
   await importer.restoreConfig()
@@ -202,18 +207,53 @@ test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const workerCall = jest.fn<Promise<Output>, [Input]>()
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
-    workerCall
-  )
+  const interpretWorkerCall = jest.fn<
+    Promise<interpretWorker.Output>,
+    [interpretWorker.Input]
+  >()
+  const qrcodeWorkerCall = jest.fn<
+    Promise<qrcodeWorker.Output>,
+    [qrcodeWorker.Input]
+  >()
+  const qrcodeWorkerPoolProvider = mockWorkerPoolProvider<
+    qrcodeWorker.Input,
+    qrcodeWorker.Output
+  >(qrcodeWorkerCall)
+  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >(interpretWorkerCall)
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider,
+    interpretWorkerPoolProvider: interpreterWorkerPoolProvider,
+    qrcodeWorkerPoolProvider,
   })
 
+  const frontMetadata: BallotPageMetadata = {
+    electionHash,
+    ballotType: BallotType.Standard,
+    locales: { primary: 'en-US' },
+    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  }
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  }
   await workspace.store.setElection(fromElection(election))
-  workerCall
+  qrcodeWorkerCall
+    .mockResolvedValueOnce({
+      data: v1.encodeHMPBBallotPageMetadata(election, frontMetadata),
+      position: 'bottom',
+    })
+    .mockResolvedValueOnce({
+      data: v1.encodeHMPBBallotPageMetadata(election, backMetadata),
+      position: 'bottom',
+    })
+  interpretWorkerCall
     // configure
     .mockImplementationOnce(async (input) => {
       expect(input.action).toEqual('configure')
@@ -222,15 +262,7 @@ test('manually importing files', async () => {
     .mockResolvedValueOnce({
       interpretation: {
         type: 'UninterpretedHmpbPage',
-        metadata: {
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          locales: { primary: 'en-US' },
-          ballotStyleId: '77',
-          precinctId: '42',
-          isTestMode: false,
-          pageNumber: 1,
-        },
+        metadata: frontMetadata,
       },
       originalFilename: '/tmp/original.png',
       normalizedFilename: '/tmp/normalized.png',
@@ -239,15 +271,7 @@ test('manually importing files', async () => {
     .mockResolvedValueOnce({
       interpretation: {
         type: 'UninterpretedHmpbPage',
-        metadata: {
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          locales: { primary: 'en-US' },
-          ballotStyleId: '77',
-          precinctId: '42',
-          isTestMode: false,
-          pageNumber: 2,
-        },
+        metadata: backMetadata,
       },
       originalFilename: '/tmp/original.png',
       normalizedFilename: '/tmp/normalized.png',
@@ -385,37 +409,56 @@ test('importing a sheet orders HMPB pages', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const workerCall = jest.fn<Promise<Output>, [Input]>()
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
-    workerCall
-  )
+  const qrcodeWorkerCall = jest.fn<
+    Promise<qrcodeWorker.Output>,
+    [qrcodeWorker.Input]
+  >()
+  const interpretWorkerCall = jest.fn<
+    Promise<interpretWorker.Output>,
+    [interpretWorker.Input]
+  >()
+  const qrcodeWorkerPoolProvider = mockWorkerPoolProvider<
+    qrcodeWorker.Input,
+    qrcodeWorker.Output
+  >(qrcodeWorkerCall)
+  const interpretWorkerPoolProvider = mockWorkerPoolProvider<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >(interpretWorkerCall)
 
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider,
+    interpretWorkerPoolProvider,
+    qrcodeWorkerPoolProvider,
   })
 
   importer.configure(fromElection(election))
   jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id')
 
-  workerCall.mockImplementationOnce(async (input) => {
+  interpretWorkerCall.mockImplementationOnce(async (input) => {
     expect(input.action).toEqual('configure')
   })
 
   for (const pageNumber of [2, 1]) {
-    workerCall.mockResolvedValueOnce({
+    const metadata: BallotPageMetadata = {
+      ballotStyleId: election.ballotStyles[0].id,
+      precinctId: election.precincts[0].id,
+      ballotType: BallotType.Standard,
+      electionHash: '',
+      isTestMode: false,
+      locales: { primary: 'en-US' },
+      pageNumber,
+    }
+
+    qrcodeWorkerCall.mockResolvedValueOnce({
+      data: v1.encodeHMPBBallotPageMetadata(election, metadata),
+      position: 'bottom',
+    })
+    interpretWorkerCall.mockResolvedValueOnce({
       interpretation: {
         type: 'InterpretedHmpbPage',
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber,
-        },
+        metadata,
         markInfo: {
           marks: [],
           ballotSize: { width: 1, height: 1 },

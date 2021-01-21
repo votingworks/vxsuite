@@ -138,6 +138,10 @@ export interface HmpbTemplateInfo {
 }
 
 export type BallotMetadata = Omit<BallotPageMetadata, 'pageNumber' | 'ballotId'>
+export interface BallotPageQrcode {
+  data: Uint8Array
+  position: 'top' | 'bottom'
+}
 
 export type SerializableBallotPageLayout = Omit<
   BallotPageLayout,

@@ -119,7 +119,8 @@ test('can read metadata encoded in a QR code with base64', async () => {
     )
   )
 
-  expect(metadataFromBytes(election, qrcode)).toMatchInlineSnapshot(`
+  expect(metadataFromBytes(election, Buffer.from(qrcode.data)))
+    .toMatchInlineSnapshot(`
     Object {
       "ballotId": undefined,
       "ballotStyleId": "1",
@@ -145,7 +146,7 @@ test('can read metadata in QR code with skewed / dirty ballot', async () => {
     )
   )
 
-  expect(qrcode).toMatchInlineSnapshot(`
+  expect(qrcode.data).toMatchInlineSnapshot(`
     Object {
       "data": Array [
         86,

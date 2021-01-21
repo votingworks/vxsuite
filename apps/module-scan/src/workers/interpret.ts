@@ -5,6 +5,7 @@ import { basename, extname, join } from 'path'
 import { saveImages } from '../importer'
 import Interpreter, { PageInterpretation } from '../interpreter'
 import Store from '../store'
+import { BallotPageQrcode } from '../types'
 import pdfToImages from '../util/pdfToImages'
 
 const debug = makeDebug('module-scan:worker:interpret')
@@ -18,6 +19,7 @@ export type Input =
       sheetId: string
       imagePath: string
       ballotImagesPath: string
+      qrcode?: BallotPageQrcode
     }
 
 export interface InterpretOutput {
@@ -73,7 +75,8 @@ export async function configure(store: Store): Promise<void> {
 export async function interpret(
   ballotImagePath: string,
   sheetId: string,
-  ballotImagesPath: string
+  ballotImagesPath: string,
+  ballotPageQrcode?: BallotPageQrcode
 ): Promise<InterpretOutput> {
   debug('interpret ballot image: %s', ballotImagePath)
   if (!interpreter) {
@@ -84,6 +87,7 @@ export async function interpret(
   const result = await interpreter.interpretFile({
     ballotImagePath,
     ballotImageFile,
+    ballotPageQrcode,
   })
   debug(
     'interpreted ballot image as %s: %s',
@@ -123,7 +127,8 @@ export async function call(input: Input): Promise<Output> {
       return await interpret(
         input.imagePath,
         input.sheetId,
-        input.ballotImagesPath
+        input.ballotImagesPath,
+        input.qrcode
       )
   }
 }

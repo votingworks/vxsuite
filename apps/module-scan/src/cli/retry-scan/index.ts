@@ -4,7 +4,8 @@ import { isAbsolute, join, resolve } from 'path'
 import { dirSync } from 'tmp'
 import { PageInterpretation } from '../../interpreter'
 import { createWorkspace } from '../../util/workspace'
-import { Input, Output, workerPath } from '../../workers/interpret'
+import * as interpretWorker from '../../workers/interpret'
+import * as qrcodeWorker from '../../workers/qrcode'
 import { childProcessPool } from '../../workers/pool'
 import { Options } from './options'
 
@@ -118,10 +119,21 @@ export async function retryScan(
   listeners?.sheetsLoaded?.(sheets.length, electionDefinition?.election)
 
   listeners?.interpreterLoading?.()
-  const pool = childProcessPool<Input, Output>(workerPath, cpus().length - 1)
-  pool.start()
+  const qrcodePool = childProcessPool<qrcodeWorker.Input, qrcodeWorker.Output>(
+    qrcodeWorker.workerPath,
+    cpus().length - 1
+  )
+  qrcodePool.start()
+  const interpretPool = childProcessPool<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >(interpretWorker.workerPath, cpus().length - 1)
+  interpretPool.start()
 
-  await pool.callAll({ action: 'configure', dbPath: input.store.dbPath })
+  await interpretPool.callAll({
+    action: 'configure',
+    dbPath: input.store.dbPath,
+  })
   listeners?.interpreterLoaded?.()
 
   await Promise.all(
@@ -156,13 +168,16 @@ export async function retryScan(
 
         const [front, back] = await Promise.all(
           originalScans.map(async (scan, i) => {
-            const rescan = await pool.call({
+            const imagePath = isAbsolute(scan.originalFilename)
+              ? scan.originalFilename
+              : resolve(input.store.dbPath, '..', scan.originalFilename)
+            const qrcode = await qrcodePool.call({ imagePath })
+            const rescan = await interpretPool.call({
               action: 'interpret',
               sheetId: id,
-              imagePath: isAbsolute(scan.originalFilename)
-                ? scan.originalFilename
-                : resolve(input.store.dbPath, '..', scan.originalFilename),
+              imagePath,
               ballotImagesPath: output.ballotImagesPath,
+              qrcode,
             })
 
             if (rescan) {
@@ -185,7 +200,8 @@ export async function retryScan(
     )
   )
 
-  pool.stop()
+  qrcodePool.stop()
+  interpretPool.stop()
   listeners?.interpreterUnloaded?.()
   listeners?.complete?.()
 }
