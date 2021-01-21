@@ -1,5 +1,4 @@
 // TODO: delete this if/when https://github.com/kAworu/node-quirc/pull/11 is merged.
-declare module 'node-quirc' {
   export const constants: {
     // QR-code versions.
     VERSION_MIN: 1
@@ -54,9 +53,8 @@ declare module 'node-quirc' {
 
   export type DecodeResult = (QRCode | InvalidQRCode)[]
 
-  export function decode(img: Buffer): Promise<DecodeResult>
+  export function decode(img: Buffer | ImageData): Promise<DecodeResult>
   export function decode(
-    img: Buffer,
+    img: Buffer | ImageData,
     callback: (err: Error, results: DecodeResult) => void
   ): void
-}
