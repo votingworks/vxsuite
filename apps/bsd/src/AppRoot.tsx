@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import pluralize from 'pluralize'
 import { Election, OptionalElection } from '@votingworks/ballot-encoder'
+import styled from 'styled-components'
 
 import {
   CardData,
@@ -23,6 +24,8 @@ import {
 import Button from './components/Button'
 import Main, { MainChild } from './components/Main'
 import Screen from './components/Screen'
+import Prose from './components/Prose'
+import Text from './components/Text'
 import USBControllerButton from './components/USBControllerButton'
 import useInterval from './hooks/useInterval'
 
@@ -45,11 +48,19 @@ import StatusFooter from './components/StatusFooter'
 import ExportResultsModal from './components/ExportResultsModal'
 import machineConfigProvider from './util/machineConfig'
 
+const Buttons = styled.div`
+  padding: 10px 0;
+  & * {
+    margin-right: 10px;
+  }
+`
+
 const App: React.FC = () => {
   const history = useHistory()
   const [cardServerAvailable, setCardServerAvailable] = useState(true)
   const [isConfigLoaded, setIsConfigLoaded] = useState(false)
   const [election, setElection] = useState<OptionalElection>()
+  const [electionJustLoaded, setElectionJustLoaded] = useState(false)
   const [electionHash, setElectionHash] = useState<string>()
   // used to hide batches while they're being deleted
   const [pendingDeleteBatchIds, setPendingDeleteBatchIds] = useState<number[]>(
@@ -81,6 +92,11 @@ const App: React.FC = () => {
     setElection(config.election)
     setTestMode(config.testMode)
   }, [])
+
+  const updateElection = async (e: OptionalElection) => {
+    setElection(e)
+    setElectionJustLoaded(true)
+  }
 
   useEffect(() => {
     const initialize = async () => {
@@ -145,7 +161,7 @@ const App: React.FC = () => {
       if (electionToUpload) await configureServer(electionToUpload)
       setElection(electionToUpload)
     },
-    [setElection, configureServer]
+    [updateElection, configureServer]
   )
 
   const unconfigureServer = useCallback(async () => {
@@ -316,7 +332,48 @@ const App: React.FC = () => {
     updateStatus()
   }, [updateStatus])
 
+  useEffect(() => {
+    if (
+      electionJustLoaded &&
+      displayUsbStatus === UsbDriveStatus.recentlyEjected
+    ) {
+      setElectionJustLoaded(false)
+    }
+  }, [electionJustLoaded, displayUsbStatus])
+
   if (election) {
+    if (electionJustLoaded) {
+      return (
+        <AppContext.Provider
+          value={{
+            usbDriveStatus: displayUsbStatus,
+            usbDriveEject: doEject,
+            machineConfig,
+          }}
+        >
+          <Screen>
+            <Main>
+              <MainChild center padded>
+                <Prose>
+                  <h1>Ballot Scanner Configured</h1>
+                  <Text>
+                    Ballot Scanner successfully configured. You may now eject
+                    the USB drive.
+                  </Text>
+                </Prose>
+                <Buttons>
+                  <Button onPress={() => setElectionJustLoaded(false)}>
+                    Close
+                  </Button>
+                  <USBControllerButton small={false} primary />
+                </Buttons>
+              </MainChild>
+            </Main>
+            <MainNav isTestMode={false} />
+          </Screen>
+        </AppContext.Provider>
+      )
+    }
     if (adjudication.remaining > 0 && !isScanning) {
       return (
         <BallotEjectScreen
@@ -443,7 +500,7 @@ const App: React.FC = () => {
         }}
       >
         <LoadElectionScreen
-          setElection={setElection}
+          setElection={updateElection}
           usbDriveStatus={displayUsbStatus}
         />
       </AppContext.Provider>
