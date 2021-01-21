@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events'
-import { join } from 'path'
 import { makeMockWorkerOps } from '../../test/util/mocks'
+import { workerPath } from './echo'
 import { childProcessPool, WorkerPool, workerThreadPool } from './pool'
 
 test('starts new workers when starting the pool', () => {
@@ -223,7 +223,7 @@ test('releasing a non-owned worker is not allowed', async () => {
 })
 
 test('child process workers work', async () => {
-  const pool = childProcessPool<string, string>(join(__dirname, 'echo.ts'), 1)
+  const pool = childProcessPool<string, string>(workerPath, 1)
   pool.start()
   try {
     expect(await pool.call('hello child process')).toEqual(
@@ -235,7 +235,7 @@ test('child process workers work', async () => {
 })
 
 test('worker thread workers work', async () => {
-  const pool = workerThreadPool<string, string>(join(__dirname, 'echo.ts'), 1)
+  const pool = workerThreadPool<string, string>(workerPath, 1)
   pool.start()
   try {
     expect(await pool.call('hello worker thread')).toEqual(

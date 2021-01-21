@@ -9,6 +9,8 @@ import pdfToImages from '../util/pdfToImages'
 
 const debug = makeDebug('module-scan:worker:interpret')
 
+export const workerPath = __filename
+
 export type Input =
   | { action: 'configure'; dbPath: string }
   | {
