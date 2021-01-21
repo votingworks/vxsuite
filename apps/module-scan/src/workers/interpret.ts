@@ -3,7 +3,7 @@ import makeDebug from 'debug'
 import { readFile } from 'fs-extra'
 import { basename, extname, join } from 'path'
 import { saveImages } from '../importer'
-import SummaryBallotInterpreter, { PageInterpretation } from '../interpreter'
+import Interpreter, { PageInterpretation } from '../interpreter'
 import Store from '../store'
 import pdfToImages from '../util/pdfToImages'
 
@@ -28,7 +28,7 @@ export interface InterpretOutput {
 
 export type Output = InterpretOutput | void
 
-export let interpreter: SummaryBallotInterpreter | undefined
+export let interpreter: Interpreter | undefined
 
 async function getElection(store: Store): Promise<Election | undefined> {
   const electionDefinition = await store.getElectionDefinition()
@@ -53,10 +53,7 @@ export async function configure(store: Store): Promise<void> {
   const templates = await store.getHmpbTemplates()
 
   debug('creating a new interpreter')
-  interpreter = new SummaryBallotInterpreter(
-    election,
-    await store.getTestMode()
-  )
+  interpreter = new Interpreter(election, await store.getTestMode())
 
   debug('hand-marked paper ballot templates: %d', templates.length)
   for (const [pdf, layouts] of templates) {
