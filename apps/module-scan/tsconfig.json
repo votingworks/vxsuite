@@ -16,5 +16,9 @@
     "strict": true,
     "target": "es2017"
   },
-  "include": ["src", "types", "test"]
+  "include": ["src", "types", "test"],
+  "references": [
+    { "path": "../../libs/ballot-encoder" },
+    { "path": "../../libs/hmpb-interpreter" }
+  ]
 }
