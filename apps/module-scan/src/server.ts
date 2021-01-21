@@ -17,7 +17,7 @@ import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
 import { BallotConfig, ElectionDefinition } from './types'
 import { fromElection, validate } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
-import { Input, Output } from './workers/interpret'
+import { Input, Output, workerPath } from './workers/interpret'
 import { childProcessPool, WorkerPool } from './workers/pool'
 
 export interface AppOptions {
@@ -532,10 +532,7 @@ export async function start({
       workspace,
       scanner,
       interpreterWorkerPoolProvider: (): WorkerPool<Input, Output> =>
-        childProcessPool(
-          path.join(__dirname, 'workers/interpret.ts'),
-          2 /* front and back */
-        ),
+        childProcessPool(workerPath, 2 /* front and back */),
     })
   app = app ?? buildApp({ importer, store: workspace.store })
 

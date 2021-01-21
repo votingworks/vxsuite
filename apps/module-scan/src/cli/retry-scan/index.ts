@@ -4,7 +4,7 @@ import { isAbsolute, join, resolve } from 'path'
 import { dirSync } from 'tmp'
 import { PageInterpretation } from '../../interpreter'
 import { createWorkspace } from '../../util/workspace'
-import { Input, Output } from '../../workers/interpret'
+import { Input, Output, workerPath } from '../../workers/interpret'
 import { childProcessPool } from '../../workers/pool'
 import { Options } from './options'
 
@@ -118,10 +118,7 @@ export async function retryScan(
   listeners?.sheetsLoaded?.(sheets.length, electionDefinition?.election)
 
   listeners?.interpreterLoading?.()
-  const pool = childProcessPool<Input, Output>(
-    join(__dirname, '../../workers/interpret.ts'),
-    cpus().length - 1
-  )
+  const pool = childProcessPool<Input, Output>(workerPath, cpus().length - 1)
   pool.start()
 
   await pool.callAll({ action: 'configure', dbPath: input.store.dbPath })
