@@ -1,10 +1,11 @@
-import { detect } from '@votingworks/ballot-encoder'
-import { Rect, Size } from '@votingworks/hmpb-interpreter'
+import { detect, Election, v1 } from '@votingworks/ballot-encoder'
+import { BallotPageMetadata, Rect, Size } from '@votingworks/hmpb-interpreter'
 import crop from '@votingworks/hmpb-interpreter/dist/src/utils/crop'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import jsQR from 'jsqr'
 import { decode as quircDecode, QRCode } from 'node-quirc'
+import { BallotPageQrcode, SheetOf } from '../types'
 import { time } from './perf'
 
 const debug = makeDebug('module-scan:qrcode')
@@ -138,4 +139,54 @@ export const detectQRCode = async (
   } finally {
     timer.end()
   }
+}
+
+export function inferMissingQrcode(
+  election: Election,
+  qrcodes: SheetOf<BallotPageQrcode | undefined>
+): SheetOf<BallotPageQrcode | undefined> {
+  const [front, back] = qrcodes
+
+  if (!front !== !back) {
+    debug(
+      'sheet only has one page with readable QR code: %s',
+      front ? 'front' : 'back'
+    )
+    const presentQrcode = (front ?? back) as BallotPageQrcode
+
+    if (v1.detect(presentQrcode.data)) {
+      debug('QR code is for a BMD ballot, this is normal')
+    } else if (v1.detectHMPBBallotPageMetadata(presentQrcode.data)) {
+      debug('QR code is for a HMPB ballot, inferring opposite page metadata')
+
+      const presentMetadata = v1.decodeHMPBBallotPageMetadata(
+        election,
+        presentQrcode.data
+      )
+      const inferredMetadata: BallotPageMetadata = {
+        ...presentMetadata,
+        pageNumber:
+          presentMetadata.pageNumber % 2 === 1
+            ? presentMetadata.pageNumber + 1
+            : presentMetadata.pageNumber - 1,
+      }
+      debug(
+        'inferred missing page metadata for %s: %O',
+        front ? 'back' : 'front',
+        inferredMetadata
+      )
+      const inferredQrcode: BallotPageQrcode = {
+        data: v1.encodeHMPBBallotPageMetadata(election, inferredMetadata),
+        position: presentQrcode.position,
+      }
+
+      if (!front) {
+        return [inferredQrcode, back]
+      } else {
+        return [front, inferredQrcode]
+      }
+    }
+  }
+
+  return [front, back]
 }

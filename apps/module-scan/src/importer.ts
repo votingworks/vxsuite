@@ -19,6 +19,7 @@ import { Workspace } from './util/workspace'
 import * as interpretWorker from './workers/interpret'
 import * as qrcodeWorker from './workers/qrcode'
 import { inlinePool, WorkerPool } from './workers/pool'
+import { inferMissingQrcode } from './util/qrcode'
 
 const debug = makeDebug('module-scan:importer')
 
@@ -99,7 +100,7 @@ export default class SystemImporter implements Importer {
     interpretWorker.Input,
     interpretWorker.Output
   >
-  private interpreterWorkerPoolProvider: () => WorkerPool<
+  private interpretWorkerPoolProvider: () => WorkerPool<
     interpretWorker.Input,
     interpretWorker.Output
   >
@@ -113,7 +114,7 @@ export default class SystemImporter implements Importer {
   public constructor({
     workspace,
     scanner,
-    interpretWorkerPoolProvider: interpreterWorkerPoolProvider = (): WorkerPool<
+    interpretWorkerPoolProvider = (): WorkerPool<
       interpretWorker.Input,
       interpretWorker.Output
     > =>
@@ -127,7 +128,7 @@ export default class SystemImporter implements Importer {
   }: Options) {
     this.workspace = workspace
     this.scanner = scanner
-    this.interpreterWorkerPoolProvider = interpreterWorkerPoolProvider
+    this.interpretWorkerPoolProvider = interpretWorkerPoolProvider
     this.qrcodeWorkerPoolProvider = qrcodeWorkerPoolProvider
   }
 
@@ -143,7 +144,7 @@ export default class SystemImporter implements Importer {
     WorkerPool<interpretWorker.Input, interpretWorker.Output>
   > {
     if (!this.interpreterWorkerPool) {
-      this.interpreterWorkerPool = this.interpreterWorkerPoolProvider()
+      this.interpreterWorkerPool = this.interpretWorkerPoolProvider()
       this.interpreterWorkerPool.start()
       await this.interpreterWorkerPool.callAll({
         action: 'configure',
@@ -271,10 +272,14 @@ export default class SystemImporter implements Importer {
   ): Promise<string> {
     let sheetId = uuid()
     const qrcodeWorkerPool = await this.getQrcodeWorkerPool()
-    const [frontQrcode, backQrcode] = await Promise.all([
-      qrcodeWorkerPool.call({ imagePath: frontImagePath }),
-      qrcodeWorkerPool.call({ imagePath: backImagePath }),
-    ])
+    const electionDefinition = await this.workspace.store.getElectionDefinition()
+    const [frontQrcode, backQrcode] = inferMissingQrcode(
+      electionDefinition!.election,
+      await Promise.all([
+        qrcodeWorkerPool.call({ imagePath: frontImagePath }),
+        qrcodeWorkerPool.call({ imagePath: backImagePath }),
+      ])
+    )
 
     const interpreterWorkerPool = await this.getInterpreterWorkerPool()
     const frontWorkerPromise = interpreterWorkerPool.call({

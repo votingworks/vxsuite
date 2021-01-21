@@ -11,7 +11,7 @@ import { v4 as uuid } from 'uuid'
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks'
 import SystemImporter, { sleep } from './importer'
 import { Scanner } from './scanner'
-import { SheetOf } from './types'
+import { BallotMetadata, SheetOf } from './types'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { fromElection } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
@@ -124,7 +124,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
         type: 'UninterpretedHmpbPage',
         metadata: {
           locales: { primary: 'en-US' },
-          electionHash: '',
+          electionHash,
           ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
@@ -140,7 +140,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
         type: 'UninterpretedHmpbPage',
         metadata: {
           locales: { primary: 'en-US' },
-          electionHash: '',
+          electionHash,
           ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
@@ -161,11 +161,11 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const workerCall = jest.fn()
+  const interpretWorkerCall = jest.fn()
   const interpreterWorkerPoolProvider = mockWorkerPoolProvider<
     interpretWorker.Input,
     interpretWorker.Output
-  >(workerCall)
+  >(interpretWorkerCall)
   const importer = new SystemImporter({
     workspace,
     scanner,
@@ -173,7 +173,7 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
   })
 
   await importer.restoreConfig()
-  expect(workerCall).toHaveBeenCalledWith({
+  expect(interpretWorkerCall).toHaveBeenCalledWith({
     action: 'configure',
     dbPath: workspace.store.dbPath,
   })
@@ -191,7 +191,7 @@ test('cannot add HMPB templates before configuring an election', async () => {
 
   await expect(
     importer.addHmpbTemplates(Buffer.of(), {
-      electionHash: '',
+      electionHash,
       ballotType: BallotType.Standard,
       locales: { primary: 'en-US' },
       ballotStyleId: '77',
@@ -207,10 +207,6 @@ test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const interpretWorkerCall = jest.fn<
-    Promise<interpretWorker.Output>,
-    [interpretWorker.Input]
-  >()
   const qrcodeWorkerCall = jest.fn<
     Promise<qrcodeWorker.Output>,
     [qrcodeWorker.Input]
@@ -219,14 +215,18 @@ test('manually importing files', async () => {
     qrcodeWorker.Input,
     qrcodeWorker.Output
   >(qrcodeWorkerCall)
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<
+  const interpretWorkerCall = jest.fn<
+    Promise<interpretWorker.Output>,
+    [interpretWorker.Input]
+  >()
+  const interpretWorkerPoolProvider = mockWorkerPoolProvider<
     interpretWorker.Input,
     interpretWorker.Output
   >(interpretWorkerCall)
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpretWorkerPoolProvider: interpreterWorkerPoolProvider,
+    interpretWorkerPoolProvider,
     qrcodeWorkerPoolProvider,
   })
 
@@ -405,26 +405,26 @@ test('scanning pauses on adjudication then continues', async () => {
   expect(workspace.store.saveBallotAdjudication).toHaveBeenCalledTimes(2)
 })
 
-test('importing a sheet orders HMPB pages', async () => {
+test('importing a sheet orders HMPB pages and infers a single missing QR code', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const qrcodeWorkerCall = jest.fn<
-    Promise<qrcodeWorker.Output>,
-    [qrcodeWorker.Input]
-  >()
   const interpretWorkerCall = jest.fn<
     Promise<interpretWorker.Output>,
     [interpretWorker.Input]
+  >()
+  const interpretWorkerPoolProvider = mockWorkerPoolProvider<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >(interpretWorkerCall)
+  const qrcodeWorkerCall = jest.fn<
+    Promise<qrcodeWorker.Output>,
+    [qrcodeWorker.Input]
   >()
   const qrcodeWorkerPoolProvider = mockWorkerPoolProvider<
     qrcodeWorker.Input,
     qrcodeWorker.Output
   >(qrcodeWorkerCall)
-  const interpretWorkerPoolProvider = mockWorkerPoolProvider<
-    interpretWorker.Input,
-    interpretWorker.Output
-  >(interpretWorkerCall)
 
   const importer = new SystemImporter({
     workspace,
@@ -440,21 +440,28 @@ test('importing a sheet orders HMPB pages', async () => {
     expect(input.action).toEqual('configure')
   })
 
+  const sheetMetadata: BallotMetadata = {
+    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.precincts[0].id,
+    ballotType: BallotType.Standard,
+    electionHash,
+    isTestMode: false,
+    locales: { primary: 'en-US' },
+  }
+
   for (const pageNumber of [2, 1]) {
     const metadata: BallotPageMetadata = {
-      ballotStyleId: election.ballotStyles[0].id,
-      precinctId: election.precincts[0].id,
-      ballotType: BallotType.Standard,
-      electionHash: '',
-      isTestMode: false,
-      locales: { primary: 'en-US' },
+      ...sheetMetadata,
       pageNumber,
     }
-
-    qrcodeWorkerCall.mockResolvedValueOnce({
-      data: v1.encodeHMPBBallotPageMetadata(election, metadata),
-      position: 'bottom',
-    })
+    qrcodeWorkerCall.mockResolvedValueOnce(
+      pageNumber === 2
+        ? {
+            data: v1.encodeHMPBBallotPageMetadata(election, metadata),
+            position: 'bottom',
+          }
+        : undefined
+    )
     interpretWorkerCall.mockResolvedValueOnce({
       interpretation: {
         type: 'InterpretedHmpbPage',
@@ -477,6 +484,34 @@ test('importing a sheet orders HMPB pages', async () => {
 
   const imageFile = await makeImageFile()
   await importer.importFile('batch-id', imageFile, imageFile)
+
+  // ensure QR codes were read/inferred
+  expect(interpretWorkerCall).toHaveBeenNthCalledWith(2, {
+    action: 'interpret',
+    imagePath: imageFile,
+    qrcode: {
+      data: v1.encodeHMPBBallotPageMetadata(election, {
+        ...sheetMetadata,
+        pageNumber: 2,
+      }),
+      position: 'bottom',
+    },
+    sheetId: expect.any(String),
+    ballotImagesPath: expect.any(String),
+  })
+  expect(interpretWorkerCall).toHaveBeenNthCalledWith(3, {
+    action: 'interpret',
+    imagePath: imageFile,
+    qrcode: {
+      data: v1.encodeHMPBBallotPageMetadata(election, {
+        ...sheetMetadata,
+        pageNumber: 1,
+      }),
+      position: 'bottom',
+    },
+    sheetId: expect.any(String),
+    ballotImagesPath: expect.any(String),
+  })
 
   expect(workspace.store.addSheet).toHaveBeenCalledWith(
     expect.any(String),
