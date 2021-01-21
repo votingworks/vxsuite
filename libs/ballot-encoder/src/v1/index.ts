@@ -454,6 +454,23 @@ export function encodeHMPBBallotPageMetadataInto(
   }
 }
 
+/**
+ * Reads the HMPB prelude bytes from `data`, returning true when they are found.
+ */
+export function detectHMPBBallotPageMetadata(data: Uint8Array): boolean {
+  return detectHMPBBallotPageMetadataFromReader(new BitReader(data))
+}
+
+/**
+ * Reads the HMPB prelude bytes from `bits`. When detected, the cursor of `bits`
+ * will be updated to skip the prelude bytes.
+ */
+export function detectHMPBBallotPageMetadataFromReader(
+  bits: BitReader
+): boolean {
+  return bits.skipUint8(...HMPBPrelude)
+}
+
 export function decodeHMPBBallotPageMetadataCheckData(
   data: Uint8Array
 ): HMPBBallotPageMetadataCheckData {
@@ -463,7 +480,7 @@ export function decodeHMPBBallotPageMetadataCheckData(
 export function decodeHMPBBallotPageMetadataCheckDataFromReader(
   bits: BitReader
 ): HMPBBallotPageMetadataCheckData {
-  if (!bits.skipUint8(...HMPBPrelude)) {
+  if (!detectHMPBBallotPageMetadataFromReader(bits)) {
     throw new Error(
       "expected leading prelude 'V' 'P' 0b00000001 but it was not found"
     )
