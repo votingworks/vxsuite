@@ -238,7 +238,7 @@ test('child process workers can send objects', async () => {
   const pool = childProcessPool<
     Record<string, unknown>,
     Record<string, unknown>
-  >(join(__dirname, 'echo.ts'), 1)
+  >(workerPath, 1)
   pool.start()
   try {
     expect(await pool.call({ a: 1, b: { c: 2 } })).toEqual({
@@ -251,10 +251,7 @@ test('child process workers can send objects', async () => {
 })
 
 test('child process workers can send arrays', async () => {
-  const pool = childProcessPool<unknown[], unknown[]>(
-    join(__dirname, 'echo.ts'),
-    1
-  )
+  const pool = childProcessPool<unknown[], unknown[]>(workerPath, 1)
   pool.start()
   try {
     expect(await pool.call([1, '2', null, undefined])).toEqual([
@@ -269,7 +266,7 @@ test('child process workers can send arrays', async () => {
 })
 
 test('child process workers can send Buffers', async () => {
-  const pool = childProcessPool<Buffer, Buffer>(join(__dirname, 'echo.ts'), 1)
+  const pool = childProcessPool<Buffer, Buffer>(workerPath, 1)
   pool.start()
   try {
     expect(await pool.call(Buffer.of(1, 2, 3))).toEqual(Buffer.of(1, 2, 3))
@@ -279,10 +276,7 @@ test('child process workers can send Buffers', async () => {
 })
 
 test('child process workers can send Uint8Arrays', async () => {
-  const pool = childProcessPool<Uint8Array, Uint8Array>(
-    join(__dirname, 'echo.ts'),
-    1
-  )
+  const pool = childProcessPool<Uint8Array, Uint8Array>(workerPath, 1)
   pool.start()
   try {
     expect(await pool.call(Uint8Array.of(1, 2, 3))).toEqual(
@@ -294,7 +288,7 @@ test('child process workers can send Uint8Arrays', async () => {
 })
 
 test('child process workers cannot send functions', async () => {
-  const pool = childProcessPool<unknown, unknown>(join(__dirname, 'echo.ts'), 1)
+  const pool = childProcessPool<unknown, unknown>(workerPath, 1)
   pool.start()
   try {
     await expect(
