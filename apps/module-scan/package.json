@@ -6,7 +6,7 @@
     "build": "tsc --build",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet",
-    "start": "ts-node --files ./src/index.ts",
+    "start": "ts-node --transpile-only --files ./src/index.ts",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
