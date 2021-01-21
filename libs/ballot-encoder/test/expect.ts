@@ -7,7 +7,7 @@ declare namespace jest {
 
 function asBinaryString(buffer: Uint8Array): string {
   return Array.from(buffer)
-    .map(n => n.toString(2).padStart(8, '0'))
+    .map((n) => n.toString(2).padStart(8, '0'))
     .join('')
 }
 
