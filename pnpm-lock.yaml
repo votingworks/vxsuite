@@ -294,6 +294,7 @@ importers:
       lint-staged: 10.5.3
       node-fetch: 2.6.1
       prettier: 2.2.1
+      react-refresh: 0.9.0
       stylelint: 13.8.0
       stylelint-config-palantir: 5.0.0_stylelint@13.8.0
       stylelint-config-prettier: 8.0.2_stylelint@13.8.0
@@ -349,6 +350,7 @@ importers:
       react-dom: ^17.0.1
       react-dropzone: ^11.2.1
       react-modal: ^3.11.2
+      react-refresh: ^0.9.0
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
       rxjs: ^6.6.0
