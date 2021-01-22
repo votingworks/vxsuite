@@ -29,7 +29,10 @@ pnpm test
 
 ```sh
 # use a real scanner
-pnpm start
+pnpm dev
+
+# build & run for production
+pnpm build && pnpm start
 ```
 
 ## Mock Scanning
@@ -38,13 +41,13 @@ You can also scan directly from image files instead of using a real scanner:
 
 ```sh
 # single batch with single sheet
-MOCK_SCANNER_FILES=front.png,back.png pnpm start
+MOCK_SCANNER_FILES=front.png,back.png pnpm dev
 
 # single batch with multiple sheets
-MOCK_SCANNER_FILES=front-01.png,back-01.png,front-02.png,back-02.png pnpm start
+MOCK_SCANNER_FILES=front-01.png,back-01.png,front-02.png,back-02.png pnpm dev
 
 # multiple batches with one sheet each (note ",," batch separator)
-MOCK_SCANNER_FILES=front-01.png,back-01.png,,front-02.png,back-02.png pnpm start
+MOCK_SCANNER_FILES=front-01.png,back-01.png,,front-02.png,back-02.png pnpm dev
 
 # use a manifest file
 cat <<EOS > manifest
@@ -56,11 +59,11 @@ back-01.png
 front-02.png
 back-02.png
 EOS
-MOCK_SCANNER_FILES=@manifest pnpm start
+MOCK_SCANNER_FILES=@manifest pnpm dev
 
 # scanning from an election backup file
 ./bin/extract-backup /path/to/election-backup.zip
-MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm start
+MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
 ```
 
 ## Switching Workspaces
@@ -70,7 +73,7 @@ in the root of the folder when running this service. To choose another location,
 set `MODULE_SCAN_WORKSPACE` to the path to another folder:
 
 ```sh
-$ MODULE_SCAN_WORKSPACE=/path/to/workspace pnpm start
+$ MODULE_SCAN_WORKSPACE=/path/to/workspace pnpm dev
 ```
 
 ## API Documentation

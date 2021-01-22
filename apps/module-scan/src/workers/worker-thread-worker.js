@@ -1,7 +1,9 @@
 // @ts-check
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-require('ts-node').register({ transpileOnly: true })
+if (process.env.NODE_ENV !== 'production') {
+  require('ts-node').register({ transpileOnly: true })
+}
 
 const { resolve } = require('path')
 const { parentPort, workerData } = require('worker_threads')
