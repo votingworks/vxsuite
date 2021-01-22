@@ -1,3 +1,4 @@
+NODE_ENV ?= development
 PLATFORM := $(shell uname)
 TIMESTAMP := $(shell date --iso-8601=seconds --utc | sed 's/+.*$\//g' | tr ':' '-')
 
@@ -5,16 +6,10 @@ TIMESTAMP := $(shell date --iso-8601=seconds --utc | sed 's/+.*$\//g' | tr ':' '
 FORCE:
 
 install:
-ifeq ($(PLATFORM),Darwin)
-	brew install libjpeg libpng
-else ifeq ($(PLATFORM),Linux)
 	sudo apt install -y build-essential libx11-dev libjpeg-dev libpng-dev
-else
-	@echo "I don't know how to install libjpeg and libpng on your platform: $(PLATFORM)"
-endif
 
 build: FORCE
-	pnpm install
+	pnpm install && pnpm build
 
 run:
 	pnpm start
