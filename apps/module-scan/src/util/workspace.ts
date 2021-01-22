@@ -1,6 +1,6 @@
 import Store from '../store'
 import { ensureDir } from 'fs-extra'
-import { join } from 'path'
+import { join, resolve } from 'path'
 
 export interface Workspace {
   readonly path: string
@@ -9,12 +9,13 @@ export interface Workspace {
 }
 
 export async function createWorkspace(root: string): Promise<Workspace> {
-  const ballotImagesPath = join(root, 'ballot-images')
-  const dbPath = join(root, 'ballots.db')
+  const resolvedRoot = resolve(root)
+  const ballotImagesPath = join(resolvedRoot, 'ballot-images')
+  const dbPath = join(resolvedRoot, 'ballots.db')
   await ensureDir(ballotImagesPath)
 
   return {
-    path: root,
+    path: resolvedRoot,
     ballotImagesPath,
     store: await Store.fileStore(dbPath),
   }
