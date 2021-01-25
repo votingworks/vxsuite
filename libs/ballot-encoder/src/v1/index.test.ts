@@ -4,19 +4,21 @@ import {
   BallotType,
   BallotTypeMaximumValue,
   Candidate,
+  CompletedBallot,
   Election,
   electionSampleLongContent as election,
   getContests,
   isVotePresent,
   Vote,
   vote,
-  CompletedBallot,
 } from '../election'
 import * as v0 from '../v0'
 import {
   decodeBallot,
   decodeHMPBBallotPageMetadata,
+  decodeHMPBBallotPageMetadataCheckData,
   detect,
+  detectHMPBBallotPageMetadata,
   encodeBallot,
   encodeBallotInto,
   encodeHMPBBallotPageMetadata,
@@ -24,7 +26,6 @@ import {
   MAXIMUM_WRITE_IN_LENGTH,
   Prelude,
   WriteInEncoding,
-  decodeHMPBBallotPageMetadataCheckData,
 } from './index'
 
 const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election
@@ -770,4 +771,46 @@ test('decode HMPB ballot page metadata check data separately', () => {
     ballotStyleCount: election.ballotStyles.length,
     contestCount: election.contests.length,
   })
+})
+
+test('detect HMPB ballot page metadata', () => {
+  const electionHash = 'abc345624cdeff278def'
+  const ballotMetadata: HMPBBallotPageMetadata = {
+    electionHash,
+    precinctId: election.ballotStyles[0].precincts[0],
+    ballotStyleId: election.ballotStyles[0].id,
+    locales: {
+      primary: 'en-US',
+    },
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  }
+
+  // empty
+  expect(detectHMPBBallotPageMetadata(Uint8Array.of())).toBe(false)
+
+  // gibberish
+  expect(detectHMPBBallotPageMetadata(Uint8Array.of(1, 2, 3))).toBe(false)
+
+  // HMPB
+  expect(
+    detectHMPBBallotPageMetadata(
+      encodeHMPBBallotPageMetadata(election, ballotMetadata)
+    )
+  ).toBe(true)
+
+  // BMD
+  expect(
+    detectHMPBBallotPageMetadata(
+      encodeBallot(election, {
+        ballotId: '',
+        ballotStyle: election.ballotStyles[0],
+        precinct: election.precincts[0],
+        ballotType: BallotType.Standard,
+        isTestMode: false,
+        votes: {},
+      })
+    )
+  ).toBe(false)
 })
