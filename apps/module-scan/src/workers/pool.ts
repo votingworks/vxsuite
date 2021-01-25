@@ -6,7 +6,7 @@ import { cpus } from 'os'
 import { join } from 'path'
 import { inspect } from 'util'
 import { v4 as uuid } from 'uuid'
-import { MessagePort, Worker } from 'worker_threads'
+import { Worker } from 'worker_threads'
 import deferred, { Deferred } from '../util/deferred'
 import * as json from './json-serialization'
 
@@ -15,11 +15,7 @@ const debug = makeDebug('module-scan:pool')
 export interface WorkerOps<I, W extends EventEmitter = EventEmitter> {
   start(): W
   stop(worker: W): void
-  send(
-    worker: W,
-    message: I,
-    transferList?: (ArrayBuffer | MessagePort)[]
-  ): void
+  send(worker: W, message: I): void
   describe(worker: W): string
 }
 
@@ -56,12 +52,8 @@ export class WorkerThreadWorkerOps<I> implements WorkerOps<I, Worker> {
     worker.terminate()
   }
 
-  public send(
-    worker: Worker,
-    message: I,
-    transferList?: (ArrayBuffer | MessagePort)[]
-  ): void {
-    worker.postMessage(json.serialize(message), transferList)
+  public send(worker: Worker, message: I): void {
+    worker.postMessage(json.serialize(message))
   }
 
   public describe(worker: Worker): string {
@@ -263,10 +255,7 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     claimedWorkers.delete(worker)
   }
 
-  public async call(
-    input: I,
-    transferList?: (ArrayBuffer | MessagePort)[]
-  ): Promise<O> {
+  public async call(input: I): Promise<O> {
     const traceId = uuid()
     debug(
       '[%s] call start: input=%s',
@@ -275,7 +264,7 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     )
     const worker = await this.claimFreeWorker(traceId)
     debug('[%s] worker claimed: %o', traceId, this.workerOps.describe(worker))
-    return await this.callWorker(worker, input, traceId, transferList)
+    return await this.callWorker(worker, input, traceId)
   }
 
   public async callAll(input: I): Promise<O[]> {
@@ -309,12 +298,7 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     return results
   }
 
-  private async callWorker(
-    worker: W,
-    input: I,
-    traceId: string,
-    transferList?: (ArrayBuffer | MessagePort)[]
-  ): Promise<O> {
+  private async callWorker(worker: W, input: I, traceId: string): Promise<O> {
     const { promise, resolve, reject } = deferred<{
       output: json.SerializedMessage
     }>()
@@ -322,7 +306,7 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     try {
       worker.on('message', resolve)
       worker.on('error', reject)
-      this.workerOps.send(worker, input, transferList)
+      this.workerOps.send(worker, input)
       const { output } = await promise
       debug(
         '[%s] call returned: output=%s',
