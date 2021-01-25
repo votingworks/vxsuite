@@ -18,5 +18,5 @@
     "composite": true
   },
   "include": ["src", "src/data/*.json"],
-  "exclude": ["**/*.test.ts"]
+  "exclude": ["**/*.test.ts", "test"]
 }
