@@ -2,6 +2,7 @@ import {
   BallotType,
   electionSample as election,
 } from '@votingworks/ballot-encoder'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import { dirSync } from 'tmp'
@@ -110,6 +111,19 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
     scanner,
   })
 
+  const frontMetadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: '',
+    ballotType: BallotType.Standard,
+    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  }
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  }
   await importer.configure(fromElection(election))
   const batchId = await workspace.store.addBatch()
   await workspace.store.addSheet(uuid(), batchId, [
@@ -118,15 +132,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
       normalizedFilename: '/tmp/front-normalized-page.png',
       interpretation: {
         type: 'UninterpretedHmpbPage',
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 1,
-        },
+        metadata: frontMetadata,
       },
     },
     {
@@ -134,15 +140,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
       normalizedFilename: '/tmp/back-normalized-page.png',
       interpretation: {
         type: 'UninterpretedHmpbPage',
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 2,
-        },
+        metadata: backMetadata,
       },
     },
   ])
@@ -217,6 +215,19 @@ test('manually importing files', async () => {
     interpretWorkerPoolProvider,
   })
 
+  const frontMetadata: BallotPageMetadata = {
+    electionHash: '',
+    ballotType: BallotType.Standard,
+    locales: { primary: 'en-US' },
+    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  }
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  }
   await workspace.store.setElection(fromElection(election))
   interpretWorkerCall
     // configure
@@ -227,15 +238,7 @@ test('manually importing files', async () => {
     .mockResolvedValueOnce({
       interpretation: {
         type: 'UninterpretedHmpbPage',
-        metadata: {
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          locales: { primary: 'en-US' },
-          ballotStyleId: '77',
-          precinctId: '42',
-          isTestMode: false,
-          pageNumber: 1,
-        },
+        metadata: frontMetadata,
       },
       originalFilename: '/tmp/original.png',
       normalizedFilename: '/tmp/normalized.png',
@@ -244,15 +247,7 @@ test('manually importing files', async () => {
     .mockResolvedValueOnce({
       interpretation: {
         type: 'UninterpretedHmpbPage',
-        metadata: {
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          locales: { primary: 'en-US' },
-          ballotStyleId: '77',
-          precinctId: '42',
-          isTestMode: false,
-          pageNumber: 2,
-        },
+        metadata: backMetadata,
       },
       originalFilename: '/tmp/original.png',
       normalizedFilename: '/tmp/normalized.png',
