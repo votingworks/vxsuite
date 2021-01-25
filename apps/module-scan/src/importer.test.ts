@@ -13,7 +13,7 @@ import { SheetOf } from './types'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { fromElection } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
-import { Input, Output } from './workers/interpret'
+import * as interpretWorker from './workers/interpret'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
@@ -158,13 +158,14 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
     scanSheets: jest.fn(),
   }
   const workerCall = jest.fn()
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
-    workerCall
-  )
+  const interpretWorkerPoolProvider = mockWorkerPoolProvider<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >(workerCall)
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider,
+    interpretWorkerPoolProvider,
   })
 
   await importer.restoreConfig()
@@ -202,18 +203,22 @@ test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const workerCall = jest.fn<Promise<Output>, [Input]>()
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
-    workerCall
-  )
+  const interpretWorkerCall = jest.fn<
+    Promise<interpretWorker.Output>,
+    [interpretWorker.Input]
+  >()
+  const interpretWorkerPoolProvider = mockWorkerPoolProvider<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >(interpretWorkerCall)
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider,
+    interpretWorkerPoolProvider,
   })
 
   await workspace.store.setElection(fromElection(election))
-  workerCall
+  interpretWorkerCall
     // configure
     .mockImplementationOnce(async (input) => {
       expect(input.action).toEqual('configure')
@@ -385,26 +390,30 @@ test('importing a sheet orders HMPB pages', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const workerCall = jest.fn<Promise<Output>, [Input]>()
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
-    workerCall
-  )
+  const interpretWorkerCall = jest.fn<
+    Promise<interpretWorker.Output>,
+    [interpretWorker.Input]
+  >()
+  const interpretWorkerPoolProvider = mockWorkerPoolProvider<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >(interpretWorkerCall)
 
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider,
+    interpretWorkerPoolProvider,
   })
 
   importer.configure(fromElection(election))
   jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id')
 
-  workerCall.mockImplementationOnce(async (input) => {
+  interpretWorkerCall.mockImplementationOnce(async (input) => {
     expect(input.action).toEqual('configure')
   })
 
   for (const pageNumber of [2, 1]) {
-    workerCall.mockResolvedValueOnce({
+    interpretWorkerCall.mockResolvedValueOnce({
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {

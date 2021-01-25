@@ -16,7 +16,7 @@ import {
 import { toPNG } from './util/images'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
-import { call, Input, InterpretOutput, Output } from './workers/interpret'
+import * as interpretWorker from './workers/interpret'
 import { inlinePool, WorkerPool } from './workers/pool'
 
 const debug = makeDebug('module-scan:importer')
@@ -27,7 +27,10 @@ export const sleep = (ms = 1000): Promise<void> =>
 export interface Options {
   workspace: Workspace
   scanner: Scanner
-  interpreterWorkerPoolProvider?: () => WorkerPool<Input, Output>
+  interpretWorkerPoolProvider?: () => WorkerPool<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >
 }
 
 export interface Importer {
@@ -87,19 +90,30 @@ export default class SystemImporter implements Importer {
   private scanner: Scanner
   private sheetGenerator: AsyncGenerator<SheetOf<string>> | undefined
   private batchId: string | undefined
-  private interpreterWorkerPool?: WorkerPool<Input, Output>
-  private interpreterWorkerPoolProvider: () => WorkerPool<Input, Output>
+  private interpreterWorkerPool?: WorkerPool<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >
+  private interpretWorkerPoolProvider: () => WorkerPool<
+    interpretWorker.Input,
+    interpretWorker.Output
+  >
   private interpreterReady = true
 
   public constructor({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider = (): WorkerPool<Input, Output> =>
-      inlinePool<Input, Output>(call),
+    interpretWorkerPoolProvider = (): WorkerPool<
+      interpretWorker.Input,
+      interpretWorker.Output
+    > =>
+      inlinePool<interpretWorker.Input, interpretWorker.Output>(
+        interpretWorker.call
+      ),
   }: Options) {
     this.workspace = workspace
     this.scanner = scanner
-    this.interpreterWorkerPoolProvider = interpreterWorkerPoolProvider
+    this.interpretWorkerPoolProvider = interpretWorkerPoolProvider
   }
 
   private invalidateInterpreterConfig(): void {
@@ -108,9 +122,11 @@ export default class SystemImporter implements Importer {
     this.interpreterWorkerPool = undefined
   }
 
-  private async getInterpreterWorkerPool(): Promise<WorkerPool<Input, Output>> {
+  private async getInterpreterWorkerPool(): Promise<
+    WorkerPool<interpretWorker.Input, interpretWorker.Output>
+  > {
     if (!this.interpreterWorkerPool) {
-      this.interpreterWorkerPool = this.interpreterWorkerPoolProvider()
+      this.interpreterWorkerPool = this.interpretWorkerPoolProvider()
       this.interpreterWorkerPool.start()
       await this.interpreterWorkerPool.callAll({
         action: 'configure',
@@ -239,8 +255,8 @@ export default class SystemImporter implements Importer {
       ballotImagesPath: this.workspace.ballotImagesPath,
     })
 
-    const frontWorkerOutput = (await frontWorkerPromise) as InterpretOutput
-    const backWorkerOutput = (await backWorkerPromise) as InterpretOutput
+    const frontWorkerOutput = (await frontWorkerPromise) as interpretWorker.InterpretOutput
+    const backWorkerOutput = (await backWorkerPromise) as interpretWorker.InterpretOutput
 
     debug(
       'interpreted %s (%s): %O',

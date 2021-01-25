@@ -17,7 +17,7 @@ import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
 import { BallotConfig, ElectionDefinition } from './types'
 import { fromElection, validate } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
-import { Input, Output, workerPath } from './workers/interpret'
+import * as interpretWorker from './workers/interpret'
 import { childProcessPool, WorkerPool } from './workers/pool'
 
 export interface AppOptions {
@@ -531,8 +531,10 @@ export async function start({
     new SystemImporter({
       workspace,
       scanner,
-      interpreterWorkerPoolProvider: (): WorkerPool<Input, Output> =>
-        childProcessPool(workerPath, 2 /* front and back */),
+      interpretWorkerPoolProvider: (): WorkerPool<
+        interpretWorker.Input,
+        interpretWorker.Output
+      > => childProcessPool(interpretWorker.workerPath, 2 /* front and back */),
     })
   app = app ?? buildApp({ importer, store: workspace.store })
 
