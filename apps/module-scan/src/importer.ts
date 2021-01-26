@@ -16,8 +16,10 @@ import {
 import { toPNG } from './util/images'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
-import * as interpretWorker from './workers/interpret'
+import * as workers from './workers/combined'
+import { InterpretOutput } from './workers/interpret'
 import { inlinePool, WorkerPool } from './workers/pool'
+import * as qrcodeWorker from './workers/qrcode'
 
 const debug = makeDebug('module-scan:importer')
 
@@ -27,10 +29,7 @@ export const sleep = (ms = 1000): Promise<void> =>
 export interface Options {
   workspace: Workspace
   scanner: Scanner
-  interpretWorkerPoolProvider?: () => WorkerPool<
-    interpretWorker.Input,
-    interpretWorker.Output
-  >
+  workerPoolProvider?: () => WorkerPool<workers.Input, workers.Output>
 }
 
 export interface Importer {
@@ -90,51 +89,40 @@ export default class SystemImporter implements Importer {
   private scanner: Scanner
   private sheetGenerator: AsyncGenerator<SheetOf<string>> | undefined
   private batchId: string | undefined
-  private interpreterWorkerPool?: WorkerPool<
-    interpretWorker.Input,
-    interpretWorker.Output
-  >
-  private interpretWorkerPoolProvider: () => WorkerPool<
-    interpretWorker.Input,
-    interpretWorker.Output
-  >
+  private workerPool?: WorkerPool<workers.Input, workers.Output>
+  private workerPoolProvider: () => WorkerPool<workers.Input, workers.Output>
   private interpreterReady = true
 
   public constructor({
     workspace,
     scanner,
-    interpretWorkerPoolProvider = (): WorkerPool<
-      interpretWorker.Input,
-      interpretWorker.Output
-    > =>
-      inlinePool<interpretWorker.Input, interpretWorker.Output>(
-        interpretWorker.call
-      ),
+    workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> =>
+      inlinePool<workers.Input, workers.Output>(workers.call),
   }: Options) {
     this.workspace = workspace
     this.scanner = scanner
-    this.interpretWorkerPoolProvider = interpretWorkerPoolProvider
+    this.workerPoolProvider = workerPoolProvider
   }
 
   private invalidateInterpreterConfig(): void {
     this.interpreterReady = false
-    this.interpreterWorkerPool?.stop()
-    this.interpreterWorkerPool = undefined
+    this.workerPool?.stop()
+    this.workerPool = undefined
   }
 
-  private async getInterpreterWorkerPool(): Promise<
-    WorkerPool<interpretWorker.Input, interpretWorker.Output>
+  private async getWorkerPooll(): Promise<
+    WorkerPool<workers.Input, workers.Output>
   > {
-    if (!this.interpreterWorkerPool) {
-      this.interpreterWorkerPool = this.interpretWorkerPoolProvider()
-      this.interpreterWorkerPool.start()
-      await this.interpreterWorkerPool.callAll({
+    if (!this.workerPool) {
+      this.workerPool = this.workerPoolProvider()
+      this.workerPool.start()
+      await this.workerPool.callAll({
         action: 'configure',
         dbPath: this.workspace.store.dbPath,
       })
       this.interpreterReady = true
     }
-    return this.interpreterWorkerPool
+    return this.workerPool
   }
 
   public async addHmpbTemplates(
@@ -189,7 +177,7 @@ export default class SystemImporter implements Importer {
    * Tell the importer that we have all the templates
    */
   public async doneHmpbTemplates(): Promise<void> {
-    await this.getInterpreterWorkerPool()
+    await this.getWorkerPooll()
   }
 
   /**
@@ -213,7 +201,7 @@ export default class SystemImporter implements Importer {
    */
   public async restoreConfig(): Promise<void> {
     this.invalidateInterpreterConfig()
-    await this.getInterpreterWorkerPool()
+    await this.getWorkerPooll()
   }
 
   private async sheetAdded(
@@ -241,22 +229,38 @@ export default class SystemImporter implements Importer {
     backImagePath: string
   ): Promise<string> {
     let sheetId = uuid()
-    const interpreterWorkerPool = await this.getInterpreterWorkerPool()
-    const frontWorkerPromise = interpreterWorkerPool.call({
+    const workerPool = await this.getWorkerPooll()
+    const frontDetectQrcodePromise = workerPool.call({
+      action: 'detect-qrcode',
+      imagePath: frontImagePath,
+    })
+    const backDetectQrcodePromise = workerPool.call({
+      action: 'detect-qrcode',
+      imagePath: backImagePath,
+    })
+    const frontDetectQrcodeOutput = (await frontDetectQrcodePromise) as qrcodeWorker.Output
+    const backDetectQrcodeOutput = (await backDetectQrcodePromise) as qrcodeWorker.Output
+    const frontInterpretPromise = workerPool.call({
       action: 'interpret',
       imagePath: frontImagePath,
       sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
+      qrcode: frontDetectQrcodeOutput.blank
+        ? undefined
+        : frontDetectQrcodeOutput.qrcode,
     })
-    const backWorkerPromise = interpreterWorkerPool.call({
+    const backInterpretPromise = workerPool.call({
       action: 'interpret',
       imagePath: backImagePath,
       sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
+      qrcode: backDetectQrcodeOutput.blank
+        ? undefined
+        : backDetectQrcodeOutput.qrcode,
     })
 
-    const frontWorkerOutput = (await frontWorkerPromise) as interpretWorker.InterpretOutput
-    const backWorkerOutput = (await backWorkerPromise) as interpretWorker.InterpretOutput
+    const frontWorkerOutput = (await frontInterpretPromise) as InterpretOutput
+    const backWorkerOutput = (await backInterpretPromise) as InterpretOutput
 
     debug(
       'interpreted %s (%s): %O',

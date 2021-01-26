@@ -4,7 +4,8 @@ import { isAbsolute, join, resolve } from 'path'
 import { dirSync } from 'tmp'
 import { PageInterpretation } from '../../interpreter'
 import { createWorkspace } from '../../util/workspace'
-import * as interpretWorker from '../../workers/interpret'
+import * as workers from '../../workers/combined'
+import { InterpretOutput } from '../../workers/interpret'
 import { childProcessPool } from '../../workers/pool'
 import { Options } from './options'
 
@@ -118,10 +119,10 @@ export async function retryScan(
   listeners?.sheetsLoaded?.(sheets.length, electionDefinition?.election)
 
   listeners?.interpreterLoading?.()
-  const interpretPool = childProcessPool<
-    interpretWorker.Input,
-    interpretWorker.Output
-  >(interpretWorker.workerPath, cpus().length - 1)
+  const interpretPool = childProcessPool<workers.Input, workers.Output>(
+    workers.workerPath,
+    cpus().length - 1
+  )
   interpretPool.start()
 
   await interpretPool.callAll({
@@ -165,12 +166,12 @@ export async function retryScan(
             const imagePath = isAbsolute(scan.originalFilename)
               ? scan.originalFilename
               : resolve(input.store.dbPath, '..', scan.originalFilename)
-            const rescan = await interpretPool.call({
+            const rescan = (await interpretPool.call({
               action: 'interpret',
               sheetId: id,
               imagePath,
               ballotImagesPath: output.ballotImagesPath,
-            })
+            })) as InterpretOutput
 
             if (rescan) {
               listeners?.pageInterpreted?.(
