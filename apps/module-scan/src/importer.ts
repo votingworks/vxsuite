@@ -14,6 +14,7 @@ import {
   Side,
 } from './types'
 import { toPNG } from './util/images'
+import { normalizeSheetMetadata } from './util/metadata'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
 import * as workers from './workers/combined'
@@ -229,6 +230,11 @@ export default class SystemImporter implements Importer {
     backImagePath: string
   ): Promise<string> {
     let sheetId = uuid()
+    const electionDefinition = await this.workspace.store.getElectionDefinition()
+    if (!electionDefinition) {
+      throw new Error('missing election definition')
+    }
+
     const workerPool = await this.getWorkerPooll()
     const frontDetectQrcodePromise = workerPool.call({
       action: 'detect-qrcode',
@@ -238,25 +244,32 @@ export default class SystemImporter implements Importer {
       action: 'detect-qrcode',
       imagePath: backImagePath,
     })
-    const frontDetectQrcodeOutput = (await frontDetectQrcodePromise) as qrcodeWorker.Output
-    const backDetectQrcodeOutput = (await backDetectQrcodePromise) as qrcodeWorker.Output
+    const [frontDetectQrcodeOutput, backDetectQrcodeOutput] = [
+      (await frontDetectQrcodePromise) as qrcodeWorker.Output,
+      (await backDetectQrcodePromise) as qrcodeWorker.Output,
+    ]
+    const [
+      frontQrcode,
+      backQrcode,
+    ] = normalizeSheetMetadata(electionDefinition.election, [
+      !frontDetectQrcodeOutput.blank
+        ? frontDetectQrcodeOutput.qrcode
+        : undefined,
+      !backDetectQrcodeOutput.blank ? backDetectQrcodeOutput.qrcode : undefined,
+    ])
     const frontInterpretPromise = workerPool.call({
       action: 'interpret',
       imagePath: frontImagePath,
       sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
-      qrcode: frontDetectQrcodeOutput.blank
-        ? undefined
-        : frontDetectQrcodeOutput.qrcode,
+      qrcode: frontQrcode,
     })
     const backInterpretPromise = workerPool.call({
       action: 'interpret',
       imagePath: backImagePath,
       sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
-      qrcode: backDetectQrcodeOutput.blank
-        ? undefined
-        : backDetectQrcodeOutput.qrcode,
+      qrcode: backQrcode,
     })
 
     const frontWorkerOutput = (await frontInterpretPromise) as InterpretOutput

@@ -422,7 +422,7 @@ test('scanning pauses on adjudication then continues', async () => {
   expect(workspace.store.saveBallotAdjudication).toHaveBeenCalledTimes(2)
 })
 
-test('importing a sheet orders HMPB pages', async () => {
+test('importing a sheet normalizes and orders HMPB pages', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
@@ -477,13 +477,17 @@ test('importing a sheet orders HMPB pages', async () => {
 
         return {
           blank: false,
-          qrcode: {
-            data: v1.encodeHMPBBallotPageMetadata(
-              election,
-              input.imagePath === frontImagePath ? frontMetadata : backMetadata
-            ),
-            position: 'bottom',
-          },
+          qrcode:
+            input.imagePath === frontImagePath
+              ? {
+                  data: v1.encodeHMPBBallotPageMetadata(
+                    election,
+                    frontMetadata
+                  ),
+                  position: 'bottom',
+                }
+              : // assume back fails to find QR code, then infers it
+                undefined,
         }
 
       case 'interpret':
