@@ -7,6 +7,7 @@ import {
   Contest,
   Election,
   VotesDict,
+  Vote,
 } from '@votingworks/ballot-encoder'
 import {
   ContestOption,
@@ -17,10 +18,10 @@ import {
   Tally,
   ContestTally,
   ContestTallyMetaDictionary,
-  YesNoContestOptionTally,
   FullElectionTally,
-  OptionalFullElectionTally,
   TallyCategory,
+  CandidateOption,
+  YesNoOption,
 } from '../config/types'
 import { defined } from '../utils/assert'
 import {
@@ -186,6 +187,22 @@ export function* parseCVRs(
   }
 }
 
+const isYesNoOption = (option: ContestOption): option is YesNoOption =>
+  Array.isArray(option) &&
+  option.length === 1 &&
+  (option[0] === 'yes' || option[0] === 'no')
+
+const isCandidateOption = (option: ContestOption): option is CandidateOption =>
+  !isYesNoOption(option)
+
+const isYesNoSelection = (
+  selection: Vote[number]
+): selection is YesNoVote[number] => selection === 'yes' || selection === 'no'
+
+const isCandidateSelection = (
+  selection: Vote[number]
+): selection is CandidateVote[number] => !isYesNoSelection(selection)
+
 const buildVoteFromCvr = ({
   election,
   cvr,
@@ -242,7 +259,7 @@ export function tallyVotesByContest({
       options = contest.candidates
     }
 
-    const tallies: ContestOptionTally[] = options
+    let tallies: ContestOptionTally[] = options
       .map((option) => {
         return { option, tally: 0 }
       })
@@ -259,28 +276,24 @@ export function tallyVotesByContest({
       }
 
       // overvotes & undervotes
-      const maxSelectable =
-        contest.type === 'yesno' ? 1 : (contest as CandidateContest).seats
+      const maxSelectable = contest.type === 'yesno' ? 1 : contest.seats
       if (selected.length > maxSelectable || selected.length === 0) {
         return
       }
 
-      if (contest.type === 'yesno') {
-        const optionTally = find(tallies, (optionTally) => {
-          return (
-            (optionTally as YesNoContestOptionTally).option[0] === selected[0]
-          )
-        })
-        optionTally.tally += 1
-      } else {
-        ;(selected as CandidateVote).forEach((selectedOption) => {
-          const optionTally = find(tallies, (optionTally) => {
-            const candidateOption = optionTally.option as Candidate
-            const selectedCandidateOption = selectedOption as Candidate
-            return candidateOption.id === selectedCandidateOption.id
-          })
-          optionTally.tally += 1
-        })
+      for (const selectedOption of selected) {
+        tallies = tallies.map((optionTally) => ({
+          ...optionTally,
+          tally:
+            (isCandidateOption(optionTally.option) &&
+              isCandidateSelection(selectedOption) &&
+              optionTally.option.id === selectedOption.id) ||
+            (isYesNoOption(optionTally.option) &&
+              isYesNoSelection(selectedOption) &&
+              optionTally.option[0] === selectedOption)
+              ? optionTally.tally + 1
+              : optionTally.tally,
+        }))
       }
     })
 
@@ -416,7 +429,7 @@ function getTallyForCastVoteRecords(
 export function computeFullElectionTally(
   election: Election,
   castVoteRecordLists: CastVoteRecordLists
-): OptionalFullElectionTally {
+): FullElectionTally {
   const castVoteRecords = castVoteRecordLists.flat(1)
 
   const overallTally = getTallyForCastVoteRecords(election, castVoteRecords)
