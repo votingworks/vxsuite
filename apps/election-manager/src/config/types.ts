@@ -63,35 +63,37 @@ export interface ScannerReportScreenProps {
 }
 
 // Tallies
+export type CandidateOption = Candidate
+export type YesNoOption = ['yes'] | ['no'] | []
+export type ContestOption = Candidate | YesNoOption
 export interface YesNoContestOptionTally {
-  option: ['yes'] | ['no'] | []
-  tally: number
+  readonly option: YesNoOption
+  readonly tally: number
 }
-export type ContestOption = Candidate | ['yes'] | ['no'] | []
 export interface ContestOptionTally {
-  option: ContestOption
-  tally: number
+  readonly option: ContestOption
+  readonly tally: number
 }
 
 export interface ContestTally {
-  contest: Contest
-  tallies: ContestOptionTally[]
+  readonly contest: Contest
+  readonly tallies: ContestOptionTally[]
 }
 
 export interface ContestTallyMeta {
-  overvotes: number
-  undervotes: number
-  ballots: number
+  readonly overvotes: number
+  readonly undervotes: number
+  readonly ballots: number
 }
 export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
 
 export interface Tally {
-  precinctId?: string
-  scannerId?: string
-  numberOfBallotsCounted: number
-  castVoteRecords: Map<string, CastVoteRecord>
-  contestTallies: ContestTally[]
-  contestTallyMetadata: ContestTallyMetaDictionary
+  readonly precinctId?: string
+  readonly scannerId?: string
+  readonly numberOfBallotsCounted: number
+  readonly castVoteRecords: ReadonlyMap<string, CastVoteRecord>
+  readonly contestTallies: ContestTally[]
+  readonly contestTallyMetadata: ContestTallyMetaDictionary
 }
 
 export enum TallyCategory {
@@ -100,8 +102,8 @@ export enum TallyCategory {
 }
 
 export interface FullElectionTally {
-  overallTally: Tally
-  resultsByCategory: Map<TallyCategory, Dictionary<Tally>>
+  readonly overallTally: Tally
+  readonly resultsByCategory: ReadonlyMap<TallyCategory, Dictionary<Tally>>
 }
 
 export type OptionalFullElectionTally = Optional<FullElectionTally>
@@ -111,15 +113,15 @@ export interface CastVoteRecord
   extends Dictionary<
     string | string[] | boolean | number | number[] | BallotLocale
   > {
-  _precinctId: string
-  _ballotId: string
-  _ballotStyleId: string
-  _ballotType: 'absentee' | 'provisional' | 'standard'
-  _testBallot: boolean
-  _scannerId: string
-  _pageNumber?: number
-  _pageNumbers?: number[]
-  _locales?: BallotLocale
+  readonly _precinctId: string
+  readonly _ballotId: string
+  readonly _ballotStyleId: string
+  readonly _ballotType: 'absentee' | 'provisional' | 'standard'
+  readonly _testBallot: boolean
+  readonly _scannerId: string
+  readonly _pageNumber?: number
+  readonly _pageNumbers?: number[]
+  readonly _locales?: BallotLocale
 }
 
 export type CastVoteRecordFileMode = 'test' | 'live'
