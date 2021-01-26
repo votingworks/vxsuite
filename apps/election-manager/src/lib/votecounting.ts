@@ -7,6 +7,7 @@ import {
   Contest,
   Election,
   VotesDict,
+  Vote,
 } from '@votingworks/ballot-encoder'
 import {
   ContestOption,
@@ -361,24 +362,29 @@ export const getContestTallyMeta = ({
       (cvr) => cvr[contest.id] !== undefined
     )
 
-    const contestVotes = contestCVRs.map((cvr) => cvr[contest.id])
+    const contestVotes = contestCVRs.map(
+      (cvr) => (cvr[contest.id] as unknown) as Vote
+    )
     const overvotes = contestVotes.filter((vote) => {
       if (contest.type === 'candidate') {
-        return ((vote as unknown) as CandidateVote).length > contest.seats
+        return vote.length > contest.seats
       }
-      return ((vote as unknown) as YesNoVote).length > 1
+      return vote.length > 1
     })
-    const undervotes = contestVotes.filter((vote) => {
+    const numberOfUndervotes = contestVotes.reduce((undervotes, vote) => {
       if (contest.type === 'candidate') {
-        return ((vote as unknown) as CandidateVote).length < contest.seats
+        const numVotesMarked = vote.length
+        if (numVotesMarked < contest.seats) {
+          return undervotes + contest.seats - numVotesMarked
+        }
+        return undervotes
       }
-      return ((vote as unknown) as YesNoVote).length === 0
-    })
-
+      return vote.length === 0 ? undervotes + 1 : undervotes
+    }, 0)
     dictionary[contest.id] = {
       ballots: contestCVRs.length,
       overvotes: overvotes.length,
-      undervotes: undervotes.length,
+      undervotes: numberOfUndervotes,
     }
     return dictionary
   }, {})
