@@ -136,9 +136,7 @@ const TallyReportScreen: React.FC = () => {
           const tallyForReport = filterTalliesByParams(
             fullElectionTally!,
             election,
-            precinctId,
-            scannerId,
-            party
+            { precinctId, scannerId, party }
           )
 
           if (precinctId) {
@@ -147,7 +145,7 @@ const TallyReportScreen: React.FC = () => {
               (p) => p.id === precinctId
             ).name
             return (
-              <React.Fragment key={`${partyId}-${precinctId}` || 'none'}>
+              <React.Fragment key={`${partyId}-${precinctId}`}>
                 <TallyHeader key={precinctId}>
                   <Prose maxWidth={false}>
                     <h1>
@@ -167,7 +165,7 @@ const TallyReportScreen: React.FC = () => {
 
           if (scannerId) {
             return (
-              <React.Fragment key={`${partyId}-${scannerId}` || 'none'}>
+              <React.Fragment key={`${partyId}-${scannerId}`}>
                 <TallyHeader key={scannerId}>
                   <Prose maxWidth={false}>
                     <h1>

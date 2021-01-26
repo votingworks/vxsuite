@@ -45,15 +45,15 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // tabulate it
   const fullTally = computeFullElectionTally(election, [castVoteRecords])
-  expect(fullTally!.overallTally.numberOfBallotsCounted).toBe(10000)
-  expect(fullTally!.overallTally.contestTallies).toMatchSnapshot()
-  expect(fullTally!.overallTally.contestTallyMetadata).toMatchSnapshot()
+  expect(fullTally.overallTally.numberOfBallotsCounted).toBe(10000)
+  expect(fullTally.overallTally.contestTallies).toMatchSnapshot()
+  expect(fullTally.overallTally.contestTallyMetadata).toMatchSnapshot()
 
   // some specific tallies checked by hand
 
   // - Jackie Chan, 1380 bubbles, of which 8 are overvotes --> 1372
   const presidentTallies = find(
-    fullTally!.overallTally.contestTallies,
+    fullTally.overallTally.contestTallies,
     (contestTally) => contestTally.contest.id === 'president'
   )
   const jackieChanTally = find(
@@ -65,7 +65,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // - Neil Armstrong, 2207 bubbles, of which 10 are overvotes --> 2197
   const repDistrict18Tallies = find(
-    fullTally!.overallTally.contestTallies,
+    fullTally.overallTally.contestTallies,
     (contestTally) => contestTally.contest.id === 'representative-district-18'
   )
   const neilArmstrongTally = find(
@@ -77,7 +77,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // sum up all the write-ins across all questions
   // 262 bubbles filled out, of which 2 are overvotes --> 260 write-ins
-  const candidateTallies = fullTally!.overallTally.contestTallies.filter(
+  const candidateTallies = fullTally.overallTally.contestTallies.filter(
     (contestTally) => contestTally.contest.type === 'candidate'
   )
 
@@ -111,7 +111,7 @@ describe('filterTalliesByParams in a typical election', () => {
     )
 
     // tabulate it
-    electionTally = computeFullElectionTally(election, [castVoteRecords])!
+    electionTally = computeFullElectionTally(election, [castVoteRecords])
   })
 
   it('can filter by precinct', () => {
@@ -123,11 +123,9 @@ describe('filterTalliesByParams in a typical election', () => {
     for (const [precinctId, expectedNumBallots] of Object.entries(
       expectedPrecinctResults
     )) {
-      const filteredResults = filterTalliesByParams(
-        electionTally,
-        election,
-        precinctId
-      )
+      const filteredResults = filterTalliesByParams(electionTally, election, {
+        precinctId,
+      })
       expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
       expect(filteredResults.precinctId).toBe(precinctId)
       expect(filteredResults.scannerId).toBe(undefined)
@@ -152,12 +150,9 @@ describe('filterTalliesByParams in a typical election', () => {
     for (const [scannerId, expectedNumBallots] of Object.entries(
       expectedScannerResults
     )) {
-      const filteredResults = filterTalliesByParams(
-        electionTally,
-        election,
-        undefined,
-        scannerId
-      )
+      const filteredResults = filterTalliesByParams(electionTally, election, {
+        scannerId,
+      })
       expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
       expect(filteredResults.scannerId).toBe(scannerId)
       expect(filteredResults.precinctId).toBe(undefined)
@@ -167,12 +162,10 @@ describe('filterTalliesByParams in a typical election', () => {
   })
 
   test('can filtere by precinct and scanner', () => {
-    const filteredResults = filterTalliesByParams(
-      electionTally,
-      election,
-      '23',
-      'scanner-5'
-    )
+    const filteredResults = filterTalliesByParams(electionTally, election, {
+      precinctId: '23',
+      scannerId: 'scanner-5',
+    })
     expect(filteredResults.numberOfBallotsCounted).toBe(226)
     expect(filteredResults.contestTallies).toMatchSnapshot()
     expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
@@ -194,7 +187,7 @@ describe('filterTalliesByParams in a primary election', () => {
     // tabulate it
     electionTally = computeFullElectionTally(primaryElectionSample, [
       castVoteRecords,
-    ])!
+    ])
   })
 
   test('can filter results by party', () => {
@@ -203,9 +196,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResults = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      undefined,
-      undefined,
-      primaryParty
+      { party: primaryParty }
     )
     expect(electionTally.overallTally.contestTallies.length).toBe(22)
     // Filtering by party just filters down the contests in contestTallies
@@ -258,9 +249,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResults2 = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      undefined,
-      undefined,
-      otherParty
+      { party: otherParty }
     )
     expect(filteredResults2.contestTallies).toStrictEqual([])
   })
@@ -270,16 +259,12 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsAll = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      undefined,
-      undefined,
-      primaryParty
+      { party: primaryParty }
     )
     const filteredResultsPrecinct = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      '20',
-      undefined,
-      primaryParty
+      { precinctId: '20', party: primaryParty }
     )
     // The results filtered to precinct 20 should be identical to not being filtered as it is the only precinct for the primary.
     expect(filteredResultsAll.contestTallies).toStrictEqual(
@@ -288,9 +273,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsWrongPrecinct = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      '21',
-      undefined,
-      primaryParty
+      { precinctId: '21', party: primaryParty }
     )
     expect(filteredResultsWrongPrecinct.contestTallies).toMatchInlineSnapshot(`
       Array [
@@ -343,16 +326,12 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsScanner4 = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      undefined,
-      'scanner-4',
-      primaryParty
+      { scannerId: 'scanner-4', party: primaryParty }
     )
     const filteredResultsScanner5 = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      undefined,
-      'scanner-5',
-      primaryParty
+      { scannerId: 'scanner-5', party: primaryParty }
     )
     expect(filteredResultsScanner4.numberOfBallotsCounted).toBe(5)
     expect(filteredResultsScanner5.numberOfBallotsCounted).toBe(6)
@@ -448,9 +427,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsScanner6 = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      undefined,
-      'scanner-6',
-      primaryParty
+      { scannerId: 'scanner-6', party: primaryParty }
     )
     expect(filteredResultsScanner6.numberOfBallotsCounted).toBe(1) // There is one ballot in scanner 6 with the wrong ballot style for the primary
     expect(filteredResultsScanner6.contestTallies).toMatchInlineSnapshot(`

@@ -404,12 +404,10 @@ function getTallyForCastVoteRecords(
 ): Tally {
   const allVotes: VotesDict[] = []
   const cvrMap = new Map<string, CastVoteRecord>()
-  let numberOfBallotsCounted = 0
   castVoteRecords.forEach((CVR) => {
     const vote = buildVoteFromCvr({ election, cvr: CVR })
     cvrMap.set(CVR._ballotId, CVR)
     allVotes.push(vote)
-    numberOfBallotsCounted += 1
   })
 
   const overallTally = tallyVotesByContest({ election, votes: allVotes })
@@ -421,7 +419,7 @@ function getTallyForCastVoteRecords(
   return {
     contestTallies: overallTally,
     castVoteRecords: cvrMap,
-    numberOfBallotsCounted,
+    numberOfBallotsCounted: allVotes.length,
     contestTallyMetadata,
   }
 }
@@ -493,9 +491,11 @@ export function getEmptyTally(precinctId?: string, scannerId?: string): Tally {
 export function filterTalliesByParams(
   fullElectionTally: FullElectionTally,
   election: Election,
-  precinctId?: string,
-  scannerId?: string,
-  party?: Party
+  {
+    precinctId,
+    scannerId,
+    party,
+  }: { precinctId?: string; scannerId?: string; party?: Party }
 ): Tally {
   const { overallTally, resultsByCategory } = fullElectionTally
   let tallyResults = overallTally
@@ -508,14 +508,12 @@ export function filterTalliesByParams(
       getEmptyTally(scannerId)
     const cvrMap = new Map<string, CastVoteRecord>()
     const allVotes: VotesDict[] = []
-    let numberOfBallotsCounted = 0
     for (const ballotId of precinctTally.castVoteRecords.keys()) {
       if (scannerTally.castVoteRecords.has(ballotId)) {
         const CVR = precinctTally.castVoteRecords.get(ballotId)!
         const vote = buildVoteFromCvr({ election, cvr: CVR })
         cvrMap.set(ballotId, CVR)
         allVotes.push(vote)
-        numberOfBallotsCounted += 1
       }
     }
 
@@ -527,7 +525,7 @@ export function filterTalliesByParams(
     tallyResults = {
       contestTallies,
       castVoteRecords: cvrMap,
-      numberOfBallotsCounted,
+      numberOfBallotsCounted: allVotes.length,
       contestTallyMetadata,
     }
   } else if (scannerId) {

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import pluralize from 'pluralize'
 import moment from 'moment'
@@ -13,7 +11,6 @@ import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'
 
 import Button from '../components/Button'
-import FileInputButton from '../components/FileInputButton'
 import Text from '../components/Text'
 import Loading from '../components/Loading'
 import Table, { TD } from '../components/Table'
@@ -40,7 +37,6 @@ const TallyScreen: React.FC = () => {
   } = useContext(AppContext)
   const { election } = electionDefinition!
 
-  const [isLoadingCVRFile, setIsLoadingCVRFile] = useState(false)
   const [isConfimingRemoveCVRs, setIsConfirmingRemoveCVRs] = useState(false)
   const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false)
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
@@ -183,7 +179,7 @@ const TallyScreen: React.FC = () => {
             <TD>
               <strong data-testid="total-ballot-count">
                 {format.count(
-                  fullElectionTally?.overallTally.numberOfBallotsCounted || 0
+                  fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0
                 )}
               </strong>
             </TD>
@@ -214,7 +210,7 @@ const TallyScreen: React.FC = () => {
             )
             .map((scannerId) => {
               const scannerBallotsCount =
-                resultsByScanner[scannerId]?.numberOfBallotsCounted || 0
+                resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0
               return (
                 <tr key={scannerId}>
                   <TD narrow nowrap>
@@ -243,7 +239,7 @@ const TallyScreen: React.FC = () => {
             <TD>
               <strong>
                 {format.count(
-                  fullElectionTally?.overallTally.numberOfBallotsCounted || 0
+                  fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0
                 )}
               </strong>
             </TD>
