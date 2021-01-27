@@ -2,7 +2,7 @@ export enum DiffWhen {
   Always = 'always',
   Never = 'never',
   SameType = 'same-type',
-  VotesDiffer = 'votes-changed',
+  VotesDiffer = 'votes-differ',
 }
 
 export interface Options {

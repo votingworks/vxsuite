@@ -69,9 +69,9 @@ test('can configure when a diff is printed', () => {
   )
 })
 
-test('defaults to --diff-when same-type', () => {
+test('defaults to --diff-when votes-differ', () => {
   expect(parseOptions(['--all'])).toEqual(
-    parseOptions(['--all', '-d', 'same-type'])
+    parseOptions(['--all', '-d', 'votes-differ'])
   )
 })
 

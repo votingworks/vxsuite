@@ -120,29 +120,6 @@ test('successful rescan with one non-type change', async () => {
             Side: front
            Image: /tmp/abc.png
       Normalized: /tmp/abc-normalized.png
-    - Original
-    + Re-scanned
-
-      Object {
-        \\"ballotId\\": \\"\\",
-        \\"metadata\\": Object {
-          \\"ballotStyleId\\": \\"1\\",
-          \\"ballotType\\": 0,
-          \\"electionHash\\": \\"\\",
-          \\"isTestMode\\": false,
-          \\"locales\\": Object {
-            \\"primary\\": \\"en-US\\",
-          },
-          \\"precinctId\\": \\"2\\",
-        },
-        \\"type\\": \\"InterpretedBmdPage\\",
-    -   \\"votes\\": Object {},
-    +   \\"votes\\": Object {
-    +     \\"99\\": Array [
-    +       \\"yes\\",
-    +     ],
-    +   },
-      }
 
     "
   `)
