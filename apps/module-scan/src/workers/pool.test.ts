@@ -93,7 +93,7 @@ test('call sends a message to a worker', async () => {
   worker.emit('message', { output: 16 })
 
   expect(await callPromise).toEqual(16)
-  expect(ops.send).toHaveBeenCalledWith(worker, 4, undefined)
+  expect(ops.send).toHaveBeenCalledWith(worker, 4)
 })
 
 test('call gets the next available worker and sends a message to it', async () => {
@@ -120,8 +120,8 @@ test('call gets the next available worker and sends a message to it', async () =
 
   expect(await call2Promise).toEqual(25)
 
-  expect(ops.send).toHaveBeenNthCalledWith(1, worker, 4, undefined)
-  expect(ops.send).toHaveBeenNthCalledWith(2, worker, 5, undefined)
+  expect(ops.send).toHaveBeenNthCalledWith(1, worker, 4)
+  expect(ops.send).toHaveBeenNthCalledWith(2, worker, 5)
 })
 
 test('callAll sends a message to all workers', async () => {

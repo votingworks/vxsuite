@@ -176,7 +176,7 @@ export default async function main(
           original.interpretation.type === rescan.interpretation.type)
       if (shouldDiff) {
         stdout.write(
-          `${diff(original, rescan.interpretation, {
+          `${diff(original.interpretation, rescan.interpretation, {
             aAnnotation: 'Original',
             aColor: chalk.red,
             bAnnotation: 'Re-scanned',

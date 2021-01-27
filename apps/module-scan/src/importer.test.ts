@@ -1,7 +1,9 @@
 import {
   BallotType,
   electionSample as election,
+  v1,
 } from '@votingworks/ballot-encoder'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import { dirSync } from 'tmp'
@@ -13,7 +15,7 @@ import { SheetOf } from './types'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { fromElection } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
-import { Input, Output } from './workers/interpret'
+import * as workers from './workers/combined'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 
@@ -28,7 +30,7 @@ afterEach(async () => {
   jest.restoreAllMocks()
 })
 
-jest.setTimeout(10000)
+jest.setTimeout(20000)
 
 test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
@@ -110,6 +112,19 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
     scanner,
   })
 
+  const frontMetadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: '',
+    ballotType: BallotType.Standard,
+    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  }
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  }
   await importer.configure(fromElection(election))
   const batchId = await workspace.store.addBatch()
   await workspace.store.addSheet(uuid(), batchId, [
@@ -118,15 +133,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
       normalizedFilename: '/tmp/front-normalized-page.png',
       interpretation: {
         type: 'UninterpretedHmpbPage',
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 1,
-        },
+        metadata: frontMetadata,
       },
     },
     {
@@ -134,15 +141,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
       normalizedFilename: '/tmp/back-normalized-page.png',
       interpretation: {
         type: 'UninterpretedHmpbPage',
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 2,
-        },
+        metadata: backMetadata,
       },
     },
   ])
@@ -158,13 +157,14 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
     scanSheets: jest.fn(),
   }
   const workerCall = jest.fn()
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
-    workerCall
-  )
+  const workerPoolProvider = mockWorkerPoolProvider<
+    workers.Input,
+    workers.Output
+  >(workerCall)
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider,
+    workerPoolProvider,
   })
 
   await importer.restoreConfig()
@@ -202,69 +202,110 @@ test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const workerCall = jest.fn<Promise<Output>, [Input]>()
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
-    workerCall
-  )
+  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()
+  const workerPoolProvider = mockWorkerPoolProvider<
+    workers.Input,
+    workers.Output
+  >(workerCall)
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider,
+    workerPoolProvider,
   })
 
+  const frontMetadata: BallotPageMetadata = {
+    electionHash: '',
+    ballotType: BallotType.Standard,
+    locales: { primary: 'en-US' },
+    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  }
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  }
   await workspace.store.setElection(fromElection(election))
-  workerCall
-    // configure
-    .mockImplementationOnce(async (input) => {
-      expect(input.action).toEqual('configure')
-    })
-    // interpret front
-    .mockResolvedValueOnce({
-      interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: {
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          locales: { primary: 'en-US' },
-          ballotStyleId: '77',
-          precinctId: '42',
-          isTestMode: false,
-          pageNumber: 1,
-        },
-      },
-      originalFilename: '/tmp/original.png',
-      normalizedFilename: '/tmp/normalized.png',
-    })
-    // interpret back
-    .mockResolvedValueOnce({
-      interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: {
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          locales: { primary: 'en-US' },
-          ballotStyleId: '77',
-          precinctId: '42',
-          isTestMode: false,
-          pageNumber: 2,
-        },
-      },
-      originalFilename: '/tmp/original.png',
-      normalizedFilename: '/tmp/normalized.png',
-    })
-  const imageFile = await makeImageFile()
+
+  const frontImagePath = await makeImageFile()
+  const backImagePath = await makeImageFile()
+
+  workerCall.mockImplementation(async (input) => {
+    switch (input.action) {
+      case 'configure':
+        break
+
+      case 'detect-qrcode':
+        if (input.imagePath === frontImagePath) {
+          return {
+            blank: false,
+            qrcode: {
+              data: v1.encodeHMPBBallotPageMetadata(election, frontMetadata),
+              position: 'bottom',
+            },
+          }
+        } else if (input.imagePath === backImagePath) {
+          return {
+            blank: false,
+            qrcode: {
+              data: v1.encodeHMPBBallotPageMetadata(election, backMetadata),
+              position: 'bottom',
+            },
+          }
+        } else {
+          throw new Error(`unexpected image path: ${input.imagePath}`)
+        }
+
+      case 'interpret':
+        if (input.imagePath === frontImagePath) {
+          return {
+            interpretation: {
+              type: 'UninterpretedHmpbPage',
+              metadata: frontMetadata,
+            },
+            originalFilename: '/tmp/front.png',
+            normalizedFilename: '/tmp/front-normalized.png',
+          }
+        } else if (input.imagePath === backImagePath) {
+          return {
+            interpretation: {
+              type: 'UninterpretedHmpbPage',
+              metadata: backMetadata,
+            },
+            originalFilename: '/tmp/back.png',
+            normalizedFilename: '/tmp/back-normalized.png',
+          }
+        } else {
+          throw new Error(`unexpected image path: ${input.imagePath}`)
+        }
+
+      default:
+        throw new Error('unexpected action')
+    }
+  })
+
   const sheetId = await importer.importFile(
     await workspace.store.addBatch(),
-    imageFile,
-    imageFile
+    frontImagePath,
+    backImagePath
   )
 
-  const filenames = (await workspace.store.getBallotFilenames(
-    sheetId,
-    'front'
-  ))!
-  expect(filenames.original).toBe('/tmp/original.png')
-  expect(filenames.normalized).toBe('/tmp/normalized.png')
+  expect(workerCall).toHaveBeenNthCalledWith(1, {
+    action: 'configure',
+    dbPath: workspace.store.dbPath,
+  })
+
+  expect((await workspace.store.getBallotFilenames(sheetId, 'front'))!).toEqual(
+    {
+      original: '/tmp/front.png',
+      normalized: '/tmp/front-normalized.png',
+    }
+  )
+  expect((await workspace.store.getBallotFilenames(sheetId, 'back'))!).toEqual({
+    original: '/tmp/back.png',
+    normalized: '/tmp/back-normalized.png',
+  })
 })
 
 test('scanning pauses on adjudication then continues', async () => {
@@ -381,19 +422,20 @@ test('scanning pauses on adjudication then continues', async () => {
   expect(workspace.store.saveBallotAdjudication).toHaveBeenCalledTimes(2)
 })
 
-test('importing a sheet orders HMPB pages', async () => {
+test('importing a sheet normalizes and orders HMPB pages', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const workerCall = jest.fn<Promise<Output>, [Input]>()
-  const interpreterWorkerPoolProvider = mockWorkerPoolProvider<Input, Output>(
-    workerCall
-  )
+  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()
+  const workerPoolProvider = mockWorkerPoolProvider<
+    workers.Input,
+    workers.Output
+  >(workerCall)
 
   const importer = new SystemImporter({
     workspace,
     scanner,
-    interpreterWorkerPoolProvider,
+    workerPoolProvider,
   })
 
   importer.configure(fromElection(election))
@@ -403,37 +445,85 @@ test('importing a sheet orders HMPB pages', async () => {
     expect(input.action).toEqual('configure')
   })
 
-  for (const pageNumber of [2, 1]) {
-    workerCall.mockResolvedValueOnce({
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber,
-        },
-        markInfo: {
-          marks: [],
-          ballotSize: { width: 1, height: 1 },
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          allReasonInfos: [],
-          enabledReasons: [],
-        },
-        votes: {},
-      },
-      originalFilename: '/tmp/original.png',
-      normalizedFilename: '/tmp/normalized.png',
-    })
+  const frontMetadata: BallotPageMetadata = {
+    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.precincts[0].id,
+    ballotType: BallotType.Standard,
+    electionHash: '',
+    isTestMode: false,
+    locales: { primary: 'en-US' },
+    pageNumber: 1,
+  }
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
   }
 
-  const imageFile = await makeImageFile()
-  await importer.importFile('batch-id', imageFile, imageFile)
+  const frontImagePath = await makeImageFile()
+  const backImagePath = await makeImageFile()
+
+  workerCall.mockImplementation(async (input) => {
+    switch (input.action) {
+      case 'configure':
+        break
+
+      case 'detect-qrcode':
+        if (
+          input.imagePath !== frontImagePath &&
+          input.imagePath !== backImagePath
+        ) {
+          throw new Error(`unexpected image path: ${input.imagePath}`)
+        }
+
+        return {
+          blank: false,
+          qrcode:
+            input.imagePath === frontImagePath
+              ? {
+                  data: v1.encodeHMPBBallotPageMetadata(
+                    election,
+                    frontMetadata
+                  ),
+                  position: 'bottom',
+                }
+              : // assume back fails to find QR code, then infers it
+                undefined,
+        }
+
+      case 'interpret':
+        if (
+          input.imagePath !== frontImagePath &&
+          input.imagePath !== backImagePath
+        ) {
+          throw new Error(`unexpected image path: ${input.imagePath}`)
+        }
+
+        return {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata:
+              input.imagePath === frontImagePath ? frontMetadata : backMetadata,
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              allReasonInfos: [],
+              enabledReasons: [],
+            },
+            votes: {},
+          },
+          originalFilename: '/tmp/original.png',
+          normalizedFilename: '/tmp/normalized.png',
+        }
+
+      default:
+        throw new Error('unexpected action')
+    }
+  })
+
+  await importer.importFile('batch-id', backImagePath, frontImagePath)
 
   expect(workspace.store.addSheet).toHaveBeenCalledWith(
     expect.any(String),
