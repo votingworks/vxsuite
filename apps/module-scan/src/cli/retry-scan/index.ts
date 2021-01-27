@@ -6,8 +6,11 @@ import { PageInterpretation } from '../../interpreter'
 import { createWorkspace } from '../../util/workspace'
 import * as workers from '../../workers/combined'
 import { InterpretOutput } from '../../workers/interpret'
+import * as qrcodeWorker from '../../workers/qrcode'
 import { childProcessPool } from '../../workers/pool'
 import { Options } from './options'
+import { zip } from '@votingworks/hmpb-interpreter/src/utils/iterators'
+import { normalizeSheetMetadata } from '../../util/metadata'
 
 export function queryFromOptions(options: Options): [string, string[]] {
   const conditions: string[] = []
@@ -116,20 +119,27 @@ export async function retryScan(
     typeof params
   >(sql, ...params)
   const electionDefinition = await input.store.getElectionDefinition()
-  listeners?.sheetsLoaded?.(sheets.length, electionDefinition?.election)
+  if (!electionDefinition) {
+    throw new Error('no configured election')
+  }
+
+  listeners?.sheetsLoaded?.(sheets.length, electionDefinition.election)
 
   listeners?.interpreterLoading?.()
-  const interpretPool = childProcessPool<workers.Input, workers.Output>(
+  const pool = childProcessPool<workers.Input, workers.Output>(
     workers.workerPath,
     cpus().length - 1
   )
-  interpretPool.start()
+  pool.start()
 
-  await interpretPool.callAll({
+  await pool.callAll({
     action: 'configure',
     dbPath: input.store.dbPath,
   })
   listeners?.interpreterLoaded?.()
+
+  const absolutify = (path: string): string =>
+    isAbsolute(path) ? path : resolve(input.store.dbPath, '..', path)
 
   await Promise.all(
     sheets.map(
@@ -151,39 +161,66 @@ export async function retryScan(
         const originalScans: PageScan[] = [
           {
             interpretation: frontInterpretation,
-            originalFilename: frontOriginalFilename,
-            normalizedFilename: frontNormalizedFilename,
+            originalFilename: absolutify(frontOriginalFilename),
+            normalizedFilename: absolutify(frontNormalizedFilename),
           },
           {
             interpretation: backInterpretation,
-            originalFilename: backOriginalFilename,
-            normalizedFilename: backNormalizedFilename,
+            originalFilename: absolutify(backOriginalFilename),
+            normalizedFilename: absolutify(backNormalizedFilename),
           },
         ]
 
+        const [
+          frontDetectQrcodeOutput,
+          backDetectQrcodeOutput,
+        ] = await Promise.all(
+          originalScans.map(
+            async (scan) =>
+              (await pool.call({
+                action: 'detect-qrcode',
+                imagePath: scan.originalFilename,
+              })) as qrcodeWorker.Output
+          )
+        )
+        const [
+          frontQrcode,
+          backQrcode,
+        ] = normalizeSheetMetadata(electionDefinition.election, [
+          !frontDetectQrcodeOutput.blank
+            ? frontDetectQrcodeOutput.qrcode
+            : undefined,
+          !backDetectQrcodeOutput.blank
+            ? backDetectQrcodeOutput.qrcode
+            : undefined,
+        ])
+
         const [front, back] = await Promise.all(
-          originalScans.map(async (scan, i) => {
-            const imagePath = isAbsolute(scan.originalFilename)
-              ? scan.originalFilename
-              : resolve(input.store.dbPath, '..', scan.originalFilename)
-            const rescan = (await interpretPool.call({
-              action: 'interpret',
-              sheetId: id,
-              imagePath,
-              ballotImagesPath: output.ballotImagesPath,
-            })) as InterpretOutput
+          [...zip(originalScans, [frontQrcode, backQrcode])].map(
+            async ([scan, qrcode], i) => {
+              const imagePath = isAbsolute(scan.originalFilename)
+                ? scan.originalFilename
+                : resolve(input.store.dbPath, '..', scan.originalFilename)
+              const rescan = (await pool.call({
+                action: 'interpret',
+                sheetId: id,
+                imagePath,
+                qrcode,
+                ballotImagesPath: output.ballotImagesPath,
+              })) as InterpretOutput
 
-            if (rescan) {
-              listeners?.pageInterpreted?.(
-                id,
-                i === 0 ? 'front' : 'back',
-                scan,
-                rescan
-              )
+              if (rescan) {
+                listeners?.pageInterpreted?.(
+                  id,
+                  i === 0 ? 'front' : 'back',
+                  scan,
+                  rescan
+                )
+              }
+
+              return rescan
             }
-
-            return rescan
-          })
+          )
         )
 
         if (front && back) {
@@ -193,7 +230,7 @@ export async function retryScan(
     )
   )
 
-  interpretPool.stop()
+  pool.stop()
   listeners?.interpreterUnloaded?.()
   listeners?.complete?.()
 }
