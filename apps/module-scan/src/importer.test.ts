@@ -30,7 +30,7 @@ afterEach(async () => {
   jest.restoreAllMocks()
 })
 
-jest.setTimeout(10000)
+jest.setTimeout(20000)
 
 test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
