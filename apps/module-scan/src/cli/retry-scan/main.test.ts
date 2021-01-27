@@ -124,7 +124,6 @@ test('successful rescan with one non-type change', async () => {
     + Re-scanned
 
       Object {
-    -   \\"interpretation\\": Object {
         \\"ballotId\\": \\"\\",
         \\"metadata\\": Object {
           \\"ballotStyleId\\": \\"1\\",
@@ -137,14 +136,12 @@ test('successful rescan with one non-type change', async () => {
           \\"precinctId\\": \\"2\\",
         },
         \\"type\\": \\"InterpretedBmdPage\\",
-    -     \\"votes\\": Object {},
+    -   \\"votes\\": Object {},
     +   \\"votes\\": Object {
     +     \\"99\\": Array [
     +       \\"yes\\",
     +     ],
-        },
-    -   \\"normalizedFilename\\": \\"/tmp/abc-normalized.png\\",
-    -   \\"originalFilename\\": \\"/tmp/abc.png\\",
+    +   },
       }
 
     "
