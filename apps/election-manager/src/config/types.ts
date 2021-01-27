@@ -71,8 +71,8 @@ export interface YesNoContestOptionTally {
   readonly tally: number
 }
 export interface ContestOptionTally {
-  readonly option: ContestOption
-  readonly tally: number
+  option: ContestOption
+  tally: number
 }
 
 export interface ContestTally {
