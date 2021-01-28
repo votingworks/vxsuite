@@ -66,6 +66,8 @@ MOCK_SCANNER_FILES=@manifest pnpm dev
 MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
 ```
 
+If you are seeing unhandled promise rejection errors you may have an issue with where your image files are located, try moving them into the local scope of the app.
+
 ## Switching Workspaces
 
 By default a `ballots.db` file and a `ballot-images` directory will be created
