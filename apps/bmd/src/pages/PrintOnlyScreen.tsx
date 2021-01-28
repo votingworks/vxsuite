@@ -44,7 +44,7 @@ interface Props {
   votes?: VotesDict
 }
 
-export const printerMessageTimeoutSeconds = 5
+export const printingMessageTimeoutSeconds = 5
 
 const PrintOnlyScreen: React.FC<Props> = ({
   ballotStyleId,
@@ -85,7 +85,7 @@ const PrintOnlyScreen: React.FC<Props> = ({
       updateTally()
       printerTimer.current = window.setTimeout(() => {
         updateIsPrinted(true)
-      }, printerMessageTimeoutSeconds * 1000)
+      }, printingMessageTimeoutSeconds * 1000)
     }
   }, [markVoterCardPrinted, printer, updateTally])
 

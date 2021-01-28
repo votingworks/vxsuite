@@ -17,6 +17,7 @@ const ballot: BallotContextInterface = {
     election: (undefined as unknown) as Election,
     electionHash: '',
   } as ElectionDefinition,
+  isCardlessVoter: false,
   isLiveMode: false,
   markVoterCardVoided: async () => false,
   markVoterCardPrinted: async () => false,

@@ -67,6 +67,8 @@ export function getAppMode(name: AppModeNames): AppMode {
   }
 }
 
+export type PostVotingInstructions = 'card' | 'cardless'
+
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 export type InputChangeEventFunction = React.ChangeEventHandler<HTMLInputElement>
@@ -81,6 +83,7 @@ export interface ActivationData {
 
 export interface SerializableActivationData {
   ballotStyleId: string
+  isCardlessVoter: boolean
   precinctId: string
 }
 
@@ -119,12 +122,13 @@ export interface BallotContextInterface {
   ballotStyleId: string
   contests: Contests
   readonly electionDefinition: ElectionDefinition
+  isCardlessVoter: boolean
   isLiveMode: boolean
   markVoterCardPrinted: MarkVoterCardFunction
   markVoterCardVoided: MarkVoterCardFunction
   precinctId: string
   printer: Printer
-  resetBallot: (path?: string) => void
+  resetBallot: (instructions?: PostVotingInstructions) => void
   setUserSettings: SetUserSettings
   updateTally: () => void
   updateVote: UpdateVoteFunction

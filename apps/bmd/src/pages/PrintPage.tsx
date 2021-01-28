@@ -1,18 +1,26 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react'
-import Loading from '../components/Loading'
+import styled from 'styled-components'
 import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
+import ProgressEllipsis from '../components/ProgressEllipsis'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
+import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 import BallotContext from '../contexts/ballotContext'
 import isEmptyObject from '../utils/isEmptyObject'
 
-export const printerMessageTimeoutSeconds = 5
+export const printingMessageTimeoutSeconds = 5
+
+const Graphic = styled.img`
+  margin: 0 auto -1rem;
+  height: 40vw;
+`
 
 const PrintPage: React.FC = () => {
   const {
     ballotStyleId,
     electionDefinition,
+    isCardlessVoter,
     isLiveMode,
     markVoterCardPrinted,
     precinctId,
@@ -31,14 +39,23 @@ const PrintPage: React.FC = () => {
       await printer.print()
       updateTally()
       printerTimer.current = window.setTimeout(() => {
-        resetBallot()
-      }, printerMessageTimeoutSeconds * 1000)
+        resetBallot(isCardlessVoter ? 'cardless' : 'card')
+      }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000)
     }
-  }, [markVoterCardPrinted, printer, resetBallot, updateTally])
+  }, [isCardlessVoter, markVoterCardPrinted, printer, resetBallot, updateTally])
 
   useEffect(() => {
     if (!isEmptyObject(votes)) {
-      printBallot()
+      const printedBallotSealImage = document
+        .getElementById('printedBallotSealContainer')
+        ?.getElementsByTagName('img')[0] // for proper type: HTMLImageElement
+      if (!printedBallotSealImage || printedBallotSealImage.complete) {
+        printBallot()
+      } else {
+        printedBallotSealImage.addEventListener('load', () => {
+          printBallot()
+        })
+      }
     }
     return () => {
       clearTimeout(printerTimer.current)
@@ -47,12 +64,21 @@ const PrintPage: React.FC = () => {
 
   return (
     <React.Fragment>
-      <Screen>
+      <Screen white>
         <Main>
           <MainChild centerVertical maxWidth={false}>
             <Prose textCenter id="audiofocus">
-              <h1 aria-label="Printing Official Ballot.">
-                <Loading>Printing Official Ballot</Loading>
+              <p>
+                <Graphic
+                  src="/images/printing-ballot.svg"
+                  alt="Printing Ballot"
+                  aria-hidden
+                />
+              </p>
+              <h1>
+                <ProgressEllipsis aria-label="Printing your official ballot.">
+                  Printing Official Ballot
+                </ProgressEllipsis>
               </h1>
             </Prose>
           </MainChild>

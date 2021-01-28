@@ -36,12 +36,13 @@ export function getSampleStorage(): Storage<AppStorage> {
       isLiveMode: true,
       isPollsOpen: true,
       ballotStyleId,
+      isCardlessVoter: false,
       precinctId,
     },
-
     electionDefinition: electionDefinitionSample,
     activation: {
       ballotStyleId,
+      isCardlessVoter: false,
       precinctId,
     },
   })

@@ -250,8 +250,12 @@ const PrintBallot: React.FC<Props> = ({
             dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
           />
         ) : sealURL ? (
-          <div className="seal">
-            <SealImage src={sealURL} alt="" />
+          <div id="printedBallotSealContainer" className="seal">
+            <SealImage
+              src={sealURL}
+              alt=""
+              data-testid="printed-ballot-seal-image"
+            />
           </div>
         ) : (
           <React.Fragment />

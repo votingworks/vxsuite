@@ -142,7 +142,9 @@ it('Single Seat Contest with Write In', async () => {
   expect(getByText('(write-in)')).toBeTruthy()
   getByText('Printing Official Ballot')
 
+  // Trigger seal image loaded
+  fireEvent.load(getByTestId('printed-ballot-seal-image'))
+
   // Printer has new job
-  advanceTimers()
   await waitFor(() => expect(printer.print).toHaveBeenCalledTimes(1))
 })
