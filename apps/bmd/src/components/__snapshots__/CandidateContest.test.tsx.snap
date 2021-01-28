@@ -126,7 +126,9 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 .c2 h3,
 .c2 h4,
 .c2 h5,
-.c2 p {
+.c2 p,
+.c2 ol,
+.c2 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -136,13 +138,23 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
 }
 
 .c2 h1 + p,
-.c2 h2 + p {
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c2 h3 + p,
 .c2 h4 + p,
-.c2 h5 + p {
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -467,7 +479,9 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 .c2 h3,
 .c2 h4,
 .c2 h5,
-.c2 p {
+.c2 p,
+.c2 ol,
+.c2 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -477,13 +491,23 @@ exports[`supports single-seat contest allows any candidate to be selected when n
 }
 
 .c2 h1 + p,
-.c2 h2 + p {
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c2 h3 + p,
 .c2 h4 + p,
-.c2 h5 + p {
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -833,7 +857,9 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 .c2 h3,
 .c2 h4,
 .c2 h5,
-.c2 p {
+.c2 p,
+.c2 ol,
+.c2 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -843,13 +869,23 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
 }
 
 .c2 h1 + p,
-.c2 h2 + p {
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c2 h3 + p,
 .c2 h4 + p,
-.c2 h5 + p {
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
   margin-top: -1rem;
 }
 

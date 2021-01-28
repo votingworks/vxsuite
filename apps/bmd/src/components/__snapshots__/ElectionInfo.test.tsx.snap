@@ -36,7 +36,9 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
 .c3 h3,
 .c3 h4,
 .c3 h5,
-.c3 p {
+.c3 p,
+.c3 ol,
+.c3 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -46,13 +48,23 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
 }
 
 .c3 h1 + p,
-.c3 h2 + p {
+.c3 h2 + p,
+.c3 h1 + ol,
+.c3 h2 + ol,
+.c3 h1 + ul,
+.c3 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c3 h3 + p,
 .c3 h4 + p,
-.c3 h5 + p {
+.c3 h5 + p,
+.c3 h3 + ol,
+.c3 h4 + ol,
+.c3 h5 + ol,
+.c3 h3 + ul,
+.c3 h4 + ul,
+.c3 h5 + ul {
   margin-top: 0;
 }
 
@@ -373,7 +385,9 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
 .c3 h3,
 .c3 h4,
 .c3 h5,
-.c3 p {
+.c3 p,
+.c3 ol,
+.c3 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -383,13 +397,23 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
 }
 
 .c3 h1 + p,
-.c3 h2 + p {
+.c3 h2 + p,
+.c3 h1 + ol,
+.c3 h2 + ol,
+.c3 h1 + ul,
+.c3 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c3 h3 + p,
 .c3 h4 + p,
-.c3 h5 + p {
+.c3 h5 + p,
+.c3 h3 + ol,
+.c3 h4 + ol,
+.c3 h5 + ol,
+.c3 h3 + ul,
+.c3 h4 + ul,
+.c3 h5 + ul {
   margin-top: 0;
 }
 
@@ -709,7 +733,9 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
 .c2 h3,
 .c2 h4,
 .c2 h5,
-.c2 p {
+.c2 p,
+.c2 ol,
+.c2 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -719,13 +745,23 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
 }
 
 .c2 h1 + p,
-.c2 h2 + p {
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c2 h3 + p,
 .c2 h4 + p,
-.c2 h5 + p {
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -1006,7 +1042,9 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
 .c2 h3,
 .c2 h4,
 .c2 h5,
-.c2 p {
+.c2 p,
+.c2 ol,
+.c2 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -1016,13 +1054,23 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
 }
 
 .c2 h1 + p,
-.c2 h2 + p {
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c2 h3 + p,
 .c2 h4 + p,
-.c2 h5 + p {
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
   margin-top: -1rem;
 }
 

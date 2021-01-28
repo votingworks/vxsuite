@@ -32,7 +32,9 @@ exports[`renders PrintPage with votes 1`] = `
 .c2 h3,
 .c2 h4,
 .c2 h5,
-.c2 p {
+.c2 p,
+.c2 ol,
+.c2 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -42,13 +44,23 @@ exports[`renders PrintPage with votes 1`] = `
 }
 
 .c2 h1 + p,
-.c2 h2 + p {
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c2 h3 + p,
 .c2 h4 + p,
-.c2 h5 + p {
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -249,7 +261,9 @@ exports[`renders PrintPage with votes 1`] = `
 .c9 h3,
 .c9 h4,
 .c9 h5,
-.c9 p {
+.c9 p,
+.c9 ol,
+.c9 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -259,13 +273,23 @@ exports[`renders PrintPage with votes 1`] = `
 }
 
 .c9 h1 + p,
-.c9 h2 + p {
+.c9 h2 + p,
+.c9 h1 + ol,
+.c9 h2 + ol,
+.c9 h1 + ul,
+.c9 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c9 h3 + p,
 .c9 h4 + p,
-.c9 h5 + p {
+.c9 h5 + p,
+.c9 h3 + ol,
+.c9 h4 + ol,
+.c9 h5 + ol,
+.c9 h3 + ul,
+.c9 h4 + ul,
+.c9 h5 + ul {
   margin-top: 0;
 }
 
@@ -649,7 +673,9 @@ exports[`renders PrintPage without votes 1`] = `
 .c3 h3,
 .c3 h4,
 .c3 h5,
-.c3 p {
+.c3 p,
+.c3 ol,
+.c3 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -659,13 +685,23 @@ exports[`renders PrintPage without votes 1`] = `
 }
 
 .c3 h1 + p,
-.c3 h2 + p {
+.c3 h2 + p,
+.c3 h1 + ol,
+.c3 h2 + ol,
+.c3 h1 + ul,
+.c3 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c3 h3 + p,
 .c3 h4 + p,
-.c3 h5 + p {
+.c3 h5 + p,
+.c3 h3 + ol,
+.c3 h4 + ol,
+.c3 h5 + ol,
+.c3 h3 + ul,
+.c3 h4 + ul,
+.c3 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -712,7 +748,9 @@ exports[`renders PrintPage without votes 1`] = `
 .c4 h3,
 .c4 h4,
 .c4 h5,
-.c4 p {
+.c4 p,
+.c4 ol,
+.c4 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -722,13 +760,23 @@ exports[`renders PrintPage without votes 1`] = `
 }
 
 .c4 h1 + p,
-.c4 h2 + p {
+.c4 h2 + p,
+.c4 h1 + ol,
+.c4 h2 + ol,
+.c4 h1 + ul,
+.c4 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c4 h3 + p,
 .c4 h4 + p,
-.c4 h5 + p {
+.c4 h5 + p,
+.c4 h3 + ol,
+.c4 h4 + ol,
+.c4 h5 + ol,
+.c4 h3 + ul,
+.c4 h4 + ul,
+.c4 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -865,7 +913,9 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 .c2 h3,
 .c2 h4,
 .c2 h5,
-.c2 p {
+.c2 p,
+.c2 ol,
+.c2 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -875,13 +925,23 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 }
 
 .c2 h1 + p,
-.c2 h2 + p {
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c2 h3 + p,
 .c2 h4 + p,
-.c2 h5 + p {
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -1069,7 +1129,9 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 .c9 h3,
 .c9 h4,
 .c9 h5,
-.c9 p {
+.c9 p,
+.c9 ol,
+.c9 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -1079,13 +1141,23 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 }
 
 .c9 h1 + p,
-.c9 h2 + p {
+.c9 h2 + p,
+.c9 h1 + ol,
+.c9 h2 + ol,
+.c9 h1 + ul,
+.c9 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c9 h3 + p,
 .c9 h4 + p,
-.c9 h5 + p {
+.c9 h5 + p,
+.c9 h3 + ol,
+.c9 h4 + ol,
+.c9 h5 + ol,
+.c9 h3 + ul,
+.c9 h4 + ul,
+.c9 h5 + ul {
   margin-top: 0;
 }
 
@@ -1596,7 +1668,9 @@ exports[`renders PrintPage without votes and no seal 1`] = `
 .c2 h3,
 .c2 h4,
 .c2 h5,
-.c2 p {
+.c2 p,
+.c2 ol,
+.c2 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -1606,13 +1680,23 @@ exports[`renders PrintPage without votes and no seal 1`] = `
 }
 
 .c2 h1 + p,
-.c2 h2 + p {
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c2 h3 + p,
 .c2 h4 + p,
-.c2 h5 + p {
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -1800,7 +1884,9 @@ exports[`renders PrintPage without votes and no seal 1`] = `
 .c9 h3,
 .c9 h4,
 .c9 h5,
-.c9 p {
+.c9 p,
+.c9 ol,
+.c9 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -1810,13 +1896,23 @@ exports[`renders PrintPage without votes and no seal 1`] = `
 }
 
 .c9 h1 + p,
-.c9 h2 + p {
+.c9 h2 + p,
+.c9 h1 + ol,
+.c9 h2 + ol,
+.c9 h1 + ul,
+.c9 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c9 h3 + p,
 .c9 h4 + p,
-.c9 h5 + p {
+.c9 h5 + p,
+.c9 h3 + ol,
+.c9 h4 + ol,
+.c9 h5 + ol,
+.c9 h3 + ul,
+.c9 h4 + ul,
+.c9 h5 + ul {
   margin-top: 0;
 }
 

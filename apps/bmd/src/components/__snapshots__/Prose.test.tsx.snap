@@ -32,7 +32,9 @@ exports[`renders Prose defaults 1`] = `
 .c0 h3,
 .c0 h4,
 .c0 h5,
-.c0 p {
+.c0 p,
+.c0 ol,
+.c0 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -42,13 +44,23 @@ exports[`renders Prose defaults 1`] = `
 }
 
 .c0 h1 + p,
-.c0 h2 + p {
+.c0 h2 + p,
+.c0 h1 + ol,
+.c0 h2 + ol,
+.c0 h1 + ul,
+.c0 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c0 h3 + p,
 .c0 h4 + p,
-.c0 h5 + p {
+.c0 h5 + p,
+.c0 h3 + ol,
+.c0 h4 + ol,
+.c0 h5 + ol,
+.c0 h3 + ul,
+.c0 h4 + ul,
+.c0 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -138,7 +150,9 @@ exports[`renders Prose with compact spacing 1`] = `
 .c0 h3,
 .c0 h4,
 .c0 h5,
-.c0 p {
+.c0 p,
+.c0 ol,
+.c0 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -148,13 +162,23 @@ exports[`renders Prose with compact spacing 1`] = `
 }
 
 .c0 h1 + p,
-.c0 h2 + p {
+.c0 h2 + p,
+.c0 h1 + ol,
+.c0 h2 + ol,
+.c0 h1 + ul,
+.c0 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c0 h3 + p,
 .c0 h4 + p,
-.c0 h5 + p {
+.c0 h5 + p,
+.c0 h3 + ol,
+.c0 h4 + ol,
+.c0 h5 + ol,
+.c0 h3 + ul,
+.c0 h4 + ul,
+.c0 h5 + ul {
   margin-top: 0;
 }
 
@@ -247,7 +271,9 @@ exports[`renders Prose with compact spacing 2`] = `
 .c0 h3,
 .c0 h4,
 .c0 h5,
-.c0 p {
+.c0 p,
+.c0 ol,
+.c0 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -257,13 +283,23 @@ exports[`renders Prose with compact spacing 2`] = `
 }
 
 .c0 h1 + p,
-.c0 h2 + p {
+.c0 h2 + p,
+.c0 h1 + ol,
+.c0 h2 + ol,
+.c0 h1 + ul,
+.c0 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c0 h3 + p,
 .c0 h4 + p,
-.c0 h5 + p {
+.c0 h5 + p,
+.c0 h3 + ol,
+.c0 h4 + ol,
+.c0 h5 + ol,
+.c0 h3 + ul,
+.c0 h4 + ul,
+.c0 h5 + ul {
   margin-top: -1rem;
 }
 
