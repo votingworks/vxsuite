@@ -659,9 +659,20 @@ const AppRoot: React.FC<Props> = ({
     }
   }, [card])
 
+  const activateCardlessBallotStyleId = (ballotStyleId: string) => {
+    dispatchAppState({
+      type: 'activateCardlessBallot',
+      ballotStyleId,
+    })
+    history.push('/')
+  }
+
   const processCard = useCallback(
     async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
       const cardData: CardData = JSON.parse(cardShortValue!)
+      if (!optionalElectionDefinition && cardData.t !== 'admin') {
+        return
+      }
       switch (cardData.t) {
         case 'voter': {
           const voterCardData = cardData as VoterCardData
