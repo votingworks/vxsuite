@@ -105,11 +105,9 @@ const ElectionInfo: React.FC<Props> = ({
           <br />
           {state}
         </p>
-        <Text light>{precinct.name}</Text>
+        <Text bold>{precinct.name}</Text>
         {showElectionHash && (
-          <React.Fragment>
-            <Text light>Election ID: {electionHash.substring(0, 10)}</Text>
-          </React.Fragment>
+          <Text small>Election ID: {electionHash.substring(0, 10)}</Text>
         )}
       </Prose>
     </VerticalContainer>

@@ -741,8 +741,12 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
   margin: 1rem 0;
 }
 
+.c4 {
+  font-size: 0.8rem;
+}
+
 .c3 {
-  font-weight: 300;
+  font-weight: 600;
 }
 
 .c0 {
@@ -954,7 +958,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
         Center Springfield
       </p>
       <p
-        class="c3"
+        class="c4"
       >
         Election ID: 
         test--hash
@@ -1035,7 +1039,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
 }
 
 .c3 {
-  font-weight: 300;
+  font-weight: 600;
 }
 
 .c0 {

@@ -292,6 +292,10 @@ exports[`Single Seat Contest 1`] = `
   margin: 1rem 0;
 }
 
+.c6 {
+  font-weight: 600;
+}
+
 .c33 {
   font-size: 0.8rem;
 }
@@ -307,10 +311,6 @@ exports[`Single Seat Contest 1`] = `
 
 .c16 {
   text-align: center;
-}
-
-.c6 {
-  font-weight: 600;
 }
 
 .c34 {
