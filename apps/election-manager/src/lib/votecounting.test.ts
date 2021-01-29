@@ -477,6 +477,73 @@ describe('filterTalliesByParams in a primary election', () => {
   })
 })
 
+test('undervotes counted in n of m contest properly', () => {
+  // Create mock CVR data
+  const mockCVR: CastVoteRecord = {
+    _ballotId: 'abc',
+    _ballotStyleId: '12D',
+    _ballotType: 'standard',
+    _precinctId: '21',
+    _testBallot: false,
+    _scannerId: '1',
+    'county-commissioners': [],
+  }
+
+  // tabulate it
+  let electionTally = computeFullElectionTally(primaryElectionSample, [
+    [mockCVR],
+  ])!
+
+  // The county commissioners race has 4 seats. Each vote less then 4 should be counted
+  // as an additional undervote.
+  expect(
+    electionTally.overallTally.contestTallyMetadata['county-commissioners']
+      ?.undervotes
+  ).toBe(4)
+
+  electionTally = computeFullElectionTally(primaryElectionSample, [
+    [{ ...mockCVR, 'county-commissioners': ['argent'] }],
+  ])!
+  expect(
+    electionTally.overallTally.contestTallyMetadata['county-commissioners']
+      ?.undervotes
+  ).toBe(3)
+
+  electionTally = computeFullElectionTally(primaryElectionSample, [
+    [{ ...mockCVR, 'county-commissioners': ['argent', 'bainbridge'] }],
+  ])!
+  expect(
+    electionTally.overallTally.contestTallyMetadata['county-commissioners']
+      ?.undervotes
+  ).toBe(2)
+
+  electionTally = computeFullElectionTally(primaryElectionSample, [
+    [
+      {
+        ...mockCVR,
+        'county-commissioners': ['argent', 'bainbridge', 'hennessey'],
+      },
+    ],
+  ])!
+  expect(
+    electionTally.overallTally.contestTallyMetadata['county-commissioners']
+      ?.undervotes
+  ).toBe(1)
+
+  electionTally = computeFullElectionTally(primaryElectionSample, [
+    [
+      {
+        ...mockCVR,
+        'county-commissioners': ['argent', 'bainbridge', 'hennessey', 'savoy'],
+      },
+    ],
+  ])!
+  expect(
+    electionTally.overallTally.contestTallyMetadata['county-commissioners']
+      ?.undervotes
+  ).toBe(0)
+})
+
 test('overvote report', async () => {
   // get the election
   const election = parseElection(
