@@ -2,6 +2,7 @@ import * as s from './schema'
 import { sha256 } from 'js-sha256'
 
 import electionSampleUntyped from './data/electionSample.json'
+import primaryElectionSampleUntyped from './data/electionPrimarySample.json'
 import electionSampleLongContentUntyped from './data/electionSampleLongContent.json'
 
 // Generic
@@ -287,6 +288,7 @@ export const validateVotes = ({
 }
 
 export const electionSample = (electionSampleUntyped as unknown) as Election
+export const primaryElectionSample = (primaryElectionSampleUntyped as unknown) as Election
 export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election
 
 export const electionDefinitionSample = {

@@ -25,7 +25,7 @@ import ElectionManager from './components/ElectionManager'
 import {
   ElectionDefinition,
   SaveElection,
-  OptionalVoteCounts,
+  OptionalFullElectionTally,
   PrintedBallot,
   ISO8601Timestamp,
 } from './config/types'
@@ -73,6 +73,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
     CastVoteRecordFiles.empty
   )
+  const [isTabulationRunning, setIsTabulationRunning] = useState(false)
   const [isOfficialResults, setIsOfficialResults] = useState(false)
 
   const saveIsOfficialResults = async () => {
@@ -82,6 +83,11 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
 
   const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)
   const [recentlyEjected, setRecentlyEjected] = useState(false)
+
+  const [
+    fullElectionTally,
+    setFullElectionTally,
+  ] = useState<OptionalFullElectionTally>()
 
   const doMountIfNotRecentlyEjected = useCallback(async () => {
     if (!recentlyEjected) {
@@ -179,8 +185,6 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     }
   }
 
-  const [voteCounts, setVoteCounts] = useState<OptionalVoteCounts>()
-
   const saveElection: SaveElection = async (electionJSON) => {
     // we set a new election definition, reset everything
     storage.clear()
@@ -224,12 +228,14 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
         saveElection,
         saveIsOfficialResults,
         setCastVoteRecordFiles,
-        setVoteCounts,
-        voteCounts,
         usbDriveStatus: displayUsbStatus,
         usbDriveEject: doEject,
         printedBallots: printedBallots || [],
         addPrintedBallot,
+        fullElectionTally,
+        setFullElectionTally,
+        isTabulationRunning,
+        setIsTabulationRunning,
       }}
     >
       <ElectionManager />

@@ -208,17 +208,15 @@ it('tabulating CVRs', async () => {
   await screen.findByText('0 official ballots')
 
   fireEvent.click(getByText('Tally'))
-  expect(getByTestId('total-ballot-count').textContent).toEqual('100')
+  await waitFor(() =>
+    expect(getByTestId('total-ballot-count').textContent).toEqual('100')
+  )
 
   fireEvent.click(getByText('Mark Tally Results as Official…'))
   getByText('Mark Unofficial Tally Results as Official Tally Results?')
   fireEvent.click(getByText('Mark Tally Results as Official'))
 
   fireEvent.click(getByText('View Official Full Election Tally'))
-  getByText('Building Tabulation Report...')
-
-  // wait a little bit for tabulation
-  await sleep(500)
 
   expect(
     getAllByText('Official Mock General Election Choctaw 2020 Tally Report')

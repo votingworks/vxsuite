@@ -12,9 +12,9 @@ import AppContext from '../src/contexts/AppContext'
 import {
   ElectionDefinition,
   SaveElection,
-  OptionalVoteCounts,
   PrintedBallot,
   ISO8601Timestamp,
+  OptionalFullElectionTally,
 } from '../src/config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
@@ -50,12 +50,16 @@ interface RenderInAppContextParams {
     React.SetStateAction<CastVoteRecordFiles>
   >
   saveIsOfficialResults?: () => void
-  setVoteCounts?: React.Dispatch<React.SetStateAction<OptionalVoteCounts>>
-  voteCounts?: OptionalVoteCounts
   usbDriveStatus?: UsbDriveStatus
   usbDriveEject?: () => void
   addPrintedBallot?: (printedBallot: PrintedBallot) => void
   printedBallots?: PrintedBallot[]
+  fullElectionTally?: OptionalFullElectionTally
+  isTabulationRunning?: boolean
+  setFullElectionTally?: React.Dispatch<
+    React.SetStateAction<OptionalFullElectionTally>
+  >
+  setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function renderInAppContext(
@@ -72,12 +76,14 @@ export default function renderInAppContext(
     saveElection = jest.fn(),
     setCastVoteRecordFiles = jest.fn(),
     saveIsOfficialResults = jest.fn(),
-    setVoteCounts = jest.fn(),
-    voteCounts = undefined,
     usbDriveStatus = UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
     addPrintedBallot = jest.fn(),
     printedBallots = [],
+    fullElectionTally = undefined,
+    isTabulationRunning = false,
+    setFullElectionTally = jest.fn(),
+    setIsTabulationRunning = jest.fn(),
   } = {} as RenderInAppContextParams
 ): RenderResult {
   return testRender(
@@ -92,12 +98,14 @@ export default function renderInAppContext(
         saveElection,
         setCastVoteRecordFiles,
         saveIsOfficialResults,
-        setVoteCounts,
-        voteCounts,
         usbDriveStatus,
         usbDriveEject,
         addPrintedBallot,
         printedBallots,
+        fullElectionTally,
+        isTabulationRunning,
+        setFullElectionTally,
+        setIsTabulationRunning,
       }}
     >
       <Router history={history}>{component}</Router>

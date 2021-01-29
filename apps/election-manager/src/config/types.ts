@@ -4,7 +4,6 @@ import {
   Contest,
   Election,
   Precinct,
-  VotesDict,
 } from '@votingworks/ballot-encoder'
 
 // Generic
@@ -64,55 +63,65 @@ export interface ScannerReportScreenProps {
 }
 
 // Tallies
+export type CandidateOption = Candidate
+export type YesNoOption = ['yes'] | ['no'] | []
+export type ContestOption = Candidate | YesNoOption
 export interface YesNoContestOptionTally {
-  option: ['yes'] | ['no'] | []
-  tally: number
+  readonly option: YesNoOption
+  readonly tally: number
 }
-export type ContestOption = Candidate | ['yes'] | ['no'] | []
 export interface ContestOptionTally {
   option: ContestOption
   tally: number
 }
 
 export interface ContestTally {
-  contest: Contest
-  tallies: ContestOptionTally[]
+  readonly contest: Contest
+  readonly tallies: ContestOptionTally[]
 }
 
-// TODO: separate into PrecinctTally and ScannerTally
+export interface ContestTallyMeta {
+  readonly overvotes: number
+  readonly undervotes: number
+  readonly ballots: number
+}
+export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
+
 export interface Tally {
-  precinctId?: string
-  scannerId?: string
-  contestTallies: ContestTally[]
+  readonly precinctId?: string
+  readonly scannerId?: string
+  readonly numberOfBallotsCounted: number
+  readonly castVoteRecords: ReadonlyMap<string, CastVoteRecord>
+  readonly contestTallies: ContestTally[]
+  readonly contestTallyMetadata: ContestTallyMetaDictionary
+}
+
+export enum TallyCategory {
+  Precinct = 'precinct',
+  Scanner = 'scanner',
 }
 
 export interface FullElectionTally {
-  scannerTallies: Dictionary<Tally>
-  precinctTallies: Dictionary<Tally>
-  overallTally: Tally
+  readonly overallTally: Tally
+  readonly resultsByCategory: ReadonlyMap<TallyCategory, Dictionary<Tally>>
 }
 
-export type VotesByFilter = Dictionary<VotesDict[]>
-export type VotesByFunction = (value: {
-  election: Election
-  castVoteRecords: CastVoteRecord[]
-}) => VotesByFilter
+export type OptionalFullElectionTally = Optional<FullElectionTally>
 
 // Cast Vote Records
-
 export interface CastVoteRecord
   extends Dictionary<
     string | string[] | boolean | number | number[] | BallotLocale
   > {
-  _precinctId: string
-  _ballotId: string
-  _ballotStyleId: string
-  _ballotType: 'absentee' | 'provisional' | 'standard'
-  _testBallot: boolean
-  _scannerId: string
-  _pageNumber?: number
-  _pageNumbers?: number[]
-  _locales?: BallotLocale
+  readonly _precinctId: string
+  readonly _ballotId: string
+  readonly _ballotStyleId: string
+  readonly _ballotType: 'absentee' | 'provisional' | 'standard'
+  readonly _testBallot: boolean
+  readonly _scannerId: string
+  readonly _pageNumber?: number
+  readonly _pageNumbers?: number[]
+  readonly _locales?: BallotLocale
 }
 
 export type CastVoteRecordFileMode = 'test' | 'live'
