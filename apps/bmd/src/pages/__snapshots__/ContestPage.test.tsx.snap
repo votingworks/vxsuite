@@ -155,7 +155,9 @@ exports[`Renders ContestPage 1`] = `
 .c3 h3,
 .c3 h4,
 .c3 h5,
-.c3 p {
+.c3 p,
+.c3 ol,
+.c3 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -165,13 +167,23 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c3 h1 + p,
-.c3 h2 + p {
+.c3 h2 + p,
+.c3 h1 + ol,
+.c3 h2 + ol,
+.c3 h1 + ul,
+.c3 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c3 h3 + p,
 .c3 h4 + p,
-.c3 h5 + p {
+.c3 h5 + p,
+.c3 h3 + ol,
+.c3 h4 + ol,
+.c3 h5 + ol,
+.c3 h3 + ul,
+.c3 h4 + ul,
+.c3 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -218,7 +230,9 @@ exports[`Renders ContestPage 1`] = `
 .c28 h3,
 .c28 h4,
 .c28 h5,
-.c28 p {
+.c28 p,
+.c28 ol,
+.c28 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -228,13 +242,23 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c28 h1 + p,
-.c28 h2 + p {
+.c28 h2 + p,
+.c28 h1 + ol,
+.c28 h2 + ol,
+.c28 h1 + ul,
+.c28 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c28 h3 + p,
 .c28 h4 + p,
-.c28 h5 + p {
+.c28 h5 + p,
+.c28 h3 + ol,
+.c28 h4 + ol,
+.c28 h5 + ol,
+.c28 h3 + ul,
+.c28 h4 + ul,
+.c28 h5 + ul {
   margin-top: 0;
 }
 

@@ -28,8 +28,6 @@ export function getSampleCard(): Card {
 }
 
 export function getSampleStorage(): Storage<AppStorage> {
-  const ballotCreatedAt = utcTimestamp()
-
   return new MemoryStorage<AppStorage>({
     state: {
       electionDefinition: electionDefinitionSample,
@@ -37,15 +35,14 @@ export function getSampleStorage(): Storage<AppStorage> {
       ballotsPrintedCount: 0,
       isLiveMode: true,
       isPollsOpen: true,
-      ballotCreatedAt,
       ballotStyleId,
+      isCardlessVoter: false,
       precinctId,
     },
-
     electionDefinition: electionDefinitionSample,
     activation: {
-      ballotCreatedAt,
       ballotStyleId,
+      isCardlessVoter: false,
       precinctId,
     },
   })

@@ -6,7 +6,6 @@ import * as GLOBALS from './config/globals'
 
 // import { electionSample } from '@votingworks/ballot-encoder'
 import electionSample from './data/electionSample.json'
-import { printerMessageTimeoutSeconds } from './pages/PrintPage'
 
 import App from './App'
 
@@ -289,13 +288,26 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Print Screen
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'))
-  await advanceTimersAndPromises()
   getByText('Printing Official Ballot')
 
-  // After timeout, show Verify and Cast Instructions
-  await advanceTimersAndPromises(printerMessageTimeoutSeconds)
-  await advanceTimersAndPromises(GLOBALS.CARD_POLLING_INTERVAL / 1000)
-  getByText('You’re Almost Done…')
+  // Trigger seal image loaded
+  fireEvent.load(getByTestId('printed-ballot-seal-image'))
+
+  // Mark card used and then read card again
+  await advanceTimersAndPromises()
+
+  // Font Size is still custom user setting
+  expect(window.document.documentElement.style.fontSize).toBe('36px')
+
+  // Expire timeout for display of "Printing Ballot" screen
+  await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS)
+
+  // Reset Ballot is called with instructions type "card"
+  // Show Verify and Cast Instructions
+  getByText('You’re Almost Done')
+  getByText('3. Return the card to a poll worker.')
+
+  // Check that ballots printed count is correct
   expect(printer.print).toHaveBeenCalledTimes(2)
 
   // Remove card
@@ -303,12 +315,13 @@ it('VxMark+Print end-to-end flow', async () => {
   await advanceTimersAndPromises()
   getByText('Insert voter card to load ballot.')
 
+  // Font size has been reset to default on Insert Card screen
   expect(window.document.documentElement.style.fontSize).toBe('28px')
 
-  // Insert Voter card which has just printed to see "cast" instructions again.
+  // Insert Voter card which has just printed, it should say "used card"
   card.insertCard(getUsedVoterCard())
   await advanceTimersAndPromises()
-  getByText('You’re Almost Done…')
+  getByText('Used Card')
 
   // Remove card
   card.removeCard()

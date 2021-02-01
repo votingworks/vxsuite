@@ -10,6 +10,7 @@ import {
   getOtherElectionVoterCard,
   getVoidedVoterCard,
   createVoterCard,
+  getNewVoterCard,
 } from '../test/helpers/smartcards'
 
 import {
@@ -29,7 +30,7 @@ beforeEach(() => {
   window.location.href = '/'
 })
 
-it('Display App Card Unhappy Paths', async () => {
+test('Display App Card Unhappy Paths', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
@@ -143,4 +144,34 @@ it('Display App Card Unhappy Paths', async () => {
   getByText('Insert voter card to load ballot.')
 
   // ---------------
+})
+
+test('Inserting voter card when machine is unconfigured does nothing', async () => {
+  // ====================== BEGIN CONTEST SETUP ====================== //
+
+  const card = new MemoryCard()
+  const hardware = MemoryHardware.standard
+  const storage = new MemoryStorage<AppStorage>()
+  const machineConfig = fakeMachineConfigProvider()
+
+  card.removeCard()
+
+  const { getByText } = render(
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      machineConfig={machineConfig}
+    />
+  )
+
+  // ====================== END CONTEST SETUP ====================== //
+
+  // Default Unconfigured
+  getByText('Device Not Configured')
+
+  card.insertCard(getNewVoterCard())
+  await advanceTimersAndPromises()
+
+  getByText('Device Not Configured')
 })

@@ -37,21 +37,31 @@ const Prose = styled('div')<Props>`
   & h3,
   & h4,
   & h5,
-  & p {
+  & p,
+  & ol,
+  & ul {
     margin-top: ${({ compact }) => (compact ? '0' : '1rem')};
     margin-bottom: ${({ compact }) => (compact ? '0' : '1rem')};
   }
   & h1 + h2 {
     margin-top: -0.75rem;
   }
-  & h1 + p,
-  & h2 + p {
-    margin-top: -0.75rem;
+  & h1,
+  & h2 {
+    & + p,
+    & + ol,
+    & + ul {
+      margin-top: -0.75rem;
+    }
   }
-  & h3 + p,
-  & h4 + p,
-  & h5 + p {
-    margin-top: ${({ compact }) => (compact ? 0 : '-1rem')};
+  & h3,
+  & h4,
+  & h5 {
+    & + p,
+    & + ol,
+    & + ul {
+      margin-top: ${({ compact }) => (compact ? 0 : '-1rem')};
+    }
   }
   & > :first-child {
     margin-top: 0;

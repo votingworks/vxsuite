@@ -1,6 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders CastBallotPage 1`] = `
+.c7 {
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -13,7 +26,7 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 .c2 {
-  margin: auto auto;
+  margin: auto 0;
 }
 
 .c3 {
@@ -49,7 +62,9 @@ exports[`renders CastBallotPage 1`] = `
 .c3 h3,
 .c3 h4,
 .c3 h5,
-.c3 p {
+.c3 p,
+.c3 ol,
+.c3 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -59,13 +74,23 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 .c3 h1 + p,
-.c3 h2 + p {
+.c3 h2 + p,
+.c3 h1 + ol,
+.c3 h2 + ol,
+.c3 h1 + ul,
+.c3 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c3 h3 + p,
 .c3 h4 + p,
-.c3 h5 + p {
+.c3 h5 + p,
+.c3 h3 + ol,
+.c3 h4 + ol,
+.c3 h5 + ol,
+.c3 h3 + ul,
+.c3 h4 + ul,
+.c3 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -105,13 +130,40 @@ exports[`renders CastBallotPage 1`] = `
   flex: 2;
 }
 
+.c5 {
+  margin: 0 auto 1em;
+  height: 20vw;
+}
+
 .c4 {
-  display: inline-block;
-  margin: auto;
-  border-top: 1px solid #9a9a9a;
-  border-bottom: 1px solid #9a9a9a;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
   padding: 1rem 1rem 1rem 2rem;
-  text-align: left;
+  list-style: none;
+  text-align: center;
+}
+
+.c4 > li {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin-right: 1em;
+}
+
+.c4 > li:last-child {
+  margin-right: 0;
+}
+
+.c4 > li img {
+  position: relative;
+}
+
+.c6 {
+  position: absolute;
+  right: 1em;
+  bottom: 1em;
 }
 
 @media (min-width:480px) {
@@ -138,31 +190,59 @@ exports[`renders CastBallotPage 1`] = `
       <div
         class="c3"
         id="audiofocus"
+        style="max-width: 65%;"
       >
         <h1
           aria-label="You’re almost done."
         >
-          You’re Almost Done…
+          You’re Almost Done
         </h1>
         <p>
-          Your official paper ballot is printing. To finish voting:
+          Your official ballot is printing. To finish voting you need to…
         </p>
         <ol
           class="c4"
         >
           <li>
-            Review the votes on your printed ballot.
+            <img
+              alt="Verify Your Printed Ballot"
+              aria-hidden="true"
+              class="c5"
+              src="/images/instructions-1-verify.svg"
+              style="left: -0.75em;"
+            />
+            <p>
+              1. Review the votes on your printed ballot.
+            </p>
           </li>
           <li>
-            Place your ballot in the ballot box.
-          </li>
-          <li>
-            Return card to poll worker.
+            <img
+              alt="Cast Your Ballot"
+              aria-hidden="true"
+              class="c5"
+              src="/images/instructions-2-cast.svg"
+            />
+            <p>
+              2. Place your ballot in the ballot box.
+            </p>
           </li>
         </ol>
-        <p>
-          Need help? Ask a poll worker.
-        </p>
+        <h3>
+          <strong>
+            Need help?
+          </strong>
+           Ask a poll worker.
+        </h3>
+      </div>
+      <div
+        class="c6"
+      >
+        <button
+          class="c7"
+          type="button"
+        >
+          Done
+        </button>
       </div>
     </div>
   </main>

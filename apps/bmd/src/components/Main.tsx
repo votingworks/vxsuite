@@ -20,6 +20,7 @@ interface ChildProps {
   centerVertical?: boolean
   centerHorizontal?: boolean
   maxWidth?: boolean
+  narrow?: boolean
 }
 
 export const MainChild = styled('div')<ChildProps>`
@@ -28,7 +29,8 @@ export const MainChild = styled('div')<ChildProps>`
     centerVertical = center,
     centerHorizontal = center,
   }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
-  max-width: ${({ maxWidth = true }) => (maxWidth ? '35rem' : undefined)};
+  max-width: ${({ maxWidth = true, narrow = false }) =>
+    narrow ? '50%' : maxWidth ? '35rem' : undefined};
 `
 
 export default Main

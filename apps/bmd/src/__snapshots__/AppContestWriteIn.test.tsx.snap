@@ -155,7 +155,9 @@ exports[`Single Seat Contest with Write In 1`] = `
 .c4 h3,
 .c4 h4,
 .c4 h5,
-.c4 p {
+.c4 p,
+.c4 ol,
+.c4 ul {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -165,13 +167,23 @@ exports[`Single Seat Contest with Write In 1`] = `
 }
 
 .c4 h1 + p,
-.c4 h2 + p {
+.c4 h2 + p,
+.c4 h1 + ol,
+.c4 h2 + ol,
+.c4 h1 + ul,
+.c4 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c4 h3 + p,
 .c4 h4 + p,
-.c4 h5 + p {
+.c4 h5 + p,
+.c4 h3 + ol,
+.c4 h4 + ol,
+.c4 h5 + ol,
+.c4 h3 + ul,
+.c4 h4 + ul,
+.c4 h5 + ul {
   margin-top: -1rem;
 }
 
@@ -218,7 +230,9 @@ exports[`Single Seat Contest with Write In 1`] = `
 .c30 h3,
 .c30 h4,
 .c30 h5,
-.c30 p {
+.c30 p,
+.c30 ol,
+.c30 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -228,13 +242,23 @@ exports[`Single Seat Contest with Write In 1`] = `
 }
 
 .c30 h1 + p,
-.c30 h2 + p {
+.c30 h2 + p,
+.c30 h1 + ol,
+.c30 h2 + ol,
+.c30 h1 + ul,
+.c30 h2 + ul {
   margin-top: -0.75rem;
 }
 
 .c30 h3 + p,
 .c30 h4 + p,
-.c30 h5 + p {
+.c30 h5 + p,
+.c30 h3 + ol,
+.c30 h4 + ol,
+.c30 h5 + ol,
+.c30 h3 + ul,
+.c30 h4 + ul,
+.c30 h5 + ul {
   margin-top: 0;
 }
 

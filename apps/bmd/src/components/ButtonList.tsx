@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
-const ButtonList = styled.div`
-  column-gap: 1rem;
+const ButtonList = styled.p`
+  column-gap: 0.5rem;
   @media (min-width: 1024px) {
     columns: 2;
   }

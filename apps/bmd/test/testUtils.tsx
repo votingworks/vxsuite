@@ -40,6 +40,7 @@ export function render(
     markVoterCardPrinted = jest.fn(),
     electionHash = '',
     history = createMemoryHistory({ initialEntries: [route] }),
+    isCardlessVoter = false,
     isLiveMode = false,
     machineConfig = fakeMachineConfig({ appMode: VxMarkOnly }),
     precinctId = '',
@@ -60,6 +61,7 @@ export function render(
     markVoterCardPrinted?: MarkVoterCardFunction
     electionHash?: string
     history?: History
+    isCardlessVoter?: boolean
     isLiveMode?: boolean
     machineConfig?: MachineConfig
     precinctId?: string
@@ -80,6 +82,7 @@ export function render(
           ballotStyleId,
           contests,
           electionDefinition: { election, electionHash } as ElectionDefinition,
+          isCardlessVoter,
           isLiveMode,
           machineConfig,
           markVoterCardVoided,

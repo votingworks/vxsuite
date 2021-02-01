@@ -9,13 +9,12 @@ import {
   YesNoVote,
   OptionalVote,
   VotesDict,
-  Contests,
   Election,
   ElectionDefinition,
   OptionalElectionDefinition,
 } from '@votingworks/ballot-encoder'
 import 'normalize.css'
-import React, { useCallback, useEffect, useReducer } from 'react'
+import React, { useCallback, useEffect, useReducer, useRef } from 'react'
 import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
 import './App.css'
@@ -41,6 +40,7 @@ import {
   SerializableActivationData,
   Provider,
   MachineConfig,
+  PostVotingInstructions,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import {
@@ -75,21 +75,20 @@ import { getSingleYesNoVote } from './utils/votes'
 
 interface CardState {
   isAdminCardPresent: boolean
+  isCardlessVoter: boolean
   isPollWorkerCardPresent: boolean
-  isRecentVoterPrint: boolean
   isVoterCardExpired: boolean
   isVoterCardVoided: boolean
   isVoterCardPresent: boolean
   isVoterCardPrinted: boolean
   isVoterCardValid: boolean
   pauseProcessingUntilNoCardPresent: boolean
+  showPostVotingInstructions?: PostVotingInstructions
   voterCardCreatedAt: number
 }
 
 interface UserState {
-  ballotCreatedAt: number
   ballotStyleId: string
-  contests: Contests
   precinctId: string
   shortValue?: string
   userSettings: UserSettings
@@ -149,21 +148,20 @@ export const blankBallotVotes = {}
 
 const initialCardState: Readonly<CardState> = {
   isAdminCardPresent: false,
+  isCardlessVoter: false,
   isPollWorkerCardPresent: false,
-  isRecentVoterPrint: false,
   isVoterCardExpired: false,
   isVoterCardVoided: false,
   isVoterCardPresent: false,
   isVoterCardPrinted: false,
   isVoterCardValid: true,
   pauseProcessingUntilNoCardPresent: false,
+  showPostVotingInstructions: undefined,
   voterCardCreatedAt: 0,
 }
 
 const initialVoterState: Readonly<UserState> = {
-  ballotCreatedAt: 0,
   ballotStyleId: '',
-  contests: [],
   precinctId: '',
   shortValue: '{}',
   userSettings: { textSize: GLOBALS.TEXT_SIZE },
@@ -294,7 +292,7 @@ type AppAction =
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: string; vote: OptionalVote }
   | { type: 'forceSaveVote' }
-  | { type: 'resetBallot' }
+  | { type: 'resetBallot'; showPostVotingInstructions?: PostVotingInstructions }
   | { type: 'setUserSettings'; userSettings: PartialUserSettings }
   | { type: 'updateAppPrecinctId'; appPrecinctId: string }
   | { type: 'enableLiveMode' }
@@ -307,6 +305,8 @@ type AppAction =
   | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> }
   | { type: 'initializeAppState'; appState: Partial<State> }
   | { type: 'updateLastCardDataString'; currentCardDataString: string }
+  | { type: 'activateCardlessBallot'; ballotStyleId: string }
+  | { type: 'maintainCardlessBallot' }
 
 const appReducer = (state: State, action: AppAction): State => {
   const resetTally = {
@@ -326,6 +326,7 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         ...initialCardState,
+        isCardlessVoter: state.isCardlessVoter,
         isPollWorkerCardPresent: true,
       }
     case 'processVoterCard':
@@ -347,7 +348,8 @@ const appReducer = (state: State, action: AppAction): State => {
     case 'resumeCardProcessing':
       return {
         ...state,
-        pauseProcessingUntilNoCardPresent: false,
+        pauseProcessingUntilNoCardPresent:
+          initialCardState.pauseProcessingUntilNoCardPresent,
       }
     case 'setMachineConfig':
       return {
@@ -384,6 +386,9 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         ...initialCardState,
         ...initialVoterState,
+        showPostVotingInstructions: action.showPostVotingInstructions,
+        pauseProcessingUntilNoCardPresent:
+          action.showPostVotingInstructions === 'card',
       }
     case 'setUserSettings':
       /* istanbul ignore next */
@@ -470,6 +475,33 @@ const appReducer = (state: State, action: AppAction): State => {
         lastCardDataString: action.currentCardDataString,
       }
     }
+    case 'activateCardlessBallot': {
+      if (action.ballotStyleId) {
+        return {
+          ...state,
+          ballotStyleId: action.ballotStyleId,
+          isCardlessVoter: true,
+          precinctId: state.appPrecinctId,
+          votes: initialVoterState.votes,
+        }
+      }
+      return {
+        ...state,
+        ballotStyleId: '',
+        isCardlessVoter: initialCardState.isCardlessVoter,
+        precinctId: '',
+        votes: initialVoterState.votes,
+      }
+    }
+    case 'maintainCardlessBallot':
+      return {
+        ...state,
+        ...initialCardState,
+        isCardlessVoter: true,
+        precinctId: state.precinctId,
+        ballotStyleId: state.ballotStyleId!,
+        votes: state.votes,
+      }
   }
 }
 
@@ -481,12 +513,13 @@ const AppRoot: React.FC<Props> = ({
   printer,
   storage,
 }) => {
+  const PostVotingInstructionsTimeout = useRef(0)
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
     appPrecinctId,
     ballotsPrintedCount,
     ballotStyleId,
-    contests,
+    isCardlessVoter,
     electionDefinition: optionalElectionDefinition,
     isAdminCardPresent,
     isLiveMode,
@@ -497,7 +530,6 @@ const AppRoot: React.FC<Props> = ({
     isVoterCardVoided,
     isVoterCardPrinted,
     isVoterCardValid,
-    isRecentVoterPrint,
     lastCardDataString,
     machineConfig,
     pauseProcessingUntilNoCardPresent,
@@ -508,13 +540,29 @@ const AppRoot: React.FC<Props> = ({
     hasPrinterAttached,
     precinctId,
     shortValue,
+    showPostVotingInstructions,
     tally,
     userSettings,
     votes,
     voterCardCreatedAt,
   } = appState
+
   const { appMode } = machineConfig
   const { textSize: userSettingsTextSize } = userSettings
+
+  const ballotStyle = optionalElectionDefinition?.election
+    ? getBallotStyle({
+        ballotStyleId,
+        election: optionalElectionDefinition?.election,
+      })
+    : ''
+  const contests =
+    optionalElectionDefinition?.election && ballotStyle
+      ? getContests({
+          election: optionalElectionDefinition?.election,
+          ballotStyle,
+        })
+      : []
 
   const readCard = useCallback(async (): Promise<CardAPI> => {
     return await card.readStatus()
@@ -537,24 +585,6 @@ const AppRoot: React.FC<Props> = ({
     }
   }, [optionalElectionDefinition, storage])
 
-  // Handle Ballot Activation
-  useEffect(() => {
-    const storeBallotActivation = (data: SerializableActivationData) => {
-      /* istanbul ignore else */
-      if (process.env.NODE_ENV !== 'production') {
-        storage.set(activationStorageKey, data)
-      }
-    }
-
-    if (precinctId && ballotStyleId) {
-      storeBallotActivation({
-        ballotCreatedAt: voterCardCreatedAt,
-        precinctId,
-        ballotStyleId,
-      })
-    }
-  }, [precinctId, ballotStyleId, voterCardCreatedAt, storage])
-
   // Handle Vote Updated (and store votes locally in !production)
   useEffect(() => {
     const storeVotes = async (votes: VotesDict) => {
@@ -574,14 +604,32 @@ const AppRoot: React.FC<Props> = ({
   }, [votes, storage])
 
   const resetBallot = useCallback(
-    (path = '/') => {
+    (showPostVotingInstructions?: PostVotingInstructions) => {
       storage.remove(activationStorageKey)
       storage.remove(votesStorageKey)
-      dispatchAppState({ type: 'resetBallot' })
-      history.push(path)
+      dispatchAppState({ type: 'resetBallot', showPostVotingInstructions })
+      history.push('/')
     },
     [storage, history]
   )
+
+  const hidePostVotingInstructions = () => {
+    clearTimeout(PostVotingInstructionsTimeout.current)
+    dispatchAppState({ type: 'resetBallot' })
+  }
+
+  // Hide Verify and Cast Instructions
+  useEffect(() => {
+    if (showPostVotingInstructions) {
+      PostVotingInstructionsTimeout.current = window.setTimeout(
+        hidePostVotingInstructions,
+        GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS * 1000
+      )
+    }
+    return () => {
+      clearTimeout(PostVotingInstructionsTimeout.current)
+    }
+  }, [showPostVotingInstructions])
 
   const unconfigure = useCallback(() => {
     dispatchAppState({ type: 'unconfigure' })
@@ -652,9 +700,20 @@ const AppRoot: React.FC<Props> = ({
     }
   }, [card])
 
+  const activateCardlessBallotStyleId = (ballotStyleId: string) => {
+    dispatchAppState({
+      type: 'activateCardlessBallot',
+      ballotStyleId,
+    })
+    history.push('/')
+  }
+
   const processCard = useCallback(
     async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
       const cardData: CardData = JSON.parse(cardShortValue!)
+      if (!optionalElectionDefinition && cardData.t !== 'admin') {
+        return
+      }
       switch (cardData.t) {
         case 'voter': {
           const voterCardData = cardData as VoterCardData
@@ -663,10 +722,6 @@ const AppRoot: React.FC<Props> = ({
             ? Number(voterCardData.bp)
             : 0
           const isVoterCardPrinted = Boolean(ballotPrintedTime)
-          const isRecentVoterPrint =
-            isVoterCardPrinted &&
-            utcTimestamp() <=
-              ballotPrintedTime + GLOBALS.RECENT_PRINT_EXPIRATION_SECONDS
           const ballotStyle = getBallotStyle({
             election: optionalElectionDefinition!.election,
             ballotStyleId: voterCardData.bs,
@@ -701,19 +756,11 @@ const AppRoot: React.FC<Props> = ({
               isVoterCardVoided,
               isVoterCardPresent: true,
               isVoterCardPrinted,
-              isRecentVoterPrint,
               isVoterCardValid,
               voterCardCreatedAt: voterCardData.c,
               ballotStyleId: ballotStyle?.id ?? initialAppState.ballotStyleId,
               precinctId: precinct?.id ?? initialAppState.precinctId,
               votes: ballot.votes,
-              contests:
-                ballotStyle && optionalElectionDefinition
-                  ? getContests({
-                      ballotStyle,
-                      election: optionalElectionDefinition.election,
-                    })
-                  : initialAppState.contests,
             },
           })
 
@@ -759,11 +806,20 @@ const AppRoot: React.FC<Props> = ({
     if (currentCardDataString === lastCardDataString) {
       return
     }
+
     dispatchAppState({
       type: 'updateLastCardDataString',
       currentCardDataString,
     })
+
     if (!insertedCard.present || !insertedCard.shortValue) {
+      if (isCardlessVoter) {
+        dispatchAppState({
+          type: 'maintainCardlessBallot',
+        })
+        return
+      }
+
       resetBallot()
       return
     }
@@ -855,6 +911,9 @@ const AppRoot: React.FC<Props> = ({
   ])
 
   const markVoterCardPrinted: MarkVoterCardFunction = useCallback(async () => {
+    if (isCardlessVoter) {
+      return true
+    }
     stopCardShortValueReadPolling()
     dispatchAppState({ type: 'pauseCardProcessing' })
 
@@ -880,12 +939,13 @@ const AppRoot: React.FC<Props> = ({
     }
     return true
   }, [
+    clearLongValue,
+    isCardlessVoter,
+    readCard,
+    resetBallot,
+    shortValue,
     startCardShortValueReadPolling,
     stopCardShortValueReadPolling,
-    clearLongValue,
-    shortValue,
-    resetBallot,
-    readCard,
     writeCard,
   ])
 
@@ -986,8 +1046,9 @@ const AppRoot: React.FC<Props> = ({
     const storedAppState: Partial<State> = storage.get(stateStorageKey) || {}
 
     const {
-      ballotStyleId: storedBallotStyleId,
-      precinctId: storedPrecinctId,
+      ballotStyleId: retrievedBallotStyleId,
+      isCardlessVoter: retrievedCardlessActivatedAt,
+      precinctId: retrievedPrecinctId,
     } = retrieveBallotActivation()
     const {
       appPrecinctId = initialAppState.appPrecinctId,
@@ -998,31 +1059,17 @@ const AppRoot: React.FC<Props> = ({
         ? getZeroTally(storedElectionDefinition.election)
         : initialAppState.tally,
     } = storedAppState
-    const ballotStyle =
-      storedBallotStyleId &&
-      storedElectionDefinition &&
-      getBallotStyle({
-        ballotStyleId: storedBallotStyleId,
-        election: storedElectionDefinition.election,
-      })
-    const contests =
-      ballotStyle && storedElectionDefinition?.election
-        ? getContests({
-            ballotStyle,
-            election: storedElectionDefinition.election,
-          })
-        : initialAppState.contests
     dispatchAppState({
       type: 'initializeAppState',
       appState: {
         appPrecinctId,
         ballotsPrintedCount,
-        ballotStyleId: storedBallotStyleId,
-        contests,
+        ballotStyleId: retrievedBallotStyleId,
         electionDefinition: storedElectionDefinition,
+        isCardlessVoter: retrievedCardlessActivatedAt,
         isLiveMode,
         isPollsOpen,
-        precinctId: storedPrecinctId,
+        precinctId: retrievedPrecinctId,
         tally,
         votes: retrieveVotes(),
       },
@@ -1043,7 +1090,21 @@ const AppRoot: React.FC<Props> = ({
     storage,
   ])
 
-  // Handle Storing AppState (should be last to ensure that storage is updated after all other updates)
+  // Handle Ballot Activation (should be after last to ensure that storage is updated after all other updates)
+  useEffect(() => {
+    if (precinctId && ballotStyleId) {
+      /* istanbul ignore else */
+      if (process.env.NODE_ENV !== 'production') {
+        storage.set(activationStorageKey, {
+          ballotStyleId,
+          isCardlessVoter,
+          precinctId,
+        })
+      }
+    }
+  }, [ballotStyleId, isCardlessVoter, precinctId, storage, voterCardCreatedAt])
+
+  // Handle Storing AppState (should be after last to ensure that storage is updated after all other updates)
   useEffect(() => {
     const storeAppState = () => {
       storage.set(stateStorageKey, {
@@ -1105,16 +1166,19 @@ const AppRoot: React.FC<Props> = ({
     if (isPollWorkerCardPresent) {
       return (
         <PollWorkerScreen
+          activateCardlessBallotStyleId={activateCardlessBallotStyleId}
           appPrecinctId={appPrecinctId}
           ballotsPrintedCount={ballotsPrintedCount}
+          ballotStyleId={ballotStyleId}
           electionDefinition={optionalElectionDefinition}
+          enableLiveMode={enableLiveMode}
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
           machineConfig={machineConfig}
           printer={printer}
           tally={tally}
           togglePollsOpen={togglePollsOpen}
-          enableLiveMode={enableLiveMode}
+          hasVotes={!!votes}
         />
       )
     }
@@ -1132,10 +1196,20 @@ const AppRoot: React.FC<Props> = ({
         />
       )
     }
+    if (
+      isPollsOpen &&
+      showPostVotingInstructions &&
+      appMode.isVxMark &&
+      appMode.isVxPrint
+    ) {
+      return (
+        <CastBallotPage
+          showPostVotingInstructions={showPostVotingInstructions}
+          hidePostVotingInstructions={hidePostVotingInstructions}
+        />
+      )
+    }
     if (isPollsOpen && isVoterCardPrinted) {
-      if (isRecentVoterPrint && appMode.isVxMark && appMode.isVxPrint) {
-        return <CastBallotPage />
-      }
       return (
         <UsedCardScreen
           useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1168,7 +1242,11 @@ const AppRoot: React.FC<Props> = ({
       )
     }
     if (isPollsOpen && appMode.isVxMark) {
-      if (isVoterCardPresent && ballotStyleId && precinctId) {
+      if (
+        (isVoterCardPresent || isCardlessVoter) &&
+        ballotStyleId &&
+        precinctId
+      ) {
         if (appPrecinctId !== precinctId) {
           return (
             <WrongPrecinctScreen
@@ -1185,6 +1263,7 @@ const AppRoot: React.FC<Props> = ({
                 contests,
                 electionDefinition: optionalElectionDefinition,
                 updateTally,
+                isCardlessVoter,
                 isLiveMode,
                 markVoterCardPrinted,
                 markVoterCardVoided,

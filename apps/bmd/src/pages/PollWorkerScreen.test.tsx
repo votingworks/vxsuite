@@ -20,16 +20,19 @@ test('renders PollWorkerScreen', async () => {
   const election = electionSampleWithSeal as Election
   const { getByText } = render(
     <PollWorkerScreen
+      activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
+      ballotStyleId=""
       electionDefinition={{ election, electionHash: 'test-hash' }}
-      isPollsOpen
+      enableLiveMode={jest.fn()}
+      hasVotes={false}
       isLiveMode={false}
+      isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
-      enableLiveMode={jest.fn()}
     />
   )
 
@@ -44,16 +47,19 @@ test('switching out of test mode on election day', async () => {
   const enableLiveMode = jest.fn()
   const { getByText } = render(
     <PollWorkerScreen
+      activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
+      ballotStyleId=""
       electionDefinition={{ election, electionHash: 'test-hash' }}
-      isPollsOpen
+      enableLiveMode={enableLiveMode}
+      hasVotes={false}
       isLiveMode={false}
+      isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
-      enableLiveMode={enableLiveMode}
     />
   )
 
@@ -70,16 +76,19 @@ test('keeping test mode on election day', async () => {
   const enableLiveMode = jest.fn()
   const { getByText } = render(
     <PollWorkerScreen
+      activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
+      ballotStyleId=""
       electionDefinition={{ election, electionHash: 'test-hash' }}
-      isPollsOpen
+      enableLiveMode={enableLiveMode}
+      hasVotes={false}
       isLiveMode={false}
+      isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
-      enableLiveMode={enableLiveMode}
     />
   )
 
@@ -93,16 +102,19 @@ test('live mode on election day', async () => {
   const enableLiveMode = jest.fn()
   const { queryByText } = render(
     <PollWorkerScreen
+      activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
+      ballotStyleId=""
       electionDefinition={{ election, electionHash: 'test-hash' }}
-      isPollsOpen
+      enableLiveMode={enableLiveMode}
+      hasVotes={false}
       isLiveMode
+      isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
-      enableLiveMode={enableLiveMode}
     />
   )
 
