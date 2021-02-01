@@ -224,6 +224,7 @@ it('tabulating CVRs', async () => {
     getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
       .length > 0
   ).toBe(true)
+  getByText('Number of Ballots Cast: 100')
   expect(getByTestId('tally-report-contents')).toMatchSnapshot()
 
   fireEvent.click(getByText('Tally'))
@@ -250,5 +251,6 @@ it('tabulating CVRs', async () => {
   // When there are no CVRs imported the full tally report is labeled as the zero report
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
   // Verify the zero report generates properly
+  getByText('Number of Ballots Cast: 0')
   expect(getByTestId('tally-report-contents')).toMatchSnapshot()
 })
