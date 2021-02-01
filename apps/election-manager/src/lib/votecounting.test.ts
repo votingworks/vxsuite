@@ -16,7 +16,11 @@ import {
   getOvervotePairTallies,
   filterTalliesByParams,
 } from './votecounting'
-import { CastVoteRecord, FullElectionTally } from '../config/types'
+import {
+  CastVoteRecord,
+  FullElectionTally,
+  TallyCategory,
+} from '../config/types'
 
 const fixturesPath = path.join(__dirname, '../../test/fixtures')
 const electionFilePath = path.join(fixturesPath, 'election.json')
@@ -93,6 +97,28 @@ test('tabulating a set of CVRs gives expected output', async () => {
   )
 
   expect(numWriteIns).toBe(260)
+})
+
+test('computeFullTally with no results should produce empty tally objects with contests', async () => {
+  const election = parseElection(
+    JSON.parse((await fs.readFile(electionFilePath)).toString('utf-8'))
+  )
+
+  const fullTally = computeFullElectionTally(election, [])
+  expect(fullTally.overallTally.numberOfBallotsCounted).toBe(0)
+  expect(fullTally.overallTally.contestTallies.length).toBe(
+    election.contests.length
+  )
+  const precinctTallies = fullTally.resultsByCategory.get(
+    TallyCategory.Precinct
+  )
+  expect(precinctTallies).toBeDefined()
+  election.precincts.forEach((precinct) => {
+    const precinctTally = precinctTallies![precinct.id]
+    expect(precinctTally).toBeDefined()
+    expect(precinctTally!.numberOfBallotsCounted).toBe(0)
+    expect(precinctTally!.contestTallies.length).toBe(election.contests.length)
+  })
 })
 
 describe('filterTalliesByParams in a typical election', () => {

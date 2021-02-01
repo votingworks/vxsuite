@@ -426,11 +426,12 @@ export function computeFullElectionTally(
 
   const cvrFilesByPrecinct: Dictionary<CastVoteRecord[]> = {}
   const cvrFilesByScanner: Dictionary<CastVoteRecord[]> = {}
+  election.precincts.forEach((precinct) => {
+    cvrFilesByPrecinct[precinct.id] = []
+  })
+
   castVoteRecords.forEach((CVR) => {
-    let filesForPrecinct = cvrFilesByPrecinct[CVR._precinctId]
-    if (!filesForPrecinct) {
-      cvrFilesByPrecinct[CVR._precinctId] = filesForPrecinct = []
-    }
+    const filesForPrecinct = cvrFilesByPrecinct[CVR._precinctId]!
     filesForPrecinct.push(CVR)
 
     let filesForScanner = cvrFilesByScanner[CVR._scannerId]
