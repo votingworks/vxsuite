@@ -49,7 +49,7 @@ export class FujitsuScanner implements Scanner {
 
   public constructor({
     format = ScannerImageFormat.PNG,
-    pageSize = ScannerPageSize.Legal,
+    pageSize = ScannerPageSize.Letter,
   }: Options = {}) {
     this.format = format
     this.pageSize = pageSize
