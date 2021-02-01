@@ -199,8 +199,8 @@ it('tabulating CVRs', async () => {
     EITHER_NEITHER_CVRS,
     eitherNeitherElection
   )
-  await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
+  await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
   const { getByText, getAllByText, getByTestId } = render(
     <App storage={storage} />
   )
@@ -208,19 +208,47 @@ it('tabulating CVRs', async () => {
   await screen.findByText('0 official ballots')
 
   fireEvent.click(getByText('Tally'))
+
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('100')
   )
 
+  getByText('View Unofficial Full Election Tally Report')
   fireEvent.click(getByText('Mark Tally Results as Official…'))
   getByText('Mark Unofficial Tally Results as Official Tally Results?')
   fireEvent.click(getByText('Mark Tally Results as Official'))
 
-  fireEvent.click(getByText('View Official Full Election Tally'))
+  fireEvent.click(getByText('View Official Full Election Tally Report'))
 
   expect(
     getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
       .length > 0
   ).toBe(true)
+  expect(getByTestId('tally-report-contents')).toMatchSnapshot()
+
+  fireEvent.click(getByText('Tally'))
+
+  await waitFor(() => {
+    fireEvent.click(getByText('View Official Tally Reports for All Precincts'))
+  })
+
+  getByText(
+    'Official Mock General Election Choctaw 2020 Tally Reports for All Precincts'
+  )
+  // Test that each precinct has a tally report generated
+  eitherNeitherElection.precincts.forEach((p) => {
+    getByText(`Official Precinct Tally Report for: ${p.name}`)
+  })
+
+  fireEvent.click(getByText('Tally'))
+  fireEvent.click(getByText('Remove CVR Files…'))
+  fireEvent.click(getByText('Remove All CVR Files'))
+  await waitFor(() =>
+    expect(getByTestId('total-ballot-count').textContent).toEqual('0')
+  )
+
+  // When there are no CVRs imported the full tally report is labeled as the zero report
+  fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
+  // Verify the zero report generates properly
   expect(getByTestId('tally-report-contents')).toMatchSnapshot()
 })

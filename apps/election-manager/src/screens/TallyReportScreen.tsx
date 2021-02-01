@@ -35,7 +35,9 @@ const TallyHeader = styled.div`
 `
 
 const TallyReportScreen: React.FC = () => {
-  const { precinctId } = useParams<PrecinctReportScreenProps>()
+  const {
+    precinctId: precinctIdFromProps,
+  } = useParams<PrecinctReportScreenProps>()
   const { scannerId } = useParams<ScannerReportScreenProps>()
   const {
     electionDefinition,
@@ -62,8 +64,16 @@ const TallyReportScreen: React.FC = () => {
     new Set(election.ballotStyles.map((bs) => bs.partyId))
   )
 
+  const precinctIds =
+    precinctIdFromProps === 'all'
+      ? election.precincts.map((p) => p.id)
+      : [precinctIdFromProps]
+
   const precinctName =
-    precinctId && find(election.precincts, (p) => p.id === precinctId).name
+    (precinctIdFromProps &&
+      precinctIdFromProps !== 'all' &&
+      find(election.precincts, (p) => p.id === precinctIdFromProps).name) ||
+    undefined
 
   const electionDate = localeWeedkayAndDate.format(new Date(election.date))
   const generatedAt = localeLongDateAndTime.format(new Date())
@@ -84,6 +94,9 @@ const TallyReportScreen: React.FC = () => {
     }
     if (scannerId) {
       return `${statusPrefix} Scanner Tally Report for Scanner ${scannerId}`
+    }
+    if (precinctIdFromProps === 'all') {
+      return `${statusPrefix} ${election.title} Tally Reports for All Precincts`
     }
     return `${statusPrefix} ${election.title} Tally Report`
   }
@@ -128,81 +141,83 @@ const TallyReportScreen: React.FC = () => {
       <div className="print-only">
         <LogoMark />
         {ballotStylePartyIds.map((partyId) => {
-          const party = election.parties.find((p) => p.id === partyId)
-          const electionTitle = party
-            ? `${party.fullName} ${election.title}`
-            : election.title
+          return precinctIds.map((precinctId) => {
+            const party = election.parties.find((p) => p.id === partyId)
+            const electionTitle = party
+              ? `${party.fullName} ${election.title}`
+              : election.title
 
-          const tallyForReport = filterTalliesByParams(
-            fullElectionTally!,
-            election,
-            { precinctId, scannerId, party }
-          )
+            const tallyForReport = filterTalliesByParams(
+              fullElectionTally!,
+              election,
+              { precinctId, scannerId, party }
+            )
 
-          if (precinctId) {
-            const precinctName = find(
-              election.precincts,
-              (p) => p.id === precinctId
-            ).name
+            if (precinctId) {
+              const precinctName = find(
+                election.precincts,
+                (p) => p.id === precinctId
+              ).name
+              return (
+                <React.Fragment key={`${partyId}-${precinctId}`}>
+                  <TallyHeader key={precinctId}>
+                    <Prose maxWidth={false}>
+                      <h1>
+                        {statusPrefix} Precinct Tally Report for: {precinctName}
+                      </h1>
+                      {reportMeta}
+                    </Prose>
+                  </TallyHeader>
+                  <HorizontalRule />
+                  <ContestTally
+                    election={election}
+                    electionTally={tallyForReport!}
+                  />
+                </React.Fragment>
+              )
+            }
+
+            if (scannerId) {
+              return (
+                <React.Fragment key={`${partyId}-${scannerId}`}>
+                  <TallyHeader key={scannerId}>
+                    <Prose maxWidth={false}>
+                      <h1>
+                        {statusPrefix} Scanner Tally Report for Scanner{' '}
+                        {scannerId}
+                      </h1>
+                      {reportMeta}
+                    </Prose>
+                  </TallyHeader>
+                  <HorizontalRule />
+                  <ContestTally
+                    election={election}
+                    electionTally={tallyForReport!}
+                  />
+                </React.Fragment>
+              )
+            }
+
             return (
-              <React.Fragment key={`${partyId}-${precinctId}`}>
-                <TallyHeader key={precinctId}>
+              <React.Fragment key={partyId || 'none'}>
+                <TallyHeader>
                   <Prose maxWidth={false}>
                     <h1>
-                      {statusPrefix} Precinct Tally Report for: {precinctName}
+                      {statusPrefix} {electionTitle} Tally Report
                     </h1>
                     {reportMeta}
                   </Prose>
                 </TallyHeader>
                 <HorizontalRule />
-                <ContestTally
-                  election={election}
-                  electionTally={tallyForReport!}
-                />
+                <div data-testid="tally-report-contents">
+                  <ContestTally
+                    election={election}
+                    electionTally={tallyForReport}
+                  />
+                </div>
               </React.Fragment>
             )
-          }
-
-          if (scannerId) {
-            return (
-              <React.Fragment key={`${partyId}-${scannerId}`}>
-                <TallyHeader key={scannerId}>
-                  <Prose maxWidth={false}>
-                    <h1>
-                      {statusPrefix} Scanner Tally Report for Scanner{' '}
-                      {scannerId}
-                    </h1>
-                    {reportMeta}
-                  </Prose>
-                </TallyHeader>
-                <HorizontalRule />
-                <ContestTally
-                  election={election}
-                  electionTally={tallyForReport!}
-                />
-              </React.Fragment>
-            )
-          }
-
-          return (
-            <React.Fragment key={partyId || 'none'}>
-              <TallyHeader>
-                <Prose maxWidth={false}>
-                  <h1>
-                    {statusPrefix} {electionTitle} Tally Report
-                  </h1>
-                  {reportMeta}
-                </Prose>
-              </TallyHeader>
-              <HorizontalRule />
-              <div data-testid="tally-report-contents">
-                <ContestTally
-                  election={election}
-                  electionTally={tallyForReport}
-                />
-              </div>
-            </React.Fragment>
-          )
+          })
         })}
       </div>
     </React.Fragment>

@@ -1997,3 +1997,856 @@ exports[`tabulating CVRs 1`] = `
   </div>
 </div>
 `;
+
+exports[`tabulating CVRs 2`] = `
+<div
+  data-testid="tally-report-contents"
+>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        United States
+        , 
+        President
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        United States
+        , 
+        Senate 
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Mike Espy
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Cindy Hyde-Smith
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Jimmy Edwards
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        US House Of Representatives
+        , 
+        1st Congressional District
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Antonia Eliason
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Trent Kelly
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        Northern District
+        , 
+        Supreme Court District 3(Northern) Position 3
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Josiah Dennis Coleman
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Percy L. Lynchard
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        Election Commissioner 01
+        , 
+        Election Commissioner  01
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Glynda Chaney Fulce
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        Election Commissioner 02
+        , 
+        Election Commissioner 02
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Charles Beck
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Sharon Brooks
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        Election Commissioner 03
+        , 
+        Election Commissioner 03
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Dorothy Anderson
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        Election Commissioner 04
+        , 
+        Election Commissioner 04
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Willie Mae Guillory
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Lewis Wright
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        Election Commissioner 05
+        , 
+        Election Commissioner 05
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Ouida A Loper
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Wayne McLeod
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        School Board District 5
+        , 
+        School Board 05
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Michael D Thomas
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        State Of Mississippi
+        , 
+        Ballot Measure 1 – Either/Neither
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        State Of Mississippi
+        , 
+        Ballot Measure 1 – Pick One
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              FOR Initiative Measure No. 65
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              FOR Alternative Measure 65 A
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        State Of Mississippi
+        , 
+        Ballot Measure 2: House Concurrent Resolution No. 47
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              YES
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              NO
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-bYEvPH dTbFV"
+  >
+    <div
+      class="sc-crrsfI jJkczz"
+    >
+      <div
+        class="sc-ezrdKe bNwPyO ignore-prose"
+      >
+        <span
+          class="sc-dQppl kMSBOR"
+        >
+          0 ballots
+           cast /
+           
+          0 overvotes
+           /
+           
+          0 undervotes
+        </span>
+      </div>
+      <h3>
+        State Of Mississippi
+        , 
+        Ballot Measure 3: House Bill 1796 - Flag Referendum
+      </h3>
+      <table
+        class="sc-fodVxV dpEkZU"
+      >
+        <tbody>
+          <tr>
+            <td>
+              YES
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+          <tr>
+            <td>
+              NO
+            </td>
+            <td
+              class="sc-fFubgz jVzFBN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
