@@ -184,8 +184,13 @@ const TallyScreen: React.FC = () => {
               </strong>
             </TD>
             <TD>
-              <LinkButton to={routerPaths.tallyFullReport}>
-                View {statusPrefix} Full Election Tally
+              <LinkButton
+                small
+                to={routerPaths.tallyPrecinctReport({
+                  precinctId: 'all',
+                })}
+              >
+                View {statusPrefix} Tally Reports for All Precincts
               </LinkButton>
             </TD>
           </tr>
@@ -247,16 +252,17 @@ const TallyScreen: React.FC = () => {
           </tr>
         </tbody>
       </Table>
-      {false && (
-        <React.Fragment>
-          <h2>Additional Reports</h2>
-          <p>
-            <LinkButton to={routerPaths.overvoteCombinationReport}>
-              {statusPrefix} Overvote Combination Report
-            </LinkButton>
-          </p>
-        </React.Fragment>
-      )}
+      <h2>{statusPrefix} Tally Reports</h2>
+      <p>
+        <LinkButton to={routerPaths.tallyFullReport}>
+          View {statusPrefix} Full Election Tally Report
+        </LinkButton>
+        {false && (
+          <LinkButton to={routerPaths.overvoteCombinationReport}>
+            {statusPrefix} Overvote Combination Report
+          </LinkButton>
+        )}
+      </p>
     </React.Fragment>
   )
   return (
