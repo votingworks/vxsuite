@@ -549,11 +549,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
     }
 
     const ballotStylesheets = [
-      `/ballot/${
-        locales.secondary
-          ? 'layout-dual-language.css'
-          : 'layout-single-language.css'
-      }`,
+      '/ballot/ballot-layout-letter.css',
       '/ballot/ballot.css',
     ]
 

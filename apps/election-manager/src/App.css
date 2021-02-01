@@ -118,10 +118,10 @@ html body .cvox_indicator_container {
   display: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
-/* Adjust printed ballot paper settings */
+/* Default printed paper page settings */
 @page {
   margin: 0.5in;
-  size: legal portrait;
+  size: letter portrait;
 }
 
 /* Layout Utilities */
