@@ -153,8 +153,6 @@ describe('filterTalliesByParams in a typical election', () => {
         precinctId,
       })
       expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
-      expect(filteredResults.precinctId).toBe(precinctId)
-      expect(filteredResults.scannerId).toBe(undefined)
       expect(filteredResults.contestTallies).toMatchSnapshot()
       expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
     }
@@ -180,8 +178,6 @@ describe('filterTalliesByParams in a typical election', () => {
         scannerId,
       })
       expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
-      expect(filteredResults.scannerId).toBe(scannerId)
-      expect(filteredResults.precinctId).toBe(undefined)
       expect(filteredResults.contestTallies).toMatchSnapshot()
       expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
     }
@@ -217,12 +213,10 @@ describe('filterTalliesByParams in a primary election', () => {
   })
 
   test('can filter results by party', () => {
-    const primaryParty = primaryElectionSample.parties.find((p) => p.id === '3')
-    expect(primaryParty).toBeDefined()
     const filteredResults = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      { party: primaryParty }
+      { partyId: '3' }
     )
     expect(electionTally.overallTally.contestTallies.length).toBe(22)
     // Filtering by party just filters down the contests in contestTallies
@@ -271,26 +265,24 @@ describe('filterTalliesByParams in a primary election', () => {
       ]
     `)
 
-    const otherParty = primaryElectionSample.parties.find((p) => p.id === '4')
     const filteredResults2 = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      { party: otherParty }
+      { partyId: '4' }
     )
     expect(filteredResults2.contestTallies).toStrictEqual([])
   })
 
   test('can filter results by party and precinct', () => {
-    const primaryParty = primaryElectionSample.parties.find((p) => p.id === '3')
     const filteredResultsAll = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      { party: primaryParty }
+      { partyId: '3' }
     )
     const filteredResultsPrecinct = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      { precinctId: '20', party: primaryParty }
+      { precinctId: '20', partyId: '3' }
     )
     // The results filtered to precinct 20 should be identical to not being filtered as it is the only precinct for the primary.
     expect(filteredResultsAll.contestTallies).toStrictEqual(
@@ -299,7 +291,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsWrongPrecinct = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      { precinctId: '21', party: primaryParty }
+      { precinctId: '21', partyId: '3' }
     )
     expect(filteredResultsWrongPrecinct.contestTallies).toMatchInlineSnapshot(`
       Array [
@@ -348,16 +340,15 @@ describe('filterTalliesByParams in a primary election', () => {
   })
 
   test('can filter results by scanner and party', () => {
-    const primaryParty = primaryElectionSample.parties.find((p) => p.id === '3')
     const filteredResultsScanner4 = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      { scannerId: 'scanner-4', party: primaryParty }
+      { scannerId: 'scanner-4', partyId: '3' }
     )
     const filteredResultsScanner5 = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      { scannerId: 'scanner-5', party: primaryParty }
+      { scannerId: 'scanner-5', partyId: '3' }
     )
     expect(filteredResultsScanner4.numberOfBallotsCounted).toBe(5)
     expect(filteredResultsScanner5.numberOfBallotsCounted).toBe(6)
@@ -453,9 +444,9 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsScanner6 = filterTalliesByParams(
       electionTally,
       primaryElectionSample,
-      { scannerId: 'scanner-6', party: primaryParty }
+      { scannerId: 'scanner-6', partyId: '3' }
     )
-    expect(filteredResultsScanner6.numberOfBallotsCounted).toBe(1) // There is one ballot in scanner 6 with the wrong ballot style for the primary
+    expect(filteredResultsScanner6.numberOfBallotsCounted).toBe(0)
     expect(filteredResultsScanner6.contestTallies).toMatchInlineSnapshot(`
       Array [
         Object {

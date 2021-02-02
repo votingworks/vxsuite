@@ -71,12 +71,10 @@ const TestDeckScreen: React.FC = () => {
   )
 
   const electionTally: Tally = {
-    precinctId: precinct?.id,
     numberOfBallotsCounted: ballots.length,
-    castVoteRecords: new Map(),
+    castVoteRecords: [],
     contestTallies: tallyVotesByContest({
       election,
-      precinctId: precinct?.id,
       votes,
     }),
     contestTallyMetadata,

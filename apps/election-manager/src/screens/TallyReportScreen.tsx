@@ -171,7 +171,7 @@ const TallyReportScreen: React.FC = () => {
             const tallyForReport = filterTalliesByParams(
               fullElectionTally!,
               election,
-              { precinctId, scannerId, party }
+              { precinctId, scannerId, partyId }
             )
 
             if (precinctId) {
@@ -197,6 +197,7 @@ const TallyReportScreen: React.FC = () => {
                   <ContestTally
                     election={election}
                     electionTally={tallyForReport}
+                    precinctId={precinctId}
                   />
                 </React.Fragment>
               )

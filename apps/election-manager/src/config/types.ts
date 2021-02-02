@@ -88,10 +88,9 @@ export interface ContestTallyMeta {
 export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
 
 export interface Tally {
-  readonly precinctId?: string
-  readonly scannerId?: string
   readonly numberOfBallotsCounted: number
-  readonly castVoteRecords: ReadonlyMap<string, CastVoteRecord>
+  // TODO(#2975): Once we're removing duplicate ballots, make this a dictionary indexed by ballotId
+  readonly castVoteRecords: readonly CastVoteRecord[]
   readonly contestTallies: ContestTally[]
   readonly contestTallyMetadata: ContestTallyMetaDictionary
 }
@@ -99,6 +98,7 @@ export interface Tally {
 export enum TallyCategory {
   Precinct = 'precinct',
   Scanner = 'scanner',
+  Party = 'party',
 }
 
 export interface FullElectionTally {
