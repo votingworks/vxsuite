@@ -30,10 +30,15 @@ const Contest = styled.div`
 interface Props {
   election: Election
   electionTally: Tally
+  precinctId?: string
 }
 
-const ContestTally: React.FC<Props> = ({ election, electionTally }) => {
-  const { precinctId, contestTallyMetadata } = electionTally
+const ContestTally: React.FC<Props> = ({
+  election,
+  electionTally,
+  precinctId,
+}) => {
+  const { contestTallyMetadata } = electionTally
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
   const ballotStyles = precinctId
@@ -44,7 +49,7 @@ const ContestTally: React.FC<Props> = ({ election, electionTally }) => {
   return (
     <React.Fragment>
       {electionTally.contestTallies.map(({ contest, tallies }) => {
-        const talliesRelevant = electionTally.precinctId
+        const talliesRelevant = precinctId
           ? districts.includes(contest.districtId)
           : true
 

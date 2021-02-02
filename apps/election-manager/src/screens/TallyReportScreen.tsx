@@ -1,9 +1,11 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components'
+import { Election } from '@votingworks/ballot-encoder'
 
 import { useParams } from 'react-router-dom'
 import find from '../utils/find'
 import saveAsPDF from '../utils/saveAsPDF'
+import * as format from '../utils/format'
 
 import {
   PrecinctReportScreenProps,
@@ -33,6 +35,33 @@ const TallyHeader = styled.div`
     margin-top: -1.5em;
   }
 `
+
+interface Props {
+  election: Election
+  generatedAtTime: Date
+  ballotCount?: number
+}
+const TallyReportMetadata: React.FC<Props> = ({
+  election,
+  generatedAtTime,
+  ballotCount,
+}) => {
+  const electionDate = localeWeedkayAndDate.format(new Date(election.date))
+  const generatedAt = localeLongDateAndTime.format(generatedAtTime)
+
+  return (
+    <React.Fragment>
+      {electionDate}, {election.county.name}, {election.state}
+      <br />
+      <Text small as="span">
+        This report was created on {generatedAt}
+      </Text>
+      {ballotCount !== undefined && (
+        <Text>Number of Ballots Cast: {format.count(ballotCount)}</Text>
+      )}
+    </React.Fragment>
+  )
+}
 
 const TallyReportScreen: React.FC = () => {
   const {
@@ -75,19 +104,6 @@ const TallyReportScreen: React.FC = () => {
       find(election.precincts, (p) => p.id === precinctIdFromProps).name) ||
     undefined
 
-  const electionDate = localeWeedkayAndDate.format(new Date(election.date))
-  const generatedAt = localeLongDateAndTime.format(new Date())
-
-  const reportMeta = (
-    <p>
-      {electionDate}, {election.county.name}, {election.state}
-      <br />
-      <Text small as="span">
-        This report was created on {generatedAt}
-      </Text>
-    </p>
-  )
-
   const reportDisplayTitle = () => {
     if (precinctName) {
       return `${statusPrefix} Precinct Tally Report for ${precinctName}`
@@ -115,12 +131,17 @@ const TallyReportScreen: React.FC = () => {
     }
   }
 
+  const generatedAtTime = new Date()
+
   return (
     <React.Fragment>
       <NavigationScreen>
         <Prose className="no-print">
           <h1>{reportDisplayTitle()}</h1>
-          {reportMeta}
+          <TallyReportMetadata
+            generatedAtTime={generatedAtTime}
+            election={election}
+          />
           <p>
             <PrintButton primary>Print {statusPrefix} Tally Report</PrintButton>
           </p>
@@ -150,7 +171,7 @@ const TallyReportScreen: React.FC = () => {
             const tallyForReport = filterTalliesByParams(
               fullElectionTally!,
               election,
-              { precinctId, scannerId, party }
+              { precinctId, scannerId, partyId }
             )
 
             if (precinctId) {
@@ -165,13 +186,18 @@ const TallyReportScreen: React.FC = () => {
                       <h1>
                         {statusPrefix} Precinct Tally Report for: {precinctName}
                       </h1>
-                      {reportMeta}
+                      <TallyReportMetadata
+                        generatedAtTime={generatedAtTime}
+                        election={election}
+                        ballotCount={tallyForReport.numberOfBallotsCounted}
+                      />
                     </Prose>
                   </TallyHeader>
                   <HorizontalRule />
                   <ContestTally
                     election={election}
-                    electionTally={tallyForReport!}
+                    electionTally={tallyForReport}
+                    precinctId={precinctId}
                   />
                 </React.Fragment>
               )
@@ -186,13 +212,17 @@ const TallyReportScreen: React.FC = () => {
                         {statusPrefix} Scanner Tally Report for Scanner{' '}
                         {scannerId}
                       </h1>
-                      {reportMeta}
+                      <TallyReportMetadata
+                        generatedAtTime={generatedAtTime}
+                        election={election}
+                        ballotCount={tallyForReport.numberOfBallotsCounted}
+                      />
                     </Prose>
                   </TallyHeader>
                   <HorizontalRule />
                   <ContestTally
                     election={election}
-                    electionTally={tallyForReport!}
+                    electionTally={tallyForReport}
                   />
                 </React.Fragment>
               )
@@ -205,7 +235,11 @@ const TallyReportScreen: React.FC = () => {
                     <h1>
                       {statusPrefix} {electionTitle} Tally Report
                     </h1>
-                    {reportMeta}
+                    <TallyReportMetadata
+                      generatedAtTime={generatedAtTime}
+                      election={election}
+                      ballotCount={tallyForReport.numberOfBallotsCounted}
+                    />
                   </Prose>
                 </TallyHeader>
                 <HorizontalRule />
