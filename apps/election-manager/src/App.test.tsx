@@ -240,6 +240,9 @@ it('tabulating CVRs', async () => {
   eitherNeitherElection.precincts.forEach((p) => {
     getByText(`Official Precinct Tally Report for: ${p.name}`)
   })
+  expect(getAllByText('Mock General Election Choctaw 2020').length).toBe(
+    eitherNeitherElection.precincts.length
+  )
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('Remove CVR Files…'))

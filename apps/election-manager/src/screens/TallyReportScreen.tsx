@@ -186,6 +186,7 @@ const TallyReportScreen: React.FC = () => {
                       <h1>
                         {statusPrefix} Precinct Tally Report for: {precinctName}
                       </h1>
+                      <h2>{electionTitle}</h2>
                       <TallyReportMetadata
                         generatedAtTime={generatedAtTime}
                         election={election}
@@ -212,6 +213,7 @@ const TallyReportScreen: React.FC = () => {
                         {statusPrefix} Scanner Tally Report for Scanner{' '}
                         {scannerId}
                       </h1>
+                      <h2>{electionTitle}</h2>
                       <TallyReportMetadata
                         generatedAtTime={generatedAtTime}
                         election={election}
