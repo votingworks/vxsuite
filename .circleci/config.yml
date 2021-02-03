@@ -93,6 +93,24 @@ jobs:
           command: |
             pnpm --dir libs/hmpb-interpreter test:coverage
 
+  test-lsd:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/lsd build
+      - run:
+          name: Run Linters
+          command: |
+            pnpm --dir libs/lsd lint
+      - run:
+          name: Run Tests with Coverage
+          command: |
+            pnpm --dir libs/lsd test:coverage
+
   test-module-scan:
     executor: nodejs
     resource_class: xlarge
@@ -136,6 +154,7 @@ workflows:
       - test-bsd
       - test-election-manager
       - test-hmpb-interpreter
+      - test-lsd
       - test-module-scan
       - test-module-smartcards
 
@@ -170,5 +189,6 @@ commands:
             - libs/ballot-encoder/node_modules
             - libs/eslint-plugin-no-array-sort-mutation/node_modules
             - libs/hmpb-interpreter/node_modules
+            - libs/lsd/node_modules
             - libs/@types/jsfeat/node_modules
             - libs/@types/node-quirc/node_modules
