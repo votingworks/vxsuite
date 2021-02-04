@@ -22,7 +22,10 @@ import CastVoteRecordFiles, {
 import { UsbDriveStatus } from '../src/lib/usbstick'
 
 const eitherNeitherElectionData = fs.readFileSync(
-  join(__dirname, 'fixtures/eitherneither-election.json'),
+  join(
+    __dirname,
+    'fixtures/eitherneither-election/eitherneither-election.json'
+  ),
   'utf-8'
 )
 const eitherNeitherElectionHash = sha256(eitherNeitherElectionData)

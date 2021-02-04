@@ -1,5 +1,1329 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`filterTalliesByParams in a primary election can filter results by party 1`] = `
+Array [
+  Object {
+    "contestId": "governor-contest-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "aaron-aligator",
+          "name": "Aaron Aligator",
+          "partyId": "0",
+        },
+        "tally": 180,
+      },
+      Object {
+        "option": Object {
+          "id": "peter-pigeon",
+          "name": "Peter Pigeon",
+          "partyId": "0",
+        },
+        "tally": 990,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 180,
+      },
+    ],
+  },
+  Object {
+    "contestId": "mayor-contest-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "tahani-al-jamil",
+          "name": "Tahani Al-Jamil",
+          "partyId": "0",
+        },
+        "tally": 90,
+      },
+      Object {
+        "option": Object {
+          "id": "jason-mendoza",
+          "name": "Jason Mendoza",
+          "partyId": "0",
+        },
+        "tally": 90,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 90,
+      },
+    ],
+  },
+  Object {
+    "contestId": "assistant-mayor-contest-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "jenna-morasca",
+          "name": "Jenna Morasca",
+          "partyId": "0",
+        },
+        "tally": 90,
+      },
+      Object {
+        "option": Object {
+          "id": "sandra-diaz-twine",
+          "name": "Sandra Diaz-Twine",
+          "partyId": "0",
+        },
+        "tally": 90,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 90,
+      },
+    ],
+  },
+  Object {
+    "contestId": "chief-pokemon-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "bulbasaur",
+          "name": "Bulbasaur",
+          "partyId": "0",
+        },
+        "tally": 90,
+      },
+      Object {
+        "option": Object {
+          "id": "charmander",
+          "name": "Charmander",
+          "partyId": "0",
+        },
+        "tally": 90,
+      },
+      Object {
+        "option": Object {
+          "id": "squirtle",
+          "name": "Squirtle",
+          "partyId": "0",
+        },
+        "tally": 720,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 90,
+      },
+    ],
+  },
+  Object {
+    "contestId": "schoolboard-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "amber-brkich",
+          "name": "Amber Brkich",
+          "partyId": "0",
+        },
+        "tally": 450,
+      },
+      Object {
+        "option": Object {
+          "id": "chris-daugherty",
+          "name": "Chris Daugherty",
+          "partyId": "0",
+        },
+        "tally": 360,
+      },
+      Object {
+        "option": Object {
+          "id": "tom-westman",
+          "name": "Tom Westman",
+          "partyId": "0",
+        },
+        "tally": 360,
+      },
+      Object {
+        "option": Object {
+          "id": "danni-boatwright",
+          "name": "Dann Boatwright",
+          "partyId": "0",
+        },
+        "tally": 360,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 360,
+      },
+    ],
+  },
+]
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by party 2`] = `
+Object {
+  "assistant-mayor-contest-liberty": Object {
+    "ballots": 450,
+    "overvotes": 90,
+    "undervotes": 90,
+  },
+  "chief-pokemon-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-liberty": Object {
+    "ballots": 1260,
+    "overvotes": 180,
+    "undervotes": 90,
+  },
+  "governor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-liberty": Object {
+    "ballots": 1710,
+    "overvotes": 180,
+    "undervotes": 180,
+  },
+  "mayor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-liberty": Object {
+    "ballots": 450,
+    "overvotes": 90,
+    "undervotes": 90,
+  },
+  "schoolboard-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-liberty": Object {
+    "ballots": 1260,
+    "overvotes": 180,
+    "undervotes": 270,
+  },
+}
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by party 3`] = `
+Array [
+  Object {
+    "contestId": "governor-contest-constitution",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "kristen-bell",
+          "name": "Kristen Bell",
+          "partyId": "3",
+        },
+        "tally": 150,
+      },
+      Object {
+        "option": Object {
+          "id": "dax-shepherd",
+          "name": "Dax Shepherd",
+          "partyId": "3",
+        },
+        "tally": 1500,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 150,
+      },
+    ],
+  },
+  Object {
+    "contestId": "mayor-contest-constitution",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "tina-wesson",
+          "name": "Tina Wesson",
+          "partyId": "3",
+        },
+        "tally": 150,
+      },
+      Object {
+        "option": Object {
+          "id": "ethan-zohn",
+          "name": "Ethan Zohn",
+          "partyId": "3",
+        },
+        "tally": 1500,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 150,
+      },
+    ],
+  },
+  Object {
+    "contestId": "chief-pokemon-constitution",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "flareon",
+          "name": "Flareon",
+          "partyId": "3",
+        },
+        "tally": 150,
+      },
+      Object {
+        "option": Object {
+          "id": "umbreon",
+          "name": "Umbreon",
+          "partyId": "3",
+        },
+        "tally": 150,
+      },
+      Object {
+        "option": Object {
+          "id": "vaporeon",
+          "name": "Vaporeon",
+          "partyId": "3",
+        },
+        "tally": 1200,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 150,
+      },
+    ],
+  },
+  Object {
+    "contestId": "schoolboard-constitution",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "aras-baskauskas",
+          "name": "Aras Baskauskas",
+          "partyId": "3",
+        },
+        "tally": 750,
+      },
+      Object {
+        "option": Object {
+          "id": "yul-kwon",
+          "name": "Yul Kwon",
+          "partyId": "3",
+        },
+        "tally": 600,
+      },
+      Object {
+        "option": Object {
+          "id": "earl-cole",
+          "name": "Earl Cole",
+          "partyId": "3",
+        },
+        "tally": 600,
+      },
+      Object {
+        "option": Object {
+          "id": "todd-herzog",
+          "name": "Todd Herzog",
+          "partyId": "3",
+        },
+        "tally": 600,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 600,
+      },
+    ],
+  },
+]
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by party 4`] = `
+Object {
+  "assistant-mayor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-constitution": Object {
+    "ballots": 2100,
+    "overvotes": 300,
+    "undervotes": 150,
+  },
+  "chief-pokemon-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-constitution": Object {
+    "ballots": 2100,
+    "overvotes": 150,
+    "undervotes": 150,
+  },
+  "governor-contest-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-constitution": Object {
+    "ballots": 2100,
+    "overvotes": 150,
+    "undervotes": 150,
+  },
+  "mayor-contest-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-constitution": Object {
+    "ballots": 2100,
+    "overvotes": 300,
+    "undervotes": 450,
+  },
+  "schoolboard-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+}
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by party 5`] = `
+Array [
+  Object {
+    "contestId": "governor-contest-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "eleanor-shellstrop",
+          "name": "Eleanor Shellstrop",
+          "partyId": "4",
+        },
+        "tally": 90,
+      },
+      Object {
+        "option": Object {
+          "id": "chidi-anagonye",
+          "name": "Chidi Anagonye",
+          "partyId": "4",
+        },
+        "tally": 360,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 90,
+      },
+    ],
+  },
+  Object {
+    "contestId": "mayor-contest-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "vecepia-towery",
+          "name": "Vecepia Towery",
+          "partyId": "4",
+        },
+        "tally": 60,
+      },
+      Object {
+        "option": Object {
+          "id": "brain-heidik",
+          "name": "Brain Heidik",
+          "partyId": "4",
+        },
+        "tally": 330,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 60,
+      },
+    ],
+  },
+  Object {
+    "contestId": "chief-pokemon-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "pikachu",
+          "name": "Pikachu",
+          "partyId": "4",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "eevee",
+          "name": "Eevee",
+          "partyId": "4",
+        },
+        "tally": 300,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
+      },
+    ],
+  },
+  Object {
+    "contestId": "schoolboard-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "parvati-shallow",
+          "name": "Parvati Shallow",
+          "partyId": "4",
+        },
+        "tally": 150,
+      },
+      Object {
+        "option": Object {
+          "id": "bob-crowley",
+          "name": "Bob Crowley",
+          "partyId": "4",
+        },
+        "tally": 120,
+      },
+      Object {
+        "option": Object {
+          "id": "jt-thomas",
+          "name": "JT Thomas",
+          "partyId": "4",
+        },
+        "tally": 120,
+      },
+      Object {
+        "option": Object {
+          "id": "natalie-white",
+          "name": "Natalie White",
+          "partyId": "4",
+        },
+        "tally": 120,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 120,
+      },
+    ],
+  },
+]
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by party 6`] = `
+Object {
+  "assistant-mayor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-federalist": Object {
+    "ballots": 420,
+    "overvotes": 30,
+    "undervotes": 30,
+  },
+  "chief-pokemon-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-federalist": Object {
+    "ballots": 720,
+    "overvotes": 90,
+    "undervotes": 90,
+  },
+  "governor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-federalist": Object {
+    "ballots": 570,
+    "overvotes": 60,
+    "undervotes": 60,
+  },
+  "mayor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-federalist": Object {
+    "ballots": 420,
+    "overvotes": 60,
+    "undervotes": 90,
+  },
+  "schoolboard-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+}
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by party and precinct 1`] = `
+Array [
+  Object {
+    "contestId": "governor-contest-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "eleanor-shellstrop",
+          "name": "Eleanor Shellstrop",
+          "partyId": "4",
+        },
+        "tally": 60,
+      },
+      Object {
+        "option": Object {
+          "id": "chidi-anagonye",
+          "name": "Chidi Anagonye",
+          "partyId": "4",
+        },
+        "tally": 60,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 60,
+      },
+    ],
+  },
+  Object {
+    "contestId": "mayor-contest-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "vecepia-towery",
+          "name": "Vecepia Towery",
+          "partyId": "4",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "brain-heidik",
+          "name": "Brain Heidik",
+          "partyId": "4",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
+      },
+    ],
+  },
+  Object {
+    "contestId": "chief-pokemon-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "pikachu",
+          "name": "Pikachu",
+          "partyId": "4",
+        },
+        "tally": 0,
+      },
+      Object {
+        "option": Object {
+          "id": "eevee",
+          "name": "Eevee",
+          "partyId": "4",
+        },
+        "tally": 0,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 0,
+      },
+    ],
+  },
+  Object {
+    "contestId": "schoolboard-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "parvati-shallow",
+          "name": "Parvati Shallow",
+          "partyId": "4",
+        },
+        "tally": 0,
+      },
+      Object {
+        "option": Object {
+          "id": "bob-crowley",
+          "name": "Bob Crowley",
+          "partyId": "4",
+        },
+        "tally": 0,
+      },
+      Object {
+        "option": Object {
+          "id": "jt-thomas",
+          "name": "JT Thomas",
+          "partyId": "4",
+        },
+        "tally": 0,
+      },
+      Object {
+        "option": Object {
+          "id": "natalie-white",
+          "name": "Natalie White",
+          "partyId": "4",
+        },
+        "tally": 0,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 0,
+      },
+    ],
+  },
+]
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by party and precinct 2`] = `
+Object {
+  "assistant-mayor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-federalist": Object {
+    "ballots": 300,
+    "overvotes": 60,
+    "undervotes": 60,
+  },
+  "governor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-federalist": Object {
+    "ballots": 150,
+    "overvotes": 30,
+    "undervotes": 30,
+  },
+  "mayor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+}
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by party and precinct 3`] = `
+Array [
+  Object {
+    "contestId": "governor-contest-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "eleanor-shellstrop",
+          "name": "Eleanor Shellstrop",
+          "partyId": "4",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "chidi-anagonye",
+          "name": "Chidi Anagonye",
+          "partyId": "4",
+        },
+        "tally": 300,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
+      },
+    ],
+  },
+  Object {
+    "contestId": "mayor-contest-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "vecepia-towery",
+          "name": "Vecepia Towery",
+          "partyId": "4",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "brain-heidik",
+          "name": "Brain Heidik",
+          "partyId": "4",
+        },
+        "tally": 300,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
+      },
+    ],
+  },
+  Object {
+    "contestId": "chief-pokemon-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "pikachu",
+          "name": "Pikachu",
+          "partyId": "4",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "eevee",
+          "name": "Eevee",
+          "partyId": "4",
+        },
+        "tally": 300,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
+      },
+    ],
+  },
+  Object {
+    "contestId": "schoolboard-federalist",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "parvati-shallow",
+          "name": "Parvati Shallow",
+          "partyId": "4",
+        },
+        "tally": 150,
+      },
+      Object {
+        "option": Object {
+          "id": "bob-crowley",
+          "name": "Bob Crowley",
+          "partyId": "4",
+        },
+        "tally": 120,
+      },
+      Object {
+        "option": Object {
+          "id": "jt-thomas",
+          "name": "JT Thomas",
+          "partyId": "4",
+        },
+        "tally": 120,
+      },
+      Object {
+        "option": Object {
+          "id": "natalie-white",
+          "name": "Natalie White",
+          "partyId": "4",
+        },
+        "tally": 120,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 120,
+      },
+    ],
+  },
+]
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by party and precinct 4`] = `
+Object {
+  "assistant-mayor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-federalist": Object {
+    "ballots": 420,
+    "overvotes": 30,
+    "undervotes": 30,
+  },
+  "chief-pokemon-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-federalist": Object {
+    "ballots": 420,
+    "overvotes": 30,
+    "undervotes": 30,
+  },
+  "governor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-federalist": Object {
+    "ballots": 420,
+    "overvotes": 30,
+    "undervotes": 30,
+  },
+  "mayor-contest-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-federalist": Object {
+    "ballots": 420,
+    "overvotes": 60,
+    "undervotes": 90,
+  },
+  "schoolboard-liberty": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+}
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by scanner and party 1`] = `
+Array [
+  Object {
+    "contestId": "governor-contest-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "aaron-aligator",
+          "name": "Aaron Aligator",
+          "partyId": "0",
+        },
+        "tally": 60,
+      },
+      Object {
+        "option": Object {
+          "id": "peter-pigeon",
+          "name": "Peter Pigeon",
+          "partyId": "0",
+        },
+        "tally": 330,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 60,
+      },
+    ],
+  },
+  Object {
+    "contestId": "mayor-contest-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "tahani-al-jamil",
+          "name": "Tahani Al-Jamil",
+          "partyId": "0",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "jason-mendoza",
+          "name": "Jason Mendoza",
+          "partyId": "0",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
+      },
+    ],
+  },
+  Object {
+    "contestId": "assistant-mayor-contest-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "jenna-morasca",
+          "name": "Jenna Morasca",
+          "partyId": "0",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "sandra-diaz-twine",
+          "name": "Sandra Diaz-Twine",
+          "partyId": "0",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
+      },
+    ],
+  },
+  Object {
+    "contestId": "chief-pokemon-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "bulbasaur",
+          "name": "Bulbasaur",
+          "partyId": "0",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "charmander",
+          "name": "Charmander",
+          "partyId": "0",
+        },
+        "tally": 30,
+      },
+      Object {
+        "option": Object {
+          "id": "squirtle",
+          "name": "Squirtle",
+          "partyId": "0",
+        },
+        "tally": 240,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
+      },
+    ],
+  },
+  Object {
+    "contestId": "schoolboard-liberty",
+    "tallies": Array [
+      Object {
+        "option": Object {
+          "id": "amber-brkich",
+          "name": "Amber Brkich",
+          "partyId": "0",
+        },
+        "tally": 150,
+      },
+      Object {
+        "option": Object {
+          "id": "chris-daugherty",
+          "name": "Chris Daugherty",
+          "partyId": "0",
+        },
+        "tally": 120,
+      },
+      Object {
+        "option": Object {
+          "id": "tom-westman",
+          "name": "Tom Westman",
+          "partyId": "0",
+        },
+        "tally": 120,
+      },
+      Object {
+        "option": Object {
+          "id": "danni-boatwright",
+          "name": "Dann Boatwright",
+          "partyId": "0",
+        },
+        "tally": 120,
+      },
+      Object {
+        "option": Object {
+          "id": "__write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 120,
+      },
+    ],
+  },
+]
+`;
+
+exports[`filterTalliesByParams in a primary election can filter results by scanner and party 2`] = `
+Object {
+  "assistant-mayor-contest-liberty": Object {
+    "ballots": 150,
+    "overvotes": 30,
+    "undervotes": 30,
+  },
+  "chief-pokemon-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "chief-pokemon-liberty": Object {
+    "ballots": 420,
+    "overvotes": 60,
+    "undervotes": 30,
+  },
+  "governor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "governor-contest-liberty": Object {
+    "ballots": 570,
+    "overvotes": 60,
+    "undervotes": 60,
+  },
+  "mayor-contest-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "mayor-contest-liberty": Object {
+    "ballots": 150,
+    "overvotes": 30,
+    "undervotes": 30,
+  },
+  "schoolboard-constitution": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-federalist": Object {
+    "ballots": 0,
+    "overvotes": 0,
+    "undervotes": 0,
+  },
+  "schoolboard-liberty": Object {
+    "ballots": 420,
+    "overvotes": 60,
+    "undervotes": 90,
+  },
+}
+`;
+
 exports[`filterTalliesByParams in a typical election can filter by precinct 1`] = `
 Array [
   Object {
