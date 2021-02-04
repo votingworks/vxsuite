@@ -16,6 +16,7 @@
  */
 
 // @ts-check
+exports.__esModule = true
 
 const assert = require('assert')
 
@@ -37,7 +38,7 @@ const addon = require('bindings')('lsd')
  * @param {ImageData} imageData
  * @returns {LineSegment[]}
  */
-module.exports = function lsd(imageData) {
+exports.default = function lsd(imageData) {
   const { data, width, height } = imageData
   const channels = imageData.data.length / imageData.width / imageData.height
 

@@ -6,6 +6,4 @@ export interface LineSegment {
   width: number
 }
 
-declare function lsd(imageData: ImageData): LineSegment[]
-
-export = lsd
+export default function lsd(imageData: ImageData): LineSegment[]

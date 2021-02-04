@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Copyright (C) 2021 VotingWorks
  *
@@ -18,10 +16,21 @@
  */
 
 // @ts-check
+exports.__esModule = true
 
-const { main } = require('../src/cli')
+const { join, basename, dirname, extname } = require('path')
 
-main(process.argv.slice(2)).catch((error) => {
-  console.error(error.stack)
-  process.exitCode = 1
-})
+/**
+ * @param {string} path
+ * @param {string} suffix
+ * @param {string=} newExt
+ * @returns {string}
+ */
+function adjacentFile(path, suffix, newExt) {
+  const ext = extname(path)
+  const base = basename(path, ext)
+  const dir = dirname(path)
+
+  return join(dir, base + suffix + (newExt || ext))
+}
+exports.adjacentFile = adjacentFile

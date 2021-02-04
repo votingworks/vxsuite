@@ -16,8 +16,7 @@
  */
 
 // @ts-check
-
-const lsd = require('.')
+const { default: lsd } = require('.')
 
 /**
  * Create a simple image: left half black, right half gray.

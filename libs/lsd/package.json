@@ -4,8 +4,8 @@
   "private": true,
   "description": "Line Segment Detector for NodeJS",
   "license": "AGPL-3.0",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "bin": "bin/lsd.js",
   "files": [
     "bin",
@@ -17,8 +17,8 @@
   "scripts": {
     "build": "node-gyp configure build",
     "lint": "tsc && eslint",
-    "test": "jest test.js",
-    "test:coverage": "jest --coverage test.js"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "bindings": "^1.5.0",
