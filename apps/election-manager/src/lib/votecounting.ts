@@ -569,13 +569,15 @@ export function filterTalliesByParams(
   const allVotes: VotesDict[] = []
 
   const precinctTally = precinctId
-    ? resultsByCategory.get(TallyCategory.Precinct)?.[precinctId]
+    ? resultsByCategory.get(TallyCategory.Precinct)?.[precinctId] ||
+      getEmptyTally()
     : undefined
   const scannerTally = scannerId
-    ? resultsByCategory.get(TallyCategory.Scanner)?.[scannerId]
+    ? resultsByCategory.get(TallyCategory.Scanner)?.[scannerId] ||
+      getEmptyTally()
     : undefined
   const partyTally = partyId
-    ? resultsByCategory.get(TallyCategory.Party)?.[partyId]
+    ? resultsByCategory.get(TallyCategory.Party)?.[partyId] || getEmptyTally()
     : undefined
 
   // TODO(#2975): Once we're removing duplicate ballots, make finding the intersection of these lists more performant.

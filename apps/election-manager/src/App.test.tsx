@@ -24,7 +24,10 @@ import { ElectionDefinition } from './config/types'
 import fakeFileWriter from '../test/helpers/fakeFileWriter'
 
 const eitherNeitherElectionData = fs.readFileSync(
-  join(__dirname, '../test/fixtures/eitherneither-election.json'),
+  join(
+    __dirname,
+    '../test/fixtures/eitherneither-election/eitherneither-election.json'
+  ),
   'utf-8'
 )
 const eitherNeitherElectionHash = sha256(eitherNeitherElectionData)
@@ -37,6 +40,7 @@ const EITHER_NEITHER_CVR_PATH = join(
   '..',
   'test',
   'fixtures',
+  'eitherneither-election',
   'eitherneither-cvrs.txt'
 )
 const EITHER_NEITHER_CVRS = new File(
