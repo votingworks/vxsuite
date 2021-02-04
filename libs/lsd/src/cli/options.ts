@@ -20,14 +20,16 @@ import { Size } from '../util/geometry'
 export type LengthThreshold = number | { width: number } | { height: number }
 
 export interface Options {
+  help: boolean
   imagePaths: readonly string[]
+  minLength?: LengthThreshold
   scale: number
   size?: Size
-  minLength?: LengthThreshold
 }
 
 export function parseOptions(args: readonly string[]): Options {
   const imagePaths: string[] = []
+  let help = false
   let scale = 1
   let size: Size | undefined
   let minLength: LengthThreshold | undefined
@@ -67,6 +69,8 @@ export function parseOptions(args: readonly string[]): Options {
       } else {
         throw new Error(`invalid size '${value}', expected 'WxH'`)
       }
+    } else if (arg === '--help' || arg === '-h') {
+      help = true
     } else if (arg.startsWith('-')) {
       throw new Error(`unexpected option '${arg}'`)
     } else {
@@ -74,5 +78,5 @@ export function parseOptions(args: readonly string[]): Options {
     }
   }
 
-  return { imagePaths, minLength, scale, size }
+  return { imagePaths, help, minLength, scale, size }
 }

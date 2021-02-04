@@ -16,6 +16,7 @@
  */
 
 import lsd, { LineSegment } from '..'
+import chalk from 'chalk'
 import { distance, Size } from '../util/geometry'
 import { readGrayscaleImage } from '../util/images'
 import { adjacentFile } from '../util/path'
@@ -46,15 +47,14 @@ export async function processFile(
 ): Promise<string> {
   const { minLength, scale, size } = options
 
-  const { imageData, scale: actualScale } = await readGrayscaleImage(
-    imagePath,
-    { scale, size }
-  )
+  const {
+    imageData,
+    scale: actualScale,
+    originalSize,
+  } = await readGrayscaleImage(imagePath, { scale, size })
   const unfilteredSegments = lsd(imageData)
   const segments = minLength
-    ? unfilteredSegments.filter(
-        lineSegmentPredicate({ ...imageData }, minLength)
-      )
+    ? unfilteredSegments.filter(lineSegmentPredicate(originalSize, minLength))
     : unfilteredSegments
   const outPath = adjacentFile(imagePath, '-lsd', '.svg')
   const out = createWriteStream(outPath, 'utf8')
@@ -93,14 +93,58 @@ export async function processFile(
   return outPath
 }
 
+function printHelp(out: NodeJS.WritableStream): void {
+  out.write(
+    `lsd ${chalk.italic('[OPTIONS]')} IMAGE ${chalk.italic('[IMAGE …]')}\n`
+  )
+  out.write('\n')
+  out.write(chalk.bold('Description\n'))
+  out.write('Find line segments in an image and write the result to a file.\n')
+  out.write('\n')
+  out.write(chalk.bold('Options\n'))
+  out.write(' -h, --help             Show this help.\n')
+  out.write(
+    '     --min-length N     Filter line segments shorter than N pixels.\n'
+  )
+  out.write(
+    '     --min-length N%w   Filter line segments shorter than N% of the image width.\n'
+  )
+  out.write(
+    '     --min-length N%h   Filter line segments shorter than N% of the image height.\n'
+  )
+  out.write(
+    '     --scale N          Resize the image before finding line segments.\n'
+  )
+  out.write(
+    '                        If your results have segments broken up into small chunks,\n'
+  )
+  out.write(
+    '                        try setting this to 80% or less to improve the results.\n'
+  )
+  out.write(
+    '                        N can be a number (e.g. "0.75") or a percentage (e.g. "75%").\n'
+  )
+  out.write('\n')
+  out.write(chalk.bold('Examples\n'))
+  out.write(chalk.dim('# Find segments at least 20% of the width.\n'))
+  out.write('$ lsd --min-length 20%w image.png\n')
+  out.write('\n')
+  out.write(chalk.dim('# Scale down before searching for line segments.\n'))
+  out.write('$ lsd --scale 50% image.png\n')
+}
+
 export async function main(
   args: readonly string[],
   stdout: NodeJS.WritableStream | undefined = process.stdout
 ): Promise<void> {
   const options = parseOptions(args)
 
-  for (const imagePath of options.imagePaths) {
-    const outPath = await processFile(imagePath, options)
-    stdout.write(`📝 ${outPath}\n`)
+  if (options.help) {
+    printHelp(stdout)
+  } else {
+    for (const imagePath of options.imagePaths) {
+      const outPath = await processFile(imagePath, options)
+      stdout.write(`📝 ${outPath}\n`)
+    }
   }
 }

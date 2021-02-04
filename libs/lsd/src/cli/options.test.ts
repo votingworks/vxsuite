@@ -1,7 +1,7 @@
 import { parseOptions } from './options'
 
 test('returns defaults given no arguments', () => {
-  expect(parseOptions([])).toEqual({ imagePaths: [], scale: 1 })
+  expect(parseOptions([])).toEqual({ imagePaths: [], scale: 1, help: false })
 })
 
 test('--min-length N', () => {
@@ -70,4 +70,11 @@ test('collects non-options as image paths', () => {
       imagePaths: ['a', 'b', 'c'],
     })
   )
+})
+
+test('--help', () => {
+  expect(parseOptions(['--help'])).toEqual(
+    expect.objectContaining({ help: true })
+  )
+  expect(parseOptions(['-h'])).toEqual(expect.objectContaining({ help: true }))
 })

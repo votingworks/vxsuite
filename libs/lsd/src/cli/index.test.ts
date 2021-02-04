@@ -44,6 +44,7 @@ jest.mock('..', () => ({
   default: jest.fn().mockReturnValue([]),
 }))
 
+import { WritableStream } from 'memory-streams'
 import { createWriteStream } from 'fs'
 import { PassThrough } from 'stream'
 import { main } from '.'
@@ -58,7 +59,7 @@ const readGrayscaleImageMock = readGrayscaleImage as jest.MockedFunction<
   typeof readGrayscaleImage
 >
 
-function captureLastMockFileWrites(): string {
+function captureLastFileContent(): string {
   const outFileMock =
     createWriteStreamMock.mock.results[
       createWriteStreamMock.mock.results.length - 1
@@ -99,7 +100,7 @@ test('can filter line segments by absolute length', async () => {
   await expect(
     main(['a.png', '--min-length', '100'], new PassThrough())
   ).resolves.toBeUndefined()
-  expect(captureLastMockFileWrites()).toMatchInlineSnapshot(`
+  expect(captureLastFileContent()).toMatchInlineSnapshot(`
       "<?xml version=\\"1.0\\" standalone=\\"no\\"?>
         <!DOCTYPE svg PUBLIC \\"-//W3C//DTD SVG 1.1//EN\\"
         \\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\\">
@@ -131,7 +132,7 @@ test('can filter line segments relative to image width', async () => {
     main(['a.png', '--min-length', '50%w'], new PassThrough())
   ).resolves.toBeUndefined()
 
-  expect(captureLastMockFileWrites()).toMatchInlineSnapshot(`
+  expect(captureLastFileContent()).toMatchInlineSnapshot(`
     "<?xml version=\\"1.0\\" standalone=\\"no\\"?>
       <!DOCTYPE svg PUBLIC \\"-//W3C//DTD SVG 1.1//EN\\"
       \\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\\">
@@ -163,7 +164,7 @@ test('can filter line segments relative to image height', async () => {
     main(['a.png', '--min-length', '50%h'], new PassThrough())
   ).resolves.toBeUndefined()
 
-  expect(captureLastMockFileWrites()).toMatchInlineSnapshot(`
+  expect(captureLastFileContent()).toMatchInlineSnapshot(`
     "<?xml version=\\"1.0\\" standalone=\\"no\\"?>
       <!DOCTYPE svg PUBLIC \\"-//W3C//DTD SVG 1.1//EN\\"
       \\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\\">
@@ -195,7 +196,7 @@ test('color codes by direction', async () => {
 
   await expect(main(['a.png'], new PassThrough())).resolves.toBeUndefined()
 
-  expect(captureLastMockFileWrites()).toMatchInlineSnapshot(`
+  expect(captureLastFileContent()).toMatchInlineSnapshot(`
     "<?xml version=\\"1.0\\" standalone=\\"no\\"?>
       <!DOCTYPE svg PUBLIC \\"-//W3C//DTD SVG 1.1//EN\\"
       \\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\\">
@@ -206,6 +207,35 @@ test('color codes by direction', async () => {
     <line x1=\\"0\\" y1=\\"4\\" x2=\\"0\\" y2=\\"0\\" stroke-width=\\"1\\" stroke=\\"green\\" />
     <line x1=\\"4\\" y1=\\"0\\" x2=\\"0\\" y2=\\"0\\" stroke-width=\\"1\\" stroke=\\"red\\" />
     </svg>
+    "
+  `)
+})
+
+test('shows help', async () => {
+  const stdout = new WritableStream()
+  await expect(main(['--help'], stdout)).resolves.toEqual(undefined)
+  expect(stdout.toString()).toMatchInlineSnapshot(`
+    "lsd [3m[OPTIONS][23m IMAGE [3m[IMAGE …][23m
+
+    [1mDescription[22m
+    [1m[22mFind line segments in an image and write the result to a file.
+
+    [1mOptions[22m
+    [1m[22m -h, --help             Show this help.
+         --min-length N     Filter line segments shorter than N pixels.
+         --min-length N%w   Filter line segments shorter than N% of the image width.
+         --min-length N%h   Filter line segments shorter than N% of the image height.
+         --scale N          Resize the image before finding line segments.
+                            If your results have segments broken up into small chunks,
+                            try setting this to 80% or less to improve the results.
+                            N can be a number (e.g. \\"0.75\\") or a percentage (e.g. \\"75%\\").
+
+    [1mExamples[22m
+    [1m[22m[2m# Find segments at least 20% of the width.[22m
+    [2m[22m$ lsd --min-length 20%w image.png
+
+    [2m# Scale down before searching for line segments.[22m
+    [2m[22m$ lsd --scale 50% image.png
     "
   `)
 })
