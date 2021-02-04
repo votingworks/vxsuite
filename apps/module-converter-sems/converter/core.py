@@ -8,8 +8,8 @@ from . import SEMSinput
 from . import SEMSoutput
 from . import combineSEMSresults
 
-# directory for all files
-FILES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'election_files')
+# directory for all files (from env variable first)
+FILES_DIR = os.getenv("MODULE_SEMS_CONVERTER_WORKSPACE") or os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'election_files')
 
 app = Flask(__name__)
 
