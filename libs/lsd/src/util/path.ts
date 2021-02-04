@@ -15,22 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @ts-check
-exports.__esModule = true
+import { join, basename, dirname, extname } from 'path'
 
-const { join, basename, dirname, extname } = require('path')
-
-/**
- * @param {string} path
- * @param {string} suffix
- * @param {string=} newExt
- * @returns {string}
- */
-function adjacentFile(path, suffix, newExt) {
+export function adjacentFile(
+  path: string,
+  suffix: string,
+  newExt?: string
+): string {
   const ext = extname(path)
   const base = basename(path, ext)
   const dir = dirname(path)
 
   return join(dir, base + suffix + (newExt || ext))
 }
-exports.adjacentFile = adjacentFile

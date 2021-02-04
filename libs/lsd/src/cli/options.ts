@@ -15,35 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @ts-check
-exports.__esModule = true
+import { Size } from '../util/geometry'
 
-/** @typedef {import('../util/geometry').Size} Size */
+export type LengthThreshold = number | { width: number } | { height: number }
 
-/**
- * @typedef {number | { width: number } | { height: number }} LengthThreshold
- */
+export interface Options {
+  imagePaths: readonly string[]
+  scale: number
+  size?: Size
+  minLength?: LengthThreshold
+}
 
-/**
- * @typedef {object} Options
- * @property {readonly string[]} imagePaths
- * @property {number} scale
- * @property {Size | undefined} size
- * @property {LengthThreshold=} minLength
- */
-
-/**
- * @param {readonly string[]} args
- * @returns {Options}
- */
-function parseOptions(args) {
-  /** @type {string[]} */
-  const imagePaths = []
+export function parseOptions(args: readonly string[]): Options {
+  const imagePaths: string[] = []
   let scale = 1
-  /** @type {Size | undefined} */
-  let size
-  /** @type {LengthThreshold | undefined} */
-  let minLength
+  let size: Size | undefined
+  let minLength: LengthThreshold | undefined
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
@@ -52,7 +39,7 @@ function parseOptions(args) {
       if (/^\d+$/.test(value)) {
         minLength = parseInt(value, 10)
       } else {
-        const match = value.match(/^(\d+)%([wh])$/)
+        const match = /^(\d+)%([wh])$/.exec(value)
         if (match) {
           const percent = parseInt(match[1], 10)
           minLength =
@@ -70,18 +57,18 @@ function parseOptions(args) {
       }
 
       if (isNaN(scale)) {
-        throw new Error('invalid scale')
+        throw new Error(`invalid format for ${arg}: ${value}`)
       }
     } else if (arg === '--size') {
       const value = args[++i]
-      const match = value.match(/^(\d+)x(\d+)$/)
+      const match = /^(\d+)x(\d+)$/.exec(value)
       if (match) {
         size = { width: parseInt(match[1], 10), height: parseInt(match[2], 10) }
       } else {
         throw new Error(`invalid size '${value}', expected 'WxH'`)
       }
     } else if (arg.startsWith('-')) {
-      throw new Error(`unexpected option ${arg}`)
+      throw new Error(`unexpected option '${arg}'`)
     } else {
       imagePaths.push(arg)
     }
@@ -89,4 +76,3 @@ function parseOptions(args) {
 
   return { imagePaths, minLength, scale, size }
 }
-exports.parseOptions = parseOptions

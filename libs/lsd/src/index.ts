@@ -15,30 +15,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @ts-check
-exports.__esModule = true
+import assert from 'assert'
+import bindings from 'bindings'
 
-const assert = require('assert')
+const addon = bindings('lsd') as {
+  lsd(image: Float64Array, width: number, height: number): Float64Array
+  LSD_RESULT_DIM: number
+}
 
-/**
- * @type {{ lsd(image: Float64Array, width: number, height: number): Float64Array; LSD_RESULT_DIM: number }}
- */
-const addon = require('bindings')('lsd')
+export interface LineSegment {
+  x1: number
+  x2: number
+  y1: number
+  y2: number
+  width: number
+}
 
-/**
- * @typedef {object} LineSegment
- * @property {number} x1
- * @property {number} x2
- * @property {number} y1
- * @property {number} y2
- * @property {number} width
- */
-
-/**
- * @param {ImageData} imageData
- * @returns {LineSegment[]}
- */
-exports.default = function lsd(imageData) {
+export default function lsd(imageData: ImageData): LineSegment[] {
   const { data, width, height } = imageData
   const channels = imageData.data.length / imageData.width / imageData.height
 
@@ -57,7 +50,7 @@ exports.default = function lsd(imageData) {
     'invalid dimension'
   )
 
-  const segments = new Array(result.length / addon.LSD_RESULT_DIM)
+  const segments = new Array<LineSegment>(result.length / addon.LSD_RESULT_DIM)
 
   for (
     let ri = 0, si = 0;

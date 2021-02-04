@@ -15,48 +15,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @ts-check
-exports.__esModule = true
+export interface Size {
+  width: number
+  height: number
+}
 
-/**
- * @typedef {object} Size
- * @property {number} width
- * @property {number} height
- */
-
-/**
- * @param {number} x1
- * @param {number} y1
- * @param {number} x2
- * @param {number} y2
- * @returns {number}
- */
-function distance(x1, y1, x2, y2) {
+export function distance(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+): number {
   return Math.pow(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2), 0.5)
 }
-exports.distance = distance
 
-/**
- * @param {number} x1
- * @param {number} y1
- * @param {number} x2
- * @param {number} y2
- * @returns {number}
- */
-function angle(x1, y1, x2, y2) {
+export function angle(x1: number, y1: number, x2: number, y2: number): number {
   return Math.atan2(y2 - y1, x2 - x1)
 }
-exports.angle = angle
 
-/**
- * @param {number} a
- * @param {number} b
- * @param {{ relativeErrorFactor?: number }=} param2
- * @returns {boolean}
- */
-function approximatelyEqual(a, b, { relativeErrorFactor = 100 } = {}) {
+export function approximatelyEqual(
+  a: number,
+  b: number,
+  {
+    relativeErrorFactor = 100,
+  }: { relativeErrorFactor?: number } | undefined = {}
+): boolean {
   const max = Math.max(a, b)
   const diff = Math.abs(a - b)
   return diff / max <= Number.EPSILON * relativeErrorFactor
 }
-exports.approximatelyEqual = approximatelyEqual

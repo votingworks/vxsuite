@@ -15,16 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @ts-check
-const { default: lsd } = require('.')
+import lsd from '.'
 
 /**
  * Create a simple image: left half black, right half gray.
- *
- * @param {{ width?: number; height?: number }=} arg0
- * @returns {ImageData}
  */
-function exampleImage({ width = 128, height = 128 } = {}) {
+function exampleImage({
+  width = 128,
+  height = 128,
+}: { width?: number; height?: number } = {}): ImageData {
   const data = new Uint8ClampedArray(width * height)
 
   for (let x = 0; x < width; x++) {
@@ -50,6 +49,8 @@ test('simple image', () => {
   `)
 })
 
+// `global.gc` is only defined when `--expose-gc` is provided to `node`.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const gctest = global.gc ? test : test.skip
 

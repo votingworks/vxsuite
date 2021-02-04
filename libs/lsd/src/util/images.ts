@@ -15,20 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// @ts-check
-exports.__esModule = true
+import { loadImage, createCanvas } from 'canvas'
+import { approximatelyEqual, Size } from './geometry'
 
-const { loadImage, createCanvas } = require('canvas')
-const { approximatelyEqual } = require('./geometry')
-
-/** @typedef {import('./geometry').Size} Size */
-
-/**
- * @param {string} path
- * @param {{ scale?: number; size?: Size }=} param1
- * @returns {Promise<{ imageData: ImageData; originalSize: Size; scale: number }>}
- */
-async function readGrayscaleImage(path, { scale = 1, size } = {}) {
+export async function readGrayscaleImage(
+  path: string,
+  { scale = 1, size }: { scale?: number; size?: Size } = {}
+): Promise<{ imageData: ImageData; originalSize: Size; scale: number }> {
   const image = await loadImage(path)
 
   if (size) {
@@ -80,4 +73,3 @@ async function readGrayscaleImage(path, { scale = 1, size } = {}) {
     scale,
   }
 }
-exports.readGrayscaleImage = readGrayscaleImage
