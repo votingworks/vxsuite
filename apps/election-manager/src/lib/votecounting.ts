@@ -230,8 +230,8 @@ export function tallyVotesByContest({
   election,
   votes,
   filterContestsByParty,
-}: TallyParams): ContestTally[] {
-  const contestTallies: ContestTally[] = []
+}: TallyParams): Dictionary<ContestTally> {
+  const contestTallies: Dictionary<ContestTally> = {}
   const { contests } = election
 
   const districtsForParty = election.ballotStyles
@@ -294,7 +294,7 @@ export function tallyVotesByContest({
         }
       })
 
-      contestTallies.push({ contest, tallies })
+      contestTallies[contest.id] = { contest, tallies }
     }
   })
 
@@ -327,11 +327,16 @@ export function filterTalliesByParty({
     )
   ).map((contest) => contest.id)
 
+  const filteredContestTallies: Dictionary<ContestTally> = {}
+  for (const contestId in electionTally.contestTallies) {
+    if (contestIds.includes(contestId))
+      filteredContestTallies[contestId] =
+        electionTally.contestTallies[contestId]
+  }
+
   return {
     ...electionTally,
-    contestTallies: electionTally.contestTallies.filter((contestTally) =>
-      contestIds.includes(contestTally.contest.id)
-    ),
+    contestTallies: filteredContestTallies,
   }
 }
 
@@ -523,11 +528,18 @@ export function computeFullElectionTally(
   }
 }
 
+export function getEmptyFullElectionTally(): FullElectionTally {
+  return {
+    overallTally: getEmptyTally(),
+    resultsByCategory: new Map(),
+  }
+}
+
 export function getEmptyTally(): Tally {
   return {
     numberOfBallotsCounted: 0,
     castVoteRecords: [],
-    contestTallies: [],
+    contestTallies: {},
     contestTallyMetadata: {},
   }
 }
