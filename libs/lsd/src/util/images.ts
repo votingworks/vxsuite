@@ -21,7 +21,11 @@ import { approximatelyEqual, Size } from './geometry'
 export async function readGrayscaleImage(
   path: string,
   { scale = 1, size }: { scale?: number; size?: Size } = {}
-): Promise<{ imageData: ImageData; originalSize: Size; scale: number }> {
+): Promise<{
+  imageData: ImageData
+  originalImageData: ImageData
+  scale: number
+}> {
   const image = await loadImage(path)
 
   if (size) {
@@ -44,6 +48,13 @@ export async function readGrayscaleImage(
 
   const canvas = createCanvas(image.width, image.height)
   const context = canvas.getContext('2d')
+  context.drawImage(image, 0, 0, image.width, image.height)
+  const originalImageData = context.getImageData(
+    0,
+    0,
+    image.width,
+    image.height
+  )
   context.drawImage(image, 0, 0, size.width, size.height)
   const imageData = context.getImageData(0, 0, size.width, size.height)
   const src32 = new Int32Array(imageData.data.buffer)
@@ -61,14 +72,11 @@ export async function readGrayscaleImage(
   }
 
   return {
+    originalImageData,
     imageData: {
       data: dst,
       width: imageData.width,
       height: imageData.height,
-    },
-    originalSize: {
-      width: image.width,
-      height: image.height,
     },
     scale,
   }

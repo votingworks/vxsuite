@@ -1,7 +1,13 @@
 import { parseOptions } from './options'
 
 test('returns defaults given no arguments', () => {
-  expect(parseOptions([])).toEqual({ imagePaths: [], scale: 1, help: false })
+  expect(parseOptions([])).toEqual({
+    imagePaths: [],
+    scale: 1,
+    help: false,
+    format: 'svg',
+    background: 'none',
+  })
 })
 
 test('--min-length N', () => {
@@ -77,4 +83,31 @@ test('--help', () => {
     expect.objectContaining({ help: true })
   )
   expect(parseOptions(['-h'])).toEqual(expect.objectContaining({ help: true }))
+})
+
+test('--format', () => {
+  expect(parseOptions(['--format', 'svg'])).toEqual(
+    expect.objectContaining({ format: 'svg' })
+  )
+  expect(parseOptions(['--format', 'png'])).toEqual(
+    expect.objectContaining({ format: 'png' })
+  )
+  expect(() => parseOptions(['--format', 'nope'])).toThrowError(
+    `invalid format 'nope', expected 'svg' or 'png'`
+  )
+})
+
+test('--background', () => {
+  expect(parseOptions(['--background', 'original'])).toEqual(
+    expect.objectContaining({ background: 'original' })
+  )
+  expect(parseOptions(['--background', 'none'])).toEqual(
+    expect.objectContaining({ background: 'none' })
+  )
+  expect(parseOptions(['--background', 'white'])).toEqual(
+    expect.objectContaining({ background: 'white' })
+  )
+  expect(() => parseOptions(['--background', 'WAT'])).toThrowError(
+    `invalid background 'WAT', expected 'none', 'white', or 'original'`
+  )
 })

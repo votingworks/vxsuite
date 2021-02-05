@@ -15,26 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-jest.mock('fs', () => ({
-  createWriteStream: jest.fn().mockImplementation(() => ({
-    write: jest.fn(),
-    end: jest.fn().mockImplementation((...args: readonly unknown[]) => {
-      const last = args[args.length - 1]
-      if (typeof last === 'function') {
-        last()
-      }
-    }),
-  })),
-}))
+jest.mock('fs')
 
 jest.mock('../util/images', () => ({
   readGrayscaleImage: jest.fn().mockImplementation(() => ({
-    imageData: {
-      data: Uint8ClampedArray.of(0),
-      width: 1,
-      height: 1,
-    },
-    originalSize: { width: 1, height: 1 },
+    originalImageData: createImageData(1, 1),
+    imageData: createImageData(1, 1),
     scale: 1,
   })),
 }))
@@ -45,62 +31,57 @@ jest.mock('..', () => ({
 }))
 
 import { WritableStream } from 'memory-streams'
-import { createWriteStream } from 'fs'
+import * as fs from 'fs'
 import { PassThrough } from 'stream'
+import { createHash } from 'crypto'
 import { main } from '.'
 import lsd from '..'
 import { readGrayscaleImage } from '../util/images'
+import { createImageData } from 'canvas'
 
 const lsdMock = lsd as jest.MockedFunction<typeof lsd>
-const createWriteStreamMock = createWriteStream as jest.MockedFunction<
-  typeof createWriteStream
+const createWriteStreamMock = fs.createWriteStream as jest.MockedFunction<
+  typeof fs.createWriteStream
 >
 const readGrayscaleImageMock = readGrayscaleImage as jest.MockedFunction<
   typeof readGrayscaleImage
 >
 
-function captureLastFileContent(): string {
-  const outFileMock =
-    createWriteStreamMock.mock.results[
-      createWriteStreamMock.mock.results.length - 1
-    ]
-  if (outFileMock.type !== 'return') {
-    throw new Error(
-      'expected last call to createWriteStream() to have a return value'
-    )
-  }
-
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const writeMock = outFileMock.value.write as jest.MockedFunction<
-    typeof outFileMock.value.write
-  >
-  return writeMock.mock.calls.map(([chunk]) => chunk as string).join('')
+function captureNextFileWriter(): WritableStream {
+  const writer = new WritableStream()
+  createWriteStreamMock.mockReturnValueOnce(
+    (writer as unknown) as fs.WriteStream
+  )
+  return writer
 }
 
 test('main does nothing given no arguments', async () => {
-  await expect(main([])).resolves.toBeUndefined()
+  await main([])
   expect(readGrayscaleImage).not.toHaveBeenCalled()
-  expect(createWriteStream).not.toHaveBeenCalled()
+  expect(createWriteStreamMock).not.toHaveBeenCalled()
 })
 
 test('processes image files by path', async () => {
-  await expect(
-    main(['a.png', 'b.png'], new PassThrough())
-  ).resolves.toBeUndefined()
+  captureNextFileWriter()
+  captureNextFileWriter()
 
-  expect(createWriteStream).toHaveBeenNthCalledWith(1, 'a-lsd.svg', 'utf8')
-  expect(createWriteStream).toHaveBeenNthCalledWith(2, 'b-lsd.svg', 'utf8')
+  await main(['a.png', 'b.png'], new PassThrough())
+
+  expect(createWriteStreamMock).toHaveBeenNthCalledWith(1, 'a-lsd.svg', 'utf8')
+  expect(createWriteStreamMock).toHaveBeenNthCalledWith(2, 'b-lsd.svg', 'utf8')
 })
 
 test('can filter line segments by absolute length', async () => {
+  const out = captureNextFileWriter()
+
   lsdMock.mockReturnValueOnce([
     { x1: 0, y1: 0, x2: 99, y2: 0, width: 1 },
     { x1: 0, y1: 0, x2: 100, y2: 0, width: 1 },
   ])
-  await expect(
-    main(['a.png', '--min-length', '100'], new PassThrough())
-  ).resolves.toBeUndefined()
-  expect(captureLastFileContent()).toMatchInlineSnapshot(`
+
+  await main(['a.png', '--min-length', '100'], new PassThrough())
+
+  expect(out.toString()).toMatchInlineSnapshot(`
       "<?xml version=\\"1.0\\" standalone=\\"no\\"?>
         <!DOCTYPE svg PUBLIC \\"-//W3C//DTD SVG 1.1//EN\\"
         \\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\\">
@@ -113,13 +94,12 @@ test('can filter line segments by absolute length', async () => {
 })
 
 test('can filter line segments relative to image width', async () => {
+  const out = captureNextFileWriter()
+
+  const originalImageData = createImageData(10, 5)
   readGrayscaleImageMock.mockResolvedValueOnce({
-    imageData: {
-      data: new Uint8ClampedArray(50),
-      width: 10,
-      height: 5,
-    },
-    originalSize: { width: 10, height: 5 },
+    originalImageData,
+    imageData: originalImageData,
     scale: 1,
   })
 
@@ -132,7 +112,7 @@ test('can filter line segments relative to image width', async () => {
     main(['a.png', '--min-length', '50%w'], new PassThrough())
   ).resolves.toBeUndefined()
 
-  expect(captureLastFileContent()).toMatchInlineSnapshot(`
+  expect(out.toString()).toMatchInlineSnapshot(`
     "<?xml version=\\"1.0\\" standalone=\\"no\\"?>
       <!DOCTYPE svg PUBLIC \\"-//W3C//DTD SVG 1.1//EN\\"
       \\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\\">
@@ -145,13 +125,12 @@ test('can filter line segments relative to image width', async () => {
 })
 
 test('can filter line segments relative to image height', async () => {
+  const out = captureNextFileWriter()
+
+  const originalImageData = createImageData(5, 10)
   readGrayscaleImageMock.mockResolvedValueOnce({
-    imageData: {
-      data: new Uint8ClampedArray(50),
-      width: 5,
-      height: 10,
-    },
-    originalSize: { width: 5, height: 10 },
+    originalImageData,
+    imageData: originalImageData,
     scale: 1,
   })
 
@@ -164,7 +143,7 @@ test('can filter line segments relative to image height', async () => {
     main(['a.png', '--min-length', '50%h'], new PassThrough())
   ).resolves.toBeUndefined()
 
-  expect(captureLastFileContent()).toMatchInlineSnapshot(`
+  expect(out.toString()).toMatchInlineSnapshot(`
     "<?xml version=\\"1.0\\" standalone=\\"no\\"?>
       <!DOCTYPE svg PUBLIC \\"-//W3C//DTD SVG 1.1//EN\\"
       \\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\\">
@@ -177,13 +156,12 @@ test('can filter line segments relative to image height', async () => {
 })
 
 test('color codes by direction', async () => {
+  const out = captureNextFileWriter()
+
+  const originalImageData = createImageData(10, 10)
   readGrayscaleImageMock.mockResolvedValueOnce({
-    imageData: {
-      data: new Uint8ClampedArray(100),
-      width: 10,
-      height: 10,
-    },
-    originalSize: { width: 10, height: 10 },
+    originalImageData,
+    imageData: originalImageData,
     scale: 1,
   })
 
@@ -196,7 +174,7 @@ test('color codes by direction', async () => {
 
   await expect(main(['a.png'], new PassThrough())).resolves.toBeUndefined()
 
-  expect(captureLastFileContent()).toMatchInlineSnapshot(`
+  expect(out.toString()).toMatchInlineSnapshot(`
     "<?xml version=\\"1.0\\" standalone=\\"no\\"?>
       <!DOCTYPE svg PUBLIC \\"-//W3C//DTD SVG 1.1//EN\\"
       \\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\\">
@@ -229,6 +207,8 @@ test('shows help', async () => {
                             If your results have segments broken up into small chunks,
                             try setting this to 80% or less to improve the results.
                             N can be a number (e.g. \\"0.75\\") or a percentage (e.g. \\"75%\\").
+     -f, --format FORMAT    Write output file in FORMAT, one of \\"svg\\" (default) or \\"png\\".
+     -b, --background BG    Draw background as BG, one of \\"none\\" (default), \\"white\\", or \\"original\\".
 
     [1mExamples[22m
     [1m[22m[2m# Find segments at least 20% of the width.[22m
@@ -236,6 +216,143 @@ test('shows help', async () => {
 
     [2m# Scale down before searching for line segments.[22m
     [2m[22m$ lsd --scale 50% image.png
+
+    [2m# Draw line segments on top of the original image.[22m
+    [2m[22m$ lsd -b original image.png
     "
   `)
+})
+
+test('can output to PNG', async () => {
+  const out = captureNextFileWriter()
+
+  const originalImageData = createImageData(10, 10)
+  readGrayscaleImageMock.mockResolvedValueOnce({
+    originalImageData,
+    imageData: originalImageData,
+    scale: 1,
+  })
+
+  lsdMock.mockReturnValueOnce([
+    { x1: 0, y1: 0, x2: 0, y2: 4, width: 1 }, // down, yellow
+    { x1: 0, y1: 0, x2: 4, y2: 0, width: 1 }, // right, blue
+    { x1: 0, y1: 4, x2: 0, y2: 0, width: 1 }, // up, green
+    { x1: 4, y1: 0, x2: 0, y2: 0, width: 1 }, // left, red
+  ])
+
+  await expect(
+    main(['--format', 'png', 'a.png'], new PassThrough())
+  ).resolves.toEqual(undefined)
+
+  const hash = createHash('md5')
+  hash.update(out.toBuffer())
+  expect(hash.digest('hex')).toMatchInlineSnapshot(
+    `"cf92942109b497f82b8074dcb346a2d9"`
+  )
+})
+
+test('can output to PNG on top of the original image', async () => {
+  const out = captureNextFileWriter()
+
+  const originalImageData = createImageData(10, 10)
+  readGrayscaleImageMock.mockResolvedValueOnce({
+    originalImageData,
+    imageData: originalImageData,
+    scale: 1,
+  })
+
+  lsdMock.mockReturnValueOnce([
+    { x1: 0, y1: 0, x2: 0, y2: 4, width: 1 }, // down, yellow
+    { x1: 0, y1: 0, x2: 4, y2: 0, width: 1 }, // right, blue
+    { x1: 0, y1: 4, x2: 0, y2: 0, width: 1 }, // up, green
+    { x1: 4, y1: 0, x2: 0, y2: 0, width: 1 }, // left, red
+  ])
+
+  await expect(
+    main(
+      ['--format', 'png', '--background', 'original', 'a.png'],
+      new PassThrough()
+    )
+  ).resolves.toEqual(undefined)
+
+  const hash = createHash('md5')
+  hash.update(out.toBuffer())
+  expect(hash.digest('hex')).toMatchInlineSnapshot(
+    `"cf92942109b497f82b8074dcb346a2d9"`
+  )
+})
+
+test('can output to PNG on a white background', async () => {
+  const out = captureNextFileWriter()
+
+  const originalImageData = createImageData(10, 10)
+  readGrayscaleImageMock.mockResolvedValueOnce({
+    originalImageData,
+    imageData: originalImageData,
+    scale: 1,
+  })
+
+  lsdMock.mockReturnValueOnce([
+    { x1: 0, y1: 0, x2: 0, y2: 4, width: 1 }, // down, yellow
+    { x1: 0, y1: 0, x2: 4, y2: 0, width: 1 }, // right, blue
+    { x1: 0, y1: 4, x2: 0, y2: 0, width: 1 }, // up, green
+    { x1: 4, y1: 0, x2: 0, y2: 0, width: 1 }, // left, red
+  ])
+
+  await expect(
+    main(
+      ['--format', 'png', '--background', 'white', 'a.png'],
+      new PassThrough()
+    )
+  ).resolves.toEqual(undefined)
+
+  const hash = createHash('md5')
+  hash.update(out.toBuffer())
+  expect(hash.digest('hex')).toMatchInlineSnapshot(
+    `"443535a4d6d58c5ef59a9f9eedabb73c"`
+  )
+})
+
+test('can output to SVG on top of the original image', async () => {
+  const out = captureNextFileWriter()
+
+  const originalImageData = createImageData(10, 10)
+  readGrayscaleImageMock.mockResolvedValueOnce({
+    originalImageData,
+    imageData: originalImageData,
+    scale: 1,
+  })
+
+  lsdMock.mockReturnValueOnce([
+    { x1: 0, y1: 0, x2: 0, y2: 4, width: 1 }, // down, yellow
+    { x1: 0, y1: 0, x2: 4, y2: 0, width: 1 }, // right, blue
+    { x1: 0, y1: 4, x2: 0, y2: 0, width: 1 }, // up, green
+    { x1: 4, y1: 0, x2: 0, y2: 0, width: 1 }, // left, red
+  ])
+
+  await main(['a.png', '--background', 'original'], new PassThrough())
+
+  expect(out.toString()).toContain(`xlink:href="data:image/png;base64,`)
+})
+
+test('can output to SVG on a white background', async () => {
+  const out = captureNextFileWriter()
+
+  const originalImageData = createImageData(10, 10)
+  readGrayscaleImageMock.mockResolvedValueOnce({
+    originalImageData,
+    imageData: originalImageData,
+    scale: 1,
+  })
+
+  lsdMock.mockReturnValueOnce([
+    { x1: 0, y1: 0, x2: 0, y2: 4, width: 1 }, // down, yellow
+    { x1: 0, y1: 0, x2: 4, y2: 0, width: 1 }, // right, blue
+    { x1: 0, y1: 4, x2: 0, y2: 0, width: 1 }, // up, green
+    { x1: 4, y1: 0, x2: 0, y2: 0, width: 1 }, // left, red
+  ])
+
+  await main(['a.png', '--background', 'white'], new PassThrough())
+
+  expect(out.toString()).toContain(`background-color: white`)
 })

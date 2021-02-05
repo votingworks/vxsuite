@@ -53,7 +53,7 @@ $ pnpx lsd path/to/image.png
 📝 path/to/image-lsd.svg
 ```
 
-Open the SVG file in an SVG viewer (e.g. Chrome) to view it.
+Open the SVG file in an SVG viewer (e.g. Chrome) to view it. See `pnpx lsd --help` for more options.
 
 # Credits
 

@@ -20,6 +20,8 @@ import { Size } from '../util/geometry'
 export type LengthThreshold = number | { width: number } | { height: number }
 
 export interface Options {
+  background: 'none' | 'white' | 'original'
+  format: 'svg' | 'png'
   help: boolean
   imagePaths: readonly string[]
   minLength?: LengthThreshold
@@ -29,6 +31,8 @@ export interface Options {
 
 export function parseOptions(args: readonly string[]): Options {
   const imagePaths: string[] = []
+  let background: Options['background'] = 'none'
+  let format: Options['format'] = 'svg'
   let help = false
   let scale = 1
   let size: Size | undefined
@@ -69,6 +73,22 @@ export function parseOptions(args: readonly string[]): Options {
       } else {
         throw new Error(`invalid size '${value}', expected 'WxH'`)
       }
+    } else if (arg === '--format' || arg === '-f') {
+      const value = args[++i]
+      if (value === 'svg' || value === 'png') {
+        format = value
+      } else {
+        throw new Error(`invalid format '${value}', expected 'svg' or 'png'`)
+      }
+    } else if (arg === '--background' || arg === '-b') {
+      const value = args[++i]
+      if (value === 'none' || value === 'white' || value === 'original') {
+        background = value
+      } else {
+        throw new Error(
+          `invalid background '${value}', expected 'none', 'white', or 'original'`
+        )
+      }
     } else if (arg === '--help' || arg === '-h') {
       help = true
     } else if (arg.startsWith('-')) {
@@ -78,5 +98,5 @@ export function parseOptions(args: readonly string[]): Options {
     }
   }
 
-  return { imagePaths, help, minLength, scale, size }
+  return { imagePaths, background, format, help, minLength, scale, size }
 }

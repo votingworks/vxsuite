@@ -22,7 +22,9 @@ test('readGrayscaleImage', async () => {
   const result = await readGrayscaleImage(
     join(__dirname, '../../docs/chairs.png')
   )
-  expect(result.originalSize).toEqual({ width: 192, height: 192 })
+  expect(result.originalImageData).toEqual(
+    expect.objectContaining({ width: 192, height: 192 })
+  )
   expect(result.scale).toEqual(1)
   expect(result.imageData.data).toHaveLength(
     result.imageData.width * result.imageData.height
@@ -34,7 +36,9 @@ test('readGrayscaleImage with scale', async () => {
     join(__dirname, '../../docs/chairs.png'),
     { scale: 0.5 }
   )
-  expect(result.originalSize).toEqual({ width: 192, height: 192 })
+  expect(result.originalImageData).toEqual(
+    expect.objectContaining({ width: 192, height: 192 })
+  )
   expect(result.scale).toEqual(0.5)
   expect(result.imageData.data).toHaveLength(
     result.imageData.width * result.imageData.height
@@ -46,7 +50,9 @@ test('readGrayscaleImage with size', async () => {
     join(__dirname, '../../docs/chairs.png'),
     { size: { width: 48, height: 48 } }
   )
-  expect(result.originalSize).toEqual({ width: 192, height: 192 })
+  expect(result.originalImageData).toEqual(
+    expect.objectContaining({ width: 192, height: 192 })
+  )
   expect(result.scale).toEqual(0.25)
   expect(result.imageData.data).toHaveLength(
     result.imageData.width * result.imageData.height
