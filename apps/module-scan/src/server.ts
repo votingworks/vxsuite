@@ -12,7 +12,7 @@ import * as path from 'path'
 import { inspect } from 'util'
 import backup from './backup'
 import SystemImporter, { Importer } from './importer'
-import { FujitsuScanner, Scanner } from './scanner'
+import { FujitsuScanner, Scanner, ScannerMode } from './scanner'
 import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
 import { BallotConfig, ElectionDefinition } from './types'
 import { fromElection, validate } from './util/electionDefinition'
@@ -525,7 +525,7 @@ export async function start({
     workspace = await createWorkspace(workspacePath)
   }
 
-  scanner = scanner ?? new FujitsuScanner()
+  scanner = scanner ?? new FujitsuScanner({ mode: ScannerMode.Gray })
   importer =
     importer ??
     new SystemImporter({

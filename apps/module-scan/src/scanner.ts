@@ -35,9 +35,16 @@ export enum ScannerPageSize {
   Legal = 'legal',
 }
 
+export enum ScannerMode {
+  Lineart = 'lineart',
+  Gray = 'gray',
+  Color = 'color',
+}
+
 export interface Options {
   format?: ScannerImageFormat
   pageSize?: ScannerPageSize
+  mode?: ScannerMode
 }
 
 /**
@@ -46,13 +53,16 @@ export interface Options {
 export class FujitsuScanner implements Scanner {
   private readonly format: ScannerImageFormat
   private readonly pageSize: ScannerPageSize
+  private readonly mode?: ScannerMode
 
   public constructor({
     format = ScannerImageFormat.PNG,
     pageSize = ScannerPageSize.Letter,
+    mode,
   }: Options = {}) {
     this.format = format
     this.pageSize = pageSize
+    this.mode = mode
   }
 
   public scanSheets(
@@ -74,6 +84,10 @@ export class FujitsuScanner implements Scanner {
 
     if (this.pageSize === ScannerPageSize.Legal) {
       args.push('--page-width', '215.872', '--page-height', '355.6')
+    }
+
+    if (this.mode) {
+      args.push('--mode', this.mode)
     }
 
     debug(
