@@ -36,6 +36,19 @@ const BallotCopiesInput = styled(TextInput)`
   }
 `
 
+const BallotPreviewHeader = styled.div`
+  margin-top: 1rem;
+  overflow: auto;
+  h4 {
+    float: left;
+    margin: 0;
+    width: 8.5in;
+    &:first-child {
+      margin-right: 1rem;
+    }
+  }
+`
+
 const BallotPreview = styled.div`
   border-width: 1px 0;
   overflow: auto;
@@ -44,6 +57,9 @@ const BallotPreview = styled.div`
     float: left;
     margin: 1rem 1rem 0 0;
     background: #ffffff;
+    &:nth-child(odd) {
+      clear: left;
+    }
   }
 `
 
@@ -215,6 +231,10 @@ const BallotScreen: React.FC = () => {
           </p>
           <h3>Ballot Preview</h3>
         </Prose>
+        <BallotPreviewHeader>
+          <h4>Front Pages</h4>
+          <h4>Back Pages</h4>
+        </BallotPreviewHeader>
         <BallotPreview ref={ballotPreviewRef}>
           <p>Rendering ballot preview…</p>
         </BallotPreview>
