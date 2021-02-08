@@ -1,4 +1,4 @@
-import { FujitsuScanner } from './scanner'
+import { FujitsuScanner, ScannerMode, ScannerPageSize } from './scanner'
 import { streamExecFile } from './exec'
 import { ChildProcess } from 'child_process'
 import { makeMockChildProcess } from '../test/util/mocks'
@@ -40,6 +40,132 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
     value: undefined,
     done: true,
   })
+})
+
+test('fujitsu scanner can scan with letter size', async () => {
+  const scanimage = makeMockChildProcess()
+  const scanner = new FujitsuScanner({ pageSize: ScannerPageSize.Letter })
+
+  exec.mockReturnValueOnce(scanimage)
+  scanner.scanSheets()
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  )
+  expect(exec).not.toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--page-height'])
+  )
+})
+
+test('fujitsu scanner can scan with legal size', async () => {
+  const scanimage = makeMockChildProcess()
+  const scanner = new FujitsuScanner({ pageSize: ScannerPageSize.Legal })
+
+  exec.mockReturnValueOnce(scanimage)
+  scanner.scanSheets()
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  )
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--page-height'])
+  )
+})
+
+test('fujitsu scanner does not specify a mode by default', async () => {
+  const scanimage = makeMockChildProcess()
+  const scanner = new FujitsuScanner()
+
+  exec.mockReturnValueOnce(scanimage)
+  scanner.scanSheets()
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  )
+  expect(exec).not.toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--mode'])
+  )
+})
+
+test('fujitsu scanner can scan with lineart mode', async () => {
+  const scanimage = makeMockChildProcess()
+  const scanner = new FujitsuScanner({ mode: ScannerMode.Lineart })
+
+  exec.mockReturnValueOnce(scanimage)
+  scanner.scanSheets()
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  )
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--mode', 'lineart'])
+  )
+})
+
+test('fujitsu scanner can scan with gray mode', async () => {
+  const scanimage = makeMockChildProcess()
+  const scanner = new FujitsuScanner({ mode: ScannerMode.Gray })
+
+  exec.mockReturnValueOnce(scanimage)
+  scanner.scanSheets()
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  )
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--mode', 'gray'])
+  )
+})
+
+test('fujitsu scanner can scan with color mode', async () => {
+  const scanimage = makeMockChildProcess()
+  const scanner = new FujitsuScanner({ mode: ScannerMode.Color })
+
+  exec.mockReturnValueOnce(scanimage)
+  scanner.scanSheets()
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  )
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--mode', 'color'])
+  )
 })
 
 test('fujitsu scanner requests two images at a time from scanimage', async () => {
