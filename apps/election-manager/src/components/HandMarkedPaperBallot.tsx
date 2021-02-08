@@ -542,9 +542,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   const ballotRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    const printBallot = printBallotRef?.current
-
-    if (!printBallot) {
+    if (!printBallotRef?.current) {
       return
     }
 
@@ -557,7 +555,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
       await new Previewer().preview(
         ballotRef.current!.innerHTML,
         ballotStylesheets,
-        printBallot
+        printBallotRef?.current
       )
       onRendered?.({
         ballotStyleId,
@@ -571,7 +569,9 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
     })()
 
     return () => {
-      printBallot.innerHTML = ''
+      if (printBallotRef.current) {
+        printBallotRef.current.innerHTML = ''
+      }
       document.head
         .querySelectorAll('[data-pagedjs-inserted-styles]')
         .forEach((e) => e.parentNode?.removeChild(e))
