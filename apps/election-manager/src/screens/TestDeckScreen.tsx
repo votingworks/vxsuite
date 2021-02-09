@@ -76,8 +76,8 @@ const TestDeckScreen: React.FC = () => {
     contestTallies: tallyVotesByContest({
       election,
       votes,
+      metadata: contestTallyMetadata,
     }),
-    contestTallyMetadata,
   }
 
   const ballotStylePartyIds = Array.from(

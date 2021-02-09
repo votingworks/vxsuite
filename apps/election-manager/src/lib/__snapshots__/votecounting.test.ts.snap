@@ -181,60 +181,20 @@ Object {
     "overvotes": 90,
     "undervotes": 90,
   },
-  "chief-pokemon-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "chief-pokemon-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "chief-pokemon-liberty": Object {
     "ballots": 1260,
     "overvotes": 180,
     "undervotes": 90,
-  },
-  "governor-contest-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "governor-contest-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
   "governor-contest-liberty": Object {
     "ballots": 1710,
     "overvotes": 180,
     "undervotes": 180,
   },
-  "mayor-contest-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "mayor-contest-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "mayor-contest-liberty": Object {
     "ballots": 450,
     "overvotes": 90,
     "undervotes": 90,
-  },
-  "schoolboard-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "schoolboard-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
   "schoolboard-liberty": Object {
     "ballots": 1260,
@@ -391,70 +351,25 @@ Array [
 
 exports[`filterTalliesByParams in a primary election can filter results by party 4`] = `
 Object {
-  "assistant-mayor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "chief-pokemon-constitution": Object {
     "ballots": 2100,
     "overvotes": 300,
     "undervotes": 150,
-  },
-  "chief-pokemon-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "chief-pokemon-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
   "governor-contest-constitution": Object {
     "ballots": 2100,
     "overvotes": 150,
     "undervotes": 150,
   },
-  "governor-contest-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "governor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "mayor-contest-constitution": Object {
     "ballots": 2100,
     "overvotes": 150,
     "undervotes": 150,
   },
-  "mayor-contest-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "mayor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "schoolboard-constitution": Object {
     "ballots": 2100,
     "overvotes": 300,
     "undervotes": 450,
-  },
-  "schoolboard-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "schoolboard-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
 }
 `;
@@ -598,70 +513,25 @@ Array [
 
 exports[`filterTalliesByParams in a primary election can filter results by party 6`] = `
 Object {
-  "assistant-mayor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "chief-pokemon-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "chief-pokemon-federalist": Object {
     "ballots": 420,
     "overvotes": 30,
     "undervotes": 30,
-  },
-  "chief-pokemon-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "governor-contest-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
   "governor-contest-federalist": Object {
     "ballots": 720,
     "overvotes": 90,
     "undervotes": 90,
   },
-  "governor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "mayor-contest-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "mayor-contest-federalist": Object {
     "ballots": 570,
     "overvotes": 60,
     "undervotes": 60,
   },
-  "mayor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "schoolboard-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "schoolboard-federalist": Object {
     "ballots": 420,
     "overvotes": 60,
     "undervotes": 90,
-  },
-  "schoolboard-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
 }
 `;
@@ -805,27 +675,7 @@ Array [
 
 exports[`filterTalliesByParams in a primary election can filter results by party and precinct 2`] = `
 Object {
-  "assistant-mayor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "chief-pokemon-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "chief-pokemon-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "chief-pokemon-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "governor-contest-constitution": Object {
     "ballots": 0,
     "overvotes": 0,
     "undervotes": 0,
@@ -835,37 +685,12 @@ Object {
     "overvotes": 60,
     "undervotes": 60,
   },
-  "governor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "mayor-contest-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "mayor-contest-federalist": Object {
     "ballots": 150,
     "overvotes": 30,
     "undervotes": 30,
   },
-  "mayor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "schoolboard-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "schoolboard-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "schoolboard-liberty": Object {
     "ballots": 0,
     "overvotes": 0,
     "undervotes": 0,
@@ -1012,70 +837,25 @@ Array [
 
 exports[`filterTalliesByParams in a primary election can filter results by party and precinct 4`] = `
 Object {
-  "assistant-mayor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "chief-pokemon-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "chief-pokemon-federalist": Object {
     "ballots": 420,
     "overvotes": 30,
     "undervotes": 30,
-  },
-  "chief-pokemon-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "governor-contest-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
   "governor-contest-federalist": Object {
     "ballots": 420,
     "overvotes": 30,
     "undervotes": 30,
   },
-  "governor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "mayor-contest-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "mayor-contest-federalist": Object {
     "ballots": 420,
     "overvotes": 30,
     "undervotes": 30,
   },
-  "mayor-contest-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "schoolboard-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "schoolboard-federalist": Object {
     "ballots": 420,
     "overvotes": 60,
     "undervotes": 90,
-  },
-  "schoolboard-liberty": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
 }
 `;
@@ -1261,60 +1041,20 @@ Object {
     "overvotes": 30,
     "undervotes": 30,
   },
-  "chief-pokemon-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "chief-pokemon-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "chief-pokemon-liberty": Object {
     "ballots": 420,
     "overvotes": 60,
     "undervotes": 30,
-  },
-  "governor-contest-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "governor-contest-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
   "governor-contest-liberty": Object {
     "ballots": 570,
     "overvotes": 60,
     "undervotes": 60,
   },
-  "mayor-contest-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "mayor-contest-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
   "mayor-contest-liberty": Object {
     "ballots": 150,
     "overvotes": 30,
     "undervotes": 30,
-  },
-  "schoolboard-constitution": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
-  },
-  "schoolboard-federalist": Object {
-    "ballots": 0,
-    "overvotes": 0,
-    "undervotes": 0,
   },
   "schoolboard-liberty": Object {
     "ballots": 420,

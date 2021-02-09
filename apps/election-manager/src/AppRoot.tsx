@@ -13,6 +13,7 @@ import {
   doUnmount,
   UsbDriveStatus,
 } from './lib/usbstick'
+import { getEmptyFullElectionTally } from './lib/votecounting'
 
 import AppContext from './contexts/AppContext'
 
@@ -25,7 +26,7 @@ import ElectionManager from './components/ElectionManager'
 import {
   ElectionDefinition,
   SaveElection,
-  OptionalFullElectionTally,
+  FullElectionTally,
   PrintedBallot,
   ISO8601Timestamp,
 } from './config/types'
@@ -84,10 +85,9 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)
   const [recentlyEjected, setRecentlyEjected] = useState(false)
 
-  const [
-    fullElectionTally,
-    setFullElectionTally,
-  ] = useState<OptionalFullElectionTally>()
+  const [fullElectionTally, setFullElectionTally] = useState<FullElectionTally>(
+    getEmptyFullElectionTally()
+  )
 
   const doMountIfNotRecentlyEjected = useCallback(async () => {
     if (!recentlyEjected) {

@@ -2,13 +2,18 @@ import React, { useContext, useState, useEffect, useCallback } from 'react'
 import pluralize from 'pluralize'
 import moment from 'moment'
 
-import { CastVoteRecordLists, TallyCategory } from '../config/types'
+import {
+  CastVoteRecordLists,
+  TallyCategory,
+  InputEventFunction,
+} from '../config/types'
 
-import { computeFullElectionTally } from '../lib/votecounting'
 import * as format from '../utils/format'
 
 import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'
+import { computeFullElectionTally } from '../lib/votecounting'
+import convertSEMsFileToExternalTally from '../utils/convertSEMsFileToExternalTally'
 
 import Button from '../components/Button'
 import Text from '../components/Text'
@@ -22,6 +27,7 @@ import Prose from '../components/Prose'
 import ImportCVRFilesModal from '../components/ImportCVRFilesModal'
 import ExportFinalResultsModal from '../components/ExportFinalResultsModal'
 import Modal from '../components/Modal'
+import FileInputButton from '../components/FileInputButton'
 
 const TallyScreen: React.FC = () => {
   const {
@@ -84,6 +90,23 @@ const TallyScreen: React.FC = () => {
     },
     [setFullElectionTally]
   )
+
+  const importExternalSEMsFile: InputEventFunction = async (event) => {
+    const input = event.currentTarget
+    const files = Array.from(input.files || [])
+    if (files.length === 1) {
+      setIsTabulationRunning(true)
+      const externalTally = await convertSEMsFileToExternalTally(
+        files[0],
+        election
+      )
+      setFullElectionTally({
+        ...fullElectionTally,
+        externalTally,
+      })
+      setIsTabulationRunning(false)
+    }
+  }
 
   useEffect(() => {
     computeVoteCounts(castVoteRecordFiles.castVoteRecords)
@@ -342,6 +365,9 @@ const TallyScreen: React.FC = () => {
           >
             Import CVR Files
           </Button>{' '}
+          <FileInputButton onChange={importExternalSEMsFile} accept="*">
+            Import External SEMS File
+          </FileInputButton>{' '}
           <Button
             disabled={!hasCastVoteRecordFiles || isOfficialResults}
             onPress={confirmOfficial}

@@ -78,6 +78,7 @@ export interface ContestOptionTally {
 export interface ContestTally {
   readonly contest: Contest
   readonly tallies: ContestOptionTally[]
+  readonly metadata: ContestTallyMeta
 }
 
 export interface ContestTallyMeta {
@@ -89,10 +90,9 @@ export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
 
 export interface Tally {
   readonly numberOfBallotsCounted: number
-  // TODO(#2975): Once we're removing duplicate ballots, make this a dictionary indexed by ballotId
+  // TODO(#2975): Once we're reoving duplicate ballots, make this a dictionary indexed by ballotId
   readonly castVoteRecords: readonly CastVoteRecord[]
   readonly contestTallies: Dictionary<ContestTally>
-  readonly contestTallyMetadata: ContestTallyMetaDictionary
 }
 
 export enum TallyCategory {
@@ -104,6 +104,20 @@ export enum TallyCategory {
 export interface FullElectionTally {
   readonly overallTally: Tally
   readonly resultsByCategory: ReadonlyMap<TallyCategory, Dictionary<Tally>>
+  readonly externalTally?: FullElectionExternalTally
+}
+
+export interface ExternalTally {
+  readonly contestTallies: Dictionary<ContestTally>
+}
+
+export interface FullElectionExternalTally {
+  readonly overallTally: ExternalTally
+  readonly resultsByCategory: ReadonlyMap<
+    TallyCategory,
+    Dictionary<ExternalTally>
+  >
+  readonly file: File
 }
 
 export type OptionalFullElectionTally = Optional<FullElectionTally>

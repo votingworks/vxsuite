@@ -3,15 +3,12 @@ import styled from 'styled-components'
 import { Election, Candidate, YesNoContest } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
-import {
-  Tally,
-  YesNoContestOptionTally,
-  ContestTallyMeta,
-} from '../config/types'
+import { Tally, YesNoContestOptionTally } from '../config/types'
 
 import Prose from './Prose'
 import Text from './Text'
 import Table, { TD } from './Table'
+import { expandEitherNeitherContests } from '../utils/election'
 
 const ContestMeta = styled.div`
   float: right;
@@ -38,7 +35,6 @@ const ContestTally: React.FC<Props> = ({
   electionTally,
   precinctId,
 }) => {
-  const { contestTallyMetadata } = electionTally
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
   const ballotStyles = precinctId
@@ -48,17 +44,18 @@ const ContestTally: React.FC<Props> = ({
 
   return (
     <React.Fragment>
-      {electionTally.contestTallies.map(({ contest, tallies }) => {
+      {expandEitherNeitherContests(election.contests).map((electionContest) => {
+        if (!(electionContest.id in electionTally.contestTallies)) {
+          return null
+        }
+        const { contest, tallies, metadata } = electionTally.contestTallies[
+          electionContest.id
+        ]!
         const talliesRelevant = precinctId
           ? districts.includes(contest.districtId)
           : true
 
-        const { ballots, overvotes, undervotes }: ContestTallyMeta = {
-          ballots: 0,
-          overvotes: 0,
-          undervotes: 0,
-          ...contestTallyMetadata[contest.id],
-        }
+        const { ballots, overvotes, undervotes } = metadata
 
         return (
           <Contest key={`div-${contest.id}`}>

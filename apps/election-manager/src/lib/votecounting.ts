@@ -223,12 +223,14 @@ const buildVoteFromCvr = ({
 interface TallyParams {
   election: Election
   votes: VotesDict[]
+  metadata: ContestTallyMetaDictionary
   filterContestsByParty?: string
 }
 
 export function tallyVotesByContest({
   election,
   votes,
+  metadata,
   filterContestsByParty,
 }: TallyParams): Dictionary<ContestTally> {
   const contestTallies: Dictionary<ContestTally> = {}
@@ -293,8 +295,17 @@ export function tallyVotesByContest({
           })
         }
       })
+      const metadataForContest = metadata[contest.id] || {
+        undervotes: 0,
+        overvotes: 0,
+        ballots: 0,
+      }
 
-      contestTallies[contest.id] = { contest, tallies }
+      contestTallies[contest.id] = {
+        contest,
+        tallies,
+        metadata: metadataForContest,
+      }
     }
   })
 
@@ -419,21 +430,21 @@ function getTallyForCastVoteRecords(
     allVotes.push(vote)
   })
 
-  const overallTally = tallyVotesByContest({
-    election,
-    votes: allVotes,
-    filterContestsByParty,
-  })
   const contestTallyMetadata = getContestTallyMeta({
     election,
     castVoteRecords,
+  })
+  const overallTally = tallyVotesByContest({
+    election,
+    votes: allVotes,
+    metadata: contestTallyMetadata,
+    filterContestsByParty,
   })
 
   return {
     contestTallies: overallTally,
     castVoteRecords: cvrFiles,
     numberOfBallotsCounted: allVotes.length,
-    contestTallyMetadata,
   }
 }
 
@@ -540,7 +551,6 @@ export function getEmptyTally(): Tally {
     numberOfBallotsCounted: 0,
     castVoteRecords: [],
     contestTallies: {},
-    contestTallyMetadata: {},
   }
 }
 
@@ -605,20 +615,20 @@ export function filterTalliesByParams(
     }
   })
 
-  const contestTallies = tallyVotesByContest({
-    election,
-    votes: allVotes,
-    filterContestsByParty: partyId,
-  })
   const contestTallyMetadata = getContestTallyMeta({
     election,
     castVoteRecords: cvrFiles,
+  })
+  const contestTallies = tallyVotesByContest({
+    election,
+    votes: allVotes,
+    metadata: contestTallyMetadata,
+    filterContestsByParty: partyId,
   })
   return {
     contestTallies,
     castVoteRecords: cvrFiles,
     numberOfBallotsCounted: allVotes.length,
-    contestTallyMetadata,
   }
 }
 
