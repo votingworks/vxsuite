@@ -188,6 +188,19 @@ const buildVoteFromCvr = ({
   cvr: CastVoteRecord
 }): VotesDict => {
   const vote: VotesDict = {}
+
+  // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
+  // is there -- we don't want to count this as a ballot in this contest.
+  getEitherNeitherContests(election.contests).forEach((c) => {
+    const hasEitherNeither = cvr[c.eitherNeitherContestId] !== undefined
+    const hasPickOne = cvr[c.pickOneContestId] !== undefined
+
+    if (!(hasEitherNeither && hasPickOne)) {
+      cvr[c.eitherNeitherContestId] = undefined
+      cvr[c.pickOneContestId] = undefined
+    }
+  })
+
   expandEitherNeitherContests(election.contests).forEach((contest) => {
     if (!cvr[contest.id]) {
       return
@@ -389,20 +402,6 @@ export const getContestTallyMeta = ({
   const filteredCVRs = castVoteRecords
     .filter((cvr) => precinctId === undefined || cvr._precinctId === precinctId)
     .filter((cvr) => scannerId === undefined || cvr._scannerId === scannerId)
-
-  // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
-  // is there -- we don't want to count this as a ballot in this contest.
-  getEitherNeitherContests(election.contests).forEach((c) => {
-    filteredCVRs.forEach((cvr) => {
-      const hasEitherNeither = cvr[c.eitherNeitherContestId] !== undefined
-      const hasPickOne = cvr[c.pickOneContestId] !== undefined
-
-      if (!(hasEitherNeither && hasPickOne)) {
-        cvr[c.eitherNeitherContestId] = undefined
-        cvr[c.pickOneContestId] = undefined
-      }
-    })
-  })
 
   return expandEitherNeitherContests(
     election.contests

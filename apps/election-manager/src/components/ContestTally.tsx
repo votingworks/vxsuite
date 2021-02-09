@@ -1,24 +1,17 @@
 import React from 'react'
 import styled from 'styled-components'
-import {
-  Election,
-  Candidate,
-  YesNoContest,
-  CandidateContest,
-} from '@votingworks/ballot-encoder'
+import { Election, Candidate, YesNoContest } from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
-import {
-  ContestOption,
-  Tally,
-  YesNoContestOptionTally,
-  YesNoOption,
-} from '../config/types'
+import { Tally, YesNoContestOptionTally } from '../config/types'
 
 import Prose from './Prose'
 import Text from './Text'
 import Table, { TD } from './Table'
-import { expandEitherNeitherContests } from '../utils/election'
+import {
+  expandEitherNeitherContests,
+  getContestOptionsForContest,
+} from '../utils/election'
 import { getTallyForContestOption } from '../lib/votecounting'
 
 const ContestMeta = styled.div`
@@ -68,10 +61,7 @@ const ContestTally: React.FC<Props> = ({
 
         const { ballots, overvotes, undervotes } = metadata
 
-        const options: readonly ContestOption[] =
-          contest.type === 'candidate'
-            ? (contest as CandidateContest).candidates
-            : [['yes'] as YesNoOption, ['no'] as YesNoOption]
+        const options = getContestOptionsForContest(contest)
 
         return (
           <Contest key={`div-${contest.id}`}>

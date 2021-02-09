@@ -11,7 +11,6 @@ import {
 import * as path from 'path'
 import { promises as fs } from 'fs'
 
-import find from '../utils/find'
 import {
   parseCVRs,
   computeFullElectionTally,
@@ -27,7 +26,9 @@ import {
   FullElectionTally,
   Tally,
   TallyCategory,
+  YesNoOption,
 } from '../config/types'
+import { getContestOptionsForContest } from '../utils/election'
 
 const fixturesPath = path.join(__dirname, '../../test/fixtures')
 const electionFilePath = path.join(
@@ -54,8 +55,8 @@ function expectAllEmptyTallies(tally: Tally) {
   expect(tally.numberOfBallotsCounted).toBe(0)
   for (const contestId in tally.contestTallies) {
     const contestTally = tally.contestTallies[contestId]!
-    for (const tally of contestTally.tallies) {
-      expect(tally.tally).toBe(0)
+    for (const tally of Object.values(contestTally.tallies)) {
+      expect(tally!.tally).toBe(0)
     }
     expect(contestTally.metadata).toStrictEqual({
       undervotes: 0,
@@ -74,15 +75,44 @@ function transformContestTalliesToOldMetadataFormat(
   return oldMetadataFormat
 }
 
+function transformContestOptionTalliesToOldFormat(
+  tally: Dictionary<ContestOptionTally>,
+  contest: Contest
+): ContestOptionTally[] {
+  const optionTallies: ContestOptionTally[] = []
+  getContestOptionsForContest(contest).forEach((option) => {
+    if (contest.type === 'candidate') {
+      optionTallies.push(tally![(option as Candidate).id]!)
+    } else if (c.type === 'yesno') {
+      const yesnooption = option as YesNoOption
+      if (yesnooption.length === 1) {
+        optionTallies.push(tally![yesnooption[0]]!)
+      }
+    }
+  })
+  return optionTallies
+}
+
 function transformContestTalliesToOldFormat(
   tally: Dictionary<ContestTally>,
   election: Election
 ): { contest: Contest; tallies: ContestOptionTally[] }[] {
   const oldTallies: { contest: Contest; tallies: ContestOptionTally[] }[] = []
   election.contests.forEach((c) => {
+    const optionTallies: ContestOptionTally[] = []
+    getContestOptionsForContest(c).forEach((option) => {
+      if (c.type === 'candidate') {
+        optionTallies.push(tally[c.id]!.tallies![(option as Candidate).id]!)
+      } else if (c.type === 'yesno') {
+        const yesnooption = option as YesNoOption
+        if (yesnooption.length === 1) {
+          optionTallies.push(tally[c.id]!.tallies![yesnooption[0]]!)
+        }
+      }
+    })
     oldTallies.push({
       contest: tally[c.id]!.contest!,
-      tallies: tally[c.id]!.tallies!,
+      tallies: optionTallies,
     })
   })
   return oldTallies
@@ -117,22 +147,14 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // - Jackie Chan, 1380 bubbles, of which 8 are overvotes --> 1372
   const presidentTallies = fullTally.overallTally.contestTallies.president!
-  const jackieChanTally = find(
-    presidentTallies.tallies,
-    (contestOptionTally) =>
-      (contestOptionTally.option as Candidate).id === 'jackie-chan'
-  )
+  const jackieChanTally = presidentTallies.tallies['jackie-chan']!
   expect(jackieChanTally.tally).toBe(1372)
 
   // - Neil Armstrong, 2207 bubbles, of which 10 are overvotes --> 2197
   const repDistrict18Tallies = fullTally.overallTally.contestTallies[
     'representative-district-18'
   ]!
-  const neilArmstrongTally = find(
-    repDistrict18Tallies.tallies,
-    (contestOptionTally) =>
-      (contestOptionTally.option as Candidate).id === 'neil-armstrong'
-  )
+  const neilArmstrongTally = repDistrict18Tallies.tallies['neil-armstrong']!
   expect(neilArmstrongTally.tally).toBe(2197)
 
   // sum up all the write-ins across all questions
@@ -143,12 +165,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   const numWriteIns = candidateTallies.reduce(
     (overallSum, contestTally) =>
-      overallSum +
-      contestTally!.tallies
-        .filter(
-          (optionTally) => (optionTally.option as Candidate).id === '__write-in'
-        )
-        .reduce((contestSum, optionTally) => contestSum + optionTally.tally, 0),
+      overallSum + contestTally!.tallies['__write-in']!.tally,
     0
   )
 
@@ -349,7 +366,13 @@ describe('filterTalliesByParams in a primary election', () => {
       // Filtering by party just filters down the contests in contestTallies
       expect(
         Object.values(filteredResults.contestTallies).map((c) => {
-          return { contestId: c!.contest.id, tallies: c!.tallies }
+          return {
+            contestId: c!.contest.id,
+            tallies: transformContestOptionTalliesToOldFormat(
+              c!.tallies,
+              c!.contest
+            ),
+          }
         })
       ).toMatchSnapshot()
 
@@ -400,7 +423,13 @@ describe('filterTalliesByParams in a primary election', () => {
     )
     expect(
       Object.values(filterParty5Precinct1.contestTallies).map((c) => {
-        return { contestId: c!.contest.id, tallies: c!.tallies }
+        return {
+          contestId: c!.contest.id,
+          tallies: transformContestOptionTalliesToOldFormat(
+            c!.tallies,
+            c!.contest
+          ),
+        }
       })
     ).toMatchSnapshot()
     expect(
@@ -420,7 +449,13 @@ describe('filterTalliesByParams in a primary election', () => {
     )
     expect(
       Object.values(filterParty5Precinct5.contestTallies).map((c) => {
-        return { contestId: c!.contest.id, tallies: c!.tallies }
+        return {
+          contestId: c!.contest.id,
+          tallies: transformContestOptionTalliesToOldFormat(
+            c!.tallies,
+            c!.contest
+          ),
+        }
       })
     ).toMatchSnapshot()
     expect(
@@ -482,7 +517,13 @@ describe('filterTalliesByParams in a primary election', () => {
     )
     expect(
       Object.values(filteredResultsScanner1.contestTallies).map((c) => {
-        return { contestId: c!.contest.id, tallies: c!.tallies }
+        return {
+          contestId: c!.contest.id,
+          tallies: transformContestOptionTalliesToOldFormat(
+            c!.tallies,
+            c!.contest
+          ),
+        }
       })
     ).toMatchSnapshot()
     expect(
