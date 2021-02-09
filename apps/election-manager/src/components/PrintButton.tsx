@@ -5,10 +5,16 @@ import Modal from './Modal'
 import Loading from './Loading'
 import Prose from './Prose'
 
+interface ConfirmModal {
+  content: React.ReactNode
+  confirmButtonLabel?: string
+}
+
 interface PrintButtonProps extends StyledButtonProps {
   title?: string
   afterPrint?: () => void
   copies?: number
+  confirmModal?: ConfirmModal
 }
 
 const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
@@ -16,8 +22,10 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
   afterPrint,
   children,
   copies,
+  confirmModal,
   ...rest
 }) => {
+  const [isConfirming, setIsConfirming] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
   const [showPrintingError, setShowPrintingError] = useState(false)
 
@@ -60,15 +68,41 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
     setShowPrintingError(false)
   }
 
+  const initConfirmModal = () => {
+    setIsConfirming(true)
+  }
+
+  const cancelPrint = () => {
+    setIsConfirming(false)
+  }
+
+  const confirmPrint = () => {
+    setIsConfirming(false)
+    print()
+  }
+
   return (
     <React.Fragment>
-      <Button onPress={print} {...rest}>
+      <Button onPress={confirmModal ? initConfirmModal : print} {...rest}>
         {children}
       </Button>
       <Modal
         isOpen={isPrinting}
         centerContent
         content={<Loading>Printing</Loading>}
+      />
+      <Modal
+        isOpen={isConfirming}
+        centerContent
+        content={confirmModal?.content}
+        actions={
+          <React.Fragment>
+            <Button onPress={cancelPrint}>Cancel</Button>
+            <Button onPress={confirmPrint} primary>
+              {confirmModal?.confirmButtonLabel ?? 'Print'}
+            </Button>
+          </React.Fragment>
+        }
       />
       <Modal
         isOpen={showPrintingError}

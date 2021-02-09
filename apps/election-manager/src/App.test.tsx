@@ -150,6 +150,9 @@ it('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Test'))
   fireEvent.click(getByText('Official'))
   fireEvent.click(getByText('Print 1 Official', { exact: false }))
+  fireEvent.click(getByText('Cancel'))
+  fireEvent.click(getByText('Print 1 Official', { exact: false }))
+  fireEvent.click(getByText('Yes, Print'))
 
   await waitFor(() => getByText('Printing'))
   expect(mockKiosk.print).toHaveBeenCalledTimes(1)

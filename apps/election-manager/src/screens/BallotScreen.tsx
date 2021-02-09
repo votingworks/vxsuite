@@ -209,6 +209,18 @@ const BallotScreen: React.FC = () => {
               primary
               title={filename}
               afterPrint={() => afterPrint(ballotCopies)}
+              confirmModal={{
+                content: (
+                  <div>
+                    Is the printer loaded with{' '}
+                    <strong>
+                      {isAbsenteeMode ? 'Absentee' : 'Precinct'} Ballot
+                    </strong>{' '}
+                    paper?
+                  </div>
+                ),
+                confirmButtonLabel: 'Yes, Print',
+              }}
               copies={ballotCopies}
               warning={!isLiveMode}
             >
