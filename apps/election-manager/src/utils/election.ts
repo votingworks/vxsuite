@@ -1,18 +1,49 @@
 import {
   Election,
   BallotStyle,
+  Candidate,
+  Contest as ContestType,
   Contests,
   AnyContest,
   MsEitherNeitherContest,
   VotesDict,
   Precinct,
+  CandidateContest,
 } from '@votingworks/ballot-encoder'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
-import { BallotLocale, Dictionary } from '../config/types'
+import {
+  BallotLocale,
+  Dictionary,
+  YesNoOption,
+  ContestOption,
+} from '../config/types'
 
 import find from './find'
 import sortBy from './sortBy'
+
+// the generic write-in candidate to keep count
+export const writeInCandidate: Candidate = {
+  id: '__write-in',
+  name: 'Write-In',
+  isWriteIn: true,
+}
+
+export function getContestOptionsForContest(
+  contest: ContestType
+): readonly ContestOption[] {
+  if (contest.type === 'candidate') {
+    const options = (contest as CandidateContest).candidates
+    if ((contest as CandidateContest).allowWriteIns) {
+      return options.concat(writeInCandidate)
+    }
+    return options
+  }
+  if (contest.type === 'yesno') {
+    return [['yes'] as YesNoOption, ['no'] as YesNoOption]
+  }
+  throw new Error(`Unexpected contest type: ${contest.type}`)
+}
 
 export const getContests = ({
   ballotStyle,

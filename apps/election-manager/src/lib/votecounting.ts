@@ -10,7 +10,6 @@ import {
   Vote,
 } from '@votingworks/ballot-encoder'
 import {
-  ContestOption,
   ContestOptionTally,
   Dictionary,
   CastVoteRecord,
@@ -20,24 +19,19 @@ import {
   ContestTallyMetaDictionary,
   FullElectionTally,
   TallyCategory,
-  YesNoContestOptionTally,
+  YesNoOption,
+  ContestOption,
 } from '../config/types'
-import { defined } from '../utils/assert'
+import assert, { defined } from '../utils/assert'
 import {
   getBallotStyle,
   getContests,
   getEitherNeitherContests,
   expandEitherNeitherContests,
+  writeInCandidate,
 } from '../utils/election'
 
 import find from '../utils/find'
-
-// the generic write-in candidate to keep count
-const writeInCandidate: Candidate = {
-  id: '__write-in',
-  name: 'Write-In',
-  isWriteIn: true,
-}
 
 export interface ParseCastVoteRecordResult {
   cvr: CastVoteRecord
@@ -220,17 +214,33 @@ const buildVoteFromCvr = ({
   return vote
 }
 
+export function getTallyForContestOption(
+  option: ContestOption,
+  tallies: Dictionary<ContestOptionTally>,
+  contest: Contest
+): ContestOptionTally {
+  switch (contest.type) {
+    case 'candidate':
+      return tallies[(option as Candidate).id]!
+    case 'yesno': {
+      const yesnooption = option as YesNoOption
+      assert(yesnooption.length === 1)
+      return tallies[yesnooption[0]]!
+    }
+    default:
+      throw new Error(`Unexpected contest type: ${contest.type}`)
+  }
+}
+
 interface TallyParams {
   election: Election
   votes: VotesDict[]
-  metadata: ContestTallyMetaDictionary
   filterContestsByParty?: string
 }
 
 export function tallyVotesByContest({
   election,
   votes,
-  metadata,
   filterContestsByParty,
 }: TallyParams): Dictionary<ContestTally> {
   const contestTallies: Dictionary<ContestTally> = {}
@@ -246,59 +256,71 @@ export function tallyVotesByContest({
       (districtsForParty.includes(contest.districtId) &&
         contest.partyId === filterContestsByParty)
     ) {
-      let options: readonly ContestOption[] = []
+      const tallies: Dictionary<ContestOptionTally> = {}
       if (contest.type === 'yesno') {
-        options = [['yes'], ['no']]
-      }
-      if (contest.type === 'candidate') {
-        options = contest.candidates
-      }
-
-      const tallies: ContestOptionTally[] = options
-        .map((option) => {
-          return { option, tally: 0 }
-        })
-        .concat(
-          contest.type === 'candidate' && contest.allowWriteIns
-            ? [{ option: writeInCandidate, tally: 0 }]
-            : []
+        ;[['yes'] as YesNoOption, ['no'] as YesNoOption].forEach(
+          (option: YesNoOption) => {
+            if (option.length === 1) {
+              tallies[option[0]] = { option, tally: 0 }
+            }
+          }
         )
+      }
 
+      if (contest.type === 'candidate') {
+        contest.candidates.forEach((candidate) => {
+          tallies[candidate.id] = { option: candidate, tally: 0 }
+        })
+        if (contest.allowWriteIns) {
+          tallies[writeInCandidate.id] = { option: writeInCandidate, tally: 0 }
+        }
+      }
+
+      let numberOfUndervotes = 0
+      let numberOfOvervotes = 0
+      let numberOfVotes = 0
       votes.forEach((vote) => {
         const selected = vote[contest.id]
         if (!selected) {
           return
         }
 
+        numberOfVotes += 1
         // overvotes & undervotes
         const maxSelectable =
           contest.type === 'yesno' ? 1 : (contest as CandidateContest).seats
-        if (selected.length > maxSelectable || selected.length === 0) {
+        if (selected.length > maxSelectable) {
+          numberOfOvervotes += 1
+          return
+        }
+        if (selected.length < maxSelectable) {
+          numberOfUndervotes += maxSelectable - selected.length
+        }
+        if (selected.length === 0) {
           return
         }
 
         if (contest.type === 'yesno') {
-          const optionTally = find(tallies, (optionTally) => {
-            return (
-              (optionTally as YesNoContestOptionTally).option[0] === selected[0]
-            )
-          })
-          optionTally.tally += 1
+          const optionId = selected[0] as string
+          const optionTally = tallies[optionId]!
+          tallies[optionId] = {
+            option: optionTally.option,
+            tally: optionTally.tally + 1,
+          }
         } else {
           ;(selected as CandidateVote).forEach((selectedOption) => {
-            const optionTally = find(tallies, (optionTally) => {
-              const candidateOption = optionTally.option as Candidate
-              const selectedCandidateOption = selectedOption as Candidate
-              return candidateOption.id === selectedCandidateOption.id
-            })
-            optionTally.tally += 1
+            const optionTally = tallies[selectedOption.id]!
+            tallies[selectedOption.id] = {
+              option: optionTally.option,
+              tally: optionTally.tally + 1,
+            }
           })
         }
       })
-      const metadataForContest = metadata[contest.id] || {
-        undervotes: 0,
-        overvotes: 0,
-        ballots: 0,
+      const metadataForContest = {
+        undervotes: numberOfUndervotes,
+        overvotes: numberOfOvervotes,
+        ballots: numberOfVotes,
       }
 
       contestTallies[contest.id] = {
@@ -430,14 +452,9 @@ function getTallyForCastVoteRecords(
     allVotes.push(vote)
   })
 
-  const contestTallyMetadata = getContestTallyMeta({
-    election,
-    castVoteRecords,
-  })
   const overallTally = tallyVotesByContest({
     election,
     votes: allVotes,
-    metadata: contestTallyMetadata,
     filterContestsByParty,
   })
 
@@ -615,14 +632,9 @@ export function filterTalliesByParams(
     }
   })
 
-  const contestTallyMetadata = getContestTallyMeta({
-    election,
-    castVoteRecords: cvrFiles,
-  })
   const contestTallies = tallyVotesByContest({
     election,
     votes: allVotes,
-    metadata: contestTallyMetadata,
     filterContestsByParty: partyId,
   })
   return {

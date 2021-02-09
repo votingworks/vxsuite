@@ -1,14 +1,25 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election, Candidate, YesNoContest } from '@votingworks/ballot-encoder'
+import {
+  Election,
+  Candidate,
+  YesNoContest,
+  CandidateContest,
+} from '@votingworks/ballot-encoder'
 import pluralize from 'pluralize'
 
-import { Tally, YesNoContestOptionTally } from '../config/types'
+import {
+  ContestOption,
+  Tally,
+  YesNoContestOptionTally,
+  YesNoOption,
+} from '../config/types'
 
 import Prose from './Prose'
 import Text from './Text'
 import Table, { TD } from './Table'
 import { expandEitherNeitherContests } from '../utils/election'
+import { getTallyForContestOption } from '../lib/votecounting'
 
 const ContestMeta = styled.div`
   float: right;
@@ -57,6 +68,11 @@ const ContestTally: React.FC<Props> = ({
 
         const { ballots, overvotes, undervotes } = metadata
 
+        const options: readonly ContestOption[] =
+          contest.type === 'candidate'
+            ? (contest as CandidateContest).candidates
+            : [['yes'] as YesNoOption, ['no'] as YesNoOption]
+
         return (
           <Contest key={`div-${contest.id}`}>
             <Prose maxWidth={false}>
@@ -72,7 +88,13 @@ const ContestTally: React.FC<Props> = ({
               </h3>
               <Table>
                 <tbody>
-                  {tallies.map((tally) => {
+                  {options.map((option) => {
+                    const tally = getTallyForContestOption(
+                      option,
+                      tallies,
+                      contest
+                    )
+
                     const key = `${contest.id}-${
                       contest.type === 'candidate'
                         ? (tally.option as Candidate).id
