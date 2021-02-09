@@ -1,4 +1,4 @@
-import { Candidate, parseElection, Election, Contest } from '@votingworks/types'
+import { parseElection, Election } from '@votingworks/types'
 import {
   electionSample,
   primaryElectionSample,
@@ -16,16 +16,10 @@ import {
 } from './votecounting'
 import {
   CastVoteRecord,
-  ContestTally,
-  ContestOptionTally,
-  ContestTallyMetaDictionary,
-  Dictionary,
   FullElectionTally,
   Tally,
   TallyCategory,
-  YesNoOption,
 } from '../config/types'
-import { getContestOptionsForContest } from '../utils/election'
 
 const fixturesPath = path.join(__dirname, '../../test/fixtures')
 const electionFilePath = path.join(
@@ -63,66 +57,6 @@ function expectAllEmptyTallies(tally: Tally) {
   }
 }
 
-// helper function to make checking against older snapshots easier
-function transformContestTalliesToOldMetadataFormat(
-  tally: Dictionary<ContestTally>,
-  election: Election
-): ContestTallyMetaDictionary {
-  const oldMetadataFormat: ContestTallyMetaDictionary = {}
-  election.contests.forEach(
-    (c) =>
-      (oldMetadataFormat[c.id] = tally[c.id]?.metadata || {
-        ballots: 0,
-        undervotes: 0,
-        overvotes: 0,
-      })
-  )
-  return oldMetadataFormat
-}
-
-function transformContestOptionTalliesToOldFormat(
-  tally: Dictionary<ContestOptionTally>,
-  contest: Contest
-): ContestOptionTally[] {
-  const optionTallies: ContestOptionTally[] = []
-  getContestOptionsForContest(contest).forEach((option) => {
-    if (contest.type === 'candidate') {
-      optionTallies.push(tally![(option as Candidate).id]!)
-    } else if (contest.type === 'yesno') {
-      const yesnooption = option as YesNoOption
-      if (yesnooption.length === 1) {
-        optionTallies.push(tally![yesnooption[0]]!)
-      }
-    }
-  })
-  return optionTallies
-}
-
-function transformContestTalliesToOldFormat(
-  tally: Dictionary<ContestTally>,
-  election: Election
-): { contest: Contest; tallies: ContestOptionTally[] }[] {
-  const oldTallies: { contest: Contest; tallies: ContestOptionTally[] }[] = []
-  election.contests.forEach((c) => {
-    const optionTallies: ContestOptionTally[] = []
-    getContestOptionsForContest(c).forEach((option) => {
-      if (c.type === 'candidate') {
-        optionTallies.push(tally[c.id]!.tallies![(option as Candidate).id]!)
-      } else if (c.type === 'yesno') {
-        const yesnooption = option as YesNoOption
-        if (yesnooption.length === 1) {
-          optionTallies.push(tally[c.id]!.tallies![yesnooption[0]]!)
-        }
-      }
-    })
-    oldTallies.push({
-      contest: tally[c.id]!.contest!,
-      tallies: optionTallies,
-    })
-  })
-  return oldTallies
-}
-
 test('tabulating a set of CVRs gives expected output', async () => {
   // get the election
   const election = parseElection(
@@ -136,18 +70,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
   // tabulate it
   const fullTally = computeFullElectionTally(election, [castVoteRecords])
   expect(fullTally.overallTally.numberOfBallotsCounted).toBe(10000)
-  expect(
-    transformContestTalliesToOldFormat(
-      fullTally.overallTally.contestTallies,
-      election
-    )
-  ).toMatchSnapshot()
-  expect(
-    transformContestTalliesToOldMetadataFormat(
-      fullTally.overallTally.contestTallies,
-      election
-    )
-  ).toMatchSnapshot()
+  expect(fullTally.overallTally.contestTallies).toMatchSnapshot()
 
   // some specific tallies checked by hand
 
@@ -234,18 +157,7 @@ describe('filterTalliesByParams in a typical election', () => {
         precinctId,
       })
       expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
-      expect(
-        transformContestTalliesToOldFormat(
-          filteredResults.contestTallies,
-          election
-        )
-      ).toMatchSnapshot()
-      expect(
-        transformContestTalliesToOldMetadataFormat(
-          filteredResults.contestTallies,
-          election
-        )
-      ).toMatchSnapshot()
+      expect(filteredResults.contestTallies).toMatchSnapshot()
     }
   })
 
@@ -269,18 +181,7 @@ describe('filterTalliesByParams in a typical election', () => {
         scannerId,
       })
       expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
-      expect(
-        transformContestTalliesToOldFormat(
-          filteredResults.contestTallies,
-          election
-        )
-      ).toMatchSnapshot()
-      expect(
-        transformContestTalliesToOldMetadataFormat(
-          filteredResults.contestTallies,
-          election
-        )
-      ).toMatchSnapshot()
+      expect(filteredResults.contestTallies).toMatchSnapshot()
     }
   })
 
@@ -290,18 +191,7 @@ describe('filterTalliesByParams in a typical election', () => {
       scannerId: 'scanner-5',
     })
     expect(filteredResults.numberOfBallotsCounted).toBe(226)
-    expect(
-      transformContestTalliesToOldFormat(
-        filteredResults.contestTallies,
-        election
-      )
-    ).toMatchSnapshot()
-    expect(
-      transformContestTalliesToOldMetadataFormat(
-        filteredResults.contestTallies,
-        election
-      )
-    ).toMatchSnapshot()
+    expect(filteredResults.contestTallies).toMatchSnapshot()
   })
 })
 
@@ -379,19 +269,10 @@ describe('filterTalliesByParams in a primary election', () => {
         Object.values(filteredResults.contestTallies).map((c) => {
           return {
             contestId: c!.contest.id,
-            tallies: transformContestOptionTalliesToOldFormat(
-              c!.tallies,
-              c!.contest
-            ),
+            tallies: c!.tallies,
+            metadata: c!.metadata,
           }
         })
-      ).toMatchSnapshot()
-
-      expect(
-        transformContestTalliesToOldMetadataFormat(
-          filteredResults.contestTallies,
-          multiPartyPrimaryElection
-        )
       ).toMatchSnapshot()
     }
 
@@ -437,18 +318,10 @@ describe('filterTalliesByParams in a primary election', () => {
       Object.values(filterParty5Precinct1.contestTallies).map((c) => {
         return {
           contestId: c!.contest.id,
-          tallies: transformContestOptionTalliesToOldFormat(
-            c!.tallies,
-            c!.contest
-          ),
+          tallies: c!.tallies,
+          metadata: c!.metadata,
         }
       })
-    ).toMatchSnapshot()
-    expect(
-      transformContestTalliesToOldMetadataFormat(
-        filterParty5Precinct1.contestTallies,
-        multiPartyPrimaryElection
-      )
     ).toMatchSnapshot()
 
     const filterParty5Precinct5 = filterTalliesByParams(
@@ -464,18 +337,10 @@ describe('filterTalliesByParams in a primary election', () => {
       Object.values(filterParty5Precinct5.contestTallies).map((c) => {
         return {
           contestId: c!.contest.id,
-          tallies: transformContestOptionTalliesToOldFormat(
-            c!.tallies,
-            c!.contest
-          ),
+          tallies: c!.tallies,
+          metadata: c!.metadata,
         }
       })
-    ).toMatchSnapshot()
-    expect(
-      transformContestTalliesToOldMetadataFormat(
-        filterParty5Precinct5.contestTallies,
-        multiPartyPrimaryElection
-      )
     ).toMatchSnapshot()
 
     const filterParty5InvalidPrecinct = filterTalliesByParams(
@@ -533,18 +398,10 @@ describe('filterTalliesByParams in a primary election', () => {
       Object.values(filteredResultsScanner1.contestTallies).map((c) => {
         return {
           contestId: c!.contest.id,
-          tallies: transformContestOptionTalliesToOldFormat(
-            c!.tallies,
-            c!.contest
-          ),
+          tallies: c!.tallies,
+          metadata: c!.metadata,
         }
       })
-    ).toMatchSnapshot()
-    expect(
-      transformContestTalliesToOldMetadataFormat(
-        filteredResultsScanner1.contestTallies,
-        multiPartyPrimaryElection
-      )
     ).toMatchSnapshot()
 
     expect(filteredResultsScanner1.numberOfBallotsCounted).toBe(570)
