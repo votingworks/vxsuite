@@ -2,19 +2,23 @@
   "name": "@votingworks/fixtures",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "license": "GPL-3.0",
+  "author": "VotingWorks",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "dev": "tsc --build --watch",
     "build": "tsc --build",
+    "dev": "tsc --build --watch",
     "lint": "tsc --build && eslint src",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
   },
-  "keywords": [],
-  "author": "VotingWorks",
-  "license": "GPL-3.0",
+  "dependencies": {
+    "@votingworks/types": "workspace:*",
+    "js-sha256": "^0.9.0"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
@@ -26,9 +30,5 @@
     "prettier": "^2.2.1",
     "ts-jest": "^26.5.0",
     "typescript": "^4.1.3"
-  },
-  "dependencies": {
-    "@votingworks/types": "workspace:*",
-    "js-sha256": "^0.9.0"
   }
 }

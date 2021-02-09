@@ -7,10 +7,10 @@
     "lib/**/*.{js,d.ts,d.ts.map,json}"
   ],
   "scripts": {
-    "dev": "tsc --build --watch",
     "build": "tsc --build",
-    "prepack": "tsc --build && jest --coverage",
+    "dev": "tsc --build --watch",
     "lint": "tsc --build && eslint src",
+    "prepack": "tsc --build && jest --coverage",
     "publish:npm": "rm -rf lib && pnpm test:coverage && tsc && npm publish --access public",
     "test": "jest",
     "test:ci": "jest --ci --coverage",

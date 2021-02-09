@@ -17,8 +17,8 @@
     "!dist/test"
   ],
   "scripts": {
-    "dev": "tsc --build --watch",
     "build": "tsc --build",
+    "dev": "tsc --build --watch",
     "lint": "tsc --build && eslint src test",
     "prepack": "tsc --build",
     "test": "jest",
