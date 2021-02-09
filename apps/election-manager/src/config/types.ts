@@ -63,7 +63,6 @@ export interface ScannerReportScreenProps {
 }
 
 // Tallies
-export type CandidateOption = Candidate
 export type YesNoOption = ['yes'] | ['no'] | []
 export type ContestOption = Candidate | YesNoOption
 export interface YesNoContestOptionTally {
@@ -71,13 +70,14 @@ export interface YesNoContestOptionTally {
   readonly tally: number
 }
 export interface ContestOptionTally {
-  option: ContestOption
-  tally: number
+  readonly option: ContestOption
+  readonly tally: number
 }
 
 export interface ContestTally {
   readonly contest: Contest
-  readonly tallies: ContestOptionTally[]
+  readonly tallies: Dictionary<ContestOptionTally>
+  readonly metadata: ContestTallyMeta
 }
 
 export interface ContestTallyMeta {
@@ -91,8 +91,7 @@ export interface Tally {
   readonly numberOfBallotsCounted: number
   // TODO(#2975): Once we're removing duplicate ballots, make this a dictionary indexed by ballotId
   readonly castVoteRecords: readonly CastVoteRecord[]
-  readonly contestTallies: ContestTally[]
-  readonly contestTallyMetadata: ContestTallyMetaDictionary
+  readonly contestTallies: Dictionary<ContestTally>
 }
 
 export enum TallyCategory {

@@ -10,7 +10,6 @@ import {
   Vote,
 } from '@votingworks/types'
 import {
-  ContestOption,
   ContestOptionTally,
   Dictionary,
   CastVoteRecord,
@@ -20,24 +19,19 @@ import {
   ContestTallyMetaDictionary,
   FullElectionTally,
   TallyCategory,
-  YesNoContestOptionTally,
+  YesNoOption,
+  ContestOption,
 } from '../config/types'
-import { defined } from '../utils/assert'
+import assert, { defined } from '../utils/assert'
 import {
   getBallotStyle,
   getContests,
   getEitherNeitherContests,
   expandEitherNeitherContests,
+  writeInCandidate,
 } from '../utils/election'
 
 import find from '../utils/find'
-
-// the generic write-in candidate to keep count
-const writeInCandidate: Candidate = {
-  id: '__write-in',
-  name: 'Write-In',
-  isWriteIn: true,
-}
 
 export interface ParseCastVoteRecordResult {
   cvr: CastVoteRecord
@@ -194,6 +188,19 @@ const buildVoteFromCvr = ({
   cvr: CastVoteRecord
 }): VotesDict => {
   const vote: VotesDict = {}
+
+  // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
+  // is there -- we don't want to count this as a ballot in this contest.
+  getEitherNeitherContests(election.contests).forEach((c) => {
+    const hasEitherNeither = cvr[c.eitherNeitherContestId] !== undefined
+    const hasPickOne = cvr[c.pickOneContestId] !== undefined
+
+    if (!(hasEitherNeither && hasPickOne)) {
+      cvr[c.eitherNeitherContestId] = undefined
+      cvr[c.pickOneContestId] = undefined
+    }
+  })
+
   expandEitherNeitherContests(election.contests).forEach((contest) => {
     if (!cvr[contest.id]) {
       return
@@ -220,6 +227,24 @@ const buildVoteFromCvr = ({
   return vote
 }
 
+export function getTallyForContestOption(
+  option: ContestOption,
+  tallies: Dictionary<ContestOptionTally>,
+  contest: Contest
+): ContestOptionTally {
+  switch (contest.type) {
+    case 'candidate':
+      return tallies[(option as Candidate).id]!
+    case 'yesno': {
+      const yesnooption = option as YesNoOption
+      assert(yesnooption.length === 1)
+      return tallies[yesnooption[0]]!
+    }
+    default:
+      throw new Error(`Unexpected contest type: ${contest.type}`)
+  }
+}
+
 interface TallyParams {
   election: Election
   votes: VotesDict[]
@@ -230,8 +255,8 @@ export function tallyVotesByContest({
   election,
   votes,
   filterContestsByParty,
-}: TallyParams): ContestTally[] {
-  const contestTallies: ContestTally[] = []
+}: TallyParams): Dictionary<ContestTally> {
+  const contestTallies: Dictionary<ContestTally> = {}
   const { contests } = election
 
   const districtsForParty = election.ballotStyles
@@ -244,57 +269,78 @@ export function tallyVotesByContest({
       (districtsForParty.includes(contest.districtId) &&
         contest.partyId === filterContestsByParty)
     ) {
-      let options: readonly ContestOption[] = []
+      const tallies: Dictionary<ContestOptionTally> = {}
       if (contest.type === 'yesno') {
-        options = [['yes'], ['no']]
-      }
-      if (contest.type === 'candidate') {
-        options = contest.candidates
-      }
-
-      const tallies: ContestOptionTally[] = options
-        .map((option) => {
-          return { option, tally: 0 }
-        })
-        .concat(
-          contest.type === 'candidate' && contest.allowWriteIns
-            ? [{ option: writeInCandidate, tally: 0 }]
-            : []
+        ;[['yes'] as YesNoOption, ['no'] as YesNoOption].forEach(
+          (option: YesNoOption) => {
+            if (option.length === 1) {
+              tallies[option[0]] = { option, tally: 0 }
+            }
+          }
         )
+      }
 
+      if (contest.type === 'candidate') {
+        contest.candidates.forEach((candidate) => {
+          tallies[candidate.id] = { option: candidate, tally: 0 }
+        })
+        if (contest.allowWriteIns) {
+          tallies[writeInCandidate.id] = { option: writeInCandidate, tally: 0 }
+        }
+      }
+
+      let numberOfUndervotes = 0
+      let numberOfOvervotes = 0
+      let numberOfVotes = 0
       votes.forEach((vote) => {
         const selected = vote[contest.id]
         if (!selected) {
           return
         }
 
+        numberOfVotes += 1
         // overvotes & undervotes
         const maxSelectable =
           contest.type === 'yesno' ? 1 : (contest as CandidateContest).seats
-        if (selected.length > maxSelectable || selected.length === 0) {
+        if (selected.length > maxSelectable) {
+          numberOfOvervotes += 1
+          return
+        }
+        if (selected.length < maxSelectable) {
+          numberOfUndervotes += maxSelectable - selected.length
+        }
+        if (selected.length === 0) {
           return
         }
 
         if (contest.type === 'yesno') {
-          const optionTally = find(tallies, (optionTally) => {
-            return (
-              (optionTally as YesNoContestOptionTally).option[0] === selected[0]
-            )
-          })
-          optionTally.tally += 1
+          const optionId = selected[0] as string
+          const optionTally = tallies[optionId]!
+          tallies[optionId] = {
+            option: optionTally.option,
+            tally: optionTally.tally + 1,
+          }
         } else {
           ;(selected as CandidateVote).forEach((selectedOption) => {
-            const optionTally = find(tallies, (optionTally) => {
-              const candidateOption = optionTally.option as Candidate
-              const selectedCandidateOption = selectedOption as Candidate
-              return candidateOption.id === selectedCandidateOption.id
-            })
-            optionTally.tally += 1
+            const optionTally = tallies[selectedOption.id]!
+            tallies[selectedOption.id] = {
+              option: optionTally.option,
+              tally: optionTally.tally + 1,
+            }
           })
         }
       })
+      const metadataForContest = {
+        undervotes: numberOfUndervotes,
+        overvotes: numberOfOvervotes,
+        ballots: numberOfVotes,
+      }
 
-      contestTallies.push({ contest, tallies })
+      contestTallies[contest.id] = {
+        contest,
+        tallies,
+        metadata: metadataForContest,
+      }
     }
   })
 
@@ -327,11 +373,16 @@ export function filterTalliesByParty({
     )
   ).map((contest) => contest.id)
 
+  const filteredContestTallies: Dictionary<ContestTally> = {}
+  for (const contestId in electionTally.contestTallies) {
+    if (contestIds.includes(contestId))
+      filteredContestTallies[contestId] =
+        electionTally.contestTallies[contestId]
+  }
+
   return {
     ...electionTally,
-    contestTallies: electionTally.contestTallies.filter((contestTally) =>
-      contestIds.includes(contestTally.contest.id)
-    ),
+    contestTallies: filteredContestTallies,
   }
 }
 
@@ -351,20 +402,6 @@ export const getContestTallyMeta = ({
   const filteredCVRs = castVoteRecords
     .filter((cvr) => precinctId === undefined || cvr._precinctId === precinctId)
     .filter((cvr) => scannerId === undefined || cvr._scannerId === scannerId)
-
-  // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
-  // is there -- we don't want to count this as a ballot in this contest.
-  getEitherNeitherContests(election.contests).forEach((c) => {
-    filteredCVRs.forEach((cvr) => {
-      const hasEitherNeither = cvr[c.eitherNeitherContestId] !== undefined
-      const hasPickOne = cvr[c.pickOneContestId] !== undefined
-
-      if (!(hasEitherNeither && hasPickOne)) {
-        cvr[c.eitherNeitherContestId] = undefined
-        cvr[c.pickOneContestId] = undefined
-      }
-    })
-  })
 
   return expandEitherNeitherContests(
     election.contests
@@ -419,16 +456,11 @@ function getTallyForCastVoteRecords(
     votes: allVotes,
     filterContestsByParty,
   })
-  const contestTallyMetadata = getContestTallyMeta({
-    election,
-    castVoteRecords,
-  })
 
   return {
     contestTallies: overallTally,
     castVoteRecords: cvrFiles,
     numberOfBallotsCounted: allVotes.length,
-    contestTallyMetadata,
   }
 }
 
@@ -523,12 +555,18 @@ export function computeFullElectionTally(
   }
 }
 
+export function getEmptyFullElectionTally(): FullElectionTally {
+  return {
+    overallTally: getEmptyTally(),
+    resultsByCategory: new Map(),
+  }
+}
+
 export function getEmptyTally(): Tally {
   return {
     numberOfBallotsCounted: 0,
     castVoteRecords: [],
-    contestTallies: [],
-    contestTallyMetadata: {},
+    contestTallies: {},
   }
 }
 
@@ -598,15 +636,10 @@ export function filterTalliesByParams(
     votes: allVotes,
     filterContestsByParty: partyId,
   })
-  const contestTallyMetadata = getContestTallyMeta({
-    election,
-    castVoteRecords: cvrFiles,
-  })
   return {
     contestTallies,
     castVoteRecords: cvrFiles,
     numberOfBallotsCounted: allVotes.length,
-    contestTallyMetadata,
   }
 }
 

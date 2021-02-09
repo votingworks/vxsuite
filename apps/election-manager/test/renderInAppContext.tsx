@@ -14,12 +14,13 @@ import {
   SaveElection,
   PrintedBallot,
   ISO8601Timestamp,
-  OptionalFullElectionTally,
+  FullElectionTally,
 } from '../src/config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../src/utils/CastVoteRecordFiles'
 import { UsbDriveStatus } from '../src/lib/usbstick'
+import { getEmptyFullElectionTally } from '../src/lib/votecounting'
 
 const eitherNeitherElectionData = fs.readFileSync(
   join(
@@ -57,11 +58,9 @@ interface RenderInAppContextParams {
   usbDriveEject?: () => void
   addPrintedBallot?: (printedBallot: PrintedBallot) => void
   printedBallots?: PrintedBallot[]
-  fullElectionTally?: OptionalFullElectionTally
+  fullElectionTally?: FullElectionTally
   isTabulationRunning?: boolean
-  setFullElectionTally?: React.Dispatch<
-    React.SetStateAction<OptionalFullElectionTally>
-  >
+  setFullElectionTally?: React.Dispatch<React.SetStateAction<FullElectionTally>>
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -83,7 +82,7 @@ export default function renderInAppContext(
     usbDriveEject = jest.fn(),
     addPrintedBallot = jest.fn(),
     printedBallots = [],
-    fullElectionTally = undefined,
+    fullElectionTally = getEmptyFullElectionTally(),
     isTabulationRunning = false,
     setFullElectionTally = jest.fn(),
     setIsTabulationRunning = jest.fn(),
