@@ -1,11 +1,8 @@
 import React from 'react'
 import { fireEvent, render, within } from '@testing-library/react'
-import {
-  electionSample,
-  encodeBallot,
-  BallotType,
-  Election,
-} from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
+import { encodeBallot } from '@votingworks/ballot-encoder'
+import { BallotType, Election } from '@votingworks/types'
 
 import App from './App'
 

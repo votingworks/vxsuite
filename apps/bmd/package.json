@@ -3,24 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "script/react-scripts start",
     "build": "script/react-scripts build",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run --browser chrome",
+    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "lint": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && pnpm stylelint:run",
+    "lint:fix": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --fix --quiet && pnpm stylelint:run -- --fix",
+    "start": "script/react-scripts start",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "test": "is-ci \"test:ci\" \"test:watch\"",
-    "test:watch": "TZ=UTC script/react-scripts test --env=jest-environment-jsdom-sixteen",
     "test:ci": "TZ=UTC CI=true tsc --build && script/react-scripts test --maxWorkers 2 --env=jest-environment-jsdom-sixteen --coverage && pnpm test:e2e:ci",
     "test:coverage": "TZ=UTC script/react-scripts test --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
-    "test:update": "TZ=UTC script/react-scripts test -u  --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:debug": "script/react-scripts --inspect-brk test --runInBand --no-cache --env=jest-environment-jsdom-sixteen",
-    "cypress:run": "cypress run --browser chrome",
-    "cypress:open": "cypress open",
     "test:e2e": "is-ci \"test:e2e:ci\" \"test:e2e:watch\"",
     "pretest:e2e:ci": "pnpm build",
     "test:e2e:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "test:e2e:watch": "start-server-and-test start http://localhost:3000 cypress:open",
-    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
-    "lint": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && pnpm stylelint:run",
-    "lint:fix": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --fix --quiet && pnpm stylelint:run -- --fix",
-    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
+    "test:update": "TZ=UTC script/react-scripts test -u  --watchAll=false --env=jest-environment-jsdom-sixteen",
+    "test:watch": "TZ=UTC script/react-scripts test --env=jest-environment-jsdom-sixteen"
   },
   "husky": {
     "hooks": {
@@ -37,6 +37,18 @@
     ],
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
       "prettier --write"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
     ]
   },
   "eslintConfig": {
@@ -60,17 +72,8 @@
       }
     }
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "resolutions": {
+    "**/@babel/parser": "7.8.4"
   },
   "dependencies": {
     "@rooks/use-interval": "^4.5.0",
@@ -120,6 +123,8 @@
     "@types/react-gamepad": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
+    "@votingworks/fixtures": "workspace:*",
+    "@votingworks/types": "workspace:*",
     "cypress": "^4.5.0",
     "eslint": "^7.17.0",
     "eslint-config-airbnb": "^18.2.1",
@@ -149,8 +154,5 @@
   },
   "engines": {
     "node": ">= 12"
-  },
-  "resolutions": {
-    "**/@babel/parser": "7.8.4"
   }
 }

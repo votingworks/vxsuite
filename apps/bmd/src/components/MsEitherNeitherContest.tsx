@@ -11,7 +11,7 @@ import {
   YesNoVote,
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
   OptionalYesNoVote,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import {
   EventTargetFunction,

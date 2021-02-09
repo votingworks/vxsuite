@@ -18,5 +18,6 @@
     "composite": true
   },
   "include": ["src", "src/data/*.json"],
-  "exclude": ["**/*.test.ts", "test"]
+  "exclude": ["**/*.test.ts", "test"],
+  "references": [{ "path": "../fixtures" }, { "path": "../types" }]
 }

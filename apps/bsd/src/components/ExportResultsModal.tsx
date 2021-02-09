@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 import fileDownload from 'js-file-download'
 import path from 'path'
 

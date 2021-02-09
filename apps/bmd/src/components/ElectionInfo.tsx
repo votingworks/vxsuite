@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Precinct, ElectionDefinition } from '@votingworks/ballot-encoder'
+import { Precinct, ElectionDefinition } from '@votingworks/types'
 import { dateLong } from '../utils/date'
 
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '../utils/election'

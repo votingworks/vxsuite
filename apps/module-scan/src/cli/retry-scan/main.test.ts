@@ -1,4 +1,5 @@
-import { BallotType, electionSample } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
+import { BallotType } from '@votingworks/types'
 import { WritableStream } from 'memory-streams'
 import { retryScan } from './index'
 import main, { printHelp } from './main'

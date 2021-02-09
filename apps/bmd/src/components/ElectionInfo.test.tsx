@@ -1,6 +1,6 @@
 import React from 'react'
 import { render } from '@testing-library/react'
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 
 import ElectionInfo from './ElectionInfo'
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'

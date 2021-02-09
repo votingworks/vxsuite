@@ -8,7 +8,7 @@ import {
   Election,
   VotesDict,
   Vote,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import {
   ContestOption,
   ContestOptionTally,

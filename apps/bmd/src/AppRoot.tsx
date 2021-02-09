@@ -1,8 +1,6 @@
 /* eslint-disable no-shadow */
 import {
   CompletedBallot,
-  decodeBallot,
-  encodeBallot,
   getPrecinctById,
   BallotType,
   CandidateVote,
@@ -12,7 +10,8 @@ import {
   Election,
   ElectionDefinition,
   OptionalElectionDefinition,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
+import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
 import 'normalize.css'
 import React, { useCallback, useEffect, useReducer, useRef } from 'react'
 import Gamepad from 'react-gamepad'

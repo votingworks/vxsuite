@@ -1,4 +1,4 @@
-import { BallotType } from '@votingworks/ballot-encoder'
+import { BallotType } from '@votingworks/types'
 import { fail } from 'assert'
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election'

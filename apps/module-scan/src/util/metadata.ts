@@ -1,8 +1,9 @@
-import { Election, v1 } from '@votingworks/ballot-encoder'
+import { v1 } from '@votingworks/ballot-encoder'
 import {
   BallotPageMetadata,
   metadataFromBytes,
 } from '@votingworks/hmpb-interpreter'
+import { Election } from '@votingworks/types'
 import { BallotPageQrcode, SheetOf } from '../types'
 
 /**

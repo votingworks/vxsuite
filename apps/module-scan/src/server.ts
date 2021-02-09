@@ -3,7 +3,7 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
-import { BallotType, Election } from '@votingworks/ballot-encoder'
+import { BallotType, Election } from '@votingworks/types'
 import bodyParser from 'body-parser'
 import express, { Application, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'

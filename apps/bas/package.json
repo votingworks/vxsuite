@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "script/react-scripts start",
     "build": "script/react-scripts build",
-    "test": "script/react-scripts test",
-    "test:coverage": "pnpm test -- --coverage --watchAll=false",
     "eject": "script/react-scripts eject",
-    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
-    "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
+    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix && pnpm stylelint:run",
     "lint:fix": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix && pnpm stylelint:run:fix",
-    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write"
+    "start": "script/react-scripts start",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
+    "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
+    "test": "script/react-scripts test",
+    "test:coverage": "pnpm test -- --coverage --watchAll=false"
   },
   "husky": {
     "hooks": {
@@ -36,9 +36,6 @@
       ]
     }
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -50,6 +47,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   },
   "dependencies": {
     "@types/jest": "24.0.11",
@@ -71,7 +71,7 @@
     "@types/history": "^4.7.8",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
-    "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/types": "workspace:*",
     "eslint": "^7.17.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-import-resolver-node": "^0.3.4",

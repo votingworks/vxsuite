@@ -1,4 +1,4 @@
-import { Parties, Party } from '@votingworks/ballot-encoder'
+import { Parties, Party } from '@votingworks/types'
 
 export const findPartyById = (
   parties: Parties,

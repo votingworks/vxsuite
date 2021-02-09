@@ -23,10 +23,9 @@ import {
   AnyContest,
   Vote,
   Candidate,
-  v1,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
-import { HMPBBallotPageMetadata } from '@votingworks/ballot-encoder/src/v1'
+import { v1 } from '@votingworks/ballot-encoder'
 import AppContext from '../contexts/AppContext'
 
 import findPartyById from '../utils/findPartyById'
@@ -122,7 +121,7 @@ const BlankPageContent = styled.div`
   height: 100%;
 `
 
-type HMPBBallotMetadata = Omit<HMPBBallotPageMetadata, 'pageNumber'>
+type HMPBBallotMetadata = Omit<v1.HMPBBallotPageMetadata, 'pageNumber'>
 
 interface PagedJSPage {
   element: HTMLElement

@@ -17,9 +17,10 @@
     "!dist/test"
   ],
   "scripts": {
+    "build": "tsc --build",
     "dev": "tsc --build --watch",
-    "lint": "eslint '{src,test}/**/*.ts'",
-    "prepare": "tsc --build",
+    "lint": "tsc --build && eslint src test",
+    "prepack": "tsc --build",
     "test": "jest",
     "test:all": "REGRESSION_TESTS=1 jest",
     "test:coverage": "jest --coverage",
@@ -65,6 +66,7 @@
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
+    "@votingworks/types": "workspace:*",
     "benchmark": "^2.1.4",
     "eslint": "^7.17.0",
     "eslint-config-prettier": "^6.15.0",

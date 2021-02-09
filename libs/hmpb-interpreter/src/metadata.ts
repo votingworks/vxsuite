@@ -1,5 +1,6 @@
-import { BallotType, Election, v1 } from '@votingworks/ballot-encoder'
-import { BallotPageMetadata, DetectQRCode, BallotLocales } from './types'
+import { v1 } from '@votingworks/ballot-encoder'
+import { BallotType, Election } from '@votingworks/types'
+import { BallotLocales, BallotPageMetadata, DetectQRCode } from './types'
 import defined from './utils/defined'
 import * as qrcode from './utils/qrcode'
 

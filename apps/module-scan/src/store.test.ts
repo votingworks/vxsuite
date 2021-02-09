@@ -3,7 +3,7 @@ import {
   BallotType,
   CandidateContest,
   YesNoContest,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import { promises as fs } from 'fs'
 import * as tmp from 'tmp'
 import { v4 as uuid } from 'uuid'

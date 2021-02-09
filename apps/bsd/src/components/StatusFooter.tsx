@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 import Text from './Text'
 import { localeWeedkayAndDate } from '../util/IntlDateTimeFormats'
 

@@ -26,7 +26,7 @@ import {
   validateVotes,
   VotesDict,
   YesNoVote,
-} from '../election'
+} from '@votingworks/types'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 export const MAXIMUM_PAGE_NUMBERS = 30

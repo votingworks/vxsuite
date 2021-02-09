@@ -12,7 +12,7 @@ import {
   VotesDict,
   YesNoContest,
   YesNoVote,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import { Printer } from '../utils/printer'
 
 // Generic

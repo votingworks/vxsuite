@@ -8,7 +8,7 @@ import {
   ElectionDefinition,
   parseElection,
   VotesDict,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import * as GLOBALS from '../src/config/globals'
 

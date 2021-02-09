@@ -3,7 +3,7 @@ import {
   CandidateContest,
   MsEitherNeitherContest,
   YesNoContest,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import * as choctawMockGeneral2020 from '../../test/fixtures/choctaw-mock-general-election-2020'
 import { MarkStatus } from '../types/ballot-review'
 import ballotAdjudicationReasons, {

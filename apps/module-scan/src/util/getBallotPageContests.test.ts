@@ -1,8 +1,4 @@
-import {
-  BallotType,
-  getBallotStyle,
-  getContests,
-} from '@votingworks/ballot-encoder'
+import { BallotType, getBallotStyle, getContests } from '@votingworks/types'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import election from '../../test/fixtures/state-of-hamilton/election'
 import { SerializableBallotPageLayout } from '../types'

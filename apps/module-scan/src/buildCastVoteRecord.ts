@@ -8,7 +8,7 @@ import {
   getBallotStyle,
   getContests,
   VotesDict,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import {
   InterpretedBmdPage,
   InterpretedHmpbPage,

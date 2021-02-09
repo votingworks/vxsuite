@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { BallotStyle } from '@votingworks/ballot-encoder'
+import { BallotStyle } from '@votingworks/types'
 
 import { ButtonEventFunction } from '../config/types'
 

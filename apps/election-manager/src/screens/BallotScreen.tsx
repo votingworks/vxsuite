@@ -6,7 +6,7 @@ import {
   getContests,
   getPrecinctById,
   getElectionLocales,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import pluralize from 'pluralize'
 
 import {

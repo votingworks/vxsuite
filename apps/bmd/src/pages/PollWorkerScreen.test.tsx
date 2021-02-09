@@ -1,5 +1,5 @@
 import React from 'react'
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 
 import { fireEvent } from '@testing-library/react'
 import { VxMarkOnly } from '../config/types'

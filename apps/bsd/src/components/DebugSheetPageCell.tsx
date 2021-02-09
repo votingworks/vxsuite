@@ -1,4 +1,4 @@
-import { BallotType } from '@votingworks/ballot-encoder'
+import { BallotType } from '@votingworks/types'
 import {
   BallotLocales,
   BallotPageMetadata,

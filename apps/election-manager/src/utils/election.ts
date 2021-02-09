@@ -6,7 +6,7 @@ import {
   MsEitherNeitherContest,
   VotesDict,
   Precinct,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
 import { BallotLocale, Dictionary } from '../config/types'

@@ -1,4 +1,4 @@
-import { Contest, MarkThresholds } from '@votingworks/ballot-encoder'
+import { Contest, MarkThresholds } from '@votingworks/types'
 import { BallotMark } from '@votingworks/hmpb-interpreter'
 import { ContestOption, MarkStatus, getMarkStatus } from '../types'
 

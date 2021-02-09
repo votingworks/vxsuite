@@ -23,6 +23,15 @@
     },
     {
       "path": "libs/hmpb-interpreter"
+    },
+    {
+      "path": "libs/lsd"
+    },
+    {
+      "path": "libs/types"
+    },
+    {
+      "path": "libs/fixtures"
     }
   ],
   "settings": {}

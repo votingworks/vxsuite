@@ -6,7 +6,7 @@ import {
   getContests,
   parseElection,
   vote,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import electionSample from './data/electionSample.json'
 
 import App from './App'

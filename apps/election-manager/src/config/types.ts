@@ -4,7 +4,7 @@ import {
   Contest,
   Election,
   Precinct,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 // Generic
 export declare type Optional<T> = T | undefined

@@ -1,7 +1,7 @@
 {
   "name": "vxsuite",
   "private": true,
-	"devDependencies": {
-		"ora": "^5.2.0"
-	}
+  "devDependencies": {
+    "ora": "^5.2.0"
+  }
 }

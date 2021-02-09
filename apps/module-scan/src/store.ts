@@ -7,7 +7,7 @@ import {
   getBallotStyle,
   getContests,
   MarkThresholds,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import {
   BallotMark,
   BallotPageMetadata,

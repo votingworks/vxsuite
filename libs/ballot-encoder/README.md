@@ -23,14 +23,9 @@ Optionally, deprecate a previous version. For example:
 ## Example
 
 ```ts
-import {
-  CompletedBallot,
-  decodeBallot,
-  electionSample as election,
-  encodeBallot,
-  getContests,
-  vote,
-} from '@votingworks/ballot-encoder'
+import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
+import { electionSample as election } from '@votingworks/fixtures'
+import { CompletedBallot, getContests, vote } from '@votingworks/types'
 
 const ballotStyle = election.ballotStyles[0]
 const precinct = election.precincts[0]

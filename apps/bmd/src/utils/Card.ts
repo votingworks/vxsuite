@@ -1,4 +1,4 @@
-import { Optional } from '@votingworks/ballot-encoder'
+import { Optional } from '@votingworks/types'
 import { toByteArray, fromByteArray } from 'base64-js'
 import { CardAPI } from '../config/types'
 import fetchJSON from './fetchJSON'

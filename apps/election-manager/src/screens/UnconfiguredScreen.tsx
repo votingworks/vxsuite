@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { parseElection } from '@votingworks/ballot-encoder'
+import { parseElection } from '@votingworks/types'
 
 import ConverterClient, { VxFile } from '../lib/ConverterClient'
 import readFileAsync from '../lib/readFileAsync'

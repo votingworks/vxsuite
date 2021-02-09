@@ -1,11 +1,11 @@
 import {
   BallotType,
   CandidateContest,
-  electionSample as election,
   getContests,
   vote,
   CompletedBallot,
-} from '../election'
+} from '@votingworks/types'
+import { electionSample as election } from '@votingworks/fixtures'
 import * as v1 from '../v1'
 import {
   decodeBallot,

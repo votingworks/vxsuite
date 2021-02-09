@@ -4,7 +4,7 @@ import {
   Election,
   parseElection,
   Precinct,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import type { BallotLocales } from '@votingworks/hmpb-interpreter'
 import 'fast-text-encoding'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'

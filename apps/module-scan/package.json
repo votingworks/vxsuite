@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "build": "tsc --build",
+    "dev": "ts-node --transpile-only --files ./src/index.ts",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "tsc --build && eslint '{src,test}/**/*.{js,jsx,ts,tsx}' --quiet",
-    "dev": "ts-node --transpile-only --files ./src/index.ts",
     "start": "node ./lib/index.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
@@ -32,8 +32,10 @@
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/fixtures": "workspace:*",
     "@votingworks/hmpb-interpreter": "workspace:*",
     "@votingworks/qrdetect": "^1.0.1",
+    "@votingworks/types": "workspace:*",
     "base64-js": "^1.5.1",
     "body-parser": "^1.19.0",
     "busboy": "^0.3.1",

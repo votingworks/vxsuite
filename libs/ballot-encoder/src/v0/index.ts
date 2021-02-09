@@ -18,7 +18,7 @@ import {
   YesNoContest,
   YesNoVote,
   isVotePresent,
-} from '../election'
+} from '@votingworks/types'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 

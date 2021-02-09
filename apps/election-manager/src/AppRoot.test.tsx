@@ -5,7 +5,7 @@ import { act } from 'react-dom/test-utils'
 
 import { BrowserRouter, Route } from 'react-router-dom'
 
-// import { electionSample } from '@votingworks/ballot-encoder'
+// import { electionSample } from '@votingworks/fixtures'
 import AppRoot, { AppStorage } from './AppRoot'
 import { MemoryStorage } from './utils/Storage'
 

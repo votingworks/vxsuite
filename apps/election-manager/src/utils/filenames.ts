@@ -1,4 +1,4 @@
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 import moment from 'moment'
 
 import { ElectionDefinition } from '../config/types'

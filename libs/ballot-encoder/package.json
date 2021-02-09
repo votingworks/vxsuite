@@ -7,11 +7,14 @@
     "lib/**/*.{js,d.ts,d.ts.map,json}"
   ],
   "scripts": {
-    "lint": "eslint 'src/**/*.{ts,js}'",
+    "build": "tsc --build",
+    "dev": "tsc --build --watch",
+    "lint": "tsc --build && eslint src",
+    "prepack": "tsc --build && jest --coverage",
     "publish:npm": "rm -rf lib && pnpm test:coverage && tsc && npm publish --access public",
     "test": "jest",
-    "test:ci": "jest --ci --collectCoverage",
-    "test:coverage": "jest --collectCoverage",
+    "test:ci": "jest --ci --coverage",
+    "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch"
   },
@@ -45,6 +48,8 @@
     "@types/text-encoding": "^0.0.35",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
+    "@votingworks/fixtures": "workspace:*",
+    "@votingworks/types": "workspace:*",
     "eslint": "^7.17.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-import-resolver-node": "^0.3.4",

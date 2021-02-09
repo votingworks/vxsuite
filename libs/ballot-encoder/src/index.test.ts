@@ -1,11 +1,11 @@
 import { decodeBallot, detect, encodeBallot, EncoderVersion, v0, v1 } from '.'
+import { electionSample as election } from '@votingworks/fixtures'
 import {
   BallotType,
   CompletedBallot,
-  electionSample as election,
   getContests,
   vote,
-} from './election'
+} from '@votingworks/types'
 
 test('exports v0 encoding', () => {
   expect(typeof v0.encodeBallot).toBe('function')

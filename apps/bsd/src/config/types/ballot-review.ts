@@ -1,7 +1,6 @@
-import * as t from '@votingworks/ballot-encoder'
+import * as t from '@votingworks/types'
 import type { Point, Rect } from '@votingworks/hmpb-interpreter'
 import { OkResponse, AdjudicationReasonInfo } from '../types'
-import { AdjudicationReason } from '@votingworks/ballot-encoder'
 
 type ContestId = t.Contest['id']
 
@@ -50,7 +49,7 @@ export interface BallotInfo {
 
 export interface AdjudicationInfo {
   requiresAdjudication: boolean
-  enabledReasons: readonly AdjudicationReason[]
+  enabledReasons: readonly t.AdjudicationReason[]
   allReasonInfos: readonly AdjudicationReasonInfo[]
 }
 

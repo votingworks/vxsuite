@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
 import getAllBallotConfigs from './getAllBallotConfigs'
 import { DEFAULT_LOCALE } from '../config/globals'
 

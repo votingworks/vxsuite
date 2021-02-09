@@ -1,10 +1,4 @@
 import * as s from './schema'
-import { sha256 } from 'js-sha256'
-
-import electionSampleUntyped from './data/electionSample.json'
-import primaryElectionSampleUntyped from './data/electionPrimarySample.json'
-import multiPartyPrimaryElectionUntyped from './data/electionMultiPartyPrimarySample.json'
-import electionSampleLongContentUntyped from './data/electionSampleLongContent.json'
 
 // Generic
 export type VoidFunction = () => void
@@ -288,21 +282,6 @@ export const validateVotes = ({
   }
 }
 
-export const electionSample = (electionSampleUntyped as unknown) as Election
-export const primaryElectionSample = (primaryElectionSampleUntyped as unknown) as Election
-export const multiPartyPrimaryElection = (multiPartyPrimaryElectionUntyped as unknown) as Election
-export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election
-
-export const electionDefinitionSample = {
-  election: electionSample,
-  electionHash: sha256(JSON.stringify(electionSampleUntyped)),
-} as ElectionDefinition
-
-export const electionDefinitionSampleLongContent = {
-  election: electionSampleLongContent,
-  electionHash: sha256(JSON.stringify(electionSampleLongContentUntyped)),
-} as ElectionDefinition
-
 /**
  * @deprecated Does not support i18n. 'party.fullname` should be used instead.
  * Gets the adjective used to describe the political party for a primary
@@ -315,7 +294,7 @@ export const getPartyPrimaryAdjectiveFromBallotStyle = ({
   ballotStyleId: string
   election: Election
 }): string => {
-  const parts = ballotStyleId && ballotStyleId.match(/(\d+)(\w+)/i)
+  const parts = ballotStyleId && /(\d+)(\w+)/i.exec(ballotStyleId)
   const abbrev = parts && parts[2]
   const party = abbrev && election.parties.find((p) => p.abbrev === abbrev)
   const name = party && party.name
@@ -434,9 +413,9 @@ function copyWithLocale<T>(
   locale: string
 ): T | readonly T[] {
   if (Array.isArray(value)) {
-    return (value.map((element) =>
-      copyWithLocale(element, locale)
-    ) as unknown) as T
+    return value.map(
+      (element) => (copyWithLocale(element, locale) as unknown) as T
+    )
   }
 
   if (typeof value === 'undefined') {
@@ -619,10 +598,10 @@ export function* findElectionDefinitionErrors(
   }
 }
 
-function* findDuplicateIds<Id, T extends { id: Id }>(
+function* findDuplicateIds<T extends { id: unknown }>(
   identifiables: Iterable<T>
-): Generator<Id> {
-  const knownIds = new Set<Id>()
+): Generator<T['id']> {
+  const knownIds = new Set<T['id']>()
 
   for (const { id } of identifiables) {
     if (knownIds.has(id)) {

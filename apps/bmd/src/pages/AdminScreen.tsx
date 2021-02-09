@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { OptionalElectionDefinition } from '@votingworks/ballot-encoder'
+import { OptionalElectionDefinition } from '@votingworks/types'
 
 import {
   AppMode,

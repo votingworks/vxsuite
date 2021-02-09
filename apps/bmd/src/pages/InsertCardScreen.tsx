@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { ElectionDefinition } from '@votingworks/ballot-encoder'
+import { ElectionDefinition } from '@votingworks/types'
 
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'

@@ -1,10 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import {
-  Precinct,
-  Election,
-  MsEitherNeitherContest,
-} from '@votingworks/ballot-encoder'
+import { Precinct, Election, MsEitherNeitherContest } from '@votingworks/types'
 import {
   Tally,
   CandidateVoteTally,

@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election, Candidate, YesNoContest } from '@votingworks/ballot-encoder'
+import { Election, Candidate, YesNoContest } from '@votingworks/types'
 import pluralize from 'pluralize'
 
 import {

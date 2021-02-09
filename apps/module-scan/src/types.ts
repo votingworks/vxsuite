@@ -4,7 +4,7 @@ import {
   Election,
   MarkThresholds,
   Precinct,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import {
   BallotLocales,
   BallotMark,

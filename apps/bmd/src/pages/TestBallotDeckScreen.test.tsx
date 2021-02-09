@@ -1,8 +1,8 @@
 import {
   // electionSample,
   Election,
-} from '@votingworks/ballot-encoder'
-// TODO: Tally: Use electionSample from ballot-encoder once published.
+} from '@votingworks/types'
+// TODO: Tally: Use electionSample from @votingworks/fixtures once published.
 
 import React from 'react'
 import { fireEvent } from '@testing-library/react'

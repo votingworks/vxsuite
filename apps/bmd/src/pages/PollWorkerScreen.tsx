@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import pluralize from 'pluralize'
-import { Precinct, ElectionDefinition } from '@votingworks/ballot-encoder'
+import { Precinct, ElectionDefinition } from '@votingworks/types'
 
 import { Tally, MachineConfig } from '../config/types'
 

@@ -1,4 +1,5 @@
-import { parseElection, electionSample, AdjudicationReason } from './election'
+import { election as electionSample } from '../test/election'
+import { parseElection, AdjudicationReason } from './election'
 
 test('parsing a valid election', () => {
   expect(parseElection(electionSample)).toEqual(electionSample)

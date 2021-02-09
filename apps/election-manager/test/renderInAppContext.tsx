@@ -6,7 +6,7 @@ import type { RenderResult } from '@testing-library/react'
 import * as fs from 'fs'
 import { sha256 } from 'js-sha256'
 import { join } from 'path'
-import { parseElection } from '@votingworks/ballot-encoder'
+import { parseElection } from '@votingworks/types'
 
 import AppContext from '../src/contexts/AppContext'
 import {

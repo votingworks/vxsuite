@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { VotesDict, ElectionDefinition } from '@votingworks/ballot-encoder'
+import { VotesDict, ElectionDefinition } from '@votingworks/types'
 
 import Loading from '../components/Loading'
 import Main, { MainChild } from '../components/Main'
