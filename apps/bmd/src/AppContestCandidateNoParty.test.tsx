@@ -1,7 +1,7 @@
 import React from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
 
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 import App from './App'
 
 import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'

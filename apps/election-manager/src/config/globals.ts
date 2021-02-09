@@ -1,4 +1,4 @@
-import { Dictionary } from '@votingworks/ballot-encoder'
+import { Dictionary } from '@votingworks/types'
 
 export const CHECK_ICON = '✓'
 export enum YES_NO_VOTES {

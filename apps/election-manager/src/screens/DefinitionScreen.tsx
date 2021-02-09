@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Contest } from '@votingworks/ballot-encoder'
+import { Contest } from '@votingworks/types'
 import styled from 'styled-components'
 
 import { localeLongDateAndTime } from '../utils/IntlDateTimeFormats'

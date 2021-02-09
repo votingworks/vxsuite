@@ -65,5 +65,5 @@
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
   "include": ["src", "test", "test/fixtures/**/*.json", "types"],
-  "references": [{ "path": "../ballot-encoder" }]
+  "references": [{ "path": "../ballot-encoder" }, { "path": "../types" }]
 }

@@ -2,15 +2,15 @@ import { fromByteArray } from 'base64-js'
 import React from 'react'
 import styled from 'styled-components'
 
+import { encodeBallot } from '@votingworks/ballot-encoder'
 import {
-  encodeBallot,
   BallotType,
   CandidateVote,
   YesNoVote,
   VotesDict,
   Contests,
   Election,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import * as GLOBALS from '../config/globals'
 

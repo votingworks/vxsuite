@@ -9,7 +9,7 @@ import {
   YesNoVote,
   VotesDict,
   Dictionary,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import { Tally, MsEitherNeitherTally } from '../config/types'
 

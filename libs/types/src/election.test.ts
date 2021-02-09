@@ -1,77 +1,81 @@
 import {
+  election,
+  electionWithMsEitherNeither,
+  primaryElection,
+} from '../test/election'
+import {
   CandidateContest,
-  Election,
-  electionSample as election,
   getElectionLocales,
   getPartyFullNameFromBallotStyle,
   getPartyPrimaryAdjectiveFromBallotStyle,
+  getPrecinctById,
+  isVotePresent,
   parseElection,
+  Party,
   validateVotes,
   vote,
   withLocale,
+  YesNoContest,
 } from './election'
 
-import electionWithMsEitherNeitherUntyped from './data/electionWithMsEitherNeither.json'
-const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election
-
 test('can build votes from a candidate ID', () => {
-  const contests = election.contests.filter((c) => c.id === 'president')
-  const president = contests[0] as CandidateContest
-  const candidateId = 'barchi-hallaren'
+  const contests = election.contests.filter((c) => c.id === 'CC')
+  const contest = contests[0] as CandidateContest
 
-  expect(vote(contests, { president: candidateId })).toEqual({
-    president: [president.candidates.find((c) => candidateId === c.id)],
+  expect(vote(contests, { CC: 'C' })).toEqual({
+    CC: [contest.candidates[0]],
   })
 })
 
 test('can build votes from an array of candidate IDs', () => {
-  const contests = election.contests.filter((c) => c.id === 'president')
-  const president = contests[0] as CandidateContest
-  const candidateIds = ['barchi-hallaren', 'cramer-vuocolo']
+  const contests = election.contests.filter((c) => c.id === 'CC')
+  const contest = contests[0] as CandidateContest
 
-  expect(vote(contests, { president: candidateIds })).toEqual({
-    president: president.candidates.filter((c) => candidateIds.includes(c.id)),
+  expect(
+    vote(contests, { [contest.id]: contest.candidates.map((c) => c.id) })
+  ).toEqual({
+    [contest.id]: contest.candidates,
   })
 })
 
 test('can build votes from yesno values', () => {
-  expect(
-    vote(election.contests, { 'question-a': 'yes', 'question-b': 'no' })
-  ).toEqual({
-    'question-a': 'yes',
-    'question-b': 'no',
+  expect(vote(election.contests, { YNC: 'yes' })).toEqual({
+    YNC: 'yes',
+  })
+  expect(vote(election.contests, { YNC: 'no' })).toEqual({
+    YNC: 'no',
   })
 })
 
 test('can build votes from ms-either-neither yesno values', () => {
   expect(
     vote(electionWithMsEitherNeither.contests, {
-      '750000015': 'yes',
-      '750000016': 'no',
+      MSEN: 'yes',
+      MSPO: 'no',
     })
   ).toEqual({
-    '750000015': 'yes',
-    '750000016': 'no',
+    MSEN: 'yes',
+    MSPO: 'no',
   })
 })
 
 test('can build votes from a candidate object', () => {
-  const contests = election.contests.filter((c) => c.id === 'president')
-  const president = contests[0] as CandidateContest
-  const candidate = president.candidates[0]
+  const contests = election.contests.filter((c) => c.id === 'CC')
+  const contest = contests[0] as CandidateContest
+  const candidate = contest.candidates[0]
 
-  expect(vote(contests, { president: candidate })).toEqual({
-    president: [candidate],
+  expect(vote(contests, { CC: candidate })).toEqual({
+    CC: [candidate],
   })
 })
 
 test('can build votes from a candidates array', () => {
-  const contests = election.contests.filter((c) => c.id === 'president')
-  const president = contests[0] as CandidateContest
-  const { candidates } = president
+  const contests = election.contests.filter((c) => c.id === 'CC')
+  const contest = contests[0] as CandidateContest
+  const { candidates } = contest
 
-  expect(vote(contests, { president: candidates })).toEqual({
-    president: candidates,
+  expect(vote(contests, { CC: candidates })).toEqual({
+    CC: candidates,
   })
 })
 
@@ -80,23 +84,23 @@ test('vote throws when given a contest id that does not match a contest', () => 
 })
 
 test('can get a party primary adjective from ballot style', () => {
-  const ballotStyleId = '12F'
+  const ballotStyleId = '1D'
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
-      election,
+      election: primaryElection,
     })
-  ).toEqual('Federalist')
+  ).toEqual('Democratic')
 })
 
 test('can get a party full name from ballot style', () => {
-  const ballotStyleId = '7C'
+  const ballotStyleId = '1D'
   expect(
     getPartyFullNameFromBallotStyle({
       ballotStyleId,
-      election,
+      election: primaryElection,
     })
-  ).toEqual('Constitution Party')
+  ).toEqual('Democratic Party')
 })
 
 test('can get a party full name from ballot style', () => {
@@ -104,17 +108,17 @@ test('can get a party full name from ballot style', () => {
   expect(
     getPartyFullNameFromBallotStyle({
       ballotStyleId,
-      election,
+      election: primaryElection,
     })
   ).toEqual('')
 })
 
 test('special cases party primary adjective transform "Democrat" -> "Democratic"', () => {
-  const ballotStyleId = '12D'
+  const ballotStyleId = '1D'
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
-      election,
+      election: primaryElection,
     })
   ).toEqual('Democratic')
 })
@@ -132,32 +136,116 @@ test('defaults to empty string if no party can be found', () => {
   ).toEqual('')
 })
 
+test('getPrecinctById', () => {
+  expect(
+    getPrecinctById({ election, precinctId: election.precincts[0].id })
+  ).toBe(election.precincts[0])
+  expect(getPrecinctById({ election, precinctId: '' })).toBeUndefined()
+})
+
+test('isVotePresent', () => {
+  expect(isVotePresent()).toBe(false)
+  expect(isVotePresent([])).toBe(false)
+  expect(isVotePresent(['yes'])).toBe(true)
+  expect(
+    isVotePresent([
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      election.contests.find(
+        (c): c is CandidateContest => c.type === 'candidate'
+      )!.candidates[0],
+    ])
+  ).toBe(true)
+})
+
 test('validates votes by checking that contests are present in a given ballot style', () => {
   const ballotStyle = election.ballotStyles[0]
 
+  const yesno = election.contests.find(
+    (c): c is YesNoContest => c.type === 'yesno'
+  ) as YesNoContest
+  expect(() =>
+    validateVotes({
+      votes: {
+        [yesno.id]: ['yes'],
+      },
+      ballotStyle,
+      election,
+    })
+  ).not.toThrowError()
   expect(() =>
     validateVotes({ votes: { nope: ['yes'] }, ballotStyle, election })
   ).toThrowError(
-    'found a vote with contest id "nope", but no such contest exists in ballot style 12'
+    'found a vote with contest id "nope", but no such contest exists in ballot style 1'
   )
 })
 
 test('list locales in election definition', () => {
-  expect(getElectionLocales(election)).toEqual(['en-US', 'es-US'])
-  expect(getElectionLocales(election, 'zh-CN')).toEqual(['zh-CN', 'es-US'])
-  expect(getElectionLocales({ ...election, _lang: undefined })).toEqual([
+  expect(getElectionLocales(election)).toEqual(['en-US'])
+  expect(getElectionLocales(election, 'zh-CN')).toEqual(['zh-CN'])
+  expect(getElectionLocales({ ...election, _lang: { 'es-US': {} } })).toEqual([
     'en-US',
+    'es-US',
   ])
 })
 
 test('pulls translation keys from the top level object', () => {
-  expect(election.title).toEqual('General Election')
-  expect(withLocale(election, 'es-US').title).toEqual('Eleccion General')
+  expect(
+    withLocale(
+      { ...election, _lang: { 'es-US': { title: 'Eleccion General' } } },
+      'es-US'
+    ).title
+  ).toEqual('Eleccion General')
+})
+
+test('withLocale ignores undefined keys', () => {
+  withLocale(
+    {
+      ...election,
+      ballotStyles: election.ballotStyles.map((bs) => ({
+        ...bs,
+        partyId: undefined,
+        _lang: { 'es-US': {} },
+      })),
+      _lang: { 'es-US': {} },
+    },
+    'es-US'
+  )
+})
+
+test('withLocale ignores missing strings for the locale', () => {
+  withLocale(
+    {
+      ...election,
+      ballotStyles: election.ballotStyles.map((bs) => ({
+        ...bs,
+        partyId: undefined,
+        _lang: {},
+      })),
+      _lang: { 'es-US': {} },
+    },
+    'es-US'
+  )
 })
 
 test('pulls translation keys from nested objects', () => {
-  expect(election.parties[0].name).toEqual('Federalist')
-  expect(withLocale(election, 'es-US').parties[0].name).toEqual('Federalista')
+  expect(
+    withLocale(
+      {
+        ...election,
+        parties: [
+          {
+            id: 'FED',
+            name: 'Federalist',
+            abbrev: 'FED',
+            fullName: 'Federalist',
+            _lang: { 'es-US': { name: 'Federalista' } },
+          } as Party,
+        ],
+        _lang: { 'es-US': {} },
+      },
+      'es-US'
+    ).parties[0].name
+  ).toEqual('Federalista')
 })
 
 test('treats locale identifier as case-insensitive', () => {
@@ -195,7 +283,7 @@ test('parsing gives specific errors for nested objects', () => {
         },
       ],
     })
-  ).toThrowError(/contests.21:.*title: Non-string type: number/s)
+  ).toThrowError(/contests.1:.*title: Non-string type: number/s)
 })
 
 test('ensures dates are ISO 8601-formatted', () => {
@@ -243,10 +331,10 @@ test('parsing validates district references', () => {
   expect(() => {
     parseElection({
       ...election,
-      districts: election.districts.filter(({ id }) => id !== 'district-1'),
+      districts: [{ id: 'DIS', name: 'DIS' }],
     })
   }).toThrowError(
-    "Ballot style '12' has district 'district-1', but no such district is defined. Districts defined: [district-2, district-3, 7]"
+    "Ballot style '1' has district 'D', but no such district is defined. Districts defined: [DIS]"
   )
 })
 
@@ -254,16 +342,16 @@ test('parsing validates precinct references', () => {
   expect(() => {
     parseElection({
       ...election,
-      precincts: election.precincts.filter(({ id }) => id !== '23'),
+      precincts: [{ id: 'PRE', name: 'PRE' }],
     })
   }).toThrowError(
-    "Ballot style '12' has precinct '23', but no such precinct is defined. Precincts defined: [21, 20]"
+    "Ballot style '1' has precinct 'P', but no such precinct is defined. Precincts defined: [PRE]"
   )
 })
 
 test('parsing validates contest party references', () => {
   const contest = election.contests.find(
-    ({ id }) => id === 'president'
+    ({ id }) => id === 'CC'
   ) as CandidateContest
   const remainingContests = election.contests.filter((c) => contest !== c)
 
@@ -279,13 +367,13 @@ test('parsing validates contest party references', () => {
       ],
     })
   }).toThrowError(
-    "Contest 'president' has party 'not-a-party', but no such party is defined. Parties defined: [0, 1, 2, 3, 4, 5, 6, 7, 8]"
+    "Contest 'CC' has party 'not-a-party', but no such party is defined. Parties defined: [PARTY]"
   )
 })
 
 test('parsing validates candidate party references', () => {
   const contest = election.contests.find(
-    ({ id }) => id === 'president'
+    ({ id }) => id === 'CC'
   ) as CandidateContest
   const remainingContests = election.contests.filter((c) => contest !== c)
 
@@ -307,7 +395,7 @@ test('parsing validates candidate party references', () => {
       ],
     })
   }).toThrowError(
-    "Candidate 'barchi-hallaren' in contest 'president' has party 'not-a-party', but no such party is defined. Parties defined: [0, 1, 2, 3, 4, 5, 6, 7, 8]"
+    "Candidate 'C' in contest 'CC' has party 'not-a-party', but no such party is defined. Parties defined: [PARTY]"
   )
 })
 
@@ -317,7 +405,7 @@ test('validates uniqueness of district ids', () => {
       ...election,
       districts: [...election.districts, ...election.districts],
     })
-  }).toThrowError("Duplicate district 'district-1' found.")
+  }).toThrowError("Duplicate district 'D' found.")
 })
 
 test('validates uniqueness of precinct ids', () => {
@@ -326,7 +414,7 @@ test('validates uniqueness of precinct ids', () => {
       ...election,
       precincts: [...election.precincts, ...election.precincts],
     })
-  }).toThrowError("Duplicate precinct '23' found.")
+  }).toThrowError("Duplicate precinct 'P' found.")
 })
 
 test('validates uniqueness of contest ids', () => {
@@ -335,7 +423,7 @@ test('validates uniqueness of contest ids', () => {
       ...election,
       contests: [...election.contests, ...election.contests],
     })
-  }).toThrowError("Duplicate contest 'president' found.")
+  }).toThrowError("Duplicate contest 'CC' found.")
 })
 
 test('validates uniqueness of party ids', () => {
@@ -344,7 +432,7 @@ test('validates uniqueness of party ids', () => {
       ...election,
       parties: [...election.parties, ...election.parties],
     })
-  }).toThrowError("Duplicate party '0' found.")
+  }).toThrowError("Duplicate party 'PARTY' found.")
 })
 
 test('validates uniqueness of candidate ids within a contest', () => {
@@ -361,7 +449,5 @@ test('validates uniqueness of candidate ids within a contest', () => {
         },
       ],
     })
-  }).toThrowError(
-    "Duplicate candidate 'barchi-hallaren' found in contest 'president'."
-  )
+  }).toThrowError("Duplicate candidate 'C' found in contest 'CC'.")
 })

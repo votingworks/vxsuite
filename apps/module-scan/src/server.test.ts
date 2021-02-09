@@ -5,7 +5,7 @@ import {
   CandidateContest,
   YesNoContest,
   BallotType,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'

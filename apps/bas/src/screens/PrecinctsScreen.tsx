@@ -1,5 +1,5 @@
 import React from 'react'
-import { Optional, Precinct, VoterCardData } from '@votingworks/ballot-encoder'
+import { Optional, Precinct, VoterCardData } from '@votingworks/types'
 
 import { ButtonEventFunction } from '../config/types'
 

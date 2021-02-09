@@ -1,4 +1,4 @@
-import { AnyContest } from '@votingworks/ballot-encoder'
+import { AnyContest } from '@votingworks/types'
 import { ContestOption } from '../types'
 
 /**

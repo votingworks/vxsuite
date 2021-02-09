@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import { sha256 } from 'js-sha256'
 
-import { parseElection } from '@votingworks/ballot-encoder'
+import { parseElection } from '@votingworks/types'
 
 import {
   getStatus as usbDriveGetStatus,

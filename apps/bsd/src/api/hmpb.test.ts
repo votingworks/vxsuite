@@ -1,4 +1,4 @@
-import { electionSample as election } from '@votingworks/ballot-encoder'
+import { electionSample as election } from '@votingworks/fixtures'
 import fetchMock from 'fetch-mock'
 import { sha256 } from 'js-sha256'
 import { ElectionDefinition } from '../util/ballot-package'

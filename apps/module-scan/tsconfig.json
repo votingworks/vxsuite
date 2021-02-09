@@ -20,6 +20,7 @@
   "exclude": ["src/**/*.test.ts", "test"],
   "references": [
     { "path": "../../libs/ballot-encoder" },
-    { "path": "../../libs/hmpb-interpreter" }
+    { "path": "../../libs/hmpb-interpreter" },
+    { "path": "../../libs/types" }
   ]
 }

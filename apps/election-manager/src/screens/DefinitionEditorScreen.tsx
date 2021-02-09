@@ -5,7 +5,7 @@ import fileDownload from 'js-file-download'
 
 import dashify from 'dashify'
 
-import { parseElection } from '@votingworks/ballot-encoder'
+import { parseElection } from '@votingworks/types'
 import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'

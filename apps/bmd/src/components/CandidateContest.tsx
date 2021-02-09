@@ -13,7 +13,7 @@ import {
   CandidateVote,
   CandidateContest as CandidateContestInterface,
   Parties,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import { findPartyById } from '../utils/find'
 import stripQuotes from '../utils/stripQuotes'

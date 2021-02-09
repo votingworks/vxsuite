@@ -1,13 +1,13 @@
+import { v1 } from '@votingworks/ballot-encoder'
 import {
   AnyContest,
   Candidate,
   CandidateContest,
   CompletedBallot,
   MsEitherNeitherContest,
-  v1,
   YesNoContest,
   YesNoOption,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import { TargetShape } from './hmpb/findTargets'
 
 export interface Point {

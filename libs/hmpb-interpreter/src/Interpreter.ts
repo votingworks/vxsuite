@@ -11,7 +11,7 @@ import {
   MsEitherNeitherContest,
   YesNoContest,
   YesNoOption,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import { strict as assert } from 'assert'
 import makeDebug from 'debug'
 import * as jsfeat from 'jsfeat'

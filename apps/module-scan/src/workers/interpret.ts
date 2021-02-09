@@ -1,4 +1,4 @@
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 import makeDebug from 'debug'
 import { readFile } from 'fs-extra'
 import { basename, extname, join } from 'path'

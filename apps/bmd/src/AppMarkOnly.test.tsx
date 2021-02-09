@@ -1,6 +1,6 @@
 import React from 'react'
 import { fireEvent, render, within } from '@testing-library/react'
-// import { electionSample } from '@votingworks/ballot-encoder'
+// import { electionSample } from '@votingworks/fixtures'
 import electionSample from './data/electionSample.json'
 
 import App from './App'

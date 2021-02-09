@@ -1,4 +1,4 @@
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 import { cpus } from 'os'
 import { isAbsolute, join, resolve } from 'path'
 import { dirSync } from 'tmp'

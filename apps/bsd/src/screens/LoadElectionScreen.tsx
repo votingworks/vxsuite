@@ -1,4 +1,4 @@
-import { getPrecinctById } from '@votingworks/ballot-encoder'
+import { getPrecinctById } from '@votingworks/types'
 import React, { useState } from 'react'
 import { patch as patchConfig } from '../api/config'
 import ElectionConfiguration from '../components/ElectionConfiguration'

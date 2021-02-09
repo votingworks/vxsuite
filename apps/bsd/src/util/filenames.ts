@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 
 const SECTION_SEPARATOR = '__'
 const SUBSECTION_SEPARATOR = '_'

@@ -3,7 +3,7 @@ import { fireEvent, render, waitFor, within } from '@testing-library/react'
 import { sha256 } from 'js-sha256'
 import * as GLOBALS from './config/globals'
 
-// import { electionSample } from '@votingworks/ballot-encoder'
+// import { electionSample } from '@votingworks/types'
 import electionSample from './data/electionSample.json'
 
 import App from './App'
@@ -11,6 +11,8 @@ import App from './App'
 import {
   setElectionInStorage,
   setStateInStorage,
+  presidentContest,
+  voterContests,
 } from '../test/helpers/election'
 
 import withMarkup from '../test/helpers/withMarkup'
@@ -21,7 +23,6 @@ import {
   pollWorkerCard,
 } from '../test/helpers/smartcards'
 
-import { presidentContest, voterContests } from '../test/helpers/election'
 import { MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'

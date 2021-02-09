@@ -8,7 +8,7 @@ import {
   YesNoContest,
   YesNoOption,
   YesNoVote,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import { inspect } from 'util'
 
 export function addVote(

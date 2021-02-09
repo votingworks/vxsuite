@@ -1,4 +1,4 @@
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 
 import { computeTallyForEitherNeitherContests } from './eitherNeither'
 import { getZeroTally } from './election'

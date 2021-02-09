@@ -1,8 +1,6 @@
-import {
-  BallotType,
-  electionDefinitionSample as electionDefinition,
-  v1,
-} from '@votingworks/ballot-encoder'
+import { BallotType } from '@votingworks/types'
+import { v1 } from '@votingworks/ballot-encoder'
+import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import { BallotMetadata, BallotPageQrcode } from '../types'
 import { normalizeSheetMetadata } from './metadata'

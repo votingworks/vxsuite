@@ -1,5 +1,5 @@
 import fetchMock from 'fetch-mock'
-import { electionSample } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
 import { get, patch } from './config'
 
 test('GET /config', async () => {

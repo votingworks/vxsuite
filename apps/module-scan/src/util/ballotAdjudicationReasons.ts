@@ -1,8 +1,4 @@
-import {
-  AdjudicationReason,
-  Contest,
-  Contests,
-} from '@votingworks/ballot-encoder'
+import { AdjudicationReason, Contest, Contests } from '@votingworks/types'
 import { PageInterpretation } from '../interpreter'
 import { ContestOption, MarkStatus } from '../types'
 import allContestOptions from './allContestOptions'

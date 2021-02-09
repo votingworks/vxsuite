@@ -1,17 +1,18 @@
 import { BitWriter } from '../bits'
-import electionWithMsEitherNeitherUntyped from '../data/electionWithMsEitherNeither.json'
+import {
+  electionWithMsEitherNeither,
+  electionSampleLongContent as election,
+} from '@votingworks/fixtures'
 import {
   BallotType,
   BallotTypeMaximumValue,
   Candidate,
   CompletedBallot,
-  Election,
-  electionSampleLongContent as election,
   getContests,
   isVotePresent,
   Vote,
   vote,
-} from '../election'
+} from '@votingworks/types'
 import * as v0 from '../v0'
 import {
   decodeBallot,
@@ -27,8 +28,6 @@ import {
   Prelude,
   WriteInEncoding,
 } from './index'
-
-const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election
 
 function falses(count: number): boolean[] {
   return new Array(count).fill(false)

@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Precinct, Election } from '@votingworks/ballot-encoder'
+import { Precinct, Election } from '@votingworks/types'
 import { AppModeNames, MachineConfig } from '../config/types'
 import Prose from './Prose'
 

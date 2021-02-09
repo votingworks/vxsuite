@@ -1,4 +1,4 @@
-import { electionSample as election } from '@votingworks/ballot-encoder'
+import { electionSample as election } from '@votingworks/fixtures'
 import { Application } from 'express'
 import * as path from 'path'
 import request from 'supertest'

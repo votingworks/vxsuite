@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import pluralize from 'pluralize'
-import { Election, OptionalElection } from '@votingworks/ballot-encoder'
+import { Election, OptionalElection } from '@votingworks/types'
 import styled from 'styled-components'
 
 import {

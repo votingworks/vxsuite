@@ -5,7 +5,7 @@ import {
   Optional,
   OptionalElection,
   VoterCardData,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import fetchJSON from './utils/fetchJSON'
 

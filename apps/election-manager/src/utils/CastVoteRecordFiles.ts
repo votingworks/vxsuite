@@ -1,6 +1,6 @@
 import arrayUnique from 'array-unique'
 import { sha256 } from 'js-sha256'
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 import {
   CastVoteRecord,
   CastVoteRecordFile,

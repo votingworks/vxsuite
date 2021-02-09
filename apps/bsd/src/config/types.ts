@@ -3,7 +3,7 @@ import type {
   Election,
   OptionalElection,
   VotesDict,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import type {
   BallotMark,
   BallotPageLayout,

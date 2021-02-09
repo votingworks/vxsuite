@@ -3,7 +3,7 @@ import {
   YesNoContest,
   CandidateContest,
   MsEitherNeitherContest,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import { MarkStatus } from '../types/ballot-review'
 

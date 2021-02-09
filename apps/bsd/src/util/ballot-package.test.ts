@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
 import { promises as fs } from 'fs'
 import { join } from 'path'
 import fakeKiosk from '../../test/helpers/fakeKiosk'

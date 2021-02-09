@@ -4,7 +4,7 @@ import { join } from 'path'
 import React from 'react'
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { parseElection } from '@votingworks/ballot-encoder'
+import { parseElection } from '@votingworks/types'
 import { MemoryStorage } from './utils/Storage'
 import {
   AppStorage,

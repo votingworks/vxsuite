@@ -1,4 +1,4 @@
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 import { DEFAULT_LOCALE } from '../config/globals'
 import { BallotConfig } from '../config/types'
 import { getBallotPath, getBallotStylesDataByStyle } from './election'

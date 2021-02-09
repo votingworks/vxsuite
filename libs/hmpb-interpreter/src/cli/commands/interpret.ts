@@ -1,4 +1,4 @@
-import { Candidate, Election, parseElection } from '@votingworks/ballot-encoder'
+import { Candidate, Election, parseElection } from '@votingworks/types'
 import chalk from 'chalk'
 import { promises as fs } from 'fs'
 import { table } from 'table'

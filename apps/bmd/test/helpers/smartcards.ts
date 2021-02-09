@@ -1,11 +1,11 @@
 import { act, waitFor } from '@testing-library/react'
+import { electionSample as election } from '@votingworks/fixtures'
 import {
   CandidateContest,
-  electionSample as election,
   vote,
   getContests,
   VotesDict,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import * as GLOBALS from '../../src/config/globals'
 import { VoterCardData } from '../../src/config/types'
 import utcTimestamp from '../../src/utils/utcTimestamp'

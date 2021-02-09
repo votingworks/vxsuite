@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
 import { getBallotPath } from './election'
 
 test('getBallotPath allows digits in file names', () => {

@@ -6,11 +6,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmit": true,
@@ -20,18 +16,11 @@
     "target": "es2017",
     "noFallthroughCasesInSwitch": true
   },
-  "exclude": [
-    "src/setupProxy.js",
-    ".eslintrc.js"
-  ],
-  "include": [
-    "src",
-    "prodserver",
-    "test",
-    "types"
-  ],
+  "exclude": ["src/setupProxy.js", ".eslintrc.js"],
+  "include": ["src", "prodserver", "test", "types"],
   "references": [
     { "path": "../../libs/ballot-encoder" },
-    { "path": "../../libs/hmpb-interpreter" }
+    { "path": "../../libs/hmpb-interpreter" },
+    { "path": "../../libs/types" }
   ]
 }

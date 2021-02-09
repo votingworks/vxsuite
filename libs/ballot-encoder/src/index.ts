@@ -1,8 +1,7 @@
 import * as v0 from './v0'
 import * as v1 from './v1'
-import { CompletedBallot, Election } from './election'
+import { CompletedBallot, Election } from '@votingworks/types'
 
-export * from './election'
 export { v0, v1 }
 
 export enum EncoderVersion {

@@ -1,10 +1,10 @@
+import { electionSample } from '@votingworks/fixtures'
 import {
-  electionSample,
   getBallotStyle,
   getContests,
   parseElection,
   vote,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import React from 'react'
 import { Route } from 'react-router-dom'
 import { mockOf, render } from '../../test/testUtils'

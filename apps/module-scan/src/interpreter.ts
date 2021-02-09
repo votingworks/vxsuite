@@ -7,12 +7,11 @@ import {
   AdjudicationReason,
   BallotType,
   Contests,
-  decodeBallot,
-  detect,
   Election,
   MarkThresholds,
   VotesDict,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
+import { decodeBallot, detect } from '@votingworks/ballot-encoder'
 import {
   BallotMark,
   BallotPageLayout,

@@ -1,4 +1,4 @@
-import { Election, parseElection } from '@votingworks/ballot-encoder'
+import { Election, parseElection } from '@votingworks/types'
 import { ElectionDefinition } from '../types'
 import { createHash } from 'crypto'
 import type * as z from 'zod'

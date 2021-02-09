@@ -1,4 +1,4 @@
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 
 export default async function saveAsPDF(
   fileNamePrefix: string,

@@ -2,7 +2,7 @@ import { render, waitFor, fireEvent } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 import React from 'react'
 import { act } from 'react-dom/test-utils'
-import { BallotType, AdjudicationReason } from '@votingworks/ballot-encoder'
+import { BallotType, AdjudicationReason } from '@votingworks/types'
 import { BallotSheetInfo } from '../config/types'
 import BallotEjectScreen from './BallotEjectScreen'
 

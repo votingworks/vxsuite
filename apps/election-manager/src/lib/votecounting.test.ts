@@ -1,11 +1,9 @@
+import { Candidate, parseElection, Election } from '@votingworks/types'
 import {
-  Candidate,
-  parseElection,
   electionSample,
-  Election,
   primaryElectionSample,
   multiPartyPrimaryElection,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/fixtures'
 
 import * as path from 'path'
 import { promises as fs } from 'fs'

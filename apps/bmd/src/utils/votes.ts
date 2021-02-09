@@ -1,4 +1,4 @@
-import { YesNoVote } from '@votingworks/ballot-encoder'
+import { YesNoVote } from '@votingworks/types'
 import { YesOrNo } from '../config/types'
 
 // eslint-disable-next-line import/prefer-default-export

@@ -4,7 +4,7 @@ import {
   BallotStyle,
   Contests,
   Precinct,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import { Tally } from '../config/types'
 
 export const getContests = ({

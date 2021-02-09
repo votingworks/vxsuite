@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { render, fireEvent, waitFor } from '@testing-library/react'
-import { electionSample } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
 import { Router } from 'react-router-dom'
 import { createMemoryHistory } from 'history'
 import fetchMock from 'fetch-mock'

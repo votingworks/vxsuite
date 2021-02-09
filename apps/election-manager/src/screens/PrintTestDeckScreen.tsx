@@ -1,10 +1,6 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import {
-  Election,
-  getPrecinctById,
-  VotesDict,
-} from '@votingworks/ballot-encoder'
+import { Election, getPrecinctById, VotesDict } from '@votingworks/types'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'

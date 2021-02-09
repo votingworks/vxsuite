@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
 import * as workflow from './ExportElectionBallotPackageWorkflow'
 import DownloadableArchive from '../utils/DownloadableArchive'
 

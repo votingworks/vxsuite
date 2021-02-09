@@ -79,6 +79,20 @@ jobs:
           command: |
             pnpm --dir apps/election-manager test:coverage
 
+  test-fixtures:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Run Linters
+          command: |
+            pnpm --dir libs/fixtures lint
+      - run:
+          name: Run Tests with Coverage
+          command: |
+            pnpm --dir libs/fixtures test:coverage
+
   test-hmpb-interpreter:
     executor: nodejs
     resource_class: xlarge
@@ -145,6 +159,20 @@ jobs:
           command: |
             make -C apps/module-smartcards typecheck
 
+  test-types:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Run Linters
+          command: |
+            pnpm --dir libs/types lint
+      - run:
+          name: Run Tests with Coverage
+          command: |
+            pnpm --dir libs/types test:coverage
+
 workflows:
   test:
     jobs:
@@ -153,10 +181,12 @@ workflows:
       - test-bmd
       - test-bsd
       - test-election-manager
+      - test-fixtures
       - test-hmpb-interpreter
       - test-lsd
       - test-module-scan
       - test-module-smartcards
+      - test-types
 
 commands:
   checkout-and-install:
@@ -172,13 +202,15 @@ commands:
       # comment will invalidate the cache without changing the behavior.
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "pnpm-lock.yaml" }}
       - run:
           name: Setup Dependencies
           command: pnpm install --frozen-lockfile
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "pnpm-lock.yaml" }}
           paths:
             - node_modules
             - apps/bas/node_modules
@@ -188,7 +220,9 @@ commands:
             - apps/module-scan/node_modules
             - libs/ballot-encoder/node_modules
             - libs/eslint-plugin-no-array-sort-mutation/node_modules
+            - libs/fixtures/node_modules
             - libs/hmpb-interpreter/node_modules
             - libs/lsd/node_modules
+            - libs/types/node_modules
             - libs/@types/jsfeat/node_modules
             - libs/@types/node-quirc/node_modules

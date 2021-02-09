@@ -120,6 +120,8 @@
     "@types/react-gamepad": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
+    "@votingworks/fixtures": "workspace:*",
+    "@votingworks/types": "workspace:*",
     "cypress": "^4.5.0",
     "eslint": "^7.17.0",
     "eslint-config-airbnb": "^18.2.1",

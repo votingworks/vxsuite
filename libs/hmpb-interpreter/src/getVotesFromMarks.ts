@@ -1,4 +1,4 @@
-import { VotesDict } from '@votingworks/ballot-encoder'
+import { VotesDict } from '@votingworks/types'
 import makeDebug from 'debug'
 import { addVote } from './hmpb/votes'
 import { BallotMark } from './types'

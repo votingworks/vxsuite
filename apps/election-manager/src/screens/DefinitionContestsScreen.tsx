@@ -8,7 +8,7 @@ import {
   YesNoContest,
   AnyContest,
   MsEitherNeitherContest,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import readFileAsync from '../lib/readFileAsync'
 import {

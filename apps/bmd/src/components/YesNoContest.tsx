@@ -10,7 +10,7 @@ import {
   OptionalYesNoVote,
   YesNoContest as YesNoContestInterface,
   Optional,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import {
   EventTargetFunction,

@@ -9,7 +9,7 @@ import election from '../test/fixtures/2020-choctaw/election'
 import backup, { Backup } from './backup'
 import Store from './store'
 import { fromElection } from './util/electionDefinition'
-import { BallotType } from '@votingworks/ballot-encoder'
+import { BallotType } from '@votingworks/types'
 
 function getEntries(zipfile: ZipFile): Promise<Entry[]> {
   return new Promise((resolve, reject) => {

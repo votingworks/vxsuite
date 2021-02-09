@@ -7,11 +7,7 @@ import React, {
   useState,
 } from 'react'
 import styled from 'styled-components'
-import {
-  CandidateVote,
-  YesNoVote,
-  OptionalYesNoVote,
-} from '@votingworks/ballot-encoder'
+import { CandidateVote, YesNoVote, OptionalYesNoVote } from '@votingworks/types'
 
 import { findPartyById } from '../utils/find'
 import {

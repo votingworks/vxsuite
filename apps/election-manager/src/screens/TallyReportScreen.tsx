@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components'
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 
 import { useParams } from 'react-router-dom'
 import find from '../utils/find'

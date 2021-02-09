@@ -3,7 +3,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import type { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import type { SerializableBallotPageLayout } from '../types'
 

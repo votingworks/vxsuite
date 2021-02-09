@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
-import { AdjudicationReason } from '@votingworks/ballot-encoder'
+import { AdjudicationReason } from '@votingworks/types'
 import { fetchNextBallotSheetToReview } from '../api/hmpb'
 import { BallotSheetInfo } from '../config/types'
 

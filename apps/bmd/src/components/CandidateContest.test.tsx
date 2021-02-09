@@ -4,7 +4,7 @@ import { fireEvent, render } from '@testing-library/react'
 import {
   CandidateContest as CandidateContestInterface,
   Parties,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import { act } from 'react-dom/test-utils'
 import CandidateContest from './CandidateContest'

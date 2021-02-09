@@ -1,4 +1,4 @@
-import { AnyContest, Contests } from '@votingworks/ballot-encoder'
+import { AnyContest, Contests } from '@votingworks/types'
 import makeDebug from 'debug'
 import {
   BallotPageContestLayout,

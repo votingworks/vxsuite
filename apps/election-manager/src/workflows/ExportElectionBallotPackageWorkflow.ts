@@ -1,4 +1,4 @@
-import { Election } from '@votingworks/ballot-encoder'
+import { Election } from '@votingworks/types'
 import { BallotConfig } from '../config/types'
 import DownloadableArchive from '../utils/DownloadableArchive'
 import getAllBallotConfigs from '../utils/getAllBallotConfigs'

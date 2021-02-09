@@ -5,7 +5,7 @@ import {
   CandidateContest,
   Election,
   ElectionDefinition,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 
 import { AppModeNames, EventTargetFunction } from '../config/types'
 

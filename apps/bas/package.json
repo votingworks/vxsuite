@@ -71,7 +71,7 @@
     "@types/history": "^4.7.8",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
-    "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/types": "workspace:*",
     "eslint": "^7.17.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-import-resolver-node": "^0.3.4",

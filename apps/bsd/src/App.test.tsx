@@ -7,7 +7,7 @@ import {
   fireEvent,
 } from '@testing-library/react'
 import { act } from 'react-dom/test-utils'
-import { electionSample } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
 import fileDownload from 'js-file-download'
 import fakeKiosk from '../test/helpers/fakeKiosk'
 import App from './App'

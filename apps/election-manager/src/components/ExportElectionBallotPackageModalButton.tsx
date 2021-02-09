@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react'
 import pluralize from 'pluralize'
 import styled from 'styled-components'
 import path from 'path'
-import { getElectionLocales } from '@votingworks/ballot-encoder'
+import { getElectionLocales } from '@votingworks/types'
 
 import { DEFAULT_LOCALE } from '../config/globals'
 import {

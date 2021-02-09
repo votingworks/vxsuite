@@ -4,7 +4,7 @@ import { advanceBy } from 'jest-date-mock'
 import { sha256 } from 'js-sha256'
 import * as GLOBALS from './config/globals'
 
-// import { electionSample } from '@votingworks/ballot-encoder'
+// import { electionSample } from '@votingworks/fixtures'
 import electionSample from './data/electionSample.json'
 
 import App from './App'

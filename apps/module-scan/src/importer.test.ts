@@ -1,8 +1,6 @@
-import {
-  BallotType,
-  electionSample as election,
-  v1,
-} from '@votingworks/ballot-encoder'
+import { electionSample as election } from '@votingworks/fixtures'
+import { BallotType } from '@votingworks/types'
+import { v1 } from '@votingworks/ballot-encoder'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import * as fs from 'fs-extra'
 import { join } from 'path'

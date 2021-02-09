@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
-import { parseElection } from '@votingworks/ballot-encoder'
+import { parseElection } from '@votingworks/types'
 
 import { render } from '../../test/testUtils'
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'

@@ -1,6 +1,6 @@
 import electionJSON from './election.json'
-import { Election } from '@votingworks/ballot-encoder'
+import { parseElection } from '@votingworks/types'
 
-const election = electionJSON as Election
+const election = parseElection(electionJSON)
 
 export default election

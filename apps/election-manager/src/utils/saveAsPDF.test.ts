@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/ballot-encoder'
+import { electionSample } from '@votingworks/fixtures'
 import saveAsPDF from './saveAsPDF'
 import fakeKiosk from '../../test/helpers/fakeKiosk'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'

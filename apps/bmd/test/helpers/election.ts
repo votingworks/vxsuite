@@ -7,8 +7,7 @@ import {
   YesNoContest,
   Election,
   MsEitherNeitherContest,
-  // electionSample,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/types'
 import {
   getBallotStyle,
   getContests,

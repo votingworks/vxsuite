@@ -1,8 +1,5 @@
-import {
-  AdjudicationReason,
-  Election,
-  electionSample,
-} from '@votingworks/ballot-encoder'
+import { AdjudicationReason, Election } from '@votingworks/types'
+import { electionSample } from '@votingworks/fixtures'
 import { readFile } from 'fs-extra'
 import { join } from 'path'
 import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
