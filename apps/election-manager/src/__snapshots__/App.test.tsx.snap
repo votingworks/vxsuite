@@ -935,7 +935,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
             <span
               class="sc-dQppl kMSBOR"
             >
-              0 ballots
+              39 ballots
                cast /
                
               0 overvotes
@@ -989,7 +989,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
             <span
               class="sc-dQppl kMSBOR"
             >
-              0 ballots
+              39 ballots
                cast /
                
               0 overvotes
@@ -1826,7 +1826,7 @@ exports[`tabulating CVRs 1`] = `
             <td
               class="sc-fFubgz jVzFBN"
             >
-              54
+              53
             </td>
           </tr>
         </tbody>
@@ -1880,7 +1880,7 @@ exports[`tabulating CVRs 1`] = `
             <td
               class="sc-fFubgz jVzFBN"
             >
-              50
+              49
             </td>
           </tr>
         </tbody>

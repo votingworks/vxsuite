@@ -1,4 +1,4 @@
-import { Candidate, parseElection, Election } from '@votingworks/types'
+import { parseElection, Election } from '@votingworks/types'
 import {
   electionSample,
   primaryElectionSample,
@@ -8,7 +8,6 @@ import {
 import * as path from 'path'
 import { promises as fs } from 'fs'
 
-import find from '../utils/find'
 import {
   parseCVRs,
   computeFullElectionTally,
@@ -45,13 +44,12 @@ function parseCVRsAndAssertSuccess(
 
 function expectAllEmptyTallies(tally: Tally) {
   expect(tally.numberOfBallotsCounted).toBe(0)
-  for (const contestTally of tally.contestTallies) {
-    for (const tally of contestTally.tallies) {
-      expect(tally.tally).toBe(0)
+  for (const contestId in tally.contestTallies) {
+    const contestTally = tally.contestTallies[contestId]!
+    for (const tally of Object.values(contestTally.tallies)) {
+      expect(tally!.tally).toBe(0)
     }
-  }
-  for (const contestMetadata of Object.values(tally.contestTallyMetadata)) {
-    expect(contestMetadata).toStrictEqual({
+    expect(contestTally.metadata).toStrictEqual({
       undervotes: 0,
       overvotes: 0,
       ballots: 0,
@@ -73,48 +71,30 @@ test('tabulating a set of CVRs gives expected output', async () => {
   const fullTally = computeFullElectionTally(election, [castVoteRecords])
   expect(fullTally.overallTally.numberOfBallotsCounted).toBe(10000)
   expect(fullTally.overallTally.contestTallies).toMatchSnapshot()
-  expect(fullTally.overallTally.contestTallyMetadata).toMatchSnapshot()
 
   // some specific tallies checked by hand
 
   // - Jackie Chan, 1380 bubbles, of which 8 are overvotes --> 1372
-  const presidentTallies = find(
-    fullTally.overallTally.contestTallies,
-    (contestTally) => contestTally.contest.id === 'president'
-  )
-  const jackieChanTally = find(
-    presidentTallies.tallies,
-    (contestOptionTally) =>
-      (contestOptionTally.option as Candidate).id === 'jackie-chan'
-  )
+  const presidentTallies = fullTally.overallTally.contestTallies.president!
+  const jackieChanTally = presidentTallies.tallies['jackie-chan']!
   expect(jackieChanTally.tally).toBe(1372)
 
   // - Neil Armstrong, 2207 bubbles, of which 10 are overvotes --> 2197
-  const repDistrict18Tallies = find(
-    fullTally.overallTally.contestTallies,
-    (contestTally) => contestTally.contest.id === 'representative-district-18'
-  )
-  const neilArmstrongTally = find(
-    repDistrict18Tallies.tallies,
-    (contestOptionTally) =>
-      (contestOptionTally.option as Candidate).id === 'neil-armstrong'
-  )
+  const repDistrict18Tallies = fullTally.overallTally.contestTallies[
+    'representative-district-18'
+  ]!
+  const neilArmstrongTally = repDistrict18Tallies.tallies['neil-armstrong']!
   expect(neilArmstrongTally.tally).toBe(2197)
 
   // sum up all the write-ins across all questions
   // 262 bubbles filled out, of which 2 are overvotes --> 260 write-ins
-  const candidateTallies = fullTally.overallTally.contestTallies.filter(
-    (contestTally) => contestTally.contest.type === 'candidate'
-  )
+  const candidateTallies = Object.values(
+    fullTally.overallTally.contestTallies
+  ).filter((contestTally) => contestTally!.contest.type === 'candidate')
 
   const numWriteIns = candidateTallies.reduce(
     (overallSum, contestTally) =>
-      overallSum +
-      contestTally.tallies
-        .filter(
-          (optionTally) => (optionTally.option as Candidate).id === '__write-in'
-        )
-        .reduce((contestSum, optionTally) => contestSum + optionTally.tally, 0),
+      overallSum + contestTally!.tallies['__write-in']!.tally,
     0
   )
 
@@ -128,7 +108,7 @@ test('computeFullTally with no results should produce empty tally objects with c
 
   const fullTally = computeFullElectionTally(election, [])
   expect(fullTally.overallTally.numberOfBallotsCounted).toBe(0)
-  expect(fullTally.overallTally.contestTallies.length).toBe(
+  expect(Object.keys(fullTally.overallTally.contestTallies).length).toBe(
     election.contests.length
   )
   const precinctTallies = fullTally.resultsByCategory.get(
@@ -139,7 +119,9 @@ test('computeFullTally with no results should produce empty tally objects with c
     const precinctTally = precinctTallies![precinct.id]
     expect(precinctTally).toBeDefined()
     expect(precinctTally!.numberOfBallotsCounted).toBe(0)
-    expect(precinctTally!.contestTallies.length).toBe(election.contests.length)
+    expect(Object.keys(precinctTally!.contestTallies).length).toBe(
+      election.contests.length
+    )
   })
 })
 
@@ -176,7 +158,6 @@ describe('filterTalliesByParams in a typical election', () => {
       })
       expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
       expect(filteredResults.contestTallies).toMatchSnapshot()
-      expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
     }
   })
 
@@ -201,7 +182,6 @@ describe('filterTalliesByParams in a typical election', () => {
       })
       expect(filteredResults.numberOfBallotsCounted).toBe(expectedNumBallots)
       expect(filteredResults.contestTallies).toMatchSnapshot()
-      expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
     }
   })
 
@@ -212,7 +192,6 @@ describe('filterTalliesByParams in a typical election', () => {
     })
     expect(filteredResults.numberOfBallotsCounted).toBe(226)
     expect(filteredResults.contestTallies).toMatchSnapshot()
-    expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
   })
 })
 
@@ -270,7 +249,9 @@ describe('filterTalliesByParams in a primary election', () => {
   })
 
   test('can filter results by party', () => {
-    expect(electionTally.overallTally.contestTallies.length).toBe(13)
+    expect(Object.keys(electionTally.overallTally.contestTallies).length).toBe(
+      13
+    )
     expect(electionTally.overallTally.numberOfBallotsCounted).toBe(4530)
 
     for (const testcase of expectedPartyInformation) {
@@ -279,17 +260,20 @@ describe('filterTalliesByParams in a primary election', () => {
         multiPartyPrimaryElection,
         { partyId: testcase.partyId }
       )
-      expect(
-        filteredResults.contestTallies.map((c) => c.contest.id)
-      ).toStrictEqual(testcase.contestIds)
+      expect(Object.keys(filteredResults.contestTallies)).toStrictEqual(
+        testcase.contestIds
+      )
       expect(filteredResults.numberOfBallotsCounted).toBe(testcase.numBallots)
       // Filtering by party just filters down the contests in contestTallies
       expect(
-        filteredResults.contestTallies.map((c) => {
-          return { contestId: c.contest.id, tallies: c.tallies }
+        Object.values(filteredResults.contestTallies).map((c) => {
+          return {
+            contestId: c!.contest.id,
+            tallies: c!.tallies,
+            metadata: c!.metadata,
+          }
         })
       ).toMatchSnapshot()
-      expect(filteredResults.contestTallyMetadata).toMatchSnapshot()
     }
 
     // Check that filtering for a party that has no ballot styles returns an empty tally
@@ -299,7 +283,7 @@ describe('filterTalliesByParams in a primary election', () => {
       { partyId: '2' }
     )
     expectAllEmptyTallies(filteredResults2)
-    expect(filteredResults2.contestTallies).toStrictEqual([])
+    expect(filteredResults2.contestTallies).toStrictEqual({})
   })
 
   test('can filter results by party and precinct', () => {
@@ -315,9 +299,9 @@ describe('filterTalliesByParams in a primary election', () => {
         multiPartyPrimaryElection,
         { partyId: '4', precinctId }
       )
-      expect(
-        filteredResults.contestTallies.map((c) => c.contest.id)
-      ).toStrictEqual(expectedParty4Info.contestIds)
+      expect(Object.keys(filteredResults.contestTallies)).toStrictEqual(
+        expectedParty4Info.contestIds
+      )
       expectAllEmptyTallies(filteredResults)
     }
 
@@ -327,15 +311,18 @@ describe('filterTalliesByParams in a primary election', () => {
       { partyId: '4', precinctId: 'precinct-1' }
     )
     expect(filterParty5Precinct1.numberOfBallotsCounted).toBe(300)
+    expect(Object.keys(filterParty5Precinct1.contestTallies)).toStrictEqual(
+      expectedParty4Info.contestIds
+    )
     expect(
-      filterParty5Precinct1.contestTallies.map((c) => c.contest.id)
-    ).toStrictEqual(expectedParty4Info.contestIds)
-    expect(
-      filterParty5Precinct1.contestTallies.map((c) => {
-        return { contestId: c.contest.id, tallies: c.tallies }
+      Object.values(filterParty5Precinct1.contestTallies).map((c) => {
+        return {
+          contestId: c!.contest.id,
+          tallies: c!.tallies,
+          metadata: c!.metadata,
+        }
       })
     ).toMatchSnapshot()
-    expect(filterParty5Precinct1.contestTallyMetadata).toMatchSnapshot()
 
     const filterParty5Precinct5 = filterTalliesByParams(
       electionTally,
@@ -343,24 +330,27 @@ describe('filterTalliesByParams in a primary election', () => {
       { partyId: '4', precinctId: 'precinct-5' }
     )
     expect(filterParty5Precinct5.numberOfBallotsCounted).toBe(420)
+    expect(Object.keys(filterParty5Precinct5.contestTallies)).toStrictEqual(
+      expectedParty4Info.contestIds
+    )
     expect(
-      filterParty5Precinct5.contestTallies.map((c) => c.contest.id)
-    ).toStrictEqual(expectedParty4Info.contestIds)
-    expect(
-      filterParty5Precinct5.contestTallies.map((c) => {
-        return { contestId: c.contest.id, tallies: c.tallies }
+      Object.values(filterParty5Precinct5.contestTallies).map((c) => {
+        return {
+          contestId: c!.contest.id,
+          tallies: c!.tallies,
+          metadata: c!.metadata,
+        }
       })
     ).toMatchSnapshot()
-    expect(filterParty5Precinct5.contestTallyMetadata).toMatchSnapshot()
 
     const filterParty5InvalidPrecinct = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
       { partyId: '4', precinctId: 'not-a-real-precinct' }
     )
-    expect(
-      filterParty5Precinct5.contestTallies.map((c) => c.contest.id)
-    ).toStrictEqual(expectedParty4Info.contestIds)
+    expect(Object.keys(filterParty5Precinct5.contestTallies)).toStrictEqual(
+      expectedParty4Info.contestIds
+    )
     expectAllEmptyTallies(filterParty5InvalidPrecinct)
   })
 
@@ -388,31 +378,31 @@ describe('filterTalliesByParams in a primary election', () => {
     const scanner1ResultsWithoutCVRs = {
       numberOfBallotsCounted: filteredResultsScanner1.numberOfBallotsCounted,
       contestTallies: filteredResultsScanner1.contestTallies,
-      contestTallyMetadata: filteredResultsScanner1.contestTallyMetadata,
     }
     const scanner2ResultsWithoutCVRs = {
       numberOfBallotsCounted: filteredResultsScanner2.numberOfBallotsCounted,
       contestTallies: filteredResultsScanner2.contestTallies,
-      contestTallyMetadata: filteredResultsScanner2.contestTallyMetadata,
     }
     const scanner3ResultsWithoutCVRs = {
       numberOfBallotsCounted: filteredResultsScanner3.numberOfBallotsCounted,
       contestTallies: filteredResultsScanner3.contestTallies,
-      contestTallyMetadata: filteredResultsScanner3.contestTallyMetadata,
     }
     expect(scanner1ResultsWithoutCVRs).toStrictEqual(scanner2ResultsWithoutCVRs)
     expect(scanner1ResultsWithoutCVRs).toStrictEqual(scanner3ResultsWithoutCVRs)
 
     // Verify the data of scanner 1s results
+    expect(Object.keys(filteredResultsScanner1.contestTallies)).toStrictEqual(
+      expectedParty0Info.contestIds
+    )
     expect(
-      filteredResultsScanner1.contestTallies.map((c) => c.contest.id)
-    ).toStrictEqual(expectedParty0Info.contestIds)
-    expect(
-      filteredResultsScanner1.contestTallies.map((c) => {
-        return { contestId: c.contest.id, tallies: c.tallies }
+      Object.values(filteredResultsScanner1.contestTallies).map((c) => {
+        return {
+          contestId: c!.contest.id,
+          tallies: c!.tallies,
+          metadata: c!.metadata,
+        }
       })
     ).toMatchSnapshot()
-    expect(filteredResultsScanner1.contestTallyMetadata).toMatchSnapshot()
 
     expect(filteredResultsScanner1.numberOfBallotsCounted).toBe(570)
 
@@ -423,7 +413,7 @@ describe('filterTalliesByParams in a primary election', () => {
       { scannerId: 'not-a-scanner', partyId: '0' }
     )
     expect(
-      filteredResultsInvalidScanner.contestTallies.map((c) => c.contest.id)
+      Object.keys(filteredResultsInvalidScanner.contestTallies)
     ).toStrictEqual(expectedParty0Info.contestIds)
     expectAllEmptyTallies(filteredResultsInvalidScanner)
   })
@@ -449,24 +439,24 @@ test('undervotes counted in n of m contest properly', () => {
   // The county commissioners race has 4 seats. Each vote less then 4 should be counted
   // as an additional undervote.
   expect(
-    electionTally.overallTally.contestTallyMetadata['county-commissioners']
-      ?.undervotes
+    electionTally.overallTally.contestTallies['county-commissioners']?.metadata
+      .undervotes
   ).toBe(4)
 
   electionTally = computeFullElectionTally(primaryElectionSample, [
     [{ ...mockCVR, 'county-commissioners': ['argent'] }],
   ])!
   expect(
-    electionTally.overallTally.contestTallyMetadata['county-commissioners']
-      ?.undervotes
+    electionTally.overallTally.contestTallies['county-commissioners']?.metadata
+      .undervotes
   ).toBe(3)
 
   electionTally = computeFullElectionTally(primaryElectionSample, [
     [{ ...mockCVR, 'county-commissioners': ['argent', 'bainbridge'] }],
   ])!
   expect(
-    electionTally.overallTally.contestTallyMetadata['county-commissioners']
-      ?.undervotes
+    electionTally.overallTally.contestTallies['county-commissioners']?.metadata
+      .undervotes
   ).toBe(2)
 
   electionTally = computeFullElectionTally(primaryElectionSample, [
@@ -478,8 +468,8 @@ test('undervotes counted in n of m contest properly', () => {
     ],
   ])!
   expect(
-    electionTally.overallTally.contestTallyMetadata['county-commissioners']
-      ?.undervotes
+    electionTally.overallTally.contestTallies['county-commissioners']?.metadata
+      .undervotes
   ).toBe(1)
 
   electionTally = computeFullElectionTally(primaryElectionSample, [
@@ -491,8 +481,8 @@ test('undervotes counted in n of m contest properly', () => {
     ],
   ])!
   expect(
-    electionTally.overallTally.contestTallyMetadata['county-commissioners']
-      ?.undervotes
+    electionTally.overallTally.contestTallies['county-commissioners']?.metadata
+      .undervotes
   ).toBe(0)
 })
 

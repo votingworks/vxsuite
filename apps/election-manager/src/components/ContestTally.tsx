@@ -1,17 +1,23 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Election, Candidate, YesNoContest } from '@votingworks/types'
+import {
+  Election,
+  Candidate,
+  YesNoContest,
+  AnyContest,
+} from '@votingworks/types'
 import pluralize from 'pluralize'
 
-import {
-  Tally,
-  YesNoContestOptionTally,
-  ContestTallyMeta,
-} from '../config/types'
+import { Tally, YesNoContestOptionTally } from '../config/types'
 
 import Prose from './Prose'
 import Text from './Text'
 import Table, { TD } from './Table'
+import {
+  expandEitherNeitherContests,
+  getContestOptionsForContest,
+} from '../utils/election'
+import { getTallyForContestOption } from '../lib/votecounting'
 
 const ContestMeta = styled.div`
   float: right;
@@ -38,7 +44,6 @@ const ContestTally: React.FC<Props> = ({
   electionTally,
   precinctId,
 }) => {
-  const { contestTallyMetadata } = electionTally
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
   const ballotStyles = precinctId
@@ -48,17 +53,20 @@ const ContestTally: React.FC<Props> = ({
 
   return (
     <React.Fragment>
-      {electionTally.contestTallies.map(({ contest, tallies }) => {
+      {expandEitherNeitherContests(election.contests).map((electionContest) => {
+        if (!(electionContest.id in electionTally.contestTallies)) {
+          return null
+        }
+        const { contest, tallies, metadata } = electionTally.contestTallies[
+          electionContest.id
+        ]!
         const talliesRelevant = precinctId
           ? districts.includes(contest.districtId)
           : true
 
-        const { ballots, overvotes, undervotes }: ContestTallyMeta = {
-          ballots: 0,
-          overvotes: 0,
-          undervotes: 0,
-          ...contestTallyMetadata[contest.id],
-        }
+        const { ballots, overvotes, undervotes } = metadata
+
+        const options = getContestOptionsForContest(contest as AnyContest)
 
         return (
           <Contest key={`div-${contest.id}`}>
@@ -75,7 +83,13 @@ const ContestTally: React.FC<Props> = ({
               </h3>
               <Table>
                 <tbody>
-                  {tallies.map((tally) => {
+                  {options.map((option) => {
+                    const tally = getTallyForContestOption(
+                      option,
+                      tallies,
+                      contest
+                    )
+
                     const key = `${contest.id}-${
                       contest.type === 'candidate'
                         ? (tally.option as Candidate).id

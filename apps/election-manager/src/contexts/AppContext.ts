@@ -4,12 +4,13 @@ import {
   SaveElection,
   PrintedBallot,
   ISO8601Timestamp,
-  OptionalFullElectionTally,
+  FullElectionTally,
 } from '../config/types'
 import { UsbDriveStatus } from '../lib/usbstick'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../utils/CastVoteRecordFiles'
+import { getEmptyFullElectionTally } from '../lib/votecounting'
 
 export interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles
@@ -27,11 +28,9 @@ export interface AppContextInterface {
   usbDriveEject: () => void
   addPrintedBallot: (printedBallot: PrintedBallot) => void
   printedBallots: PrintedBallot[]
-  fullElectionTally: OptionalFullElectionTally
+  fullElectionTally: FullElectionTally
   isTabulationRunning: boolean
-  setFullElectionTally: React.Dispatch<
-    React.SetStateAction<OptionalFullElectionTally>
-  >
+  setFullElectionTally: React.Dispatch<React.SetStateAction<FullElectionTally>>
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -49,7 +48,7 @@ const appContext: AppContextInterface = {
   usbDriveEject: () => undefined,
   addPrintedBallot: () => undefined,
   printedBallots: [],
-  fullElectionTally: undefined,
+  fullElectionTally: getEmptyFullElectionTally(),
   setFullElectionTally: () => undefined,
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,

@@ -17,11 +17,7 @@ import Button from '../components/Button'
 import { filterTalliesByParty, tallyVotesByContest } from '../lib/votecounting'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
-import {
-  PrecinctReportScreenProps,
-  Tally,
-  ContestTallyMetaDictionary,
-} from '../config/types'
+import { PrecinctReportScreenProps, Tally } from '../config/types'
 
 import { generateTestDeckBallots } from '../utils/election'
 
@@ -54,18 +50,6 @@ const TestDeckScreen: React.FC = () => {
     (ballots) => ballots.votes as VotesDict
   )
 
-  const contestTallyMetadata = election.contests.reduce<ContestTallyMetaDictionary>(
-    (contestTallyMeta, contest) => ({
-      ...contestTallyMeta,
-      [contest.id]: {
-        ballots: votes.filter((vote) => !!vote[contest.id]).length,
-        overvotes: 0,
-        undervotes: 0,
-      },
-    }),
-    {}
-  )
-
   const electionTally: Tally = {
     numberOfBallotsCounted: ballots.length,
     castVoteRecords: [],
@@ -73,7 +57,6 @@ const TestDeckScreen: React.FC = () => {
       election,
       votes,
     }),
-    contestTallyMetadata,
   }
 
   const ballotStylePartyIds = Array.from(
