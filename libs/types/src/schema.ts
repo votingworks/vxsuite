@@ -156,20 +156,20 @@ export const County = z.object({
 
 export const Election = z.object({
   _lang: Translations.optional(),
+  adjudicationReasons: z.array(AdjudicationReason).optional(),
+  ballotStrings: z.record(z.union([z.string(), Translations])).optional(),
   ballotStyles: z.array(BallotStyle),
+  contests: Contests,
   county: County,
+  date: z.string().refine(check8601, 'dates must be ISO 8601-formatted'),
+  districts: z.array(District),
+  markThresholds: MarkThresholds.optional(),
   parties: Parties,
   precincts: z.array(Precinct),
-  districts: z.array(District),
-  contests: Contests,
-  date: z.string().refine(check8601, 'dates must be ISO 8601-formatted'),
   seal: z.string().nonempty().optional(),
   sealURL: z.string().nonempty().optional(),
-  ballotStrings: z.record(z.union([z.string(), Translations])).optional(),
   state: z.string().nonempty(),
   title: z.string().nonempty(),
-  markThresholds: MarkThresholds.optional(),
-  adjudicationReasons: z.array(AdjudicationReason).optional(),
 })
 
 export const OptionalElection = Election.optional()
