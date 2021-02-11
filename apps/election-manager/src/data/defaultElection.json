@@ -17,6 +17,9 @@
       "state": "Estado de Muestra"
     }
   },
+  "ballotLayout": {
+    "paperSize": "letter"
+  },
   "districts": [
     {
       "id": "district-1",

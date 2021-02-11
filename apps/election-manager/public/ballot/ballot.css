@@ -13,3 +13,7 @@
 .total-pages::before {
   content: counter(pages);
 }
+
+.ballot-footer {
+  position: running(ballotfooter);
+}

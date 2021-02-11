@@ -6,6 +6,9 @@
     "name": "Choctaw County"
   },
   "date": "2020-08-26T00:00:00-10:00",
+  "ballotLayout": {
+    "paperSize": "letter"
+  },
   "parties": [
     {
       "id": "2",

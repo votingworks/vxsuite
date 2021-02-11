@@ -98,22 +98,32 @@ export interface BallotLocale {
 
 export type BallotStrings = Record<string, string | Translations>
 
+export enum BallotPaperSize {
+  Letter = 'letter',
+  Legal = 'legal',
+}
+
+interface BallotLayout {
+  paperSize: BallotPaperSize
+}
+
 export interface Election {
   readonly _lang?: Translations
+  readonly adjudicationReasons?: readonly AdjudicationReason[]
+  readonly ballotLayout?: BallotLayout
+  readonly ballotStrings?: BallotStrings
   readonly ballotStyles: readonly BallotStyle[]
+  readonly contests: Contests
   readonly county: County
+  readonly date: string
+  readonly districts: readonly District[]
+  readonly markThresholds?: MarkThresholds
   readonly parties: Parties
   readonly precincts: readonly Precinct[]
-  readonly districts: readonly District[]
-  readonly contests: Contests
-  readonly date: string
   readonly seal?: string
   readonly sealURL?: string
-  readonly ballotStrings?: BallotStrings
   readonly state: string
   readonly title: string
-  readonly markThresholds?: MarkThresholds
-  readonly adjudicationReasons?: readonly AdjudicationReason[]
 }
 export type OptionalElection = Optional<Election>
 export interface ElectionDefinition {
