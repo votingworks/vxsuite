@@ -1,6 +1,9 @@
 import * as z from 'zod'
 import check8601 from '@antongolub/iso8601'
-import { AdjudicationReason as AdjudicationReasonEnum } from './election'
+import {
+  AdjudicationReason as AdjudicationReasonEnum,
+  BallotPaperSize as BallotPaperSizeEnum,
+} from './election'
 
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars */
 // @ts-ignore
@@ -117,6 +120,8 @@ export const AdjudicationReason = z.lazy(() =>
   schemaForEnum(AdjudicationReasonEnum)
 )
 
+export const BallotPaperSize = z.lazy(() => schemaForEnum(BallotPaperSizeEnum))
+
 // Election
 export const BallotStyle = z.object({
   _lang: Translations.optional(),
@@ -154,9 +159,14 @@ export const County = z.object({
   name: z.string().nonempty(),
 })
 
+const BallotLayout = z.object({
+  paperSize: BallotPaperSize,
+})
+
 export const Election = z.object({
   _lang: Translations.optional(),
   adjudicationReasons: z.array(AdjudicationReason).optional(),
+  ballotLayout: BallotLayout.optional(),
   ballotStrings: z.record(z.union([z.string(), Translations])).optional(),
   ballotStyles: z.array(BallotStyle),
   contests: Contests,

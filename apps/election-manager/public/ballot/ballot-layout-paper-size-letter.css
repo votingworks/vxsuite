@@ -1,0 +1,10 @@
+@media print {
+  @page {
+    margin: 0.3in 0.3in 1.2in;
+    size: letter portrait;
+
+    @bottom-center {
+      content: element(ballotfooter);
+    }
+  }
+}

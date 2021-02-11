@@ -27,6 +27,7 @@ import routerPaths from '../routerPaths'
 import TextInput from '../components/TextInput'
 import LinkButton from '../components/LinkButton'
 import Prose from '../components/Prose'
+import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
 
 const BallotCopiesInput = styled(TextInput)`
   width: 4em;
@@ -85,6 +86,7 @@ const BallotScreen: React.FC = () => {
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!
   const ballotContests = getContests({ ballotStyle, election })
 
+  const [ballotPages, setBallotPages] = useState(0)
   const [isLiveMode, setIsLiveMode] = useState(true)
   const toggleLiveMode = () => setIsLiveMode((m) => !m)
   const [isAbsenteeMode, setIsAbsenteeMode] = useState(true)
@@ -131,6 +133,12 @@ const BallotScreen: React.FC = () => {
     if (ballotPreviewRef?.current && printBallotRef?.current) {
       ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML
     }
+    const pagedJsPageCount = Number(
+      (ballotPreviewRef.current?.getElementsByClassName(
+        'pagedjs_pages'
+      )[0] as HTMLElement)?.style.getPropertyValue('--pagedjs-page-count') || 0
+    )
+    setBallotPages(pagedJsPageCount)
   }
 
   return (
@@ -242,6 +250,14 @@ const BallotScreen: React.FC = () => {
             Ballot Package Filename: <Monospace>{filename}</Monospace>
           </p>
           <h3>Ballot Preview</h3>
+          {ballotPages > 0 && (
+            <p>
+              This ballot is <strong>{ballotPages} pages</strong> (printed front
+              and back) on{' '}
+              <strong>{pluralize('sheets', ballotPages / 2, true)}</strong> of{' '}
+              <strong>{getBallotLayoutPageSize(election)}-size</strong> paper.
+            </p>
+          )}
         </Prose>
         <BallotPreviewHeader>
           <h4>Front Pages</h4>

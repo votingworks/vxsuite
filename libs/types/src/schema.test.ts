@@ -96,3 +96,21 @@ test('disallows invalid adjudication reasons', () => {
     })
   ).toThrowError('Non-array type: string')
 })
+
+test('supports ballot layout paper size', () => {
+  expect(() =>
+    parseElection({
+      ...electionSample,
+      ballotLayout: {
+        paperSize: 'A4',
+      },
+    })
+  ).toThrowError('"A4" does not match any value in enum')
+
+  expect(() =>
+    parseElection({
+      ...electionSample,
+      ballotLayout: 'letter',
+    })
+  ).toThrowError()
+})

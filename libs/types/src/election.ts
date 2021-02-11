@@ -98,9 +98,19 @@ export interface BallotLocale {
 
 export type BallotStrings = Record<string, string | Translations>
 
+export enum BallotPaperSize {
+  Letter = 'letter',
+  Legal = 'legal',
+}
+
+interface BallotLayout {
+  paperSize: BallotPaperSize
+}
+
 export interface Election {
   readonly _lang?: Translations
   readonly adjudicationReasons?: readonly AdjudicationReason[]
+  readonly ballotLayout?: BallotLayout
   readonly ballotStrings?: BallotStrings
   readonly ballotStyles: readonly BallotStyle[]
   readonly contests: Contests

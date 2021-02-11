@@ -118,7 +118,7 @@ html body .cvox_indicator_container {
   display: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
-/* Default printed paper page settings */
+/* Default printed paper page settings for reports, etc. */
 @page {
   margin: 0.5in;
   size: letter portrait;

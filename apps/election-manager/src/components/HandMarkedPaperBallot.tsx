@@ -45,6 +45,7 @@ import HorizontalRule from './HorizontalRule'
 import { BallotLocale } from '../config/types'
 import { ABSENTEE_TINT_COLOR } from '../config/globals'
 import { defined } from '../utils/assert'
+import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
 
 const localeDateLong = (dateString: string, locale: string) =>
   moment(new Date(dateString)).locale(locale).format('LL')
@@ -214,11 +215,6 @@ registerHandlers(PostRenderBallotProcessor)
 
 const Ballot = styled.div`
   display: none;
-  flex-direction: column;
-  width: 8.5in;
-  min-height: 11in;
-  font-size: 14px;
-  page-break-after: always;
 `
 const SealImage = styled.img`
   max-width: 1in;
@@ -546,7 +542,9 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
     }
 
     const ballotStylesheets = [
-      '/ballot/ballot-layout-letter.css',
+      `/ballot/ballot-layout-paper-size-${getBallotLayoutPageSize(
+        election
+      )}.css`,
       '/ballot/ballot.css',
     ]
 
@@ -608,269 +606,308 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   )
 
   return (
-    <React.Fragment>
-      <Ballot aria-hidden data-ballot ref={ballotRef}>
-        <div className="ballot-footer">
-          <PageFooter>
-            {isAbsenteeMode && (
-              <AbsenteeFooter>
-                <Text bold as="span">
-                  Absentee Ballot
-                </Text>
-              </AbsenteeFooter>
-            )}
-            <OfficialInitials>
-              <Text as="span" small>
-                <Trans
-                  i18nKey="officialInitials"
-                  tOptions={{ lng: locales.primary }}
-                >
-                  Official’s Initials
-                </Trans>
+    <Ballot aria-hidden data-ballot ref={ballotRef}>
+      <div className="ballot-footer">
+        <PageFooter>
+          {isAbsenteeMode && (
+            <AbsenteeFooter>
+              <Text bold as="span">
+                Absentee Ballot
               </Text>
-            </OfficialInitials>
-            <PageFooterMain>
-              <PageFooterRow>
-                <div>
-                  <Text small right as="div">
-                    {dualLanguageWithBreak('Precinct')}
-                  </Text>
-                  <Text as="h2">{precinct.name}</Text>
-                </div>
-                <div>
-                  <Text small right as="div">
-                    {dualLanguageWithBreak('Style')}
-                  </Text>
-                  <Text as="h2">{ballotStyle.id}</Text>
-                </div>
-                <div />
-                <div>
-                  <Text small right as="div">
-                    {dualLanguageWithBreak('Page')}
-                  </Text>
-                  <Text as="h2">
-                    <span className="page-number" />
-                    <span>/</span>
-                    <span className="total-pages" />
-                  </Text>
-                  <Text small left as="div">
-                    {dualLanguageWithBreak('Pages')}
-                  </Text>
-                </div>
-              </PageFooterRow>
-              <PageFooterRow>
-                <div>
-                  <Text small left as="div">
-                    {ballotStyle.partyId &&
-                    primaryPartyName &&
-                    localePrimaryPartyName
-                      ? dualPhraseWithBreak(
-                          `${ballotStyle.partyId && primaryPartyName} ${title}`,
-                          localeElection &&
-                            t('{{primaryPartyName}} {{electionTitle}}', {
-                              lng: locales.secondary,
-                              primaryPartyName: localePrimaryPartyName,
-                              electionTitle: localeElection.title,
-                            })
-                        )
-                      : dualPhraseWithBreak(
-                          election.title,
-                          localeElection && localeElection.title
-                        )}
-                  </Text>
-                </div>
-                <div>
-                  <Text small center as="div">
-                    {dualPhraseWithBreak(
-                      `${county.name}, ${state}`,
-                      localeElection &&
-                        `${localeElection.county.name}, ${localeElection.state}`
-                    )}
-                  </Text>
-                </div>
-                <div>
-                  <Text small right as="div">
-                    {locales.secondary ? (
-                      <React.Fragment>
-                        <strong>{localeDateLong(date, locales.primary)}</strong>
-                        <br />
-                        {localeDateLong(date, locales.secondary)}
-                      </React.Fragment>
-                    ) : (
-                      <React.Fragment>
-                        {localeDateLong(date, locales.primary)}
-                      </React.Fragment>
-                    )}
-                  </Text>
-                </div>
-              </PageFooterRow>
-            </PageFooterMain>
-            <PageFooterQRCode
-              className={qrCodeTargetClassName}
-              data-election={JSON.stringify(election)}
-              data-metadata={JSON.stringify(
-                ((): HMPBBallotMetadata => ({
-                  electionHash,
-                  ballotStyleId,
-                  precinctId,
-                  locales,
-                  isTestMode: !isLiveMode,
-                  ballotType: isAbsenteeMode
-                    ? BallotType.Absentee
-                    : BallotType.Standard,
-                  ballotId,
-                }))()
-              )}
-            />
-          </PageFooter>
-        </div>
-
-        <Content>
-          <CandidateContestsLayout>
-            <IntroColumn>
-              {isAbsenteeMode && (
-                <AbsenteeHeader>
-                  <Text bold>Absentee Ballot</Text>
-                </AbsenteeHeader>
-              )}
-              <BallotHeader>
-                {seal ? (
-                  <div
-                    className="seal"
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(seal),
-                    }}
-                  />
-                ) : sealURL ? (
-                  <div className="seal">
-                    <SealImage src={sealURL} alt="" />
-                  </div>
-                ) : (
-                  <React.Fragment />
-                )}
-                <Prose>
-                  <h2>
-                    {isLiveMode
-                      ? t('Official Ballot', { lng: locales.primary })
-                      : t('TEST BALLOT', { lng: locales.primary })}
-                  </h2>
-                  <h3>
-                    {ballotStyle.partyId && primaryPartyName} {title}
-                  </h3>
-                  <p>
-                    {state}
-                    <br />
-                    {county.name}
-                    <br />
-                    {localeDateLong(date, locales.primary)}
-                  </p>
-                  {localeElection && locales.secondary && (
-                    <p>
-                      <strong>
-                        {isLiveMode
-                          ? t('Official Ballot', { lng: locales.secondary })
-                          : t('TEST BALLOT', {
-                              lng: locales.secondary,
-                            })}
-                      </strong>
-                      <br />
-                      <strong>
-                        {ballotStyle.partyId && primaryPartyName
-                          ? t('{{primaryPartyName}} {{electionTitle}}', {
-                              lng: locales.secondary,
-                              primaryPartyName: localePrimaryPartyName,
-                              electionTitle: localeElection.title,
-                            })
-                          : localeElection.title}
-                      </strong>
-                      <br />
-                      {localeElection.state}
-                      <br />
-                      {localeElection.county.name}
+            </AbsenteeFooter>
+          )}
+          <OfficialInitials>
+            <Text as="span" small>
+              <Trans
+                i18nKey="officialInitials"
+                tOptions={{ lng: locales.primary }}
+              >
+                Official’s Initials
+              </Trans>
+            </Text>
+          </OfficialInitials>
+          <PageFooterMain>
+            <PageFooterRow>
+              <div>
+                <Text small right as="div">
+                  {dualLanguageWithBreak('Precinct')}
+                </Text>
+                <Text as="h2">{precinct.name}</Text>
+              </div>
+              <div>
+                <Text small right as="div">
+                  {dualLanguageWithBreak('Style')}
+                </Text>
+                <Text as="h2">{ballotStyle.id}</Text>
+              </div>
+              <div />
+              <div>
+                <Text small right as="div">
+                  {dualLanguageWithBreak('Page')}
+                </Text>
+                <Text as="h2">
+                  <span className="page-number" />
+                  <span>/</span>
+                  <span className="total-pages" />
+                </Text>
+                <Text small left as="div">
+                  {dualLanguageWithBreak('Pages')}
+                </Text>
+              </div>
+            </PageFooterRow>
+            <PageFooterRow>
+              <div>
+                <Text small left as="div">
+                  {ballotStyle.partyId &&
+                  primaryPartyName &&
+                  localePrimaryPartyName
+                    ? dualPhraseWithBreak(
+                        `${ballotStyle.partyId && primaryPartyName} ${title}`,
+                        localeElection &&
+                          t('{{primaryPartyName}} {{electionTitle}}', {
+                            lng: locales.secondary,
+                            primaryPartyName: localePrimaryPartyName,
+                            electionTitle: localeElection.title,
+                          })
+                      )
+                    : dualPhraseWithBreak(
+                        election.title,
+                        localeElection && localeElection.title
+                      )}
+                </Text>
+              </div>
+              <div>
+                <Text small center as="div">
+                  {dualPhraseWithBreak(
+                    `${county.name}, ${state}`,
+                    localeElection &&
+                      `${localeElection.county.name}, ${localeElection.state}`
+                  )}
+                </Text>
+              </div>
+              <div>
+                <Text small right as="div">
+                  {locales.secondary ? (
+                    <React.Fragment>
+                      <strong>{localeDateLong(date, locales.primary)}</strong>
                       <br />
                       {localeDateLong(date, locales.secondary)}
-                    </p>
-                  )}
-                </Prose>
-              </BallotHeader>
-              <Instructions>
-                <Prose>
-                  <img
-                    src="/ballot/instructions-fill-oval.svg"
-                    alt=""
-                    className="ignore-prose"
-                  />
-                  <h4>{t('Instructions', { lng: locales.primary })}</h4>
-                  <Text small>
-                    {t(
-                      'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                      { lng: locales.primary }
-                    )}
-                  </Text>
-                  <h4>
-                    {t('To Vote for a Write-In', { lng: locales.primary })}
-                  </h4>
-                  <Text small>
-                    <img src="/ballot/instructions-write-in.svg" alt="" />
-                    {t(
-                      'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                      { lng: locales.primary }
-                    )}
-                  </Text>
-                  <h4>{t('To correct a mistake', { lng: locales.primary })}</h4>
-                  <Text small>
-                    {t(
-                      'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                      { lng: locales.primary }
-                    )}
-                  </Text>
-                  {locales.secondary && (
+                    </React.Fragment>
+                  ) : (
                     <React.Fragment>
-                      <HorizontalRule />
-                      <img
-                        src="/ballot/instructions-fill-oval.svg"
-                        alt=""
-                        className="ignore-prose"
-                      />
-                      <h4>{t('Instructions', { lng: locales.secondary })}</h4>
-                      <Text small>
-                        {t(
-                          'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                          { lng: locales.secondary }
-                        )}
-                      </Text>
-                      <h4>
-                        {t('To Vote for a Write-In', {
-                          lng: locales.secondary,
-                        })}
-                      </h4>
-                      <Text small>
-                        <img src="/ballot/instructions-write-in.svg" alt="" />
-                        {t(
-                          'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                          { lng: locales.secondary }
-                        )}
-                      </Text>
-                      <h4>
-                        {t('To correct a mistake', {
-                          lng: locales.secondary,
-                        })}
-                      </h4>
-                      <Text small>
-                        {t(
-                          'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                          { lng: locales.secondary }
-                        )}
-                      </Text>
+                      {localeDateLong(date, locales.primary)}
                     </React.Fragment>
                   )}
-                </Prose>
-              </Instructions>
-            </IntroColumn>
-            {candidateContests.map((contest) => (
+                </Text>
+              </div>
+            </PageFooterRow>
+          </PageFooterMain>
+          <PageFooterQRCode
+            className={qrCodeTargetClassName}
+            data-election={JSON.stringify(election)}
+            data-metadata={JSON.stringify(
+              ((): HMPBBallotMetadata => ({
+                electionHash,
+                ballotStyleId,
+                precinctId,
+                locales,
+                isTestMode: !isLiveMode,
+                ballotType: isAbsenteeMode
+                  ? BallotType.Absentee
+                  : BallotType.Standard,
+                ballotId,
+              }))()
+            )}
+          />
+        </PageFooter>
+      </div>
+
+      <Content>
+        <CandidateContestsLayout>
+          <IntroColumn>
+            {isAbsenteeMode && (
+              <AbsenteeHeader>
+                <Text bold>Absentee Ballot</Text>
+              </AbsenteeHeader>
+            )}
+            <BallotHeader>
+              {seal ? (
+                <div
+                  className="seal"
+                  // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(seal),
+                  }}
+                />
+              ) : sealURL ? (
+                <div className="seal">
+                  <SealImage src={sealURL} alt="" />
+                </div>
+              ) : (
+                <React.Fragment />
+              )}
+              <Prose>
+                <h2>
+                  {isLiveMode
+                    ? t('Official Ballot', { lng: locales.primary })
+                    : t('TEST BALLOT', { lng: locales.primary })}
+                </h2>
+                <h3>
+                  {ballotStyle.partyId && primaryPartyName} {title}
+                </h3>
+                <p>
+                  {state}
+                  <br />
+                  {county.name}
+                  <br />
+                  {localeDateLong(date, locales.primary)}
+                </p>
+                {localeElection && locales.secondary && (
+                  <p>
+                    <strong>
+                      {isLiveMode
+                        ? t('Official Ballot', { lng: locales.secondary })
+                        : t('TEST BALLOT', {
+                            lng: locales.secondary,
+                          })}
+                    </strong>
+                    <br />
+                    <strong>
+                      {ballotStyle.partyId && primaryPartyName
+                        ? t('{{primaryPartyName}} {{electionTitle}}', {
+                            lng: locales.secondary,
+                            primaryPartyName: localePrimaryPartyName,
+                            electionTitle: localeElection.title,
+                          })
+                        : localeElection.title}
+                    </strong>
+                    <br />
+                    {localeElection.state}
+                    <br />
+                    {localeElection.county.name}
+                    <br />
+                    {localeDateLong(date, locales.secondary)}
+                  </p>
+                )}
+              </Prose>
+            </BallotHeader>
+            <Instructions>
+              <Prose>
+                <img
+                  src="/ballot/instructions-fill-oval.svg"
+                  alt=""
+                  className="ignore-prose"
+                />
+                <h4>{t('Instructions', { lng: locales.primary })}</h4>
+                <Text small>
+                  {t(
+                    'To vote, use a black pen to completely fill in the oval to the left of your choice.',
+                    { lng: locales.primary }
+                  )}
+                </Text>
+                <h4>{t('To Vote for a Write-In', { lng: locales.primary })}</h4>
+                <Text small>
+                  <img src="/ballot/instructions-write-in.svg" alt="" />
+                  {t(
+                    'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
+                    { lng: locales.primary }
+                  )}
+                </Text>
+                <h4>{t('To correct a mistake', { lng: locales.primary })}</h4>
+                <Text small>
+                  {t(
+                    'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
+                    { lng: locales.primary }
+                  )}
+                </Text>
+                {locales.secondary && (
+                  <React.Fragment>
+                    <HorizontalRule />
+                    <img
+                      src="/ballot/instructions-fill-oval.svg"
+                      alt=""
+                      className="ignore-prose"
+                    />
+                    <h4>{t('Instructions', { lng: locales.secondary })}</h4>
+                    <Text small>
+                      {t(
+                        'To vote, use a black pen to completely fill in the oval to the left of your choice.',
+                        { lng: locales.secondary }
+                      )}
+                    </Text>
+                    <h4>
+                      {t('To Vote for a Write-In', {
+                        lng: locales.secondary,
+                      })}
+                    </h4>
+                    <Text small>
+                      <img src="/ballot/instructions-write-in.svg" alt="" />
+                      {t(
+                        'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
+                        { lng: locales.secondary }
+                      )}
+                    </Text>
+                    <h4>
+                      {t('To correct a mistake', {
+                        lng: locales.secondary,
+                      })}
+                    </h4>
+                    <Text small>
+                      {t(
+                        'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
+                        { lng: locales.secondary }
+                      )}
+                    </Text>
+                  </React.Fragment>
+                )}
+              </Prose>
+            </Instructions>
+          </IntroColumn>
+          {candidateContests.map((contest) => (
+            <Contest
+              key={contest.id}
+              section={dualPhraseWithSlash(
+                contest.section,
+                localeContestsById?.[contest.id]?.section,
+                { normal: true }
+              )}
+              title={dualPhraseWithSlash(
+                contest.title,
+                localeContestsById?.[contest.id]?.title,
+                { normal: true }
+              )}
+            >
+              {contest.type === 'candidate' && (
+                <React.Fragment>
+                  <p>
+                    {contest.seats === 1
+                      ? dualLanguageWithSlash('Vote for 1', {
+                          normal: true,
+                        })
+                      : dualLanguageWithSlash(
+                          'Vote for not more than {{ seats }}',
+                          { seats: contest.seats, normal: true }
+                        )}
+                  </p>
+                  <CandidateContestChoices
+                    contest={contest}
+                    parties={parties}
+                    vote={votes[contest.id] as CandidateVote}
+                    locales={locales}
+                  />
+                </React.Fragment>
+              )}
+            </Contest>
+          ))}
+          {otherContests.length === 0 && columnFooter}
+        </CandidateContestsLayout>
+        {otherContests.length !== 0 && (
+          <OtherContestsLayout>
+            {otherContests.map((contest) => (
               <Contest
                 key={contest.id}
+                data-contest
+                data-contest-title={contest.title}
                 section={dualPhraseWithSlash(
                   contest.section,
                   localeContestsById?.[contest.id]?.section,
@@ -882,196 +919,148 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                   { normal: true }
                 )}
               >
-                {contest.type === 'candidate' && (
+                {contest.type === 'yesno' && (
                   <React.Fragment>
                     <p>
-                      {contest.seats === 1
-                        ? dualLanguageWithSlash('Vote for 1', {
-                            normal: true,
-                          })
-                        : dualLanguageWithSlash(
-                            'Vote for not more than {{ seats }}',
-                            { seats: contest.seats, normal: true }
-                          )}
+                      <Trans
+                        i18nKey="voteYesOrNo"
+                        tOptions={{ lng: locales.primary }}
+                      >
+                        Vote{' '}
+                        <strong>{contest.yesOption?.label || 'Yes'}</strong> or{' '}
+                        <strong>{contest.noOption?.label || 'No'}</strong>
+                      </Trans>
+                      {locales.secondary && (
+                        <React.Fragment>
+                          {' / '}
+                          <Trans
+                            i18nKey="voteYesOrNo"
+                            tOptions={{ lng: locales.secondary }}
+                          >
+                            Vote{' '}
+                            <strong>{contest.yesOption?.label || 'Yes'}</strong>{' '}
+                            or{' '}
+                            <strong>{contest.noOption?.label || 'No'}</strong>
+                          </Trans>
+                        </React.Fragment>
+                      )}
                     </p>
-                    <CandidateContestChoices
-                      contest={contest}
-                      parties={parties}
-                      vote={votes[contest.id] as CandidateVote}
-                      locales={locales}
+                    <Text
+                      small
+                      preLine
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(contest.description),
+                      }}
                     />
+                    {localeContestsById && (
+                      <Text
+                        small
+                        preLine
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(
+                            (localeContestsById[contest.id] as YesNoContest)
+                              .description
+                          ),
+                        }}
+                      />
+                    )}
+                    <Text bold noWrap>
+                      <BubbleMark checked={hasVote(votes[contest.id], 'yes')}>
+                        <span>
+                          {dualLanguageWithSlash(
+                            contest.yesOption?.label || 'Yes'
+                          )}
+                        </span>
+                      </BubbleMark>
+                    </Text>
+                    <Text bold noWrap>
+                      <BubbleMark checked={hasVote(votes[contest.id], 'no')}>
+                        <span>
+                          {dualLanguageWithSlash(
+                            contest.noOption?.label || 'No'
+                          )}
+                        </span>
+                      </BubbleMark>
+                    </Text>
+                  </React.Fragment>
+                )}
+                {contest.type === 'ms-either-neither' && (
+                  <React.Fragment>
+                    <Text
+                      small
+                      preLine
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(contest.description),
+                      }}
+                    />
+                    {localeContestsById && (
+                      <Text
+                        small
+                        preLine
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(
+                            (localeContestsById[contest.id] as YesNoContest)
+                              .description
+                          ),
+                        }}
+                      />
+                    )}
+                    <p>{contest.eitherNeitherLabel}</p>
+                    <Text key={contest.eitherOption.id} bold>
+                      <BubbleMark
+                        checked={hasVote(
+                          votes[contest.eitherNeitherContestId],
+                          'yes'
+                        )}
+                      >
+                        <span>
+                          {dualLanguageWithSlash(contest.eitherOption.label)}
+                        </span>
+                      </BubbleMark>
+                    </Text>
+                    <Text key={contest.neitherOption.id} bold>
+                      <BubbleMark
+                        checked={hasVote(
+                          votes[contest.eitherNeitherContestId],
+                          'no'
+                        )}
+                      >
+                        <span>
+                          {dualLanguageWithSlash(contest.neitherOption.label)}
+                        </span>
+                      </BubbleMark>
+                    </Text>
+                    <p>{contest.pickOneLabel}</p>
+                    <Text key={contest.firstOption.id} bold>
+                      <BubbleMark
+                        checked={hasVote(
+                          votes[contest.pickOneContestId],
+                          'yes'
+                        )}
+                      >
+                        <span>
+                          {dualLanguageWithSlash(contest.firstOption.label)}
+                        </span>
+                      </BubbleMark>
+                    </Text>
+                    <Text key={contest.secondOption.id} bold>
+                      <BubbleMark
+                        checked={hasVote(votes[contest.pickOneContestId], 'no')}
+                      >
+                        <span>
+                          {dualLanguageWithSlash(contest.secondOption.label)}
+                        </span>
+                      </BubbleMark>
+                    </Text>
                   </React.Fragment>
                 )}
               </Contest>
             ))}
-            {otherContests.length === 0 && columnFooter}
-          </CandidateContestsLayout>
-          {otherContests.length !== 0 && (
-            <OtherContestsLayout>
-              {otherContests.map((contest) => (
-                <Contest
-                  key={contest.id}
-                  data-contest
-                  data-contest-title={contest.title}
-                  section={dualPhraseWithSlash(
-                    contest.section,
-                    localeContestsById?.[contest.id]?.section,
-                    { normal: true }
-                  )}
-                  title={dualPhraseWithSlash(
-                    contest.title,
-                    localeContestsById?.[contest.id]?.title,
-                    { normal: true }
-                  )}
-                >
-                  {contest.type === 'yesno' && (
-                    <React.Fragment>
-                      <p>
-                        <Trans
-                          i18nKey="voteYesOrNo"
-                          tOptions={{ lng: locales.primary }}
-                        >
-                          Vote{' '}
-                          <strong>{contest.yesOption?.label || 'Yes'}</strong>{' '}
-                          or <strong>{contest.noOption?.label || 'No'}</strong>
-                        </Trans>
-                        {locales.secondary && (
-                          <React.Fragment>
-                            {' / '}
-                            <Trans
-                              i18nKey="voteYesOrNo"
-                              tOptions={{ lng: locales.secondary }}
-                            >
-                              Vote{' '}
-                              <strong>
-                                {contest.yesOption?.label || 'Yes'}
-                              </strong>{' '}
-                              or{' '}
-                              <strong>{contest.noOption?.label || 'No'}</strong>
-                            </Trans>
-                          </React.Fragment>
-                        )}
-                      </p>
-                      <Text
-                        small
-                        preLine
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(contest.description),
-                        }}
-                      />
-                      {localeContestsById && (
-                        <Text
-                          small
-                          preLine
-                          dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(
-                              (localeContestsById[contest.id] as YesNoContest)
-                                .description
-                            ),
-                          }}
-                        />
-                      )}
-                      <Text bold noWrap>
-                        <BubbleMark checked={hasVote(votes[contest.id], 'yes')}>
-                          <span>
-                            {dualLanguageWithSlash(
-                              contest.yesOption?.label || 'Yes'
-                            )}
-                          </span>
-                        </BubbleMark>
-                      </Text>
-                      <Text bold noWrap>
-                        <BubbleMark checked={hasVote(votes[contest.id], 'no')}>
-                          <span>
-                            {dualLanguageWithSlash(
-                              contest.noOption?.label || 'No'
-                            )}
-                          </span>
-                        </BubbleMark>
-                      </Text>
-                    </React.Fragment>
-                  )}
-                  {contest.type === 'ms-either-neither' && (
-                    <React.Fragment>
-                      <Text
-                        small
-                        preLine
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(contest.description),
-                        }}
-                      />
-                      {localeContestsById && (
-                        <Text
-                          small
-                          preLine
-                          dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(
-                              (localeContestsById[contest.id] as YesNoContest)
-                                .description
-                            ),
-                          }}
-                        />
-                      )}
-                      <p>{contest.eitherNeitherLabel}</p>
-                      <Text key={contest.eitherOption.id} bold>
-                        <BubbleMark
-                          checked={hasVote(
-                            votes[contest.eitherNeitherContestId],
-                            'yes'
-                          )}
-                        >
-                          <span>
-                            {dualLanguageWithSlash(contest.eitherOption.label)}
-                          </span>
-                        </BubbleMark>
-                      </Text>
-                      <Text key={contest.neitherOption.id} bold>
-                        <BubbleMark
-                          checked={hasVote(
-                            votes[contest.eitherNeitherContestId],
-                            'no'
-                          )}
-                        >
-                          <span>
-                            {dualLanguageWithSlash(contest.neitherOption.label)}
-                          </span>
-                        </BubbleMark>
-                      </Text>
-                      <p>{contest.pickOneLabel}</p>
-                      <Text key={contest.firstOption.id} bold>
-                        <BubbleMark
-                          checked={hasVote(
-                            votes[contest.pickOneContestId],
-                            'yes'
-                          )}
-                        >
-                          <span>
-                            {dualLanguageWithSlash(contest.firstOption.label)}
-                          </span>
-                        </BubbleMark>
-                      </Text>
-                      <Text key={contest.secondOption.id} bold>
-                        <BubbleMark
-                          checked={hasVote(
-                            votes[contest.pickOneContestId],
-                            'no'
-                          )}
-                        >
-                          <span>
-                            {dualLanguageWithSlash(contest.secondOption.label)}
-                          </span>
-                        </BubbleMark>
-                      </Text>
-                    </React.Fragment>
-                  )}
-                </Contest>
-              ))}
-              {columnFooter}
-            </OtherContestsLayout>
-          )}
-        </Content>
-      </Ballot>
-    </React.Fragment>
+            {columnFooter}
+          </OtherContestsLayout>
+        )}
+      </Content>
+    </Ballot>
   )
 }
 
