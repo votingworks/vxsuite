@@ -253,7 +253,7 @@ it('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('Remove CVR Files…'))
-  fireEvent.click(getByText('Remove All CVR Files'))
+  fireEvent.click(getByText('Remove CVR Files'))
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('0')
   )

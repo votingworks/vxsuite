@@ -28,7 +28,13 @@ import {
   SaveElection,
   PrintedBallot,
   ISO8601Timestamp,
+  FullElectionExternalTally,
 } from './config/types'
+import { convertSEMsFileToExternalTally } from './utils/semsTallies'
+import {
+  convertFileToStorageString,
+  convertStorageStringToFile,
+} from './utils/file'
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition
@@ -36,6 +42,7 @@ export interface AppStorage {
   isOfficialResults?: boolean
   printedBallots?: PrintedBallot[]
   configuredAt?: ISO8601Timestamp
+  externalVoteRecordsFile?: string
 }
 
 export interface Props extends RouteComponentProps {
@@ -47,6 +54,7 @@ export const cvrsStorageKey = 'cvrFiles'
 export const isOfficialResultsKey = 'isOfficialResults'
 export const printedBallotsStorageKey = 'printedBallots'
 export const configuredAtStorageKey = 'configuredAt'
+export const externalVoteRecordsFileStorageKey = 'externalVoteRecordsFile'
 
 const AppRoot: React.FC<Props> = ({ storage }) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
@@ -62,6 +70,8 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   }, [storage])
 
   const getCVRFiles = async () => storage.get(cvrsStorageKey)
+  const getExternalFile = async () =>
+    storage.get(externalVoteRecordsFileStorageKey)
   const getIsOfficialResults = async () => storage.get(isOfficialResultsKey)
 
   const [
@@ -87,6 +97,11 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   const [fullElectionTally, setFullElectionTally] = useState(
     getEmptyFullElectionTally()
   )
+
+  const [
+    fullElectionExternalTally,
+    setFullElectionExternalTally,
+  ] = useState<FullElectionExternalTally>()
 
   const doMountIfNotRecentlyEjected = useCallback(async () => {
     if (!recentlyEjected) {
@@ -163,9 +178,47 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
             setIsOfficialResults((await getIsOfficialResults()) || false)
           }
         }
+
+        if (
+          fullElectionExternalTally === undefined &&
+          storageElectionDefinition
+        ) {
+          const storageExternalFileJSON = await getExternalFile()
+          if (storageExternalFileJSON) {
+            const importedData = convertStorageStringToFile(
+              storageExternalFileJSON
+            )
+            if (importedData) {
+              const { file, content } = importedData
+              setIsTabulationRunning(true)
+              const externalTally = convertSEMsFileToExternalTally(
+                content,
+                storageElectionDefinition.election,
+                file
+              )
+              setFullElectionExternalTally(externalTally)
+              setIsTabulationRunning(false)
+            }
+          }
+        }
       }
     })()
   })
+
+  const saveFullElectionExternalTally = (
+    externalTally: FullElectionExternalTally | undefined
+  ) => {
+    setFullElectionExternalTally(externalTally)
+    if (externalTally) {
+      const storageString = convertFileToStorageString(
+        externalTally.file,
+        externalTally.fileContent
+      )
+      storage.set(externalVoteRecordsFileStorageKey, storageString)
+    } else {
+      storage.remove(externalVoteRecordsFileStorageKey)
+    }
+  }
 
   const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = (
     newCVRFiles = CastVoteRecordFiles.empty
@@ -233,6 +286,8 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
         addPrintedBallot,
         fullElectionTally,
         setFullElectionTally,
+        fullElectionExternalTally,
+        saveFullElectionExternalTally,
         isTabulationRunning,
         setIsTabulationRunning,
       }}

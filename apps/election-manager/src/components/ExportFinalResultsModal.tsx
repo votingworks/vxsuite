@@ -1,11 +1,11 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import path from 'path'
 import fileDownload from 'js-file-download'
 
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
-import Button from './Button'
+import Button, { SegmentedButton } from './Button'
 import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
@@ -14,10 +14,7 @@ import USBControllerButton from './USBControllerButton'
 import ConverterClient from '../lib/ConverterClient'
 import { UsbDriveStatus, getDevicePath } from '../lib/usbstick'
 import { generateFinalExportDefaultFilename } from '../utils/filenames'
-
-function throwBadStatus(s: never): never {
-  throw new Error(`Bad status: ${s}`)
-}
+import throwIllegalValue from '../utils/throwIllegalValue'
 
 const USBImage = styled.img`
   margin-right: auto;
@@ -45,17 +42,37 @@ const ExportFinalResultsModal: React.FC<Props> = ({
     usbDriveStatus,
     castVoteRecordFiles,
     electionDefinition,
+    fullElectionExternalTally,
   } = useContext(AppContext)
 
   const [currentState, setCurrentState] = useState(ModalState.INIT)
   const [errorMessage, setErrorMessage] = useState('')
 
   const [savedFilename, setSavedFilename] = useState('')
+  const [includeExternalFile, setIncludeExternalFile] = useState(true)
+  const [defaultFilename, setDefaultFilename] = useState('')
+
+  const isTestMode = castVoteRecordFiles?.fileMode === 'test'
+
+  /*
+   * We use useEffect here since this Modal is rendered even when the Modal
+   * is closed, i.e. when isOpen is false. We want to "reset" the filename whenever
+   * the modal opens again but not on every render of the dialog.
+   */
+  useEffect(() => {
+    setDefaultFilename(
+      generateFinalExportDefaultFilename(
+        isTestMode,
+        electionDefinition!.election
+      )
+    )
+  }, [isOpen])
 
   const onClose = () => {
     setErrorMessage('')
     setCurrentState(ModalState.INIT)
     setSavedFilename('')
+    setDefaultFilename('')
     onCloseFromProps()
   }
 
@@ -64,6 +81,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({
     defaultFilename: string
   ) => {
     setCurrentState(ModalState.SAVING)
+    const includeExternalData = fullElectionExternalTally && includeExternalFile
 
     try {
       const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
@@ -94,7 +112,18 @@ const ExportFinalResultsModal: React.FC<Props> = ({
       await client.process()
 
       // download the result
-      const results = await client.getOutputFile(resultsFile.name)
+      let results = await client.getOutputFile(resultsFile.name)
+
+      // If we are combinining with external file, do the combination now
+      if (includeExternalData) {
+        await client.reset()
+        const fileFromResults = new File([results], 'temp-name.csv')
+        results = await client.combineResultsFiles(
+          fileFromResults,
+          fullElectionExternalTally!.file
+        )
+      }
+
       if (!window.kiosk) {
         fileDownload(results, defaultFilename, 'text/csv')
       } else {
@@ -189,14 +218,8 @@ const ExportFinalResultsModal: React.FC<Props> = ({
   }
 
   if (currentState !== ModalState.INIT) {
-    throwBadStatus(currentState) // Creates a compile time check that all states are being handled.
+    throwIllegalValue(currentState) // Creates a compile time check that all states are being handled.
   }
-
-  const isTestMode = castVoteRecordFiles?.fileMode === 'test'
-  const defaultFilename = generateFinalExportDefaultFilename(
-    isTestMode,
-    electionDefinition!.election
-  )
 
   switch (usbDriveStatus) {
     case UsbDriveStatus.absent:
@@ -247,7 +270,31 @@ const ExportFinalResultsModal: React.FC<Props> = ({
           }
         />
       )
-    case UsbDriveStatus.mounted:
+    case UsbDriveStatus.mounted: {
+      let options = null
+      if (fullElectionExternalTally) {
+        options = (
+          <p>
+            Include data from SEMS file:{' '}
+            <SegmentedButton>
+              <Button
+                small
+                disabled={includeExternalFile}
+                onPress={() => setIncludeExternalFile(true)}
+              >
+                Yes
+              </Button>
+              <Button
+                small
+                disabled={!includeExternalFile}
+                onPress={() => setIncludeExternalFile(false)}
+              >
+                No
+              </Button>
+            </SegmentedButton>
+          </p>
+        )
+      }
       return (
         <Modal
           isOpen={isOpen}
@@ -255,6 +302,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({
             <MainChild>
               <Prose>
                 <h1>Save Results File</h1>
+                {options}
                 <p>
                   Save the final tally results to{' '}
                   <strong>{defaultFilename}</strong> directly on the inserted
@@ -280,9 +328,10 @@ const ExportFinalResultsModal: React.FC<Props> = ({
           }
         />
       )
+    }
     default:
       // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
-      throwBadStatus(usbDriveStatus)
+      throwIllegalValue(usbDriveStatus)
   }
 }
 

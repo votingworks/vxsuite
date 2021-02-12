@@ -15,6 +15,7 @@ import {
   PrintedBallot,
   ISO8601Timestamp,
   FullElectionTally,
+  OptionalFullElectionExternalTally,
 } from '../src/config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
@@ -62,6 +63,10 @@ interface RenderInAppContextParams {
   isTabulationRunning?: boolean
   setFullElectionTally?: React.Dispatch<React.SetStateAction<FullElectionTally>>
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>
+  saveFullElectionExternalTally?: (
+    externalTally: OptionalFullElectionExternalTally
+  ) => void
+  fullElectionExternalTally?: OptionalFullElectionExternalTally
 }
 
 export default function renderInAppContext(
@@ -86,6 +91,8 @@ export default function renderInAppContext(
     isTabulationRunning = false,
     setFullElectionTally = jest.fn(),
     setIsTabulationRunning = jest.fn(),
+    saveFullElectionExternalTally = jest.fn(),
+    fullElectionExternalTally = undefined,
   } = {} as RenderInAppContextParams
 ): RenderResult {
   return testRender(
@@ -108,6 +115,8 @@ export default function renderInAppContext(
         isTabulationRunning,
         setFullElectionTally,
         setIsTabulationRunning,
+        saveFullElectionExternalTally,
+        fullElectionExternalTally,
       }}
     >
       <Router history={history}>{component}</Router>

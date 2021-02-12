@@ -232,7 +232,8 @@ function sanitizeItem(item: string): string {
 
 export function convertSEMsFileToExternalTally(
   fileContent: string,
-  election: Election
+  election: Election,
+  file: File
 ): FullElectionExternalTally {
   const parsedRows: SEMSFileRow[] = []
   fileContent.split('\n').forEach((row) => {
@@ -325,5 +326,13 @@ export function convertSEMsFileToExternalTally(
     },
     resultsByCategory,
     fileContent,
+    file,
   }
+}
+
+export function getPrecinctIdsInExternalTally(
+  tally: FullElectionExternalTally
+): string[] {
+  const resultsByPrecinct = tally.resultsByCategory.get(TallyCategory.Precinct)
+  return resultsByPrecinct ? Object.keys(resultsByPrecinct) : []
 }
