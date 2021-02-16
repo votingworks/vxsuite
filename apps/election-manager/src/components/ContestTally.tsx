@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types'
 import pluralize from 'pluralize'
 
-import { Tally, YesNoContestOptionTally } from '../config/types'
+import { ExternalTally, Tally, YesNoContestOptionTally } from '../config/types'
 
 import Prose from './Prose'
 import Text from './Text'
@@ -18,6 +18,7 @@ import {
   getContestOptionsForContest,
 } from '../utils/election'
 import { getTallyForContestOption } from '../lib/votecounting'
+import { combineContestTallies } from '../utils/semsTallies'
 
 const ContestMeta = styled.div`
   float: right;
@@ -36,12 +37,14 @@ const Contest = styled.div`
 interface Props {
   election: Election
   electionTally: Tally
+  externalTally?: ExternalTally
   precinctId?: string
 }
 
 const ContestTally: React.FC<Props> = ({
   election,
   electionTally,
+  externalTally,
   precinctId,
 }) => {
   // if there is no precinctId defined, we don't need to do extra work
@@ -57,15 +60,23 @@ const ContestTally: React.FC<Props> = ({
         if (!(electionContest.id in electionTally.contestTallies)) {
           return null
         }
-        const { contest, tallies, metadata } = electionTally.contestTallies[
+        const externalTallyContest =
+          externalTally?.contestTallies[electionContest.id]
+        const primaryContestTally = electionTally.contestTallies[
           electionContest.id
         ]!
+
+        const contestTally = externalTallyContest
+          ? combineContestTallies(primaryContestTally, externalTallyContest)
+          : primaryContestTally
+
+        const { contest, tallies, metadata } = contestTally
+
         const talliesRelevant = precinctId
           ? districts.includes(contest.districtId)
           : true
 
         const { ballots, overvotes, undervotes } = metadata
-
         const options = getContestOptionsForContest(contest as AnyContest)
 
         return (

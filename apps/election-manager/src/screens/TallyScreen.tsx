@@ -139,8 +139,15 @@ const TallyScreen: React.FC = () => {
 
   const resultsByPrecinct =
     fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {}
+  const externalResultsByPrecinct =
+    fullElectionExternalTally?.resultsByCategory.get(TallyCategory.Precinct) ||
+    {}
   const resultsByScanner =
     fullElectionTally?.resultsByCategory.get(TallyCategory.Scanner) || {}
+  const totalBallotCountVotingWorks =
+    fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0
+  const totalBallotCountExternal =
+    fullElectionExternalTally?.overallTally.numberOfBallotsCounted ?? 0
 
   const tallyResultsTable = isTabulationRunning ? (
     <Loading>Tabulating Results…</Loading>
@@ -165,12 +172,19 @@ const TallyScreen: React.FC = () => {
             .map((precinct) => {
               const precinctBallotsCount =
                 resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0
+              const externalPrecinctBallotsCount =
+                externalResultsByPrecinct[precinct.id]
+                  ?.numberOfBallotsCounted ?? 0
               return (
                 <tr key={precinct.id}>
                   <TD narrow nowrap>
                     {precinct.name}
                   </TD>
-                  <TD>{format.count(precinctBallotsCount)}</TD>
+                  <TD>
+                    {format.count(
+                      precinctBallotsCount + externalPrecinctBallotsCount
+                    )}
+                  </TD>
                   <TD>
                     <LinkButton
                       small
@@ -191,7 +205,7 @@ const TallyScreen: React.FC = () => {
             <TD>
               <strong data-testid="total-ballot-count">
                 {format.count(
-                  fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0
+                  totalBallotCountVotingWorks + totalBallotCountExternal
                 )}
               </strong>
             </TD>
@@ -209,6 +223,13 @@ const TallyScreen: React.FC = () => {
         </tbody>
       </Table>
       <h2>Ballot Count by Scanner</h2>
+      {fullElectionExternalTally && (
+        <p>
+          The following results only include ballots counted with VotingWorks
+          scanners. The data from the imported SEMs file is not included in
+          these reports.
+        </p>
+      )}
       <Table>
         <tbody>
           <tr>
