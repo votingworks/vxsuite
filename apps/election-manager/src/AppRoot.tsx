@@ -13,7 +13,10 @@ import {
   doUnmount,
   UsbDriveStatus,
 } from './lib/usbstick'
-import { getEmptyFullElectionTally } from './lib/votecounting'
+import {
+  computeFullElectionTally,
+  getEmptyFullElectionTally,
+} from './lib/votecounting'
 
 import AppContext from './contexts/AppContext'
 
@@ -29,12 +32,15 @@ import {
   PrintedBallot,
   ISO8601Timestamp,
   FullElectionExternalTally,
+  CastVoteRecordLists,
+  OptionalFile,
 } from './config/types'
-import { convertSEMsFileToExternalTally } from './utils/semsTallies'
 import {
   convertFileToStorageString,
   convertStorageStringToFile,
 } from './utils/file'
+import { convertSEMsFileToExternalTally } from './utils/semsTallies'
+import readFileAsync from './lib/readFileAsync'
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition
@@ -102,6 +108,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     fullElectionExternalTally,
     setFullElectionExternalTally,
   ] = useState<FullElectionExternalTally>()
+  const [externalVoteRecordsFile, setExternalVoteRecordsFile] = useState<File>()
 
   const doMountIfNotRecentlyEjected = useCallback(async () => {
     if (!recentlyEjected) {
@@ -189,15 +196,8 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
               storageExternalFileJSON
             )
             if (importedData) {
-              const { file, content } = importedData
-              setIsTabulationRunning(true)
-              const externalTally = convertSEMsFileToExternalTally(
-                content,
-                storageElectionDefinition.election,
-                file
-              )
-              setFullElectionExternalTally(externalTally)
-              setIsTabulationRunning(false)
+              const file = importedData
+              setExternalVoteRecordsFile(file)
             }
           }
         }
@@ -205,17 +205,60 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     })()
   })
 
-  const saveFullElectionExternalTally = (
-    externalTally: FullElectionExternalTally | undefined
+  const computeVoteCounts = useCallback(
+    (castVoteRecords: CastVoteRecordLists) => {
+      setIsTabulationRunning(true)
+      const fullTally = computeFullElectionTally(
+        electionDefinition!.election,
+        castVoteRecords
+      )
+      setFullElectionTally(fullTally)
+      setIsTabulationRunning(false)
+    },
+    [setFullElectionTally, electionDefinition]
+  )
+
+  const computeExternalVoteCounts = useCallback(
+    async (externalVoteRecordsFile: OptionalFile) => {
+      if (externalVoteRecordsFile) {
+        setIsTabulationRunning(true)
+        const fileContent = await readFileAsync(externalVoteRecordsFile)
+        const externalTally = convertSEMsFileToExternalTally(
+          fileContent,
+          electionDefinition!.election
+        )
+        setFullElectionExternalTally(externalTally)
+        setIsTabulationRunning(false)
+      } else {
+        setFullElectionExternalTally(undefined)
+      }
+    },
+    [setFullElectionExternalTally, electionDefinition]
+  )
+
+  useEffect(() => {
+    if (electionDefinition) {
+      computeVoteCounts(castVoteRecordFiles.castVoteRecords)
+    }
+  }, [computeVoteCounts, castVoteRecordFiles])
+
+  useEffect(() => {
+    if (electionDefinition) {
+      computeExternalVoteCounts(externalVoteRecordsFile)
+    }
+  }, [computeExternalVoteCounts, externalVoteRecordsFile])
+
+  const saveExternalVoteRecordsFile = async (
+    externalVoteRecordsFile: File | undefined
   ) => {
-    setFullElectionExternalTally(externalTally)
-    if (externalTally) {
-      const storageString = convertFileToStorageString(
-        externalTally.file,
-        externalTally.fileContent
+    if (externalVoteRecordsFile) {
+      setExternalVoteRecordsFile(externalVoteRecordsFile)
+      const storageString = await convertFileToStorageString(
+        externalVoteRecordsFile
       )
       storage.set(externalVoteRecordsFileStorageKey, storageString)
     } else {
+      setExternalVoteRecordsFile(undefined)
       storage.remove(externalVoteRecordsFileStorageKey)
     }
   }
@@ -287,7 +330,9 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
         fullElectionTally,
         setFullElectionTally,
         fullElectionExternalTally,
-        saveFullElectionExternalTally,
+        externalVoteRecordsFile,
+        saveExternalVoteRecordsFile,
+        setFullElectionExternalTally,
         isTabulationRunning,
         setIsTabulationRunning,
       }}

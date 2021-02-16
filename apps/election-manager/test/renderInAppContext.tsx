@@ -16,6 +16,7 @@ import {
   ISO8601Timestamp,
   FullElectionTally,
   OptionalFullElectionExternalTally,
+  OptionalFile,
 } from '../src/config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
@@ -63,10 +64,12 @@ interface RenderInAppContextParams {
   isTabulationRunning?: boolean
   setFullElectionTally?: React.Dispatch<React.SetStateAction<FullElectionTally>>
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>
-  saveFullElectionExternalTally?: (
-    externalTally: OptionalFullElectionExternalTally
-  ) => void
+  setFullElectionExternalTally?: React.Dispatch<
+    React.SetStateAction<OptionalFullElectionExternalTally>
+  >
+  saveExternalVoteRecordsFile?: (externalFile: OptionalFile) => void
   fullElectionExternalTally?: OptionalFullElectionExternalTally
+  externalVoteRecordsFile?: OptionalFile
 }
 
 export default function renderInAppContext(
@@ -91,8 +94,10 @@ export default function renderInAppContext(
     isTabulationRunning = false,
     setFullElectionTally = jest.fn(),
     setIsTabulationRunning = jest.fn(),
-    saveFullElectionExternalTally = jest.fn(),
+    saveExternalVoteRecordsFile = jest.fn(),
+    setFullElectionExternalTally = jest.fn(),
     fullElectionExternalTally = undefined,
+    externalVoteRecordsFile = undefined,
   } = {} as RenderInAppContextParams
 ): RenderResult {
   return testRender(
@@ -115,8 +120,10 @@ export default function renderInAppContext(
         isTabulationRunning,
         setFullElectionTally,
         setIsTabulationRunning,
-        saveFullElectionExternalTally,
+        saveExternalVoteRecordsFile,
+        setFullElectionExternalTally,
         fullElectionExternalTally,
+        externalVoteRecordsFile,
       }}
     >
       <Router history={history}>{component}</Router>

@@ -42,7 +42,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({
     usbDriveStatus,
     castVoteRecordFiles,
     electionDefinition,
-    fullElectionExternalTally,
+    externalVoteRecordsFile,
   } = useContext(AppContext)
 
   const [currentState, setCurrentState] = useState(ModalState.INIT)
@@ -81,7 +81,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({
     defaultFilename: string
   ) => {
     setCurrentState(ModalState.SAVING)
-    const includeExternalData = fullElectionExternalTally && includeExternalFile
+    const includeExternalData = externalVoteRecordsFile && includeExternalFile
 
     try {
       const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
@@ -120,7 +120,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({
         const fileFromResults = new File([results], 'temp-name.csv')
         results = await client.combineResultsFiles(
           fileFromResults,
-          fullElectionExternalTally!.file
+          externalVoteRecordsFile!
         )
       }
 
@@ -272,7 +272,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({
       )
     case UsbDriveStatus.mounted: {
       let options = null
-      if (fullElectionExternalTally) {
+      if (externalVoteRecordsFile) {
         options = (
           <p>
             Include data from SEMS file:{' '}

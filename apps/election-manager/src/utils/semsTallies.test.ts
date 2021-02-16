@@ -442,8 +442,7 @@ describe('convertSEMsFileToExternalTally', () => {
     const semsFileContent = await fs.readFile(eitherNeitherSEMsPath, 'utf8')
     const convertedTally = convertSEMsFileToExternalTally(
       semsFileContent,
-      electionWithMsEitherNeither,
-      new File(['blah'], 'name.txt')
+      electionWithMsEitherNeither
     )
 
     const expectedNumberOfVotesByPrecinct: Dictionary<number> = {
@@ -548,8 +547,7 @@ describe('convertSEMsFileToExternalTally', () => {
     const semsFileContent = await fs.readFile(primarySEMsPath, 'utf8')
     const convertedTally = convertSEMsFileToExternalTally(
       semsFileContent,
-      multiPartyPrimaryElection,
-      new File(['blah'], 'name.txt')
+      multiPartyPrimaryElection
     )
 
     const expectedNumberOfVotesByPrecinct: Dictionary<number> = {

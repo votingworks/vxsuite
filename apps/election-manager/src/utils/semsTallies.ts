@@ -232,8 +232,7 @@ function sanitizeItem(item: string): string {
 
 export function convertSEMsFileToExternalTally(
   fileContent: string,
-  election: Election,
-  file: File
+  election: Election
 ): FullElectionExternalTally {
   const parsedRows: SEMSFileRow[] = []
   fileContent.split('\n').forEach((row) => {
@@ -325,8 +324,6 @@ export function convertSEMsFileToExternalTally(
       ),
     },
     resultsByCategory,
-    fileContent,
-    file,
   }
 }
 

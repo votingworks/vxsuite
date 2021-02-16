@@ -1,8 +1,7 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import moment from 'moment'
 
 import {
-  CastVoteRecordLists,
   TallyCategory,
   InputEventFunction,
   ResultsFileType,
@@ -13,7 +12,6 @@ import * as format from '../utils/format'
 
 import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'
-import { computeFullElectionTally } from '../lib/votecounting'
 import {
   convertSEMsFileToExternalTally,
   getPrecinctIdsInExternalTally,
@@ -42,8 +40,8 @@ const TallyScreen: React.FC = () => {
     electionDefinition,
     isOfficialResults,
     saveIsOfficialResults,
-    setFullElectionTally,
-    saveFullElectionExternalTally,
+    saveExternalVoteRecordsFile,
+    externalVoteRecordsFile,
     setIsTabulationRunning,
     isTabulationRunning,
     fullElectionTally,
@@ -89,19 +87,6 @@ const TallyScreen: React.FC = () => {
     !!castVoteRecordFileList.length || !!castVoteRecordFiles.lastError
   const hasAnyFiles = hasCastVoteRecordFiles || !!fullElectionExternalTally
 
-  const computeVoteCounts = useCallback(
-    async (castVoteRecords: CastVoteRecordLists) => {
-      setIsTabulationRunning(true)
-      const fullTally = await computeFullElectionTally(
-        election,
-        castVoteRecords
-      )
-      setFullElectionTally(fullTally)
-      setIsTabulationRunning(false)
-    },
-    [setFullElectionTally]
-  )
-
   const [isImportExternalModalOpen, setIsImportExternalModalOpen] = useState(
     false
   )
@@ -116,15 +101,13 @@ const TallyScreen: React.FC = () => {
       setIsImportExternalModalOpen(true)
       setIsTabulationRunning(true)
       const fileContent = await readFileAsync(files[0])
+      // Compute the tallies to see if there are any errors, if so display
+      // an error modal.
       try {
-        const externalTally = convertSEMsFileToExternalTally(
-          fileContent,
-          election,
-          files[0]
-        )
-        saveFullElectionExternalTally(externalTally)
+        convertSEMsFileToExternalTally(fileContent, election)
         setIsImportExternalModalOpen(false)
         setIsTabulationRunning(false)
+        saveExternalVoteRecordsFile(files[0])
       } catch (error) {
         setExternalImportErrorMessage(
           `Failed to import external file. ${error.message}`
@@ -133,10 +116,6 @@ const TallyScreen: React.FC = () => {
       }
     }
   }
-
-  useEffect(() => {
-    computeVoteCounts(castVoteRecordFiles.castVoteRecords)
-  }, [computeVoteCounts, castVoteRecordFiles])
 
   const [hasConverter, setHasConverter] = useState(false)
   useEffect(() => {
@@ -301,8 +280,8 @@ const TallyScreen: React.FC = () => {
 
   let externalTallyRow = null
   let externalFileBallotCount = 0
-  if (fullElectionExternalTally) {
-    const { file, overallTally } = fullElectionExternalTally
+  if (fullElectionExternalTally && externalVoteRecordsFile) {
+    const { overallTally } = fullElectionExternalTally
     const precinctsInExternalFile = getPrecinctIdsInExternalTally(
       fullElectionExternalTally
     )
@@ -310,10 +289,10 @@ const TallyScreen: React.FC = () => {
     externalTallyRow = (
       <tr>
         <TD narrow nowrap>
-          {moment(file.lastModified).format(TIME_FORMAT)}
+          {moment(externalVoteRecordsFile.lastModified).format(TIME_FORMAT)}
         </TD>
         <TD narrow nowrap>
-          SEMS File ({file.name})
+          SEMS File ({externalVoteRecordsFile.name})
         </TD>
         <TD narrow>{format.count(externalFileBallotCount)}</TD>
         <TD>{getPrecinctNames(precinctsInExternalFile)}</TD>
@@ -423,7 +402,7 @@ const TallyScreen: React.FC = () => {
           </Button>{' '}
           <Button
             danger
-            disabled={!fullElectionExternalTally}
+            disabled={!externalVoteRecordsFile}
             onPress={() => confirmRemoveFiles(ResultsFileType.SEMS)}
           >
             Remove SEMS File…

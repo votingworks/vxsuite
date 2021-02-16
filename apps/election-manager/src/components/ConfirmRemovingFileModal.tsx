@@ -23,8 +23,8 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
   const {
     castVoteRecordFiles,
     saveCastVoteRecordFiles,
-    saveFullElectionExternalTally,
-    fullElectionExternalTally,
+    saveExternalVoteRecordsFile,
+    externalVoteRecordsFile,
   } = useContext(AppContext)
 
   const resetFiles = (fileType: ResultsFileType) => {
@@ -33,7 +33,7 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
         saveCastVoteRecordFiles()
         break
       case ResultsFileType.SEMS:
-        saveFullElectionExternalTally(undefined)
+        saveExternalVoteRecordsFile(undefined)
         break
       default:
         throwIllegalValue(fileType)
@@ -68,9 +68,12 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       break
     }
     case ResultsFileType.SEMS: {
-      const { file } = fullElectionExternalTally!
       fileTypeName = 'SEMS'
-      mainContent = <p>Do you want to remove the SEMs file {file.name}?</p>
+      mainContent = (
+        <p>
+          Do you want to remove the SEMs file {externalVoteRecordsFile!.name}?
+        </p>
+      )
       break
     }
     default:

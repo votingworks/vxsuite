@@ -1,3 +1,5 @@
+import readFileAsync from '../lib/readFileAsync'
+
 export async function copyFile(inputFile: File): Promise<File> {
   const reader = new FileReader()
   return new Promise((resolve) => {
@@ -8,10 +10,10 @@ export async function copyFile(inputFile: File): Promise<File> {
   })
 }
 
-export function convertFileToStorageString(
-  inputFile: File,
-  fileContent: string
-): string {
+export async function convertFileToStorageString(
+  inputFile: File
+): Promise<string> {
+  const fileContent = await readFileAsync(inputFile)
   return JSON.stringify({
     name: inputFile.name,
     lastModified: inputFile.lastModified,
@@ -21,14 +23,11 @@ export function convertFileToStorageString(
 
 export function convertStorageStringToFile(
   inputString: string
-): { file: File; content: string } | undefined {
+): File | undefined {
   const { name, lastModified, content } = JSON.parse(inputString)
   if (!content || !name) {
     return undefined
   }
   const file = new File([content], name, { lastModified })
-  return {
-    file,
-    content,
-  }
+  return file
 }

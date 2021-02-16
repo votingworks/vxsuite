@@ -142,11 +142,10 @@ test('render export modal when a usb drive is mounted and exports with external 
     {
       usbDriveStatus: UsbDriveStatus.mounted,
       fullElectionExternalTally: {
-        file: externalFile,
-        fileContent: 'content',
         overallTally: { contestTallies: {}, numberOfBallotsCounted: 0 },
         resultsByCategory: new Map(),
       },
+      externalVoteRecordsFile: externalFile,
     }
   )
   getByText('Save Results File')
