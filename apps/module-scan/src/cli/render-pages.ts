@@ -1,19 +1,30 @@
-import { promises as fs } from 'fs'
-import { join, dirname, extname, basename } from 'path'
+import { BallotType, getPrecinctById } from '@votingworks/types'
 import chalk from 'chalk'
+import { promises as fs } from 'fs'
 import { writeFile } from 'fs-extra'
+import { basename, dirname, extname, join } from 'path'
+import Store from '../store'
 
 export function printHelp(out: typeof process.stdout): void {
-  out.write(`${chalk.bold('render-pages')} PDF ${chalk.italic('[PDF …]')}\n`)
+  out.write(
+    `${chalk.bold('render-pages')} SOURCE ${chalk.italic('[SOURCE …]')}\n`
+  )
   out.write('\n')
   out.write(chalk.bold('Description\n'))
-  out.write(chalk.italic('Render pages of PDFs alongside them.\n'))
+  out.write(chalk.italic('Render ballot pages from PDF or DB files.\n'))
   out.write('\n')
-  out.write(chalk.bold('Example - Render a 3-page ballot\n'))
+  out.write(chalk.bold('Example - Render a 3-page ballot from PDF\n'))
   out.write('$ render-pages ballot.pdf\n')
   out.write('📝 ballot-p1.png\n')
   out.write('📝 ballot-p2.png\n')
   out.write('📝 ballot-p3.png\n')
+  out.write('\n')
+  out.write(chalk.bold('Example - Render all ballots from a DB\n'))
+  out.write('$ render-pages ballots.db\n')
+  out.write('📝 ballots-4-Bywy-TEST-p1.png\n')
+  out.write('📝 ballots-4-Bywy-TEST-p2.png\n')
+  out.write('📝 ballots-5-District-5-TEST-p1.png\n')
+  out.write('📝 ballots-5-District-5-TEST-p2.png\n')
 }
 
 export default async function main(
@@ -25,7 +36,7 @@ export default async function main(
     return -1
   }
 
-  const pdfPaths: string[] = []
+  const paths: string[] = []
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
@@ -37,7 +48,7 @@ export default async function main(
         return 0
 
       default:
-        pdfPaths.push(arg)
+        paths.push(arg)
     }
   }
 
@@ -45,16 +56,79 @@ export default async function main(
   const { default: pdfToImages } = await import('../util/pdfToImages')
   const { toPNG } = await import('../util/images')
 
-  for (const pdfPath of pdfPaths) {
-    const pdfDir = dirname(pdfPath)
-    const pdfExt = extname(pdfPath)
-    const pdfBase = basename(pdfPath, pdfExt)
-    const pdf = await fs.readFile(pdfPath)
-
+  async function* renderPages(
+    pdf: Buffer,
+    dir: string,
+    base: string
+  ): AsyncGenerator<string> {
     for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-      const pngPath = join(pdfDir, `${pdfBase}-p${pageNumber}.png`)
-      stdout.write(`📝 ${pngPath}\n`)
+      const pngPath = join(dir, `${base}-p${pageNumber}.png`)
       await writeFile(pngPath, await toPNG(page))
+      yield pngPath
+    }
+  }
+
+  for (const path of paths) {
+    const dir = dirname(path)
+    const ext = extname(path)
+    const base = basename(path, ext)
+    const queue: { pdf: Buffer; base: string }[] = []
+
+    if (ext === '.pdf') {
+      queue.push({ pdf: await fs.readFile(path), base })
+    } else if (ext === '.db') {
+      const store = await Store.fileStore(path)
+      const electionDefinition = await store.getElectionDefinition()
+
+      if (!electionDefinition) {
+        stderr.write(`✘ ${path} has no election definition\n`)
+        return 1
+      }
+
+      const { election } = electionDefinition
+
+      for (const [pdf, layouts] of await store.getHmpbTemplates()) {
+        const {
+          ballotStyleId,
+          precinctId,
+          isTestMode,
+          ballotType,
+        } = layouts[0].ballotImage.metadata
+        const precinct =
+          getPrecinctById({ election, precinctId })?.name ?? precinctId
+        queue.push({
+          pdf,
+          base: [
+            base,
+            ballotStyleId,
+            precinct,
+            isTestMode ? 'TEST' : 'LIVE',
+            ballotType === BallotType.Absentee
+              ? 'absentee'
+              : ballotType === BallotType.Provisional
+              ? 'provisional'
+              : ballotType === BallotType.Standard
+              ? ''
+              : ((): never => {
+                  /* istanbul ignore next */
+                  throw new Error(`unknown ballot type: ${ballotType}`)
+                })(),
+          ]
+            .join('-')
+            .replace(/[^-\w\d]+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/(^-+|-+$)/g, ''),
+        })
+      }
+    } else {
+      stderr.write(`✘ ${path} is not a known template container type\n`)
+      return 1
+    }
+
+    for (const { pdf, base } of queue) {
+      for await (const imagePath of renderPages(pdf, dir, base)) {
+        stdout.write(`📝 ${imagePath}\n`)
+      }
     }
   }
 
