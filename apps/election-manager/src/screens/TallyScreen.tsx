@@ -13,7 +13,7 @@ import * as format from '../utils/format'
 import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'
 import {
-  convertSEMsFileToExternalTally,
+  convertSEMSFileToExternalTally,
   getPrecinctIdsInExternalTally,
 } from '../utils/semsTallies'
 import readFileAsync from '../lib/readFileAsync'
@@ -94,7 +94,7 @@ const TallyScreen: React.FC = () => {
     ''
   )
 
-  const importExternalSEMsFile: InputEventFunction = async (event) => {
+  const importExternalSEMSFile: InputEventFunction = async (event) => {
     const input = event.currentTarget
     const files = Array.from(input.files || [])
     if (files.length === 1) {
@@ -104,7 +104,7 @@ const TallyScreen: React.FC = () => {
       // Compute the tallies to see if there are any errors, if so display
       // an error modal.
       try {
-        convertSEMsFileToExternalTally(fileContent, election)
+        convertSEMSFileToExternalTally(fileContent, election)
         setIsImportExternalModalOpen(false)
         setIsTabulationRunning(false)
         saveExternalVoteRecordsFile(files[0])
@@ -226,7 +226,7 @@ const TallyScreen: React.FC = () => {
       {fullElectionExternalTally && (
         <p>
           The following results only include ballots counted with VotingWorks
-          scanners. The data from the imported SEMs file is not included in
+          scanners. The data from the imported SEMS file is not included in
           these reports.
         </p>
       )}
@@ -400,7 +400,7 @@ const TallyScreen: React.FC = () => {
             Import CVR Files
           </Button>{' '}
           <FileInputButton
-            onChange={importExternalSEMsFile}
+            onChange={importExternalSEMSFile}
             accept="*"
             disabled={!!fullElectionExternalTally}
           >

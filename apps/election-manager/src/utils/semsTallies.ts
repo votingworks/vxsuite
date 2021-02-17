@@ -237,7 +237,7 @@ function sanitizeItem(item: string): string {
   return item.replace(/['"`]/g, '').trim()
 }
 
-export function convertSEMsFileToExternalTally(
+export function convertSEMSFileToExternalTally(
   fileContent: string,
   election: Election
 ): FullElectionExternalTally {

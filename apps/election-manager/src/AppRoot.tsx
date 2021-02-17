@@ -39,7 +39,7 @@ import {
   convertFileToStorageString,
   convertStorageStringToFile,
 } from './utils/file'
-import { convertSEMsFileToExternalTally } from './utils/semsTallies'
+import { convertSEMSFileToExternalTally } from './utils/semsTallies'
 import readFileAsync from './lib/readFileAsync'
 
 export interface AppStorage {
@@ -223,7 +223,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
       if (externalVoteRecordsFile) {
         setIsTabulationRunning(true)
         const fileContent = await readFileAsync(externalVoteRecordsFile)
-        const externalTally = convertSEMsFileToExternalTally(
+        const externalTally = convertSEMSFileToExternalTally(
           fileContent,
           electionDefinition!.election
         )
