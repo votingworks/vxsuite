@@ -10,7 +10,6 @@ import findContests, { ContestShape } from '../../hmpb/findContests'
 import { Point, Rect } from '../../types'
 import { binarize, RGBA } from '../../utils/binarize'
 import {
-  Box,
   closeBoxSegmentGaps,
   drawBoxes,
   filterContainedBoxes,
@@ -145,7 +144,7 @@ function analyzeImage(imageData: ImageData): AnalyzeImageResult {
   return { contests: [], rotated: false }
 }
 
-function analyzeImageLSD(imageData: ImageData): Set<Partial<Box>> {
+function analyzeImageLSD(imageData: ImageData): ReturnType<typeof findBoxes> {
   const src32 = new Int32Array(imageData.data.buffer)
   const dst = new Uint8ClampedArray(imageData.width * imageData.height)
 
@@ -172,7 +171,7 @@ function analyzeImageLSD(imageData: ImageData): Set<Partial<Box>> {
   const parallelThreshold = imageData.width * 2
   const maxConnectedCornerDistance = 0.01 * imageData.width
   const maxConnectedSegmentGap = 0.01 * imageData.width
-  return findBoxes(
+  const result = findBoxes(
     mergeAdjacentLineSegments(segments, {
       parallelThreshold,
       maxConnectedSegmentGap,
@@ -182,6 +181,11 @@ function analyzeImageLSD(imageData: ImageData): Set<Partial<Box>> {
       parallelThreshold,
     }
   )
+  const qc = canvas().background(imageData)
+  drawBoxes(qc, result.clockwise, { color: 'red' })
+  drawBoxes(qc, result.counterClockwise, { color: 'green' })
+  qc.render('debug-cw-ccw.png')
+  return result
 }
 
 /**
@@ -215,7 +219,7 @@ export async function run(
       filterContainedBoxes(
         setFilter(
           setMap(
-            analyzeImageLSD(imageData),
+            analyzeImageLSD(imageData).clockwise,
             (box) => inferBoxFromPartial(box) ?? box
           ),
           isCompleteBox
@@ -278,7 +282,7 @@ export async function run(
         const scaled = canvas()
           .drawImage(imageData, 0, 0, width, height)
           .render()
-        const scaledBoxes = [...analyzeImageLSD(scaled)]
+        const scaledBoxes = [...analyzeImageLSD(scaled).clockwise]
         // drawBoxes(
         //   canvas().drawImage(scaled, 0, 0, width, height),
         //   scaledBoxes
