@@ -39,12 +39,6 @@ const TallyHeader = styled.div`
   }
 `
 
-const MetadataSection = styled.div`
-  h3 {
-    margin-bottom: 0.25em;
-  }
-`
-
 interface Props {
   election: Election
   generatedAtTime: Date
@@ -63,22 +57,22 @@ const TallyReportMetadata: React.FC<Props> = ({
   const totalBallotCount = votingWorksBallotCount + (externalBallotCount ?? 0)
   const ballotsByDataSource =
     externalBallotCount !== undefined ? (
-      <MetadataSection>
+      <React.Fragment>
         <h3>Ballots Cast by Data Source</h3>
         <Table>
           <tbody>
             <tr>
-              <TD as="th">Data Source</TD>{' '}
+              <TD as="th">Data Source</TD>
               <TD as="th" textAlign="right">
                 Number of Ballots Cast
               </TD>
             </tr>
             <tr>
-              <TD>VotingWorks Data</TD>{' '}
+              <TD>VotingWorks Data</TD>
               <TD textAlign="right">{format.count(votingWorksBallotCount)}</TD>
             </tr>
             <tr>
-              <TD>Imported SEMs File</TD>{' '}
+              <TD>Imported SEMS File</TD>
               <TD textAlign="right">{format.count(externalBallotCount)}</TD>
             </tr>
             <tr>
@@ -91,7 +85,7 @@ const TallyReportMetadata: React.FC<Props> = ({
             </tr>
           </tbody>
         </Table>
-      </MetadataSection>
+      </React.Fragment>
     ) : (
       <Text>
         Total Number of Ballots Cast: {format.count(totalBallotCount)}
@@ -100,11 +94,13 @@ const TallyReportMetadata: React.FC<Props> = ({
 
   return (
     <React.Fragment>
-      {electionDate}, {election.county.name}, {election.state}
-      <br />
-      <Text small as="span">
-        This report was created on {generatedAt}
-      </Text>
+      <p>
+        {electionDate}, {election.county.name}, {election.state}
+        <br />
+        <Text small as="span">
+          This report was created on {generatedAt}
+        </Text>
+      </p>
       {ballotsByDataSource}
     </React.Fragment>
   )
