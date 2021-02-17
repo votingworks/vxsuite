@@ -288,177 +288,178 @@ const AdminScreen: React.FC<Props> = ({
           </Prose>
         )}
       </Sidebar>
-      <Modal
-        isOpen={isSystemDateModalActive}
-        centerContent
-        content={
-          <Prose textCenter>
-            <h1>{formatFullDateTimeZone(systemDate)}</h1>
-            <div>
-              <p>
-                <InputGroup as="span">
-                  <Select
-                    data-testid="selectYear"
-                    value={systemDate.getFullYear()}
-                    name="year"
-                    disabled={isSavingDate}
-                    onBlur={updateSystemTime}
-                    onChange={updateSystemTime}
-                  >
-                    <option value="" disabled>
-                      Year
-                    </option>
-                    {[...Array(11).keys()].map((i) => (
-                      <option key={i} value={2020 + i}>
-                        {2020 + i}
+      {isSystemDateModalActive && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>{formatFullDateTimeZone(systemDate)}</h1>
+              <div>
+                <p>
+                  <InputGroup as="span">
+                    <Select
+                      data-testid="selectYear"
+                      value={systemDate.getFullYear()}
+                      name="year"
+                      disabled={isSavingDate}
+                      onBlur={updateSystemTime}
+                      onChange={updateSystemTime}
+                    >
+                      <option value="" disabled>
+                        Year
                       </option>
-                    ))}
-                  </Select>
-                  <Select
-                    data-testid="selectMonth"
-                    value={systemDate.getMonth()}
-                    name="month"
-                    disabled={isSavingDate}
-                    onBlur={updateSystemTime}
-                    onChange={updateSystemTime}
-                    style={{
-                      width: '4.7rem',
-                    }}
-                  >
-                    <option value="" disabled>
-                      Month
-                    </option>
-                    {MONTHS_SHORT.map((month, index) => (
-                      <option key={month} value={index}>
-                        {month}
+                      {[...Array(11).keys()].map((i) => (
+                        <option key={i} value={2020 + i}>
+                          {2020 + i}
+                        </option>
+                      ))}
+                    </Select>
+                    <Select
+                      data-testid="selectMonth"
+                      value={systemDate.getMonth()}
+                      name="month"
+                      disabled={isSavingDate}
+                      onBlur={updateSystemTime}
+                      onChange={updateSystemTime}
+                      style={{
+                        width: '4.7rem',
+                      }}
+                    >
+                      <option value="" disabled>
+                        Month
                       </option>
-                    ))}
-                  </Select>
-                  <Select
-                    data-testid="selectDay"
-                    value={systemDate.getDate()}
-                    name="day"
-                    disabled={isSavingDate}
-                    onBlur={updateSystemTime}
-                    onChange={updateSystemTime}
-                    style={{
-                      width: '4.15rem',
-                    }}
-                  >
-                    <option value="" disabled>
-                      Day
-                    </option>
-                    {getDaysInMonth(
-                      systemDate.getFullYear(),
-                      systemDate.getMonth()
-                    ).map((day) => (
-                      <option key={day.getDate()} value={day.getDate()}>
-                        {day.getDate()}
+                      {MONTHS_SHORT.map((month, index) => (
+                        <option key={month} value={index}>
+                          {month}
+                        </option>
+                      ))}
+                    </Select>
+                    <Select
+                      data-testid="selectDay"
+                      value={systemDate.getDate()}
+                      name="day"
+                      disabled={isSavingDate}
+                      onBlur={updateSystemTime}
+                      onChange={updateSystemTime}
+                      style={{
+                        width: '4.15rem',
+                      }}
+                    >
+                      <option value="" disabled>
+                        Day
                       </option>
-                    ))}
-                  </Select>
-                </InputGroup>
-              </p>
-              <p>
-                <InputGroup as="span">
-                  <Select
-                    data-testid="selectHour"
-                    value={systemDate.getHours() % 12 || 12}
-                    name="hour"
-                    disabled={isSavingDate}
-                    onBlur={updateSystemTime}
-                    onChange={updateSystemTime}
-                    style={{
-                      width: '4rem',
-                    }}
-                  >
-                    <option value="" disabled>
-                      Hour
-                    </option>
-                    {[...Array(12).keys()].map((hour) => (
-                      <option key={hour} value={hour + 1}>
-                        {hour + 1}
+                      {getDaysInMonth(
+                        systemDate.getFullYear(),
+                        systemDate.getMonth()
+                      ).map((day) => (
+                        <option key={day.getDate()} value={day.getDate()}>
+                          {day.getDate()}
+                        </option>
+                      ))}
+                    </Select>
+                  </InputGroup>
+                </p>
+                <p>
+                  <InputGroup as="span">
+                    <Select
+                      data-testid="selectHour"
+                      value={systemDate.getHours() % 12 || 12}
+                      name="hour"
+                      disabled={isSavingDate}
+                      onBlur={updateSystemTime}
+                      onChange={updateSystemTime}
+                      style={{
+                        width: '4rem',
+                      }}
+                    >
+                      <option value="" disabled>
+                        Hour
                       </option>
-                    ))}
-                  </Select>
-                  <Select
-                    data-testid="selectMinute"
-                    value={systemDate.getMinutes()}
-                    name="minute"
-                    disabled={isSavingDate}
-                    onBlur={updateSystemTime}
-                    onChange={updateSystemTime}
-                    style={{
-                      width: '4.15rem',
-                    }}
-                  >
-                    <option value="" disabled>
-                      Minute
-                    </option>
-                    {[...Array(60).keys()].map((minute) => (
-                      <option key={minute} value={minute}>
-                        {minute < 10 ? `0${minute}` : minute}
+                      {[...Array(12).keys()].map((hour) => (
+                        <option key={hour} value={hour + 1}>
+                          {hour + 1}
+                        </option>
+                      ))}
+                    </Select>
+                    <Select
+                      data-testid="selectMinute"
+                      value={systemDate.getMinutes()}
+                      name="minute"
+                      disabled={isSavingDate}
+                      onBlur={updateSystemTime}
+                      onChange={updateSystemTime}
+                      style={{
+                        width: '4.15rem',
+                      }}
+                    >
+                      <option value="" disabled>
+                        Minute
                       </option>
-                    ))}
-                  </Select>
-                  <Select
-                    data-testid="selectMeridian"
-                    value={systemMeridian}
-                    name="meridian"
-                    disabled={isSavingDate}
-                    onBlur={updateSystemTime}
-                    onChange={updateSystemTime}
-                    style={{
-                      width: '4.5rem',
-                    }}
-                  >
-                    {['AM', 'PM'].map((meridian) => (
-                      <option key={meridian} value={meridian}>
-                        {meridian}
+                      {[...Array(60).keys()].map((minute) => (
+                        <option key={minute} value={minute}>
+                          {minute < 10 ? `0${minute}` : minute}
+                        </option>
+                      ))}
+                    </Select>
+                    <Select
+                      data-testid="selectMeridian"
+                      value={systemMeridian}
+                      name="meridian"
+                      disabled={isSavingDate}
+                      onBlur={updateSystemTime}
+                      onChange={updateSystemTime}
+                      style={{
+                        width: '4.5rem',
+                      }}
+                    >
+                      {['AM', 'PM'].map((meridian) => (
+                        <option key={meridian} value={meridian}>
+                          {meridian}
+                        </option>
+                      ))}
+                    </Select>
+                  </InputGroup>
+                </p>
+                <p>
+                  <InputGroup as="span">
+                    <Select
+                      data-testid="selectTimezone"
+                      value={timezone}
+                      disabled={isSavingDate}
+                      onBlur={updateTimeZone}
+                      onChange={updateTimeZone}
+                    >
+                      <option value="UTC" disabled>
+                        Select timezone…
                       </option>
-                    ))}
-                  </Select>
-                </InputGroup>
-              </p>
-              <p>
-                <InputGroup as="span">
-                  <Select
-                    data-testid="selectTimezone"
-                    value={timezone}
-                    disabled={isSavingDate}
-                    onBlur={updateTimeZone}
-                    onChange={updateTimeZone}
-                  >
-                    <option value="UTC" disabled>
-                      Select timezone…
-                    </option>
-                    {AMERICA_TIMEZONES.map((tz) => (
-                      <option key={tz} value={tz}>
-                        {formatTimeZoneName(systemDate, tz)} (
-                        {tz.split('/')[1].replace(/_/gi, ' ')})
-                      </option>
-                    ))}
-                  </Select>
-                </InputGroup>
-              </p>
-            </div>
-          </Prose>
-        }
-        actions={
-          <React.Fragment>
-            <Button
-              disabled={!timezone || isSavingDate}
-              primary={!isSavingDate}
-              onPress={saveDateAndZone}
-            >
-              {isSavingDate ? 'Saving…' : 'Save'}
-            </Button>
-            <Button disabled={isSavingDate} onPress={cancelSystemDateEdit}>
-              Cancel
-            </Button>
-          </React.Fragment>
-        }
-      />
+                      {AMERICA_TIMEZONES.map((tz) => (
+                        <option key={tz} value={tz}>
+                          {formatTimeZoneName(systemDate, tz)} (
+                          {tz.split('/')[1].replace(/_/gi, ' ')})
+                        </option>
+                      ))}
+                    </Select>
+                  </InputGroup>
+                </p>
+              </div>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                disabled={!timezone || isSavingDate}
+                primary={!isSavingDate}
+                onPress={saveDateAndZone}
+              >
+                {isSavingDate ? 'Saving…' : 'Save'}
+              </Button>
+              <Button disabled={isSavingDate} onPress={cancelSystemDateEdit}>
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+        />
+      )}
     </Screen>
   )
 }

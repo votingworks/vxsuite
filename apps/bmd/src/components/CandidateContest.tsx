@@ -431,106 +431,111 @@ const CandidateContest: React.FC<Props> = ({
           )}
         </VariableContentContainer>
       </Main>
-      <Modal
-        isOpen={!!attemptedOvervoteCandidate}
-        ariaLabel=""
-        centerContent
-        content={
-          <Prose>
-            <Text id="modalaudiofocus">
-              You may only select {contest.seats}{' '}
-              {contest.seats === 1 ? 'candidate' : 'candidates'} in this
-              contest. To vote for {attemptedOvervoteCandidate?.name}, you must
-              first unselect the selected{' '}
-              {contest.seats === 1 ? 'candidate' : 'candidates'}.
-              <span aria-label="Use the select button to continue." />
-            </Text>
-          </Prose>
-        }
-        actions={
-          <Button
-            primary
-            autoFocus
-            onPress={closeAttemptedVoteAlert}
-            aria-label="use the select button to continue."
-          >
-            Okay
-          </Button>
-        }
-      />
-      <Modal
-        isOpen={!!candidatePendingRemoval}
-        centerContent
-        content={
-          <Prose>
-            <Text id="modalaudiofocus">
-              Do you want to unselect and remove {candidatePendingRemoval?.name}
-              ?
-            </Text>
-          </Prose>
-        }
-        actions={
-          <React.Fragment>
-            <Button danger onPress={confirmRemovePendingWriteInCandidate}>
-              Yes, Remove.
-            </Button>
-            <Button onPress={clearCandidateIdPendingRemoval}>Cancel</Button>
-          </React.Fragment>
-        }
-      />
-      <Modal
-        ariaLabel=""
-        isOpen={writeInCandateModalIsOpen}
-        className="writein-modal-content"
-        content={
-          <WriteInModalContent>
-            <Prose id="modalaudiofocus" maxWidth={false}>
-              <h1 aria-label="Write-In Candidate.">Write-In Candidate</h1>
-              <Text aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
-                Enter the name of a person who is <strong>not</strong> on the
-                ballot.
+      {attemptedOvervoteCandidate && (
+        <Modal
+          ariaLabel=""
+          centerContent
+          content={
+            <Prose>
+              <Text id="modalaudiofocus">
+                You may only select {contest.seats}{' '}
+                {contest.seats === 1 ? 'candidate' : 'candidates'} in this
+                contest. To vote for {attemptedOvervoteCandidate?.name}, you
+                must first unselect the selected{' '}
+                {contest.seats === 1 ? 'candidate' : 'candidates'}.
+                <span aria-label="Use the select button to continue." />
               </Text>
-              {writeInCandidateName.length >
-                WRITE_IN_CANDIDATE_MAX_LENGTH - 5 && (
-                <Text error>
-                  <strong>Note:</strong> You have entered{' '}
-                  {writeInCandidateName.length} of maximum{' '}
-                  {WRITE_IN_CANDIDATE_MAX_LENGTH} characters.
-                </Text>
-              )}
             </Prose>
-            <WriteInCandidateForm>
-              <WriteInCandidateFieldSet>
-                <Prose>
-                  <h3>{contest.title} (write-in)</h3>
-                </Prose>
-                <WriteInCandidateName>
-                  {writeInCandidateName}
-                  <WriteInCandidateCursor />
-                </WriteInCandidateName>
-              </WriteInCandidateFieldSet>
-              <VirtualKeyboard
-                onKeyPress={onKeyboardInput}
-                keyDisabled={keyDisabled}
-              />
-            </WriteInCandidateForm>
-          </WriteInModalContent>
-        }
-        actions={
-          <React.Fragment>
+          }
+          actions={
             <Button
-              primary={normalizeCandidateName(writeInCandidateName).length > 0}
-              onPress={addWriteInCandidate}
-              disabled={
-                normalizeCandidateName(writeInCandidateName).length === 0
-              }
+              primary
+              autoFocus
+              onPress={closeAttemptedVoteAlert}
+              aria-label="use the select button to continue."
             >
-              Accept
+              Okay
             </Button>
-            <Button onPress={cancelWriteInCandidateModal}>Cancel</Button>
-          </React.Fragment>
-        }
-      />
+          }
+        />
+      )}
+      {candidatePendingRemoval && (
+        <Modal
+          centerContent
+          content={
+            <Prose>
+              <Text id="modalaudiofocus">
+                Do you want to unselect and remove{' '}
+                {candidatePendingRemoval?.name}?
+              </Text>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button danger onPress={confirmRemovePendingWriteInCandidate}>
+                Yes, Remove.
+              </Button>
+              <Button onPress={clearCandidateIdPendingRemoval}>Cancel</Button>
+            </React.Fragment>
+          }
+        />
+      )}
+      {writeInCandateModalIsOpen && (
+        <Modal
+          ariaLabel=""
+          className="writein-modal-content"
+          content={
+            <WriteInModalContent>
+              <Prose id="modalaudiofocus" maxWidth={false}>
+                <h1 aria-label="Write-In Candidate.">Write-In Candidate</h1>
+                <Text aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
+                  Enter the name of a person who is <strong>not</strong> on the
+                  ballot.
+                </Text>
+                {writeInCandidateName.length >
+                  WRITE_IN_CANDIDATE_MAX_LENGTH - 5 && (
+                  <Text error>
+                    <strong>Note:</strong> You have entered{' '}
+                    {writeInCandidateName.length} of maximum{' '}
+                    {WRITE_IN_CANDIDATE_MAX_LENGTH} characters.
+                  </Text>
+                )}
+              </Prose>
+              <WriteInCandidateForm>
+                <WriteInCandidateFieldSet>
+                  <Prose>
+                    <h3>{contest.title} (write-in)</h3>
+                  </Prose>
+                  <WriteInCandidateName>
+                    {writeInCandidateName}
+                    <WriteInCandidateCursor />
+                  </WriteInCandidateName>
+                </WriteInCandidateFieldSet>
+                <VirtualKeyboard
+                  onKeyPress={onKeyboardInput}
+                  keyDisabled={keyDisabled}
+                />
+              </WriteInCandidateForm>
+            </WriteInModalContent>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                primary={
+                  normalizeCandidateName(writeInCandidateName).length > 0
+                }
+                onPress={addWriteInCandidate}
+                disabled={
+                  normalizeCandidateName(writeInCandidateName).length === 0
+                }
+              >
+                Accept
+              </Button>
+              <Button onPress={cancelWriteInCandidateModal}>Cancel</Button>
+            </React.Fragment>
+          }
+        />
+      )}
     </React.Fragment>
   )
 }

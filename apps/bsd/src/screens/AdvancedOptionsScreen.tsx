@@ -91,47 +91,49 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
           </LinkButton>
         </MainNav>
       </Screen>
-      <Modal
-        isOpen={isConfirmingZero}
-        centerContent
-        content={
-          <Prose textCenter>
-            <h1>Delete All Scanned Ballot Data?</h1>
-            <p>
-              This will permanently delete all scanned ballot data and reset the
-              scanner to only be configured with the current election.
-            </p>
-          </Prose>
-        }
-        actions={
-          <React.Fragment>
-            <Button onPress={toggleIsConfirmingZero}>Cancel</Button>
-            <Button danger onPress={zeroData}>
-              Yes, Delete Ballot Data
-            </Button>
-          </React.Fragment>
-        }
-        onOverlayClick={toggleIsConfirmingZero}
-      />
-      <Modal
-        isOpen={isConfirmingFactoryReset}
-        centerContent
-        content={
-          <Prose textCenter>
-            <h1>Factory Reset?</h1>
-            <p>Remove election configuration and all scanned ballot data?</p>
-          </Prose>
-        }
-        actions={
-          <React.Fragment>
-            <Button onPress={toggleIsConfirmingFactoryReset}>Cancel</Button>
-            <Button danger onPress={unconfigureServer}>
-              Yes, Factory Reset
-            </Button>
-          </React.Fragment>
-        }
-        onOverlayClick={toggleIsConfirmingFactoryReset}
-      />
+      {isConfirmingZero && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>Delete All Scanned Ballot Data?</h1>
+              <p>
+                This will permanently delete all scanned ballot data and reset
+                the scanner to only be configured with the current election.
+              </p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button onPress={toggleIsConfirmingZero}>Cancel</Button>
+              <Button danger onPress={zeroData}>
+                Yes, Delete Ballot Data
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={toggleIsConfirmingZero}
+        />
+      )}
+      {isConfirmingFactoryReset && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>Factory Reset?</h1>
+              <p>Remove election configuration and all scanned ballot data?</p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button onPress={toggleIsConfirmingFactoryReset}>Cancel</Button>
+              <Button danger onPress={unconfigureServer}>
+                Yes, Factory Reset
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={toggleIsConfirmingFactoryReset}
+        />
+      )}
     </React.Fragment>
   )
 }

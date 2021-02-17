@@ -26,7 +26,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
   for (const status of usbStatuses) {
     const closeFn = jest.fn()
     const { getByText, unmount } = renderInAppContext(
-      <ExportFinalResultsModal isOpen onClose={closeFn} />,
+      <ExportFinalResultsModal onClose={closeFn} />,
       { usbDriveStatus: status }
     )
     getByText('Loading')
@@ -43,13 +43,11 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn()
-    const {
-      getByText,
-      unmount,
-      getByAltText,
-    } = renderInAppContext(
-      <ExportFinalResultsModal isOpen onClose={closeFn} />,
-      { usbDriveStatus: status }
+    const { getByText, unmount, getByAltText } = renderInAppContext(
+      <ExportFinalResultsModal onClose={closeFn} />,
+      {
+        usbDriveStatus: status,
+      }
     )
     getByText('No USB Drive Detected')
     getByText(
@@ -83,7 +81,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
 
   const closeFn = jest.fn()
   const { getByText } = renderInAppContext(
-    <ExportFinalResultsModal isOpen onClose={closeFn} />,
+    <ExportFinalResultsModal onClose={closeFn} />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
     }
@@ -138,7 +136,7 @@ test('render export modal when a usb drive is mounted and exports with external 
   const externalFile = new File(['content'], 'to-combine.csv')
   const closeFn = jest.fn()
   const { getByText } = renderInAppContext(
-    <ExportFinalResultsModal isOpen onClose={closeFn} />,
+    <ExportFinalResultsModal onClose={closeFn} />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
       fullElectionExternalTally: {
@@ -178,7 +176,7 @@ test('render export modal when a usb drive is mounted and exports with external 
   expect(closeFn).toHaveBeenCalled()
 })
 
-test('render export modal with errors when appropriate and clears errors when closed', async () => {
+test('render export modal with errors when appropriate', async () => {
   const mockKiosk = fakeKiosk()
   window.kiosk = mockKiosk
 
@@ -190,7 +188,7 @@ test('render export modal with errors when appropriate and clears errors when cl
 
   const closeFn = jest.fn()
   const { getByText } = renderInAppContext(
-    <ExportFinalResultsModal isOpen onClose={closeFn} />,
+    <ExportFinalResultsModal onClose={closeFn} />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
     }
@@ -204,5 +202,4 @@ test('render export modal with errors when appropriate and clears errors when cl
 
   fireEvent.click(getByText('Close'))
   expect(closeFn).toHaveBeenCalled()
-  getByText('Save Results File') // Closing should reset back to the starting export screen
 })

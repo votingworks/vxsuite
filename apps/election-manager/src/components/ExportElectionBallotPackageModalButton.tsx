@@ -316,12 +316,13 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       <LinkButton small onPress={() => setIsModalOpen(true)}>
         Export Ballot Package
       </LinkButton>
-      <Modal
-        isOpen={isModalOpen}
-        content={mainContent}
-        onOverlayClick={closeModal}
-        actions={actions}
-      />
+      {isModalOpen && (
+        <Modal
+          content={mainContent}
+          onOverlayClick={closeModal}
+          actions={actions}
+        />
+      )}
     </React.Fragment>
   )
 }

@@ -133,24 +133,25 @@ const DefinitionEditorScreen: React.FC = () => {
           <Textarea onChange={editElection} value={electionString} />
         </FlexTextareaWrapper>
       </NavigationScreen>
-      <Modal
-        isOpen={isConfimingUnconfig}
-        centerContent
-        content={
-          <Prose textCenter>
-            <p>Do you want to remove the current election definition?</p>
-            <p>All data will be removed from this app.</p>
-          </Prose>
-        }
-        actions={
-          <React.Fragment>
-            <Button onPress={cancelConfirmingUnconfig}>Cancel</Button>
-            <Button danger onPress={unconfigureElection}>
-              Remove Election Definition
-            </Button>
-          </React.Fragment>
-        }
-      />
+      {isConfimingUnconfig && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <p>Do you want to remove the current election definition?</p>
+              <p>All data will be removed from this app.</p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button onPress={cancelConfirmingUnconfig}>Cancel</Button>
+              <Button danger onPress={unconfigureElection}>
+                Remove Election Definition
+              </Button>
+            </React.Fragment>
+          }
+        />
+      )}
     </React.Fragment>
   )
 }

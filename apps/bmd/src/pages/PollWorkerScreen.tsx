@@ -253,78 +253,81 @@ const PollWorkerScreen: React.FC<Props> = ({
             <Text center>Remove card when finished.</Text>
           </Prose>
         </Sidebar>
-        <Modal
-          isOpen={isConfirmingPrintReport}
-          centerContent
-          content={
-            <Prose textCenter>
-              <p>
-                {isPollsOpen
-                  ? 'Close Polls and print Polls Closed report?'
-                  : 'Open polls and print Polls Opened report?'}
-              </p>
-            </Prose>
-          }
-          actions={
-            <React.Fragment>
-              <Button primary onPress={requestPrintReport}>
-                Yes
-              </Button>
-              <Button onPress={cancelConfirmPrint}>Cancel</Button>
-            </React.Fragment>
-          }
-        />
-        <Modal
-          isOpen={isPrintingReport}
-          centerContent
-          content={
-            <Prose textCenter>
-              <Loading as="p">
-                {isPollsOpen
-                  ? `Printing Polls Closed report for ${precinct.name}`
-                  : `Printing Polls Opened report for ${precinct.name}`}
-              </Loading>
-            </Prose>
-          }
-        />
-        <Modal
-          isOpen={isConfirmingEnableLiveMode}
-          centerContent
-          content={
-            <Prose textCenter>
-              {isPrintMode ? (
-                <h1>
-                  Switch to Live&nbsp;Election&nbsp;Mode and reset the tally of
-                  printed ballots?
-                </h1>
-              ) : (
-                <h1>Switch to Live&nbsp;Election&nbsp;Mode?</h1>
-              )}
-              <p>
-                Today is Election Day and this machine is in{' '}
-                <strong>Testing&nbsp;Mode.</strong>
-              </p>
-              <p>
-                <em>
-                  Note: Switching back to Testing&nbsp;Mode requires an
-                  Admin&nbsp;Card.
-                </em>
-              </p>
-            </Prose>
-          }
-          actions={
-            <React.Fragment>
-              <Button
-                primary
-                danger={isPrintMode}
-                onPress={confirmEnableLiveMode}
-              >
-                Switch to Live&nbsp;Mode
-              </Button>
-              <Button onPress={cancelEnableLiveMode}>Cancel</Button>
-            </React.Fragment>
-          }
-        />
+        {isConfirmingPrintReport && (
+          <Modal
+            centerContent
+            content={
+              <Prose textCenter>
+                <p>
+                  {isPollsOpen
+                    ? 'Close Polls and print Polls Closed report?'
+                    : 'Open polls and print Polls Opened report?'}
+                </p>
+              </Prose>
+            }
+            actions={
+              <React.Fragment>
+                <Button primary onPress={requestPrintReport}>
+                  Yes
+                </Button>
+                <Button onPress={cancelConfirmPrint}>Cancel</Button>
+              </React.Fragment>
+            }
+          />
+        )}
+        {isPrintingReport && (
+          <Modal
+            centerContent
+            content={
+              <Prose textCenter>
+                <Loading as="p">
+                  {isPollsOpen
+                    ? `Printing Polls Closed report for ${precinct.name}`
+                    : `Printing Polls Opened report for ${precinct.name}`}
+                </Loading>
+              </Prose>
+            }
+          />
+        )}
+        {isConfirmingEnableLiveMode && (
+          <Modal
+            centerContent
+            content={
+              <Prose textCenter>
+                {isPrintMode ? (
+                  <h1>
+                    Switch to Live&nbsp;Election&nbsp;Mode and reset the tally
+                    of printed ballots?
+                  </h1>
+                ) : (
+                  <h1>Switch to Live&nbsp;Election&nbsp;Mode?</h1>
+                )}
+                <p>
+                  Today is Election Day and this machine is in{' '}
+                  <strong>Testing&nbsp;Mode.</strong>
+                </p>
+                <p>
+                  <em>
+                    Note: Switching back to Testing&nbsp;Mode requires an
+                    Admin&nbsp;Card.
+                  </em>
+                </p>
+              </Prose>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  primary
+                  danger={isPrintMode}
+                  onPress={confirmEnableLiveMode}
+                >
+                  Switch to Live&nbsp;Mode
+                </Button>
+                <Button onPress={cancelEnableLiveMode}>Cancel</Button>
+              </React.Fragment>
+            }
+          />
+        )}
       </Screen>
       {isPrintMode &&
         reportPurposes.map((reportPurpose) => (

@@ -57,7 +57,6 @@ enum ModalState {
 }
 
 export interface Props {
-  isOpen: boolean
   onClose: () => void
 }
 
@@ -65,10 +64,7 @@ function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)
 }
 
-const ImportCVRFilesModal: React.FC<Props> = ({
-  isOpen,
-  onClose: onCloseFromProps,
-}) => {
+const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
   const {
     usbDriveStatus,
     saveCastVoteRecordFiles,
@@ -80,11 +76,6 @@ const ImportCVRFilesModal: React.FC<Props> = ({
     []
   )
   const { election, electionHash } = electionDefinition!
-
-  const onClose = () => {
-    setCurrentState(ModalState.INIT)
-    onCloseFromProps()
-  }
 
   const importSelectedFile = async (
     fileEntry: KioskBrowser.FileSystemEntry
@@ -168,7 +159,6 @@ const ImportCVRFilesModal: React.FC<Props> = ({
   if (currentState === ModalState.ERROR) {
     return (
       <Modal
-        isOpen={isOpen}
         content={
           <Prose>
             <h1>Error</h1>
@@ -193,7 +183,6 @@ const ImportCVRFilesModal: React.FC<Props> = ({
   if (currentState === ModalState.DUPLICATE) {
     return (
       <Modal
-        isOpen={isOpen}
         content={
           <Prose>
             <h1>Duplicate File</h1>
@@ -216,7 +205,6 @@ const ImportCVRFilesModal: React.FC<Props> = ({
   ) {
     return (
       <Modal
-        isOpen={isOpen}
         content={<Loading />}
         onOverlayClick={onClose}
         actions={
@@ -237,7 +225,6 @@ const ImportCVRFilesModal: React.FC<Props> = ({
   ) {
     return (
       <Modal
-        isOpen={isOpen}
         content={
           <Prose>
             <h1>No USB Drive Detected</h1>
@@ -357,7 +344,6 @@ const ImportCVRFilesModal: React.FC<Props> = ({
 
     return (
       <Modal
-        isOpen={isOpen}
         className="import-cvr-modal"
         content={
           <MainChild>

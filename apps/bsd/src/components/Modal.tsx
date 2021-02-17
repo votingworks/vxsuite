@@ -23,7 +23,6 @@ const ModalContent = styled('div')<ModalContentInterface>`
 `
 
 interface Props {
-  isOpen: boolean
   ariaLabel?: string
   className?: string
   content?: ReactNode
@@ -39,7 +38,6 @@ const Modal: React.FC<Props> = ({
   centerContent,
   className = '',
   content,
-  isOpen,
   onAfterOpen = () => {
     window.setTimeout(() => {
       const element = document.getElementById('modalaudiofocus')
@@ -58,7 +56,7 @@ const Modal: React.FC<Props> = ({
     ariaHideApp
     aria-modal
     role="alertdialog"
-    isOpen={isOpen}
+    isOpen
     contentLabel={ariaLabel}
     portalClassName="modal-portal"
     className={`modal-content ${className}`}

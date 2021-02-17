@@ -242,35 +242,36 @@ const YesNoContest: React.FC<Props> = ({ contest, vote, updateVote }) => {
           </ChoicesGrid>
         </ContestFooter>
       </Main>
-      <Modal
-        isOpen={!!overvoteSelection}
-        centerContent
-        content={
-          <Prose>
-            {overvoteSelection && (
-              <p id="modalaudiofocus">
-                Do you want to change your vote to{' '}
-                <strong>{YES_NO_VOTES[overvoteSelection]}</strong>? To change
-                your vote, first unselect your vote for{' '}
-                <strong>
-                  {
+      {overvoteSelection && (
+        <Modal
+          centerContent
+          content={
+            <Prose>
+              {overvoteSelection && (
+                <p id="modalaudiofocus">
+                  Do you want to change your vote to{' '}
+                  <strong>{YES_NO_VOTES[overvoteSelection]}</strong>? To change
+                  your vote, first unselect your vote for{' '}
+                  <strong>
                     {
-                      no: YES_NO_VOTES.yes,
-                      yes: YES_NO_VOTES.no,
-                    }[overvoteSelection]
-                  }
-                </strong>
-                .
-              </p>
-            )}
-          </Prose>
-        }
-        actions={
-          <Button primary autoFocus onPress={closeOvervoteAlert}>
-            Okay
-          </Button>
-        }
-      />
+                      {
+                        no: YES_NO_VOTES.yes,
+                        yes: YES_NO_VOTES.no,
+                      }[overvoteSelection]
+                    }
+                  </strong>
+                  .
+                </p>
+              )}
+            </Prose>
+          }
+          actions={
+            <Button primary autoFocus onPress={closeOvervoteAlert}>
+              Okay
+            </Button>
+          }
+        />
+      )}
     </React.Fragment>
   )
 }

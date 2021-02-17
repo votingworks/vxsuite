@@ -19,7 +19,6 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
     const { getByText, unmount } = render(
       <Router history={createMemoryHistory()}>
         <ExportResultsModal
-          isOpen
           onClose={closeFn}
           usbDriveStatus={status}
           election={electionSample}
@@ -46,7 +45,6 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
     const { getByText, unmount, getByAltText } = render(
       <Router history={createMemoryHistory()}>
         <ExportResultsModal
-          isOpen
           onClose={closeFn}
           usbDriveStatus={status}
           election={electionSample}
@@ -85,7 +83,6 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   const { getByText, getByAltText } = render(
     <Router history={createMemoryHistory()}>
       <ExportResultsModal
-        isOpen
         onClose={closeFn}
         usbDriveStatus={UsbDriveStatus.mounted}
         election={electionSample}
@@ -125,7 +122,6 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   const { getByText } = render(
     <Router history={createMemoryHistory()}>
       <ExportResultsModal
-        isOpen
         onClose={closeFn}
         usbDriveStatus={UsbDriveStatus.mounted}
         election={electionSample}
@@ -154,10 +150,9 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   getByText('Eject USB')
   fireEvent.click(getByText('Cancel'))
   expect(closeFn).toHaveBeenCalled()
-  getByText('Export Results') // Closing should reset back to the starting export screen
 })
 
-test('render export modal with errors when appropriate and clears errors when closed', async () => {
+test('render export modal with errors when appropriate', async () => {
   const mockKiosk = fakeKiosk()
   window.kiosk = mockKiosk
 
@@ -169,7 +164,6 @@ test('render export modal with errors when appropriate and clears errors when cl
   const { getByText } = render(
     <Router history={createMemoryHistory()}>
       <ExportResultsModal
-        isOpen
         onClose={closeFn}
         usbDriveStatus={UsbDriveStatus.mounted}
         election={electionSample}
@@ -188,5 +182,4 @@ test('render export modal with errors when appropriate and clears errors when cl
 
   fireEvent.click(getByText('Close'))
   expect(closeFn).toHaveBeenCalled()
-  getByText('Export Results') // Closing should reset back to the starting export screen
 })

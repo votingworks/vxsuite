@@ -43,40 +43,41 @@ const ToggleTestModeButton: React.FC<Props> = ({
           ? 'Toggle to Live Mode'
           : 'Toggle to Test Mode'}
       </Button>
-      <Modal
-        isOpen={isConfirming}
-        centerContent
-        content={
-          <Prose textCenter>
-            <h1>
-              {isTogglingTestMode
-                ? isTestMode
-                  ? 'Toggling to Live Mode'
-                  : 'Toggling to Test Mode'
-                : isTestMode
-                ? 'Toggle to Live Mode'
-                : 'Toggle to Test Mode'}
-            </h1>
-            <p>
-              {isTogglingTestMode
-                ? 'Zeroing out scanned ballots and reloading…'
-                : 'Toggling test mode will zero out your scanned ballots. Are you sure?'}
-            </p>
-          </Prose>
-        }
-        actions={
-          !isTogglingTestMode && (
-            <React.Fragment>
-              <Button onPress={toggleIsConfirming}>Cancel</Button>
-              <Button ref={defaultButtonRef} primary onPress={toggleTestMode}>
-                {isTestMode ? 'Toggle to Live Mode' : 'Toggle to Test Mode'}
-              </Button>
-            </React.Fragment>
-          )
-        }
-        onOverlayClick={toggleIsConfirming}
-        onAfterOpen={focusDefaultButton}
-      />
+      {isConfirming && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>
+                {isTogglingTestMode
+                  ? isTestMode
+                    ? 'Toggling to Live Mode'
+                    : 'Toggling to Test Mode'
+                  : isTestMode
+                  ? 'Toggle to Live Mode'
+                  : 'Toggle to Test Mode'}
+              </h1>
+              <p>
+                {isTogglingTestMode
+                  ? 'Zeroing out scanned ballots and reloading…'
+                  : 'Toggling test mode will zero out your scanned ballots. Are you sure?'}
+              </p>
+            </Prose>
+          }
+          actions={
+            !isTogglingTestMode && (
+              <React.Fragment>
+                <Button onPress={toggleIsConfirming}>Cancel</Button>
+                <Button ref={defaultButtonRef} primary onPress={toggleTestMode}>
+                  {isTestMode ? 'Toggle to Live Mode' : 'Toggle to Test Mode'}
+                </Button>
+              </React.Fragment>
+            )
+          }
+          onOverlayClick={toggleIsConfirming}
+          onAfterOpen={focusDefaultButton}
+        />
+      )}
     </React.Fragment>
   )
 }
