@@ -199,7 +199,8 @@ export async function parseOptions({
 export async function run(
   options: Options,
   _stdin: NodeJS.ReadableStream,
-  stdout: NodeJS.WritableStream
+  stdout: NodeJS.WritableStream,
+  _stderr: NodeJS.WritableStream
 ): Promise<number> {
   const interpreter = new Interpreter({
     election: options.election,

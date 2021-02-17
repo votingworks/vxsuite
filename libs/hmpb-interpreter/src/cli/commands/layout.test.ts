@@ -51,6 +51,7 @@ test('creates a layout file adjacent to the input file', async () => {
   const layoutImagePath = adjacentFile('-layout', imagePath)
   const stdin = new MemoryStream()
   const stdout = new MemoryStream()
+  const stderr = new MemoryStream()
 
   await fs.copyFile(blankPage1.filePath(), imagePath)
   await run(
@@ -58,7 +59,8 @@ test('creates a layout file adjacent to the input file', async () => {
       parseGlobalOptions(['node', 'hmpb-interpreter', 'layout', imagePath])
     ),
     stdin,
-    stdout
+    stdout,
+    stderr
   )
 
   expect(Buffer.from(stdout.read()).toString('utf-8')).toContain(
