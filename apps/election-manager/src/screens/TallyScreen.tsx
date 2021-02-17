@@ -199,7 +199,7 @@ const TallyScreen: React.FC = () => {
               )
             })}
           <tr>
-            <TD narrow>
+            <TD narrow nowrap>
               <strong>Total Ballot Count</strong>
             </TD>
             <TD>
